@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.92 2003/04/19 09:53:41 pjwilliams Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.93 2003/04/19 12:29:41 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -435,6 +435,12 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
   unsigned char buff[STRANGE_BUFFER_LENGTH];
   int retval, copydata=0;
 
+  // See struct hd_drive_cmd_hdr in hdreg.h
+  // buff[0]: ATA COMMAND CODE REGISTER
+  // buff[1]: ATA SECTOR NUMBER REGISTER
+  // buff[2]: ATA FEATURES REGISTER
+  // buff[3]: ATA SECTOR COUNT REGISTER
+  
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
   memset(buff, 0, STRANGE_BUFFER_LENGTH);
 
