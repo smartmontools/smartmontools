@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.76 2004/08/04 05:32:44 ballen4705 Exp $
+$Id: smartd.8.in,v 1.77 2004/08/04 05:52:02 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -823,6 +823,12 @@ before \fBO\fP) ensures that if multiple test types are all scheduled
 for the same hour, the longer test type has precedence.  This is
 usually the desired behavior.
 
+Unix users: please beware that the rules for extended regular
+expressions [regex(7)] are \fBnot\fP the same as the rules for
+file\-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
+issue harmless informational warning messages if it detects characters
+in \fBREGEXP\fP that appear to indicate that you have made this
+mistake.
 
 .TP
 .B \-m ADD
@@ -1694,7 +1700,7 @@ http://smartmontools.sourceforge.net/
 
 .SH SEE ALSO:
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
-\fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8).
+\fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
 
 .SH
 REFERENCES FOR SMART
@@ -1725,4 +1731,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.76 2004/08/04 05:32:44 ballen4705 Exp $
+$Id: smartd.8.in,v 1.77 2004/08/04 05:52:02 ballen4705 Exp $
