@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.70 2004/03/29 21:50:51 chrfranke Exp $
+# $Id: configure.in,v 1.71 2004/04/05 09:41:44 guidog Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.70 2004/03/29 21:50:51 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.71 2004/04/05 09:41:44 guidog Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -52,6 +52,7 @@ AC_CHECK_FUNCS([getopt])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_FUNCS([getdomainname])
 AC_CHECK_FUNCS([gethostname])
+AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([uname])
 
