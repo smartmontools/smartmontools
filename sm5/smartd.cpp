@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.194 2003/08/15 21:05:30 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.195 2003/08/15 21:12:26 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 const char *reportbug="Please report this bug to the Smartmontools developers, so that they can fix it.\n";
@@ -2554,7 +2554,7 @@ int main(int argc, char **argv){
       exit(0);
     }
     
-    // fork if needed, and install signal handlers
+    // fork into background if needed
     if (firstpass && !debugmode)
       daemon_init();
     
