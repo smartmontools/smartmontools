@@ -5,23 +5,30 @@
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
- <meta name="keywords" content="SMART, S.M.A.R.T., Linux, disk monitoring" />
+ <meta name="keywords" content="S.M.A.R.T., SMART, Linux, disk monitoring" />
 </head>
 <body>
 
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
-<p>This is the home page for smartmontools.&#160; The smartmontools
-package contains two utility programs
+<p>Welcome! This is the home page for the smartmontools package.</p> 
+
+<p>The smartmontools package contains two utility programs
 (<font color="#3333ff"><b>smartctl</b></font> and
 <font color="#3333ff"><b>smartd</b></font>) to control and monitor storage
 systems using the Self-Monitoring, Analysis and Reporting Technology
-System (S.M.A.R.T.) built into most modern ATA and SCSI hard
-disks.&#160; It is derived from the smartsuite package, and includes
-support for ATA/ATAPI-5 disks.&#160; It should run on any modern Linux
-system, and is being ported to BSD variants.</p>
+System (SMART) built into most modern ATA and SCSI hard
+disks.&#160; In many cases, these utilities will provide advanced warning
+of disk degradation and failure.</p> 
 
-<p>For printing convenience, everything except for the <a href="#sampleoutput">example output</a> is on a single page.</p>
+<p>Smartmontools is derived from the <a
+href="http://sourceforge.net/projects/smartsuite/">smartsuite
+package</a>, and includes support for ATA/ATAPI-5 disks.&#160; It
+should run on any modern Linux system, and is being ported to BSD
+variants.</p>
+
+<p>For printing convenience, everything except for the
+<a href="#sampleoutput">example output</a> is on a single page.</p>
 
 <hr size="2" />
 
@@ -34,7 +41,7 @@ smartmontools</a></li>
 <li><a href="#testinghelp">FireWire, USB, and SATA disks/tapes</a></li>
 <li><a href="#differfromsmartsuite">How does smartmontools differ from
 smartsuite?</a></li>
-<li><a href="#references">Useful references on S.M.A.R.T. and
+<li><a href="#references">Useful references on SMART and
 ATA/ATAPI-5, -6, and -7</a></li>
 <li><a href="#sampleoutput">Example output from smartmontools</a>
 <b>smartctl</b> utility</li>
@@ -213,7 +220,7 @@ fail.</p></li>
 
 <li><b>I see some strange output from smartctl.  What does it mean?</b>
 
-<p>The raw S.M.A.R.T. attributes (temperature, power-on lifetime, and so
+<p>The raw SMART attributes (temperature, power-on lifetime, and so
 on) are stored in vendor-specific structures.&#160; Sometime these are
 strange.&#160; Hitachi disks (at least some of them) store power-on
 lifetime in minutes, rather than hours (see next question below).&#160; IBM disks (at least some
@@ -266,7 +273,7 @@ Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208)
 note to <a
 href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
 smartmontools-support</a>.  If you have access to other
-S.M.A.R.T. utilities (especially manufacturer-specific ones, see
+SMART utilities (especially manufacturer-specific ones, see
 below) and can send us comparison output from smartctl and the other
 utility, that's especially useful.</p></li>
 
@@ -294,9 +301,9 @@ system doesn't have most of these devices.</p>
 <tt>/etc/smartd.conf</tt> to specify which devices to include or exclude
 from start-up search.</p></li>
 
-<li><b>What's the story on IBM S.M.A.R.T. disks?</b>
+<li><b>What's the story on IBM SMART disks?</b>
 
-<p>Apparently some of the older S.M.A.R.T. firmware on IBM disks can 
+<p>Apparently some of the older SMART firmware on IBM disks can 
 interfere with the regular operation of the disk.&#160; If you have this
 problem, here is an <a href="http://www.geocities.com/dtla_update/">IBM
 DISK FIRMWARE UPGRADE</a> that fixes the problem.
@@ -342,7 +349,7 @@ You can find some information about the original smartsuite project here:
 <p>Smartmontools was derived directly from smartsuite.&#160; It differs
 from smartsuite in that it supports the ATA/ATAPI-5 standard.&#160; So
 for example <tt>smartctl</tt> from smartsuite has no facility for
-printing the S.M.A.R.T. self-test logs, and doesn't print timestamp
+printing the SMART self-test logs, and doesn't print timestamp
 information in the most usable way.&#160; The <tt>smartctl</tt> utility
 in smartmontools has added functionality for this (<tt>-q, -l selftest,-S,
 -T, -v and -m</tt> options), updated documentation, and also fixes small
@@ -378,7 +385,7 @@ directly from smartsuite and is similar.&#160; The smartsuite package
 can be found <a href="http://sourceforge.net/projects/smartsuite/">here</a>.</p>
 
 <hr size="2" /><a name="references"></a><b><big>Useful references on
-S.M.A.R.T. and the  ATA/ATAPI standards</big></b>
+SMART and the  ATA/ATAPI standards</big></b>
 
 <p><big>If you are having trouble understanding the output of smartctl
 or smartd, please first read the manual pages:</big></p>
@@ -388,7 +395,7 @@ man 8 smartctl
 man 8 smartd
 </pre>
 
-<p><big>If you'd like to know more about S.M.A.R.T., then the following
+<p><big>If you'd like to know more about SMART, then the following
 references may be helpful:</big></p>
 
 <ul>
@@ -410,7 +417,7 @@ of the ATAPI/ATA Specs</a></li>
 </ul>
 </li>
 <li>
-  The original S.M.A.R.T. specification is SFF-8035i from the <a href="http://www.sffcommittee.com/ns/">
+  The original SMART specification is SFF-8035i from the <a href="http://www.sffcommittee.com/ns/">
   Small Form Factors (SFF) Committee</a>.&#160; 
   <ul>
     <li>
@@ -444,8 +451,8 @@ Disk-Drive Failure Warnings</a></li>
  <ul>
   <li><a href="http://www.seagate.com/docs/pdf/whitepaper/drive_reliability.pdf" target="_blank">Estimating Drive Reliability in Desktop Computers and
 Consumer Electronics Systems</a></li>
-  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/enhanced_smart.pdf" target="_blank">Enhanced SMART - Get S.M.A.R.T. For Reliability</a></li>
-  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/smart_u8.pdf" target="_blank">Playing it S.M.A.R.T.</a></li>
+  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/enhanced_smart.pdf" target="_blank">Enhanced SMART - Get SMART For Reliability</a></li>
+  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/smart_u8.pdf" target="_blank">Playing it SMART</a></li>
   <li><a href="http://www.seagate.com/docs/pdf/whitepaper/Enhanced_DST_Tech_Paper.pdf" target="_blank">Enhanced Drive Self-Test</a></li>
  </ul>
  </li>
