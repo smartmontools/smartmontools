@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.84 2003/08/12 03:50:06 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.85 2003/08/13 12:33:23 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -237,11 +237,8 @@ void Usage (void){
 }
 
 /* Returns a pointer to a static string containing a formatted list of the valid
-   arguments to the option opt or NULL on failure. */
+   arguments to the option opt or NULL on failure. Note 'v' case different */
 const char *getvalidarglist(char opt) {
-  static char *v_list = NULL;
-  char *s;
-
   switch (opt) {
   case 'q':
     return "errorsonly, silent";
@@ -259,16 +256,6 @@ const char *getvalidarglist(char opt) {
     return "on, off";
   case 'l':
     return "error, selftest, directory";
-  case 'v':
-    if (v_list) 
-      return v_list;
-    if (!(s = create_vendor_attribute_arg_list()))
-      return NULL;
-    // Allocate space for tab + "help" + newline + s + terminating 0
-    v_list = (char *)malloc(7+strlen(s));
-    sprintf(v_list, "\thelp\n%s", s);
-    free(s);
-    return v_list;
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -279,6 +266,7 @@ const char *getvalidarglist(char opt) {
 #endif
   case 'F':
     return "none, samsung";
+  case 'v':
   default:
     return NULL;
   }
@@ -287,21 +275,32 @@ const char *getvalidarglist(char opt) {
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
    <LIST> is the list of valid arguments for option opt. */
 void printvalidarglistmessage(char opt) {
-  const char *s;
-  char separator;
-
-  if (!(s = getvalidarglist(opt))) {
+  char *s;
+  
+  if (opt=='v')
+    s=create_vendor_attribute_arg_list();
+  else
+    s=(char *)getvalidarglist(opt);
+  
+  if (!s) {
     pout("Error whilst constructing argument list for option %c", opt);
     return;
   }
-
+ 
+  if (opt=='v'){
+    pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n", s);
+    free(s);
+  }
+  else {
   // getvalidarglist() might produce a multiline or single line string.  We
   // need to figure out which to get the formatting right.
-  separator = strchr(s, '\n') ? '\n' : ' ';
+    char separator = strchr(s, '\n') ? '\n' : ' ';
+    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, (char *)s, separator);
+  }
 
-  pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, (char *)s,
-    separator);
+  return;
 }
+
 
 unsigned char tryata=0,tryscsi=0;
 
@@ -310,6 +309,7 @@ void ParseOpts (int argc, char** argv){
   int optchar;
   int badarg;
   int captive;
+  unsigned char *charp;
   extern char *optarg;
   extern int optopt, optind, opterr;
   // Please update getvalidarglist() if you edit shortopts
@@ -556,7 +556,12 @@ void ParseOpts (int argc, char** argv){
         free(s);
         exit(0);
       }
-      if (parse_attribute_def(optarg, con->attributedefs))
+      charp=con->attributedefs;
+      if (!charp){
+	pout("Fatal internal error in ParseOpts()\n");
+	exit(FAILCMD);
+      }
+      if (parse_attribute_def(optarg, &charp))
 	badarg = TRUE;
       break;    
     case 'P':

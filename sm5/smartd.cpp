@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.188 2003/08/11 20:43:05 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.189 2003/08/13 12:33:23 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declarations
@@ -339,7 +339,7 @@ void pout(char *fmt, ...){
 
 // tell user that we ignore HUP signals
 void huphandler(int sig){
-  printout(LOG_CRIT,"HUP ignored: smartd does NOT re-read /etc/smartd.conf.\n");
+  printout(LOG_INFO,"HUP ignored: smartd does NOT re-read /etc/smartd.conf.\n");
   return;
 }
 
@@ -619,8 +619,9 @@ int atadevicescan(cfgfile *cfg){
   // options unless user has requested otherwise.
   if (!cfg->ignorepresets){
 
-    // do whatever applypresets decides to do
-    if (applypresets(&drive, cfg->attributedefs, con)<0)
+    // do whatever applypresets decides to do. Will allocate memory if
+    // cfg->attributedefs if needed.
+    if (applypresets(&drive, &cfg->attributedefs, con)<0)
       printout(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
       printout(LOG_INFO, "Device: %s, found in smartd database.\n", name);
@@ -886,8 +887,8 @@ static int scsidevicescan(cfgfile *cfg)
     cfg->tryscsi = 1;
 
     // get rid of allocated memory only needed for ATA devices
-    cfg->monitorattflags = checkfree(cfg->monitorattflags);
-    cfg->attributedefs   = checkfree(cfg->attributedefs);
+    cfg->monitorattflags = freenonzero(cfg->monitorattflags);
+    cfg->attributedefs   = freenonzero(cfg->attributedefs);
     cfg->smartval        = freenonzero(cfg->smartval);
     cfg->smartthres      = freenonzero(cfg->smartthres);
 
@@ -960,11 +961,30 @@ int  ataCompareSmartValues(changedattribute_t *delta,
 // sorting functions! Entry is ZERO <==> the attribute ON. Calling
 // with set=0 tells you if the attribute is being tracked or not.
 // Calling with set=1 turns the attribute OFF.
-int isattoff(unsigned char attr,unsigned char *data, int set){
-  // locate correct attribute
+int isattoff(unsigned char attr, unsigned char **datap, int set, int which){
+  unsigned char *data;
   int loc=attr>>3;
   int bit=attr & 0x07;
   unsigned char mask=0x01<<bit;
+
+  if (which>=NMONITOR){
+    printout(LOG_CRIT, "Internal error in isattoff().  which == %d\n", which);
+    exit(EXIT_NOMEM);
+  }
+
+  if (*datap == NULL){
+    // null data implies Attributes are off...
+    if (!set)
+      return 1;
+    
+    // we are writing
+    if (!(*datap=calloc(NMONITOR*32, 1))){
+      printout(LOG_CRIT,"No memory to create monattflags\n");
+      exit(EXIT_NOMEM);
+    }
+  }
+  
+  data=*datap+which*32;
 
   // attribute zero is always OFF
   if (!attr)
@@ -1037,11 +1057,11 @@ int ataCheckDevice(cfgfile *cfg){
           
           // are we ignoring failures of this attribute?
           att *= -1;
-          if (!isattoff(att, cfg->monitorattflags, 0)){
+          if (!isattoff(att, &cfg->monitorattflags, 0, MONITOR_FAILUSE)){
             char attname[64], *loc=attname;
             
             // get attribute name & skip white space
-            ataPrintSmartAttribName(loc, att, cfg->attributedefs[att]);
+            ataPrintSmartAttribName(loc, att, cfg->attributedefs);
             while (*loc && *loc==' ') loc++;
             
             // warning message
@@ -1058,19 +1078,19 @@ int ataCheckDevice(cfgfile *cfg){
 
           // if the only change is the raw value, and we're not
           // tracking raw value, then continue loop over attributes
-          if (!delta.sameraw && delta.newval==delta.oldval && !isattoff(id, cfg->monitorattflags+96, 0))
+          if (!delta.sameraw && delta.newval==delta.oldval && !isattoff(id, &cfg->monitorattflags, 0, MONITOR_RAW))
             continue;
 
           // are we tracking this attribute?
-          if (!isattoff(id, cfg->monitorattflags+32, 0)){
+          if (!isattoff(id, &cfg->monitorattflags, 0, MONITOR_IGNORE)){
             char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
 
             // get attribute name, skip spaces
-            ataPrintSmartAttribName(loc, id, cfg->attributedefs[id]);
+            ataPrintSmartAttribName(loc, id, cfg->attributedefs);
             while (*loc && *loc==' ') loc++;
             
             // has the user asked for us to print raw values?
-            if (isattoff(id, cfg->monitorattflags+64, 0)) {
+            if (isattoff(id, &cfg->monitorattflags, 0, MONITOR_RAWPRINT)) {
               // get raw values (as a string) and add to printout
               char rawstring[64];
               ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg->attributedefs);
@@ -1587,23 +1607,23 @@ int parsetoken(char *token,cfgfile *cfg){
   case 'i':
     // ignore failure of usage attribute
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->monitorattflags,1);
+    isattoff(val, &cfg->monitorattflags, 1, MONITOR_FAILUSE);
     break;
   case 'I':
     // ignore attribute for tracking purposes
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->monitorattflags+32,1);
+    isattoff(val, &cfg->monitorattflags, 1, MONITOR_IGNORE);
     break;
   case 'r':
     // print raw value when tracking
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->monitorattflags+64,1);
+    isattoff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT);
     break;
   case 'R':
     // track changes in raw value (forces printing of raw value)
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->monitorattflags+64,1);
-    isattoff(val,cfg->monitorattflags+96,1);
+    isattoff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT);
+    isattoff(val, &cfg->monitorattflags, 1, MONITOR_RAW);
     break;
   case 'm':
     // send email to address that follows
@@ -1624,7 +1644,7 @@ int parsetoken(char *token,cfgfile *cfg){
     // non-default vendor-specific attribute meaning
     if ((arg=strtok(NULL,delim)) == NULL) {
       missingarg = 1;
-    } else if (parse_attribute_def(arg, cfg->attributedefs)){   
+    } else if (parse_attribute_def(arg, &cfg->attributedefs)){   
       badarg = 1;
     }
     break;
@@ -1685,19 +1705,20 @@ cfgfile *createcfgentry(cfgfile *original){
   // if structure had data, copy it
   if (original)
     memcpy(add, original, sizeof(cfgfile));
-
-  // Always make this storage
-  if (
-      !(add->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1)) ||
-      !(add->attributedefs=(unsigned char *)calloc(256,1))
-      ) goto badexit;
-
-  if (original){
-      memcpy(add->attributedefs,   original->attributedefs,   256);
-      memcpy(add->monitorattflags, original->monitorattflags, NMONITOR*32);
+  
+  // make private copies of these ONLY if they are in use
+  if (add->attributedefs) {
+    if (!(add->attributedefs=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1)))
+      goto badexit;
+    memcpy(add->attributedefs, original->attributedefs, MAX_ATTRIBUTE_NUM);
   }
   
-  // make private copies of these ONLY if they are used
+  if (add->monitorattflags) {
+    if (!(add->monitorattflags=(unsigned char *)calloc(NMONITOR*32, 1)))
+      goto badexit;
+    memcpy(add->monitorattflags, original->monitorattflags, NMONITOR*32);
+  }
+  
   if (add->name &&
       !(add->name=strdup(add->name))
       ) goto badexit;
@@ -1727,19 +1748,19 @@ cfgfile *createcfgentry(cfgfile *original){
 
 // Removes config file entry, freeing all memory
 cfgfile *rmconfigentry(cfgfile *original){
-
+  
   if (!original){
     printout(LOG_CRIT,"Error - rmconfigentry() called with NULL pointer argument\n");
     exit(EXIT_NOMEM);
   }
-
-  freenonzero(original->smartthres);
-  freenonzero(original->smartval);
-  freenonzero(original->address);
-  freenonzero(original->emailcmdline);
-  freenonzero(original->name);
-  freenonzero(original->monitorattflags);
-  freenonzero(original->attributedefs);
+  
+  original->smartthres      = freenonzero(original->smartthres);
+  original->smartval        = freenonzero(original->smartval);
+  original->address         = freenonzero(original->address);
+  original->emailcmdline    = freenonzero(original->emailcmdline);
+  original->name            = freenonzero(original->name);
+  original->monitorattflags = freenonzero(original->monitorattflags);
+  original->attributedefs   = freenonzero(original->attributedefs);
   freenonzero(original);
   
   return NULL;
@@ -2280,10 +2301,8 @@ int makeconfigentries(int num, char *name, int start){
     cfg->tryscsi= (name[5]=='s');
     
     // Remove device name, if it's there, and put in correct one
-    if (cfg->name)
-      cfg->name=checkfree(cfg->name);
-    cfg->name=strdup(name);
-    if (!cfg->name) {
+    cfg->name=freenonzero(cfg->name);
+    if (!(cfg->name=strdup(name))){
       printout(LOG_CRIT,"Out of memory making device scan list, %s\n", strerror(errno));
       exit(EXIT_NOMEM);
     }

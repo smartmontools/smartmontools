@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.40 2003/08/11 14:31:45 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.41 2003/08/13 12:33:23 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -54,9 +54,13 @@
 #define TRUE 0x01
 #define FALSE 0x00
 
-// Number of monitoring flags per Attribute.  See monitorattflags
-// below.
+// Number of monitoring flags per Attribute and offsets.  See
+// monitorattflags below.
 #define NMONITOR 4
+#define MONITOR_FAILUSE   0
+#define MONITOR_IGNORE    1
+#define MONITOR_RAWPRINT  2
+#define MONITOR_RAW       3
 
 // Exit codes
 #define EXIT_BADCMD    1   // command line did not parse

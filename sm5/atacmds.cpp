@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.114 2003/08/05 16:27:43 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.115 2003/08/13 12:33:22 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -172,9 +172,18 @@ const char *vendorattributeargs[] = {
 // This is a utility function for parsing pairs like "9,minutes" or
 // "220,temp", and putting the correct flag into the attributedefs
 // array.  Returns 1 if problem, 0 if pair has been recongized.
-int parse_attribute_def(char *pair, unsigned char *defs){
+int parse_attribute_def(char *pair, unsigned char **defsptr){
   int i,j;
   char temp[32];
+  unsigned char *defs;
+
+  // If array does not exist, allocate it
+  if (!*defsptr && !(*defsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM, 1))){
+    pout("Out of memory in parse_attribute_def\n");
+    exit(1);
+  }
+
+  defs=*defsptr;
 
   // look along list and see if we find the pair
   for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++);
@@ -198,17 +207,17 @@ int parse_attribute_def(char *pair, unsigned char *defs){
     return 0;
   case 4:
     // print all attributes in raw 8-bit form
-    for (j=0; j<256; j++)
+    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
       defs[j]=253;
     return 0;
   case 5:
     // print all attributes in raw 16-bit form
-    for (j=0; j<256; j++)
+    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
       defs[j]=254;
     return 0;
   case 6:
     // print all attributes in raw 48-bit form
-    for (j=0; j<256; j++)
+    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
       defs[j]=255;
     return 0;
   case 7:
@@ -663,7 +672,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
       pout("\n");
   }
   
-  if (getsdata && data==NULL){
+  if (getsdata && !data){
     pout("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
     return -1;
   }
@@ -1378,6 +1387,7 @@ long long ataPrintSmartAttribRawValue(char *out,
   long long rawvalue;
   unsigned word[3];
   int j;
+  unsigned char select;
   
   // convert the six individual bytes to a long long (8 byte) integer.
   // This is the value that we'll eventually return.
@@ -1400,8 +1410,14 @@ long long ataPrintSmartAttribRawValue(char *out,
     word[j] |= attribute->raw[2*j];
   }
   
+  // if no data array, Attributes have default interpretations
+  if (defs)
+    select=defs[attribute->id];
+  else
+    select=0;
+
   // Print six one-byte quantities.
-  if (defs[attribute->id]==253){
+  if (select==253){
     for (j=0; j<5; j++)
       out+=sprintf(out, "%d ", attribute->raw[5-j]);
     out+=sprintf(out, "%d ", attribute->raw[0]);
@@ -1409,13 +1425,13 @@ long long ataPrintSmartAttribRawValue(char *out,
   } 
   
   // Print three two-byte quantities
-  if (defs[attribute->id]==254){
+  if (select==254){
     out+=sprintf(out, "%d %d %d", word[2], word[1], word[0]); 
     return rawvalue;
   } 
   
   // Print one six-byte quantity
-  if (defs[attribute->id]==255){
+  if (select==255){
     out+=sprintf(out, "%llu", rawvalue);
     return rawvalue;
   }
@@ -1432,20 +1448,20 @@ long long ataPrintSmartAttribRawValue(char *out,
     break;
     // Power on time
   case 9:
-    if (defs[9]==1){
+    if (select==1){
       // minutes
       long long tmp1=rawvalue/60;
       long long tmp2=rawvalue%60;
       out+=sprintf(out, "%lluh+%02llum", tmp1, tmp2);
     }
-    else if (defs[9]==3){
+    else if (select==3){
       // seconds
       long long hours=rawvalue/3600;
       long long minutes=(rawvalue-3600*hours)/60;
       long long seconds=rawvalue%60;
       out+=sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
     }
-    else if (defs[9]==4){
+    else if (select==4){
       // 30-second counter
       long long tmp1=rawvalue/120;
       long long tmp2=(rawvalue-120*tmp1)/2;
@@ -1457,7 +1473,7 @@ long long ataPrintSmartAttribRawValue(char *out,
     break;
    // Load unload cycles
   case 193:
-    if (defs[193]==1){
+    if (select==1){
       // loadunload
       long load  =attribute->raw[0] + (attribute->raw[1]<<8) + (attribute->raw[2]<<16);
       long unload=attribute->raw[3] + (attribute->raw[4]<<8) + (attribute->raw[5]<<16);
@@ -1469,13 +1485,13 @@ long long ataPrintSmartAttribRawValue(char *out,
     break;
     // Temperature
   case 194:
-    if (defs[194]==1){
+    if (select==1){
       // ten times temperature in Celsius
       int deg=word[0]/10;
       int tenths=word[0]%10;
       out+=sprintf(out, "%d.%d", deg, tenths);
     }
-    else if (defs[194]==2)
+    else if (select==2)
       // unknown attribute
       out+=sprintf(out, "%llu", rawvalue);
     else {
@@ -1498,8 +1514,16 @@ long long ataPrintSmartAttribRawValue(char *out,
 // manufacturers use different attribute IDs for an attribute with the
 // same name.  The variable val should contain a non-zero value if a particular
 // attributes has a non-default interpretation.
-void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
+void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definitions){
   char *name;
+  unsigned char val;
+
+  // If no data array, use default interpretations
+  if (definitions)
+    val=definitions[id];
+  else
+    val=0;
+
   switch (id){
     
   case 1:

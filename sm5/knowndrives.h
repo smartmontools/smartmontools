@@ -20,7 +20,7 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.6 2003/04/20 15:38:38 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.7 2003/08/13 12:33:23 ballen4705 Exp $\n"
 
 #include <linux/hdreg.h>
 #include "extern.h"
@@ -76,7 +76,7 @@ void showallpresets(void);
 // already been set in opts will not be changed.  Also sets options in
 // con.  Returns <0 if drive not recognized else index of drive in
 // database.
-int applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+int applypresets(const struct hd_driveid *drive, unsigned char **opts,
                   smartmonctrl *con);
 
 #endif

@@ -24,7 +24,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.8 2003/07/23 21:35:12 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+#define COMMAND_TABLE_SIZE 256
+
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.9 2003/08/13 12:33:22 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -34,7 +36,7 @@ const char cmd_reserved_mcpt[]   = "[RESERVED FOR MEDIA CARD PASS THROUGH]";
 const char cmd_recalibrate_ret4[]= "RECALIBRATE [RET-4]";
 const char cmd_seek_ret4[]       = "SEEK [RET-4]";
 
-const char *command_table[256] = {
+const char *command_table[COMMAND_TABLE_SIZE] = {
 /*-------------------------------------------------- 00h-0Fh -----*/
   "NOP",
   cmd_reserved,
@@ -322,11 +324,11 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
   // check that command table not messed up.  The compiler will issue
   // warnings if there are too many array elements, but won't issue
   // warnings if there are not enough of them.
-  if (sizeof(command_table) != sizeof(char *)*256){
+  if (sizeof(command_table) != sizeof(char *)*COMMAND_TABLE_SIZE){
     fprintf(stderr, 
 	    "Problem in atacmdnames.c.  Command Table command_table[] does\n"
-	    "not have 256 entries!  It has %d entries. Please fix it.\n",
-	    (int)(sizeof(command_table)/sizeof(char *)));
+	    "not have %d entries!  It has %d entries. Please fix it.\n",
+	    COMMAND_TABLE_SIZE, (int)(sizeof(command_table)/sizeof(char *)));
     abort();
   }
 

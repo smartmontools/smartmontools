@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.48 2003/08/05 16:27:43 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.49 2003/08/13 12:33:23 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -437,7 +437,7 @@ long long ataPrintSmartAttribRawValue(char *out,
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
-void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char val);
+void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *definitions);
 
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the
@@ -455,16 +455,21 @@ int ataCheckAttribute(struct ata_smart_values *data,
 // Structure with the incorrect checksum.
 void checksumwarning(const char *string);
 
+#define MAX_ATTRIBUTE_NUM 256
+
 extern const char *vendorattributeargs[];
 
 // function to parse pairs like "9,minutes" or "220,temp".  See end of
 // extern.h for definition of defs[].  Returns 0 if pair recognized,
-// else 1 if there is a problem.
-int parse_attribute_def(char *pair, unsigned char *defs);
+// else 1 if there is a problem.  Allocates memory for array if the
+// array address is *defs==NULL.
+int parse_attribute_def(char *pair, unsigned char **defs);
 
 // Function to return a string containing a list of the arguments in
 // vendorattributeargs[].  Returns NULL if the required memory can't
 // be allocated.
 char *create_vendor_attribute_arg_list(void);
+
+
 
 #endif /* _ATACMDS_H_ */
