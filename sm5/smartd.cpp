@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.319 2004/07/09 12:38:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.320 2004/07/10 05:58:49 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.319 2004/07/09 12:38:04 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.320 2004/07/10 05:58:49 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1151,13 +1151,20 @@ int ATADeviceScan(cfgfile *cfg){
   char *name=cfg->name;
   int retainsmartdata=0;
   int retid;
+  char *mode="ATA";
 
   // should we try to register this as an ATA device?
   if (!(cfg->tryata))
     return 1;
   
+  if (cfg->escalade_type == THREE_WARE_9000_CHAR)
+    mode="ATA_3WARE_9000";
+  
+  if (cfg->escalade_type == THREE_WARE_678K_CHAR)
+    mode="ATA_3WARE_678K";
+  
   // open the device
-  if ((fd=OpenDevice(name, "ATA"))<0)
+  if ((fd=OpenDevice(name, mode))<0)
     // device open failed
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", name);
@@ -1892,6 +1899,7 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
 int ATACheckDevice(cfgfile *cfg){
   int fd,i;
   char *name=cfg->name;
+  char *mode="ATA";
   
   // fix firmware bug if requested
   con->fixfirmwarebug=cfg->fixfirmwarebug;
@@ -1902,11 +1910,17 @@ int ATACheckDevice(cfgfile *cfg){
   if (cfg->mailwarn && cfg->mailwarn->emailtest)
     MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
+  if (cfg->escalade_type == THREE_WARE_9000_CHAR)
+    mode="ATA_3WARE_9000";
+  
+  if (cfg->escalade_type == THREE_WARE_678K_CHAR)
+    mode="ATA_3WARE_678K";
+
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
   // given (see linux cdrom driver).
-  if ((fd=OpenDevice(name, "ATA"))<0){
+  if ((fd=OpenDevice(name, mode))<0){
     MailWarning(cfg, 9, "Device: %s, unable to open device", name);
     return 1;
   }

@@ -48,7 +48,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.126 2004/07/09 12:38:04 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.127 2004/07/10 05:58:49 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -863,7 +863,13 @@ int main (int argc, char **argv){
 
   if (tryata)
     mode="ATA";
-    
+
+  if (con->escalade_type == THREE_WARE_9000_CHAR)
+    mode="ATA_3WARE_9000";
+  
+  if (con->escalade_type == THREE_WARE_678K_CHAR)
+    mode="ATA_3WARE_678K";
+
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
   // scsi generic device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
