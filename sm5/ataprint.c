@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.25 2002/10/23 12:24:24 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.26 2002/10/23 12:37:11 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -501,8 +501,7 @@ int nonempty(unsigned char *testarea,int n){
   return 0;
 }
   
-void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
-{
+void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   int i,j,k;
   
   pout ("SMART Error Log Version: %i\n", data.revnumber);
@@ -1002,7 +1001,7 @@ int ataPrintMain (int fd){
       returnval|=FAILSMART;
     }
     else {
-      QUIETON;
+      // turn on quiet mode inside this
       ataPrintSmartErrorlog(smarterror);
       QUIETOFF;
     }
