@@ -32,12 +32,11 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.33 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.34 2003/10/13 12:43:22 ballen4705 Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
