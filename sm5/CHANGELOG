@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.124 2003/04/19 09:53:40 pjwilliams Exp $
+$Id: CHANGELOG,v 1.125 2003/04/19 12:37:16 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+
+
+smartmontools-5.1-10
+
 
   [PW] Extended the -F option/Directive to potentially fix other firmware
        bugs in addition to the Samsung byte-order bug.  Long option name is
