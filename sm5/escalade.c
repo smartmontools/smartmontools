@@ -41,7 +41,8 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.10 2003/08/12 05:37:08 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.11 2003/08/14 13:33:06 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+void printwarning(smart_command_set command);
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -64,8 +65,6 @@ const char *escalade_c_cvsid="$Id: escalade.c,v 1.10 2003/08/12 05:37:08 ballen4
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
-
-static int printed=0;
 
 int linux_3ware_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
 
@@ -193,48 +192,71 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   /* Now send the command down through an ioctl() */
   if (ioctl(fd, SCSI_IOCTL_SEND_COMMAND, &ioctlbuf)) {
     // If error was provoked by driver, tell user how to fix it
-    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select && !printed){
-      printed=1;
-      pout("The SMART AUTO-OFFLINE and AUTOSAVE commands (smartmontools -o on and -S on\n"
-	   "options/Directives) can not be passed through the 3ware 3w-xxxx driver.  This\n"
-	   "can be fixed by applying a simple 3w-xxxx driver patch that can be found here:\n"
-	   PROJECTHOME "\n"
-	   "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n");
+    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select){
+      printwarning(command);
+      errno=ENOTSUP;
     }
-    errno=ENOTSUP;
     return -1;
   }
 
-#if (0)
-  // This is a GUESS as to where the correct registers (Cylinder Low
-  // and Cylinder High) are to be found.  If you know for sure that
-  // they are here, or that they are not here, please email Bruce
-  // Allen at ballen4705@users.sourceforge.net
-  pout("Registers are CL=0x%02u CH=0x%02u\n", 
-       (unsigned)ioctlbuf.parameter_size_bytes,
-       (unsigned)ioctlbuf.input_data[0]);
-#endif
-
+  // If this is a read data command, copy data to output buffer
   if (readdata){
-    TW_Output *tw_output;
-    tw_output = (TW_Output *)&ioctlbuf;
+    TW_Output *tw_output=(TW_Output *)&ioctlbuf;
     memcpy(data, tw_output->output_data, 512);
   }
-
-  if (command!=STATUS_CHECK)
-    return 0;
-
-  // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
-  if (ioctlbuf.parameter_size_bytes==0x4F && ioctlbuf.input_data[0]==0xC2)
-    return 0;
   
-  // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
-  if (ioctlbuf.parameter_size_bytes==0xF4 && ioctlbuf.input_data[0]==0x2C)
-    return 1;
+  // We are finished with all commands except for STATUS_CHECK
+  if (command!=STATUS_CHECK) {
+    return 0;
+  }
+  else {
+
+    // To find out if the SMART RETURN STATUS is good or failing, we
+    // need to examine the values of the Cylinder Low and Cylinder
+    // High Registers.
+    
+    TW_Output *tw_output=(TW_Output *)&ioctlbuf;
+    TW_Passthru *tw_passthru_returned=(TW_Passthru *)&(tw_output->output_data);
+    unsigned short cyl_lo=tw_passthru_returned->cylinder_lo;
+    unsigned short cyl_hi=tw_passthru_returned->cylinder_hi;
+    
+    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
+    if (cyl_lo==0x4F && cyl_hi==0xC2)
+      return 0;
+    
+    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
+    if (cyl_lo==0xF4 && cyl_hi==0x2C)
+      return 1;
+    
+    // Any other values mean that something has gone wrong with the command
+    printwarning(command);
+    errno=ENOSYS;
+    return 0;
+  }
+}
+
+// Utility function for printing warnings
+void printwarning(smart_command_set command){
+  static int printed1=0,printed2=0,printed3=0;
+  const char* message=
+    "can not be passed through the 3ware 3w-xxxx driver.  This can be fixed by\n"
+    "applying a simple 3w-xxxx driver patch that can be found here:\n"
+    PROJECTHOME "\n"
+    "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n\n";
+
+  if (command==AUTO_OFFLINE && !printed1) {
+    printed1=1;
+    pout("The SMART AUTO-OFFLINE ENABLE command (smartmontools -o on option/Directive)\n%s", message);
+  } 
+  else if (command==AUTOSAVE && !printed2) {
+    printed2=1;
+    pout("The SMART AUTOSAVE ENABLE command (smartmontools -S on option/Directive)\n%s", message);
+  }
+  else if (command==STATUS_CHECK && !printed3) {
+    printed3=1;
+    pout("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n%s", message);
+  }
   
-  // Any other values mean that something has gone wrong with the command
-  pout("WARNING - SMART CHECK STATUS NOT YET IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
-  errno=ENOSYS;
-  return -1;
+  return;
 }
 
