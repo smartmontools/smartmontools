@@ -19,7 +19,8 @@
  * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
  *
  */
-#include "config.h"
+
+// unconditionally included files
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -35,16 +36,23 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
+#include <limits.h>
+#include <setjmp.h>
+
+// see which system files to conditionally include
+#include "config.h"
+
+// conditionally included files
+#ifdef HAVE_GETOPT_LONG
+#include <getopt.h>
+#endif
 #ifdef HAVE_STRINGS_H
 // needed for index(3) in solaris
 #include <strings.h>
 #endif
-#include <time.h>
-#include <limits.h>
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#endif
 
+// locally included files
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
@@ -57,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.221 2003/10/21 09:34:38 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.222 2003/10/25 13:03:26 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -108,6 +116,9 @@ volatile int caughtsigUSR1=0;
 // set to one if we catch a HUP (reload config file). In debug mode,
 // set to two, if we catch INT (also reload config file).
 volatile int caughtsigHUP=0;
+
+// stack environment if we time out during SCSI access (USB devices)
+jmp_buf registerscsienv;
 
 
 // prints CVS identity information for the executable
@@ -485,7 +496,9 @@ void pout(char *fmt, ...){
 }
 
 // Forks new process, closes ALL file descriptors, redirects stdin,
-// stdout, and stderr.  Not quite daemon()!
+// stdout, and stderr.  Not quite daemon().  See
+// http://www.iar.unlp.edu.ar/~fede/revistas/lj/Magazines/LJ47/2335.html
+// for a good description of why we do things this way.
 void DaemonInit(){
   pid_t pid;
   int i;  
@@ -947,6 +960,8 @@ int ATADeviceScan(cfgfile *cfg){
   return 0;
 }
 
+// on success, return 0. On failure, return >0.  Never return <0,
+// please.
 static int SCSIDeviceScan(cfgfile *cfg)
 {
     int k, fd, err; 
@@ -1429,6 +1444,11 @@ void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
     SCSICheckDevice(scsidevices[i]);
 
   return;
+}
+
+// This alarm means that a SCSI USB device was hanging
+void AlarmHandler(int signal) {
+  longjmp(registerscsienv, 1);
 }
 
 // Does initialization right after fork to daemon mode
@@ -2570,8 +2590,40 @@ void RegisterDevices(int scanning){
     
     // then register SCSI devices
     if (ent->tryscsi){
-      if (SCSIDeviceScan(ent))
+      int retscsi;
+      struct sigaction alarmAction, defaultaction;
+
+      // Set up an alarm handler to catch USB devices that hang on
+      // SCSI scanning...
+      alarmAction.sa_handler= AlarmHandler;
+      alarmAction.sa_flags  = SA_RESTART;
+      if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
+	// if we can't set timeout, just scan device
+	PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
+	retscsi=SCSIDeviceScan(ent);
+      }
+      else {
+	// prepare return point in case of bad SCSI device
+	if (setjmp(registerscsienv))
+	  // SCSI device timed out!
+	  retscsi=-1;
+	else {
+	// Set alarm, make SCSI call, reset alarm
+	  alarm(SCSITIMEOUT);
+	  retscsi=SCSIDeviceScan(ent);
+	  alarm(0);
+	}
+	if (sigaction(SIGALRM, &defaultaction, NULL)){
+	  PrintOut(LOG_CRIT, "Unable to clear SCSI timeout mechanism.\n");
+	}
+      }
+
+      // Now scan SCSI device...
+      if (retscsi){
+	if (retscsi<0)
+	  PrintOut(LOG_CRIT, "Device %s timed out (poorly-implemented USB device?)\n", ent->name);
 	CanNotRegister(ent->name, "SCSI", ent->lineno, scanning);
+      }
       else {
 	// move onto the list of scsi devices
 	cfgentries[i]=NULL;
