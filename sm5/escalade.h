@@ -38,7 +38,7 @@
 #define _ESCALADE_H_
 
 #ifndef ESCALADE_H_CVSID
-#define ESCALADE_H_CVSID "$Id: "
+#define ESCALADE_H_CVSID "$Id: escalade.h,v 1.2 2003/08/04 13:02:34 ballen4705 Exp $"
 #endif
 
 /* Misc defines */
