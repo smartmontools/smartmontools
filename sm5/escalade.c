@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.9 2003/08/07 10:27:58 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.10 2003/08/12 05:37:08 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -110,12 +110,16 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.sector_count = 0x1;
   }
   else {
+    // Non data command -- but doesn't use large sector 
+    // count register values.  passthru.param values are:
+    // 0x00 - non data command without TFR write check,
+    // 0x08 - non data command with TFR write check,
     passthru.byte0.sgloff = 0x0;
     passthru.size         = 0x5;
     passthru.param        = 0x8;
     passthru.sector_count = 0x0;
   }
-
+  
   // Now set ATA registers depending upon command
   switch (command){
   case READ_VALUES:
@@ -194,7 +198,8 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
       pout("The SMART AUTO-OFFLINE and AUTOSAVE commands (smartmontools -o on and -S on\n"
 	   "options/Directives) can not be passed through the 3ware 3w-xxxx driver.  This\n"
 	   "can be fixed by applying a simple 3w-xxxx driver patch that can be found here:\n"
-	   PROJECTHOME "\n");
+	   PROJECTHOME "\n"
+	   "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n");
     }
     errno=ENOTSUP;
     return -1;
