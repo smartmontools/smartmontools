@@ -1,4 +1,4 @@
-//  $Id: scsicmds.cpp,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: scsicmds.cpp,v 1.3 2002/10/11 04:35:12 ballen4705 Exp $
 
 /*
  * scsicmds.c
@@ -587,12 +587,12 @@ char* scsiTapeAlertsTapeDevice ( unsigned short code)
    "The tape in the drive is a cleaning cartridge.",
    "You have tried to load a cartridge of a type which is not supported by this drive.",
    "The operation has failed because the tape in the drive has snapped:\n1. Discard the old tape.\n2. Restart the operation with a different tape.",
-   "The operation has failed because the tape in the drive has snapped:\n1. Do not atempt to extract the tape cartridge\n2. Call the tape drive supplier helpline.",
+   "The operation has failed because the tape in the drive has snapped:\n1. Do not attempt to extract the tape cartridge\n2. Call the tape drive supplier helpline.",
    "The memory in the tape cartridge has failed, which reduces performance. Do not use the cartridge for further backup operations.",
    "The operation has failed because the tape cartridge was manually ejected while the tape drive was actively writing or reading.",
    "You have loaded of a type that is read-only in this drive. The cartridge will appear as write-protected.",
    "The directory on the tape cartridge has been corrupted. File search performance will be degraded. The tape directory can be rebuilt by reading all the data on the cartridge.",
-   "The tape cartridge is nearing the end of its calculated life. It is recommended that you:\n1. Use another tape cartridge for your next backup.\n2.Store this tape in a safe place in casse you need to restore data from it.",
+   "The tape cartridge is nearing the end of its calculated life. It is recommended that you:\n1. Use another tape cartridge for your next backup.\n2.Store this tape in a safe place in case you need to restore data from it.",
    "The tape drive needs cleaning:\n1. If the operation has stopped, eject the tape and clean the drive.\n2. If the operation has not stopped, wait for it ti finish and then clean the drive. Check the tape drive users manual for device specific cleaning instructions.",
    "The tape drive is due for routine cleaning:\n1. Wait for the current operation to finish.\n2. The use a cleaning cartridge. Check the tape drive users manual for device specific cleaning instructions.",
    "The last cleaning cartridge used in the tape drive has worn out:\n1. Discard the worn out cleaning cartridge.\n2. Wait for the current operation to finish.\n 3.Then use a new cleaning cartridge.",
@@ -605,7 +605,7 @@ char* scsiTapeAlertsTapeDevice ( unsigned short code)
    "Preventive maintenance of the tape drive is required. Check the tape drive users manual for device specific preventive maintenance tasks or call the tape drive supplier helpline.",
    "The tape drive has a hardware fault:\n1. Eject the tape or magazine.\n2. Reset the drive.\n3. Restart the operation.",
    "The tape drive has a hardware fault:\n1. Turn the tape drive off and then on again.\n2. Restart the operation.\n3. If the problem persists, call the tape drive supplier helpline.\n Check the tape drive users manual for device specific instructions on turning the device power in and off.",
-   "The tape drive has a problem with the host interface:\n1. Check the cables and calble connections.\n2. Restart the operation.",
+   "The tape drive has a problem with the host interface:\n1. Check the cables and cable connections.\n2. Restart the operation.",
    "The operation has failed:\n1. Eject the tape or magazine.\n2. Insert the tape or magazine again.\n3. Restart the operation.",
    "The firmware download has failed because you have tried to use the incorrect firmware for this tape drive. Obtain the correct firmware and try again.",
    "Environmental conditions inside the tape drive are outside the specified humidity range.",

@@ -1,4 +1,4 @@
-//  $Id: ataprint.cpp,v 1.4 2002/10/11 01:27:39 ballen4705 Exp $
+//  $Id: ataprint.cpp,v 1.5 2002/10/11 04:35:12 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -608,7 +608,7 @@ void ataPrintSmartAttribName ( unsigned char id )
          printf("(  7)Seek Error Rate        ");
          break;
       case 8:
-         printf("(  8)Seek Time Peformance  c");
+         printf("(  8)Seek Time Performance  ");
          break;
       case 9:
          printf("(  9)Power On Hours         ");

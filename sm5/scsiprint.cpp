@@ -1,4 +1,4 @@
-//  $Id: scsiprint.cpp,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: scsiprint.cpp,v 1.3 2002/10/11 04:35:12 ballen4705 Exp $
 /*
  * scsiprint.c
  *
@@ -95,7 +95,7 @@ void scsiGetSmartData (int device)
       printf("S.M.A.R.T. Sense: (%02x) %s\n", (UINT8) returnvalue, 
                 scsiSmartGetSenseCode(returnvalue));
    else
-      printf("S.M.A.R.T. Sense: Okay!\n");
+      printf("S.M.A.R.T. Sense: Ok!\n");
 
    if ( (currenttemp || triptemp) && !gTempPage)
    {
