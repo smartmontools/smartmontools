@@ -1,6 +1,10 @@
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.4 2003/10/08 01:56:51 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.5 2003/10/08 09:00:41 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+
+// Private table of open devices: guaranteed zero on startup since
+// part of static data.
+struct freebsd_dev_channel *devicetable[FREEBSD_MAXDEV];
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int device, smart_command_set command, int select, char *data) {
@@ -211,26 +215,63 @@ int guess_device_type (const char* dev_name) {
 // Like open().  Return positive integer handle, used by functions below only.  type="ATA" or "SCSI".
 int deviceopen (const char* dev, char* mode) {
   struct freebsd_dev_channel *fdchan;
-  int parse_ok;
+  int parse_ok, i;
+
+  // Search table for a free entry
+  for (i=0; i<FREEBSD_MAXDEV; i++)
+    if (!freebsd_dev_channel[i])
+      break;
+  
+  // If no free entry found, return error.  We have max allowed number
+  // of "file descriptors" already allocated.
+  if (i==FREEBSD_MAX)
+    // Eduard, consider setting errno=EMFILE for this case...
+    return -1;
 
   fdchan = malloc(sizeof(struct freebsd_dev_channel));
   if (fdchan == NULL)
+    // Eduard, consider setting errno=ENOMEM for this case
     return -1;
 
   parse_ok = parse_ata_chan_dev (dev,fdchan);
-  if (parse_ok != GUESS_DEVTYPE_ATA)
+  if (parse_ok != GUESS_DEVTYPE_ATA) {
+    // Eduard, consider setting errno=ENOTTY for this case
+    free(fdchan);
     return -1; // can't handle non ATA for now
+  }
 
-  fdchan->atacommand = open("/dev/ata",O_RDWR);
-  return (int)fdchan;
+  if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
+    free (fdchan);
+    return -1;
+  }
+  
+  // return pointer to "file descriptor" table entry, properly offset.
+  devicetable[i]=fdchan;
+  return i+FREEBSD_FDOFFSET;
 }
 
 // Like close().  Acts on handles returned by above function.
 int deviceclose (int fd) {
   struct freebsd_dev_channel *fdchan;
-  fdchan = (struct freebsd_dev_channel*)fd;
-  if (fdchan != NULL)
-    return close(fdchan->atacommand);
-  else
+  int failed;
+
+  // put valid "file descriptor" into range 0...FREEBSD_MAXDEV-1
+  fd -= FREEBSD_FDOFFSET;
+  
+  // check for validity of "file descriptor".
+  if (fd<0 || fd>=FREEBSD_MAXDEV || !(fdchan=devicetable[fd]))
+    // FIXME: Eduard, consider setting errno=EINVAL or errno=ENODEV
+    // before returning -1 here.
     return -1;
+  
+  // close device
+  failed=close(fdchan->atacommand);
+  
+  // if close succeeded, then remove from device list
+  // Eduard, should we also remove it from list if close() fails?  I'm
+  // not sure. Here I only remove it from list if close() worked.
+  if (!failed)
+    devicetable[fd]=NULL;
+
+  return failed;
 }
