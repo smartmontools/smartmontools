@@ -69,7 +69,7 @@ RCS file: /cvsroot/smartmontools/sm5/smartmontools.spec,v
 retrieving revision 1.117
 diff -u -p -r1.117 smartmontools.spec
 --- smartmontools.spec	30 Aug 2003 13:06:48 -0000	1.117
-+++ smartmontools.spec	1 Sep 2003 10:48:32 -0000
++++ smartmontools.spec	2 Sep 2003 16:20:31 -0000
 @@ -1,4 +1,4 @@
 -Release:  19
 +Release:  1
@@ -85,29 +85,40 @@ diff -u -p -r1.117 smartmontools.spec
  License:	GPL
  Group:		Applications/System
  Group(de):	Applikationen/System
-@@ -198,11 +198,14 @@ pochodzi od oprogramowania smartsuite i 
+@@ -197,12 +197,20 @@ pochodzi od oprogramowania smartsuite i 
+ 
  %setup -q
  
++
++
  %build
-+./configure --prefix=$RPM_BUILD_ROOT/usr --mandir=$RPM_BUILD_ROOT/usr/share/man \
-+--sysconfdir=$RPM_BUILD_ROOT/etc
++%configure
  make
  
  %install
- rm -rf $RPM_BUILD_ROOT
+-rm -rf $RPM_BUILD_ROOT
 -make DESTDIR=$RPM_BUILD_ROOT install
-+make install
-+rm -f examplescripts/Makefile*
++rm -rf %{buildroot}
++
++%makeinstall
++#rm -f examplescripts/Makefile*
++
++%clean
++rm -rf %{buildroot}
  
  # Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
  if [ -f /etc/redhat-release ]; then
-@@ -219,7 +222,7 @@ fi
+@@ -219,12 +227,8 @@ fi
  %attr(644,root,root) %{_mandir}/man8/smartctl.8*
  %attr(644,root,root) %{_mandir}/man8/smartd.8*
  %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
 -%doc WARNINGS CHANGELOG COPYING TODO README VERSION smartd.conf examplescripts
 +%doc WARNINGS CHANGELOG COPYING TODO README smartd.conf examplescripts
  %config(noreplace) %{_sysconfdir}/smartd.conf
+-
+-%clean
+-rm -rf $RPM_BUILD_ROOT
+-rm -rf %{_builddir}/%{name}-%{version}
  
- %clean
-
+ # The following are executed only by the binary RPM at install/uninstall
+ 
