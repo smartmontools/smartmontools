@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.85 2004/02/11 02:18:21 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.86 2004/02/16 18:46:32 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -458,6 +458,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { // TOS MK3019GAXB SUN30G
+    "^TOS MK3019GAXB SUN30G$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { // Seagate Barracuda U Series 20410
     "^ST320410A$",
     ".*",
@@ -525,6 +530,11 @@ const drivesettings knowndrives[] = {
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD(102|136|153|205)BA$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Caviar AC12500, AC24300, AC25100, AC36400, AC38400
+    "^WDC AC(125|243|251|364|384)00",
     ".*",
     NULL, NULL, NULL, NULL
   },
