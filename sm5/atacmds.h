@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.55 2003/10/15 14:06:02 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.56 2003/12/01 21:53:43 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -458,5 +458,6 @@ char *create_vendor_attribute_arg_list(void);
 int ata_command_interface(int device, smart_command_set command, int select, char *data);
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
 
-
+// This function is exported to give low-level capability
+int smartcommandhandler(int device, smart_command_set command, int select, char *data);
 #endif /* ATACMDS_H_ */
