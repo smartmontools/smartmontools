@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.18 2003/04/21 20:33:04 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.19 2003/04/21 20:39:30 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -40,6 +40,13 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.18 2003/04/21 20:33:04 p
 
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
+
+// This one is common to several models.
+const unsigned char vendoropts_9_minutes[][2] = {
+  PRESET_9_MINUTES,
+  {0,0}
+};
+
 const unsigned char vendoropts_Fujitsu_MPE3204AT[][2] = {
   PRESET_9_SECONDS,
   {0,0}
@@ -58,11 +65,6 @@ const unsigned char vendoropts_Samsung_SV4012H[][2] = {
 const unsigned char vendoropts_Samsung_SV1204H[][2] = {
   PRESET_9_HALFMINUTES,
   PRESET_194_10XCELSIUS,
-  {0,0}
-};
-
-const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
-  PRESET_9_MINUTES,
   {0,0}
 };
 
@@ -158,14 +160,14 @@ const drivesettings knowndrives[] = {
     "^Maxtor (4D080H4|4R080J0)$",
     ".*",
     NULL,
-    vendoropts_Maxtor_4D080H4,
+    vendoropts_9_minutes,
     NULL, NULL
   },
   { // Maxtor 6Y120P0 (known firmware)
     "^Maxtor 6Y120P0$",
     "^YAR41VW0$",
     NULL,
-    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
+    vendoropts_9_minutes,
     NULL, NULL
   },
   { // Maxtor 6Y120P0 (any other firmware)
@@ -179,7 +181,7 @@ const drivesettings knowndrives[] = {
     "^HITACHI_DK23BA-20$",
     ".*",
     NULL,
-    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
+    vendoropts_9_minutes,
     NULL, NULL
   },
   { // IBM GXP-180
