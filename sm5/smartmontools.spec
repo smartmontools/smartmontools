@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.135 2003/10/16 05:19:41 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.136 2003/10/19 05:55:02 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -305,6 +305,14 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Fri Oct 17 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+  [GG] add a note about Debian bug #208964 to WARNINGS.
+  [BA] smartctl: -T verypermissive option broken.  Use
+       -T verpermissive until the next release, please.
+  [BA] Syntax mods so that code also compiles on Solaris using
+       Sun Workshop compiler.  Need -xmemalign 1i -xCC flags
+       for cc.
+
 * Wed Oct 15 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
   [DK] Changed configure.in so -Wall is only included if gcc
        is used (this is a gcc specific flag) and -fsignedchar
@@ -664,7 +672,7 @@ fi
        can now be followed by all the same Directives as a regular
        device name like /dev/hda takes.  This allows one to use
        (for example):
-       DEVICESCAN -m root@yoyo.dyne.com
+       DEVICESCAN -m root@example.com
        in the /etc/smartd.conf file.
 - [BA] smartd: Added -c (--checkonce) command-line option. This checks
        all devices once, then exits.  The exit status can be

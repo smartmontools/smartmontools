@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.126 2003/10/15 14:06:02 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.127 2003/10/19 05:55:01 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -752,8 +752,8 @@ void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
 }
 
 // Reads the Self Test Log (log #6)
-int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
-  
+int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
+
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
     syserror("Error SMART Error Self-Test Log Read failed");
