@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.64 2003/02/16 15:49:34 ballen4705 Exp $
+\# $Id: smartd.8,v 1.65 2003/02/16 16:05:41 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/16 15:49:34 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/16 16:05:41 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -810,11 +810,12 @@ properties).
 
 .TP
 .B EXAMPLES OF SHELL SCRIPTS FOR '\-M exec'
-These are two examples of shell scripts that can be used with 
-the '\-M exec' Directive described previously.  The paths to these scripts
-and similar executables is the argument to the '\-M exec' Directive.
+These are two examples of shell scripts that can be used with the '\-M
+exec PATH' Directive described previously.  The paths to these scripts
+and similar executables is the PATH argument to the '\-M exec PATH'
+Directive.
 
-Example 1: This script is for use with '\-m ADDRESS -M exec'.  It appends
+Example 1: This script is for use with '\-m ADDRESS -M exec PATH'.  It appends
 the output of
 .B smartctl -a
 to the output of the smartd email warning message and sends it to ADDRESS.
@@ -832,9 +833,9 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 .B /bin/mail -s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS < /root/msg
 .fi
 
-Example 2: This script is for use with '\-m <nomailer> \-M exec'. It
-warns all users about a disk problem, waits 30 seconds, and then
-powers down the machine.
+Example 2: This script is for use with '\-m <nomailer> \-M exec
+PATH'. It warns all users about a disk problem, waits 30 seconds, and
+then powers down the machine.
 
 .nf
 .B #! /bin/bash
@@ -971,4 +972,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.64 2003/02/16 15:49:34 ballen4705 Exp $
+$Id: smartd.8,v 1.65 2003/02/16 16:05:41 ballen4705 Exp $
