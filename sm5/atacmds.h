@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.46 2003/08/04 13:00:50 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.47 2003/08/05 15:32:32 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -42,8 +42,8 @@ typedef enum {
   AUTOSAVE,
   IMMEDIATE_OFFLINE,
   AUTO_OFFLINE,
-  STATUS,
-  STATUS_CHECK,
+  STATUS,       // just says if SMART is working or not
+  STATUS_CHECK, // says if disk's SMART status is healthy, or failing
   // return 512 bytes of data:
   READ_VALUES,
   READ_THRESHOLDS,
@@ -91,7 +91,6 @@ typedef enum {
 #ifndef SMART_WRITE_THRESHOLDS
 #define SMART_WRITE_THRESHOLDS  0xd7
 #endif
-
 
 #ifndef SMART_ENABLE
 #define SMART_ENABLE		0xd8
