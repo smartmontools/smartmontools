@@ -21,24 +21,27 @@
  *
  */
 
+/*  PORTING NOTES AND COMMENTS
 
-/* to port smartmontools to the OS of your choice, you need to:
+To port smartmontools to the OS of your choice, you need to:
 
-[0] Contact smartmontools-support@lists.sourceforge.net to check that it's
-    not already been done.
+[0] Contact smartmontools-support@lists.sourceforge.net to check that
+it's not already been done.
 
 [1] Make copies of os_generic.[hc] called os_myOS.[hc]
 
 [2] Modify configure.in so that case "${host}" include myOS
 
-[3] Verify that ./autogen.sh && ./configure && make
-    compiles the code.  If not, fix any compilation problems.
+[3] Verify that ./autogen.sh && ./configure && make compiles the code.
+If not, fix any compilation problems.
 
-[4] Provide the functions defined in this file: flesh out the skeletons below.  
-    Note that for Darwin much of this already exists.
+[4] Provide the functions defined in this file: flesh out the
+skeletons below. Note that for Darwin much of this already
+exists. See some partially developed but incomplete code at:
+http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/
 
-[5] Contact smartmontools-support@lists.sourceforge.net to see about checking
-    your code into the smartmontools CVS archive.
+[5] Contact smartmontools-support@lists.sourceforge.net to see about
+checking your code into the smartmontools CVS archive.
 
 */
 
@@ -51,7 +54,7 @@
 #include "os_solaris.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.1 2003/10/14 12:12:12 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.2 2003/10/14 13:40:09 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // tries to guess device type given the name (a path).  See utility.h
