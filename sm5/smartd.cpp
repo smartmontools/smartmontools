@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.305 2004/04/07 17:43:47 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.306 2004/04/07 17:49:21 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.305 2004/04/07 17:43:47 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.306 2004/04/07 17:49:21 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -542,7 +542,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   // get system host & domain names (not null terminated if length=MAX) 
 #ifdef HAVE_GETHOSTNAME
   if (gethostname(hostname, 256))
-    sprintf(hostname, unknown);
+    strcpy(hostname, unknown);
   else {
     char *p=NULL;
     hostname[255]='\0';
@@ -554,17 +554,17 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
       strcpy(domainname, unknown);
   }
 #else
-  sprintf(hostname, unknown);
+  strcpy(hostname, unknown);
   strcpy(domainname, unknown);
 #endif
   
 #ifdef HAVE_GETDOMAINNAME
   if (getdomainname(nisdomain, 256))
-    sprintf(nisdomain, unknown);
+    strcpy(nisdomain, unknown);
   else
     nisdomain[255]='\0';
 #else
-  sprintf(nisdomain, unknown);
+  strcpy(nisdomain, unknown);
 #endif
   
   // print warning string into message
