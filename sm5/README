@@ -182,31 +182,33 @@ please post to the smartmontools mailing list.
 
 The following table shows the mapping of old options to new options:
 
-  ------------------------------------------------------------------------------------------------------
-  Old option    New short option        New long option                    RELATED smartd.conf Directive
-  ------------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------------------
+  Old option    New short option        New long option                    smartd.conf               smartd.conf
+  Versions <=   Versions >=             Versions >=                        Directive                 Directive
+  5.0-X         5.0-Y                   5.0-Y                              <= 5.0-X                  >= 5.0-Y
+  ---------------------------------------------------------------------------------------------------------------------
   -h, -?        -h, -?                  --help
-  -V            -V                      --version, --copyright, --license  
-  -i            -i                      --info                        
+  -V            -V                      --version, --copyright, --license
+  -i            -i                      --info                                                          CONFLICT
   -q            -q errorsonly           --quietmode=errorsonly
   -Q            -q silent               --quietmode=silent
-  -n            -d ata                  --device=ata                       -A
-  -N            -d scsi                 --device=scsi                      -S
-  -P            -T permissive           --tolerance=permissive             -P
+  -n            -d ata                  --device=ata                       -A				-d ata     			
+  -N            -d scsi                 --device=scsi                      -S                           -d scsi
+  -P            -T permissive           --tolerance=permissive             -P                           -T permissive
   -U            -T conservative         --tolerance=conservative
   -W            -b                      --badsum=exit
   -e            -s on                   --smart=on
   -d            -s off                  --smart=off
-  -t            -o on                   --offlineauto=on                   -T 1
-  -T            -o off                  --offlineauto=off                  -T 0
-  -f            -S on                   --saveauto=on                      -s 1
-  -F            -S off                  --saveauto=off                     -s 0
-  -c            -H                      --health                           -c
+  -t            -o on                   --offlineauto=on                   -T 1                         -o on
+  -T            -o off                  --offlineauto=off                  -T 0                         -o off
+  -f            -S on                   --saveauto=on                      -s 1                         -S on
+  -F            -S off                  --saveauto=off                     -s 0                         -S off
+  -c            -H                      --health                           -c                           -H
   -g            -c                      --capabilities
-  -v            -A                      --attributes                       -p, -u, -f, -t
-  -l            -l error                --log=error                        -l
-  -L            -l selftest             --log=selftest                     -L
-  -a            -a                      --all                              -a
+  -v            -A                      --attributes                       -p, -u, -f, -t               -p, -u, -t
+  -l            -l error                --log=error                        -l                           -l error
+  -L            -l selftest             --log=selftest                     -L                           -l selftest
+  -a            -a                      --all                              -a                           -a
   -m            -v 9,minutes            --vendorattribute=9,minutes
   -O            -t offline              --test=offline
   -S            -t short                --test=short
@@ -214,14 +216,22 @@ The following table shows the mapping of old options to new options:
   -X            -t long                 --test=long
   -x            -t long -C              --test=long --captive
   -A            -X                      --abort
-                                                                           -C N    Set checktime
-                                                                           -f      Monitor usage attributes
-                                                    
-                                                                           -M ADD  Email addresses
-                                                                           -m N    Email mode
-                                                                           -i N    Ignore
-                                                                           -I N    Ignore
-                                                                            #      Comment
-                                                                            \      Line continuation
-  ----------------------------------------------------------------------------------------------------------
 
+                                   SHOULD BECOME COMMAND-LINE ARGUMENT==>  -C N    Set checktime        NOW CMD LINE
+                                                                           -f      usage attributes     -f
+                                                    
+                                                                           -M ADD  Email addresses     -M ADD
+                                                                           -m N    Email mode          -m MODE
+                                                                           -i N    Ignore              -i N
+                                                                           -I N    Ignore              -I N
+                                                                            #      Comment              #
+                                                                            \      Line continuation    \
+  ---------------------------------------------------------------------------------------------------------------------
+
+Suggested change order (CVS commit at least after each of these):
+Modify smartctl command-line options
+Modify smartctl man page, README file, CHANGELOG
+Modify smartd to take -C out of config file, put onto command line
+Modify smartd and smartd.conf man pages, README file, CHANGELOG
+Modify smartd Directive names, parsing
+Modify smartd and smartd.conf man pages, README file, CHANGELOG
