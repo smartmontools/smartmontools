@@ -6,6 +6,9 @@
  * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
+ * Additional SCSI work:
+ * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -37,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.25 2003/03/31 12:48:51 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.26 2003/04/01 06:22:51 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -323,7 +326,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, &gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-        if (0 == inquiry(device, 0x80, gBuf, 254)) {
+        if (0 == inquiry_vpd(device, 0x80, gBuf, 254)) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
             len = gBuf[3];
