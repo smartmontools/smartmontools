@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.27 2003/11/26 12:51:18 ballen4705 Exp $
+$Id: INSTALL,v 1.28 2003/11/27 05:48:48 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -68,12 +68,12 @@ make install (you may need to be root to do this)
 
 As shown (with no options to ./configure) this defaults to the
 following set of installation directories:
---prefix             = /usr
---sbindir            = /usr/sbin
---sysconfdir         = /etc
---mandir             = /usr/share/man
---with-docdir        = /usr/share/doc/smartmontools-VERSION
---with-initscriptdir = /etc/rc.d/init.d
+--prefix=/usr
+--sbindir=/usr/sbin
+--sysconfdir=/etc
+--mandir=/usr/share/man
+--with-docdir=/usr/share/doc/smartmontools-VERSION
+--with-initscriptdir=/etc/rc.d/init.d
 --disable-sample
 
 These will overwrite existing "distribution" installations for Red
@@ -191,11 +191,11 @@ export CC=cc   [Note: bash syntax]
 make
 
 The correct arguments [args] to configure are:
- --sbindir            = /usr/sbin       \
- --sysconfdir         = /etc            \
- --mandir             = /usr/share/man  \
- --with-docdir        = /usr/share/doc/smartmontools-VERSION \
- --with-initscriptdir = /etc/init.d
+ --sbindir=/usr/sbin                                \
+ --sysconfdir=/etc                                  \
+ --mandir=/usr/share/man                            \
+ --with-docdir=/usr/share/doc/smartmontools-VERSION \
+ --with-initscriptdir=/etc/init.d
 
 To start the script automatically on bootup, create hardlinks that
 indicate when to start/stop in:
