@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.85 2003/04/17 22:49:56 ballen4705 Exp $
+\# $Id: smartd.8,v 1.86 2003/04/18 08:15:16 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/17 22:49:56 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/18 08:15:16 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -904,6 +904,29 @@ this form.  The form (for example) '123,raw48' only prints the Raw
 value for Attribute 123 in this form.
 
 .TP
+.B \-P TYPE
+Specifies whether
+.B smartd
+should use any preset options that are available for this drive.  The
+valid arguments to this Directive are:
+
+.I use
+\- use any presets that are available for this drive.  This is the default.
+
+.I ignore
+\- do not use any presets for this drive.
+
+.I show
+\- show the presets that are available for this drive and then exit.
+
+.I showall
+\- show the presets that are available for all drives and then exit.
+
+[Please see the
+.B smartctl \-P
+command-line option.]
+
+.TP
 .B \-a
 Equivalent to turning on all of the following Directives: 
 .B '\-H' 
@@ -1204,4 +1227,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.85 2003/04/17 22:49:56 ballen4705 Exp $
+$Id: smartd.8,v 1.86 2003/04/18 08:15:16 pjwilliams Exp $
