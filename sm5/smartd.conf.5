@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.36 2003/03/11 04:34:02 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.37 2003/03/25 12:08:18 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/03/11 04:34:02 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/03/25 12:08:18 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -599,8 +599,20 @@ minutes in the range 0-59 inclusive, and Z is seconds in the range
 0-59 inclusive.  Y and Z are always printed with two digits, for
 example \'06' or \'31' or '00'.
 
+.I 9,halfminutes
+\- Raw Attribute number 9 is power-on time, measured in units of 30
+seconds.  This format is used by some Samsung disks.  Its raw value
+will be displayed in the form 'Xh+Ym'.  Here X is hours, and Y is
+minutes in the range 0-59 inclusive.  Y is always printed with two
+digits, for example \'06' or \'31' or '00'.
+
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
+
+.I 194,10xCelsius
+\- Raw Attribute number 194 is ten times the disk temperature in
+Celsius.  This is used by some Samsung disks (example: model SV1204H
+with RK100-13 firmware).
 
 .I 200,writeerrorcount
 \- Raw Attribute number 200 is the Write Error Count.
@@ -802,4 +814,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.36 2003/03/11 04:34:02 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.37 2003/03/25 12:08:18 ballen4705 Exp $

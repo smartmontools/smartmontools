@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.64 2003/03/18 17:02:56 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.65 2003/03/25 12:08:17 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -145,6 +145,8 @@ const char *vendorattributeargs[] = {
   "200,writeerrorcount",
   // 8  defs[9]=4
   "9,halfminutes",
+  // 9  defs[194]=1
+  "194,10xCelsius",
   // NULL should always terminate the array
   NULL
 };
@@ -199,6 +201,10 @@ int parse_attribute_def(char *pair, unsigned char *defs){
     // attribute 9 increments once every 30 seconds (power on time
     // measure)
     defs[9]=4;
+    return 0;
+  case 9:
+    // attribute 194 is ten times disk temp in Celsius
+    defs[194]=1;
     return 0;
   default:
     // pair not found
@@ -950,10 +956,18 @@ long long ataPrintSmartAttribRawValue(char *out,
     break;
     // Temperature
   case 194:
-    out+=sprintf(out, "%d", word[0]);
-    if (!(rawvalue==word[0]))
-      // The other bytes are in use. Try IBM's model
-      out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
+    if (defs[194]==1){
+      // ten times temperature in Celsius
+      int deg=word[0]/10;
+      int tenths=word[0]%10;
+      out+=sprintf(out, "%d.%d", deg, tenths);
+    }
+    else {
+      out+=sprintf(out, "%d", word[0]);
+      if (!(rawvalue==word[0]))
+	// The other bytes are in use. Try IBM's model
+	out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
+    }
     break;
   default:
     out+=sprintf(out, "%llu", rawvalue);
@@ -1037,7 +1051,15 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     name="Load_Cycle_Count";
     break;
   case 194:
-    name="Temperature_Celsius";
+    switch (defs[id]){
+    case 1:
+      // Samsung SV1204H with RK100-13 firmware
+      name="Temperature_Celsius_x10";
+      break;
+    default:
+      name="Temperature_Celsius";
+      break;
+    }
     break;
   case 195:
     name="Hardware_ECC_Recovered";
