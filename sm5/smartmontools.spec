@@ -1,4 +1,4 @@
-Release:  31
+Release:  32
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(de.iso-8859-1):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
 Summary(es.iso-8859-1):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
@@ -27,7 +27,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.48 2002/11/07 11:28:17 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.49 2002/11/07 21:51:34 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -173,6 +173,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %attr(755,root,root) /etc/rc.d/init.d/smartd
 %attr(644,root,root) %{_mandir}/man8/smartctl.8*
 %attr(644,root,root) %{_mandir}/man8/smartd.8*
+%attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
 %doc CHANGELOG COPYING TODO README VERSION smartd.conf
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %config %{_sysconfdir}/smartd.conf.example
@@ -214,6 +215,7 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Thu Nov 7 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Added a Man section 5 page for smartd.conf
 - Changed Makefile so that the -V option does not reflect file state
   before commit!
 - modified .spec file so that locale information now contains

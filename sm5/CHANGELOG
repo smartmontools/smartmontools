@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.39 2002/11/07 19:07:20 ballen4705 Exp $
+$Id: CHANGELOG,v 1.40 2002/11/07 21:51:34 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,8 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Added manual page smartd.conf.5 for configuration file.
 
   smartctl: Missing ANSI prototype in failuretest(); fixed.
 

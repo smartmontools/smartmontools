@@ -85,6 +85,7 @@ Eleven files are installed:
 /etc/rc.d/init.d/smartd                        [Init/Startup script for smartd]
 /usr/share/man/man8/smartctl.8.gz              [Manual page]
 /usr/share/man/man8/smartd.8.gz                [Manual page]
+/usr/share/man/man8/smartd.conf.5.gz           [Manual page]
 /usr/share/doc/smartmontools-5.0/README        [What you are reading!]
 /usr/share/doc/smartmontools-5.0/TODO          [Things that need to be done/fixed]
 /usr/share/doc/smartmontools-5.0/CHANGELOG     [A log of changes. Also see CVS]
