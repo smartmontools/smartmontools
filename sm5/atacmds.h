@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.42 2003/04/13 16:05:22 pjwilliams Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.43 2003/04/18 12:37:14 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -364,6 +364,8 @@ int isShortSelfTestTime ( struct ata_smart_values *data);
 int isExtendedSelfTestTime ( struct ata_smart_values *data);
 
 int isSmartErrorLogCapable ( struct ata_smart_values *data);
+
+int isGeneralPurposeLoggingCapable(struct hd_driveid *identity);
 
 int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data);
 

@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.88 2003/04/17 18:29:21 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.89 2003/04/18 12:37:14 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1076,6 +1076,35 @@ int isSmartErrorLogCapable ( struct ata_smart_values *data){
 int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x01;
 }
+
+int isGeneralPurposeLoggingCapable(struct hd_driveid *identity){
+  unsigned short *rawwords=(unsigned short *)identity;
+  unsigned short word84, word87;
+
+  word84=rawwords[84];
+  word87=rawwords[87];
+
+  // If bit 14 of word 84 is set to one and bit 15 of word 84 is
+  // cleared to zero, the contents of word 84 contains valid support
+  // information. If not, support information is not valid in this
+  // word.
+  if ((word84 & (0x01<<14)) && !(word84 & (0x01<<15)))
+    // If bit 5 of word 84 is set to one, the device supports the
+    // General Purpose Logging feature set.
+    return (word84 & (0x01 << 5));
+  
+  // If bit 14 of word 87 is set to one and bit 15 of word 87 is
+  // cleared to zero, the contents of words (87:85) contain valid
+  // information. If not, information is not valid in these words.  
+  if ((word87 & (0x01<<14)) && !(word87 & (0x01<<15)))
+    // If bit 5 of word 87 is set to one, the device supports
+    // the General Purpose Logging feature set.
+    return (word87 & (0x01 << 5));
+
+  // not capable
+  return 0;
+}
+
 
 // Note in the ATA-5 standard, the following bit is listed as "Vendor
 // Specific".  So it may not be reliable. The only use of this that I
