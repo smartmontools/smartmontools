@@ -20,7 +20,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.10 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.11 2004/09/17 20:08:46 chrfranke Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -47,6 +47,7 @@
  *                  make the output more informative.
  */
 typedef struct drivesettings_s {
+  const char * const modelfamily;
   const char * const modelregexp;
   const char * const firmwareregexp;
   const char * const warningmsg;
