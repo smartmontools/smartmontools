@@ -1,16 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
- <title>smartmontools Home Page</title>
- <link rev="made" href="mailto:smartmontools-support @ sourceforge.net" />
- <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
- <meta name="description" content="smartmontools Home Page" />
- <meta name="keywords" content="SMART, S.M.A.R.T., Linux, disk monitoring" />
-</head>
-<body>
-
-<pre><tt>
-
 smartctl version 5.0-36 Copyright (C) 2002 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
@@ -138,8 +125,3 @@ DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp
 SMART Self-test log, version number 1
 Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
 # 1  Short off-line      Completed                     00%      5255         
-
-</tt></pre>
-
-</body>
-</html>
