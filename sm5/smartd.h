@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.31 2003/03/10 20:49:09 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.32 2003/04/10 02:41:58 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -123,6 +123,8 @@ typedef struct configfile_s {
   // See the end of extern.h for a definition of the array of 256
   // bytes that this points to.
   unsigned char *attributedefs;
+  // enables equivalent of -F option for smartctl
+  unsigned char reversesamsung;
 } cfgfile;
 
 

@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.85 2003/04/09 11:17:07 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.86 2003/04/10 02:41:57 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -795,7 +795,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
     checksumwarning("SMART Self-Test Log Structure");
   
   // another firmware bug -- count in the first byte of "reserved"
-  if (con->fixbuginerrorlog)
+  if (con->reversesamsung)
     swap2((char *)&(data->mostrecenttest));
 
   return 0;
@@ -813,7 +813,7 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
 }
 
 
-void fixbuginerrorlog(struct ata_smart_errorlog *data){
+void reversesamsung(struct ata_smart_errorlog *data){
   int i,j;
   
   // Device error count in bytes 452-3
@@ -845,8 +845,8 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   
   // Some disks have the byte order reversed in some SMART Summary
   // Error log entries
-  if (con->fixbuginerrorlog)
-    fixbuginerrorlog(data);
+  if (con->reversesamsung)
+    reversesamsung(data);
 
   return 0;
 }

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.81 2003/04/09 10:00:57 ballen4705 Exp $
+\# $Id: smartd.8,v 1.82 2003/04/10 02:41:58 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/09 10:00:57 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/10 02:41:58 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -819,6 +819,23 @@ different types of system behavior affects the values of certain
 Attributes.
 
 .TP
+.B \-F
+In some Samsung disks (example: model SV4012H Firmware Version:
+RM100-08) some of the two- and four-byte quantities in the SMART data
+structures are byte-swapped (relative to the ATA specification).
+Enabling this option tells smartmontools to evaluate these quantities
+in byte-reversed order.
+
+Some signs that your disk needs this option are (1) no self-test log
+printed, even though you have run self-tests; (2) very large numbers
+of ATA errors reported in the ATA erorr log; (3) strange and
+impossible values for the ATA error log timestamps.
+
+[Please see the
+.B smartctl \-f
+command-line option.]
+
+.TP
 .B \-v N,OPTION
 Modifies the labeling for Attribute N, for disks which use
 non-standard Attribute definitions.  This is useful in connection with
@@ -1145,4 +1162,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.81 2003/04/09 10:00:57 ballen4705 Exp $
+$Id: smartd.8,v 1.82 2003/04/10 02:41:58 ballen4705 Exp $
