@@ -4,7 +4,7 @@
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
 
-KEYID="Smartmontools Signing Key (through 2004) <smartmontools-support@lists.sourceforge.net>"
+KEYID=0x9BB19A22
 
 if [ -f /etc/redhat-release ]; then
   RPM_BASE=/usr/src/redhat/
@@ -77,7 +77,7 @@ mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
 mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
 cp -f build/smartmontools-$VERSION.tar.gz .
 if [ "$KEYID" ]; then
-  gpg --default-key "$KEYID" --armor --detach-sign ./smartmontools-$VERSION.tar.gz
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSION.tar.gz
 fi
 
 # cleanup
