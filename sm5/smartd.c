@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.178 2003/08/05 10:07:35 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.179 2003/08/05 11:15:54 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -224,8 +224,6 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   // Export information in environment variables that will be useful
   // for user scripts
   setenv("SMARTD_MAILER", executable, 1);
-  setenv("SMARTD_DEVICE", cfg->name, 1);
-  setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
   setenv("SMARTD_MESSAGE", message, 1);
   setenv("SMARTD_SUBJECT", subject, 1);
   dateandtimezoneepoch(dates, mail->firstsent);
@@ -235,6 +233,22 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   setenv("SMARTD_FAILTYPE", whichfail[which], 1);
   if (address)
     setenv("SMARTD_ADDRESS", address, 1);
+  setenv("SMARTD_DEVICESTRING", cfg->name, 1);
+
+  if (cfg->escalade){
+    char *s,devicetype[16];
+    sprintf(devicetype, "3ware,%d", cfg->escalade-1);
+    setenv("SMARTD_DEVICETYPE", devicetype, 1);
+    if ((s=strchr(cfg->name, ' ')))
+      *s='\0';
+    setenv("SMARTD_DEVICE", cfg->name, 1);
+    if (s)
+      *s=' ';
+  }
+  else {
+    setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
+    setenv("SMARTD_DEVICE", cfg->name, 1);
+  }
 
   // now construct a command to send this as EMAIL
   if (address)
