@@ -2,7 +2,7 @@ TODO list for smartmontools:
 
 Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 
-$Id: TODO,v 1.2 2002/10/09 18:07:17 ballen4705 Exp $
+$Id: TODO,v 1.3 2002/10/10 21:38:03 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -26,3 +26,5 @@ Produce version for ATA/ATAPI-7
 Modifications
 -------------
 Command line option to specify devices to look for in smartd startup
+
+Command line option to divide disk power-on lifetime by 60 if raw data is stored in minutes not hours (Hitachi!)
