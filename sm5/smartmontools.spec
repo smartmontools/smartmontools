@@ -1,5 +1,6 @@
 Release:  43
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
+Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
 Summary(es):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
 Summary(fr):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
@@ -29,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.64 2002/11/14 05:43:42 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.65 2002/11/15 13:13:13 sbrabec Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -67,6 +68,24 @@ with all RedHat releases back to at least 6.2 and should work OK on any
 modern linux distribution.  The most recent versions of this package and
 additional information can be found at the URL:
 http://smartmontools.sourceforge.net/
+
+%description -l cs
+SMARTmontools øídí a monitorují zaøízení pro ukládání dat za pou¾ití
+technologie automatického monitorování, analýzy a hlá¹ení
+(Self-Monitoring, Analysis and Reporting Technology System -
+S.M.A.R.T.) vestavìného do pevných diskù ATA a SCSI. Pou¾ívá se ke
+kontrole pou¾itelnosti pevného disku a pøedvídání havárií diskù.
+Nástroje jsou odvozeny od balíèku smartsuite a obsahují dva programy.
+První, smartctl, je nástroj pro provádìní jednoduchých S.M.A.R.T. úloh
+na pøíkazové øádce. Druhý, smartd, je démon, který periodicky
+monitoruje stav a hlásí chyby do systémového protokolu. Balíèek je
+kompatibilní se specifikací ATA/ATAPI-5. Dal¹í verze budou
+kompatibilní se specifikacemi ATA/ATAPI-6 a ATA/ATAPI-7. Balíèek je
+navr¾en tak, aby pokryl co nejvíce polo¾ek s informacemi "závislé na
+výrobci" a "rezervováno". Více informací získáte pomocí man smartctl a
+man smartd. Tento RPM balíèek je kompatibilní se v¹emi verzemi RedHatu
+a mìl by fungovat na v¹ech moderních distribucích Linuxu. Aktuální
+verzi najdete na URL http://smartmontools.sourceforge.net/
 
 %description -l de
 Die SMARTmontools steuern und überwachen Speichergeräte mittels des
