@@ -1,4 +1,4 @@
-Release:  24
+Release:  25
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.35 2002/10/30 10:18:37 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.36 2002/10/30 19:20:10 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,10 +112,17 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
-
 * Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
- Added new Directive for Configuration file:
--C <N> This sets the time in between disk checks to be <N>
+- Added a new directive for the configuration file.  If the word
+  DEVICESCAN appears before any non-commented material in the
+  configuration file, then the confi file will be ignored and the
+  devices wil be scanned.
+- Note: it has now been confirmed that the code modifications between
+  5.0.23 and 5.0.24 have eliminated the GCC 3.2 problems.  Note that
+  there is a GCC bug howerver, see #848 at
+  http://gcc.gnu.org/cgi-bin/gnatsweb.pl?database=gcc&cmd=query
+- Added new Directive for Configuration file:
+  -C <N> This sets the time in between disk checks to be <N>
   seconds apart.  Note that  although  you  can  give
   this Directive multiple times on different lines of
   the configuration file, only the final  value  that
