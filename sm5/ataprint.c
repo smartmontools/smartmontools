@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.117 2003/12/16 20:09:16 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.118 2003/12/19 17:23:05 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -846,8 +846,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 // remaining bits: if nonzero, power on hours of last self-test where error was found
 int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
   int i,j,noheaderprinted=1;
-  int retval=0, hours=0;
-
+  int retval=0, hours=0, testno=0;
 
   if (allentries)
     pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
@@ -862,6 +861,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
   // print log      
   for (i=20;i>=0;i--){    
     struct ata_smart_selftestlog_struct *log;
+
     // log is a circular buffer
     j=(i+data->mostrecenttest)%21;
     log=data->selftest_struct+j;
@@ -869,6 +869,11 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
     if (nonempty((unsigned char*)log,sizeof(*log))){
       char *msgtest,*msgstat,percent[64],firstlba[64];
       int errorfound=0;
+      
+      // count entry based on non-empty structures -- needed for
+      // Seagate only -- other vendors don't have blank entries 'in
+      // the middle'
+      testno++;
 
       // test name
       switch(log->selftestnumber){
@@ -934,7 +939,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       // print out an entry, either if we are printing all entries OR
       // if an error was found
       if (allentries || errorfound)
-        pout("#%2d  %s %s %s  %8d         %s\n",21-i,msgtest,msgstat, percent,(int)log->timestamp,firstlba);
+        pout("#%2d  %s %s %s  %8d         %s\n", testno, msgtest, msgstat, percent, (int)log->timestamp, firstlba);
 
       // keep track of time of most recent error
       if (errorfound && !hours)
