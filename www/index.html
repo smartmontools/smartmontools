@@ -291,23 +291,31 @@ DISK FIRMWARE UPGRADE</a> that fixes the problem.
 </ul>
 
 <hr size="2" /><a name="testinghelp"></a><b>Help needed in testing
-smartmontools, especially on SCSI, FireWire, USB, and SATA
-disks/systems</b>
-
-<p>I have access to a number of systems with ATA S.M.A.R.T. disks, but I
-don't have any access to systems with SCSI, FireWire, USB, and SATA
-S.M.A.R.T. devices.&#160; I'd be very grateful to find someone who could
-help me test the smartmontools code on them.&#160; Since it's derived
-from the smartsuite package, it should initially work about the same way
-with SCSI devices as the smartsuite tools did.</p>
-
-<p>I'd be especially happy if someone would like to take on the task, as
-a developer, of maintaining the SCSI code.&#160; Do you have a beowulf
-cluster with a few hundred SCSI disks?&#160; Please volunteer !</p>
-
-<p>Some useful utilities to examine SCSI log information can be found
-on the <a href="http://www.torque.net/sg/">scsi generic (sg) driver home page</a>.
-The utilities are called <tt>sg_utils</tt> and <tt>sg3_utils</tt>.</p>
+smartmontools, especially on SCSI, FireWire, USB, and SATA disks/systems</b>
+<p>I have access to a number of systems with ATA S.M.A.R.T. disks, but
+I don't have any access to systems with SCSI, FireWire, USB, and SATA
+S.M.A.R.T. devices. <br />
+</p>
+<p>Work on smartmontools support for SCSI disks and SCSI tape drives
+(TapeAlerts) is progressing. See this <a
+ href="http://www.torque.net/scsi/smartmontools_scsi.html">article</a>
+for more details and examples. Do you have a beowulf cluster with a few
+hundred SCSI disks and tape jukeboxes? We are looking for testers.</p>
+<p>A package of SCSI utilities including one to examine SCSI log
+information can be found on the <a href="http://www.torque.net/sg/">scsi
+generic (sg) driver home page</a>. The package is called <tt>sg3_utils</tt>.<br />
+</p>
+<p>As for USB and FireWire (ieee1394) disks and tape drives, the news
+is not good. They appear to Linux as SCSI devices but their
+implementations do not usually support those commands needed for
+S.M.A.R.T. support. The ieee1394 consortium recently certified the <span
+ style="font-style: italic;">first</span> external enclosure (containing
+a ATA disk and a protocol bridge) as being compliant to the relevant
+standards. Such devices have been on the market for about 3 years!<br />
+</p>
+<p>I'd be very grateful to find someone who could help me test the
+smartmontools code on serial ATA (SATA) disks. They should appear as
+normal ATA disks in Linux.</p>
 
 <hr size="2" /><a name="differfromsmartsuite"></a><b>How does
 smartmontools differ from smartsuite?</b>
