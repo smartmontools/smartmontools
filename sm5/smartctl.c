@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.52 2003/03/29 11:01:35 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.53 2003/03/30 11:03:36 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -115,6 +115,8 @@ void Usage (void){
          Set tolerance to one of: normal, conservative, permissive\n\
   -b TYPE, --badsum=TYPE                                              (ATA)\n\
          Set action on bad checksum to one of: warn, exit, ignore\n\
+  -r TYPE, --report=TYPE
+         Report transactions for one of: ioctl, ataioctl, scsiioctl\n\
 ");
 #else
   printf("\
@@ -122,6 +124,7 @@ void Usage (void){
   -d TYPE   Specify device type to one of: ata, scsi\n\
   -T TYPE   Set tolerance to one of: normal, conservative, permissive (ATA)\n\
   -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n\
+  -r TYPE   Report transactions for one of: ioctl, ataioctl, scsiioctl\n\
 ");
 #endif
   printf("==============  DEVICE FEATURE ENABLE/DISABLE COMMANDS  ===================\n");
@@ -217,6 +220,8 @@ const char *getvalidarglist(char opt) {
     return "normal, conservative, permissive";
   case 'b':
     return "warn, exit, ignore";
+  case 'r':
+    return "ioctl, ataioctl, scsiioctl";
   case 's':
   case 'o':
   case 'S':
@@ -263,7 +268,7 @@ void ParseOpts (int argc, char** argv){
   extern char *optarg;
   extern int optopt, optind, opterr;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:s:o:S:HcAl:iav:t:CX";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:t:CX";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -277,6 +282,7 @@ void ParseOpts (int argc, char** argv){
     { "device",          required_argument, 0, 'd' },
     { "tolerance",       required_argument, 0, 'T' },
     { "badsum",          required_argument, 0, 'b' },
+    { "report",          required_argument, 0, 'r' },
     { "smart",           required_argument, 0, 's' },
     { "offlineauto",     required_argument, 0, 'o' },
     { "saveauto",        required_argument, 0, 'S' },
@@ -360,6 +366,18 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"ignore")) {
         con->checksumignore = TRUE;
         con->checksumfail   = FALSE;
+      } else {
+        badarg = TRUE;
+      }
+      break;
+    case 'r':
+      if (!strcmp(optarg,"ioctl")) {
+        con->reportataioctl  = TRUE;
+        con->reportscsiioctl = TRUE;
+      } else if (!strcmp(optarg,"ataioctl")) {
+        con->reportataioctl  = TRUE;
+      } else if (!strcmp(optarg,"scsiioctl")) {
+        con->reportscsiioctl  = TRUE;
       } else {
         badarg = TRUE;
       }

@@ -50,8 +50,11 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.116 2003/03/29 11:01:36 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.117 2003/03/30 11:03:36 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+
+// Forward declaration
+const char *getvalidarglist(char opt);
 
 // global variable used for control of printing, passing arguments, etc.
 smartmonctrl *con=NULL;
@@ -412,6 +415,8 @@ void Usage (void){
   printout(LOG_INFO,"  -d, --debug\n  Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -D, --showdirectives\n");
   printout(LOG_INFO,"  Print the configuration file Directives and exit\n\n");
+  printout(LOG_INFO,"  -r, --report=TYPE\n");
+  printout(LOG_INFO,"  Report transactions for one of: %s\n\n", getvalidarglist('r'));
   printout(LOG_INFO,"  -i N, --interval=N\n");
   printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -c, --checkonce\n  Check all devices once, then exit\n\n");
@@ -420,13 +425,14 @@ void Usage (void){
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
 #else
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -d     Start smartd in debug mode\n");
-  printout(LOG_INFO,"  -D     Print the configuration file Directives and exit\n");
-  printout(LOG_INFO,"  -i N   Set interval between disk checks to N seconds, where N >= 10\n");
-  printout(LOG_INFO,"  -V     Print License, Copyright, and version information\n");
-  printout(LOG_INFO,"  -c     Check all devices once, then exit\n");
-  printout(LOG_INFO,"  -h     Display this help and exit\n");
-  printout(LOG_INFO,"  -?     Same as -h\n");
+  printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
+  printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
+  printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
+  printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
+  printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
+  printout(LOG_INFO,"  -h      Display this help and exit\n");
+  printout(LOG_INFO,"  -?      Same as -h\n");
 #endif
 }
 
@@ -1613,22 +1619,50 @@ void PrintCopyleft(void){
 
 }
 
+/* Returns a pointer to a static string containing a formatted list of the valid
+   arguments to the option opt or NULL on failure. */
+const char *getvalidarglist(char opt) {
+  switch (opt) {
+  case 'r':
+    return "ioctl, ataioctl, scsiioctl";
+  default:
+    return NULL;
+  }
+}
+
+/* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
+   <LIST> is the list of valid arguments for option opt. */
+void printvalidarglistmessage(char opt) {
+  const char *s;
+
+  printout(LOG_CRIT, "=======> VALID ARGUMENTS ARE: ");
+  if (!(s = getvalidarglist(opt)))
+    pout("Error whilst constructing argument list for option %c", opt);
+  else
+    printout(LOG_CRIT, (char *)s);
+  printout(LOG_CRIT, " <=======\n");
+}
+
 // Parses input line, prints usage message and
 // version/license/copyright messages
 void ParseOpts(int argc, char **argv){
   extern char *optarg;
   extern int  optopt, optind, opterr;
   int optchar;
+  int badarg;
   char *tailptr;
   long lchecktime;
-  const char *shortopts = "cdDi:Vh?";
+  // Please update getvalidarglist() if you edit shortopts
+  const char *shortopts = "cdDi:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
+  // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
     { "checkonce",      no_argument,       0, 'c' },
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
+    { "report",         required_argument, 0, 'r' },
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
     { "copyright",      no_argument,       0, 'V' },
@@ -1639,6 +1673,7 @@ void ParseOpts(int argc, char **argv){
 #endif
 
   opterr=optopt=0;
+  badarg=FALSE;
 
   // Parse input options:
 #ifdef HAVE_GETOPT_LONG
@@ -1669,10 +1704,22 @@ void ParseOpts(int argc, char **argv){
         printhead();
         printout(LOG_CRIT, "======> INVALID INTERVAL: %s <=======\n", optarg);
         printout(LOG_CRIT, "======> INTERVAL MUST BE INTEGER BETWEEN %d AND %d <=======\n", 10, INT_MAX);
-        Usage();
+        printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
         exit(-1);
       }
       checktime = (int)lchecktime;
+      break;
+    case 'r':
+      if (!strcmp(optarg,"ioctl")) {
+        con->reportataioctl  = TRUE;
+        con->reportscsiioctl = TRUE;
+      } else if (!strcmp(optarg,"ataioctl")) {
+        con->reportataioctl  = TRUE;
+      } else if (!strcmp(optarg,"scsiioctl")) {
+        con->reportscsiioctl  = TRUE;
+      } else {
+        badarg = TRUE;
+      }
       break;
     case 'V':
       PrintCopyleft();
@@ -1690,28 +1737,44 @@ void ParseOpts(int argc, char **argv){
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
         if (optopt && (strchr(shortopts, optopt) != NULL)) {
-          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n\n",arg+2);
+          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n",arg+2);
+          printvalidarglistmessage(optopt);
         } else {
           printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
         }
-        Usage();
+        printout(LOG_CRIT, "\nUse smartd --help to get a usage summary\n\n");
         exit(-1);
       }
 #endif
       if (optopt) {
         // Iff optopt holds a valid option then argument must be missing.
         if (strchr(shortopts, optopt) != NULL){
-          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n\n",optopt);
+          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n",optopt);
+          printvalidarglistmessage(optopt);
         } else {
           printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
         }
-        Usage();
+        printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
         exit(-1);
       }
       Usage();
       exit(0);
     }
+
+    // Check to see if option had an unrecognized or incorrect argument.
+    if (badarg) {
+      debugmode=1;
+      printhead();
+      // It would be nice to print the actual option name given by the user
+      // here, but we just print the short form.  Please fix this if you know
+      // a clean way to do it.
+      printout(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
+      printvalidarglistmessage(optchar);
+      printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
+      exit(-1);
+    }
   }
+
   // print header
   printhead();
   return;
