@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.16 2003/11/04 17:23:39 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.17 2003/11/05 01:21:41 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -115,6 +115,9 @@ int get_dev_names(char*** names, const char* pattern, int max) {
     return -1;
   }
  
+  // track memory usage
+  bytes += max*sizeof(char*);
+
   // Use glob to look for any directory entries matching the pattern
   if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))
       || max < globbuf.gl_pathc) {
@@ -144,9 +147,6 @@ int get_dev_names(char*** names, const char* pattern, int max) {
       return -1;
     }
   }
-
-  // track memory usage
-  bytes += max*sizeof(char*);
 
   // now step through the list returned by glob.  If not a link, copy
   // to list.  If it is a link, evaluate it and see if the path ends

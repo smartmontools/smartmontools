@@ -28,6 +28,9 @@
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
 #include <sys/ata.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <glob.h>
 
 
 #include "config.h"
@@ -36,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.21 2003/11/01 23:41:41 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.22 2003/11/05 01:21:41 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -177,6 +180,12 @@ void printwarning(int msgNo, const char* extra) {
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data) {
+#ifndef ATAREQUEST
+  // sorry, but without ATAng, we can't do anything here
+  printwarning(BAD_KERNEL,NULL);
+  errno = ENOSYS;
+  return -1;
+#else
   struct freebsd_dev_channel* con;
   int retval, copydata=0;
   struct ata_cmd iocmd;
@@ -186,12 +195,6 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   if (isnotopen(&fd,&con))
       return -1;
 
-#ifndef ATAREQUEST
-  // sorry, but without ATAng, we can't do anything here
-  printwarning(BAD_KERNEL,NULL);
-  errno = ENOSYS;
-  return -1;
-#else
   bzero(buff,512);
 
   bzero(&iocmd,sizeof(struct ata_cmd));
@@ -580,11 +583,24 @@ void *FreeNonZero(void* address, int size,int whatline,char* file);
 // we are going to take advantage of the fact that FreeBSD's devfs will only
 // have device entries for devices that exist.  So if we get the equivilent of
 // ls /dev/ad?, we have all the ATA devices on the system
+//
+// If any errors occur, leave errno set as it was returned by the
+// system call, and return <0.
+
+// Return values:
+// -1 out of memory
+// -2 to -5 errors in glob
+
 int get_dev_names(char*** names, const char* prefix) {
-  DIR* dir;
-  struct dirent* dirent;
   int n = 0;
   char** mp;
+  int retglob;
+  glob_t globbuf={0};
+  int i;
+  char pattern1[128],pattern2[128];
+
+  // in case of non-clean exit
+  *names=NULL;
 
   // first, preallocate space for upto max number of ATA devices
   if (!(mp =  (char **)calloc(MAX_NUM_DEV,sizeof(char*))))
@@ -592,23 +608,59 @@ int get_dev_names(char*** names, const char* prefix) {
   
   bytes += (sizeof(char*)*MAX_NUM_DEV);
 
-  dir = opendir("/dev");
-  if (dir == NULL) {
-    int myerr = errno;
-    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
-    errno = myerr;
-    return -1;
-  }
+  // handle 0-99 possible devices, will still be limited by MAX_NUM_DEV
+  sprintf(pattern1,"/dev/%s[0-9]",prefix);
+  sprintf(pattern2,"/dev/%s[0-9][0-9]",prefix);
   
-  // now step through names
-  while ((dirent = readdir(dir)) && (n < MAX_NUM_DEV)) {
-    if (dirent->d_type == DT_CHR &&
-	(strstr(dirent->d_name,prefix) != NULL) &&
-	(dirent->d_namlen == 3)) {
-      mp[n++] = CustomStrDup(dirent->d_name,1,__LINE__,__FILE__);
+  // Use glob to look for any directory entries matching the patterns
+  // first call inits with first pattern match, second call appends
+  if ((retglob=glob(pattern1, GLOB_ERR, NULL, &globbuf)) ||
+      (retglob=glob(pattern2, GLOB_ERR|GLOB_APPEND|GLOB_NOCHECK,NULL,&globbuf)) ||
+      MAX_NUM_DEV < globbuf.gl_pathc) {
+    // glob failed or found too many paths.  Free memory and return
+    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
+    globfree(&globbuf);
+    
+    // found too many paths
+    if (MAX_NUM_DEV<globbuf.gl_pathc){
+      pout("glob(3) found more than %d paths matching patterns (%s),(%s)\n", MAX_NUM_DEV, pattern1,pattern2);
+      return -1;
+    }
+
+    // glob failed for some other reason
+    switch (retglob) {
+    case GLOB_NOSPACE:
+      pout("glob(3) ran out of memory matching patterns (%s),(%s)\n",
+	   pattern1, pattern2);
+      return -1;
+    case GLOB_ABORTED:
+      pout("glob(3) aborted matching patterns (%s),(%s)\n",
+	   pattern1, pattern2);
+      return -1;
+    case GLOB_NOMATCH:
+      // this is only a problem if NO paths are found at all
+      if (globbuf.gl_pathc == 0) {
+	pout("glob(3) found no matches for patterns (%s),(%s)\n",
+	     pattern1, pattern2);
+	return -1;
+      }
+    default:
+      pout("Unexplained error in glob(3) of patterns (%s),(%s)\n",
+	   pattern1, pattern2);
+      return -1;
     }
   }
-  closedir(dir);
+  // now step through the list returned by glob.  No link checking needed
+  // in FreeBSD
+  for (i=0; i<globbuf.gl_pathc; i++){
+    // becuase of the NO_CHECK on second call to glob,
+    // the pattern itself will be added to path list..
+    // so ignore any paths that have the ']' from pattern
+    if (strchr(globbuf.gl_pathv[i],']') == NULL)
+      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+  }
+
+  globfree(&globbuf);
   mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
   bytes -= (MAX_NUM_DEV-n)*(sizeof(char*)); // and correct allocated bytes
   *names=mp;
