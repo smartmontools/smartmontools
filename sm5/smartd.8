@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.73 2003/03/10 22:41:13 ballen4705 Exp $
+\# $Id: smartd.8,v 1.74 2003/03/11 04:34:02 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/03/10 22:41:13 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/03/11 04:34:02 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -804,6 +804,9 @@ example \'06' or \'31' or '00'.
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
+.I 200,writeerrorcount
+\- Raw Attribute number 200 is the Write Error Count.
+
 .I 220,temp
 \- Raw Attribute number 220 is the disk temperature in Celsius.
 
@@ -1091,4 +1094,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.73 2003/03/10 22:41:13 ballen4705 Exp $
+$Id: smartd.8,v 1.74 2003/03/11 04:34:02 ballen4705 Exp $

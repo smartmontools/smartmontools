@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.35 2003/03/10 21:07:35 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.36 2003/03/11 04:34:02 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/03/10 21:07:35 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/03/11 04:34:02 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -602,6 +602,9 @@ example \'06' or \'31' or '00'.
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
+.I 200,writeerrorcount
+\- Raw Attribute number 200 is the Write Error Count.
+
 .I 220,temp
 \- Raw Attribute number 220 is the disk temperature in Celsius.
 
@@ -799,4 +802,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.35 2003/03/10 21:07:35 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.36 2003/03/11 04:34:02 ballen4705 Exp $
