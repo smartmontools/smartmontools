@@ -1,15 +1,19 @@
-===============================================
-SMARTMONTOOLS - SMART utility toolset for Linux
-===============================================
+====================================================
+smartmontools - S.M.A.R.T. utility toolset for Linux
+====================================================
 
 == HOME ==
+
 The home for smartmontools is located at:
-    http://smartmontools.sourceforge.net
-Please see this web site for updates, documentation, and for
-submitting patches and bug reports.
+    
+    http://smartmontools.sourceforge.net/
+
+Please see this web site for updates, documentation, and for submitting
+patches and bug reports.
 
 You will find a mailing list for support and other questions at:
-http://lists.sourceforge.net/lists/listinfo/smartmontools-support
+
+    http://lists.sourceforge.net/lists/listinfo/smartmontools-support
 
 
 == COPYING ==
@@ -57,13 +61,16 @@ smartctl is a command line utility designed to perform
 smartd   is a daemon that periodically monitors S.M.A.R.T. status and
          reports errors and changes in S.M.A.R.T. attributes to syslog.
 
-SEE THE FILE "WARNINGS" FOR REPORTS OF HARDWARE WHERE THESE UTILITIES MIGHT
-CAUSE SERIOUS PROBLEMS SUCH AS LOCKUPS.
 
-STARTING WITH SMARTMONTOOLS 5.1.X, THE COMMAND LINE OPTIONS AND THE
-SMARTD.CONF DIRECTIVES HAVE BEEN RENAMED.  WHAT FOLLOWS IS A SUMMARY
-TABLE SHOWING THE COMPARISON BETWEEN THE OLD AND THE NEW OPTION AND
-DIRECTIVE NAMES.
+See the file "INSTALL" for installation instructions.
+
+See the file "WARNINGS" for reports of hardware where these utilities
+might cause serious problems such as lockups.
+
+Starting with smartmontools 5.1.X, the command line options and the
+smartd.conf directives have been renamed.  What follows is a summary
+table showing the comparison between the old and the new option and
+directive names.
 
 == NEW OPTION NAMES FOR SMARTCTL 5.1 ==
 The following is a synopsis of the new options in smartctl 5.1 -- please see the
@@ -211,4 +218,3 @@ Changes to smartd options:
                                                              -D            --showdirectives
                                                              -r            --report=TYPE
   ----------------------------------------------------------------------------------------------------------
-
