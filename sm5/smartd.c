@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.147 2003/04/18 22:15:54 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.148 2003/04/18 22:18:59 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -479,7 +479,7 @@ void Usage (void){
   printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
   printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
-  printout(LOG_INFO,"  -p NAME\n  Write PID file NAME\n\n");
+  printout(LOG_INFO,"  -p NAME Write PID file NAME\n");
   printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
