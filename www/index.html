@@ -232,16 +232,22 @@ smartmontools differ from smartsuite?</b>
 Michael Cornwell at the Concurrent Systems Laboratory (now part of the
 <a href="http://ssrc.soe.ucsc.edu/">Storage Systems Research
 Center</a>), Jack Baskin School of Engineering, University of
-California, Santa Cruz.</p>
+California, Santa Cruz.
+You can find some information about the original smartsuite project here:
+<a href="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm">Press Release 1</a>, 
+<a href="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm">Press Release 2</a>, 
+<a href="http://www.ucsc.edu/currents/99-00/09-27/smart.html">Press Release 3</a>.
+</p>
 
 <p>Smartmontools was derived directly from smartsuite.&#160; It differs
 from smartsuite in that it supports the ATA/ATAPI-5 standard.&#160; So
 for example <tt>smartctl</tt> from smartsuite has no facility for
 printing the S.M.A.R.T. self-test logs, and doesn't print timestamp
 information in the most usable way.&#160; The <tt>smartctl</tt> utility
-in smartmontools has added functionality for this (<tt>-q,-Q, -L,-f, -F
+in smartmontools has added functionality for this (<tt>-q,-Q, -L,-f, -F, -U, -P
 and -m</tt> options), updated documentation, and also fixes small
-technical bugs in smartsuite.&#160; See the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">CHANGELOG</a>
+technical bugs in smartsuite.&#160; See the 
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">CHANGELOG</a>
 file in CVS for a summary of what's been done.&#160; The <tt>smartd</tt>
 utility differs from the smartsuite <tt>smartd</tt> in major ways.&#160;
 First, it prints somewhat more informative error messages to the syslog.
@@ -249,7 +255,7 @@ First, it prints somewhat more informative error messages to the syslog.
 <tt>/etc/smartd.conf</tt>, and if <tt>smartd</tt> finds this file, it
 monitors the list of devices therein, rather than querying all IDE and
 SCSI devices on your system.&#160; (If the configuration file does not
-exist, then it does query all IDE and SCSI devices.)&#160; Finally, it's
+exist, then it does query all IDE and SCSI devices.)&#160; Also, it's
 a well-behaved daemon and doesn't leave open file descriptors and other
 detrius behind.&#160; In addition, the <tt>smartmontools</tt> version of
 <tt>smartd</tt> can be instructed (via Directives in the configuration
@@ -326,6 +332,7 @@ Look at the Seek Error Rate)</li>
 <li><a href="http://smartmontools.sourceforge.net/IC35L120AVVA07-0-1.html">IBM IC35L120AVVA07</a> 120 GB 7200 RPM</li>
 <li><a href="http://smartmontools.sourceforge.net/HITACHI_DK23BA-20-0.html">HITACHI_DK23BA-20</a> Hitachi 20 GB Laptop Disk</li>
 <li><a href="http://smartmontools.sourceforge.net/TOSHIBA-0.html">TOSHIBA MK2018GAS</a> Toshiba 20 GB Laptop Disk</li>
+<li><a href="http://smartmontools.sourceforge.net/Maxtor-0.html">Maxtor 98196H8</a> Maxtor 80 GB 5400 RPM</li>
 </ul>
 
 <hr size="2" />
