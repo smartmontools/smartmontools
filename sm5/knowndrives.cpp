@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.107 2004/06/01 21:12:27 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.108 2004/06/01 23:13:18 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -655,7 +655,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Protege
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD([2468]00E|1[26]00A)B-.*$",
     ".*",
     NULL, NULL, NULL, NULL
@@ -663,7 +665,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Caviar family
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD(2|3|4|6|8|10|12|16|18|20|25)00BB-.*$",
     ".*",
     NULL, NULL, NULL, NULL
@@ -671,7 +675,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Caviar WDxxxAB series
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD(3|4|6)00AB-.*$",
     ".*",
     NULL, NULL, NULL, NULL
@@ -679,7 +685,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Caviar WDxxxAA series
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD(64|84|102|136|205|307)AA(-.*)?$",
     ".*",
     NULL, NULL, NULL, NULL
@@ -687,7 +695,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Caviar WDxxxBA series
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD(102|136|153|205)BA$",
     ".*",
     NULL, NULL, NULL, NULL
@@ -700,7 +710,9 @@ const drivesettings knowndrives[] = {
   { // Western Digital Caviar SE family
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
+   * is understood exactly how Attribute 9 should be interpreted.
+   * UPDATE: this is probably explained by the WD firmware bug described in the
+   * smartmontools FAQ */
     "^WDC WD(4|6|8|10|12|16|18|20|25)00JB-.*$",
     ".*",
     NULL, NULL, NULL, NULL
