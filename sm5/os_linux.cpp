@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.74 2004/09/14 03:34:34 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.75 2004/09/16 08:46:04 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.74 2004/09/14 03:34:34 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.75 2004/09/16 08:46:04 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -205,13 +205,15 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+         "  smartctl --all /dev/hda                    (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
          "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+         "  smartctl --test=long /dev/hda          (Executes extended disk self-test)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a --device=3ware,2 /dev/sda\n"
+         "  smartctl --all --device=3ware,2 /dev/sda\n"
+         "  smartctl --all --device=3ware,2 /dev/twe0\n"
+         "  smartctl --all --device=3ware,2 /dev/twa0\n"
          "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #else
@@ -222,6 +224,8 @@ void print_smartctl_examples(){
          "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
          "  smartctl -a -d 3ware,2 /dev/sda\n"
+         "  smartctl -a -d 3ware,2 /dev/twa0\n"
+         "  smartctl -a -d 3ware,2 /dev/twe0\n"
          "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #endif
