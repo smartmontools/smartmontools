@@ -218,13 +218,13 @@ The following table shows the mapping of old options to new options:
   -A            -X                      --abort
 
 
- SHOULD BECOME A COMMAND-LINE ARGUMENT (-i N, --interval N) =======>       -C N    Set checktime        NOW CMD LINE
+ SHOULD BECOME A COMMAND-LINE ARGUMENT (-i N, --interval N) =======>       -C N    Set checktime        NOW CMD LINE: -i N
                                                                            -f      usage attributes     -f
                                                                            -M ADD  Email addresses     -m ADD
                                                                            -m -3   Email mode          -M diminishing,test
                                                                            -m -2   Email mode          -M daily,test
                                                                            -m -1   Email mode          -M once,test
-                                                                           -m 0    Email mode          -M once
+                            If no -M is given, this is the DEFAULT =====>  -m 0    Email mode          -M once
                                                                            -m 1    Email mode          -M once
                                                                            -m 2    Email mode          -M daily
                                                                            -m 3    Email mode          -M diminishing
@@ -243,7 +243,7 @@ Suggested changes to smartd options:
   -h, -?        --help                                       -h, -?        --help
   -V            --version, --copyright, --license            -V            --version, --copyright, --license
   -X            --debugmode                                  -d            --debug
-                                                             -i            --interval
+                                                             -i N          --interval=N
   ----------------------------------------------------------------------------------------------------------
 
 Suggested change order (CVS commit at least after each of these):
