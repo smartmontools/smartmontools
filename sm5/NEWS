@@ -1,4 +1,6 @@
-$Id: NEWS,v 1.4 2003/10/03 14:01:46 ballen4705 Exp $
+smartmontools NEWS
+------------------
+CVS ID: $Id: NEWS,v 1.5 2003/10/03 21:11:12 ballen4705 Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
@@ -11,8 +13,12 @@ Summary: smartmontools release 5.19
 This is the first release of smartmontools based on autoconf/automake.
 For this reason, it is a very experimental release.  Please let us
 know in particular about documenation errors/omissions, missing or
-unneccesary files, and similar oversights.
-
+unneccesary files, and similar oversights.  The major changes are:
+ [1]  installation scripts based on autoconfig/automake
+ [2] ./configure [options] lets you set arbitrary paths
+ [3] supports FHS with ./configure --prefix=/usr/local
+ [4] correct paths are inserted into all man pages, binaries, etc.
+ [5] tarballs and RPMs are now GPG-signed
 
 Date: 2003-10-02 11:35
 Summary: smartd SEGV
