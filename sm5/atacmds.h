@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.60 2004/01/13 16:53:06 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.61 2004/01/27 06:19:37 shattered Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -207,7 +207,7 @@ struct ata_smart_threshold_entry {
 /* Format of Read SMART THreshold Command */
 /* Compare to ata_smart_values above */
 #pragma pack(1)
-struct ata_smart_thresholds {
+struct ata_smart_thresholds_pvt {
   unsigned short int revnumber;
   struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
@@ -339,11 +339,11 @@ int ataCheckPowerMode(int device);
 
 /* Read S.M.A.R.T information from drive */
 int ataReadSmartValues(int device,struct ata_smart_values *);
-int ataReadSmartThresholds(int device, struct ata_smart_thresholds *);
+int ataReadSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
 int ataReadErrorLog(int device, struct ata_smart_errorlog *);
 int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
 int ataSmartStatus(int device);
-int ataSetSmartThresholds(int device, struct ata_smart_thresholds *);
+int ataSetSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(int device, struct ata_smart_log_directory *);  
 
 /* Enable/Disable SMART on device */
@@ -383,7 +383,7 @@ int ataIsSmartEnabled(struct ata_identify_device *drive);
 /* Check SMART for Threshold failure */
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart ( struct ata_smart_values *data, struct ata_smart_thresholds *thresholds, int onlyfailed);
+int ataCheckSmart ( struct ata_smart_values *data, struct ata_smart_thresholds_pvt *thresholds, int onlyfailed);
 
 int ataSmartStatus2(int device);
 
@@ -434,7 +434,7 @@ void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defi
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
 int ataCheckAttribute(struct ata_smart_values *data,
-                      struct ata_smart_thresholds *thresholds,
+                      struct ata_smart_thresholds_pvt *thresholds,
                       int n);
 
 // External handler function, for when a checksum is not correct.  Can

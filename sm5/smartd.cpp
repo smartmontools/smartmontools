@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.281 2004/01/17 05:16:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.282 2004/01/27 06:19:38 shattered Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.281 2004/01/17 05:16:04 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.282 2004/01/27 06:19:38 shattered Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -238,7 +238,7 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
 
   // entry exists -- free all of its memory  
   cfg->name            = FreeNonZero(cfg->name,           -1,__LINE__,filenameandversion);
-  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,filenameandversion);
+  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds_pvt),__LINE__,filenameandversion);
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,filenameandversion);
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,filenameandversion);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,filenameandversion);
@@ -1031,7 +1031,7 @@ int ATADeviceScan(cfgfile *cfg){
   // do we need to get SMART data?
   if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog) {
     cfg->smartval=(struct ata_smart_values *)Calloc(1,sizeof(struct ata_smart_values));
-    cfg->smartthres=(struct ata_smart_thresholds *)Calloc(1,sizeof(struct ata_smart_thresholds));
+    cfg->smartthres=(struct ata_smart_thresholds_pvt *)Calloc(1,sizeof(struct ata_smart_thresholds_pvt));
     
     if (!cfg->smartval || !cfg->smartthres){
       PrintOut(LOG_CRIT,"Not enough memory to obtain SMART data\n");
@@ -1113,7 +1113,7 @@ int ATADeviceScan(cfgfile *cfg){
     }
     if (cfg->smartthres) {
       cfg->smartthres=CheckFree(cfg->smartthres, __LINE__,filenameandversion);
-      bytes-=sizeof(struct ata_smart_thresholds);
+      bytes-=sizeof(struct ata_smart_thresholds_pvt);
     }
   }
 
@@ -1246,7 +1246,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,filenameandversion);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,filenameandversion);
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,filenameandversion);
-  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,filenameandversion);
+  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds_pvt),__LINE__,filenameandversion);
   
   // Check if scsiCheckIE() is going to work
   {
@@ -1309,7 +1309,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
 int  ATACompareValues(changedattribute_t *delta,
                             struct ata_smart_values *new,
                             struct ata_smart_values *old,
-                            struct ata_smart_thresholds *thresholds,
+                            struct ata_smart_thresholds_pvt *thresholds,
                             int n, char *name){
   struct ata_smart_attribute *now,*was;
   struct ata_smart_threshold_entry *thre;
@@ -1709,7 +1709,7 @@ int ATACheckDevice(cfgfile *cfg){
   // Check everything that depends upon SMART Data (eg, Attribute values)
   if (cfg->usagefailed || cfg->prefail || cfg->usage){
     struct ata_smart_values     curval;
-    struct ata_smart_thresholds *thresh=cfg->smartthres;
+    struct ata_smart_thresholds_pvt *thresh=cfg->smartthres;
     
     // Read current attribute values. *drive contains old values and thresholds
     if (ataReadSmartValues(fd,&curval)){
@@ -2511,7 +2511,7 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   }
   
   if (add->smartthres) {
-    if (!(add->smartthres=(struct ata_smart_thresholds *)Calloc(1,sizeof(struct ata_smart_thresholds))))
+    if (!(add->smartthres=(struct ata_smart_thresholds_pvt *)Calloc(1,sizeof(struct ata_smart_thresholds_pvt))))
       goto badexit;
   }
 

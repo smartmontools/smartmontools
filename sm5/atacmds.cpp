@@ -34,7 +34,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.136 2004/01/13 16:53:06 ballen4705 Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.137 2004/01/27 06:19:37 shattered Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -990,7 +990,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   return 0;
 }
 
-int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
+int ataReadSmartThresholds (int device, struct ata_smart_thresholds_pvt *data){
   
   // get data from device
   if (smartcommandhandler(device, READ_THRESHOLDS, 0, (char *)data)){
@@ -1271,7 +1271,7 @@ int isSupportSelectiveSelfTest(struct ata_smart_values *data){
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
 int ataCheckSmart(struct ata_smart_values *data,
-                  struct ata_smart_thresholds *thresholds,
+                  struct ata_smart_thresholds_pvt *thresholds,
                   int onlyfailed){
   int i;
   
@@ -1308,7 +1308,7 @@ int ataCheckSmart(struct ata_smart_values *data,
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
 int ataCheckAttribute(struct ata_smart_values *data,
-                      struct ata_smart_thresholds *thresholds,
+                      struct ata_smart_thresholds_pvt *thresholds,
                       int n){
   struct ata_smart_attribute *disk;
   struct ata_smart_threshold_entry *thre;

@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.68 2004/01/13 16:53:06 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.69 2004/01/27 06:19:39 shattered Exp $\n"
 #endif
 
 // Configuration file
@@ -222,7 +222,7 @@ typedef struct configfile_s {
   // ATA ONLY - SAVE SMART DATA. NULL POINTERS UNLESS NEEDED.  IF
   // NEEDED, ALLOCATED WHEN DEVICE REGISTERED.
   struct ata_smart_values *smartval;       // Pointer to SMART data
-  struct ata_smart_thresholds *smartthres; // Pointer to SMART thresholds
+  struct ata_smart_thresholds_pvt *smartthres; // Pointer to SMART thresholds
 
 } cfgfile;
 

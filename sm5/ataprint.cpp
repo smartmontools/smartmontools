@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.122 2004/01/18 13:26:10 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.123 2004/01/27 06:19:37 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -549,7 +549,7 @@ void PrintSmartConveyanceSelfTestPollingTime(struct ata_smart_values *data){
 // onlyfailed=1:  just ones that are currently failed and have prefailure bit set
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
 void PrintSmartAttribWithThres (struct ata_smart_values *data, 
-                                struct ata_smart_thresholds *thresholds,
+                                struct ata_smart_thresholds_pvt *thresholds,
                                 int onlyfailed){
   int i;
   int needheader=1;
@@ -962,7 +962,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
 }
 
 void ataPseudoCheckSmart ( struct ata_smart_values *data, 
-                           struct ata_smart_thresholds *thresholds) {
+                           struct ata_smart_thresholds_pvt *thresholds) {
   int i;
   int failed = 0;
   for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
@@ -1026,7 +1026,7 @@ void checksumwarning(const char *string){
 // Initialize to zero just in case some SMART routines don't work
 struct ata_identify_device drive;
 struct ata_smart_values smartval;
-struct ata_smart_thresholds smartthres;
+struct ata_smart_thresholds_pvt smartthres;
 struct ata_smart_errorlog smarterror;
 struct ata_smart_selftestlog smartselftest;
 
