@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.237 2003/11/14 07:53:57 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.238 2003/11/14 11:50:01 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1019,7 +1019,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
 #endif
     }
   
-    if ((err = scsiFetchIECmpage(fd, &iec))) {
+    if ((err = scsiFetchIECmpage(fd, &iec, cfg->modese_len))) {
       PrintOut(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
 	       "failed, err=%d, skip device\n", device, err);
       deviceclose(fd);
@@ -1029,6 +1029,9 @@ static int SCSIDeviceScan(cfgfile *cfg)
       return 3;
 #endif
     }
+    else
+        cfg->modese_len = iec.modese_len;
+
     if (! scsi_IsExceptionControlEnabled(&iec)) {
       PrintOut(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
 	       "skip device\n", device);
@@ -1089,9 +1092,10 @@ static int SCSIDeviceScan(cfgfile *cfg)
         UINT8 asc = 0;
         UINT8 ascq = 0;
         UINT8 currenttemp = 0;
+        UINT8 triptemp = 0;
 
         if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
-                        &asc, &ascq, &currenttemp)) {
+                        &asc, &ascq, &currenttemp, &triptemp)) {
             PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART"
                      " values\n", device);
             cfg->SuppressReport = 1;
@@ -1425,6 +1429,7 @@ int SCSICheckDevice(cfgfile *cfg)
 {
     UINT8 asc, ascq;
     UINT8 currenttemp;
+    UINT8 triptemp;
     int fd;
     char *name=cfg->name;
     const char *cp;
@@ -1446,7 +1451,7 @@ int SCSICheckDevice(cfgfile *cfg)
     ascq = 0;
     if (! cfg->SuppressReport) {
         if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
-                        &asc, &ascq, &currenttemp)) {
+                        &asc, &ascq, &currenttemp, &triptemp)) {
             PrintOut(LOG_INFO, "Device: %s, failed to read SMART values\n",
                       name);
             PrintAndMail(cfg, 6, LOG_CRIT, 
@@ -1479,6 +1484,10 @@ int SCSICheckDevice(cfgfile *cfg)
         else {
             PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d "
                      "degrees\n", name, (int)currenttemp);
+           if (triptemp)
+                PrintOut(LOG_INFO, "    [trip Temperature is %d degrees]\n",
+                         (int)triptemp);
+            cfg->Temperature = currenttemp;
             cfg->Temperature = currenttemp;
         }
     }
