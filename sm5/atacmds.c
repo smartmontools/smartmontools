@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.40 2002/11/14 05:42:49 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.41 2002/11/22 13:30:55 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -448,7 +448,16 @@ int ataDisableAutoSave(int device){
   return 0;
 }
 
-// Note that in the ATA-5 standard this command is marked "OBSOLETE"
+// Note that in the ATA-5 standard the Enable/Disable AutoOffline
+// command is marked "OBSOLETE".  Curiously, I could not find it
+// documented in ANY of the ATA specifications.  In other words, it's
+// been obsolete forever. However some vendors (eg, IBM) seem to be
+// using this command anyway.  For example see the IBM Travelstar
+// 40GNX hard disk drive specifications page 164 Revision 1.1 22 Apr
+// 2002.  This gives a detailed description of the command, although
+// the drive claims to comply with the ATA/ATAPI-5 Revision 3
+// standard!  The latter document makes no mention of this command at
+// all, other than to say that it is "obsolete".
 int ataEnableAutoOffline (int device ){	
   
   /* timer hard coded to 4 hours */
@@ -461,7 +470,8 @@ int ataEnableAutoOffline (int device ){
   return 0;
 }
 
-// Another Obsolete Command!
+// Another Obsolete Command.  See comments directly above, associated
+// with the corresponding Enable command.
 int ataDisableAutoOffline (int device ){	
   unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
   
@@ -618,6 +628,12 @@ int isSmartErrorLogCapable ( struct ata_smart_values *data){
 int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x01;
 }
+
+// Note in the ATA-5 standard, the following bit is listed as "Vendor
+// Specific".  So it may not be reliable. The only use of this that I
+// have found is in IBM drives, where it is well-documented.  See for
+// example page 170, section 13.32.1.18 of the IBM Travelstar 40GNX
+// hard disk drive specifications page 164 Revision 1.1 22 Apr 2002.
 int isSupportAutomaticTimer ( struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x02;
 }
