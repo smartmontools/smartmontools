@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.5 2003/10/27 13:52:32 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.6 2003/10/30 12:56:39 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -33,8 +33,8 @@ report_unsupported () {
     exit 1
 }
 
-# Red Hat or Yellow Dog
-if [ -f /etc/redhat-release -o -f /etc/yellowdog-release ] ; then
+# Red Hat or Yellow Dog or Mandrake
+if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release ] ; then
 
 # Source function library
 . /etc/rc.d/init.d/functions
@@ -56,11 +56,15 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release ] ; then
 	    $0 stop
 	    $0 start
 	    ;;
+	reload)
+	    $0 stop
+	    $0 start
+	    ;;
 	status)
 	    status smartd
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart|status}"
+	    echo "Usage: smartd {start|stop|restart|reload|status}"
 	    exit 1
     esac
     
@@ -99,8 +103,6 @@ elif [ -f /etc/debian_version ] ; then
     report_unsupported "Debian"
 elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
-elif [ -f /etc/mandrake-release ] ; then
-    report_unsupported "Mandrake"
 elif [ -f /etc/SuSE-release ] ; then
     report_unsupported "SuSE"
 elif [ -f /etc/turbolinux-release ] ; then
