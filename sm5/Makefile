@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.63 2003/04/22 22:58:53 guidog Exp $
+# $Id: Makefile,v 1.64 2003/04/22 23:00:32 guidog Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -134,9 +134,9 @@ install:
 	$(INSTALL_PROGRAM) -D $(es)/Example2   $(DESTDIR)/$(examplesdir)/Example2
 	$(INSTALL_PROGRAM) -D $(es)/Example3   $(DESTDIR)/$(examplesdir)/Example3
 	if [ ! -f $(DESTDIR)/etc/smartd.conf ]; then			      \
-	    $(INSTALL_DATA) -m 644 -D smartd.conf $(DESTDIR)/etc/smartd.conf; \
+	    $(INSTALL_DATA) -D smartd.conf $(DESTDIR)/etc/smartd.conf; \
 	else								      \
-	    $(INSTALL_DATA) -m 644 -D smartd.conf $(DESTDIR)/etc/smartd.conf.example;\
+	    $(INSTALL_DATA) -D smartd.conf $(DESTDIR)/etc/smartd.conf.example;\
 	fi
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
