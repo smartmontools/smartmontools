@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.32 2002/11/03 05:45:56 ballen4705 Exp $
+# $Id: Makefile,v 1.33 2002/11/04 08:47:38 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -92,13 +92,15 @@ install:
 	install -m 644 -o root -g root -D TODO          $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
 	install -m 644 -o root -g root -D VERSION       $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
 	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
+	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/etc/smartd.conf.example
+	if [ ! -f $(DESTDIR)/etc/smartd.conf ] ; then install -m 644 -o root -g root -D smartd.conf $(DESTDIR)/etc/smartd.conf ; fi
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
-	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0/\n\n"
+	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0 and /etc/smartd.conf.example/\n\n"
 
 
-# perhaps for consistency I should also have $(DESTDIR) here too...
+# perhaps for consistency I should also have $(DESTDIR) for the uninstall...
 uninstall:
 	rm -f /usr/share/man/man8/smartctl.8    /usr/share/man/man8/smartd.8    /usr/sbin/smartctl \
               /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz /usr/sbin/smartd 
@@ -106,6 +108,7 @@ uninstall:
 	if [ -f /var/lock/subsys/smartd -a -f /etc/rc.d/init.d/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
 	if [ -f /etc/rc.d/init.d/smartd ] ; then /sbin/chkconfig --del smartd ; fi
 	if [ -f /etc/rc.d/init.d/smartd ] ; then  rm -f /etc/rc.d/init.d/smartd ; fi
+	if [ -f /etc/smartd.conf.example ] ; then rm -f /etc/smartd.conf.example ; fi
 	if [ -f /etc/smartd.conf ] ; then echo -e "\n\nWe have NOT REMOVED /etc/smartd.conf\n\n" ; fi
 
 
