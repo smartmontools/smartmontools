@@ -22,7 +22,7 @@
 
 #include "atacmdnames.h"
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.3 2003/07/20 20:09:38 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.4 2003/07/21 20:00:03 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_retired[]         = "[RETIRED]";
@@ -324,23 +324,23 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     }
   case 0x92:  /* DOWNLOAD MICROCODE */
     switch (f_reg) {
-      case 0x01:
-        return "DOWNLOAD MICROCODE [Temporary]";
-      case 0x07:
-        return "DOWNLOAD MICROCODE [Save]";
-      default:
-        return "DOWNLOAD MICROCODE [Reserved subcommand]";
+    case 0x01:
+      return "DOWNLOAD MICROCODE [Temporary]";
+    case 0x07:
+      return "DOWNLOAD MICROCODE [Save]";
+    default:
+      return "DOWNLOAD MICROCODE [Reserved subcommand]";
     }
   case 0xB0:  /* SMART */
     switch (f_reg) {
     case 0xD0:
       return "SMART READ DATA";
     case 0xD1:
-      return "SMART READ THRESHOLDS [OBS-4]";
+      return "SMART READ ATTRIBUTE THRESHOLDS [OBS-4]";
     case 0xD2:
       return "SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE";
     case 0xD3:
-      return "SMART SAVE ATTRIBUTES [OBS-4]";
+      return "SMART SAVE ATTRIBUTE VALUES [OBS-6]";
     case 0xD4:
       return "SMART EXECUTE OFF-LINE IMMEDIATE";
     case 0xD5:
@@ -384,6 +384,8 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Enable write cache]";
     case 0x03:
       return "SET FEATURES [Set transfer mode]";
+    case 0x04:
+      return "SET FEATURES [Enable auto DR] [OBS-4]";
     case 0x05:
       return "SET FEATURES [Enable APM]";
     case 0x06:
@@ -402,10 +404,16 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Set Time-ltd R/W EH]";
     case 0x31:
       return "SET FEATURES [Disable Media Status Notf]";
+    case 0x33:
+      return "SET FEATURES [Disable retry] [OBS-4]";
     case 0x42:
       return "SET FEATURES [Enable AAM]";
     case 0x43:
       return "SET FEATURES [Set Max Host I/F S Times]";
+    case 0x44:
+      return "SET FEATURES [Length of VS data] [OBS-4]";
+    case 0x54:
+      return "SET FEATURES [Set cache segs] [OBS-4]";
     case 0x55:
       return "SET FEATURES [Disable read look-ahead]";
     case 0x5D:
@@ -414,14 +422,20 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Enable SERVICE interrupt]";
     case 0x66:
       return "SET FEATURES [Disable revert defaults]";
+    case 0x77:
+      return "SET FEATURES [Disable ECC] [OBS-4]";
     case 0x81:
       return "SET FEATURES [Disable 8-bit PIO]";
     case 0x82:
       return "SET FEATURES [Disable write cache]";
+    case 0x84:
+      return "SET FEATURES [Disable auto DR] [OBS-4]";
     case 0x85:
       return "SET FEATURES [Disable APM]";
     case 0x86:
       return "SET FEATURES [Disable Pwr-Up In Standby]";
+    case 0x88:
+      return "SET FEATURES [Disable ECC] [OBS-4]";
     case 0x89:
       return "SET FEATURES [Reserved (address offset)]";
     case 0x8A:
@@ -430,8 +444,16 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Reserved for Serial ATA]";
     case 0x95:
       return "SET FEATURES [Enable Media Status Notf]";
+    case 0x99:
+      return "SET FEATURES [Enable retries] [OBS-4]";
+    case 0x9A:
+      return "SET FEATURES [Set max avg curr] [OBS-4]";
     case 0xAA:
       return "SET FEATURES [Enable read look-ahead]";
+    case 0xAB:
+      return "SET FEATURES [Set max prefetch] [OBS-4]";
+    case 0xBB:
+      return "SET FEATURES [4 bytes VS data] [OBS-4]";
     case 0xC2:
       return "SET FEATURES [Disable AAM]";
     case 0xCC:
@@ -440,17 +462,6 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET FEATURES [Disable release interrupt]";
     case 0xDE:
       return "SET FEATURES [Disable SERVICE interrupt]";
-    case 0x04:
-    case 0x33:
-    case 0x44:
-    case 0x54:
-    case 0x77:
-    case 0x84:
-    case 0x88:
-    case 0x99:
-    case 0x9A:
-    case 0xAB:
-    case 0xBB:
     case 0xE0:
       return "SET FEATURES [Obsolete subcommand]";
     default:
