@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.149 2004/05/10 15:33:20 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.150 2004/05/11 14:53:05 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1695,7 +1695,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     name="Bad_Sector";
     break;
   case 137:
-    name="Relocated Sector";
+    name="Relocated_Sector";
     break;
   case 138:
     name="Still_Busy_Timeout";
