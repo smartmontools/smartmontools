@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.49 2003/06/20 13:24:04 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.50 2003/06/30 10:14:58 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -196,7 +196,7 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-            pout("]\n  Outgoing data, len=%d%s:\n", iop->dxfer_len,
+            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
                  (trunc ? " [only first 256 bytes shown]" : ""));
             dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
@@ -242,7 +242,7 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
             if (con->reportscsiioctl > 1) {
                 int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-                pout("  Incoming data, len=%d%s:\n", iop->dxfer_len,
+                pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
                 dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
             }
@@ -259,7 +259,7 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
         if (con->reportscsiioctl > 1) {
-            pout("  >>> Sense buffer, len=%d:\n", len);
+            pout("  >>> Sense buffer, len=%d:\n", (int)len);
             dStrHex(wrk.buff, len , 1);
         }
     }
