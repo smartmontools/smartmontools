@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.200 2003/10/08 13:26:18 ballen4705 Exp $
+$Id: CHANGELOG,v 1.201 2003/10/08 14:09:01 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Code janitor work is os_freebsd.c
 
   [EM] Added os_freebsd.[hc] code.  Additional code janitor
        work.

@@ -3,11 +3,14 @@
 // Eduard could you please add the boilerplace GPL2 copyright
 // boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.8 2003/10/08 13:31:54 ballen4705 Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.9 2003/10/08 14:09:01 arvoreen Exp $" OS_XXXX_H_CVSID;
 
 // Private table of open devices: guaranteed zero on startup since
 // part of static data.
 struct freebsd_dev_channel *devicetable[FREEBSD_MAXDEV];
+
+// forward declaration
+static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *ch);
 
 // Like open().  Return positive integer handle, used by functions below only.  mode=="ATA" or "SCSI".
 int deviceopen (const char* dev, char* mode) {
@@ -52,12 +55,12 @@ int deviceopen (const char* dev, char* mode) {
 }
 
 // Returns 1 if device not available/open/found else 0.  Also shifts fd into valid range.
-static int isnotopen(int *fd) {
+static int isnotopen(int *fd, struct freebsd_dev_channel** fdchan) {
   // put valid "file descriptor" into range 0...FREEBSD_MAXDEV-1
   *fd -= FREEBSD_FDOFFSET;
   
   // check for validity of "file descriptor".
-  if (*fd<0 || *fd>=FREEBSD_MAXDEV || !(con=devicetable[*fd])) {
+  if (*fd<0 || *fd>=FREEBSD_MAXDEV || !((*fdchan)=devicetable[*fd])) {
     errno = ENODEV;
     return 1;
   }
@@ -71,7 +74,7 @@ int deviceclose (int fd) {
   int failed;
 
   // check for valid file descriptor
-  if (isnotopen(&fd))
+  if (isnotopen(&fd, &fdchan))
     return -1;
   
   // close device
@@ -96,7 +99,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   unsigned char buff[512];
 
   // check that "file descriptor" is valid
-  if (isnotopen(&fd))
+  if (isnotopen(&fd,&con))
       return -1;
 
   bzero(buff,512);
@@ -259,7 +262,7 @@ static const char * fbsd_dev_scsi_tape1 = "ns";
 static const char * fbsd_dev_scsi_tape2 = "os";
 static const char * fbsd_dev_scsi_tape3 = "nos";
 
-int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
+static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
   int len;
   int dev_prefix_len = strlen(fbsd_dev_prefix);
   
