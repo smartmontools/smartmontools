@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.20 2004/03/30 20:07:37 shattered Exp $
+$Id: WARNINGS,v 1.21 2004/03/30 20:20:16 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -49,7 +49,7 @@ REPORTER: Georg Acher <acher@in.tum.de>
 LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1457979&forum_id=12495
 NOTE:     Lockup doesn't happen with 2.4.18 kernel, and doesn't affect /dev/hd[a-d]
           This appears to be a problem with the pdc202xx-driver and has been reported
-          to the pdcx maintainers.  If you enable the the Promise-BIOS (ATA100-BIOS) then
+          to the pdcx maintainers.  If you enable the Promise-BIOS (ATA100-BIOS) then
           everything will work fine.  But if you disable it, then the machine will hang.
 
 
