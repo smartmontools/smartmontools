@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.139 2003/10/30 12:56:39 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.140 2003/10/31 22:28:37 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -306,6 +306,13 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Fri Oct 31 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartd: didn't close file descriptors of ATA packet devices
+       that are scanned. Fixed.
+- [BA] Added reload/report targets to the smartmontools init script.
+       reload: reloads config file
+       report: send SIGUSR1 to check devices now
+
 * Mon Oct 27 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [EM] Fix compile issues for FreeBSD < 5-CURRENT.
 - [PW] Added Fujitsu MHM2200AT to knowndrives table.
