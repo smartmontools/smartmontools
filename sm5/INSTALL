@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.26 2003/10/27 13:52:32 ballen4705 Exp $
+$Id: INSTALL,v 1.27 2003/11/26 12:51:18 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -92,7 +92,7 @@ make CFLAGS='your options',
 Note: Please send corrections/additions to:
 smartmontools-support@lists.sourceforge.net
 
-Red Hat
+Red Hat:
  ./configure
  OR EQUIVALENTLY
  ./configure --sbindir=/usr/sbin                               \
@@ -101,46 +101,57 @@ Red Hat
              --with-initscriptdir=/etc/rc.d/init.d             \
              --with-docdir=/usr/share/doc/smartmontools-VERSION
 
-Filesystem Hierarchy Standard (FHS), FreeBSD
+Filesystem Hierarchy Standard (FHS):
   ./configure --sbindir=/usr/local/sbin                               \
               --sysconfdir=/usr/local/etc                             \
               --mandir=/usr/local/man                                 \
               --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
               --with-docdir=/usr/local/share/doc/smartmontools-VERSION
 
-SuSE
-  ./configure [PLEASE ADD]
+FreeBSD:
+  ./configure --sbindir=/usr/local/sbin                               \
+              --sysconfdir=/usr/local/etc                             \
+              --mandir=/usr/local/man                                 \
+              --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
+              --with-docdir=/usr/local/share/doc/smartmontools-VERSION
 
-Debian
+SuSE:
+./configure --sbindir=/usr/sbin                                        \
+            --sysconfdir=/etc                                          \
+            --mandir=/usr/share/man                                    \
+            --with-initscriptdir=/etc/init.d                           \
+            --with-docdir=/usr/share/doc/packages/smartmontools-VERSION
+
+Debian:
  ./configure --prefix=/usr/local
 
-Slackware
-If you don't want to overwrite any "distribution" package, use
+Slackware:
+ If you don't want to overwrite any "distribution" package, use:
  ./configure --prefix=/usr/local
 
-Otherwise use
+ Otherwise use:
  ./configure --sbindir=/usr/sbin                               \
              --sysconfdir=/etc                                 \
              --mandir=/usr/share/man                           \
              --with-initscriptdir=/etc/rc.d                    \
              --with-docdir=/usr/share/doc/smartmontools-VERSION
 
-And
+ And
  removepkg smartmontools smartsuite (only root can do this)
-before make install
+ before make install
 
-The init script works on Slackware. You just have to add an entry like
-the following in /etc/rc.d/rc.M or /etc/rc.d/rc.local:
+ The init script works on Slackware. You just have to add an entry like
+ the following in /etc/rc.d/rc.M or /etc/rc.d/rc.local:
 
-if [ -x /etc/rc.d/smartd ]; then
+ if [ -x /etc/rc.d/smartd ]; then
   . /etc/rc.d/smartd start
-fi
+ fi
 
-To disable it:
-chmod 644 /etc/rc.d/smartd
+ To disable it:
+ chmod 644 /etc/rc.d/smartd
 
-For a list of options:
-/etc/rc.d/smartd
+ For a list of options:
+ /etc/rc.d/smartd
 
 [5] Guidelines for FreeBSD
 ================================================
