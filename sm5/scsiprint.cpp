@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.87 2004/09/05 03:13:35 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.88 2004/09/05 13:55:00 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -52,6 +52,7 @@ extern int exitstatus;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
+#define LOG_RESP_LONG_LEN 8192
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
 
 /* Log pages supported */
@@ -432,11 +433,11 @@ static void scsiPrintErrorCounterLog(int device)
     if (found[0] || found[1] || found[2]) {
         pout("\nError counter log:\n");
         pout("           Errors Corrected by           Total   "
-	     "Correction     Gigabytes    Total\n");
+             "Correction     Gigabytes    Total\n");
         pout("               EEC          rereads/    errors   "
-	     "algorithm      processed    uncorrected\n");
+             "algorithm      processed    uncorrected\n");
         pout("           fast | delayed   rewrites  corrected  "
-	     "invocations   [10^9 bytes]  errors\n");
+             "invocations   [10^9 bytes]  errors\n");
         for (k = 0; k < 3; ++k) {
             if (! found[k])
                 continue;
@@ -455,6 +456,42 @@ static void scsiPrintErrorCounterLog(int device)
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8"PRIu64"\n", nme.counterPC0);
+        if (nme.gotTFE_H)
+            pout("Track following error count [Hitachi]: %8"PRIu64"\n",
+                 nme.counterTFE_H);
+        if (nme.gotPE_H)
+            pout("Positioning error count [Hitachi]: %8"PRIu64"\n",
+                 nme.counterPE_H);
+    }
+    if (0 == scsiLogSense(device, LAST_N_ERROR_LPAGE, gBuf, 
+                          LOG_RESP_LONG_LEN, 0)) {
+        unsigned char * ucp;
+        int num, k, pc, pl;
+
+        num = (gBuf[2] << 8) + gBuf[3];
+        num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
+        ucp = gBuf + 4;
+        if (num < 4)
+            printf("\nNo error events logged\n");
+        else {
+            printf("Last n error events log page\n");
+            for (k = num; k > 0; k -= pl, ucp += pl) {
+                if (k < 3) {
+                    printf("  <<short Last n error events log page>>\n");
+                    break;
+                }
+                pl = ucp[3] + 4;
+                pc = (ucp[0] << 8) + ucp[1];
+                printf("  Error event %d:\n", pc);
+                if (ucp[2] & 0x2) {
+                    printf("    [binary]:\n");
+                    dStrHex((const char *)ucp + 4, pl - 4, 1);
+                } else
+                    printf("    %.*s\n", pl - 4, (const char *)(ucp + 4));
+                num -= pl;
+                ucp += pl;
+            }
+        }
     }
 }
 
@@ -662,7 +699,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         if ((err = scsiStdInquiry(device, gBuf, req_len))) {
             PRINT_ON(con);
             pout("Standard Inquiry (64 bytes) failed [%s]\n",
-		 scsiErrString(err));
+                 scsiErrString(err));
             PRINT_OFF(con);
             return 1;
         }
@@ -693,32 +730,32 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 
     if (0 == strncmp(manufacturer, "3ware", 5)) {
         pout("please try '-d 3ware,N'\n");
-	return 2;
+        return 2;
     } else if ((len >= 42) && (0 == strncmp(&gBuf[36], "MVSATA", 6))) {
         pout("please try '-d marvell'\n");
-	return 2;
+        return 2;
     } else if ((avail_len >= 96) && (0 == strncmp(manufacturer, "ATA", 3))) {
-	/* <<<< This is Linux specific code to detect SATA disks using a
+        /* <<<< This is Linux specific code to detect SATA disks using a
                 SCSI-ATA command translation layer. This may be generalized
                 later when the t10.org SAT project matures. >>>> */
-	req_len = 96;
-	memset(gBuf, 0, req_len);
+        req_len = 96;
+        memset(gBuf, 0, req_len);
         if ((err = scsiInquiryVpd(device, 0x83, gBuf, req_len))) {
             PRINT_ON(con);
             pout("Inquiry for VPD page 0x83 [device id] failed [%s]\n",
-		  scsiErrString(err));
+                  scsiErrString(err));
             PRINT_OFF(con);
             return 1;
         }
         avail_len = ((gBuf[2] << 8) + gBuf[3]) + 4;
         len = (avail_len < req_len) ? avail_len : req_len;
-	if (isLinuxLibAta(gBuf, len)) {
-	    pout("\nSATA disks accessed via libata are not currently "
-		 "supported by\nsmartmontools. When libata is given "
-		 "an ATA pass-thru ioctl() then an\nadditional '-d libata'"
-		 " device type will be added to smartmontools.\n");
-	    return 2;
-	}
+        if (isLinuxLibAta(gBuf, len)) {
+            pout("\nSATA disks accessed via libata are not currently "
+                 "supported by\nsmartmontools. When libata is given "
+                 "an ATA pass-thru ioctl() then an\nadditional '-d libata'"
+                 " device type will be added to smartmontools.\n");
+            return 2;
+        }
     }
 
     /* Do this here to try and detect badly conforming devices (some USB
@@ -773,10 +810,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
             PRINT_ON(con);
-	    if (!is_tape)
-		pout("device is NOT READY (e.g. spun down, busy)\n");
-	    else
-		pout("device is NOT READY (e.g. no tape)\n");
+            if (!is_tape)
+                pout("device is NOT READY (e.g. spun down, busy)\n");
+            else
+                pout("device is NOT READY (e.g. no tape)\n");
             PRINT_OFF(con);
          } else if (SIMPLE_ERR_NO_MEDIUM == err) {
             PRINT_ON(con);
@@ -917,9 +954,9 @@ int scsiPrintMain(int fd)
 
     res = scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo);
     if (res) {
-	if (2 == res)
-	    return 0;
-	else
+        if (2 == res)
+            return 0;
+        else
             failuretest(MANDATORY_CMD, returnval |= FAILID);
     }
 
