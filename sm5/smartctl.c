@@ -31,9 +31,6 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdarg.h>
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#endif
 #include "smartctl.h"
 #include "atacmds.h"
 #include "ataprint.h"
@@ -42,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.30 2002/12/11 00:11:31 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.29 2002/11/25 08:40:48 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -121,38 +118,16 @@ void Usage ( void){
   printf("  smartctl -qvL /dev/hda  (Prints Self-Test & Attribute errors.)\n");
 }
 
-const char shortopts[] = {
-  S_OPT_HELP,
-  S_OPT_ALT_HELP,
-  S_OPT_VERSION,
-  S_OPT_QUIETMODE,
-  ':',
-  S_OPT_DEVICE,
-  ':',
-  S_OPT_TOLERANCE,
-  ':',
-  S_OPT_BADSUM,
-  ':',
-  S_OPT_SMART,
-  ':',
-  S_OPT_OFFLINEAUTO,
-  ':',
-  S_OPT_SAVEAUTO,
-  ':',
-  S_OPT_HEALTH,
-  S_OPT_CAPABILITIES,
-  S_OPT_ATTRIBUTES,
-  S_OPT_LOG,
-  ':',
-  S_OPT_INFO,
-  S_OPT_ALL,
-  S_OPT_VENDORATTRIBUTE,
-  ':',
-  S_OPT_TEST,
-  ':',
-  S_OPT_CAPTIVE,
-  S_OPT_ABORT,
-  '\0'
+const char opts[] = { 
+  DRIVEINFO, CHECKSMART, SMARTVERBOSEALL, SMARTVENDORATTRIB,
+  GENERALSMARTVALUES, SMARTERRORLOG, SMARTSELFTESTLOG, SMARTDISABLE,
+  SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
+  SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
+  SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
+  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,
+  QUIETMODE,VERYQUIETMODE,NOTSCSIDEVICE,NOTATADEVICE,
+  EXITCHECKSUMERROR,ULTRACONSERVATIVE,PERMISSIVE,
+  'h','?','\0'
 };
 
 unsigned char printcopyleft=0,tryata=0,tryscsi=0;
@@ -160,239 +135,123 @@ unsigned char printcopyleft=0,tryata=0,tryscsi=0;
 /*      Takes command options and sets features to be run */	
 void ParseOpts (int argc, char** argv){
   int optchar;
-  int badarg;
-  int captive;
-  struct {
-    int n;
-    char *option;
-  } vendorattribute;
   extern char *optarg;
   extern int optopt, optind, opterr;
-#ifdef HAVE_GETOPT_LONG
-  char *arg;
-  struct option longopts[] = {
-    { L_OPT_HELP,            no_argument,       0, S_OPT_HELP            },
-    { L_OPT_USAGE,           no_argument,       0, S_OPT_HELP            },
-    { L_OPT_VERSION,         no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_COPYRIGHT,       no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_LICENSE,         no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_QUIETMODE,       required_argument, 0, S_OPT_QUIETMODE       },
-    { L_OPT_DEVICE,          required_argument, 0, S_OPT_DEVICE          },
-    { L_OPT_TOLERANCE,       required_argument, 0, S_OPT_TOLERANCE       },
-    { L_OPT_BADSUM,          required_argument, 0, S_OPT_BADSUM          },
-    { L_OPT_SMART,           required_argument, 0, S_OPT_SMART           },
-    { L_OPT_OFFLINEAUTO,     required_argument, 0, S_OPT_OFFLINEAUTO     },
-    { L_OPT_SAVEAUTO,        required_argument, 0, S_OPT_SAVEAUTO        },
-    { L_OPT_HEALTH,          no_argument,       0, S_OPT_HEALTH          },
-    { L_OPT_CAPABILITIES,    no_argument,       0, S_OPT_CAPABILITIES    },
-    { L_OPT_ATTRIBUTES,      no_argument,       0, S_OPT_ATTRIBUTES      },
-    { L_OPT_LOG,             required_argument, 0, S_OPT_LOG             },
-    { L_OPT_INFO,            no_argument,       0, S_OPT_INFO            },
-    { L_OPT_ALL,             no_argument,       0, S_OPT_ALL             },
-    { L_OPT_VENDORATTRIBUTE, required_argument, 0, S_OPT_VENDORATTRIBUTE },
-    { L_OPT_TEST,            required_argument, 0, S_OPT_TEST            },
-    { L_OPT_CAPTIVE,         no_argument,       0, S_OPT_CAPTIVE         },
-    { L_OPT_ABORT,           no_argument,       0, S_OPT_ABORT           },
-    { 0,                     0,                 0, 0                     }
-  };
-#endif
   
   memset(con,0,sizeof(*con));
   con->testcase=-1;
   opterr=optopt=0;
-  badarg = captive = FALSE;
-#ifdef HAVE_GETOPT_LONG
-  while (-1 != (optchar = getopt_long(argc, argv, shortopts, longopts, NULL))) {
-#else
-  while (-1 != (optchar = getopt(argc, argv, shortopts))) {
-#endif
+  while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
-    case S_OPT_VERSION:
+    case EXITCHECKSUMERROR:
+      con->checksumfail=1;
+      break;
+    case PERMISSIVE:
+      con->permissive=1;
+      break;
+    case ULTRACONSERVATIVE:
+      con->conservative=1;
+      break;
+    case NOTATADEVICE:
+      tryata=0;
+      tryscsi=1;
+      break;
+    case NOTSCSIDEVICE:
+      tryata=1;
+      tryscsi=0;
+      break;
+    case QUIETMODE:
+      con->quietmode=TRUE;
+      break;
+    case VERYQUIETMODE:
+      con->veryquietmode=TRUE;
+      break;
+    case SMART009MINUTES:
+      con->smart009minutes=TRUE;
+      break;
+    case PRINTCOPYLEFT :
       printcopyleft=TRUE;
       break;
-    case S_OPT_QUIETMODE:
-      if (!strcmp(optarg,"errorsonly")) {
-        con->quietmode     = TRUE;
-        con->veryquietmode = FALSE;
-      } else if (!strcmp(optarg,"silent")) {
-        con->veryquietmode = TRUE;
-        con->quietmode     = TRUE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_DEVICE:
-      if (!strcmp(optarg,"ata")) {
-        tryata  = TRUE;
-        tryscsi = FALSE;
-      } else if (!strcmp(optarg,"scsi")) {
-        tryata  = TRUE;
-        tryscsi = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_TOLERANCE:
-      if (!strcmp(optarg,"normal")) {
-        con->conservative = FALSE;
-        con->permissive   = FALSE;
-      } else if (!strcmp(optarg,"conservative")) {
-        con->conservative = TRUE;
-        con->permissive   = FALSE;
-      } else if (!strcmp(optarg,"permissive")) {
-        con->permissive   = TRUE;
-        con->conservative = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_BADSUM:
-      if (!strcmp(optarg,"warn")) {
-        con->checksumfail   = FALSE;
-        con->checksumignore = FALSE;
-      } else if (!strcmp(optarg,"exit")) {
-        con->checksumfail   = TRUE;
-        con->checksumignore = FALSE;
-      } else if (!strcmp(optarg,"ignore")) {
-        con->checksumignore = TRUE;
-        con->checksumfail   = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_SMART:
-      if (!strcmp(optarg,"on")) {
-        con->smartenable  = TRUE;
-        con->smartdisable = FALSE;
-      } else if (!strcmp(optarg,"off")) {
-        con->smartdisable = TRUE;
-        con->smartenable  = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_OFFLINEAUTO:
-      if (!strcmp(optarg,"on")) {
-        con->smartautoofflineenable  = TRUE;
-        con->smartautoofflinedisable = FALSE;
-      } else if (!strcmp(optarg,"off")) {
-        con->smartautoofflinedisable = TRUE;
-        con->smartautoofflineenable  = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_SAVEAUTO:
-      if (!strcmp(optarg,"on")) {
-        con->smartautosaveenable  = TRUE;
-        con->smartautosavedisable = FALSE;
-      } else if (!strcmp(optarg,"off")) {
-        con->smartautosavedisable = TRUE;
-        con->smartautosaveenable  = FALSE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_HEALTH:
+    case DRIVEINFO :
+      con->driveinfo  = TRUE;
+      break;		
+    case CHECKSMART :
       con->checksmart = TRUE;		
       break;
-    case S_OPT_CAPABILITIES:
+    case SMARTVERBOSEALL :
+      con->driveinfo = TRUE;
+      con->checksmart = TRUE;
       con->generalsmartvalues = TRUE;
+      con->smartvendorattrib = TRUE;
+      con->smarterrorlog = TRUE;
+      con->smartselftestlog = TRUE;
       break;
-    case S_OPT_ATTRIBUTES:
+    case SMARTVENDORATTRIB :
       con->smartvendorattrib = TRUE;
       break;
-    case S_OPT_LOG:
-      if (!strcmp(optarg,"error")) {
-        con->smarterrorlog = TRUE;
-      } else if (!strcmp(optarg,"selftest")) {
-        con->smartselftestlog = TRUE;
-      } else {
-        badarg = TRUE;
-      }
-      break;
-    case S_OPT_INFO:
-      con->driveinfo = TRUE;
-      break;		
-    case S_OPT_ALL:
-      con->driveinfo          = TRUE;
-      con->checksmart         = TRUE;
+    case GENERALSMARTVALUES :
       con->generalsmartvalues = TRUE;
-      con->smartvendorattrib  = TRUE;
-      con->smarterrorlog      = TRUE;
-      con->smartselftestlog   = TRUE;
       break;
-    case S_OPT_VENDORATTRIBUTE:
-      vendorattribute.option = (char *)malloc(strlen(optarg)+1);
-      if (sscanf(optarg,"%u,%s",&(vendorattribute.n),vendorattribute.option) != 2) {
-        badarg = TRUE;
-      }
-      if (vendorattribute.n == 9 && !strcmp(vendorattribute.option,"minutes")) {
-        con->smart009minutes=TRUE;
-      } else {
-        // Should handle this better
-        badarg = TRUE;
-      }
-      free(vendorattribute.option);
+    case SMARTERRORLOG :
+      con->smarterrorlog = TRUE;
       break;
-    case S_OPT_TEST:
-      if (!strcmp(optarg,"offline")) {
-        con->smartexeoffimmediate = TRUE;
-        con->testcase             = OFFLINE_FULL_SCAN;
-      } else if (!strcmp(optarg,"short")) {
-        con->smartshortselftest = TRUE;
-        con->testcase           = SHORT_SELF_TEST;
-      } else if (!strcmp(optarg,"long")) {
-        con->smartextendselftest = TRUE;
-        con->testcase            = EXTEND_SELF_TEST;
-      } else {
-        badarg = TRUE;
-      }
+    case SMARTSELFTESTLOG :
+      con->smartselftestlog = TRUE;
       break;
-    case S_OPT_CAPTIVE:
-      captive = TRUE;
+    case SMARTDISABLE :
+      con->smartdisable = TRUE;
       break;
-    case S_OPT_ABORT:
+    case SMARTENABLE :
+      con->smartenable   = TRUE;
+      break;
+    case SMARTAUTOSAVEENABLE:
+      con->smartautosaveenable = TRUE;
+      break;
+    case SMARTAUTOSAVEDISABLE:
+      con->smartautosavedisable = TRUE;
+      break;
+    case SMARTAUTOOFFLINEENABLE: 
+      con->smartautoofflineenable = TRUE;
+      break;
+    case SMARTAUTOOFFLINEDISABLE:
+      con->smartautoofflinedisable = TRUE;
+      break;
+    case SMARTEXEOFFIMMEDIATE:
+      con->smartexeoffimmediate = TRUE;
+      con->testcase=OFFLINE_FULL_SCAN;
+      break;
+    case SMARTSHORTSELFTEST :
+      con->smartshortselftest = TRUE;
+      con->testcase=SHORT_SELF_TEST;
+      break;
+    case SMARTEXTENDSELFTEST :
+      con->smartextendselftest = TRUE;
+      con->testcase=EXTEND_SELF_TEST;
+      break;
+    case SMARTSHORTCAPSELFTEST:
+      con->smartshortcapselftest = TRUE;
+      con->testcase=SHORT_CAPTIVE_SELF_TEST;
+      break;
+    case SMARTEXTENDCAPSELFTEST:
+      con->smartextendcapselftest = TRUE;
+      con->testcase=EXTEND_CAPTIVE_SELF_TEST;
+      break;
+    case SMARTSELFTESTABORT:
       con->smartselftestabort = TRUE;
-      con->testcase           = ABORT_SELF_TEST;
+      con->testcase=ABORT_SELF_TEST;
       break;
-    case S_OPT_HELP:
-    case S_OPT_ALT_HELP:
+    case 'h':
+    case '?':
     default:
       con->veryquietmode=FALSE;
       printslogan();
-#ifdef HAVE_GETOPT_LONG
-      // Point arg to the argument in which this option was found.
-      arg = argv[optind-1];
-      // Check whether the option is a long option and options that map to -h.
-      if (arg[1] == '-' && optchar != S_OPT_HELP) {
-        // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (strchr(shortopts, optopt) != NULL)) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n\n",arg+2);
-        } else {
-          pout("=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
-        }
-        Usage();
-        exit(FAILCMD);
-      }
-#endif
-      if (optopt) {
-        // Iff optopt holds a valid option then argument must be missing.
-        if (strchr(shortopts, optopt) != NULL){
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n\n",optopt);
-        } else {
-	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
-        }
+      if (optopt){
+	pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",(int)optopt);
 	Usage();
 	exit(FAILCMD);
       }
       Usage();
       exit(0);	
-    }
-    if (badarg) {
-        pout("=======> INVALID ARGUMENT: %s <======= \n\n",optarg);
-        Usage();
-	exit(FAILCMD);
     }
   }
   // Do this here, so results are independent of argument order	
@@ -407,17 +266,6 @@ void ParseOpts (int argc, char** argv){
     Usage();
     printf ("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
     exit(FAILCMD);
-  }
-
-  // If captive option was used, change test type if appropriate.
-  if (captive && con->smartshortselftest) {
-      con->smartshortselftest    = FALSE;
-      con->smartshortcapselftest = TRUE;
-      con->testcase              = SHORT_CAPTIVE_SELF_TEST;
-  } else if (captive && con->smartextendselftest) {
-      con->smartextendselftest    = FALSE;
-      con->smartextendcapselftest = TRUE;
-      con->testcase               = EXTEND_CAPTIVE_SELF_TEST;
   }
 
   // From here on, normal operations...

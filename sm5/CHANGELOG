@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.69 2002/12/12 13:42:59 ballen4705 Exp $
+$Id: CHANGELOG,v 1.68 2002/12/08 14:37:42 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -31,9 +31,6 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
-
-  [BA] smartctl, smartd simplified internal handling of checksums
-  for simpler porting and less code.
 
 smartmontools-5.0.49
 

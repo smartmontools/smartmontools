@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.14 2002/12/11 00:11:31 pjwilliams Exp $\n"
+#define CVSID6 "$Id: smartctl.h,v 1.13 2002/11/07 19:07:20 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
@@ -58,51 +58,6 @@
 #define EXITCHECKSUMERROR       'W'
 #define ULTRACONSERVATIVE       'U'
 #define PERMISSIVE              'P'
-
-#define S_OPT_HELP              'h'
-#define S_OPT_ALT_HELP          '?'
-#define S_OPT_VERSION           'V'
-#define S_OPT_QUIETMODE         'q'
-#define S_OPT_DEVICE            'd'
-#define S_OPT_TOLERANCE         'T'
-#define S_OPT_BADSUM            'b'
-#define S_OPT_SMART             's'
-#define S_OPT_OFFLINEAUTO       'o'
-#define S_OPT_SAVEAUTO          'S'
-#define S_OPT_HEALTH            'H'
-#define S_OPT_CAPABILITIES      'c'
-#define S_OPT_ATTRIBUTES        'A'
-#define S_OPT_LOG               'l'
-#define S_OPT_INFO              'i'
-#define S_OPT_ALL               'a'
-#define S_OPT_VENDORATTRIBUTE   'v'
-#define S_OPT_TEST              't'
-#define S_OPT_CAPTIVE           'C'
-#define S_OPT_ABORT             'X'
-#ifdef HAVE_GETOPT_LONG
-#define L_OPT_HELP              "help"
-#define L_OPT_USAGE             "usage"
-#define L_OPT_VERSION           "version"
-#define L_OPT_COPYRIGHT         "copyright"
-#define L_OPT_LICENSE           "license"
-#define L_OPT_QUIETMODE         "quietmode"
-#define L_OPT_DEVICE            "device"
-#define L_OPT_TOLERANCE         "tolerance"
-#define L_OPT_BADSUM            "badsum"
-#define L_OPT_SMART             "smart"
-#define L_OPT_OFFLINEAUTO       "offlineauto"
-#define L_OPT_SAVEAUTO          "saveauto"
-#define L_OPT_HEALTH            "health"
-#define L_OPT_CAPABILITIES      "capabilities"
-#define L_OPT_ATTRIBUTES        "attributes"
-#define L_OPT_LOG               "log"
-#define L_OPT_INFO              "info"
-#define L_OPT_ALL               "all"
-#define L_OPT_VENDORATTRIBUTE   "vendorattribute"
-#define L_OPT_TEST              "test"
-#define L_OPT_CAPTIVE           "captive"
-#define L_OPT_ABORT             "abort"
-#endif
 
 
 /* Boolean Values */
