@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.8 2003/08/07 09:58:02 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.9 2003/08/07 10:27:58 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -196,6 +196,7 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
 	   "can be fixed by applying a simple 3w-xxxx driver patch that can be found here:\n"
 	   PROJECTHOME "\n");
     }
+    errno=ENOTSUP;
     return -1;
   }
 
