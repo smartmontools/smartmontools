@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.144 2004/03/25 15:39:25 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.145 2004/03/25 20:54:02 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1596,8 +1596,8 @@ int ataPrintMain (int fd){
       pout("\n");
     }
     if (isSupportSelectiveSelfTest(&smartval)){
-      PRINT_ON(con);
       struct ata_selective_self_test_log log;
+      PRINT_ON(con);
       if (!(ataReadSelectiveSelfTestLog(fd, &log)))
 	ataPrintSelectiveSelfTestLog(&log);
       PRINT_OFF(con);
