@@ -61,10 +61,47 @@ smartd   is a daemon that periodically monitors S.M.A.R.T. status and
          reports errors and changes in S.M.A.R.T. attributes to syslog.
 
 
-Read the "INSTALL" file for installation instructions.
+== OBTAINING SMARTMONTOOLS ==
+
+Source tarballs
+---------------
+
+http://sourceforge.net/project/showfiles.php?group_id=64297
+
+
+CVS
+---
+
+cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
+cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5
+
+To instead get the 5.1-16 release:
+
+cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
+
+This will create a subdirectory called sm5/ containing the code.
+
+To update your sources to the 5.1-18 release:
+
+cd sm5
+cvs up -r RELEASE_5_1_18
+
+To update any tagged release to the latest development code:
+
+cd sm5
+cvs up -A
+
+You can see what the different tags are by looking at
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/ .
+You'll see the tag names in the little scroll window where it says "Show
+only files with tag".
+
+
+Refer to the "INSTALL" file for installation instructions.
 
 See the "WARNINGS" file for reports of hardware where these utilities
 might cause serious problems such as lockups.
+
 
 Starting with smartmontools 5.1.X, the command line options and the
 smartd.conf directives have been renamed.  What follows is a summary
