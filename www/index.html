@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/06/30 18:54:54 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/07/01 11:59:43 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.159 2004/06/30 18:54:54 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.160 2004/07/01 11:59:43 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -737,6 +737,48 @@ for generic Linux instructions.
 
 </li>
 
+<li><b>smartd is warning that my ATA disk has unreadable r uncorrectable or pending sectors. What's going on?</b>
+
+<p>
+Disk drives store data in blocks (sectors) of 512 bytes.  Each 512
+bytes has additional bytes appended to it (usually 40 to 60) which are
+used internally by the disk firmware for error checking/detection and
+correction.  These are called ECC bytes.
+</p>
+<p>
+Sometimes the data in a sector gets corrupted.  This can happen
+because a speck of dust scratched the disk, or because the disk was
+powered down while writing data to that sector, or for other reasons.
+Usually the ECC bytes can be used to correct the corrupted data.
+However if the ECC bytes are inconsistent or can't be used to correct
+the bad data, then the 512 bytes of data are lost.  Such a sector is
+called unreadable or uncorrectable.
+</p>
+<p>
+If your disk has an unreadable sector, this means that some of your
+data can't be retrieved.  You can force the disk to replace the
+unreadable sector with a spare good sector, but only at the price of
+losing the 512 bytes of data forever.
+</p>
+<p>
+Disks with uncorrectable can often be repaired by using the disk
+manufaturer's 'disk evaluation and repair' utility (see previous FAQ
+entry).  Beware: this may force reallocation of the lost sector and
+thus corrupt or destroy any file system on the disk. See <a
+href="http://smartmontools.sourceforge.net/BadBlockHowTo.txt">BadBlockHowTo</a>
+for generic Linux instructions.
+</p>
+<p>
+Normally when an uncorrectable sector is found, the disk puts this
+onto a 'pending sector list' to indicate that it should be replaced
+with a spare good sector.  However this replacement won't take place
+until either the disk can read the data on the bad sector, or is
+commanded to write new data to that bad sector.
+</p>
+
+</li>
+
+
 <li><b>My computer's BIOS has a SMART enable/disable setting.  What
 does it do, and how should I set it?</b>
 <p>
@@ -1006,8 +1048,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/06/30 18:54:54 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.159 2004/06/30 18:54:54 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/07/01 11:59:43 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.160 2004/07/01 11:59:43 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
