@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.42 2003/05/01 08:50:17 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.43 2003/05/01 11:08:45 makisara Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -128,11 +128,15 @@ void scsiGetSmartData(int device)
 
 // Returns number of logged errors or zero if none or -1 if fetching
 // TapeAlerts fails
+static char *severities = "CWI";
+
 static int scsiGetTapeAlertsData(int device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
     int i, err;
+    char *s;
+    const char *ts;
     int failures = 0;
 
     QUIETON(con);
@@ -148,18 +152,22 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     }
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
 
-    for (i = 4; i < pagelength; i += 5) {
-        parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
+    for (s=severities; *s; s++) {
+	for (i = 4; i < pagelength; i += 5) {
+	    parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
 
-        if (gBuf[i + 4]) {
-	    if (!failures)
-		pout("TapeAlert Errors:\n");
-            pout("[0x%02x] %s\n", parametercode,
-		   SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
-		   scsiTapeAlertsChangerDevice(parametercode) :
-                   scsiTapeAlertsTapeDevice(parametercode));
-            failures += 1; 
-        }          
+	    if (gBuf[i + 4]) {
+		ts = SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
+		    scsiTapeAlertsChangerDevice(parametercode) :
+		    scsiTapeAlertsTapeDevice(parametercode);
+		if (*ts == *s) {
+		    if (!failures)
+			pout("TapeAlert Errors (C=Critical, W=Warning, I=Informational):\n");
+		    pout("[0x%02x] %s\n", parametercode, ts);
+		    failures += 1; 
+		}
+	    }
+	}
     }
     QUIETOFF(con);
 
