@@ -3,7 +3,6 @@ smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
 == HOME ==
-
 The home for smartmontools is located at:
     
     http://smartmontools.sourceforge.net/
@@ -37,13 +36,13 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 
 == OVERVIEW ==
-SMARTMONTOOLS contains utilities that control and monitor storage
+smartmontools contains utilities that control and monitor storage
 devices using the Self-Monitoring, Analysis and Reporting Technology
 (S.M.A.R.T.) system build into ATA and SCSI Hard Drives. This is used
 to check the reliability of the hard drive and to predict drive
-failures.  SMARTMONTOOLS Version 5.x is designed to comply to the
+failures.  smartmontools Version 5.x is designed to comply to the
 ATA/ATAPI-5 specification (Revision 1).  Future releases of
-SMARTMONTOOLS (Versions 6.x and 7.x) will comply with the ATA/ATAPI-6
+smartmontools (Versions 6.x and 7.x) will comply with the ATA/ATAPI-6
 and ATA/ATAPI-7 specifications.
 
 This package is meant to be an up-to-date replacement for the
@@ -54,17 +53,17 @@ code.
 == CONTENTS ==
 The suite contains two utilities:
 
-smartctl is a command line utility designed to perform
-         S.M.A.R.T. tasks.such as disk self-checks, and to
-         report the S.M.A.R.T. status of the disk.
+smartctl is a command line utility designed to perform S.M.A.R.T. tasks
+	 such as disk self-checks, and to report the S.M.A.R.T. status of
+	 the disk.
 
 smartd   is a daemon that periodically monitors S.M.A.R.T. status and
          reports errors and changes in S.M.A.R.T. attributes to syslog.
 
 
-See the file "INSTALL" for installation instructions.
+Read the "INSTALL" file for installation instructions.
 
-See the file "WARNINGS" for reports of hardware where these utilities
+See the "WARNINGS" file for reports of hardware where these utilities
 might cause serious problems such as lockups.
 
 Starting with smartmontools 5.1.X, the command line options and the
@@ -73,8 +72,8 @@ table showing the comparison between the old and the new option and
 directive names.
 
 == NEW OPTION NAMES FOR SMARTCTL 5.1 ==
-The following is a synopsis of the new options in smartctl 5.1 -- please see the
-man pages for more information.
+The following is a synopsis of the new options in smartctl 5.1 -- please
+see the man pages for more information.
 
   -h, --help, --usage
         Show usage and syntax help

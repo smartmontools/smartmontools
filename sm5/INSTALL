@@ -13,10 +13,10 @@ To install, use the commands:
 make
 make install
 
-Please read the manual pages for smartctl, smartd, and smartd.conf for
-more information:
+Please read the smartd.conf, smartctl, and smartd man pages for more
+information:
 
-man smartctl.conf
+man smartd.conf
 man smartctl
 man smartd
 
