@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.21 2002/11/13 10:04:13 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.22 2002/11/21 14:11:20 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -39,9 +39,9 @@
 #define MAXENTRIES 64
 
 // maximum length of a continued line in configuration file
-#define MAXCONTLINE 511
+#define MAXCONTLINE 1023
 
-// how often SMART status is checked, in seconds
+// default for how often SMART status is checked, in seconds
 #define CHECKTIME 1800
 
 // maximum number of ATA devices to monitor
@@ -66,6 +66,8 @@ typedef struct mailinfo {
   int logged;
   // time last email was sent, as defined by man 2 time
   time_t lastsent;
+  // time problem initially logged
+  time_t firstsent;
 } mailinfo;
 
 // Used to store a list of devices and options that were in the
@@ -85,8 +87,9 @@ typedef struct configfile_s {
   char errorlog;
   // Should we ignore missing capabilities/SMART errors
   char permissive;
-  // mailing information for each of the previous error types
-  mailinfo maildata[4];
+  // mailing information for four of the previous error types plus mailtest
+  mailinfo maildata[5];
+  char emailopt;
   // address to send email to
   char *address;
   // counts of ata and self-test errors.  Perhaps ought to be in the
@@ -123,6 +126,6 @@ typedef struct scsidevices_s {
 
 // Declare our own printing functions...
 void printout(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
-void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
+void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 
 int ataCheckDevice(atadevices_t *drive);
