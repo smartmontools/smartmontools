@@ -3,7 +3,13 @@
 # do a smartmontools release
 # (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.30 2004/05/04 21:30:58 ballen4705 Exp $
+# $Id: do_release,v 1.31 2004/07/05 07:41:52 ballen4705 Exp $
+
+# Notes on generating releases:
+# (1) update NEWS
+# (2) update CHANGELOG -- put in release number
+# (3) update release number in configure.in and smartmontools.spec
+# (4) update internal changelog in smartmontools.spec
 
 USECVS=1
 
