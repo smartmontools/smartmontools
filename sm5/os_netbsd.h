@@ -24,7 +24,7 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.3 2004/01/29 21:49:32 shattered Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.4 2004/02/18 22:53:49 shattered Exp $\n"
 
 #include <sys/param.h>
 #include <sys/sysctl.h>
@@ -32,6 +32,9 @@
 #include <dev/ata/atavar.h>
 #include <dev/ic/wdcreg.h>
 #include <sys/ataio.h>
+#include <sys/scsiio.h>
+
+#include <err.h>
 #include <util.h>
 
 #ifndef	WDSM_RD_THRESHOLDS	/* pre-1.6.2 system */
