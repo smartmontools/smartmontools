@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.95 2003/04/22 03:13:42 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.96 2003/04/25 22:22:56 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1060,7 +1060,7 @@ int ataSmartTest(int device, int testtype){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 
     syserror(errormsg);
-    fprintf(stderr,"\n");
+    pout("\n");
     return -1;
   }
   

@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.8 2003/04/22 04:24:03 dpgilbert Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.9 2003/04/25 22:22:56 ballen4705 Exp $" UTILITY_H_CVSID;
 
 
 // Utility function prints date and time and timezone into a character
@@ -119,7 +119,7 @@ void printone(char *block, const char *cvsid){
 
   // check that the size of the output block is sufficient
   if (len>=CVSMAXLEN) {
-    fprintf(stderr,"CVSMAXLEN=%d must be at least %d\n",CVSMAXLEN,len+1);
+    pout("CVSMAXLEN=%d must be at least %d\n",CVSMAXLEN,len+1);
     exit(1);
   }
 

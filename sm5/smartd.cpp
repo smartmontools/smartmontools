@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.156 2003/04/22 12:38:44 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.157 2003/04/25 22:22:56 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -398,16 +398,16 @@ void write_pid_file() {
     int error = 0;
     pid_t pid = getpid();
     mode_t old_umask;
-    FILE* fd; 
+    FILE* fp; 
     
     old_umask = umask(0077);
-    fd = fopen(pid_file, "w");
+    fp = fopen(pid_file, "w");
     umask(old_umask);
-    if (fd == NULL) {
+    if (fp == NULL) {
       error = 1;
-    } else if (fprintf(fd, "%d\n", pid) <= 0) {
+    } else if (fprintf(fp, "%d\n", pid) <= 0) {
       error = 1;
-    } else if (fclose(fd) != 0) {
+    } else if (fclose(fp) != 0) {
       error = 1;
     }
     if (error) {

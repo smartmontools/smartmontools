@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.83 2003/04/20 15:38:37 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.84 2003/04/25 22:22:56 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -839,7 +839,7 @@ void failuretest(int type, int returnvalue){
     exit(returnvalue);
   }
 
-  fprintf(stderr,"Smartctl internal error in failuretest(type=%d). Please contact %s\n",type,PROJECTHOME);
+  pout("Smartctl internal error in failuretest(type=%d). Please contact %s\n",type,PROJECTHOME);
   exit(returnvalue|FAILCMD);
 }
 
@@ -1138,20 +1138,29 @@ int ataPrintMain (int fd){
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    if (ataReadErrorLog(fd, &smarterror)){
-      pout("Smartctl: SMART Errorlog Read Failed\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-    }
     else {
-      // quiet mode is turned on inside ataPrintSmartErrorLog()
-      if (ataPrintSmartErrorlog(&smarterror))
-	returnval|=FAILERR;
-      QUIETOFF(con);
+      if (ataReadErrorLog(fd, &smarterror)){
+	pout("Smartctl: SMART Errorlog Read Failed\n");
+	failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+      else {
+	// quiet mode is turned on inside ataPrintSmartErrorLog()
+	if (ataPrintSmartErrorlog(&smarterror))
+	  returnval|=FAILERR;
+	QUIETOFF(con);
+      }
     }
   }
   
   // Print SMART self-test log
   if (con->smartselftestlog){
+    // Note that in spite of it's name, isSmartErrorLogCapable() is
+    // the CORRECT way to see if a device supports the self-test log.
+    // The ATA spec says "if this command (READ LOG) is implemented,
+    // all address values for which the contents are defined shall be
+    // implemented...".  Since both the SMART self-test logs AND the
+    // SMART error logs are defined, if one will work then so will the
+    // other.
     if (!isSmartErrorLogCapable(&smartval)){
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
