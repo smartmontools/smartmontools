@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.24 2003/12/01 06:02:08 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.25 2003/12/09 21:19:13 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -231,11 +231,11 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   iocmd.channel=con->channel;
   iocmd.device=con->device;
 
-  iocmd.u.request.u.ata.command=WIN_SMART;
+  iocmd.u.request.u.ata.command=ATA_SMART_CMD;
   iocmd.u.request.timeout=600;
   switch (command){
   case READ_VALUES:
-    iocmd.u.request.u.ata.feature=SMART_READ_VALUES;
+    iocmd.u.request.u.ata.feature=ATA_SMART_READ_VALUES;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_READ;
     iocmd.u.request.data=buff;
@@ -243,7 +243,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     copydata=1;
     break;
   case READ_THRESHOLDS:
-    iocmd.u.request.u.ata.feature=SMART_READ_THRESHOLDS;
+    iocmd.u.request.u.ata.feature=ATA_SMART_READ_THRESHOLDS;
     iocmd.u.request.u.ata.count=1;
     iocmd.u.request.u.ata.lba=1|(0xc24f<<8);
     iocmd.u.request.flags=ATA_CMD_READ;
@@ -252,7 +252,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     copydata=1;
     break;
   case READ_LOG:
-    iocmd.u.request.u.ata.feature=SMART_READ_LOG_SECTOR;
+    iocmd.u.request.u.ata.feature=ATA_SMART_READ_LOG_SECTOR;
     iocmd.u.request.u.ata.lba=select|(0xc24f<<8);
     iocmd.u.request.u.ata.count=1;
     iocmd.u.request.flags=ATA_CMD_READ;
@@ -261,43 +261,43 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     copydata=1;
     break;
   case IDENTIFY:
-    iocmd.u.request.u.ata.command=WIN_IDENTIFY;
+    iocmd.u.request.u.ata.command=ATA_IDENTIFY_DEVICE;
     iocmd.u.request.flags=ATA_CMD_READ;
     iocmd.u.request.data=buff;
     iocmd.u.request.count=512;
     copydata=1;
     break;
   case PIDENTIFY:
-    iocmd.u.request.u.ata.command=WIN_PIDENTIFY;
+    iocmd.u.request.u.ata.command=ATA_IDENTIFY_PACKET_DEVICE;
     iocmd.u.request.flags=ATA_CMD_READ;
     iocmd.u.request.data=buff;
     iocmd.u.request.count=512;
     copydata=1;
     break;
   case ENABLE:
-    iocmd.u.request.u.ata.feature=SMART_ENABLE;
+    iocmd.u.request.u.ata.feature=ATA_SMART_ENABLE;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_CONTROL;
     break;
   case DISABLE:
-    iocmd.u.request.u.ata.feature=SMART_DISABLE;
+    iocmd.u.request.u.ata.feature=ATA_SMART_DISABLE;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_CONTROL;
     break;
   case AUTO_OFFLINE:
     // NOTE: According to ATAPI 4 and UP, this command is obsolete
-    iocmd.u.request.u.ata.feature=SMART_AUTO_OFFLINE;
+    iocmd.u.request.u.ata.feature=ATA_SMART_AUTO_OFFLINE;
     iocmd.u.request.u.ata.lba=select|(0xc24f<<8);
     iocmd.u.request.flags=ATA_CMD_CONTROL;
     break;
   case AUTOSAVE:
-    iocmd.u.request.u.ata.feature=SMART_AUTOSAVE;
+    iocmd.u.request.u.ata.feature=ATA_SMART_AUTOSAVE;
     iocmd.u.request.u.ata.count=0xf1;  // to enable autosave
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_CONTROL;
     break;
   case IMMEDIATE_OFFLINE:
-    iocmd.u.request.u.ata.feature=SMART_IMMEDIATE_OFFLINE;
+    iocmd.u.request.u.ata.feature=ATA_SMART_IMMEDIATE_OFFLINE;
     iocmd.u.request.u.ata.lba = select|(0xc24f<<8); // put test in sector
     iocmd.u.request.flags=ATA_CMD_CONTROL;
     break;
@@ -305,7 +305,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   case STATUS:
     // this command only says if SMART is working.  It could be
     // replaced with STATUS_CHECK below.
-    iocmd.u.request.u.ata.feature=SMART_STATUS;
+    iocmd.u.request.u.ata.feature=ATA_SMART_STATUS;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_CONTROL;
 #ifdef ATA_CMD_READ_REG

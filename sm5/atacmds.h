@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.56 2003/12/01 21:53:43 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.57 2003/12/09 21:19:13 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -54,28 +54,28 @@ typedef enum {
 } smart_command_set;
 
 // ATA Specification Command Register Values (Commands)
-#define WIN_IDENTIFY            0xec						  
-#define WIN_PIDENTIFY		0xa1
-#define WIN_SMART		0xb0
+#define ATA_IDENTIFY_DEVICE             0xec						  
+#define ATA_IDENTIFY_PACKET_DEVICE      0xa1
+#define ATA_SMART_CMD                   0xb0
 
 // ATA Specification Feature Register Values (SMART Subcommands).
 // Note that some are obsolete as of ATA-7.
-#define SMART_READ_VALUES	0xd0
-#define SMART_READ_THRESHOLDS	0xd1
-#define SMART_AUTOSAVE		0xd2
-#define SMART_SAVE		0xd3
-#define SMART_IMMEDIATE_OFFLINE	0xd4
-#define SMART_READ_LOG_SECTOR   0xd5
-#define SMART_WRITE_LOG_SECTOR  0xd6
-#define SMART_WRITE_THRESHOLDS  0xd7
-#define SMART_ENABLE		0xd8
-#define SMART_DISABLE		0xd9
-#define SMART_STATUS		0xda
+#define ATA_SMART_READ_VALUES           0xd0
+#define ATA_SMART_READ_THRESHOLDS       0xd1
+#define ATA_SMART_AUTOSAVE              0xd2
+#define ATA_SMART_SAVE                  0xd3
+#define ATA_SMART_IMMEDIATE_OFFLINE     0xd4
+#define ATA_SMART_READ_LOG_SECTOR       0xd5
+#define ATA_SMART_WRITE_LOG_SECTOR      0xd6
+#define ATA_SMART_WRITE_THRESHOLDS      0xd7
+#define ATA_SMART_ENABLE                0xd8
+#define ATA_SMART_DISABLE               0xd9
+#define ATA_SMART_STATUS                0xda
 // SFF 8035i Revision 2 Specification Feature Register Value (SMART
 // Subcommand)
-#define SMART_AUTO_OFFLINE	0xdb
+#define ATA_SMART_AUTO_OFFLINE          0xdb
 
-// Sector Number values for SMART_IMMEDIATE_OFFLINE Subcommand
+// Sector Number values for ATA_SMART_IMMEDIATE_OFFLINE Subcommand
 #define OFFLINE_FULL_SCAN		0
 #define SHORT_SELF_TEST			1
 #define EXTEND_SELF_TEST		2
