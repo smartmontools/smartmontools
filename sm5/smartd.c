@@ -46,7 +46,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.67 2002/11/21 14:11:19 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.68 2002/11/21 14:50:20 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -156,7 +156,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
       sprintf(additional,"No additional email messages about this problem will be sent.\n");
       break;
     case 2:
-      sprintf(additional,"Another email message will be sent in 24 hours if the problem persists\n");
+      sprintf(additional,"Another email message will be sent in 24 hours if the problem persists.\n");
       break;
     case 3:
       sprintf(additional,"Another email message will be sent in %d days if the problem persists\n",
