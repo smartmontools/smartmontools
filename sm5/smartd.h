@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.65 2003/12/08 17:25:59 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.66 2003/12/10 13:52:06 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -92,6 +92,7 @@ typedef struct testinfo_s {
   char *regex;                    // text form of regex
   regex_t cregex;                 // compiled form of regex
   unsigned short hour;            // 1+hour of year when last scheduled self-test done
+  char testtype;                  // type of test done at hour indicated just above
   signed char not_cap_offline;    // 0==unknown OR capable of offline, 1==not capable 
   signed char not_cap_conveyance;
   signed char not_cap_short;

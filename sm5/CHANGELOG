@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.287 2003/12/09 22:40:13 pjwilliams Exp $
+$Id: CHANGELOG,v 1.288 2003/12/10 13:52:06 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: reduced number of scheduled self-test messages if
+       test already run in current hour.
 
   [PW] Added Maxtor DiamondMax Plus 8 family to knowndrives table.
 
