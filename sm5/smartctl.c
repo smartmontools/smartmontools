@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.109 2003/12/01 06:02:08 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.110 2003/12/10 11:30:31 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -299,7 +299,7 @@ void printvalidarglistmessage(char opt) {
 
 unsigned char tryata=0,tryscsi=0;
 
-/*      Takes command options and sets features to be run */	
+/*      Takes command options and sets features to be run */    
 void ParseOpts (int argc, char** argv){
   int optchar;
   int badarg;
@@ -350,11 +350,11 @@ void ParseOpts (int argc, char** argv){
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
 #ifdef HAVE_GETOPT_LONG
-		getopt_long(argc, argv, shortopts, longopts, NULL)
+                getopt_long(argc, argv, shortopts, longopts, NULL)
 #else
-		getopt(argc, argv, shortopts)
+                getopt(argc, argv, shortopts)
 #endif
-		)){
+                )){
     switch (optchar){
     case 'V':
       con->veryquietmode=FALSE;
@@ -375,39 +375,39 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'd':
       if (!strcmp(optarg,"ata")) {
-	tryata  = TRUE;
-	tryscsi = FALSE;
-	con->escalade = 0;
+        tryata  = TRUE;
+        tryscsi = FALSE;
+        con->escalade = 0;
       } else if (!strcmp(optarg,"scsi")) {
-	tryata  = FALSE;
-	tryscsi = TRUE;
-	con->escalade = 0;
+        tryata  = FALSE;
+        tryscsi = TRUE;
+        con->escalade = 0;
       } else {
-	// look for RAID-type device
-	int i;
+        // look for RAID-type device
+        int i;
         char *s;
-	
-	// make a copy of the string to mess with
-	if (!(s = strdup(optarg))) {
+        
+        // make a copy of the string to mess with
+        if (!(s = strdup(optarg))) {
           con->veryquietmode = FALSE;
           pout("No memory for argument of -d. Exiting...\n");
           exit(FAILCMD);
         } else if (strncmp(s,"3ware,",6)) {
-	  badarg = TRUE;
-	} else if (split_report_arg2(s, &i)) {
-	  pout("Option -d 3ware,N requires N to be a non-negative integer\n");
-	  badarg = TRUE;
+          badarg = TRUE;
+        } else if (split_report_arg2(s, &i)) {
+          pout("Option -d 3ware,N requires N to be a non-negative integer\n");
+          badarg = TRUE;
         } else if (i<0 || i>15) {
-	  pout("Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
-	  badarg = TRUE;
-	} else {
-	  // NOTE: escalade = disk number + 1
+          pout("Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
+          badarg = TRUE;
+        } else {
+          // NOTE: escalade = disk number + 1
           con->escalade = i+1;
-	  tryata  = TRUE;
-	  tryscsi = FALSE;
-	}
+          tryata  = TRUE;
+          tryscsi = FALSE;
+        }
         free(s);
-      } 	
+      }         
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
@@ -417,7 +417,7 @@ void ParseOpts (int argc, char** argv){
         con->conservative = TRUE;
       } else if (!strcmp(optarg,"permissive")) {
         if (con->permissive<0xff)
-	  con->permissive++;
+          con->permissive++;
       } else if (!strcmp(optarg,"verypermissive")) {
         con->permissive=0xff;
       } else {
@@ -499,7 +499,7 @@ void ParseOpts (int argc, char** argv){
       }
       break;
     case 'H':
-      con->checksmart = TRUE;		
+      con->checksmart = TRUE;           
       break;
     case 'F':
       if (!strcmp(optarg,"none")) {
@@ -531,7 +531,7 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'i':
       con->driveinfo = TRUE;
-      break;		
+      break;            
     case 'a':
       con->driveinfo          = TRUE;
       con->checksmart         = TRUE;
@@ -556,11 +556,11 @@ void ParseOpts (int argc, char** argv){
       }
       charp=con->attributedefs;
       if (!charp){
-	pout("Fatal internal error in ParseOpts()\n");
-	EXIT(FAILCMD);
+        pout("Fatal internal error in ParseOpts()\n");
+        EXIT(FAILCMD);
       }
       if (parse_attribute_def(optarg, &charp))
-	badarg = TRUE;
+        badarg = TRUE;
       break;    
     case 'P':
       if (!strcmp(optarg, "use")) {
@@ -606,7 +606,7 @@ void ParseOpts (int argc, char** argv){
               pout("ERROR: No more than five selective self-test spans may be"
                 " defined\n");
             }
-	    UsageSummary();
+            UsageSummary();
             EXIT(FAILCMD);
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
@@ -630,7 +630,7 @@ void ParseOpts (int argc, char** argv){
       con->veryquietmode=FALSE;
       printslogan();
       Usage();
-      EXIT(0);	
+      EXIT(0);  
       break;
     case '?':
     default:
@@ -645,10 +645,10 @@ void ParseOpts (int argc, char** argv){
         if (optopt && (strchr(shortopts, optopt) != NULL)) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n", arg+2);
           printvalidarglistmessage(optopt);
-	} else
-	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
-	UsageSummary();
-	EXIT(FAILCMD);
+        } else
+          pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
+        UsageSummary();
+        EXIT(FAILCMD);
       }
 #endif
       if (optopt) {
@@ -659,12 +659,12 @@ void ParseOpts (int argc, char** argv){
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n", optopt);
           printvalidarglistmessage(optopt);
         } else
-	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
-	UsageSummary();
-	EXIT(FAILCMD);
+          pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
+        UsageSummary();
+        EXIT(FAILCMD);
       }
       Usage();
-      EXIT(0);	
+      EXIT(0);  
     } // closes switch statement to process command-line options
     
     // Check to see if option had an unrecognized or incorrect argument.
@@ -681,13 +681,13 @@ void ParseOpts (int argc, char** argv){
   }
   // At this point we have processed all command-line options.
 
-  // Do this here, so results are independent of argument order	
+  // Do this here, so results are independent of argument order 
   if (con->quietmode)
     con->veryquietmode=TRUE;
 
   // error message if user has asked for more than one test
   if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
-	 con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
+         con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
     con->veryquietmode=FALSE;
     printslogan();
     pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");

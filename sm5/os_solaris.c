@@ -48,7 +48,7 @@
 
 extern long long bytes;
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.9 2003/12/01 06:02:08 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.10 2003/12/10 11:30:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -84,34 +84,34 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-	 "  smartctl -a /dev/rdsk/c0t0d0s0             (Prints all SMART information)\n\n"
-	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/rdsk/c0t0d0s0\n"
-	 "                                              (Enables SMART on first disk)\n\n"
-	 "  smartctl -t long /dev/rdsk/c0t0d0s0 (Executes extended disk self-test)\n\n"
-	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/rdsk/c0t0d0s0\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 );
+         "  smartctl -a /dev/rdsk/c0t0d0s0             (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/rdsk/c0t0d0s0\n"
+         "                                              (Enables SMART on first disk)\n\n"
+         "  smartctl -t long /dev/rdsk/c0t0d0s0 (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/rdsk/c0t0d0s0\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         );
 #else
   printf(
-	 "  smartctl -a /dev/rdsk/c0t0d0s0               (Prints all SMART information)\n"
-	 "  smartctl -s on -o on -S on /dev/rdsk/c0t0d0s0 (Enables SMART on first disk)\n"
-	 "  smartctl -t long /dev/rdsk/c0t0d0s0      (Executes extended disk self-test)\n"
-	 "  smartctl -A -l selftest -q errorsonly /dev/rdsk/c0t0d0s0\n"
-	 "                                        (Prints Self-Test & Attribute errors)\n"
-	 );
+         "  smartctl -a /dev/rdsk/c0t0d0s0               (Prints all SMART information)\n"
+         "  smartctl -s on -o on -S on /dev/rdsk/c0t0d0s0 (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/rdsk/c0t0d0s0      (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/rdsk/c0t0d0s0\n"
+         "                                        (Prints Self-Test & Attribute errors)\n"
+         );
 #endif
   return;
 }
 
 static const char *uscsidrvrs[] = {
-	"sd",
-	"ssd",
-	"st"
+        "sd",
+        "ssd",
+        "st"
 };
 
 static const char *atadrvrs[] = {
-	"cmdk",
-	"dad",
+        "cmdk",
+        "dad",
 };
 
 static int
@@ -160,103 +160,103 @@ int guess_device_type (const char* dev_name) {
 }
 
 struct pathlist {
-	char **names;
-	int  nnames;
-	int  maxnames;
+        char **names;
+        int  nnames;
+        int  maxnames;
 };
 
 static int
 addpath(const char *path, struct pathlist *res)
 {
-	if (++res->nnames > res->maxnames) {
-		res->maxnames += 16;
-		res->names = realloc(res->names, res->maxnames * sizeof (char *));
-		if (res->names == NULL)
-			return -1;
-		bytes += 16*sizeof(char *);
-	}
-	if (!(res->names[res->nnames-1] = CustomStrDup((char *)path, 1, __LINE__, __FILE__)))
-		return -1;
-	return 0;
+        if (++res->nnames > res->maxnames) {
+                res->maxnames += 16;
+                res->names = realloc(res->names, res->maxnames * sizeof (char *));
+                if (res->names == NULL)
+                        return -1;
+                bytes += 16*sizeof(char *);
+        }
+        if (!(res->names[res->nnames-1] = CustomStrDup((char *)path, 1, __LINE__, __FILE__)))
+                return -1;
+        return 0;
 }
 
 static int 
 grokdir(const char *dir, struct pathlist *res, int testfun(const char *))
 {
-	char pathbuf[MAXPATHLEN];
-	size_t len;
-	DIR *dp;
-	struct dirent *de;
-	int isdisk = strstr(dir, "dsk") != NULL;
-	char *p;
+        char pathbuf[MAXPATHLEN];
+        size_t len;
+        DIR *dp;
+        struct dirent *de;
+        int isdisk = strstr(dir, "dsk") != NULL;
+        char *p;
 
-	len = snprintf(pathbuf, sizeof (pathbuf), "%s/", dir);
-	if (len >= sizeof (pathbuf))
-		return -1;
+        len = snprintf(pathbuf, sizeof (pathbuf), "%s/", dir);
+        if (len >= sizeof (pathbuf))
+                return -1;
 
-	dp = opendir(dir);
-	if (dp == NULL)
-		return 0;
+        dp = opendir(dir);
+        if (dp == NULL)
+                return 0;
 
-	while ((de = readdir(dp)) != NULL) {
-		if (de->d_name[0] == '.')
-			continue;
+        while ((de = readdir(dp)) != NULL) {
+                if (de->d_name[0] == '.')
+                        continue;
 
-		if (strlen(de->d_name) + len >= sizeof (pathbuf))
-			continue;
+                if (strlen(de->d_name) + len >= sizeof (pathbuf))
+                        continue;
 
-		if (isdisk) {
-			/* Disk represented by slice 0 */
-			p = strstr(de->d_name, "s0");
-			/* String doesn't end in "s0\0" */
-			if (p == NULL || p[2] != '\0')
-				continue;
-		} else {
-			/* Tape drive represented by the all-digit device */
-			for (p = de->d_name; *p; p++)
+                if (isdisk) {
+                        /* Disk represented by slice 0 */
+                        p = strstr(de->d_name, "s0");
+                        /* String doesn't end in "s0\0" */
+                        if (p == NULL || p[2] != '\0')
+                                continue;
+                } else {
+                        /* Tape drive represented by the all-digit device */
+                        for (p = de->d_name; *p; p++)
                                 if (!isdigit((int)(*p)))
-					break;
-			if (*p != '\0')
-				continue;
-		}
-		strcpy(&pathbuf[len], de->d_name);
-		if (testfun(pathbuf)) {
-			if (addpath(pathbuf, res) == -1) {
-				closedir(dp);
-				return -1;
-			}
-		}
-	}
-	closedir(dp);
+                                        break;
+                        if (*p != '\0')
+                                continue;
+                }
+                strcpy(&pathbuf[len], de->d_name);
+                if (testfun(pathbuf)) {
+                        if (addpath(pathbuf, res) == -1) {
+                                closedir(dp);
+                                return -1;
+                        }
+                }
+        }
+        closedir(dp);
 
-	return 0;
+        return 0;
 }
 
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of
 // smartd.  Returns number of devices, or -1 if out of memory.
 int make_device_names (char*** devlist, const char* name) {
-	struct pathlist res;
+        struct pathlist res;
 
-	res.nnames = res.maxnames = 0;
-	res.names = NULL;
-	if (strcmp(name, "SCSI") == 0) {
-		if (grokdir("/dev/rdsk", &res, isscsidev) == -1)
-			return -1;
-		if (grokdir("/dev/rmt", &res, isscsidev) == -1)
-			return -1;
+        res.nnames = res.maxnames = 0;
+        res.names = NULL;
+        if (strcmp(name, "SCSI") == 0) {
+                if (grokdir("/dev/rdsk", &res, isscsidev) == -1)
+                        return -1;
+                if (grokdir("/dev/rmt", &res, isscsidev) == -1)
+                        return -1;
 
-		// shrink array to min possible size
-		res.names = realloc(res.names, res.nnames * sizeof (char *));
-		bytes -= sizeof(char *)*(res.maxnames-res.nnames);
+                // shrink array to min possible size
+                res.names = realloc(res.names, res.nnames * sizeof (char *));
+                bytes -= sizeof(char *)*(res.maxnames-res.nnames);
 
-		// pass list back
-		*devlist = res.names;
-		return res.nnames;
-	}
-	
-	// ATA case not implemented
-	*devlist=NULL;
-	return 0;
+                // pass list back
+                *devlist = res.names;
+                return res.nnames;
+        }
+        
+        // ATA case not implemented
+        *devlist=NULL;
+        return 0;
 }
 
 // Like open().  Return integer handle, used by functions below only.

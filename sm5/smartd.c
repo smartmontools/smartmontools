@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.263 2003/12/10 05:16:58 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.264 2003/12/10 11:30:31 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -226,7 +226,7 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   // pointer should never be null!
   if (!anentry){
     PrintOut(LOG_CRIT,"Internal error in RmConfigEntry() at line %d of file %s\n%s",
-	     whatline, __FILE__, reportbug);    
+             whatline, __FILE__, reportbug);    
     EXIT(EXIT_BADCODE);
   }
   
@@ -288,7 +288,7 @@ void RemovePidFile(){
   if (pid_file) {
     if ( -1==unlink(pid_file) )
       PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
-	       pid_file, strerror(errno));
+               pid_file, strerror(errno));
     pid_file=FreeNonZero(pid_file, -1,__LINE__,__FILE__);
   }
   return;
@@ -319,7 +319,7 @@ void sighandler(int sig){
   int isok=debugmode?isterm || isquit:isterm;
 
   PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
-	   sig, strsignal(sig));
+           sig, strsignal(sig));
   
   EXIT(isok?0:EXIT_SIGNAL);
 }
@@ -413,7 +413,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   }
   if (which<0 || which>=SMARTD_NMAIL || sizeof(whichfail)!=SMARTD_NMAIL*sizeof(char *)) {
     PrintOut(LOG_CRIT,"Contact " PACKAGE_BUGREPORT "; internal error in MailWarning(): which=%d, size=%d\n",
-	     which, (int)sizeof(whichfail));
+             which, (int)sizeof(whichfail));
     return;
   }
   
@@ -684,34 +684,34 @@ void PrintHead(){
 // prints help info for configuration file Directives
 void Directives() {
   PrintOut(LOG_INFO,
-	   "Configuration file (%s) Directives (after device name):\n"
-	   "  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n"
-	   "  -T TYPE Set the tolerance to one of: normal, permissive\n"
-	   "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
-	   "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-	   "  -H      Monitor SMART Health Status, report if failed\n"
-	   "  -S REG  Do Self-Test at time(s) given by regular expression REG\n"
-	   "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
-	   "  -f      Monitor 'Usage' Attributes, report failures\n"
-	   "  -m ADD  Send email warning to address ADD\n"
-	   "  -M TYPE Modify email warning behavior (see man page)\n"
-	   "  -p      Report changes in 'Prefailure' Attributes\n"
-	   "  -u      Report changes in 'Usage' Attributes\n"
-	   "  -t      Equivalent to -p and -u Directives\n"
-	   "  -r ID   Also report Raw values of Attribute ID with -p, -u or -t\n"
-	   "  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n"
-	   "  -i ID   Ignore Attribute ID for -f Directive\n"
-	   "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
-	   "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
-	   "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
-	   "  -a      Default: equivalent to -H -f -t -l error -l selftest\n"
-	   "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
-	   "   #      Comment: text after a hash sign is ignored\n"
-	   "   \\      Line continuation character\n"
-	   "Attribute ID is a decimal integer 1 <= ID <= 255\n"
-	   "SCSI devices: only -d, -m, and -M Directives allowed.\n"
-	   "Example: /dev/hda -a\n", 
-	   configfile);
+           "Configuration file (%s) Directives (after device name):\n"
+           "  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n"
+           "  -T TYPE Set the tolerance to one of: normal, permissive\n"
+           "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
+           "  -S VAL  Enable/disable attribute autosave (on/off)\n"
+           "  -H      Monitor SMART Health Status, report if failed\n"
+           "  -S REG  Do Self-Test at time(s) given by regular expression REG\n"
+           "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
+           "  -f      Monitor 'Usage' Attributes, report failures\n"
+           "  -m ADD  Send email warning to address ADD\n"
+           "  -M TYPE Modify email warning behavior (see man page)\n"
+           "  -p      Report changes in 'Prefailure' Attributes\n"
+           "  -u      Report changes in 'Usage' Attributes\n"
+           "  -t      Equivalent to -p and -u Directives\n"
+           "  -r ID   Also report Raw values of Attribute ID with -p, -u or -t\n"
+           "  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n"
+           "  -i ID   Ignore Attribute ID for -f Directive\n"
+           "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
+           "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
+           "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
+           "  -a      Default: equivalent to -H -f -t -l error -l selftest\n"
+           "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
+           "   #      Comment: text after a hash sign is ignored\n"
+           "   \\      Line continuation character\n"
+           "Attribute ID is a decimal integer 1 <= ID <= 255\n"
+           "SCSI devices: only -d, -m, and -M Directives allowed.\n"
+           "Example: /dev/hda -a\n", 
+           configfile);
   return;
 }
 
@@ -863,7 +863,7 @@ int ATADeviceScan(cfgfile *cfg){
       PrintOut(LOG_INFO,"Device: %s, not ATA, no IDENTIFY DEVICE Structure\n",name);
     else
       PrintOut(LOG_INFO,"Device: %s, packet devices [this device %s] not SMART capable\n",
-	       name, packetdevicetype(retid-1));
+               name, packetdevicetype(retid-1));
     CloseDevice(fd, name);
     return 2; 
   }
@@ -964,7 +964,7 @@ int ATADeviceScan(cfgfile *cfg){
     }
     
     if (ataReadSmartValues(fd,cfg->smartval) ||
-	ataReadSmartThresholds (fd,cfg->smartthres)){
+        ataReadSmartThresholds (fd,cfg->smartthres)){
       PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
       retainsmartdata=cfg->usagefailed=cfg->prefail=cfg->usage=0;
     }
@@ -979,12 +979,12 @@ int ATADeviceScan(cfgfile *cfg){
     else {
       // if command appears unsupported, issue a warning...
       if (!isSupportAutomaticTimer(cfg->smartval))
-	PrintOut(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",name);
+        PrintOut(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",name);
       // ... but then try anyway
       if ((cfg->autoofflinetest==1)?ataDisableAutoOffline(fd):ataEnableAutoOffline(fd))
-	PrintOut(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", name, what);
+        PrintOut(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", name, what);
       else
-	PrintOut(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
+        PrintOut(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
     }
   }
   
@@ -995,10 +995,10 @@ int ATADeviceScan(cfgfile *cfg){
     // following is not a typo: Device supports self-test log if and
     // only if it also supports error log.
     if (
-	!cfg->smartval                                       ||
-	!isSmartErrorLogCapable(cfg->smartval)               ||
-	(retval=SelfTestErrorCount(fd, name))<0
-	) {
+        !cfg->smartval                                       ||
+        !isSmartErrorLogCapable(cfg->smartval)               ||
+        (retval=SelfTestErrorCount(fd, name))<0
+        ) {
       PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-Test Log.\n", name);
       cfg->selftest=0;
       cfg->selflogcount=0;
@@ -1024,9 +1024,9 @@ int ATADeviceScan(cfgfile *cfg){
       // get number of ATA errors logged
       val=ATAErrorCount(fd, name);
       if (val>=0)
-	cfg->ataerrorcount=val;
+        cfg->ataerrorcount=val;
       else
-	cfg->errorlog=0;
+        cfg->errorlog=0;
     }
   }
   
@@ -1109,7 +1109,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     ;  /* continue since it is reasonable not to support IE mpage */
   else { /* any other error (including malformed response) unreasonable */
     PrintOut(LOG_INFO, 
-	     "Device: %s, Bad IEC (SMART) mode page, err=%d, skip device\n", 
+             "Device: %s, Bad IEC (SMART) mode page, err=%d, skip device\n", 
              device, err);
     CloseDevice(fd, device);
     return 3;
@@ -1135,13 +1135,13 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
       switch (tBuf[k]) { 
       case TEMPERATURE_LPAGE:
-	cfg->TempPageSupported = 1;
-	break;
+        cfg->TempPageSupported = 1;
+        break;
       case IE_LPAGE:
-	cfg->SmartPageSupported = 1;
-	break;
+        cfg->SmartPageSupported = 1;
+        break;
       default:
-	break;
+        break;
       }
     }   
   }
@@ -1166,7 +1166,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     UINT8 triptemp = 0;
     
     if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
-		    &asc, &ascq, &currenttemp, &triptemp)) {
+                    &asc, &ascq, &currenttemp, &triptemp)) {
       PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART values\n", device);
       cfg->SuppressReport = 1;
     }
@@ -1285,7 +1285,7 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
 
   if (which>=NMONITOR || which < 0){
     PrintOut(LOG_CRIT, "Internal error in IsAttributeOff() at line %d of file %s (which=%d)\n%s",
-	     whatline, __FILE__, which, reportbug);
+             whatline, __FILE__, which, reportbug);
     EXIT(EXIT_BADCODE);
   }
 
@@ -1337,15 +1337,15 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
     if (oldc<newc) {
       // increase in error count
       PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
-	       name, oldc, newc);
+               name, oldc, newc);
       MailWarning(cfg, 3, "Device: %s, Self-Test Log error count increased from %d to %d",
-		   name, oldc, newc);
+                   name, oldc, newc);
     } else if (oldh<newh) {
       // more recent error
       PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
-	       name, newh);
+               name, newh);
       MailWarning(cfg, 3, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
-		   name, newh);
+                   name, newh);
     }
     
     // Needed since self-test error count may DECREASE.  Hour should
@@ -1381,7 +1381,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // (Sunday).
   weekday=timenow.tm_wday?timenow.tm_wday:7;
   sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow.tm_mon+1, 
-	  timenow.tm_mday, weekday, timenow.tm_hour);
+          timenow.tm_mday, weekday, timenow.tm_hour);
   
   // see if we got a match
   retval=!regexec(&(dat->cregex), matchpattern, 1, &substring, 0);
@@ -1401,7 +1401,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
     else if (hours==dat->hour) {
       // never do a second test in the same hour as one you've already done
       PrintOut(LOG_INFO, "Device: %s, alread did test in current hour, skipping test of type %c\n",
-	       cfg->name, testtype);
+               cfg->name, testtype);
       retval=0;
     }
     else
@@ -1453,9 +1453,9 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
       PrintOut(LOG_CRIT, "Device: %s, not capable of %s-Test\n", name, 
                testname);
       if ('L'==testtype)
-	cfg->testdata->not_cap_long=1;
+        cfg->testdata->not_cap_long=1;
       else
-	cfg->testdata->not_cap_short=1;
+        cfg->testdata->not_cap_short=1;
      
       return 1;
     }
@@ -1525,7 +1525,7 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   // If currently running a self-test, do not interrupt it to start another.
   if (15==(data.self_test_exec_status >> 4)) {
     PrintOut(LOG_INFO, "Device: %s, skip scheduled %sTest; %1d0%% remaining of current Self-Test.\n",
-	     name, testname, (int)(data.self_test_exec_status & 0x0f));
+             name, testname, (int)(data.self_test_exec_status & 0x0f));
     return 1;
   }
 
@@ -1783,10 +1783,10 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->testdata) {
       // long (extended) background test
       if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L')>0)
-	DoSCSISelfTest(fd, cfg, 'L');
+        DoSCSISelfTest(fd, cfg, 'L');
       // short background test
       else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S')>0)
-	DoSCSISelfTest(fd, cfg, 'S');
+        DoSCSISelfTest(fd, cfg, 'S');
     }
     CloseDevice(fd, name);
     return 0;
@@ -1876,7 +1876,7 @@ time_t dosleep(time_t wakeuptime){
   // if we caught a SIGUSR1 then print message and clear signal
   if (caughtsigUSR1){
     PrintOut(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
-	     wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
+             wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
     caughtsigUSR1=0;
   }
   
@@ -2038,24 +2038,24 @@ int ParseToken(char *token,cfgfile *cfg){
       
       // make a copy of the string to mess with
       if (!(s = strdup(arg))) {
-	PrintOut(LOG_CRIT,
-		 "No memory to copy argument to -d option - exiting\n");
-	EXIT(EXIT_NOMEM);
+        PrintOut(LOG_CRIT,
+                 "No memory to copy argument to -d option - exiting\n");
+        EXIT(EXIT_NOMEM);
       } else if (strncmp(s,"3ware,",6)) {
-	badarg=1;
+        badarg=1;
       } else if (split_report_arg2(s, &i)){
-	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
-		 configfile, lineno, name);
-	badarg=1;
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
+                 configfile, lineno, name);
+        badarg=1;
       } else if ( i<0 || i>15) {
-	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
-		 configfile, lineno, name, i);
-	badarg=1;
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
+                 configfile, lineno, name, i);
+        badarg=1;
       } else {
-	// NOTE: escalade = disk number + 1
-	cfg->escalade = i+1;
-	cfg->tryata  = TRUE;
-	cfg->tryscsi = FALSE;
+        // NOTE: escalade = disk number + 1
+        cfg->escalade = i+1;
+        cfg->tryata  = TRUE;
+        cfg->tryscsi = FALSE;
       }
       s=CheckFree(s, __LINE__,__FILE__); 
     }
@@ -2146,7 +2146,7 @@ int ParseToken(char *token,cfgfile *cfg){
     // warn user, and delete any previously given -s REGEXP Directives
     if (cfg->testdata){
       PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Test Directive -s %s\n",
-	       configfile, lineno, name, cfg->testdata->regex);
+               configfile, lineno, name, cfg->testdata->regex);
       cfg->testdata=FreeTestData(cfg->testdata);
     }
     
@@ -2157,7 +2157,7 @@ int ParseToken(char *token,cfgfile *cfg){
     // allocate space for structure and string
     else if (!(cfg->testdata=(testinfo *)Calloc(1, sizeof(testinfo))) || !(cfg->testdata->regex=CustomStrDup(arg, 1, __LINE__,__FILE__))) {
       PrintOut(LOG_INFO, "File %s line %d (drive %s): no memory to create Test Directive -s %s!\n",
-	       configfile, lineno, name, arg);
+               configfile, lineno, name, arg);
       EXIT(EXIT_NOMEM);
     }
     else if ((val=regcomp(&(cfg->testdata->cregex), arg, REG_EXTENDED))) {
@@ -2165,7 +2165,7 @@ int ParseToken(char *token,cfgfile *cfg){
       // not a valid regular expression!
       regerror(val, &(cfg->testdata->cregex), errormsg, 512);
       PrintOut(LOG_CRIT, "File %s line %d (drive %s): -s argument \"%s\" is INVALID extended regular expression. %s.\n",
-	       configfile, lineno, name, arg, errormsg);
+               configfile, lineno, name, arg, errormsg);
       cfg->testdata=FreeTestData(cfg->testdata);
       return -1;
     }
@@ -2176,9 +2176,9 @@ int ParseToken(char *token,cfgfile *cfg){
       missingarg = 1;
     else {
       if (mdat->address) {
-	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
-		 configfile, lineno, name, mdat->address);
-	mdat->address=FreeNonZero(mdat->address, -1,__LINE__,__FILE__);
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
+                 configfile, lineno, name, mdat->address);
+        mdat->address=FreeNonZero(mdat->address, -1,__LINE__,__FILE__);
       }
       mdat->address=CustomStrDup(arg, 1, __LINE__,__FILE__);
     }
@@ -2198,15 +2198,15 @@ int ParseToken(char *token,cfgfile *cfg){
     else if (!strcmp(arg, "exec")) {
       // Get the next argument (the command line)
       if (!(arg = strtok(NULL, delim))) {
-	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
-		 configfile, lineno, name, token);
-	return -1;
+        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
+                 configfile, lineno, name, token);
+        return -1;
       }
       // Free the last cmd line given if any, and copy new one
       if (mdat->emailcmdline) {
-	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous mail Directive -M exec %s\n",
-		 configfile, lineno, name, mdat->emailcmdline);
-	mdat->emailcmdline=FreeNonZero(mdat->emailcmdline, -1,__LINE__,__FILE__);
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous mail Directive -M exec %s\n",
+                 configfile, lineno, name, mdat->emailcmdline);
+        mdat->emailcmdline=FreeNonZero(mdat->emailcmdline, -1,__LINE__,__FILE__);
       }
       mdat->emailcmdline=CustomStrDup(arg, 1, __LINE__,__FILE__);
     } 
@@ -2271,11 +2271,11 @@ int ParseToken(char *token,cfgfile *cfg){
   }
   if (missingarg) {
     PrintOut(LOG_CRIT, "File %s line %d (drive %s): Missing argument to %s Directive\n",
-	     configfile, lineno, name, token);
+             configfile, lineno, name, token);
   }
   if (badarg) {
     PrintOut(LOG_CRIT, "File %s line %d (drive %s): Invalid argument to %s Directive: %s\n",
-	     configfile, lineno, name, token, arg);
+             configfile, lineno, name, token, arg);
   }
   if (missingarg || badarg) {
     PrintOut(LOG_CRIT, "Valid arguments to %s Directive are: ", token);
@@ -2289,7 +2289,7 @@ int ParseToken(char *token,cfgfile *cfg){
   if (makemail) {
     if (!(cfg->mailwarn=(maildata *)Calloc(1, sizeof(maildata)))) {
       PrintOut(LOG_INFO, "File %s line %d (drive %s): no memory to create mail warning entry!\n",
-	       configfile, lineno, name);
+               configfile, lineno, name);
       EXIT(EXIT_NOMEM);
     }
     memcpy(cfg->mailwarn, mdat, sizeof(maildata));
@@ -2456,7 +2456,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
     
     if (devscan){
       PrintOut(LOG_CRIT, "smartd: can not scan for 3ware devices (line %d of file %s)\n",
-	       lineno, configfile);
+               lineno, configfile);
       return -2;
     }
     
@@ -2474,7 +2474,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
 
   // If NO monitoring directives are set, then set all of them.
   if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail  || 
-	cfg->usage      || cfg->selftest    || cfg->errorlog   )){
+        cfg->usage      || cfg->selftest    || cfg->errorlog   )){
     
     PrintOut(LOG_INFO,"Drive: %s, implied '-a' Directive on line %d of file %s\n",
              cfg->name, cfg->lineno, configfile);
@@ -2560,11 +2560,11 @@ int ParseConfigFile(){
     char *fakeconfig=(char *)calloc(len,1);
   
     if (!fakeconfig || 
-	(len-1) != snprintf(fakeconfig, len, "%s -a", SCANDIRECTIVE) ||
-	-1 != ParseConfigLine(entry, 0, fakeconfig)
-	) {
+        (len-1) != snprintf(fakeconfig, len, "%s -a", SCANDIRECTIVE) ||
+        -1 != ParseConfigLine(entry, 0, fakeconfig)
+        ) {
       PrintOut(LOG_CRIT,"Internal error in ParseConfigFile() at line %d of file %s\n%s", 
-	       __LINE__, __FILE__, reportbug);
+               __LINE__, __FILE__, reportbug);
       EXIT(EXIT_BADCODE);
     }
     fakeconfig=CheckFree(fakeconfig, __LINE__,__FILE__);
@@ -2593,14 +2593,14 @@ int ParseConfigFile(){
         scandevice=ParseConfigLine(entry,contlineno,fullline);
         // See if we found a SCANDIRECTIVE directive
         if (scandevice==-1) {
-	  cleanup(&fp);
+          cleanup(&fp);
           return 0;
-	}
-	// did we find a syntax error
-	if (scandevice==-2) {
-	  cleanup(&fp);
-	  return -1;
-	}
+        }
+        // did we find a syntax error
+        if (scandevice==-2) {
+          cleanup(&fp);
+          return -1;
+        }
         // the final line is part of a continuation line
         cont=0;
         entry+=scandevice;
@@ -2715,7 +2715,7 @@ void ParseOpts(int argc, char **argv){
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
-    { "pidfile",	required_argument, 0, 'p' },
+    { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
@@ -2733,52 +2733,52 @@ void ParseOpts(int argc, char **argv){
   // indents properly.  Sorry.
   while (-1 != (optchar = 
 #ifdef HAVE_GETOPT_LONG
-		getopt_long(argc, argv, shortopts, longopts, NULL)
+                getopt_long(argc, argv, shortopts, longopts, NULL)
 #else
-		getopt(argc, argv, shortopts)
+                getopt(argc, argv, shortopts)
 #endif
-		)) {
+                )) {
     
     switch(optchar) {
     case 'q':
       // when to quit
       if (!(strcmp(optarg,"nodev"))) {
-	quit=0;
+        quit=0;
       } else if (!(strcmp(optarg,"nodevstartup"))) {
-	quit=1;
+        quit=1;
       } else if (!(strcmp(optarg,"never"))) {
-	quit=2;
+        quit=2;
       } else if (!(strcmp(optarg,"onecheck"))) {
-	quit=3;
-	debugmode=1;
+        quit=3;
+        debugmode=1;
       } else if (!(strcmp(optarg,"errors"))) {
-	quit=4;
+        quit=4;
       } else {
-	badarg = TRUE;
+        badarg = TRUE;
       }
       break;
     case 'l':
       // set the log facility level
       if (!strcmp(optarg, "daemon"))
-	facility=LOG_DAEMON;
+        facility=LOG_DAEMON;
       else if (!strcmp(optarg, "local0"))
-	facility=LOG_LOCAL0;
+        facility=LOG_LOCAL0;
       else if (!strcmp(optarg, "local1"))
-	facility=LOG_LOCAL1;
+        facility=LOG_LOCAL1;
       else if (!strcmp(optarg, "local2"))
-	facility=LOG_LOCAL2;
+        facility=LOG_LOCAL2;
       else if (!strcmp(optarg, "local3"))
-	facility=LOG_LOCAL3;
+        facility=LOG_LOCAL3;
       else if (!strcmp(optarg, "local4"))
-	facility=LOG_LOCAL4;
+        facility=LOG_LOCAL4;
       else if (!strcmp(optarg, "local5"))
-	facility=LOG_LOCAL5;
+        facility=LOG_LOCAL5;
       else if (!strcmp(optarg, "local6"))
-	facility=LOG_LOCAL6;
+        facility=LOG_LOCAL6;
       else if (!strcmp(optarg, "local7"))
-	facility=LOG_LOCAL7;
+        facility=LOG_LOCAL7;
       else
-	badarg = TRUE;
+        badarg = TRUE;
       break;
     case 'd':
       // enable debug mode
@@ -2818,13 +2818,13 @@ void ParseOpts(int argc, char **argv){
           EXIT(EXIT_NOMEM);
         }
         if (split_report_arg(s, &i)) {
-	  badarg = TRUE;
-	} else if (i<1 || i>3) {
-	  debugmode=1;
-	  PrintHead();
-	  PrintOut(LOG_CRIT, "======> INVALID REPORT LEVEL: %s <=======\n", optarg);
-	  PrintOut(LOG_CRIT, "======> LEVEL MUST BE INTEGER BETWEEN 1 AND 3<=======\n");
-	  EXIT(EXIT_BADCMD);
+          badarg = TRUE;
+        } else if (i<1 || i>3) {
+          debugmode=1;
+          PrintHead();
+          PrintOut(LOG_CRIT, "======> INVALID REPORT LEVEL: %s <=======\n", optarg);
+          PrintOut(LOG_CRIT, "======> LEVEL MUST BE INTEGER BETWEEN 1 AND 3<=======\n");
+          EXIT(EXIT_BADCMD);
         } else if (!strcmp(s,"ioctl")) {
           con->reportataioctl  = con->reportscsiioctl = i;
         } else if (!strcmp(s,"ataioctl")) {
@@ -2943,7 +2943,7 @@ int MakeConfigEntries(const char *type, int start){
     if (start+i) {
       // allocate more storage if needed
       while (cfgentries_max<=start+i)
-	cfgentries=AllocateMoreSpace(cfgentries, &cfgentries_max, "simulated configuration file device");
+        cfgentries=AllocateMoreSpace(cfgentries, &cfgentries_max, "simulated configuration file device");
       cfg=cfgentries[start+i]=CreateConfigEntry(first);
     }
 
@@ -3062,13 +3062,13 @@ void RegisterDevices(int scanning){
     // register ATA devices
     if (ent->tryata){
       if (ATADeviceScan(ent))
-	CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
+        CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
       else {
-	// move onto the list of ata devices
-	cfgentries[i]=NULL;
-	while (numdevata>=atadevlist_max)
-	  atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
-	atadevlist[numdevata++]=ent;
+        // move onto the list of ata devices
+        cfgentries[i]=NULL;
+        while (numdevata>=atadevlist_max)
+          atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
+        atadevlist[numdevata++]=ent;
       }
     }
     
@@ -3084,24 +3084,24 @@ void RegisterDevices(int scanning){
       alarmAction.sa_handler= AlarmHandler;
       alarmAction.sa_flags  = SA_RESTART;
       if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
-	// if we can't set timeout, just scan device
-	PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
-	retscsi=SCSIDeviceScan(ent);
+        // if we can't set timeout, just scan device
+        PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
+        retscsi=SCSIDeviceScan(ent);
       }
       else {
-	// prepare return point in case of bad SCSI device
-	if (setjmp(registerscsienv))
-	  // SCSI device timed out!
-	  retscsi=-1;
-	else {
-	// Set alarm, make SCSI call, reset alarm
-	  alarm(SCSITIMEOUT);
-	  retscsi=SCSIDeviceScan(ent);
-	  alarm(0);
-	}
-	if (sigaction(SIGALRM, &defaultaction, NULL)){
-	  PrintOut(LOG_CRIT, "Unable to clear SCSI timeout mechanism.\n");
-	}
+        // prepare return point in case of bad SCSI device
+        if (setjmp(registerscsienv))
+          // SCSI device timed out!
+          retscsi=-1;
+        else {
+        // Set alarm, make SCSI call, reset alarm
+          alarm(SCSITIMEOUT);
+          retscsi=SCSIDeviceScan(ent);
+          alarm(0);
+        }
+        if (sigaction(SIGALRM, &defaultaction, NULL)){
+          PrintOut(LOG_CRIT, "Unable to clear SCSI timeout mechanism.\n");
+        }
       }
 #else
       retscsi=SCSIDeviceScan(ent);
@@ -3109,16 +3109,16 @@ void RegisterDevices(int scanning){
 
       // Now scan SCSI device...
       if (retscsi){
-	if (retscsi<0)
-	  PrintOut(LOG_CRIT, "Device %s timed out (poorly-implemented USB device?)\n", ent->name);
-	CanNotRegister(ent->name, "SCSI", ent->lineno, scanning);
+        if (retscsi<0)
+          PrintOut(LOG_CRIT, "Device %s timed out (poorly-implemented USB device?)\n", ent->name);
+        CanNotRegister(ent->name, "SCSI", ent->lineno, scanning);
       }
       else {
-	// move onto the list of scsi devices
-	cfgentries[i]=NULL;
-	while (numdevscsi>=scsidevlist_max)
-	  scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
-	scsidevlist[numdevscsi++]=ent;
+        // move onto the list of scsi devices
+        cfgentries[i]=NULL;
+        while (numdevscsi>=scsidevlist_max)
+          scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
+        scsidevlist[numdevscsi++]=ent;
       }
     }
     
@@ -3126,10 +3126,10 @@ void RegisterDevices(int scanning){
     // exit unless the user has specified that the device is removable
     if (cfgentries[i]  && !scanning){
       if (ent->removable || quit==2)
-	PrintOut(LOG_INFO, "Device %s not available\n", ent->name);
+        PrintOut(LOG_INFO, "Device %s not available\n", ent->name);
       else {
-	PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", ent->name);
-	EXIT(EXIT_BADDEV);
+        PrintOut(LOG_CRIT, "Unable to register device %s (no Directive -d removable). Exiting.\n", ent->name);
+        EXIT(EXIT_BADDEV);
       }
     }
     
@@ -3173,30 +3173,30 @@ int main(int argc, char **argv){
       int entries, scanning=0;
 
       if (!firstpass)
-	PrintOut(LOG_INFO,
-		 caughtsigHUP==1?
-		 "Signal HUP - rereading configuration file %s\n":
-		 "\a\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
-		 configfile);
+        PrintOut(LOG_INFO,
+                 caughtsigHUP==1?
+                 "Signal HUP - rereading configuration file %s\n":
+                 "\a\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
+                 configfile);
       
       // clears cfgentries, (re)reads config file, makes >=0 entries
       entries=ReadOrMakeConfigEntries(&scanning);
 
       // checks devices, then moves onto ata/scsi list or deallocates.
       if (entries>=0 || quit==4)
-	RegisterDevices(scanning);
+        RegisterDevices(scanning);
       
       if (entries<0 && quit==4)
-	EXIT(EXIT_BADCONF);
+        EXIT(EXIT_BADCONF);
 
       // Log number of devices we are monitoring...
       if (numdevata+numdevscsi || quit==2 || (quit==1 && !firstpass))
-	PrintOut(LOG_INFO,"Monitoring %d ATA and %d SCSI devices\n",
-		 numdevata, numdevscsi);
+        PrintOut(LOG_INFO,"Monitoring %d ATA and %d SCSI devices\n",
+                 numdevata, numdevscsi);
       else {
-	PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Exiting...\n");
-	EXIT(EXIT_NODEV);
-      }	  
+        PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Exiting...\n");
+        EXIT(EXIT_NODEV);
+      }   
       
       // reset signal
       caughtsigHUP=0;
@@ -3208,7 +3208,7 @@ int main(int argc, char **argv){
     // user has asked us to exit after first check
     if (quit==3) {
       PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices sucessfully checked once.\n"
-	       "smartd is exiting (exit status 0)\n");
+               "smartd is exiting (exit status 0)\n");
       EXIT(0);
     }
     

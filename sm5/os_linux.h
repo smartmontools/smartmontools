@@ -9,13 +9,13 @@
  *
  *  Written By: Adam Radford <linux@3ware.com>
  *  Modifications By: Joel Jacobson <linux@3ware.com>
- *  		     Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ *                   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *                    Brad Strand <linux@3ware.com>
  *
  *  Copyright (C) 1999-2003 3ware Inc.
  *
- *  Kernel compatablity By:	Andre Hedrick <andre@suse.com>
- *  Non-Copyright (C) 2000	Andre Hedrick <andre@suse.com>
+ *  Kernel compatablity By:     Andre Hedrick <andre@suse.com>
+ *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.6 2003/10/21 09:34:38 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.7 2003/12/10 11:30:31 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80

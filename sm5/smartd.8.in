@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.27 2003/12/09 21:54:15 ballen4705 Exp $
+$Id: smartd.8.in,v 1.28 2003/12/10 11:30:31 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,15 +76,17 @@ configuration file. To exit \fBsmartd\fP use CONTROL-\e.
 On startup, in the absence of the configuration file
 \fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
 devices that support SMART.  The scanning is done as follows:
-.IP LINUX: 9
+.RS
+.IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
-.IP FREEBSD: 9
+.IP \fBFREEBSD:\fP 9
 Examine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
-.IP SOLARIS: 9
+.IP \fBSOLARIS:\fP 9
 Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk
 devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
+.RE
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -1442,4 +1444,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.27 2003/12/09 21:54:15 ballen4705 Exp $
+$Id: smartd.8.in,v 1.28 2003/12/10 11:30:31 ballen4705 Exp $

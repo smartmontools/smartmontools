@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.30 2003/12/08 17:25:59 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.31 2003/12/10 11:30:31 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -229,7 +229,7 @@ void syserror(const char *message){
       pout("%s: %s\n",message, errormessage);
     else
       pout("%s\n",errormessage);
-	
+        
     return;
 }
 
@@ -360,7 +360,7 @@ void *CheckFree(void *address, int whatline,char* file){
   }
   
   PrintOut(LOG_CRIT, "Internal error in CheckFree() at line %d of file %s\n%s", 
-	   whatline, file, reportbug);
+           whatline, file, reportbug);
   EXIT(EXIT_BADCODE);
 }
 
@@ -387,7 +387,7 @@ char *CustomStrDup(char *ptr, int mustexist, int whatline, char* file){
   if (ptr==NULL){
     if (mustexist) {
       PrintOut(LOG_CRIT, "Internal error in CustomStrDup() at line %d of file %s\n%s", 
-	       whatline, file, reportbug);
+               whatline, file, reportbug);
       EXIT(EXIT_BADCODE);
     }
     else

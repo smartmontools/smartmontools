@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.133 2003/12/05 12:42:43 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.134 2003/12/10 11:30:31 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -46,42 +46,42 @@ extern smartmonctrl *con;
 // Revision 3 of the document, July 25, 1995.  Look at the "Document
 // Status" revision commands at the beginning of
 // http://www.t13.org/project/d2008r6.pdf to see this.
-#define NOVAL_0			0x0000
-#define NOVAL_1			0xffff
+#define NOVAL_0                 0x0000
+#define NOVAL_1                 0xffff
 /* word 81: minor version number */
 #define MINOR_MAX 0x1e
-const char *minor_str[] = {			/* word 81 value: */
-  "Device does not report version",		/* 0x0000	*/
-  "ATA-1 X3T9.2 781D prior to revision 4",	/* 0x0001	*/
-  "ATA-1 published, ANSI X3.221-1994",		/* 0x0002	*/
-  "ATA-1 X3T9.2 781D revision 4",		/* 0x0003	*/
-  "ATA-2 published, ANSI X3.279-1996",		/* 0x0004	*/
-  "ATA-2 X3T10 948D prior to revision 2k",	/* 0x0005	*/
-  "ATA-3 X3T10 2008D revision 1",		/* 0x0006	*/ /* SMART NOT INCLUDED */
-  "ATA-2 X3T10 948D revision 2k",		/* 0x0007	*/
-  "ATA-3 X3T10 2008D revision 0",		/* 0x0008	*/ 
-  "ATA-2 X3T10 948D revision 3",		/* 0x0009	*/
-  "ATA-3 published, ANSI X3.298-199x",		/* 0x000a	*/
-  "ATA-3 X3T10 2008D revision 6",		/* 0x000b	*/ /* 1st VERSION WITH SMART */
-  "ATA-3 X3T13 2008D revision 7 and 7a",	/* 0x000c	*/
-  "ATA/ATAPI-4 X3T13 1153D revision 6",		/* 0x000d	*/
-  "ATA/ATAPI-4 T13 1153D revision 13",		/* 0x000e	*/
-  "ATA/ATAPI-4 X3T13 1153D revision 7",		/* 0x000f	*/
-  "ATA/ATAPI-4 T13 1153D revision 18",		/* 0x0010	*/
-  "ATA/ATAPI-4 T13 1153D revision 15",		/* 0x0011	*/
-  "ATA/ATAPI-4 published, ANSI NCITS 317-1998",	/* 0x0012	*/
-  "ATA/ATAPI-5 T13 1321D revision 3",	        /* 0x0013	*/
-  "ATA/ATAPI-4 T13 1153D revision 14",		/* 0x0014	*/
-  "ATA/ATAPI-5 T13 1321D revision 1",		/* 0x0015	*/
-  "ATA/ATAPI-5 published, ANSI NCITS 340-2000",	/* 0x0016	*/
-  "ATA/ATAPI-4 T13 1153D revision 17",		/* 0x0017	*/
-  "ATA/ATAPI-6 T13 1410D revision 0",		/* 0x0018	*/
-  "ATA/ATAPI-6 T13 1410D revision 3a",		/* 0x0019	*/
-  "ATA/ATAPI-7 T13 1532D revision 1",		/* 0x001a	*/
-  "ATA/ATAPI-6 T13 1410D revision 2",		/* 0x001b	*/
-  "ATA/ATAPI-6 T13 1410D revision 1",		/* 0x001c	*/
-  "reserved",					/* 0x001d	*/
-  "ATA/ATAPI-7 T13 1532D revision 0"		/* 0x001e	*/
+const char *minor_str[] = {                     /* word 81 value: */
+  "Device does not report version",             /* 0x0000       */
+  "ATA-1 X3T9.2 781D prior to revision 4",      /* 0x0001       */
+  "ATA-1 published, ANSI X3.221-1994",          /* 0x0002       */
+  "ATA-1 X3T9.2 781D revision 4",               /* 0x0003       */
+  "ATA-2 published, ANSI X3.279-1996",          /* 0x0004       */
+  "ATA-2 X3T10 948D prior to revision 2k",      /* 0x0005       */
+  "ATA-3 X3T10 2008D revision 1",               /* 0x0006       */ /* SMART NOT INCLUDED */
+  "ATA-2 X3T10 948D revision 2k",               /* 0x0007       */
+  "ATA-3 X3T10 2008D revision 0",               /* 0x0008       */ 
+  "ATA-2 X3T10 948D revision 3",                /* 0x0009       */
+  "ATA-3 published, ANSI X3.298-199x",          /* 0x000a       */
+  "ATA-3 X3T10 2008D revision 6",               /* 0x000b       */ /* 1st VERSION WITH SMART */
+  "ATA-3 X3T13 2008D revision 7 and 7a",        /* 0x000c       */
+  "ATA/ATAPI-4 X3T13 1153D revision 6",         /* 0x000d       */
+  "ATA/ATAPI-4 T13 1153D revision 13",          /* 0x000e       */
+  "ATA/ATAPI-4 X3T13 1153D revision 7",         /* 0x000f       */
+  "ATA/ATAPI-4 T13 1153D revision 18",          /* 0x0010       */
+  "ATA/ATAPI-4 T13 1153D revision 15",          /* 0x0011       */
+  "ATA/ATAPI-4 published, ANSI NCITS 317-1998", /* 0x0012       */
+  "ATA/ATAPI-5 T13 1321D revision 3",           /* 0x0013       */
+  "ATA/ATAPI-4 T13 1153D revision 14",          /* 0x0014       */
+  "ATA/ATAPI-5 T13 1321D revision 1",           /* 0x0015       */
+  "ATA/ATAPI-5 published, ANSI NCITS 340-2000", /* 0x0016       */
+  "ATA/ATAPI-4 T13 1153D revision 17",          /* 0x0017       */
+  "ATA/ATAPI-6 T13 1410D revision 0",           /* 0x0018       */
+  "ATA/ATAPI-6 T13 1410D revision 3a",          /* 0x0019       */
+  "ATA/ATAPI-7 T13 1532D revision 1",           /* 0x001a       */
+  "ATA/ATAPI-6 T13 1410D revision 2",           /* 0x001b       */
+  "ATA/ATAPI-6 T13 1410D revision 1",           /* 0x001c       */
+  "reserved",                                   /* 0x001d       */
+  "ATA/ATAPI-7 T13 1532D revision 0"            /* 0x001e       */
 };
 
 // NOTE ATA/ATAPI-4 REV 4 was the LAST revision where the device
@@ -92,37 +92,37 @@ const char *minor_str[] = {			/* word 81 value: */
 // Negative values below are because it doesn't support SMART
 const int actual_ver[] = { 
   /* word 81 value: */
-  0,		/* 0x0000	WARNING: 	*/
-  1,		/* 0x0001	WARNING: 	*/
-  1,		/* 0x0002	WARNING: 	*/
-  1,		/* 0x0003	WARNING: 	*/
-  2,		/* 0x0004	WARNING:   This array 		*/
-  2,		/* 0x0005	WARNING:   corresponds 		*/
-  -3, /*<== */	/* 0x0006	WARNING:   *exactly*		*/
-  2,		/* 0x0007	WARNING:   to the ATA/		*/
-  -3, /*<== */	/* 0x0008	WARNING:   ATAPI version	*/
-  2,		/* 0x0009	WARNING:   listed in	 	*/
-  3,		/* 0x000a	WARNING:   the 		 	*/
-  3,		/* 0x000b	WARNING:   minor_str 		*/
-  3,		/* 0x000c	WARNING:   array		*/
-  4,		/* 0x000d	WARNING:   above.		*/
-  4,		/* 0x000e	WARNING:  			*/
-  4,		/* 0x000f	WARNING:   If you change 	*/
-  4,		/* 0x0010	WARNING:   that one,      	*/
-  4,		/* 0x0011	WARNING:   change this one	*/
-  4,		/* 0x0012	WARNING:   too!!!        	*/
-  5,		/* 0x0013	WARNING:	*/
-  4,		/* 0x0014	WARNING:	*/
-  5,		/* 0x0015	WARNING:	*/
-  5,		/* 0x0016	WARNING:	*/
-  4,		/* 0x0017	WARNING:	*/
-  6,		/* 0x0018	WARNING:	*/
-  6,		/* 0x0019	WARNING:	*/
-  7,		/* 0x001a	WARNING:	*/
-  6,		/* 0x001b	WARNING:	*/
-  6,		/* 0x001c	WARNING:	*/
-  0,		/* 0x001d	WARNING:	*/
-  7		/* 0x001e	WARNING:	*/
+  0,            /* 0x0000       WARNING:        */
+  1,            /* 0x0001       WARNING:        */
+  1,            /* 0x0002       WARNING:        */
+  1,            /* 0x0003       WARNING:        */
+  2,            /* 0x0004       WARNING:   This array           */
+  2,            /* 0x0005       WARNING:   corresponds          */
+  -3, /*<== */  /* 0x0006       WARNING:   *exactly*            */
+  2,            /* 0x0007       WARNING:   to the ATA/          */
+  -3, /*<== */  /* 0x0008       WARNING:   ATAPI version        */
+  2,            /* 0x0009       WARNING:   listed in            */
+  3,            /* 0x000a       WARNING:   the                  */
+  3,            /* 0x000b       WARNING:   minor_str            */
+  3,            /* 0x000c       WARNING:   array                */
+  4,            /* 0x000d       WARNING:   above.               */
+  4,            /* 0x000e       WARNING:                        */
+  4,            /* 0x000f       WARNING:   If you change        */
+  4,            /* 0x0010       WARNING:   that one,            */
+  4,            /* 0x0011       WARNING:   change this one      */
+  4,            /* 0x0012       WARNING:   too!!!               */
+  5,            /* 0x0013       WARNING:        */
+  4,            /* 0x0014       WARNING:        */
+  5,            /* 0x0015       WARNING:        */
+  5,            /* 0x0016       WARNING:        */
+  4,            /* 0x0017       WARNING:        */
+  6,            /* 0x0018       WARNING:        */
+  6,            /* 0x0019       WARNING:        */
+  7,            /* 0x001a       WARNING:        */
+  6,            /* 0x001b       WARNING:        */
+  6,            /* 0x001c       WARNING:        */
+  0,            /* 0x001d       WARNING:        */
+  7             /* 0x001e       WARNING:        */
 };
 
 // When you add additional items to this list, you should then:
@@ -510,19 +510,19 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 
   // This conditional is true for commands that return data
   int getsdata=(command==PIDENTIFY || 
-	        command==IDENTIFY || 
-	        command==READ_LOG || 
-	        command==READ_THRESHOLDS || 
-	        command==READ_VALUES);
+                command==IDENTIFY || 
+                command==READ_LOG || 
+                command==READ_THRESHOLDS || 
+                command==READ_VALUES);
   
   // If reporting is enabled, say what the command will be before it's executed
   if (con->reportataioctl){
-	  // conditional is true for commands that use parameters
-	  int usesparam=(command==READ_LOG || 
-			 command==AUTO_OFFLINE || 
-			 command==AUTOSAVE || 
-			 command==IMMEDIATE_OFFLINE);
-		  
+          // conditional is true for commands that use parameters
+          int usesparam=(command==READ_LOG || 
+                         command==AUTO_OFFLINE || 
+                         command==AUTOSAVE || 
+                         command==IMMEDIATE_OFFLINE);
+                  
     pout("\nREPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
     if (usesparam)
       pout(" InputParameter=%d\n", select);
@@ -554,10 +554,10 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   if (con->reportataioctl){
     if (errno)
       pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d errno=%d [%s]\n", 
-	   device, commandstrings[command], retval, errno, strerror(errno));
+           device, commandstrings[command], retval, errno, strerror(errno));
     else
       pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d\n",
-	   device, commandstrings[command], retval);
+           device, commandstrings[command], retval);
     
     // if requested, pretty-print the output data structure
     if (con->reportataioctl>1 && getsdata)
@@ -632,15 +632,15 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
   // consistently
   if (sizeof(minor_str) != sizeof(char *)*(1+MINOR_MAX)){
     pout("Internal error in ataVersionInfo().  minor_str[] size %d\n"
-	 "is not consistent with value of MINOR_MAX+1 = %d\n", 
-	 (int)(sizeof(minor_str)/sizeof(char *)), MINOR_MAX+1);
+         "is not consistent with value of MINOR_MAX+1 = %d\n", 
+         (int)(sizeof(minor_str)/sizeof(char *)), MINOR_MAX+1);
     fflush(NULL);
     abort();
   }
   if (sizeof(actual_ver) != sizeof(int)*(1+MINOR_MAX)){
     pout("Internal error in ataVersionInfo().  actual_ver[] size %d\n"
-	 "is not consistent with value of MINOR_MAX = %d\n",
-	 (int)(sizeof(actual_ver)/sizeof(int)), MINOR_MAX+1);
+         "is not consistent with value of MINOR_MAX = %d\n",
+         (int)(sizeof(actual_ver)/sizeof(int)), MINOR_MAX+1);
     fflush(NULL);
     abort();
   }
@@ -708,7 +708,7 @@ int ataIsSmartEnabled(struct ata_identify_device *drive){
 
 
 // Reads SMART attributes into *data
-int ataReadSmartValues(int device, struct ata_smart_values *data){	
+int ataReadSmartValues(int device, struct ata_smart_values *data){      
   
   if (smartcommandhandler(device, READ_VALUES, 0, (char *)data)){
     syserror("Error SMART Values Read failed");
@@ -787,7 +787,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
 
 
 // Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
-int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){	
+int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){     
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
@@ -804,7 +804,7 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
 
 
 // Reads the selective self-test log (log #9)
-int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data){	
+int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data){  
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
@@ -829,7 +829,7 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
 
 #if DEVELOP_SELECTIVE_SELF_TEST
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(int device){	
+int ataWriteSelectiveSelfTestLog(int device){   
   int i;
   struct ata_selective_self_test_log sstlog, *data=&sstlog;
   unsigned char cksum=0;
@@ -916,7 +916,7 @@ void fixsamsungerrorlog2(struct ata_smart_errorlog *data){
 // Reads the Summary SMART Error Log (log #1). The Comprehensive SMART
 // Error Log is #2, and the Extended Comprehensive SMART Error log is
 // #3
-int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
+int ataReadErrorLog (int device, struct ata_smart_errorlog *data){      
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
@@ -946,8 +946,8 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
     for (i=0; i<5; i++){
       // step through 5 command data structures
       for (j=0; j<5; j++)
-	// Command data structure 4-byte millisec timestamp
-	swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
+        // Command data structure 4-byte millisec timestamp
+        swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
       // Error data structure life timestamp
       swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
     }
@@ -975,7 +975,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   return 0;
 }
 
-int ataEnableSmart (int device ){	
+int ataEnableSmart (int device ){       
   if (smartcommandhandler(device, ENABLE, 0, NULL)){
     syserror("Error SMART Enable failed");
     return -1;
@@ -983,7 +983,7 @@ int ataEnableSmart (int device ){
   return 0;
 }
 
-int ataDisableSmart (int device ){	
+int ataDisableSmart (int device ){      
   
   if (smartcommandhandler(device, DISABLE, 0, NULL)){
     syserror("Error SMART Disable failed");
@@ -1013,7 +1013,7 @@ int ataDisableAutoSave(int device){
 // marked "OBSOLETE". It is defined in SFF-8035i Revision 2, and most
 // vendors still support it for backwards compatibility. IBM documents
 // it for some drives.
-int ataEnableAutoOffline (int device ){	
+int ataEnableAutoOffline (int device ){ 
   
   /* timer hard coded to 4 hours */  
   if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
@@ -1025,7 +1025,7 @@ int ataEnableAutoOffline (int device ){
 
 // Another Obsolete Command.  See comments directly above, associated
 // with the corresponding Enable command.
-int ataDisableAutoOffline (int device ){	
+int ataDisableAutoOffline (int device ){        
   
   if (smartcommandhandler(device, AUTO_OFFLINE, 0, NULL)){
     syserror("Error SMART Disable Automatic Offline failed");
@@ -1037,7 +1037,7 @@ int ataDisableAutoOffline (int device ){
 // If SMART is enabled, supported, and working, then this call is
 // guaranteed to return 1, else zero.  Silent inverse of
 // ataSmartStatus()
-int ataDoesSmartWork(int device){	
+int ataDoesSmartWork(int device){       
   return !smartcommandhandler(device, STATUS, 0, NULL);
 }
 
@@ -1057,7 +1057,7 @@ int ataSmartStatus2(int device){
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(int device, int testtype){	
+int ataSmartTest(int device, int testtype){     
   char cmdmsg[128],*type,*captive;
   int errornum;
   int cap,select=0;
@@ -1089,8 +1089,8 @@ int ataSmartTest(int device, int testtype){
     pout("Using test spans:\n");
     for (i = 0; i < con->smartselectivenumspans; i++)
       pout("%lld - %lld\n",
-	   con->smartselectivespan[i][0],
-	   con->smartselectivespan[i][1]);
+           con->smartselectivespan[i][0],
+           con->smartselectivespan[i][1]);
   }
 #endif
   else
@@ -1237,8 +1237,8 @@ int isSupportSelectiveSelfTest(struct ata_smart_values *data){
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
 int ataCheckSmart(struct ata_smart_values *data,
-		  struct ata_smart_thresholds *thresholds,
-		  int onlyfailed){
+                  struct ata_smart_thresholds *thresholds,
+                  int onlyfailed){
   int i;
   
   // loop over all attributes
@@ -1256,10 +1256,10 @@ int ataCheckSmart(struct ata_smart_values *data,
       failedever=disk->worst   <= thre->threshold;
       
       if (!onlyfailed && failedever)
-	return disk->id;
+        return disk->id;
       
       if (onlyfailed && failednow && ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
-	return disk->id;      
+        return disk->id;      
     }
   }
   return 0;
@@ -1274,8 +1274,8 @@ int ataCheckSmart(struct ata_smart_values *data,
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
 int ataCheckAttribute(struct ata_smart_values *data,
-		      struct ata_smart_thresholds *thresholds,
-		      int n){
+                      struct ata_smart_thresholds *thresholds,
+                      int n){
   struct ata_smart_attribute *disk;
   struct ata_smart_threshold_entry *thre;
   
@@ -1307,8 +1307,8 @@ int ataCheckAttribute(struct ata_smart_values *data,
 // non-default interpretations.
 
 long long ataPrintSmartAttribRawValue(char *out, 
-				      struct ata_smart_attribute *attribute,
-				      unsigned char *defs){
+                                      struct ata_smart_attribute *attribute,
+                                      unsigned char *defs){
   long long rawvalue;
   unsigned word[3];
   int j;
@@ -1422,8 +1422,8 @@ long long ataPrintSmartAttribRawValue(char *out,
     else {
       out+=sprintf(out, "%d", word[0]);
       if (!(rawvalue==word[0]))
-	// The other bytes are in use. Try IBM's model
-	out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
+        // The other bytes are in use. Try IBM's model
+        out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
     }
     break;
   default:
