@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.333.2.2 2004/08/17 00:06:18 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.333.2.3 2004/08/17 18:09:34 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.333.2.2 2004/08/17 00:06:18 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.333.2.3 2004/08/17 18:09:34 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1521,7 +1521,7 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   UINT8  tBuf[64];
   
   // should we try to register this as a SCSI device?
-  switch (con->controller_type) {
+  switch (cfg->controller_type) {
   case CONTROLLER_SCSI:
   case CONTROLLER_UNKNOWN:
     break;
