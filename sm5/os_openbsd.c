@@ -24,7 +24,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.1 2004/08/29 07:10:44 snyderx Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.2 2004/08/29 08:19:39 snyderx Exp $" \
 ATACMDS_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -68,24 +68,24 @@ guess_device_type(const char *dev_name)
   int dev_prefix_len = strlen(net_dev_prefix);
 
   if (!dev_name || !(len = strlen(dev_name)))
-    return GUESS_DEVTYPE_DONT_KNOW;
+    return CONTROLLER_UNKNOWN;
 
   if (!strncmp(net_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len)
-      return GUESS_DEVTYPE_DONT_KNOW;
+      return CONTROLLER_UNKNOWN;
     else
       dev_name += dev_prefix_len;
   }
   if (!strncmp(net_dev_ata_disk, dev_name, strlen(net_dev_ata_disk)))
-    return GUESS_DEVTYPE_ATA;
+    return CONTROLLER_ATA;
 
   if (!strncmp(net_dev_scsi_disk, dev_name, strlen(net_dev_scsi_disk)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
 
   if (!strncmp(net_dev_scsi_tape, dev_name, strlen(net_dev_scsi_tape)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
 
-  return GUESS_DEVTYPE_DONT_KNOW;
+  return CONTROLLER_UNKNOWN;
 }
 
 int
@@ -166,6 +166,10 @@ deviceclose(int fd)
 {
   return close(fd);
 }
+
+int
+marvell_command_interface(int fd, smart_command_set command, int select, char *data)
+{ return -1; }
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)
@@ -346,7 +350,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
 }
 
 int
-escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
+escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
 {
   printwarning(NO_3WARE, NULL);
   return -1;
