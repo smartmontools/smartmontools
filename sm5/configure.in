@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.107 2004/10/13 20:18:03 chrfranke Exp $
+# $Id: configure.in,v 1.108 2004/11/05 21:42:34 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.34, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.107 2004/10/13 20:18:03 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.108 2004/11/05 21:42:34 chrfranke Exp $'`
 smartmontools_release_date=2004/09/10
 smartmontools_release_time="04:11:35 UTC"
 
@@ -69,6 +69,17 @@ AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([uname])
+
+# check for __attribute__((packed))
+AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C compiler supports __attribute__((packed))])
+AC_MSG_CHECKING([whether C compiler supports __attribute__((packed))])
+AC_TRY_COMPILE(, struct a { int b; } __attribute__((packed));,
+               gcc_have_attr_packed=yes, gcc_have_attr_packed=no)
+AC_SUBST(gcc_have_attr_packed)
+if test "$gcc_have_attr_packed" = "yes"; then
+  AC_DEFINE(HAVE_ATTR_PACKED)
+fi
+AC_MSG_RESULT([$gcc_have_attr_packed])
 
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
