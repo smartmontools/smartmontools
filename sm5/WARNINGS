@@ -14,3 +14,34 @@ NOTE:     Lockup doesn't happen with 2.4.18 kernel, and doesn't affect /dev/hd[a
           This appears to be a problem with the pdc202xx-driver and has been reported
           to the pcdx maintainers.  If you enable the the Promise-BIOS (ATA100-BIOS) then
           everything will work fine.  But if you disable it, then the machine will hang.
+
+
+SYSTEM:   Box with Promise 20262 IDE-controller
+PROBLEM:  Smartctl locks system solid
+REPORTER: Ben Low <ben@bdlow.net>
+LINK:     
+NOTE:     Similar to previous report: Promise Ultra66 2-port card (20262) which, with
+          linux 2.4.20, suffers from the lockups reported above. Alas,
+          this card does not seem to play well with my PC BIOS - I
+          can't get get the card's BIOS to enable. So I can't use the workaround
+          as noted in WARNINGS. A patch on linux-kernel, which worked was:
+          http://marc.theaimsgroup.com/?l=linux-kernel&m=104250818527780&w=2
+          That patch is for 2.4.21-pre3, the following applies cleanly to 2.4.20:
+
+	--- pdc202xx.c.orig 2003-05-15 00:01:08.000000000 +1000
+	+++ /usr/src/linux/drivers/ide/pdc202xx.c   2003-05-15 00:01:25.000000000
+	+1000
+	@@ -374,8 +374,10 @@
+	    if (speed >= XFER_SW_DMA_0) {
+		if ((BP & 0xF0) && (CP & 0x0F)) {
+		    /* clear DMA modes of upper 842 bits of B Register */
+	-           /* clear PIO forced mode upper 1 bit of B Register */
+	-           pci_write_config_byte(dev, (drive_pci)|0x01, BP & ~0xF0);
+	+           /*
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=104250818527780&w=2 */
+	+           /* * clear PIO forced mode upper 1 bit of B Register * */
+	+           /* pci_write_config_byte(dev, (drive_pci)|0x01, BP & ~0xF0); */
+	+           pci_write_config_byte(dev, (drive_pci)|0x01, BP & ~0xE0);
+		    pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
+
+		    /* clear DMA modes of lower 8421 bits of C Register */
