@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.74 2003/04/14 18:48:32 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.75 2003/04/14 19:28:16 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -84,6 +84,7 @@ void formatdriveidstring(char *out, const char *in, int n)
 {
   char tmp[65];
 
+  n = n > 64 ? 64 : n;
   swapbytes(tmp, in, n);
   tmp[n] = '\0';
   trim(out, tmp);
@@ -94,18 +95,15 @@ void formatdriveidstring(char *out, const char *in, int n)
 // Alpha. If someone wants to run this on SPARC they'll need to test
 // for the Endian-ness and skip the byte swapping if it's big-endian.
 void printswap(char *output, char *in, unsigned int n){
-  char tmp[64];
-
-  formatdriveidstring(tmp, in, n);
-  if (*tmp)
-    snprintf(output, 64, "%s", tmp);
+  formatdriveidstring(output, in, n);
+  if (*output)
+    pout("%s\n", output);
   else
-    snprintf(output, 64, "[No Information Found]");
-  pout("%s\n", output);
+    pout("[No Information Found]\n");
 }
 
 // Issues a warning, if appropriate, about the drive with the given model.
-void drivewarning(const char *model) {
+void drivewarning(const char *model, const char *firmware) {
   int i;
 
   // For testing
@@ -113,8 +111,9 @@ void drivewarning(const char *model) {
   //strcpy(model,"IBM-DTLA-305040");
   //strcpy(model,"DTLA-305040");
 
-  if ((i = lookupdrive(model, NULL)) >= 0 && knowndrives[i].warningmsg)
-    // model matched regular expression and there is a warning so print it.
+  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].warningmsg)
+    // model and firmware matched regular expressions in knowndrives[i] and
+    // there is a warning so print it.
     pout("\n==> WARNING: %s\n\n", knowndrives[i].warningmsg);
 }
 
@@ -162,7 +161,7 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);
 
-  drivewarning(model);
+  drivewarning(model, firm);
 
   if (version>=3)
     return;
