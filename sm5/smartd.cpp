@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.264 2003/12/10 11:30:31 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.265 2003/12/10 13:52:06 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1363,14 +1363,14 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   struct tm timenow;
   time_t epochnow;
   char matchpattern[16];
-  int retval=0;
   regmatch_t substring;
-  int weekday;
+  int weekday, length;
+  unsigned short hours;
   testinfo *dat=cfg->testdata;
 
   // check that self-testing has been requested
   if (!dat)
-    return retval;
+    return 0;
   
   // construct pattern containing the month, day of month, day of
   // week, and hour
@@ -1383,32 +1383,28 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow.tm_mon+1, 
           timenow.tm_mday, weekday, timenow.tm_hour);
   
-  // see if we got a match
-  retval=!regexec(&(dat->cregex), matchpattern, 1, &substring, 0);
+  // if no match, we are done
+  if (regexec(&(dat->cregex), matchpattern, 1, &substring, 0))
+    return 0;
   
-#if 0
-  // debugging: see how many characters of the type/date/time string
-  // match
-  PrintOut(LOG_CRIT, "rm_so=%d  rm_eo=%d\n", substring.rm_so, substring.rm_eo);
-#endif
+  // must match the ENTIRE type/date/time string
+  length=strlen(matchpattern);
+  if (substring.rm_so!=0 || substring.rm_eo!=length)
+    return 0;
   
-  if (retval>0) {
-    unsigned short hours=1+timenow.tm_hour+24*timenow.tm_yday;
-    int length=strlen(matchpattern);
-    if (substring.rm_so!=0 || substring.rm_eo!=length)
-      // must match unless the ENTIRE type/date/time string
-      retval=0;
-    else if (hours==dat->hour) {
-      // never do a second test in the same hour as one you've already done
-      PrintOut(LOG_INFO, "Device: %s, alread did test in current hour, skipping test of type %c\n",
-               cfg->name, testtype);
-      retval=0;
-    }
-    else
-      // save time of the current test
-      dat->hour=hours;
+  // never do a second test in the same hour as another test
+  hours=1+timenow.tm_hour+24*timenow.tm_yday;
+  if (hours==dat->hour) {
+    if (testtype!=dat->testtype)
+      PrintOut(LOG_INFO, "Device: %s, did test of type %c qin current hour, skipping test of type %c\n",
+	       cfg->name, dat->testtype, testtype);
+    return 0;
   }
-  return retval;
+  
+  // save time and type of the current test; we are ready to do a test
+  dat->hour=hours;
+  dat->testtype=testtype;
+  return 1;
 }
 
 // Return zero on success, nonzero on failure. Perform offline (background)
