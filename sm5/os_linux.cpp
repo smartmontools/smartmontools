@@ -70,9 +70,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.71 2004/08/18 19:27:44 likewise Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.72 2004/08/25 03:12:40 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.71 2004/08/18 19:27:44 likewise Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.72 2004/08/25 03:12:40 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1288,6 +1288,9 @@ int marvell_command_interface(int device,
   
   buff[0] = ATA_SMART_CMD;
   switch (command){
+  case CHECK_POWER_MODE:
+    buff[0]=ATA_CHECK_POWER_MODE;
+    break;
   case READ_VALUES:
     buff[2]=ATA_SMART_READ_VALUES;
     copydata=buff[3]=1;
@@ -1345,6 +1348,14 @@ int marvell_command_interface(int device,
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   if (ioctl(device, SCSI_IOCTL_SEND_COMMAND, (void *)&smart_command))
       return -1;
+
+  if (command==CHECK_POWER_MODE) {
+    // LEON -- CHECK THIS PLEASE.  THIS SHOULD BE THE SECTOR COUNT
+    // REGISTER, AND IT MIGHT BE buff[2] NOT buff[3].  Bruce
+    data[0]=buff[3];
+    return 0;
+  }
+
   //Data returned is starting from 0 offset  
   if (command == STATUS || command == STATUS_CHECK)
   {
