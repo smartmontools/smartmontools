@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.46 2003/12/29 15:45:06 ballen4705 Exp $
+# $Id: configure.in,v 1.47 2003/12/29 20:25:46 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.27, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.46 2003/12/29 15:45:06 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.47 2003/12/29 20:25:46 ballen4705 Exp $'`
 smartmontools_release_date=2003/11/30
 smartmontools_release_time="13:36:20 UTC"
 
@@ -122,7 +122,7 @@ else
             CFLAGS="-xCC $CFLAGS"
           fi
           if test -z "`echo "$CFLAGS" | grep "\-xO" 2> /dev/null`" ; then
-            dnl we have to tell the compiler to ignore C++ style comments
+            dnl turn on optimization if user has not explicitly set its value
             CFLAGS="-xO2 $CFLAGS"
           fi
  esac
