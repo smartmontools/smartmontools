@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.152 2003/04/20 15:38:38 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.153 2003/04/20 23:08:48 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -450,7 +450,7 @@ void Directives() {
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
   printout(LOG_INFO,"  -P TYPE Drive-specific presets: use, ignore, show, showall\n");
   printout(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
-  printout(LOG_INFO,"  -F TYPE Fix firmware bug. Type is one of: none, samsung\n");
+  printout(LOG_INFO,"  -F TYPE Use firmware bug workaround. Type is one of: none, samsung\n");
   printout(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\      Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
