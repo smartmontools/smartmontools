@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.8 2002/10/14 15:26:25 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.9 2002/10/15 12:30:50 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/14 15:26:25 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/15 12:30:50 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -49,7 +49,7 @@ takes two arguments, options and device. Examples are given below.
 The first argument, options, begins with a '\-' followed by
 letters. Multiple options must begin with a single '\-'. 
 
-The second argument is the device to be controlled. ATA device use the
+The second argument is the device to be controlled. ATA devices use the
 form "/dev/hd*" and SCSI devices use the form "/dev/sd*".
 
 SCSI devices only accept the options a,i,c,e,d, and p. For SCSI Tape
@@ -156,7 +156,8 @@ every four hours for disk defects. This command can be given during normal
 system operation.
 
 S.M.A.R.T. provides three basic classes of testing.  The so-called
-'online' testing has no effect on the performance of the device.  It
+ 'online'
+testing has no effect on the performance of the device.  It
 is turned on by the '\-e' option. The offline testing, enabled by this
  '\-t' option, can, in principle, degrade the device performance.  Normally,
 the disk will suspend any offline testing while disk accesses are
@@ -319,4 +320,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.8 2002/10/14 15:26:25 ballen4705 Exp $
+$Id: smartctl.8,v 1.9 2002/10/15 12:30:50 ballen4705 Exp $
