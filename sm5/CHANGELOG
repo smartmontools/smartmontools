@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.13 2002/10/22 11:40:52 ballen4705 Exp $
+$Id: CHANGELOG,v 1.14 2002/10/22 16:49:15 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,6 +28,16 @@ NOTES FOR NEXT RELEASE:
 
 
 smartmontools-5.0-11
+
+    smartctl now returns sensible values (bitmask).  See smartctl.h
+    for the values.  I may add some additional values as time goes on,
+    so this is prelimiary.
+
+    The SMART status check now uses the correct ATA call.  If failure
+    is detected we search through attributes to list the failed ones.
+    If the SMART status check shows GOOD, we then look to see if their
+    are any usage attributes or prefail attributes have failed at any
+    time.  If so we print them.
 
     Modified function that prints vendor attributes to say if the
     attribute has currently failed or has ever failed.
