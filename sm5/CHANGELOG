@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.153 2003/06/12 21:16:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.154 2003/06/16 16:32:00 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools-5.1-14
 
   [BA] smartctl: added column to -A output to show if Attributes are
        updated only during off-line testing or also during normal

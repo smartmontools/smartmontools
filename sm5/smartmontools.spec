@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.103 2003/06/16 16:19:27 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.104 2003/06/16 16:32:00 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -270,6 +270,11 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Mon Jun 16 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartctl: added column to -A output to show if Attributes are
+       updated only during off-line testing or also during normal
+       operation.
+
 * Thu Jun 10 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd: attempt to enable/disable automatic offline testing even
        if the disk appears not to support it.  Now the same logic
