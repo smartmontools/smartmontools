@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.13 2003/10/02 10:07:44 ballen4705 Exp $
+# $Id: do_release,v 1.14 2003/10/03 13:43:09 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -16,7 +16,7 @@ SOURCES=$RPM_BASE/SOURCES/
 
 setup_cvs()
 {
-  CVS_SERVER=helloworld
+  CVS_SERVER=fakevalue
   unset CVS_SERVER || echo "can't unset CVS_SERVER=$CVS_SERVER"
   CVS_RSH=ssh
   CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
@@ -50,9 +50,9 @@ get_release
 
 # tag CVS version
 setup_cvs
-echo cvs commit -m "Release $VERSION"
-echo cvs tag -d $RELEASE 
-echo cvs tag $RELEASE
+cvs commit -m "Release $VERSION"
+cvs tag -d $RELEASE 
+cvs tag $RELEASE
 
 # build .tar.gz
 rm -rf build
