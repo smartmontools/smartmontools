@@ -69,11 +69,11 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.287 2004/02/24 15:53:39 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.288 2004/03/11 10:34:37 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.287 2004/02/24 15:53:39 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.288 2004/03/11 10:34:37 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -379,7 +379,7 @@ int exportenv(char* stackspace, const char *name, const char *value){
 // a warning email, or execute executable
 void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   char command[2048], message[256], hostname[256], additional[256];
-  char original[256], further[256], domainname[256], subject[256],dates[64];
+  char original[256], further[256], domainname[256], subject[256],dates[DATEANDEPOCHLEN];
   char environ_strings[10][ENVLENGTH];
   time_t epoch;
   va_list ap;
@@ -524,7 +524,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   exportenv(environ_strings[2], "SMARTD_SUBJECT", subject);
   dateandtimezoneepoch(dates, mail->firstsent);
   exportenv(environ_strings[3], "SMARTD_TFIRST", dates);
-  snprintf(dates, 64,"%d", (int)mail->firstsent);
+  snprintf(dates, DATEANDEPOCHLEN,"%d", (int)mail->firstsent);
   exportenv(environ_strings[4], "SMARTD_TFIRSTEPOCH", dates);
   exportenv(environ_strings[5], "SMARTD_FAILTYPE", whichfail[which]);
   if (address)
