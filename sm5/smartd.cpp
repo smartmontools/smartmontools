@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.63 2002/11/13 10:14:40 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.64 2002/11/13 10:59:32 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -954,7 +954,7 @@ int parseconfigline(int entry, int lineno,char *line){
       exit(1);
     }
     else
-      printout(LOG_INFO,"Scan Directive %s found in %s\n",name,CONFIGFILE);
+      printout(LOG_INFO,"Scan Directive %s found in %s. Scanning for devices.\n",name,CONFIGFILE);
     free(copy);
     return -1;
   }
