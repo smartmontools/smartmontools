@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.197 2003/10/06 00:37:03 ballen4705 Exp $
+$Id: CHANGELOG,v 1.198 2003/10/06 21:23:08 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -19,6 +19,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Print estimated completion time for tests
 
   [BA] Added -F samsung2 flag to correct firmware byte swap.
        All samsung drives with *-23 firmware revision string.
