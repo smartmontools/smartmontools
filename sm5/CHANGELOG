@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.418 2004/07/05 07:41:52 ballen4705 Exp $
+$Id: CHANGELOG,v 1.419 2004/07/07 16:15:53 card_captor Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [KS] Solaris/x86: fixed system identification problem in configure
+       script.  Thanks to Stuart Swales.
 
 smartmontools 5.32
 
