@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.40 2003/04/22 02:08:06 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.41 2003/04/22 12:24:33 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -651,9 +651,9 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = SEND_DIAGNOSTIC;
     if (SCSI_DIAG_DEF_SELF_TEST == functioncode)
-        cdb[1] = 0x14;  /* PF and SelfTest bit */
+        cdb[1] = 0x4;  /* SelfTest bit */
     else if (SCSI_DIAG_NO_SELF_TEST != functioncode)
-        cdb[1] = (functioncode << 5 ) | 0x10; /* SelfTest _code_ + PF bit */
+        cdb[1] = (functioncode & 0x7) << 5; /* SelfTest _code_ */
     else   /* SCSI_DIAG_NO_SELF_TEST == functioncode */
         cdb[1] = 0x10;  /* PF bit */
     cdb[3] = (bufLen >> 8) & 0xff;
