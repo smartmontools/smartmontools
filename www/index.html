@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/11/23 11:21:30 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/11/28 17:34:18 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.105 2003/11/23 11:21:30 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.106 2003/11/28 17:34:18 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -469,25 +469,18 @@ list.
 <li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
 
 <p>
-From release 5.1-16, smartmontools supports 3ware SCSI RAID
+From release 5.1-18, smartmontools fully supports 3ware SCSI RAID
 controllers that use ATA disks internally. To pass commands through
 the 3ware controller, use the smartmontools <b>-d 3ware,N</b> option
 or Directive.
 </p>
-
 <p>
-In smartmontools release 5.1-16, the SMART HEALTH STATUS
-(smartmontools <b>-H</b>) is not returned correctly for 3ware devices.
-In this release, the ENABLE AUTOMATIC OFFLINE and ENABLE ATTRIBUTE
-AUTOSAVE commands (smartmontools <b>-o on</b> and <b>-S on</b>) are
-<i>disabled</i> for 3ware devices, because at the time 5.1-16 was
-released, the 3w-xxxx driver could not pass these commands through to
-the ATA disks.
-</p>
-
-<p>
-Later smartmontools CVS code and releases
-<i>do</i> correctly support <i>all</i> of these commands.  You may:
+3ware linux device drivers (3w-xxxx) versions <b>1.02.00.036</b>
+and earlier do not return the SMART HEALTH STATUS (smartmontools
+<b>-H</b>) of the disks. In addition, the ENABLE AUTOMATIC OFFLINE and
+ENABLE ATTRIBUTE AUTOSAVE commands (smartmontools <b>-o on</b> and
+<b>-S on</b>) can not be passed through the driver to the disks.
+Later driver versions support <i>all</i> of these commands.  You may:
 </p>
 <ul>
 <li>use version <b>1.02.00.037</b> or greater of the 3w-xxxx driver, or</li>
@@ -498,10 +491,10 @@ commands to the disks but will instead print
 harmless warning messages to SYSLOG).</li>
 </ul>
 <p>
-Since smartmontools 3ware support is new, please report positive or negative experiences to the <a
-href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">support
-mailing list</a>, particularly for 64-bit and/or big-endian
-architectures.
+To see if your system's 3w-xxxx driver has been patched, give the
+command <b>smartctl -H -S on -o on -d 3ware,? /dev/sd?</b>.  If you
+have an unpatched kernel, you'll see warning messages prompting you to
+patch the kernel.
 </p>
 </li>
 
@@ -796,8 +789,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/11/23 11:21:30 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.105 2003/11/23 11:21:30 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2003/11/28 17:34:18 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.106 2003/11/28 17:34:18 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
