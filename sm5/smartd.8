@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/25 14:15:05 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/25 17:19:26 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -142,19 +142,19 @@ Here is a sample configuration file:
 
 .SH NOTES
 .B smartd
-will make log entries if SMART attribute values have changed,
+will make log entries (at loglevel INFO) if SMART attribute values have changed,
 for example:
 .nf
 .B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Centigrade changed from 94 to 93'
 .fi
 Note that in this message, the value given is the 'Normalized' not
 the 'Raw' Attribute value (the disk temperature in this case is about 22 
-centigrade).  See the 
+Centigrade).  See the 
 .B smartctl
 manual page for further explanation.
 
 .B smartd
-will also make log entries if a SMART attribute has failed, for example:
+will also make log entries (at loglevel CRITICAL) if a SMART attribute has failed, for example:
 .nf
 .B 'Device: /dev/hdc, Failed SMART attribute: 5 Reallocated_Sector_Ct. Use smartctl -a /dev/hdc.'
 .fi
@@ -235,4 +235,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.11 2002/10/25 14:15:05 ballen4705 Exp $
+$Id: smartd.8,v 1.12 2002/10/25 17:19:26 ballen4705 Exp $
