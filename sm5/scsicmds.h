@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.47 2004/03/12 23:45:44 chrfranke Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.48 2004/03/20 08:52:40 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,7 +232,6 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
-
 #define SCSI_DIAG_NO_SELF_TEST          0x00
 #define SCSI_DIAG_DEF_SELF_TEST         0xff
 #define SCSI_DIAG_BG_SHORT_SELF_TEST    0x01
@@ -240,6 +239,12 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_DIAG_FG_SHORT_SELF_TEST    0x05
 #define SCSI_DIAG_FG_EXTENDED_SELF_TEST 0x06
 #define SCSI_DIAG_ABORT_SELF_TEST       0x04
+
+
+/* SCSI command timeout values (units are seconds) */
+#define SCSI_TIMEOUT_DEFAULT    6               /* 6 seconds should be ample */
+#define SCSI_TIMEOUT_SELF_TEST  (5 * 60 * 60)   /* allow max 5 hours for */
+                                            /* extended foreground self test */
 
 
 
