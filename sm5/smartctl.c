@@ -42,8 +42,8 @@
 #include "smartctl.h"
 #include "utility.h"
 
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.95 2003/10/06 00:37:04 ballen4705 Exp $"
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.96 2003/10/08 01:24:58 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -73,9 +73,9 @@ void printcopy(){
   pout("%s",out);
   printone(out,ataprint_c_cvsid);
   pout("%s",out);
-  printone(out,escalade_c_cvsid);
-  pout("%s",out);
   printone(out,knowndrives_c_cvsid);
+  pout("%s",out);
+  printone(out,os_XXXX_c_cvsid);
   pout("%s",out);
   printone(out,scsicmds_c_cvsid);
   pout("%s",out);
@@ -773,7 +773,8 @@ int main (int argc, char **argv){
   int fd,retval=0;
   char *device;
   smartmonctrl control;
-  int dev_type, flags;
+  int dev_type;
+  char *mode=NULL;
 
   // define control block for external functions
   con=&control;
@@ -797,17 +798,17 @@ int main (int argc, char **argv){
     }    
   }
   
-  // set up flags for open() call.  SCSI case is:
-  flags = O_RDWR | O_NONBLOCK;
+  // set up mode for open() call.  SCSI case is:
+  mode="SCSI";
 
   if (tryata)
-    flags = O_RDONLY | O_NONBLOCK;
+    mode="ATA";
     
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
   // scsi generci device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
   // present (e.g. with st). 
-  fd = open(device, flags);
+  fd = deviceopen(device, mode);
   if (fd<0) {
     char errmsg[256];
     snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);

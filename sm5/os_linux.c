@@ -1,1 +1,623 @@
+/* 
+ *  os_linux.c
+ * 
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003 Doug Gilbert <dougg@torque.net>
+ *
+ *  Parts of this file are derived from code that was
+ *
+ *  Written By: Adam Radford <linux@3ware.com>
+ *  Modifications By: Joel Jacobson <linux@3ware.com>
+ *  		     Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ *                    Brad Strand <linux@3ware.com>
+ *
+ *  Copyright (C) 1999-2003 3ware Inc.
+ *
+ *  Kernel compatablity By:	Andre Hedrick <andre@suse.com>
+ *  Non-Copyright (C) 2000	Andre Hedrick <andre@suse.com>
+ *
+ * Other ars of this file are derived from code that was
+ * 
+ * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ * 
+ */
+
+// This file contains the linux-specific IOCTL parts of
+// smartmontools. It includes one interface routine for ATA devices,
+// one for SCSI devices, and one for ATA devices behind escalade
+// controllers.
+
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
 #include "os_linux.h"
+#include "utility.h"
+
+int deviceopen(const char *pathname, char *type){
+  if (!strcmp(type,"SCSI")) 
+    return open(pathname, O_RDWR | O_NONBLOCK);
+  else if (!strcmp(type,"ATA")) 
+    return open(pathname, O_RDONLY | O_NONBLOCK);
+  else
+    return -1;
+}
+
+int deviceclose(int fd){
+  return close(fd);
+}
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.2 2003/10/08 01:24:58 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+
+// PURPOSE
+//   This is an interface routine meant to isolate the OS dependent
+//   parts of the code, and to provide a debugging interface.  Each
+//   different port and OS needs to provide it's own interface.  This
+//   is the linux one.
+// DETAILED DESCRIPTION OF ARGUMENTS
+//   device: is the file descriptor provided by open()
+//   command: defines the different operations.
+//   select: additional input data if needed (which log, which type of
+//           self-test).
+//   data:   location to write output data, if needed (512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES
+//  -1 if the command failed
+//   0 if the command succeeded,
+//   STATUS_CHECK routine: 
+//  -1 if the command failed
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
+
+
+// huge value of buffer size needed because HDIO_DRIVE_CMD assumes
+// that buff[3] is the data size.  Since the SMART_AUTOSAVE and
+// SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
+// Otherwise a 4+512 byte buffer would be enough.
+#define STRANGE_BUFFER_LENGTH (4+512*0xf8)
+
+int ata_command_interface(int device, smart_command_set command, int select, char *data){
+  unsigned char buff[STRANGE_BUFFER_LENGTH];
+  int retval, copydata=0;
+
+  // The two linux IOCTL's that we use.  These MUST be consistent with
+  // the same quantities in the kernel include file linux/hdreg.h
+  const int HDIO_DRIVE_TASK = 0x031e;
+  const int HDIO_DRIVE_CMD  = 0x031f;
+  const int HDIO_DRIVE_CMD_OFFSET = 4;
+
+  // See struct hd_drive_cmd_hdr in hdreg.h
+  // buff[0]: ATA COMMAND CODE REGISTER
+  // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
+  // buff[2]: ATA FEATURES REGISTER
+  // buff[3]: ATA SECTOR COUNT REGISTER
+  
+  // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
+  memset(buff, 0, STRANGE_BUFFER_LENGTH);
+
+  buff[0]=WIN_SMART;
+  switch (command){
+  case READ_VALUES:
+    buff[2]=SMART_READ_VALUES;
+    copydata=buff[3]=1;
+    break;
+  case READ_THRESHOLDS:
+    buff[2]=SMART_READ_THRESHOLDS;
+    copydata=buff[1]=buff[3]=1;
+    break;
+  case READ_LOG:
+    buff[2]=SMART_READ_LOG_SECTOR;
+    buff[1]=select;
+    copydata=buff[3]=1;
+    break;
+  case IDENTIFY:
+    buff[0]=WIN_IDENTIFY;
+    copydata=buff[3]=1;
+    break;
+  case PIDENTIFY:
+    buff[0]=WIN_PIDENTIFY;
+    copydata=buff[3]=1;
+    break;
+  case ENABLE:
+    buff[2]=SMART_ENABLE;
+    buff[1]=1;
+    break;
+  case DISABLE:
+    buff[2]=SMART_DISABLE;
+    buff[1]=1;
+    break;
+  case STATUS:
+    // this command only says if SMART is working.  It could be
+    // replaced with STATUS_CHECK below.
+    buff[2]=SMART_STATUS;
+    break;
+  case AUTO_OFFLINE:
+    buff[2]=SMART_AUTO_OFFLINE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case AUTOSAVE:
+    buff[2]=SMART_AUTOSAVE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case IMMEDIATE_OFFLINE:
+    buff[2]=SMART_IMMEDIATE_OFFLINE;
+    buff[1]=select;
+    break;
+  case STATUS_CHECK:
+    // This command uses HDIO_DRIVE_TASK and has different syntax than
+    // the other commands.
+    buff[1]=SMART_STATUS;
+    break;
+  default:
+    pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
+    exit(1);
+    break;
+  }
+  
+  // There are two different types of ioctls().  The HDIO_DRIVE_TASK
+  // one is this:
+  if (command==STATUS_CHECK){
+
+    // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You
+    // have to read the IDE driver source code.  Sigh.
+    // buff[0]: ATA COMMAND CODE REGISTER
+    // buff[1]: ATA FEATURES REGISTER
+    // buff[2]: ATA SECTOR_COUNT
+    // buff[3]: ATA SECTOR NUMBER
+    // buff[4]: ATA CYL LO REGISTER
+    // buff[5]: ATA CYL HI REGISTER
+    // buff[6]: ATA DEVICE HEAD
+
+    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+    buff[4]=normal_lo;
+    buff[5]=normal_hi;
+    
+    if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
+      return -1;
+    
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (buff[4]==normal_lo && buff[5]==normal_hi)
+      return 0;
+    
+    // These values mean "Bad SMART status"
+    if (buff[4]==failed_lo && buff[5]==failed_hi)
+      return 1;
+    
+    // We haven't gotten output that makes sense; print out some debugging info
+    syserror("Error SMART Status command failed");
+    pout("Please get assistance from %s\n",PROJECTHOME);
+    pout("Register values returned from SMART Status command are:\n");
+    pout("CMD=0x%02x\n",(int)buff[0]);
+    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("NS =0x%02x\n",(int)buff[2]);
+    pout("SC =0x%02x\n",(int)buff[3]);
+    pout("CL =0x%02x\n",(int)buff[4]);
+    pout("CH =0x%02x\n",(int)buff[5]);
+    pout("SEL=0x%02x\n",(int)buff[6]);
+    return -1;   
+  }
+  
+#if (1)
+  // Note to people doing ports to other OSes -- don't worry about
+  // this block -- you can ignore it.  I have put it here because
+  // under linux when you do IDENTIFY DEVICE to a packet device, it
+  // generates an ugly kernel syslog error message.  This is harmless
+  // but frightens users.  So this block is an attempt to detect
+  // packet devices and make IDENTIFY DEVICE fail "nicely" without a
+  // syslog error message.
+
+  // This doesn't always work, since ATA-3 did not have a separate
+  // IDENTIFY PACKET DEVICE command.  In fact while ATAPI was
+  // introduced in ATA-3, IDENTIFY PACKET DEVICE only appeared in ATA
+  // 4 revision 2.  Anyway, this doesn't matter, since packet devices
+  // don't support SMART anyway.
+
+  // for IDENTIFY command, check if device is a packet device, and if
+  // it is, then we simulate a 'clean' error without calling the
+  // lower-level ioctl that will generate a kernel error log message.
+  if (command==IDENTIFY){
+    unsigned char junk[512];
+    const int HDIO_GET_IDENTITY=0x030d;
+    if (!ioctl(device, HDIO_GET_IDENTITY, junk) && (junk[1]>>7)) {
+      // device is PACKET device
+      errno = 5;
+      return -1;
+    }
+  }
+#endif
+  
+  // We are now doing the HDIO_DRIVE_CMD type ioctl.
+  if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
+    return -1;
+
+  // if the command returns data, copy it back
+  if (copydata)
+    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, 512);
+  
+  return 0; 
+}
+
+/* SCSI command transmission interface function, implementation is OS
+ * specific. Returns 0 if SCSI command successfully launched and response
+ * received, else returns a negative errno value */
+
+/* Linux specific code, FreeBSD could conditionally compile in CAM stuff 
+ * instead of this. */
+
+/* #include <scsi/scsi.h>       bypass for now */
+/* #include <scsi/scsi_ioctl.h> bypass for now */
+
+#define MAX_DXFER_LEN 1024      /* can be increased if necessary */
+#define SEND_IOCTL_RESP_SENSE_LEN 16    /* ioctl limitation */
+#define DRIVER_SENSE  0x8       /* alternate CHECK CONDITION indication */
+
+#ifndef SCSI_IOCTL_SEND_COMMAND
+#define SCSI_IOCTL_SEND_COMMAND 1
+#endif
+#ifndef SCSI_IOCTL_TEST_UNIT_READY
+#define SCSI_IOCTL_TEST_UNIT_READY 2
+#endif
+
+struct linux_ioctl_send_command
+{
+    int inbufsize;
+    int outbufsize;
+    UINT8 buff[MAX_DXFER_LEN + 16];
+};
+
+/* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't 
+ * support: CDB length (guesses it from opcode), resid and timeout.
+ * Patches in Linux 2.4.21 and 2.5.70 to extend SEND DIAGNOSTIC timeout
+ * to 2 hours in order to allow long foreground extended self tests. */
+int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
+{
+    struct linux_ioctl_send_command wrk;
+    int status, buff_offset;
+    size_t len;
+
+    memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
+    buff_offset = iop->cmnd_len;
+    if (report > 0) {
+        int k;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+
+        np = scsi_get_opcode_name(ucp[0]);
+        pout(" [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < iop->cmnd_len; ++k)
+            pout("%02x ", ucp[k]);
+        if ((report > 1) && 
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+                 (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            pout("]");
+    }
+    switch (iop->dxfer_dir) {
+        case DXFER_NONE:
+            wrk.inbufsize = 0;
+            wrk.outbufsize = 0;
+            break;
+        case DXFER_FROM_DEVICE:
+            wrk.inbufsize = 0;
+            if (iop->dxfer_len > MAX_DXFER_LEN)
+                return -EINVAL;
+            wrk.outbufsize = iop->dxfer_len;
+            break;
+        case DXFER_TO_DEVICE:
+            if (iop->dxfer_len > MAX_DXFER_LEN)
+                return -EINVAL;
+            memcpy(wrk.buff + buff_offset, iop->dxferp, iop->dxfer_len);
+            wrk.inbufsize = iop->dxfer_len;
+            wrk.outbufsize = 0;
+            break;
+        default:
+            pout("do_scsi_cmnd_io: bad dxfer_dir\n");
+            return -EINVAL;
+    }
+    iop->resp_sense_len = 0;
+    iop->scsi_status = 0;
+    iop->resid = 0;
+    status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
+    if (-1 == status) {
+        if (report)
+            pout("  status=-1, errno=%d [%s]\n", errno, strerror(errno));
+        return -errno;
+    }
+    if (0 == status) {
+        if (report > 0)
+            pout("  status=0\n");
+        if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
+            memcpy(iop->dxferp, wrk.buff, iop->dxfer_len);
+            if (report > 1) {
+                int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+                pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+                     (trunc ? " [only first 256 bytes shown]" : ""));
+                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+            }
+        }
+        return 0;
+    }
+    iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
+    if (DRIVER_SENSE == ((status >> 24) & 0xf))
+        iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
+    len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
+                SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
+    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
+        iop->sensep && (len > 0)) {
+        memcpy(iop->sensep, wrk.buff, len);
+        iop->resp_sense_len = len;
+        if (report > 1) {
+            pout("  >>> Sense buffer, len=%d:\n", (int)len);
+            dStrHex(wrk.buff, len , 1);
+        }
+    }
+    if (report) {
+        if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
+            pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
+                 wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
+        }
+        else
+            pout("  status=0x%x\n", status);
+    }
+    if (iop->scsi_status > 0)
+        return 0;
+    else {
+        if (report > 0)
+            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n", 
+                 status);
+        return -EIO;      /* give up, assume no device there */
+    }
+}
+
+
+
+
+
+#include <string.h>
+#include <scsi/scsi_ioctl.h>
+#include <errno.h>
+#include "atacmds.h"
+#include "utility.h"
+
+void printwarning(smart_command_set command);
+
+// PURPOSE
+//   This is an interface routine meant to isolate the OS dependent
+//   parts of the code, and to provide a debugging interface.  Each
+//   different port and OS needs to provide it's own interface.  This
+//   is the linux interface to the 3ware 3w-xxxx driver.  It allows ATA
+//   commands to be passed through the SCSI driver.
+// DETAILED DESCRIPTION OF ARGUMENTS
+//   fd: is the file descriptor provided by open()
+//   disknum is the disk number (0 to 15) in the RAID array
+//   command: defines the different operations.
+//   select: additional input data if needed (which log, which type of
+//           self-test).
+//   data:   location to write output data, if needed (512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES
+//  -1 if the command failed
+//   0 if the command succeeded,
+//   STATUS_CHECK routine: 
+//  -1 if the command failed
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
+
+int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
+
+  // Structures for passing commands through 3Ware Escalade Linux Driver
+  TW_Ioctl ioctlbuf;
+  TW_Passthru passthru;
+
+  // If command returns 512 bytes, set to 1, else 0
+  int readdata=0;
+
+  // Clear out the data structures
+  memset (&ioctlbuf, 0, sizeof(TW_Ioctl));
+  memset (&passthru, 0, sizeof(TW_Passthru));
+
+  // Same for (almost) all commands - but some reset below
+  passthru.byte0.opcode  = 0x11;
+  passthru.request_id    = 0xFF;
+  passthru.byte3.aport   = disknum;
+  passthru.byte3.host_id = 0;
+  passthru.status        = 0;           
+  passthru.flags         = 0x1;
+  passthru.drive_head    = 0x0;
+  passthru.sector_num    = 0;
+
+  // All SMART commands use this CL/CH signature.  These are magic
+  // values from the ATA specifications.
+  passthru.cylinder_lo = 0x4F;
+  passthru.cylinder_hi = 0xC2;
+  
+  // SMART ATA COMMAND REGISTER value
+  passthru.command = WIN_SMART;
+  
+  // Is this a command that returns 512 bytes?
+  if (command == READ_VALUES ||
+      command == READ_THRESHOLDS ||
+      command == READ_LOG ||
+      command == IDENTIFY) {
+    readdata=1;
+    passthru.byte0.sgloff = 0x5;
+    passthru.size         = 0x7;
+    passthru.param        = 0xD;
+    passthru.sector_count = 0x1;
+  }
+  else {
+    // Non data command -- but doesn't use large sector 
+    // count register values.  passthru.param values are:
+    // 0x00 - non data command without TFR write check,
+    // 0x08 - non data command with TFR write check,
+    passthru.byte0.sgloff = 0x0;
+    passthru.size         = 0x5;
+    passthru.param        = 0x8;
+    passthru.sector_count = 0x0;
+  }
+  
+  // Now set ATA registers depending upon command
+  switch (command){
+  case READ_VALUES:
+    passthru.features = SMART_READ_VALUES;
+    break;
+  case READ_THRESHOLDS:
+    passthru.features = SMART_READ_THRESHOLDS;
+    break;
+  case READ_LOG:
+    passthru.features = SMART_READ_LOG_SECTOR;
+    // log number to return
+    passthru.sector_num  = select;
+    break;
+  case IDENTIFY:
+    // ATA IDENTIFY DEVICE
+    passthru.command     = 0xEc;
+    passthru.features    = 0;
+    passthru.cylinder_lo = 0;
+    passthru.cylinder_hi = 0;
+    break;
+  case PIDENTIFY:
+    // 3WARE controller can NOT have packet device internally
+    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
+    errno=ENODEV;
+    return -1;
+  case ENABLE:
+    passthru.features = SMART_ENABLE;
+    break;
+  case DISABLE:
+    passthru.features = SMART_DISABLE;
+    break;
+  case AUTO_OFFLINE:
+    passthru.features = SMART_AUTO_OFFLINE;
+    // Enable or disable?
+    passthru.sector_count = select;
+    break;
+  case AUTOSAVE:
+    passthru.features = SMART_AUTOSAVE;
+    // Enable or disable?
+    passthru.sector_count = select;
+    break;
+  case IMMEDIATE_OFFLINE:
+    passthru.features = SMART_IMMEDIATE_OFFLINE;
+    // What test type to run?
+    passthru.sector_num  = select;
+    break;
+  case STATUS_CHECK:
+    passthru.features = SMART_STATUS;
+    break;
+  case STATUS:
+    // This is JUST to see if SMART is enabled, by giving SMART status
+    // command. But it doesn't say if status was good, or failing.
+    // See below for the difference.
+    passthru.features = SMART_STATUS;
+    break;
+  default:
+    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n", command, disknum);
+    errno=ENOSYS;
+    return -1;
+  }
+
+  /* Copy the passthru command into the ioctl input buffer */
+  memcpy(&ioctlbuf.input_data, &passthru, sizeof(TW_Passthru));
+  ioctlbuf.cdb[0] = TW_IOCTL;
+  ioctlbuf.opcode = TW_ATA_PASSTHRU;
+
+  // CHECKME -- IS THIS RIGHT?? Even for non data I/O commands?
+  ioctlbuf.input_length = 512;
+  ioctlbuf.output_length = 512;
+  
+  /* Now send the command down through an ioctl() */
+  if (ioctl(fd, SCSI_IOCTL_SEND_COMMAND, &ioctlbuf)) {
+    // If error was provoked by driver, tell user how to fix it
+    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select){
+      printwarning(command);
+      errno=ENOTSUP;
+    }
+    return -1;
+  }
+
+  // If this is a read data command, copy data to output buffer
+  if (readdata){
+    TW_Output *tw_output=(TW_Output *)&ioctlbuf;
+    memcpy(data, tw_output->output_data, 512);
+  }
+  
+  // We are finished with all commands except for STATUS_CHECK
+  if (command!=STATUS_CHECK) {
+    return 0;
+  }
+  else {
+
+    // To find out if the SMART RETURN STATUS is good or failing, we
+    // need to examine the values of the Cylinder Low and Cylinder
+    // High Registers.
+    
+    TW_Output *tw_output=(TW_Output *)&ioctlbuf;
+    TW_Passthru *tw_passthru_returned=(TW_Passthru *)&(tw_output->output_data);
+    unsigned short cyl_lo=tw_passthru_returned->cylinder_lo;
+    unsigned short cyl_hi=tw_passthru_returned->cylinder_hi;
+    
+    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
+    if (cyl_lo==0x4F && cyl_hi==0xC2)
+      return 0;
+    
+    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
+    if (cyl_lo==0xF4 && cyl_hi==0x2C)
+      return 1;
+    
+    // Any other values mean that something has gone wrong with the command
+    printwarning(command);
+    errno=ENOSYS;
+    return 0;
+  }
+}
+
+// Utility function for printing warnings
+void printwarning(smart_command_set command){
+  static int printed1=0,printed2=0,printed3=0;
+  const char* message=
+    "can not be passed through the 3ware 3w-xxxx driver.  This can be fixed by\n"
+    "applying a simple 3w-xxxx driver patch that can be found here:\n"
+    PROJECTHOME "\n"
+    "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n\n";
+
+  if (command==AUTO_OFFLINE && !printed1) {
+    printed1=1;
+    pout("The SMART AUTO-OFFLINE ENABLE command (smartmontools -o on option/Directive)\n%s", message);
+  } 
+  else if (command==AUTOSAVE && !printed2) {
+    printed2=1;
+    pout("The SMART AUTOSAVE ENABLE command (smartmontools -S on option/Directive)\n%s", message);
+  }
+  else if (command==STATUS_CHECK && !printed3) {
+    printed3=1;
+    pout("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n%s", message);
+  }
+  
+  return;
+}
+

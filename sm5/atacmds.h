@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.52 2003/10/03 03:51:16 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.53 2003/10/08 01:24:58 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -425,6 +425,11 @@ int parse_attribute_def(char *pair, unsigned char **defs);
 // be allocated.
 char *create_vendor_attribute_arg_list(void);
 
+
+// These are two of the functions that are defined in os_*.c and need
+// to be ported to get smartmontools onto another OS.
+int ata_command_interface(int device, smart_command_set command, int select, char *data);
+int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
 
 
 #endif /* _ATACMDS_H_ */

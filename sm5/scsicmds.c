@@ -47,13 +47,13 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.51 2003/08/18 12:37:41 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.52 2003/10/08 01:24:58 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
 
 /* output binary in hex and optionally ascii */
-static void dStrHex(const char* str, int len, int no_ascii)
+void dStrHex(const char* str, int len, int no_ascii)
 {
     const char* p = str;
     unsigned char c;
@@ -140,153 +140,6 @@ const char * scsi_get_opcode_name(UINT8 opcode)
     return NULL;
 }
 
-/* SCSI command transmission interface function, implementation is OS
- * specific. Returns 0 if SCSI command successfully launched and response
- * received, else returns a negative errno value */
-static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop);
-
-/* <<<<<<<<<<<<<<<< Start of Linux specific code >>>>>>>>>>>>>>>>> */
-#if 1   
-/* Linux specific code, FreeBSD could conditionally compile in CAM stuff 
- * instead of this. */
-
-/* #include <scsi/scsi.h>       bypass for now */
-/* #include <scsi/scsi_ioctl.h> bypass for now */
-
-#define MAX_DXFER_LEN 1024      /* can be increased if necessary */
-#define SEND_IOCTL_RESP_SENSE_LEN 16    /* ioctl limitation */
-#define DRIVER_SENSE  0x8       /* alternate CHECK CONDITION indication */
-
-#ifndef SCSI_IOCTL_SEND_COMMAND
-#define SCSI_IOCTL_SEND_COMMAND 1
-#endif
-#ifndef SCSI_IOCTL_TEST_UNIT_READY
-#define SCSI_IOCTL_TEST_UNIT_READY 2
-#endif
-
-struct linux_ioctl_send_command
-{
-    int inbufsize;
-    int outbufsize;
-    UINT8 buff[MAX_DXFER_LEN + 16];
-};
-
-/* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't 
- * support: CDB length (guesses it from opcode), resid and timeout.
- * Patches in Linux 2.4.21 and 2.5.70 to extend SEND DIAGNOSTIC timeout
- * to 2 hours in order to allow long foreground extended self tests. */
-static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
-{
-    struct linux_ioctl_send_command wrk;
-    int status, buff_offset;
-    size_t len;
-
-    memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
-    buff_offset = iop->cmnd_len;
-    if (con->reportscsiioctl > 0) {
-        int k;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
-
-        np = scsi_get_opcode_name(ucp[0]);
-        pout(" [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < iop->cmnd_len; ++k)
-            pout("%02x ", ucp[k]);
-        if ((con->reportscsiioctl > 1) && 
-            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-                 (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            pout("]");
-    }
-    switch (iop->dxfer_dir) {
-        case DXFER_NONE:
-            wrk.inbufsize = 0;
-            wrk.outbufsize = 0;
-            break;
-        case DXFER_FROM_DEVICE:
-            wrk.inbufsize = 0;
-            if (iop->dxfer_len > MAX_DXFER_LEN)
-                return -EINVAL;
-            wrk.outbufsize = iop->dxfer_len;
-            break;
-        case DXFER_TO_DEVICE:
-            if (iop->dxfer_len > MAX_DXFER_LEN)
-                return -EINVAL;
-            memcpy(wrk.buff + buff_offset, iop->dxferp, iop->dxfer_len);
-            wrk.inbufsize = iop->dxfer_len;
-            wrk.outbufsize = 0;
-            break;
-        default:
-            pout("do_scsi_cmnd_io: bad dxfer_dir\n");
-            return -EINVAL;
-    }
-    iop->resp_sense_len = 0;
-    iop->scsi_status = 0;
-    iop->resid = 0;
-    status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
-    if (-1 == status) {
-        if (con->reportscsiioctl)
-            pout("  status=-1, errno=%d [%s]\n", errno, strerror(errno));
-        return -errno;
-    }
-    if (0 == status) {
-        if (con->reportscsiioctl > 0)
-            pout("  status=0\n");
-        if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
-            memcpy(iop->dxferp, wrk.buff, iop->dxfer_len);
-            if (con->reportscsiioctl > 1) {
-                int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-                pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-            }
-        }
-        return 0;
-    }
-    iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
-    if (DRIVER_SENSE == ((status >> 24) & 0xf))
-        iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
-    len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
-                SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
-    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
-        iop->sensep && (len > 0)) {
-        memcpy(iop->sensep, wrk.buff, len);
-        iop->resp_sense_len = len;
-        if (con->reportscsiioctl > 1) {
-            pout("  >>> Sense buffer, len=%d:\n", (int)len);
-            dStrHex(wrk.buff, len , 1);
-        }
-    }
-    if (con->reportscsiioctl) {
-        if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-            pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
-                 wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
-        }
-        else
-            pout("  status=0x%x\n", status);
-    }
-    if (iop->scsi_status > 0)
-        return 0;
-    else {
-        if (con->reportscsiioctl > 0)
-            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n", 
-                 status);
-        return -EIO;      /* give up, assume no device there */
-    }
-}
-
-static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
-{
-    return linux_do_scsi_cmnd_io(dev_fd, iop);
-}
-#endif
-/* <<<<<<<<<<<<<<<< End of Linux specific code >>>>>>>>>>>>>>>>> */
 
 void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
                           struct scsi_sense_disect * out)
@@ -384,7 +237,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
         io_hdr.sensep = sense;
         io_hdr.max_sense_len = sizeof(sense);
     
-        status = do_scsi_cmnd_io(device, &io_hdr);
+        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
         if (0 != status)
             return status;
         scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -408,7 +261,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -442,7 +295,7 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 == status) {
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
@@ -496,7 +349,7 @@ int scsiModeSelect(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -529,7 +382,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 == status) {
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
@@ -584,7 +437,7 @@ int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -612,7 +465,7 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
     cdb[4] = bufLen;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -649,7 +502,7 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -685,7 +538,7 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
     cdb[4] = sizeof(buff);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if ((0 == status) && (sense_info)) {
         ecode = buff[0] & 0x7f;
         sense_info->error_code = ecode;
@@ -735,7 +588,7 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     io_hdr.timeout = 5 * 60 * 60;   /* five hours because a foreground 
                     extended self tests can take 1 hour plus */
     
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -769,7 +622,7 @@ int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
@@ -795,7 +648,7 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
 
-    status = do_scsi_cmnd_io(device, &io_hdr);
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, sinfo);

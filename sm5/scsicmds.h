@@ -33,7 +33,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.31 2003/08/18 12:36:36 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.32 2003/10/08 01:24:58 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -311,5 +311,11 @@ int scsiSmartSelfTestAbort(int device);
 
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
+
+const char * scsi_get_opcode_name(UINT8 opcode);
+void dStrHex(const char* str, int len, int no_ascii);
+
+int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+
 #endif
 
