@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.57 2002/11/12 21:53:52 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.58 2002/11/12 22:34:06 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -90,56 +90,39 @@ void printout(int priority,char *fmt, ...){
 // If address is null, this just prints a warning message.  But if
 // address is non-null then send and log a warning email.
 void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
-  int pid;
+  char command[1024], message[256], hostname[256];
+  int status;
   va_list ap;
-    
-  // See if user wants us to send mail
-  if (!address)
+  
+  // See if user wants us to send mail, or if we already have
+  if (!address || mail->logged)
     return;
   
-  // Have we already sent a message about this?
-  if (mail->logged)
-    return;
-  
-  // Need to send a message -- fork and send
-  pid=fork();
-  
-  if (pid<0){
-    // We are parent, and were unable to fork to send email.  Log
-    // warning then return.
-    if (errno<sys_nerr)
-      printout(LOG_CRIT,"Unable to send email, %s, fork() failed\n", sys_errlist[errno]);
-    else
-      printout(LOG_CRIT,"Unable to send email, fork() failed\n");
-    return;
+  // record the time of the mail message, and increment counter.  This
+  // is for later use if we decide to implement multiple email warning
+  // messages after some delay time.
+  mail->logged++;
+  mail->lastsent=time(NULL);
+ 
+  // get system host name  
+  if (gethostname(hostname, 256)){
+    sprintf(hostname,"Unknown host");
   }
-  else if (pid) {
-    // we are the parent process, record the time of the mail message,
-    // and increment counter, then return.
-    mail->logged++;
-    mail->lastsent=time(NULL);
-    return;
-  }
-  else {
-    // We are the child process, send email
-    char command[1024], message[256], hostname[256];
-
-    if (gethostname(hostname, 256)){
-      sprintf(hostname,"hostname: unknown");
-    }
-
-    // print warning string into message
-    va_start(ap, fmt);
-    vsnprintf(message, 256, fmt, ap);
-    va_end(ap);
-
-    // now construct a command to send this as EMAIL, and issue it.
-    snprintf(command,1024, "echo '%s' | mail -s '%s: smartd detected SMART errors' %s > /dev/null 2> /dev/null",
-	     message, hostname, address);
   
-    // we should uninstall exit handler!
-    exit(system(command));
-  }
+  // print warning string into message
+  va_start(ap, fmt);
+  vsnprintf(message, 256, fmt, ap);
+  va_end(ap);
+  
+  // now construct a command to send this as EMAIL, and issue it.
+  snprintf(command,1024, "echo '%s' | mail -s '%s: smartd detected SMART errors' %s > /dev/null 2> /dev/null",
+	   message, hostname, address);
+  status=system(command);
+
+  if (WEXITSTATUS(status))
+    printout(LOG_CRIT,"Email warning message to %s failed\n",address);
+  else
+    return;
 }
 
 // Printing function for watching ataprint commands, or losing them
