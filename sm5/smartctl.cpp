@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.38 2003/01/05 06:02:36 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.39 2003/01/05 06:44:41 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -522,17 +522,19 @@ void ParseOpts (int argc, char** argv){
   
   // Warn if the user has provided no device name
   if (argc-optind<1){
-    pout("\nERROR: smartctl requires a device name as the final command-line argument.\n\n");
+    pout("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
+    pout("Use smartctl -h to get a usage summary\n\n");
     exit(FAILCMD);
   }
   
   // Warn if the user has provided more than one device name
   if (argc-optind>1){
     int i;
-    pout("\nERROR: smartctl takes ONE device name as the final command-line argument.\n");
+    pout("ERROR: smartctl takes ONE device name as the final command-line argument.\n");
     pout("You have provided %d device names:\n",argc-optind);
     for (i=0; i<argc-optind; i++)
       pout("%s\n",argv[optind+i]);
+    pout("Use smartctl -h to get a usage summary\n\n");
     exit(FAILCMD);
   }  
 }
