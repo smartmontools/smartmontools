@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.39 2002/11/11 10:50:08 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.40 2002/11/14 05:42:49 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -767,7 +767,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="Load_Cycle_Count";
     break;
   case 194:
-    name="Temperature_Centigrade";
+    name="Temperature_Celsius";
     break;
   case 195:
     name="Hardware_ECC_Recovered";
@@ -813,7 +813,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="Power-off_Retract_Count";
     break;
   case 231:
-    name="Temperature_Centigrade";
+    name="Temperature_Celsius";
     break;
   default:
     name="Unknown_Attribute";

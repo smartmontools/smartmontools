@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.45 2002/11/13 10:04:12 ballen4705 Exp $
+$Id: CHANGELOG,v 1.46 2002/11/14 05:42:49 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,12 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Changed Temperature_Centigrade to Temperature_Celsius.
+  The term "Centigrade" ceased to exist in 1948.  (c.f
+  http://www.bartleby.com/64/C004/016.html).
+
+smartmontools-5.0.42
 
   Modified SCSI device check to also send warning emails if
   requested in directives file.
