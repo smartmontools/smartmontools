@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.115 2004/07/25 20:45:03 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.116 2004/07/28 23:56:30 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -234,6 +234,13 @@ const drivesettings knowndrives[] = {
   },
   { // Fujitsu MHTxxxxAT family
     "^FUJITSU MHT20[23468]0AT$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MHTxxxxAH family
+    "^FUJITSU MHT20[468]0AH$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -550,6 +557,11 @@ const drivesettings knowndrives[] = {
     "^(Hitachi )?IC25N0[23468]0ATMR04-.$",
     ".*",
     NULL, NULL, NULL, NULL
+  },
+  { // Hitachi Travelstar 5K80 family
+    "^HTS5480[8642]0M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
   },
   { // IBM/Hitachi Deskstar 120GXP family
     "^IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
