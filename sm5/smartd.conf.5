@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.34 2003/03/08 15:37:13 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.35 2003/03/10 21:07:35 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/03/08 15:37:13 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/03/10 21:07:35 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -172,7 +172,7 @@ it will be monitored at the only implemented level: roughly equivalent
 to using the '\-H' option for an ATA disk.  So with the exception of '\-d', '\-m', and '\-M',
 the Directives below are ignored for SCSI
 disks.  For SCSI disks, the '\-m' Directive sends a warning email if
-the SMART status indicates a disk failure or problem.
+the SMART status indicates a disk failure or problem, or if the SCSI inquiry about disk status fails.
 
 .TP
 .B \-d TYPE
@@ -279,8 +279,9 @@ command-line option.]
 Send a warning email to the email address
 .B ADD
 if the '\-H', '\-l', or '\-f' Directives detect a failure or a new
-error.  This Directive only works in conjunction with these other
-Directives (or with the equivalent default '\-a' Directive).
+error, or is a SMART command to the disk fails. This Directive only
+works in conjunction with these other Directives (or with the
+equivalent default '\-a' Directive).
 
 To prevent your email in-box from getting filled up with warning
 messages, by default only a single warning will be sent for each of
@@ -399,11 +400,26 @@ is set to the device type (possible values: ata, scsi).
 .B SMARTD_FAILTYPE
 gives the reason for the warning or message email.  The possible values that
 it takes, and their significance, are:
-emailtest (this is an email test message);
-health (the SMART health status indicates imminent failure);
-usage (a usage Attribute has failed);
-selftest (the number of self-test failures has increased); and
-errorcount (the number of errors in the ATA error log has increased).
+.I emailtest
+(this is an email test message);
+.I health
+(the SMART health status indicates imminent failure);
+.I usage
+(a usage Attribute has failed);
+.I selftest
+(the number of self-test failures has increased);
+.I errorcount
+(the number of errors in the ATA error log has increased);
+.I FAILEDhealthcheck
+(the SMART health status command failed);
+.I FAILEDreadsmartdata
+(the command to read SMART Attribute data failed);
+.I FAILEDreadsmarterrorlog
+(the command to read the SMART error log failed);
+.I FAILEDreadsmartsefltestlog
+(the command to read the SMART self-test log failed); abd
+.I FAILEDopendevice
+(the open() command to the device failed).
 .nf
 .fi
 .B SMARTD_ADDRESS
@@ -783,4 +799,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.34 2003/03/08 15:37:13 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.35 2003/03/10 21:07:35 ballen4705 Exp $

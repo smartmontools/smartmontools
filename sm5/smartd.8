@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.71 2003/03/10 20:49:07 ballen4705 Exp $
+\# $Id: smartd.8,v 1.72 2003/03/10 21:07:34 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/03/10 20:49:07 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/03/10 21:07:34 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -602,15 +602,26 @@ is set to the device type (possible values: ata, scsi).
 .B SMARTD_FAILTYPE
 gives the reason for the warning or message email.  The possible values that
 it takes, and their significance, are:
-emailtest (this is an email test message);
-health (the SMART health status indicates imminent failure);
-usage (a usage Attribute has failed);
-selftest (the number of self-test failures has increased);
-errorcount (the number of errors in the ATA error log has increased);
-FAILEDhealthcheck (the SMART health status command failed);
-FAILEDreadsmartdata (the command to read SMART Attribute data failed);
-FAILEDreadsmarterrorlog (the command to read the SMART error log failed); and
-FAILEDreadsmartsefltestlog (the command to read the SMART self-test log failed).
+.I emailtest
+(this is an email test message);
+.I health
+(the SMART health status indicates imminent failure);
+.I usage
+(a usage Attribute has failed);
+.I selftest
+(the number of self-test failures has increased);
+.I errorcount
+(the number of errors in the ATA error log has increased);
+.I FAILEDhealthcheck
+(the SMART health status command failed);
+.I FAILEDreadsmartdata
+(the command to read SMART Attribute data failed);
+.I FAILEDreadsmarterrorlog
+(the command to read the SMART error log failed);
+.I FAILEDreadsmartsefltestlog
+(the command to read the SMART self-test log failed); abd
+.I FAILEDopendevice
+(the open() command to the device failed).
 .nf
 .fi
 .B SMARTD_ADDRESS
@@ -1064,4 +1075,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.71 2003/03/10 20:49:07 ballen4705 Exp $
+$Id: smartd.8,v 1.72 2003/03/10 21:07:34 ballen4705 Exp $
