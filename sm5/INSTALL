@@ -6,25 +6,64 @@ provide this support.  I am told that some of the 2.2.20 and later
 kernels also provide this support if they are properly
 patched/configured.
 
-To install, use the commands:
+To install from sources, use the commands:
 
-./autogen.sh (only required when installing from CVS)
+./autogen.sh
+
+The above command is only required when installing from CVS. You neen
+GNU Autoconf, GNU Automake, and their dependencies installed in order to
+run it.
+
 ./configure
+
+This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
+--docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
+which are correct for Red Hat, Slackware, and probably other Linux
+distributions.
+
+For FHS compliance, use --prefix=/usr/local , and for a full list of
+options --help
+
 make
-make install
+make install (only root can do this)
+
+To compile from another directory, you can replace ./configure by the
+following:
+
+mkdir objdir
+cd objdir
+../configure
+
+And to install to another destination, used mainly by package
+maintainers:
+
+make DESTDIR=/home/myself/smartmontools-package install
+
+Use a full PATH. ~/smartmontools-package may not work.
 
 Please read the smartd.conf, smartctl, and smartd man pages for more
 information:
 
+After installing smartmontools, you can read the man pages, and try out
+the commands:
+   
 man smartd.conf
 man smartctl
 man smartd
 
+/usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
+/usr/sbin/smartctl -a /dev/hda (only root can do this)
+
+Note that the default location for the manual pages are
+/usr/share/man/man5 and /usr/share/man/man8.  If "man" doesn't find
+them, then you may need to add /usr/share/man to your MANPATH
+environment variable.
+	 
 Source and binary RPM files are available at
 http://sourceforge.net/project/showfiles.php?group_id=64297
 
 Refer to http://smartmontools.sourceforge.net/index.html#howtodownload
-for additional installation instructions.
+for any additional installation instructions.
 
 Seventeen files are installed:
 /usr/sbin/smartctl				[Executable command-line utility]
