@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.29 2003/10/17 05:14:33 ballen4705 Exp $
+# $Id: configure.in,v 1.30 2003/10/20 14:11:55 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.22, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.29 2003/10/17 05:14:33 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.30 2003/10/20 14:11:55 ballen4705 Exp $'`
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
@@ -37,7 +37,6 @@ AC_CHECK_FUNCS([getopt])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_FUNCS([getdomainname])
 
-AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
@@ -53,14 +52,6 @@ AC_SUBST(docdir)
 AC_ARG_ENABLE(sample,[AC_HELP_STRING([--enable-sample],[Enables appending .sample to the installed smartd rc script and configuration file])],[smartd_suffix='.sample'],[smartd_suffix=''])
 AC_SUBST(smartd_suffix)
 AM_CONDITIONAL(SMARTD_SUFFIX, test $smartd_suffix)
-
-# Add -Wall if using gcc and its not already there specified.
-if test "x$GCC" = "xyes"; then
-  if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
-      CFLAGS="$CFLAGS -Wall"
-  fi
-fi
-
 
 if test "$prefix" = "NONE"; then
     dnl no prefix and no sysconfdir, so default to /etc
@@ -91,6 +82,33 @@ case "${host}" in
 		AC_SUBST([os_deps], ['os_generic.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 esac
+
+# Add -Wall if using gcc and its not already there specified.
+if test "x$GCC" = "xyes"; then
+  if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
+      CFLAGS="$CFLAGS -Wall"
+  fi
+else
+ dnl We are NOT using gcc, so enable host-specific compiler flags
+ case "${host}" in
+	*-*-solaris*) 
+          dnl set CFLAGS for Solaris C compiler
+          if test -z "`echo "$CFLAGS" | grep "\-xmemalign" 2> /dev/null`" ; then
+            dnl we have to tell the compilers about packed ATA structures
+            CFLAGS="-xmemalign=1i $CFLAGS"
+          fi
+          if test -z "`echo "$CFLAGS" | grep "\-xCC" 2> /dev/null`" ; then
+            dnl we have to tell the compiler to ignore C++ style comments
+            CFLAGS="-xCC $CFLAGS"
+          fi
+          if test -z "`echo "$CFLAGS" | grep "\-xO" 2> /dev/null`" ; then
+            dnl we have to tell the compiler to ignore C++ style comments
+            CFLAGS="-xO2 $CFLAGS"
+          fi
+ esac
+fi
+
+AC_SUBST(CFLAGS)
 
 AC_OUTPUT(Makefile examplescripts/Makefile smartd.initd)
 AC_PROG_MAKE_SET
