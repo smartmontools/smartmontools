@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.41 2003/08/13 12:33:23 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.42 2003/08/14 23:35:50 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -70,6 +70,7 @@
 
 #define EXIT_NOMEM     8   // out of memory
 #define EXIT_CCONST    9   // we hit a compile time constant
+#define EXIT_BADCODE   10  // internal error - should NEVER happen
 
 #define EXIT_BADDEV    16  // we can't monitor this device
 #define EXIT_NODEV     17  // no devices to monitor
@@ -100,7 +101,7 @@ typedef struct configfile_s {
   int lineno;                             // Line number of entry in file
   char tryata;                            // Disk is ATA 
   char tryscsi;                           // Disk is SCSI
-  unsigned char escalade;                 // ATA disk in 3ware controller
+  unsigned char escalade;                 // 1 + ATA disk # in 3ware controller
   char *name;                             // Device name (+ optional [3ware_disk_XX])
 
   char smartcheck;                        // Check SMART status
@@ -115,8 +116,15 @@ typedef struct configfile_s {
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
   unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
   unsigned char emailtest;                // Send test email?
+
+  // THE FOLLOWING TWO POINTERS ARE NULL UNLESS SET BY THE USER.
+  // STORAGE IS ALLOCATED WHEN CONFIG FILE SCANNED
   char *emailcmdline;                     // Execute this program for sending mail
   char *address;                          // Email addresses
+
+
+  // THE FOLLOWING POINTER IS NULL UNLESS SET BY USER: STORAGE IS
+  // ALLOCATED WHEN CONFIG FILE SCANNED
 
   // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags 
@@ -126,12 +134,17 @@ typedef struct configfile_s {
   // monitorattflags+64 set: print raw value when tracking
   // monitorattflags+96 set: track changes in raw value
   unsigned char *monitorattflags;
+
+  // THE FOLLOWING POINTER IS NULL UNLESS (1) IT IS SET BY USER:
+  // STORAGE IS ALLOCATED WHEN CONFIG FILE SCANNED, or (2) IT IS SET
+  // WHEN DRIVE IS AUTOMATICALLY RECOGNIZED IN DATABASE (WHEN DRIVE IS
+  // REGISTERED)
+
   unsigned char *attributedefs;            // -v options, see end of extern.h for def
   unsigned char fixfirmwarebug;            // Fix firmware bug
   char ignorepresets;                      // Ignore database of -v options
   char showpresets;                        // Show database entry for this device
   char removable;                          // Device may disappear (not be present)
-
 
   // NEXT SET OF ENTRIES ARE DYNAMIC DATA THAT WE TRACK IF DEVICE IS
   // REGISTERED AND THEN MONITORED.
@@ -142,7 +155,8 @@ typedef struct configfile_s {
   unsigned char selflogcount;              // Total number of self-test errors
   int  ataerrorcount;                      // Total number of ATA errors
 
-  // If needed created at registration
+  // NULL POINTERS UNLESS NEEDED.  IF NEEDED, ALLOCATED WHEN DEVICE
+  // REGISTERED.
   struct ata_smart_values *smartval;       // Pointer to SMART data
   struct ata_smart_thresholds *smartthres; // Pointer to SMART thresholds
 
