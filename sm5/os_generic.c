@@ -58,18 +58,18 @@
 #include <sys/utsname.h>
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.4 2003/11/23 06:46:33 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.5 2003/11/23 06:57:11 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // You can eliminate this function - it is only here to warn
 // unsuspectig users that their Operating System is not supported!
 static void unsupported(){
   static int warninggiven;
-  extern int debugmode;
+  extern unsigned char debugmode;
 
   if (!warninggiven) {
     struct utsname ostype;
-    int savedebugmode=debugmode;
+    unsigned char savedebugmode=debugmode;
     
     debugmode=1;
     warninggiven=1;
