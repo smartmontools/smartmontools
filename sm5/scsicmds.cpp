@@ -25,7 +25,7 @@
  *
  * In the SCSI world "SMART" is a dead or withdrawn standard. In recent
  * SCSI standards (since SCSI-3) it goes under the awkward name of
- * "Informational Exceptions" or "IEC" (with the "C" for "control").
+ * "Informational Exceptions" ["IE" or "IEC" (with the "C" for "control")].
  * The relevant information is spread around several SCSI draft
  * standards available at http://www.t10.org . Reference is made in the
  * code to the following acronyms:
@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.30 2003/04/03 11:34:10 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.31 2003/04/06 03:55:41 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -868,47 +868,43 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     return 0;
 }
 
-int scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
-                   UINT8 *currenttemp, UINT8 *triptemp)
+/* Read informational exception log page or Request Sense response */
+int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
+                UINT8 *currenttemp)
 {
     UINT8 tBuf[1024];
     struct scsi_sense_disect sense_info;
     int err;
     unsigned short pagesize;
  
-    *currenttemp = *triptemp = 0;
-  
+    *asc = 0;
+    *ascq = 0;
+    *currenttemp = 0;
     memset(&sense_info, 0, sizeof(sense_info));
     if (method == CHECK_SMART_BY_LGPG_2F) {
-        if ((err = logsense(device, SMART_PAGE, tBuf, sizeof(tBuf)))) {
-            *currenttemp = 0;
-            *triptemp = 0;
-            *retval = 0;
-            pout("Log Sense failed, err=%d\n", err);
+        if ((err = logsense(device, IE_LOG_PAGE, tBuf, sizeof(tBuf)))) {
+            pout("Log Sense failed, IE page, err=%d\n", err);
             return 1;
         }
         pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
-        if (! pagesize)
-            return 1; /* failed read of page 2F\n */
-        sense_info.asc = tBuf[8]; 
-        sense_info.ascq = tBuf[9];
-        if ((pagesize == 8) && currenttemp && triptemp) {
-            *currenttemp = tBuf[10];
-            *triptemp =  tBuf[11];
+        if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
+            pout("Log Sense failed, IE page, bad parameter code or length\n");
+            return 2;
+        }
+        if (tBuf[7] > 1) {
+            sense_info.asc = tBuf[8]; 
+            sense_info.ascq = tBuf[9];
+            if (tBuf[7] > 2) 
+                *currenttemp = tBuf[10];
         } 
     } else {
         if ((err = requestsense(device, &sense_info))) {
-            *currenttemp = 0;
-            *triptemp = 0;
-            *retval = 0;
             pout("Request Sense failed, err=%d\n", err);
             return 1;
         }
     }
-    if (sense_info.asc == 0x5d)
-        *retval = sense_info.ascq;
-    else
-        *retval = 0;
+    *asc = sense_info.asc;
+    *ascq = sense_info.ascq;
     return 0;
 }
 
@@ -1072,25 +1068,25 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code)
 }
 
 /* this is a subset of the SCSI additional sense code strings indexed
- * by "ascq" for the case when asc==0x5d
+ * by "ascq" for the case when asc==SCSI_ASC_IMPENDING_FAILURE (0x5d)
  */
 static const char * strs_for_asc_5d[] = {
    /* 0x00 */   "FAILURE PREDICTION THRESHOLD EXCEEDED",
         "MEDIA FAILURE PREDICTION THRESHOLD EXCEEDED",
         "LOGICAL UNIT FAILURE PREDICTION THRESHOLD EXCEEDED",
         "SPARE AREA EXHAUSTION PREDICTION THRESHOLD EXCEEDED",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
    /* 0x10 */   "HARDWARE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "HARDWARE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "HARDWARE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1104,9 +1100,9 @@ static const char * strs_for_asc_5d[] = {
         "HARDWARE IMPENDING FAILURE SEEK TIME PERFORMANCE",
         "HARDWARE IMPENDING FAILURE SPIN-UP RETRY COUNT",
         "HARDWARE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
    /* 0x20 */   "CONTROLLER IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "CONTROLLER IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "CONTROLLER IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1120,9 +1116,9 @@ static const char * strs_for_asc_5d[] = {
         "CONTROLLER IMPENDING FAILURE SEEK TIME PERFORMANCE",
         "CONTROLLER IMPENDING FAILURE SPIN-UP RETRY COUNT",
         "CONTROLLER IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
    /* 0x30 */   "DATA CHANNEL IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "DATA CHANNEL IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "DATA CHANNEL IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1136,9 +1132,9 @@ static const char * strs_for_asc_5d[] = {
         "DATA CHANNEL IMPENDING FAILURE SEEK TIME PERFORMANCE",
         "DATA CHANNEL IMPENDING FAILURE SPIN-UP RETRY COUNT",
         "DATA CHANNEL IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
    /* 0x40 */   "SERVO IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "SERVO IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "SERVO IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1152,9 +1148,9 @@ static const char * strs_for_asc_5d[] = {
         "SERVO IMPENDING FAILURE SEEK TIME PERFORMANCE",
         "SERVO IMPENDING FAILURE SPIN-UP RETRY COUNT",
         "SERVO IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
    /* 0x50 */   "SPINDLE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "SPINDLE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "SPINDLE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1168,9 +1164,9 @@ static const char * strs_for_asc_5d[] = {
         "SPINDLE IMPENDING FAILURE SEEK TIME PERFORMANCE",
         "SPINDLE IMPENDING FAILURE SPIN-UP RETRY COUNT",
         "SPINDLE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT",
-        "Unknown Failure",
-        "Unknown Failure",
-        "Unknown Failure",
+        "",
+        "",
+        "",
    /* 0x60 */   "FIRMWARE IMPENDING FAILURE GENERAL HARD DRIVE FAILURE",
         "FIRMWARE IMPENDING FAILURE DRIVE ERROR RATE TOO HIGH",
         "FIRMWARE IMPENDING FAILURE DATA ERROR RATE TOO HIGH",
@@ -1185,15 +1181,45 @@ static const char * strs_for_asc_5d[] = {
         "FIRMWARE IMPENDING FAILURE SPIN-UP RETRY COUNT",
    /* 0x6c */   "FIRMWARE IMPENDING FAILURE DRIVE CALIBRATION RETRY COUNT"};
 
-const char * scsiSmartGetSenseCode(UINT8 ascq)
+
+/* this is a subset of the SCSI additional sense code strings indexed
+ *  * by "ascq" for the case when asc==SCSI_ASC_WARNING (0xb)
+ *   */
+static const char * strs_for_asc_b[] = {
+       /* 0x00 */   "WARNING",
+               "WARNING - SPECIFIED TEMPERATURE EXCEEDED",
+               "WARNING - ENCLOSURE DEGRADED"};
+
+static char spare_buff[128];
+
+const char * scsiSmartGetIEString(UINT8 asc, UINT8 ascq)
 {
-    if (ascq == 0xff)
-        return "FAILURE PREDICTION THRESHOLD EXCEEDED (FALSE)";
-    else if (ascq <= SMART_SENSE_MAX_ENTRY)
-        return strs_for_asc_5d[ascq];
-    else
-        return "Unknown Failure";
+    const char * rp;
+
+    if (SCSI_ASC_IMPENDING_FAILURE == asc) {
+        if (ascq == 0xff)
+            return "FAILURE PREDICTION THRESHOLD EXCEEDED (FALSE)";
+        else if (ascq < 
+                 (sizeof(strs_for_asc_5d) / sizeof(strs_for_asc_5d[0]))) {
+            rp = strs_for_asc_5d[ascq];
+            if (strlen(rp) > 0)
+                return rp;
+        }
+        snprintf(spare_buff, sizeof(spare_buff),
+                 "FAILURE PREDICTION THRESHOLD EXCEEDED: ascq=0x%x", ascq);
+        return spare_buff;
+    } else if (SCSI_ASC_WARNING == asc) {
+        if (ascq < (sizeof(strs_for_asc_b) / sizeof(strs_for_asc_b[0]))) {
+            rp = strs_for_asc_b[ascq];
+            if (strlen(rp) > 0)
+                return rp;
+        }
+        snprintf(spare_buff, sizeof(spare_buff), "WARNING: ascq=0x%x", ascq);
+        return spare_buff;
+    }
+    return NULL;        /* not a IE additional sense code */
 }
+
 
 /* This is not documented in t10.org, page 0x80 is vendor specific */
 /* Some IBM disks do an offline read-scan when they get this command. */
