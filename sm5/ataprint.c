@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.135 2004/02/15 21:15:20 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.136 2004/03/04 03:25:11 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -141,6 +141,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
 
   switch (CR) {
   case 0x20:  /* READ SECTOR(S) */
+  case 0x21:
   case 0xC4:  /* READ MULTIPLE */
     error_flag[6] = "UNC";
     error_flag[5] = "MC";
@@ -153,6 +154,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     break;
   case 0x25:  /* READ DMA EXT */
   case 0xC8:  /* READ DMA */
+  case 0xC9:
     error_flag[7] = "ICRC";
     error_flag[6] = "UNC";
     error_flag[5] = "MC";
@@ -164,6 +166,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     print_lba=1;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
+  case 0x31:
   case 0xC5:  /* WRITE MULTIPLE */
     error_flag[6] = "WP";
     error_flag[5] = "MC";
@@ -226,6 +229,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     }
     break;
   case 0xCA:  /* WRITE DMA */
+  case 0xCB:
     error_flag[7] = "ICRC";
     error_flag[6] = "WP";
     error_flag[5] = "MC";
