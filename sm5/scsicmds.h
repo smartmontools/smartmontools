@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.13 2003/03/28 07:20:37 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.14 2003/03/30 11:23:27 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -109,6 +109,13 @@ struct scsi_cmnd_io
                         /*  actual number transferred (0 if not supported) */
 };
 
+struct scsi_sense_disect {
+        UINT8 error_code;
+        UINT8 sense_key;
+        UINT8 asc; 
+        UINT8 ascq;
+};
+
 /* ANSI SCSI-3 Log Sense Return Log Pages from device. */
 #define SUPPORT_LOG_PAGES                       0x00
 #define BUFFER_OVERRUN_PAGE                     0x01
@@ -181,26 +188,29 @@ struct scsi_cmnd_io
 
 #define LOGPAGEHDRSIZE  4
 
+void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
+                          struct scsi_sense_disect * out);
+
 /* STANDARD SCSI Commands  */
 int testunitready(int device);
 
-int stdinquiry(int device, UINT8 *pBuffer, int bufLen);
+int stdinquiry(int device, UINT8 *pBuf, int bufLen);
 
 int inquiry(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int logsense(int device, int pagenum, UINT8 *pBuffer, int bufLen);
+int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int modesense(int device, int pagenum, UINT8 *pBuffer, int bufLen);
+int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int modeselect(int device, int pagenum, UINT8 *pBuffer, int bufLen);
+int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int modesense10(int device, int pagenum, UINT8 *pBuffer, int bufLen);
+int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int modeselect10(int device, int pagenum, UINT8 *pBuffer, int bufLen);
+int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int requestsense(int device, UINT8 *pBuffer, int bufLen);
+int requestsense(int device, struct scsi_sense_disect * sense_info);
 
-int senddiagnostic(int device, int functioncode, UINT8 *pBuffer, int bufLen);
+int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
 int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
@@ -236,7 +246,7 @@ const char* scsiSmartGetSenseCode(UINT8 ascq);
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp);
 
 
-/* int scsiSmartOfflineTest(int device); */
+int scsiSmartIBMOfflineTest(int device);
 
 int scsiSmartDefaultSelfTest(int device);
 int scsiSmartShortSelfTest(int device);
