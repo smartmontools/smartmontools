@@ -5,7 +5,10 @@
 // Eduard could you please add the boilerplace GPL2 copyright
 // boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.10 2003/10/10 04:56:38 arvoreen Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.11 2003/10/10 05:11:07 arvoreen Exp $" OS_XXXX_H_CVSID;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 // Private table of open devices: guaranteed zero on startup since
 // part of static data.
@@ -192,7 +195,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     break;
   default:
     pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
-    exit(1);
+    EXIT(1);
     break;
   }
   

@@ -35,11 +35,14 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.106 2003/10/06 21:43:07 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.107 2003/10/10 05:11:07 arvoreen Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 // Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
 // bytes.
@@ -817,7 +820,7 @@ void failuretest(int type, int returnvalue){
   if (type==OPTIONAL_CMD){
     if (con->conservative){
       pout("An optional SMART command failed: exiting.  Remove '-T conservative' option to continue.\n");
-      exit(returnvalue);
+      EXIT(returnvalue);
     }
     return;
   }
@@ -827,11 +830,11 @@ void failuretest(int type, int returnvalue){
     if (con->permissive--)
       return;
     pout("A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.\n");
-    exit(returnvalue);
+    EXIT(returnvalue);
   }
 
   pout("Smartctl internal error in failuretest(type=%d). Please contact developers at %s\n",type,PROJECTHOME);
-  exit(returnvalue|FAILCMD);
+  EXIT(returnvalue|FAILCMD);
 }
 
 // Used to warn users about invalid checksums.  Action to be taken may be
@@ -845,7 +848,7 @@ void checksumwarning(const char *string){
 
   // user has asked us to fail on checksum errors
   if (con->checksumfail)
-    exit(FAILSMART);
+    EXIT(FAILSMART);
 
   return;
 }
@@ -870,7 +873,7 @@ int ataPrintMain (int fd){
   // If requested, show which presets would be used for this drive and exit.
   if (con->showpresets) {
     showpresets(&drive);
-    exit(0);
+    EXIT(0);
   }
 
   // Use preset vendor attribute options unless user has requested otherwise.
@@ -880,7 +883,7 @@ int ataPrintMain (int fd){
       applypresets(&drive, &charptr, con);
     else {
       pout("Fatal internal error in ataPrintMain()\n");
-      exit(returnval|=FAILCMD);
+      EXIT(returnval|=FAILCMD);
     }
   }
 
@@ -1260,7 +1263,7 @@ int ataPrintMain (int fd){
   default:
     pout("Internal error in smartctl: con->testcase==%d not recognized\n", (int)con->testcase);
     pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
-    exit(returnval|=FAILCMD);
+    EXIT(returnval|=FAILCMD);
   }
 
   // Now do the test.  Note ataSmartTest prints its own error/success
