@@ -34,7 +34,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.138 2004/02/03 16:48:58 ballen4705 Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.139 2004/02/09 19:31:06 ballen4705 Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -602,7 +602,7 @@ unsigned char checksum(unsigned char *buffer){
 int ataCheckPowerMode(int device) {
   unsigned char result;
 
-  if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, &result)))
+  if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, (char *)&result)))
     return -1;
 
   if (result!=0 && result!=0x80 && result!=0xff)
