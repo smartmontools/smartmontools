@@ -37,7 +37,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.17 2003/10/03 01:03:11 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.18 2003/10/03 01:15:17 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at

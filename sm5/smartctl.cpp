@@ -43,8 +43,8 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.91 2003/10/03 01:03:10 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.92 2003/10/03 01:15:17 ballen4705 Exp $"
+ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
@@ -87,7 +87,6 @@ void printcopy(){
   pout("%s",out);
   pout("\nsmartctl build configured on " SMARTMONTOOLS_CONFIGURE_DATE "\n");
   pout("smartctl configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
-  pout("configure.in CVS tag: " SMARTMONTOOLS_CVS_TAG "\n");
 
 
   return;

@@ -25,8 +25,8 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.42 2003/10/03 01:03:10 ballen4705 Exp $"
-                                ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.43 2003/10/03 01:15:17 ballen4705 Exp $"
+                                ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
