@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.17 2003/11/30 13:55:47 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.18 2003/12/01 03:58:01 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -85,7 +85,7 @@ lines that are entirely comments or white space.
 Any text following a hash sign \'#\' and up to the end of the line is
 taken to be a comment, and ignored.
 
-Lines may be continued by using a backslash \'\N'92'\' as the last
+Lines may be continued by using a backslash \'\e\' as the last
 non-whitespace or non-comment item on a line.
 
 .PP 0
@@ -135,11 +135,11 @@ Section below!
 .B # and Usage Attributes, apart from Attributes
 .B # 9, 194, and 231, and shows  continued lines:
 .B #
-.B \ \ /dev/hdd\ -l\ error\ \N'92'
-.B \ \ \ \ \ \ \ \ \ \ \ -l\ selftest\ \N'92'
-.B \ \ \ \ \ \ \ \ \ \ \ -t\ \N'92'\ \ \ \ \ \ # Attributes not tracked:
-.B \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \N'92'\ \ # temperature
-.B \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \N'92'\ \ # also temperature
+.B \ \ /dev/hdd\ -l\ error\ \e
+.B \ \ \ \ \ \ \ \ \ \ \ -l\ selftest\ \e
+.B \ \ \ \ \ \ \ \ \ \ \ -t\ \e\ \ \ \ \ \ # Attributes not tracked:
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \e\ \ # temperature
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \e\ \ # also temperature
 .B \ \ \ \ \ \ \ \ \ \ \ -I 9\ \ \ \ \ \ # power-on hours
 .B #
 .B ################################################
@@ -806,7 +806,7 @@ Directives is given, then \-a is assumed.
 .B #
 Comment: ignore the remainder of the line.
 .TP
-.B \N'92'
+.B \e
 Continuation character: if this is the last non-white or non-comment
 character on a line, then the following line is a continuation of the current
 one.
@@ -952,4 +952,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.17 2003/11/30 13:55:47 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.18 2003/12/01 03:58:01 ballen4705 Exp $
