@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.49 2004/02/04 18:48:12 ballen4705 Exp $
+# $Id: configure.in,v 1.50 2004/02/12 18:30:30 card_captor Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.27, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.49 2004/02/04 18:48:12 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.50 2004/02/12 18:30:30 card_captor Exp $'`
 smartmontools_release_date=2003/11/30
 smartmontools_release_time="13:36:20 UTC"
 
@@ -27,6 +27,7 @@ AM_MAINTAINER_MODE
 AC_LANG_C
 dnl Checks for programs.
 AC_PROG_CC
+AM_PROG_AS
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
@@ -46,6 +47,7 @@ AC_CHECK_FUNCS([uname])
 
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
+AC_SUBST(ASFLAGS)
 
 AC_PREFIX_DEFAULT(['/usr'])
 AC_SUBST([exampledir], ['${docdir}/examplescripts'])
@@ -87,7 +89,11 @@ case "${host}" in
 	*-*-freebsd*)
 		AC_SUBST([os_deps], ['os_freebsd.o']) 
 		AC_SUBST([os_libs], ['-lcam']);;
-	*-*-solaris*) 
+	sparc-*-solaris*) 
+                AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
+		AC_SUBST([os_deps], ['os_solaris.o os_solaris_ata.o']) 
+		AC_SUBST([os_libs], ['']) ;;
+	pc-*-solaris*) 
                 AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
 		AC_SUBST([os_deps], ['os_solaris.o']) 
 		AC_SUBST([os_libs], ['']) ;;

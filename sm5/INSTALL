@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.34 2004/01/29 21:50:53 shattered Exp $
+$Id: INSTALL,v 1.35 2004/02/12 18:30:15 card_captor Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -49,8 +49,9 @@ Table of contents:
     
     C) Solaris
     
-    The code has been tested on a variety of Solaris 8 and 9 systems.
-    All tested kernels worked correctly.
+    The SCSI code has been tested on a variety of Solaris 8 and 9
+    systems.  ATA/IDE code works only on SPARC platform.  All tested
+    kernels worked correctly.
 
     D) NetBSD
 

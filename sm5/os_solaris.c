@@ -40,9 +40,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.c,v 1.14 2004/02/04 13:21:30 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.c,v 1.15 2004/02/12 18:30:30 card_captor Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.14 2004/02/04 13:21:30 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.15 2004/02/12 18:30:30 card_captor Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -238,19 +238,22 @@ int make_device_names (char*** devlist, const char* name) {
                         return -1;
                 if (grokdir("/dev/rmt", &res, isscsidev) == -1)
                         return -1;
+	} else if (strcmp(name, "ATA") == 0) {
+                if (grokdir("/dev/rdsk", &res, isatadev) == -1)
+                        return -1;
+	} else {
+                // non-SCSI and non-ATA case not implemented
+                *devlist=NULL;
+                return 0;
+	}
 
-                // shrink array to min possible size
-                res.names = realloc(res.names, res.nnames * sizeof (char *));
-                bytes -= sizeof(char *)*(res.maxnames-res.nnames);
+	// shrink array to min possible size
+	res.names = realloc(res.names, res.nnames * sizeof (char *));
+	bytes -= sizeof(char *)*(res.maxnames-res.nnames);
 
-                // pass list back
-                *devlist = res.names;
-                return res.nnames;
-        }
-        
-        // ATA case not implemented
-        *devlist=NULL;
-        return 0;
+	// pass list back
+	*devlist = res.names;
+	return res.nnames;
 }
 
 // Like open().  Return integer handle, used by functions below only.
@@ -269,16 +272,72 @@ int deviceclose(int fd){
     return close(fd);
 }
 
+static void swap_sector(void *p)
+{
+    int i;
+    unsigned char t, *cp = p;
+    for(i = 0; i < 256; i++) {
+        t = cp[0]; cp[0] = cp[1]; cp[1] = t;
+        cp += 2;
+    }
+}
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
-  // avoid gcc warnings//
-  fd=command=select=0;
-  data=NULL;
+#if defined(__sparc)
+    int err;
+ 
+    switch (command){
+    case CHECK_POWER_MODE:
+	/* currently not recognized */
+	return -1;
+    case READ_VALUES:
+	return smart_read_data(fd, data);
+    case READ_THRESHOLDS:
+	return smart_read_thresholds(fd, data);
+    case READ_LOG:
+	return smart_read_log(fd, select, 1, data);
+    case IDENTIFY:
+	err = ata_identify(fd, data);
+	if(err) return err;
+	swap_sector(data);
+	return 0;
+    case PIDENTIFY:
+	err = ata_pidentify(fd, data);
+	if(err) return err;
+	swap_sector(data);
+	return 0;
+    case ENABLE:
+	return smart_enable(fd);
+    case DISABLE:
+	return smart_disable(fd);
+    case STATUS:
+	return smart_status(fd);
+    case AUTO_OFFLINE:
+	return smart_auto_offline(fd, select);
+    case AUTOSAVE:
+	return smart_auto_save(fd, select);
+    case IMMEDIATE_OFFLINE:
+	return smart_immediate_offline(fd, select);
+    case STATUS_CHECK:
+	return smart_status_check(fd);
+    default:
+	pout("Unrecognized command %d in ata_command_interface() of os_solaris.c\n", command);
+	exit(1);
+	break;
+    }
+#else /* __sparc */
+    // avoid gcc warnings//
+    fd=command=select=0;
+    data=NULL;
 
-  if (printwarning(0))
+    /* Above smart_* routines uses undocumented ioctls of "dada"
+     * driver, which is specific to SPARC Solaris. x86 Solaris seems
+     * not to provide similar or alternative interface... */
+    if (printwarning(1))
+	return -1;
+#endif
     return -1;
-  return -1;
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
