@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.51 2003/01/04 21:31:33 ballen4705 Exp $
+\# $Id: smartd.8,v 1.52 2003/01/27 22:41:43 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/01/04 21:31:33 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/01/27 22:41:43 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -38,7 +38,8 @@ below)
 will attempt to enable S.M.A.R.T. monitoring on ATA devices, and polls
 these and SCSI devices every 30 minutes (configurable), logging
 S.M.A.R.T. errors and changes of S.M.A.R.T. Attributes via the SYSLOG
-interface.  These notifications and warnings normally appear in
+interface.  The default location for these SYSLOG notifications and
+warnings is
 .B /var/log/messages. 
 
 .B smartd
@@ -85,7 +86,9 @@ Directive in the configuration file (see
 below). Note that when there is no configuration file, and
 .B smartd
 scans for devices on startup,
-.B warning messages may appear in /var/log/messages,
+.B warning messages may appear in SYSLOG
+(by default
+.B /var/log/messages)
 about missing block-major-xx devices.  These messages are usually
 harmless. Alternatively, the configuration file can be used to exclude
 non-existent devices by giving a list of devices to monitor at
@@ -159,8 +162,8 @@ smartd
 .fi
 Runs the daemon in forked mode. This is the normal way to run
 .B smartd.
-Entries are logged to
-.B /var/log/messages.
+Entries are logged to SYSLOG (by default
+.B /var/log/messages.)
 
 .fi
 Note that 
@@ -690,4 +693,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.51 2003/01/04 21:31:33 ballen4705 Exp $
+$Id: smartd.8,v 1.52 2003/01/27 22:41:43 ballen4705 Exp $
