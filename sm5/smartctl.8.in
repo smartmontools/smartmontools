@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.66 2004/09/14 14:20:38 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.67 2004/09/18 17:17:31 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -131,7 +131,9 @@ supports SMART, and if so, whether SMART support is currently enabled
 or disabled.  If the device supports Logical Block Address mode (LBA
 mode) print current user drive capacity in bytes. (If drive is has a
 user protected area reserved, or is "clipped", this may be smaller
-than the potential maximum drive capacity.)
+than the potential maximum drive capacity.)  Indicates if the drive is
+in the smartmontools database (see \'\-v\' options below).  If so, the
+drive model family may also be printed.
 .TP
 .B \-a, \-\-all
 Prints all SMART information about the disk, or TapeAlert information
@@ -1241,7 +1243,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.66 2004/09/14 14:20:38 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.67 2004/09/18 17:17:31 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
