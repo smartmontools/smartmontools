@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.28 2004/03/03 20:38:48 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.29 2004/03/04 01:38:45 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -560,14 +560,15 @@ The definitions of these terms are:
 not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
 that a device data log structure checksum was incorrect.  
 
-If the command that caused the error was a READ or a WRITE error, then
+If the command that caused the error was a READ or WRITE command, then
 the Logical Block Address (LBA) at which the error occured will be
-printed.  The LBA is a linear address, which counts 512-byte sectors
-on the disk.  Because of the limitations of the SMART error log, if
-the LBA is greater than 0xfffffff, then no error log entry will be
-made, or it will have an incorrect LBA. This may happen for drives
-with a capacity greater than 128 GiB or 137 GB. On Linux systems the
-smartmontools web page has instructions about how to convert this LBA
+printed in base 10 and base 16.  The LBA is a linear address, which
+counts 512-byte sectors on the disk, starting from zero.  (Because of
+the limitations of the SMART error log, if the LBA is greater than
+0xfffffff, then either no error log entry will be made, or the error
+log entry will have an incorrect LBA. This may happen for drives with
+a capacity greater than 128 GiB or 137 GB.) On Linux systems the
+smartmontools web page has instructions about how to convert the LBA
 address to the name of the disk file containing the erroneous block.
 
 Please note that some manufacturers \fBignore\fP the ATA
@@ -1058,4 +1059,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.28 2004/03/03 20:38:48 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.29 2004/03/04 01:38:45 ballen4705 Exp $
