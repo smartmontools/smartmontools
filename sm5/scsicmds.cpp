@@ -33,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.cpp,v 1.14 2002/11/21 16:34:04 knan Exp $" CVSID4;
+const char *CVSid3="$Id: scsicmds.cpp,v 1.15 2002/11/21 16:49:44 knan Exp $" CVSID4;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
@@ -135,7 +135,7 @@ UINT8 modeselect (int device,  UINT8 pagenum, UINT8 *pBuf)
     
   memcpy ( &tBuf[ CDB_6_HDR_SIZE + MODE_DATA_HDR_SIZE],
 			 pBuf +  MODE_DATA_HDR_SIZE,
-			pBuf[0] - MODE_DATA_HDR_SIZE + 1);
+			CDB_6_MAX_DATA_SIZE - MODE_DATA_HDR_SIZE);
 
   tBuf[26] &= 0x3f;		
  

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.51 2002/11/21 14:11:18 ballen4705 Exp $
+$Id: CHANGELOG,v 1.52 2002/11/21 16:49:43 knan Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,10 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Bolsø: scsi: don't trust the data we receive from the drive too
+  much. It very well might have errors (like zero response length).
+  Seen on Megaraid logical drive, and verified in the driver source.
 
   Allen: smartd: added Directive -m for sending test email and
   for modifying email reminder behavior.  Updated manual, and sample
