@@ -72,3 +72,13 @@ cp -f build/smartmontools-$VERSION.tar.gz .
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
        depcomp mkinstalldirs install-sh configure aclocal.m4 missing *.bak
+
+
+# TARBALL PROBLEMS on redhat:
+# if you do ./configure && make && make install:
+# make install: puts executables in wrong place on redhat: /usr/local/sbin not /usr/sbin
+# puts smartd.conf in /usr/local/etc
+# puts man pages in /usr/local/man
+# puts doc in /usr/local/share/doc
+# puts smartd.conf into a subdirectory of doc file called examples
+# puts init scripts into /usr/local/etc/...
