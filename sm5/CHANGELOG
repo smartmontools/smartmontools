@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.62 2002/12/01 06:48:14 ballen4705 Exp $
+$Id: CHANGELOG,v 1.63 2002/12/01 07:07:46 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,11 +32,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-  [BA] smartd: The syslog entries how have a single process number for
-  smartd, not two distinct numbers.  We do this by calling daemon_init()
-  before printing header message and before reading config file.  Some
-  perror() entries in the latter modified to print in the correct
-  place.
+  [BA] smartd: Fixed a couple of error messages done with perror()
+  to redirect them as needed.
 
 smartmontools-5.0.48
 
