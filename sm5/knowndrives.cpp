@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.77 2004/01/03 21:03:20 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.78 2004/01/03 21:32:16 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -347,15 +347,15 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // HITACHI_DK23BA-20
-    "^HITACHI_DK23BA-20$",
+  { // HITACHI Travelstar DK23BA series
+    "^HITACHI_DK23BA-",
     ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // HITACHI_DK23EA-30
-    "^HITACHI_DK23EA-30$",
+  { // HITACHI Travelstar DK23EA series
+    "^HITACHI_DK23EA-",
     ".*",
     NULL,
     vendoropts_Hitachi_DK23EA,
