@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# This is a utility called in the Makefile.  It's used together with
+# the file "counter" to automatically increment release numbers.
+#
+a=`cat counter`
+let a+=1
+echo $a

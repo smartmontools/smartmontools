@@ -1,4 +1,4 @@
-//  $Id: smartd.cpp,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $
+//  $Id: smartd.cpp,v 1.7 2002/10/11 12:15:50 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -64,8 +64,8 @@ void printout(int priority,char *fmt, ...){
 
 /* prints help information for command syntax */
 void Usage ( void){
-  printout(LOG_INFO,"smartd version %i.%i - S.M.A.R.T. Daemon\n", 
-           VERSION_MAJOR, VERSION_MINOR);
+  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon\n", 
+           RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION);
   printout(LOG_INFO,"usage: smartd -[opts] \n");
   printout(LOG_INFO,"Read Only Commands:\n");
   printout(LOG_INFO,"\t\t%c\t\tStart smartd in debug Mode\n",DEBUGMODE);
@@ -264,7 +264,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.cpp,v 1.7 2002/10/11 12:15:50 ballen4705 Exp $\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 
@@ -304,12 +304,14 @@ int main (int argc, char **argv){
   
   if (printcopyleft){
     debugmode=1;
-    printout(LOG_INFO,"smartd version %d.%d Copyright (C) Bruce Allen 2002\n",VERSION_MAJOR,VERSION_MINOR);
+    printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
+		RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
     printout(LOG_INFO,copyleftstring);
     exit(0);
   }
   
-  printout(LOG_INFO,"smartd version %d.%d Copyright (C) Bruce Allen 2002\n",VERSION_MAJOR,VERSION_MINOR);
+  printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
+		  RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
   
   if (!debugmode){
     daemon_init();

@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.9 2002/10/11 09:20:32 ballen4705 Exp $
+# $Id: Makefile,v 1.10 2002/10/11 12:15:49 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -16,6 +16,15 @@
 CC	= gcc
 # CFLAGS = -fsigned-char -Wall -g 
 CFLAGS	= -fsigned-char -Wall -O2
+
+releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
+  README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
+  smartd.8 smartd.c smartd.h smartd.initd TODO
+
+counter=$(shell cat VERSION)
+newcounter=$(shell ./add )
+pkgname=smartmontools-5.0
+pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
 
@@ -37,8 +46,14 @@ atacmds.o: atacmds.h atacmds.c
 scsicmds.o: scsicmds.h scsicmds.c 
 	${CC} ${CFLAGS} -c scsicmds.c
 
+atacmds.h: VERSION
+	cat atacmds.h | sed '/SMARTMONTOOLS_VERSION/d' > temp.atacmds.h
+	echo "#define SMARTMONTOOLS_VERSION " $(counter) > temp.head
+	cat temp.head temp.atacmds.h > atacmds.h
+	rm -f temp.atacmds.h temp.head
+
 clean:
-	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm
+	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.*
 
 install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
@@ -50,27 +65,31 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 
 uninstall:
-	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8  /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
+	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8\
+           /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
 	/sbin/chkconfig --del smartd
 	/etc/rc.d/init.d/smartd stop
 	rm -f /etc/rc.d/init.d/smartd
 
-releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
-  README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO
-
-pkgname=smartmontools-5.0
-workdir=$(pkgname)
-
+# All this mess is to automatically increment the release numbers.
+# The number of the next release is kept in the file "VERSION"
 release: $(releasefiles)
-	rm -rf $(workdir)
-	mkdir $(workdir)
-	cp -a $(releasefiles) $(workdir)
-	tar zcvf $(pkgname).tar.gz $(workdir)
-	rm -rf $(workdir)
-	cp $(pkgname).tar.gz /usr/src/redhat/SOURCES
+	rm -rf $(pkgname)
+	mkdir $(pkgname)
+	cp -a $(releasefiles) $(pkgname)
+	tar zcvf $(pkgname).tar.gz $(pkgname)
+	mv -f $(pkgname) $(pkgname2)
+	tar zcvf $(pkgname2).tar.gz $(pkgname2)
+	rm -rf $(pkgname2)
+	mv -f $(pkgname).tar.gz /usr/src/redhat/SOURCES/
+	cat smartmontools.spec | sed '/Release:/d' > temp.spec
+	echo "Release: " $(counter) > temp.version
+	cat temp.version temp.spec > smartmontools.spec
+	rm -f temp.spec temp.version
 	rpm -ba smartmontools.spec
 	mv /usr/src/redhat/RPMS/i386/$(pkgname)*.rpm .
 	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .
 	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
+	echo $(newcounter) > VERSION
+
 

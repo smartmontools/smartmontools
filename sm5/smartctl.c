@@ -1,4 +1,4 @@
-//  $Id: smartctl.c,v 1.5 2002/10/11 09:20:32 ballen4705 Exp $
+//  $Id: smartctl.c,v 1.6 2002/10/11 12:15:50 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -57,10 +57,6 @@ unsigned char printcopyleft           = FALSE;
 
 
 void Usage ( void){
-
-  printf( "smartctl version %i.%i - S.M.A.R.T. Control Program\n", 
-	  VERSION_MAJOR, VERSION_MINOR);
-  printf("Home page of project is " PROJECTHOME "\n\n");
   printf( "usage: smartctl -[options] [device]\n");
   printf( "Read Only Options:\n");
   printf( "\t\t%c\t\tPrint Copyright and License information\n", 
@@ -218,18 +214,19 @@ int main (int argc, char **argv){
   int fd;
   char *device;
   
+  printf("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+  printf("Home page of project is %s\n\n",PROJECTHOME);
+  
   // Part input arguments
   ParseOpts (argc,argv);
   
   // Print Copyright/License info if needed
   if (printcopyleft){
-    printf("smartctl version %d.%d Copyright (C) 2002 Bruce Allen\n",VERSION_MAJOR,VERSION_MINOR);
-    printf("Home page of project is %s\n\n",PROJECTHOME);
     printf("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.5 2002/10/11 09:20:32 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.6 2002/10/11 12:15:50 ballen4705 Exp $");
     exit(0);
  }
 
