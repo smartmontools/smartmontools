@@ -90,7 +90,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.294 2004/03/16 11:02:44 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.295 2004/03/16 14:46:14 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -100,7 +100,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.294 2004/03/16 11:02:44 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.295 2004/03/16 14:46:14 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -242,12 +242,12 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,ataprint_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
-  printone(out,knowndrives_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
 #if defined(_WIN32) && defined(_MSC_VER)
   printone(out,int64_vc6_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
 #endif
+  printone(out,knowndrives_c_cvsid);
+  PrintOut(LOG_INFO,"%s",out);
   printone(out,os_XXXX_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
 #ifdef NEED_SOLARIS_ATA_CODE
