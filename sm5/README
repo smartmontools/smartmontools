@@ -235,4 +235,4 @@ Modify smartmontools index.html page to warn users of change in syntax, point to
 Modify smartd to take -C out of config file, put onto command line
 Modify smartd and smartd.conf man pages, README file, CHANGELOG
 Modify smartd Directive names, parsing
-Modify smartd and smartd.conf man pages, README file, CHANGELOG
+Modify smartd and smartd.conf man pages, README file, CHANGELOG, example smartd.conf configuration file
