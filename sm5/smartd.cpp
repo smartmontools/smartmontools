@@ -39,7 +39,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.34 2002/10/26 09:58:05 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.35 2002/10/26 10:19:16 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 // This function prints either to stdout or to the syslog as needed
@@ -51,6 +51,7 @@ void printout(int priority,char *fmt, ...){
     vprintf(fmt,ap);
   else
     vsyslog(priority,fmt,ap);
+    closelog();
   va_end(ap);
   return;
 }

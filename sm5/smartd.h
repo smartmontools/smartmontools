@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.10 2002/10/26 09:38:26 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.11 2002/10/26 10:19:16 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -31,13 +31,15 @@
 #define MAXLINELEN 114
 #define MAXENTRIES 64
 
-// BAD PROGRAMMING PRACTICE - GLOBAL VARIABLES SHOULD BE IN .c NOT .h
-// FILE
+// BAD PROGRAMMING - GLOBAL VARIABLES SHOULD BE IN .c NOT .h FILE
+
 /* how often SMART status is checked, in seconds */
 int checktime = 1800;
+
 // number of ATA and SCSI devices being watched
 int numatadevices;
 int numscsidevices;
+
 #define MAXATADEVICES	12
 #define MAXSCSIDEVICES	26
 
