@@ -36,7 +36,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.c,v 1.14 2003/01/04 01:37:48 dpgilbert Exp $"
+const char* CVSid4="$Id: scsiprint.c,v 1.15 2003/01/05 15:24:44 ballen4705 Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -214,11 +214,13 @@ const char * self_test_result[] = {
 	"Self test in progress ..."
 };
 
+// See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
+// T10/1416-D Rev 10
 void  scsiPrintSelfTest(int device)
 {
-	int num, k, n, res;
+	int num, k, n, res, noheader=1;
 	UINT8 * ucp;
-	unsigned long long ull;
+	unsigned long long ull=0;
 
 	if (logsense(device, SELFTEST_RESULTS_PAGE, gBuf) != 0)
 	{
@@ -228,42 +230,100 @@ void  scsiPrintSelfTest(int device)
 	if (gBuf[0] != SELFTEST_RESULTS_PAGE)
 	{
 		printf("Self-test Log Sense Failed\n");
-		exit(-1);
+		exit(1);
 	}
+
+	// compute page length
 	num = (gBuf[2] << 8) + gBuf[3];
+
+	// how come not num != 0x190 log sense wrong length?
 	if (num < 0x190) {
 		printf("Self-test Log Sense too short\n");
-		exit(-1);
+		exit(1);
 	}
-	ucp = &gBuf[0] + 4;
-	printf(",\nSMART Self-test log\n");
-	printf("Num  Test              Status                 segment  "
-		"LifeTime  LBA_first_err [SK ASC ASQ]\n");
-	printf("     Description                              number   "
-		"(hours)\n");
+
+	// start address of first self-test result 
+	// not needed initialized later in for () statement
+	// ucp = &gBuf[0] + 4;
+
+	// loop through the twenty possible entries
 	for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
-	n = (ucp[6] << 8) | ucp[7];
-	if ((0 == n) && (0 == ucp[4]))
+	  int i;
+
+	  // timestamp in power-on hours (or zero if test in progress)
+	  n = (ucp[6] << 8) | ucp[7];
+
+	  // if no test was done, we are finished.  Should we check
+	  // that all 20 bytes are zero?
+	  if ((0 == n) && (0 == ucp[4]))
 	    break;
-	printf("#%2d  %s", (ucp[0] << 8) | ucp[1], 
-	       self_test_code[(ucp[4] >> 5) & 0x7]);
-	res = ucp[4] & 0xf;
-	printf("  %s", self_test_result[res]);
-	printf(" %3d",  (int)ucp[5]);
-	printf(" %5d",  n);
-	ull = ucp[8]; ull <<= 8; ull |= ucp[9]; ull <<= 8; ull |= ucp[10];
-	ull <<= 8; ull |= ucp[11]; ull <<= 8; ull |= ucp[12];
-	ull <<= 8; ull |= ucp[13]; ull <<= 8; ull |= ucp[14];
-	ull <<= 8; ull |= ucp[14]; ull <<= 8; ull |= ucp[15];
-	if ((0xffffffffffffffffULL != ull) && (res > 0) && ( res < 0xf))
-		printf(" 0x%10llx", ull);
+
+	  // only print header if needed
+	  if (noheader){
+	    printf(",\nSMART Self-test log\n");
+	    printf("Num  Test              Status                 segment  "
+		   "LifeTime  LBA_first_err [SK ASC ASQ]\n");
+	    printf("     Description                              number   "
+		   "(hours)\n");
+	    noheader=0;
+	  }
+
+	  // are the 20-byte blocks stored in increasing order of
+	  // parameter code?  I think so.... this code assumes it.
+
+	  // print parameter code (test number) & self-test code text
+	  printf("#%2d  %s", (ucp[0] << 8) | ucp[1], 
+		 self_test_code[(ucp[4] >> 5) & 0x7]);
+
+	  // self-test result
+	  res = ucp[4] & 0xf;
+	  printf("  %s", self_test_result[res]);
+
+	  // self-test number identifies test that failed and consists
+	  // of either the number of the segment that failed during
+	  // the test, or the number of the test that failed and the
+	  // number of the segment in which the test was run, using a
+	  // vendor-specific method of putting both numbers into a
+	  // single byte.
+	  if (ucp[5])
+	    printf(" %3d",  (int)ucp[5]);
+	  else
+	    printf(" -  ");
+
+	  // print time that the self-test was completed
+	  if (n==0 && res==0xf)
+	    // self-test in progress
+	    printf(" NOW  ");
+	  else   
+	    printf(" %5d",  n);
+	  
+	  // construct 8-byte integer address of first failure
+	  for (i=0; i<8; i++){
+	    ull <<= 8;
+	    ull |= ucp[i+8];
+	  }
+
+	  // print Address of First Failure, if sensible
+	  if ((0xffffffffffffffffULL != ull) && (res > 0) && ( res < 0xf))
+	    printf(" 0x%10llx", ull);
+	  else
+	    printf(" -           ");
+
+	  // if sense key nonzero, then print it, along with
+	  // additional sense code and additional sense code qualifier
+	  if (ucp[16] & 0xf)
+	    printf(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
+	  else
+	    printf(" [-   -    -]\n");
+	}
+
+	// if header never printed, then there was no output
+	if (noheader)
+	  printf("No self-tests have been logged\n\n");
 	else
-		printf("             ");
-        if (ucp[16] & 0xf)
-		printf(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
-	else
-		printf("\n");
-    }
+	  printf("\n");
+
+	return;
 }
  
 void scsiGetDriveInfo ( int device)
