@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.38 2003/04/22 02:09:05 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.39 2003/04/22 08:26:28 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -426,18 +426,19 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     dateandtimezone(timedatetz);
     pout("Local Time is: %s\n", timedatetz);
 
+    if ((SCSI_PT_SEQUENTIAL_ACCESS == *peripheral_type) ||
+        (SCSI_PT_MEDIUM_CHANGER == *peripheral_type))
+        is_tape = 1;
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
         if (1 == err)
             pout("device is NOT READY (media absent, spun down, etc)\n");
         else
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
-        return;
+        if (! is_tape)
+            return;
     }
    
-    if ((SCSI_PT_SEQUENTIAL_ACCESS == *peripheral_type) ||
-        (SCSI_PT_MEDIUM_CHANGER == *peripheral_type))
-        is_tape = 1;
     if ((err = scsiFetchIECmpage(device, &iec))) {
         pout("Device does not support %s [%s]\n", 
              (is_tape ? "TapeAlerts" : "SMART"), 
