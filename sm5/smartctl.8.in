@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.38 2004/03/23 13:08:40 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.39 2004/03/24 11:53:46 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -868,19 +868,36 @@ order of minutes to complete.  Note that this command can be given
 during normal system operation (unless run in captive mode \- see the
 \'\-C\' option below).
 
-.I selective,N-M
-\- [ATA ONLY] runs a SMART Selective Self Test.  This self-test
-routine checks specific ranges of disk Logical Block Addresses (LBAs).
-Each range that is checked is called a "span".  Each span is specified
-by a starting LBA (N) and an ending LBA (M).  Up to 5 spans can be
-specified. For example:
+.I select,N-M
+\- [ATA ONLY] runs a SMART Selective Self Test, to test a \fBrange\fP
+of disk Logical Block Addresses (LBAs), rather than the entire disk.
+Each range of LBAs that is checked is called a "span" and is specified
+by a starting LBA (N) and an ending LBA (M) with N less than or equal
+to M.  The option can be given up to five times, to test up to five
+spans. For example the command:
 .nf
-smartctl -t selective,10-20 ...
-smartctl -t selective,0-1000 -t selective,2000-400000 ...
+  smartctl -t select,10-20 /dev/hda
 .fi
-Up to five such LBA ranges can be given.  Note that this command can
-be given during normal system operation (unless run in captive mode \-
-see the \'\-C\' option below).
+runs a self test on one span consisting of LBAs ten to twenty
+(inclusive). The command:
+.nf
+  smartctl -t select,0-100 -t select,1000-2000 /dev/hda
+.fi
+runs a self test on two spans.  The first span consists of 101 LBAs
+and the second span consists of 1001 LBAs.  Note that the spans can
+overlap partially or completely, as in:
+.nf
+  smartctl -t select,0-10 -t select 5-15 -t select,10-20 /dev/hda
+.fi
+Note that this command can be given during normal system operation
+(unless run in captive mode \- see the \'\-C\' option below).
+
+Selective self tests are particulary useful as disk capacities
+increase.  An extended self test (smartctl -t long) can take several
+hours.  Selective self-tests are helpful if you suspect that the disk
+is having problems at a particular range of addresses, based on SYSLOG
+error messages, previous failed self tests, or SMART error log
+entries.
 
 .TP
 .B \-C, \-\-captive
@@ -1077,4 +1094,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.38 2004/03/23 13:08:40 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.39 2004/03/24 11:53:46 ballen4705 Exp $
