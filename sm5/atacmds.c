@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.132 2003/11/28 23:21:58 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.132.2.1 2004/02/23 15:36:36 chrfranke Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -440,7 +440,7 @@ char *create_vendor_attribute_arg_list(void){
       strcat(s, "\n");
   }
 
-  free(sorted);
+  free((char **)sorted);
 
   // Return a pointer to the string
   return s;
@@ -1041,11 +1041,13 @@ int ataDoesSmartWork(int device){
 int ataSmartStatus2(int device){
 
   int returnval=smartcommandhandler(device, STATUS_CHECK, 0, NULL);
-  
+
+#ifdef linux
   if (returnval==-1){
     syserror("Error SMART Status command via HDIO_DRIVE_TASK failed");
     pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support enabled\n");
   }
+#endif
   
   return returnval;
 }
@@ -1083,7 +1085,7 @@ int ataSmartTest(int device, int testtype){
     type="Selective self-test";
     pout("Using test spans:\n");
     for (i = 0; i < con->smartselectivenumspans; i++)
-      pout("%lld - %lld\n",
+      pout("%"PRId64" - %"PRId64"\n",
 	   con->smartselectivespan[i][0],
 	   con->smartselectivespan[i][1]);
   }
@@ -1301,10 +1303,10 @@ int ataCheckAttribute(struct ata_smart_values *data,
 // array defs[] contains non-zero values if particular attributes have
 // non-default interpretations.
 
-long long ataPrintSmartAttribRawValue(char *out, 
+int64_t ataPrintSmartAttribRawValue(char *out, 
 				      struct ata_smart_attribute *attribute,
 				      unsigned char *defs){
-  long long rawvalue;
+  int64_t rawvalue;
   unsigned word[3];
   int j;
   unsigned char select;
@@ -1317,7 +1319,7 @@ long long ataPrintSmartAttribRawValue(char *out,
     // succumb to the temptation to use raw[j]<<(8*j) since under
     // the normal rules this will be promoted to the native type.
     // On a 32 bit machine this might then overflow.
-    long long temp;
+    int64_t temp;
     temp = attribute->raw[j];
     temp <<= 8*j;
     rawvalue |= temp;
@@ -1352,7 +1354,7 @@ long long ataPrintSmartAttribRawValue(char *out,
   
   // Print one six-byte quantity
   if (select==255){
-    out+=sprintf(out, "%llu", rawvalue);
+    out+=sprintf(out, "%"PRIu64, rawvalue);
     return rawvalue;
   }
 
@@ -1370,26 +1372,26 @@ long long ataPrintSmartAttribRawValue(char *out,
   case 9:
     if (select==1){
       // minutes
-      long long tmp1=rawvalue/60;
-      long long tmp2=rawvalue%60;
-      out+=sprintf(out, "%lluh+%02llum", tmp1, tmp2);
+      int64_t tmp1=rawvalue/60;
+      int64_t tmp2=rawvalue%60;
+      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
     }
     else if (select==3){
       // seconds
-      long long hours=rawvalue/3600;
-      long long minutes=(rawvalue-3600*hours)/60;
-      long long seconds=rawvalue%60;
-      out+=sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
+      int64_t hours=rawvalue/3600;
+      int64_t minutes=(rawvalue-3600*hours)/60;
+      int64_t seconds=rawvalue%60;
+      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m+%02"PRIu64"s", hours, minutes, seconds);
     }
     else if (select==4){
       // 30-second counter
-      long long tmp1=rawvalue/120;
-      long long tmp2=(rawvalue-120*tmp1)/2;
-      out+=sprintf(out, "%lluh+%02llum", tmp1, tmp2);
+      int64_t tmp1=rawvalue/120;
+      int64_t tmp2=(rawvalue-120*tmp1)/2;
+      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
     }
     else
       // hours
-      out+=sprintf(out, "%llu", rawvalue);  //stored in hours
+      out+=sprintf(out, "%"PRIu64, rawvalue);  //stored in hours
     break;
    // Load unload cycles
   case 193:
@@ -1401,7 +1403,7 @@ long long ataPrintSmartAttribRawValue(char *out,
     }
     else
       // associated
-      out+=sprintf(out, "%llu", rawvalue);
+      out+=sprintf(out, "%"PRIu64, rawvalue);
     break;
     // Temperature
   case 194:
@@ -1413,7 +1415,7 @@ long long ataPrintSmartAttribRawValue(char *out,
     }
     else if (select==2)
       // unknown attribute
-      out+=sprintf(out, "%llu", rawvalue);
+      out+=sprintf(out, "%"PRIu64, rawvalue);
     else {
       out+=sprintf(out, "%d", word[0]);
       if (!(rawvalue==word[0]))
@@ -1422,7 +1424,7 @@ long long ataPrintSmartAttribRawValue(char *out,
     }
     break;
   default:
-    out+=sprintf(out, "%llu", rawvalue);
+    out+=sprintf(out, "%"PRIu64, rawvalue);
   }
   
   // Return the full value
