@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.40 2003/11/17 11:46:49 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.41 2003/11/18 13:46:05 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -291,6 +291,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec,
                                   int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
 int scsiFetchControlGLTSD(int device, int modese_len);
+int scsiClearControlGLTSD(int device, int modese_len);
 int scsiFetchTransportProtocol(int device, int modese_len);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
