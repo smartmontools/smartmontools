@@ -37,23 +37,36 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.25 2002/10/24 11:38:11 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.26 2002/10/24 15:03:15 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
   pid_t pid;
-  
+  int i;  
+
   if ( (pid = fork()) < 0)
     // unable to fork!
-    return -1;
+    exit(1);
   else if (pid != 0)
-    // we are the parent process -- exit
+    // we are the parent process -- exit cleanly
     exit (0);
 
   // from here on, we are the child process
-  setsid ();
-  chdir("/");
+  setsid();
+
+  // close any open file descriptors
+  for (i=getdtablesize();i>=0;--i)
+    close(i);
+
+  // redirect any IO attempts to /dev/null
+  // open stdin
+  i=open("/dev/null",O_RDWR);
+  // stdout
+  dup(i);
+  // stderr
+  dup(i);
   umask(0);
+  chdir("/");
   return(0);
 }
 
@@ -88,7 +101,7 @@ void pout(char *fmt, ...){
 
 
 void printhead(){
-  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon\n"
+  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon.\n"
 	   "Home page is %s\n\n",
            RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION,PROJECTHOME);
 }
