@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.75 2004/01/02 16:05:25 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.76 2004/01/03 00:31:58 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -384,7 +384,7 @@ const drivesettings knowndrives[] = {
   { // IBM Deskstar 120GXP 60GB [Phil -- use for testing]
     "^IC35L060AVVA07-[01]$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // IBM Deskstar 120GXP 40GB
     "^IC35L040AVVN07-0$",
@@ -399,42 +399,47 @@ const drivesettings knowndrives[] = {
   { // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
     "^TOSHIBA MK6021GAS$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
-  { // TOSHIBA MK4019GAXB
-    "^TOSHIBA MK4019GAXB$",
+  { // TOSHIBA MK4019GAX/MK4019GAXB
+    "^TOSHIBA MK4019GAXB?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // TOSHIBA MK6409MAV
+    "^TOSHIBA MK6409MAV$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { // Seagate Barracuda U Series 20410
     "^ST320410A$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Seagate U Series 5 20413
     "^ST320413A$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Seagate Barracuda ATA II family
     "^ST3(3063|2042|1532|1021)0A$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Seagate Barracuda ATA IV family
     "^ST3(20011|40016|60021|80021)A$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Seagate Barracuda ATA V family
     "^ST3(12002(3A|4A|9A|3AS)|800(23A|15A|23AS)|60(015A|210A)|40017A)$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Seagate Barracuda 7200.7 and 7200.7 Plus family
     "^ST3(200822AS?|16002[13]AS?|12002[26]AS?|8001[13]AS?|60014A|40014AS?)$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Western Digital Protege WD400EB
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -442,7 +447,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD400EB-.*$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Western Digital Caviar family
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -450,7 +455,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD(2|3|4|6|8|10|12|16|18|20|25)00BB-.*$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Western Digital Caviar SE family
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -458,27 +463,32 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD(4|6|8|10|12|16|18|20|25)00JB-.*$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Western Digital Caviar AC38400
     "^WDC AC38400L$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // Western Digital Caviar AC23200L
     "^WDC AC23200L$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALLlct15 20
+    "^QUANTUM FIREBALLlct15 20$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { // QUANTUM FIREBALLlct20 20
     "^QUANTUM FIREBALLlct20 20$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   { // QUANTUM FIREBALL CX10.2A
     "^QUANTUM FIREBALL CX10.2A$",
     ".*",
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL
   },
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
