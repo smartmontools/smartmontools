@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.67 2004/06/13 19:49:54 ballen4705 Exp $
+$Id: smartd.8.in,v 1.68 2004/07/01 11:38:25 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -46,6 +46,14 @@ SMART Attributes via the SYSLOG interface.  The default location for
 these SYSLOG notifications and warnings is \fB/var/log/messages\fP.
 To change this default location, please see the \fB\'-l\'\fP
 command-line option described below.
+
+In addition to logging to a file, \fBsmartd\fP can also be configured
+to send email warnings if problems are detected.  Depending upon the
+type of problem, you may want to run self\-tests on the disk, back up
+the disk, replace the disk, or use a manufacturer\'s utility to force
+reallocation of bad or unreadable disk sectors.  If disk problems are
+detected, please see the \fBsmartctl\fP manual page and the
+\fBsmartmontools\fP web page/FAQ for further guidance.
 
 If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
 check the status of the disks, and then return to polling the disks
@@ -561,7 +569,9 @@ from issuing ATA commands to a SCSI device.
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
 RAID controller. The non-negative integer N (in the range from 0 to 15
-inclusive) denotes which disk on the controller is monitored.
+inclusive) denotes which disk on the controller is monitored.  In log
+files and email messages this disk will be identified as 3ware_disk_XX
+with XX in the range from 00 to 15 inclusive.
 
 This Directive may at first appear confusing, because the 3ware
 controller is a SCSI device (such as /dev/sda) and should be listed as
@@ -1677,4 +1687,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.67 2004/06/13 19:49:54 ballen4705 Exp $
+$Id: smartd.8.in,v 1.68 2004/07/01 11:38:25 ballen4705 Exp $

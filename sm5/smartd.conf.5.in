@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.50 2004/06/13 19:49:54 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.51 2004/07/01 11:38:26 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -230,7 +230,9 @@ from issuing ATA commands to a SCSI device.
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
 RAID controller. The non-negative integer N (in the range from 0 to 15
-inclusive) denotes which disk on the controller is monitored.
+inclusive) denotes which disk on the controller is monitored.  In log
+files and email messages this disk will be identified as 3ware_disk_XX
+with XX in the range from 00 to 15 inclusive.
 
 This Directive may at first appear confusing, because the 3ware
 controller is a SCSI device (such as /dev/sda) and should be listed as
@@ -1154,4 +1156,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.50 2004/06/13 19:49:54 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.51 2004/07/01 11:38:26 ballen4705 Exp $
