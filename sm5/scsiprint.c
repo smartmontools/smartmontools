@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.49 2003/06/17 06:10:08 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.50 2003/10/07 11:53:54 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -671,7 +671,7 @@ int scsiPrintMain(const char *dev_name, int fd)
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int returnval=0;
-    int res;
+    int res, durationSec;
 
     if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {
         failuretest(MANDATORY_CMD, returnval |= FAILID);
@@ -755,6 +755,15 @@ int scsiPrintMain(const char *dev_name, int fd)
             return returnval;
         }
         pout("Extended Background Self Test has begun\n");
+        if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec)) &&
+            (durationSec > 0)) {
+            time_t t = time(NULL);
+
+            t += durationSec;
+            pout("Please wait %d minutes for test to complete.\n", 
+                 durationSec / 60);
+            pout("Estimated completion time: %s\n", ctime(&t));
+        }
         pout("Use smartctl -X to abort test\n");        
     }
     if (con->smartextendcapselftest) {
