@@ -1,4 +1,4 @@
-Release:  10
+Release:  11
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
