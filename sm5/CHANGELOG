@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.184 2003/08/30 13:06:47 ballen4705 Exp $
+$Id: CHANGELOG,v 1.185 2003/08/31 13:36:56 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  [GG] First round of move to auto{conf,make}.
+
   [BA] Eliminated #include <linux/hdreg.h> from code. This
        should simplify porting to solaris, FreeBSD, etc. The
        only linux-specific code is now isolated to three routines,
