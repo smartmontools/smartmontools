@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.60 2003/03/10 05:13:29 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.61 2003/03/11 04:34:02 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -134,6 +134,8 @@ const char *vendorattributeargs[] = {
   "N,raw16",
   // 6
   "N,raw48",
+  // 7
+  "200,writeerrorcount",
   // NULL should always terminate the array
   NULL
 };
@@ -179,6 +181,10 @@ int parse_attribute_def(char *pair, unsigned char *defs){
     // print all attributes in raw 48-bit form
     for (j=0; j<256; j++)
       defs[j]=255;
+    return 0;
+  case 7:
+    // attribute 200 is write error count
+    defs[200]=1;
     return 0;
   default:
     // pair not found
@@ -1024,8 +1030,16 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     name="UDMA_CRC_Error_Count";
     break;
   case 200:
-    // Western Digital
-    name="Multi_Zone_Error_Rate";
+    switch (defs[id]) {
+    case 1:
+      // Fujitsu MHS2020AT
+      name="Write_Error_Count";
+      break;
+    default:
+      // Western Digital
+      name="Multi_Zone_Error_Rate";
+      break;
+    }
     break;
   case 220:
     switch (defs[id]) {
