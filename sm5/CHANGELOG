@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.490 2004/11/08 01:32:14 dpgilbert Exp $
+$Id: CHANGELOG,v 1.491 2004/11/10 22:09:53 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Seagate U4 family, Fujitsu MHJ and MHK families, Seagate
+       Barracuda 5400.1, QUANTUM FIREBALLP KX27.3, QUANTUM FIREBALLP KA10.1,
+       and ExcelStor J340 to knowndrives table.
 
   [DG] [SCSI] After report of Hitachi IC35L073UCDY10 disks locking up
        on log page 0x7 (last n error events), check log page (and some
