@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.2 2004/11/06 17:11:30 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.3 2004/11/06 17:22:15 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -45,9 +45,6 @@ static HFILE hDevice;
 // implement.
 
 #include "config.h"
-#ifdef HAVE_UNAME
-#include <sys/utsname.h>
-#endif
 
 typedef struct _IDEREGS {
 	UCHAR  bFeaturesReg;
@@ -60,37 +57,35 @@ typedef struct _IDEREGS {
 	UCHAR  bReserved;
 } IDEREGS, *PIDEREGS, *LPIDEREGS;
 
-static void unsupported(){
-  static int warninggiven;
+static void unsupported(int which){
+  static int warninggiven[4];
 
-  if (!warninggiven) {
-    char *osname;
-    extern unsigned char debugmode;
-    unsigned char savedebugmode=debugmode;
+  if (which<0 || which>3)
+    return;
 
-#ifdef HAVE_UNAME
-    struct utsname ostype;
-    uname(&ostype);
-    osname=ostype.sysname;
-#else
-    osname="host's";
-#endif
-
+  if (!warninggiven[which]) {
+    char msg;
     debugmode=1;
-    pout("\n"
-         "############################################################################\n"
-         "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-         "Please see the files os_generic.c and os_generic.h for porting instructions.\n"
-         "############################################################################\n\n",
-         osname);
-    debugmode=savedebugmode;
-    warninggiven=1;
-  }
+    warninggiven[which]=1;
 
+    switch (which) {
+    case 0:
+      msg="generate a list of devices";
+      break;
+    case 1:
+      msg="interface to Marvell-based SATA controllers";
+      break;
+    case 2:
+      msg="interface to 3ware-based RAID controllers";
+      break;
+    case 3:
+      msg="interface to SCSI devices";
+      break;
+    }
+    pout("Under OS/2, smartmontools can not %s\n");
+  }
   return;
 }
-// End of the 'unsupported()' block that you should eliminate.
-
 
 // print examples for smartctl.  You should modify this function so
 // that the device paths are sensible for your OS, and to eliminate
@@ -147,7 +142,7 @@ int guess_device_type (const char* dev_name) {
 // the case N==0, no arrays are allocated because the array of 0
 // pointers has zero length, equivalent to calling malloc(0).
 int make_device_names (char*** devlist, const char* name) {
-  unsupported();
+  unsupported(0);
   return 0;
 }
 
@@ -529,7 +524,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 }
 
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
-  unsupported();
+  unsupported(1);
   return -1;
 }
 
@@ -538,12 +533,12 @@ int marvell_command_interface(int fd, smart_command_set command, int select, cha
 // that 0 <= disknum <= 15 specifies the ATA disk attached to the
 // controller.
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  unsupported();
+  unsupported(2);
   return -1;
 }
 
 // Interface to SCSI devices.  See os_linux.c
 int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
-  unsupported();
+  unsupported(3);
   return -ENOSYS;
 }
