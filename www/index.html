@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/10/20 20:29:55 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/10/20 22:15:24 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.96 2003/10/20 20:29:55 pjwilliams Exp $ -->
+<!-- $Id: index.html,v 1.97 2003/10/20 22:15:24 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -523,9 +523,22 @@ moving forward in time):
 </p>
 </li>
 
-<li><b>My drive is not in the smartctl/smartd database.  How do I get it added?</b>
+<li><b>My ATA drive is not in the smartctl/smartd database.  How do I get it added?</b>
 
-<p>First run a short self-test on the drive using the command <tt>smartctl&nbsp;-t&nbsp;short&nbsp;<i>device</i></tt>.  This will help us to determine whether or not Attribute 9 is being used to store the lifetime in hours (most, but not all, drives use Attribute 9 in this way).  Then email the output from <tt>smartctl&nbsp;-a&nbsp;<i>device</i></tt> to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support</a>.  If you need to use any of the vendor-specific display options (<b>-v</b> options) with this drive or if any of the Attributes are not behaving as you would expect then please include that information as well.
+<p>
+ First use the command:<br/>
+ <tt>smartctl -t short /dev/hd?</tt><br/>
+ to run a short self-test on the drive,
+ and wait a few minutes for the test to complete.
+ The timestamp in the self-test log will help us to determine
+ whether Attribute 9 is being used to store the lifetime in hours,
+ minutes, or seconds.  Then email the output from:<br/>
+ <tt>smartctl -a /dev/hd?</tt><br/> 
+to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support</a>
+ as an email attachment.  If you need to use any of the
+ vendor-specific display options (<b>-v</b> options) with this drive
+ or if any of the Attributes are behaving strangely please include
+ that information as well.
 </p>
 </li>
 </ul>
@@ -710,8 +723,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/10/20 20:29:55 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.96 2003/10/20 20:29:55 pjwilliams Exp $</tt>
+Last updated: <tt>$Date: 2003/10/20 22:15:24 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.97 2003/10/20 22:15:24 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
