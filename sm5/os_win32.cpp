@@ -25,6 +25,8 @@
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
+extern long long bytes; // malloc() byte count
+
 #include "extern.h"
 extern smartmonctrl * con; // con->permissive
 
@@ -36,12 +38,14 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.3 2004/02/25 13:50:45 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.4 2004/03/04 21:50:14 chrfranke Exp $" \
 ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 
 static int ata_open(int drive);
 static void ata_close(int fd);
+static unsigned ata_scan(void);
+
 static int aspi_open(unsigned adapter, unsigned id);
 static void aspi_close(int fd);
 
@@ -79,9 +83,38 @@ int guess_device_type (const char * dev_name)
 // smartd.  Returns number N of devices, or -1 if out of
 // memory. Allocates N+1 arrays: one of N pointers (devlist), the
 // others each contain null-terminated character strings.
-int make_device_names (char*** devlist, const char* name)
+int make_device_names (char*** devlist, const char* type)
 {
-	return 0; // TODO!
+	if (!strcmp(type, "ATA")) {
+		unsigned drives = ata_scan();
+		int i, n, sz;
+		if (!drives)
+			return 0;
+		n = 0;
+		for (i = 0; i <= 9; i++) {
+			if (drives & (1 << i))
+				n++;
+		}
+		assert(n > 0);
+		if (n == 0)
+			return 0;
+		sz = (n+1) * sizeof(char **);
+		*devlist = (char **)malloc(sz); bytes += sz;
+		for (i = 0; i < n; i++) {
+			sz = sizeof("/dev/hda");
+			char * s = (char *)malloc(sz); bytes += sz;
+			strcpy(s, "/dev/hda"); s[sz-2] += i;
+			(*devlist)[i] = s;
+		}
+		(*devlist)[n] = 0;
+		return n;
+	}
+
+	if (!strcmp(type, "SCSI")) {
+		return 0; // TODO!
+	}
+
+	return -1;
 }
 
 
@@ -501,6 +534,58 @@ static void ata_close(int fd)
 {
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
+}
+
+
+// Scan for ATA drives, return bitmask of drives present
+
+static unsigned ata_scan()
+{
+	unsigned drives = 0;
+	int win9x = ((GetVersion() & 0x80000000) != 0);
+	int i;
+
+	for (i = 0; i <= 9; i++) {
+		char devpath[30];
+		GETVERSIONOUTPARAMS vers;
+		DWORD num_out;
+		HANDLE h;
+		if (win9x)
+			strcpy(devpath, "\\\\.\\SMARTVSD");
+		else
+			snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", i);
+
+		// Open device
+		if ((h = CreateFile(devpath,
+			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
+			NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
+			if (win9x)
+				break; // SMARTVSD.VXD missing or no ATA devices
+			continue; // Disk not found or access denied (break;?)
+		}
+
+		// Get drive map
+		memset(&vers, 0, sizeof(vers));
+		if (!DeviceIoControl(h, SMART_GET_VERSION,
+			NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
+			CloseHandle(h);
+			if (win9x)
+				break; // Should not happen
+			continue; // Non ATA disk or no SMART ioctl support (possibly SCSI disk)
+		}
+		CloseHandle(h);
+
+		if (win9x) {
+			// Check ATA device presence, remove ATAPI devices
+			drives = (vers.bIDEDeviceMap & 0xf) & ~((vers.bIDEDeviceMap >> 4) & 0xf);
+			break;
+		}
+
+		// ATA drive exists and driver supports SMART ioctl
+		drives |= 1 << i;
+	}
+
+	return drives;
 }
 
 
