@@ -47,11 +47,10 @@
 #include "scsicmds.h"
 #include "smartd.h"
 #include "utility.h"
-#include "knowndrives.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.134 2003/04/08 21:40:01 pjwilliams Exp $" 
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.135 2003/04/08 21:47:26 pjwilliams Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
 const char *getvalidarglist(char opt);
