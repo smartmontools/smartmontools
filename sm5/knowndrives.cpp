@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.119 2004/09/14 03:34:34 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.120 2004/09/17 16:08:11 geoffk1 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -151,7 +151,7 @@ const drivesettings knowndrives[] = {
   },
   { // IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)
     "(IBM-)?DTLA-30[57]0[123467][05]",
-    "^T[WX][123468A]OA[56]AA$",
+    "^T[WX][123468AG][OF]A[56]AA$",
     NULL, NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (all other firmware)
@@ -583,7 +583,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL 
   },
   { // IBM/Hitachi Deskstar 120GXP family
-    "^IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
+    "^(IBM-)?IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
     ".*",
     NULL, NULL, NULL, NULL
   },
