@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.78 2004/04/30 06:17:52 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.79 2004/07/18 07:33:13 makisara Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -732,7 +732,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
             PRINT_ON(con);
-            pout("device is NOT READY (e.g. spun down, busy)\n");
+	    if (!is_tape)
+		pout("device is NOT READY (e.g. spun down, busy)\n");
+	    else
+		pout("device is NOT READY (e.g. no tape)\n");
             PRINT_OFF(con);
          } else if (SIMPLE_ERR_NO_MEDIUM == err) {
             PRINT_ON(con);
