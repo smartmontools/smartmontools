@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.120 2003/04/02 18:14:29 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.121 2003/04/06 03:52:33 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -697,13 +697,13 @@ int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
 
   // register the supported functionality.  The smartd code does not
   // seem to make any further use of this information.
-  if (logsense(fd, SUPPORT_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
+  if (logsense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
     for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
       switch ( tBuf[i]){ 
       case TEMPERATURE_PAGE:
 	devices->TempPageSupported = 1;
 	break;
-      case SMART_PAGE:
+      case IE_LOG_PAGE:
 	devices->SmartPageSupported = 1;
 	break;
       default:
@@ -975,53 +975,59 @@ int ataCheckDevice(atadevices_t *drive){
 }
 
 
+int scsiCheckDevice(scsidevices_t *drive)
+{
+    UINT8 asc, ascq;
+    UINT8 currenttemp;
+    int fd;
+    cfgfile *cfg=drive->cfg;
+    char *name=drive->devicename;
+    const char *cp;
 
-int scsiCheckDevice(scsidevices_t *drive){
-  UINT8 returnvalue;
-  UINT8 currenttemp;
-  UINT8 triptemp;
-  int fd;
-  cfgfile *cfg=drive->cfg;
-  char *name=drive->devicename;
+    // If the user has asked for it, test the email warning system
+    if (cfg->emailtest)
+        printandmail(cfg, 0, LOG_CRIT, 
+                     "TEST EMAIL from smartd for device: %s", name);
 
-  // If the user has asked for it, test the email warning system
-  if (cfg->emailtest){
-    printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", name);
-  }
-
-  // if we can't open device, fail gracefully rather than hard --
-  // perhaps the next time around we'll be able to open it
-  if ((fd=opendevice(name))<0){
-    printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
-    return 1;
-  }
+    // if we can't open device, fail gracefully rather than hard --
+    // perhaps the next time around we'll be able to open it
+    if ((fd=opendevice(name))<0) {
+        printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device",
+                      name);
+        return 1;
+    }
+    currenttemp = 0;
+    asc = 0;
+    ascq = 0;
+    if (scsiCheckIE(fd, drive->SmartPageSupported, &asc, &ascq,
+                    &currenttemp)) {
+        printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
+        printandmail(cfg, 6, LOG_CRIT, 
+                     "Device: %s, failed to read SMART values", name);
+    }
+    if (asc > 0) {
+        cp = scsiSmartGetIEString(asc, ascq);
+        if (cp) {
+            printout(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
+            printandmail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: %s",
+                         name, cp); 
+        }
+    } else if (debugmode)
+        printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", 
+                 name, (int)asc);  
   
-  currenttemp = triptemp = 0;
-  
-  if (scsiCheckSmart(fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp)){
-    printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
-    printandmail(cfg, 6, LOG_CRIT, "Device: %s, failed to read SMART values", name);
-  }
-
-  if (returnvalue) {
-    printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", name, 
-	     (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
-    printandmail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: (%d) %s", name, 
-		 (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
-  }
-  else if (debugmode)
-    printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", name, (int)returnvalue);  
-  
-  // Seems to completely ignore what capabilities were found on the
-  // device when scanned
-  if (currenttemp){
-    if ((currenttemp != drive->Temperature) && (drive->Temperature))
-      printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degrees since last reading\n", 
-	       name, (int) (currenttemp - drive->Temperature), (int)currenttemp );
-    drive->Temperature = currenttemp;
-  }
-  closedevice(fd, name);
-  return 0;
+    // Seems to completely ignore what capabilities were found on the
+    // device when scanned
+    if (currenttemp) {
+        if ((currenttemp != drive->Temperature) && (drive->Temperature))
+            printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
+                     "to %d degrees since last reading\n", name, 
+                     (int)(currenttemp - drive->Temperature), 
+                     (int)currenttemp);
+        drive->Temperature = currenttemp;
+    }
+    closedevice(fd, name);
+    return 0;
 }
 
 void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
