@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.443 2004/08/06 13:11:34 chrfranke Exp $
+$Id: CHANGELOG,v 1.444 2004/08/07 21:59:19 geoffk1 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [GK] Added initscript support for Darwin.
 
   [CF] Windows smartd: Added ability to run smartd as a windows service,
        including new commands "smartd install ..." and "smartd remove"

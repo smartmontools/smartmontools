@@ -5,6 +5,7 @@
 *.tar.gz.asc
 *~
 .deps
+.gdb_history
 Makefile
 Makefile.in
 VERSION
@@ -42,3 +43,4 @@ stamp-h
 stamp-h.in
 stamp-h1
 writelog.c
+SMART

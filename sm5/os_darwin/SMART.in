@@ -1,0 +1,39 @@
+#!/bin/sh
+
+##
+# SMART monitoring
+##
+
+. /etc/rc.common
+
+StartService ()
+{
+    if [ "${SMARTd:=-YES-}" = "-YES-" ] &&
+       ! GetPID smartd > /dev/null; then
+
+        ConsoleMessage "Starting SMART disk monitoring"
+
+        /usr/sbin/smartd -p /var/run/smartd.pid
+    fi
+}
+
+StopService ()
+{
+    if pid=$(GetPID smartd); then
+        ConsoleMessage "Stopping SMART disk monitoring"
+        kill -TERM "${pid}"
+    else
+        echo "smartd is not running."
+    fi
+}
+
+RestartService ()
+{
+    if pid=$(GetPID smartd); then
+        kill -HUP "${pid}"
+    else
+        StartService
+    fi
+}
+
+RunService "$1"
