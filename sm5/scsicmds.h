@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.36 2003/11/13 07:39:09 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.37 2003/11/14 11:40:59 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -120,7 +120,7 @@ struct scsi_iec_mode_page {
     UINT8 gotCurrent;
     UINT8 requestedChangeable;
     UINT8 gotChangeable;
-    UINT8 modese_10;
+    UINT8 modese_len;   /* 0 (don't know), 6 or 10 */
     UINT8 raw_curr[SCSI_IECMP_RAW_LEN];
     UINT8 raw_chg[SCSI_IECMP_RAW_LEN];
 };
@@ -275,7 +275,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
 int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
 
-int scsiModePageOffset(const UINT8 * resp, int len, int modese_10);
+int scsiModePageOffset(const UINT8 * resp, int len, int modese_len);
 
 int scsiRequestSense(int device, struct scsi_sense_disect * sense_info);
 
@@ -285,10 +285,11 @@ int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
 
 /* SMART specific commands */
-int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
-                UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp);
+int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
+                UINT8 *ascq, UINT8 *currenttemp, UINT8 *triptemp);
 
-int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp);
+int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, 
+                      int modese_len);
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
 int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 int scsiSetExceptionControlAndWarning(int device, int enabled,
@@ -297,7 +298,7 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
                                 struct scsiNonMediumError *nmep);
-int scsiFetchExtendedSelfTestTime(int device, int * durationSec);
+int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
