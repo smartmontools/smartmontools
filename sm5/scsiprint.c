@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.88 2004/09/05 13:55:00 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.89 2004/09/06 03:41:13 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -450,7 +450,7 @@ static void scsiPrintErrorCounterLog(int device)
         }
     }
     else 
-        pout("\nDevice does not support Error Counter logging\n");
+        pout("\nError Counter logging not supported\n");
     if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_LPAGE, gBuf, 
                           LOG_RESP_LEN, 0)) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
@@ -472,27 +472,28 @@ static void scsiPrintErrorCounterLog(int device)
         num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
         ucp = gBuf + 4;
         if (num < 4)
-            printf("\nNo error events logged\n");
+            pout("\nNo error events logged\n");
         else {
-            printf("Last n error events log page\n");
+            pout("Last n error events log page\n");
             for (k = num; k > 0; k -= pl, ucp += pl) {
                 if (k < 3) {
-                    printf("  <<short Last n error events log page>>\n");
+                    pout("  <<short Last n error events log page>>\n");
                     break;
                 }
                 pl = ucp[3] + 4;
                 pc = (ucp[0] << 8) + ucp[1];
-                printf("  Error event %d:\n", pc);
+                pout("  Error event %d:\n", pc);
                 if (ucp[2] & 0x2) {
-                    printf("    [binary]:\n");
+                    pout("    [binary]:\n");
                     dStrHex((const char *)ucp + 4, pl - 4, 1);
                 } else
-                    printf("    %.*s\n", pl - 4, (const char *)(ucp + 4));
+                    pout("    %.*s\n", pl - 4, (const char *)(ucp + 4));
                 num -= pl;
                 ucp += pl;
             }
         }
-    }
+    } else
+        pout("\nError Events logging not supported\n");
 }
 
 const char * self_test_code[] = {
