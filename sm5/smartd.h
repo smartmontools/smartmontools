@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.51 2003/10/25 13:03:26 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.52 2003/10/26 02:20:41 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -235,5 +235,13 @@ export NJAMD_TRACE_LIBS=1
 // Number of seconds to allow for registering a SCSI device. If this
 // time expires without sucess or failure, then treat it as failure.
 #define SCSITIMEOUT 7
+
+// This is for solaris, where signal() resets the handler to SIG_DFL
+// after the first signal is caught.
+#ifdef HAVE_SIGSET
+#define SIGNALFN sigset
+#else
+#define SIGNALFN signal
+#endif
 
 #endif

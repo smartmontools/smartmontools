@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.222 2003/10/25 13:03:26 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.223 2003/10/26 02:20:40 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1461,23 +1461,25 @@ void Initialize(time_t *wakeuptime){
   if (!debugmode)
     WritePidFile();
   
-  // install signal handlers:
+  // install signal handlers.  On Solaris, can't use signal() because
+  // it resets the handler to SIG_DFL after each call.  So use sigset()
+  // instead.  So SIGNALFN()==signal() or SIGNALFN()==sigset().
   
   // normal and abnormal exit
-  if (signal(SIGTERM, sighandler)==SIG_IGN)
-    signal(SIGTERM, SIG_IGN);
-  if (signal(SIGQUIT, sighandler)==SIG_IGN)
-    signal(SIGQUIT, SIG_IGN);
+  if (SIGNALFN(SIGTERM, sighandler)==SIG_IGN)
+    SIGNALFN(SIGTERM, SIG_IGN);
+  if (SIGNALFN(SIGQUIT, sighandler)==SIG_IGN)
+    SIGNALFN(SIGQUIT, SIG_IGN);
   
   // in debug mode, <CONTROL-C> ==> HUP
-  if (signal(SIGINT, debugmode?HUPhandler:sighandler)==SIG_IGN)
-    signal(SIGINT, SIG_IGN);
+  if (SIGNALFN(SIGINT, debugmode?HUPhandler:sighandler)==SIG_IGN)
+    SIGNALFN(SIGINT, SIG_IGN);
   
   // Catch HUP and USR1
-  if (signal(SIGHUP, HUPhandler)==SIG_IGN)
-    signal(SIGHUP, SIG_IGN);
-  if (signal(SIGUSR1, USR1handler)==SIG_IGN)
-    signal(SIGUSR1, SIG_IGN);
+  if (SIGNALFN(SIGHUP, HUPhandler)==SIG_IGN)
+    SIGNALFN(SIGHUP, SIG_IGN);
+  if (SIGNALFN(SIGUSR1, USR1handler)==SIG_IGN)
+    SIGNALFN(SIGUSR1, SIG_IGN);
 
   // initialize wakeup time to CURRENT time
   *wakeuptime=time(NULL);
@@ -2461,6 +2463,10 @@ int MakeConfigEntries(const char *type, int start){
     EXIT(EXIT_NOMEM);
   }
   
+  // if nothing on list, we are finished!
+  if (!num)
+    return num;
+
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
     PrintOut(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
@@ -2490,7 +2496,8 @@ int MakeConfigEntries(const char *type, int start){
     cfg->name=devlist[i];
   }
   
-  // free memory used for devlist: pointers now in cfgentries[]->names
+  // If needed, free memory used for devlist: pointers now in
+  // cfgentries[]->names
   devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
   
   return num;
@@ -2590,7 +2597,7 @@ void RegisterDevices(int scanning){
     
     // then register SCSI devices
     if (ent->tryscsi){
-      int retscsi;
+      int retscsi=0;
       struct sigaction alarmAction, defaultaction;
 
       // Set up an alarm handler to catch USB devices that hang on
