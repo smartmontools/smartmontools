@@ -1,9 +1,11 @@
 #include "os_freebsd.h"
+#include <sys/types.h>
+#include <dirent.h>
 
 // Eduard could you please add the boilerplace GPL2 copyright
 // boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.9 2003/10/08 14:09:01 arvoreen Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.10 2003/10/10 04:56:38 arvoreen Exp $" OS_XXXX_H_CVSID;
 
 // Private table of open devices: guaranteed zero on startup since
 // part of static data.
@@ -300,4 +302,56 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
 
 int guess_device_type (const char* dev_name) {
   return parse_ata_chan_dev(dev_name,NULL);
+}
+
+// global variable holding byte count of allocated memory
+extern long long bytes;
+
+void *FreeNonZero(void* address, int size);
+
+// we are going to take advantage of the fact that FreeBSD's devfs will only
+// have device entries for devices that exist.  So if we get the equivilent of
+// ls /dev/ad?, we have all the ATA devices on the system
+int get_dev_names(char*** names, const char* prefix) {
+  DIR* dir;
+  struct dirent* dirent;
+  int n = 0;
+  char** mp;
+
+  // first, preallocate space for upto max number of ATA devices
+  mp =  (char **)malloc(MAX_NUM_DEV*sizeof(char*));
+  if (!mp)
+    perror("Failed to allocate memory!");
+  bytes += (sizeof(char*)*MAX_NUM_DEV);
+
+  dir = opendir("/dev");
+  if (dir == NULL) {
+    int myerr = errno;
+    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV));
+    errno = myerr;
+    return -1;
+  }
+  
+  // now step through names
+  while ((dirent = readdir(dir)) && (n < MAX_NUM_DEV)) {
+    if (dirent->d_type == DT_CHR &&
+	(strstr(dirent->d_name,prefix) != NULL) &&
+	(dirent->d_namlen == 3)) {
+      mp[n++] = CustomStrDup(dirent->d_name,1,__LINE__);
+    }
+  }
+  closedir(dir);
+  mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
+  bytes -= (MAX_NUM_DEV-n)*(sizeof(char*)); // and correct allocated bytes
+  *names=mp;
+  return n;
+}
+
+void make_device_names (int *n, char*** devlist, const char* name) {
+  if (!strcmp(name,"SCSI"))
+    *n = get_dev_names(devlist,"da");
+  else if (!strcmp(name,"ATA"))
+    *n = get_dev_names(devlist,"ad");
+  else
+    *n = 0;
 }

@@ -1,11 +1,12 @@
 #ifndef _OS_LINUX_H_
 #define _OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.2 2003/10/08 01:24:58 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.3 2003/10/10 04:56:39 arvoreen Exp $\n"
 
 #include "config.h"
 #include "atacmds.h"
 #include "scsicmds.h"
+#include "smartd.h"
 
 
 /* 
@@ -109,5 +110,6 @@ typedef struct TAG_TW_Output {
   int padding[2];
   char output_data[512];
 } TW_Output; 
+
 
 #endif /* _OS_LINUX_H_ */
