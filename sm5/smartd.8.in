@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.80 2004/08/29 01:56:06 ballen4705 Exp $
+$Id: smartd.8.in,v 1.81 2004/08/29 07:10:44 snyderx Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
 .IP \fBFREEBSD:\fP 9
 Examine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
-.IP \fBNETBSD:\fP 9
+.IP \fBNETBSD/OPENBSD:\fP 9
 Authoritative list of disk devices is obtained from sysctl 
 \'hw.disknames\'.
 .IP \fBSOLARIS:\fP 9
@@ -398,7 +398,13 @@ under Linux. Under FreeBSD,
 will try to open all existing ATA devices (with entries in /dev)
 .B /dev/ad[0-9]+
 and all existing SCSI devices
-.B /dev/da[0-9]+.
+.B /dev/da[0-9]+.  
+Under NetBSD/OpenBSD, 
+\fBsmartd\fP
+will try to open all existing ATA devices (with entries in /dev)
+.B /dev/wd[0-9]+c
+and all existing SCSI devices
+.B /dev/sd[0-9]+c.
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
 problems, you may be annoyed by the string of error log messages about
@@ -1718,6 +1724,7 @@ The following have made large contributions to smartmontools:
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
 \fBKeiji Sawada\fP (Solaris ATA interface)
 \fBSergey Svishchev\fP (NetBSD interface)
+\fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
 \fBPhil Williams\fP (User interface and drive database)
 .fi
 Many other individuals have made smaller contributions and corrections.
@@ -1774,4 +1781,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.80 2004/08/29 01:56:06 ballen4705 Exp $
+$Id: smartd.8.in,v 1.81 2004/08/29 07:10:44 snyderx Exp $

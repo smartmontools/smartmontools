@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.59 2004/08/29 01:56:07 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.60 2004/08/29 07:10:44 snyderx Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -58,7 +58,13 @@ under Linux. Under FreeBSD,
 will try to open all existing ATA devices (with entries in /dev)
 .B /dev/ad[0-9]+
 and all existing SCSI devices
-.B /dev/da[0-9]+.
+.B /dev/da[0-9]+.  Under NetBSD/OpenBSD, 
+\fBsmartd\fP
+will try to open all existing ATA devices (with entries in /dev)
+.B /dev/wd[0-9]+c
+and all existing SCSI devices
+.B /dev/sd[0-9]+c.
+
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
 problems, you may be annoyed by the string of error log messages about
@@ -1182,6 +1188,7 @@ The following have made large contributions to smartmontools:
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
 \fBKeiji Sawada\fP (Solaris ATA interface)
 \fBSergey Svishchev\fP (NetBSD interface)
+\fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
 \fBPhil Williams\fP (User interface and drive database)
 .fi
 Many other individuals have made smaller contributions and corrections.
@@ -1212,4 +1219,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.59 2004/08/29 01:56:07 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.60 2004/08/29 07:10:44 snyderx Exp $
