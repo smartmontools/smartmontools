@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.63 2004/04/19 03:03:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.64 2004/05/21 15:20:21 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1518,6 +1518,22 @@ the \fBsmartd\fP process:
 
 \'\fBsmartd sigusr2\fP\' \- toggle debug mode
 
+.SH LOG TIMESTAMP TIMEZONE
+
+When \fBsmartd\fP makes log entries, these are time-stamped.  The time
+stamps are in the computer's local time zone, which is generally set
+using either the environment variable \'\fBTZ\fP\' or using a
+time-zone file such as \fB/etc/localtime\fP.  You may wish to change
+the timezone while \fBsmartd\fP is running (for example, if you carry
+a laptop to a new time-zone and don't reboot it).  Due to a bug in the
+\fBtzset(3)\fP function of many unix standard C libraries, the
+time-zone stamps of \fBsmartd\fP might not change.  For some systems,
+\fBsmartd\fP will work around this problem \fIif\fP the time-zone is
+set using \fB/etc/localtime\fP. The work-around \fIfails\fP if the
+time-zone is set using the \'\fBTZ\fP\' variable (or a file that it
+points to).
+
+
 .SH RETURN VALUES
 The return value (exit status) of 
 \fBsmartd\fP
@@ -1654,4 +1670,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.63 2004/04/19 03:03:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.64 2004/05/21 15:20:21 ballen4705 Exp $
