@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.34 2004/03/05 23:06:42 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.35 2004/03/06 19:43:18 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -734,8 +734,9 @@ value for Attribute 123 in this form.
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
 Modifies the behavior of \fBsmartctl\fP to compensate for some known
-and understood device firmware bug.  The valid arguments to this
-option are:
+and understood device firmware bug.  The arguments to this option are
+exclusive, so that only the final option given is used.  The valid
+values are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
@@ -1075,4 +1076,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.34 2004/03/05 23:06:42 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.35 2004/03/06 19:43:18 ballen4705 Exp $

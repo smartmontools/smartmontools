@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.152 2004/03/05 14:09:53 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.153 2004/03/06 19:43:22 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -311,14 +311,54 @@ fi
 # [SB] Stanislav Brabec
 # [PC] Peter Cassidy
 # [CD] Capser Dik
-# [DK] David Kirkby
+# [CF] Christian Franke
+# [GF] Guilhem Frézou
 # [DG] Douglas Gilbert
 # [GG] Guido Guenther
+# [DK] David Kirkby
 # [KM] Kai Mäkisarai
+# [EM] Eduard Martinescu
 # [FM] Frédéric L. W. Meunier
+# [KS] Keiji Sawada
+# [SS] Sergey Svishchev
 # [PW] Phil Williams
 
 %changelog
+
+* Sat Mar 6 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [PW] Added QUANTUM FIREBALLlct15 30, QUANTUM FIREBALLlct20 40, and
+       Maxtor 6Y060P0 (DiamondMax Plus 9 60GB) to knowndrives table.
+  [PW] Added Maxtor MaXLine II family to knowndrives table (thanks to
+       Brett Russ for submitting the patch).
+  [BA] Added remaining read/write commands to detailed list of
+       error log commands that have text descriptions of problem
+       printed.  For commands that support it, print number of failed
+       sectors at problem LBA.
+  [BA] Made SuSE section of smartd init script more SuSE 9 compatible.
+       Thanks to Hans-Peter Jansen.
+  [CF] Windows smartd: Added IDE/ATA device scan
+       Added windows device names to smartctl.8.in, smartd.8.in
+  [BA] smartctl/smartd: user-provided '-F samsung' and '-F samsung2'
+       command line options/Directives did NOT over-ride preset values
+       unless user specified '-P ignore'.  Now they will always over-ride
+       preset values from the database.
+  [BA] Added error decoding for a few more READ and WRITE commands.
+  [PW] Added Maxtor MaXLine Plus II, Western Digital Caviar SE (Serial ATA)
+       series, Hitachi Deskstar 7K250 series, and Ultra ATA 66 models of
+       the Maxtor DiamondMax Plus 40 series to knowndrives table.
+  [BA] Added Maxtor Diamondmax 250 GB drives to database.  Note that
+       these model numbers are not listed in Maxtor documentation, but
+       they exist.
+  [BA] Removed the 'contact developers' phrase from the Samsung disk
+       warning messages.
+  [PW] Added TOSHIBA MK2017GAP, IBM Deskstar 14GXP and 16GP series,
+       Fujitsu MPC series, Seagate Barracuda ATA III family, and missing
+       Seagate Barracuda U Series drives to knowndrives table
+  [BA] smartd: wrong loglevel for message: Configuration file
+       /etc/smartd.conf parsed.  Changed to LOG_INFO from LOG_CRIT.
+       Thanks to  Emmanuel CHANTREAU for the report.
+  [CF] Checked in development version of windows code base.
+
 * Tue Feb 24 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [BA] smartd: configure script did not set correct directory to search for
        smartd.conf based on --prefix argument to ./configure.  Thanks to

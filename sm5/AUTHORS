@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.10 2004/03/06 03:13:37 pervalidus Exp $
+$Id: AUTHORS,v 1.11 2004/03/06 19:43:16 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -19,8 +19,10 @@ Christian Franke	<franke@computer.org>
 Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
+Dr. David Kirkby	<drkirkby@ntlworld.com>
 Kai Mäkisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu	<martines@rochester.rr.com>
 Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
+Keiji Sawada		<card_captor@users.sourceforge.net>
+Sergey Svishchev	<svs@ropnet.ru>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
-Sawada Keiji		<card_captor@users.sourceforge.net>
