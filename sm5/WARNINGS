@@ -1,11 +1,12 @@
-$Id: WARNINGS,v 1.22 2004/04/01 21:02:11 chrfranke Exp $
+$Id: WARNINGS,v 1.23 2004/04/09 23:18:39 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
 
 The following are reports of serious problems (eg system lockup) which
-were due to smartmontools.  There is a "LINUX" and a "FREEBSD" and a
-"SOLARIS" section below.
+were due to smartmontools.  There are LINUX, FREEBSD, SOLARIS and
+WINDOWS sections below.
+
 
 LINUX
 -----
@@ -81,13 +82,13 @@ NOTE:     Before freezing, SYSLOG shows the following message(s)
 FREEBSD
 -------
 
-[No reports yet.]
+[No problem reports yet.]
 
 
 SOLARIS
 -------
 
-[No reports yet.]
+[No problem reports yet.]
 
 
 WINDOWS
