@@ -8,7 +8,7 @@ Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
-Version:	5.28
+Version:	5.29
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.149 2004/02/13 01:36:51 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.150 2004/02/24 09:57:27 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -306,6 +306,32 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Tue Feb 24 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [BA] smartd: configure script did not set correct directory to search for
+       smartd.conf based on --prefix argument to ./configure.  Thanks to
+       GG for identifying the problem and fix.
+  [BA] make clean now removes man pages (generated from *.in) files as well
+       as object files.
+  [EM] Correct copying of sense data in FreeBSD SCSI implementation. Thanks
+       to Sergey Svishchev for noticing the bug.
+  [BA] On solaris, wrong warning message if no ATA support.  Warning message
+       concerns 3ware controller, not ATA.
+  [SS] Added SCSI support for NetBSD.
+  [BA] on big-endian linux machines, fixed interpretation of HDIO_GET_IDENTITY
+       to correctly identify ATAPI bit (was byte swapped).  This should
+       eliminate some SYSLOG noise if user queries a packet device (eg, CD
+       ROM or DVD reader).
+  [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives with
+       A5AA/A6AA firmware.  Thanks to Gerald Schnabel.
+  [PW] Added Toshiba TOS MK3019GAXB SUN30G to knowndrives table
+  [PW] Added Western Digital Caviar AC12500, AC24300, AC25100, AC36400,
+       and AC38400 to knowndrives table
+  [BA] When printing ATA error log, print the LBA at which READ
+       or WRITE commands failed.
+  [BA] Changed syntax of error message in smartctl
+  [BA] Added versioning info (-V options to smartd/smartctl) for
+       Solaris ATA module.
+
 * Thu Feb 12 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [KS] Added ATA/IDE support for Solaris/SPARC (ATA/IDE not yet for
        Solaris/x86).

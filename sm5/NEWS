@@ -1,14 +1,21 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.17 2004/02/23 20:32:12 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.18 2004/02/24 09:57:27 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
+Date: 2003-2-24
+Summary: smartmontools release 5.29 (Experimental, not STABLE)
+--------------------------------------------------------------
+This is another experimental release, to replace the 5.27 release that
+had a damaged configure script.  The next stable release will be 5.30
+- This release has SCSI support for NetBSD
 
-Date: 
-Summary: smartmontools release 5.27
------------------------------------
+
+Date: 2003-2-12 
+Summary: smartmontools release 5.27 (Experimental, not STABLE)
+--------------------------------------------------------------
 - WARNING: this release has a broken --prefix=/a/path option to the
   configure script.  The consequence is that smartd will not look for the
   configuration file (smartd.conf) at the desired location.
