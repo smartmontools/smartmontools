@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.368 2004/03/13 22:38:01 chrfranke Exp $
+$Id: CHANGELOG,v 1.369 2004/03/15 10:48:28 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Added os_win32/syslogevt.* event message file tool for Win32
+       smartd (native+cygwin). May also be useful for other cygwin
+       programs writing to syslog().
 
   [CF] Added Win32 version of smartd
 

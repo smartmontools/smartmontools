@@ -9,3 +9,8 @@ smartd.exe
 smartd_vc6.plg
 smartmontools_vc6.ncb
 smartmontools_vc6.opt
+syslogevt.d
+syslogevt.r
+syslogevt.exe
+syslogevt.h
+syslogevt_vc6.plg
