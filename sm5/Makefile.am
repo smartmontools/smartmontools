@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.65 2004/08/31 18:20:40 ballen4705 Exp $
+# $Id: Makefile.am,v 1.66 2004/09/06 16:52:38 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -311,10 +311,11 @@ MAN2HTML = man2html
 #MAN2HTML = groff -man -Thtml
 MAN2TXT = groff -man -Tascii -P'-bcou'
 
-# Remove useless links from man2html output
-FIXHTML = sed 's,http://localhost/[-a-z/]*/man2html?\([1-8]\)+\([a-z.]*\),\2.\1.html,g' \
-        | sed 's,http://localhost/[-a-z/]*/man2html",.",' \
-        | sed 's,<A HREF="[bisfp][adyo][desrp][-a-zP1-8.]*">\([-a-zP.]*\)</A>,\1,g'
+# Fix links in man2html output
+FIXHTML = sed 's,<A HREF="http://[-a-z/]*/man2html?\([1-8]\)+\(smart[cd][.a-z]*\)">,<A HREF="\2.\1.html">,g' \
+        | sed 's,<A HREF="http://[-a-z/]*/man2html">,<A HREF=".">,g' \
+        | sed 's,<A HREF="http://[-a-z/]*/man2html?[^"]*">\([^<]*\)</A>,\1,g' \
+        | sed 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g'
 
 # Convert man pages into .html and .txt
 
