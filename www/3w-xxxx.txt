@@ -1,0 +1,90 @@
+---------------------------------------------------------------------------
+# August 8, 2003
+# PATCH FOR 3WARE 3w-xxxx DRIVER
+# Bruce Allen ballen at gravity.phys.uwm.edu
+# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.1 2003/08/08 20:35:15 ballen4705 Exp $
+# 
+# To apply this patch, save this entire file to 3w-xxxx.txt in a
+# directory containing the original unpatched 3w-xxxx.c file. Then
+# given the command:
+#                     patch < 3w-xxxx.txt
+# That's it!
+#
+# TECHNICAL EXPLANATION OF THE PATCH FOLLOWS.  SKIP IT IF YOU DON'T CARE.
+#
+# The 3w-xxxx SCSI RAID driver for 3ware Escalade controller cards has a bug
+# in the "passthru" ioctl() which prevents two SMART commands from being
+# passed to the ATA devices behind the controller. The commands are:
+# 
+#  SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE 
+#  (Command Register=0xB0/Feature Register=0xD2)
+# 
+#  SMART ENABLE/DISABLE AUTOMATIC OFF-LINE
+#  (Command Register=0xB0/Feature Register=0xDB)
+# 
+# [Note: the second of these commands is listed as "Obsolete" in the ATA
+# specifications.  It was originally defined in SFF-8035i.  Most vendors
+# (IBM/Hitachi, Maxtor, Samsung, WD, among others) still implement it for
+# backwards compatibility.]
+# 
+# The problem arises because in both cases (stupidly!) the ENABLE subcommand
+# is indicated with a nonzero value of the Sector Count Register.  For the
+# AUTOSAVE command one uses Sector Count Register=0xF1 and for the AUTOMATIC
+# OFF-LINE command one uses Sector Count Register=0xF8.
+# 
+# This provokes the following error messages from the 3w-xxxx driver:
+#   3w-xxxx: tw_ioctl(): Passthru size (123392) too big.
+#   3w-xxxx: tw_ioctl(): Passthru size (126976) too big.
+# and the driver doesn't pass the ATA command on.  This is because the
+# passthru part of the 3w-xxxx driver assumes that the value in the Sector
+# Count Register is the number of 512-byte blocks to transfer, and these
+# values exceed the internal buffer sizes.
+# 
+# In fact both of these are non-data commands, and so this is trivial to
+# fix.  I am attaching an 8-line patch for this purpose.  It looks for these
+# particular commands and then treats them as non-data commands. It has been
+# tested on both a 6800 and a 7500 controller, and should be endian-order
+# and 32/64-bit clean.
+# 
+# [Note: the normal linux ide drivers also assume that the Sector Count
+# Register is the number of 512-byte sectors to transfer to user space.  
+# But in that case the user can simply allocate a userland buffer large
+# enough to hold the 0xf1*0x200 or 0xf8*0x200 bytes, and then ignore the
+# contents.]
+#
+# -----------------------------------------------------------------------
+
+--- 3w-xxxx.c.original	Thu Aug  7 01:54:15 2003
++++ 3w-xxxx.c	Thu Aug  7 10:13:19 2003
+@@ -167,6 +167,7 @@
+                  Fix tw_scsi_queue() spinlocks.
+    1.02.00.033 - Fix tw_aen_complete() to not queue 'queue empty' AEN's.
+                  Initialize queues correctly when loading with no valid units.
++   1.02.00.034 - Detect SMART non-data commands with nonzero sector-count
+ */
+ 
+ #include <linux/module.h>
+@@ -1915,7 +1916,11 @@
+ 			}
+ 
+ 			passthru = (TW_Passthru *)tw_dev->command_packet_virtual_address[request_id];
+-			passthru->sg_list[0].length = passthru->sector_count*512;
++			/* detect SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE or SMART (SFF) ENABLE/DISABLE AUTOMATIC OFF-LINE */
++			if (passthru->command == 0xb0 && (passthru->features == 0xd2 || passthru->features == 0xdb))
++				passthru->sg_list[0].length = 0;
++			else
++				passthru->sg_list[0].length = passthru->sector_count*512;
+ 			if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {
+ 				printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);
+ 				return 1;
+@@ -2171,7 +2176,9 @@
+ 	switch (ioctl->opcode) {
+ 		case TW_ATA_PASSTHRU:
+ 			passthru = (TW_Passthru *)ioctl->data;
+-			memcpy(buff, tw_dev->alignment_virtual_address[request_id], passthru->sector_count * 512);
++			/* detect SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE or SMART (SFF) ENABLE/DISABLE AUTOMATIC OFF-LINE */
++			if (!(passthru->command == 0xb0 && (passthru->features == 0xd2 || passthru->features == 0xdb)))
++				memcpy(buff, tw_dev->alignment_virtual_address[request_id], passthru->sector_count * 512);
+ 			break;
+ 		case TW_CMD_PACKET_WITH_DATA:
+ 			dprintk(KERN_WARNING "3w-xxxx: tw_ioctl_complete(): caught TW_CMD_PACKET_WITH_DATA.\n");

@@ -368,45 +368,29 @@ the Operating System files.</p>
 <li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
 
 <p>
-Smartmontools now contains (experimental) support for 3ware SCSI RAID
-controllers that use ATA disks internally. To pass
-commands through the 3ware controller, use the smartmontools
-<b>-d 3ware,N</b> option or Directive. One of the developers is also
-going to try to add support for Megaraid controllers.
+Starting with release 5.1-16, smartmontools contains (experimental)
+support for 3ware SCSI RAID controllers that use ATA disks
+internally. To pass commands through the 3ware controller, use the
+smartmontools <b>-d 3ware,N</b> option or Directive. One of the
+developers is also going to try to add support for Megaraid
+controllers.
 </p>
 
 <p>
-Note that on the 3ware controllers, the (SFF-8035i) SMART ENABLE
-AUTOMATIC OFFLINE and the (ATA) SMART ENABLE ATTRIBUTE AUTOSAVE
-commands (smartmontools <b>-o on</b> and
-<b>-S on</b>) are not supported.  This is because these commands
-requires that the ATA Sector Count register be set to 0xF8 and 0xF1
-respectively.  Although these commands do <i>not</i> transfer any data, they
-run up against the following check in the 3ware 3w-xxxx driver
-code:</p>
+In the smartmontools 5.1-16 release, the SMART ENABLE AUTOMATIC
+OFFLINE and the SMART ENABLE ATTRIBUTE AUTOSAVE commands
+(smartmontools <b>-o on</b> and <b>-S on</b>) are <i>not</i> supported
+for 3ware devices, because the stock 3w-xxxx driver can not pass these
+commands through to the ATA disks.  These commands
+<i>are</i> supported by post-5.1-16 smartmontools CVS code and
+releases, but you need to patch the 3ware 3w-xxxx driver for the
+commands to reach the disks.  You may also use an unpatched stock
+3w-xxxx driver, but in this case the driver will not pass the commands
+through to the ATA disks.  Instead, it will print harmless warning
+messages to SYSLOG.</p>
 
-<p>
-<tt><font size="-2">
-passthru->sg_list[0].length = passthru->sector_count*512;<br />
-if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {<br />
-&#160 &#160 printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);<br />
-&#160 &#160 return 1;<br />
-}
-</font></tt> 
-</p>
-
-<p>
-This should be easy to fix in the 3w-xxxx driver: just test for the Command/Feature/Sector-Count register
-values corresponding to these commands:<br />
-<tt>
-Command Register=0xB0/Feature Register=0xDB/Sector Count Register=0xF8<br />
-</tt>
-and<br />
-<tt>
-Command Register=0xB0/Feature Register=0xD2/Sector Count Register=0xF1<br />
-</tt>
-and set the passthru length to zero in these two cases.  Please
-encourage 3ware to make this modification of the 3w-xxxx driver.
+<p>Details, and instructions on patching the 3w-xxxx driver may be
+found in this <a href="3w-xxxx.txt">text file</a>.
 </p>
 </li>
 
