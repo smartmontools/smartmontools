@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.34 2003/04/17 03:11:22 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.35 2003/04/17 07:41:41 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -63,8 +63,9 @@ static void scsiGetSupportedLogPages(int device)
 
     if ((err = scsiLogSense(device, SUPPORTED_LOG_PAGES, gBuf, 
                             LOG_RESP_LEN))) {
-        pout("Log Sense for supported pages failed [%s]\n", 
-             scsiErrString(err)); 
+        if (con->reportscsiioctl > 0)
+            pout("Log Sense for supported pages failed [%s]\n", 
+                 scsiErrString(err)); 
         return;
     } 
 
