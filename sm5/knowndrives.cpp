@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.68 2003/12/17 20:34:05 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.69 2003/12/17 20:57:10 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -448,6 +448,11 @@ const drivesettings knowndrives[] = {
   },
   { // Western Digital Caviar AC38400
     "^WDC AC38400L$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // QUANTUM FIREBALLlct20 20
+    "^QUANTUM FIREBALLlct20 20$",
     ".*",
     NULL, NULL, NULL, NULL,
   },

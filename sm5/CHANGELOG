@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.293 2003/12/17 20:34:05 pjwilliams Exp $
+$Id: CHANGELOG,v 1.294 2003/12/17 20:57:10 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added QUANTUM FIREBALLlct20 20 to knowndrives table.
 
   [PW] Added Maxtor DiamondMax Plus D740X family to knowndrives table.
 
