@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.80 2003/08/04 12:58:40 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.81 2003/08/05 03:56:59 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -388,11 +388,10 @@ void ParseOpts (int argc, char** argv){
 	// make a copy of the string to mess with
 	if (!(s = strdup(optarg))) {
           con->veryquietmode = FALSE;
-          pout("Can't allocate memory to copy argument to -d option"
-               " - exiting\n");
+          pout("No memory for argument of -d. Exiting...\n");
           exit(FAILCMD);
         }
-        if (split_report_arg2(s, &i)) {
+	if (split_report_arg2(s, &i)) {
           badarg = TRUE;
         } else if (!strcmp(s,"3ware")) {
 	  if (i>15){
@@ -401,7 +400,7 @@ void ParseOpts (int argc, char** argv){
 	    exit(FAILCMD);
 	  }
 	  if (i<0){
-	    pout("-d 3ware argument must be of form -d3ware,N\n"
+	    pout("-d 3ware argument must be of form -d 3ware,N\n"
 		 "where N is a non-negative integer 0 <= N <= 15\n");
 	    exit(FAILCMD);
 	  }
@@ -410,10 +409,10 @@ void ParseOpts (int argc, char** argv){
 	  tryata  = TRUE;
 	  tryscsi = FALSE;
 	} else {
-          badarg = TRUE;
+	  badarg = TRUE;
 	}
         free(s);
-      }
+      } 	
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
