@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.38 2002/11/25 04:38:48 ballen4705 Exp $
+\# $Id: smartd.8,v 1.39 2002/12/03 23:29:21 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/25 04:38:48 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/12/03 23:29:21 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -335,6 +335,9 @@ Testing: This Directive takes a decimal integer argument <N> which can
 have value 0 or 1.  If <N>=1 this Directive enables Automatic Offline
 Testing.  The delay between tests is vendor-specific but is typically
 four hours. If <N>=0 this Directive disables Automatic Offline Testing.
+This Directive will enable/disable Automatic Offline Testing when
+.B smartd
+starts up and will have no further effect.
 [Please see the
 .B smartctl \-t
 and
@@ -345,7 +348,10 @@ command-line options.]
 Save:
 This Directive takes a decimal integer argument <N> which can
 have value 0 or 1.  If <N>=1 this Directive enables Attribute Autosave.
-If <N>=0 this Directive disables Attribute Autosave.
+If <N>=0 this Directive disables Attribute Autosave.  This Directive
+will enable/disable Attribute Autosave when
+.B smartd
+starts up and will have no further effect.
 [Please see the
 .B smartctl \-f
 and
@@ -647,4 +653,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.38 2002/11/25 04:38:48 ballen4705 Exp $
+$Id: smartd.8,v 1.39 2002/12/03 23:29:21 pjwilliams Exp $
