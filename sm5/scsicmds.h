@@ -26,8 +26,8 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#ifndef CVSID4
-#define CVSID4 "$Id: scsicmds.h,v 1.9 2003/01/04 01:37:48 dpgilbert Exp $\n"
+#ifndef SCSICMDS_H_CVSID
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.10 2003/01/16 15:28:57 ballen4705 Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */

@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.25 2003/01/03 17:25:13 ballen4705 Exp $\n"
+#ifndef SMARTD_H_CVSID
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.26 2003/01/16 15:28:58 ballen4705 Exp $\n"
 #endif
 
 // Configuration file

@@ -26,8 +26,8 @@
 #define _EXTERN_H_
 
 
-#ifndef CVSID3
-#define CVSID3 "$Id: extern.h,v 1.12 2003/01/03 17:25:12 ballen4705 Exp $\n"
+#ifndef EXTERN_H_CVSID
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.13 2003/01/16 15:28:57 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
