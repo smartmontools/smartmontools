@@ -35,9 +35,10 @@ cd objdir
 ../configure
 
 And to install to another destination, used mainly by package
-maintainers:
+maintainers, or if you want to examine the package contents without
+risk of modifying any system files:
 
-make DESTDIR=/home/myself/smartmontools-package install
+make prefix=/home/myself/smartmontools-package install
 
 Use a full PATH. ~/smartmontools-package may not work.
 
