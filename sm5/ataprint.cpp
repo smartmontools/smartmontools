@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.cpp,v 1.45 2002/11/22 16:26:46 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.cpp,v 1.46 2002/11/27 13:58:30 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -1003,14 +1003,35 @@ int ataPrintMain (int fd){
     pout("Warning: device does not support Self-Test functions.\n\n");
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
-  // Now do the test
+  // Now do the test.  Note ataSmartTest prints its own error/success
+  // messages
   if (ataSmartTest(fd, con->testcase))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   
-  // Tell user how long test will take to complete  
+  // Tell user how long test will take to complete.  This is tricky
+  // because in the case of an Offline Full Scan, the completion timer
+  // is volatile, and needs to be read AFTER the command is
+  // given. [This is NOT the case for the self-test times which are
+  // FIXED not volatile.] Since the data is in the Device SMART data
+  // structure, we need to give a SMART read data command to retrieve
+  // this.  However, in some cases the SMART read data command will
+  // interrupt the Offline Full Scan.  So...
+  if (con->testcase==OFFLINE_FULL_SCAN){
+    // get the data that we need
+    if (ataReadSmartValues(fd, &smartval)){
+      pout("Smartctl: SMART Read Values failed.\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    // then restart the command if getting the data aborted it
+    if (isSupportOfflineAbort(&smartval) && ataSmartTest(fd, con->testcase))
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART); 
+  }
+  
+  // Now find out how long the test will take to complete, and tell
+  // the poor user.
   if ((timewait=TestTime(&smartval,con->testcase))){ 
     pout("Please wait %d %s for test to complete.\n",
-	    (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
+	 (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
     
     if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && con->testcase!=EXTEND_CAPTIVE_SELF_TEST)
       pout("Use smartctl -%c to abort test.\n", (int)SMARTSELFTESTABORT);	
