@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.79 2003/08/04 12:58:40 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.80 2003/08/04 21:57:11 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/08/04 12:58:40 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/08/04 21:57:11 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -139,7 +139,7 @@ found is to use the exit status of
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP and \fIscsi\fP and \fI3ware,N\fP. If this option is not
+are \fIata\fP, \fIscsi\fP, and \fI3ware,N\fP. If this option is not
 used then \fBsmartctl\fP will attempt to guess the device type from
 the device name.
 
@@ -151,12 +151,10 @@ controllers is highly experimental.  To access it, use syntax such as
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 within the 3ware ATA RAID controller.  The allowed values of N are
 from 0 to 15 inclusive.  In the current code, for technical reasons
-related to the 3w-xxxx driver, the \"Enable Autosave\", \"Enable
-Automatic Offline\" commands are not implemented.  For similar
-reasons, the \"SMART RETURN STATUS\" command is not implemented, so
-that the SMART Health Status is always reported as \"passing\" even
-if it should be reported as \"failing\".
-
+related to the 3w-xxxx driver, the \'Enable Autosave\' (\fB-S on\fP)
+and \'Enable Automatic Offline\' (\fB-o on\fP) commands are not
+implemented.  If these commands are given, then a \'Function not
+implemented\' error will be returned.
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 Specifies how tolerant
@@ -271,13 +269,15 @@ every four hours for disk defects. This command can be given during normal
 system operation.  The valid arguments to this option are \fIon\fP
 and \fIoff\fP.
 
-Note that the SMART automatic offline test command is listed as 'Obsolete'
-in every version of the ATA and ATA/ATAPI Specifications
-that I can find.  However it is implemented and used by some
-vendors. [Good documentation can be found in IBM's Official
-Published Disk Specifications.  For example the IBM Travelstar 40GNX
-Hard Disk Drive Specifications (Revision 1.1, 22 April 2002,
-Publication # 1541, Document S07N-7715-02) page 164.]
+Note that the SMART automatic offline test command is listed as
+\'Obsolete\' in every version of the ATA and ATA/ATAPI Specifications.
+It was originally part of the SFF-8035i Revision 2.0 specification,
+but was never part of any ATA specification.  However it is
+implemented and used by many vendors. [Good documentation can be found
+in IBM's Official Published Disk Specifications.  For example the IBM
+Travelstar 40GNX Hard Disk Drive Specifications (Revision 1.1, 22
+April 2002, Publication # 1541, Document S07N-7715-02) page 164. You
+can also read the SFF-8035i Specification -- see REFERENCES below.]
 You can tell if automatic offline testing is supported by seeing if
 this command enables and disables it, as indicated by the SMART
 capabilities (displayed with '\-c').
@@ -971,4 +971,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.79 2003/08/04 12:58:40 ballen4705 Exp $
+$Id: smartctl.8,v 1.80 2003/08/04 21:57:11 ballen4705 Exp $
