@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.18 2003/11/05 11:16:55 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.19 2003/11/06 04:27:15 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -103,22 +103,23 @@ int get_dev_names(char*** names, const char* pattern, int max) {
   
   // Use glob to look for any directory entries matching the pattern
   if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))) {
+     int retval = -1;
     // glob failed
     if (retglob==GLOB_NOSPACE)
       pout("glob(3) ran out of memory matching pattern %s\n", pattern);
-    else if (retglob==GLOB_NOSPACE)
-      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
     else if (retglob==GLOB_ABORTED)
       pout("glob(3) aborted matching pattern %s\n", pattern);
-    else if (retglob==GLOB_NOMATCH)
+    else if (retglob==GLOB_NOMATCH) {
       pout("glob(3) found no matches for pattern %s\n", pattern);
+      retval = 0;
+    }
     else if (retglob)
       pout("Unexplained error in glob(3) of pattern %s\n", pattern);
     
     //  Free memory and return
     globfree(&globbuf);
 
-    return -1;
+    return retval;
   }
 
   // did we find too many paths?
