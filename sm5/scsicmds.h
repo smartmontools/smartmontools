@@ -32,14 +32,14 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.46 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.47 2004/03/12 23:45:44 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
-#include <sys/ioctl.h>
+
+#include "int64.h"
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -127,14 +127,14 @@ struct scsi_iec_mode_page {
 struct scsiErrorCounter {
     UINT8 gotPC[7];
     UINT8 gotExtraPC;
-    unsigned long long counter[8];
+    uint64_t counter[8];
 };
 
 /* Carrier for Non-medium error log page */
 struct scsiNonMediumError {
     UINT8 gotPC0;
     UINT8 gotExtraPC;
-    unsigned long long counterPC0;
+    uint64_t counterPC0;
 };
 
 /* SCSI Peripheral types (of interest) */

@@ -25,10 +25,17 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.28 2004/03/11 10:34:38 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.29 2004/03/12 23:45:44 chrfranke Exp $\n"
 
 #include <time.h>
+#include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
+
+#include "int64.h"
+
+#if defined(_WIN32) && defined(_MSC_VER)
+#define snprintf  _snprintf
+#endif
 
 // Utility function prints current date and time and timezone into a
 // character buffer of length>=64.  All the fuss is needed to get the
@@ -67,8 +74,7 @@ int split_report_arg(char *s, int *i);
 // Function for processing -c option in smartctl and smartd
 int split_report_arg2(char *s, int *i);
 // Function for processing -t selective... option in smartctl
-int split_selective_arg(char *s, unsigned long long *start,
-                        unsigned long long *stop);
+int split_selective_arg(char *s, uint64_t *start, uint64_t *stop);
 
 // Guess device type (ata or scsi) based on device name 
 #define GUESS_DEVTYPE_ATA       0
