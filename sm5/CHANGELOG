@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.78 2003/01/03 17:25:12 ballen4705 Exp $
+$Id: CHANGELOG,v 1.79 2003/01/03 17:58:16 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -39,7 +39,7 @@ CURRENT RELEASE (see VERSION file in this directory):
 smartmontools-5.1.1
 
   [BA] smartd,smartctl: added additional Attribute modification option
-       -v 220,temp and -9,temp.
+       -v 220,temp and -v 9,temp.
 
   [PW] Renamed smartd option -X to -d
 
