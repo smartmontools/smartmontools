@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.414 2004/06/01 21:12:27 pjwilliams Exp $
+$Id: CHANGELOG,v 1.415 2004/06/03 03:47:06 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] removed (reverted) additional Attribute definitions from
+       http://smart.friko.pl/attributes.php.  All (or most?) of these
+       appear to be return code values for the WD Digital Life Guard Utility.
 
   [PW] Added Seagate Medalist 17242, 13032, 10232, 8422, and 4312 to
        knowndrives table.  Added missing Seagate U Series 5 drives.
