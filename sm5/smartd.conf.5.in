@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.33 2004/02/18 19:58:59 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -807,7 +807,8 @@ valid arguments to this option are:
 
 .I none
 Assume that the device firmware obeys the ATA specifications.  This is
-the default.
+the default, unless the device has presets for \'\-F\' in the device
+database.
 
 .I samsung
 In some Samsung disks (example: model SV4012H Firmware Version:
@@ -823,6 +824,10 @@ are (1) no self-test log printed, even though you have run self-tests;
 In more recent Samsung disks (firmware revisions ending in "\-23") the
 number of ATA errors reported is byte swapped.  Enabling this option
 tells \fBsmartctl\fP to evaluate this quantity in byte-reversed order.
+
+Note that an explicit \'\-F\' Directive will over-ride any preset
+values for \'\-F\' (see the \'\-P\' option below).
+
 
 [Please see the \fBsmartctl \-F\fP command-line option.]
 
@@ -1114,4 +1119,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.33 2004/02/18 19:58:59 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $
