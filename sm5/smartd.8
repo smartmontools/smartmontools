@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/31 17:10:06 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/31 17:24:24 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -266,9 +266,9 @@ device using first ATA and then SCSI ioctl()s.
 .B \-C <N>
 This sets the time in between disk checks to be 
 .B <N>
-seconds apart.  Note that although you can give this Directive
+seconds apart, where N is a decimal integer.  Note that although you can give this Directive
 multiple times on different lines of the configuration file, only the
-final value that is given has an effect, and applies to all the disks.
+final value that is given is used.  That final value applies to all the disks.
 The default value of 
 .B <N> 
 is 1800 sec, and the minimum allowed value is
@@ -316,7 +316,7 @@ command-line option.]
 .TP
 .B \-p
 Prefail: Report anytime that a prefail attribute has changed
-its value since the last check, 30 min ago. [Please see the
+its value since the last check, 30 minutes ago. [Please see the
 .B smartctl \-v
 command-line option.]
 .TP
@@ -337,7 +337,7 @@ command-line option.]
 .B \-i <ID>
 Ignore: This Directive modifies the behavior of the '\-f' attribute
 and has no effect without it.  
-.I This Directive takes a decimal integer argument <ID> in the range from 1 to 255.
+.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
 It means to ignore device attribute number <ID>, when checking for
 failure of usage attributes.  This is useful, for example, if you have
 a very old disk and don't want to keep getting messages about the
@@ -347,7 +347,7 @@ hours-on-lifetime attribute (usually attribute 9) failing.
 Ignore: This Directive modifies the
 behavior of the '\-p', '\-u', and '\-t' attributes
 and has no effect without one of them.  
-.I This Directive takes a decimal integer argument <ID> in the range from 1 to 255.
+.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
 It means to ignore device attribute <ID>, when tracking changes in the
 attribute values.  This is useful, for example, if one of the device
 attributes is the disk temperature (usually attribute 194 or
@@ -492,4 +492,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.20 2002/10/31 17:10:06 ballen4705 Exp $
+$Id: smartd.8,v 1.21 2002/10/31 17:24:24 ballen4705 Exp $
