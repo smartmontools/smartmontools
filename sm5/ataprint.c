@@ -29,7 +29,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.35 2002/10/28 23:46:59 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.36 2002/10/29 10:06:20 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -376,8 +376,8 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       int failednow,failedever;
       char attributename[64];
 
-      failednow =disk->current <= thre->threshold;
-      failedever=disk->worst   <= thre->threshold;
+      failednow = (disk->current <= thre->threshold);
+      failedever= (disk->worst   <= thre->threshold);
       
       // These break out of the loop if we are only printing certain entries...
       if (onlyfailed==1 && (!disk->status.flag.prefailure || !failednow))
@@ -650,11 +650,23 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog data,int allentries){
       case 15:msgstat="Test in progress             "; break;
       default:msgstat="Unknown test status          ";
       }
-      
-      retval+=errorfound;
 
+      retval+=errorfound;
       sprintf(percent,"%1d0%%",(log->selfteststatus)&0xf);
-      if (log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
+
+      // T13/1321D revision 1c: (Data structure Rev #1)
+
+      //The failing LBA shall be the LBA of the uncorrectable sector
+      //that caused the test to fail. If the device encountered more
+      //than one uncorrectable sector during the test, this field
+      //shall indicate the LBA of the first uncorrectable sector
+      //encountered. If the test passed or the test failed for some
+      //reason other than an uncorrectable sector, the value of this
+      //field is undefined.
+
+      // This is true in ALL ATA-5 specs
+      
+      if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
 	sprintf(firstlba,"%s","");
       else	
 	sprintf(firstlba,"0x%08x",log->lbafirstfailure);
