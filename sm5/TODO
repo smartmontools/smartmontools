@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.49 2004/04/01 21:02:11 chrfranke Exp $
+$Id: TODO,v 1.50 2004/04/07 10:11:35 chrfranke Exp $
 
 SATA devices
 ------------
@@ -85,8 +85,6 @@ Windows
 -------
 Add warning Mail feature to Windows/Native smartd, probably using
 the Blat mailer as a default (http://www.blat.net/).
-
-Add DEVICESCAN for SCSI devices.
 
 Add IDE/ATA selective self test and check power mode.
 
