@@ -1,5 +1,5 @@
-#!/bin/sh -e
-# $Id: autogen.sh,v 1.7 2004/04/26 18:45:54 chrfranke Exp $
+#!/bin/sh
+# $Id: autogen.sh,v 1.8 2004/05/27 15:23:16 card_captor Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -60,6 +60,8 @@ echo "aclocal-1.8. Your installation of GNU Automake is broken or"
 echo "incomplete."
 exit 2;
 }
+
+set -e	# stops on error status
 
 ${ACLOCAL}
 autoheader
