@@ -49,7 +49,7 @@ ATA/ATAPI-5, -6, and -7</a></li>
 repository</a> and <a href="http://sourceforge.net/projects/smartmontools/">SourceForge's
 Project Page</a></li>
 <li>Mailing List <a href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">Information</a>
-and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">Archives</a></li>
+and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">Archives</a> (Archive has <b>Search Box</b> in top left corner).</li>
 </ul>
 
 <hr size="2" />
@@ -192,9 +192,29 @@ me</a>.</p>
 <li><b>What do I do if I have problems, or need support?&#160; Suppose
 I want to become a developer, or suggest some new extensions?</b>
 
-<p>Please send an email to the <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support
-mailing list</a>.&#160; Please take a look through the archives to see
-if your question has been answered.</p></li>
+<p>First, search the support mailing list archives to see if your
+question has been answered. Instructions are in the following
+paragraph.  If you don't find an answer there, then please send an
+email to the <a
+href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support
+mailing list</a>.  This is a moderated forum: you are not
+required to subscribe to the list in order to post your question.
+</p>
+
+<p>To search the email archives, first go to the <a
+href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">
+mailing list archive</a>.  In the top left corner you will see a
+search box: use <b>Mailing List</b> as the type of search. This tool
+works very well.</p>
+
+<p>Note that from time to time SourceForge has mailing list problems
+and you'll get a message telling you that <i>Either your mailing list
+name was misspelled or your mailing list has not been archived yet. If
+this list has just been created, please retry in 2-4 hours</i>.  If
+this happens, you'll have to try again later.
+</p>
+
+</li>
 
 <li><b>What are the future plans for smartmontools?</b>
 
@@ -246,19 +266,24 @@ option to correctly display hours, minutes and seconds.</p>
 <li><b>What Kernel Version is needed? (Linux)</b>
 
 <p>
-2.4.0 or later. (2.4.latest recommended.)<br /><br />
+Kernel versions 2.4.0 or later should work. We recommend the latest
+2.4 kernel.<br /><br />
 
-Vanilla kernel.org 2.2.X kernels do not support the needed HDIO_DRIVE_TASK
-ioctl(). This is needed for the ATA drive to execute the ATA SMART RETURN STATUS
-command.<br /><br />
+Vanilla kernel.org 2.2.X kernels do not support the HDIO_DRIVE_TASK
+ioctl(), which is needed for the ATA drive to execute the ATA SMART
+RETURN STATUS command. So these kernels will not work.<br /><br />
 
-Vendor-supplied kernels, and vanilla kernels patched with
-<a href="http://www.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/">Andre Hedrick's IDE patches</a>
-(available from your local kernel.org mirror, not updated for 2.2.21 or later, and probably still have a few bugs), may
-support the needed ioctl().<br /><br />
+Vendor-supplied 2.2.X kernels, and vanilla 2.2.X kernels patched with
+<a href="http://www.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/">Andre
+Hedrick's IDE patches</a> (available from your local kernel.org
+mirror, not updated for 2.2.21 or later, and probably still containing
+a few bugs) may support the needed ioctl().<br /><br />
 
-If the config option CONFIG_IDE_TASK_IOCTL exists in your 2.2 kernel, it will probably
-support smartmontools.
+If the configuration option CONFIG_IDE_TASK_IOCTL exists in your 2.2.X
+kernel source code tree, then your 2.2.X kernel will probably support
+smartmontools.  Note that this kernel configuration option does
+<i>not</i> need to be enabled. Its presence merely indicates that the
+required HDIO_DRIVE_TASK ioctl() is supported.
 </p></li>
 
 <li><b>What attributes does smartmontools not yet recognize?</b>
@@ -280,10 +305,24 @@ utility, that's especially useful.</p></li>
 
 <p>A good listing of such utilities can be found <a
 href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">here</a>.
-Unfortunately most of these are for MS operating systems.  If you do
-run one of these utilities, and it identifies the meanings of any
-SMART Attributes that are not known to smartmontools, please report
-them to the mailing list above.</p></li>
+Unfortunately most of these are for MS operating systems, but most can
+be run from an MS-DOS boot disk. Note: if you do run one of these
+utilities, and it identifies the meanings of any SMART Attributes that
+are not known to smartmontools, please report them to the mailing list
+above.</p>
+
+<p>These utilities have an important role to fill.  If your disk has
+bad sectors (for example, as revealed by running self-tests with
+smartmontools) and the disk is not able to recover the data from those
+sectors, then the disk will <i>not</i> automatically reallocate those
+damaged sectors from its set of spare sectors, because
+forcing the reallocation to take place may entail some loss of data.
+Because the commands that force such reallocation are
+<i>Vendor Specific</i>, most manufactuers provide a utility for this
+purpose. It may cause data loss but can repair damaged sectors (at
+least, until it runs out of replacement sectors).
+</p>
+</li>
 
 <li><b>When I run <tt>smartd</tt>, the SYSLOG <tt>/var/log/messages</tt>
 contains messages like this:</b>
@@ -325,6 +364,51 @@ the Operating System files.</p>
 Please let me know if there are others, and I will add them to this
 list.
 </p></li>
+
+<li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
+
+<p>
+Smartmontools now contains (experimental) support for 3ware SCSI RAID
+controllers that use ATA disks internally. To pass
+commands through the 3ware controller, use the smartmontools
+<b>-d 3ware,N</b> option or Directive. One of the developers is also
+going to try to add support for Megaraid controllers.
+</p>
+
+<p>
+Note that on the 3ware controllers, the (SFF-8035i) SMART ENABLE
+AUTOMATIC OFFLINE and the (ATA) SMART ENABLE ATTRIBUTE AUTOSAVE
+commands (smartmontools <b>-o on</b> and
+<b>-S on</b>) are not supported.  This is because these commands
+requires that the ATA Sector Count register be set to 0xF8 and 0xF1
+respectively.  Although these commands do <i>not</i> transfer any data, they
+run up against the following check in the 3ware 3w-xxxx driver
+code:</p>
+
+<p>
+<tt><font size="-2">
+passthru->sg_list[0].length = passthru->sector_count*512;<br />
+if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {<br />
+&#160 &#160 printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);<br />
+&#160 &#160 return 1;<br />
+}
+</font></tt> 
+</p>
+
+<p>
+This should be easy to fix in the 3w-xxxx driver: just test for the Command/Feature/Sector-Count register
+values corresponding to these commands:<br />
+<tt>
+Command Register=0xB0/Feature Register=0xDB/Sector Count Register=0xF8<br />
+</tt>
+and<br />
+<tt>
+Command Register=0xB0/Feature Register=0xD2/Sector Count Register=0xF1<br />
+</tt>
+and set the passthru length to zero in these two cases.  Please
+encourage 3ware to make this modification of the 3w-xxxx driver.
+</p>
+</li>
 
 </ul>
 
