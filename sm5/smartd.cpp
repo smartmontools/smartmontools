@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.20 2002/10/24 10:13:53 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.21 2002/10/24 10:18:27 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -130,11 +130,11 @@ void atadevicescan ( atadevices_t *devices){
     strcpy(devices[numatadevices].devicename, device);
     devices[numatadevices].drive = drive;
     if (ataReadSmartValues (fd,&devices[numatadevices].smartval)){
-      printout(LOG_INFO,"Device: %s, Read Smart Values Failed\n",device);
+      printout(LOG_INFO,"Device: %s, Read SMART Values Failed\n",device);
     }
     
     if (ataReadSmartThresholds (fd,&devices[numatadevices].smartthres)){
-      printout(LOG_INFO,"Device: %s, Read Smart Thresholds Failed\n",device);
+      printout(LOG_INFO,"Device: %s, Read SMART Thresholds Failed\n",device);
     }
     
     printout(LOG_INFO,"%s Found and is SMART capable\n",device);
@@ -220,7 +220,7 @@ void ataCompareSmartValues (atadevices_t *device, struct ata_smart_values new ){
 	  // skip blank space in name
 	  while (*loc && *loc==' ')
 	    loc++;
-	  printout(LOG_INFO, "Device: %s, SMART Attribute %s Changed from %i to %i\n",
+	  printout(LOG_INFO, "Device: %s, SMART Attribute: %s changed from %i to %i\n",
 		   device->devicename,loc,oldval,newval);
 	}
       }
@@ -237,11 +237,11 @@ int ataCheckDevice( atadevices_t *drive){
   // Coming into this function, *drive contains the last values measured,
   // and we read the NEW values into tempsmartval
   if (ataReadSmartValues(drive->fd,&tempsmartval))
-    printout(LOG_INFO, "%s:Failed to read smart values\n", drive->devicename);
+    printout(LOG_INFO, "%s:Failed to read SMART values\n", drive->devicename);
   
   // and we read the new thresholds into tempsmartthres
   if (ataReadSmartThresholds (drive->fd, &tempsmartthres))
-    printout(LOG_INFO, "%s:Failed to read smart thresholds\n",drive->devicename);
+    printout(LOG_INFO, "%s:Failed to read SMART thresholds\n",drive->devicename);
   
   // See if any vendor attributes are below minimum, and print them out
   if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1))){
@@ -250,7 +250,7 @@ int ataCheckDevice( atadevices_t *drive){
     loc=attributename;
     while (*loc && *loc==' ')
       loc++;
-    printout(LOG_CRIT,"Device: %s, Failed attribute %s. Investigate with smartctl -v.\n",
+    printout(LOG_CRIT,"Device: %s, Failed SMART attribute: %s. Use smartctl -v.\n",
 	     drive->devicename,loc);
   }
 
@@ -278,10 +278,10 @@ int scsiCheckDevice( scsidevices_t *drive)
   currenttemp = triptemp = 0;
   
   if (scsiCheckSmart( drive->fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp ) != 0)
-    printout(LOG_INFO, "%s:Failed to read smart values\n", drive->devicename);
+    printout(LOG_INFO, "%s:Failed to read SMART values\n", drive->devicename);
   
   if (returnvalue)
-    printout(LOG_CRIT, "Device: %s, S.M.A.R.T. Failure: (%02x) %s\n", drive->devicename, 
+    printout(LOG_CRIT, "Device: %s, SMART Failure: (%02x) %s\n", drive->devicename, 
 	     returnvalue, scsiSmartGetSenseCode( returnvalue) );
   else
     printout(LOG_INFO,"Device: %s, Acceptable attribute: %d\n", drive->devicename, returnvalue);  
