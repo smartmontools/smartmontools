@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.41 2004/02/13 01:36:51 ballen4705 Exp $
+$Id: smartd.8.in,v 1.42 2004/02/17 22:48:24 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -367,6 +367,10 @@ taken to be a comment, and ignored.
 
 Lines may be continued by using a backslash \'\e\' as the last
 non-whitespace or non-comment item on a line.
+
+[Note: a line whose first character is a hash sign \'#\' is treated as
+a white-space blank line, \fBnot\fP as a non-existent line, and will
+end a continuation line.]
 
 .PP 0
 .fi
@@ -1536,4 +1540,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.41 2004/02/13 01:36:51 ballen4705 Exp $
+$Id: smartd.8.in,v 1.42 2004/02/17 22:48:24 ballen4705 Exp $
