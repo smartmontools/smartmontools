@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.29 2002/11/13 10:49:13 ballen4705 Exp $
+\# $Id: smartd.8,v 1.30 2002/11/14 06:06:29 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/13 10:49:13 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/14 06:06:29 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -447,11 +447,11 @@ if SMART Attribute values have changed, as reported using the
 .B '\-t', '\-p', or '\-u'
 Directives. For example:
 .nf
-.B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Centigrade changed from 94 to 93'
+.B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93'
 .fi
 Note that in this message, the value given is the 'Normalized' not
 the 'Raw' Attribute value (the disk temperature in this case is about 22 
-Centigrade).  See the 
+Celsius).  See the 
 .B smartctl
 manual page for further explanation.
 
@@ -548,4 +548,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.29 2002/11/13 10:49:13 ballen4705 Exp $
+$Id: smartd.8,v 1.30 2002/11/14 06:06:29 ballen4705 Exp $
