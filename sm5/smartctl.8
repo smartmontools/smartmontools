@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.41 2003/01/05 06:02:36 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.42 2003/01/05 20:05:32 pjwilliams Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/05 06:02:36 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/01/05 20:05:32 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -407,6 +407,9 @@ run using the '\-t' option described below (use ATA's test terminology).
 Sets a vendor-specific display OPTION for Attribute N.  Valid
 arguments to this option are:
 
+.I help
+\- Prints (to STDOUT) a list of all valid arguments to this option.
+
 .I 9,minutes
 \- Raw Attribute number 9 is power-on time in minutes.  It will be
 displayed in the form 'X h + Y m', where X is hours and Y is minutes.
@@ -665,4 +668,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.41 2003/01/05 06:02:36 ballen4705 Exp $
+$Id: smartctl.8,v 1.42 2003/01/05 20:05:32 pjwilliams Exp $

@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.42 2003/01/05 09:00:40 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.43 2003/01/05 20:05:32 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -230,7 +230,7 @@ void printbadargmessage(int opt, const char *optarg) {
        pout("\nInsufficient memory to construct argument list\n");
        break;
      }
-     pout("%s", s);
+     pout("\"help\", %s", s);
      free(s);
      break;
   case 't':
@@ -413,6 +413,18 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'v':
       // parse vendor-specific definitions of attributes
+      if (!strcmp(optarg,"help")) {
+        char *s;
+        con->veryquietmode=FALSE;
+        printslogan();
+        if (!(s = create_vendor_attribute_arg_list())) {
+          pout("Insufficient memory to construct argument list\n");
+          exit(FAILCMD);
+        }
+        pout("The valid arguments to -v are: \"help\", %s\n", s);
+        free(s);
+        exit(0);
+      }
       if (parse_attribute_def(optarg, con->attributedefs))
 	badarg = TRUE;
       break;    
