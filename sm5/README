@@ -2,6 +2,8 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
+$Id: README,v 1.47 2003/10/02 10:07:44 ballen4705 Exp $
+
 == HOME ==
 The home for smartmontools is located at:
     
