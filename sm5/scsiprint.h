@@ -30,12 +30,12 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.15 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.16 2003/11/16 16:59:23 ballen4705 Exp $\n"
 
 // MACROS to control printing behavior (from ataprint.h)
 #define QUIETON(control)  {if (control->quietmode) control->veryquietmode=0;}
 #define QUIETOFF(control) {if (control->quietmode && !control->veryquietmode) control->veryquietmode=1;}
 
-int scsiPrintMain(const char * dev_name, int fd);
+int scsiPrintMain(int fd);
 
 #endif

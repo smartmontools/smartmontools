@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.59 2003/11/16 12:19:04 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.60 2003/11/16 16:59:23 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -804,7 +804,7 @@ static void failuretest(int type, int returnvalue)
 }
 
 /* Main entry point used by smartctl command. Return 0 for success */
-int scsiPrintMain(const char * dev_name, int fd)
+int scsiPrintMain(int fd)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
