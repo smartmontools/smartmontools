@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.36 2004/03/06 19:43:19 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.37 2004/03/12 22:10:17 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -77,21 +77,19 @@ distribution. You will find this sample configuration file in
 \fB/usr/share/doc/smartmontools-5.1/\fP. For security, the configuration file
 should not be writable by anyone but root. The syntax of the file is as
 follows:
-
-.IP
+.IP \(bu 4
 There should be one device listed per line, although you may have
 lines that are entirely comments or white space.
-
+.IP \(bu 4
 Any text following a hash sign \'#\' and up to the end of the line is
 taken to be a comment, and ignored.
-
+.IP \(bu 4
 Lines may be continued by using a backslash \'\e\' as the last
 non-whitespace or non-comment item on a line.
-
-[Note: a line whose first character is a hash sign \'#\' is treated as
+.IP \(bu 4
+Note: a line whose first character is a hash sign \'#\' is treated as
 a white-space blank line, \fBnot\fP as a non-existent line, and will
-end a continuation line.]
-
+end a continuation line.
 .PP 0
 .fi
 Here is an example configuration file.  It\'s for illustrative purposes
@@ -411,8 +409,10 @@ is the hour of the day, written with two decimal digits, and given in
 hours after midnight.  The range is 00 (midnight to just before 1am) to 23 (11pm
 to just before midnight) inclusive.
 .RE
-.RS 7
-.PP
+.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
+.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.TP
+.B " "
 Some examples follow.  In reading these, keep in mind that in extended
 regular expressions a dot \fB\'.\'\fP matches any single character, and
 a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one of the three possibilities \fBA\fP,
@@ -435,9 +435,8 @@ To schedule an Offline Immediate test after every midnight, 6am,
 noon,and 6pm, plus a Short Self-Test daily at 1-2am and a Long
 Self-Test every Saturday at 3-4am, use:
 .nf
-\fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)
+\fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)\fP
 .fi
-.PP
 
 Scheduled tests are run immediately following the regularly-scheduled
 device polling, if the current local date, time, and test type, match
@@ -463,7 +462,6 @@ before \fBO\fP) ensures that if multiple test types are all scheduled
 for the same hour, the longer test type has precedence.  This is
 usually the desired behavior.
 
-.RE
 
 .TP
 .B \-m ADD
@@ -580,57 +578,56 @@ Before running the executable, \fBsmartd\fP sets a number of
 environment variables.  These environment variables may be used to
 control the executable\'s behavior.  The environment variables
 exported by \fBsmartd\fP are:
-.nf
-.fi
-.B SMARTD_MAILER
+.RS 7
+.IP \fBSMARTD_MAILER\fP 4
 is set to the argument of \-M exec, if present or else to \'mail\'
 (examples: /bin/mail, mail).
-.nf
-.fi
-.B SMARTD_DEVICE
+.IP \fBSMARTD_DEVICE\fP 4
 is set to the device path (examples: /dev/hda, /dev/sdb).
-.nf
-.fi
-.B SMARTD_DEVICETYPE
+.IP \fBSMARTD_DEVICETYPE\fP 4
 is set to the device type (possible values: ata, scsi, 3ware,N). Here
 N=0,...,15 denotes the ATA disk behind a 3ware RAID controller.
-.nf
-.fi
-.B SMARTD_DEVICESTRING
+.IP \fBSMARTD_DEVICESTRING\fP 4
 is set to the device description.  For SMARTD_DEVICETYPE of ata or
 scsi, this is the same as SMARTD_DEVICE.  For 3ware RAID controllers,
 the form used is \'/dev/sdc [3ware_disk_01]\'. In this case the device
 string contains a space and is NOT quoted.  So to use
 $SMARTD_DEVICESTRING in a bash script you should probably enclose it
 in double quotes.
-.nf
-.fi
-.B SMARTD_FAILTYPE
+.IP \fBSMARTD_FAILTYPE\fP 4
 gives the reason for the warning or message email.  The possible values that
-it takes, and their significance, are:
-.I emailtest
-(this is an email test message);
-.I health
-(the SMART health status indicates imminent failure);
-.I usage
-(a usage Attribute has failed);
-.I selftest
-(the number of self-test failures has increased);
-.I errorcount
-(the number of errors in the ATA error log has increased);
-.I FAILEDhealthcheck
-(the SMART health status command failed);
-.I FAILEDreadsmartdata
-(the command to read SMART Attribute data failed);
-.I FAILEDreadsmarterrorlog
-(the command to read the SMART error log failed);
-.I FAILEDreadsmartsefltestlog
-(the command to read the SMART self-test log failed); abd
-.I FAILEDopendevice
-(the open() command to the device failed).
+it takes and their meanings are:
 .nf
 .fi
-.B SMARTD_ADDRESS
+\fIemailtest\fP: this is an email test message.
+.nf
+.fi
+\fIhealth\fP: the SMART health status indicates imminent failure.
+.nf
+.fi
+\fIusage\fP: a usage Attribute has failed.
+.nf
+.fi
+\fIselftest\fP: the number of self-test failures has increased.
+.nf
+.fi
+\fIerrorcount\fP: the number of errors in the ATA error log has increased.
+.nf
+.fi
+\fIFAILEDhealthcheck\fP: the SMART health status command failed.
+.nf
+.fi
+\fIFAILEDreadsmartdata\fP: the command to read SMART Attribute data failed.
+.nf
+.fi
+\fIFAILEDreadsmarterrorlog\fP: the command to read the SMART error log failed.
+.nf
+.fi
+\fIFAILEDreadsmartsefltestlog\fP: the command to read the SMART self-test log failed.
+.nf
+.fi
+\fIFAILEDopendevice\fP: the open() command to the device failed.
+.IP \fBSMARTD_ADDRESS\fP 4
 is determined by the address argument ADD of the \'\-m\' Directive.
 If ADD is \fB<nomailer>\fP, then \fBSMARTD_ADDRESS\fP is not set.
 Otherwise, it is set to the comma-separated-list of email addresses
@@ -639,30 +636,27 @@ given by the argument ADD, with the commas replaced by spaces
 given, then this string will contain space characters and is NOT
 quoted, so to use it in a bash script you may want to enclose it in
 double quotes.
-.nf
-.fi
-.B SMARTD_MESSAGE
+.IP \fBSMARTD_MESSAGE\fP 4
 is set to the warning email message string from
 \fBsmartd\fP. 
 This message string contains space characters and is NOT quoted. So to
 use $SMARTD_MESSAGE in a bash script you should probably enclose it in
 double quotes.
-.nf
-.fi
-.B SMARTD_TFIRST
+.IP \fBSMARTD_TFIRST\fP 4
 is a text string giving the time and date at which the first problem
 of this type was reported. This text string contains space characters
 and no newlines, and is NOT quoted. For example:
 .nf
 .fi
 Sun Feb  9 14:58:19 2003 CST
-.nf
-.fi
-.B SMARTD_TFIRSTEPOCH
+.IP \fBSMARTD_TFIRSTEPOCH\fP 4
 is an integer, which is the unix epoch (number of seconds since Jan 1,
-1970) for
-.B SMARTD_TFIRST.
-
+1970) for \fBSMARTD_TFIRST\fP.
+.RE
+.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
+.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.TP
+.B " "
 The shell which is used to run PATH is system-dependent. For vanilla
 Linux/glibc it\'s bash. For other systems, the man page for
 \fBpopen\fP(3) should say what shell is used.
@@ -967,22 +961,17 @@ If you want more frequent information, use:
 .TP
 .B ADDITIONAL DETAILS ABOUT DEVICESCAN
 If the first non-comment entry in the configuration file is the text
-string
-.B DEVICESCAN
-in capital letters, then
-\fBsmartd\fP
-will ignore any remaining lines in the configuration file, and will
-scan for devices.
+string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
+ignore any remaining lines in the configuration file, and will scan
+for devices.
 
-If
-.B DEVICESCAN 
-is not followed by any Directives, then smartd will scan for both ATA
-and SCSI devices, and will monitor all possible SMART properties of
-any devices that are found.
+If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
+will scan for both ATA and SCSI devices, and will monitor all possible
+SMART properties of any devices that are found.
 
-.B DEVICESCAN
-may optionally be followed by any valid Directives, which will be
-applied to all devices that are found in the scan.  For example
+\fBDEVICESCAN\fP may optionally be followed by any valid Directives,
+which will be applied to all devices that are found in the scan.  For
+example
 .nf
 .B DEVICESCAN -m root@example.com
 .fi
@@ -1099,4 +1088,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.36 2004/03/06 19:43:19 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.37 2004/03/12 22:10:17 ballen4705 Exp $
