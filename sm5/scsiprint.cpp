@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.96 2005/01/27 13:08:08 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.97 2005/04/02 12:05:06 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -157,7 +157,7 @@ static int scsiGetSmartData(int device, int attribs)
     PRINT_OFF(con);
     cp = scsiGetIEString(asc, ascq);
     if (cp) {
-	err = -2;
+        err = -2;
         PRINT_ON(con);
         pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq); 
         PRINT_OFF(con);
@@ -273,6 +273,55 @@ static void scsiGetStartStopData(int device)
              recommendedStartStop);
     }
 } 
+
+static void scsiPrintGrownDefectListLen(int device)
+{
+    int err, dl_format, dl_len, div;
+
+    memset(gBuf, 0, 4);
+    if ((err = scsiReadDefect10(device, 0 /* req_plist */, 1 /* req_glist */,
+                                4 /* bytes from index */, gBuf, 4))) {
+        if (con->reportscsiioctl > 0) {
+            PRINT_ON(con);
+            pout("Read defect list (10) Failed: %s\n", scsiErrString(err));
+            PRINT_OFF(con);
+        }
+        return;
+    }
+    if (0x8 != (gBuf[1] & 0x18)) {
+        PRINT_ON(con);
+        pout("Read defect list: asked for grown list but didn't get it\n");
+        PRINT_OFF(con);
+        return;
+    }
+    div = 0;
+    dl_format = (gBuf[1] & 0x7);
+    switch (dl_format) {
+        case 0:     /* short block */
+            div = 4;
+            break;
+        case 3:     /* long block */
+        case 4:     /* bytes from index */
+        case 5:     /* physical sector */
+            div = 8;
+            break;
+        default:
+            PRINT_ON(con);
+            pout("defect list format %d unknown\n", dl_format);
+            PRINT_OFF(con);
+            break;
+    }
+    dl_len = (gBuf[2] << 8) + gBuf[3];
+    if (0 == dl_len)
+        pout("Elements in grown defect list: 0\n");
+    else {
+        if (0 == div)
+            pout("Grown defect list length=%d bytes [unknown "
+                 "number of elements]\n", dl_len);
+        else
+            pout("Elements in grown defect list: %d\n", dl_len / div);
+    }
+}
 
 static void scsiPrintSeagateCacheLPage(int device)
 {
@@ -1048,6 +1097,7 @@ int scsiPrintMain(int fd)
         if (gStartStopLPage)
             scsiGetStartStopData(fd);
         if (SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+            scsiPrintGrownDefectListLen(fd);
             if (gSeagateCacheLPage)
                 scsiPrintSeagateCacheLPage(fd);
             if (gSeagateFactoryLPage)
