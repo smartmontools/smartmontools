@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.24 2003/06/09 19:11:12 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.25 2003/06/11 21:14:20 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -228,13 +228,13 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { // IBM GXP-180
-    "^IC35L120AVV207-0$",
+    "^IC35L120AVV207-[01]$",
     ".*", 
     NULL, NULL, NULL, NULL 
   },
   {
     //  IBM Deskstar 120GXP  [Phil -- use for testing]
-    "^IC35L060AVVA07-0$",
+    "^IC35L060AVVA07-[01]$",
     ".*",
     NULL,
     NULL,
