@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.29 2002/10/26 19:59:01 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.30 2002/10/26 20:10:34 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -134,7 +134,7 @@ void checksumwarning(const char *string){
 #if (0)
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
   if (ioctl(device, HDIO_GET_IDENTITY, buf)){ 
-    perror ("ATA GET HD Failed");
+    perror ("Error ATA GET HD Identity Failed");
     return -1;
   }
   return 0;
@@ -151,7 +151,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
     // See if device responds to packet command...
     parms[0]=WIN_PIDENTIFY;
     if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
-      perror ("ATA GET HD Identity Failed");
+      perror ("Error ATA GET HD Identity Failed");
       return -1; 
     }
   }
@@ -289,7 +289,7 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
     {WIN_SMART, 0, SMART_READ_VALUES, 1};
   
   if (ioctl(device,HDIO_DRIVE_CMD,buf)){
-    perror ("SMART Values Read failed");
+    perror("Error SMART Values Read failed");
     return -1;
   }
   
@@ -316,7 +316,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
   
   // get data from device
   if (ioctl(device, HDIO_DRIVE_CMD, buf)){
-    perror ("SMART Error Log Read failed");
+    perror("Error SMART Error Self-Test Log Read failed");
     return -1;
   }
   
@@ -340,7 +340,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   
   // get data from device
   if (ioctl(device,HDIO_DRIVE_CMD,buf)) {
-    perror ("SMART Error Log Read failed");
+    perror("Error SMART Error Log Read failed");
     return -1;
   }
   
@@ -364,7 +364,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   
   // get data from device
   if (ioctl(device ,HDIO_DRIVE_CMD, buf)){
-    perror ("SMART Thresholds Read failed");
+    perror("Error SMART Thresholds Read failed");
     return -1;
   }
   
@@ -391,7 +391,7 @@ int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){
   memcpy(buf+HDIO_DRIVE_CMD_HDR_SIZE, data, ATA_SMART_SEC_SIZE);
   
   if (ioctl(device, HDIO_DRIVE_CMD, buf)){
-    perror ("SMART Thresholds Read failed");
+    perror("Error SMART Thresholds Write failed");
     return -1;
   }
   return 0;
@@ -401,7 +401,7 @@ int ataEnableSmart (int device ){
   unsigned char parms[4] = {WIN_SMART, 1, SMART_ENABLE, 0};
   
   if (ioctl (device, HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Enable failed");
+    perror("Error SMART Enable failed");
     return -1;
   }
   return 0;
@@ -411,7 +411,7 @@ int ataDisableSmart (int device ){
   unsigned char parms[4] = {WIN_SMART, 1, SMART_DISABLE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Disable failed");
+    perror("Error SMART Disable failed");
     return -1;
   }  
   return 0;
@@ -421,7 +421,7 @@ int ataEnableAutoSave(int device){
   unsigned char parms[4] = {WIN_SMART, 241, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-    perror("SMART Enable Auto-save failed");
+    perror("Error SMART Enable Auto-save failed");
     return -1;
   }
   return 0;
@@ -431,7 +431,7 @@ int ataDisableAutoSave(int device){
   unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-    perror("SMART Disable Auto-save failed");
+    perror("Error SMART Disable Auto-save failed");
     return -1;
   }
   return 0;
@@ -444,7 +444,7 @@ int ataEnableAutoOffline (int device ){
   unsigned char parms[4] = {WIN_SMART, 248, SMART_AUTO_OFFLINE, 0};
   
   if (ioctl(device , HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Enable Automatic Offline failed");
+    perror("Error SMART Enable Automatic Offline failed");
     return -1;
   }
   return 0;
@@ -455,7 +455,7 @@ int ataDisableAutoOffline (int device ){
   unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
   
   if (ioctl(device , HDIO_DRIVE_CMD, parms)){
-    perror("SMART Disable Automatic Offline failed");
+    perror("Error SMART Disable Automatic Offline failed");
     return -1;
   }
   return 0;
@@ -469,7 +469,7 @@ int ataSmartStatus (int device ){
    unsigned char parms[4] = {WIN_SMART, 0, SMART_STATUS, 0};
 
    if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-     perror("Return SMART Status via HDIO_DRIVE_CMD failed");
+     perror("Error Return SMART Status via HDIO_DRIVE_CMD failed");
      return -1;
    }
    return 0;
@@ -499,7 +499,7 @@ int ataSmartStatus2(int device){
   parms[5]=normal_cyl_hi;
 
   if (ioctl(device,HDIO_DRIVE_TASK,parms)){
-    perror("SMART Status command via HDIO_DRIVE_TASK failed");
+    perror("Error SMART Status command via HDIO_DRIVE_TASK failed");
     return -1;
   }
   
@@ -512,7 +512,7 @@ int ataSmartStatus2(int device){
     return 1;
 
   // We haven't gotten output that makes sense; print out some debugging info
-  perror("SMART Status command failed");
+  perror("Error SMART Status command failed");
   pout("Please get assistance from %s\n",PROJECTHOME);
   pout("Register values returned from SMART Status command are:\n");
   pout("CMD=0x%02x\n",parms[0]);
