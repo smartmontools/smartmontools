@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.46 2002/11/27 13:58:30 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.47 2002/11/29 10:41:58 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -1010,25 +1010,19 @@ int ataPrintMain (int fd){
   
   // Tell user how long test will take to complete.  This is tricky
   // because in the case of an Offline Full Scan, the completion timer
-  // is volatile, and needs to be read AFTER the command is
-  // given. [This is NOT the case for the self-test times which are
-  // FIXED not volatile.] Since the data is in the Device SMART data
-  // structure, we need to give a SMART read data command to retrieve
-  // this.  However, in some cases the SMART read data command will
-  // interrupt the Offline Full Scan.  So...
+  // is volatile, and needs to be read AFTER the command is given. If
+  // this will interrupt the Offline Full Scan, we don't do it, just
+  // warn user.
   if (con->testcase==OFFLINE_FULL_SCAN){
-    // get the data that we need
-    if (ataReadSmartValues(fd, &smartval)){
+    if (isSupportOfflineAbort(&smartval))
+      pout("Note: giving further SMART commands will abort Offline testing\n");
+    else if (ataReadSmartValues(fd, &smartval)){
       pout("Smartctl: SMART Read Values failed.\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    // then restart the command if getting the data aborted it
-    if (isSupportOfflineAbort(&smartval) && ataSmartTest(fd, con->testcase))
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART); 
   }
   
-  // Now find out how long the test will take to complete, and tell
-  // the poor user.
+  // Now say how long the test will take to complete
   if ((timewait=TestTime(&smartval,con->testcase))){ 
     pout("Please wait %d %s for test to complete.\n",
 	 (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
