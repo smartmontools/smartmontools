@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.386 2004/03/29 21:50:44 chrfranke Exp $
+$Id: CHANGELOG,v 1.387 2004/03/30 16:46:26 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -27,6 +27,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
+  [BA] smartd.conf example configuration file now has all examples
+       commented out except for 'DEVICESCAN'.
+ 
   [CF] Win32/native smartd: Added ability to display warning "emails"
        as message box by "-m msgbox" directive. With "-m sysmsgbox",
        a system modal (always on top) message box is shown.
