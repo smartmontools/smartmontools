@@ -34,7 +34,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.137 2004/01/27 06:19:37 shattered Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.138 2004/02/03 16:48:58 ballen4705 Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -1187,14 +1187,49 @@ int TestTime(struct ata_smart_values *data,int testtype){
 }
 
 // This function tells you both about the ATA error log and the
-// self-test error log capability.  The bit is poorly documented in
-// the ATA/ATAPI standard.  SMART error logging is also indicated in
-// bit 0 of DEVICE IDENTIFY word 87 (if top two bits of word 87 match
-// pattern 01).  However this was only introduced in ATA-6 (but error
-// logging was in ATA-5).
-int isSmartErrorLogCapable ( struct ata_smart_values *data){
-   return data->errorlog_capability & 0x01;
+// self-test error log capability (introduced in ATA-5).  The bit is
+// poorly documented in the ATA/ATAPI standard.  Starting with ATA-6,
+// SMART error logging is also indicated in bit 0 of DEVICE IDENTIFY
+// word 84 and 87.  Top two bits must match the pattern 01. BEFORE
+// ATA-6 these top two bits still had to match the pattern 01, but the
+// remaining bits were reserved (==0).
+int isSmartErrorLogCapable (struct ata_smart_values *data, struct ata_identify_device *identity){
+
+  unsigned short word84=identity->command_set_extension;
+  unsigned short word87=identity->csf_default;
+  int isata6=identity->major_rev_num & (0x01<<6);
+  int isata7=identity->major_rev_num & (0x01<<7);
+
+  if ((isata6 || isata7) && (word84>>14) == 0x01 && (word84 & 0x01))
+    return 1;
+  
+  if ((isata6 || isata7) && (word87>>14) == 0x01 && (word87 & 0x01))
+    return 1;
+  
+  // otherwise we'll use the poorly documented capability bit
+  return data->errorlog_capability & 0x01;
 }
+
+// See previous function.  If the error log exists then the self-test
+// log should (must?) also exist.
+int isSmartTestLogCapable (struct ata_smart_values *data, struct ata_identify_device *identity){
+
+  unsigned short word84=identity->command_set_extension;
+  unsigned short word87=identity->csf_default;
+  int isata6=identity->major_rev_num & (0x01<<6);
+  int isata7=identity->major_rev_num & (0x01<<7);
+
+  if ((isata6 || isata7) && (word84>>14) == 0x01 && (word84 & 0x02))
+    return 1;
+  
+  if ((isata6 || isata7) && (word87>>14) == 0x01 && (word87 & 0x02))
+    return 1;
+
+
+  // otherwise we'll use the poorly documented capability bit
+    return data->errorlog_capability & 0x01;
+}
+
 
 int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
   unsigned short word84=identity->command_set_extension;

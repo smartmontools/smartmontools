@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.283 2004/01/27 15:29:18 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.284 2004/02/03 16:48:58 ballen4705 Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.283 2004/01/27 15:29:18 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.284 2004/02/03 16:48:58 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1066,20 +1066,20 @@ int ATADeviceScan(cfgfile *cfg){
   // capability check: self-test-log
   if (cfg->selftest){
     int retval;
-    // see if device supports Self-test logging.  Note that the
-    // following is not a typo: Device supports self-test log if and
-    // only if it also supports error log.
-    if (
-        !cfg->smartval                                       ||
-        !isSmartErrorLogCapable(cfg->smartval)               ||
-        (retval=SelfTestErrorCount(fd, name))<0
-        ) {
-      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-Test Log.\n", name);
-      cfg->selftest=0;
-      cfg->selflogcount=0;
-      cfg->selfloghour=0;
-    }
+    
+    // start with service disabled, and re-enable it if all works OK
+    cfg->selftest=0;
+    cfg->selflogcount=0;
+    cfg->selfloghour=0;
+
+    if (!cfg->smartval)
+      PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log (SMART READ DATA failed); disabling -l selftest\n", name);
+    else if (!cfg->permissive && !isSmartTestLogCapable(cfg->smartval, &drive))
+      PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Self-Test log; disabling -l selftest (override with -T permissive Directive)\n", name);
+    else if ((retval=SelfTestErrorCount(fd, name))<0)
+      PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log; remove -l selftest Directive from smartd.conf\n", name);
     else {
+      cfg->selftest=1;
       cfg->selflogcount=SELFTEST_ERRORCOUNT(retval);
       cfg->selfloghour =SELFTEST_ERRORHOURS(retval);
     }
@@ -1089,19 +1089,19 @@ int ATADeviceScan(cfgfile *cfg){
   if (cfg->errorlog){
     int val;
 
-    // see if device supports error logging
-    if (!cfg->smartval || !isSmartErrorLogCapable(cfg->smartval)){
-      PrintOut(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", name);
-      cfg->errorlog=0;
-      cfg->ataerrorcount=0;
-    }
+    // start with service disabled, and re-enable it if all works OK
+    cfg->errorlog=0;
+    cfg->ataerrorcount=0;
+
+    if (!cfg->smartval)
+      PrintOut(LOG_INFO, "Device: %s, no SMART Error log (SMART READ DATA failed); disabling -l error\n", name);
+    else if (!cfg->permissive && !isSmartErrorLogCapable(cfg->smartval, &drive))
+      PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Error log; disabling -l error (override with -T permissive Directive)\n", name);
+    else if ((val=ATAErrorCount(fd, name))<0)
+      PrintOut(LOG_INFO, "Device: %s, no SMART Error log; remove -l error Directive from smartd.conf\n", name);
     else {
-      // get number of ATA errors logged
-      val=ATAErrorCount(fd, name);
-      if (val>=0)
+        cfg->errorlog=1;
         cfg->ataerrorcount=val;
-      else
-        cfg->errorlog=0;
     }
   }
   
@@ -3071,8 +3071,8 @@ void ParseOpts(int argc, char **argv){
 }
 
 // Function we call if no configuration file was found or if the
-// SCANDIRECTIVE Directive was found.  It makes entries for /dev/hd[a-t]
-// and /dev/sd[a-z].
+// SCANDIRECTIVE Directive was found.  It makes entries for device
+// names returned by make_device_names() in os_OSNAME.c
 int MakeConfigEntries(const char *type, int start){
   int i;
   int num;
@@ -3110,9 +3110,10 @@ int MakeConfigEntries(const char *type, int start){
   }
   
   // If needed, free memory used for devlist: pointers now in
-  // cfgentries[]->names.  We don't call this if num==0 since for that
-  // case, if we realloc()d the array length, this was ALREADY
-  // equivalent to calling free().
+  // cfgentries[]->names.  If num==0 we never get to this point, but
+  // that's OK.  If we realloc()d the array length in
+  // make_device_names() that was ALREADY equivalent to calling
+  // free().
   devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__, filenameandversion);
   
   return num;

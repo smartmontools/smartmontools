@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.29 2004/01/13 16:53:06 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.30 2004/02/03 16:48:58 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -308,15 +308,15 @@ Directive are:
 \- do not try to monitor the disk if a mandatory SMART command fails, but
 continue if an optional SMART command fails.  This is the default.
 
-.I permissive
-\- try to monitor the disk even if it appears to lack SMART capabilities.
-This may be required for some old disks (prior to ATA-3 revision 4) that
-implemented SMART before the SMART standards
-were incorporated into the ATA/ATAPI Specifications.
+.I permissive \-
+try to monitor the disk even if it appears to lack SMART capabilities.
+This may be required for some old disks (prior to ATA\-3 revision 4)
+that implemented SMART before the SMART standards were incorporated
+into the ATA/ATAPI Specifications.  This may also be needed for some
+Maxtor disks which fail to comply with the ATA Specifications and
+don't properly indicate support for error\- or self\-test logging.
 
-[Please see the
-.B smartctl \-T
-command-line option.]
+[Please see the .B smartctl \-T command-line option.]
 .TP
 .B \-o VALUE
 Enables or disables SMART Automatic Offline Testing when
@@ -1104,4 +1104,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.29 2004/01/13 16:53:06 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.30 2004/02/03 16:48:58 ballen4705 Exp $

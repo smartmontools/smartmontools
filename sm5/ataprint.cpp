@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.125 2004/01/31 17:10:20 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.126 2004/02/03 16:48:58 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -499,14 +499,12 @@ void PrintSmartCapability ( struct ata_smart_values *data)
    }
 }
 
-
-
-void PrintSmartErrorLogCapability ( struct ata_smart_values *data)
+void PrintSmartErrorLogCapability (struct ata_smart_values *data, struct ata_identify_device *identity)
 {
 
    pout("Error logging capability:       ");
     
-   if ( isSmartErrorLogCapable(data) )
+   if ( isSmartErrorLogCapable(data, identity) )
    {
       pout(" (0x%02x)\tError logging supported.\n",
                (int)data->errorlog_capability);
@@ -516,8 +514,6 @@ void PrintSmartErrorLogCapability ( struct ata_smart_values *data)
                 (int)data->errorlog_capability);
    }
 }
-
-
 
 void PrintSmartShortSelfTestPollingTime(struct ata_smart_values *data){
   pout("Short self-test routine \n");
@@ -638,7 +634,7 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
   PrintSmartOfflineCollectCap(data);
   PrintSmartCapability(data);
   
-  PrintSmartErrorLogCapability(data);
+  PrintSmartErrorLogCapability(data, drive);
 
   pout( "\t\t\t\t\t%s\n", isGeneralPurposeLoggingCapable(drive)?
         "General Purpose Logging supported.":
@@ -1346,50 +1342,39 @@ int ataPrintMain (int fd){
   
   // Print SMART error log
   if (con->smarterrorlog){
-    if (!isSmartErrorLogCapable(&smartval)){
+    if (!isSmartErrorLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
+    if (ataReadErrorLog(fd, &smarterror)){
+      pout("Smartctl: SMART Errorlog Read Failed\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
     else {
-      if (ataReadErrorLog(fd, &smarterror)){
-        pout("Smartctl: SMART Errorlog Read Failed\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      }
-      else {
-        // quiet mode is turned on inside ataPrintSmartErrorLog()
-        if (ataPrintSmartErrorlog(&smarterror))
-          returnval|=FAILERR;
-        PRINT_OFF(con);
-      }
+      // quiet mode is turned on inside ataPrintSmartErrorLog()
+      if (ataPrintSmartErrorlog(&smarterror))
+	returnval|=FAILERR;
+      PRINT_OFF(con);
     }
   }
   
   // Print SMART self-test log
   if (con->smartselftestlog){
-    // Note that in spite of its name, isSmartErrorLogCapable() is
-    // the CORRECT way to see if a device supports the self-test log.
-    // The ATA spec says "if this command (READ LOG) is implemented,
-    // all address values for which the contents are defined shall be
-    // implemented...".  Since both the SMART self-test logs AND the
-    // SMART error logs are defined, if one will work then so will the
-    // other.
-    if (!isSmartErrorLogCapable(&smartval)){
+    if (!isSmartTestLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }    
+    if(ataReadSelfTestLog(fd, &smartselftest)){
+      pout("Smartctl: SMART Self Test Log Read Failed\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
     else {
-      if(ataReadSelfTestLog(fd, &smartselftest)){
-        pout("Smartctl: SMART Self Test Log Read Failed\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      }
-      else {
-        PRINT_ON(con);
-        if (ataPrintSmartSelfTestlog(&smartselftest,!con->printing_switchable))
-          returnval|=FAILLOG;
-        PRINT_OFF(con);
-        pout("\n");
-      }
-    } 
+      PRINT_ON(con);
+      if (ataPrintSmartSelfTestlog(&smartselftest,!con->printing_switchable))
+	returnval|=FAILLOG;
+      PRINT_OFF(con);
+      pout("\n");
+    }
   }
   
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
