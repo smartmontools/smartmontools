@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.155 2003/04/22 11:40:52 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.156 2003/04/22 12:38:44 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -736,7 +736,8 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 }
 
 
-static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
+static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg,
+                          int scandirective)
 {
     int k, fd, err; 
     char *device = cfg->name;
@@ -748,6 +749,8 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
         return 1;
     // open the device
     if ((fd = opendevice(device, O_RDWR | O_NONBLOCK)) < 0) {
+        if (scandirective)
+            return 1;
         printout(LOG_WARNING, "Device: %s, skip\n", device);
         return 0; // device open failed
     }
@@ -759,7 +762,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
             printout(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
                      "down); skip\n", device);
             close(fd);
-            return 0;
+            return scandirective ? 1 : 0;
         } else {
            printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
                     device, err);
@@ -2141,7 +2144,8 @@ int main (int argc, char **argv){
     
     // then register SCSI devices
     if (config[i].tryscsi){
-      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i))
+      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i, 
+                         scandirective))
 	cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
       else
 	notregistered=0;
