@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.28 2002/12/11 15:41:36 ballen4705 Exp $
+$Id: TODO,v 1.29 2002/12/21 20:23:50 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -51,6 +51,9 @@ with
 
 smartctl: 
 ---------
+Add time/date into information printed by the info option.  tval=time(NUL);
+ctime(&tval) should be enough.
+
 Handle extended error and self-test logs gracefully.  Can someone tell
 me a disk that supports more than log pages 1 and 6?  I need to get a
 disk so I can test this functionality, when I add it.
@@ -71,6 +74,10 @@ Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
 exists? If something doesn't exit then don't try to open it?  This
 should probably be the default option if there is no configuration
 file.
+
+Add ability to monitor "worst" value from attributes (sometimes it
+gets larger!) and to monitor the threshold value (sometimes it
+changes!).
 
 Use daemon (3) function instead of do-it-yourself daemon_init().  But,
 does it close all open file descriptors?  Must read glibc code to see:
