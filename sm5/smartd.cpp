@@ -36,10 +36,9 @@
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "smartd.h"
-#include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.30 2002/10/25 14:15:05 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.31 2002/10/25 14:54:14 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
