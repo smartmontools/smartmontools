@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.98 2003/05/07 14:29:19 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.99 2003/05/09 19:20:23 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -203,6 +203,13 @@ make
 %install
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+
+# Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
+if [ -f /etc/redhat-release ]; then
+  if `cat /etc/redhat-release | grep >/dev/null 2>&1 "release 6."`; then
+    mv -f $RPM_BUILD_ROOT%{_datadir}/man $RPM_BUILD_ROOT%{_prefix}
+  fi
+fi
 
 %files
 %defattr(-,root,root)
