@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.45 2003/12/07 05:33:42 ballen4705 Exp $
+$Id: TODO,v 1.46 2003/12/16 05:16:08 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -61,10 +61,6 @@ performance etc).
 
 smartd:
 -------
-Add a scheduled self-test Directive.  This should either steal code
-from gcrond so that we can use cron syntax, or implement something
-similar (but simple!).
-
 Perhaps change <nomailer> special argument to -m to have also
 <nomailer_fork> which would actually work with -M exec to run the
 executable/script in the background rather than in the foreground.
@@ -90,12 +86,10 @@ Try and integrate ATA support.  See
 http://card-captor.dyndns.org/pub/solaris-smart/ for smartmontools
 5.1-18 patched with solaris ATA support (Keiji).
 
-Figure out a way to get man pages into sections 1m (smartctl, smartd)
-and 4 (smartd.conf).  This requires a change to Makefile.am (Guido).
-
 FreeBSD
 -------
 Get interface for 3ware Escalade controllers working (Eduard).
+Modify smartctl -h examples
 
 Packaging
 ---------
