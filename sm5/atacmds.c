@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.37 2002/11/07 11:00:55 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.38 2002/11/07 19:07:20 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -588,7 +588,9 @@ int TestTime(struct ata_smart_values *data,int testtype){
   }
 }
 
-
+// This function tells you both about the ATA error log and the
+// self-test error log capability.  The bit is poorly documented in
+// the ATA/ATAPI standard.
 int isSmartErrorLogCapable ( struct ata_smart_values *data){
    return data->errorlog_capability & 0x01;
 }

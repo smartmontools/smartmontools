@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.12 2002/11/07 11:00:56 ballen4705 Exp $\n"
+#define CVSID6 "$Id: smartctl.h,v 1.13 2002/11/07 19:07:20 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
@@ -55,7 +55,7 @@
 #define VERYQUIETMODE           'Q'
 #define NOTATADEVICE            'N'
 #define NOTSCSIDEVICE           'n'
-#define EXITCHECKSUMERROR        'W'
+#define EXITCHECKSUMERROR       'W'
 #define ULTRACONSERVATIVE       'U'
 #define PERMISSIVE              'P'
 

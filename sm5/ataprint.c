@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.42 2002/11/07 11:00:55 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.43 2002/11/07 19:07:20 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -703,7 +703,7 @@ void ataPseudoCheckSmart ( struct ata_smart_values *data,
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
-void failuretest(type, returnvalue){
+void failuretest(int type, int returnvalue){
 
   // If this is an error in an "optional" SMART command
   if (type==OPTIONAL_CMD){
@@ -732,12 +732,8 @@ void failuretest(type, returnvalue){
 // abort on invalid checksums.
 void checksumwarning(const char *string){
   pout("Warning! %s error: invalid SMART checksum.\n",string);
-  fprintf(stderr,"Warning! %s error: invalid SMART checksum.\n",string);
-  syslog(LOG_INFO,"Warning! %s error: invalid SMART checksum.\n",string);
-
   if (con->checksumfail)
     exit(FAILSMART);
-
   return;
 }
 
@@ -950,7 +946,6 @@ int ataPrintMain (int fd){
     if (ataReadErrorLog(fd, &smarterror)){
       pout("Smartctl: SMART Errorlog Read Failed\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-
     }
     else {
       // quiet mode is turned on inside ataPrintSmartErrorLog()
