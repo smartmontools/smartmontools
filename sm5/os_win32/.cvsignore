@@ -1,4 +1,5 @@
 config.h
+config_vc6.h
 smartctl.d
 smartctl.r
 smartctl.exe
