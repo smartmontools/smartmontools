@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.24 2002/10/30 06:02:40 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.25 2002/11/04 13:32:08 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -87,7 +87,9 @@ void Usage ( void){
   printf("  %c  Show SMART Drive Error Log              (ATA Only\n",     SMARTERRORLOG);
   printf("  %c  Show SMART Drive Self Test Log          (ATA Only)\n",    SMARTSELFTESTLOG);
   printf("  %c  Quiet: only show SMART drive errors     (ATA Only)\n",    QUIETMODE);
-  printf("  %c  Very Quiet: no display, use exit status (ATA Only)\n",    VERYQUIETMODE);
+  printf("  %c  Very Quiet: no display, use exit status (ATA Only)\n",    VERYQUIETMODE);  
+  printf("  %c  Device is an ATA device                 (ATA Only)\n",    NOTSCSIDEVICE);
+  printf("  %c  Device is a SCSI device                 (SCSI Only)\n",   NOTATADEVICE);
   printf("\nVendor-specific Display Options:\n");
   printf("  %c  Raw Attribute 009 is minutes            (ATA Only)\n",    SMART009MINUTES);
   printf("\nEnable/Disable Options:\n");
@@ -117,10 +119,11 @@ const char opts[] = {
   SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
   SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
   SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
-  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,QUIETMODE,VERYQUIETMODE,'h','?','\0'
+  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,
+  QUIETMODE,VERYQUIETMODE,NOTSCSIDEVICE,NOTATADEVICE,'h','?','\0'
 };
 
-unsigned char printcopyleft=0;
+unsigned char printcopyleft=0,tryata=0,tryscsi=0;
 
 /*      Takes command options and sets features to be run */	
 void ParseOpts (int argc, char** argv){
@@ -133,6 +136,14 @@ void ParseOpts (int argc, char** argv){
   opterr=optopt=0;
   while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
+    case NOTATADEVICE:
+      tryata=0;
+      tryscsi=1;
+      break;
+    case NOTSCSIDEVICE:
+      tryata=1;
+      tryscsi=0;
+      break;
     case QUIETMODE:
       con->quietmode=TRUE;
       break;
@@ -283,6 +294,7 @@ int main (int argc, char **argv){
   int fd,retval=0;
   char *device;
   atamainctrl control;
+  const char *devroot="/dev/";
 
   // define control block for external functions
   con=&control;
@@ -303,12 +315,31 @@ int main (int argc, char **argv){
     perror("Smartctl device open failed");
     return FAILDEV;
   }
-  
-  if (device[5] == 'h')
+
+  // if necessary, try to guess if this is an ATA or SCSI device
+  if (!tryata && !tryscsi) {
+    if (!strncmp(device,devroot,strlen(devroot)) && strlen(device)>5){
+      if (device[5] == 'h')
+	tryata=1;
+      if (device[5] == 's')
+	tryscsi=1;
+    }
+    else if (strlen(device)){
+	if (device[0] == 'h')
+	  tryata=1;
+	if (device[0] == 's')
+	  tryscsi=1;
+      }
+  }
+
+  // now call appropriate ATA or SCSI routine
+  if (tryata)
     retval=ataPrintMain(fd);
-  else if (device[5] == 's')
+  else if (tryscsi)
     scsiPrintMain (fd);
   else {
+    pout("Smartctl: specify if this is an ATA or SCSI device with the -%c or -%c options respectively.\n",
+	 NOTSCSIDEVICE, NOTATADEVICE);
     Usage();
     return FAILCMD;
   }

@@ -20,7 +20,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.42 2002/11/04 09:30:12 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.43 2002/11/04 13:32:09 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -140,6 +140,9 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Mon Nov 4 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- smartctl: added new options -n and -N to force device to be ATA or SCSI
+- smartctl: no longer dies silently if device path does not start/dev/X
+- smartctl: now handles arbitrary device paths
 - Added additional macros for manual and sbin paths in this SPEC file.
 - Modified Makefile to install /etc/smartd.conf, but without overwriting existing config file
 - Modified this specfile to do the same, and to not remove any files that it did not install
