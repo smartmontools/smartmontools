@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.269 2003/11/26 13:58:00 ballen4705 Exp $
+$Id: CHANGELOG,v 1.270 2003/11/26 20:41:56 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Removed warning for SAMSUNG SP1213N with firmware TL100-23
 
   [BA] incorporated SuSE init script from user.
 
