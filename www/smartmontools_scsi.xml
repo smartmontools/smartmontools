@@ -22,12 +22,20 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2004-05-06</pubdate>
+  <pubdate>2004-09-24</pubdate>
 
   <revhistory>
      <revision>
+       <revnumber>1.3</revnumber>
+       <date>2004-09-24</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             error counter descriptions, error events log page
+       </revremark>
+     </revision>
+     <revision>
        <revnumber>1.2</revnumber>
-       <date>2004-05-06</date>
+       <date>2004-05-27</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              reorganise, details in appendix, version 5.31
@@ -115,8 +123,8 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 </para>
 <para>
 This document outlines the features found in smartmontools
-version 5.31 that are relevant to SCSI disks and tape drives.
-This document was last altered on 6th May 2004.
+version 5.34 that are relevant to SCSI disks and tape drives.
+This document was last altered on 24th September 2004.
 </para>
 </sect1>
 
@@ -197,7 +205,7 @@ SCSI disk and tape devices vary. Here is a summary:
 <entry><command>Windows</command></entry>
 <entry><filename>/dev/scsi[0-9][0-f]</filename></entry>
 <entry><filename>/dev/scsi[0-9][0-f]</filename></entry>
-<entry>ASPI adapter: 0-9, ID: 0-15, <filename>/dev/</filename> optional
+<entry>ASPI adapter:0-9, ID:0-15, <filename>/dev/</filename> optional
 </entry>
 </row>
 </tbody>
@@ -219,9 +227,9 @@ Linux also has an optional Solaris like
 naming scheme for SCSI device (scsidev), devfs (mainly used in the lk 2.4
 series) and udev (its replacement in the lk 2.6 series). In short, device
 naming is a complex area and smartmontools does its best to find
-and identify (i.e. whether ATA or SCSI) a device depending on its name. In 
+and identify (i.e. whether ATA or SCSI) a device depending on its name. In
 some cases smartmontools needs guidance from the user and this can be given
-by the '-d ata|scsi|3ware' option in the <command>smartctl</command> 
+by the '-d ata|scsi|marvell|3ware,N' option in the <command>smartctl</command>
 utility and in <command>smartd</command> daemon's configuration file.
 </para>
 </sect1>
@@ -342,8 +350,9 @@ do short or long self tests in the foreground. [Has no effect on tape
 drives.]
 </para></listitem>
 <listitem><para><command>-d TYPE | --device=TYPE</command> where TYPE 
-is "ata", "scsi" or "3ware. Overrides utility's guess about the class 
-of the device which is based on the form of the nominated device's name.
+is "ata", "scsi", "marvell" or "3ware,N". Overrides utility's guess
+about the class of the device which is based on the form of the nominated
+device's name.
 </para></listitem>
 <listitem><para><command>-h | --help</command>: outputs lengthy usage
 message and exits without any other action.
@@ -557,18 +566,20 @@ the error counters maintained in the device's log pages. Here is an
 example of an error log:
 <programlisting>
 # smartctl -l error /dev/sda
-smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+smartctl version 5.34 Copyright (C) 2002-4 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
 Error counter log:
-          Errors Corrected    Total      Total   Correction     Gigabytes    Total
-              delay:       [rereads/    errors   algorithm      processed    uncorrected
-            minor | major  rewrites]  corrected  invocations   [10^9 bytes]  errors
+           Errors Corrected by           Total   Correction     Gigabytes    Total
+               ECC          rereads/    errors   algorithm      processed    uncorrected
+           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
 read:       2213        0         0      2213       2213        257.214           0
 write:         0        0         0         0          0         29.212           0
 verify:        0        0         0         0          0          0.010           0
 
 Non-medium error count:        0
+
+Error Events logging not supported
 </programlisting>
 The displayed error logs (if available) are displayed on separate lines:
 <itemizedlist>
@@ -582,44 +593,106 @@ read error counters
 verify error counters (only displayed if non-zero)
 </para></listitem>
 <listitem><para>
-non-medium error counter (only a single number displayed)
+non-medium error counter (only a single number displayed). This represents
+the number of recoverable events other than write, read or verify errors.
+</para></listitem>
+<listitem><para>
+error events are held in the "Last n error events" log page. The number
+of error event records held (i.e. "n") is vendor specific (e.g. up to 23
+records are held for Hitachi 10K300 model disks). The contents of each
+error event record is in ASCII and vendor specific. The parameter code
+associated with each error event record indicates the relative time at
+which the error event occurred. A higher parameter code indicates that the
+error event occurred later in time.
+If this log page is not supported by the device then "Error Events logging
+not supported" is output. If this log page is supported and there are
+error event records then each one is prefixed by "Error event &lt;n&gt;:"
+where &lt;n&gt; is the parameter code.
 </para></listitem>
 </itemizedlist>
 Each of the write, read and verify error counter logs has various
 parameters codes. They are itemized below with the smartctl column
-name followed, in brackets, with SCSI standard's description:
+name followed, in brackets, with SCSI standard's description and
+parameter code). A description taken from Seagate's SCSI manual (publication
+77738479, Rev J) is then given.
 <itemizedlist>
 <listitem><para>
-Error Corrected delay: minor [Errors corrected without substantial delay]
+Errors Corrected by ECC, fast [Errors corrected without substantial delay:
+00h]. An error correction was applied to get perfect data (a.k.a. ECC
+on-the-fly). "Without substantial delay" means the correction did not
+postpone reading of later sectors (e.g. a revolution was lost). The counter
+is incremented once for each logical block that requies correction. Two
+different blocks corrected during the same command are counted as two events.
 </para></listitem>
 <listitem><para>
-Error Corrected delay: major [Errors corrected with possible delays]
+Errors Corrected by ECC: delayed [Errors corrected with possible delays: 01h].
+An error code or algorithm (e.g. ECC, checksum) is applied in order to
+get perfect data with substantial delay. "With possible delay" means the
+correction took longer than a sector time so that reading/writing of
+subsequent sectors was delayed (e.g. a lost revolution). The counter is
+incremented once for each logical block that requires correction. A
+block with a double error that is correctable counts as one event and
+two different blocks corrected during the same command count as two
+events.
 </para></listitem>
 <listitem><para>
-Total rereads/rewrites [Total (e.g. rewrites and rereads)]
+Error corrected by rereads/rewrites [Total (e.g. rewrites and rereads): 02h].
+This parameter code specifies the counter counting the number of errors
+that are corrected by applying retries. This counts errors recovered,
+not the number of retries. If five retries were required to recover one
+block of data, the counter increments by one, not five. The counter is
+incremented once for each logical block that is recovered using retries.
+If an error is not recoverable while applying retries and is recovered
+by ECC, it isn't counted by this counter; it will be counted by the
+counter specified by parameter code 01h - Errors Corrected With Possible
+Delays.
 </para></listitem>
 <listitem><para>
-Total errors corrected [Total errors corrected]
+Total errors corrected [Total errors corrected: 03h].
+This counter counts the total of parameter code errors 00h, 01h and
+02h (i.e. error corrected by ECC: fast and delayed plus errors corrected
+by rereads and rewrites). There is no "double counting" of data errors
+among these three counters. The sum of all correctable errors can be
+reached by adding parameter code 01h and 02h errors, not by using this
+total. [The author does not understand the previous sentence from the
+Seagate manual.]
 </para></listitem>
 <listitem><para>
-Correction algorithm invocations [Total times correction algorithm processed]
+Correction algorithm invocations [Total times correction algorithm
+processed: 04h]. This parameter code specifies the counter that counts
+the total numer of retries, or "times the retry algorithm is invoked".
+If after five attempts a counter 02h type error is recovered, then five
+is added to this counter. If three retries are required to get stable
+ECC syndrome before a counter 01h type error is corrected, then those
+three retries are also counted here. The number of retries applied to
+unsuccessfully recover an error (counter 06h type error) are also
+counted by this counter.
 </para></listitem>
 <listitem><para>
-Gigabytes processed {10^9} [Total bytes processed]
+Gigabytes processed {10^9} [Total bytes processed: 05h]. This parameter
+code specifies the counter that counts the total number of bytes either
+successfully or unsuccessfully read, written or verified (depending
+on the log page) from the drive. If a transfer terminates early because
+of an unrecoverable error, only the logical blocks up to and including
+the one with the uncorrected data are counted. [smartmontools divides
+this counter by 10^9 before displaying it with three digits to the
+right of the decimal point. This makes this 64 bit counter easier to
+read.]
 </para></listitem>
 <listitem><para>
-Total uncorrected errors [Total uncorrected errors]
+Total uncorrected errors [Total uncorrected errors: 06h]. This parameter
+code specifies the counter that contains the total number of blocks for
+which an uncorrected data error has occurred.
 </para></listitem>
 </itemizedlist>
 </para>
 <para>
-The SCSI standard then goes on to caution that the
-<emphasis>exact</emphasis> definitions of the error counters is not
-part of the standard (i.e. they are vendor specific). Unfortunately
-the current batch of SCSI disk manufacturers' product manuals have
-little or no additional information concerning log pages.
-The disk product manuals do imply that the disk firmware collects
-these counter values and periodically commit them to persistent
+The SCSI standard (SPC-3) cautions that the <emphasis>exact</emphasis>
+definitions of the error counters is not part of the standard (i.e. they
+are vendor specific). As noted the above list contains Seagate's
+explanation for its disk products (the last revision of that document
+was 1999). Seagate's disk product manuals imply that the disk firmware
+collects these counter values and periodically commit them to persistent
 storage (disk or non-volatile RAM).
 <footnote><para>
 This is why some models spring to life after minutes of inactivity and
@@ -667,7 +740,7 @@ named explicitly:
 /dev/sdb -d scsi
 </programlisting>
 The "-d scsi" argument overrides what <command>smartd</command> would
-guess as the device class (i.e. "ata", "scsi" or "3ware"). 
+guess as the device class (i.e. "ata", "scsi", "marvell" or "3ware,N"). 
 </para>
 </sect1>
 
@@ -1080,7 +1153,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.9 2004/05/05 23:00:24 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.10 2004/09/24 06:57:11 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
