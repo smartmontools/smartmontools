@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.137 2003/05/06 03:41:04 ballen4705 Exp $
+$Id: CHANGELOG,v 1.138 2003/05/06 03:46:23 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,7 +37,8 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-  [BA] If SCSI device listed in /etc/smartd.conf, or not enough space
+  [BA] If SCSI device listed in /etc/smartd.conf fails to open or do
+       SMART stuff correctly, or not enough space
        to list all SCSI devices, fail with error unless
        -DSCSIDEVELOPMENT set during compile-time.
 
