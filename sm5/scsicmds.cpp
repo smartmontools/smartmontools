@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.45 2003/05/12 14:32:30 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.46 2003/05/26 09:04:10 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -340,24 +340,59 @@ const char * scsiErrString(int scsiErr)
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
    command not supported, 3 if field (within command) not supported or
    returns negated errno.  SPC sections 7.6 and 8.2 N.B. Sets PC==1
-   to fetch "current cumulative" log pages */
+   to fetch "current cumulative" log pages.
+   Send the command twice: first ask for only the initial 4 bytes to
+   deduce the response length, then send the command again requesting
+   the deduced response length. This protects certain fragile HBAs.  */
 int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
     UINT8 sense[32];
+    int pageLen;
     int status, res;
+
+    /* Get page length first. */
+    pageLen = 4;
+    if (pageLen > bufLen)
+        return -EIO;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxfer_len = pageLen;
     io_hdr.dxferp = pBuf;
     cdb[0] = LOG_SENSE;
     cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
-    cdb[7] = (bufLen >> 8) & 0xff;
-    cdb[8] = bufLen & 0xff;
+    cdb[7] = (pageLen >> 8) & 0xff;
+    cdb[8] = pageLen & 0xff;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+
+    status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if ((res = scsiSimpleSenseFilter(&sinfo)))
+        return res;
+    if (status > 0)
+        return -EIO;
+
+    /* Now get the whole page. */
+    pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
+    if (pageLen > bufLen)
+        pageLen = bufLen;
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = pageLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = LOG_SENSE;
+    cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
+    cdb[7] = (pageLen >> 8) & 0xff;
+    cdb[8] = pageLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
@@ -369,6 +404,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen)
         return res;
     if (status > 0)
         status = -EIO;
+
     return status;
 }
 
