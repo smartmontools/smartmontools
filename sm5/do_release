@@ -60,6 +60,9 @@ cp build/smartmontools-$VERSION.tar.gz $SRPMS
 # build rpm
 rpm -ba smartmontools.spec
 
+# remove source tarball
+rm -f $SRPMS/smartmontools-$VERSION.tar.gz
+
 # increase release number:
 inc_release
 perl -p -i.bak -e "s/5\.$VERSION/5\.$NEW_VERSION/" configure.in
