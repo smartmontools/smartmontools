@@ -8,7 +8,7 @@
 \# You should have received a copy of the GNU General Public License (for
 \# example COPYING); if not, write to the Free Software Foundation, Inc., 675
 \# Mass Ave, Cambridge, MA 02139, USA.
-.TH SMARTD 8  "$Date: 2002/10/10 13:21:17 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/11 03:46:17 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -26,7 +26,7 @@ smartd is compatible with ATA/ATAPI-5 and earlier standards (see
 REFERENCES below)
 
 .B smartd  
-is daemon designed to notify users of S.M.A.R.T. errors and changes of
+will notify users of S.M.A.R.T. errors and changes of
 S.M.A.R.T. attributes via the SYSLOG interface.  These notifications
 and warnings normally appear in /var/log/messages.
 
@@ -45,12 +45,18 @@ smartd
 daemon scans for all devices that support S.M.A.R.T., using
 "/dev/hd*" for IDE/ATA devices, and "/dev/sd*" for SCSI devices.  It
 polls these devices every 30 minutes checking for S.M.A.R.T. errors.
-.PP
+[Note that on start-up, when
+.B
+smartd
+scans for devices, a warning message may appear in
+/var/log/messages, about missing block-major-xx devices.  These
+messages are harmless.]
+.P
 .SH 
 OPTIONS
 .TP
 p
-Prints license and copyright information onto STDOUT and into the SYSLOG
+Prints license, copyright, and version information onto STDOUT or into the SYSLOG
 log (normally /var/log/messages) and then exits.
 .TP
 X
@@ -63,21 +69,35 @@ displays status information to STDOUT.
 .B
 smartd
 .fi
-runs in forked (daemon) mode. This is the normal way to run
+runs the daemon in forked mode. This is the normal way to run
 .B
-smartd
+smartd.
 .fi
 
+.fi
 Note that smartmontools provides a start-up script in
+.B /etc/rc.d/init.d/smartd
+which is responsible for starting and stopping the daemon via the
+normal init interface. 
+Using this script, you can start
 .B
-/etc/rc.d/init.d/smartd
-which is responsible for starting and stopping the daemon via the normal init interface.  This can be enabled  using the command:
+smartd
+by giving the command
+.B '/etc/rc.d/init.d/smartd start'
+and stop it by using
+.B '/etc/rc.d/init.d/smartd stop'.
+
+If you want
+.B
+smartd
+to start running whenever your machine is booted, this can be enabled by using the command:
 .nf
-/sbin/chkconfig --add smartd
+.B '/sbin/chkconfig --add smartd'
 .fi
 and disabled using the command:
 .nf
-/sbin/chkconfig --del smartd
+.B '/sbin/chkconfig --del smartd'
+
 
 .PP
 .SH AUTHOR
@@ -149,4 +169,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.4 2002/10/10 13:21:17 ballen4705 Exp $
+$Id: smartd.8,v 1.5 2002/10/11 03:46:17 ballen4705 Exp $
