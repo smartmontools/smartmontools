@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.58 2003/08/20 06:00:18 pervalidus Exp $
+\# $Id: smartd.conf.5,v 1.59 2003/08/26 03:33:03 pervalidus Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/08/20 06:00:18 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/26 03:33:03 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -92,7 +92,7 @@ Section below!
 .nf
 .B # First ATA disk on each of two interfaces:
 .B #
-.B \ \ /dev/hda -a -m admin@yoyodyne.com,root@localhost 
+.B \ \ /dev/hda -a -m admin@yoyodyne.ex,root@localhost 
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12
 .B #
 .nf
@@ -100,7 +100,7 @@ Section below!
 .B # startup.
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -m admin@yoyodyne.com -M test
+.B \ \ /dev/sdc -m admin@yoyodyne.ex -M test
 .B #
 .nf
 .B # Strange device.  It's SCSI:
@@ -485,7 +485,7 @@ is set to the address argument ADD of the '\-m' Directive, unless ADD
 is
 .B <nomailer>.
 This is a comma-delineated list of email addresses (example:
-admin@yoyodyne.com).
+admin@yoyodyne.ex).
 .nf
 .fi
 .B SMARTD_MESSAGE
@@ -835,16 +835,16 @@ any devices that are found.
 may optionally be followed by any valid Directives, which will be
 applied to all devices that are found in the scan.  For example
 .nf
-.B DEVICESCAN -m root@yoyodyne.com
+.B DEVICESCAN -m root@yoyodyne.ex
 .fi
 will scan for all devices, and then monitor them.  It will send one
 email warning per device for any problems that are found.
 .nf
-.B  DEVICESCAN -d ata -m root@yoyodyne.com
+.B  DEVICESCAN -d ata -m root@yoyodyne.ex
 .fi
 will do the same, but restricts the scan to ATA devices only.  
 .nf
-.B  DEVICESCAN -H -d ata -m root@yoyodyne.com
+.B  DEVICESCAN -H -d ata -m root@yoyodyne.ex
 .fi
 will do the same, but only monitors the SMART health status of the
 devices, (rather than the default \-a, which monitors all SMART
@@ -945,4 +945,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.58 2003/08/20 06:00:18 pervalidus Exp $
+$Id: smartd.conf.5,v 1.59 2003/08/26 03:33:03 pervalidus Exp $
