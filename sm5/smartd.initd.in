@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.10 2003/11/03 21:58:30 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.11 2003/11/20 14:18:11 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -37,30 +37,33 @@ report_unsupported () {
 if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release ] ; then
 
 # Source function library
-. /etc/rc.d/init.d/functions
-RETVAL=0
+    . /etc/rc.d/init.d/functions
+
+    RETVAL=0
+
+    prog=smartd
 
     case "$1" in
 	start)
-	    echo -n "Starting smartd: "
+	    echo -n $"Starting $prog: "
 	    daemon /usr/sbin/smartd
 	    touch /var/lock/subsys/smartd
 	    echo
 	    ;;
 	stop)
-	    echo -n "Shutting down smartd: "
+	    echo -n $"Shutting down $prog: "
 	    killproc smartd
 	    rm -f /var/lock/subsys/smartd
 	    echo
 	    ;;
 	reload)
-            echo -n $"Reloading config file smartd.conf: "
+            echo -n $"Reloading smartd daemon configuration: "
 	    killproc /usr/sbin/smartd -HUP
 	    RETVAL=$?
 	    echo
 	    ;;
 	report)
-	    echo -n $"Checking devices now: "
+	    echo -n $"Checking SMART devices now: "
 	    killproc /usr/sbin/smartd -USR1
 	    RETVAL=$?
 	    echo
@@ -73,7 +76,7 @@ RETVAL=0
 	    status smartd
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|reload|report|restart|status}"
+	    echo $"Usage: $0 {start|stop|reload|report|restart|status}"
 	    RETVAL=1
     esac
     
