@@ -1,13 +1,13 @@
 #
-# $Id: configure.in,v 1.84 2004/07/06 16:42:21 card_captor Exp $
+# $Id: configure.in,v 1.85 2004/07/07 14:45:19 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
-AC_INIT(smartmontools, 5.32, smartmontools-support@lists.sourceforge.net)
+AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.84 2004/07/06 16:42:21 card_captor Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.85 2004/07/07 14:45:19 ballen4705 Exp $'`
 smartmontools_release_date=2004/07/05
 smartmontools_release_time="08:10:26 UTC"
 
