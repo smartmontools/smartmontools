@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.117 2003/04/14 11:03:42 dpgilbert Exp $
+$Id: CHANGELOG,v 1.118 2003/04/15 09:39:13 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] Add non-medium error count to '-l error' and extended self test
+       duration to '-l selftest'. Get scsi IEs and temperature changes
+       working in smartd. Step over various scsi disk problems rather
+       than abort smartd startup.
 
   [DG] Support -l error for SCSI disks (and tapes). Output error counter
        log pages.
