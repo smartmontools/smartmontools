@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.22 2004/01/31 10:30:37 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.23 2004/01/31 10:45:52 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -36,7 +36,7 @@ CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
 Technology (SMART) system built into many ATA-3 and later ATA, IDE and
 SCSI-3 hard drives. The purpose of SMART is to monitor the reliability
 of the hard drive and predict drive failures, and to carry out
-different types of drive self-tests.  This version of \fB smartctl\fP
+different types of drive self-tests.  This version of \fBsmartctl\fP
 is compatible with ATA/ATAPI-5 and earlier standards (see REFERENCES
 below)
 
@@ -517,22 +517,23 @@ non-standard.
 
 The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2 to be
 precise) says:
-.fi
 \fB"Error log structures shall include UNC errors, IDNF
 errors for which the address requested was valid, servo errors, write
 fault errors, etc.  Error log data structures shall not include errors
 attributed to the receipt of faulty commands such as command codes not
 implemented by the device or requests with invalid parameters or
 invalid addresses."\fP
-.fi
 The definitions of these terms are:
 .fi
 \fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.
 .fi
 \fBIDNF\fP (\fBID N\fPot \fBF\fPound): user-accessible address could
-not be found. For READ LOG type commands this also can indicate that a
-device data log structure checksum was incorrect.
+not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
+that a device data log structure checksum was incorrect.
 
+Please note that some manufacturers \fBignore\fP the ATA
+specifications, and make entries in the error log if the device
+receives a command which is not implemented or is not valid.
 
 .I error [SCSI]
 \- prints the error counter log pages for reads, write and verifies.
@@ -970,7 +971,7 @@ University of Wisconsin \- Milwaukee Physics Department
 .SH CREDITS
 .fi
 This code was derived from the smartsuite package, written by Michael
-Cornwell, and from the previous ucsc smartsuite package.  It extends
+Cornwell, and from the previous UCSC smartsuite package.  It extends
 these to cover ATA-5 disks.  This code was originally developed as a
 Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
 (now part of the Storage Systems Research Center), Jack Baskin School
@@ -1013,4 +1014,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.22 2004/01/31 10:30:37 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.23 2004/01/31 10:45:52 ballen4705 Exp $
