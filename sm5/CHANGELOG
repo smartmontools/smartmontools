@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.136 2003/05/06 03:24:48 ballen4705 Exp $
+$Id: CHANGELOG,v 1.137 2003/05/06 03:41:04 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] If SCSI device listed in /etc/smartd.conf, or not enough space
+       to list all SCSI devices, fail with error unless
+       -DSCSIDEVELOPMENT set during compile-time.
 
   [BA] Added automatic recognition of /dev/i* (example: /dev/ide/...)
        as an ATA device.
