@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.17 2002/10/30 19:16:44 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.18 2002/11/08 10:51:51 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -68,6 +68,17 @@ typedef struct scsidevices_s {
 } scsidevices_t;
 
 
+// If user has requested email warning messages, then this structure
+// stores the information about them.
+typedef struct mailinfo {
+  // number of times an email has been sent
+  int logged;
+  // time last email was sent, as defined by man 2 time
+  time_t lastsent;
+  // address to send email to
+  char *address;
+} mailinfo;
+
 // Used to store a list of devices and options that were in the
 // configuration file.
 typedef struct configfile_s {
@@ -83,6 +94,8 @@ typedef struct configfile_s {
   char usage;
   char selftest;
   char errorlog;
+  // mailing information for each of the previous error types
+  mailinfo *mailinfop[6];
   // counts of ata and self-test errors.  Perhaps ought to be in the
   // atadevices_t structure.
   unsigned char selflogcount;
