@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.141 2003/04/16 03:36:32 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.142 2003/04/16 20:08:56 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -582,7 +582,11 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!cfg->ignorepresets)
-    applypresets(&drive, cfg->attributedefs);
+    applypresets(&drive, cfg->attributedefs, con);
+
+  // Now check whether applypresets() has set con->reversesamsung.  This is
+  // messy, but we shouldn't have to do it often.
+  cfg->reversesamsung = con->reversesamsung;
 
   if (!cfg->permissive && !ataSmartSupport(&drive)){
     // SMART not supported

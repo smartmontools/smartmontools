@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.75 2003/04/14 19:28:16 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.76 2003/04/16 20:08:55 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -880,7 +880,7 @@ int ataPrintMain (int fd){
 
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!con->ignorepresets)
-    applypresets(&drive, con->attributedefs);
+    applypresets(&drive, con->attributedefs, con);
 
   // Print most drive identity information if requested
   if (con->driveinfo){

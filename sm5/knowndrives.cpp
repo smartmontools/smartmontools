@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003 Bruce Allen, Philip Williams 
+ * Copyright (C) 2003 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,20 +24,63 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-#define MODEL_STRING_LENGTH       40
-#define FIRMWARE_STRING_LENGTH     8
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.4 2003/04/16 20:08:59 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.3 2003/04/14 18:48:35 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+#define MODEL_STRING_LENGTH                         40
+#define FIRMWARE_STRING_LENGTH                       8
+
+#define PRESET_9_MINUTES                   {   9,  1 }
+#define PRESET_9_SECONDS                   {   9,  2 }
+#define PRESET_9_HALFMINUTES               {   9,  4 }
+#define PRESET_194_10XCELSIUS              { 194,  1 }
+#define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
+
+/* Arrays of preset vendor-specific attribute options for use in
+ * knowndrives[]. */
+const int vendoropts_Fujitsu_MPE3204AT[][2] = {
+  PRESET_9_SECONDS,
+  {0,0}
+};
+
+const int vendoropts_Fujitsu_MHS2020AT[][2] = {
+  PRESET_200_WRITEERRORCOUNT,
+  {0,0}
+};
+
+const int vendoropts_Samsung_SV4012H[][2] = {
+  PRESET_9_HALFMINUTES,
+  {0,0}
+};
+
+const int vendoropts_Samsung_SV1204H[][2] = {
+  PRESET_9_HALFMINUTES,
+  PRESET_194_10XCELSIUS,
+  {0,0}
+};
+
+const int vendoropts_Maxtor_4D080H4[][2] = {
+  PRESET_9_MINUTES,
+  {0,0}
+};
+
+/* Special-purpose functions for use in knowndrives[]. */
+void specialpurpose_reverse_samsung(smartmonctrl *con)
+{
+  con->reversesamsung = 1;
+}
 
 /* Table of settings for known drives terminated by an element containing all
- * zeros.  The drivesettings structure is described in knowndrives.h */
+ * zeros.  The drivesettings structure is described in knowndrives.h.  Note
+ * that lookupdrive() will search knowndrives[] from the start to end or
+ * until it finds the first match, so the order in knowndrives[] is important
+ * for distinct entries that could match the same drive. */
 const drivesettings knowndrives[] = {
   /*------------------------------------------------------------
    *  IBM Deskstar 60GXP series   
    *------------------------------------------------------------ */
   {
     "IC35L0[12346]0AVER07",
-    NULL,
+    ".*"
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
     NULL,
@@ -48,10 +91,80 @@ const drivesettings knowndrives[] = {
    *------------------------------------------------------------ */
   {
     "(IBM-)?DTLA-30[57]0[123467][05]",
-    NULL,
+    ".*"
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/",
     NULL,
+    NULL
+  },
+  /*------------------------------------------------------------
+   *  Fujitsu MPE3204AT
+   *------------------------------------------------------------ */
+  {
+    "^FUJITSU MPE3204AT$",
+    ".*",                                  // Tested on ED-03-04
+    NULL,
+    vendoropts_Fujitsu_MPE3204AT,
+    NULL
+  },
+  /*------------------------------------------------------------
+   *  Fujitsu MHS2020AT
+   *------------------------------------------------------------ */
+  {
+    "^FUJITSU MHS2020AT$",
+    ".*",                                      // Tested on 8004
+    NULL,
+    vendoropts_Fujitsu_MHS2020AT,
+    NULL
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV4012H (RM100-08 firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV4012H$",
+    "RM100-08",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV4012H (all other firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV4012H$",
+    ".*",
+    "Contact developers; may need -F enabled",
+    vendoropts_Samsung_SV4012H,
+    NULL
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV1204H (RK100-13 firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV1204H$",
+    "RK100-13",
+    NULL,
+    vendoropts_Samsung_SV1204H,
+    specialpurpose_reverse_samsung
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV1204H (all other firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV1204H$",
+    ".*",
+    "Contact developers; may need -F enabled",
+    vendoropts_Samsung_SV1204H,
+    NULL,
+  },
+  /*------------------------------------------------------------
+   *  Maxtor 4D080H4
+   *------------------------------------------------------------ */
+  {
+    "^Maxtor 4D080H4$",
+    ".*",
+    NULL,
+    vendoropts_Maxtor_4D080H4,
     NULL
   },
   /*------------------------------------------------------------
@@ -67,7 +180,7 @@ const drivesettings knowndrives[] = {
   },
 */
   /*------------------------------------------------------------
-   *  End of table.  Please add entries above this marker.
+   *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
   {0, 0, 0, 0, 0}
 };
@@ -181,7 +294,8 @@ void showpresets(const struct hd_driveid *drive)
 // Sets preset vendor attribute options in opts by finding the entry (if any)
 // for the given drive in knowndrives[].  Values that have already been set in
 // opts will not be changed.
-void applypresets(const struct hd_driveid *drive, unsigned char opts[256])
+void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+                  smartmonctrl *con)
 {
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
@@ -210,6 +324,6 @@ void applypresets(const struct hd_driveid *drive, unsigned char opts[256])
 
     // If a function is defined for this drive then call it.
     if (knowndrives[i].specialpurpose)
-      (*knowndrives[i].specialpurpose)();
+      (*knowndrives[i].specialpurpose)(con);
   }
 }
