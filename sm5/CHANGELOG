@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.470 2004/09/14 14:17:32 chrfranke Exp $
+$Id: CHANGELOG,v 1.471 2004/09/17 04:30:25 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartctl: use locale-specific separators for printing disk
+       capacity.  Also use AC_CHECK_HEADERS not AC_CHECK_HEADER in
+       configure.in.
 
   [BA] clean-up of #include structure so that -V options to smartd
        and smartctl work correctly.  Please, don't #include header
