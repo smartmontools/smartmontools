@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8.in,v 1.1 2003/09/04 08:11:52 guidog Exp $
+\# $Id: smartctl.8.in,v 1.2 2003/10/01 20:32:39 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/09/04 08:11:52 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/10/01 20:32:39 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -633,7 +633,7 @@ structures are byte-swapped (relative to the ATA specification).
 Enabling this option tells \fBsmartctl\fP to evaluate these quantities
 in byte-reversed order.  Some signs that your disk needs this option
 are (1) no self-test log printed, even though you have run self-tests;
-(2) very large numbers of ATA errors reported in the ATA erorr log;
+(2) very large numbers of ATA errors reported in the ATA error log;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .TP
@@ -943,4 +943,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.1 2003/09/04 08:11:52 guidog Exp $
+$Id: smartctl.8.in,v 1.2 2003/10/01 20:32:39 ballen4705 Exp $
