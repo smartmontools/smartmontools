@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.89 2003/06/20 00:16:13 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.90 2003/06/22 19:52:59 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -439,7 +439,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       failedever= (disk->worst   <= thre->threshold);
       
       // These break out of the loop if we are only printing certain entries...
-      if (onlyfailed==1 && (!disk->status.flag.prefailure || !failednow))
+      if (onlyfailed==1 && (!ATTRIBUTE_FLAGS_PREFAILURE(disk->flags) || !failednow))
 	continue;
       
       if (onlyfailed==2 && !failedever)
@@ -468,11 +468,11 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
-      type=disk->status.flag.prefailure?"Pre-fail":"Old_age";
-      update=disk->status.flag.online?"Always":"Offline";
+      type=ATTRIBUTE_FLAGS_PREFAILURE(disk->flags)?"Pre-fail":"Old_age";
+      update=ATTRIBUTE_FLAGS_ONLINE(disk->flags)?"Always":"Offline";
 
       pout("0x%04x   %.3d   %.3d   %.3d    %-10s%-9s%-12s", 
-	     (int)disk->status.all, (int)disk->current, (int)disk->worst,
+	     (int)disk->flags, (int)disk->current, (int)disk->worst,
 	     (int)thre->threshold, type, update, status);
 
       // print raw value of attribute
@@ -786,7 +786,7 @@ void ataPseudoCheckSmart ( struct ata_smart_values *data,
   for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
     if (data->vendor_attributes[i].id &&   
 	thresholds->thres_entries[i].id &&
-	data->vendor_attributes[i].status.flag.prefailure &&
+	ATTRIBUTE_FLAGS_PREFAILURE(data->vendor_attributes[i].flags) &&
 	(data->vendor_attributes[i].current <= thresholds->thres_entries[i].threshold) &&
 	(thresholds->thres_entries[i].threshold != 0xFE)){
       pout("Attribute ID %d Failed\n",(int)data->vendor_attributes[i].id);

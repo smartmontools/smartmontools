@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.170 2003/06/13 18:01:17 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.171 2003/06/22 19:52:59 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -915,7 +915,7 @@ int  ataCompareSmartValues(changedattribute_t *delta,
   delta->newval=newval;
   delta->oldval=oldval;
   delta->id=now->id;
-  delta->prefail=now->status.flag.prefailure;
+  delta->prefail=ATTRIBUTE_FLAGS_PREFAILURE(now->flags);
   delta->sameraw=sameraw;
 
   return 1;

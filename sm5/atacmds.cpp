@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.105 2003/06/20 00:16:12 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.106 2003/06/22 19:52:59 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -836,7 +836,7 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
     swap2((char *)&(data->smart_capability));
     for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
       struct ata_smart_attribute *x=data->vendor_attributes+i;
-      swap2((char *)&(x->status.all));
+      swap2((char *)&(x->flags));
     }
   }
 
@@ -1272,7 +1272,7 @@ int ataCheckSmart(struct ata_smart_values *data,
       if (!onlyfailed && failedever)
 	return disk->id;
       
-      if (onlyfailed && failednow && disk->status.flag.prefailure)
+      if (onlyfailed && failednow && ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
 	return disk->id;      
     }
   }
@@ -1308,7 +1308,7 @@ int ataCheckAttribute(struct ata_smart_values *data,
     return 0;
   
   // We have found a failed attribute.  Return positive or negative? 
-  if (disk->status.flag.prefailure)
+  if (ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
     return disk->id;
   else
     return -1*(disk->id);
