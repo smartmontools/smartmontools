@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.72 2004/04/07 16:41:43 card_captor Exp $
+# $Id: configure.in,v 1.73 2004/04/08 18:18:39 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.72 2004/04/07 16:41:43 card_captor Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.73 2004/04/08 18:18:39 ballen4705 Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -39,9 +39,10 @@ case "${host}" in
 		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
 esac
 
-dnl Checks for libraries.
-AC_CHECK_LIB(nsl, main, LIBS="-lnsl ${LIBS}")
-AC_CHECK_LIB(socket, main, LIBS="-lsocket ${LIBS}";)
+dnl Checks for libraries.needed for gethostbyname (Solaris needs
+dnl libnsl, might in the future also need libsocket)
+#  AC_SEARCH_LIBS (FUNCTION, SEARCH-LIBS, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND], [OTHER-LIBRARIES])
+AC_SEARCH_LIBS(gethostbyname, nsl, , AC_SEARCH_LIBS(gethostbyname, nsl, , , -lsocket), , )
 
 dnl Checks for header files.
 AC_CHECK_HEADER([getopt.h])
