@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.25 2004/11/05 18:59:52 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.26 2004/12/14 20:16:11 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1306,7 +1306,7 @@ static int aspi_open_dll(int verbose)
 }
 
 
-static int aspi_io_call(ASPI_SRB * srb)
+static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
 {
 	HANDLE event;
 	// Create event
@@ -1319,10 +1319,11 @@ static int aspi_io_call(ASPI_SRB * srb)
 	aspi_entry(srb);
 	if (((volatile ASPI_SRB *)srb)->h.status == ASPI_STATUS_IN_PROGRESS) {
 		// Wait for event
-		DWORD rc = WaitForSingleObject(event, 30*1000L);
+		DWORD rc = WaitForSingleObject(event, timeout*1000L);
 		if (rc != WAIT_OBJECT_0) {
 			if (rc == WAIT_TIMEOUT) {
-				pout("ASPI Timeout\n");
+				pout("ASPI Adapter %u, ID %u: timed out after %u seconds\n",
+					srb->h.adapter, srb->i.target_id, timeout);
 			}
 			else {
 				pout("WaitForSingleObject(%lx) = 0x%lx,%ld, Error=%ld\n",
@@ -1498,7 +1499,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 	iop->scsi_status = 0;
 	iop->resid = 0;
 
-	if (aspi_io_call(&srb)) {
+	if (aspi_io_call(&srb, (iop->timeout ? iop->timeout : 60))) {
 		// Timeout
 		return -EIO;
 	}
