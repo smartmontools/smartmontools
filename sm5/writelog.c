@@ -1,4 +1,10 @@
-// BUG REPORT FOR 2.4.20 SMART_WRITE_LOG_SECTOR ioctl()
+// Bartlomiej Zolnierkiewicz figured this out.  Only
+// HDIO_DRIVE_TASKFILE can send data to the disk.  In fact this is
+// obvious if you search for copy_from_user() in the driver and look
+// for variable length arguments.  I guess I'll have to learn to use
+// another ioctl().
+// 
+//  BUG REPORT FOR 2.4.20 SMART_WRITE_LOG_SECTOR ioctl()
 //
 // The ATA-7 specifications define a new type of SMART self-test for
 // ATA disks.  This is called the "Selective" self test. I have been
@@ -41,7 +47,7 @@
 //
 // Bruce Allen, ballen at gravity dot phys dot uwm dot edu
 //
-// $Id: writelog.c,v 1.3 2003/09/04 19:21:57 ballen4705 Exp $
+// $Id: writelog.c,v 1.4 2003/09/04 21:24:25 ballen4705 Exp $
 
 // set to zero to try using HDIO_DRIVE_CMD ioctl()
 #define USE_HDIO_DRIVE_TASK 1
