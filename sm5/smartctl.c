@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.72 2003/04/19 23:30:20 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.73 2003/04/20 23:08:48 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -161,7 +161,7 @@ void Usage (void){
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
-"        Fix firmware bug. Type is one of: none, samsung\n\n"
+"        Use firmware bug workaround. Type is one of: none, samsung\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
   );
@@ -172,7 +172,7 @@ void Usage (void){
 "  -A        Show device SMART vendor-specific Attributes and values   (ATA)\n"
 "  -l TYPE   Show device log. Type is one of: error, selftest\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n"
-"  -F TYPE   Fix firmware bug. Type is one of: none, samsung           (ATA)\n"
+"  -F TYPE   Use firmware bug workaround. Type is one of: none, samsung(ATA)\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall        (ATA)\n\n"
   );
 #endif
