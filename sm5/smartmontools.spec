@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.105 2003/07/23 21:55:59 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.106 2003/07/23 22:04:40 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -249,14 +249,9 @@ else
         echo "Run \"/etc/rc.d/init.d/smartd start\" to start smartd service now."
 fi
 
-if [ "$1" = "1" ]; then
-# first package installation -- tell user what to do
-	printmessage=1
-else	
-# package upgrade -- only tell user what to do if needed
-	/sbin/chkconfig --list smartd > /dev/null
-	printmessage=$?
-fi
+# Now see if we should tell user to set service to start on boot	
+/sbin/chkconfig --list smartd > /dev/null 2> /dev/null
+printmessage=$?
 
 if [ $printmessage -ne 0 ] ; then
 	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
@@ -274,8 +269,8 @@ if [ -f /var/lock/subsys/smartd ]; then
 	echo "Stopping smartd services"
 fi
 
+# if uninstalling the final copy, remove any links	
 if [ "$1" = "0" ]; then
-# uninstalling the final copy, so remove any links	
 	/sbin/chkconfig --del smartd
 fi
 
