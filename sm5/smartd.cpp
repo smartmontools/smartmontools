@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.229 2003/11/04 17:23:39 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.230 2003/11/05 11:16:55 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2466,10 +2466,12 @@ int MakeConfigEntries(const char *type, int start){
   cfgfile *first=cfgentries[0],*cfg=first;
 
   // make list of devices
-  if ((num=make_device_names(&devlist,type))<0){
+  if ((num=make_device_names(&devlist,type))<0)
     PrintOut(LOG_CRIT,"Problem creating device name scan list\n");
-    EXIT(EXIT_NOMEM);
-  }
+  
+  // if no devices, or error constructing list, return
+  if (num<=0)
+    return 0;
   
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
@@ -2483,7 +2485,7 @@ int MakeConfigEntries(const char *type, int start){
   }
   
   // loop over entries to create
-  for(i=0; i<num; i++){
+  for (i=0; i<num; i++){
     
     // make storage and copy for all but first entry
     if ((start+i))
@@ -2504,8 +2506,7 @@ int MakeConfigEntries(const char *type, int start){
   // cfgentries[]->names.  We don't call this if num==0 since for that
   // case, if we realloc()d the array length, this was ALREADY
   // equivalent to calling free().
-  if (num)
-    devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
+  devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
   
   return num;
 }

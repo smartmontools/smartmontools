@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.17 2003/11/05 01:21:41 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.18 2003/11/05 11:16:55 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -93,65 +93,50 @@ int deviceclose(int fd){
 //
 // If any errors occur, leave errno set as it was returned by the
 // system call, and return <0.
-
-// Return values:
-// -1 out of memory
-// -2 to -5 errors in glob
-
 int get_dev_names(char*** names, const char* pattern, int max) {
-  int n = 0;
+  int n = 0, retglob, i, lim;
   char** mp;
-  int retglob;
   glob_t globbuf={0};
-  int i;
   
-
   // in case of non-clean exit
   *names=NULL;
   
-  // first, preallocate space for upto max number of ATA devices
-  if (!(mp =  (char **)calloc(max,sizeof(char*)))){
-    pout("Out of memory constructing scan device list\n");
+  // Use glob to look for any directory entries matching the pattern
+  if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))) {
+    // glob failed
+    if (retglob==GLOB_NOSPACE)
+      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
+    else if (retglob==GLOB_NOSPACE)
+      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
+    else if (retglob==GLOB_ABORTED)
+      pout("glob(3) aborted matching pattern %s\n", pattern);
+    else if (retglob==GLOB_NOMATCH)
+      pout("glob(3) found no matches for pattern %s\n", pattern);
+    else if (retglob)
+      pout("Unexplained error in glob(3) of pattern %s\n", pattern);
+    
+    //  Free memory and return
+    globfree(&globbuf);
+
     return -1;
   }
- 
-  // track memory usage
-  bytes += max*sizeof(char*);
 
-  // Use glob to look for any directory entries matching the pattern
-  if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))
-      || max < globbuf.gl_pathc) {
-    // glob failed or found too many paths.  Free memory and return
-    mp= FreeNonZero(mp,(sizeof (char*) * max),__LINE__,__FILE__);
-    globfree(&globbuf);
-    
-    // found too many paths
-    if (max<globbuf.gl_pathc){
-      pout("glob(3) found more than %d paths matching pattern %s\n", max, pattern);
-      return -1;
-    }
-
-    // glob failed for some other reason
-    switch (retglob) {
-    case GLOB_NOSPACE:
-      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
-      return -1;
-    case GLOB_ABORTED:
-      pout("glob(3) aborted matching pattern %s\n", pattern);
-      return -1;
-    case GLOB_NOMATCH:
-      pout("glob(3) found no matches for pattern %s\n", pattern);
-      return -1;
-    default:
-      pout("Unexplained error in glob(3) of pattern %s\n", pattern);
-      return -1;
-    }
+  // did we find too many paths?
+  lim = globbuf.gl_pathc < max ? globbuf.gl_pathc : max;
+  if (lim < globbuf.gl_pathc)
+    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n", 
+	 globbuf.gl_pathc, max, pattern, globbuf.gl_pathc-max);
+  
+  // allocate space for up to lim number of ATA devices
+  if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
+    pout("Out of memory constructing scan device list\n");
+    return -1;
   }
 
   // now step through the list returned by glob.  If not a link, copy
   // to list.  If it is a link, evaluate it and see if the path ends
   // in "disk".
-  for (i=0; i<globbuf.gl_pathc; i++){
+  for (i=0; i<lim; i++){
     int retlink;
 
     // prepare a buffer for storing the link
@@ -172,9 +157,12 @@ int get_dev_names(char*** names, const char* pattern, int max) {
     }
   }
 
+  // free memory, track memory usage
   globfree(&globbuf);
-  mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
-  bytes -= (max-n)*(sizeof(char*)); // and correct allocated bytes
+  mp = realloc(mp,n*(sizeof(char*)));
+  bytes += n*(sizeof(char*));
+
+  // and set up return values
   *names=mp;
   return n;
 }
