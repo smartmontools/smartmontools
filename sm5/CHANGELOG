@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.333 2004/02/13 17:28:59 ballen4705 Exp $
+$Id: CHANGELOG,v 1.334 2004/02/14 15:38:33 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Changed syntax of error message in smartctl
 
   [BA] Added versioning info (-V options to smartd/smartctl) for
        Solaris ATA module.
