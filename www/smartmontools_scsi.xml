@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2004-09-24</pubdate>
+  <pubdate>2004-09-25</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.3</revnumber>
-       <date>2004-09-24</date>
+       <date>2004-09-25</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              error counter descriptions, error events log page
@@ -87,8 +87,8 @@ ps, txt, etc.
     storage devices (including tapes). Smartmontools is a SMART
     utility toolset. <acronym>SMART</acronym> is an acronym for
     Self-Monitoring, Analysis and Reporting Technology. Smartmontools
-    is available for the these operating systems: Linux, FreeBSD, NetBSD,
-    Solaris and Windows.
+    is available for the these operating systems: Darwin (no SCSI
+    support yet), FreeBSD, Linux, NetBSD, OpenBSD, Solaris and Windows.
   </para>
   </abstract>
  </articleinfo>
@@ -103,8 +103,8 @@ ps, txt, etc.
 Smartmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology 
 (<acronym>SMART</acronym>) system. This toolset was originally built
-for Linux and has been ported to FreeBSD, NetBSD, Solaris and
-Windows. 
+for the Linux operating system and has been ported to Darwin (no SCSI
+support yet), FreeBSD, NetBSD, OpenBSD, Solaris and Windows. 
 This article describes how smartmontools interacts with SCSI devices.
 Passing reference is also made to devices that use the SCSI command
 set such as USB mass storage devices and IEEE1394 devices that use
@@ -124,7 +124,7 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 <para>
 This document outlines the features found in smartmontools
 version 5.34 that are relevant to SCSI disks and tape drives.
-This document was last altered on 24th September 2004.
+This document was last altered on 25th September 2004.
 </para>
 </sect1>
 
@@ -874,7 +874,7 @@ count of bytes read seems to accumulate over power cycles.
 </sect1>
 
 <sect1 id="raid">
-      <title>RAID</title>
+      <title>RAID, JBOD and Enclosures</title>
 <para>
 It is unlikely that a hardware RAID controller will directly support 
 smartmontools. A SCSI RAID controller is a virtual target device that 
@@ -899,6 +899,20 @@ release 5.1-16) to tunnel the ATA command required through to the
 physical disks.  This is done by using the <command>-d 3ware,N</command>
 option/Directive. See the <command>smartctl</command> 
 and <command>smartd</command> man pages for details.
+</para>
+<para>
+The approach that smartmontools takes is to communicate directly
+with physical storage devices (e.g. a disk). Another approach is
+to collectively monitor and manage a group of disks and/or tape
+drives (be they a RAID, "Just a Bunch Of Disks" <acronym>JBOD</acronym>
+or a collection of disks and tape drives) in an enclosure. The SCSI
+Enclosure Services <acronym>SES</acronym> (reference: SES-2 at
+<ulink url="http://www.t10.org"> <literal>www.t10.org</literal></ulink>)
+is designed for this task. Both SCSI device and recent SATA disk
+enclosures are using SES. Amongst other things SES can monitor the state
+of individual devices within the enclosure, the temperature, power
+supplies and fans. A user can set thresholds, define alarm types and
+remotely administer the enclosure.
 </para>
 </sect1>
 
@@ -1153,7 +1167,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.10 2004/09/24 06:57:11 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.11 2004/09/25 01:51:32 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
