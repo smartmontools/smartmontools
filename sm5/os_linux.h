@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.17 2004/07/09 19:39:15 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.18 2004/07/11 10:21:20 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -101,24 +101,27 @@ typedef struct TAG_TW_Passthru {
 #define TW_IOCTL                 0x80
 #define TW_ATA_PASSTHRU          0x1e
 
-// Adam -- should this be #pramga packed? Otherwise table_align gets
-// moved for byte alignment.  Without packing, output_data is 530
-// bytes in, else it is 529 bytes in!
+// Adam -- should this be #pramga packed? Otherwise table_id gets
+// moved for byte alignment.  Without packing, input passthru for SCSI
+// ioctl is 31 bytes in.  With packing it is 30 bytes in.
 typedef struct TAG_TW_Ioctl { 
   int input_length;
   int output_length;
   unsigned char cdb[16];
   unsigned char opcode;
+  // gets padded HERE by one byte! Might be a good idea to add:
+  // unsigned char padding;
+  // then structure can be packed with no consequences
   unsigned short table_id;
   unsigned char parameter_id;
   unsigned char parameter_size_bytes;
   unsigned char unit_index;
-  // Size up to here is 30 bytes
-  // CHECK ME -- is this RIGHT??
+  // Size up to here is 30 bytes + 1 padding!
   unsigned char input_data[499];
   // Reserve lots of extra space for commands that set Sector Count
   // register to large values
-  unsigned char output_data[512];
+  unsigned char output_data[512]; // starts 530 bytes in!
+  // two more padding bytes here
 } TW_Ioctl;
 
 /* Ioctl buffer output -- SCSI interface only! */
@@ -166,7 +169,7 @@ typedef struct TW_Command_9000 {
     struct {
       u32 lba;
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH_9000];
-      u32 padding;	/* pad to 512 bytes */
+      u32 padding;	/* pad to 512 bytes -- comment wrong!!*/
     } io;
     struct {
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH_9000];
@@ -174,7 +177,7 @@ typedef struct TW_Command_9000 {
     } param;
     struct {
       u32 response_queue_pointer;
-      u32 padding[125];
+      u32 padding[125]; /* pad to 512 bytes */
     } init_connection;
     struct {
       char version[504];
@@ -227,6 +230,7 @@ typedef struct TAG_TW_Ioctl_Apache {
   char                         padding[488];
   TW_Command_Full_9000         firmware_command;
   char                         data_buffer[1];
+  // three bytes of padding here!
 } TW_Ioctl_Buf_Apache;
 
 
@@ -262,7 +266,7 @@ typedef struct TW_Command {
     struct {
       u32 lba;
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
-      u32 padding;	/* pad to 512 bytes */
+      u32 padding;	/* pad to 512 bytes -- this comment is correct!*/
     } io;
     struct {
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
@@ -283,7 +287,10 @@ typedef struct TAG_TW_New_Ioctl {
   unsigned char padding [508];
   TW_Command    firmware_command;
   char          data_buffer[1];
+  // three bytes of padding here
 } TW_New_Ioctl;
+
+
 
 // The following definitions are from hdreg.h in the kernel source
 // tree.  They don't carry any Copyright statements, but I think they
