@@ -25,10 +25,12 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.20 2003/10/21 01:45:50 arvoreen Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.20.2.1 2004/02/23 15:42:59 chrfranke Exp $\n"
 
 #include <time.h>
 #include <regex.h>
+
+#include "int64.h"
 
 // Utility function prints current date and time and timezone into a
 // character buffer of length>=64.  All the fuss is needed to get the
@@ -51,6 +53,11 @@ void printone(char *block, const char *cvsid);
 void pout(char *fmt, ...)  
      __attribute__ ((format (printf, 1, 2)));
 
+#ifdef _WIN32
+// For MSVC6
+#define snprintf _snprintf
+#endif
+
 // replacement for perror() with redirected output.
 void syserror(const char *message);
 
@@ -66,8 +73,7 @@ int split_report_arg(char *s, int *i);
 // Function for processing -c option in smartctl and smartd
 int split_report_arg2(char *s, int *i);
 // Function for processing -t selective... option in smartctl
-int split_selective_arg(char *s, unsigned long long *start,
-                        unsigned long long *stop);
+int split_selective_arg(char *s, uint64_t *start, uint64_t *stop);
 
 // Guess device type (ata or scsi) based on device name 
 #define GUESS_DEVTYPE_ATA       0
