@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.324 2004/01/31 01:39:55 arvoreen Exp $
+$Id: CHANGELOG,v 1.325 2004/01/31 17:12:29 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Add Western Digital Caviar WD136AA and SAMSUNG SP40A2H (RR100-07
+       firmware) to knowndrives table.
 
   [EM] FreeBSD:	remove extra definition of FreeNonZero
 

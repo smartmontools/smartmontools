@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.82 2004/01/12 20:27:37 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.83 2004/01/31 17:12:29 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -293,6 +293,14 @@ const drivesettings knowndrives[] = {
     vendoropts_9_halfminutes,
     NULL, NULL
   },
+  { // SAMSUNG SP40A2H with RR100-07 firmware
+    "^SAMSUNG SP40A2H$",
+    "^RR100-07$",
+    NULL,
+    vendoropts_9_halfminutes,
+    specialpurpose_reverse_samsung,
+    same_as_minus_F
+  },
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
@@ -511,6 +519,14 @@ const drivesettings knowndrives[] = {
   },
   { // Western Digital Caviar AC23200L
     "^WDC AC23200L$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Caviar WD136AA
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD136AA$",
     ".*",
     NULL, NULL, NULL, NULL
   },
