@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.86 2002/12/15 16:54:29 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.87 2002/12/15 21:08:23 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -256,6 +256,10 @@ int daemon_init(void){
   pid_t pid;
   int i;  
 
+  // flush all buffered streams.  Else we might get two copies of open
+  // streams since both parent and child get copies of the buffers.
+  fflush(NULL);
+  
   if ((pid=fork()) < 0) {
     // unable to fork!
     printout(LOG_CRIT,"smartd unable to fork daemon process!\n");
