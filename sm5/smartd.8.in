@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.14 2003/11/10 19:13:03 ballen4705 Exp $
+$Id: smartd.8.in,v 1.15 2003/11/14 07:41:39 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/11/10 19:13:03 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/11/14 07:41:39 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/11/10 19:13:03 $"
+\fBRELEASE\fP "$Date: 2003/11/14 07:41:39 $"
 
 .SH DESCRIPTION
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
@@ -444,12 +444,13 @@ if no Directives appear, then the device will be monitored
 as if the \'\-a\' Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
-it will be monitored at the only implemented level: roughly equivalent
-to using the \'\-H\' option for an ATA disk.  So with the exception of
-\'\-d\', \'\-m\', and \'\-M\', the Directives below are ignored for SCSI
-disks.  For SCSI disks, the \'\-m\' Directive sends a warning email if
-the SMART status indicates a disk failure or problem, or if the SCSI
-inquiry about disk status fails.
+it will be monitored at the maximum implemented level: roughly
+equivalent to using the \'\-H \-l selftest\' options for an ATA disk.
+So with the exception of \'\-d\', \'\-m\', \'\-l selftest\', and
+\'\-M\', the Directives below are ignored for SCSI disks.  For SCSI
+disks, the \'\-m\' Directive sends a warning email if the SMART status
+indicates a disk failure or problem, or if the SCSI inquiry about disk
+status fails.
 
 .B If a 3ware controller is used
 then the corresponding SCSI device must be listed, along with the
@@ -578,22 +579,17 @@ valid arguments to this Directive are:
 increased since the last check.
 
 .I selftest
-\- report if that the number of errors reported in the SMART Self-Test Log
-has increased since the last check.  Note that such errors will
-.B only
-be logged if you run self-tests on the disk (and it fails the tests!).
-[Self-Tests can be run by using the
-.B \'\-t\ short\'
-and
-.B \'\-t\ long\'
-options of
-.B smartctl
-and the results of the testing can be observed using the
-.B smartctl \'\-l\ selftest\'
-command-line option.]
+\- report if the number of failed tests reported in the SMART
+Self-Test Log has increased since the last check, or if the timestamp
+associated with the more recent failed test has increased.  Note that
+such errors will \fBonly\fP be logged if you run self-tests on the
+disk (and it fails a test!). [Self-Tests can be run by using the
+\fB\'\-t\ short\'\fP and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP
+and the results of the testing can be observed using the \fBsmartctl
+\'\-l\ selftest\'\fP command-line option.]
 
 [Please see the
-.B smartctl \-l
+\fBsmartctl \-l\fP
 command-line option.]
 .TP
 .B \-f
@@ -1355,4 +1351,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.14 2003/11/10 19:13:03 ballen4705 Exp $
+$Id: smartd.8.in,v 1.15 2003/11/14 07:41:39 ballen4705 Exp $
