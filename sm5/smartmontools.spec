@@ -17,6 +17,9 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # SOURCE CODE CAN BE FOUND AT:
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
+# CVS ID of this file is:
+# $Id: smartmontools.spec,v 1.20 2002/10/24 13:08:17 ballen4705 Exp $
+
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
 #
