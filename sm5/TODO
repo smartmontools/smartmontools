@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.22 2002/11/13 10:04:12 ballen4705 Exp $
+$Id: TODO,v 1.23 2002/11/13 23:00:57 pervalidus Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -23,7 +23,7 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
 
 Testing
 -------
-Test with SCSI devices (I can't do it -- Bruce)
+Test with SCSI, FireWire, USB, and SATA devices (I can't do it -- Bruce)
 
 Extensions
 ----------
