@@ -16,7 +16,7 @@
  *
  */
 
-static char rcsid[] = "$Id: syslogevt.c,v 1.1 2004/03/15 10:48:28 chrfranke Exp $";
+static char rcsid[] = "$Id: syslogevt.c,v 1.2 2004/04/07 11:17:08 chrfranke Exp $";
 
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +33,7 @@ static char rcsid[] = "$Id: syslogevt.c,v 1.1 2004/03/15 10:48:28 chrfranke Exp 
 static int usage()
 {
 	puts(
-		"syslogevt $Revision: 1.1 $ Copyright (C) 2004 Christian Franke\n"
+		"syslogevt $Revision: 1.2 $ Copyright (C) 2004 Christian Franke\n"
 		"Home page is http://smartmontools.sourceforge.net/\n"
 		"\n"
 		"Usage: syslogevt [-ru] name [ident ...]\n"
@@ -68,8 +68,8 @@ main(int argc, char ** argv)
 	FILE * f1, * f2;
 
 #ifdef _DEBUG
-	if (MSG_SYSLOG != 0) {
-		puts("Internal error: MSG_SYSLOG != 0"); return 1;
+	if (!(MSG_SYSLOG == 0 && MSG_SYSLOG_01 == 1 && MSG_SYSLOG_10 == 10)) {
+		puts("Internal error: MSG_SYSLOG_n != n"); return 1;
 	}
 #endif
 

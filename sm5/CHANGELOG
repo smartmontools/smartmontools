@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.391 2004/04/07 10:11:34 chrfranke Exp $
+$Id: CHANGELOG,v 1.392 2004/04/07 11:17:07 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Win32/native smartd: Added thread to combine several syslog output
+       lines into one single event log entry.
 
   [CF] Win32 smartd: Added DEVICESCAN for SCSI/ASPI devices.
 
