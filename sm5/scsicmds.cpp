@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.38 2003/04/15 09:33:25 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.39 2003/04/17 03:10:34 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -272,8 +272,12 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     }
     if (iop->scsi_status > 0)
         return 0;
-    else
+    else {
+        if (con->reportscsiioctl > 0)
+            pout("  ioctl status=0x%x but scsi status=0, fail with ENODEV\n", 
+                 status);
         return -ENODEV;      /* give up, assume no device there */
+    }
 }
 
 static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
@@ -311,6 +315,26 @@ static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
             return 4;
     }
     return 0;
+}
+
+const char * scsiErrString(int scsiErr)
+{
+    if (scsiErr < 0)
+        return strerror(-scsiErr);
+    switch (scsiErr) {
+        case 0: 
+            return "no error";
+        case 1: 
+            return "device not ready";
+        case 2: 
+            return "unsupported scsi opcode";
+        case 3: 
+            return "bad value in scsi command";
+        case 4: 
+            return "badly formed scsi parameters";
+        default:
+            return "unknown error";
+    }
 }
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
@@ -949,13 +973,13 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
 
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
 {
-    UINT8 tBuf[1024];
+    UINT8 tBuf[252];
     int err;
 
     if ((err = scsiLogSense(device, TEMPERATURE_PAGE, tBuf, sizeof(tBuf)))) {
         *currenttemp = 0;
         *triptemp = 0;
-        pout("Log Sense failed, err=%d\n", err);
+        pout("Log Sense for temperature failed [%s]\n", scsiErrString(err));
         return 1;
     }
     *currenttemp = tBuf[9];
@@ -967,10 +991,10 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
  * (Centigrade) if for temperature not available. */
-int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
-                UINT8 *currenttemp)
+int scsiCheckIE(int device, int method, int hasTempLogPage,
+                UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp)
 {
-    UINT8 tBuf[1024];
+    UINT8 tBuf[252];
     struct scsi_sense_disect sense_info;
     int err;
     int temperatureSet = 0;
@@ -983,13 +1007,13 @@ int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
     memset(&sense_info, 0, sizeof(sense_info));
     if (method == CHECK_SMART_BY_LGPG_2F) {
         if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, sizeof(tBuf)))) {
-            pout("Log Sense failed, IE page, err=%d\n", err);
-            return 1;
+            pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
+            return 5;
         }
         pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("Log Sense failed, IE page, bad parameter code or length\n");
-            return 2;
+            return 5;
         }
         if (tBuf[7] > 1) {
             sense_info.asc = tBuf[8]; 
@@ -1003,13 +1027,13 @@ int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
     if (0 == sense_info.asc) {    
         /* ties in with MRIE field of 6 in IEC mode page (0x1c) */
         if ((err = scsiRequestSense(device, &sense_info))) {
-            pout("Request Sense failed, err=%d\n", err);
-            return 1;
+            pout("Request Sense failed, [%s]\n", scsiErrString(err));
+            return 5;
         }
     }
     *asc = sense_info.asc;
     *ascq = sense_info.ascq;
-    if (! temperatureSet) {
+    if ((! temperatureSet) && hasTempLogPage) {
         if (0 == scsiGetTemp(device, &currTemp, &tripTemp))
             *currenttemp = currTemp;
     }

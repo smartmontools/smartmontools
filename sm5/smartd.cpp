@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.142 2003/04/16 20:08:56 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.143 2003/04/17 03:12:19 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -788,7 +788,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     devices->cfg = cfg;
 
     // Flag that certain log pages are supported (information may be
-    // available from other sources.
+    // available from other sources).
     if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf))) {
         for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
             switch (tBuf[k]) { 
@@ -1103,8 +1103,8 @@ int scsiCheckDevice(scsidevices_t *drive)
     currenttemp = 0;
     asc = 0;
     ascq = 0;
-    if (scsiCheckIE(fd, drive->SmartPageSupported, &asc, &ascq,
-                    &currenttemp)) {
+    if (scsiCheckIE(fd, drive->SmartPageSupported, drive->TempPageSupported,
+                    &asc, &ascq, &currenttemp)) {
         printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
         printandmail(cfg, 6, LOG_CRIT, 
                      "Device: %s, failed to read SMART values", name);

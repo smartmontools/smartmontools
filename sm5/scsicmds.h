@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.23 2003/04/15 09:32:08 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.24 2003/04/17 03:09:54 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -224,6 +224,8 @@ struct scsiNonMediumError {
 void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
                           struct scsi_sense_disect * out);
 
+const char * scsiErrString(int scsiErr);
+
 /* STANDARD SCSI Commands  */
 int scsiTestUnitReady(int device);
 
@@ -252,8 +254,8 @@ int scsiReceiveSiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
 #define CHECK_SMART_BY_LGPG_2F  0x01
 #define CHECK_SMART_BY_REQSENSE 0x00
 
-int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
-                UINT8 *currenttemp);
+int scsiCheckIE(int device, int method, int hasTempLogPage,
+                UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp);
 
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp);
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
