@@ -1,4 +1,4 @@
-//  $Id: ataprint.cpp,v 1.13 2002/10/20 19:22:02 ballen4705 Exp $
+//  $Id: ataprint.cpp,v 1.14 2002/10/21 16:00:48 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -652,7 +652,7 @@ void ataPseudoCheckSmart ( struct ata_smart_values data,
     if (data.vendor_attributes[i].id &&   
 	thresholds.thres_entries[i].id &&
 	data.vendor_attributes[i].status.flag.prefailure &&
-	(data.vendor_attributes[i].current < thresholds.thres_entries[i].threshold) &&
+	(data.vendor_attributes[i].current <= thresholds.thres_entries[i].threshold) &&
 	(thresholds.thres_entries[i].threshold != 0xFE)){
       printf("Attribute ID %i Failed\n",data.vendor_attributes[i].id);
       failed = 1;

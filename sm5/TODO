@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.8 2002/10/20 19:40:23 ballen4705 Exp $
+$Id: TODO,v 1.9 2002/10/21 16:00:46 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -33,9 +33,14 @@ Produce version for ATA/ATAPI-7
 
 Modifications
 -------------
+
+Add option to show if the WORST recorded value is ever <= threshold
+and if this is true with for an non-prefailure or prefailure attribute.
+
 Command line option to specify devices to look for in smartd startup
 
-Print flags meanings in Vendor Attribute list -- not hex value
+Print flags meanings in Vendor Attribute list -- not hex value --
+especially for prefailure flag.
 
 When actual attribute(s) less than threshold, print these clearly (highlighted)
 
