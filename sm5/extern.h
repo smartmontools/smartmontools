@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.20 2003/04/10 02:41:57 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.21 2003/04/11 18:17:15 pjwilliams Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -74,14 +74,3 @@ typedef struct smartmonctrl_s {
 } smartmonctrl;
 
 #endif
-
-/*
-
-attributedefs[9]:
-  1 -- time in minutes
-  2 -- temperature in Celsius
-  3 -- time in seconds
-attributedefs[220]:
-  1 -- temperature in Celsius
-
-*/
