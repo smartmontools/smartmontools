@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.5 2003/09/04 12:05:20 ballen4705 Exp $
+# $Id: configure.in,v 1.6 2003/09/30 14:01:11 guidog Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -29,13 +29,20 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-AC_SUBST([docdir], ['${prefix}/share/doc/${PACKAGE}-${VERSION}'])
-AC_SUBST([mandir], ['${prefix}/share/man'])
-AC_SUBST([exampledir], ['${docdir}/examplescripts'])
-dnl simulate old Makefile behaviour for now
 AC_PREFIX_DEFAULT(['/usr'])
+AC_SUBST([docdir], ['${prefix}/share/doc/${PACKAGE}-${VERSION}'])
+AC_SUBST([exampledir], ['${docdir}/examplescripts'])
+
+AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is ${prefix}/etc/rc.d/init.d)])],[initddir="$withval"],[initddir="${prefix}/rc.d/init.d"])
+AC_SUBST(initddir)
+
+dnl no prefix set, so default to /etc
 if test "$prefix" = "NONE"; then
     AC_SUBST([sysconfdir], ['/etc'])
+    dnl no prefix and no mandir, so use ${prefix}/share/man as default
+    if test "$mandir" = "${prefix}/man"; then
+    	AC_SUBST([mandir], ['${prefix}/share/man'])
+    fi
 fi
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
