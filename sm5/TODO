@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.41 2003/11/30 13:53:14 ballen4705 Exp $
+$Id: TODO,v 1.42 2003/12/01 03:58:01 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -92,3 +92,9 @@ The 'make dist' tarball currently contains these files:
   smartctl.8
 that should't be there.  Note: if the .am files are wanted, we should
 also include autogen.sh.
+
+In addition, 'make clean' should remove:  
+  smartd.8
+  smartd.conf.5
+  smartctl.8
+since these are made from the corresponding .in files. But it doesn't.
