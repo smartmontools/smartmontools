@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.35 2003/11/11 11:02:58 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.36 2003/11/13 07:39:09 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,31 +147,31 @@ struct scsiNonMediumError {
 #define SCSI_PT_ENCLOSURE               0xd
 
 /* ANSI SCSI-3 Log Pages retrieved by LOG SENSE. */
-#define SUPPORTED_LOG_PAGES                     0x00
-#define BUFFER_OVERRUN_PAGE                     0x01
-#define WRITE_ERROR_COUNTER_PAGE                0x02
-#define READ_ERROR_COUNTER_PAGE                 0x03
-#define READ_REVERSE_ERROR_COUNTER_PAGE         0x04
-#define VERIFY_ERROR_COUNTER_PAGE               0x05
-#define NON_MEDIUM_ERROR_PAGE                   0x06
-#define LAST_N_ERROR_PAGE                       0x07
-#define FORMAT_STATUS_PAGE                      0x08
-#define TEMPERATURE_PAGE                        0x0d
-#define STARTSTOP_CYCLE_COUNTER_PAGE            0x0e
-#define APPLICATION_CLIENT_PAGE                 0x0f
-#define SELFTEST_RESULTS_PAGE                   0x10
-#define IE_LOG_PAGE                             0x2f
+#define SUPPORTED_LPAGES                        0x00
+#define BUFFER_OVERRUN_LPAGE                    0x01
+#define WRITE_ERROR_COUNTER_LPAGE               0x02
+#define READ_ERROR_COUNTER_LPAGE                0x03
+#define READ_REVERSE_ERROR_COUNTER_LPAGE        0x04
+#define VERIFY_ERROR_COUNTER_LPAGE              0x05
+#define NON_MEDIUM_ERROR_LPAGE                  0x06
+#define LAST_N_ERROR_LPAGE                      0x07
+#define FORMAT_STATUS_LPAGE                     0x08
+#define TEMPERATURE_LPAGE                       0x0d
+#define STARTSTOP_CYCLE_COUNTER_LPAGE           0x0e
+#define APPLICATION_CLIENT_LPAGE                0x0f
+#define SELFTEST_RESULTS_LPAGE                  0x10
+#define IE_LPAGE                                0x2f
 
 /* Seagate vendor specific log pages. */
-#define SEAGATE_CACHE_LOG_PAGE                  0x37
-#define SEAGATE_FACTORY_LOG_PAGE                0x3e
+#define SEAGATE_CACHE_LPAGE                     0x37
+#define SEAGATE_FACTORY_LPAGE                   0x3e
 
 /* Log page response lengths */
 #define LOG_RESP_SELF_TEST_LEN 0x194
 
 /* See the SSC-2 document at www.t10.org . Earler note: From IBM 
 Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
-#define TAPE_ALERTS_PAGE                         0x2e
+#define TAPE_ALERTS_LPAGE                        0x2e
 
 /* ANSI SCSI-3 Mode Pages */
 #define VENDOR_UNIQUE_PARAMETERS                 0x00
@@ -209,6 +209,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define CD_CAPABILITIES_AND_MECHANISM_STATUS     0x2a
 
 #define ALL_MODE_PAGES                           0x3f
+
+/* Mode page control field */
+#define MODE_PAGE_CONTROL_CURRENT               0
+#define MODE_PAGE_CONTROL_CHANGEABLE            1
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
@@ -294,7 +298,7 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
                                 struct scsiNonMediumError *nmep);
 int scsiFetchExtendedSelfTestTime(int device, int * durationSec);
-int scsiCountSelfTests(int fd, int noisy);
+int scsiCountFailedSelfTests(int fd, int noisy);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
