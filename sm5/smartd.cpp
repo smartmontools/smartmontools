@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.318 2004/04/18 15:02:52 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.319 2004/07/09 12:38:04 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.318 2004/04/18 15:02:52 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.319 2004/07/09 12:38:04 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -672,9 +672,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     exportenv(environ_strings[6], "SMARTD_ADDRESS", address);
   exportenv(environ_strings[7], "SMARTD_DEVICESTRING", cfg->name);
 
-  if (cfg->escalade){
+  if (cfg->escalade_port){
     char *s,devicetype[16];
-    sprintf(devicetype, "3ware,%d", cfg->escalade-1);
+    sprintf(devicetype, "3ware,%d", cfg->escalade_port-1);
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", devicetype);
     if ((s=strchr(cfg->name, ' ')))
       *s='\0';
@@ -833,7 +833,7 @@ void pout(char *fmt, ...){
 #endif
     vprintf(fmt,ap);
   // in debug==2 mode we print output from knowndrives.o functions
-  else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl || con->escalade) {
+  else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl || con->escalade_port) {
     openlog("smartd", LOG_PID, facility);
     vsyslog(LOG_INFO, fmt, ap);
     closelog();
@@ -1163,7 +1163,8 @@ int ATADeviceScan(cfgfile *cfg){
   PrintOut(LOG_INFO,"Device: %s, opened\n", name);
   
   // pass user settings on to low-level ATA commands
-  con->escalade=cfg->escalade;
+  con->escalade_port=cfg->escalade_port;
+  con->escalade_type=cfg->escalade_type;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
 
   // Get drive identity structure
@@ -1894,7 +1895,8 @@ int ATACheckDevice(cfgfile *cfg){
   
   // fix firmware bug if requested
   con->fixfirmwarebug=cfg->fixfirmwarebug;
-  con->escalade=cfg->escalade;
+  con->escalade_port=cfg->escalade_port;
+  con->escalade_type=cfg->escalade_type;
 
   // If user has asked, test the email warning system
   if (cfg->mailwarn && cfg->mailwarn->emailtest)
@@ -2508,11 +2510,13 @@ int ParseToken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "ata")) {
       cfg->tryata  = 1;
       cfg->tryscsi = 0;
-      cfg->escalade =0;
+      cfg->escalade_port = 0;
+      cfg->escalade_type = THREE_WARE_NONE;
     } else if (!strcmp(arg, "scsi")) {
       cfg->tryscsi = 1;
       cfg->tryata  = 0;
-      cfg->escalade =0;
+      cfg->escalade_port =0;
+      cfg->escalade_type = THREE_WARE_NONE;
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
     } else {
@@ -2536,8 +2540,18 @@ int ParseToken(char *token,cfgfile *cfg){
                  configfile, lineno, name, i);
         badarg=1;
       } else {
-        // NOTE: escalade = disk number + 1
-        cfg->escalade = i+1;
+	// determine type of escalade device from name of device
+	int dev_type=guess_device_type(name);
+	
+	if (GUESS_DEVTYPE_3WARE_9000_CHAR==dev_type)
+	  cfg->escalade_type=THREE_WARE_9000_CHAR;
+	else if (GUESS_DEVTYPE_3WARE_678K_CHAR==dev_type)
+	  cfg->escalade_type=THREE_WARE_678K_CHAR;
+	else
+	  cfg->escalade_type=THREE_WARE_678K;
+	
+        // NOTE: escalade_port == disk number + 1
+        cfg->escalade_port = i+1;
         cfg->tryata  = TRUE;
         cfg->tryscsi = FALSE;
       }
@@ -2949,7 +2963,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   }
   
   // If we found 3ware controller, then modify device name by adding a SPACE
-  if (cfg->escalade){
+  if (cfg->escalade_port){
     int len=17+strlen(cfg->name);
     char *newname;
     
@@ -2965,7 +2979,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
     
     // Make new device name by adding a space then RAID disk number
-    snprintf(newname, len, "%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
+    snprintf(newname, len, "%s [3ware_disk_%02d]", cfg->name, cfg->escalade_port-1);
     cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
     cfg->name=newname;
     bytes+=16;

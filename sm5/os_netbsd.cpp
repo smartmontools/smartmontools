@@ -22,7 +22,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.6 2004/04/19 03:57:38 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.7 2004/07/09 12:38:04 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -344,7 +344,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
 }
 
 int
-escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
+escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
 {
   printwarning(NO_3WARE, NULL);
   return -1;

@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.69 2004/04/17 10:44:47 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.70 2004/07/09 12:38:04 ballen4705 Exp $\n"
 
 #include "int64.h"
 
@@ -490,7 +490,7 @@ char *create_vendor_attribute_arg_list(void);
 // These are two of the functions that are defined in os_*.c and need
 // to be ported to get smartmontools onto another OS.
 int ata_command_interface(int device, smart_command_set command, int select, char *data);
-int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
+int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
 
 // This function is exported to give low-level capability
 int smartcommandhandler(int device, smart_command_set command, int select, char *data);

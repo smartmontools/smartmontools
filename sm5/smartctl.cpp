@@ -48,7 +48,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.125 2004/04/30 06:23:59 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.126 2004/07/09 12:38:04 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -372,11 +372,13 @@ void ParseOpts (int argc, char** argv){
       if (!strcmp(optarg,"ata")) {
         tryata  = TRUE;
         tryscsi = FALSE;
-        con->escalade = 0;
+        con->escalade_port = 0;
+	con->escalade_type = THREE_WARE_NONE;
       } else if (!strcmp(optarg,"scsi")) {
         tryata  = FALSE;
         tryscsi = TRUE;
-        con->escalade = 0;
+        con->escalade_port = 0;
+	con->escalade_type = THREE_WARE_NONE;
       } else {
         // look for RAID-type device
         int i;
@@ -396,8 +398,8 @@ void ParseOpts (int argc, char** argv){
           sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
           badarg = TRUE;
         } else {
-          // NOTE: escalade = disk number + 1
-          con->escalade = i+1;
+	  // NOTE: escalade_port == disk number + 1
+          con->escalade_port = i+1;
           tryata  = TRUE;
           tryscsi = FALSE;
         }
@@ -828,13 +830,13 @@ int main (int argc, char **argv){
   ParseOpts(argc,argv);
 
   device = argv[argc-1];
-
+  
   if (!tryata && !tryscsi) {
     // user has not specified device type, so guess
     dev_type = guess_device_type(device);
-    if (GUESS_DEVTYPE_SCSI == dev_type) {
+    if (GUESS_DEVTYPE_SCSI == dev_type)
       tryscsi = 1;
-    } else if (GUESS_DEVTYPE_ATA == dev_type)
+    else if (GUESS_DEVTYPE_ATA == dev_type)
       tryata = 1;
     else {
       pout("Smartctl: please specify if this is an ATA or SCSI device with the -d option.\n");
@@ -843,6 +845,19 @@ int main (int argc, char **argv){
     }    
   }
   
+  if (con->escalade_port) {
+    dev_type = guess_device_type(device);
+    tryata = 1;
+    tryscsi = 0;
+
+    if (GUESS_DEVTYPE_3WARE_9000_CHAR == dev_type)
+      con->escalade_type=THREE_WARE_9000_CHAR;
+    else if (GUESS_DEVTYPE_3WARE_678K_CHAR == dev_type)
+      con->escalade_type=THREE_WARE_678K_CHAR;
+    else
+      con->escalade_type=THREE_WARE_678K;
+  }
+
   // set up mode for open() call.  SCSI case is:
   mode="SCSI";
 

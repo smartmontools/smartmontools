@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.153 2004/06/03 03:47:06 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.154 2004/07/09 12:38:04 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -595,8 +595,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   errno=0;
   
   // now execute the command
-  if (con->escalade)
-    retval=escalade_command_interface(device, con->escalade-1, command, select, data);
+  if (con->escalade_port)
+    retval=escalade_command_interface(device, con->escalade_port-1, con->escalade_type, command, select, data);
   else
     retval=ata_command_interface(device, command, select, data);
   
