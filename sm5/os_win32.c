@@ -38,7 +38,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.9 2004/04/02 10:56:11 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.10 2004/04/07 10:11:34 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -48,6 +48,7 @@ static unsigned ata_scan(void);
 
 static int aspi_open(unsigned adapter, unsigned id);
 static void aspi_close(int fd);
+static unsigned long aspi_scan(void);
 
 
 static int is_permissive()
@@ -85,42 +86,65 @@ int guess_device_type (const char * dev_name)
 // others each contain null-terminated character strings.
 int make_device_names (char*** devlist, const char* type)
 {
+	unsigned long drives;
+	int i, j, n, sz, scsi;
+	const char * path;
+
 	if (!strcmp(type, "ATA")) {
-		unsigned drives = ata_scan();
-		int i, j, n, sz;
-		if (!drives)
-			return 0;
-		n = 0;
-		for (i = 0; i <= 9; i++) {
-			if (drives & (1 << i))
-				n++;
-		}
-		assert(n > 0);
-		if (n == 0)
-			return 0;
-		sz = n * sizeof(char **);
-		*devlist = (char **)malloc(sz); bytes += sz;
-		for (i = j = 0; i < n; i++) {
-			char * s;
-			sz = sizeof("/dev/hda");
-			s = (char *)malloc(sz); bytes += sz;
-			strcpy(s, "/dev/hda");
-			while (j <= 9 && !(drives & (1 << j)))
-				j++;
+		// bit i set => drive i present
+		drives = ata_scan();
+		path = "/dev/hda";
+		scsi = 0;
+	}
+	else if (!strcmp(type, "SCSI")) {
+		// bit i set => drive with ID (i & 0x7) on adapter (i >> 3) present
+		drives = aspi_scan();
+		path = "/dev/scsi00";
+		scsi = 1;
+	}
+	else
+		return -1;
+
+	if (!drives)
+		return 0;
+
+	// Count #drives
+	n = 0;
+	for (i = 0; i < 32; i++) {
+		if (drives & (1 << i))
+			n++;
+	}
+	assert(n > 0);
+	if (n == 0)
+		return 0;
+
+	// Alloc devlist
+	assert(scsi || n <= 9);
+	sz = n * sizeof(char **);
+	*devlist = (char **)malloc(sz); bytes += sz;
+
+	// Add devices
+	for (i = j = 0; i < n; i++) {
+		char * s;
+		sz = strlen(path)+1;
+		s = (char *)malloc(sz); bytes += sz;
+		strcpy(s, path);
+		while (j < 32 && !(drives & (1 << j)))
+			j++;
+		assert(j < 32);
+		if (!scsi) {
 			assert(j <= 9);
-			s[sz-2] += j++;
-			(*devlist)[i] = s;
+			s[sz-2] += j; // /dev/hd[a-j]
 		}
-		return n;
+		else {
+			s[sz-3] += (j >> 3);  // /dev/scsi[0-3].
+			s[sz-2] += (j & 0x7); //          .....[0-7]
+		}
+		(*devlist)[i] = s;
+		j++;
 	}
-
-	if (!strcmp(type, "SCSI")) {
-		return 0; // TODO!
-	}
-
-	return -1;
+	return n;
 }
-
 
 
 // Like open().  Return positive integer handle, only used by
@@ -689,7 +713,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				return -1;
 			if (!nonempty(data, 512)) {
 				// Nothing useful returned => ioctl probably broken
-				pout("IOCTL_IDE_PASS_THROUGH does not work on your OS\n");
+				pout("IOCTL_IDE_PASS_THROUGH does not work on your version of Windows\n");
 				ide_pass_through_broken = 1; // Do not retry (smartd)
 				errno = ENOSYS;
 				return -1;
@@ -770,6 +794,16 @@ typedef struct {
 	unsigned char parameters[16];  // 42: Host adapter unique parmameters
 } ASPI_SRB_INQUIRY;
 
+// SRB for get device type
+
+typedef struct {
+	ASPI_SRB_HEAD h;               // 00: Header
+	unsigned char target_id;       // 08: Target ID
+	unsigned char lun;             // 09: LUN
+	unsigned char devtype;         // 10: LUN
+	unsigned char reserved;        // 11: Reserved
+} ASPI_SRB_DEVTYPE;
+
 // SRB for SCSI I/O
 
 typedef struct {
@@ -796,6 +830,7 @@ typedef struct {
 typedef union {
 	ASPI_SRB_HEAD h;       // Common header
 	ASPI_SRB_INQUIRY q;    // Inquiry
+	ASPI_SRB_DEVTYPE t;    // Device type
 	ASPI_SRB_IO i;         // I/O
 } ASPI_SRB;
 
@@ -843,11 +878,37 @@ static UINT (* aspi_entry)(ASPI_SRB * srb); // ASPI entrypoint
 static unsigned num_aspi_adapters;
 
 
-static int aspi_open_dll()
+static int aspi_call(ASPI_SRB * srb)
+{
+	int i;
+	aspi_entry(srb);
+	i = 0;
+	while (((volatile ASPI_SRB *)srb)->h.status == ASPI_STATUS_IN_PROGRESS) {
+		if (++i > 100/*10sek*/) {
+			pout("ASPI Adapter %u: Timeout\n", srb->h.adapter);
+			aspi_entry = 0;
+			FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
+			errno = EIO;
+			return -1;
+		}
+#ifdef _DEBUG
+		pout("ASPI Wait %d\n", i);
+#endif
+		Sleep(100);
+	}
+	return 0;
+}
+
+
+static int aspi_open_dll(int verbose)
 {
 	ASPI_SRB srb;
 
 	// Check structure layout
+	assert(sizeof(srb.h) == 8);
+	assert(sizeof(srb.q) == 58);
+	assert(sizeof(srb.t) == 12);
+	assert(sizeof(srb.i) == 64+ASPI_SENSE_SIZE);
 	assert(offsetof(ASPI_SRB,h.cmd) == 0);
 	assert(offsetof(ASPI_SRB,h.flags) == 3);
 	assert(offsetof(ASPI_SRB_IO,lun) == 9);
@@ -863,14 +924,16 @@ static int aspi_open_dll()
 
 	// Get ASPI entrypoint from winaspi.dll
 	if (!h_aspi_dll && !(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
-		pout("Cannot Load WNASPI32.DLL, Error=%ld\n", GetLastError());
+		if (verbose)
+			pout("Cannot load WNASPI32.DLL, Error=%ld\n", GetLastError());
 		h_aspi_dll = INVALID_HANDLE_VALUE;
 		errno = ENOENT;
 		return -1;
 	}
 
 	if (!((FARPROC)aspi_entry = GetProcAddress(h_aspi_dll, "SendASPI32Command"))) {
-		pout("Missing SendASPI32Command() in WNASPI32.DLL\n");
+		if (verbose)
+			pout("Missing SendASPI32Command() in WNASPI32.DLL\n");
 		FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
 		errno = ENOENT;
 		return -1;
@@ -879,13 +942,11 @@ static int aspi_open_dll()
 	// Get number of adapters
 	memset(&srb, 0, sizeof(srb));
 	srb.h.cmd = ASPI_CMD_ADAPTER_INQUIRE;
-	aspi_entry(&srb);
-	while (((volatile ASPI_SRB *)&srb)->h.status == ASPI_STATUS_IN_PROGRESS) {
-		// TODO: Timeout!
-		Sleep(1);
-	}
+	if (aspi_call(&srb))
+		return -1;
 	if (srb.h.status != ASPI_STATUS_NO_ERROR) {
-		pout("ASPI Adapter Inquriy failed, Error=0x%02x\n", srb.h.status);
+		if (verbose)
+			pout("ASPI Adapter Inquriy failed, Error=0x%02x\n", srb.h.status);
 		if (!is_permissive()) {
 			aspi_entry = 0;
 			FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
@@ -896,6 +957,9 @@ static int aspi_open_dll()
 	}
 
 	num_aspi_adapters = srb.q.adapters;
+#ifdef _DEBUG
+	pout("%u ASPI adapters on manager \"%.16s\"\n", num_aspi_adapters, srb.q.manager_id);
+#endif
 	return 0;
 }
 
@@ -941,7 +1005,7 @@ static int aspi_open(unsigned adapter, unsigned id)
 	}
 
 	if (!aspi_entry) {
-		if (aspi_open_dll())
+		if (aspi_open_dll(1/*verbose*/))
 			return -1;
 	}
 
@@ -961,6 +1025,58 @@ static int aspi_open(unsigned adapter, unsigned id)
 static void aspi_close(int fd)
 {
 	ARGUSED(fd);
+}
+
+
+// Scan for SCSI drives, return bitmask [adapter:0-3][id:0-7] of drives present
+
+static unsigned long aspi_scan()
+{
+	unsigned long drives = 0;
+	unsigned ad, nad;
+
+	if (!aspi_entry) {
+		if (aspi_open_dll(0/*quiet*/))
+			return 0;
+	}
+
+	nad = num_aspi_adapters;
+	if (nad >= 4)
+		nad = 4;
+	for (ad = 0; ad < nad; ad++) {
+		ASPI_SRB srb; int id;
+		// Get adapter name
+		memset(&srb, 0, sizeof(srb));
+		srb.h.cmd = ASPI_CMD_ADAPTER_INQUIRE;
+		srb.h.adapter = ad;
+		if (aspi_call(&srb))
+			return 0;
+#ifdef _DEBUG
+		pout("ASPI Adapter %u: %02x,\"%.16s\"\n", ad, srb.h.status, srb.q.adapter_id);
+#endif
+		if (srb.h.status != ASPI_STATUS_NO_ERROR)
+			continue;
+
+		// Skip ATA/ATAPI devices
+		srb.q.adapter_id[sizeof(srb.q.adapter_id)-1] = 0;
+		if (strstr(srb.q.adapter_id, "ATAPI"))
+			continue;
+
+		for (id = 0; id <= 7; id++) {
+			// Get device type
+			memset(&srb, 0, sizeof(srb));
+			srb.h.cmd = ASPI_CMD_GET_DEVICE_TYPE;
+			srb.h.adapter = ad; srb.i.target_id = id;
+			if (aspi_call(&srb))
+				return 0;
+#ifdef _DEBUG
+			pout("Device type for scsi%u%x: %02x,%02x\n", ad, id, srb.h.status, srb.t.devtype);
+#endif
+			if (srb.h.status == ASPI_STATUS_NO_ERROR && srb.t.devtype == 0x00/*HDD*/)
+				drives |= 1 << ((ad<<3)+id);
+		}
+	}
+	return drives;
 }
 
 

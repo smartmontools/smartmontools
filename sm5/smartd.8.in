@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.49 2004/04/01 21:02:11 chrfranke Exp $
+$Id: smartd.8.in,v 1.50 2004/04/07 10:11:34 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -94,8 +94,9 @@ devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .IP \fBWINDOWS:\fP 9
 Examine all entries \fB"/dev/hd[a-j]"\fP ("\\\\.\\PhysicalDisk[0-9]")
 for IDE/ATA devices on WinNT4/2000/XP, \fB"/dev/hd[a-d]"\fP
-(bitmask from "\\\\.\\SMARTVSD") for IDE/ATA devices on Win95/98/98SE/ME.
-Scanning of SCSI/ASPI devices is not implemented yet.
+(bitmask from "\\\\.\\SMARTVSD") for IDE/ATA devices on Win95/98/98SE/ME,
+and \fB"/dev/scsi[0-3][0-7]"\fP (ASPI adapter 0-3, ID 0-7) for SCSI
+devices on all versions of Windows.
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -1572,4 +1573,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.49 2004/04/01 21:02:11 chrfranke Exp $
+$Id: smartd.8.in,v 1.50 2004/04/07 10:11:34 chrfranke Exp $
