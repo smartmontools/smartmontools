@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.97 2003/04/28 15:08:55 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.98 2003/04/28 18:37:02 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -78,8 +78,7 @@ const char *minor_str[] = {			/* word 81 value: */
   "ATA/ATAPI-6 T13 1410D revision 2",		/* 0x001b	*/
   "ATA/ATAPI-6 T13 1410D revision 1",		/* 0x001c	*/
   "reserved",					/* 0x001d	*/
-  "ATA/ATAPI-7 T13 1532D revision 0",		/* 0x001e	*/
-  "reserved"					/* 0x001f-0xfffe*/
+  "ATA/ATAPI-7 T13 1532D revision 0"		/* 0x001e	*/
 };
 
 // NOTE ATA/ATAPI-4 REV 4 was the LAST revision where the device
@@ -120,8 +119,7 @@ const int actual_ver[] = {
   6,		/* 0x001b	WARNING:	*/
   6,		/* 0x001c	WARNING:	*/
   0,		/* 0x001d	WARNING:	*/
-  7,		/* 0x001e	WARNING:	*/
-  0		/* 0x001f-0xfffe    		*/
+  7		/* 0x001e	WARNING:	*/
 };
 
 // When you add additional items to this list, you should then:
@@ -690,7 +688,24 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned short *minor){
   unsigned short major;
   int i;
-  
+
+  // check that arrays at the top of this file are defined
+  // consistently
+  if (sizeof(minor_str) != sizeof(char *)*(1+MINOR_MAX)){
+    pout("Internal error in ataVersionInfo().  minor_str[] size %d\n"
+	 "is not consistent with value of MINOR_MAX+1 = %d\n", 
+	 sizeof(minor_str)/sizeof(char *), MINOR_MAX+1);
+    fflush(NULL);
+    abort();
+  }
+  if (sizeof(actual_ver) != sizeof(int)*(1+MINOR_MAX)){
+    pout("Internal error in ataVersionInfo().  actual_ver[] size %d\n"
+	 "is not consistent with value of MINOR_MAX = %d\n",
+	 sizeof(actual_ver)/sizeof(int), MINOR_MAX+1);
+    fflush(NULL);
+    abort();
+  }
+
   // get major and minor ATA revision numbers
 #ifdef __NEW_HD_DRIVE_ID
   major=drive->major_rev_num;
