@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.58 2004/07/09 19:39:15 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.59 2004/07/10 05:58:49 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.58 2004/07/09 19:39:15 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.59 2004/07/10 05:58:49 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -75,6 +75,82 @@ extern int exitstatus;
 
 // global variable holding byte count of allocated memory
 extern long long bytes;
+
+
+
+/* This function will setup and fix device nodes for a 3ware controller. */
+#define MAJOR_STRING_LENGTH 3
+#define DEVICE_STRING_LENGTH 32
+#define NODE_STRING_LENGTH 16
+int setup_3ware_nodes(char *nodename, char *driver_name) {
+  int              tw_major      = 0;
+  int              index         = 0;
+  char             majorstring[MAJOR_STRING_LENGTH+1];
+  char             device_name[DEVICE_STRING_LENGTH+1];
+  char             nodestring[NODE_STRING_LENGTH];
+  struct stat      stat_buf;
+  FILE             *file;
+  
+  /* First try to open up /proc/devices */
+  if (!(file = fopen("/proc/devices", "r"))) {
+    pout("Error opening /proc/devices to check/create 3ware device nodes\n");
+    syserror("fopen");
+    return 0;  // don't fail here: user might not have /proc !
+  }
+  
+  /* Attempt to get device major number */
+  while (EOF != fscanf(file, "%3s %32s", majorstring, device_name)) {
+    majorstring[MAJOR_STRING_LENGTH]='\0';
+    device_name[DEVICE_STRING_LENGTH]='\0';
+    if (!strncmp(device_name, nodename, DEVICE_STRING_LENGTH)) {
+      tw_major = atoi(majorstring);
+      break;
+    }
+  }
+  fclose(file);
+  
+  /* See if we found a major device number */
+  if (!tw_major) {
+    pout("Couldn't find major for %s, %s driver not loaded?\n", nodename, driver_name);
+    return 2;
+  }
+  
+  /* Now check if nodes are correct */
+  for (index=0; index<16; index++) {
+    sprintf(nodestring, "/dev/%s%d", nodename, index);
+	  
+    /* Try to stat the node */
+    if ((stat(nodestring, &stat_buf))) {
+      /* Create a new node if it doesn't exist */
+      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
+	pout("problem creating 3ware device nodes %s", nodestring);
+	syserror("mknod");
+	return 3;
+      }
+    }
+    
+    /* See if nodes major and minor numbers are correct */
+    if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
+	(index    != (int)(minor(stat_buf.st_rdev))) ||
+	(!S_ISCHR(stat_buf.st_mode))) {
+      
+      /* Delete the old node */
+      if (unlink(nodestring)) {
+	pout("problem unlinking stale 3ware device node %s", nodestring);
+	syserror("unlink");
+	return 4;
+      }
+      
+      /* Make a new node */
+      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
+	pout("problem creating 3ware device nodes %s", nodestring);
+	syserror("mknod");
+	return 5;
+      }
+    }
+  }
+  return 0;
+}
 
 // equivalent to open(path, flags)
 int deviceopen(const char *pathname, char *type){
@@ -86,6 +162,22 @@ int deviceopen(const char *pathname, char *type){
   }
   else if (!strcmp(type,"ATA")) 
     return open(pathname, O_RDONLY | O_NONBLOCK);
+  else if (!strcmp(type,"ATA_3WARE_9000")) {
+    // the device nodes for this controller are dynamically assigned,
+    // so we need to check that they exist with the correct major
+    // numbers and if not, create them
+    if (setup_3ware_nodes("twa", "3w-9xxx"))
+      return -1;
+    return open(pathname, O_RDONLY | O_NONBLOCK);
+  }
+  else if (!strcmp(type,"ATA_3WARE_678K")) {
+    // the device nodes for this controller are dynamically assigned,
+    // so we need to check that they exist with the correct major
+    // numbers and if not, create them
+    if (setup_3ware_nodes("twe", "3w-xxxx"))
+      return -1;
+    return open(pathname, O_RDONLY | O_NONBLOCK);
+  }
   else
     return -1;
 }
