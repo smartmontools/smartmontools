@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.21 2003/10/05 12:41:45 ballen4705 Exp $
+# $Id: Makefile.am,v 1.22 2003/10/07 21:35:27 guidog Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -28,6 +28,11 @@ smartd_SOURCES =  smartd.c       \
                   scsiprint.h	\
                   utility.c 	\
                   utility.h
+
+smartd_LDADD = @os_deps@
+smartd_DEPENDENCIES = @os_deps@
+EXTRA_smartd_SOURCES = os_linux.c \
+                       os_linux.h
 
 smartctl_SOURCES= smartctl.c    \
                   smartctl.h    \
@@ -106,9 +111,6 @@ uninstall-initdDATA:
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
 
-# Todo:
-#   documentation: $(docsdir)
-#   initd.script: $(initddir)
 smart%: $(srcdir)/smart%.in
 	sed "s|RELEASE|$(releaseversion)|g" $< | \
 	sed "s|/usr/share/man/|$(mandir)/|g" | \
