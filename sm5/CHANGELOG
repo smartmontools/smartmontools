@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.185 2003/08/31 13:36:56 guidog Exp $
+$Id: CHANGELOG,v 1.186 2003/09/24 00:02:49 pervalidus Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -20,17 +20,17 @@ at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
-Maintainers/Developers Key:
-[BA] Bruce Allen            <smartmontools-support@lists.sourceforge.net>
-[EB] Erik Inge Bolsø        <knan@mo.himolde.no>
-[SB] Stanislav Brabec       <sbrabec@suse.cz>
-[PC] Peter Cassidy          <pcassidy@mac.com>
-[FM] Frederic L. W. Meunier <0@pervalidus.net>
-[PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
-[DG] Douglas Gilbert        <dougg@torque.net>
-[GG] Guido Guenther         <agx@sigxcpu.org>
-[KM] Kai Mäkisara           <kai.makisara@kolumbus.fi>
-[GF] Guilhem Frézou         <guilhem.frezou@catii.fr>
+Maintainers / Developers Key:
+[BA] Bruce Allen
+[EB] Erik Inge Bolsø
+[SB] Stanislav Brabec
+[PC] Peter Cassidy
+[FM] Frederic L. W. Meunier
+[PW] Phil Williams
+[DG] Douglas Gilbert
+[GG] Guido Guenther
+[KM] Kai Mäkisara
+[GF] Guilhem Frézou
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
