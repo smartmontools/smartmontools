@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.14 2002/10/13 13:11:25 ballen4705 Exp $
+# $Id: Makefile,v 1.15 2002/10/14 09:17:36 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -55,7 +55,7 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	install -m 644 -o root -g root -D smartctl.8 $(DESTDIR)/usr/share/man/man8/smartctl.8
 	install -m 644 -o root -g root -D smartd.8 $(DESTDIR)/usr/share/man/man8/smartd.8
 	install -m 755 -o root -g root -D smartd.initd $(DESTDIR)/etc/rc.d/init.d/smartd
-	echo "To manually start smartd on bootup, run etc/rc.d/init.d/smartd start"
+	echo "To manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 
 uninstall:
