@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/09/24 18:44:09 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/10/05 20:05:16 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.90 2003/09/24 18:44:09 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.91 2003/10/05 20:05:16 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -42,9 +42,6 @@ smartmontools</a></li>
 <li><a href="#testinghelp">FireWire, USB, and SATA disks/tapes</a></li>
 <li><a href="#differfromsmartsuite">How does smartmontools differ from
 smartsuite?</a></li>
-<li><a href="#windows">Does it work on Windows?</a></li>
-<li><a href="#versioning">Why has the versioning scheme
-changed?</a></li>
 <li><a href="#references">Useful references on SMART and ATA/ATAPI-5,
 -6, and -7</a></li>
 <li><a href="#sampleoutput">Example output from smartmontools</a>
@@ -94,24 +91,43 @@ to use:
 <li>Download the latest source tarball from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 Note: you probably want the most recent release.</li>
 <li>Uncompress the tarball:
-<pre>tar zxvf smartmontools-5.1-18.tar.gz</pre></li>
-<li>The previous step created a directory called smartmontools-5.1-18
+<pre>tar zxvf smartmontools-5.20.tar.gz</pre></li>
+<li>The previous step created a directory called <tt>smartmontools-5.20</tt>
 containing the code.&#160; Go to that directory, build, and install:
-<pre>cd smartmontools-5.1-18
-./configure (with no arguments)
-
-This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
---docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
-which are correct for Red Hat, Slackware, and probably other Linux
-distributions.
-
-For FHS compliance, use --prefix=/usr/local , and for a full list of
-options ./configure --help
-
-Skip <tt>./configure</tt> for releases &lt;= 5.1-18
-
+<pre>cd smartmontools-5.20
+./configure
 make
-make install (only root can do this)</pre></li>
+make install
+</pre></li>
+<li> Note that the <tt>./configure</tt> step above is not needed for releases <= 5.1-18.  For releases >= 5.19, <tt>./configure</tt>
+can take optional arguments.  These optional arguments are fully explained in the
+<a href="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/INSTALL?rev=HEAD&content-type=text/vnd.viewcvs-markup">INSTALL</a>
+file.  Some common choices are:
+<ul>
+<li> Red Hat (install in <tt>/usr</tt> and <tt>/etc</tt>): <tt>./configure</tt></li>
+<li> Slackware (install in <tt>/usr</tt> and <tt>/etc</tt>): <tt>./configure</tt></li>
+<li> Filesystem Hierarchy Standard (installs in <tt>/usr/local</tt>): <tt>./configure --prefix=/usr/local</tt></li>
+<li> Debian (installs in <tt>/usr/local</tt>): <tt>./configure --prefix=/usr/local</tt></li>
+</ul>
+<li>To compile from another directory (avoids overwriting virgin files from the smartmontools package)
+replace <tt>./configure [options]</tt> by:</li>
+<tt><pre>
+mkdir objdir
+cd objdir
+../configure [options]
+</pre></tt>
+<li>To install to another destination (useful for testing and to avoid overwriting an existing smartmontools installation)
+replace <tt>make install</tt> by:
+<tt><pre>
+make DESTDIR=/home/myself/smartmontools-test install
+</tt></pre>
+Use a full path: <tt>~/smartmontools-test</tt> won't work.
+</li>
+<li>Unless the destination directory is your home directory (or a location that you have write permission)
+only root can do <tt>make install</tt></li>
+
+</ul>
+
 </ul>
 
 <b>Third Method - Install from the CVS repository</b>
@@ -128,10 +144,6 @@ do to get the latest development code is
 (but note that the development code may be unstable, and that the
 documentation and code may be inconsistent):</p>
 
-<p><b>Warning</b>: As of 23 September 2003 we're in the process of
-converting smartmontools to use GNU Autoconf and GNU Automake. Code from
-HEAD may not configure, compile, install, or work correctly.</p>
-
 <pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
 cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
 
@@ -142,35 +154,20 @@ cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontool
 <li><p>This will create a subdirectory called <tt>sm5/</tt> containing the
 code.&#160; Go to that directory, build, and install:</p>
 
+<tt>
 <pre>cd sm5
-./autogen.sh</pre>
-
-<p>You need <a href="http://www.gnu.org/software/autoconf/">GNU
-Autoconf</a>, <a href="http://www.gnu.org/software/automake/">GNU
-Automake</a>, and their dependencies installed in order to run
-autogen.sh.</p>
-
-<pre>
-./configure (with no arguments)
-
-This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
---docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
-which are correct for Red Hat, Slackware, and probably other Linux
-distributions.
-
-For FHS compliance, use --prefix=/usr/local , and for a full list of
-options --help
-
-Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
-&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). This
-doesn't include HEAD (<tt>cvs co</tt> with no arguments and <tt>cvs up
--A</tt>).</pre>
-
-<pre>
+./autogen.sh
+./configure
 make
 make install (only root can do this)
-
-</pre></li>
+</pre></tt>
+<ul>
+<li>See notes under <b>Second method - install from source tarball</b> for different options to <tt>./configure</tt></li>
+<li>Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
+&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). 
+If you get the current sources (<tt>cvs co</tt> with no arguments or do <tt>cvs up
+-A</tt>) then you <i>will</i>  need those two additional steps.
+</li></ul>
 
 <li>To update your sources to the 5.1-18 release:
 
@@ -183,24 +180,6 @@ cvs up -r RELEASE_5_1_18</pre></li>
 cvs up -A</pre></li>
 </ul>
 
-<b>Optional notes for source tarball and CVS installs</b>
-<ul>
-<li><pre>
-To compile from another directory, you can replace ./configure by the
-following:
-
-mkdir objdir
-cd objdir
-../configure
-
-And to install to another destination, used mainly by package
-maintainers:
-
-make DESTDIR=/home/myself/smartmontools-package install
-
-Use a full PATH. ~/smartmontools-package may not work. Don't use DESTDIR
-for releases &lt;= 5.1-18.</pre></li>
-</ul>
 
 <b>Fourth Method - Install the Debian package (for machines using the
 Debian GNU/Linux distribution)</b>
@@ -252,6 +231,8 @@ variable.</p>
 <p>If a serious problem gets reported to us, it gets added to the <a
 href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/WARNINGS?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup">
 WARNINGS</a> file in smartmontools. So far there are only two problem systems listed.</p>
+
+<hr size="2" />
 
 <a name="FAQ"></a><b>Frequently Asked Questions</b>
 
@@ -456,8 +437,9 @@ DISK FIRMWARE UPGRADE</a> that fixes the problem.
 be concerned about something harmful being embedded within
 them. Starting with release 5.19 of <tt>smartmontools</tt>, the .rpm
 files and tarball have been GPG signed. (The tarball's fingerprint is
-given in the SoureForge Release Notes.) Please verify these using the
-<a href="SmartmontoolsSigningKey.txt">Smartmontools GPG Signing
+given in a file on the release page with a name like
+<tt>smartmontools-5.20.tar.gz.asc</tt>.)  Please verify these using
+the <a href="SmartmontoolsSigningKey.txt">Smartmontools GPG Signing
 Key</a>
 </p></li>
 
@@ -525,6 +507,27 @@ mailing list</a>, particularly for 64-bit and/or big-endian
 architectures.
 </p>
 </li>
+
+<li><b>Does it work on Windows?</b>
+
+<p>Currently not. We would welcome a <a
+href="http://www.cygwin.com/">Cygwin</a> port.  <a
+href="mailto:smartmontools-support&#64;lists.sourceforge.net">Contact
+us</a> if you're interested in porting it.  Some code fragments
+showing how to access SMART data under Windows are available as
+examples.</p>
+
+<li><b>Why has the versioning scheme changed?</b>
+
+<p>It was non-standard.  So with the move to GNU Autoconf and GNU
+Automake it changed from 5.X-Y (where X and Y are one or more numbers)
+to 5.Y.  So the releases are numbered (starting with the oldest and
+moving forward in time):
+5.0-1,...,5.0-45,5.1-1,...,5.1-18,5.19,5.20,...
+</p>
+</li>
+
+
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -601,29 +604,6 @@ archive.&#160; If you would like to contribute, please write to to <a href="http
 <p>But the bottom line is that the code in smartmontools is derived
 directly from smartsuite and is similar.&#160; The smartsuite package
 can be found <a href="http://sourceforge.net/projects/smartsuite/">here</a>.</p>
-
-<hr size="2" /><a name="windows"></a><b>Does it work on Windows?</b>
-
-<p>Currently not, but we consider <a href="http://www.cygwin.com/">Cygwin</a> the way to go, where CVS
-compiles almost out of the box but still lacks any specific code to make
-it work. <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Contact us</a>
-if you're interested in porting it. Someone already sent Bruce some
-S.M.A.R.T. code for Windows, which may be of use. Porting to other
-platforms may be easier as well now that any Linux specific code (like
-linux/hdreg.h) has been removed, and more will be done soon in that
-direction.</p>
-
-<p>A Cygwin port would probably only require and additional DLL,
-cygwin1.dll, to run on plain Windows.</p>
-
-<hr size="2" /><a name="versioning"></a><b>Why has the versioning scheme
-changed?</b>
-
-<p>With the move to GNU Autoconf and GNU Automake it changed from 5.X-Y
-(where X and Y are one or more numbers) to 5.Y. This had to be done
-because the -Y extension is used by distributions to almost always
-denote a new build of the same version. So, the first version with that
-change will be 5.19 and not 5.1-19.</p>
 
 <hr size="2" /><a name="references"></a><b><big>Useful references on
 SMART and the  ATA/ATAPI standards</big></b>
@@ -731,8 +711,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/09/24 18:44:09 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.90 2003/09/24 18:44:09 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2003/10/05 20:05:16 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.91 2003/10/05 20:05:16 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
