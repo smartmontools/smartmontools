@@ -27,6 +27,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 AC_SUBST([docdir], ['${prefix}/share/doc/${PACKAGE}-${VERSION}'])
-AC_SUBST([exampledir], ['${docdir}/examples'])
+AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
