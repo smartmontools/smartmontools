@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.459 2004/08/30 19:12:14 guidog Exp $
+$Id: CHANGELOG,v 1.460 2004/08/31 07:42:24 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -38,7 +38,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
   
   [DS] Added support for OpenBSD
 
-  [BA} Added another environment variable SMART_FULLMESSAGE set by
+  [BA] Added another environment variable SMART_FULLMESSAGE set by
        the smartd mailing feature, and modified examplescripts/Example1
        to illustrate it.
 
