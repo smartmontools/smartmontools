@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.11 2004/08/13 14:09:21 arvoreen Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.12 2004/08/16 22:44:26 ballen4705 Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -54,9 +54,9 @@ struct freebsd_dev_channel {
 /* 
    The following definitions/macros/prototypes are used for three
    different interfaces, referred to as "the three cases" below.
-   THREE_WARE_678K      -- 6000, 7000, and 8000 controllers via /dev/sd?
-   THREE_WARE_678K_CHAR -- 6000, 7000, and 8000 controllers via /dev/twe?
-   THREE_WARE_9000_CHAR -- 9000 controllers via /dev/twa?
+   CONTROLLER_3WARE_678K      -- 6000, 7000, and 8000 controllers via /dev/sd?
+   CONTROLLER_3WARE_678K_CHAR -- 6000, 7000, and 8000 controllers via /dev/twe?
+   CONTROLLER_3WARE_9000_CHAR -- 9000 controllers via /dev/twa?
 */
 
 

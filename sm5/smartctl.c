@@ -51,7 +51,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.133 2004/08/16 00:57:29 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.134 2004/08/16 22:44:27 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -819,51 +819,40 @@ int main (int argc, char **argv){
   ParseOpts(argc,argv);
 
   device = argv[argc-1];
-  
-  if (CONTROLLER_TYPE(con) == CONTROLLER_UNKNOWN) {
-    // user has not specified device type, so guess
-    con->controller_type = guess_device_type(device);
-    switch (CONTROLLER_TYPE(con)) {
-    case CONTROLLER_ATA:
-    case CONTROLLER_SCSI:
-      break;
-    case CONTROLLER_3WARE:
-      pout("Smartctl: you must use -d 3ware,N to specify which 3ware port to use.\n");
-      UsageSummary();
-      return FAILCMD;
-    default:
-      pout("Smartctl: please specify if this is an ATA or SCSI device with the -d option.\n");
-      UsageSummary();
-      return FAILCMD;
-    }    
-  }
-  
-  if (con->controller_port) {
-    // figure out 3Ware type
-    if (CONTROLLER_SCSI == (con->controller_type = guess_device_type(device)))
-	con->controller_type=THREE_WARE_678K;
+
+  // If use has specified 3ware controller, determine which interface 
+  if (con->controller_type == CONTROLLER_3WARE) {
+    con->controller_type=guess_device_type(device);
+    if (con->controller_type!=CONTROLLER_3WARE_9000_CHAR && con->controller_type!=CONTROLLER_3WARE_678K_CHAR)
+      con->controller_type = CONTROLLER_3WARE_678K;
   }
 
+  if (con->controller_type == CONTROLLER_UNKNOWN)
+    con->controller_type=guess_device_type(device);
+  
+  if (con->controller_type == CONTROLLER_UNKNOWN) {
+    pout("Smartctl: please specify device type with the -d option.\n");
+    UsageSummary();
+    return FAILCMD;
+  }
+  
   // set up mode for open() call.  SCSI case is:
-  switch (CONTROLLER_TYPE(con)) {
+  switch (con->controller_type) {
   case CONTROLLER_SCSI:
     mode="SCSI";
     break;
   case CONTROLLER_ATA:
+  case CONTROLLER_3WARE_678K:
     mode="ATA";
     break;
-  case CONTROLLER_3WARE:
-    {
-      int type = CONTROLLER_TYPE(con);
-      if (type == THREE_WARE_9000_CHAR)
-	mode="ATA_3WARE_9000";
-      else if (con->controller_type == THREE_WARE_678K_CHAR)
-	mode="ATA_3WARE_678K";
-      else 
-	mode="ATA";
-    }
+  case CONTROLLER_3WARE_9000_CHAR:
+    mode="ATA_3WARE_9000";
+    break;
+  case CONTROLLER_3WARE_678K_CHAR:
+    mode="ATA_3WARE_678K";
     break;
   }
+
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
   // scsi generic device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
@@ -880,9 +869,11 @@ int main (int argc, char **argv){
   }
 
   // now call appropriate ATA or SCSI routine
-  switch (con->controller_type & CONTROLLER_MASK) {
+  switch (con->controller_type) {
   case CONTROLLER_ATA:
-  case CONTROLLER_3WARE:
+  case CONTROLLER_3WARE_678K:
+  case CONTROLLER_3WARE_9000_CHAR:
+  case CONTROLLER_3WARE_678K_CHAR:
     retval = ataPrintMain(fd);
     break;
   case CONTROLLER_SCSI:

@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.332 2004/08/13 13:57:12 arvoreen Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.333 2004/08/16 22:44:27 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.332 2004/08/13 13:57:12 arvoreen Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.333 2004/08/16 22:44:27 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -688,8 +688,10 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     exportenv(environ_strings[6], "SMARTD_ADDRESS", address);
   exportenv(environ_strings[7], "SMARTD_DEVICESTRING", cfg->name);
 
- switch (CONTROLLER_TYPE(cfg)) {
-  case CONTROLLER_3WARE: 
+  switch (cfg->controller_type) {
+  case CONTROLLER_3WARE_678K:
+  case CONTROLLER_3WARE_9000_CHAR:
+  case CONTROLLER_3WARE_678K_CHAR:
     {
       char *s,devicetype[16];
       sprintf(devicetype, "3ware,%d", cfg->controller_port-1);
@@ -1227,23 +1229,27 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   char *name=cfg->name;
   int retainsmartdata=0;
   int retid;
-  char *mode="ATA";
+  char *mode;
   
   // should we try to register this as an ATA device?
-  if ( !((CONTROLLER_TYPE(cfg) == CONTROLLER_ATA) ||
-	 (CONTROLLER_TYPE(cfg) == CONTROLLER_3WARE) ||
-	 (CONTROLLER_TYPE(cfg) == CONTROLLER_UNKNOWN)))
+  switch (cfg->controller_type) {
+  case CONTROLLER_ATA:
+  case CONTROLLER_3WARE_678K:
+  case CONTROLLER_UNKNOWN:
+    mode="ATA";
+    break;
+  case CONTROLLER_3WARE_678K_CHAR:
+    mode="ATA_3WARE_678K";
+    break;
+  case CONTROLLER_3WARE_9000_CHAR:
+    mode="ATA_3WARE_9000";
+    break;
+  default:
+    // not a recognized ATA or SATA device.  We should never enter
+    // this branch.
     return 1;
-
-  // need to determine what type of 3ware controller  
-  if (CONTROLLER_TYPE(cfg) == CONTROLLER_3WARE) {
-    if (THREE_WARE_TYPE(cfg)== THREE_WARE_9000_CHAR)
-      mode="ATA_3WARE_9000";
-    
-    if (THREE_WARE_TYPE(cfg) == THREE_WARE_678K_CHAR)
-      mode="ATA_3WARE_678K";
   }
-
+  
   // open the device
   if ((fd=OpenDevice(name, mode, scanning))<0)
     // device open failed
@@ -1493,8 +1499,9 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   PrintOut(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",name);
   
     // record number of device, type of device, increment device count
-  cfg->controller_type = CONTROLLER_ATA;;
-
+  if (cfg->controller_type == CONTROLLER_UNKNOWN)
+    cfg->controller_type=CONTROLLER_ATA;;
+  
   // close file descriptor
   CloseDevice(fd, name);
   return 0;
@@ -1509,9 +1516,13 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   UINT8  tBuf[64];
   
   // should we try to register this as a SCSI device?
-  if ( !((CONTROLLER_TYPE(cfg) == CONTROLLER_SCSI) ||
-	 (CONTROLLER_TYPE(cfg) == CONTROLLER_UNKNOWN)))
+  switch (con->controller_type) {
+  case CONTROLLER_SCSI:
+  case CONTROLLER_UNKNOWN:
+    break;
+  default:
     return 1;
+  }
   
   // open the device
   if ((fd = OpenDevice(device, "SCSI", scanning)) < 0)
@@ -1990,10 +2001,10 @@ int ATACheckDevice(cfgfile *cfg){
   if (cfg->mailwarn && cfg->mailwarn->emailtest)
     MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
-  if (cfg->controller_type == THREE_WARE_9000_CHAR)
+  if (cfg->controller_type == CONTROLLER_3WARE_9000_CHAR)
     mode="ATA_3WARE_9000";
   
-  if (cfg->controller_type == THREE_WARE_678K_CHAR)
+  if (cfg->controller_type == CONTROLLER_3WARE_678K_CHAR)
     mode="ATA_3WARE_678K";
 
   // if we can't open device, fail gracefully rather than hard --
@@ -2632,7 +2643,9 @@ int ParseToken(char *token,cfgfile *cfg){
       } else {
 	// determine type of escalade device from name of device
 	cfg->controller_type = guess_device_type(name);
-	
+	if (cfg->controller_type!=CONTROLLER_3WARE_9000_CHAR && cfg->controller_type!=CONTROLLER_3WARE_678K_CHAR)
+	  cfg->controller_type=CONTROLLER_3WARE_678K;
+	    
         // NOTE: controller_port == disk number + 1
         cfg->controller_port = i+1;
       }
@@ -3018,7 +3031,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
   
   // Try and recognize if a IDE or SCSI device.  These can be
   // overwritten by configuration file directives.
-  cfg->controller_type = guess_device_type(cfg->name);
+  if (cfg->controller_type==CONTROLLER_UNKNOWN)
+    cfg->controller_type = guess_device_type(cfg->name);
   
   // parse tokens one at a time from the file.
   while ((token=strtok(NULL,delim))){
@@ -3577,7 +3591,7 @@ int MakeConfigEntries(const char *type, int start){
     }
 
     // ATA or SCSI?
-    if ( !strcmp(type,"ATA") )
+    if (!strcmp(type,"ATA") )
       cfg->controller_type = CONTROLLER_ATA;
     if (!strcmp(type,"SCSI") ) 
       cfg->controller_type = CONTROLLER_SCSI;
@@ -3644,8 +3658,8 @@ int ReadOrMakeConfigEntries(int *scanning){
     // scan.  Configuration file's first entry contains all options
     // that were set
     cfgfile *first=cfgentries[0];
-    int doata = 1;
-    int doscsi= 1;
+    int doata  = !(first->controller_type==CONTROLLER_SCSI);
+    int doscsi = !(first->controller_type==CONTROLLER_ATA);
     
     *scanning=1;
     
@@ -3695,7 +3709,7 @@ void RegisterDevices(int scanning){
       continue;
     
     // register ATA devices
-    if (CONTROLLER_TYPE(ent) == CONTROLLER_ATA){
+    if (ent->controller_type!=CONTROLLER_SCSI){
       if (ATADeviceScan(ent, scanning))
         CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
       else {
@@ -3708,7 +3722,7 @@ void RegisterDevices(int scanning){
     }
     
     // then register SCSI devices
-    if (CONTROLLER_TYPE(ent) == CONTROLLER_SCSI){
+    if (ent->controller_type==CONTROLLER_SCSI || ent->controller_type==CONTROLLER_UNKNOWN){
       int retscsi=0;
 
 #if SCSITIMEOUT

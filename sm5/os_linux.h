@@ -38,14 +38,14 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.20 2004/07/14 20:32:18 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.21 2004/08/16 22:44:27 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
    different interfaces, referred to as "the three cases" below.
-   THREE_WARE_678K      -- 6000, 7000, and 8000 controllers via /dev/sd?
-   THREE_WARE_678K_CHAR -- 6000, 7000, and 8000 controllers via /dev/twe?
-   THREE_WARE_9000_CHAR -- 9000 controllers via /dev/twa?
+   CONTROLLER_3WARE_678K      -- 6000, 7000, and 8000 controllers via /dev/sd?
+   CONTROLLER_3WARE_678K_CHAR -- 6000, 7000, and 8000 controllers via /dev/twe?
+   CONTROLLER_3WARE_9000_CHAR -- 9000 controllers via /dev/twa?
 */
 
 // USED FOR ALL THREE CASES
