@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.64 2004/07/13 18:28:51 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.65 2004/07/13 22:33:31 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.64 2004/07/13 18:28:51 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.65 2004/07/13 22:33:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -111,7 +111,7 @@ int setup_3ware_nodes(char *nodename, char *driver_name) {
   
   /* See if we found a major device number */
   if (!tw_major) {
-    pout("Couldn't find major for %s, %s driver not loaded?\n", nodename, driver_name);
+    pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
     return 2;
   }
   
@@ -166,16 +166,22 @@ int deviceopen(const char *pathname, char *type){
     // the device nodes for this controller are dynamically assigned,
     // so we need to check that they exist with the correct major
     // numbers and if not, create them
-    if (setup_3ware_nodes("twa", "3w-9xxx"))
+    if (setup_3ware_nodes("twa", "3w-9xxx")) {
+      if (!errno)
+	errno=ENXIO;
       return -1;
+    }
     return open(pathname, O_RDONLY | O_NONBLOCK);
   }
   else if (!strcmp(type,"ATA_3WARE_678K")) {
     // the device nodes for this controller are dynamically assigned,
     // so we need to check that they exist with the correct major
     // numbers and if not, create them
-    if (setup_3ware_nodes("twe", "3w-xxxx"))
+    if (setup_3ware_nodes("twe", "3w-xxxx")) {
+      if (!errno)
+	errno=ENXIO;
       return -1;
+    }
     return open(pathname, O_RDONLY | O_NONBLOCK);
   }
   else
