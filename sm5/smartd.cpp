@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.246 2003/11/19 19:38:16 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.247 2003/11/20 01:04:54 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1001,8 +1001,12 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   // check that device is ready for commands. IE stores its stuff on
   // the media.
   if ((err = scsiTestUnitReady(fd))) {
-    if (1 == err)
-      PrintOut(LOG_INFO, "Device: %s, NOT READY (media absent, spun down); skip device\n", device);
+    if (SIMPLE_ERR_NOT_READY == err)
+      PrintOut(LOG_INFO, "Device: %s, NOT READY (e.g. spun down); skip device\n", device);
+    else if (SIMPLE_ERR_NO_MEDIUM == err)
+      PrintOut(LOG_INFO, "Device: %s, NO MEDIUM present; skip device\n", device);
+    else if (SIMPLE_ERR_BECOMING_READY == err)
+      PrintOut(LOG_INFO, "Device: %s, becoming(but not yet) reading; skip device\n", device);
     else
       PrintOut(LOG_CRIT, "Device: %s, failed Test Unit Ready [err=%d]\n", device, err);
     CloseDevice(fd, device);
