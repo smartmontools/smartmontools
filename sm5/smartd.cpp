@@ -1,8 +1,8 @@
-//  $Id: smartd.cpp,v 1.5 2002/10/11 03:46:17 ballen4705 Exp $
+//  $Id: smartd.cpp,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $
 /*
  * smartd.c
  *
- * Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+ * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -264,7 +264,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.5 2002/10/11 03:46:17 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.cpp,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 

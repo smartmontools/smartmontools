@@ -1,8 +1,8 @@
-//  $Id: atacmds.cpp,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.2 2002/10/11 09:20:32 ballen4705 Exp $
 /*
  * atacmds.c
  *
- * Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+ * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
