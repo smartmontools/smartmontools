@@ -82,21 +82,22 @@ To install, use the commands:
 The tools require Linux kernel 2.2.14 or greater in order to run. Any
 recent Linux distribution should support this package.
  
-Fourteen files are installed:
-/usr/sbin/smartd                               [Executable daemon]
-/usr/sbin/smartctl                             [Executable command-line utility]
-/etc/rc.d/init.d/smartd                        [Init/Startup script for smartd]
-/usr/share/man/man8/smartctl.8.gz              [Manual page]
-/usr/share/man/man8/smartd.8.gz                [Manual page]
-/usr/share/man/man5/smartd.conf.5.gz           [Manual page]
-/usr/share/doc/smartmontools-5.1/README        [What you are reading!]
-/usr/share/doc/smartmontools-5.1/TODO          [Things that need to be done/fixed]
-/usr/share/doc/smartmontools-5.1/CHANGELOG     [A log of changes. Also see CVS]
-/usr/share/doc/smartmontools-5.1/COPYING       [GNU Public License.] 
-/usr/share/doc/smartmontools-5.1/VERSION       [Version number]
-/usr/share/doc/smartmontools-5.1/WARNINGS      [Systems where lockups or other serious problems reported]
-/usr/share/doc/smartmontools-5.1/smartd.conf   [Example Configuration file for /etc/]
-/etc/smartd.conf.example                       [Example Configuration file for /etc/]
+Eighteen files are installed:
+/usr/sbin/smartd                                [Executable daemon]
+/usr/sbin/smartctl                              [Executable command-line utility]
+/etc/rc.d/init.d/smartd                         [Init/Startup script for smartd]
+/usr/share/man/man8/smartctl.8.gz               [Manual page]
+/usr/share/man/man8/smartd.8.gz                 [Manual page]
+/usr/share/man/man5/smartd.conf.5.gz            [Manual page]
+/usr/share/doc/smartmontools-5.1/README         [What you are reading!]
+/usr/share/doc/smartmontools-5.1/TODO           [Things that need to be done/fixed]
+/usr/share/doc/smartmontools-5.1/CHANGELOG      [A log of changes. Also see CVS]
+/usr/share/doc/smartmontools-5.1/COPYING        [GNU Public License.] 
+/usr/share/doc/smartmontools-5.1/VERSION        [Version number]
+/usr/share/doc/smartmontools-5.1/WARNINGS       [Systems where lockups or other serious problems reported]
+/usr/share/doc/smartmontools-5.1/smartd.conf    [Example Configuration file for /etc/]
+/etc/smartd.conf.example                        [Example Configuration file for /etc/]
+/usr/share/doc/smartmontools-5.1/examplescripts [Executable scripts for -M exec of smartd.conf (4 files)]
 
 Source and binary RPM files are available at the website listed above.
 
