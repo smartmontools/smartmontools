@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.32 2004/02/13 01:36:51 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.33 2004/02/18 19:58:59 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -87,6 +87,10 @@ taken to be a comment, and ignored.
 
 Lines may be continued by using a backslash \'\e\' as the last
 non-whitespace or non-comment item on a line.
+
+[Note: a line whose first character is a hash sign \'#\' is treated as
+a white-space blank line, \fBnot\fP as a non-existent line, and will
+end a continuation line.]
 
 .PP 0
 .fi
@@ -1110,4 +1114,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.32 2004/02/13 01:36:51 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.33 2004/02/18 19:58:59 ballen4705 Exp $

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.338 2004/02/16 18:56:59 pjwilliams Exp $
+$Id: CHANGELOG,v 1.339 2004/02/18 19:58:59 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] on big-endian linux machines, fixed interpretation of HDIO_GET_IDENTITY
+       to correctly identify ATAPI bit (was byte swapped).  This should
+       eliminate some SYSLOG noise if user queries a packet device (eg, CD
+       ROM or DVD reader).
 
   [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives with
        A5AA/A6AA firmware.  Thanks to Gerald Schnabel.

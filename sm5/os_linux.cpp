@@ -69,9 +69,9 @@
 #include "smartd.h"
 #include "utility.h"
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.45 2004/02/08 07:12:40 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.46 2004/02/18 19:58:59 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.45 2004/02/08 07:12:40 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.46 2004/02/18 19:58:59 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -430,12 +430,12 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // *always* had IDENTIFY PACKET DEVICE as a mandatory part of their
   // command set, and return 'Command Aborted' to IDENTIFY DEVICE.
   if (command==IDENTIFY || command==PIDENTIFY){
-    unsigned char deviceid[512];
+    unsigned short deviceid[256];
     // check the device identity, as seen when the system was booted
     // or the device was FIRST registered.  This will not be current
     // if the user has subsequently changed some of the parameters. If
     // device is a packet device, swap the command interpretations.
-    if (!ioctl(device, HDIO_GET_IDENTITY, deviceid) && (deviceid[1] & 0x80))
+    if (!ioctl(device, HDIO_GET_IDENTITY, deviceid) && (deviceid[0] & 0x8000))
       buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
   }
 #endif
