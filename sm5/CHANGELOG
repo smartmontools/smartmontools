@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.336 2004/02/16 18:46:31 pjwilliams Exp $
+$Id: CHANGELOG,v 1.337 2004/02/16 18:48:11 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -44,7 +44,6 @@ smartmontools 5.27
   [KS] Added ATA/IDE support for Solaris/SPARC (ATA/IDE not yet for
        Solaris/x86).
 
->>>>>>> 1.335
   [BA] 3ware controllers: documented that one can monitor any of the
        physical disks from any of the 3ware /dev/sd? logical devices.
        Better warnings if querying a disk that does not exist.
