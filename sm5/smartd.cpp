@@ -52,18 +52,13 @@
 #endif
 
 #ifdef _WIN32
-// Mailing feature for Win32 will be implemented later
-#define NO_MAIL_WARNING
-
 #ifdef _MSC_VER
 #pragma warning(disable:4761) // "conversion supplied"
 typedef unsigned short mode_t;
 typedef int pid_t;
 #endif
-
 #include <io.h> // umask()
 #include <process.h> // getpid()
-
 #endif // _WIN32
 
 // locally included files
@@ -96,7 +91,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.299 2004/03/26 19:30:57 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.300 2004/03/29 21:50:51 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -107,7 +102,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.299 2004/03/26 19:30:57 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.300 2004/03/29 21:50:51 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -443,7 +438,6 @@ int exportenv(char* stackspace, const char *name, const char *value){
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
 void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
-#ifndef NO_MAIL_WARNING // Not implemented for Win32
   char command[2048], message[256], hostname[256], additional[256];
   char original[256], further[256], domainname[256], subject[256],dates[DATEANDEPOCHLEN];
   char environ_strings[10][ENVLENGTH];
@@ -523,10 +517,14 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   mail->lastsent=epoch;
   
   // get system host & domain names (not null terminated if length=MAX) 
+#ifdef HAVE_GETHOSTNAME
   if (gethostname(hostname, 256))
     sprintf(hostname,"Unknown host");
   else
     hostname[255]='\0';
+#else
+  sprintf(hostname,"Unknown host");
+#endif
 
 #ifdef HAVE_GETDOMAINNAME
   if (getdomainname(domainname, 256))
@@ -565,6 +563,8 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     }
   }
   
+#ifndef _WIN32
+
   snprintf(subject, 256,"SMART error (%s) detected on host: %s", whichfail[which], hostname);
 
   // If the user has set cfg->emailcmdline, use that as mailer, else "mail" or "mailx".
@@ -711,12 +711,28 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   // free copy of address (without commas)
   address=FreeNonZero(address, -1, __LINE__, filenameandversion);
 
-#else // NO_MAIL_WARNING
+#else // _WIN32
 
-  ARGUSED(cfg); ARGUSED(which); ARGUSED(fmt);
+  ARGUSED(environ_strings); ARGUSED(pfp); ARGUSED(newadd); ARGUSED(newwarn);
 
-#endif // NO_MAIL_WARNING
+  // address "[sys]msgbox" => show warning as messagebox
+  if (address && (!strcmp(address, "msgbox") || !strcmp(address, "sysmsgbox"))) {
+    snprintf(subject, sizeof(subject), "SMART error (%s) detected", whichfail[which]);
+    snprintf(command, sizeof(command),
+             "The following warning/error was logged by the smartd daemon:\n\n"
+             "%s\n\n"
+             "For details see the event log or log file of smartd.\n\n"
+             "%s%s%s",
+             message, further, original, additional);
+    PrintOut(LOG_INFO,"Displaying Message Box: %s\n", subject);
+    daemon_messagebox((address[0]=='s'), subject, command);
+  }
+  else
+    PrintOut(LOG_INFO,"Warning Mail feature not implemented yet\n"); 
 
+  mail->logged++;
+
+#endif // _WIN32
   return;
 }
 
@@ -834,12 +850,8 @@ void DaemonInit(){
 
   // No fork() on native Win32
   // Detach this process from console
-  if (isatty(fileno(stdout)))
-    puts("smartd now detaches from console into background mode.\n"
-         "Use \"smartd status|stop|reload|restart|sigusr1|sigusr2\" to control daemon.");
   fflush(NULL);
-
-  if (daemon_detach()) {
+  if (daemon_detach("smartd")) {
     PrintOut(LOG_CRIT,"smartd unable to detach from console!\n");
     EXIT(EXIT_STARTUP);
   }
@@ -896,10 +908,8 @@ void Directives() {
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
-#ifndef NO_MAIL_WARNING
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
-#endif
            "  -p      Report changes in 'Prefailure' Attributes\n"
            "  -u      Report changes in 'Usage' Attributes\n"
            "  -t      Equivalent to -p and -u Directives\n"

@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.69 2004/03/25 17:16:13 ballen4705 Exp $
+# $Id: configure.in,v 1.70 2004/03/29 21:50:51 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.69 2004/03/25 17:16:13 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.70 2004/03/29 21:50:51 chrfranke Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -30,6 +30,15 @@ AC_PROG_CC
 AM_PROG_AS
 AC_PROG_INSTALL
 
+AC_CANONICAL_HOST
+dnl Set flags which may affect AC_CHECK_*.
+case "${host}" in
+	*-*-mingw*)
+		CPPFLAGS="$CPPFLAGS -mno-cygwin"
+		LDFLAGS="$LDFLAGS -mno-cygwin"
+		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
+esac
+
 dnl Checks for libraries.
 
 dnl Checks for header files.
@@ -42,6 +51,7 @@ dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt])
 AC_CHECK_FUNCS([getopt_long])
 AC_CHECK_FUNCS([getdomainname])
+AC_CHECK_FUNCS([gethostname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([uname])
 
@@ -77,7 +87,6 @@ AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 AC_SUBST(smartmontools_release_date)
 AC_SUBST(smartmontools_release_time)
 
-AC_CANONICAL_HOST
 dnl if OS not recognized, then use the os_generic modules
 case "${host}" in
 	*-*-linux-gnu*) 
@@ -105,11 +114,6 @@ case "${host}" in
 		AC_SUBST([os_deps], ['os_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
 	*-*-mingw*)
-		# No CYGWIN1.DLL
-		CPPFLAGS="$CPPFLAGS -mno-cygwin"
-		LDFLAGS="$LDFLAGS -mno-cygwin"
-		# Include path setting is OK for now but should be done before first AC_CHECK_HEADER:
-		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
 		AC_SUBST([os_deps], ['os_win32.o regex.o daemon_win32.o syslog_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
 	*)
