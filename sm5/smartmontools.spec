@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.112 2003/08/07 13:04:55 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.113 2003/08/19 09:25:32 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -304,6 +304,53 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Tue Aug 19 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] Default runlevels for smartd changed from 3 and 5 to
+       2, 3, 4, and 5.
+- [BA] Removed as much dynamic memory allocation as possible from
+       configuration file parsing. Reloading config file, even in
+       presence of syntax errors etc. should not cause memory leaks.
+- [PW] It is no longer permissible for the integer part (if any) of
+       arguments to --report and --device to be followed by non-digits.
+       For example, the "foo" in --report=ioctl,2foo was previously
+       ignored, but now causes an error.
+- [BA] smartd: added -q/--quit command line option to specify
+       under what circumstances smartd should exit.  The old
+       -c/--checkonce option is now obsoleted by this more
+       general-purpose option.
+- [BA] smartd now responds to a HUP signal by re-reading its
+       configuration file /etc/smartd.conf.  If there are
+       errors in this file, then the configuration file is
+       ignored and smartd continues to monitor the devices that
+       it was monitoring prior to receiving the HUP signal.
+- [BA] Now correctly get SMART status from disks behind 3ware
+       controllers, thanks to Adam Radford. Need 3w-xxxx driver
+       version 1.02.00.037 or later. Previously the smartmontools
+       SMART status always returned "OK" for 3ware controllers.
+- [BA] Additional work on dynamic memory allocation/deallocation.
+       This should have no effect on smartctl, but clears that way
+       for smartd to dynamically add and remove entries.  It should
+       also now be easier to modify smartd to re-read its config
+       file on HUP (which is easy) without leaking memory (which is
+       harder). The philosophy is that memory for data structures in
+       smartd is now allocated only on demand, the first time it
+       is needed.
+- [BA] smartd: finished cleanup.  Now use create/rm functions for
+       cfgentries and dynamic memory allocation almost everywhere.
+       Philosophy: aggresively try and provoke SEGV to help find
+       bad code.
+- [BA] Added SAMSUNG SV0412H to knowndrives table.
+- [BA] smartd: if DEVICESCAN used then knowndrives table might not set
+       the -v attributes correctly -- may have been the same for all
+       the drives.  Cleaned up some data structures and memory
+       allocation to try and ensure segvs if such problems are
+       introduced again.
+- [BA] Now allow -S on and -o on for the 3ware device type.  For these
+       commands to be passed through, the stock 3ware 3w-xxxx driver
+       must be patched (8 lines).  I'll post a patch on the smartmontools
+       home page after it's been tested by a few other people and 3ware
+       have had a chance to look it over.
+
 * Wed Aug 06 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd - can now monitor ATA drives behind 3ware controllers.
 - [BA] smartd - changed some FATAL out of memory error messages from
