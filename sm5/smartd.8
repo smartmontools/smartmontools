@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.34 2002/11/22 09:29:32 ballen4705 Exp $
+\# $Id: smartd.8,v 1.35 2002/11/22 09:32:52 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/22 09:29:32 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/22 09:32:52 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -37,9 +37,9 @@ below)
 
 .B smartd
 will attempt to enable S.M.A.R.T. monitoring on ATA devices, and polls
-these and SCSI devices every 30 minutes (configurable), logging S.M.A.R.T. errors and
-changes of S.M.A.R.T. Attributes via the SYSLOG interface.  These
-notifications and warnings normally appear in
+these and SCSI devices every 30 minutes (configurable), logging
+S.M.A.R.T. errors and changes of S.M.A.R.T. Attributes via the SYSLOG
+interface.  These notifications and warnings normally appear in
 .B /var/log/messages. 
 
 .B smartd
@@ -77,8 +77,7 @@ daemon first scans for all devices that support S.M.A.R.T., using
 .B "/dev/hd[a-l]"
 for IDE/ATA devices, and 
 .B "/dev/sd[a-z]"
-for SCSI
-devices. It then monitors for 
+for SCSI devices. It then monitors for
 .I all 
 possible S.M.A.R.T. errors (corresponding to the 
 .B '\-a' 
@@ -166,8 +165,7 @@ In the absence of a configuration file,
 .B smartd 
 will try to open the 12 ATA devices 
 .B /dev/hd[a-l] 
-and the 26 SCSI
-devices 
+and the 26 SCSI devices
 .B /dev/sd[a-z]. 
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
@@ -277,7 +275,7 @@ possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', and '\-M',
+to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', '\-M', and '\-m',
 the Directives below are ignored for SCSI
 disks.  For SCSI disks, the '\-M' Directive sends a warning email if
 the SMART status indicates a disk failure or problem.
@@ -627,4 +625,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.34 2002/11/22 09:29:32 ballen4705 Exp $
+$Id: smartd.8,v 1.35 2002/11/22 09:32:52 ballen4705 Exp $
