@@ -1,0 +1,6 @@
+#!/bin/bash
+# execute this script in the current shell, using for example
+# . cvs_script
+unset CVS_SERVER
+export CVS_RSH=ssh
+export CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
