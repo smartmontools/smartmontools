@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.43 2003/04/18 12:37:14 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.44 2003/06/12 21:16:39 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -145,17 +145,35 @@ struct ata_smart_attribute {
   union {
     unsigned short all; 
     struct {
-      unsigned prefailure:1;   // 0=> low attribute from age/usage
-			       // exceeding design limit,
-			       // 1==prefailure
-      
-      unsigned online:1;       // 0==> attribute only updated during
-			       // off-line testing. 1==>only updated
-			       // during on-line testing
+      // From SFF 8035i Revision 2 page 19: Bit 0
+      // (pre-failure/advisory bit) - If the value of this bit equals
+      // zero, an attribute value less than or equal to its
+      // corresponding attribute threshold indicates an advisory
+      // condition where the usage or age of the device has exceeded
+      // its intended design life period. If the value of this bit
+      // equals one, an attribute value less than or equal to its
+      // corresponding attribute threshold indicates a prefailure
+      // condition where imminent loss of data is being
+      // predicted.
+      unsigned prefailure:1;
+
+      //  From SFF 8035i Revision 2 page 19: Bit 1 (on-line data
+      // collection bit) - If the value of this bit equals zero, then
+      // the attribute value is updated only during off-line data
+      // collection activities. If the value of this bit equals one,
+      // then the attribute value is updated during normal operation
+      // of the device or during both normal operation and off-line
+      // testing.
+      unsigned online:1; 
+
+      // The following are (probably) IBM's or Quantum's definitions
+      // for the vendor-specific bits:
       unsigned performance:1;
       unsigned errorrate:1;	
       unsigned eventcount:1 ;
       unsigned selfperserving:1;
+
+      // Last ten bits are reserved for future use
       unsigned reserved:10;	
     } __attribute__ ((packed)) flag;
   } status ; 

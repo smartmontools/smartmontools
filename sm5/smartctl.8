@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.71 2003/06/12 15:36:38 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.72 2003/06/12 21:16:40 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/06/12 15:36:38 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/06/12 21:16:40 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -284,6 +284,13 @@ reflected in the values of the SMART Attributes; some types of
 errors may also appear in the SMART error log. These are visible
 with the '\-A' and '\-l error' options respectively.
 
+Some SMART attribute values are updated only during off-line data
+collection activities; the rest are updated during normal operation of
+the device or during both normal operation and off-line testing.  The
+Attribute value table produced by the '\-A' option indicates this in
+the UPDATED column.  Attributes of the first type are labeled
+"Offline" and Attributes of the second type are labeled "Always".
+
 The 
 .B third category of testing
 is the 'self' testing.  This third type of
@@ -345,8 +352,8 @@ for further information about the the flags and capabilities described
 by this option.
 .TP
 .B \-A, \-\-attributes
-Prints only the vendor specific SMART Attributes.  The
-Attributes are numbered from 1 to 253 and have specific names. For
+Prints only the vendor specific SMART Attributes.  The Attributes are
+numbered from 1 to 253 and have specific names and ID numbers. For
 example Attribute 12 is 'power cycle count': how many times has the
 disk been powered up.
 
@@ -392,16 +399,21 @@ the 'Worst' value for some "rate-type" Attributes.]
 
 The Attribute table printed out by 
 .B smartctl
-also shows the 'Type' of the Attribute.  Pre-failure Attributes are
+also shows the 'TYPE' of the Attribute.  Pre-failure Attributes are
 ones which, if less than or equal to their threshold values, indicate
 pending disk failure.  Old age, or usage Attributes, are ones which
 indicate end-of-product life from old-age or normal aging and wearout,
 if the Attribute value is less than or equal to the threshold.
 
-If the Attribute's current Normalized value is <= threshold, then the 'Ever
-failed' column will display 'FAILED NOW!'.  If not, but the worst
-recorded value is <= threshold, then this column will display 'In the
-past'.
+If the Attribute's current Normalized value is <= threshold, then the
+\'WHEN_FAILED' column will display 'FAILED NOW!'.  If not, but the
+worst recorded value is <= threshold, then this column will display
+\'In the past'.
+
+The table column labeled 'UPDATED' shows if the SMART Attribute values
+are updated during both normal operation and off-line testing, or only
+during offline testing.  The former are labeled 'Always' and the
+latter are labeled 'Offline'.
 
 So to summarize: the 'Raw' values are the ones that might have a real
 physical interpretation, such as 'Temperature Celsius', 'Hours', or 'Start-Stop Cycles'.  
@@ -887,4 +899,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.71 2003/06/12 15:36:38 ballen4705 Exp $
+$Id: smartctl.8,v 1.72 2003/06/12 21:16:40 ballen4705 Exp $
