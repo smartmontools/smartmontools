@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/04/02 23:48:33 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/04/06 17:50:54 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.140 2004/04/02 23:48:33 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.141 2004/04/06 17:50:54 chrfranke Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -207,7 +207,46 @@ apt-get update &amp;&amp; apt-get install smartmontools
 </li>
 </ul>
 
-<b>After installing it using Method 1, 2, 3 or 4 above, you can read the
+
+<b><a name="CygwinInstall"></a>
+Fifth Method - Install the Cygwin package (for Windows machines with
+<a href="http://www.cygwin.com/">Cygwin</a> installed)</b>
+<ul>
+<li>To install it, use Cygwin's
+<a href="http://www.cygwin.com/setup.exe">setup.exe</a>.
+Add smartmontools download directory from any sourceforge mirror
+(<b>http://<i>{belnet,easynews,heanet,switch,...}</i>.dl.sourceforge.net/sourceforge/smartmontools/</b>)
+in <i>Choose Download Site(s)</i>
+and follow as usual (requires Cygwin <b>1.5.7 or greater</b>).
+</li>
+<li><p>If you want to manually install it (not recommended
+because, among others, you lose the ability to update and uninstall it),
+download the latest Cygwin package (<tt>*-cygwin.tar.bz2</tt>) from
+<a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>,
+and type:</p>
+<pre>
+tar jxf smartmontools-5.30-1-cygwin.tar.bz2 -C /
+</pre>
+from a Cygwin shell.
+</li>
+</ul>
+
+<b><a name="MinGWInstall"></a>
+Sixth Method - Install the Windows/Native package (for Windows machines,
+not depending on Cygwin)
+</b>
+<ul>
+<li>Download the latest Windows/Native package
+(<tt>*.zip</tt> with <i>exe (32-bit Windows)</i> as type) from
+<a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
+</li>
+<li>Unzip the files into a directory of your choice.
+A directory in the PATH is recommended for the <tt>*.exe</tt> files.
+</li>
+</ul>
+
+
+<b>After installing it using Method 1, 2, 3, 4 or 5 above, you can read the
 man pages, and try out the commands:</b>
 
 <pre>
@@ -465,7 +504,7 @@ such as those hosting the Operating System files. Or you can use
 this to run <tt>smartctl</tt> on computers that don't use Linux as the
 day-to-day operating system.</p>
 
-<p>Here is a list of such bootable CDs:</p>
+<p><a name="bootable"></a>Here is a list of such bootable CDs:</p>
 <ul>
 <li><a href="http://www.lnx-bbc.org/">LNX-BBC Bootable CD</a> </li>
 <li><a href="http://www.stresslinux.org/">Stresslinux Bootable CD</a></li>
@@ -522,105 +561,20 @@ driver/firmware/utility package version 7.7.0.
 
 <li><a name="windows"></a><b>Does it work on Windows?</b>
 
-<p>As of 20040225, <a
-href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
-merged in changes from his <i>RELEASE_5_26_WIN32_BRANCH</i> CVS branch,
-allowing current CVS to compile and run on <a
-href="http://www.cygwin.com/">Cygwin</a>.</p>
+<p>Yes, finally it does. A windows port of smartctl 5.26 by
+<a href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
+was first checked in 2004/02/23 on CVS branch
+<a href="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/?only_with_tag=RELEASE_5_26_WIN32_BRANCH">
+RELEASE_5_26_WIN32_BRANCH</a> and has been merged to the CVS trunk later.
 
-<p>A Cygwin package (requires Cygwin <b>1.5.7 or greater</b>) is
-available from <a
-href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-It's the <i>.tar.bz2</i> with <i>.exe (32-bit Windows)</i> as
-<i>Type</i>.</p>
+The <a href="http://www.cygwin.com/">Cygwin</a> environment can be
+used to built both Cygwin and Native (<a href="http://www.mingw.org/">MinGW</a>,
+not depending on Cygwin) versions of smartctl and smartd.
+Installation instructions can be found <a href="#CygwinInstall">here</a>
+and <a href="#MinGWInstall">here</a>.
 
-<p>To install it, use Cygwin's <a
-href="http://www.cygwin.com/setup.exe">setup.exe</a>. Add
-<b>http://ftp1.sourceforge.net/</b> in <i>Choose Download Site(s)</i>
-and follow as usual. If you want to manually install it (not recommended
-because, among others, you lose the ability to update and uninstall it),
-type:</p>
-
-<pre>
-tar jxf smartmontools-5.30-20040225-1-cygwin.tar.bz2 -C /
-
-from a Cygwin shell.
-</pre>
-
-<p>The binaries (<b>smartctl.exe</b> and <b>smartd.exe</b>) are
-installed in <i>/usr/sbin</i>. My <i>/etc/smartd.conf</i> configuration
-file has a single line with <i>/dev/hda -a -d ata -I 194</i>.</p>
-
-<p>A smartctl binary that doesn't depend on Cygwin (compiled with
-Cygwin's <i>-mno-cygwin</i>) is available from <a
-href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-It's the <i>.zip</i> with <i>exe (32-bit Windows)</i> as
-<i>Type</i>.</p>
-
-<p>Please note that the required changes to make it compile with the
-above switch (acting like <a href="http://www.mingw.org/">MinGW</a>) or
-MSVC haven't yet been merged.</p>
-
-<p>Below are parts of an e-mail Christian sent to the smartmontool-devel
-mailing-list. I also tested <b>smartd.exe</b> on Cygwin, but only have
-access to Windows XP Professional SP1 and a single hard drive.</p>
-
-<pre>
-Win32 port - file organization, features and problems
-2004-02-02 19:42
-
-The current state of the code:
-
-+ smartctl.exe has been tested on Win98SE, NT4, 2K, XP, see
-"Compatibility"-Matrix below.
-
-- TODO: Solve Problems with READ LOG on W2K
-
-Compatibility:
-
-Disk Devices                     Windows Version
-                    95 OSR2  98SE     ME      NT4    2000     XP
-
-Standard ATA 0-3    +        ++       +       ++(2)  ++(1)    ++(1)
-
-Other ATA/SATA      -        -        -       ?      ++?      ?
-
-SCSI via ASPI       +        ++       +       ++     +        +
-
-SCSI via IOCTL      -        -        -       -(3)   -(3)     -(3)
-
--   Not supported
-+   Supported but not tested
-++  Supported and tested
-?   supported (except READ LOG) if custom driver implements SMART IOCTL.
-
-Notes:
-(1) CAUTION: The IOCTL call SMART_RCV_DRIVE_DATA does not support 
-SMART_READ_LOG on NT4/XP/2K. The Win32 smartctl implementation uses the 
-undocumented and possibly buggy IOCTL_IDE_PASS_THROUGH for this purpose. 
-This IOCTL is not implemented under NT4, problems are reported for W2K. 
-It seems to work on XP. Using the smartctl.exe options -l or -a may
-affect system stability.
-
-(2) READ_LOG is not supported.
-
-(3) TODO: implement IOCTL_SCSI_PASS_THROUGH (NT4/2K/XP)
-
-
-Device Name parameters for smartctl.exe:
-
-Win9x/ME:
-hd[a-d]: Standard ATA drives
-
-NT4/2K/XP:
-hd[a-j]: Device "\\.\PhysicalDisk[0-9]" (ATA only)
-
-Win9x/ME/NT4/2K/XP:
-scsi[0-9][0-f]: SCSI disk on ASPI adapter 0-9, ID 0-15.
-</pre>
-
-<p>Alternatively, you can also run it from a bootable CD - see
-above.</p>
+<p>Alternatively, you can also run it from a
+<a href="#bootable">bootable CD</a></p>
 
 <p>Some code showing how to access SMART data under Windows 98, NT 4,
 2000, and XP can be found <a
@@ -997,8 +951,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/04/02 23:48:33 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.140 2004/04/02 23:48:33 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/04/06 17:50:54 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.141 2004/04/06 17:50:54 chrfranke Exp $</tt>
 
 <hr size="2" />
 
