@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.353 2004/03/04 13:23:05 ballen4705 Exp $
+$Id: CHANGELOG,v 1.354 2004/03/04 22:03:30 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows smartd: Added IDE/ATA device scan
+       Added windows device names to smartctl.8.in, smartd.8.in
    
   [BA] smartctl/smartd: user-provided '-F samsung' and '-F samsung2'
        command line options/Directives did NOT over-ride preset values
