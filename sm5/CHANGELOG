@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.219 2003/10/19 05:55:01 ballen4705 Exp $
+$Id: CHANGELOG,v 1.220 2003/10/21 01:45:50 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -21,6 +21,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  [EM] Mirror the FreeBSD devicescan logic for Linux.  Also, make
+       utility memory functions take a line number and file so
+       that we report errors from the correct spot.
  
   [GG] add a note about Debian bug #208964 to WARNINGS.
 

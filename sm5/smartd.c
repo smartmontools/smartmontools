@@ -57,7 +57,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.219 2003/10/16 07:59:39 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.220 2003/10/21 01:45:50 arvoreen Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -154,14 +154,14 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
     return;
 
   // entry exists -- free all of its memory
-  cfg->name            = FreeNonZero(cfg->name,           -1);
-  cfg->address         = FreeNonZero(cfg->address,        -1);
-  cfg->emailcmdline    = FreeNonZero(cfg->emailcmdline,   -1);
-  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds));
-  cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values));
-  cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32);
-  cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM);
-  *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile));
+  cfg->name            = FreeNonZero(cfg->name,           -1,__LINE__,__FILE__);
+  cfg->address         = FreeNonZero(cfg->address,        -1,__LINE__,__FILE__);
+  cfg->emailcmdline    = FreeNonZero(cfg->emailcmdline,   -1,__LINE__,__FILE__);
+  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,__FILE__);
+  cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
+  cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
+  cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
+  *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile),__LINE__,__FILE__);
 
   return;
 }
@@ -194,7 +194,7 @@ void RemovePidFile(){
     if ( -1==unlink(pid_file) )
       PrintOut(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
 	       pid_file, strerror(errno));
-    pid_file=FreeNonZero(pid_file, -1);
+    pid_file=FreeNonZero(pid_file, -1,__LINE__,__FILE__);
   }
   return;
 }
@@ -912,11 +912,11 @@ int ATADeviceScan(cfgfile *cfg){
   // If we don't need to save SMART data, get rid of it now
   if (!retainsmartdata) {
     if (cfg->smartval) {
-      cfg->smartval=CheckFree(cfg->smartval, __LINE__);
+      cfg->smartval=CheckFree(cfg->smartval, __LINE__,__FILE__);
       bytes-=sizeof(struct ata_smart_values);
     }
     if (cfg->smartthres) {
-      cfg->smartthres=CheckFree(cfg->smartthres, __LINE__);
+      cfg->smartthres=CheckFree(cfg->smartthres, __LINE__,__FILE__);
       bytes-=sizeof(struct ata_smart_thresholds);
     }
   }
@@ -1044,10 +1044,10 @@ static int SCSIDeviceScan(cfgfile *cfg)
     cfg->tryscsi = 1;
 
     // get rid of allocated memory only needed for ATA devices
-    cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32);
-    cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM);
-    cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values));
-    cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds));
+    cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
+    cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
+    cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
+    cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,__FILE__);
 
     // Check if scsiCheckIE() is going to work
     {
@@ -1528,7 +1528,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
       EXIT(EXIT_NOMEM);
     }
     PrintOut(priority, "\n%s\n", s);
-    s=CheckFree(s, __LINE__);
+    s=CheckFree(s, __LINE__,__FILE__);
     break;
   case 'P':
     PrintOut(priority, "use, ignore, show, showall");
@@ -1653,7 +1653,7 @@ int ParseToken(char *token,cfgfile *cfg){
 	cfg->tryata  = TRUE;
 	cfg->tryscsi = FALSE;
       }
-      s=CheckFree(s, __LINE__); 
+      s=CheckFree(s, __LINE__,__FILE__); 
     }
     break;
   case 'F':
@@ -1759,10 +1759,10 @@ int ParseToken(char *token,cfgfile *cfg){
       if (cfg->emailcmdline) {
         PrintOut(LOG_INFO, "File %s line %d (drive %s): found multiple -M exec Directives on line - ignoring all but the last\n",
 		 configfile, lineno, name);
-        cfg->emailcmdline=FreeNonZero(cfg->emailcmdline, -1);
+        cfg->emailcmdline=FreeNonZero(cfg->emailcmdline, -1,__LINE__,__FILE__);
       }
       // Attempt to copy the argument
-      cfg->emailcmdline=CustomStrDup(arg, 1, __LINE__);
+      cfg->emailcmdline=CustomStrDup(arg, 1, __LINE__,__FILE__);
     } else {
       badarg = 1;
     }
@@ -1799,7 +1799,7 @@ int ParseToken(char *token,cfgfile *cfg){
                configfile, lineno, name, token);
       return -1;
     }
-    cfg->address=CustomStrDup(arg, 1, __LINE__);
+    cfg->address=CustomStrDup(arg, 1, __LINE__,__FILE__);
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
@@ -1869,9 +1869,9 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   
   // make private copies of data items ONLY if they are in use (non
   // NULL)
-  add->name         = CustomStrDup(add->name,         0, __LINE__);
-  add->emailcmdline = CustomStrDup(add->emailcmdline, 0, __LINE__);
-  add->address      = CustomStrDup(add->address,      0, __LINE__);
+  add->name         = CustomStrDup(add->name,         0, __LINE__,__FILE__);
+  add->emailcmdline = CustomStrDup(add->emailcmdline, 0, __LINE__,__FILE__);
+  add->address      = CustomStrDup(add->address,      0, __LINE__,__FILE__);
 
   if (add->attributedefs) {
     if (!(add->attributedefs=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1)))
@@ -1951,7 +1951,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   
   // We've got a legit entry, make space to store it
   cfg=cfgentries[entry]=CreateConfigEntry(NULL);
-  cfg->name = CustomStrDup(name, 1, __LINE__);
+  cfg->name = CustomStrDup(name, 1, __LINE__,__FILE__);
 
   // Store line number, and by default check for both device types.
   cfg->lineno=lineno;
@@ -2006,7 +2006,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
     
     // Make new device name by adding a space then RAID disk number
     snprintf(newname, len, "%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
-    cfg->name=CheckFree(cfg->name, __LINE__);
+    cfg->name=CheckFree(cfg->name, __LINE__,__FILE__);
     cfg->name=newname;
     bytes+=16;
   }
@@ -2043,7 +2043,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
     // now free memory.  From here on the sign of <nomailer> is
     // address==NULL and cfg->emailcmdline!=NULL
-    cfg->address=FreeNonZero(cfg->address, -1);
+    cfg->address=FreeNonZero(cfg->address, -1,__LINE__,__FILE__);
   }
 
   // set cfg->emailfreq to 1 (once) if user hasn't set it
@@ -2106,7 +2106,7 @@ int ParseConfigFile(){
 	       __LINE__, __FILE__, reportbug);
       EXIT(EXIT_BADCODE);
     }
-    fakeconfig=CheckFree(fakeconfig, __LINE__);
+    fakeconfig=CheckFree(fakeconfig, __LINE__,__FILE__);
     return 0;
   }
     
@@ -2345,11 +2345,11 @@ void ParseOpts(int argc, char **argv){
         } else {
           badarg = TRUE;
         }
-        s=CheckFree(s, __LINE__);
+        s=CheckFree(s, __LINE__,__FILE__);
       }
       break;
     case 'p':
-      pid_file=CustomStrDup(optarg, 1, __LINE__);
+      pid_file=CustomStrDup(optarg, 1, __LINE__,__FILE__);
       break;
     case 'V':
       PrintCopyleft();
@@ -2416,7 +2416,7 @@ void ParseOpts(int argc, char **argv){
     PrintHead();
     PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -d and -p <======= \n\n");
     PrintOut(LOG_CRIT, "Error: pid file %s not written in debug (-d) mode\n\n", pid_file);
-    pid_file=FreeNonZero(pid_file, -1);
+    pid_file=FreeNonZero(pid_file, -1,__LINE__,__FILE__);
     EXIT(EXIT_BADCMD);
   }
   
@@ -2446,9 +2446,9 @@ int MakeConfigEntries(const char *type, int start){
     PrintOut(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
     // need to clean up memory allocated by make_device_names
     for (i=0; i < num; i++) {
-      devlist[i] = FreeNonZero(devlist[i],strlen((char*)devlist[i]));
+      devlist[i] = FreeNonZero(devlist[i],strlen((char*)devlist[i]),__LINE__,__FILE__);
     }
-    devlist = FreeNonZero(devlist,(sizeof (char*) * num));
+    devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
     EXIT(EXIT_CCONST);
   }
   
@@ -2464,14 +2464,14 @@ int MakeConfigEntries(const char *type, int start){
     cfg->tryscsi= !strcmp(type,"SCSI");
     
     // remove device name, if it's there, and put in correct one
-    cfg->name=FreeNonZero(cfg->name, -1);
+    cfg->name=FreeNonZero(cfg->name, -1,__LINE__,__FILE__);
     // save pointer to the device name created within
     // make_device_names
     cfg->name=devlist[i];
   }
   
   // free memory used for devlist: pointers now in cfgentries[]->names
-  devlist = FreeNonZero(devlist,(sizeof (char*) * num));
+  devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
   
   return num;
 }

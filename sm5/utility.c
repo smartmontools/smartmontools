@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.26 2003/10/13 15:15:47 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.27 2003/10/21 01:45:50 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -336,27 +336,27 @@ long long bytes = 0;
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.
-void *FreeNonZero(void *address, int size){
+void *FreeNonZero(void *address, int size, int line, char* file){
   if (address) {
     if (size<0)
       bytes-=1+strlen(address);
     else
       bytes-=size;
-    return CheckFree(address, __LINE__);
+    return CheckFree(address, line,file);
   }
   return NULL;
 }
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree(void *address, int whatline){
+void *CheckFree(void *address, int whatline,char* file){
   if (address){
     free(address);
     return NULL;
   }
   
   PrintOut(LOG_CRIT, "Internal error in CheckFree() at line %d of file %s\n%s", 
-	   whatline, __FILE__, reportbug);
+	   whatline, file, reportbug);
   EXIT(EXIT_BADCODE);
 }
 
@@ -364,14 +364,14 @@ void *CheckFree(void *address, int whatline){
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(char *ptr, int mustexist, int whatline){
+char *CustomStrDup(char *ptr, int mustexist, int whatline, char* file){
   char *tmp;
 
   // report error if ptr is NULL and mustexist is set
   if (ptr==NULL){
     if (mustexist) {
       PrintOut(LOG_CRIT, "Internal error in CustomStrDup() at line %d of file %s\n%s", 
-	       whatline, __FILE__, reportbug);
+	       whatline, file, reportbug);
       EXIT(EXIT_BADCODE);
     }
     else

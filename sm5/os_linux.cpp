@@ -49,6 +49,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <scsi/scsi_ioctl.h>
+#include <dirent.h>
 
 #include "atacmds.h"
 #include "config.h"
@@ -57,14 +58,16 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.9 2003/10/14 14:22:44 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.10 2003/10/21 01:45:50 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
 
-// keep track of memory allocated/deallocated
+// global variable holding byte count of allocated memory
 extern long long bytes;
+
+void *FreeNonZero(void* address, int size,int whatline,char* file);
 
 // equivalent to open(path, flags)
 int deviceopen(const char *pathname, char *type){
@@ -81,44 +84,59 @@ int deviceclose(int fd){
   return close(fd);
 }
 
+
+// we are going to take advantage of the fact that Linux's devfs will only
+// have device entries for devices that exist.  So if we get the equivilent of
+// ls /dev/hd?, we have all the ATA devices on the system
+int get_dev_names(char*** names, const char* prefix) {
+  DIR* dir;
+  struct dirent* dirent;
+  int n = 0;
+  char** mp;
+  char buf[20]; // temp holding space
+
+  // first, preallocate space for upto max number of ATA devices
+  if (!(mp =  (char **)calloc(MAX_NUM_DEV,sizeof(char*))))
+    return -1;
+  
+  bytes += (sizeof(char*)*MAX_NUM_DEV);
+
+  dir = opendir("/dev");
+  if (dir == NULL) {
+    int myerr = errno;
+    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
+    errno = myerr;
+    return -1;
+  }
+  
+  // now step through names
+  // NOTE: We look for character special OR links, as Linux DEVFS will
+  // actually have these as softlinks to real device entry
+  while ((dirent = readdir(dir)) && (n < MAX_NUM_DEV)) {
+    if ((dirent->d_type == DT_CHR || dirent->d_type == DT_LNK) &&
+	(strstr(dirent->d_name,prefix) != NULL) &&
+	(_D_EXACT_NAMLEN(dirent) == 3)) {
+      sprintf(buf,"/dev/%s",dirent->d_name);
+      mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
+    }
+  }
+  closedir(dir);
+  mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
+  bytes -= (MAX_NUM_DEV-n)*(sizeof(char*)); // and correct allocated bytes
+  *names=mp;
+  return n;
+}
+
 // makes a list of device names to scan, for either ATA or SCSI
 // devices.  Return -1 if no memory remaining, else the number of
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
-  char* base=NULL;
-  char** tmp=NULL;
-  int i, n=0;
-  
-  // set correct first name (base name) for ATA or SCSI devices
-  if (!strcmp(name,"SCSI")) {
-    n = MAXSCSIDEVICES;
-    base = CustomStrDup("/dev/sda",1,__LINE__);
-  }
-  else if (!strcmp(name,"ATA")) {
-    n = MAXATADEVICES;
-    base = CustomStrDup("/dev/hda",1,__LINE__);
-  }
-  
-  // bad type or no devices
-  if (!n)
+  if (!strcmp(name,"SCSI"))
+    return get_dev_names(devlist,"sd");
+  else if (!strcmp(name,"ATA"))
+    return get_dev_names(devlist,"hd");
+  else
     return 0;
-  
-  // allocate storage for the list of device names that we'll be
-  // making, and store first name
-  if (!(tmp = *devlist = (char **)calloc(n, sizeof(char *))))
-    return -1;
-  
-  bytes += n*sizeof(char*);
-  tmp[0]=base;
-  
-  // make device names by incrementing the last letter of the base
-  // name alphabetically a->b->c...
-  for (i = 1; i < n; i++) {
-    tmp[i] =  CustomStrDup(tmp[i-1],1,__LINE__);
-    tmp[i][7]++; 
-  }
-  
-  return n;
 }
 
 
