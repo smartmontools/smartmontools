@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.89 2003/04/18 12:37:14 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.90 2003/04/18 13:48:32 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1088,7 +1088,7 @@ int isGeneralPurposeLoggingCapable(struct hd_driveid *identity){
   // cleared to zero, the contents of word 84 contains valid support
   // information. If not, support information is not valid in this
   // word.
-  if ((word84 & (0x01<<14)) && !(word84 & (0x01<<15)))
+  if ((word84>>14) == 0x01)
     // If bit 5 of word 84 is set to one, the device supports the
     // General Purpose Logging feature set.
     return (word84 & (0x01 << 5));
@@ -1096,7 +1096,7 @@ int isGeneralPurposeLoggingCapable(struct hd_driveid *identity){
   // If bit 14 of word 87 is set to one and bit 15 of word 87 is
   // cleared to zero, the contents of words (87:85) contain valid
   // information. If not, information is not valid in these words.  
-  if ((word87 & (0x01<<14)) && !(word87 & (0x01<<15)))
+  if ((word87>>14) == 0x01)
     // If bit 5 of word 87 is set to one, the device supports
     // the General Purpose Logging feature set.
     return (word87 & (0x01 << 5));
