@@ -34,7 +34,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.71 2003/04/10 02:41:57 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.72 2003/04/10 22:10:35 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -85,32 +85,55 @@ void printregexwarning(int errcode, regex_t *compiled){
   return;
 }
 
+// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
+int compileregex(regex_t *compiled, const char *pattern, int cflags)
+{
+  int errorcode;
+
+  if ((errorcode = regcomp(compiled, pattern, cflags))) {
+    pout("Internal error: unable to compile regular expression %s", pattern);
+    printregexwarning(errorcode, compiled);
+    pout("Please inform smartmontools developers\n");
+    return 1;
+  }
+  return 0;
+}
+
 // Searches knowndrives[] for a drive with the given model number and firmware
-// string.  The firmware string may be NULL in which case it will match on
-// model only.  Returns the index of the first match in knowndrives[], -1 if
-// no match if found, or -2 if knowndrives[] contains an invalid regular
-// expression.
+// string.  If either the drive's model or firmware strings are not set by the
+// manufacturer then values of NULL may be used.  Returns the index of the
+// first match in knowndrives[] or -1 if no match if found.
 int lookupdrive(const char *model, const char *firmware) {
-  regex_t preg;
-  regmatch_t pmatch;
-  int i, errorcode, index;
+  regex_t regex;
+  int i, index;
+  const char *empty = "";
+
+  model = model ? model : empty;
+  firmware = firmware ? firmware : empty;
 
   for (i = 0, index = -1; index == -1 && knowndrives[i].modelregexp; i++) {
-    // Compile regular expression.
-    if ((errorcode = regcomp(&preg, knowndrives[i].modelregexp, REG_EXTENDED))){
-      pout("Internal error: unable to compile regular expression %s",
-	   knowndrives[i].modelregexp);
-      printregexwarning(errorcode, &preg);
-      pout("Please inform smartmontools developers\n");
-      return -2;
+    // Attempt to compile regular expression.
+    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+      goto CONTINUE;
+
+    // Check whether model matches the regular expression in knowndrives[i].
+    if (!regexec(&regex, model, 0, NULL, 0)) {
+      // model matches, now check firmware.
+      if (!knowndrives[i].firmwareregexp)
+        // The firmware regular expression in knowndrives[i] is NULL, which is
+        // considered a match.
+        index = i;
+      else {
+        // Compare firmware against the regular expression in knowndrives[i].
+        regfree(&regex);  // Recycle regex.
+        if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+          goto CONTINUE;
+        if (!regexec(&regex, firmware, 0, NULL, 0))
+          index = i;
+      }
     }
-
-    // Check to see if model matches regular expression.
-    if (!regexec(&preg, model, 1, &pmatch, 0))
-      index = i;
-
-    // Free compiled regular expression.
-    regfree(&preg);
+  CONTINUE:
+    regfree(&regex);
   }
 
   return index;
