@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.56 2002/11/22 16:26:45 ballen4705 Exp $
+$Id: CHANGELOG,v 1.57 2002/11/23 17:02:39 pjwilliams Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,9 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Williams: smartd: added support for long options.  All short options are still
+  supported; see manpage for available long options.
 
   Allen: smartctl.  When raw Attribute value was 2^31 or larger, did
   not print correctly.
