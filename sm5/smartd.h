@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.71 2004/07/09 12:38:04 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.72 2004/08/13 13:57:12 arvoreen Exp $\n"
 #endif
 
 // Configuration file
@@ -168,10 +168,8 @@ typedef struct configfile_s {
   // REGISTERED AND WE LEARN ITS CAPABILITIES.
   int lineno;                             // Line number of entry in file
   char *name;                             // Device name (+ optional [3ware_disk_XX])
-  char tryata;                            // Disk is ATA 
-  char tryscsi;                           // Disk is SCSI
-  unsigned char escalade_port;            // 1 + ATA disk # in 3ware controller
-  unsigned char escalade_type;            // 3ware controller type
+  unsigned char controller_type;          // Controller type, ATA/SCSI/3Ware
+  unsigned char controller_port;          // 1 + ATA disk # in 3ware controller
   char smartcheck;                        // Check SMART status
   char usagefailed;                       // Check for failed Usage Attributes
   char prefail;                           // Track changes in Prefail Attributes
