@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.15 2004/09/05 01:07:01 arvoreen Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.16 2004/09/05 01:09:00 arvoreen Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -46,7 +46,7 @@ struct freebsd_dev_channel {
  *  The following cut out of twereg.h
  *
  */
-#if __FreeBSD_version < 500000
+#if __FreeBSD_version < 500040
 #define __packed __attribute__((__packed__))
 #endif
 
