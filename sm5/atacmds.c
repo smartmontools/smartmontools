@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.41 2002/11/22 13:30:55 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.42 2002/11/25 08:40:48 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -162,7 +162,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
     // See if device responds to packet command...
     parms[0]=WIN_PIDENTIFY;
     if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
-      perror ("Error ATA GET HD Identity Failed");
+      syserror("Error ATA GET HD Identity Failed");
       return -1; 
     }
   }

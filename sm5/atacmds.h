@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.25 2002/11/07 11:00:55 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.26 2002/11/25 08:40:48 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -355,6 +355,9 @@ void pout(char *fmt, ...)
 // utility function for printing out CVS strings
 #define CVSMAXLEN 512
 void printone(char *block, const char *cvsid);
+
+// replacement for perror() with redirected output.
+void syserror(const char *message);
 
 
 // This checks the n'th attribute in the attribute list, NOT the

@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.28 2002/11/17 05:57:32 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.29 2002/11/25 08:40:48 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -317,17 +317,14 @@ int main (int argc, char **argv){
 
   // Part input arguments
   ParseOpts(argc,argv);
-    
-  // Further argument checking
-  if (argc != 3){
-    Usage();
-    return FAILCMD;
-  }
-  
+
   // open device - read-only mode is enough to issue needed commands
-  fd = open(device=argv[2], O_RDONLY);  
+  fd = open(device=argv[argc-1], O_RDONLY);  
   if (fd<0) {
-    perror("Smartctl device open failed");
+    char errmsg[256];
+    snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);
+    errmsg[255]='\0';
+    syserror(errmsg);
     return FAILDEV;
   }
 
