@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.20 2002/11/12 21:16:25 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.21 2002/11/13 10:04:13 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -57,15 +57,6 @@
 /* Boolean Values */
 #define TRUE 0x01
 #define FALSE 0x00
-
-// used to store a list of SCSI devices to monitor.  Devicename points
-// to a malloced name string.
-typedef struct scsidevices_s {
-  unsigned char SmartPageSupported;
-  unsigned char TempPageSupported;
-  unsigned char Temperature;
-  char *devicename;
-} scsidevices_t;
 
 
 // If user has requested email warning messages, then this structure
@@ -118,6 +109,16 @@ typedef struct atadevices_s {
   cfgfile *cfg;
   char *devicename;
 }  atadevices_t;
+
+// used to store a list of SCSI devices to monitor.  Devicename points
+// to a malloced name string.
+typedef struct scsidevices_s {
+  unsigned char SmartPageSupported;
+  unsigned char TempPageSupported;
+  unsigned char Temperature;
+  char *devicename;
+  cfgfile *cfg;
+} scsidevices_t;
 
 
 // Declare our own printing functions...

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.44 2002/11/12 21:16:25 ballen4705 Exp $
+$Id: CHANGELOG,v 1.45 2002/11/13 10:04:12 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,9 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Modified SCSI device check to also send warning emails if
+  requested in directives file.
 
   Added a new smartd configuration file Directive: -M ADDRESS.
   This sends a single warning email to ADDRESS for failures or
