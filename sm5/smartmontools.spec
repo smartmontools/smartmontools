@@ -1,11 +1,17 @@
 Release:  30
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
+Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
+Summary(es_):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
+Summary(fr):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Name:		smartmontools
 Version:	5.0
 License:	GPL
 Group:		Applications/System
-Group(pt_BR):	Aplicativos/Sistema
+Group(de):	Applikationen/System
+Group(es_):	Aplicaciones/Sistema
+Group(fr):	Applications/Système
+Group(pt_NR):	Aplicativos/Sistema
 Source0:	%{name}-%{version}.tar.gz
 URL:            http://smartmontools.sourceforge.net/
 Prereq:		/sbin/chkconfig
@@ -16,11 +22,11 @@ Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
 Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-# SOURCE CODE CAN BE FOUND AT:
+# Source code can be found at:
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.44 2002/11/04 13:33:05 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.45 2002/11/05 02:35:43 pervalidus Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -41,23 +47,85 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 
 %description
-SMARTmontools controls and monitors storage devices using
-the Self-Monitoring, Analysis and Reporting Technology System
-(S.M.A.R.T.) built into ATA and SCSI Hard Drives. This is used to
-check the reliability of the hard drive and to predict drive
-failures. The suite is derived from the smartsuite package, and
-contains two utilities.  The first, smartctl, is a command line
-utility designed to perform simple S.M.A.R.T. tasks. The second,
-smartd, is a daemon that periodically monitors smart status and
-reports errors to syslog.  The package is compatible with the
-ATA/ATAPI-5 specification.  Future releases will be compatible with
-the ATA/ATAPI-6 andATA/ATAPI-7 specifications.  The package is
-intended to incorporate as much "vendor specific" and "reserved"
-information as possible about disk drives.  man smartctl and man
-smartd will provide more information. This RPM file is compatible with
-all RedHat releases back to at least 6.2 and should work OK on any
-modern linux distribution.  The most recent versions of this package
-and additional information can be found at the URL:
+SMARTmontools controls and monitors storage devices using the
+Self-Monitoring, Analysis and Reporting Technology System (S.M.A.R.T.)
+built into ATA and SCSI Hard Drives.  This is used to check the
+reliability of the hard drive and to predict drive failures.  The suite
+is derived from the smartsuite package, and contains two utilities.  The
+first, smartctl, is a command line utility designed to perform simple
+S.M.A.R.T. tasks.  The second, smartd, is a daemon that periodically
+monitors smart status and reports errors to syslog.  The package is
+compatible with the ATA/ATAPI-5 specification.  Future releases will be
+compatible with the ATA/ATAPI-6 andATA/ATAPI-7 specifications.  The
+package is intended to incorporate as much "vendor specific" and
+"reserved" information as possible about disk drives.  man smartctl and
+man smartd will provide more information.  This RPM file is compatible
+with all RedHat releases back to at least 6.2 and should work OK on any
+modern linux distribution.  The most recent versions of this package and
+additional information can be found at the URL:
+http://smartmontools.sourceforge.net/
+
+%description -l de
+Die SMARTmontools steuern und überwachen Speichergeräte mittels des
+S.M.A.R.T.-Systems (Self-Monitoring, Analysis and Reporting Technology,
+Technologie zur Selbst-Überwachung, Analyse und Berichterstellung), das
+in ATA- und SCSI-Festplatten eingesetzt wird.  Sie werden benutzt, um
+die Zuverlässigkeit der Festplatte zu prüfen und Plattenfehler
+vorherzusagen.  Die Suite wurde vom smartsuite-Paket abgeleitet und
+enthält zwei Dienstprogramme.  Das erste, smartctl, ist ein
+Kommandozeilentool, das einfache S.M.A.R.T. Aufgaben ausführt.  Das
+zweite, smartd, ist ein Daemon, der periodisch den S.M.A.R.T.-Status
+überwacht und Fehler ins Syslog protokolliert.  Das Paket ist zur
+ATA/ATAPI-5 Spezifikation kompatibel. Zukünftige Versionen werden auch
+die ATA/ATAPI-6 und ATA/ATAPI-7 Spezifikationen umsetzen.  Das Paket
+versucht, so viele "herstellerspezifische" und "reservierte" Information
+über Plattenlaufwerke wie möglich bereitzustellen.  man smartctl und man
+smartd liefern mehr Informationen über den Einsatz.  Dieses RPM ist zu
+allen RedHat-Versionen ab spätestens 6.2 kompatibel und sollte unter
+jedem modernen Linux arbeiten.  Die aktuellsten Versionen dieses Pakets
+und zusätzliche Informationen sind zu finden unter der URL:
+http://smartmontools.sourceforge.net/
+
+%description -l es
+SMARTmontools controla y hace el seguimiento de dispositivos de
+almacenamiento usando el Self-Monitoring, Analysis and Reporting
+Technology System (S.M.A.R.T.) incorporado en discos duros ATA y SCSI. 
+Es usado para asegurar la fiabilidad de discos duros y predecir averias. 
+El conjunto de programas proviene del conjunto smartsuite y contiene dos
+utilidades.  La primera, smartctl, es una utilidad command-line hecha
+para hacer operaciones S.M.A.R.T. sencillas.  La segunda, smartd, es un
+programa que periodicamente chequea el estatus smart e informa de
+errores a syslog.  Estos programas son compatibles con el sistema
+ATA/ATAPI-5.  Futuras versiones seran compatibles con los sistemas
+ATA/ATAPI-6 y ATA/ATAPI-7.  Este conjunto de programas tiene el
+proposito de incorporar la mayor cantidad posible de informacion
+reservada y especifica de discos duros.  Los comandos 'man smartctl' y
+'man smartd' contienen mas informacion.  Este fichero RPM es compatible
+con todas las versiones de RedHat a partir de la 6.2 y posiblemente
+funcionaran sin problemas en cualquier distribucion moderna de linux. 
+La version mas reciente de estos programas ademas de informacion
+adicional pueden encontrarse en: http://smartmontools.sourceforge.net/
+
+%description -l fr
+SMARTmontools contrôle et fait le suivi de périphériques de stockage
+utilisant le système "Self-Monitoring, Analysis and Reporting
+Technology" (S.M.A.R.T) intégré dans les disques durs ATA et SCSI.  Ce
+système est utilisé pour vérifier la fiabilité du disque dur et prédire
+les défaillances du lecteur.  La suite logicielle dérive du paquet
+"smartsuite" et contient deux utilitaires.  Le premier, smartctl,
+fonctionne en ligne de commande et permet de réaliser des tâches
+S.M.A.R.T. simples.  Le second, smartd, est un démon qui fait
+périodiquement le suivi du statut smart et transmet les erreurs au
+syslog.  Ce paquet est compatible avec la spécification ATA/ATAPI-5. 
+Les prochaines versions seront compatibles avec les spécifications
+ATA/ATAPI-6 et ATA/ATAPI-7.  Ce paquet tente d'incorporer le plus
+d'informations possible sur les disques durs qu'elles soient spécifiques
+au constructeur ("vendor specific") ou réservées ("reserved").  man
+smartctl et man smartd donnent plus de renseignements.  Ce fichier RPM
+est compatible avec toutes les versions de RedHat v6.2 et ultérieures,
+et devrait fonctionner sur toutes les distributions récentes de Linux. 
+Les dernières versions de ce paquet et des informations supplémentaires
+peuvent être trouvées à l'adresse URL:
 http://smartmontools.sourceforge.net/
 
 %description -l pt_BR
@@ -65,19 +133,19 @@ SMARTmontools controla e monitora dispositivos de armazenamento
 utilizando o recurso Self-Monitoring, Analysis and Reporting Technology
 System (S.M.A.R.T.) integrado nos discos rígidos ATA e SCSI, cuja
 finalidade é verificar a confiabilidade do disco rígido e prever falhas
-da unidade. A suite é derivada do pacote smartsuite, e contém dois
+da unidade.  A suite é derivada do pacote smartsuite, e contém dois
 utilitários.  O primeiro, smartctl, é um utilitário de linha de comando
-projetado para executar tarefas simples de S.M.A.R.T. O segundo, smartd,
-é um daemon que monitora periodicamente estados do smart e reporta erros
-para o syslog.  O pacote é compatível com a especificação ATA/ATAPI-5. 
-Futuras versões serão compatíveis com as especificações ATA/ATAPI-6 e
-ATA/ATAPI-7.  O pacote pretende incorporar o maior número possível de
-informações "específicas do fabricante" e "reservadas" sobre unidades de
-disco.  man smartctl e man smartd contém mais informações. Este arquivo
-RPM é compatível com todas as versões do RedHat a partir da 6.2 e deverá
-funcionar perfeitamente em qualquer distribuição moderna do Linux. As
-mais recentes versões deste pacote e informações adicionais podem ser
-encontradas em http://smartmontools.sourceforge.net/
+projetado para executar tarefas simples de S.M.A.R.T.  O segundo,
+smartd, é um daemon que monitora periodicamente estados do smart e
+reporta erros para o syslog.  O pacote é compatível com a especificação
+ATA/ATAPI-5.  Futuras versões serão compatíveis com as especificações
+ATA/ATAPI-6 e ATA/ATAPI-7.  O pacote pretende incorporar o maior número
+possível de informações "específicas do fabricante" e "reservadas" sobre
+unidades de disco.  man smartctl e man smartd contém mais informações. 
+Este arquivo RPM é compatível com todas as versões do RedHat a partir da
+6.2 e deverá funcionar perfeitamente em qualquer distribuição moderna do
+Linux.  As mais recentes versões deste pacote e informações adicionais
+podem ser encontradas em http://smartmontools.sourceforge.net/
 
 
 # The following sections are executed by the SRPM file
