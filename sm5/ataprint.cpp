@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.151 2004/04/17 11:57:43 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.152 2004/06/04 16:52:05 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1066,10 +1066,12 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
     if (end > maxr)
       maxr=end;
   }
-  if (current>maxl)
-    maxl=current;
-  if (currentend>maxr)
-    maxr=currentend;
+  if (log->currentspan>5) {
+    if (current>maxl)
+      maxl=current;
+    if (currentend>maxr)
+      maxr=currentend;
+  }
   
   // we need at least 7 characters wide fields to accomodate the
   // labels
