@@ -24,7 +24,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.2 2004/08/29 08:19:39 snyderx Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.3 2004/08/30 22:02:12 shattered Exp $" \
 ATACMDS_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -116,7 +116,7 @@ get_dev_names(char ***names, const char *prefix)
     pout("Out of memory constructing scan device list\n");
     return -1;
   }
-  for (p = strtok(disknames, " "); p; p = strtok(NULL, " ")) {
+  for (p = strtok(disknames, ","); p; p = strtok(NULL, ",")) {
     if (strncmp(p, prefix, strlen(prefix))) {
       continue;
     }
