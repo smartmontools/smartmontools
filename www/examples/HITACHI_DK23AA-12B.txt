@@ -1,0 +1,173 @@
+smartctl version 5.30 Copyright (C) 2002-4 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Device Model:     HITACHI_DK23AA-12B
+Serial Number:    xxxxxx
+Firmware Version: 00XDA0B6
+Device is:        Not in smartctl database [for details use: -P showall]
+ATA Version is:   5
+ATA Standard is:  ATA/ATAPI-5 T13 1321D revision 1
+Local Time is:    Sat Apr 24 17:19:58 2004 EST
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+Drive failure expected in less than 24 hours. SAVE ALL DATA.
+See vendor-specific Attribute list for failed Attributes.
+
+General SMART Values:
+Offline data collection status:  (0x00)	Offline data collection activity was
+					never started.
+					Auto Offline Data Collection: Disabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		 (1110) seconds.
+Offline data collection
+capabilities: 			 (0x1b) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					No Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					No General Purpose Logging support.
+Short self-test routine 
+recommended polling time: 	 (   1) minutes.
+Extended self-test routine
+recommended polling time: 	 (  19) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000d   099   099   050    Pre-fail  Offline      -       68719476757
+  4 Start_Stop_Count        0x0032   097   097   050    Old_age   Always       -       3259
+  5 Reallocated_Sector_Ct   0x0033   001   001   010    Pre-fail  Always   FAILING_NOW 1876
+  7 Seek_Error_Rate         0x000b   100   100   050    Pre-fail  Always       -       760
+  9 Power_On_Hours          0x0032   090   090   060    Old_age   Always       -       21783
+ 10 Spin_Retry_Count        0x0013   100   100   050    Pre-fail  Always       -       0
+196 Reallocated_Event_Count 0x0032   001   001   001    Old_age   Always   FAILING_NOW 254
+197 Current_Pending_Sector  0x0032   097   093   001    Old_age   Always       -       3
+198 Offline_Uncorrectable   0x0010   100   100   001    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    0x000a   200   200   000    Old_age   Always       -       0
+221 G-Sense_Error_Rate      0x000a   100   100   050    Old_age   Always       -       42
+223 Load_Retry_Count        0x0012   100   100   050    Old_age   Always       -       149
+225 Load_Cycle_Count        0x0032   050   050   050    Old_age   Always   FAILING_NOW 5110222858734
+250 Read_Error_Retry_Rate   0x000a   090   001   050    Old_age   Always   In_the_past 103
+
+SMART Error Log Version: 1
+ATA Error Count: 1151 (device log contains only the most recent five errors)
+	CR = Command Register [HEX]
+	FR = Features Register [HEX]
+	SC = Sector Count Register [HEX]
+	SN = Sector Number Register [HEX]
+	CL = Cylinder Low Register [HEX]
+	CH = Cylinder High Register [HEX]
+	DH = Device/Head Register [HEX]
+	DC = Device Command Register [HEX]
+	ER = Error register [HEX]
+	ST = Status register [HEX]
+Timestamp = decimal seconds since the previous disk power-on.
+Note: timestamp "wraps" after 2^32 msec = 49.710 days.
+
+Error 1151 occurred at disk power-on lifetime: 5445 hours
+  When the command that caused the error occurred, the device was doing SMART Offline or Self-test.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  01 51 01 01 4f c2 e0  Error: obs
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+  -- -- -- -- -- -- -- --   ---------  --------------------
+  b0 d5 01 01 4f c2 e0 00   46273.155  SMART READ LOG
+  b0 d1 01 01 4f c2 e0 00   46273.138  SMART READ ATTRIBUTE THRESHOLDS [OBS-4]
+  b0 d0 01 00 4f c2 e0 00   46273.009  SMART READ DATA
+  b0 da 00 00 4f c2 a0 00   46272.881  SMART RETURN STATUS
+  b0 da 00 00 4f c2 e0 00   46272.760  SMART RETURN STATUS
+
+Error 1150 occurred at disk power-on lifetime: 5354 hours
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  01 51 01 56 36 54 e1  Error: AMNF 1 sectors at LBA = 0x01543656 = 22296150
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+  -- -- -- -- -- -- -- --   ---------  --------------------
+  c8 00 80 d7 35 54 e1 00    1517.332  READ DMA
+  c8 00 80 57 35 54 e1 00    1517.329  READ DMA
+  ca 00 08 67 1d cb e0 00    1516.014  WRITE DMA
+  ca 00 30 37 1d cb e0 00    1515.992  WRITE DMA
+  ca 00 10 2f e0 ca e0 00    1515.874  WRITE DMA
+
+Error 1149 occurred at disk power-on lifetime: 5352 hours
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  01 51 0c bb c5 57 e1  Error: AMNF 12 sectors at LBA = 0x0157c5bb = 22529467
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+  -- -- -- -- -- -- -- --   ---------  --------------------
+  c8 00 20 a7 c5 57 e1 00     380.146  READ DMA
+  10 00 3f 00 00 00 e0 00     380.146  RECALIBRATE [OBS-4]
+  c8 00 20 a7 c5 57 e1 00     377.932  READ DMA
+  c8 00 20 a7 c5 57 e1 00     373.729  READ DMA
+  c8 00 80 6f 41 5f e1 00     371.776  READ DMA
+
+Error 1148 occurred at disk power-on lifetime: 5352 hours
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  01 51 0c bb c5 57 e1  Error: AMNF 12 sectors at LBA = 0x0157c5bb = 22529467
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+  -- -- -- -- -- -- -- --   ---------  --------------------
+  c8 00 20 a7 c5 57 e1 00     377.932  READ DMA
+  c8 00 20 a7 c5 57 e1 00     373.729  READ DMA
+  c8 00 80 6f 41 5f e1 00     371.776  READ DMA
+  c8 00 80 ef 40 5f e1 00     371.742  READ DMA
+  ca 00 08 57 1f cb e0 00     371.291  WRITE DMA
+
+Error 1147 occurred at disk power-on lifetime: 5352 hours
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  01 51 0c bb c5 57 e1  Error: AMNF 12 sectors at LBA = 0x0157c5bb = 22529467
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
+  -- -- -- -- -- -- -- --   ---------  --------------------
+  c8 00 20 a7 c5 57 e1 00     373.729  READ DMA
+  c8 00 80 6f 41 5f e1 00     371.776  READ DMA
+  c8 00 80 ef 40 5f e1 00     371.742  READ DMA
+  ca 00 08 57 1f cb e0 00     371.291  WRITE DMA
+  ca 00 10 47 1f cb e0 00     371.262  WRITE DMA
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Short offline       Completed without error       00%      5445         -
+# 2  Short offline       Completed without error       00%      5445         -
+# 3  Short offline       Aborted by host               90%      5445         -
+# 4  Short offline       Completed without error       00%      5445         -
+# 5  Short offline       Completed without error       00%      5445         -
+
