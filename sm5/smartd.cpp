@@ -108,14 +108,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.346 2004/10/15 15:02:54 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.347 2004/10/15 15:17:25 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.346 2004/10/15 15:02:54 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.347 2004/10/15 15:17:25 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1056,7 +1056,7 @@ void Directives() {
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-           "  -n MODE No check if: never, sleep, standby, idle\n"
+           "  -n MODE No check if: never[,q], sleep[,q], standby[,q], idle[,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
@@ -2524,7 +2524,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 
   switch (d) {
   case 'n':
-    PrintOut(priority, "never, sleep, standby, idle");
+    PrintOut(priority, "never[,q], sleep[,q], standby[,q], idle[,q]");
     break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
@@ -2809,7 +2809,7 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->powermode = 3;
     else
       badarg = 1;
-    cfg->powerquiet = !!strchr(arg,',');
+    cfg->powerquiet = !!strchr(arg, ',');
     break;
   case 'S':
     // automatic attribute autosave enable/disable
