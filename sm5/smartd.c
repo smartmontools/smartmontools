@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.333.2.1 2004/08/16 23:57:20 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.333.2.2 2004/08/17 00:06:18 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.333.2.1 2004/08/16 23:57:20 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.333.2.2 2004/08/17 00:06:18 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1048,7 +1048,7 @@ void PrintHead(){
 void Directives() {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n"
+           "  -d TYPE Set the device type: ata, scsi, marvell, removable, 3ware,N\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
@@ -2465,7 +2465,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "ata, scsi, removable, 3ware,N");
+    PrintOut(priority, "ata, scsi, marvell, removable, 3ware,N");
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");
