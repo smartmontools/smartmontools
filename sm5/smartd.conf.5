@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.49 2003/06/09 19:11:13 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.50 2003/06/12 14:28:37 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/06/09 19:11:13 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/06/12 14:28:37 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -231,10 +231,14 @@ Enables or disables SMART Automatic Offline Testing when
 starts up and has no further effect.  The valid arguments to this
 Directive are \fIon\fP and \fIoff\fP.
 
-The delay between tests is vendor-specific, but is typically four hours.
-[Please see the
+The delay between tests is vendor-specific, but is typically four
+hours.
+
+Note that SMART Automatic Offline Testing is \fBnot\fP part of the ATA
+Specification.  Please see the
 .B smartctl \-o
-command-line option.]
+command-line option documentation for further information about this
+feature.
 .TP
 .B \-S VALUE
 Enables or disables Attribute Autosave when
@@ -893,4 +897,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.49 2003/06/09 19:11:13 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.50 2003/06/12 14:28:37 ballen4705 Exp $
