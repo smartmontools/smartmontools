@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.39 2003/11/16 12:14:07 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.40 2003/11/17 11:46:49 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,39 +174,28 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_LPAGE                        0x2e
 
 /* ANSI SCSI-3 Mode Pages */
-#define VENDOR_UNIQUE_PARAMETERS                 0x00
-#define READ_WRITE_ERROR_RECOVERY_PARAMETERS     0x01
-#define DISCONNECT_RECONNECT_PARAMETERS          0x02
-#define FORMAT_DEVICE_PARAMETERS                 0x03
-#define RIGID_DISK_DRIVE_GEOMETRY_PARAMETERS     0x04
-#define FLEXIBLE_DISK_PARAMETERS                 0x05
-#define VERIFY_ERROR_RECOVERY_PARAMETERS         0x07
-#define CACHING_PARAMETERS                       0x08
-#define PERIPHERAL_DEVICE                        0x09
-#define XOR_CONTROL_MODE_PARAMETERS              0x10
+#define VENDOR_UNIQUE_PAGE                       0x00
+#define READ_WRITE_ERROR_RECOVERY_PAGE           0x01
+#define DISCONNECT_RECONNECT_PAGE                0x02
+#define FORMAT_DEVICE_PAGE                       0x03
+#define RIGID_DISK_DRIVE_GEOMETRY_PAGE           0x04
+#define FLEXIBLE_DISK_PAGE                       0x05
+#define VERIFY_ERROR_RECOVERY_PAGE               0x07
+#define CACHING_PAGE                             0x08
+#define PERIPHERAL_DEVICE_PAGE                   0x09
+#define XOR_CONTROL_MODE_PAGE                    0x10
 #define CONTROL_MODE_PAGE                        0x0a
-#define MEDIUM_TYPES_SUPPORTED                   0x0b
-#define NOTCH_PARAMETERS                         0x0c
-#define POWER_CONDITION_PARAMETERS               0x0d
-#define CD_DEVICE_PARAMETERS                     0x0d
+#define MEDIUM_TYPES_SUPPORTED_PAGE              0x0b
+#define NOTCH_PAGE                               0x0c
+#define CD_DEVICE_PAGE                           0x0d
 #define CD_AUDIO_CONTROL_PAGE                    0x0e
-#define DATA_COMPRESSION_PARAMETERS              0x0f
-#define MEDIUM_PARTITION_MODE_PARAMETERS_1       0x11
-#define MEDIUM_PARTITION_MODE_PARAMETERS_2       0x12
-#define MEDIUM_PARTITION_MODE_PARAMETERS_3       0x13
-#define MEDIUM_PARTITION_MODE_PARAMETERS_4       0x14
-#define ENCLOSURE_SERVICES_MANAGEMENT            0x14
-#define LUN_CONTROL                              0x18
-#define PORT_CONTROL                             0x19
-#define POWER_CONTROL                            0x1a
-#define LUN_MAPPING_PAGE                         0x1b
-#define INFORMATIONAL_EXCEPTIONS_CONTROL         0x1c
+#define DATA_COMPRESSION_PAGE                    0x0f
+#define ENCLOSURE_SERVICES_MANAGEMENT_PAGE       0x14
+#define PROTOCOL_SPECIFIC_LUN_PAGE               0x18
+#define PROTOCOL_SPECIFIC_PORT_PAGE              0x19
+#define POWER_CONDITION_PAGE                     0x1a
+#define INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE    0x1c
 #define FAULT_FAILURE_REPORTING_PAGE             0x1c
-#define ELEMENT_ADDRESS_ASSIGNMENT               0x1d
-#define TIMEOUT_AND_PROTECT_PARAMETERS           0x1d
-#define TRANSPORT_GEOMETRY_PARAMETERS            0x1e
-#define DEVICE_CAPABILITIES                      0x1f
-#define CD_CAPABILITIES_AND_MECHANISM_STATUS     0x2a
 
 #define ALL_MODE_PAGES                           0x3f
 
@@ -302,6 +291,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec,
                                   int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
 int scsiFetchControlGLTSD(int device, int modese_len);
+int scsiFetchTransportProtocol(int device, int modese_len);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
