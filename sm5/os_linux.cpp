@@ -54,6 +54,9 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifndef makedev // old versions of types.h do not include sysmacros.h
+#include <sys/sysmacros.h>
+#endif
 
 #include "atacmds.h"
 #include "os_linux.h"
@@ -65,9 +68,11 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.67 2004/07/15 09:29:38 ballen4705 Exp $";
+#define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.67 2004/07/15 09:29:38 ballen4705 Exp $" \
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.68 2004/07/27 15:07:42 chrfranke Exp $";
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.68 2004/07/27 15:07:42 chrfranke Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -251,8 +256,10 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
     
     if (retglob==GLOB_NOSPACE)
       pout("glob(3) ran out of memory matching pattern %s\n", pattern);
+#ifdef GLOB_ABORTED // missing in old versions of glob.h
     else if (retglob==GLOB_ABORTED)
       pout("glob(3) aborted matching pattern %s\n", pattern);
+#endif
     else
       pout("Unexplained error in glob(3) of pattern %s\n", pattern);
     
@@ -642,6 +649,7 @@ static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 {
 #ifndef SG_IO
+    ARGUSED(dev_fd); ARGUSED(iop); ARGUSED(report);
     return -ENOTTY;
 #else
     struct sg_io_hdr io_hdr;
