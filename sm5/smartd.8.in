@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.92 2004/11/23 16:48:18 ydario Exp $
+$Id: smartd.8.in,v 1.93 2004/12/13 01:18:04 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ this file, it will print an error message and then continue, ignoring
 the contents of the (faulty) configuration file, as if the \fBHUP\fP
 signal had never been received.
 
-When \fBsmartd\fP is running in debug mode, the \fBQUIT\fP signal
+When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
@@ -1801,4 +1801,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.92 2004/11/23 16:48:18 ydario Exp $
+$Id: smartd.8.in,v 1.93 2004/12/13 01:18:04 ballen4705 Exp $
