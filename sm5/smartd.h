@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.53 2003/10/27 10:27:34 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.54 2003/10/27 11:11:57 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -236,7 +236,7 @@ export NJAMD_TRACE_LIBS=1
 // time expires without sucess or failure, then treat it as failure.
 // Set to 0 to eliminate this timeout feature from the code
 // (equivalent to an infinite timeout interval).
-#define SCSITIMEOUT 7
+#define SCSITIMEOUT 0
 
 // This is for solaris, where signal() resets the handler to SIG_DFL
 // after the first signal is caught.

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.229 2003/10/27 10:11:21 ballen4705 Exp $
+$Id: CHANGELOG,v 1.230 2003/10/27 11:11:57 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -23,6 +23,10 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
+  [BA] To help catch bugs, clear ATA error structures before all
+       ioctl calls.  Disable code that attempted to time-out on SCSI
+       devices when they hung (doesn't work).
+ 
   [BA] Documented STATUS/ERROR flags added by [PW] below.
 
   [BA] Improved algorithm to recognize ATA packet devices. Should
