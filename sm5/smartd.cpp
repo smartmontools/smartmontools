@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.271 2003/12/29 17:54:07 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.272 2003/12/29 18:00:13 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1364,7 +1364,7 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
 // test, < 0 if error
 int DoTestNow(cfgfile *cfg, char testtype) {
   // start by finding out the time:
-  struct tm timenow;
+  struct tm *timenow;
   time_t epochnow;
   char matchpattern[16];
   regmatch_t substring;
@@ -1379,13 +1379,13 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // construct pattern containing the month, day of month, day of
   // week, and hour
   time(&epochnow);
-  timenow=*(localtime(&epochnow));
+  timenow=localtime(&epochnow);
   
   // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
   // (Sunday).
-  weekday=timenow.tm_wday?timenow.tm_wday:7;
-  sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow.tm_mon+1, 
-          timenow.tm_mday, weekday, timenow.tm_hour);
+  weekday=timenow->tm_wday?timenow->tm_wday:7;
+  sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow->tm_mon+1, 
+          timenow->tm_mday, weekday, timenow->tm_hour);
   
   // if no match, we are done
   if (regexec(&(dat->cregex), matchpattern, 1, &substring, 0))
@@ -1399,7 +1399,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // never do a second test in the same hour as another test (the % 7 ensures
   // that the RHS will never be greater than 65535 and so will always fit into
   // an unsigned short)
-  hours=1+timenow.tm_hour+24*(timenow.tm_yday+366*(timenow.tm_year % 7));
+  hours=1+timenow->tm_hour+24*(timenow->tm_yday+366*(timenow->tm_year % 7));
   if (hours==dat->hour) {
     if (testtype!=dat->testtype)
       PrintOut(LOG_INFO, "Device: %s, did test of type %c in current hour, skipping test of type %c\n",
