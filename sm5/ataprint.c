@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.88 2003/06/13 17:36:08 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.89 2003/06/20 00:16:13 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -91,9 +91,8 @@ void formatdriveidstring(char *out, const char *in, int n)
 }
 
 // Function for printing ASCII byte-swapped strings, skipping white
-// space. This is needed on little-endian architectures, eg Intel,
-// Alpha. If someone wants to run this on SPARC they'll need to test
-// for the Endian-ness and skip the byte swapping if it's big-endian.
+// space. Please note that this is needed on both big- and
+// little-endian hardware.
 void printswap(char *output, char *in, unsigned int n){
   formatdriveidstring(output, in, n);
   if (*output)
