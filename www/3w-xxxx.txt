@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------
+# November 27, 2003
+#
+# This patch is now against the official 3ware version 1.02.00.036 3w-xxxx.c driver
+# dated Wed Jul 16 20:30:28 2003. Apply it by following the instructions below.
+#
 # August 14, 2003
 #
 # Adam Radford has incorporated a change that now allows the 3w-xxxx
@@ -15,7 +20,7 @@
 # August 8, 2003
 # PATCH FOR 3WARE 3w-xxxx DRIVER
 # Bruce Allen ballen at gravity.phys.uwm.edu
-# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.3 2003/08/14 14:56:07 ballen4705 Exp $
+# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.4 2003/11/27 10:30:40 ballen4705 Exp $
 # 
 # To apply this patch, save this entire file to 3w-xxxx.txt in a
 # directory containing the original unpatched 3w-xxxx.c file. Then
@@ -67,9 +72,19 @@
 #
 # -----------------------------------------------------------------------
 
---- 3w-xxxx.c.save	Thu Aug 14 16:28:35 2003
-+++ 3w-xxxx.c	Thu Aug 14 16:44:04 2003
-@@ -1915,12 +1915,15 @@
+--- 3w-xxxx.c.orig	Wed Jul 16 20:30:28 2003
++++ 3w-xxxx.c	Thu Nov 27 11:20:25 2003
+@@ -173,6 +173,9 @@
+    1.02.00.035 - Improve tw_allocate_memory() memory allocation.
+                  Fix tw_chrdev_ioctl() to sleep correctly.
+    1.02.00.036 - Increase character ioctl timeout to 60 seconds.
++   
++   This version 1.02.00.036 3w-xxxx.c driver has been patched for full smartmontools support.
++   
+ */
+ 
+ #include <linux/module.h>
+@@ -1930,12 +1933,15 @@
  			}
  
  			passthru = (TW_Passthru *)tw_dev->command_packet_virtual_address[request_id];
@@ -90,7 +105,7 @@
  			tw_post_command_packet(tw_dev, request_id);
  			return 0;
  		case TW_CMD_PACKET:
-@@ -2170,8 +2173,15 @@
+@@ -2185,8 +2191,15 @@
  	ioctl = (TW_Ioctl *)buff;
  	switch (ioctl->opcode) {
  		case TW_ATA_PASSTHRU:
