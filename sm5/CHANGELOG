@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.166 2003/08/01 11:40:04 guidog Exp $
+$Id: CHANGELOG,v 1.167 2003/08/01 13:09:10 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd - modified sleep loop, so that smartd no longer comes
+       on the run queue every second.  Instead, unless interrupted,
+       it sleeps until the next polling time, when it wakes up. Now
+       smartd also tries to wake up at exactly the right
+       intervals (nominally 30 min) even if the user has been sending
+       signals to it.
 
   [GG] add Fujitsu MHN2300AT to vendoropts_9_seconds.
 
