@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.137 2003/10/27 20:59:05 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.138 2003/10/28 04:36:33 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -307,6 +307,7 @@ fi
 
 %changelog
 * Mon Oct 27 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [EM] Fix compile issues for FreeBSD < 5-CURRENT.
 - [PW] Added Fujitsu MHM2200AT to knowndrives table.
 - [BA] To help catch bugs, clear ATA error structures before all
        ioctl calls.  Disable code that attempted to time-out on SCSI
