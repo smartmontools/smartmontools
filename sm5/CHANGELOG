@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.389 2004/04/04 11:43:52 guidog Exp $
+$Id: CHANGELOG,v 1.390 2004/04/05 09:41:38 guidog Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+  
+  [GG] Use gethostbyname() the get the DNS domain since getdomainname() 
+       returns the NIS domain when sending mails from smartd.
 
   [GG] smartd.init.in: pass smartd_opts to smartd on startup, read distribution
        specific configuration files if found
