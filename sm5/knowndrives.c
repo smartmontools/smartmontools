@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.38 2003/08/18 07:19:52 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.39 2003/08/30 13:06:48 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -408,7 +408,7 @@ void showallpresets(void){
 }
 
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const struct hd_driveid *drive){
+void showpresets(const struct ata_identify_device *drive){
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
@@ -442,7 +442,7 @@ void showpresets(const struct hd_driveid *drive){
 // (if any) for the given drive in knowndrives[].  Values that have
 // already been set in opts will not be changed.  Returns <0 if drive
 // not recognized else index >=0 into drive database.
-int applypresets(const struct hd_driveid *drive, unsigned char **optsptr,
+int applypresets(const struct ata_identify_device *drive, unsigned char **optsptr,
                   smartmonctrl *con) {
   int i;
   unsigned char *opts;
