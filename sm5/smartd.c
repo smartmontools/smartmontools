@@ -49,7 +49,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.136 2003/04/09 12:54:25 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.137 2003/04/09 20:34:48 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -903,7 +903,7 @@ int ataCheckDevice(atadevices_t *drive){
             char attname[64], *loc=attname;
             
             // get attribute name & skip white space
-            ataPrintSmartAttribName(loc, att, con->attributedefs);
+            ataPrintSmartAttribName(loc, att, cfg->attributedefs);
             while (*loc && *loc==' ') loc++;
             
             // warning message
@@ -928,16 +928,16 @@ int ataCheckDevice(atadevices_t *drive){
             char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
 
             // get attribute name, skip spaces
-            ataPrintSmartAttribName(loc, id, con->attributedefs);
+            ataPrintSmartAttribName(loc, id, cfg->attributedefs);
             while (*loc && *loc==' ') loc++;
             
             // has the user asked for us to print raw values?
             if (isattoff(id, cfg->monitorattflags+64, 0)) {
               // get raw values (as a string) and add to printout
               char rawstring[64];
-              ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, con->attributedefs);
+              ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg->attributedefs);
               sprintf(newrawstring, " [Raw %s]", rawstring);
-              ataPrintSmartAttribRawValue(rawstring, drive->smartval->vendor_attributes+i, con->attributedefs);
+              ataPrintSmartAttribRawValue(rawstring, drive->smartval->vendor_attributes+i, cfg->attributedefs);
               sprintf(oldrawstring, " [Raw %s]", rawstring);
             }
             else

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.113 2003/04/08 21:39:59 pjwilliams Exp $
+$Id: CHANGELOG,v 1.114 2003/04/09 20:34:46 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Fixed serious bug: the -v options in smartd.conf were all put
+       together and used together, not drive-by-drive.
 
   [PW] Added knowndrives.h and knowndrives.c.  The knowndrives array
        supersedes the drivewarnings array.
