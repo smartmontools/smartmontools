@@ -69,7 +69,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.39 2003/12/10 11:30:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.40 2003/12/16 20:09:16 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -389,7 +389,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from %s\n",PROJECTHOME);
+    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
     pout("Register values returned from SMART Status command are:\n");
     pout("CMD=0x%02x\n",(int)buff[0]);
     pout("FR =0x%02x\n",(int)buff[1]);
@@ -781,7 +781,7 @@ void printwarning(smart_command_set command){
   const char* message=
     "can not be passed through the 3ware 3w-xxxx driver.  This can be fixed by\n"
     "applying a simple 3w-xxxx driver patch that can be found here:\n"
-    PROJECTHOME "\n"
+    PACKAGE_HOMEPAGE "\n"
     "Alternatively, upgrade your 3w-xxxx driver to version 1.02.00.037 or greater.\n\n";
 
   if (command==AUTO_OFFLINE && !printed1) {

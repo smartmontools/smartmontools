@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.22 2003/12/07 19:59:08 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.23 2003/12/16 20:09:16 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -114,9 +114,6 @@ int isbigendian();
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
 // the ATA standard for packet devices to define the device type.
 const char *packetdevicetype(int type);
-
-// These are the major and minor versions for smartd and smartctl
-#define PROJECTHOME "http://smartmontools.sourceforge.net/"
 
 int deviceopen(const char *pathname, char *type);
 int deviceclose(int fd);

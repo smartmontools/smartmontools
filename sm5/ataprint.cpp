@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.116 2003/12/10 11:30:31 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.117 2003/12/16 20:09:16 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -990,7 +990,7 @@ void failuretest(int type, int returnvalue){
     EXIT(returnvalue);
   }
 
-  pout("Smartctl internal error in failuretest(type=%d). Please contact developers at %s\n",type,PROJECTHOME);
+  pout("Smartctl internal error in failuretest(type=%d). Please contact developers at " PACKAGE_HOMEPAGE "\n",type);
   EXIT(returnvalue|FAILCMD);
 }
 
