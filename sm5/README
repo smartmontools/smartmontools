@@ -1,0 +1,171 @@
+===============================================
+SMARTMONTOOLS - SMART utility toolset for Linux
+===============================================
+
+
+== HOME ==
+The home for smartmontools is located at:
+http://sourceforge.net/projects/smartmontools Please see this web site
+for updates, documentation, and for submitting patches and bug
+reports.
+
+
+== COPYING ==
+Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2, or (at your option) any later
+version.
+
+You should have received a copy of the GNU General Public License (for
+example COPYING); if not, write to the Free Software Foundation, Inc., 675
+Mass Ave, Cambridge, MA 02139, USA.
+
+
+== OVERVIEW ==
+SMARTMONTOOLS contains utilities that control and monitor storage
+devices using the Self-Monitoring, Analysis and Reporting Technology
+(S.M.A.R.T.) system build into ATA and SCSI Hard Drives. This is used
+to check the reliability of the hard drive and to predict drive
+failures.  SMARTMONTOOLS Version 5.x is designed to comply to the
+ATA/ATAPI-5 specification (Revision 1).  Future releases of
+SMARTMONTOOLS (Versions 6.x and 7.x) will comply with the ATA/ATAPI-6
+and ATA/ATAPI-7 specifications.
+
+This package is meant to be an up-to-date replacement for the
+ucsc-smartsuite and smartsuite packages, and is derived from that
+code.
+
+
+== CONTENTS ==
+The suite contains two utilities:
+
+smartctl is a command line utility designed to perform
+         S.M.A.R.T. tasks.such as disk self-checks, and to
+         report the S.M.A.R.T. status of the disk.
+
+smartd   is a daemon that periodically monitors S.M.A.R.T. status and
+         reports errors and changes in S.M.A.R.T. attributes to syslog.
+
+You can read about these commands using the man pages.  Within this
+directory the commands:
+  man ./smartctl.8
+and
+  man ./smartd.8
+will display the manual pages for the two commands.  If you install the package on
+your system, then
+  man smartctl
+and
+  man smartd
+will display the same information.
+
+
+== INSTALLATION ==
+To install, use the commands:
+  make
+  make install
+The tools require Linux kernel 2.2.14 or greater in order to run. Any
+recent Linux distribution should support this package.
+ 
+The files installed are:
+/usr/sbin/smartd                   [Executable daemon]
+/usr/sbin/smartctl                 [Executable command-line utility]
+/etc/rc.d/init.d/smartd            [Init/Startup script for smartd]
+/usr/share/man/man8/smartctl.8.gz  [Manual page]
+/usr/share/man/man8/smartd.8.gz    [Manual page]
+
+Source and binary RPM files are available at the website listed above.
+
+
+== USAGE ==
+SMARTMONTOOLS contents two utilities:
+
+smartctl - A command line control utility 
+smartd  -  A monitoring daemon
+
+to run smartctl, use the syntax
+
+./smartctl [options] [device]  
+
+See the man page for full details.  A summary of the options is:
+
+Read only:
+p       Print License/Copyright information.
+i       Checks if the device supports S.M.A.R.T, and prints drive model
+        information.
+c       Checks if device has any S.M.A.R.T. Warranty Failures.  This means
+        that the device is predicting failure in the next 24 hours.
+g	Prints only the generic S.M.A.R.T. attributes 
+v	Prints only the vendor specific S.M.A.R.T. attributes & thresholds
+l	Prints only the S.M.A.R.T. error log
+L       Prints only the S.M.A.R.T. self-test log
+a	Prints all parameters for i,c,g,v,t,l,L
+
+Enable/Disable commands:
+e	Enables S.M.A.R.T. on device
+d	Disables S.M.A.R.T. on device
+f       Enables S.M.A.R.T. attributes auto-save on device
+F       Disables S.M.A.R.T. attributes auto-save on device
+t       Enables S.M.A.R.T. automatic offline self test timer which scans the
+        drive every four hours for disk defects.
+T	Disables S.M.A.R.T. automatic offline self test timer 
+
+Test Commands:
+O	Runs S.M.A.R.T. Immediate offline Test
+S	Runs S.M.A.R.T. Short Self Test (usually under ten minutes)
+s       Runs S.M.A.R.T. Short Self Test in Captive Mode. (WARNING this test
+        will busy out drive for length of test )
+X	Runs S.M.A.R.T. Extended Self Test (tens of minutes)
+x       Runs S.M.A.R.T. Extended Self Test in Captive Mode. (WARNING this
+        test will busy out the drive for the length of the test)
+A 	Aborts Non-Captive S.M.A.R.T. Tests.
+
+devices are IDE devices which usually are:
+
+/dev/hda 	Primary Master
+/dev/hdb	Primary Slave
+/dev/hdc 	Secondary Master
+/dev/hdd 	Secondary Slave	
+
+for SCSI the devices are usually
+
+/dev/sda	First SCSI Disk 
+/dev/sdb	second SCSI disl
+
+Examples:
+  smartctl -e /dev/hda     - enables SMART on hard drive
+  smartctl -c /dev/sda     - checks status of hard drive.
+  smartd                   - starts background daemon to
+                             monitor hard drive status
+
+smartd will scan for all devices that support SMART and poll them very
+thirty minutes for errors or for changes in attribute values. When an
+error or attribute value change occurs, it sends log information to
+the SYSLOG facility.  Typically these messages and warnings appear in
+/var/log/messages.
+
+
+== REFERENCES ==
+If you need help in understanding the output of smartctl, a good place
+to start is to read Section 8.41 of the AT Attachment with Packet
+Interface-5 (ATA/ATAPI-5) specification.  This documents the
+S.M.A.R.T. functionality which the smartmontools utilities provide
+access to.  You can find Revision 1 of this document at:
+http://www.t13.org/project/d1321r1c.pdf
+
+Future versions of the specifications (ATA/ATAPI-6 and ATA/ATAPI-7)
+can be obtained from:
+http://www.t13.org/#FTP_site
+Later revisions (2, 3) of the ATA/ATAPI-5 specification are also
+available there.
+
+
+The functioning of S.M.A.R.T. is also described by the SFF-8035i
+revision 2 specification.  This is a publication of the Small Form
+Factors Committee, and can be obtained from SFF Committee, 14426 Black
+Walnut Ct., Saratoga, CA 95070, USA.  
+SFF FaxAccess: (408) 741-1600
+Ph: (408) 867-6630
+Fax: (408) 867-2115
+E-Mail: 250-1752@mcimail.com.

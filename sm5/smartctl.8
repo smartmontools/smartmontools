@@ -1,0 +1,293 @@
+\# Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+\# 
+\# This program is free software; you can redistribute it and/or modify it
+\# under the terms of the GNU General Public License as published by the Free
+\# Software Foundation; either version 2, or (at your option) any later
+\# version.
+\# 
+\# You should have received a copy of the GNU General Public License (for
+\# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+\# Mass Ave, Cambridge, MA 02139, USA.
+.TH SMARTCTL 8  "October 9, 2002" "smartmontools-5.0"
+.SH NAME
+smartctl \- S.M.A.R.T. control utility 
+.SH SYNOPSIS
+.B smartctl  
+[\-\icavglLdeOSXsxAtTfF] [device]
+
+.SH DESCRIPTION
+.B smartctl
+controls the Self-Monitoring, Analysis and Reporting Technology
+(S.M.A.R.T.) system built into many ATA-3 and later ATA, IDE and
+SCSI-3 hard drives. The purpose of S.M.A.R.T. is to monitor the
+reliability of the hard drive and predict drive failures, and to carry
+out different types of drive self-tests.  This version of smartctl is
+compatible with ATA/ATAPI-5 and earlier standards (see REFERENCES
+below)
+
+.B smartctl
+is a command line utility designed to perform S.M.A.R.T. tasks such as
+printing the S.M.A.R.T. self-test and error logs, and enabling and
+disabling S.M.A.R.T. automatic testing.
+
+.B smartctl
+also provides limited TapeAlerts support for some SCSI tape drives and
+changers.
+.PP
+.SH SYNTAX
+.PP
+.B smartctl 
+takes two arguments, options and device. Examples are given below.
+
+The first argument, options, begins with a '\-' followed by
+letters. Multiple options must begin with a single '\-'. 
+
+The second argument is the device to be controlled. ATA device use the
+form "/dev/hd*" and SCSI devices use the form "/dev/sd*".
+
+SCSI devices only accept the options a,i,c,e,d, and p. For SCSI Tape
+Drives and Changers with TapeAlerts support use the devices "/dev/st*"
+and "/dev/sg*". TapeAlerts devices accept the options a,i,c,e,d, and
+p.
+.PP
+.SH OPTIONS
+.TP
+.B Read-only options:
+.TP
+p
+Print: Prints Copyright and License information.
+.TP
+i
+Information: Check if the device supports S.M.A.R.T.  Prints the
+device model number, the ATA version and revision supported, and the
+device serial number and firmware version.
+.TP
+c
+Check: See if the device has any S.M.A.R.T. Warranty Failures. If so,
+this either means that the device has already failed, or that it is
+predicting its own failure within the next 24 hours.  If this happens,
+use the '\-a' option to get more information.
+.TP
+g
+Generic: Prints only the generic S.M.A.R.T. attributes.  This shows the
+S.M.A.R.T.  capabilities of the device (can it log errors, does it
+support offline surface scanning, and so on).  If the device can carry
+out self-tests, it also lists the estimated time required to run those
+tests.  See REFERENCES below for further information about their
+meaning.
+.TP
+v
+Vendor: Prints only the vendor specific S.M.A.R.T. attributes.  The
+attributes are numbered from 1 to 253 and have specific names. For
+example attribute 12 is \'power cycle count\': how many times has the
+disk been powered up.  Each attribute has a 'Raw' value, printed under
+the heading 'Raw Value', and a 'Normalized' value printed under the
+heading 'Value'.  Each vendor uses their own magic to convert the Raw
+value to a Normalized value.  If the Normalized value is
+.B smaller
+than the value given under the 'Threshold' column, then disk failure
+is imminent.  The column labeled 'Worst' shows the lowest (closest to
+failure) value that the disk has recorded at any time during its
+lifetime when S.M.A.R.T.  was enabled.
+
+Note that the conversion from 'Raw' value to physical units is not
+specified by the S.M.A.R.T. standard. In most cases, the values printed by
+.B smartctl
+are sensible.  However in some cases a vendor uses unusual
+conventions.  For example the Hitachi disk on my laptop reports its
+power-on hours in minutes, not hours. Some IBM disks track three
+temperatures rather than one, in their raw values.  And so on.
+.TP
+l
+Log: Prints only the S.M.A.R.T. error log.  S.M.A.R.T. disks maintain
+a log of the most recent five non-trivial errors.  For each of these
+errors, the disk power-on lifetime at which the error occurred is
+recorded, as is the device status (idle, standby, etc) at the time of
+the error.  Finally, up to the last five commands that preceded the
+error are also recorded, along with a timestamp measured in seconds
+from when the disk was powered up during the session where the error
+took place.  The key ATA disk registers are also recorded in the log.
+.TP
+L
+Log: Prints only the S.M.A.R.T. self-test log.  The disk maintains a
+log showing the results of the self tests, which can be run using the
+ '\-S', '\-s', '\-X', and '\-x' options.  The log will show, for each
+of the most recent twenty-one self-tests, the type of test (short or
+extended, off-line or captive) and the final status of the test.  If
+the test did not complete successfully, the percentage of the test
+remaining is show.  The time at which the test took place, measured in
+hours of disk lifetime, is shown.  If any errors were detected, the
+Logical Blobk Address (LBA) of the first error is also indicated.
+.TP
+a
+All: Prints all parameters for c,i,g,v,t,l,L (for SCSI c,i).  This prints all
+S.M.A.R.T. information about the disk.
+.TP
+.B Enable/Disable Options:
+.TP
+e 
+Enable: Enables S.M.A.R.T. on device.  Note that this command (perhaps
+with the '\-t' and '\-f' options also enabled) should be placed in a
+start-up script for your machine, for example in rc.local or
+rc.sysinit.
+.TP
+d
+Disable: Disables S.M.A.R.T. on device.  This turns off all
+S.M.A.R.T. functionality.  I can't imagine why you would want to do
+this.  [Or do you cover up the oil-pressure warning light on your car?]
+.TP
+t
+Test: Enables S.M.A.R.T. automatic offline test timer which scans the drive
+every four hours for disk defects. This command can be given during normal
+system operation.
+
+S.M.A.R.T. provides three basic classes of testing.  The so-called
+'online' testing has no effect on the performance of the device.  It
+is turned on by the '\-e' option. The offline testing, enabled by this
+ '\-t' option, can, in principle, degrade the device performance.  Normally,
+the disk will suspend any offline testing while disk accesses are
+taking place, then automatically resume them when the disk would
+otherwise be idle, so in practice it has little effect.  The third
+class of testing is the 'self' testing; see below.
+
+Any errors detected in the automatic offline testing will be shown in
+the S.M.A.R.T. error log, and will be reflected in the values of the
+S.M.A.R.T. attributes.  These are visible with the '\-l' and '\-v'
+options.
+.TP
+T 
+unTest: Disables S.M.A.R.T. automatic offline test timer. 
+.TP
+f
+File: Enables S.M.A.R.T. autosave of device vendor-specific attributes.
+.TP
+F
+unFile: Disables S.M.A.R.T. autosave of device vendor-specific attributes.
+.TP
+.B Run a Test Immediately Options:
+.TP
+O
+Offline: Runs S.M.A.R.T. Immediate offline Test.  This immediately
+starts the test describe above.  This command can be given during
+normal system operation.
+.TP
+S Selftest: Runs S.M.A.R.T. Short Self Test (usually under ten
+minutes).  This is a test in a different category than the automatic
+offline tests.  The 'Self' tests check the electrical and mechanical
+performance as well as the read performance of the disk.  Their
+results are reported in the Self Test Error Log, readable with the
+ '\-L' option. Note that this command can be given during normal system
+operation.
+.TP
+s
+Selftest: Runs S.M.A.R.T. Short Self Test in Captive Mode.  (WARNING: This test
+will busy out drive for length of test. Only run this on drives
+without any mounted partitions.)
+.TP
+X
+eXtended: Runs S.M.A.R.T. Extended Self Test (tens of minutes).  This is a
+longer and more thorough version of the Short Self Test described
+under the '\-x' option.  Note that this command can be given during normal
+system operation.
+.TP
+x
+eXtended: Runs S.M.A.R.T. Extended Self Test in Captive Mode.  (WARNING: This
+test will busy out drive for length of test. Only run this on drives
+without any mounted partitions.)
+.TP
+A
+Abort: Aborts Non-Captive S.M.A.R.T. Self Tests.
+.PP
+.SH EXAMPLES
+.nf
+.B smartctl -a /dev/hda
+.fi
+prints all S.M.A.R.T. information for drive /dev/hda (Primary Master).
+.PP
+.nf
+.B smartctl -d /dev/hdd
+.fi
+disable S.M.A.R.T. on drive /dev/hdd (Secondary Slave).
+.PP
+.nf
+.B smartctl -etf /dev/hda
+.fi
+enables S.M.A.R.T. on drive /dev/hda, enables automatic offline
+testing every four hours, and enables autosaving of
+S.M.A.R.T. attributes.  This is a good start-up line for your system's
+init files.  You can issue this command on a running system.
+.PP
+.nf
+.B smartctl -X /dev/hdc
+.fi
+begin an extended self-test of drive /dev/hdc.  The results can be
+seen in the self-test log after the test has completed. You can issue
+this command on a running system.
+
+.PP
+.SH AUTHOR
+Bruce Allen
+.B ballen@uwm.edu
+.fi
+University of Wisconsin - Milwaukee Physics Department
+
+.PP
+.SH CREDITS
+.fi
+This code was derived from the smartsuite package, written by
+Michael Cornwell, and from the previous ucsc smartsuite package.  It
+extends these to cover ATA-5 disks.
+.SH
+HOME PAGE FOR SMARTMONTOOLS: 
+.fi
+Please see the following web site for updates, further documentation, bug
+reports and patches:
+.nf
+.B
+http://sourceforge.net/projects/smartmontools
+
+.SH
+SEE ALSO:
+.B
+smartd (8)
+.SH
+REFERENCES FOR S.M.A.R.T.
+.fi
+If you would like to understand better how S.M.A.R.T. works, and what
+it does, a good place to start is  Section 8.41 of the 'AT
+Attachment with Packet Interface-5' (ATA/ATAPI-5) specification.  This
+documents the S.M.A.R.T. functionality which the smartmontools
+utilities provide access to.  You can find Revision 1 of this document
+at:
+.nf
+.B
+http://www.t13.org/project/d1321r1c.pdf
+.fi
+Future versions of the specifications (ATA/ATAPI-6 and ATA/ATAPI-7),
+and later revisions (2, 3) of the ATA/ATAPI-5 specification are
+available from:
+.nf
+.B
+http://www.t13.org/#FTP_site
+
+.fi
+The functioning of S.M.A.R.T. is also described by the SFF-8035i
+revision 2 specification.  This is a publication of the Small Form
+Factors (SFF) Committee, and can be obtained from:
+.TP
+\ 
+SFF Committee
+.nf
+14426 Black Walnut Ct.
+.nf
+Saratoga, CA 95070, USA
+.nf
+SFF FaxAccess: +01 408-741-1600
+.nf
+Ph: +01 408-867-6630
+.nf
+Fax: +01 408-867-2115
+.nf
+E-Mail: 250-1752@mcimail.com.
+.PP
+Please let us know if there is an on\-line source for this document.
