@@ -1,0 +1,78 @@
+smartctl version 5.1-18 Copyright (C) 2002-3 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Device Model:     FUJITSU MHR2040AT
+Serial Number:    NJ41T291391J
+Firmware Version: 40BA
+Device is:        Not in smartctl database [for details use: -P showall]
+ATA Version is:   6
+ATA Standard is:  ATA/ATAPI-6 T13 1410D revision 1
+Local Time is:    Thu Sep  4 22:18:48 2003 CEST
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+Drive failure expected in less than 24 hours. SAVE ALL DATA.
+See vendor-specific Attribute list for failed Attributes.
+
+General SMART Values:
+Off-line data collection status: (0x00)	Offline data collection activity was
+					never started.
+					Auto Off-line Data Collection: Disabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete off-line 
+data collection: 		 ( 468) seconds.
+Offline data collection
+capabilities: 			 (0x1b) SMART execute Offline immediate.
+					Automatic timer ON/OFF support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					No Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					No General Purpose Logging support.
+Short self-test routine 
+recommended polling time: 	 (   2) minutes.
+Extended self-test routine
+recommended polling time: 	 (  60) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000f   100   100   046    Pre-fail  Always       -       52685626284
+  2 Throughput_Performance  0x0005   100   100   020    Pre-fail  Offline      -       0
+  3 Spin_Up_Time            0x0003   093   093   025    Pre-fail  Always       -       24065
+  4 Start_Stop_Count        0x0032   100   100   000    Old_age   Always       -       160
+  5 Reallocated_Sector_Ct   0x0033   099   099   024    Pre-fail  Always       -       31
+  7 Seek_Error_Rate         0x000f   100   100   047    Pre-fail  Always       -       131071
+  8 Seek_Time_Performance   0x0005   100   100   019    Pre-fail  Offline      -       0
+  9 Power_On_Seconds        0x0032   092   092   000    Old_age   Always       -       1335h+10m+34s
+ 10 Spin_Retry_Count        0x0013   100   100   020    Pre-fail  Always       -       0
+ 12 Power_Cycle_Count       0x0032   100   100   000    Old_age   Always       -       150
+192 Power-Off_Retract_Count 0x0032   099   099   000    Old_age   Always       -       7
+193 Load_Cycle_Count        0x0032   074   074   000    Old_age   Always       -       95890
+194 Temperature_Celsius     0x0022   090   100   000    Old_age   Always       -       57
+195 Hardware_ECC_Recovered  0x001a   100   100   000    Old_age   Always       -       10141348
+196 Reallocated_Event_Count 0x0032   099   099   000    Old_age   Always       -       30
+197 Current_Pending_Sector  0x0012   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0010   100   100   000    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always       -       0
+200 Write_Error_Count       0x000f   036   033   060    Pre-fail  Always   FAILING_NOW 2883583
+203 Run_Out_Cancel          0x0002   091   091   000    Old_age   Always       -       2589872160305
+
+SMART Error Log Version: 1
+No Errors Logged
+
+SMART Self-test log structure revision number 1
+No self-tests have been logged
+
+
