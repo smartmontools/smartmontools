@@ -29,7 +29,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.55 2002/11/11 10:55:42 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.56 2002/11/11 10:56:35 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -233,7 +233,7 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
-* Mon Nov 11, 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+* Mon Nov 11 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - Modified perror() statements in atacmds.c so that printout for SMART
   commands errors is properly suppressed or queued depending upon users
   choices for error reporting modes.
