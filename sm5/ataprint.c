@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.44 2002/11/14 14:57:20 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.45 2002/11/22 16:26:46 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -416,9 +416,17 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       
       // convert the six individual bytes to a long long (8 byte) integer
       rawvalue = 0;
-      for (j = 0 ; j < 6 ; j++)
-	rawvalue |= disk->raw[j] << (8*j) ;
-      
+      for (j=0; j<6; j++) {
+	// This looks a bit roundabout, but is necessary.  Don't
+	// succumb to the temptation to use raw[j]<<(8*j) since under
+	// the normal rules this will be promoted to the native type.
+	// On a 32 bit machine this might then overflow.
+	long long temp;
+	temp = disk->raw[j];
+	temp <<= 8*j;
+	rawvalue |= temp;
+      }
+
       // This switch statement is where we handle Raw attributes
       // that are stored in an unusual vendor-specific format,
       switch (disk->id){
