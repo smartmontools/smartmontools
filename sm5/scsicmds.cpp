@@ -6,6 +6,9 @@
  * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
+ * Additional SCSI work:
+ * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -20,8 +23,15 @@
  * Research Center), Jack Baskin School of Engineering, University of
  * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
  *
- * Changelog:
- *      - scsi code clean up. Doug Gilbert<dougg@torque.net> 2003/3/24
+ * In the SCSI world "SMART" is a dead or withdrawn standard. In recent
+ * SCSI standards (since SCSI-3) it goes under the awkward name of
+ * "Informational Exceptions" or "IEC" (with the "C" for "control").
+ * The relevant information is spread around several SCSI draft
+ * standards available at http://www.t10.org . Reference is made in the
+ * code to the following acronyms:
+ *      - SAM [SCSI Architectural model, versions 2 or 3]
+ *      - SPC [SCSI Primary commands, versions 2 or 3]
+ *      - SBC [SCSI Block commands, versions 2]
  */
 
 #include <stdio.h>
@@ -33,7 +43,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.28 2003/03/31 12:50:22 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.29 2003/04/01 06:24:27 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -253,7 +263,8 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 }
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if command not supported,
-   2 if field (within command) not supported or negative errno. */
+   2 if field (within command) not supported or returns negated errno. 
+   SPC sections 7.6 and 8.2 */
 int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -284,15 +295,24 @@ int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
 	    return 2;
     }
-    if (status > 0)
-	status = 3;
+    if (status > 0) {
+        pout("log sense: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
+/* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if command not
+ * supported (then MODE SENSE(10) should be supported), 2 if field in
+ * command not supported or returns negated errno. SPC sections 7.9 
+ * and 8.4 */
 int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     if ((bufLen < 0) || (bufLen > 255))
@@ -307,18 +327,38 @@ int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     cdb[4] = bufLen;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0) {
+        pout("modesense: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
+
 /* Sends a 6 byte MODE SELECT command. Assumes given pBuf is the response
  * from a corresponding 6 byte MODE SENSE command. Such a response should
- * have a 4 byte header folowed by 0 or more 8 byte block descriptors
- * (normally 1) and then 1 mode page.  */
+ * have a 4 byte header followed by 0 or more 8 byte block descriptors
+ * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if command not
+ * supported (then MODE SELECT(10) may be supported), 2 if field in
+ * command not supported, 3 if bad parameter to command or returns negated
+ * errno. SPC sections 7.7 and 8.4 */
 int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status, pg_offset, pg_len, hdr_plus_1_pg;
     int sense_len = pBuf[0] + 1;
 
@@ -343,16 +383,37 @@ int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
     cdb[4] = hdr_plus_1_pg; /* make sure only one page sent */
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+	else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+	    return 3;
+    }
+    if (status > 0) {
+        pout("modeselect: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
-/* Not currently used */
+/* MODE SENSE (10 byte). Returns 0 if ok, 1 if command not supported 
+ * (then MODE SENSE(6) might be supported), 2 if field in
+ * command not supported or returns negated errno.  
+ * SPC sections 7.10 and 8.4 */
 int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
+    UINT8 sense[32];
     int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -366,16 +427,38 @@ int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
     cdb[8] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0) {
+        pout("modesense10: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
-/* Not currently used */
+/* Sends a 10 byte MODE SELECT command. Assumes given pBuf is the response
+ * from a corresponding 10 byte MODE SENSE command. Such a response should
+ * have a 8 byte header followed by 0 or more 8 byte block descriptors
+ * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if command not
+ * supported (then MODE SELECT(6) may be supported), 2 if field in
+ * command not supported, 3 if bad parameter to command or returns negated
+ * errno. SAM sections 7.8 and 8.4 */
 int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
+    UINT8 sense[32];
     int status, pg_offset, pg_len, hdr_plus_1_pg;
     int sense_len = (pBuf[0] << 8) + pBuf[1] + 2;
 
@@ -401,14 +484,30 @@ int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
     cdb[8] = hdr_plus_1_pg; /* make sure only one page sent */
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+	else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+	    return 3;
+    }
+    if (status > 0) {
+        pout("modeselect10: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
-/* bufLen should be 36 for unsafe devices (like USB mass storage stuff)
- * otherwise they can lock up!
- */
-/* Standard INQUIRY returns 0 for ok, anything else is a major problem */
+/* Standard INQUIRY returns 0 for ok, anything else is a major problem.
+ * bufLen should be 36 for unsafe devices (like USB mass storage stuff)
+ * otherwise they can lock up! SPC sections 7.4 and 8.6 */
 int stdinquiry(int device, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -430,11 +529,15 @@ int stdinquiry(int device, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-/* Still unused, INQUIRY to fetch Vital Page Data. */
-int inquiry(int device, int pagenum, UINT8 *pBuf, int bufLen)
+/* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if command not
+ * supported, 2 if field in command not supported or returns negated errno.
+ * SPC section 7.4 and 8.6 */
+int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     if ((bufLen < 0) || (bufLen > 255))
@@ -446,14 +549,31 @@ int inquiry(int device, int pagenum, UINT8 *pBuf, int bufLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = INQUIRY;
     cdb[1] = 0x1;       /* set EVPD bit (enable Vital Product Data) */
-    cdb[2] = pagenum;
+    cdb[2] = vpd_page;
     cdb[4] = bufLen;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0) {
+        pout("inquiry_vpd: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
+/* REQUEST SENSE command. Returns 0 if ok, anything else major problem.
+ * SPC section 7.24 */
 int requestsense(int device, struct scsi_sense_disect * sense_info)
 {
     struct scsi_cmnd_io io_hdr;
@@ -489,10 +609,15 @@ int requestsense(int device, struct scsi_sense_disect * sense_info)
     return status;
 }
 
+/* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if command not supported, 
+ * 2 if field in command not supported or returns negated errno.
+ * SPC section 7.25 */
 int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -511,18 +636,37 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     cdb[4] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = 5 * 60 * 60;   /* five hours because a foreground 
                     extended self tests can take 1 hour plus */
+    
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0) {
+        pout("senddiagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
-/* Not currently used */
+/* RECEIVE DIAGNOSTIC command. Returns 0 if ok, 1 if command not supported,
+ * 2 if field in command not supported or returns negated errno.
+ * SPC section 7.17 */
 int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf, 
                       int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -537,10 +681,26 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     cdb[4] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0) {
+        pout("receivediagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
+             status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+	status = -EIO;
+    }
     return status;
 }
 
+/* TEST UNIT READY command. SPC section 7.28 (probably in SBC as well) */
 static int _testunitready(int device, struct scsi_sense_disect * sinfo)
 {
     struct scsi_cmnd_io io_hdr;
@@ -572,7 +732,7 @@ int testunitready(int device)
     if (SCSI_SK_NOT_READY == sinfo.sense_key)
 	return 1;
     else if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
-	/* power on reset, media changed */
+	/* power on reset, media changed, ok ... try again */
 	status = _testunitready(device, &sinfo);	
         if (SCSI_SK_NOT_READY == sinfo.sense_key)
 	    return 1;
@@ -583,6 +743,7 @@ int testunitready(int device)
 /* ModePage1C Handler */
 #define SMART_SUPPORT   0x00    
 
+/* Mode page 0x1c is the "Imformation Exception Control" (IEC) page */
 int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
 {
     char tBuf[254];
