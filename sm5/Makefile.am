@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.17 2003/10/03 00:15:02 ballen4705 Exp $
+# $Id: Makefile.am,v 1.18 2003/10/04 15:15:20 guidog Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -108,7 +108,7 @@ uninstall-docsDATA:
 # Todo:
 #   documentation: $(docsdir)
 #   initd.script: $(initddir)
-smart%: smart%.in
+smart%: $(srcdir)/smart%.in
 	sed "s|RELEASE|$(releaseversion)|g" $< | \
 	sed "s|/usr/share/man/|$(mandir)/|g" | \
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
