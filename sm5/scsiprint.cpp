@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.81 2004/08/21 13:15:25 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.82 2004/08/21 19:57:47 likewise Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -653,9 +653,17 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
         PRINT_ON(con);
-        pout("Standard Inquiry failed [%s]\n", scsiErrString(err));
+        pout("Standard Inquiry (32 bytes) failed [%s]\n", scsiErrString(err));
+        pout("Retrying with a 64 byte Standard Inquiry\n");
         PRINT_OFF(con);
-        return 1;
+        /* Marvell controllers fail on a 32 bytes StdInquiry, but 64 suffices */
+        memset(gBuf, 0, 64);
+        if ((err = scsiStdInquiry(device, gBuf, 64))) {
+            PRINT_ON(con);
+            pout("Standard Inquiry (64 bytes) failed [%s]\n", scsiErrString(err));
+            PRINT_OFF(con);
+            return 1;
+        }
     }
     len = gBuf[4] + 5;
     peri_dt = gBuf[0] & 0x1f;
@@ -683,7 +691,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if (0 == strncmp(manufacturer, "3ware", 5)) {
         pout("please try '-d 3ware,N'\n");
 	return 2;
-    } else if (0 == strncmp(manufacturer, "MVSATA", 6)) {
+    } else if ((len >= 42) && (0 == strncmp(&gBuf[36], "MVSATA", 6))) {
         pout("please try '-d marvell'\n");
 	return 2;
     }
