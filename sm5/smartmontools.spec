@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.158 2004/05/07 18:33:53 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.159 2004/07/05 07:41:52 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -324,6 +324,46 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Mon Jul 5 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [BA] Update link to revised/updated IBM Deskstar Firmware
+  [CF] Cygwin & Windows: Added missing ASPI manager initialization
+       with GetASPI32SupportInfo(). Thanks to Nikolai SAOUKH for pointing
+       this out and providing a patch.
+  [BA] modified smartd init script to work on whitebox (thanks to
+       Michael Falzon)
+  [BA] removed (reverted) additional Attribute definitions from
+       http://smart.friko.pl/attributes.php.  All (or most?) of these
+       appear to be return code values for the WD Digital Life Guard Utility.
+  [PW] Added Seagate Medalist 17242, 13032, 10232, 8422, and 4312 to
+       knowndrives table.  Added missing Seagate U Series 5 drives.
+  [PW] Added the following QUANTUM models to knowndrives table:
+       FIREBALL EX6.4A, FIREBALLP AS10.2, FIREBALLP AS40.0, FIREBALL CR4.3A,
+       FIREBALLP LM15, FIREBALLP LM30, and FIREBALLlct20 30
+  [PW] Added missing Western Digital Protege drives to knowndrives table.
+  [PW] Added Maxtor DiamondMax 40 ATA 66 series and DiamondMax 40 VL Ultra
+       ATA 100 series to knowndrives table.
+  [PW] Added the following Hitachi/IBM drives to knowndrives table:
+       HITACHI_DK14FA-20B, Travelstar 40GNX series, Travelstar 4LP series,
+       and Travelstar DK23XXB series.  Added the missing Travelstar 80GN
+       drives.
+  [PW] Added Fujitsu MPB series and MPG series to knowndrives table.  Added
+       the missing Fujitsu MHSxxxxAT drives.
+  [KS] Solaris: added workaround for dynamic change of time-zone.
+  [KS] Solaris: fixed problem that autogen.sh cannot detect absence of
+       auto* tools.
+  [BA] smartd: added time-zone bug information to man page. 
+       Reverted CF code for _WIN32 case. 
+  [CF] Cygwin & Windows: Added better error messages on IDE/ATA device
+       open error.
+  [BA] added additional Attribute definitions from
+       http://smart.friko.pl/attributes.php
+  [BA] smartd: reworked TimeZone bug workaround so it is only invoked
+       for glibc.  Note: this might not be right -- a similar bug may
+       exist in other platform's libcs.
+  [DG] SCSI smartmontools documentation updated [2004/5/6]. See:
+       http://smartmontools.sourceforge.net/smartmontools_scsi.html
+  [CF] Windows: Fixed reset of TZ=GMT in glibc timezone bug workaround.
+
 * Tue May 4 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [DG] move SCSI device temperature and start-stop log page output
        (smartctl) into --attributes section (was in --info section).

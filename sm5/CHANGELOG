@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.417 2004/06/24 12:28:38 chrfranke Exp $
+$Id: CHANGELOG,v 1.418 2004/07/05 07:41:52 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+smartmontools 5.32
+
+  [BA] Update link to revised/updated IBM Deskstar Firmware
 
   [CF] Cygwin & Windows: Added missing ASPI manager initialization
        with GetASPI32SupportInfo(). Thanks to Nikolai SAOUKH for pointing
