@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.5 2002/10/10 13:21:14 ballen4705 Exp $
+# $Id: Makefile,v 1.6 2002/10/10 20:17:46 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
@@ -14,7 +14,8 @@
 # Mass Ave, Cambridge, MA 02139, USA.
 
 CC	= gcc
-CFLAGS	= -fsigned-char -Wall -g 
+# CFLAGS = -fsigned-char -Wall -g 
+CFLAGS	= -fsigned-char -Wall -O2
 
 all: smartd smartctl
 
@@ -37,15 +38,16 @@ scsicmds.o: scsicmds.h scsicmds.c
 	${CC} ${CFLAGS} -c scsicmds.c
 
 clean:
-	rm -f *.o smartctl smartd *~ smartmontools*.tar.gz
+	rm -f *.o smartctl smartd *~ smartmontools*.tar.gz smartmontools*.rpm
 
 install: smartctl smartd smartctl.8 smartd.8 smartd.initd
-	install -m 755 -o root -g root smartctl /usr/sbin
-	install -m 755 -o root -g root smartd /usr/sbin
-	install -m 644 -o root -g root smartctl.8 /usr/share/man/man8
-	install -m 644 -o root -g root smartd.8 /usr/share/man/man8
-	install -m 755 -o root -g root smartd.initd /etc/rc.d/init.d/smartd
-	/sbin/chkconfig --add smartd
+	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
+	install -m 755 -o root -g root -D smartd $(DESTDIR)/usr/sbin/smartd
+	install -m 644 -o root -g root -D smartctl.8 $(DESTDIR)/usr/share/man/man8/smartctl.8
+	install -m 644 -o root -g root -D smartd.8 $(DESTDIR)/usr/share/man/man8/smartd.8
+	install -m 755 -o root -g root -D smartd.initd $(DESTDIR)/etc/rc.d/init.d/smartd
+	echo "To manually start smartd on bootup, run etc/rc.d/init.d/smartd start"
+	echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 
 uninstall:
 	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8  /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
@@ -55,7 +57,7 @@ uninstall:
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd
+  smartd.8 smartd.c smartd.h smartd.initd TODO
 
 pkgname=smartmontools-5.0
 workdir=$(pkgname)
@@ -66,4 +68,9 @@ release: $(releasefiles)
 	cp -a $(releasefiles) $(workdir)
 	tar zcvf $(pkgname).tar.gz $(workdir)
 	rm -rf $(workdir)
+	cp $(pkgname).tar.gz /usr/src/redhat/SOURCES
+	rpm -ba smartmontools.spec
+	mv /usr/src/redhat/RPMS/i386/$(pkgname)*.rpm .
+	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .
+	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
 
