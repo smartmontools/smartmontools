@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.15 2003/10/02 13:36:05 ballen4705 Exp $
+# $Id: Makefile.am,v 1.16 2003/10/03 00:13:37 ballen4705 Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -9,56 +9,59 @@ sbin_PROGRAMS = smartd 	\
 AM_CFLAGS = -fsigned-char -Wall
 AM_CPPFLAGS = -DSYSCONFDIR=\"$(sysconfdir)\"
 
-smartd_SOURCES = smartd.c \
-                atacmds.c	\
-                ataprint.c 	\
-                atacmdnames.c	\
-                escalade.c	\
-                knowndrives.c	\
-                scsicmds.c	\
-                scsiprint.c	\
-                utility.c 	\
-                atacmds.h	\
-                atacmdnames.h	\
-                ataprint.h	\
-                escalade.h	\
-                knowndrives.h	\
-                scsicmds.h	\
-                scsiprint.h	\
-                smartd.h	\
-                utility.h	\
-                extern.h 
+smartd_SOURCES =  smartd.c       \
+                  smartd.h       \
+                  atacmdnames.c	\
+                  atacmdnames.h	\
+                  atacmds.c	\
+                  atacmds.h	\
+                  ataprint.c 	\
+                  ataprint.h	\
+                  escalade.c	\
+                  escalade.h	\
+                  extern.h       \
+                  knowndrives.c	\
+                  knowndrives.h	\
+                  scsicmds.c	\
+                  scsicmds.h	\
+                  scsiprint.c	\
+                  scsiprint.h	\
+                  utility.c 	\
+                  utility.h	\
 
-smartctl_SOURCES= smartctl.c \
-                atacmds.c	\
-                ataprint.c	\
-                atacmdnames.c	\
-                escalade.c	\
-                knowndrives.c	\
-                scsicmds.c	\
-                scsiprint.c	\
-                smartctl.h	\
-                utility.c	\
-                atacmds.h	\
-                atacmdnames.h	\
-                ataprint.h	\
-                escalade.h	\
-                knowndrives.h	\
-                scsicmds.h	\
-                scsiprint.h	\
-                utility.h	\
-                extern.h 
+smartctl_SOURCES= smartctl.c    \
+                  smartctl.h    \
+                  atacmdnames.c	\
+                  atacmdnames.h	\
+                  atacmds.c	\
+                  atacmds.h	\
+                  ataprint.c	\
+                  ataprint.h	\
+                  escalade.c	\
+                  escalade.h	\
+                  extern.h      \
+                  knowndrives.c	\
+                  knowndrives.h	\
+                  scsicmds.c	\
+                  scsicmds.h	\
+                  scsiprint.c	\
+                  scsiprint.h	\
+                  utility.c	\
+                  utility.h	\
 
-man_MANS = smartd.conf.5	\
-                smartctl.8	\
-                smartd.8
+man_MANS =        smartd.conf.5 \
+                  smartctl.8    \
+                  smartd.8
 
 docsdir=$(docdir)
-docs_DATA = README    \
-            TODO      \
-            WARNINGS  \
+docs_DATA = AUTHORS   \
             CHANGELOG \
             COPYING   \
+            INSTALL   \
+            NEWS      \
+            README    \
+            TODO      \
+            WARNINGS  \
             smartd.conf
 
 sysconf_DATA = smartd.conf
