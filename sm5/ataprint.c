@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.82 2003/04/19 18:50:12 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.83 2003/04/20 15:38:37 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -120,6 +120,12 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   pout("Firmware Version: ");
   printswap(firm, drive->fw_rev,8);
 
+  // See if drive is recognized
+  drivetype=lookupdrive(model, firm);
+  pout("Device is:        %s\n", drivetype<0?
+       "Not in smartctl database [for details use: -P showall]":
+       "In smartctl database [for details use: -P show]");
+
   // now get ATA version info
   version=ataVersionInfo(&description,drive, &minorrev);
 
@@ -142,12 +148,6 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   pout("ATA Version is:   %d\n",(int)abs(version));
   pout("ATA Standard is:  %s\n",description);
   
-  // See if drive is recognized
-  drivetype=lookupdrive(model, firm);
-  pout("Drive Model is:   %s\n", drivetype<0?
-       "Not listed in smartmontools database":
-       "Recognized in smartmontools database");
-
   // print current time and date and timezone
   dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);

@@ -20,7 +20,7 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.5 2003/04/18 11:18:02 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.6 2003/04/20 15:38:38 ballen4705 Exp $\n"
 
 #include <linux/hdreg.h>
 #include "extern.h"
@@ -71,10 +71,12 @@ void showpresets(const struct hd_driveid *drive);
 // Shows all presets for drives in knowndrives[].
 void showallpresets(void);
 
-// Sets preset vendor attribute options in opts by finding the entry (if any)
-// for the given drive in knowndrives[].  Values that have already been set in
-// opts will not be changed.  Also sets options in con.
-void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+// Sets preset vendor attribute options in opts by finding the entry
+// (if any) for the given drive in knowndrives[].  Values that have
+// already been set in opts will not be changed.  Also sets options in
+// con.  Returns <0 if drive not recognized else index of drive in
+// database.
+int applypresets(const struct hd_driveid *drive, unsigned char opts[256],
                   smartmonctrl *con);
 
 #endif

@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.16 2003/04/19 09:53:41 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.17 2003/04/20 15:38:38 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -338,10 +338,11 @@ void showpresets(const struct hd_driveid *drive){
   return;
 }
 
-// Sets preset vendor attribute options in opts by finding the entry (if any)
-// for the given drive in knowndrives[].  Values that have already been set in
-// opts will not be changed.
-void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+// Sets preset vendor attribute options in opts by finding the entry
+// (if any) for the given drive in knowndrives[].  Values that have
+// already been set in opts will not be changed.  Returns <0 if drive
+// not recognized else index >=0 into drive database.
+int applypresets(const struct hd_driveid *drive, unsigned char opts[256],
                   smartmonctrl *con) {
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
@@ -373,4 +374,8 @@ void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
     if (knowndrives[i].specialpurpose)
       (*knowndrives[i].specialpurpose)(con);
   }
+  
+  // return <0 if drive wasn't recognized, or index>=0 into database
+  // if it was
+  return i;
 }
