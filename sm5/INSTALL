@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.20 2003/10/11 16:18:50 arvoreen Exp $
+$Id: INSTALL,v 1.21 2003/10/11 22:59:37 arvoreen Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -139,7 +139,15 @@ For a list of options:
 To match the way it will installed when it becomese available as a PORT, use
 the following:
 
-./configure --prefix=/usr/local
+  ./configure --sbindir=/usr/local/sbin                               \
+              --sysconfdir=/usr/local/etc                             \
+              --mandir=/usr/local/man                                 \
+              --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
+              --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+
+Also, it is important that you use GNU make (gmake from /usr/ports/devel/gmake)
+to build smartmontools, as the default FreeBSD make doesn't know how to build
+the man pages.
 
 Note: The rc file currently included and installed may not function. Work is
 ongoing to support a more generic RC format.

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.205 2003/10/11 16:18:49 arvoreen Exp $
+$Id: CHANGELOG,v 1.206 2003/10/11 22:59:37 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Minor autoconf update to include -lcam for FreeBSD
 
   [EM] Add conditional logic to allow FreeBSD to compile pre-ATAng.
 	-- note, not tested
