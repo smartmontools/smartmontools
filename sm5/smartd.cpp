@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.48 2002/10/30 15:01:09 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.49 2002/10/30 19:16:42 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -819,14 +819,15 @@ int parsetoken(char *token,cfgfile *cfg){
   return 1;
 }
 
-
+int numtokens=0;
 int parseconfigline(int entry, int lineno,char *line){
   char *token,*copy;
   char *delim=" \n\t";
   char *name;
   int len;
   cfgfile *cfg;
-  
+  static int numtokens=0;
+
   if (!(copy=strdup(line))){
     perror("no memory available to parse line");
     exit(1);
@@ -837,6 +838,19 @@ int parseconfigline(int entry, int lineno,char *line){
     free(copy);
     return 0;
   }
+
+  // Have we detected the DEVICESCAN directive?
+  if (!strcmp(SCANDIRECTIVE,name)){
+    if (numtokens) {
+      printout(LOG_INFO,"Scan Directive %s must be the first entry in %s\n",name,CONFIGFILE);
+      exit(1);
+    }
+    else
+      printout(LOG_INFO,"Scan Directive %s found in %s\n",name,CONFIGFILE);
+    free(copy);
+    return -1;
+  }
+  numtokens++;
 
   // Is there space for another entry?
   if (entry>=MAXENTRIES){
@@ -923,7 +937,7 @@ int parseconfigfile(){
 
   // parse config file line by line
   while (1) {
-    int len=0;
+    int len=0,scandevice;
     char *lastslash;
     char *comment;
     char *code;
@@ -937,9 +951,13 @@ int parseconfigfile(){
     // are we at the end of the file?
     if (!code){
       if (cont) {
+	scandevice=parseconfigline(entry,lineno,fullline);
+	// See if we found a SCANDEVICE directive
+	if (scandevice<0)
+	  return -1;
 	// the final line is part of a continuation line
 	cont=0;
-	entry+=parseconfigline(entry,lineno,fullline);
+	entry+=scandevice;
       }
       break;
     }
@@ -984,7 +1002,13 @@ int parseconfigfile(){
     }
 
     // Not a continuation line. Parse it
-    entry+=parseconfigline(entry,lineno,fullline);
+    scandevice=parseconfigline(entry,lineno,fullline);
+
+    // did we find a scandevice directive?
+    if (scandevice<0)
+      return -1;
+
+    entry+=scandevice;
     lineno++;
     cont=0;
   }
@@ -1153,12 +1177,17 @@ int main (int argc, char **argv){
   atexit(goobye);
   
   // if there was no config file, create needed entries
-  if (!entries){
-    printout(LOG_INFO,"smartd: file %s not found. Searching for devices.\n",CONFIGFILE);
+  if (entries<=0){
+    if (entries)
+      printout(LOG_INFO,"smartd: Scanning for devices.\n");
+    else
+      printout(LOG_INFO,"smartd: file %s not found. Searching for devices.\n",CONFIGFILE);
+    entries=0;
     entries+=makeconfigentries(MAXATADEVICES,"/dev/hda",1,entries);
     entries+=makeconfigentries(MAXSCSIDEVICES,"/dev/sda",0,entries);
   }
   
+
   // Register entries
   for (i=0;i<entries;i++){
     // register ATA devices
