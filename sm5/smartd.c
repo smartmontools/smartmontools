@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.269 2003/12/29 13:19:25 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.270 2003/12/29 15:45:06 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -492,10 +492,10 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 
   // If the user has set cfg->emailcmdline, use that as mailer, else "mail" or "mailx".
   if (!executable)
-#ifdef USEMAILX
-    executable="mailx";
+#ifdef DEFAULT_MAILER
+    executable = DEFAULT_MAILER ;
 #else
-    executable="mail";    
+    executable = "mail";
 #endif
 
   // Export information in environment variables that will be useful
