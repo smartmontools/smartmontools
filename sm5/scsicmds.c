@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.75 2004/04/30 06:15:49 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.76 2004/07/11 15:16:31 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -176,7 +176,8 @@ static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
             return SIMPLE_ERR_BAD_FIELD;
         else if (SCSI_ASC_UNKNOWN_PARAM == sinfo->asc)
             return SIMPLE_ERR_BAD_PARAM;
-    }
+    } else if (SCSI_SK_UNIT_ATTENTION == sinfo->sense_key)
+        return SIMPLE_ERR_TRY_AGAIN;
     return SIMPLE_NO_ERROR;
 }
 
@@ -201,6 +202,8 @@ const char * scsiErrString(int scsiErr)
             return "no medium present";
         case SIMPLE_ERR_BECOMING_READY: 
             return "device will be ready soon";
+        case SIMPLE_ERR_TRY_AGAIN: 
+            return "unit attention reported, try again";
         default:
             return "unknown error";
     }
@@ -331,18 +334,25 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 == status) {
+    if (0 != status)
+	return status;
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    status = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_ERR_TRY_AGAIN == status) {
+        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+        if (0 != status)
+	    return status;
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
-        if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
-            int offset;
+    }
+    if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
+        int offset;
 
-            offset = scsiModePageOffset(pBuf, bufLen, 0);
-            if (offset < 0)
-                return SIMPLE_ERR_BAD_RESP;
-            else if (pagenum != (pBuf[offset] & 0x3f))
-                return SIMPLE_ERR_BAD_RESP;
-        }
+        offset = scsiModePageOffset(pBuf, bufLen, 0);
+        if (offset < 0)
+            return SIMPLE_ERR_BAD_RESP;
+        else if (pagenum != (pBuf[offset] & 0x3f))
+            return SIMPLE_ERR_BAD_RESP;
     }
     return status;
 }
@@ -420,18 +430,25 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 == status) {
+    if (0 != status)
+	return status;
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    status = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_ERR_TRY_AGAIN == status) {
+        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+        if (0 != status)
+	    return status;
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
-        if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
-            int offset;
+    }
+    if ((0 == status) && (ALL_MODE_PAGES != pagenum)) {
+        int offset;
 
-            offset = scsiModePageOffset(pBuf, bufLen, 1);
-            if (offset < 0)
-                return SIMPLE_ERR_BAD_RESP;
-            else if (pagenum != (pBuf[offset] & 0x3f))
-                return SIMPLE_ERR_BAD_RESP;
-        }
+        offset = scsiModePageOffset(pBuf, bufLen, 1);
+        if (offset < 0)
+            return SIMPLE_ERR_BAD_RESP;
+        else if (pagenum != (pBuf[offset] & 0x3f))
+            return SIMPLE_ERR_BAD_RESP;
     }
     return status;
 }
@@ -706,14 +723,15 @@ int scsiTestUnitReady(int device)
     status = _testunitready(device, &sinfo);
     if (0 != status)
         return status;
-
-    if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
+    status = scsiSimpleSenseFilter(&sinfo);
+    if (SIMPLE_ERR_TRY_AGAIN == status) {
         /* power on reset, media changed, ok ... try again */
         status = _testunitready(device, &sinfo);        
         if (0 != status)
             return status;
+        status = scsiSimpleSenseFilter(&sinfo);
     }
-    return scsiSimpleSenseFilter(&sinfo);
+    return status;
 }
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
