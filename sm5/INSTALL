@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.48 2004/05/27 17:04:05 chrfranke Exp $
+$Id: INSTALL,v 1.49 2004/05/27 17:19:39 card_captor Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -288,11 +288,19 @@ SuSE:
     To start the script automatically on bootup, create hardlinks that
     indicate when to start/stop in:
 		    /etc/rc[S0123].d/
-    pointing to /etc/rc.d/smartd. Create:
+    pointing to /etc/init.d/smartd. Create:
 	    K<knum>smartd in rcS.d, rc0.d, rc1.d, rc2.d
 	    S<snum>smartd in rc3.d
     where <knum> is related to <snum> such that the higher snum is the
     lower knum must be.
+
+    On usual configuration, '95' would be suitable for <snum> and '05'
+    for <knum> respectively.  If you choose these value, you can
+    create hardlinks by:
+
+    cd /etc
+    sh -c 'for n in S 0 1 2; do ln init.d/smartd rc$n.d/K05smartd; done'
+    sh -c 'for n in 3      ; do ln init.d/smartd rc$n.d/S95smartd; done'
 
 [8] Guidelines for Cygwin
 =========================
