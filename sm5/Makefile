@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.3 2002/10/09 19:29:33 ballen4705 Exp $
+# $Id: Makefile,v 1.4 2002/10/10 11:54:13 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
@@ -51,3 +51,18 @@ uninstall:
 	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8  /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
 	/sbin/chkconfig --del smartd
 	rm -f /etc/rc.d/init.d/smartd
+
+releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
+  README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
+  smartd.8 smartd.c smartd.h smartd.initd
+
+pkgname=smartmontools-5.0
+workdir=$(pkgname)
+
+release: $(releasefiles)
+	rm -rf $(workdir)
+	mkdir $(workdir)
+	cp -a $(releasefiles) $(workdir)
+	tar zcvf $(pkgname).tar.gz $(workdir)
+	rm -rf $(workdir)
+
