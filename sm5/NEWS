@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.24 2004/09/05 21:04:56 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.25 2004/09/14 01:48:35 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
@@ -52,7 +52,7 @@ since 5.26.
   the configuration file /etc/smartd.conf contains NO valid entries.
   This bug was introduced in version 1.259 of smartd.c by BA and
   is present in smartmontools releases 5.27-5.30 inclusive. This can
-  be fixed by editing line 3389 of smartd.c, and changing:
+  be fixed by editing line 3165 of smartd.c, and changing:
   "else if (cfgentries[0]) {"
   to read:
   "else if (cfgentries && cfgentries[0]) {"
