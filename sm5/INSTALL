@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.52 2004/08/07 21:59:19 geoffk1 Exp $
+$Id: INSTALL,v 1.53 2004/08/11 07:16:38 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -521,4 +521,4 @@ Case 2:
 	/usr/local/etc/rc.d/init.d/smartd
 
 Additional information about using configure can be found here:
-http://www.gnu.org/manual/autoconf-2.57/html_mono/autoconf.html#SEC139
+http://www.gnu.org/software/autoconf/manual/autoconf-2.57/html_mono/autoconf.html#SEC139
