@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.377 2004/03/24 21:13:51 chrfranke Exp $
+$Id: CHANGELOG,v 1.378 2004/03/24 22:37:37 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Added daemon support to Win32 native version of smartd.
+       The daemon can be controlled by commands similar to initd
+       scripts: "smartd status|stop|reload|restart|sigusr1|sigusr2".
 
   [CF] Added minor support for option "-l local[0-7]" to Win32 native
        (not Cygwin) version of smartd. If specified, the log output
