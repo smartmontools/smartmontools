@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.73 2004/07/31 20:15:29 chrfranke Exp $
+$Id: smartd.8.in,v 1.74 2004/08/02 14:31:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -748,24 +748,27 @@ match the extended regular expression \fBREGEXP\fP. Here:
 .RS 7
 .IP \fBT\fP 4
 is the type of the test.  The values that \fBsmartd\fP will try to
-match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a \fBS\fPhort
-Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA only), and \'O\'
-for an \fBO\fPffline Immediate Test (ATA only).  As soon as a match is
-found, the test will be started and no additional matches will be
-sought for that device and that polling cycle.
+match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a
+\fBS\fPhort Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA
+only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
+soon as a match is found, the test will be started and no additional
+matches will be sought for that device and that polling cycle.
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
-range is from 01 (January) to 12 (December) inclusive.
+range is from 01 (January) to 12 (December) inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
 .IP \fBDD\fP 4
 is the day of the month, expressed with two decimal digits. The
-range is from 01 to 31 inclusive.
+range is from 01 to 31 inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
 .IP \fBd\fP 4
 is the day of the week, expressed with one decimal digit.  The
 range is from 1 (Monday) to 7 (Sunday) inclusive.
 .IP \fBHH\fP 4
 is the hour of the day, written with two decimal digits, and given in
-hours after midnight.  The range is 00 (midnight to just before 1am) to 23 (11pm
-to just before midnight) inclusive.
+hours after midnight.  The range is 00 (midnight to just before 1am)
+to 23 (11pm to just before midnight) inclusive.  Do \fBnot\fP use a
+single decimal digit or the match will always fail!
 .RE
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
@@ -1713,4 +1716,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.73 2004/07/31 20:15:29 chrfranke Exp $
+$Id: smartd.8.in,v 1.74 2004/08/02 14:31:05 ballen4705 Exp $
