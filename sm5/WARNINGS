@@ -1,0 +1,4 @@
+The following are controllers/drives where there have been reports of
+serious problems (eg system lockup):
+
+Dell servers using AACRAID (SCSI): drew@eastvan.bc.ca

@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.65 2002/11/15 13:13:13 sbrabec Exp $
+# $Id: smartmontools.spec,v 1.66 2002/11/15 14:51:31 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -212,7 +212,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %attr(644,root,root) %{_mandir}/man8/smartctl.8*
 %attr(644,root,root) %{_mandir}/man8/smartd.8*
 %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
-%doc CHANGELOG COPYING TODO README VERSION smartd.conf
+%doc WARNINGS CHANGELOG COPYING TODO README VERSION smartd.conf
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %config %{_sysconfdir}/smartd.conf.example
 
