@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.55 2003/11/13 07:42:13 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.56 2003/11/14 05:29:55 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -59,6 +59,8 @@ static int gTempLPage = 0;
 static int gSelfTestLPage = 0;
 static int gStartStopLPage = 0;
 static int gTapeAlertsLPage = 0;
+static int gSeagateCacheLPage = 0;
+static int gSeagateFactoryLPage = 0;
 
 /* Mode pages supported */
 static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
@@ -93,6 +95,12 @@ static void scsiGetSupportedLogPages(int device)
                 break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = 1;
+                break;
+            case SEAGATE_CACHE_LPAGE:
+                gSeagateCacheLPage = 1;
+                break;
+            case SEAGATE_FACTORY_LPAGE:
+                gSeagateFactoryLPage = 1;
                 break;
             default:
                 break;
@@ -226,6 +234,117 @@ void scsiGetStartStopData(int device)
              recommendedStartStop);
     }
 } 
+
+static void scsiPrintSeagateCacheLPage(int device)
+{
+    int k, j, num, pl, pc, pcb, err, len;
+    unsigned char * ucp;
+    unsigned char * xp;
+    unsigned long long ull;
+
+    pout("Vendor (Seagate) cache information\n");
+    if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
+                            LOG_RESP_LEN, 0))) {
+        QUIETON(con);
+        pout("scsiPrintSeagateCacheLPage Failed [%s]\n", scsiErrString(err));
+        QUIETOFF(con);
+        return;
+    }
+    if (gBuf[0] != SEAGATE_CACHE_LPAGE) {
+        QUIETON(con);
+        pout("Seagate Cache Log Sense Failed, page mismatch\n");
+        QUIETOFF(con);
+        return;
+    }
+    len = ((gBuf[2] << 8) | gBuf[3]) + 4;
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
+        pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 0: pout("  Blocks sent to initiator"); break;
+        case 1: pout("  Blocks received from initiator"); break;
+        case 2: pout("  Blocks read from cache and sent to initiator"); break;
+        case 3: pout("  Number of read and write commands whose size "
+                       "<= segment size"); break;
+        case 4: pout("  Number of read and write commands whose size "
+                       "> segment size"); break;
+        default: pout("  Unknown Seagate parameter code = 0x%x", pc); break;
+        }
+        k = pl - 4;
+        xp = ucp + 4;
+        if (k > sizeof(ull)) {
+            xp += (k - sizeof(ull));
+            k = sizeof(ull);
+        }
+        ull = 0;
+        for (j = 0; j < k; ++j) {
+            if (j > 0)
+                ull <<= 8;
+            ull |= xp[j];
+        }
+        pout(" = %llu\n", ull);
+        num -= pl;
+        ucp += pl;
+    }
+}
+
+static void scsiPrintSeagateFactoryLPage(int device)
+{
+    int k, j, num, pl, pc, pcb, len, err;
+    unsigned char * ucp;
+    unsigned char * xp;
+    unsigned long long ull;
+
+    pout("Vendor (Seagate) factory information\n");
+    if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, gBuf,
+                            LOG_RESP_LEN, 0))) {
+        QUIETON(con);
+        pout("scsiPrintSeagateFactoryLPage Failed [%s]\n", scsiErrString(err));
+        QUIETOFF(con);
+        return;
+    }
+    if (gBuf[0] != SEAGATE_FACTORY_LPAGE) {
+        QUIETON(con);
+        pout("Seagate Factory Log Sense Failed, page mismatch\n");
+        QUIETOFF(con);
+        return;
+    }
+    len = ((gBuf[2] << 8) | gBuf[3]) + 4;
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
+        pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 0: pout("  number of hours powered up"); break;
+        case 8: pout("  number of minutes until next internal SMART test");
+            break;
+        default: pout("  Unknown Seagate parameter code = 0x%x", pc); break;
+        }
+        k = pl - 4;
+        xp = ucp + 4;
+        if (k > sizeof(ull)) {
+            xp += (k - sizeof(ull));
+            k = sizeof(ull);
+        }
+        ull = 0;
+        for (j = 0; j < k; ++j) {
+            if (j > 0)
+                ull <<= 8;
+            ull |= xp[j];
+        }
+        if (0 == pc)
+            pout(" = %.2f\n", ((double)ull) / 60.0 );
+        else
+            pout(" = %llu\n", ull);
+        num -= pl;
+        ucp += pl;
+    }
+}
 
 static void scsiPrintErrorCounterLog(int device)
 {
@@ -714,6 +833,12 @@ int scsiPrintMain(const char *dev_name, int fd)
                 scsiGetStartStopData(fd);
         }
     }   
+    if (con->smartvendorattrib) {
+        if (gSeagateCacheLPage)
+            scsiPrintSeagateCacheLPage(fd);
+        if (gSeagateFactoryLPage)
+            scsiPrintSeagateFactoryLPage(fd);
+    }
     if (con->smarterrorlog)
         scsiPrintErrorCounterLog(fd);
     if (con->smartselftestlog) {
