@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.9 2003/04/22 04:23:29 dpgilbert Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.10 2003/06/19 03:27:53 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -70,5 +70,8 @@ int split_report_arg(char *s, int *i);
 #define GUESS_DEVTYPE_SCSI      1
 #define GUESS_DEVTYPE_DONT_KNOW 2
 int guess_linux_device_type(const char * dev_name);
+
+// run time, determine byte ordering
+int isbigendian();
 
 #endif
