@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.262 2003/12/09 21:25:08 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.263 2003/12/10 05:16:58 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1118,7 +1118,9 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   // N.B. The following is passive (i.e. it doesn't attempt to turn on
   // smart if it is off). This may change to be the same as the ATA side.
   if (!scsi_IsExceptionControlEnabled(&iec)) {
-    PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n", device);
+    PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n"
+                        "Try 'smartctl -s on %s' to turn on SMART features\n", 
+                        device, device);
     CloseDevice(fd, device);
     return 3;
   }
