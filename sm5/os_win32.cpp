@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-2005 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.28 2005/04/06 18:17:52 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.29 2005/04/06 18:37:09 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -857,8 +857,6 @@ static unsigned ata_scan()
 		if ((h = CreateFileA(devpath,
 			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
 			NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
-			if (con->reportataioctl > 1)
-				pout(" %s: Open failed, Error=%ld\n", devpath, GetLastError());
 			if (win9x)
 				break; // SMARTVSD.VXD missing or no ATA devices
 			continue; // Disk not found or access denied (break;?)
@@ -868,20 +866,12 @@ static unsigned ata_scan()
 		memset(&vers, 0, sizeof(vers));
 		if (!DeviceIoControl(h, SMART_GET_VERSION,
 			NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-			if (con->reportataioctl)
-				pout(" %s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
 			CloseHandle(h);
 			if (win9x)
 				break; // Should not happen
 			continue; // Non ATA disk or no SMART ioctl support (possibly SCSI disk)
 		}
 		CloseHandle(h);
-
-		if (con->reportataioctl)
-			pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
-			     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-				devpath, num_out, vers.bVersion, vers.bRevision,
-				vers.fCapabilities, vers.bIDEDeviceMap);
 
 		if (win9x) {
 			// Check ATA device presence, remove ATAPI devices
@@ -1307,8 +1297,9 @@ static int aspi_open_dll(int verbose)
 
 	// Init ASPI manager and get number of adapters
 	info = (aspi_info)();
-	if (con->reportscsiioctl > 1)
-		pout("GetASPI32SupportInfo() returns 0x%04x\n", info);
+#ifdef _DEBUG
+	pout("GetASPI32SupportInfo() returns 0x%04x\n", info);
+#endif
 	rc = (info >> 8) & 0xff;
 	if (rc == ASPI_STATUS_NO_ADAPTERS) {
 		num_aspi_adapters = 0;
@@ -1371,7 +1362,6 @@ static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
 
 static int aspi_open(unsigned adapter, unsigned id)
 {
-	ASPI_SRB srb;
 	if (!(adapter <= 9 && id < 16)) {
 		errno = ENOENT;
 		return -1;
@@ -1384,31 +1374,12 @@ static int aspi_open(unsigned adapter, unsigned id)
 
 	// Adapter OK?
 	if (adapter >= num_aspi_adapters) {
-		pout("ASPI Adapter %u does not exist (%u Adapter%s detected).\n",
-			adapter, num_aspi_adapters, (num_aspi_adapters!=1?"s":""));
+		pout("ASPI Adapter %d does not exist (%d Adapter(s) detected).\n", adapter, num_aspi_adapters);
 		if (!is_permissive()) {
 			errno = ENOENT;
 			return -1;
 		}
 	}
-
-	// Device present ?
-	memset(&srb, 0, sizeof(srb));
-	srb.h.cmd = ASPI_CMD_GET_DEVICE_TYPE;
-	srb.h.adapter = adapter; srb.i.target_id = id;
-	if (aspi_call(&srb)) {
-		errno = EIO;
-		return -1;
-	}
-	if (srb.h.status != ASPI_STATUS_NO_ERROR) {
-		pout("ASPI Adapter %u, ID %u: No such device (Status=%02x)\n", adapter, id, srb.h.status);
-		if (!is_permissive()) {
-			errno = (srb.h.status == ASPI_STATUS_INVALID_TARGET ? ENOENT : EIO);
-			return -1;
-		}
-	}
-	else if (con->reportscsiioctl)
-		pout("ASPI Adapter %u, ID %u: Device Type=%02x\n", adapter, id, srb.t.devtype);
 
 	return (0x0100 | ((adapter & 0xf)<<4) | (id & 0xf));
 }
@@ -1434,29 +1405,26 @@ static unsigned long aspi_scan()
 	}
 
 	nad = num_aspi_adapters;
-	if (nad > 9)
-		nad = 9;
+	if (nad >= 4)
+		nad = 4;
 	for (ad = 0; ad < nad; ad++) {
-		ASPI_SRB srb; unsigned id;
+		ASPI_SRB srb; int id;
 		// Get adapter name
 		memset(&srb, 0, sizeof(srb));
 		srb.h.cmd = ASPI_CMD_ADAPTER_INQUIRE;
 		srb.h.adapter = ad;
 		if (aspi_call(&srb))
 			return 0;
-		if (srb.h.status != ASPI_STATUS_NO_ERROR) {
-			if (con->reportscsiioctl)
-				pout(" ASPI Adapter %u: Status=%02x\n", ad, srb.h.status);
+#ifdef _DEBUG
+		pout("ASPI Adapter %u: %02x,\"%.16s\"\n", ad, srb.h.status, srb.q.adapter_id);
+#endif
+		if (srb.h.status != ASPI_STATUS_NO_ERROR)
 			continue;
-		}
 
-		if (con->reportscsiioctl) {
-			int i;
-			for (i = 1; i < 16 && srb.q.adapter_id[i]; i++)
-				if (!(' ' <= srb.q.adapter_id[i] && srb.q.adapter_id[i] <= '~'))
-					srb.q.adapter_id[i] = '?';
-			pout(" ASPI Adapter %u (\"%.16s\"):\n", ad, srb.q.adapter_id);
-		}
+		// Skip ATA/ATAPI devices
+		srb.q.adapter_id[sizeof(srb.q.adapter_id)-1] = 0;
+		if (strstr(srb.q.adapter_id, "ATAPI"))
+			continue;
 
 		for (id = 0; id <= 7; id++) {
 			// Get device type
@@ -1465,14 +1433,10 @@ static unsigned long aspi_scan()
 			srb.h.adapter = ad; srb.i.target_id = id;
 			if (aspi_call(&srb))
 				return 0;
-			if (srb.h.status != ASPI_STATUS_NO_ERROR) {
-				if (con->reportscsiioctl > 1)
-					pout("  ID %u: No such device (Status=%02x)\n", id, srb.h.status);
-				continue;
-			}
-			if (con->reportscsiioctl)
-				pout("  ID %u: Device Type=%02x\n", id, srb.t.devtype);
-			if (srb.t.devtype == 0x00/*HDD*/)
+#ifdef _DEBUG
+			pout("Device type for scsi%u%x: %02x,%02x\n", ad, id, srb.h.status, srb.t.devtype);
+#endif
+			if (srb.h.status == ASPI_STATUS_NO_ERROR && srb.t.devtype == 0x00/*HDD*/)
 				drives |= 1 << ((ad<<3)+id);
 		}
 	}
