@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/09/22 23:11:52 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/09/23 16:38:04 $)</title>
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.86 2003/09/22 23:11:52 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.87 2003/09/23 16:38:04 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -97,10 +97,33 @@ containing the code.&#160; Go to that directory, build, and install:
 <pre>cd smartmontools-5.1-18
 ./configure (with no arguments)
 
-Skip the above command for releases &lt;= 5.1-18
+This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
+--docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
+which are correct for Red Hat, Slackware, and probably other Linux
+distributions.
+
+For FHS compliance, use --prefix=/usr/local , and for a full list of
+options ./configure --help
+
+Skip <tt>./configure</tt> for releases &lt;= 5.1-18
 
 make
-make install (only root can do this)</pre></li>
+make install (only root can do this)
+
+To compile from another directory, you can replace ./configure by the
+following:
+
+mkdir objdir
+cd objdir
+../configure
+
+And to install to another destination, used mainly by package
+maintainers:
+
+make DESTDIR=/home/myself/smartmontools-package install
+
+Use a full PATH. ~/smartmontools-package may not work. Don't use DESTDIR
+for releases &lt;= 5.1-18.</pre></li>
 </ul>
 
 <b>Third Method - Install from the CVS repository</b>
@@ -117,16 +140,16 @@ do to get the latest development code is
 (but note that the development code may be unstable, and that the
 documentation and code may be inconsistent):</p>
 
-<p><b>Warning</b>: We're in the process of converting smartmontools to
-use GNU Autoconf and GNU Automake. Code from HEAD may not configure,
-compile, install, or work correctly.</p>
+<p><b>Warning</b>: As of 23 September 2003 we're in the process of
+converting smartmontools to use GNU Autoconf and GNU Automake. Code from
+HEAD may not configure, compile, install, or work correctly.</p>
 
 <pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
 cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
 
-<li>To instead get the 5.1-17 release:
+<li>To instead get the 5.1-16 release:
 
-<pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_17 sm5</pre></li>
+<pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5</pre></li>
 
 <li><p>This will create a subdirectory called <tt>sm5/</tt> containing the
 code.&#160; Go to that directory, build, and install:</p>
@@ -140,15 +163,39 @@ Automake</a>, and their dependencies installed in order to run
 autogen.sh.</p>
 
 <pre>
-./configure (with no arguments)</pre>
+./configure (with no arguments)
 
-<p>Skip the above commands for tagged releases &lt;= 5.1-18
-(RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). This doesn't include
-HEAD (<tt>cvs co</tt> with no arguments and <tt>cvs up -A</tt>).</p>
+This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
+--docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
+which are correct for Red Hat, Slackware, and probably other Linux
+distributions.
+
+For FHS compliance, use --prefix=/usr/local , and for a full list of
+options ./configure --help
+
+Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
+&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). This
+doesn't include HEAD (<tt>cvs co</tt> with no arguments and <tt>cvs up
+-A</tt>).</pre>
 
 <pre>
 make
-make install (only root can do this)</pre></li>
+make install (only root can do this)
+
+To compile from another directory, you can replace ./configure by the
+following:
+
+mkdir objdir
+cd objdir
+../configure
+
+And to install to another destination, used mainly by package
+maintainers:
+
+make DESTDIR=/home/myself/smartmontools-package install
+
+Use a full PATH. ~/smartmontools-package may not work. Don't use DESTDIR
+for releases &lt;= 5.1-18.</pre></li>
 
 <li>To update your sources to the 5.1-18 release:
 
@@ -666,8 +713,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/09/22 23:11:52 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.86 2003/09/22 23:11:52 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2003/09/23 16:38:04 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.87 2003/09/23 16:38:04 pervalidus Exp $</tt>
 
 <hr size="2" />
 
