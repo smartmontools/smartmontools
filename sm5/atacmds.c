@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.127 2003/10/19 05:55:01 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.128 2003/10/27 09:26:20 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -576,17 +576,18 @@ unsigned char checksum(unsigned char *buffer){
 
 // Reads current Device Identity info (512 bytes) into buf.  Returns 0
 // if all OK.  Returns -1 if no ATA Device identity can be
-// established.  Returns 1 if Device is ATA Packet Device (not SMART
-// capable).
+// established.  Returns >0 if Device is ATA Packet Device (not SMART
+// capable).  The value of the integer helps identify the type of
+// Packet device, which is useful so that the user can connect the
+// formal device number with whatever object is inside their computer.
 int ataReadHDIdentity (int device, struct ata_identify_device *buf){
   unsigned short *rawstructure=(unsigned short *)buf;
   unsigned char *rawbyte=(unsigned char *)buf;
-  int retval=0;
 
-  if ((retval=smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
-    // See if device responds to packet command...
+  // See if device responds either to IDENTIFY DEVICE or IDENTIFY
+  // PACKET DEVICE
+  if ((smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
-      syserror("Error ATA GET HD Identity Failed");
       return -1; 
     }
   }
@@ -605,18 +606,21 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
   if ((rawstructure[255] & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
     checksumwarning("Drive Identity Structure");
   
-  if (retval) {
-    // This is a packet device.  Determine device type using bits
-    // 14-15 and 8-12 of response
-    return 1+(rawbyte[1] & 0x1f);
+  // If this is a PACKET DEVICE
+  if (rawbyte[1]>>7) {
+    if (
+	(rawbyte[160] || rawbyte[161])                  &&    // word 80 valid
+	(rawbyte[160]!=0xff || rawbyte[161]!=0xff)      &&    // word 80 valid
+        ((rawbyte[160] & 0xf0) || (rawbyte[161] & 0x8f))      // is ATA-4 through 14
+	)
+      // ATAPI-4 and on indicates device type in bits 8-12 of word 0:
+      return 1+(rawbyte[1] & 0x1f);
+    else
+      //  ATAPI 1-3 device -- let's guess a CDROM
+      return 6;
   }
-  
-  // IDENTIFY PACKET DEVICE was only introduced in ATA-4 revision
-  // 2.  Before that, a packet device responds to IDENTIFY DEVICE.
-  if (rawbyte[1] & (0x01<<7))
-    // early ATAPI device -- let's guess a CDROM
-    return 6;
-  
+
+  // Not a PACKET DEVICE
   return 0;
 }
 
