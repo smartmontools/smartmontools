@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.40 2004/04/02 20:09:13 ballen4705 Exp $
+$Id: INSTALL,v 1.41 2004/04/06 22:01:19 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -47,8 +47,8 @@ Table of contents:
     configured. [Andre Hedrick's IDE patches may be found at
     http://www.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/ or
     are available from your local kernel.org mirror.  They are not
-    updated for 2.2.21 or later, and may contain a few bugs.]
-  . If the configuration option CONFIG_IDE_TASK_IOCTL
+    updated for 2.2.21 or later, and may contain a few bugs.].
+    If the configuration option CONFIG_IDE_TASK_IOCTL
     exists in your 2.2.X kernel source code tree, then your 2.2.X
     kernel will probably support this ioctl. [Note that this kernel
     configuration option does NOT need to be enabled. Its presence
@@ -94,9 +94,20 @@ Table of contents:
     E) Windows
 
     The Code was tested on Windows 98SE, NT4, 2000 and XP. It should also
-    work on Windows 95(OSR2) and ME. For SCSI support, an installed
-    ASPI interface (WNASPI32.DLL) is required. The read log command
-    (-l, --log) is not supported for ATA/IDE devices on NT4.
+    work on Windows 95(OSR2) and ME.
+
+    On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
+    The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS.
+
+    On NT4/2000/XP, also other ATA or SATA devices are supported if
+    the device driver implements the SMART IOCTL.
+
+    The IDE/ATA read log command (smartctl -l, --log, -a, --all) is
+    not supported on NT4. On 2000/XP, the undocumented and possibly buggy
+    IOCTL_IDE_PASS_THROUGH is used for this purpose (see WARNINGS file).
+
+    SCSI devices are supported on all versions of Windows. An installed
+    ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
 
 
 [2] Installing from CVS
