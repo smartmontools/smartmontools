@@ -49,7 +49,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.81 2002/12/01 12:14:16 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.82 2002/12/05 05:24:32 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -958,7 +958,7 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
 // else zero if it has failed to parse a token.  Or it exits with a
 // directive message if there is a token-parsing problem.
 int parsetoken(char *token,cfgfile *cfg){
-  char sym=token[1];
+  char sym;
   char *name=cfg->name;
   int lineno=cfg->lineno;
   char *delim=" \n\t";
@@ -976,7 +976,7 @@ int parsetoken(char *token,cfgfile *cfg){
   }
   
   // let's parse the token and swallow its argument
-  switch (sym) {
+  switch (sym=token[1]) {
     char *arg;
     int val;
     
