@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.81 2003/08/05 10:07:35 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.82 2003/08/07 09:58:02 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/08/05 10:07:35 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/08/07 09:58:02 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -150,11 +150,19 @@ controllers is highly experimental.  To access it, use syntax such as
 .fi
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 within the 3ware ATA RAID controller.  The allowed values of N are
-from 0 to 15 inclusive.  In the current code, for technical reasons
-related to the 3w-xxxx driver, the \'Enable Autosave\' (\fB-S on\fP)
-and \'Enable Automatic Offline\' (\fB-o on\fP) commands are not
-implemented.  If these commands are given, then a \'Function not
-implemented\' error will be returned.
+from 0 to 15 inclusive.
+
+Note that the stock 3w-xxxx drivers do not pass the \'Enable
+Autosave\' (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o
+on\fP) commands to the disk, and produce these harmless syslog error
+messages instead:
+.fi
+3w-xxxx: tw_ioctl(): Passthru size (123392) too big.
+.fi
+3w-xxxx: tw_ioctl(): Passthru size (126976) too big.
+.fi
+This can be fixed by patching the 3w-xxxx driver.  See
+\fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 Specifies how tolerant
@@ -982,4 +990,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.81 2003/08/05 10:07:35 ballen4705 Exp $
+$Id: smartctl.8,v 1.82 2003/08/07 09:58:02 ballen4705 Exp $
