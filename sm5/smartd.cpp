@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.24 2002/10/24 10:56:10 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.25 2002/10/24 11:38:11 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -113,8 +113,8 @@ void atadevicescan ( atadevices_t *devices){
     
     printout(LOG_INFO,"Reading Device %s\n", device);
     
-    fd = open ( device , O_RDWR );
-    if ( fd < 0)
+    fd = open(device, O_RDONLY);
+    if (fd < 0)
       // no such device
       continue;
     
@@ -162,38 +162,42 @@ void scsidevicescan ( scsidevices_t *devices){
     
     printout(LOG_INFO,"Reading Device %s\n", device);
     
-    fd = open ( device , O_RDWR );
+    fd=open (device, O_RDWR);
     
-    if ( fd >= 0 && !testunitready (fd)) {
-      if (modesense ( fd, 0x1c, (UINT8 *) &tBuf) != 0){
+    if (fd<0)
+      continue;
+
+    if (!testunitready (fd)) {
+      if (modesense(fd, 0x1c, (UINT8 *) &tBuf)){
 	printout(LOG_INFO,"Device: %s, Failed read of ModePage 1C \n", device);
 	close(fd);
       }
       else
-	if ( scsiSmartSupport( fd, (UINT8 *) &smartsupport) == 0){			
-	  if (!(smartsupport & DEXCPT_ENABLE)){
-	    devices[numscsidevices].fd = fd;
-	    strcpy(devices[numscsidevices].devicename,device);
-	    
-	    printout(LOG_INFO, "Device: %s, Found and is SMART capable\n",device);
-	    
-	    if (logsense ( fd , SUPPORT_LOG_PAGES, (UINT8 *) &tBuf) == 0){
-	      for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
-		switch ( tBuf[i]){ 
-		case TEMPERATURE_PAGE:
-		  devices[numscsidevices].TempPageSupported = 1;
-		  break;
-		case SMART_PAGE:
-		  devices[numscsidevices].SmartPageSupported = 1;
-		  break;
-		default:
-		  break;
-		}
-	      }	
-	    }
-	    numscsidevices++;
+	if (!scsiSmartSupport( fd, (UINT8 *) &smartsupport) &&
+	    !(smartsupport & DEXCPT_ENABLE)){
+	  devices[numscsidevices].fd = fd;
+	  strcpy(devices[numscsidevices].devicename,device);
+	  
+	  printout(LOG_INFO, "Device: %s, Found and is SMART capable\n",device);
+	  
+	  if (logsense ( fd , SUPPORT_LOG_PAGES, (UINT8 *) &tBuf) == 0){
+	    for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
+	      switch ( tBuf[i]){ 
+	      case TEMPERATURE_PAGE:
+		devices[numscsidevices].TempPageSupported = 1;
+		break;
+	      case SMART_PAGE:
+		devices[numscsidevices].SmartPageSupported = 1;
+		break;
+	      default:
+		break;
+	      }
+	    }	
 	  }
+	  numscsidevices++;
 	}
+	else
+	  close(fd);
     }
   }
 }

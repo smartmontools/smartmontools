@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.18 2002/10/24 10:53:50 ballen4705 Exp $
+$Id: CHANGELOG,v 1.19 2002/10/24 11:38:11 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,6 +26,11 @@ NOTES FOR NEXT RELEASE:
     Next release: handle extended error and self-test logs gracefully.
     Parse and print attribute flag meanings
 
+smartmontools-5.0-12
+
+    smartd: close file descriptors of SCSI device if not SMART capable
+    added new temperature attribute (231, temperature)
+    smartd: now open ATA disks using O_RDONLY
 
 smartmontools-5.0-11
 

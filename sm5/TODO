@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.12 2002/10/24 10:31:02 ballen4705 Exp $
+$Id: TODO,v 1.13 2002/10/24 11:38:11 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -50,7 +50,6 @@ Print flags meanings in Vendor Attribute list -- not hex value --
 
 Fixes
 -----
-SCSI code in smartd leaves file descriptors open if SMART not supported..
 
 Fix lots of syntax like if (a != 0)
 
