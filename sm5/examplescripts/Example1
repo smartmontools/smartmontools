@@ -8,7 +8,7 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example1,v 1.4 2003/12/30 17:39:51 ballen4705 Exp $
+# $Id: Example1,v 1.5 2004/01/07 16:49:56 ballen4705 Exp $
 
 # Save standard input into a temp file
 cat > /root/tempfile
@@ -35,8 +35,9 @@ echo "$SMARTD_TFIRSTEPOCH"  >> /root/tempfile
 # Run smartctl -a and save output in temp file
 /usr/sbin/smartctl -a -d $SMARTD_DEVICETYPE $SMARTD_DEVICE >> /root/tempfile
 
-# Email the contents of the temp file
-/bin/mail -s "SMART errors detected on host: `hostname`" $SMARTD_ADDRESS < /root/tempfile > /dev/null 2> /dev/null
+# Email the contents of the temp file. Solaris and other OSes
+# may need to use /bin/mailx not /bin/mail.
+/bin/mail -s "SMART errors detected on host: `hostname`" $SMARTD_ADDRESS < /root/tempfile
 
 # And exit
 exit 0
