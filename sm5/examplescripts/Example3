@@ -7,6 +7,8 @@
 #
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
+#
+# $Id: Example3,v 1.2 2003/02/12 20:01:45 ballen4705 Exp $
 
 # Warn all users of a problem     
 wall 'Problem detected with disk: ' $SMARTD_DEVICE      
