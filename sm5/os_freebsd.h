@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.12 2004/08/16 22:44:26 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.13 2004/09/04 15:56:09 arvoreen Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -40,15 +40,222 @@ struct freebsd_dev_channel {
 #define MAX_NUM_DEV 26
 
 #ifdef  HAVE_SYS_TWEREG_H
-#include <twereg.h>
+#include <sys/twereg.h>
 #else
-#include "twereg.h"
+/**
+ *  The following cut out of twereg.h
+ *
+ */
+
+#define TWE_MAX_SGL_LENGTH		62
+#define TWE_MAX_ATA_SGL_LENGTH		60
+#define TWE_OP_ATA_PASSTHROUGH		0x11
+
+/* scatter/gather list entry */
+typedef struct
+{
+    u_int32_t	address;
+    u_int32_t	length;
+} __packed TWE_SG_Entry;
+
+typedef struct {
+    u_int8_t	opcode:5;		/* TWE_OP_INITCONNECTION */
+    u_int8_t	res1:3;		
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	res2:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int16_t	message_credits;
+    u_int32_t	response_queue_pointer;
+} __packed TWE_Command_INITCONNECTION;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_READ/TWE_OP_WRITE */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int16_t	block_count;
+    u_int32_t	lba;
+    TWE_SG_Entry sgl[TWE_MAX_SGL_LENGTH];
+} __packed TWE_Command_IO;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_HOTSWAP */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int8_t	action;
+#define TWE_OP_HOTSWAP_REMOVE		0x00	/* remove assumed-degraded unit */
+#define TWE_OP_HOTSWAP_ADD_CBOD		0x01	/* add CBOD to empty port */
+#define TWE_OP_HOTSWAP_ADD_SPARE	0x02	/* add spare to empty port */
+    u_int8_t	aport;
+} __packed TWE_Command_HOTSWAP;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_SETATAFEATURE */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int8_t	feature;
+#define TWE_OP_SETATAFEATURE_WCE	0x02
+#define TWE_OP_SETATAFEATURE_DIS_WCE	0x82
+    u_int8_t	feature_mode;
+    u_int16_t	all_units;
+    u_int16_t	persistence;
+} __packed TWE_Command_SETATAFEATURE;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_CHECKSTATUS */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	res2:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int16_t	target_status;		/* set low byte to target request's ID */
+} __packed TWE_Command_CHECKSTATUS;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_GETPARAM, TWE_OP_SETPARAM */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int16_t	param_count;
+    TWE_SG_Entry sgl[TWE_MAX_SGL_LENGTH];
+} __packed TWE_Command_PARAM;
+
+typedef struct
+{
+    u_int8_t	opcode:5;		/* TWE_OP_REBUILDUNIT */
+    u_int8_t	res1:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	src_unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int8_t	action:7;
+#define TWE_OP_REBUILDUNIT_NOP		0
+#define TWE_OP_REBUILDUNIT_STOP		2	/* stop all rebuilds */
+#define TWE_OP_REBUILDUNIT_START	4	/* start rebuild with lowest unit */
+#define TWE_OP_REBUILDUNIT_STARTUNIT	5	/* rebuild src_unit (not supported) */
+    u_int8_t	cs:1;				/* request state change on src_unit */
+    u_int8_t	logical_subunit;		/* for RAID10 rebuild of logical subunit */
+} __packed TWE_Command_REBUILDUNIT;
+
+typedef struct
+{
+    u_int8_t	opcode:5;
+    u_int8_t	sgl_offset:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+    u_int16_t	param;
+    u_int16_t	features;
+    u_int16_t	sector_count;
+    u_int16_t	sector_num;
+    u_int16_t	cylinder_lo;
+    u_int16_t	cylinder_hi;
+    u_int8_t	drive_head;
+    u_int8_t	command;
+    TWE_SG_Entry sgl[TWE_MAX_ATA_SGL_LENGTH];
+} __packed TWE_Command_ATA;
+
+typedef struct
+{
+    u_int8_t	opcode:5;
+    u_int8_t	sgl_offset:3;
+    u_int8_t	size;
+    u_int8_t	request_id;
+    u_int8_t	unit:4;
+    u_int8_t	host_id:4;
+    u_int8_t	status;
+    u_int8_t	flags;
+#define TWE_FLAGS_SUCCESS	0x00
+#define TWE_FLAGS_INFORMATIONAL	0x01
+#define TWE_FLAGS_WARNING	0x02
+#define TWE_FLAGS_FATAL		0x03
+#define TWE_FLAGS_PERCENTAGE	(1<<8)	/* bits 0-6 indicate completion percentage */
+    u_int16_t	count;			/* block count, parameter count, message credits */
+} __packed TWE_Command_Generic;
+
+/* command packet - must be TWE_ALIGNMENT aligned */
+typedef union
+{
+    TWE_Command_INITCONNECTION	initconnection;
+    TWE_Command_IO		io;
+    TWE_Command_PARAM		param;
+    TWE_Command_CHECKSTATUS	checkstatus;
+    TWE_Command_REBUILDUNIT	rebuildunit;
+    TWE_Command_SETATAFEATURE	setatafeature;
+    TWE_Command_ATA		ata;
+    TWE_Command_Generic		generic;
+    u_int8_t			pad[512];
+} TWE_Command;
+
+/* response queue entry */
+typedef union
+{
+    struct 
+    {
+	u_int32_t	undefined_1:4;
+	u_int32_t	response_id:8;
+	u_int32_t	undefined_2:20;
+    } u;
+    u_int32_t	value;
+} TWE_Response_Queue;
+
+
 #endif
 
 #ifdef  HAVE_SYS_TWEIO_H
-#include <tweio.h>
+#include <sys/tweio.h>
 #else
-#include "tweio.h"
+/*
+ * Following cut out of tweio.h
+ *
+ */
+/*
+ * User-space command
+ *
+ * Note that the command's scatter/gather list will be computed by the
+ * driver, and cannot be filled in by the consumer.
+ */
+struct twe_usercommand {
+    TWE_Command	tu_command;	/* command ready for the controller */
+    void	*tu_data;	/* pointer to data in userspace */
+    size_t	tu_size;	/* userspace data length */
+};
+
+#define TWEIO_COMMAND		_IOWR('T', 100, struct twe_usercommand)
+
 #endif
 
 /* 

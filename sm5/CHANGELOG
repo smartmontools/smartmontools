@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.461 2004/09/03 04:44:41 dpgilbert Exp $
+$Id: CHANGELOG,v 1.462 2004/09/04 15:56:08 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Remove 3ware/FreeBSD specific files and just include pieces we need
 
   [DG] Add logic in smartd to detect 3ware, Marvell controllers and SATA
        disks behind an ATA-SCSI simulator (in Linux). If specific device
