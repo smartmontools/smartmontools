@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.11 2002/10/11 12:19:00 ballen4705 Exp $
+# $Id: Makefile,v 1.12 2002/10/11 12:48:27 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -28,11 +28,11 @@ pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
 
-smartctl: atacmds.o scsicmds.o smartctl.c smartctl.h ataprint.o scsiprint.o atacmds.h ataprint.h scsicmds.h scsiprint.h
-	${CC} -o smartctl ${CFLAGS} atacmds.o scsicmds.o ataprint.o smartctl.c scsiprint.o
+smartctl: atacmds.o scsicmds.o smartctl.c smartctl.h ataprint.o scsiprint.o atacmds.h ataprint.h scsicmds.h scsiprint.h VERSION
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} atacmds.o scsicmds.o ataprint.o smartctl.c scsiprint.o
 
-smartd:  atacmds.o scsicmds.o smartd.c smartd.h atacmds.h scsicmds.h
-	${CC} -o smartd ${CFLAGS} scsicmds.o atacmds.o smartd.c
+smartd:  atacmds.o scsicmds.o smartd.c smartd.h atacmds.h scsicmds.h VERSION
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} scsicmds.o atacmds.o smartd.c
 
 ataprint.o: atacmds.o ataprint.h ataprint.c smartctl.h extern.h
 	${CC} ${CFLAGS} -c ataprint.c
@@ -45,12 +45,6 @@ atacmds.o: atacmds.h atacmds.c
 
 scsicmds.o: scsicmds.h scsicmds.c 
 	${CC} ${CFLAGS} -c scsicmds.c
-
-atacmds.h: VERSION
-	cat atacmds.h | sed '/SMARTMONTOOLS_VERSION/d' > temp.atacmds.h
-	echo "#define SMARTMONTOOLS_VERSION " $(counter) > temp.head
-	cat temp.head temp.atacmds.h > atacmds.h
-	rm -f temp.atacmds.h temp.head
 
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.*

@@ -1,5 +1,4 @@
-#define SMARTMONTOOLS_VERSION  1
-//  $Id: atacmds.h,v 1.7 2002/10/11 12:21:09 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.8 2002/10/11 12:48:27 ballen4705 Exp $
 /*
  * atacmds.h
  *
