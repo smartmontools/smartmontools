@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.322 2004/07/13 17:25:40 zybert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.323 2004/07/13 17:49:09 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.322 2004/07/13 17:25:40 zybert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.323 2004/07/13 17:49:09 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1098,7 +1098,7 @@ static int OpenDevice(char *device, char *mode, int scanning) {
     // For linux+devfs, a nonexistent device gives a strange error
     // message.  This makes the error message a bit more sensible.
     // If no debug and scanning - don't print errors
-    if( debugmode || scanning == 0 ) {
+    if (debugmode || !scanning) {
       if (errno==ENOENT || errno==ENOTDIR)
 	errno=ENODEV;
       
@@ -1155,7 +1155,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   int retainsmartdata=0;
   int retid;
   char *mode="ATA";
-
+  
   // should we try to register this as an ATA device?
   if (!(cfg->tryata))
     return 1;
@@ -1176,7 +1176,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   con->escalade_port=cfg->escalade_port;
   con->escalade_type=cfg->escalade_type;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
-
+  
   // Get drive identity structure
   if ((retid=ataReadHDIdentity (fd,&drive))){
     if (retid<0)
@@ -3620,7 +3620,7 @@ void RegisterDevices(int scanning){
     
     // register ATA devices
     if (ent->tryata){
-      if (ATADeviceScan(ent,scanning))
+      if (ATADeviceScan(ent, scanning))
         CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
       else {
         // move onto the list of ata devices
@@ -3645,7 +3645,7 @@ void RegisterDevices(int scanning){
       if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
         // if we can't set timeout, just scan device
         PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
-        retscsi=SCSIDeviceScan(ent,scanning);
+        retscsi=SCSIDeviceScan(ent, scanning);
       }
       else {
         // prepare return point in case of bad SCSI device
@@ -3655,7 +3655,7 @@ void RegisterDevices(int scanning){
         else {
         // Set alarm, make SCSI call, reset alarm
           alarm(SCSITIMEOUT);
-          retscsi=SCSIDeviceScan(ent,scanning);
+          retscsi=SCSIDeviceScan(ent, scanning);
           alarm(0);
         }
         if (sigaction(SIGALRM, &defaultaction, NULL)){
@@ -3663,7 +3663,7 @@ void RegisterDevices(int scanning){
         }
       }
 #else
-      retscsi=SCSIDeviceScan(ent,scanning);
+      retscsi=SCSIDeviceScan(ent, scanning);
 #endif   
 
       // Now scan SCSI device...
@@ -3798,7 +3798,7 @@ int main(int argc, char **argv){
         PrintOut(LOG_INFO,"Monitoring %d ATA and %d SCSI devices\n",
                  numdevata, numdevscsi);
       else {
-        PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Exiting...\n");
+        PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Try debug (-d) option. Exiting...\n");
         EXIT(EXIT_NODEV);
       }   
       
