@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.32 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.33 2004/01/27 15:29:16 ballen4705 Exp $\n"
 
 // For development and testing of Selective self-test code
 #define DEVELOP_SELECTIVE_SELF_TEST 0
@@ -76,8 +76,8 @@ typedef struct smartmonctrl_s {
   unsigned long long smartselectivespan[5][2];
   int smartselectivenumspans;
 #endif
-  unsigned char quietmode;
-  unsigned char veryquietmode;
+  unsigned char printing_switchable;
+  unsigned char dont_print;
 
   int           testcase;
 

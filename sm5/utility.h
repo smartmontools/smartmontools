@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.25 2004/01/07 17:13:07 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.26 2004/01/27 15:29:28 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -132,5 +132,9 @@ int deviceclose(int fd);
 
 #define EXIT_SIGNAL    254 // abort on signal
 
+
+// macros to control printing
+#define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=0;}
+#define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=1;}
 
 #endif
