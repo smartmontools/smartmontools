@@ -33,11 +33,11 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.63 2003/03/15 16:01:28 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.64 2003/03/29 11:01:32 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
-extern atamainctrl *con;
+extern smartmonctrl *con;
 
 // Function for printing ASCII byte-swapped strings, skipping white
 // space. This is needed on little-endian architectures, eg Intel,
