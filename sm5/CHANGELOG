@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.411 2004/05/13 14:35:10 chrfranke Exp $
+$Id: CHANGELOG,v 1.412 2004/05/21 15:20:20 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: added time-zone bug information to man page. 
+       Reverted CF code for _WIN32 case. 
 
   [CF] Cygwin & Windows: Added better error messages on IDE/ATA device
        open error.
