@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.122 2003/04/18 22:09:10 pjwilliams Exp $
+$Id: CHANGELOG,v 1.123 2003/04/18 23:41:45 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Fixed a bug that prevented the enable automatic off-line
+       test feature from enabling.  It also prevented the enable Attribute
+       autosave from working.  See CVS entry for additional details.
 
   [PW] Modified the -r/--report option (smartctl and smartd) to allow the
        user to specify the debug level as a positive integer.
