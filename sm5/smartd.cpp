@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.127 2003/04/08 02:19:53 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.128 2003/04/08 02:47:19 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -326,7 +326,7 @@ void sighandler(int sig){
 void remove_pid_file(){
   if (pid_file) {
     if ( -1==unlink(pid_file) )
-      printout(LOG_INFO,"Can't unlink pidfile %s (%s).\n", 
+      printout(LOG_INFO,"Can't unlink PID file %s (%s).\n", 
 	       pid_file, strerror(errno));
     free(pid_file);
   }
@@ -408,9 +408,10 @@ void write_pid_file() {
       error = 1;
     }
     if (error) {
-      printout(LOG_CRIT,"unable to write pid file %s - exiting.\n", pid_file);
+      printout(LOG_CRIT, "unable to write PID file %s - exiting.\n", pid_file);
       exit(1);
     }
+    printout(LOG_INFO, "file %s written containing PID %d\n", pid_file, pid);
   }
   return;
 }
@@ -1856,6 +1857,9 @@ void ParseOpts(int argc, char **argv){
     pid_file = NULL;
   }
   
+  // write PID file BEFORE forking
+  write_pid_file();
+
   // print header
   printhead();
   return;
