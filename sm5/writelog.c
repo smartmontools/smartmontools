@@ -27,6 +27,9 @@
 // disk DOES support this page, and you can then use this code to
 // demonstrate the problem.
 //
+// In order for this code to work, you must have SMART enabled on the
+// drive.  This can be done with 'smartctl -s on /dev/hd?'.
+//
 // The code below does the following:
 // - reads SMART LOG page #9
 // - tries to write the exact same data back to SMART LOG page #9
@@ -36,7 +39,7 @@
 //
 // Bruce Allen, ballen at gravity dot phys dot uwm dot edu
 //
-// $Id: writelog.c,v 1.1 2003/09/01 07:58:43 ballen4705 Exp $
+// $Id: writelog.c,v 1.2 2003/09/04 12:01:53 ballen4705 Exp $
 
 // set to zero to try using HDIO_DRIVE_CMD ioctl()
 #define USE_HDIO_DRIVE_TASK 1
