@@ -2,10 +2,10 @@
 <html>
 <head>
 <title>smartmontools Home Page</title>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
-<link rev="made" href="mailto: smartmontools-support @ sourceforge.net" />
-<meta name="description" content="smartmontools Home Page" />
-<meta name="keywords" content="SMART, S.M.A.R.T., Linux, disk monitoring" />
+<link rev="made" href="mailto:smartmontools-support @ sourceforge.net">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta name="description" content="smartmontools Home Page">
+<meta name="keywords" content="SMART, S.M.A.R.T., Linux, disk monitoring">
 </head>
 <body>
 
@@ -52,9 +52,7 @@ You can use any one of these three procedures.&#160; Just after "Method
 3" below are some instructions for trying out smartmontools once you
 have completed the installation.</p>
 
-<ol>
-<li><b>First Method - Install from the RPM file</b>
-<br />
+<b>First Method - Install from the RPM file</b>
 <ul>
 <li>Download the latest binary RPM file (<tt>*.rpm</tt>) from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.&#160;
 Don't get the SRPM file (<tt>*.src.rpm</tt>).</li>
@@ -75,14 +73,12 @@ to use:
 <pre>rpm -e --noscripts smartmontools</pre></li>
 </ul>
 
-<li><b>Second Method - Install from the source tarball</b>
-<br />
+<b>Second Method - Install from the source tarball</b>
 <ul>
 <li>Download the latest source tarball from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 Note: you probably want the most recent release.</li>
 <li>Uncompress the tarball:
-<pre>
-tar zxvf smartmontools-5.0-1.tar.gz</pre></li>
+<pre>tar zxvf smartmontools-5.0-1.tar.gz</pre></li>
 <li>The previous step created a directory called smartmontools-5.0-1
 containing the code.&#160; Go to that directory, build, and install:
 <pre>cd smartmontools-5.0-1
@@ -90,8 +86,7 @@ make
 make install (only root can do this)</pre></li>
 </ul>
 
-<li><b>Third Method - Download code directly from the CVS archive</b>
-<br />
+<b>Third Method - Download code directly from the CVS archive</b>
 <ul>
 <li>Download the latest code snapshot from CVS.&#160; If prompted for a
 password, simply press the Enter key.&#160; Note that the two lines
@@ -103,6 +98,7 @@ containing the code.&#160; Go to that directory, build, and install:
 <pre>cd sm5
 make
 make install (only root can do this)</pre></li>
+</ul>
 
 <b>After installing using Method 1, 2 or 3 above, you can read the man
 pages, and try out the commands:</b>
@@ -117,10 +113,7 @@ man 8 smartd
 manual pages, then you may need to add <tt>/usr/share/man</tt> to your
 <tt>MANPATH</tt> environment variable.</p>
 
-<a href="#cvshelp">
-<p><b>How to use CVS to get any version of smartmontools</b></a></p>
-</ol>
-</ul>
+<p><a href="#cvshelp"><b>How to use CVS to get any version of smartmontools</b></a></p>
 
 <hr size="2" />
 
@@ -202,9 +195,10 @@ to do is:</p>
 
 <pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
 cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_0_30 sm5</pre>
-If prompted for a password, just press Enter.&#160; This will create a
+
+<p>If prompted for a password, just press Enter.&#160; This will create a
 subdirectory called <tt>sm5/</tt> containing the code.&#160; Go to that
-directory, build, install, and enjoy:</li>
+directory, build, install, and enjoy:</p>
 <pre>
 cd sm5
 make
@@ -227,8 +221,9 @@ be very grateful to find someone who could help me test the
 smartmontools code on SCSI disks.&#160; Since it's derived from the
 smartsuite package, it should initially work about the same way with
 SCSI devices as the smartsuite tools did.</p>
-<p>I'd be especially happy if someone would like to take on the task, as a
-developer, of maintaining the SCSI code.&#160; Do you have a beowulf
+
+<p>I'd be especially happy if someone would like to take on the task, as
+a developer, of maintaining the SCSI code.&#160; Do you have a beowulf
 cluster with a few hundred SCSI disks ?&#160; Please volunteer !</p>
 
 <hr size="2" /><a name="differfromsmartsuite"></a><b>How does
@@ -245,10 +240,9 @@ from smartsuite in that it supports the ATA/ATAPI-5 standard.&#160; So
 for example <tt>smartctl</tt> from smartsuite has no facility for
 printing the S.M.A.R.T. self-test logs, and doesn't print timestamp
 information in the most usable way.&#160; The <tt>smartctl</tt> utility
-in smartmontools has added functionality for this
-(<tt>-q,-Q,</tt><tt>-L,-f, -F and -m</tt> options), updated
-documentation, and also fixes small technical bugs in smartsuite.&#160;
-See the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&content-type=text/plain">CHANGELOG</a>
+in smartmontools has added functionality for this (<tt>-q,-Q, -L,-f, -F
+and -m</tt> options), updated documentation, and also fixes small
+technical bugs in smartsuite.&#160; See the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">CHANGELOG</a>
 file in CVS for a summary of what's been done.&#160; The <tt>smartd</tt>
 utility differs from the smartsuite <tt>smartd</tt> in major ways.&#160;
 First, it prints somewhat more informative error messages to the syslog.
@@ -256,7 +250,7 @@ First, it prints somewhat more informative error messages to the syslog.
 <tt>/etc/smartd.conf</tt>, and if <tt>smartd</tt> finds this file, it
 monitors the list of devices therein, rather than querying all IDE and
 SCSI devices on your system.&#160; (If the configuration file does not
-exist, then it does query all IDE and SCSI devices.]&#160; Finally, it's
+exist, then it does query all IDE and SCSI devices.)&#160; Finally, it's
 a well-behaved daemon and doesn't leave open file descriptors and other
 detrius behind.&#160; In addition, the <tt>smartmontools</tt> version of
 <tt>smartd</tt> can be instructed (via Directives in the configuration
@@ -274,19 +268,19 @@ archive.&#160; If you would like to contribute, please write to to <a href="http
 directly from smartsuite and is similar.&#160; The smartsuite package
 can be found <a href="http://sourceforge.net/projects/smartsuite/">here</a>.</p>
 
-<hr size="2" /><a name="references"></a><big><b>Useful references on
-S.M.A.R.T. and the  ATA/ATAPI standards</b>
+<hr size="2" /><a name="references"></a><b><big>Useful references on
+S.M.A.R.T. and the  ATA/ATAPI standards</big></b>
 
-<p>If you are having trouble understanding the output of smartctl or
-smartd, please first read the manual pages:</p>
+<p><big>If you are having trouble understanding the output of smartctl
+or smartd, please first read the manual pages:</big></p>
 
 <pre>
 man 8 smartctl
 man 8 smartd
 </pre>
 
-<p>If you'd like to know more about S.M.A.R.T., then the following
-references may be helpful:</p></big>
+<p><big>If you'd like to know more about S.M.A.R.T., then the following
+references may be helpful:</big></p>
 
 <ul>
 <li>The <a href="http://www.t13.org/project/d1321r1c.pdf"> ATAPI/ATA-5
