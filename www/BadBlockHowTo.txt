@@ -136,3 +136,30 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 
 Note: for some disks it may be necessary to update the SMART Attribute values by using
 smartctl -t offline /dev/hda
+
+The disk now passes its self-tests again:
+
+-----------------------------------------------------------------------------------------------
+root]# smartctl -t long /dev/hda  [wait until test completes, then]
+root]# smartctl -l selftest /dev/hda
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Extended offline    Completed without error       00%       239         -
+# 2  Extended offline    Completed: read failure       90%       217         0x016561e9
+# 3  Extended offline    Completed: read failure       90%       212         0x016561e9
+# 4  Extended offline    Completed: read failure       90%       181         0x016561e9
+# 5  Extended offline    Completed without error       00%        14         -
+# 6  Extended offline    Completed without error       00%         4         -
+-----------------------------------------------------------------------------------------------
+
+and no longer shows any offline uncorrectable sectors:
+
+-----------------------------------------------------------------------------------------------
+root]# smartctl -A /dev/hda
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  5 Reallocated_Sector_Ct   0x0033   100   100   005    Pre-fail  Always       -       1
+196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       1
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       0
+-----------------------------------------------------------------------------------------------
