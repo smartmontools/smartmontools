@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/09/04 21:14:04 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/09/22 23:11:52 $)</title>
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.85 2003/09/04 21:14:04 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.86 2003/09/22 23:11:52 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -51,7 +51,7 @@ repository</a> and <a href="http://sourceforge.net/projects/smartmontools/">Sour
 Project Page</a></li>
 <li>Mailing List <a href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">Information</a>
 and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">Archives</a> (Archive has <b>Search Box</b> in top left corner).</li>
-<li>Current HTML <a href="man/smartctl.8.html">smartctl</a>, <a href="man/smartd.8.html">smartd</a>, and <a href="man/smartd.conf.5.html">smartd.conf</a> man pages generated from CVS.</li>
+<li>Current <a href="man/smartctl.8.html">smartctl</a>, <a href="man/smartd.8.html">smartd</a>, and <a href="man/smartd.conf.5.html">smartd.conf</a> HTML man pages generated from CVS.</li>
 </ul>
 
 <hr size="2" />
@@ -71,7 +71,7 @@ the installation.</p>
 Don't get the SRPM file (<tt>*.src.rpm</tt>).</li>
 <li>Install it using RPM.&#160; <i>You must be root to do this</i>:
 <pre>su root (enter root password)
-rpm -ivh smartmontools-5.0-1.i386.rpm</pre>
+rpm -ivh smartmontools-5.1-18.i386.rpm</pre>
 For most users, this is all that is needed.</li>
 <li>If you receive an error message, you have probably previously
 installed the <tt>smartsuite</tt> package, or RedHat's
@@ -79,7 +79,7 @@ installed the <tt>smartsuite</tt> package, or RedHat's
 <tt>smartd</tt> and <tt>smartctl</tt> utilities.&#160; In this case you
 should use the <tt>--nodeps</tt> or <tt>--force</tt> arguments of rpm to
 replace these two utilities:
-<pre>rpm -ivh --nodeps --force smartmontools-5.0-1.i386.rpm</pre></li>
+<pre>rpm -ivh --nodeps --force smartmontools-5.1-18.i386.rpm</pre></li>
 <li>If you want to remove the package (<tt>rpm -e smartmontools</tt>)
 and your system does not have <tt>chkconfig</tt> installed, you may need
 to use:
@@ -91,10 +91,14 @@ to use:
 <li>Download the latest source tarball from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 Note: you probably want the most recent release.</li>
 <li>Uncompress the tarball:
-<pre>tar zxvf smartmontools-5.0-1.tar.gz</pre></li>
-<li>The previous step created a directory called smartmontools-5.0-1
+<pre>tar zxvf smartmontools-5.1-18.tar.gz</pre></li>
+<li>The previous step created a directory called smartmontools-5.1-18
 containing the code.&#160; Go to that directory, build, and install:
-<pre>cd smartmontools-5.0-1
+<pre>cd smartmontools-5.1-18
+./configure (with no arguments)
+
+Skip the above command for releases &lt;= 5.1-18
+
 make
 make install (only root can do this)</pre></li>
 </ul>
@@ -105,7 +109,7 @@ make install (only root can do this)</pre></li>
 <i>any</i> version of the code you want, from the first release up the
 the most current development version.&#160; And it's trivial, because
 each release is <u>tagged</u> with a name like
-<tt>RELEASE_5_0_26</tt>.&#160; You can see what the different names are
+<tt>RELEASE_5_1_18</tt>.&#160; You can see what the different names are
 by looking at the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/">
 CVS repository</a>.&#160; You'll see the tag names in the little scroll
 window where it says "Show only files with tag".&#160; All you need to
@@ -113,24 +117,43 @@ do to get the latest development code is
 (but note that the development code may be unstable, and that the
 documentation and code may be inconsistent):</p>
 
+<p><b>Warning</b>: We're in the process of converting smartmontools to
+use GNU Autoconf and GNU Automake. Code from HEAD may not configure,
+compile, install, or work correctly.</p>
+
 <pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
 cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
 
-<li>To instead get the 5.0-26 release:
+<li>To instead get the 5.1-17 release:
 
-<pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_0_26 sm5</pre></li>
+<pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_17 sm5</pre></li>
 
 <li><p>This will create a subdirectory called <tt>sm5/</tt> containing the
 code.&#160; Go to that directory, build, and install:</p>
 
 <pre>cd sm5
+./autogen.sh</pre>
+
+<p>You need <a href="http://www.gnu.org/software/autoconf/">GNU
+Autoconf</a>, <a href="http://www.gnu.org/software/automake/">GNU
+Automake</a>, and their dependencies installed in order to run
+autogen.sh.</p>
+
+<pre>
+./configure (with no arguments)</pre>
+
+<p>Skip the above commands for tagged releases &lt;= 5.1-18
+(RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). This doesn't include
+HEAD (<tt>cvs co</tt> with no arguments and <tt>cvs up -A</tt>).</p>
+
+<pre>
 make
 make install (only root can do this)</pre></li>
 
-<li>To update your sources to the 5.0-30 release:
+<li>To update your sources to the 5.1-18 release:
 
 <pre>cd sm5
-cvs up -r RELEASE_5_0_30</pre></li>
+cvs up -r RELEASE_5_1_18</pre></li>
 
 <li>To update any tagged release to the latest development code:
 
@@ -153,7 +176,7 @@ href="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">
 <li>
 You can then install the package using:
 <pre>
-dpkg -i smartmontools_5.1.4-2.agx0_i386.deb
+dpkg -i smartmontools_5.1.18-1.agx0_i386.deb
 </pre>
 But the preferred method is to add the following line to your
 <tt>/etc/apt/sources.list</tt>:
@@ -168,15 +191,18 @@ apt-get update &amp;&amp; apt-get install smartmontools
 <b>After installing smartmontools using Method 1, 2, 3 or 4 above, you can read the man
 pages, and try out the commands:</b>
 
-<pre>man 8 smartctl
+<pre>
+man 5 smartd.conf
+man 8 smartctl
 man 8 smartd
 /usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
 /usr/sbin/smartctl -a /dev/hda (only root can do this)</pre>
 
-<p>Note that the default location for the manual pages are in
-<tt>/usr/share/man/man8</tt>.&#160; If "<tt>man</tt>" does not find the
-manual pages, then you may need to add <tt>/usr/share/man</tt> to your
-<tt>MANPATH</tt> environment variable.</p>
+<p>Note that the default location for the manual pages are
+<tt>/usr/share/man/man5</tt> and <tt>/usr/share/man/man8</tt>.&#160; If
+"<tt>man</tt>" does not find the manual pages, then you may need to add
+<tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
+variable.</p>
 
 <hr size="2" />
 
@@ -455,12 +481,8 @@ positive or negative experiences to the <a
 href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">support
 mailing list</a>, particularly for 64-bit and/or big-endian
 architectures.
- </p>
-
-
-
+</p>
 </li>
-
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -644,8 +666,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/09/04 21:14:04 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.85 2003/09/04 21:14:04 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2003/09/22 23:11:52 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.86 2003/09/22 23:11:52 pervalidus Exp $</tt>
 
 <hr size="2" />
 
