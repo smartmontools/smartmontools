@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.122 2004/09/17 20:08:46 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.123 2004/09/17 20:13:52 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -835,7 +835,7 @@ const drivesettings knowndrives[] = {
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
-  {NULL, NULL, NULL, NULL, NULL, NULL}
+  {NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 };
 
 // Searches knowndrives[] for a drive with the given model number and firmware
