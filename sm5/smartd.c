@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.183 2003/08/08 03:24:34 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.184 2003/08/09 08:21:44 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -2229,10 +2229,12 @@ int main (int argc, char **argv){
   int i, entries, scandirective=0, scanning=0;
   smartmonctrl control;
   
-  // initialize global communications variables
+  // initialize global communications variables and lists
   con=&control;
   memset(con,0,sizeof(control));
-  
+  memset(atadevicesptr,0,sizeof(atadevices_t)*MAXATADEVICES);
+  memset(scsidevicesptr,0,sizeof(scsidevices_t)*MAXSCSIDEVICES);
+
   // Parse input and print header and usage info if needed
   ParseOpts(argc,argv);
   
