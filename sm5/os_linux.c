@@ -69,9 +69,9 @@
 #include "smartd.h"
 #include "utility.h"
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.44 2004/02/06 03:52:02 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.45 2004/02/08 07:12:40 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.44 2004/02/06 03:52:02 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.45 2004/02/08 07:12:40 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -803,7 +803,6 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
 
   // look for nonexistent devices/ports
   if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
-    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
     errno=ENODEV;
     return -1;
   }
