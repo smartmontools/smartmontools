@@ -27,19 +27,22 @@
 // SMARTCTL, OR BOTH.
 
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
+#ifndef _WIN32
 #include <syslog.h>
+#else
+#define LOG_CRIT 2
+#endif
 #include <stdarg.h>
 #include "utility.h"
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.37 2004/03/12 20:24:15 chrfranke Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.38 2004/03/12 23:45:44 chrfranke Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -310,8 +313,8 @@ int split_report_arg2(char *s, int *i){
 // "selective,%lld-%lld" (prefixes of "0" (for octal) and "0x"/"0X" (for hex)
 // are allowed).  The first long long int is assigned to *start and the second
 // to *stop.  Returns zero if successful and non-zero otherwise.
-int split_selective_arg(char *s, unsigned long long *start,
-                        unsigned long long *stop)
+int split_selective_arg(char *s, uint64_t *start,
+                        uint64_t *stop)
 {
   char *tailptr;
 
@@ -332,7 +335,7 @@ int split_selective_arg(char *s, unsigned long long *start,
   return 0;
 }
 
-long long bytes = 0;
+int64_t bytes = 0;
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.

@@ -14,18 +14,13 @@
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
  */
 
 #include "config.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
-extern long long bytes; // malloc() byte count
+extern int64_t bytes; // malloc() byte count
 
 #include "extern.h"
 extern smartmonctrl * con; // con->permissive
@@ -38,7 +33,7 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.4 2004/03/04 21:50:14 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.5 2004/03/12 23:45:43 chrfranke Exp $" \
 ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 
@@ -101,8 +96,9 @@ int make_device_names (char*** devlist, const char* type)
 		sz = (n+1) * sizeof(char **);
 		*devlist = (char **)malloc(sz); bytes += sz;
 		for (i = 0; i < n; i++) {
+			char * s;
 			sz = sizeof("/dev/hda");
-			char * s = (char *)malloc(sz); bytes += sz;
+			s = (char *)malloc(sz); bytes += sz;
 			strcpy(s, "/dev/hda"); s[sz-2] += i;
 			(*devlist)[i] = s;
 		}
@@ -473,7 +469,7 @@ static int ata_open(int drive)
 		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", drive);
 
 	// Open device
-	if ((h_ata_ioctl = CreateFile(devpath,
+	if ((h_ata_ioctl = CreateFileA(devpath,
 		GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
 		NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
 		pout("Cannot open device %s, Error=%ld\n", devpath, GetLastError());
@@ -556,7 +552,7 @@ static unsigned ata_scan()
 			snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", i);
 
 		// Open device
-		if ((h = CreateFile(devpath,
+		if ((h = CreateFileA(devpath,
 			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
 			NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
 			if (win9x)
@@ -840,7 +836,7 @@ static int aspi_open_dll()
 	}
 
 	// Get ASPI entrypoint from winaspi.dll
-	if (!h_aspi_dll && !(h_aspi_dll = LoadLibrary("WNASPI32.DLL"))) {
+	if (!h_aspi_dll && !(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
 		pout("Cannot Load WNASPI32.DLL, Error=%ld\n", GetLastError());
 		h_aspi_dll = INVALID_HANDLE_VALUE;
 		errno = ENOENT;
@@ -882,7 +878,7 @@ static int aspi_io_call(ASPI_SRB * srb)
 {
 	HANDLE event;
 	// Create event
-	if (!(event = CreateEvent(NULL, FALSE, FALSE, NULL))) {
+	if (!(event = CreateEventA(NULL, FALSE, FALSE, NULL))) {
 		pout("CreateEvent(): Error=%ld\n", GetLastError()); return -EIO;
 	}
 	srb->i.event_handle = event;

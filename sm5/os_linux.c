@@ -48,10 +48,12 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <scsi/scsi_ioctl.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <glob.h>
+#include <sys/ioctl.h>
 
 #include "config.h"
 
@@ -73,9 +75,9 @@
 #define ENOTSUP ENOSYS
 #endif
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.47 2004/03/05 16:24:37 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.48 2004/03/12 23:45:43 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.47 2004/03/05 16:24:37 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.48 2004/03/12 23:45:43 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine

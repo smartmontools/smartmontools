@@ -24,9 +24,6 @@
 
 #include "config.h"
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/fcntl.h>
 #include <sys/types.h>
 #include <string.h>
 #include <stdarg.h>
@@ -46,7 +43,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.116 2004/03/12 20:24:14 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.117 2004/03/12 23:45:44 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -57,7 +54,7 @@ smartmonctrl *con=NULL;
 extern int exitstatus;
 
 // Track memory use
-extern long long bytes;
+extern int64_t bytes;
 
 void printslogan(){
   pout("smartctl version %s Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION);
