@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.66 2003/11/19 06:11:01 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.67 2003/11/19 07:50:39 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -842,7 +842,7 @@ int scsiPrintMain(int fd)
     
     if (con->smartautosavedisable) {
       if (scsiSetControlGLTSD(fd, 1, modese_len)) {
-	pout("Disbale autosave (set GLTSD bit) failed\n");
+	pout("Disable autosave (set GLTSD bit) failed\n");
 	failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
     }
@@ -881,8 +881,8 @@ int scsiPrintMain(int fd)
     if (con->smarterrorlog) {
         scsiPrintErrorCounterLog(fd);
         if (1 == scsiFetchControlGLTSD(fd, modese_len, 1))
-            pout("\n[GLTSD (global logging target save disable) set. "
-                 "Enable save with '-S on']\n");
+            pout("\n[GLTSD (Global Logging Target Save Disable) set. "
+                 "Enable Save with '-S on']\n");
     }
     if (con->smartselftestlog) {
         if (! checkedSupportedLogPages)
