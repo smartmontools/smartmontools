@@ -25,8 +25,8 @@
 #ifndef __SMARTCTL_H_
 #define __SMARTCTL_H_
 
-#ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.15 2002/12/19 00:05:19 pjwilliams Exp $\n"
+#ifndef SMARTCTL_H_CVSID
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.16 2003/01/16 15:28:57 ballen4705 Exp $\n"
 #endif
 
 /* Boolean Values */

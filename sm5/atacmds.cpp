@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.50 2003/01/13 12:49:06 ballen4705 Exp $" CVSID1;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.51 2003/01/16 15:28:57 ballen4705 Exp $" ATACMDS_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note

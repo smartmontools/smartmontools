@@ -42,16 +42,15 @@
 #include <getopt.h>
 #endif
 #include "atacmds.h"
-#include "scsicmds.h"
-#include "smartd.h"
 #include "ataprint.h"
 #include "extern.h"
-
+#include "scsicmds.h"
+#include "smartd.h"
 
 // CVS ID strings
-extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.96 2003/01/12 10:23:29 ballen4705 Exp $" 
-CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
+extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.97 2003/01/16 15:28:57 ballen4705 Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
 atamainctrl *con=NULL;
@@ -1413,12 +1412,17 @@ void PrintCopyleft(void){
   printhead();
   printout(LOG_INFO,copyleftstring);
   printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
-  printone(out,CVSid1);
+  printone(out,atacmds_c_cvsid);
   printout(LOG_INFO,"%s",out);
-  printone(out,CVSid2);
+  printone(out,ataprint_c_cvsid);
   printout(LOG_INFO,"%s",out);
-  printone(out,CVSid6);
+  printone(out,scsicmds_c_cvsid);
   printout(LOG_INFO,"%s",out);
+  printone(out,smartd_c_cvsid);
+  printout(LOG_INFO,"%s",out);
+  printone(out,utility_c_cvsid);
+  printout(LOG_INFO,"%s",out);
+
 }
 
 // Parses input line, prints usage message and

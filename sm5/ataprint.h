@@ -25,8 +25,8 @@
 #ifndef _SMART_PRINT_H_
 #define _SMART_PRINT_H_
 
-#ifndef CVSID2
-#define CVSID2 "$Id: ataprint.h,v 1.14 2002/10/30 10:18:37 ballen4705 Exp $\n"
+#ifndef ATAPRINT_H_CVSID
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.15 2003/01/16 15:28:57 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>

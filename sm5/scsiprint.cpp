@@ -28,17 +28,17 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <time.h>
 
-#include "smartctl.h"
+#include "extern.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
-#include "extern.h"
+#include "smartctl.h"
+#include "utility.h"
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.cpp,v 1.18 2003/01/12 10:30:53 ballen4705 Exp $"
-CVSID3 CVSID4 CVSID5 CVSID6;
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.19 2003/01/16 15:28:57 ballen4705 Exp $"
+EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
 extern atamainctrl *con;
@@ -325,7 +325,7 @@ void scsiGetDriveInfo ( int device)
    char manufacturer[9];
    char product[17];
    char revision[5];
-   time_t tval;
+   char timedatetz[64];
 
    UINT8 smartsupport;
 	
@@ -347,9 +347,9 @@ void scsiGetDriveInfo ( int device)
    revision[4] = '\0';
    printf("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
-   // print current time and date
-   tval=time(NULL);
-   printf("Local Time is: %s", ctime(&tval));
+   // print current time and date and timezone
+   dateandtimezone(timedatetz);
+   printf("Local Time is: %s\n", timedatetz);
    
    if ( scsiSmartSupport( device, (UINT8 *) &smartsupport) != 0)
    {

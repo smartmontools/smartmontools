@@ -25,8 +25,8 @@
 #ifndef _ATACMDS_H_
 #define _ATACMDS_H_
 
-#ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.30 2003/01/04 17:34:16 pjwilliams Exp $\n"
+#ifndef ATACMDS_H_CVSID
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.31 2003/01/16 15:28:57 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl

@@ -32,7 +32,7 @@
 /* #include <scsi/scsi_ioctl.h> bypass for now */
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.cpp,v 1.17 2003/01/04 01:37:48 dpgilbert Exp $" CVSID4;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.18 2003/01/16 15:28:57 ballen4705 Exp $" SCSICMDS_H_CVSID;
 
 static int send_scsi_cmd(int device, int cmnd_len, void * io_hdr)
 {

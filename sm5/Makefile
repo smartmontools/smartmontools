@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.44 2003/01/14 13:07:40 ballen4705 Exp $
+# $Id: Makefile,v 1.45 2003/01/16 15:28:57 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -40,7 +40,8 @@ LDFLAGS  = # -s
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO WARNINGS VERSION smartd.conf smartd.conf.5
+  smartd.8 smartd.c smartd.h smartd.initd TODO WARNINGS VERSION smartd.conf smartd.conf.5\
+  utility.c utility.h
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
@@ -51,27 +52,31 @@ all: smartd smartctl
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartctl.8\n\tman ./smartd.8\n\tman ./smartd.conf.5\n"
 	@echo -e "to read the manual pages now.  Unless you do a \"make install\" the manual pages won't be installed.\n"
 
-smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
+smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o utility.o\
           smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h extern.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartctl.c \
-                                      atacmds.o scsicmds.o ataprint.o scsiprint.o
+                                      atacmds.o ataprint.o scsicmds.o scsiprint.o utility.o
 
-smartd:  smartd.c atacmds.o ataprint.o scsicmds.o \
+smartd:  smartd.c atacmds.o ataprint.o scsicmds.o utility.o\
          smartd.h atacmds.h ataprint.h scsicmds.h extern.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartd.c \
-                                      scsicmds.o atacmds.o ataprint.o
+                                      atacmds.o ataprint.o scsicmds.o utility.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c atacmds.c 
 
-ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h Makefile
+ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h utility.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c ataprint.c
 
 scsicmds.o: scsicmds.c scsicmds.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c scsicmds.c
 
-scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c scsiprint.c 
+scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h utility.h Makefile
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c scsiprint.c
+
+utility.o: utility.c utility.h Makefile
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c utility.c
+
 
 # This extracts the configuration file directives from smartd.8 and
 # inserts them into smartd.conf.5

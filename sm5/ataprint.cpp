@@ -25,14 +25,14 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <syslog.h>
-#include <time.h>
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
+#include "utility.h"
 
-const char *CVSid2="$Id: ataprint.cpp,v 1.54 2003/01/14 20:04:07 ballen4705 Exp $"
-CVSID1 CVSID2 CVSID3 CVSID6;
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.55 2003/01/16 15:28:57 ballen4705 Exp $"
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern atamainctrl *con;
@@ -64,13 +64,11 @@ void printswap(char *in, unsigned int n){
   return;
 }
 
-
 void ataPrintDriveInfo (struct hd_driveid *drive){
   int version;
   const char *description;
-  char unknown[64];
+  char unknown[64], timedatetz[64];
   unsigned short minorrev;
-  time_t tval;
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
@@ -101,10 +99,10 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   pout("ATA Version is:   %d\n",(int)abs(version));
   pout("ATA Standard is:  %s\n",description);
   
-  // print current time and date
-  tval=time(NULL);
-  pout("Local Time is:    %s", ctime(&tval));
-  
+  // print current time and date and timezone
+  dateandtimezone(timedatetz);
+  pout("Local Time is:    %s\n", timedatetz);
+
   if (version>=3)
     return;
   
