@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.13 2002/10/20 19:22:02 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.14 2002/10/21 16:45:22 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -328,6 +328,10 @@ int ataIsSmartEnabled(struct hd_driveid drive);
 
 /* Check SMART for Threshold failure */
 int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds);
+
+int ataSmartStatus2(int device);
+
+
 
 /* int isOfflineTestTime ( struct ata_smart_values data)
 *  returns S.M.A.R.T. Offline Test Time in seconds
