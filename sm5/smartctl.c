@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.105 2003/11/16 16:59:23 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.106 2003/11/26 10:37:00 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -820,9 +820,11 @@ int main (int argc, char **argv){
     mode="ATA";
     
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
-  // scsi generci device can be used (needs write permission for MODE 
+  // scsi generic device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
-  // present (e.g. with st). 
+  // present (e.g. with st).  Opening is retried O_RDONLY if read-only
+  // media prevents opening O_RDWR (it cannot happen for scsi generic
+  // devices, but it can for the others).
   fd = deviceopen(device, mode);
   if (fd<0) {
     char errmsg[256];
