@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.128 2003/10/27 09:26:20 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.129 2003/10/27 11:11:57 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -535,6 +535,12 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     return -1;
   }
   
+  // The reporting is cleaner, and we will find coding bugs faster, if
+  // the commands that failed clearly return empty (zeroed) data
+  // structures
+  if (getsdata)
+    memset(data, '\0', 512);
+
   // In case the command produces an error, we'll want to know what it is:
   errno=0;
   
