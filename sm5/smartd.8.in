@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.86 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.87 2004/09/07 13:01:51 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -457,15 +457,15 @@ Section below!
 
 .nf
 .B ################################################
-.B # This is an example smartd startup config
-.B # file /usr/local/etc/smartd.conf for monitoring three ATA
-.B # disks, three SCSI disks, and six ATA disks
+.B # This is an example smartd startup config file
+.B # /usr/local/etc/smartd.conf for monitoring three
+.B # ATA disks, three SCSI disks, and six ATA disks
 .B # behind two 3ware controllers.
 .B #
 .nf
 .B # First ATA disk on each of two interfaces. On
-.B # the second disk, do a long self-test every
-.B # Sunday at 3am.
+.B # the second disk, start a long self-test every
+.B # Sunday between 3 and 4 am.
 .B #
 .B \ \ /dev/hda -a -m admin@example.com,root@localhost 
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12 -s L/../../7/03
@@ -478,13 +478,14 @@ Section below!
 .B \ \ /dev/sdb -m admin@example.com -M test
 .B #
 .nf
-.B # Strange device.  It\'s SCSI. Do a scheduled
-.B # long self test at 5am Monday/Thursday
+.B # Strange device.  It\'s SCSI. Start a scheduled
+.B # long self test between 5 and 6 am Monday/Thursday
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
-.B # Do short self-tests daily at midnight, 1, 2, and 3 am
+.B # Start short self-tests daily between midnight and 1am,
+.B # 1-2, 2-3, and 3-4 am
 .B # (Note that the syntax /dev/twe0 is also allowed.)
 .B \ \ /dev/sdc -d 3ware,0 -a -s S/../.././00
 .B \ \ /dev/sdc -d 3ware,1 -a -s S/../.././01
@@ -493,7 +494,8 @@ Section below!
 .B #
 .nf
 .B # Two ATA disks on a 3ware 9000 controller.
-.B # Do long self-tests Sundays at midnight and 2 am
+.B # Start long self-tests Sundays between  midnight and 
+.B # 1am and 2-3 am
 .B \ \ /dev/twa0 -d 3ware,0 -a -s L/../../7/00
 .B \ \ /dev/twa0 -d 3ware,1 -a -s L/../../7/02
 .B #
@@ -1792,4 +1794,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.86 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.87 2004/09/07 13:01:51 ballen4705 Exp $
