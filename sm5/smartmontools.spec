@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.160 2004/07/07 14:45:19 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.161 2004/09/05 21:04:56 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -324,6 +324,115 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Sun Sep 5 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [DG] [SCSI] Decode Last n error events log page; decode track following
+       and positioning errors [Hitachi]
+  [EM] FreeBSD: another tweak, __packed__ introduced in Version 5.0040
+  [EM] Cleaner tweak of fixes for FreeBSD 4.x.
+  [EM] Fix compilation errors under FreeBSD 4.x, as it is still using
+       and old GCC
+  [EM] Remove 3ware/FreeBSD specific files and just include pieces we need
+  [DG] Add logic in smartd to detect 3ware, Marvell controllers and SATA
+       disks behind an ATA-SCSI simulator (in Linux). If specific device
+       types are not given and they are picked in a general SCSI device
+       scan then warn and skip.
+  [GG] insert correct path to smartd into smartd's init script
+  [BA] Changed all default paths in documentation to reflect /usr/local as
+       default path prefix.  This affects on-line man pages, primarily.
+  [DS] Added support for OpenBSD.
+  [BA] Added another environment variable SMART_FULLMESSAGE set by
+       the smartd mailing feature, and modified examplescripts/Example1
+       to illustrate it.
+  [BA] Fixed potentially misleading messages of the form:
+       XXX failed: success
+  [DG] emit warning if SATA disk detected using libata in Linux; then exit
+  [PW] Added Seagate U10 family, Hitachi Travelstar 7K60, Fujitsu MHR2020AT,
+       and QUANTUM FIREBALLP AS20.5 to knowndrives table.
+  [DG] Detect 3ware and Marvell controllers from SCSI INQUIRY vendor string
+       and suggest usage of appropriate '-d' argument in smartctl.
+  [LW] Tested the RELEASE_5_33_WITH_MARVELL_SUPPORT branch on
+       actual Marvell 88SX5041 hardware, with success.
+       Merged into HEAD.
+  [BA] Fixed nasty DEVICESCAN bug
+  [BA] Checked in RELEASE_5_33_WITH_MARVELL_SUPPORT branch with
+       some Marvell support.
+  [BA] Additional modifications of Ed's controller scheme.  Fixed
+       broken 3ware support under linux, problems with scanning
+       devices in smartd, and other small problems.
+  [EM] Minor change to FreeBSD inclusion of 'twe' include files.  Add 
+       code to check if they exising in /usr/include/sys to use those
+       in preference to ones added here
+  [EM] Very preliminary support attempt for 3Ware controllers under 
+       FreeBSD. Also, switched 'escalade_type/escalade_port' to
+       'controler_type/controller_port' and moved away from 
+       'tryata/tryscsi' to using new 'controller*' variables to 
+       determine which controller type (ATA/SCSI/3Ware) to use.
+  [GK] Added initscript support for Darwin.
+  [CF] Windows smartd: Added ability to run smartd as a windows service,
+       including new commands "smartd install ..." and "smartd remove"
+       to install and remove the service registry entry.
+  [BA] smartd: warn user if -s regexp regular expression contains
+       characters other than 0123456789.*()|+?[-]{}:=SLCO since such
+       characters are 'suspicous' and may indicate a poorly formed
+       regexp.  Extended regular expression gurus: can this list be
+       reduced somewhat?
+  [CF] Fixed bug in Windows smartd: Missing close of config file when
+       configuration is reloaded by smartd daemon.
+  [CF] Windows smartd: Added mail warning feature using the "Blat"
+       (http://blat.sourceforge.net/) mailer as a default.
+  [PW] Added Maxtor DiamondMax Plus 5120 Ultra ATA 33 series and TOSHIBA
+       MK3017GAP to knowndrives table.
+  [CF] Added fixes to build smartmontools on old Linux systems
+       (libc < 6, Kernel 2.0.x).
+  [BA] Added ATA minor version identity strings for latest ATA specification
+       updates: ATA/ATAPI-7 T13 1532D revision 4a and ATA/ATAPI-6 published,
+       ANSI INCITS 361-2002
+  [PW] Added Hitachi Travelstar 5K80 family and Fujitsu MHTxxxxAH family to
+       knowndrives table.
+  [EM] Fix up compilation under FreeBSD < 5.x
+  [PW] Added QUANTUM FIREBALL EX3.2A and missing Western Digital Caviar SE
+       drives to knowndrives table.
+  [BA] Modified Hitachi Travelstar 80GN family regexp in drive database.
+       Thanks to [GK/CF] for problem & solution.
+  [GK] Added os_darwin.[ch]
+  [PW] Added the following drives to the knowndrives table: IBM Travelstar
+       48GH, 30GN, and 15GN family; IBM Deskstar 37GP and 34GXP family;
+       Western Digital WDC WD272AA; Maxtor DiamondMax D540X-4D family;
+       TOSHIBA MK2016GAP, MK2018GAP, MK2018GAS, MK2023GAS; and
+       QUANTUM FIREBALL ST3.2A
+  [BA] smartd/smarctl now print build HOST/OS information as part
+       of startup slogan.  This should make it slightly easier to
+       read bug reports from users.
+  [RZ] Fixed the DEVICESCAN to do what it was supposed to do - give
+       error message unless scanning is in progress.  
+  [BA] Update documentation to describe 3ware character devices. Better
+       error detection for missing/malfunctioning devices behind 3ware
+       controllers. Now pack 3ware ioctl structures explicitly.
+  [BA] For ATA devices that support LBA mode, print capacity as part
+       of smartctl --info
+  [RZ] Made DEVICESCAN quiet about non-existing devices unless debug
+       is on.
+  [DG] treat "unit attention" SCSI warning as try again in some contexts
+       (test unit ready and mode sense)
+  [BA] on drives that store max/min rather than min/max, get order
+       correct in printing temp.
+  [BA] fixed typo in 'smartctl -h' output.  Thanks to Gabor Z. Papp.
+  [BA] linux: clean-up to 3ware/AMCC support; dynamically create
+       or fix /dev/tw[ae][0-15] device node entries if they don't
+       exist or are incorrect. One can now use the character devices
+       /dev/twe[0-15] OR /dev/sd? for 3ware 6000/7000/8000 series
+       cards.  One must use /dev/twa[0-15] for 3ware 9000 series cards.
+       Note that selective self-tests now work via /dev/tw[ae] devices.
+       Next step: documentation.
+  [BA] linux: experimental "support" for 3ware/AMCC 9000 series
+       controllers that use the 3w-9xxx driver.  This will be in a
+       state of flux for a few days.  Note that this requires the
+       character interface /dev/twa[0-15].
+  [DG] linux: extend general SCSI OS interface to use the SG_IO ioctl. If
+       not available, use the older SCSI_IOCTL_SEND_COMMAND ioctl.
+  [KS] Solaris/x86: fixed system identification problem in configure
+       script.  Thanks to Stuart Swales.
+
 * Mon Jul 5 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [BA] Update link to revised/updated IBM Deskstar Firmware
   [CF] Cygwin & Windows: Added missing ASPI manager initialization

@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.54 2004/08/14 20:04:38 chrfranke Exp $
+$Id: INSTALL,v 1.55 2004/09/05 21:04:56 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -14,7 +14,7 @@ Table of contents:
 [4] Guidelines for different Linux distributions
 [5] Guidelines for FreeBSD
 [6] Guidelines for Darwin
-[7] Guidelines for NetBSD
+[7] Guidelines for NetBSD/OpenBSD
 [8] Guidelines for Solaris
 [9] Guidelines for Cygwin
 [10] Guidelines for Windows
@@ -87,7 +87,7 @@ Table of contents:
     systems.  ATA/IDE code only works on SPARC platform.  All tested
     kernels worked correctly.
 
-    D) NetBSD
+    D) NetBSD/OpenBSD
 
     The code was tested on a 1.6ZG (i.e., 1.6-current) system. It should
     also function under 1.6.1 and later releases (unverified).  Currently
@@ -148,7 +148,7 @@ Table of contents:
    * Can't be implemented easily without more kernel-level support,
      so far as I know:
      - running immediate offline, conveyance, or selective tests
-     - running any test in capture mode
+     - running any test in captive mode
      - aborting tests
      - switching on automatic offline testing
      - support for SCSI
@@ -306,8 +306,8 @@ SuSE:
   ./configure --with-initscriptdir=/Library/StartupItems
 
 
-[7] Guidelines for NetBSD
-=========================
+[7] Guidelines for NetBSD/OpenBSD
+=================================
   ./configure --prefix=/usr/pkg                                       \
 	      --with-docdir=/usr/pkg/share/doc/smartmontools
 

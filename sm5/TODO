@@ -1,9 +1,9 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.55 2004/08/31 18:20:40 ballen4705 Exp $
+$Id: TODO,v 1.56 2004/09/05 21:04:56 ballen4705 Exp $
 
-SATA devices
-------------
+SATA devices under Linux
+------------------------
 Currently work OK if you use the standard IDE drivers in
 drivers/ide. If you use the new libata drivers, it won't work
 correctly because libata doesn't yet support the needed
@@ -18,8 +18,8 @@ search the Linux Kernel Mailing list to find this patch, or look at the
 thread:
 http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&threadm=2yYBY-4HB-55%40gated-at.bofh.it&rnum=3&prev=/groups%3Fq%3Dsmartmontools%26hl%3Den%26lr%3D%26ie%3DUTF-8%26scoring%3Dd%26selm%3D2yYBY-4HB-55%2540gated-at.bofh.it%26rnum%3D3
 
-USB devices
------------
+USB devices under Linux
+-----------------------
 Some USB devices can hang smartctl or smartd.  This is because these
 devices fail to comply with SCSI specifications for their packet
 command sets.  Work on improving the detection and bail-out procedures
@@ -94,6 +94,8 @@ that can be monitored.
 
 FreeBSD
 -------
+
+Add support for 3ware 9000 series SATA controllers.
 
 Cygwin and Windows
 ------------------

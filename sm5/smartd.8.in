@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.85 2004/09/03 19:41:52 chrfranke Exp $
+$Id: smartd.8.in,v 1.86 2004/09/05 21:04:56 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -299,7 +299,7 @@ Intended primarily to help
 .B smartmontools
 developers understand the behavior of
 .B smartmontools
-on non-conforming or poorly conforming hardware.  This option reports
+on non-conforming or poorly-conforming hardware.  This option reports
 details of
 \fBsmartd\fP
 transactions with the device.  The option can be used multiple times.
@@ -1792,4 +1792,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.85 2004/09/03 19:41:52 chrfranke Exp $
+$Id: smartd.8.in,v 1.86 2004/09/05 21:04:56 ballen4705 Exp $

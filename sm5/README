@@ -1,8 +1,9 @@
-====================================================
-smartmontools - S.M.A.R.T. utility toolset for Linux
-====================================================
+==========================================================
+smartmontools - S.M.A.R.T. utility toolset for Darwin/Mac
+OSX, FreeBSD, Linux, NetBSD, OpenBSD, Solaris, and Windows.
+==========================================================
 
-$Id: README,v 1.52 2004/08/31 18:20:40 ballen4705 Exp $
+$Id: README,v 1.53 2004/09/05 21:04:56 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -99,7 +100,7 @@ only files with tag".
 
 == BUILDING/INSTALLING SMARTMONTOOLS ==
 
-Refer to the "INSTALL" file for installation instructions.
+Refer to the "INSTALL" file for detailed installation instructions.
 
 See the "WARNINGS" file for reports of hardware where these utilities
 might cause serious problems such as lockups.
