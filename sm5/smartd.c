@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.185 2003/08/10 05:51:17 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.186 2003/08/10 12:41:22 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1135,6 +1135,8 @@ int ataCheckDevice(cfgfile *cfg){
   return 0;
 }
 
+#define DEF_SCSI_REPORT_TEMPERATURE_DELTA 2
+static int scsi_report_temperature_delta = DEF_SCSI_REPORT_TEMPERATURE_DELTA;
 
 int scsiCheckDevice(cfgfile *cfg)
 {
@@ -1176,23 +1178,23 @@ int scsiCheckDevice(cfgfile *cfg)
         printout(LOG_INFO,"Device: %s, Acceptable asc,ascq: %d,%d\n", 
                  name, (int)asc, (int)ascq);  
   
-    if (255 == currenttemp) /* this means temperature unavailable */
-        currenttemp = 0;    /* less likely to worry people */
-    if (currenttemp) {
+    if (currenttemp && currenttemp!=255) {
         if (cfg->Temperature) {
-            if (currenttemp != cfg->Temperature)
+            if (abs(((int)currenttemp - (int)cfg->Temperature)) >= 
+                scsi_report_temperature_delta) {
                 printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
-                         "to %d degrees since last reading\n", name, 
+                         "to %d degrees since last report\n", name, 
                          (int)(currenttemp - cfg->Temperature), 
                          (int)currenttemp);
+                cfg->Temperature = currenttemp;
+            }
         }
-        else 
+        else {
             printout(LOG_INFO, "Device: %s, initial Temperature is %d "
                      "degrees\n", name, (int)currenttemp);
-        cfg->Temperature = currenttemp;
+            cfg->Temperature = currenttemp;
+        }
     }
-    else
-        cfg->Temperature = 0;
 
     closedevice(fd, name);
     return 0;
