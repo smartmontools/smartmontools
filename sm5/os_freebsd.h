@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.10 2004/08/13 13:57:12 arvoreen Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.11 2004/08/13 14:09:21 arvoreen Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -39,8 +39,18 @@ struct freebsd_dev_channel {
 #define FREEBSD_FDOFFSET 16;
 #define MAX_NUM_DEV 26
 
+#ifdef  HAVE_SYS_TWEREG_H
+#include <twereg.h>
+#else
 #include "twereg.h"
+#endif
+
+#ifdef  HAVE_SYS_TWEIO_H
+#include <tweio.h>
+#else
 #include "tweio.h"
+#endif
+
 /* 
    The following definitions/macros/prototypes are used for three
    different interfaces, referred to as "the three cases" below.
