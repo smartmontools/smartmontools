@@ -33,6 +33,7 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
+#include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
@@ -42,9 +43,9 @@
 #include "smartctl.h"
 #include "utility.h"
 
-extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.77 2003/07/19 10:21:37 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.78 2003/07/19 14:36:20 pjwilliams Exp $"
+ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
@@ -66,6 +67,8 @@ void printcopy(){
   pout("under the terms of the GNU General Public License Version 2.\n");
   pout("See http://www.gnu.org for further details.\n\n");
   pout("CVS version IDs of files used to build this code are:\n");
+  printone(out,atacmdnames_c_cvsid);
+  pout("%s",out);
   printone(out,atacmds_c_cvsid);
   pout("%s",out);
   printone(out,ataprint_c_cvsid);

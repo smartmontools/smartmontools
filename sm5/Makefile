@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.65 2003/04/23 13:19:40 guidog Exp $
+# $Id: Makefile,v 1.66 2003/07/19 14:36:20 pjwilliams Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -43,11 +43,11 @@ INSTALL = install
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_DATA = ${INSTALL} -m 644
 
-releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING \
-  extern.h knowndrives.c knowndrives.h Makefile README scsicmds.c scsicmds.h \
-  scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h smartd.8 smartd.c \
-  smartd.h smartd.initd TODO WARNINGS VERSION smartd.conf smartd.conf.5 \
-  utility.c utility.h examplescripts/
+releasefiles=atacmdnames.c atacmdnames.h atacmds.c atacmds.h ataprint.c \
+  ataprint.h CHANGELOG COPYING extern.h knowndrives.c knowndrives.h Makefile \
+  README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c \
+  smartctl.h smartd.8 smartd.c smartd.h smartd.initd TODO WARNINGS VERSION \
+  smartd.conf smartd.conf.5 utility.c utility.h examplescripts/
 
 counter=$(shell cat VERSION)
 pkgname=smartmontools-5.1
@@ -61,17 +61,18 @@ all: smartd smartctl
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartctl.8\n\tman ./smartd.8\n\tman ./smartd.conf.5\n"
 	@echo -e "to read the manual pages now.  Unless you do a \"make install\" the manual pages won't be installed.\n"
 
-smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o utility.o knowndrives.o\
-          smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h \
-          utility.h extern.h knowndrives.h VERSION Makefile
+smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o utility.o \
+          knowndrives.o atacmdnames.o smartctl.h atacmds.h ataprint.h \
+          scsicmds.h scsiprint.h utility.h extern.h knowndrives.h \
+          atacmdnames.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartctl.c \
-                                      atacmds.o ataprint.o knowndrives.o scsicmds.o scsiprint.o utility.o
+                                      atacmdnames.o atacmds.o ataprint.o knowndrives.o scsicmds.o scsiprint.o utility.o
 
 smartd:  smartd.c atacmds.o ataprint.o scsicmds.o utility.o knowndrives.o \
-         smartd.h atacmds.h ataprint.h knowndrives.h scsicmds.h utility.h extern.h VERSION \
-         Makefile
+         atacmdnames.o smartd.h atacmds.h ataprint.h knowndrives.h scsicmds.h \
+         utility.h extern.h atacmdnames.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartd.c \
-                                      atacmds.o ataprint.o knowndrives.o scsicmds.o utility.o 
+                                      atacmdnames.o atacmds.o ataprint.o knowndrives.o scsicmds.o utility.o 
 
 atacmds.o: atacmds.c atacmds.h utility.h extern.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c atacmds.c 
@@ -91,6 +92,9 @@ utility.o: utility.c utility.h Makefile
 
 knowndrives.o: knowndrives.c knowndrives.h utility.h atacmds.h ataprint.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c knowndrives.c
+
+atacmdnames.o: atacmdnames.c atacmdnames.h Makefile
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c atacmdnames.c
 
 
 
