@@ -33,9 +33,9 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.27 2003/03/31 00:19:34 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.28 2003/03/31 12:50:22 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
-// for passing global control variables
+/* for passing global control variables */
 extern smartmonctrl *con;
 
 #if 1
@@ -212,17 +212,18 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
             pout("] status=0\n");
         return 0;
     }
-    iop->scsi_status = status & 0xff;
+    iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
     if (DRIVER_SENSE == ((status >> 24) & 0xff))
         iop->scsi_status = 2;
     len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
                 SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
-    if ((iop->scsi_status & 0x2) && iop->sensep && (len > 0)) {
+    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
+	iop->sensep && (len > 0)) {
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
     }
     if (con->reportscsiioctl) {
-        if (iop->scsi_status & 2) {
+        if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
             pout("] status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
                  wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
         }
@@ -240,8 +241,8 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
                           struct scsi_sense_disect * out)
 {
     memset(out, 0, sizeof(out));
-    if ((io_buf->scsi_status & 0x2) && (io_buf->resp_sense_len > 7)) {  
-        /* CHECK CONDITION and CMD TERMINATED */
+    if ((SCSI_STATUS_CHECK_CONDITION == io_buf->scsi_status) && 
+	(io_buf->resp_sense_len > 7)) {  
         out->error_code = (io_buf->sensep[0] & 0x7f);
         out->sense_key = (io_buf->sensep[2] & 0xf);
         if (io_buf->resp_sense_len > 13) {
@@ -251,10 +252,14 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
     }
 }
 
+/* Sends LOG SENSE command. Returns 0 if ok, 1 if command not supported,
+   2 if field (within command) not supported or negative errno. */
 int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
+    UINT8 sense[32];
     int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -268,8 +273,19 @@ int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     cdb[8] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+	    return 1;
+	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+	    return 2;
+    }
+    if (status > 0)
+	status = 3;
     return status;
 }
 
@@ -392,6 +408,7 @@ int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 /* bufLen should be 36 for unsafe devices (like USB mass storage stuff)
  * otherwise they can lock up!
  */
+/* Standard INQUIRY returns 0 for ok, anything else is a major problem */
 int stdinquiry(int device, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -524,8 +541,7 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     return status;
 }
 
-// See if the device accepts IOCTLs at all...
-int testunitready(int device)
+static int _testunitready(int device, struct scsi_sense_disect * sinfo)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
@@ -541,6 +557,26 @@ int testunitready(int device)
     io_hdr.cmnd_len = sizeof(cdb);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
+    scsi_do_sense_disect(&io_hdr, sinfo);
+    return status;
+}
+
+/* Returns 0 for device responds and media ready, 1 for device responds and
+   media not ready, or returns a negated errno value */
+int testunitready(int device)
+{
+    struct scsi_sense_disect sinfo;
+    int status;
+
+    status = _testunitready(device, &sinfo);
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+	return 1;
+    else if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
+	/* power on reset, media changed */
+	status = _testunitready(device, &sinfo);	
+        if (SCSI_SK_NOT_READY == sinfo.sense_key)
+	    return 1;
+    }
     return status;
 }
 
