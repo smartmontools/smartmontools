@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.7 2002/10/17 04:04:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.8 2002/10/17 04:10:44 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -22,6 +22,7 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 
 smartmontools-5.0-10
+    Removed extraneous space before printing in some error messages
     Fixed additional typos in documentation
     Fixed some character buffers that were too short for their contents.
 
