@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.268 2003/12/16 20:09:16 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.269 2003/12/29 13:19:25 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -490,10 +490,14 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   
   snprintf(subject, 256,"SMART error (%s) detected on host: %s", whichfail[which], hostname);
 
-  // If the user has set cfg->emailcmdline, use that as mailer, else "mail".
+  // If the user has set cfg->emailcmdline, use that as mailer, else "mail" or "mailx".
   if (!executable)
-    executable="mail";
-    
+#ifdef USEMAILX
+    executable="mailx";
+#else
+    executable="mail";    
+#endif
+
   // Export information in environment variables that will be useful
   // for user scripts
   exportenv(environ_strings[0], "SMARTD_MAILER", executable);
