@@ -70,9 +70,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.70.2.1 2004/08/16 23:57:19 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.70.2.2 2004/08/18 16:21:20 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.70.2.1 2004/08/16 23:57:19 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.70.2.2 2004/08/18 16:21:20 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -488,7 +488,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
     taskfile->sector_count   = 1;
     taskfile->sector_number  = select;
-    taskfile->low_cylinder   = 0x4f;;
+    taskfile->low_cylinder   = 0x4f;
     taskfile->high_cylinder  = 0xc2;
     taskfile->device_head    = 0;
     taskfile->command        = ATA_SMART_CMD;
