@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.21 2003/12/05 13:14:07 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.22 2003/12/07 19:59:08 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -128,7 +128,6 @@ int deviceclose(int fd);
 #define EXIT_PID       4   // problem creating pid file
 
 #define EXIT_NOMEM     8   // out of memory
-#define EXIT_CCONST    9   // we hit a compile time constant
 #define EXIT_BADCODE   10  // internal error - should NEVER happen
 
 #define EXIT_BADDEV    16  // we can't monitor this device

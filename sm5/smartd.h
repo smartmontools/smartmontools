@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.63 2003/12/05 13:14:07 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.64 2003/12/07 19:59:08 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -39,21 +39,11 @@
 // maximum line length in configuration file
 #define MAXLINELEN 128
 
-// maximum number of device entries in configuration file.
-#define MAXENTRIES 64
-
 // maximum length of a continued line in configuration file
 #define MAXCONTLINE 1023
 
 // default for how often SMART status is checked, in seconds
 #define CHECKTIME 1800
-
-// maximum number of ATA devices to monitor.  Under linux this should
-// not exceed 20 (/dev/hda-t).  Check against make_device_names().
-#define MAXATADEVICES	20
-
-// maximum number of SCSI devices to monitor
-#define MAXSCSIDEVICES	26
 
 /* Boolean Values */
 #define TRUE 0x01

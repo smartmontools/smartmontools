@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.258 2003/12/05 13:20:20 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.259 2003/12/07 19:59:08 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -102,14 +102,16 @@ extern int facility;
 // used for control of printing, passing arguments to atacmds.c
 smartmonctrl *con=NULL;
 
-// pointers to (real or simulated) entries in configuration file
-cfgfile *cfgentries[MAXENTRIES];
+// pointers to (real or simulated) entries in configuration file, and
+// maximum space currently allocated for these entries.
+cfgfile **cfgentries=NULL;
+int cfgentries_max=0;
 
-// pointers to ATA and SCSI devices being monitored 
-cfgfile *atadevlist[MAXATADEVICES],*scsidevlist[MAXSCSIDEVICES];
-
-// number of ATA and SCSI devices being monitored
-int numdevata=0,numdevscsi=0;
+// pointers to ATA and SCSI devices being monitored, maximum and
+// actual numbers
+cfgfile **atadevlist=NULL, **scsidevlist=NULL;
+int atadevlist_max=0, scsidevlist_max=0;
+int numdevata=0, numdevscsi=0;
 
 // track memory usage
 extern long long bytes;
@@ -130,8 +132,36 @@ jmp_buf registerscsienv;
 #endif
 
 
+cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, char *listname){
+  // for now keep BLOCKSIZE small to help detect coding problems.
+  // Perhaps increase in the future.
+  const int BLOCKSIZE=8;
+  int i;
+  int old = *oldsize;
+  int new = old + BLOCKSIZE;
+  cfgfile **newptr=realloc(oldarray, new*sizeof(cfgfile *));
+  
+  // did we get more space?
+  if (newptr) {
 
+    // clear remaining entries ala calloc()
+    for (i=old; i<new; i++)
+      newptr[i]=NULL;
+    
+    bytes += BLOCKSIZE*sizeof(cfgfile *);
+    
+    *oldsize=new;
+    
+#if 0
+    PrintOut(LOG_INFO, "allocating %d slots for %s\n", BLOCKSIZE, listname);
+#endif
 
+    return newptr;
+  }
+  
+  PrintOut(LOG_CRIT, "out of memory for allocating %s list\n", listname);
+  EXIT(EXIT_NOMEM);
+}
 
 
 // prints CVS identity information for the executable
@@ -202,8 +232,12 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
 void RmAllConfigEntries(){
   int i;
 
-  for (i=0; i<MAXENTRIES; i++)
+  for (i=0; i<cfgentries_max; i++)
     RmConfigEntry(cfgentries+i, __LINE__);
+
+  cfgentries=FreeNonZero(cfgentries, sizeof(cfgfile *)*cfgentries_max, __LINE__, __FILE__);
+  cfgentries_max=0;
+
   return;
 }
 
@@ -211,12 +245,18 @@ void RmAllConfigEntries(){
 void RmAllDevEntries(){
   int i;
   
-  for (i=0; i<MAXATADEVICES; i++)
+  for (i=0; i<atadevlist_max; i++)
     RmConfigEntry(atadevlist+i, __LINE__);
-  
-  for (i=0; i<MAXSCSIDEVICES; i++)
+
+  atadevlist=FreeNonZero(atadevlist, sizeof(cfgfile *)*atadevlist_max, __LINE__, __FILE__);
+  atadevlist_max=0;
+
+  for (i=0; i<scsidevlist_max; i++)
     RmConfigEntry(scsidevlist+i, __LINE__);
   
+  scsidevlist=FreeNonZero(scsidevlist, sizeof(cfgfile *)*scsidevlist_max, __LINE__, __FILE__);
+  scsidevlist_max=0;
+
   return;
 }
 
@@ -272,11 +312,11 @@ void Goodbye(){
   RemovePidFile();
 
   // useful for debugging -- have we managed memory correctly?
-  if (debugmode || bytes)
+  if (debugmode || (bytes && exitstatus!=EXIT_NOMEM))
     PrintOut(LOG_INFO, "Memory still allocated for devices at exit is %lld bytes.\n", bytes);
 
   // if we are exiting because of a code bug, tell user
-  if (exitstatus==EXIT_BADCODE || bytes)
+  if (exitstatus==EXIT_BADCODE || (bytes && exitstatus!=EXIT_NOMEM))
         PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
 
   if (exitstatus==0 && bytes)
@@ -350,7 +390,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   }
   if (which<0 || which>=SMARTD_NMAIL || sizeof(whichfail)!=SMARTD_NMAIL*sizeof(char *)) {
     PrintOut(LOG_CRIT,"Contact " PACKAGE_BUGREPORT "; internal error in MailWarning(): which=%d, size=%d\n",
-	     which, sizeof(whichfail));
+	     which, (int)sizeof(whichfail));
     return;
   }
   
@@ -987,11 +1027,8 @@ int ATADeviceScan(cfgfile *cfg){
   }
   
   // Do we still have entries available?
-  if (numdevata>=MAXATADEVICES){
-    PrintOut(LOG_CRIT,"smartd has found more than MAXATADEVICES=%d ATA devices.\n"
-             "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",(int)numdevata);
-    EXIT(EXIT_CCONST);
-  }
+  while (numdevata>=atadevlist_max)
+    atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
   
   // register device
   PrintOut(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",name);
@@ -1063,14 +1100,9 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     return 3;
   }
   
-  // Device exists, and does SMART.  Add to list
-  if (numdevscsi >= MAXSCSIDEVICES) {
-    PrintOut(LOG_CRIT, 
-	     "smartd has found more than MAXSCSIDEVICES=%d SCSI devices.\n" 
-	     "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n", 
-	     (int)numdevscsi);
-    EXIT(EXIT_CCONST);
-  }
+  // Device exists, and does SMART.  Add to list (allocating more space if needed)
+  while (numdevscsi >= scsidevlist_max)
+    scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
   
   // Flag that certain log pages are supported (information may be
   // available from other sources).
@@ -1689,8 +1721,8 @@ int SCSICheckDevice(cfgfile *cfg)
         if (cfg->Temperature) {
             if (abs(((int)currenttemp - (int)cfg->Temperature)) >= 
                 scsi_report_temperature_delta) {
-                PrintOut(LOG_INFO, "Device: %s, Temperature changed %d degrees "
-                         "to %d degrees since last report\n", name, 
+                PrintOut(LOG_INFO, "Device: %s, Temperature changed %d Celsius "
+                         "to %d Celsius since last report\n", name, 
                          (int)(currenttemp - cfg->Temperature), 
                          (int)currenttemp);
                 cfg->Temperature = currenttemp;
@@ -1698,9 +1730,9 @@ int SCSICheckDevice(cfgfile *cfg)
         }
         else {
             PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d "
-                     "degrees\n", name, (int)currenttemp);
+                     "Celsius\n", name, (int)currenttemp);
            if (triptemp)
-                PrintOut(LOG_INFO, "    [trip Temperature is %d degrees]\n",
+                PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n",
                          (int)triptemp);
             cfg->Temperature = currenttemp;
             cfg->Temperature = currenttemp;
@@ -2287,6 +2319,7 @@ cfgfile *CreateConfigEntry(cfgfile *original){
 }
 
 
+
 // This is the routine that adds things to the cfgentries list. To
 // prevent memory leaks when re-reading the configuration file many
 // times, this routine MUST deallocate any memory other than that
@@ -2319,14 +2352,11 @@ int ParseConfigLine(int entry, int lineno,char *line){
       return -2;
     }
   }
-
-  // Is there space for another entry?
-  if (entry>=MAXENTRIES){
-    PrintOut(LOG_CRIT,"Error: configuration file %s can have no more than MAXENTRIES=%d entries\n",
-             configfile,MAXENTRIES);
-    return -2;
-  }
   
+  // Is there space for another entry?  If not, allocate more
+  while (entry>=cfgentries_max)
+    cfgentries=AllocateMoreSpace(cfgentries, &cfgentries_max, "configuration file device");
+
   // We've got a legit entry, make space to store it
   cfg=cfgentries[entry]=CreateConfigEntry(NULL);
   cfg->name = CustomStrDup(name, 1, __LINE__,__FILE__);
@@ -2853,24 +2883,17 @@ int MakeConfigEntries(const char *type, int start){
   if (num<=0)
     return 0;
   
-  // check that we still have space for entries
-  if (MAXENTRIES<(start+num)){
-    PrintOut(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
-    // need to clean up memory allocated by make_device_names
-    for (i=0; i < num; i++) {
-      devlist[i] = FreeNonZero(devlist[i],strlen((char*)devlist[i]),__LINE__,__FILE__);
-    }
-    devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
-    EXIT(EXIT_CCONST);
-  }
-  
   // loop over entries to create
   for (i=0; i<num; i++){
     
     // make storage and copy for all but first entry
-    if ((start+i))
+    if (start+i) {
+      // allocate more storage if needed
+      while (cfgentries_max<=start+i)
+	cfgentries=AllocateMoreSpace(cfgentries, &cfgentries_max, "simulated configuration file device");
       cfg=cfgentries[start+i]=CreateConfigEntry(first);
-    
+    }
+
     // ATA or SCSI?
     cfg->tryata = !strcmp(type,"ATA");
     cfg->tryscsi= !strcmp(type,"SCSI");
@@ -2975,9 +2998,13 @@ void RegisterDevices(int scanning){
   numdevata=numdevscsi=0;
   
   // Register entries
-  for (i=0; cfgentries[i] && i<MAXENTRIES ; i++){
+  for (i=0; i<cfgentries_max ; i++){
     
     cfgfile *ent=cfgentries[i];
+    
+    // skip any NULL entries (holes)
+    if (!ent)
+      continue;
     
     // register ATA devices
     if (ent->tryata){
@@ -2986,6 +3013,8 @@ void RegisterDevices(int scanning){
       else {
 	// move onto the list of ata devices
 	cfgentries[i]=NULL;
+	while (numdevata>=atadevlist_max)
+	  atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
 	atadevlist[numdevata++]=ent;
       }
     }
@@ -3034,6 +3063,8 @@ void RegisterDevices(int scanning){
       else {
 	// move onto the list of scsi devices
 	cfgentries[i]=NULL;
+	while (numdevscsi>=scsidevlist_max)
+	  scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
 	scsidevlist[numdevscsi++]=ent;
       }
     }
@@ -3070,9 +3101,6 @@ int main(int argc, char **argv){
   // for simplicity, null all global communications variables/lists
   con=&control;
   memset(con,        0,sizeof(control));
-  memset(atadevlist, 0,sizeof(cfgfile *)*MAXATADEVICES);
-  memset(scsidevlist,0,sizeof(cfgfile *)*MAXSCSIDEVICES);
-  memset(cfgentries, 0,sizeof(cfgfile *)*MAXENTRIES);
 
   // parse input and print header and usage info if needed
   ParseOpts(argc,argv);
