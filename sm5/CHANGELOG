@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.58 2002/11/25 04:31:54 ballen4705 Exp $
+$Id: CHANGELOG,v 1.59 2002/11/25 08:43:23 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -30,6 +30,11 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] smartctl: modified so that arguments could have either a single -
+  as in -ea or multiple ones as in -e -a.  Improved warning message for
+  device not opened, and fixed error in redirection of error output of
+  HD identity command.
 
   [PW] smartd: added support for long options.  All short options are still
   supported; see manpage for available long options.
