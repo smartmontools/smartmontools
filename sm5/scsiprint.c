@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.46 2003/05/14 07:21:47 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.47 2003/05/15 07:40:57 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -57,7 +57,7 @@ static int gStartStopLPage = 0;
 static int gTapeAlertsLPage = 0;
 
 /* Mode pages supported */
-static int gIecMPage = 0;
+static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
 
 
 static void scsiGetSupportedLogPages(int device)
@@ -175,7 +175,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     QUIETOFF(con);
 
     if (! failures)
-        pout("TapeAlert: Ok!\n");
+        pout("TapeAlert: OK\n");
 
     return failures;
 }
@@ -526,9 +526,9 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 	        pout("\n");
             QUIETOFF(con);
         }
+        gIecMPage = 0;
         return 0;
-    } else
-        gIecMPage = 1;
+    }
     if (!is_tape)
         pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
