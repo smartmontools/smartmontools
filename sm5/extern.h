@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.27 2003/08/27 21:16:19 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.28 2003/10/06 00:37:04 ballen4705 Exp $\n"
 #endif
 
 // For development and testing of Selective self-test code
@@ -36,6 +36,7 @@
 // Possible values for fixfirmwarebug
 #define FIX_NONE             0
 #define FIX_SAMSUNG          1
+#define FIX_SAMSUNG2         2
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
