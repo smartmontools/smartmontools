@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.44 2003/06/12 21:16:39 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.45 2003/06/22 19:52:59 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -142,46 +142,57 @@ typedef enum {
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 struct ata_smart_attribute {
   unsigned char id;
-  union {
-    unsigned short all; 
-    struct {
-      // From SFF 8035i Revision 2 page 19: Bit 0
-      // (pre-failure/advisory bit) - If the value of this bit equals
-      // zero, an attribute value less than or equal to its
-      // corresponding attribute threshold indicates an advisory
-      // condition where the usage or age of the device has exceeded
-      // its intended design life period. If the value of this bit
-      // equals one, an attribute value less than or equal to its
-      // corresponding attribute threshold indicates a prefailure
-      // condition where imminent loss of data is being
-      // predicted.
-      unsigned prefailure:1;
-
-      //  From SFF 8035i Revision 2 page 19: Bit 1 (on-line data
-      // collection bit) - If the value of this bit equals zero, then
-      // the attribute value is updated only during off-line data
-      // collection activities. If the value of this bit equals one,
-      // then the attribute value is updated during normal operation
-      // of the device or during both normal operation and off-line
-      // testing.
-      unsigned online:1; 
-
-      // The following are (probably) IBM's or Quantum's definitions
-      // for the vendor-specific bits:
-      unsigned performance:1;
-      unsigned errorrate:1;	
-      unsigned eventcount:1 ;
-      unsigned selfperserving:1;
-
-      // Last ten bits are reserved for future use
-      unsigned reserved:10;	
-    } __attribute__ ((packed)) flag;
-  } status ; 
+  // meaning of flag bits: see MACROS just below
+  unsigned short flags; 
   unsigned char current;
   unsigned char worst;
   unsigned char raw[6];
   unsigned char reserv;
 } __attribute__ ((packed));
+
+// MACROS to interpret the flags bits in the previous structure.
+// These have not been implemented using bitflags and a union, to make
+// it portable across bit/little endian and different platforms.
+
+// 0: Prefailure bit
+
+// From SFF 8035i Revision 2 page 19: Bit 0 (pre-failure/advisory bit)
+// - If the value of this bit equals zero, an attribute value less
+// than or equal to its corresponding attribute threshold indicates an
+// advisory condition where the usage or age of the device has
+// exceeded its intended design life period. If the value of this bit
+// equals one, an attribute value less than or equal to its
+// corresponding attribute threshold indicates a prefailure condition
+// where imminent loss of data is being predicted.
+#define ATTRIBUTE_FLAGS_PREFAILURE(x) (x & 0x01)
+
+// 1: Online bit 
+
+//  From SFF 8035i Revision 2 page 19: Bit 1 (on-line data collection
+// bit) - If the value of this bit equals zero, then the attribute
+// value is updated only during off-line data collection
+// activities. If the value of this bit equals one, then the attribute
+// value is updated during normal operation of the device or during
+// both normal operation and off-line testing.
+#define ATTRIBUTE_FLAGS_ONLINE(x) (x & 0x02)
+
+// 2: Performance bit
+
+// The following are (probably) IBM's or Quantum's definitions for the
+// vendor-specific bits:
+#define ATTRIBUTE_FLAGS_PERFORMANCE(x) (x & 0x04)
+
+// 3: Errorrate bit
+#define ATTRIBUTE_FLAGS_ERRORRATE(x) (x & 0x08)
+
+// 4: Eventcount bit
+#define ATTRIBUTE_FLAGS_EVENTCOUNT(x) (x & 0x10)
+
+// 5: Selfpereserving bit
+#define ATTRIBUTE_FLAGS_SELFPRESERVING(x) (x & 0x20)
+
+
+// Last ten bits are reserved for future use
 
 
 // What follows is the ATA/ATAPI-4 Rev 13 data structure equivalent:
