@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.340 2004/09/03 04:39:08 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.341 2004/09/06 04:30:22 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.340 2004/09/03 04:39:08 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.341 2004/09/06 04:30:22 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1559,7 +1559,7 @@ static int SCSIFilterKnown(int fd, char * device)
       if (isLinuxLibAta(di_buff, len)) {
         PrintOut(LOG_INFO, "Device %s, SATA disks accessed via libata are not"
 		 " currently supported by\nsmartmontools. When libata is given"
-                 "an ATA pass-thru ioctl() then an\nadditional '-d libata'"
+                 " an ATA pass-thru ioctl() then an\nadditional '-d libata'"
                  " device type will be added to smartmontools.\n", device);
         return 1;
       }
