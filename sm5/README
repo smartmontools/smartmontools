@@ -177,30 +177,31 @@ please post to the smartmontools mailing list.
 
 The following table shows the mapping of old options to new options:
 
-  -----------------------------------------------------------------------
-  Old option    New short option        New long option
-  -----------------------------------------------------------------------
-  -V            -V                      --version, --copyright, --license
-  -i            -i                      --showinfo
+  ------------------------------------------------------------------------------------------------------
+  Old option    New short option        New long option                    RELATED smartd.conf Directive
+  ------------------------------------------------------------------------------------------------------
+  -h, -?        -h, -?                  --help
+  -V            -V                      --version, --copyright, --license  
+  -i            -i                      --showinfo                        
   -q            -q errorsonly           --quietmode=errorsonly
   -Q            -q silent               --quietmode=silent
-  -n            -d ata                  --devicetype=ata
-  -N            -d scsi                 --devicetype=scsi
-  -P            -T permissive           --tolerance=permissive
+  -n            -d ata                  --devicetype=ata                   -A
+  -N            -d scsi                 --devicetype=scsi                  -S
+  -P            -T permissive           --tolerance=permissive             -P
   -U            -T conservative         --tolerance=conservative
   -W            -k                      --checksumfail
   -e            -s on                   --smart=on
   -d            -s off                  --smart=off
-  -t            -o on                   --offlineauto=on
-  -T            -o off                  --offlineauto=off
-  -f            -S on                   --autosave=on
-  -F            -S off                  --autosave=off
-  -c            -h                      --showstatus
+  -t            -o on                   --offlineauto=on                   -T 1
+  -T            -o off                  --offlineauto=off                  -T 0
+  -f            -S on                   --autosave=on                      -s 1
+  -F            -S off                  --autosave=off                     -s 0
+  -c            -h                      --showstatus                       -c
   -g            -c                      --showcapabilities
-  -v            -a                      --showattributes
-  -l            -l error                --showlog=error
-  -L            -l selftest             --showlog=selftest
-  -a            -A                      --showall
+  -v            -a                      --showattributes                   -p, -u, -f, -t
+  -l            -l error                --showlog=error                    -l
+  -L            -l selftest             --showlog=selftest                 -L
+  -a            -A                      --showall                          -a
   -m            -v 9,minutes            --vendorattribute=9,minutes
   -O            -t offline              --test=offline
   -S            -t short                --test=short
@@ -208,5 +209,14 @@ The following table shows the mapping of old options to new options:
   -X            -t long                 --test=long
   -x            -t long -C              --test=long --captive
   -A            -X                      --abort
-  -----------------------------------------------------------------------
+                                                                           -C N    Set checktime
+                                                                           -f      Monitor usage attributes
+                                                    
+                                                                           -M ADD  Email addresses
+                                                                           -m N    Email mode
+                                                                           -i N    Ignore
+                                                                           -I N    Ignore
+                                                                            #      Comment
+                                                                            \      Line continuation
+  ----------------------------------------------------------------------------------------------------------
 
