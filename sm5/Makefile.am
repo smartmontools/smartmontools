@@ -1,9 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.27 2003/10/12 20:19:16 arvoreen Exp $
+# $Id: Makefile.am,v 1.28 2003/10/13 09:54:29 guidog Exp $
 #
 
 @SET_MAKE@
+
+AUTOMAKE_OPTIONS = 1.7
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -115,7 +117,7 @@ smartd.conf.5.in: smartd.8.in
 
 install-initdDATA: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
-	$(INSTALL_SCRIPT) $(srcdir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
+	$(INSTALL_SCRIPT) $(top_builddir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
