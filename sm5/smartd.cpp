@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.118 2003/03/31 21:54:14 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.119 2003/04/02 14:57:00 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -298,6 +298,11 @@ void pout(char *fmt, ...){
   // in debug mode we will print the output from the ataprint.o functions!
   if (debugmode)
     vprintf(fmt,ap);
+  else if (con->reportataioctl || con->reportscsiioctl) {
+    openlog("smartd", LOG_PID, LOG_DAEMON);
+    vsyslog(LOG_INFO, fmt, ap);
+    closelog();
+  }
   va_end(ap);
   return;
 }
