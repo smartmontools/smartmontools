@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.57 2003/04/14 11:02:49 dpgilbert Exp $
+\# $Id: smartctl.8,v 1.58 2003/04/17 03:25:02 dpgilbert Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/14 11:02:49 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/17 03:25:02 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -566,7 +566,8 @@ starts the test described above.  This command can be given during
 normal system operation.  The effects of this test are visible only in
 that it updates the S.M.A.R.T. Attribute values, and if errors are
 found they will appear in the S.M.A.R.T. error log, visible with the '\-l error'
-option.  
+option. [In the case of SCSI devices runs the default self test in
+foreground. No entry is placed in the self test log.]
 
 If the '\-c' option to
 .B smartctl
@@ -793,4 +794,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.57 2003/04/14 11:02:49 dpgilbert Exp $
+$Id: smartctl.8,v 1.58 2003/04/17 03:25:02 dpgilbert Exp $
