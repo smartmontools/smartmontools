@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.123 2003/04/07 04:04:52 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.124 2003/04/07 04:59:18 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1032,6 +1032,7 @@ int scsiCheckDevice(scsidevices_t *drive)
 }
 
 void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
+  static int forked=0, handlers=0;
   int i;
 
   // Infinite loop, which checks devices
@@ -1049,6 +1050,29 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
     if (checkonce) {
       printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n");
       exit(0);
+    }
+
+    // If in background as a daemon, fork and close file descriptors
+    if (!debugmode && !forked){
+      daemon_init();      
+      forked=1;
+    }
+
+    if (!handlers){
+      // setup signal handler for shutdown
+      if (signal(SIGINT, sighandler)==SIG_IGN)
+	signal(SIGINT, SIG_IGN);
+      if (signal(SIGTERM, sighandler)==SIG_IGN)
+	signal(SIGTERM, SIG_IGN);
+      if (signal(SIGQUIT, sighandler)==SIG_IGN)
+	signal(SIGQUIT, SIG_IGN);
+      if (signal(SIGHUP, huphandler)==SIG_IGN)
+	signal(SIGHUP, SIG_IGN);
+      if (signal(SIGUSR1, sleephandler)==SIG_IGN)
+	signal(SIGUSR1, SIG_IGN);
+      
+      // install goobye message
+      atexit(goobye);
     }
 
     // Unix Gurus: I know that this can be done better.  Please tell
@@ -1875,25 +1899,6 @@ int main (int argc, char **argv){
 
   // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
   entries=parseconfigfile();
-
-  // If in background as a daemon, fork and close file descriptors
-  if (!debugmode)
-    daemon_init();
-  
-  // setup signal handler for shutdown
-  if (signal(SIGINT, sighandler)==SIG_IGN)
-    signal(SIGINT, SIG_IGN);
-  if (signal(SIGTERM, sighandler)==SIG_IGN)
-    signal(SIGTERM, SIG_IGN);
-  if (signal(SIGQUIT, sighandler)==SIG_IGN)
-    signal(SIGQUIT, SIG_IGN);
-  if (signal(SIGHUP, huphandler)==SIG_IGN)
-    signal(SIGHUP, SIG_IGN);
-  if (signal(SIGUSR1, sleephandler)==SIG_IGN)
-    signal(SIGUSR1, SIG_IGN);
-  
-  // install goobye message
-  atexit(goobye);
   
   // if SCANDEVICE used or there was no /etc/smartd.conf config file,
   // then create needed entries for scanning
