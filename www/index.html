@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/05/19 01:57:02 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/05/19 18:06:59 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.155 2004/05/19 01:57:02 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.156 2004/05/19 18:06:59 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -469,7 +469,7 @@ divided by 60.  The 16-bit register overflows and wraps around every
 Attribute 9's raw value (H) and the time-stamps in the self-test log (h) are given by:<br/>
 Let H = power on hours as shown by Attribute 9 (correct)<br/>
 Let M = 60*H (power on minutes, correct)<br/>
-Let m = M mod 65536 (incorrect value of power on minutes)<br/>
+Let m = M mod 65536 (incorrect value of power on minutes, shown in self-test log)<br/>
 Let h = m/60 (incorrect value of power on hours)
 </p>
 </li>
@@ -679,7 +679,7 @@ numbered as follows:<br/>
 <tt>smartctl -a /dev/hd?</tt><br/>
  to <a
  href="https://lists.sourceforge.net/lists/listinfo/smartmontools-database">smartmontools-database</a>
- as an email attachment.  The timestamp in the self-test log will help
+ as a plain-text email attachment (file type: ".txt").  The timestamp in the self-test log will help
  us to determine whether Attribute 9 is being used to store the
  lifetime in hours, minutes, or seconds.
 </p>
@@ -995,8 +995,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/05/19 01:57:02 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.155 2004/05/19 01:57:02 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/05/19 18:06:59 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.156 2004/05/19 18:06:59 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
