@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.125 2003/04/19 12:37:16 ballen4705 Exp $
+$Id: CHANGELOG,v 1.126 2003/04/22 04:28:57 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,9 +37,13 @@ CURRENT RELEASE (see VERSION file in this directory):
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
 
+  [DG] Did work for TapeAlerts (SCSI). Now can detect /dev/nst0 as a
+       SCSI device. Also open SCSI devices O_NONBLOCK so they don't
+       hang on open awaiting media. The ATA side should worry about
+       this also: during a DEVICESCAN a cd/dvd device without media
+       will hang. Added some TapeAlert code suggested by Kai Makisara.
 
 smartmontools-5.1-10
-
 
   [PW] Extended the -F option/Directive to potentially fix other firmware
        bugs in addition to the Samsung byte-order bug.  Long option name is
