@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.175 2003/07/29 12:42:25 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.176 2003/08/01 13:09:10 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -63,8 +63,7 @@ smartmonctrl *con=NULL;
 int numatadevices=0;
 int numscsidevices=0;
 
-// How long to sleep between checks.  Handy as global variable for
-// debugging
+// How long to sleep between checks.  Can be set by user on startup
 int checktime=CHECKTIME;
 
 // name of PID file (== NULL if no pid_file is used)
@@ -73,20 +72,12 @@ char* pid_file=NULL;
 // If set, we should exit after checking all disks once
 int checkonce=0;
 
-// Needed to interrupt sleep when catching SIGUSR1.  Unix Gurus: I
-// know that this can be done better.  Please tell me how -- use email
-// address for Bruce Allen at the top of this file.  Search for
-// "sleeptime" to see what I am doing.
-volatile int sleeptime=CHECKTIME;
+// Flag: user sent SIGUSR1 to wake smartd and check devices now
+volatile int caughtsigusr1=0;
 
-// Interrupt sleep if we get a SIGUSR1.  Unix Gurus: I know that this
-// can be done better.  Please tell me how -- use email address for
-// Bruce Allen at the top of this file. Search for "sleeptime" to see
-// what I am doing.
+// Interrupt sleep if we get a SIGUSR1
 void sleephandler(int sig){
-  int oldsleeptime=sleeptime;
-  sleeptime=0;
-  printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",oldsleeptime<0?0:oldsleeptime);
+  caughtsigusr1=1;
   return;
 }
 
@@ -1190,10 +1181,12 @@ int scsiCheckDevice(scsidevices_t *drive)
 void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
   static int firstpass=1;
   int i;
-
+  time_t timenow=0, wakeuptime=0;
+    
   // Infinite loop, which checks devices
   printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
   while (1){
+
     for (i=0; i<numatadevices; i++) 
       ataCheckDevice(atadevices+i);
     
@@ -1238,26 +1231,42 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 	signal(SIGHUP, SIG_IGN);
       if (signal(SIGUSR1, sleephandler)==SIG_IGN)
 	signal(SIGUSR1, SIG_IGN);
-            
+
+      // initialize wakeup time
+      wakeuptime=time(NULL)+checktime;
+
       // done with initialization setup
       firstpass=0;
     }
 
-    // Unix Gurus: I know that this can be done better.  Please tell
-    // me how -- use email address for Bruce Allen at the top of this
-    // file. Search for "sleeptime" to see what I am doing.  I think
-    // that when done "right" I should not have to call sleep once per
-    // second, but just set an alarm for checktime in the future, and
-    // then have an additional alarm sent if the user does SIGUSR1,
-    // which arrives first to cause another device check.  Please help
-    // me out.
+    // If past wake-up-time, compute next wake-up-time
+    timenow=time(NULL);
+    while (wakeuptime<=timenow){
+      int intervals=1+(timenow-wakeuptime)/checktime;
+      wakeuptime+=intervals*checktime;
+    }
     
-    // Sleep until next check. Note that since sleeptime can be set to
-    // zero by an EXTERNAL signal SIGUSR1, it's possible for sleeptime
-    // to be negative.  Don't use while (sleeptime)!
-    sleeptime=checktime;
-    while (sleeptime-->0)
-      sleep(1); 
+    // sleep until we catch SIGUSR1 or have completed sleeping
+    while (timenow<wakeuptime && !caughtsigusr1){
+      
+      // protect user again system clock being adjusted backwards
+      if (wakeuptime>timenow+checktime){
+	printout(LOG_CRIT, "System clock time adjusted to the past. Resetting next wakeup time.\n");
+	wakeuptime=timenow+checktime;
+      }
+      
+      // Exit sleep when time interval has expired or a signal is received
+      sleep(wakeuptime-timenow);
+      
+      timenow=time(NULL);
+    }
+
+    // if we caught a SIGUSR1 then print message and clear signal
+    if (caughtsigusr1){
+      printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
+	       wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
+      caughtsigusr1=0;
+    }
   }
 }
 
