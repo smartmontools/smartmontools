@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.90 2003/01/01 23:27:31 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.91 2003/01/03 12:23:41 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -344,7 +344,7 @@ void Usage (void){
   printout(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -X, --debug\n  Start smartd in debug mode\n\n");
+  printout(LOG_INFO,"  -d, --debug\n  Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -i N, --interval=N\n");
   printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
@@ -352,7 +352,7 @@ void Usage (void){
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
 #else
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -X     Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -d     Start smartd in debug mode\n");
   printout(LOG_INFO,"  -i N   Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V     Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -h     Display this help and exit\n");
@@ -1411,11 +1411,11 @@ void ParseOpts(int argc, char **argv){
   int optchar;
   char *tailptr;
   long lchecktime;
-  const char *shortopts = "Xi:Vh?";
+  const char *shortopts = "di:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   struct option longopts[] = {
-    { "debug",     no_argument,       0, 'X' },
+    { "debug",     no_argument,       0, 'd' },
     { "interval",  required_argument, 0, 'i' },
     { "version",   no_argument,       0, 'V' },
     { "license",   no_argument,       0, 'V' },
@@ -1435,7 +1435,7 @@ void ParseOpts(int argc, char **argv){
   while (-1 != (optchar = getopt(argc, argv, shortopts))){
 #endif
     switch(optchar) {
-    case 'X':
+    case 'd':
       debugmode  = TRUE;
       break;
     case 'i':
