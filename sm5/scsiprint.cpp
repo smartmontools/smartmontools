@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.29 2003/04/07 10:57:02 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.30 2003/04/09 12:42:42 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -60,7 +60,8 @@ static void scsiGetSupportedLogPages(int device)
 {
     int i, err;
 
-    if ((err = logsense(device, SUPPORTED_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
+    if ((err = scsiLogSense(device, SUPPORTED_LOG_PAGES, gBuf, 
+                            LOG_RESP_LEN))) {
         pout("Log Sense failed, err=%d\n", err); 
         return;
     } 
@@ -119,7 +120,7 @@ void scsiGetTapeAlertsData(int device)
     int i, err;
     int failure = 0;
 
-    if ((err = logsense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
+    if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
         pout("scsiGetSmartData Failed, err=%d\n", err);
         return;
     }
@@ -149,8 +150,8 @@ void scsiGetStartStopData(int device)
     UINT32 recommendedStartStop; 
     int err;
 
-    if ((err = logsense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
-                        LOG_RESP_LEN))) {
+    if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
+                            LOG_RESP_LEN))) {
         pout("scsiGetStartStopData Failed, err=%d\n", err);
         return;
     }
@@ -206,7 +207,8 @@ void  scsiPrintSelfTest(int device)
     UINT8 * ucp;
     unsigned long long ull=0;
 
-    if ((err = logsense(device, SELFTEST_RESULTS_PAGE, gBuf, LOG_RESP_LEN))) {
+    if ((err = scsiLogSense(device, SELFTEST_RESULTS_PAGE, gBuf, 
+                            LOG_RESP_LEN))) {
         pout("scsiPrintSelfTest Failed, err=%d", err);
         return;
     }
@@ -306,7 +308,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     int err, len;
         
     memset(gBuf, 0, 36);
-    if ((err = stdinquiry(device, gBuf, 36))) {
+    if ((err = scsiStdInquiry(device, gBuf, 36))) {
         pout("Standard Inquiry failed, err=%d\n", err);
         return;
     }
@@ -324,7 +326,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, &gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-        if (0 == inquiry_vpd(device, 0x80, gBuf, 64)) {
+        if (0 == scsiInquiryVpd(device, 0x80, gBuf, 64)) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
             len = gBuf[3];
