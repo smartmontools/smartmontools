@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.55 2004/07/15 21:31:34 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.56 2004/07/16 05:57:52 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1165,6 +1165,7 @@ The following have made large contributions to smartmontools:
 \fBChristian Franke\fP (Windows interface)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
+\fBGeoffrey Keating\fP (Darwin ATA interface)
 \fBEduard Martinescu\fP (FreeBSD interface)
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
 \fBKeiji Sawada\fP (Solaris ATA interface)
@@ -1225,7 +1226,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.55 2004/07/15 21:31:34 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.56 2004/07/16 05:57:52 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.70 2004/07/13 14:55:38 ballen4705 Exp $
+$Id: smartd.8.in,v 1.71 2004/07/16 05:57:52 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1642,6 +1642,7 @@ The following have made large contributions to smartmontools:
 \fBChristian Franke\fP (Windows interface)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
+\fBGeoffrey Keating\fP (Darwin ATA interface)
 \fBEduard Martinescu\fP (FreeBSD interface)
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
 \fBKeiji Sawada\fP (Solaris ATA interface)
@@ -1702,4 +1703,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.70 2004/07/13 14:55:38 ballen4705 Exp $
+$Id: smartd.8.in,v 1.71 2004/07/16 05:57:52 ballen4705 Exp $
