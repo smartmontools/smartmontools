@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.384 2004/03/26 19:30:57 chrfranke Exp $
+$Id: CHANGELOG,v 1.385 2004/03/29 00:26:03 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,14 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartctl: printing of self-test log for disks that support
+       Selective self-testing now shows the status of the (optional)
+       read-scan after the selective self test.  Also, changed format
+       in printing self-test log to print failing LBA in base 10 not
+       base 16 (more compatible with kernel error messages).  Also,
+       in printing SMART error log, print timestamps in format
+       days+hours+minutes+seconds.
 
   [CF] Win32 smartd: Added ability to log to stdout/stderr
        (-l local1/2). Toggling debug console still works
