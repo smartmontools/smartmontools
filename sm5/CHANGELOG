@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.392 2004/04/07 11:17:07 chrfranke Exp $
+$Id: CHANGELOG,v 1.393 2004/04/07 16:41:42 card_captor Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [KS] configure.in now searches for -lnsl and -lsocket for Solaris.
 
   [CF] Win32/native smartd: Added thread to combine several syslog output
        lines into one single event log entry.
