@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.215 2003/10/13 12:43:22 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.216 2003/10/13 13:09:57 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -324,10 +324,15 @@ void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...){
     sprintf(hostname,"Unknown host");
   else
     hostname[255]='\0';
+
+#ifdef HAVE_GETDOMAINNAME
   if (getdomainname(domainname, 256))
-    sprintf(hostname,"Unknown domain");
+    sprintf(domainname,"Unknown");
   else
     domainname[255]='\0';
+#else
+  sprintf(domainname,"Unknown");
+#endif
   
   // print warning string into message
   va_start(ap, fmt);

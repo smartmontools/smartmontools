@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.22 2003/10/12 20:19:16 arvoreen Exp $
+# $Id: configure.in,v 1.23 2003/10/13 13:09:57 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.21, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.22 2003/10/12 20:19:16 arvoreen Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.23 2003/10/13 13:09:57 ballen4705 Exp $'`
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
@@ -35,6 +35,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 AC_CHECK_FUNCS([getopt])
 AC_CHECK_FUNCS([getopt_long])
+AC_CHECK_FUNCS([getdomainname])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
