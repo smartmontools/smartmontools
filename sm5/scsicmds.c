@@ -33,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.c,v 1.13 2002/11/17 05:30:11 ballen4705 Exp $" CVSID4;
+const char *CVSid3="$Id: scsicmds.c,v 1.14 2002/11/21 16:34:04 knan Exp $" CVSID4;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
@@ -261,6 +261,7 @@ UINT8 stdinquiry ( int device, UINT8 *pBuf)
 
 
 
+/* Still unused */
 
 UINT8 inquiry ( int device, UINT8 pagenum, UINT8 *pBuf)
 {
@@ -286,8 +287,7 @@ UINT8 inquiry ( int device, UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->cdb[5] = 0x00;
   
   
-  status =  ioctl( device, 6 , &tBuf);
-  /*status =  ioctl( device, 1 , &tBuf);*/
+  status =  ioctl( device, 1 , &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 255); 
 
