@@ -22,7 +22,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.8 2004/08/13 13:57:12 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.9 2004/08/18 19:27:36 likewise Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -164,6 +164,10 @@ deviceclose(int fd)
 {
   return close(fd);
 }
+
+int
+marvell_command_interface(int fd, smart_command_set command, int select, char *data)
+{ return -1; }
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)

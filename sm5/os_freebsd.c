@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.40 2004/08/16 22:44:26 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.41 2004/08/18 19:27:44 likewise Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.40 2004/08/16 22:44:26 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.41 2004/08/18 19:27:44 likewise Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -217,6 +217,10 @@ void printwarning(int msgNo, const char* extra) {
 
 
 // Interface to ATA devices.  See os_linux.c
+int marvell_command_interface(int fd, smart_command_set command, int select, char *data) {
+	return -1;
+}
+
 int ata_command_interface(int fd, smart_command_set command, int select, char *data) {
 #ifndef ATAREQUEST
   // sorry, but without ATAng, we can't do anything here
@@ -767,7 +771,7 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
-    return CONTROLLER_UNKNOWN;;
+    return CONTROLLER_UNKNOWN;
   
   // Remove the leading /dev/... if it's there
   if (!strncmp(fbsd_dev_prefix, dev_name, dev_prefix_len)) {

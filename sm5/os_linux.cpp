@@ -70,9 +70,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.70 2004/08/16 22:44:26 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.71 2004/08/18 19:27:44 likewise Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.70 2004/08/16 22:44:26 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.71 2004/08/18 19:27:44 likewise Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -488,7 +488,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
     taskfile->sector_count   = 1;
     taskfile->sector_number  = select;
-    taskfile->low_cylinder   = 0x4f;;
+    taskfile->low_cylinder   = 0x4f;
     taskfile->high_cylinder  = 0xc2;
     taskfile->device_head    = 0;
     taskfile->command        = ATA_SMART_CMD;
@@ -1257,6 +1257,122 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   
   return 0;
 }
+
+
+
+int marvell_command_interface(int device, 
+                              smart_command_set command, 
+                              int select, 
+                              char *data) {  
+  typedef struct {  
+    int  inlen;
+    int  outlen;
+    char cmd[540];
+  } mvsata_scsi_cmd;
+  
+  int copydata = 0;
+  mvsata_scsi_cmd  smart_command;
+  unsigned char *buff = &smart_command.cmd[6];
+  // See struct hd_drive_cmd_hdr in hdreg.h
+  // buff[0]: ATA COMMAND CODE REGISTER
+  // buff[1]: ATA SECTOR NUMBER REGISTER
+  // buff[2]: ATA FEATURES REGISTER
+  // buff[3]: ATA SECTOR COUNT REGISTER
+  
+  // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
+  memset(&smart_command, 0, sizeof(smart_command));
+  smart_command.inlen = 540;
+  smart_command.outlen = 540;
+  smart_command.cmd[0] = 0xC;  //Vendor-specific code
+  smart_command.cmd[4] = 6;     //command length
+  
+  buff[0] = ATA_SMART_CMD;
+  switch (command){
+  case READ_VALUES:
+    buff[2]=ATA_SMART_READ_VALUES;
+    copydata=buff[3]=1;
+    break;
+  case READ_THRESHOLDS:
+    buff[2]=ATA_SMART_READ_THRESHOLDS;
+    copydata=buff[1]=buff[3]=1;
+    break;
+  case READ_LOG:
+    buff[2]=ATA_SMART_READ_LOG_SECTOR;
+    buff[1]=select;
+    copydata=buff[3]=1;
+    break;
+  case IDENTIFY:
+    buff[0]=ATA_IDENTIFY_DEVICE;
+    copydata=buff[3]=1;
+    break;
+  case PIDENTIFY:
+    buff[0]=ATA_IDENTIFY_PACKET_DEVICE;
+    copydata=buff[3]=1;
+    break;
+  case ENABLE:
+    buff[2]=ATA_SMART_ENABLE;
+    buff[1]=1;
+    break;
+  case DISABLE:
+    buff[2]=ATA_SMART_DISABLE;
+    buff[1]=1;
+    break;
+  case STATUS:
+  case STATUS_CHECK:
+    // this command only says if SMART is working.  It could be
+    // replaced with STATUS_CHECK below.
+    buff[2] = ATA_SMART_STATUS;
+    break;
+  case AUTO_OFFLINE:
+    buff[2]=ATA_SMART_AUTO_OFFLINE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case AUTOSAVE:
+    buff[2]=ATA_SMART_AUTOSAVE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case IMMEDIATE_OFFLINE:
+    buff[2]=ATA_SMART_IMMEDIATE_OFFLINE;
+    buff[1]=select;
+    break;
+  default:
+    pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
+    exit(1);
+    break;
+  }  
+  // There are two different types of ioctls().  The HDIO_DRIVE_TASK
+  // one is this:
+  // We are now doing the HDIO_DRIVE_CMD type ioctl.
+  if (ioctl(device, SCSI_IOCTL_SEND_COMMAND, (void *)&smart_command))
+      return -1;
+  //Data returned is starting from 0 offset  
+  if (command == STATUS || command == STATUS_CHECK)
+  {
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (buff[4] == 0x4F && buff[5] == 0xC2)
+      return 0;    
+    // These values mean "Bad SMART status"
+    if (buff[4] == 0xF4 && buff[5] == 0x2C)
+      return 1;    
+    // We haven't gotten output that makes sense; print out some debugging info
+    syserror("Error SMART Status command failed");
+    pout("Please get assistance from %s\n",PACKAGE_BUGREPORT);
+    pout("Register values returned from SMART Status command are:\n");
+    pout("CMD =0x%02x\n",(int)buff[0]);
+    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("NS =0x%02x\n",(int)buff[2]);
+    pout("SC =0x%02x\n",(int)buff[3]);
+    pout("CL =0x%02x\n",(int)buff[4]);
+    pout("CH =0x%02x\n",(int)buff[5]);
+    pout("SEL=0x%02x\n",(int)buff[6]);
+    return -1;   
+  }  
+
+  if (copydata)
+    memcpy(data, buff, 512);
+  return 0; 
+}
+
 
 // Utility function for printing warnings
 void printwarning(smart_command_set command){

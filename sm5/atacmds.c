@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.160 2004/08/16 22:44:26 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.161 2004/08/18 19:27:44 likewise Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -609,6 +609,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   case CONTROLLER_3WARE_9000_CHAR:
     retval=escalade_command_interface(device, con->controller_port-1, con->controller_type, command, select, data);
     break;
+  case CONTROLLER_MARVELL_SATA:
+    retval=marvell_command_interface(device, command, select, data);
+    break;
   default:
     retval=ata_command_interface(device, command, select, data);
   }
@@ -768,7 +771,7 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
   if (i==0)
     return 1;
   else
-    return i;;
+    return i;
 }
 
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell

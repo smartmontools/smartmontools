@@ -1,42 +1,47 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.449 2004/08/17 19:31:50 chrfranke Exp $
+$Id: CHANGELOG,v 1.450 2004/08/18 19:27:44 likewise Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsø
+[EB] Erik Inge Bolsï¿½
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [CD] Caper Dik
 [CF] Christian Franke
-[GF] Guilhem Frézou
+[GF] Guilhem Frï¿½zou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
-[KM] Kai Mäkisara
+[KM] Kai Mï¿½kisara
 [EM] Eduard Martinescu
-[FM] Frédéric L. W. Meunier
+[FM] Frï¿½dï¿½ric L. W. Meunier
 [KS] Keiji Sawada
 [SS] Sergey Svishchev
 [PW] Phil Williams
+[LW] Leon Woestenberg
 [RZ] Richard Zybert
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
+  [LW] Tested the RELEASE_5_33_WITH_MARVELL_SUPPORT branch on
+       actual Marvell 88SX5041 hardware, with success.
+       Merged into HEAD.
+
   [BA] Fixed nasty DEVICESCAN bug
+
+  [BA] Checked in RELEASE_5_33_WITH_MARVELL_SUPPORT branch with
+       some Marvell support.
 
   [BA] Additional modifications of Ed's controller scheme.  Fixed
        broken 3ware support under linux, problems with scanning
        devices in smartd, and other small problems.
-
-  [CF] Added make targets to build formatted man pages (htmlman, txtman),
-       Windows distribution (dist-win32) and MSVC6 config.h (config-vc6).
 
   [EM] Minor change to FreeBSD inclusion of 'twe' include files.  Add 
        code to check if they exising in /usr/include/sys to use those

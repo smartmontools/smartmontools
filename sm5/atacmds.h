@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.72 2004/07/26 21:15:21 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.73 2004/08/18 19:27:44 likewise Exp $\n"
 
 #include "int64.h"
 
@@ -491,6 +491,7 @@ char *create_vendor_attribute_arg_list(void);
 // to be ported to get smartmontools onto another OS.
 int ata_command_interface(int device, smart_command_set command, int select, char *data);
 int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
+int marvell_command_interface(int device, smart_command_set command, int select, char *data);
 
 // This function is exported to give low-level capability
 int smartcommandhandler(int device, smart_command_set command, int select, char *data);
