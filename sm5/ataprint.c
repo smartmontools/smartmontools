@@ -1,4 +1,4 @@
-//  $Id: ataprint.c,v 1.11 2002/10/16 13:21:06 ballen4705 Exp $
+//  $Id: ataprint.c,v 1.12 2002/10/17 04:03:33 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -30,7 +30,7 @@
 void ataPrintDriveInfo (struct hd_driveid drive){
   int version;
   const char *description;
-  char unknown[32];
+  char unknown[64];
 
   version=ataVersionInfo(&description,drive);
 
@@ -549,7 +549,7 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
     log=&(data.selftest_struct[j]);
 
     if (nonempty((unsigned char*)log,sizeof(*log))){
-      char *msgtest,*msgstat,percent[16],firstlba[16];
+      char *msgtest,*msgstat,percent[64],firstlba[64];
 
       // test name
       switch(log->selftestnumber){
