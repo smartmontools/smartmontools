@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.24 2002/11/10 21:54:19 ballen4705 Exp $
+\# $Id: smartd.8,v 1.25 2002/11/11 12:43:53 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/10 21:54:19 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/11 12:43:53 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -142,6 +142,8 @@ by using the command:
 and disabled using the command:
 .nf
 .B /sbin/chkconfig --del smartd
+
+\# STARTINCLUDE
 
 .SH CONFIGURATION FILE /etc/smartd.conf
 In the absence of a configuration file,
@@ -405,6 +407,8 @@ configuration file Directives might be
 If you want more frequent information, use 
 .B -a.
 
+\# ENDINCLUDE
+
 .SH NOTES
 .B smartd
 will make log entries at loglevel 
@@ -514,4 +518,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.24 2002/11/10 21:54:19 ballen4705 Exp $
+$Id: smartd.8,v 1.25 2002/11/11 12:43:53 ballen4705 Exp $
