@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.70 2004/07/09 12:38:04 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.71 2004/07/16 06:54:32 geoffk1 Exp $\n"
 
 #include "int64.h"
 
@@ -494,4 +494,9 @@ int escalade_command_interface(int fd, int escalade_port, int escalade_type, sma
 
 // This function is exported to give low-level capability
 int smartcommandhandler(int device, smart_command_set command, int select, char *data);
+
+// Utility routines.
+extern void swap2(char *location);
+extern void swap4(char *location);
+extern void swap8(char *location);
 #endif /* ATACMDS_H_ */
