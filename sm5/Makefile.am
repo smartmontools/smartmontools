@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.42 2003/12/01 19:50:34 ballen4705 Exp $
+# $Id: Makefile.am,v 1.43 2003/12/11 19:29:16 card_captor Exp $
 #
 
 @SET_MAKE@
@@ -73,9 +73,53 @@ EXTRA_smartctl_SOURCES = os_linux.c \
 
 
 
+if OS_SOLARIS
+# For systems that has automake-unfriendly manual page sectioning policy
+extra_MANS =      smartd.conf.4 \
+                  smartctl.1m   \
+                  smartd.1m
+install-man: $(extra_MANS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(mandir)/man4
+	$(mkinstalldirs) $(DESTDIR)$(mandir)/man1m
+	for i in $(extra_MANS); do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man$$ext/$$inst"; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man$$ext/$$inst; \
+	done
+uninstall-man:
+	@$(NORMAL_UNINSTALL)
+	for i in $(extra_MANS); do \
+	  if test -f $(srcdir)/$$i; then file=$(srcdir)/$$i; \
+	  else file=$$i; fi; \
+	  ext=`echo $$i | sed -e 's/^.*\\.//'`; \
+	  inst=`echo $$i | sed -e 's/\\.[0-9a-z]*$$//'`; \
+	  inst=`echo $$inst | sed -e 's/^.*\///'`; \
+	  inst=`echo $$inst | sed '$(transform)'`.$$ext; \
+	  echo " rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst"; \
+	  rm -f $(DESTDIR)$(mandir)/man$$ext/$$inst; \
+	done
+%.1m: %.8
+	awk '/^.TH/ {$$3="1m"} {print}' < $< | \
+	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
+	    -e 's/smartctl\(.*\)(8)/smartctl\1(1m)/g' \
+	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
+%.4: %.5
+	awk '/^.TH/ {$$3="4"}  {print}' < $< | \
+	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
+	    -e 's/smartctl\(.*\)(8)/smartdctl\1(1m)/g' \
+	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
+else
+# For systems that adopts traditional manner
 man_MANS =        smartd.conf.5 \
                   smartctl.8    \
                   smartd.8
+endif
 
 docsdir=$(docdir)
 docs_DATA = AUTHORS   \
@@ -108,8 +152,11 @@ EXTRA_DIST = \
                 $(docs_DATA)
 
 DISTCLEANFILES = smartd.conf.5 \
+                 smartd.conf.4 \
                  smartd.8      \
+                 smartd.1m     \
 	         smartctl.8    \
+	         smartctl.1m   \
 		 smartd.initd
 
 smartd.conf.5.in: smartd.8.in

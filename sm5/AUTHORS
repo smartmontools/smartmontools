@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.7 2003/10/26 02:12:33 ballen4705 Exp $
+$Id: AUTHORS,v 1.8 2003/12/11 19:29:16 card_captor Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -23,3 +23,4 @@ Kai Mäkisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu       <martines@rochester.rr.com>
 Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
+Sawada Keiji		<card_captor@users.sourceforge.net>
