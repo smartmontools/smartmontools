@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.224 2003/10/26 02:12:33 ballen4705 Exp $
+$Id: CHANGELOG,v 1.225 2003/10/26 02:20:40 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] added memory allocation tracking to solaris code.
+       Fixed solaris signal handling (reset handler to default
+       after first call to handler) by using sigset. Added
+       HAVE_SIGSET to configure.in
 
   [CD] solaris port: added SCSI functionality to solaris
        stubs.

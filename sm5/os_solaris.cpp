@@ -38,6 +38,7 @@
 #include <sys/param.h>
 
 // These are needed to define prototypes for the functions defined below
+#include "config.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -45,8 +46,10 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.7 2003/10/26 02:12:33 ballen4705 Exp $" \
-ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+extern long long bytes;
+
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.8 2003/10/26 02:20:40 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
 int printedout[2];
@@ -67,7 +70,7 @@ int printwarning(int which){
   pout("\n"
        "#######################################################################\n"
        "%s NOT IMPLEMENTED under Solaris.\n"
-       "Please contact smartmontools-support@lists.sourceforge.net if\n"
+       "Please contact " PACKAGE_BUGREPORT " if\n"
        "you want to help in porting smartmontools to Solaris.\n"
        "#######################################################################\n"
        "\n",
@@ -143,12 +146,12 @@ addpath(const char *path, struct pathlist *res)
 {
 	if (++res->nnames > res->maxnames) {
 		res->maxnames += 16;
-		res->names = realloc(res->names,
-		    res->maxnames * sizeof (char *));
+		res->names = realloc(res->names, res->maxnames * sizeof (char *));
 		if (res->names == NULL)
 			return -1;
+		bytes += 16*sizeof(char *);
 	}
-	if ((res->names[res->nnames-1] = strdup(path)) == NULL)
+	if (!(res->names[res->nnames-1] = CustomStrDup((char *)path, 1, __LINE__, __FILE__)))
 		return -1;
 	return 0;
 }
@@ -187,7 +190,7 @@ grokdir(const char *dir, struct pathlist *res, int testfun(const char *))
 		} else {
 			/* Tape drive represented by the all-digit device */
 			for (p = de->d_name; *p; p++)
-				if (!isdigit(*p))
+                                if (!isdigit((int)(*p)))
 					break;
 			if (*p != '\0')
 				continue;
@@ -214,12 +217,21 @@ int make_device_names (char*** devlist, const char* name) {
 	res.names = NULL;
 	if (strcmp(name, "SCSI") == 0) {
 		if (grokdir("/dev/rdsk", &res, isscsidev) == -1)
-			return (-1);
+			return -1;
 		if (grokdir("/dev/rmt", &res, isscsidev) == -1)
-			return (-1);
+			return -1;
+
+		// shrink array to min possible size
+		res.names = realloc(res.names, res.nnames * sizeof (char *));
+		bytes -= sizeof(char *)*(res.maxnames-res.nnames);
+
+		// pass list back
 		*devlist = res.names;
 		return res.nnames;
 	}
+	
+	// ATA case not implemented
+	*devlist=NULL;
 	return 0;
 }
 
