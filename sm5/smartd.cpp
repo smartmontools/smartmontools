@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.143 2003/04/17 03:12:19 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.144 2003/04/17 19:28:06 guidog Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -319,7 +319,7 @@ void huphandler(int sig){
 void sighandler(int sig){
     printout(LOG_CRIT,"smartd received signal %d: %s\n",
              sig, strsignal(sig));
-    exit(1);
+    exit(EXIT_SIGNAL);
 }
 
 // remove the PID file
@@ -353,7 +353,7 @@ void daemon_init(){
   if ((pid=fork()) < 0) {
     // unable to fork!
     printout(LOG_CRIT,"smartd unable to fork daemon process!\n");
-    exit(1);
+    exit(EXIT_STARTUP);
   }
   else if (pid)
     // we are the parent process -- exit cleanly
@@ -366,7 +366,7 @@ void daemon_init(){
   if ((pid=fork()) < 0) {
     // unable to fork!
     printout(LOG_CRIT,"smartd unable to fork daemon process!\n");
-    exit(1);
+    exit(EXIT_STARTUP);
   }
   else if (pid)
     // we are the parent process -- exit cleanly
@@ -410,7 +410,7 @@ void write_pid_file() {
     }
     if (error) {
       printout(LOG_CRIT, "unable to write PID file %s - exiting.\n", pid_file);
-      exit(1);
+      exit(EXIT_PID);
     }
     printout(LOG_INFO, "file %s written containing PID %d\n", pid_file, pid);
   }
@@ -631,7 +631,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     
     if (!devices->smartval || !devices->smartthres){
       printout(LOG_CRIT,"Not enough memory to obtain SMART data\n");
-      exit(1);
+      exit(EXIT_NOMEM);
     }
     
     if (ataReadSmartValues(fd,devices->smartval) ||
@@ -704,7 +704,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   if (numatadevices>=MAXATADEVICES){
     printout(LOG_CRIT,"smartd has found more than MAXATADEVICES=%d ATA devices.\n"
              "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",(int)numatadevices);
-    exit(1);
+    exit(EXIT_CCONST);
   }
   
   // register device
@@ -1258,7 +1258,7 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
     printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes integer argument from %d to %d.\n",
              configfile, lineno, name, token, min, max);
     Directives();
-    exit(1);
+    exit(EXIT_BADCONF);
   }
   
   // get argument value (base 10), check that it's integer, and in-range
@@ -1267,7 +1267,7 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
     printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs integer from %d to %d.\n",
              configfile, lineno, name, token, arg, min, max);
     Directives();
-    exit(1);
+    exit(EXIT_BADCONF);
   }
 
   // all is well; return value
@@ -1295,7 +1295,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              CONFIGFILE, lineno, name, token);
     Directives();
-    exit(1);
+    exit(EXIT_BADCONF);
   }
   
   // let's parse the token and swallow its argument
@@ -1420,7 +1420,7 @@ int parsetoken(char *token,cfgfile *cfg){
         printout(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
                  CONFIGFILE, lineno, name, token);
         Directives();
-        exit(1);
+        exit(EXIT_BADCONF);
       }
       // Free the last cmd line given if any
       if (cfg->emailcmdline) {
@@ -1432,7 +1432,7 @@ int parsetoken(char *token,cfgfile *cfg){
         printout(LOG_CRIT, "File %s line %d (drive %s): no free memory for command line argument to exec: %s\n",
           CONFIGFILE, lineno, name, arg);
           Directives();
-          exit(1);
+          exit(EXIT_NOMEM);
       }
     } else {
       badarg = 1;
@@ -1465,13 +1465,13 @@ int parsetoken(char *token,cfgfile *cfg){
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
                CONFIGFILE, lineno, name, token);
       Directives();
-      exit(1);
+      exit(EXIT_BADCONF);
     }
     if (!(cfg->address=strdup(arg))){
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s: no free memory for email address(es) %s\n",
                CONFIGFILE, lineno, name, token, arg);
       Directives();
-      exit(1);
+      exit(EXIT_NOMEM);
     }
     break;
   case 'v':
@@ -1505,7 +1505,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              CONFIGFILE, lineno, name, token);
     Directives();
-    exit(1);
+    exit(EXIT_BADCONF);
   }
   if (missingarg) {
     printout(LOG_CRIT, "File %s line %d (drive %s): Missing argument to Directive: %s\n", CONFIGFILE, lineno, name, token);
@@ -1518,7 +1518,7 @@ int parsetoken(char *token,cfgfile *cfg){
       printoutvaliddirectiveargs(LOG_CRIT, sym);
       printout(LOG_CRIT, "\n");
       Directives();
-      exit(1);
+      exit(EXIT_BADCONF);
   }
   return 1;
 }
@@ -1534,7 +1534,7 @@ int parseconfigline(int entry, int lineno,char *line){
 
   if (!(copy=strdup(line))){
     printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
-    exit(1);
+    exit(EXIT_NOMEM);
   }
   
   // get first token -- device name
@@ -1548,7 +1548,7 @@ int parseconfigline(int entry, int lineno,char *line){
     devscan=1;
     if (numtokens) {
       printout(LOG_INFO,"Scan Directive %s must be the first entry in %s\n",name,CONFIGFILE);
-      exit(1);
+      exit(EXIT_BADCONF);
     }
     else
       printout(LOG_INFO,"Scan Directive %s found in %s. Will scan for devices.\n",name,CONFIGFILE);
@@ -1559,7 +1559,7 @@ int parseconfigline(int entry, int lineno,char *line){
   if (entry>=MAXENTRIES){
     printout(LOG_CRIT,"Error: configuration file %s can have no more than MAXENTRIES=%d entries\n",
              CONFIGFILE,MAXENTRIES);
-    exit(1);
+    exit(EXIT_CCONST);
   }
 
   // We've got a legit entry, clear structure
@@ -1577,7 +1577,7 @@ int parseconfigline(int entry, int lineno,char *line){
   // check that all memory allocations were sucessful
   if (!cfg->name || (!devscan && (!cfg->monitorattflags || !cfg->attributedefs))) {
     printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
-    exit(1);
+    exit(EXIT_NOMEM);
   }
 
   // Store line number, and by default check for both device types.
@@ -1622,7 +1622,7 @@ int parseconfigline(int entry, int lineno,char *line){
     printout(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
              cfg->name, cfg->lineno, CONFIGFILE);
     Directives();
-    exit(1);
+    exit(EXIT_BADCONF);
   }
   
   // has the user has set <nomailer>?
@@ -1632,7 +1632,7 @@ int parseconfigline(int entry, int lineno,char *line){
       printout(LOG_CRIT,"Drive: %s, -m <nomailer> Directive on line %d of file %s needs -M exec Directive\n",
                cfg->name, cfg->lineno, CONFIGFILE);
       Directives();
-      exit(1);
+      exit(EXIT_BADCONF);
     }
     // now free memory.  From here on the sign of <nomailer> is
     // address==NULL and cfg->emailcmdline!=NULL
@@ -1670,7 +1670,7 @@ int parseconfigfile(){
     // file exists but we can't read it
     printout(LOG_CRIT,"%s: Unable to open configuration file %s\n",
              strerror(errno),CONFIGFILE);
-    exit(1);
+    exit(EXIT_BADCONF);
   }
   
   // No config file
@@ -1720,7 +1720,7 @@ int parseconfigfile(){
         warn="";
       printout(LOG_CRIT,"Error: line %d of file %s %sis more than %d characters.\n",
                (int)contlineno,CONFIGFILE,warn,(int)MAXLINELEN);
-      exit(1); 
+      exit(EXIT_CCONST);
     }
 
     // Ignore anything after comment symbol
@@ -1733,7 +1733,7 @@ int parseconfigfile(){
     if (cont+len>MAXCONTLINE){
       printout(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than %d characters.\n",
                lineno, (int)contlineno, CONFIGFILE, (int)MAXCONTLINE);
-      exit(1);
+      exit(EXIT_CCONST);
     }
     
     // copy string so far into fullline, and increment length
@@ -1762,7 +1762,7 @@ int parseconfigfile(){
     return entry;
   
   printout(LOG_CRIT,"Configuration file %s contains no devices (like /dev/hda)\n",CONFIGFILE);
-  exit(1);
+  exit(EXIT_BADCONF);
 }
 
 // Prints copyright, license and version information
@@ -1878,7 +1878,7 @@ void ParseOpts(int argc, char **argv){
         printout(LOG_CRIT, "======> INVALID INTERVAL: %s <=======\n", optarg);
         printout(LOG_CRIT, "======> INTERVAL MUST BE INTEGER BETWEEN %d AND %d <=======\n", 10, INT_MAX);
         printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-        exit(-1);
+        exit(EXIT_BADCMD);
       }
       checktime = (int)lchecktime;
       break;
@@ -1898,7 +1898,7 @@ void ParseOpts(int argc, char **argv){
       if( -1 == asprintf(&pid_file, "%s", optarg)) {
 	printout(LOG_CRIT, "Can't allocate memory for pid file name %s - exiting.\n", optarg);
 	pid_file = NULL;
-	exit(-1);
+	exit(EXIT_NOMEM);
       }
       break;
     case 'V':
@@ -1923,7 +1923,7 @@ void ParseOpts(int argc, char **argv){
           printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
         }
         printout(LOG_CRIT, "\nUse smartd --help to get a usage summary\n\n");
-        exit(-1);
+        exit(EXIT_BADCMD);
       }
 #endif
       if (optopt) {
@@ -1935,7 +1935,7 @@ void ParseOpts(int argc, char **argv){
           printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
         }
         printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-        exit(-1);
+        exit(EXIT_BADCMD);
       }
       Usage();
       exit(0);
@@ -1951,7 +1951,7 @@ void ParseOpts(int argc, char **argv){
       printout(LOG_CRIT, "=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
       printvalidarglistmessage(optchar);
       printout(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
-      exit(-1);
+      exit(EXIT_BADCMD);
     }
   }
 
@@ -1977,7 +1977,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
     printout(LOG_CRIT,"Error: simulated config file can have no more than %d entries\n",(int)MAXENTRIES);
-    exit(1);
+    exit(EXIT_CCONST);
   }
   
   // loop over the number of entries that we should create
@@ -2015,7 +2015,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     cfg->attributedefs=(unsigned char *)calloc(256,1);
     if (!cfg->name || !cfg->monitorattflags || !cfg->attributedefs) {
       printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
-      exit(1);
+      exit(EXIT_NOMEM);
     }
     
     // increment final character of the name
@@ -2115,15 +2115,15 @@ int main (int argc, char **argv){
     
     // if device explictly listed and we can't register it, then exit
     if (notregistered && !scanning){
-      printout(LOG_CRIT, "Unable to register device %s.  Exiting.\n", config[i].name);
-      exit(1);
+      printout(LOG_CRIT, "Unable to register device %s - exiting.\n", config[i].name);
+      exit(EXIT_BADDEV);
     }
   } // done registering entries
 
   // If there are no devices to monitor, then exit
   if (!numatadevices && !numscsidevices){
     printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
-    exit(1);
+    exit(EXIT_BADDEV);
   }
 
   // Now start an infinite loop that checks all devices
