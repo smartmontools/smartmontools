@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.95 2003/02/21 22:58:40 ballen4705 Exp $
+$Id: CHANGELOG,v 1.96 2003/02/24 15:51:30 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,9 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] smartd/smartctl: Added -v 9,seconds option for disks which
+       use Attribute 9 for power-on lifetime in seconds.
 
   [BA] smartctl: Added a warning message so that users of some IBM
        disks are warned to update their firmware.  Note: we may want

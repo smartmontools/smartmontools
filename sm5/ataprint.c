@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.57 2003/02/21 22:58:41 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.58 2003/02/24 15:51:32 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -530,11 +530,17 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	  long long tmp2=rawvalue%60;
 	  pout("%lluh+%02llum\n", tmp1, tmp2);
 	}
+	else if (con->attributedefs[9]==3){
+	  // seconds
+	  long long hours=rawvalue/3600;
+	  long long minutes=(rawvalue-3600*hours)/60;
+	  long long seconds=rawvalue%60;
+	  pout("%lluh+%02llum+%02llus\n", hours, minutes, seconds);
+	}
 	else
 	  // hours
 	  pout("%llu\n", rawvalue);  //stored in hours
 	break;
-	
 	// Temperature
       case 194:
 	pout("%d", (int)disk->raw[0]);
