@@ -31,10 +31,12 @@
 
 #include "atacmds.h"
 #include "config.h"
+#include "int64.h"
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.140 2004/03/12 23:45:43 chrfranke Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.141 2004/03/13 15:03:56 chrfranke Exp $"
+ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;

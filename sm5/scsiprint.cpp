@@ -31,7 +31,9 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "config.h"
 #include "extern.h"
+#include "int64.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
 #include "smartctl.h"
@@ -39,8 +41,8 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.75 2004/03/12 23:45:44 chrfranke Exp $"
-EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.76 2004/03/13 15:03:57 chrfranke Exp $"
+CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
 extern smartmonctrl *con;

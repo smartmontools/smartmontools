@@ -60,6 +60,7 @@
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
+#include "int64.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
 #include "smartd.h"
@@ -69,13 +70,13 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.289 2004/03/12 20:24:15 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.290 2004/03/13 15:03:57 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.289 2004/03/12 20:24:15 chrfranke Exp $" 
-                            ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
-                            SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.290 2004/03/13 15:03:57 chrfranke Exp $" 
+                            ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
+                            KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 extern const char *reportbug;
 

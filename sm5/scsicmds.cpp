@@ -40,11 +40,15 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include "config.h"
+#include "extern.h"
+#include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
-#include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.71 2004/03/12 23:45:44 chrfranke Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.72 2004/03/13 15:03:56 chrfranke Exp $"
+CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;

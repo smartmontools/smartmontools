@@ -18,12 +18,12 @@
 
 #include "config.h"
 #include "atacmds.h"
+#include "extern.h"
+extern smartmonctrl * con; // con->permissive
+#include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
 extern int64_t bytes; // malloc() byte count
-
-#include "extern.h"
-extern smartmonctrl * con; // con->permissive
 
 #include <errno.h>
 #include <assert.h>
@@ -33,8 +33,8 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.5 2004/03/12 23:45:43 chrfranke Exp $" \
-ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.6 2004/03/13 15:03:56 chrfranke Exp $"
+ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
 static int ata_open(int drive);
