@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.74 2004/08/02 14:31:05 ballen4705 Exp $
+$Id: smartd.8.in,v 1.75 2004/08/04 05:24:50 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1164,9 +1164,11 @@ Attributes.
 .B \-C ID
 [ATA only] Report if the current number of pending sectors is
 non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
-value is the Current Pending Sector count.  The default value of
-\fBID\fP is 197.  To turn off this reporting, use ID\ =\ 0.  The
-allowed range of ID is 0 to 255 inclusive.
+value is the Current Pending Sector count.  The allowed range of
+\fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
+ID\ =\ 0.  If the \fB\-C ID\fP option is not given, then it defaults to
+\fB\-C 197\fP (since Attribute 197 is generally used to monitor
+pending sectors).
 
 A pending sector is a disk sector (containing 512 bytes of your data)
 which the device would like to mark as ``bad" and reallocate.
@@ -1184,9 +1186,12 @@ price of losing the 512 bytes of data stored there.
 .B \-U ID
 [ATA only] Report if the number of offline uncorrectable sectors is
 non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
-value is the Offline Uncorrectable sector count.  The default value of
-\fBID\fP is 198.  To turn off this reporting, use ID\ =\ 0.  The
-allowed range of ID is 0 to 255 inclusive.
+value is the Offline Uncorrectable Sector count.  The allowed range of
+\fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
+ID\ =\ 0.  If the \fB\-U ID\fP option is not given, then it defaults to
+\fB\-U 198\fP (since Attribute 198 is generally used to monitor
+offline uncorrectable sectors).
+
 
 An offline uncorrectable sector is a disk sector which was not
 readable during an off\-line scan or a self\-test.  This is important
@@ -1716,4 +1721,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.74 2004/08/02 14:31:05 ballen4705 Exp $
+$Id: smartd.8.in,v 1.75 2004/08/04 05:24:50 ballen4705 Exp $
