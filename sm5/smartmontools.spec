@@ -27,7 +27,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.47 2002/11/07 11:00:56 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.48 2002/11/07 11:28:17 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -214,6 +214,8 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Thu Nov 7 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Changed Makefile so that the -V option does not reflect file state
+  before commit!
 - modified .spec file so that locale information now contains
   character set definition.   Changed pt_BR to pt since we do not use any
   aspect other than language.  See man setlocale.
