@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.42 2004/04/07 22:06:13 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.43 2004/04/09 00:28:44 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -465,11 +465,10 @@ usually the desired behavior.
 
 .TP
 .B \-m ADD
-Send a warning email to the email address
-.B ADD
-if the \'\-H\', \'\-l\', or \'\-f\' Directives detect a failure or a new
-error, or if a SMART command to the disk fails. This Directive only
-works in conjunction with these other Directives (or with the
+Send a warning email to the email address \fBADD\fP if the \'\-H\',
+\'\-l\', \'\-f\', \'\-C\', or \'\-O\' Directives detect a failure or a
+new error, or if a SMART command to the disk fails. This Directive
+only works in conjunction with these other Directives (or with the
 equivalent default \'\-a\' Directive).
 
 To prevent your email in-box from getting filled up with warning
@@ -782,11 +781,45 @@ different types of system behavior affects the values of certain
 Attributes.
 
 .TP
+.B \-C ID
+Report if the current number of pending sectors is non-zero.  Here
+\fBID\fP is the id number of the Attribute whose raw value is the
+Current Pending Sector count.  The default value of \fBID\fP is 197.
+To turn off this reporting, use ID\ =\ 0.  The allowed range of ID is
+0 to 255 inclusive.
+
+A pending sector is a disk sector (containing 512 bytes of your data)
+which the device would like to mark as ``bad" and reallocate.
+Typically this is because your computer tried to read that sector, and
+the read failed because the data on it has been corrupted and has
+inconsistent Error Checking and Correction (ECC) codes.  This is
+important to know, because it means that there is some unreadable data
+on the disk.  The problem of figuring out what file this data belongs
+to is operating system and file system specific.  You can typically
+force the sector to reallocate by writing to it (translation: make the
+device substitute a spare good sector for the bad one) but at the
+price of losing the 512 bytes of data stored there.
+
+.TP
+.B \-U ID
+[ATA only] Report if the number of offline uncorrectable sectors is
+non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
+value is the Offline Uncorrectable sector count.  The default value of
+\fBID\fP is 198.  To turn off this reporting, use ID\ =\ 0.  The
+allowed range of ID is 0 to 255 inclusive.
+
+An offline uncorrectable sector is a disk sector which was not
+readable during an off\-line scan or a self\-test.  This is important
+to know, because if you have data stored in this disk sector, and you
+need to read it, the read will fail.  Please see the previous \'\-C\'
+option for more details.
+
+.TP
 .B \-F TYPE
-Modifies the behavior of \fBsmartd\fP to compensate for some known and
-understood device firmware bug.  The arguments to this Directive are
-exclusive, so that only the final Directive given is used.  The valid
-values are:
+[ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
+some known and understood device firmware bug.  The arguments to this
+Directive are exclusive, so that only the final Directive given is
+used.  The valid values are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This is
@@ -1112,4 +1145,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.42 2004/04/07 22:06:13 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.43 2004/04/09 00:28:44 ballen4705 Exp $

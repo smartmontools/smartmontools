@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.67 2004/03/26 14:22:08 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.68 2004/04/09 00:28:44 ballen4705 Exp $\n"
 
 #include "int64.h"
 
@@ -446,6 +446,12 @@ int ataCheckAttribute(struct ata_smart_values *data,
 // as needed, or exit.  Is passed a string with the name of the Data
 // Structure with the incorrect checksum.
 void checksumwarning(const char *string);
+
+// Returns raw value of Attribute with ID==id. This will be in the
+// range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
+// return -1.
+int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data);
+
 
 #define MAX_ATTRIBUTE_NUM 256
 
