@@ -246,9 +246,7 @@ option to correctly display hours, minutes and seconds.</p>
 <li><b>What Kernel Version is needed? (Linux)</b>
 
 <p>
-Any 2.4.X series kernel should work in principle, if it has been compiled with the right
-config options (see below) - both vanilla and vendor-supplied. For the 2.2.X series,
-life is more interesting. 2.0.X and earlier is right out.<br /><br />
+2.4.0 or later. (2.4.latest recommended.)<br /><br />
 
 Vanilla kernel.org 2.2.X kernels do not support the needed HDIO_DRIVE_TASK
 ioctl(). This is needed for the ATA drive to execute the ATA SMART RETURN STATUS
@@ -259,8 +257,8 @@ Vendor-supplied kernels, and vanilla kernels patched with
 (available from your local kernel.org mirror, not updated for 2.2.21 or later, and probably still have a few bugs), may
 support the needed ioctl().<br /><br />
 
-For both 2.2 and 2.4: The kernel must have been compiled with CONFIG_IDE_TASK_IOCTL=y, if that config option
-exists in the kernel version in question.
+If the config option CONFIG_IDE_TASK_IOCTL exists in your 2.2 kernel, it will probably
+support smartmontools.
 </p></li>
 
 <li><b>What attributes does smartmontools not yet recognize?</b>
