@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.15 2002/10/23 12:24:24 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.16 2002/10/23 15:15:43 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/23 12:24:24 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/23 15:15:43 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -226,7 +226,9 @@ recorded, as is the device status (idle, standby, etc) at the time of
 the error.  Finally, up to the last five commands that preceded the
 error are also recorded, along with a timestamp measured in seconds
 from when the disk was powered up during the session where the error
-took place.  The key ATA disk registers are also recorded in the log.
+took place.  [Note: this time stamp wraps after 2^32 milliseconds, or
+49 days 17 hours 2 minutes and 47.296 seconds.]
+The key ATA disk registers are also recorded in the log.
 .TP
 .B L
 Log: Prints only the S.M.A.R.T. self-test log.  The disk maintains a
@@ -439,4 +441,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.15 2002/10/23 12:24:24 ballen4705 Exp $
+$Id: smartctl.8,v 1.16 2002/10/23 15:15:43 ballen4705 Exp $

@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.28 2002/10/23 14:29:49 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.29 2002/10/23 15:15:43 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -538,7 +538,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   pout("\tER  = Error register\n");
   pout("\tSTA = Status register\n");
   pout("Timestamp is seconds since the previous disk power-on.\n");
-  pout("Note: timestamp \"wraps\" after 2^32 sec = 49.710 days.\n\n");
+  pout("Note: timestamp \"wraps\" after 2^32 msec = 49.710 days.\n\n");
   
   // now step through the five error log data structures (table 39 of spec)
   for (k = 4; k >= 0; k-- ) {
