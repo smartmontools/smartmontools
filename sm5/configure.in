@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.10 2003/10/01 14:14:51 guidog Exp $
+# $Id: configure.in,v 1.11 2003/10/01 14:37:00 guidog Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -32,7 +32,7 @@ AC_SUBST(LDFLAGS)
 AC_PREFIX_DEFAULT(['/usr'])
 AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 
-AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is /etc/rc.d/init.d)])],[initddir="$withval"],[initddir="/etc/rc.d/init.d"])
+AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is ${sysconfdir}/rc.d/init.d)])],[initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
 AC_SUBST(initddir)
 
 AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir=dir],[Location of documentation (default is ${prefix}/share/doc/smartmontools-5.X)])],[docdir="$withval"],[docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'])
