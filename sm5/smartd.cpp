@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.28 2002/10/24 15:29:05 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.29 2002/10/24 17:15:25 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -101,9 +101,10 @@ void pout(char *fmt, ...){
 
 
 void printhead(){
-  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon.\n"
-	   "Home page is %s\n\n",
-           RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION,PROJECTHOME);
+  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon.\n",
+           RELEASE_MAJOR, RELEASE_MINOR, SMARTMONTOOLS_VERSION);
+  printout(LOG_INFO,"Home page is %s\n\n",PROJECTHOME);
+  return;
 }
 
 /* prints help information for command syntax */
@@ -321,19 +322,24 @@ int scsiCheckDevice( scsidevices_t *drive)
   return 0;
 }
 
-void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices)
-{
-	int i;
-	
-	while (1){
-	  for (i = 0; i < numatadevices;i++)
-	    ataCheckDevice (  &atadevices[i]);
-	  
-	  for (i = 0; i < numscsidevices;i++)
-	    scsiCheckDevice (  &scsidevices[i]);
-	    
-	  sleep ( checktime );
-	}
+void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices){
+  int i;
+  
+  if (!numatadevices && !numscsidevices){
+    printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
+    return;
+  }
+
+  printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
+  while (1){
+    for (i = 0; i < numatadevices;i++)
+      ataCheckDevice (  &atadevices[i]);
+    
+    for (i = 0; i < numscsidevices;i++)
+      scsiCheckDevice (  &scsidevices[i]);
+    
+    sleep ( checktime );
+  }
 }
 
 
