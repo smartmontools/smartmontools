@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.76 2004/01/03 00:31:58 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.77 2004/01/03 21:03:20 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -153,7 +153,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL
   },
   { // Fujitsu MPD and MPE series
-    "^FUJITSU MP[DE]....A[HT]$",
+    "^FUJITSU MP[DE]....A[HTE]$",
     ".*",
     NULL,
     vendoropts_9_seconds,
