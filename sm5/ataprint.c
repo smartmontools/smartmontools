@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.81 2003/04/19 09:53:41 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.82 2003/04/19 18:50:12 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -167,6 +167,7 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
 
 /*  prints verbose value Off-line data collection status byte */
 void PrintSmartOfflineStatus(struct ata_smart_values *data){
+
   pout("Off-line data collection status: ");	
   
   switch(data->offline_data_collection_status){
@@ -219,6 +220,15 @@ void PrintSmartOfflineStatus(struct ata_smart_values *data){
     else
       pout("(0x%02x)\tReserved.\n",(int)data->offline_data_collection_status);
   }
+
+  // report on Automatic Data Collection Status.  Only IBM documents
+  // this bit.
+  if (data->offline_data_collection_status & 0x80)
+    pout("\t\t\t\t\tAuto Off-line Data Collection: Enabled.\n");
+  else
+    pout("\t\t\t\t\tAuto Off-line Data Collection: Disabled.\n");
+  
+  return;
 }
 
 
