@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/31 17:24:24 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/31 17:35:31 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -35,7 +35,7 @@ below)
 .B smartd
 will attempt to enable S.M.A.R.T. monitoring on ATA devices, and polls
 these and SCSI devices every 30 minutes, logging S.M.A.R.T. errors and
-changes of S.M.A.R.T. attributes via the SYSLOG interface.  These
+changes of S.M.A.R.T. Attributes via the SYSLOG interface.  These
 notifications and warnings normally appear in
 .B /var/log/messages. smartd
 can be configured at start-up using the file
@@ -210,7 +210,7 @@ Section below!
 .nf
 .B # The following line enables monitoring of the 
 .B # ATA Error Log and the Self-Test Error Log.  
-.B # It also tracks changes in both Pre-Failure
+.B # It also tracks changes in both Prefailure
 .B # and Usage Attributes, apart from Attributes
 .B # 9, 194, and 231, and shows  continued lines:
 .B #
@@ -275,8 +275,8 @@ is 1800 sec, and the minimum allowed value is
 ten seconds.
 .TP
 .B \-c
-Check: Will check the SMART status of the disk.  If any prefailure
-attributes are less than or equal to their threshold values, then disk
+Check: Will check the SMART status of the disk.  If any Prefailure
+Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at priority
 .B 'CRITICAL'
 will be logged to syslog. [Please see the
@@ -296,7 +296,7 @@ Self-Test Log has increased since the last check.  Note that such
 errors will
 .I only 
 be logged if you run self-tests on the disk (and it fails the 
-tests!). [Self-tests can be run by using the 
+tests!). [Self-Tests can be run by using the 
 .B '\-SXsx' 
 options of
 .B smartctl,
@@ -305,8 +305,8 @@ and the results of the testing can be observed using the
 command line option.]
 .TP
 .B \-f
-Fail: Check for 'failure' of any usage attributes.  If these
-attributes are less than or equal to the threshold, it does NOT
+Fail: Check for 'failure' of any Usage Attributes.  If these
+Attributes are less than or equal to the threshold, it does NOT
 indicate imminent disk failure.  It "indicates an advisory condition
 where the usage or age of the device has exceeded its intended design
 life period."
@@ -315,13 +315,13 @@ life period."
 command-line option.]
 .TP
 .B \-p
-Prefail: Report anytime that a prefail attribute has changed
+Prefail: Report anytime that a Prefail Attribute has changed
 its value since the last check, 30 minutes ago. [Please see the
 .B smartctl \-v
 command-line option.]
 .TP
 .B \-u
-Usage: Report anytime that a usage attribute has changed its value
+Usage: Report anytime that a Usage Attribute has changed its value
 since the last check, N seconds ago. [Please see the
 .B smartctl \-v
 command-line option.]
@@ -330,39 +330,43 @@ command-line option.]
 Track: Equivalent to turning on the two previous flags '\-t' and '\-u'.
 Tracks changes in
 .I all
-device attributes. [Please see the
+device Attributes. [Please see the
 .B smartctl \-v
 command-line option.]
 .TP
 .B \-i <ID>
-Ignore: This Directive modifies the behavior of the '\-f' attribute
+Ignore: This Directive modifies the behavior of the '\-f' Directive
 and has no effect without it.  
 .I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
-It means to ignore device attribute number <ID>, when checking for
-failure of usage attributes.  This is useful, for example, if you have
+It means to ignore device Attribute number <ID>, when checking for
+failure of Usage Attributes.  This is useful, for example, if you have
 a very old disk and don't want to keep getting messages about the
-hours-on-lifetime attribute (usually attribute 9) failing.
+hours-on-lifetime Attribute (usually Attribute 9) failing.  This
+Directive may appear multiple times for a single device, if you want
+to ignore multiple Attributes.
 .TP
 .B \-I <ID>
 Ignore: This Directive modifies the
-behavior of the '\-p', '\-u', and '\-t' attributes
+behavior of the '\-p', '\-u', and '\-t' Directives
 and has no effect without one of them.  
 .I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
-It means to ignore device attribute <ID>, when tracking changes in the
-attribute values.  This is useful, for example, if one of the device
-attributes is the disk temperature (usually attribute 194 or
+It means to ignore device Attribute <ID>, when tracking changes in the
+Attribute values.  This is useful, for example, if one of the device
+Attributes is the disk temperature (usually Attribute 194 or
 231). It's annoying to get reports each time the temperature changes.
+This Directive may appear multiple times for a single device, if you
+want to ignore multiple Attributes.
 .TP
 .B \-a
 All: equivalent to turning on the following Directives: 
 .B '\-c' 
 to check the SMART status,
 .B '\-f' 
-to report failures of usage (rather than pre-fail) attributes,
+to report failures of Usage (rather than Prefail) Attributes,
 .B '\-t' 
-to track changes in both prefailure and usage attributes,
+to track changes in both Prefailure and Usage Attributes,
 .B '\-L' 
-to report increases in the number of self-test log errors, and
+to report increases in the number of Self-Test Log errors, and
 .B '\-l' 
 to report increases in the number of ATA errors.
 .TP
@@ -389,7 +393,7 @@ If you want more frequent information, use
 .B smartd
 will make log entries at loglevel 
 .B LOG_INFO
-if SMART attribute values have changed, as reported using the
+if SMART Attribute values have changed, as reported using the
 .B '\-t', '\-p', or '\-u'
 Directives. For example:
 .nf
@@ -404,13 +408,13 @@ manual page for further explanation.
 .B smartd
 will make log entries at loglevel
 .B LOG_CRIT
-if a SMART attribute has failed, for example:
+if a SMART Attribute has failed, for example:
 .nf
-.B 'Device: /dev/hdc, Failed SMART attribute: 5 Reallocated_Sector_Ct'
+.B 'Device: /dev/hdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct'
 .fi
  This loglevel is used for reporting enabled by the
 .B '\-c', \-f', '\-L', and '\-l'
-Directives. Entries reporting failure of SMART pre-failure attributes
+Directives. Entries reporting failure of SMART Prefailure Attributes
 should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
 utility to investigate. 
@@ -492,4 +496,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.21 2002/10/31 17:24:24 ballen4705 Exp $
+$Id: smartd.8,v 1.22 2002/10/31 17:35:31 ballen4705 Exp $
