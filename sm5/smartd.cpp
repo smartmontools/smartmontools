@@ -46,7 +46,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.68 2002/11/21 14:50:20 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.69 2002/11/21 17:45:59 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -59,6 +59,15 @@ int numscsidevices=0;
 // How long to sleep between checks.  Handy as global variable for
 // debugging
 int checktime=CHECKTIME;
+volatile int sleeptime=CHECKTIME;
+
+// Interrupt sleep if we get a SIGUSR1
+void sleephandler(int sig){
+  int oldsleeptime=sleeptime;
+  sleeptime=0;
+  printout(LOG_CRIT,"Signal USR1 - checking devices now rather than in %d seconds.\n",oldsleeptime<0?0:oldsleeptime);
+  return;
+}
 
 // Global Variables for command line options. These should go into a
 // structure at some point.
@@ -841,8 +850,13 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
     
     for (i=0; i<numscsidevices; i++)
       scsiCheckDevice(scsidevices+i);
-    
-    sleep(checktime);
+
+    // Sleep until next check. Note that since sleeptime can be set to
+    // zero by an EXTERNAL signal SIGUSR1, it's possible for sleeptime
+    // to be negative.  Don't use while (sleeptime)!
+    sleeptime=checktime;
+    while (sleeptime-->0)
+      sleep(1); 
   }
 }
 
@@ -1361,6 +1375,8 @@ int main (int argc, char **argv){
     signal(SIGQUIT, SIG_IGN);
   if (signal(SIGHUP, huphandler)==SIG_IGN)
     signal(SIGHUP, SIG_IGN);
+  if (signal(SIGUSR1, sleephandler)==SIG_IGN)
+    signal(SIGUSR1, SIG_IGN);
 
   
   // install goobye message
