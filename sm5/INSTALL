@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.58 2004/11/12 20:46:11 geoffk1 Exp $
+$Id: INSTALL,v 1.59 2004/12/02 08:08:31 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -43,6 +43,11 @@ Table of contents:
     If your kernel does not support one or both of these ioctls, then
     smartmontools will "mostly" work.  The things that don't work will
     give you harmless warning messages.
+
+    Although "not officially supported" by the developers, smartmontools
+    has also been successfully build and run on a legacy Linux system
+    with kernel 2.0.33 and libc.so.5. On such systems, the restrictions
+    above apply.
 
     For item (1) above, any 2.4 or 2.6 series kernel will provide
     HDIO_DRIVE_TASK support.  Some 2.2.20 and later kernels also
@@ -96,8 +101,8 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.5.7 and should also work on other
-    recent releases.
+    The code was tested on Cygwin 1.5.7 and 1.5.11. It should also work on
+    other recent releases.
 
     Both Cygwin and Windows versions of smartmontools share the same code
     to access the IDE/ATA or SCSI devices. The information in the "Windows"
@@ -105,8 +110,9 @@ Table of contents:
 
     F) Windows
 
-    The code was tested on Windows 98SE, NT4, 2000 and XP. It should also
-    work on Windows 95(OSR2), 98, ME and 2003.
+    The code was tested on Windows 98SE, NT4(SP5,SP6), 2000(SP4) and
+    XP(no SP,SP1a,SP2). It should also work on Windows 95(OSR2), 98,
+    ME and 2003.
 
     On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
     The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS
@@ -125,6 +131,8 @@ Table of contents:
 
     SCSI devices are supported on all versions of Windows. An installed
     ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
+    The code was tested with Adaptec Windows ASPI drivers 4.71.2.
+    (http://www.adaptec.com/worldwide/support/drivers_by_product.jsp?cat=/Product/ASPI-4.70)
 
     G) MacOS/Darwin
 
