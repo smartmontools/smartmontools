@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.60 2003/12/06 16:31:57 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.61 2003/12/08 20:26:19 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -140,7 +140,12 @@ const drivesettings knowndrives[] = {
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
     NULL, NULL, NULL
   },
-  { // IBM Deskstar 40GV & 75GXP series
+  { // IBM Deskstar 40GV & 75GXP series (TXAOA5AA firmware)
+    "(IBM-)?DTLA-30[57]0[123467][05]$",
+    "^TXAOA5AA$",
+    NULL, NULL, NULL, NULL
+  },
+  { // IBM Deskstar 40GV & 75GXP series (all other firmware)
     "(IBM-)?DTLA-30[57]0[123467][05]$",
     ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
@@ -330,8 +335,13 @@ const drivesettings knowndrives[] = {
     vendoropts_Hitachi_DK23EA,
     NULL, NULL
   },
-  { // IBM-DARA-212000
-    "^IBM-DARA-212000$",
+  { // IBM Travelstar 25GS, 18GT, and 12GN family
+    "^IBM-DARA-2(25|18|15|12|09|06)000$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { // IBM/Hitachi Travelstar 60GH and 40GN family
+    "^IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
