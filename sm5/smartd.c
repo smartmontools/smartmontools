@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.231 2003/11/09 20:22:21 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.232 2003/11/10 19:13:04 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -628,7 +628,7 @@ return;
 const char *GetValidArgList(char opt) {
   switch (opt) {
   case 'l':
-    return "local0, local1, local2, local3, local4, local5, local6, local7";
+    return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
     return "nodev, errors, nodevstartup, never, onecheck";
   case 'r':
@@ -655,7 +655,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
   PrintOut(LOG_INFO,"  -l local[0-7], --logfacility=local[0-7]\n");
-  PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 rather than daemon\n\n");
+  PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 or daemon [default]\n\n");
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
@@ -669,7 +669,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
   PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
   PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
-  PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7 rather than daemon\n");
+  PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7, or daemon\n");
   PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
@@ -2341,7 +2341,9 @@ void ParseOpts(int argc, char **argv){
       break;
     case 'l':
       // set the log facility level
-      if (!strcmp(optarg, "local0"))
+      if (!strcmp(optarg, "daemon"))
+	facility=LOG_DAEMON;
+      else if (!strcmp(optarg, "local0"))
 	facility=LOG_LOCAL0;
       else if (!strcmp(optarg, "local1"))
 	facility=LOG_LOCAL1;
