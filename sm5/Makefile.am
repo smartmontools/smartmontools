@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.41 2003/12/01 14:55:13 guidog Exp $
+# $Id: Makefile.am,v 1.42 2003/12/01 19:50:34 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -100,11 +100,11 @@ initd_DATA = smartd.initd
 EXTRA_DIST = \
                 smartmontools.spec	\
                 smartd.initd.in		\
-                smartd.initd		\
 		smartd.8.in		\
 		smartctl.8.in		\
 		smartd.conf.5.in	\
 		smartd.conf		\
+		autogen.sh		\
                 $(docs_DATA)
 
 DISTCLEANFILES = smartd.conf.5 \
