@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.139 2004/03/05 23:00:50 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.140 2004/03/06 22:08:00 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -228,7 +228,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
       print_sector=(int)data->error_struct.sector_count;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
-  case 0x31:
+  case 0x31:  // WRITE SECTOR(S)
   case 0x34:  // WRITE SECTOR(S) EXT
   case 0xC5:  /* WRITE MULTIPLE */
   case 0x39:  // WRITE MULTIPLE EXT
@@ -286,23 +286,42 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   case 0xC6:  /* SET MULTIPLE MODE */
     error_flag[2] = abrt;
     break;
+  case 0x2F:  // READ LOG EXT
+    error_flag[6] = unc;
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
+    error_flag[0] = obs;
+    break;
+  case 0x3F:  // WRITE LOG EXT
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
+    error_flag[0] = obs;
+    break;
   case 0xB0:  /* SMART */
     switch(FR) {
+    case 0xD0:  // SMART READ DATA
+    case 0xD1:  // SMART READ ATTRIBUTE THRESHOLDS
     case 0xD5:  /* SMART READ LOG */
-    case 0x2F:  // READ LOG EXT
       error_flag[6] = unc;
       error_flag[4] = idnf;
       error_flag[2] = abrt;
       error_flag[0] = obs;
       break;
     case 0xD6:  /* SMART WRITE LOG */
-    case 0x3F:  // WRITE LOG EXT
       error_flag[4] = idnf;
       error_flag[2] = abrt;
       error_flag[0] = obs;
       break;
+    case 0xD2:  // Enable/Disable Attribute Autosave
+    case 0xD3:  // SMART SAVE ATTRIBUTE VALUES (ATA-3)
+    case 0xD8:  // SMART ENABLE OPERATIONS
     case 0xD9:  /* SMART DISABLE OPERATIONS */
     case 0xDA:  /* SMART RETURN STATUS */
+    case 0xDB:  // Enable/Disable Auto Offline (SFF)
+      error_flag[2] = abrt;
+      break;
+    case 0xD4:  // SMART EXECUTE IMMEDIATE OFFLINE
+      error_flag[4] = idnf;
       error_flag[2] = abrt;
       break;
     default:
