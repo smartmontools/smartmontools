@@ -18,13 +18,12 @@
  *
  */
 
-#include "config.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.5 2004/09/09 04:39:51 snyderx Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.6 2004/09/12 10:21:09 snyderx Exp $" \
 ATACMDS_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
