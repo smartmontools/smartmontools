@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.52 2004/07/18 13:52:22 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.53 2004/07/29 21:00:36 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -409,6 +409,54 @@ int split_report_arg2(char *s, int *i){
 
   return 0;
 }
+
+#ifndef HAVE_STRTOULL
+// Replacement for missing strtoull() (Linux with libc < 6, MSVC 6.0)
+// Functionality reduced to split_selective_arg()'s requirements.
+
+static uint64_t strtoull(const char * p, char * * endp, int base)
+{
+  uint64_t result, maxres;
+  int i = 0;
+  char c = p[i++];
+  // assume base == 0
+  if (c == '0') {
+    if (p[i] == 'x' || p[i] == 'X') {
+      base = 16; i++;
+    }
+    else
+      base = 8;
+    c = p[i++];
+  }
+  else
+    base = 10;
+
+  result = 0;
+  maxres = ~(uint64_t)0 / (unsigned)base;
+  for (;;) {
+    unsigned digit;
+    if ('0' <= c && c <= '9')
+      digit = c - '0';
+    else if ('A' <= c && c <= 'Z')
+      digit = c - 'A' + 10;
+    else if ('a' <= c && c <= 'z')
+      digit = c - 'a' + 10;
+    else
+      break;
+    if (digit >= (unsigned)base)
+      break;
+    if (!(   result < maxres
+          || (result == maxres && digit <= ~(uint64_t)0 % (unsigned)base))) {
+      result = ~(uint64_t)0; errno = ERANGE; // return on overflow
+      break;
+    }
+    result = result * (unsigned)base + digit;
+    c = p[i++];
+  }
+  *endp = (char *)p + i - 1;
+  return result;
+}
+#endif // HAVE_STRTOLL
 
 // Splits an argument to the -t option that is assumed to be of the form
 // "selective,%lld-%lld" (prefixes of "0" (for octal) and "0x"/"0X" (for hex)
