@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.53 2004/08/11 07:16:38 chrfranke Exp $
+$Id: INSTALL,v 1.54 2004/08/14 20:04:38 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -105,7 +105,7 @@ Table of contents:
     F) Windows
 
     The code was tested on Windows 98SE, NT4, 2000 and XP. It should also
-    work on Windows 95(OSR2), 98, and ME.
+    work on Windows 95(OSR2), 98, ME and 2003.
 
     On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
     The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS
@@ -385,6 +385,39 @@ To compile the Windows release with MinGW, use the following on Cygwin:
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
 
+To build the Windows binary distribution, use:
+
+  make dist-win32
+  
+  This builds the distribution in directory
+
+  ./smartmontools-VERSION.win32/
+
+  and packs it into
+
+  ./smartmontools-VERSION.win32.zip
+
+  Additional make targets are distdir-win32 to build the directory
+  only and cleandist-win32 for cleanup.
+
+  The binary distribution includes all documentation files converted
+  to DOS text file format and *.html and *.txt preformatted man pages.
+  The tools unix2dos.exe (package cygutils) and zip.exe (package zip
+  or a native Win32 release of Info-ZIP, http://www.info-zip.org) are
+  necessary but may be not installed by Cygwin's default settings.
+
+  It is also possible to compile smartmontools with MSVC 6.0.
+  The project files (smartmontools_vc6.dsw, smart{ctl,d}_vc6.dsp) are
+  included in CVS (but not in source tarball). The config_vc6.h is no
+  longer maintained in CVS. The command:
+
+  make config-vc6
+
+  builds config_vc6.h from MinGW's config.h. Unlike MinGW, MSVC 6.0
+  can also be used to build the syslog message file tool syslogevt.exe.
+  See smartd man page for usage information about this tool.
+
+
 [11] Comments
 ============
 
@@ -444,6 +477,21 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools-5.X/WARNINGS         [Systems where lockups or other serious problems were reported]
 /usr/local/share/doc/smartmontools-5.X/smartd.conf      [Example configuration file for smartd]
 /usr/local/share/doc/smartmontools-5.X/examplescripts   [Executable scripts for -M exec of smartd.conf (4 files)]
+
+The commands:
+
+make htmlman
+make txtman
+
+may be used to build .html and .txt preformatted man pages.
+These are used by the dist-win32 make target to build the Windows
+distribution.
+The commands also work on other operating system configurations
+if suitable versions of man2html, groff and grotty are installed.
+On systems without man2html, the following command should work
+if groff is available:
+
+make MAN2HTML='groff -man -Thtml' htmlman
 
 
 [12] Detailed description of arguments to configure command
