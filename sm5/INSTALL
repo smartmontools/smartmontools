@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.44 2004/05/03 15:58:33 ballen4705 Exp $
+$Id: INSTALL,v 1.45 2004/05/04 21:23:40 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -152,16 +152,17 @@ Table of contents:
 
     As shown (with no options to ./configure) this defaults to the
     following set of installation directories:   
-    --prefix=/usr
-    --sbindir=/usr/sbin
-    --sysconfdir=/etc
-    --mandir=/usr/share/man
-    --with-docdir=/usr/share/doc/smartmontools-VERSION
-    --with-initscriptdir=/etc/rc.d/init.d
+    --prefix=/usr/local
+    --sbindir=/usr/local/sbin
+    --sysconfdir=/usr/local/etc
+    --mandir=/usr/local/share/man
+    --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+    --with-initscriptdir=/usr/local/etc/rc.d/init.d
     --disable-sample
 
-    These will overwrite existing "distribution" installations for Red
-    Hat, Slackware, and some other Linux distributions.
+    These will usually not overwrite existing "distribution" installations on
+    Linux Systems since the FHS reserves this area for use by the system
+    administrator.
 
     For different installation locations or distributions, simply add
     arguments to ./configure as shown in [4] below.
@@ -178,7 +179,8 @@ Note: Please send corrections/additions to:
 smartmontools-support@lists.sourceforge.net
 
 Debian:
-  ./configure --prefix=/usr/local
+  If you don't want to overwrite any distribution package, use:
+  ./configure
 
 Filesystem Hierarchy Standard (FHS):
   ./configure --sbindir=/usr/local/sbin                               \
@@ -188,8 +190,6 @@ Filesystem Hierarchy Standard (FHS):
               --with-docdir=/usr/local/share/doc/smartmontools-VERSION
 
 Red Hat:
-  ./configure
-  OR EQUIVALENTLY
   ./configure --sbindir=/usr/sbin                               \
 	      --sysconfdir=/etc                                 \
 	      --mandir=/usr/share/man                           \
@@ -198,7 +198,7 @@ Red Hat:
 
 Slackware:
   If you don't want to overwrite any "distribution" package, use:
-  ./configure --prefix=/usr/local
+  ./configure
 
   Otherwise use:
   ./configure --sbindir=/usr/sbin                               \
@@ -393,31 +393,26 @@ it in a wide window.
 
 OPTIONS              DEFAULT                                      AFFECTS
 -------              -------                                      -------
---prefix             [NO VALUE]                                   Please see below
---sbindir            /usr/sbin                                    Directory for smartd/smartctl executables;
+--prefix             /usr/local                                   Please see below
+--sbindir            ${prefix}/sbin                               Directory for smartd/smartctl executables;
                                                                   Contents of smartd/smartctl man pages
---mandir             /usr/share/man                               Directory for smartctl/smartd/smartd.conf man pages
---sysconfdir         /etc                                         Directory for smartd.conf;
+--mandir             ${prefix}/share/man                          Directory for smartctl/smartd/smartd.conf man pages
+--sysconfdir         ${prefix}/etc                                Directory for smartd.conf;
                                                                   Contents of smartd executable;
                                                                   Contents of smartd/smartd.conf man pages;
                                                                   Directory for rc.d/init.d/smartd init script
 --with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts       
---with-docdir	      $(prefix)/usr/share/doc/smartmontools-5.X   Location of the documentation
+--with-docdir	      ${prefix}/share/doc/smartmontools-5.X       Location of the documentation
 --enable-sample	      --disable-sample				  Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
 
-
-
-If you set --prefix and NONE of the other four variables, for example:
-./configure --prefix=/home/joe
-then the DEFAULT paths will ALL have prefix appended to them.
-
-For example, if you set --prefix=/home/joe and none of the other four
+Here's an example:
+If you set --prefix=/home/joe and none of the other four
 variables then the different directories that are used would be:
---sbindir             /home/joe/usr/sbin
---mandir              /home/joe/usr/share/man
+--sbindir             /home/joe/sbin
+--mandir              /home/joe/share/man
 --sysconfdir          /home/joe/etc
 --with-initscriptdir  /home/joe/etc/init.d/rc.d
---with-docdir	      /home/joe/usr/share/doc/smartmontools-5.X
+--with-docdir	      /home/joe/doc/smartmontools-5.X
 
 This is useful for test installs in a harmless subdirectory somewhere.
 
@@ -455,16 +450,14 @@ no other options specified (see above for details)
 Case 1:
 --enable-sample provided
 ==> Files installed are:
-	/etc/smartd.conf.sample
-	/etc/rc.d/init.d/smartd.sample
+	/usr/local/etc/smartd.conf.sample
+	/usr/local/etc/rc.d/init.d/smartd.sample
 
 Case 2:
 --disable-sample provided or parameter left out
 ==> Files installed are:
-	/etc/smartd.conf
-	/etc/rc.d/init.d/smartd
-
-
+	/usr/local/etc/smartd.conf
+	/usr/local/etc/rc.d/init.d/smartd
 
 Additional information about using configure can be found here:
 http://www.gnu.org/manual/autoconf-2.57/html_mono/autoconf.html#SEC139
