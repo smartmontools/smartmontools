@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.445 2004/08/13 12:41:40 arvoreen Exp $
+$Id: CHANGELOG,v 1.446 2004/08/13 14:09:21 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Minor change to FreeBSD inclusion of 'twe' include files.  Add 
+       code to check if they exising in /usr/include/sys to use those
+       in preference to ones added here
 
   [EM] Very preliminary support attempt for 3Ware controllers under 
        FreeBSD. Also, switched 'escalade_type/escalade_port' to
