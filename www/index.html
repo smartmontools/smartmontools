@@ -30,8 +30,8 @@ system, and is being ported to BSD variants.</p>
 smartmontools</a></li>
 <li><a href="#PROBLEMS">Serious Problem Reports (system lockup, etc.)</a></li>
 <li><a href="#FAQ">Frequently Asked Questions</a></li>
-<li><a href="#testinghelp">The code needs to be tested on SCSI,
-FireWire, USB, and SATA disks/tapes</a></li>
+<li><a href="#scsi">SCSI disks and tapes (TapeAlert)</a></li>
+<li><a href="#testinghelp">FireWire, USB, and SATA disks/tapes</a></li>
 <li><a href="#differfromsmartsuite">How does smartmontools differ from
 smartsuite?</a></li>
 <li><a href="#references">Useful references on S.M.A.R.T. and
@@ -303,28 +303,23 @@ DISK FIRMWARE UPGRADE</a> that fixes the problem.
 </p></li>
 </ul>
 
-<hr size="2" /><a name="testinghelp"></a><b>Help needed in testing
-smartmontools, especially on SCSI, FireWire, USB, and SATA disks/systems</b>
-<p>I have access to a number of systems with ATA S.M.A.R.T. disks, but
-I don't have any access to systems with SCSI, FireWire, USB, and SATA
-S.M.A.R.T. devices. <br />
+<hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes (TapeAlert)</b>
+<p>Smartmontools for SCSI disks and tapes (including medium changers) is
+discussed on a separate <a href="smartmontools_scsi.html">page</a>.
 </p>
-<p>Work on smartmontools support for SCSI disks and SCSI tape drives
-(TapeAlerts) is progressing. See this <a
- href="http://www.torque.net/scsi/smartmontools_scsi.html">article</a>
-for more details and examples. Do you have a beowulf cluster with a few
-hundred SCSI disks and tape jukeboxes? We are looking for testers.</p>
-<p>A package of SCSI utilities including one to examine SCSI log
-information can be found on the <a href="http://www.torque.net/sg/">scsi
-generic (sg) driver home page</a>. The package is called <tt>sg3_utils</tt>.<br />
-</p>
+
+<hr size="2" /><a name="testinghelp"></a><b>FireWire, USB, and SATA 
+disks/systems</b>
 <p>As for USB and FireWire (ieee1394) disks and tape drives, the news
 is not good. They appear to Linux as SCSI devices but their
-implementations do not usually support those commands needed for
-S.M.A.R.T. support. The ieee1394 consortium recently certified the <span
+implementations do not usually support those SCSI commands needed by
+smartmontools. The ieee1394 consortium recently certified the <span
  style="font-style: italic;">first</span> external enclosure (containing
 a ATA disk and a protocol bridge) as being compliant to the relevant
-standards. Such devices have been on the market for about 3 years!<br />
+standards. Such devices have already been on the market for about 3 
+years and they tend to only support the bare minimum of commands
+needed for device operation (i.e. SMART support is an unsupported
+extra).<br />
 </p>
 <p>I'd be very grateful to find someone who could help me test the
 smartmontools code on serial ATA (SATA) disks. They should appear as
