@@ -25,11 +25,9 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.55 2003/10/15 14:06:02 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.55.2.1 2004/02/23 15:36:03 chrfranke Exp $\n"
 
-#include <sys/ioctl.h>
-#include <sys/fcntl.h>
-#include <sys/types.h>
+#include "int64.h"
 
 
 typedef enum {
@@ -309,8 +307,8 @@ struct ata_smart_log_directory {
 // Revision 3
 #pragma pack(1)
 struct test_span {
-  unsigned long long start;
-  unsigned long long end;
+  uint64_t start;
+  uint64_t end;
 };
 #pragma pack()
 
@@ -320,7 +318,7 @@ struct ata_selective_self_test_log {
   struct test_span   span[5];
   unsigned char      reserved[337-82+1];
   unsigned char      vendor_specific1[491-338+1];
-  unsigned long long currentlba;
+  uint64_t           currentlba;
   unsigned short     currentspan;
   unsigned short     flags;
   unsigned char      vendor_specific2[507-504+1];
@@ -413,9 +411,9 @@ int TestTime(struct ata_smart_values *data,int testtype);
 
 // Prints the raw value (with appropriate formatting) into the
 // character string out.
-long long ataPrintSmartAttribRawValue(char *out, 
-				      struct ata_smart_attribute *attribute,
-				      unsigned char *defs);
+int64_t ataPrintSmartAttribRawValue(char *out, 
+                                    struct ata_smart_attribute *attribute,
+                                    unsigned char *defs);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
