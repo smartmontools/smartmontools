@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.13 2003/11/26 13:58:00 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.14 2003/11/26 22:24:05 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -37,7 +37,7 @@
 report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
     echo "the $1 Linux distribution. If you can provide one or this"
-    echo "one works after you have removing some ifdefs, please contact"
+    echo "one works after removing some ifdefs, please contact"
     echo "smartmontools-support@lists.sourceforge.net."
     exit 1
 }
