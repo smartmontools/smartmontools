@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.320 2004/01/13 16:53:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.321 2004/01/17 05:16:03 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] more sensible error messages for devfs and devfs-like systems.
+       Instead of saying that the DIRECTORY does not exist, say that
+       the DEVICE does not exist.
 
   [BA] smartd: added -n Directive, to prevent disk spin-up depending
        upon the power mode (SLEEP, STANDBY, or IDLE).
