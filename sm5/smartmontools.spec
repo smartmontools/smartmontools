@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.134 2003/10/15 08:26:44 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.135 2003/10/16 05:19:41 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -206,13 +206,6 @@ pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
   rm -rf %{_buildroot}
   %makeinstall
   rm -f examplescripts/Makefile*
-
-# Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
-   if [ -f /etc/redhat-release ]; then
-     if `cat /etc/redhat-release | grep >/dev/null 2>&1 "release 6."`; then
-       mv -f $RPM_BUILD_ROOT%{_datadir}/man $RPM_BUILD_ROOT%{_prefix}
-     fi
-   fi
 
 %files
   %defattr(-,root,root)
