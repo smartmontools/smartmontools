@@ -36,11 +36,12 @@
 
 #include <string.h>
 #include <scsi/scsi_ioctl.h>
+#include <errno.h>
 #include "atacmds.h"
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.2 2003/08/04 13:08:04 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.3 2003/08/04 19:04:34 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -130,7 +131,9 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     break;
   case PIDENTIFY:
     // 3WARE controller can NOT have packet device internally
-    return 1;
+    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER\n");
+    errno=ENODEV;
+    return -1;
   case ENABLE:
     passthru.features = 0xD8;  // SMART ENABLE OPERATIONS
     break;
@@ -144,7 +147,8 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.sector_count = select; // Enable or disable?
     if (select){
       pout("WARNING - SMART AUTO OFFLINE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
-      return 1;
+      errno=ENOSYS;
+      return -1;
     }
     break;
   case STATUS:
@@ -155,7 +159,8 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.sector_count = select; // Enable or disable?
     if (select){
       pout("WARNING - SMART AUTOSAVE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
-      return 1;
+      errno=ENOSYS;
+      return -1;
     }
     break;
   case IMMEDIATE_OFFLINE:
@@ -168,7 +173,8 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     return 0;
   default:
     pout("Unrecognized command %d in os_specific_handler()\n", command);
-    return 1;
+    errno=ENOSYS;
+    return -1;
   }
 
   /* Copy the passthru command into the ioctl input buffer */
@@ -182,7 +188,7 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   
   /* Now send the command down through an ioctl() */
   if (ioctl(fd, SCSI_IOCTL_SEND_COMMAND, &ioctlbuf)) {
-    return 1;
+    return -1;
   }
 
   if (readdata){
