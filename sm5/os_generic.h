@@ -22,10 +22,10 @@
  *
  */
 
+// In the three following lines, change 'GENERIC' to your OS name
 #ifndef OS_GENERIC_H_
 #define OS_GENERIC_H_
-
-#define OS_XXXX_H_CVSID "$Id: os_generic.h,v 1.3 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define OS_GENERIC_H_CVSID "$Id: os_generic.h,v 1.4 2004/09/14 02:42:16 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.16 2004/09/05 01:09:00 arvoreen Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.17 2004/09/14 02:42:16 ballen4705 Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with

@@ -37,10 +37,10 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.c,v 1.21 2004/08/28 23:23:46 card_captor Exp $";
+static const char *filenameandversion="$Id: os_solaris.c,v 1.22 2004/09/14 02:42:16 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.21 2004/08/28 23:23:46 card_captor Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.22 2004/09/14 02:42:16 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
 int printedout[2];
