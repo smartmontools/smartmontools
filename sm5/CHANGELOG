@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.284 2003/12/08 17:25:58 ballen4705 Exp $
+$Id: CHANGELOG,v 1.285 2003/12/08 20:26:19 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,15 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives
+       with TXAOA5AA firmware
+
+  [PW] Added IBM Travelstar 25GS, 18GT, and 12GN family to knowndrives
+       table.
+
+  [PW] Added IBM/Hitachi Travelstar 60GH & 40GN family to knowndrives
+       table.
 
   [BA] smartd: made '-s' Directive more efficient.  Now store
        compiled regex, and re-use.  If device lacks certain self-test
