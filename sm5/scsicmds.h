@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.25 2003/04/21 10:42:47 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.26 2003/04/22 02:07:06 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -133,6 +133,13 @@ struct scsiNonMediumError {
     UINT8 gotExtraPC;
     unsigned long long counterPC0;
 };
+
+/* SCSI Peripheral types (of interest) */
+#define SCSI_PT_DIRECT_ACCESS           0x0
+#define SCSI_PT_SEQUENTIAL_ACCESS       0x1
+#define SCSI_PT_CDROM                   0x5
+#define SCSI_PT_MEDIUM_CHANGER          0x8
+#define SCSI_PT_ENCLOSURE               0xd
 
 /* ANSI SCSI-3 Log Pages retrieved by LOG SENSE. */
 #define SUPPORTED_LOG_PAGES                     0x00
