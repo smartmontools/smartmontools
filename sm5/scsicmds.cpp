@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.62 2003/11/17 11:48:47 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.63 2003/11/18 13:44:46 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -746,15 +746,14 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
         if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  iecp->raw_curr, sizeof(iecp->raw_curr)))) {
-            if (0 == err)
-                iecp->modese_len = 6;
-            else if (SIMPLE_ERR_BAD_OPCODE == err)
+            if (SIMPLE_ERR_BAD_OPCODE == err)
                 iecp->modese_len = 10;
             else {
                 iecp->modese_len = 0;
                 return err;
             }
-        }
+        } else if (0 == iecp->modese_len)
+            iecp->modese_len = 6;
     }
     if (10 == iecp->modese_len) {
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
@@ -829,7 +828,7 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 int scsiSetExceptionControlAndWarning(int device, int enabled,
                                       const struct scsi_iec_mode_page *iecp)
 {
-    int k, offset;
+    int k, offset, resp_len;
     int err = 0;
     UINT8 rout[SCSI_IECMP_RAW_LEN];
     int sp, eCEnabled, wEnabled;
@@ -841,9 +840,13 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
     if (offset < 0)
         return -EINVAL;
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
-    rout[0] = 0;     /* Mode Data Length reserved in MODE SELECTs */
-    if (10 == iecp->modese_len)
-        rout[1] = 0;
+    if (10 == iecp->modese_len) {
+            resp_len = (rout[0] << 8) + rout[1] + 2;
+            memset(rout, 0, 2); /* mode data length==0 for mode select */
+    } else {
+            resp_len = rout[0] + 1;
+            memset(rout, 0, 1); /* mode data length==0 for mode select */
+    }
     sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     rout[offset] &= 0x7f;     /* mask off PS bit */
     if (enabled) {
@@ -892,9 +895,9 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
         }
     }
     if (10 == iecp->modese_len)
-        err = scsiModeSelect10(device, sp, rout, sizeof(rout));
+        err = scsiModeSelect10(device, sp, rout, resp_len);
     else if (6 == iecp->modese_len)
-        err = scsiModeSelect(device, sp, rout, sizeof(rout));
+        err = scsiModeSelect(device, sp, rout, resp_len);
     return err;
 }
 
@@ -1564,13 +1567,12 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
-            if (0 == err)
-                modese_len = 6;
-            else if (SIMPLE_ERR_BAD_OPCODE == err)
+            if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
             else
                 return err;
-        }
+        } else if (0 == modese_len)
+            modese_len = 6;
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
@@ -1732,7 +1734,6 @@ int scsiCountFailedSelfTests(int fd, int noisy)
     return (fail_hour << 8) + fails;
 }
 
-
 /* Returns a negative value if failed to fetch Contol mode page or it was
    malformed. Returns 0 if GLTSD bit is zero and returns 1 if the GLTSD
    bit is set. */
@@ -1746,13 +1747,12 @@ int scsiFetchControlGLTSD(int device, int modese_len)
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
-            if (0 == err)
-                modese_len = 6;
-            else if (SIMPLE_ERR_BAD_OPCODE == err)
+            if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
             else
                 return -EINVAL;
-        }
+        } else if (0 == modese_len)
+            modese_len = 6;
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
@@ -1765,6 +1765,69 @@ int scsiFetchControlGLTSD(int device, int modese_len)
     if ((offset >= 0) && (buff[offset + 1] >= 0xa))
         return (buff[offset + 2] & 2) ? 1 : 0;
     return -EINVAL;
+}
+
+/* Attempts to clear GLTSD bit in Control mode page. Returns 0 if
+   successful, negative if low level error, > 0 if higher level error (e.g.
+   SIMPLE_ERR_BAD_PARAM if GLTSD bit is not changeable). */
+int scsiClearControlGLTSD(int device, int modese_len)
+{
+    int err, offset, resp_len, sp;
+    UINT8 buff[64];
+    UINT8 ch_buff[64];
+
+    memset(buff, 0, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
+                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 buff, sizeof(buff)))) {
+            if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
+            else
+                return err;
+        } else if (0 == modese_len)
+            modese_len = 6;
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
+                              MODE_PAGE_CONTROL_CURRENT, 
+                              buff, sizeof(buff));
+        if (err)
+            return err;
+    } 
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
+    if ((offset < 0) || (buff[offset + 1] < 0xa))
+        return SIMPLE_ERR_BAD_RESP;
+    if (0 == (buff[offset + 2] & 2))
+        return 0;       /* already clear so nothing to do */
+    if (modese_len == 6)
+        err = scsiModeSense(device, CONTROL_MODE_PAGE, 
+                            MODE_PAGE_CONTROL_CHANGEABLE, 
+                            ch_buff, sizeof(ch_buff));
+    else
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
+                              MODE_PAGE_CONTROL_CHANGEABLE, 
+                              ch_buff, sizeof(ch_buff));
+    if (err)
+        return err;
+    if (0 == (ch_buff[offset + 2] & 2))
+        return SIMPLE_ERR_BAD_PARAM;  /* GLTSD bit not chageable */
+    
+    if (10 == modese_len) {
+            resp_len = (buff[0] << 8) + buff[1] + 2;
+            memset(buff, 0, 2);
+    } else {
+            resp_len = buff[0] + 1;
+            memset(buff, 0, 1);
+    }
+    sp = (buff[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
+    buff[offset] &= 0x7f;     /* mask off PS bit */
+    buff[offset + 2] &= 0xfd;   /* clear GLTSD bit in buff */
+    if (10 == modese_len)
+        err = scsiModeSelect10(device, sp, buff, resp_len);
+    else if (6 == modese_len)
+        err = scsiModeSelect(device, sp, buff, resp_len);
+    return err;
 }
 
 /* Returns a negative value if failed to fetch Protocol specific port mode 
@@ -1780,13 +1843,12 @@ int scsiFetchTransportProtocol(int device, int modese_len)
         if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
-            if (0 == err)
-                modese_len = 6;
-            else if (SIMPLE_ERR_BAD_OPCODE == err)
+            if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
             else
                 return -EINVAL;
-        }
+        } else if (0 == modese_len)
+            modese_len = 6;
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
