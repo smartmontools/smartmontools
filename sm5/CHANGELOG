@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.157 2003/06/19 19:34:43 ballen4705 Exp $
+$Id: CHANGELOG,v 1.158 2003/06/20 00:16:11 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -44,6 +44,10 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
   [BA] Made smartmontools work with any endian order machine for:
        - SMART selftest log
        - SMART ATA error log
+       - SMART Attributes values
+       - SMART Attributes thesholds
+       - IDENTIFY DEVICE information
+       - LOG DIRECTORY
 
   [DG] Check that certain SCSI command responses are well formed. If
        IEC mode page response is not well formed exit smartctl. This

@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.104 2003/06/19 19:34:43 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.105 2003/06/20 00:16:12 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -416,6 +416,22 @@ char *create_vendor_attribute_arg_list(void){
   return s;
 }
 
+// swap two bytes.  Point to low address
+void swap2(char *location){
+  char tmp=*location;
+  *location=*(location+1);
+  *(location+1)=tmp;
+  return;
+}
+
+// swap four bytes.  Point to low address
+void swap4(char *location){
+  char tmp=*location;
+  *location=*(location+3);
+  *(location+3)=tmp;
+  swap2(location+1);
+  return;
+}
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -658,6 +674,16 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
       return -1; 
     }
   }
+
+  if (isbigendian()){
+    unsigned short *alias=(unsigned short*)buf;
+    int i;
+    
+    // swap various capability words that are needed
+    swap2((char *)(alias+255)); 
+    for (i=80; i<=87; i++)
+      swap2((char *)(alias+i));
+  }
   
 #if 0
   // The following ifdef is a HACK to distinguish different versions
@@ -683,7 +709,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   
   if ((driveidchecksum & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
     checksumwarning("Drive Identity Structure");
-  
+ 
   return 0;
 }
 
@@ -802,25 +828,21 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Data Structure");
   
+  // byte swap if needed
+  if (isbigendian()){
+    int i;
+    swap2((char *)&(data->revnumber));
+    swap2((char *)&(data->total_time_to_complete_off_line));
+    swap2((char *)&(data->smart_capability));
+    for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+      struct ata_smart_attribute *x=data->vendor_attributes+i;
+      swap2((char *)&(x->status.all));
+    }
+  }
+
   return 0;
 }
 
-// swap two bytes.  Point to low address
-void swap2(char *location){
-  char tmp=*location;
-  *location=*(location+1);
-  *(location+1)=tmp;
-  return;
-}
-
-// swap four bytes.  Point to low address
-void swap4(char *location){
-  char tmp=*location;
-  *location=*(location+3);
-  *(location+3)=tmp;
-  swap2(location+1);
-  return;
-}
 
 // This corrects some quantities that are byte reversed in the SMART
 // SELF TEST LOG
@@ -876,7 +898,13 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
     return -1;
-  }  
+  }
+
+  // swap endian order if needed
+  if (isbigendian()){
+    swap2((char *)&(data->logversion));
+  }
+  
   return 0;
 }
 
@@ -950,6 +978,10 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Thresholds Structure");
   
+  // byte swap if needed
+  if (isbigendian())
+    swap2((char *)&(data->revnumber));
+
   return 0;
 }
 
