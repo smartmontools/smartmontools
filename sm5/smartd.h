@@ -23,13 +23,23 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.8 2002/10/25 14:15:05 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.9 2002/10/26 09:24:26 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
 #define CONFIGFILE "/etc/smartd.conf"
-#define MAXLINELEN 126
+#define MAXLINELEN 114
 #define MAXENTRIES 64
+
+// BAD PROGRAMMING PRACTICE - GLOBAL VARIABLES SHOULD BE IN .c NOT .h
+// FILE
+/* how often SMART status is checked, in seconds */
+int checktime = 1800;
+// number of ATA and SCSI devices being watched
+int numatadevices;
+int numscsidevices;
+#define MAXATADEVICES	12
+#define MAXSCSIDEVICES	26
 
 /* Defines for command line options */ 
 #define DEBUGMODE 		'X'
@@ -40,42 +50,32 @@
 #define TRUE 0x01
 #define FALSE 0x00
 
-#define MAXATADEVICES	12
-#define MAXSCSIDEVICES	26
-
 /* Global Variables for command line options */
+// These should go into a structure at some point
 unsigned char debugmode               = FALSE;
 unsigned char emailnotification       = FALSE;
 unsigned char printcopyleft           = FALSE;
 
-/* Number of ata device to scan */
-int numatadevices;
-int numscsidevices;
-
-
-/* how often SMART is checks in seconds */
-int checktime = 1800;
-
 typedef struct atadevices_s {
 	int fd;
-	char devicename[14];
 	int selftest;
 	struct hd_driveid drive;
 	struct ata_smart_values smartval;
 	struct ata_smart_thresholds smartthres;
+	char devicename[MAXLINELEN+2];
 }  atadevices_t;
 
 typedef struct scsidevices_s {
 	int fd;
-	char devicename[14];
 	unsigned char SmartPageSupported;
 	unsigned char TempPageSupported;
 	unsigned char Temperature;
+	char devicename[MAXLINELEN+2];
 } scsidevices_t;
 
 typedef struct configfile_s {
-  char name[MAXLINELEN+2];
+  int lineno;
   int tryata;
   int tryscsi;
-  int lineno;
+  char name[MAXLINELEN+2];  // really only needs to be +1
 } cfgfile;
