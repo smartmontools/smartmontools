@@ -163,3 +163,7 @@ ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_
 197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       0
 198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       0
 -----------------------------------------------------------------------------------------------
+
+
+This document is version $Id: BadBlockHowTo.txt,v 1.3 2004/03/02 20:43:56 ballen4705 Exp $
+It is Copyright Bruce Allen (2004) and distributed under GPL2.
