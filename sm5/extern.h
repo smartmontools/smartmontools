@@ -1,4 +1,4 @@
-//  $Id: extern.h,v 1.2 2002/10/11 09:20:32 ballen4705 Exp $
+//  $Id: extern.h,v 1.3 2002/10/12 11:10:01 ballen4705 Exp $
 /*
  * extern.h
  *
@@ -37,5 +37,6 @@ extern unsigned char smartautoofflineenable;
 extern unsigned char smartautoofflinedisable;
 extern unsigned char smartautosaveenable;
 extern unsigned char smartautosavedisable;
+extern unsigned char smart009minutes;
 
 #endif

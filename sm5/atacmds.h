@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.8 2002/10/11 12:48:27 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.9 2002/10/12 11:10:01 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -97,6 +97,9 @@
 #ifndef HDIO_DRIVE_TASK_HDR_SIZE
 #define HDIO_DRIVE_TASK_HDR_SIZE	7
 #endif
+
+
+
 
 /* Smart Values Data Structures */
 
@@ -236,66 +239,40 @@ struct ata_smart_selftestlog {
 
 
 /* Read S.M.A.R.T information from drive */
-
-
 int ataReadHDIdentity (int device, struct hd_driveid *buf);
-
 int ataReadSmartValues (int device,struct ata_smart_values *);
-
 int ataReadSmartThresholds (int device, struct ata_smart_thresholds *);
-
 int ataReadErrorLog ( int device, struct ata_smart_errorlog *);
-
 int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *);
-
 int ataSmartStatus ( int device);
-
 int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *);
 
-
 /* Enable/Disable SMART on device */
-
 int ataEnableSmart ( int device );
-
 int ataDisableSmart (int device );
-
 int ataEnableAutoSave(int device);
-
 int ataDisableAutoSave(int device);
 
 /* Automatic Offline Testing */
-
 int ataEnableAutoOffline ( int device );
-
 int ataDisableAutoOffline (int device );
 
 
 /* S.M.A.R.T. test commands */
-
 int ataSmartOfflineTest (int device);
-
 int ataSmartExtendSelfTest (int device);
-
 int ataSmartShortSelfTest (int device);
-
 int ataSmartShortCapSelfTest (int device);
-
 int ataSmartExtendCapSelfTest (int device);
-
 int ataSmartSelfTestAbort (int device);
 
 /*Check Parameters of Smart Data */
 
 
 
-/* int ataVersionInfo ( struct hd_driveid drive) 
-*  Returns the latest compatibility of ATA/ATAPI Version  
-*  the device supports								
-* Returns -1 if Version command is not supported
-*/
- 
-int ataVersionInfo ( struct hd_driveid drive);
-
+// Returns the latest compatibility of ATA/ATAPI Version the device
+// supports. Returns -1 if Version command is not supported
+int ataVersionInfo (const char **description, struct hd_driveid drive);
 
 
 /*  int ataSmartSupport ( int device, struct hd_driveid drive)

@@ -69,12 +69,17 @@ To install, use the commands:
 The tools require Linux kernel 2.2.14 or greater in order to run. Any
 recent Linux distribution should support this package.
  
-The files installed are:
-/usr/sbin/smartd                   [Executable daemon]
-/usr/sbin/smartctl                 [Executable command-line utility]
-/etc/rc.d/init.d/smartd            [Init/Startup script for smartd]
-/usr/share/man/man8/smartctl.8.gz  [Manual page]
-/usr/share/man/man8/smartd.8.gz    [Manual page]
+Ten files are installed:
+/usr/sbin/smartd                           [Executable daemon]
+/usr/sbin/smartctl                         [Executable command-line utility]
+/etc/rc.d/init.d/smartd                    [Init/Startup script for smartd]
+/usr/share/man/man8/smartctl.8.gz          [Manual page]
+/usr/share/man/man8/smartd.8.gz            [Manual page]
+/usr/share/doc/smartmontools-5.0/README    [What you are reading!]
+/usr/share/doc/smartmontools-5.0/TODO      [Things that need to be done/fixed]
+/usr/share/doc/smartmontools-5.0/CHANGELOG [A log of changes -- but we'll use CVS]
+/usr/share/doc/smartmontools-5.0/COPYING   [GNU Public License.] 
+/usr/share/doc/smartmontools-5.0/VERSION   [Version number -- don't ask!]
 
 Source and binary RPM files are available at the website listed above.
 
@@ -102,6 +107,9 @@ v	Prints only the vendor specific S.M.A.R.T. attributes & thresholds
 l	Prints only the S.M.A.R.T. error log
 L       Prints only the S.M.A.R.T. self-test log
 a	Prints all parameters for i,c,g,v,t,l,L
+
+Modify Display for Vendor-specific S.M.A.R.T. Raw Attribute Data:
+m       Converts Raw Attribute-009 from minutes to hours (Hitachi)
 
 Enable/Disable commands:
 e	Enables S.M.A.R.T. on device
@@ -172,4 +180,4 @@ Fax: (408) 867-2115
 E-Mail: 250-1752@mcimail.com.
 
 
-$Id: README,v 1.4 2002/10/11 09:20:32 ballen4705 Exp $
+$Id: README,v 1.5 2002/10/12 11:10:01 ballen4705 Exp $
