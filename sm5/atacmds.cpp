@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.155 2004/07/10 22:16:32 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.156 2004/07/13 14:48:06 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -678,9 +678,14 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
     int i;
     
     // swap various capability words that are needed
-    swap2((char *)(rawshort+255)); 
+    for (i=0; i<33; i++)
+      swap2((char *)(buf->words047_079+i));
+    
     for (i=80; i<=87; i++)
       swap2((char *)(rawshort+i));
+    
+    for (i=0; i<168; i++)
+      swap2((char *)(buf->words088_255+i));
   }
   
   // If there is a checksum there, validate it
