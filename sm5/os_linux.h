@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.15 2004/07/09 16:41:09 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.16 2004/07/09 19:24:05 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -101,6 +101,8 @@ typedef struct TAG_TW_Passthru {
 #define TW_IOCTL                 0x80
 #define TW_ATA_PASSTHRU          0x1e
 
+// Adam -- should this be #pramga packed? Otherwise table_align gets
+// moved for byte alignment
 typedef struct TAG_TW_Ioctl { 
   int input_length;
   int output_length;
@@ -120,12 +122,11 @@ typedef struct TAG_TW_Ioctl {
 
 /* Ioctl buffer output -- SCSI interface only! */
 typedef struct TAG_TW_Output {
-  // CHECKME - is padding right on machines with 8-byte INTEGERS??
   int padding[2];
   char output_data[512];
 } TW_Output; 
 
-// needed for 9000 char interface only
+// What follows is needed for 9000 char interface only
 
 #define TW_IOCTL_FIRMWARE_PASS_THROUGH 0x108
 #define TW_MAX_SGL_LENGTH_9000 61
