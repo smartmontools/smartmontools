@@ -93,21 +93,18 @@
 ! 
 ! 					ksw / SAWADA Keiji
 ! 					<card_captor@users.sourceforge.net>
-	.file	"os_solaris_ata.s"
-        .global os_solaris_ata_s_cvsid
-
+	.file	"solaris-ata-in.c"
 	.section	".rodata"
-        .align 8
+	.align 8
 .LLC0:
-	.asciz	"$Id: os_solaris_ata.s,v 1.2 2004/02/13 17:29:09 ballen4705 Exp $"
-
+	.asciz	"$Id: os_solaris_ata.s,v 1.3 2005/02/05 15:02:52 card_captor Exp $"
+	.global os_solaris_ata_s_cvsid
 	.section	".data"
 	.align 4
-	.type	 os_solaris_ata_s_cvsid,#object
-	.size	 os_solaris_ata_s_cvsid,4
+	.type	os_solaris_ata_s_cvsid, #object
+	.size	os_solaris_ata_s_cvsid, 4
 os_solaris_ata_s_cvsid:
-	.uaword	.LLC0
-	
+	.long	.LLC0
 	.section	".text"
 	.align 4
 	.type	ata_cmd, #function
@@ -122,7 +119,7 @@ ata_cmd:
 	st	%i3, [%fp+80]
 	st	%i4, [%fp+84]
 	st	%i5, [%fp+88]
-	ld	[%fp+88], %g1
+	ld	[%fp+92], %g1
 	st	%g1, [%fp-76]
 	ld	[%fp-76], %g1
 	and	%g1, 3, %g1
@@ -146,13 +143,13 @@ ata_cmd:
 	mov	16, %o2
 	call	memset, 0
 	 nop
-	ldub	[%fp+75], %g1
+	ld	[%fp+72], %g1
 	stb	%g1, [%fp-72]
 	mov	1, %g1
 	stb	%g1, [%fp-71]
 	mov	1, %g1
 	stb	%g1, [%fp-70]
-	ldub	[%fp+79], %g1
+	ld	[%fp+76], %g1
 	stb	%g1, [%fp-69]
 	ld	[%fp+84], %g1
 	sll	%g1, 9, %g1
@@ -161,7 +158,7 @@ ata_cmd:
 	st	%g1, [%fp-60]
 	mov	10, %g1
 	sth	%g1, [%fp-52]
-	ld	[%fp+84], %g1
+	ld	[%fp+88], %g1
 	cmp	%g1, 0
 	be	.LL3
 	nop
@@ -175,17 +172,17 @@ ata_cmd:
 .LL4:
 	ld	[%fp-84], %g1
 	st	%g1, [%fp-48]
-	ld	[%fp+84], %g1
+	ld	[%fp+88], %g1
 	sll	%g1, 9, %g1
 	st	%g1, [%fp-44]
-	ld	[%fp+84], %g1
+	ld	[%fp+88], %g1
 	sll	%g1, 9, %g1
 	st	%g1, [%fp-40]
-	ld	[%fp+84], %g1
+	ld	[%fp+88], %g1
 	cmp	%g1, 0
 	be	.LL5
 	nop
-	ld	[%fp+88], %g1
+	ld	[%fp+92], %g1
 	st	%g1, [%fp-88]
 	b	.LL6
 	 nop
@@ -215,17 +212,18 @@ ata_cmd:
 	.proc	04
 ata_identify:
 	!#PROLOGUE# 0
-	save	%sp, -640, %sp
+	save	%sp, -648, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
 	add	%fp, -536, %g1
+	st	%g1, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	236, %o1
 	mov	0, %o2
 	mov	0, %o3
 	mov	1, %o4
-	mov	%g1, %o5
+	mov	1, %o5
 	call	ata_cmd, 0
 	 nop
 	mov	%o0, %g1
@@ -258,17 +256,18 @@ ata_identify:
 	.proc	04
 ata_pidentify:
 	!#PROLOGUE# 0
-	save	%sp, -640, %sp
+	save	%sp, -648, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
 	add	%fp, -536, %g1
+	st	%g1, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	161, %o1
 	mov	0, %o2
 	mov	0, %o3
 	mov	1, %o4
-	mov	%g1, %o5
+	mov	1, %o5
 	call	ata_cmd, 0
 	 nop
 	mov	%o0, %g1
@@ -301,17 +300,19 @@ ata_pidentify:
 	.proc	04
 smart_read_data:
 	!#PROLOGUE# 0
-	save	%sp, -640, %sp
+	save	%sp, -648, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
-	add	%fp, -536, %o5
+	add	%fp, -536, %g1
+	st	%g1, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	208, %o2
 	sethi	%hi(12733440), %g1
-	or	%g1, 769, %o3
-	mov	1, %o4
+	or	%g1, 768, %o3
+	mov	0, %o4
+	mov	1, %o5
 	call	ata_cmd, 0
 	 nop
 	mov	%o0, %g1
@@ -344,17 +345,19 @@ smart_read_data:
 	.proc	04
 smart_read_thresholds:
 	!#PROLOGUE# 0
-	save	%sp, -640, %sp
+	save	%sp, -648, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
-	add	%fp, -536, %o5
+	add	%fp, -536, %g1
+	st	%g1, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	209, %o2
 	sethi	%hi(12733440), %g1
 	or	%g1, 769, %o3
 	mov	1, %o4
+	mov	1, %o5
 	call	ata_cmd, 0
 	 nop
 	mov	%o0, %g1
@@ -387,20 +390,17 @@ smart_read_thresholds:
 	.proc	04
 smart_auto_save:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
-	ld	[%fp+72], %g1
-	and	%g1, 255, %o5
-	sethi	%hi(12733440), %g1
-	or	%g1, 768, %g1
-	or	%o5, %g1, %g1
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	210, %o2
-	mov	%g1, %o3
-	mov	0, %o4
+	sethi	%hi(12733440), %g1
+	or	%g1, 768, %o3
+	ld	[%fp+72], %o4
 	mov	0, %o5
 	call	ata_cmd, 0
 	 nop
@@ -428,7 +428,7 @@ smart_auto_save:
 	.proc	04
 smart_immediate_offline:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
@@ -437,6 +437,7 @@ smart_immediate_offline:
 	sethi	%hi(12733440), %g1
 	or	%g1, 768, %g1
 	or	%o5, %g1, %g1
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	212, %o2
@@ -475,62 +476,36 @@ smart_read_log:
 	st	%i1, [%fp+72]
 	st	%i2, [%fp+76]
 	st	%i3, [%fp+80]
-	ld	[%fp+76], %g1
-	sll	%g1, 9, %g1
-	mov	%g1, %o0
-	call	malloc, 0
-	 nop
-	mov	%o0, %g1
-	st	%g1, [%fp-24]
-	ld	[%fp-24], %g1
-	cmp	%g1, 0
-	bne	.LL26
-	nop
-	mov	-1, %g1
-	st	%g1, [%fp-28]
-	b	.LL25
-	 nop
-.LL26:
 	ld	[%fp+72], %g1
 	and	%g1, 255, %o5
 	sethi	%hi(12733440), %g1
 	or	%g1, 768, %g1
-	or	%o5, %g1, %g1
+	or	%o5, %g1, %o5
+	ld	[%fp+80], %g1
+	st	%g1, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	213, %o2
-	mov	%g1, %o3
+	mov	%o5, %o3
 	ld	[%fp+76], %o4
-	ld	[%fp-24], %o5
+	ld	[%fp+76], %o5
 	call	ata_cmd, 0
 	 nop
 	mov	%o0, %g1
 	st	%g1, [%fp-20]
-	ld	[%fp+76], %g1
-	sll	%g1, 9, %g1
-	ld	[%fp+80], %o0
-	ld	[%fp-24], %o1
-	mov	%g1, %o2
-	call	memcpy, 0
-	 nop
-	ld	[%fp-24], %o0
-	call	free, 0
-	 nop
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL27
+	be	.LL26
 	nop
 	mov	-1, %g1
-	st	%g1, [%fp-32]
-	b	.LL28
+	st	%g1, [%fp-24]
+	b	.LL27
 	 nop
+.LL26:
+	st	%g0, [%fp-24]
 .LL27:
-	st	%g0, [%fp-32]
-.LL28:
-	ld	[%fp-32], %g1
-	st	%g1, [%fp-28]
-.LL25:
-	ld	[%fp-28], %i0
+	ld	[%fp-24], %g1
+	mov	%g1, %i0
 	ret
 	restore
 	.size	smart_read_log, .-smart_read_log
@@ -540,14 +515,15 @@ smart_read_log:
 	.proc	04
 smart_enable:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	216, %o2
 	sethi	%hi(12733440), %g1
-	or	%g1, 769, %o3
+	or	%g1, 768, %o3
 	mov	0, %o4
 	mov	0, %o5
 	call	ata_cmd, 0
@@ -556,15 +532,15 @@ smart_enable:
 	st	%g1, [%fp-20]
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL30
+	be	.LL29
 	nop
 	mov	-1, %g1
 	st	%g1, [%fp-24]
-	b	.LL31
+	b	.LL30
 	 nop
-.LL30:
+.LL29:
 	st	%g0, [%fp-24]
-.LL31:
+.LL30:
 	ld	[%fp-24], %g1
 	mov	%g1, %i0
 	ret
@@ -576,14 +552,15 @@ smart_enable:
 	.proc	04
 smart_disable:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	217, %o2
 	sethi	%hi(12733440), %g1
-	or	%g1, 769, %o3
+	or	%g1, 768, %o3
 	mov	0, %o4
 	mov	0, %o5
 	call	ata_cmd, 0
@@ -592,15 +569,15 @@ smart_disable:
 	st	%g1, [%fp-20]
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL33
+	be	.LL32
 	nop
 	mov	-1, %g1
 	st	%g1, [%fp-24]
-	b	.LL34
+	b	.LL33
 	 nop
-.LL33:
+.LL32:
 	st	%g0, [%fp-24]
-.LL34:
+.LL33:
 	ld	[%fp-24], %g1
 	mov	%g1, %i0
 	ret
@@ -612,14 +589,15 @@ smart_disable:
 	.proc	04
 smart_status:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	218, %o2
 	sethi	%hi(12733440), %g1
-	or	%g1, 769, %o3
+	or	%g1, 768, %o3
 	mov	0, %o4
 	mov	0, %o5
 	call	ata_cmd, 0
@@ -628,15 +606,15 @@ smart_status:
 	st	%g1, [%fp-20]
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL36
+	be	.LL35
 	nop
 	mov	-1, %g1
 	st	%g1, [%fp-24]
-	b	.LL37
+	b	.LL36
 	 nop
-.LL36:
+.LL35:
 	st	%g0, [%fp-24]
-.LL37:
+.LL36:
 	ld	[%fp-24], %g1
 	mov	%g1, %i0
 	ret
@@ -648,14 +626,15 @@ smart_status:
 	.proc	04
 smart_status_check:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	218, %o2
 	sethi	%hi(12733440), %g1
-	or	%g1, 769, %o3
+	or	%g1, 768, %o3
 	mov	0, %o4
 	mov	0, %o5
 	call	ata_cmd, 0
@@ -664,15 +643,15 @@ smart_status_check:
 	st	%g1, [%fp-20]
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL39
+	be	.LL38
 	nop
 	mov	-1, %g1
 	st	%g1, [%fp-24]
-	b	.LL38
+	b	.LL37
 	 nop
-.LL39:
-	st	%g0, [%fp-24]
 .LL38:
+	st	%g0, [%fp-24]
+.LL37:
 	ld	[%fp-24], %i0
 	ret
 	restore
@@ -683,20 +662,17 @@ smart_status_check:
 	.proc	04
 smart_auto_offline:
 	!#PROLOGUE# 0
-	save	%sp, -120, %sp
+	save	%sp, -128, %sp
 	!#PROLOGUE# 1
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
-	ld	[%fp+72], %g1
-	and	%g1, 255, %o5
-	sethi	%hi(12733440), %g1
-	or	%g1, 768, %g1
-	or	%o5, %g1, %g1
+	st	%g0, [%sp+92]
 	ld	[%fp+68], %o0
 	mov	176, %o1
 	mov	219, %o2
-	mov	%g1, %o3
-	mov	0, %o4
+	sethi	%hi(12733440), %g1
+	or	%g1, 768, %o3
+	ld	[%fp+72], %o4
 	mov	0, %o5
 	call	ata_cmd, 0
 	 nop
@@ -704,18 +680,18 @@ smart_auto_offline:
 	st	%g1, [%fp-20]
 	ld	[%fp-20], %g1
 	cmp	%g1, 0
-	be	.LL41
+	be	.LL40
 	nop
 	mov	-1, %g1
 	st	%g1, [%fp-24]
-	b	.LL42
+	b	.LL41
 	 nop
-.LL41:
+.LL40:
 	st	%g0, [%fp-24]
-.LL42:
+.LL41:
 	ld	[%fp-24], %g1
 	mov	%g1, %i0
 	ret
 	restore
 	.size	smart_auto_offline, .-smart_auto_offline
-	.ident	"GCC: (GNU) 3.3.2"
+	.ident	"GCC: (GNU) 3.4.2"
