@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.10 2002/10/11 12:15:49 ballen4705 Exp $
+# $Id: Makefile,v 1.11 2002/10/11 12:19:00 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -19,7 +19,7 @@ CFLAGS	= -fsigned-char -Wall -O2
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO
+  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
