@@ -48,7 +48,7 @@
 
 extern long long bytes;
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.10 2003/12/10 11:30:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.11 2003/12/29 15:45:06 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -278,6 +278,10 @@ int deviceclose(int fd){
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
+  // avoid gcc warnings//
+  fd=command=select=0;
+  data=NULL;
+
   if (printwarning(0))
     return -1;
   return -1;
@@ -285,6 +289,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
+  // avoid gcc warnings//
+  fd=disknum=command=select=0;
+  data=NULL;
+
   if (printwarning(1))
     return -1;
   return -1;
@@ -307,7 +315,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
 
         np = scsi_get_opcode_name(ucp[0]);
         pout(" [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < iop->cmnd_len; ++k)
+        for (k = 0; k < (int)iop->cmnd_len; ++k)
             pout("%02x ", ucp[k]);
         if ((report > 1) && 
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
