@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.85 2003/04/25 22:31:41 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.86 2003/06/12 21:16:39 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -451,7 +451,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
     
     // consider only valid attributes
     if (disk->id && thre->id){
-      char *type;
+      char *type, *update;
       int failednow,failedever;
       char attributename[64];
 
@@ -471,7 +471,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	  pout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
 	  pout("Vendor Specific SMART Attributes with Thresholds:\n");
 	}
-	pout("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE     WHEN_FAILED RAW_VALUE\n");
+	pout("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n");
 	needheader=0;
       }
       
@@ -482,16 +482,18 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	status="In_the_past";
       else
 	status="    -";
-      
+
       // Print name of attribute
       ataPrintSmartAttribName(attributename,disk->id, con->attributedefs[disk->id]);
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
       type=disk->status.flag.prefailure?"Pre-fail":"Old_age";
-      pout("0x%04x   %.3d   %.3d   %.3d    %-9s%-12s", 
+      update=disk->status.flag.online?"Always":"Offline";
+
+      pout("0x%04x   %.3d   %.3d   %.3d    %-10s%-9s%-12s", 
 	     (int)disk->status.all, (int)disk->current, (int)disk->worst,
-	     (int)thre->threshold, type, status);
+	     (int)thre->threshold, type, update, status);
 
       // print raw value of attribute
       ataPrintSmartAttribRawValue(rawstring, disk, con->attributedefs);
