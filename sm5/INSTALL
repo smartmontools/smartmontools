@@ -81,6 +81,73 @@ The following files are installed:
 /usr/share/doc/smartmontools-5.1/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
+
+DETAILED DESCRIPTION OF ARGUMENTS TO CONFIGURE COMMAND
+======================================================
+
+When you type:
+./configure [options]
+there are five particularly important variables that affect where the
+smartmontools software is installed.  The variables are listed here,
+with their default values in square brackets, and the quantities that
+they affect described following that.
+
+OPTIONS        DEFAULT             AFFECTS
+-------        -------             -------
+--sbindir      [/usr/sbin]         directory for smartd/smartctl executables;
+                                   contents of smartd/smartctl man pages
+--sysconfdir   [/etc]              directory for smartd.conf;
+                                   contents of smartd executable;
+                                   contents of smartd/smartd.conf man pages;
+                                   directory for rc.d/init.d/smartd init script
+--datadir      [/usr/share]        directory for doc/ directory; 
+                                   contents of smartd/smartd.conf man pages
+--mandir       [/usr/share/man]    directory for smartctl/smartd/smartd.conf man pages
+--prefix       [no default value]  See below, please
+
+If you set --prefix and NONE of the other four variables, for example:
+./configure --prefix=/home/joe
+then the DEFAULT paths will ALL have prefix appended to them. For
+example, if you set --prefix=/home/joe and none of the other four
+variables then the different directories that are used will be:
+--sbindir      [/home/joe/usr/sbin]
+--sysconfdir   [/home/joe/etc]
+--datadir      [/home/joe/usr/share]
+--mandir       [/home/joe/usr/share/man]
+This is useful for test installs in a harmless subdirectory somewhere.
+
+Here are the four possible cases for the four variables above:
+
+Case 1:
+--prefix not set
+--variable not set
+===> VARIABLE gets default value above
+
+Case 2:
+--prefix set
+--variable not set
+===> VARIABLE gets PREFIX/ appended to default value above
+
+Case 3:
+--prefix not set
+--variable set
+===> VARIABLE gets value that is set
+
+Case 4:
+--prefix is set
+--variable is set
+===> PREFIX is IGNORED, VARIABLE gets value that is set
+
+
+For Filesystem Hierarchy Standard (FHS) installation locations, please use:
+--sbindir=     /usr/local/sbin
+--sysconfidir= /usr/local/etc
+--datadir=     /usr/local/share
+--mandir=      /usr/local/share/man
+In this case, there is no need to set a value for --prefix: if you set a value of --prefix it will be ignored
+
+
+
 Follows the standard INSTALL file from GNU Automake.
 
 
