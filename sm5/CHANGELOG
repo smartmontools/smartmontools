@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.29 2002/10/29 17:50:58 ballen4705 Exp $
+$Id: CHANGELOG,v 1.30 2002/10/29 23:18:29 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,7 +26,18 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-smartmontools-5.0.VERSION
+
+smartmontools-5.0.21
+
+    smartd, smartctl now warn if they find an attribute whose ID
+    number does not match between Data and Threshold structures.
+
+    Fixed nasty bug which led to wrong number of arguments for a
+    varargs statement, with attendent stack corruption.  Sheesh!
+    Have added script to CVS attic to help find such nasties in the
+    future.
+
+smartmontools-5.0.21
 
     Eliminated some global variables out of header files and other
     minor cleanup of smartd.
