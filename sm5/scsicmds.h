@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.28 2003/05/11 22:46:40 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.29 2003/06/01 12:36:12 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -247,7 +247,8 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen);
 
 int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
 
-int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
+                 int known_resp_len);
 
 int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 

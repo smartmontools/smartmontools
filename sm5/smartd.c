@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.164 2003/05/12 18:34:39 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.165 2003/06/01 12:42:30 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -833,7 +833,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 
     // Flag that certain log pages are supported (information may be
     // available from other sources).
-    if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf))) {
+    if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf), 0)) {
         for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
             switch (tBuf[k]) { 
                 case TEMPERATURE_PAGE:
