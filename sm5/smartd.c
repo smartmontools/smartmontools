@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.265 2003/12/10 13:52:06 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.266 2003/12/10 21:59:42 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1393,7 +1393,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
     return 0;
   
   // never do a second test in the same hour as another test
-  hours=1+timenow.tm_hour+24*timenow.tm_yday;
+  hours=1+timenow.tm_hour+24*(timenow.tm_yday+366*(timenow.tm_year % 7));
   if (hours==dat->hour) {
     if (testtype!=dat->testtype)
       PrintOut(LOG_INFO, "Device: %s, did test of type %c qin current hour, skipping test of type %c\n",

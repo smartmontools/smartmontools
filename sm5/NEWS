@@ -1,14 +1,20 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.13 2003/11/28 23:42:04 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.14 2003/12/10 21:59:42 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
+Date: 
+Summary: smartmontools release 5.27
+-----------------------------------
+A new Directive (-s) for smartd.conf now enables flexible automatic
+scheduled self-testing for both ATA and SCSI devices.
+
 Date: 2003-11-29
 Summary: smartmontools release 5.26
 -----------------------------------
-This is intended to be a stable release.
+This is a stable smartmontools release, with no known problems.
 
 Date: 2003-11-19
 Summary: smartmontools release 5.25
