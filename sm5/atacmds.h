@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.2 2002/10/10 13:21:15 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -128,7 +128,7 @@ struct ata_smart_attribute {
 
 
 
-/* ata_smart_values is format of the read drive Atrribute command */
+/* ata_smart_values is format of the read drive Attribute command */
 /* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */
 struct ata_smart_values {
   unsigned short int revnumber;
@@ -228,7 +228,7 @@ struct ata_smart_selftestlog {
 	struct ata_smart_selftestlog_struct selftest_struct[21];
 	unsigned char vendorspecific[2];
 	unsigned char mostrecenttest;
-	unsigned char resevered[2];
+	unsigned char reserved[2];
 	unsigned char chksum;
 } __attribute__ ((packed));
 
@@ -300,7 +300,7 @@ int ataVersionInfo ( struct hd_driveid drive);
 
 /*  int ataSmartSupport ( int device, struct hd_driveid drive)
 *   Check if S.M.A.R.T. is supported and enabled in drive 
-*	returns -1:if S.M.A.R.T. cabability can not be checked
+*	returns -1:if S.M.A.R.T. capability can not be checked
 *	returns	0: if drive does not support S.M.A.R.T.
 *			1: if drive supports S.M.A.R.T. but not enabled 
 *			2: if drive supports S.M.A.R.T. and enabled 

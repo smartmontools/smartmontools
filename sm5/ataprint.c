@@ -1,4 +1,4 @@
-//  $Id: ataprint.c,v 1.2 2002/10/10 21:36:47 ballen4705 Exp $
+//  $Id: ataprint.c,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -143,7 +143,7 @@ void PrintSmartSelfExecStatus ( struct ata_smart_values data)
           printf ("the read element of the test failed\n");
           break;
        case 15:
-          printf ("(%4d)\tSelf-test routine in progess\n\t\t\t\t\t",
+          printf ("(%4d)\tSelf-test routine in progress\n\t\t\t\t\t",
                   data.self_test_exec_status);
           printf ("%1d0%% of test remaining\n", 
                   data.self_test_exec_status & 0x0f);
@@ -205,7 +205,7 @@ void PrintSmartOfflineCollectCap ( struct ata_smart_values data)
 
 void PrintSmartCapability ( struct ata_smart_values data)
 {
-   printf ("Smart Capablilities:           ");
+   printf ("Smart Capabilities:           ");
    printf ("(0x%04x)\t", data.smart_capability);
    
    if (data.smart_capability == 0x00)
@@ -368,7 +368,7 @@ void ataPrintSmartThresholds (struct ata_smart_thresholds data)
    for ( i = 0 ; i < 30 ; i++)
    {
       if (data.thres_entries[i].id != 0)	
-          printf ("Atrribute %3i threshold: %02x (%2i)\n", 
+          printf ("Attribute %3i threshold: %02x (%2i)\n", 
                    data.thres_entries[i].id, 
                    data.thres_entries[i].threshold, 
                    data.thres_entries[i].threshold);
@@ -426,7 +426,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
   printf(  "ER  = Error register\n");
   printf(  "STA = Status register\n\n");
   printf(  "Timestamp is time (in seconds) since the command that caused an error was accepted,\n");
-  printf(  "measured from the time the disk was powered-on, during the session when the error occured.\n");
+  printf(  "measured from the time the disk was powered-on, during the session when the error occurred.\n");
   printf(  "Note: timestamp \"wraps\" after 1193.046 hours = 49.710 days = 2^32 seconds.\n");
   
   // now step through the five error log data structures (table 39 of spec)
@@ -448,10 +448,10 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
       }
       printf("\nError Log Structure %i:\n",5-k);
       // See table 42 of ATA5 spec
-      printf("Error occured at disk power-on lifetime: %u hours\n",
+      printf("Error occurred at disk power-on lifetime: %u hours\n",
 	     data.errorlog_struct[i].error_struct.timestamp);
-      printf("When the command that caused the error occured, the  device was %s.\n",msgstate);
-      printf("After command completion occured, registers were:\n");
+      printf("When the command that caused the error occurred, the device was %s.\n",msgstate);
+      printf("After command completion occurred, registers were:\n");
       printf("ER:%02x SC:%02x SN:%02x CL:%02x CH:%02x D/H:%02x ST:%02x\n",
 	     data.errorlog_struct[i].error_struct.error_register,
 	     data.errorlog_struct[i].error_struct.sector_count,
@@ -608,7 +608,7 @@ void ataPrintSmartAttribName ( unsigned char id )
          printf("(  7)Seek Error Rate        ");
          break;
       case 8:
-         printf("(  8)Seek Time Preformance  ");
+         printf("(  8)Seek Time Peformance  c");
          break;
       case 9:
          printf("(  9)Power On Hours         ");
@@ -733,19 +733,19 @@ void ataPrintMain ( int fd )
    if ( smartautosavedisable ){
      if (ataDisableAutoSave(fd) != 0)
        {
-	 printf( "Smartctl: Smart Disable Atribute Autosave Failed\n");
+	 printf( "Smartctl: Smart Disable Attribute Autosave Failed\n");
 	 exit(-1);
        }     
-     printf("S.M.A.R.T. Atribute Autosave Disabled\n");
+     printf("S.M.A.R.T. Attribute Autosave Disabled\n");
    }
 	
    if ( smartautosaveenable ){
      if (ataEnableAutoSave(fd) != 0)
        {
-	 printf( "Smartctl: Smart Enable Atribute Autosave Failed\n");
+	 printf( "Smartctl: Smart Enable Attribute Autosave Failed\n");
 	 exit(-1);
        } 
-     printf("S.M.A.R.T. Atribute Autosave Enabled\n");
+     printf("S.M.A.R.T. Attribute Autosave Enabled\n");
    }
 
    /* for everything else read values and thresholds 
@@ -759,15 +759,15 @@ void ataPrintMain ( int fd )
 
    if ( ataReadSmartThresholds ( fd, &smartthres) != 0 )
    {
-      printf("Smartctl: Smart THresholds Read Failed\n");
+      printf("Smartctl: Smart Thresholds Read Failed\n");
       exit (-1); 
    }
 	
    if ( checksmart )
    {
 	/* pseudo is used because linux does not support access to
-	   Task Fiule registers */
-
+	   Task File registers */
+	// I am very confused by this comment.  Does anyone get it?  Bruce
       ataPsuedoCheckSmart ( smartval , smartthres);
 
    }
@@ -929,7 +929,7 @@ void ataPrintMain ( int fd )
 
         if ( ataSmartExtendSelfTest (fd) != 0) 
         {
-           printf( "S.M.A.R.T. Extendend Self Test Failed\n");
+           printf( "S.M.A.R.T. Extended Self Test Failed\n");
            exit(-1);
         }
 		
@@ -952,7 +952,7 @@ void ataPrintMain ( int fd )
 
          if ( ataSmartExtendCapSelfTest (fd) != 0) 
          {
-            printf( "S.M.A.R.T. Extendend Self Test Failed\n");
+            printf( "S.M.A.R.T. Extended Self Test Failed\n");
             exit(-1);
          }
 		

@@ -1,4 +1,4 @@
-//  $Id: ataprint.h,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: ataprint.h,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
 
 /*
  * ataprint.c
@@ -24,7 +24,7 @@
 #include "atacmds.h"
 
 
-/* Print Formart of Structures for SMART information */
+/* Print Format of Structures for SMART information */
 
 
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */

@@ -1,4 +1,4 @@
-//  $Id: smartctl.c,v 1.2 2002/10/10 13:21:15 ballen4705 Exp $
+//  $Id: smartctl.c,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -60,7 +60,7 @@ void Usage ( void){
 
   printf( "smartctl version %i.%i - S.M.A.R.T. Control Program\n", 
 	  VERSION_MAJOR, VERSION_MINOR);
-  printf("Home page of project is " PROJECTHOME "/\n\n");
+  printf("Home page of project is " PROJECTHOME "\n\n");
   printf( "usage: smartctl -[options] [device]\n");
   printf( "Read Only Options:\n");
   printf( "\t\t%c\t\tPrint Copyright and License information\n", 
@@ -231,7 +231,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.2 2002/10/10 13:21:15 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $");
     exit(0);
  }
 

@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.6 2002/10/10 20:17:46 ballen4705 Exp $
+# $Id: Makefile,v 1.7 2002/10/11 00:38:22 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
@@ -38,7 +38,7 @@ scsicmds.o: scsicmds.h scsicmds.c
 	${CC} ${CFLAGS} -c scsicmds.c
 
 clean:
-	rm -f *.o smartctl smartd *~ smartmontools*.tar.gz smartmontools*.rpm
+	rm -f *.o smartctl smartd *~ #*# smartmontools*.tar.gz smartmontools*.rpm
 
 install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
