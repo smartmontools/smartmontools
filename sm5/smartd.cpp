@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.255 2003/12/02 05:54:01 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.256 2003/12/02 13:48:37 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1297,11 +1297,13 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // start by finding out the time:
   struct tm timenow;
   time_t epochnow;
-  char matchpattern[64];
+  char matchpattern[16];
   regex_t compiled;
   int retval=0;
   unsigned short hours;
-  
+  regmatch_t substring;
+  int weekday;
+
   if (!cfg->testregexp)
     return retval;
   
@@ -1315,23 +1317,38 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   if (hours==cfg->selftesthour)
     return 0;
   
-  sprintf(matchpattern, "/%c/%02d/%02d/%1d/%02d/", testtype, timenow.tm_mon+1, 
-	  timenow.tm_mday, timenow.tm_wday+1, timenow.tm_hour);
+  // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
+  // (Sunday).
+  weekday=timenow.tm_wday?timenow.tm_wday:7;
+  sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow.tm_mon+1, 
+	  timenow.tm_mday, weekday, timenow.tm_hour);
   
   // compile regular expression for matching
-  if (regcomp(&compiled, cfg->testregexp, REG_EXTENDED | REG_NOSUB))
+  if (regcomp(&compiled, cfg->testregexp, REG_EXTENDED))
     // compilation of regular expression failed
     retval=-1;
   else
     // see if we got a match
-    retval=!regexec(&compiled, matchpattern, 0, NULL, 0);
+    retval=!regexec(&compiled, matchpattern, 1, &substring, 0);
   
-  // free compiled expression and return
+  // free compiled expression
   regfree(&compiled);
+
+#if 0
+  // debugging: see how many characters of the type/date/time string
+  // match
+  PrintOut(LOG_CRIT, "rm_so=%d  rm_eo=%d\n", substring.rm_so, substring.rm_eo);
+#endif
   
-  // if we are going ahead with a test, save the hour counts
-  if (retval>0)
-    cfg->selftesthour=hours;
+  if (retval>0) {
+    // must match unless the ENTIRE type/date/time string
+    int length=strlen(matchpattern);
+    if (substring.rm_so!=0 || substring.rm_eo!=length)
+      retval=0;
+    else
+      // save time of the current test
+      cfg->selftesthour=hours;
+  }
 
   return retval;
 }
@@ -2033,7 +2050,8 @@ int ParseToken(char *token,cfgfile *cfg){
   case 's':
     if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
-    } else {
+    }
+    else {
       // check that pattern is valid
       regex_t compiled;
       int retval;
