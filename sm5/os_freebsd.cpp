@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.27 2003/12/30 14:13:55 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.28 2003/12/30 21:05:13 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -57,24 +57,24 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "  smartctl -a /dev/ad0                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/ad0\n"
          "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "  smartctl -t long /dev/ad0              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/ad0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a -device=3ware,2 /dev/sda\n"
-         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+//         "  smartctl -a -device=3ware,2 /dev/sda\n"
+//         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #else
   printf(
-         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "  smartctl -a /dev/ad0                       (Prints all SMART information)\n"
+         "  smartctl -s on -o on -S on /dev/ad0         (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/ad0              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/ad0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-         "  smartctl -a -d 3ware,2 /dev/sda\n"
-         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+//         "  smartctl -a -d 3ware,2 /dev/sda\n"
+//         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #endif
   return;

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.308 2003/12/30 20:12:06 pjwilliams Exp $
+$Id: CHANGELOG,v 1.309 2003/12/30 21:05:13 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Fixup example command output for FreeBSD
 
   [PW] Added Maxtor DiamondMax 80 family to knowndrives table.
 
