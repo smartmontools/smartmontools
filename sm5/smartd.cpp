@@ -1,4 +1,4 @@
-//  $Id: smartd.cpp,v 1.3 2002/10/10 13:21:17 ballen4705 Exp $
+//  $Id: smartd.cpp,v 1.4 2002/10/11 00:38:22 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -118,7 +118,7 @@ void atadevicescan ( atadevices_t *devices){
 
 // This function is hard to read and ought to be rewritten
 // A couple of obvious questions -- why isn't fd always closed if not used?
-// Why in the world is thea four-byte integer cast to a pointer to an eight-byte object??
+// Why in the world is the four-byte integer cast to a pointer to an eight-byte object??
 void scsidevicescan ( scsidevices_t *devices){
   int i, fd, smartsupport;
   unsigned char  tBuf[4096];
@@ -231,11 +231,11 @@ int scsiCheckDevice( scsidevices_t *drive)
     printout(LOG_CRIT, "Device: %s, S.M.A.R.T. Failure: (%02x) %s\n", drive->devicename, 
 	     returnvalue, scsiSmartGetSenseCode( returnvalue) );
   else
-    printout(LOG_INFO,"Device: %s, Okay attribute: %d\n", drive->devicename, returnvalue);  
+    printout(LOG_INFO,"Device: %s, Acceptable attribute: %d\n", drive->devicename, returnvalue);  
   
   if (currenttemp){
     if ( (currenttemp != drive->Temperature) && ( drive->Temperature) )
-      printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degress since last reading\n", 
+      printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degrees since last reading\n", 
 	       drive->devicename, (int) (currenttemp - drive->Temperature), (unsigned int) currenttemp );
     
     drive->Temperature = currenttemp;
@@ -264,7 +264,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.3 2002/10/10 13:21:17 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.cpp,v 1.4 2002/10/11 00:38:22 ballen4705 Exp $\n";
 
 
 /* Main Program */

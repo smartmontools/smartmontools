@@ -1,4 +1,4 @@
-//  $Id: scsicmds.cpp,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: scsicmds.cpp,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
 
 /*
  * scsicmds.c
@@ -576,33 +576,33 @@ char* scsiTapeAlertsTapeDevice ( unsigned short code)
     {  " ",
    "The tape drive is having problems reading data. No data has been lost, but there has been a reduction in the performance of the tape.",
    "The tape drive is having problems writing data. No data has been lost, but there has been a reduction in the performance of the tape.",
-   "The operation has stopped because an error has occured while reading or writing data which the drive cannot correct.",
+   "The operation has stopped because an error has occurred while reading or writing data which the drive cannot correct.",
    "Your data is at risk:\n1. Copy any data you require from this tape. \n2. Do not use this tape again.\n3. Restart the operation with a different tape.",
-   "The tape is damaged or the drive is dault. Call the tape drive suppiler helpline.",
+   "The tape is damaged or the drive is faulty. Call the tape drive supplier helpline.",
    "The tape is from a faulty batch or the tape drive is faulty:\n1. Use a good tape to test the drive.\n2. If problem persists, call the tape drive supplier helpline.",
    "The tape cartridge has reached the end of its calculated useful life: \n1. Copy data you need to another tape.\n2. Discard the old tape.",
-   "The tape cartridge is not data-grade. Any data you back up to the tape is at risk. Replace the cartge with a data-grade tape.",
+   "The tape cartridge is not data-grade. Any data you back up to the tape is at risk. Replace the cartridge with a data-grade tape.",
    "You are trying to write to a write-protected cartridge. Remove the write-protection or use another tape.",
    "You cannot eject the cartridge because the tape drive is in use. Wait until the operation is complete before ejecting the cartridge.",
    "The tape in the drive is a cleaning cartridge.",
    "You have tried to load a cartridge of a type which is not supported by this drive.",
    "The operation has failed because the tape in the drive has snapped:\n1. Discard the old tape.\n2. Restart the operation with a different tape.",
-   "The operation has failed because the tape in the drive has snapped:\n1. Do not attept to extract the tape cartridge\n2. Call the tape drive supplier helpline.",
+   "The operation has failed because the tape in the drive has snapped:\n1. Do not atempt to extract the tape cartridge\n2. Call the tape drive supplier helpline.",
    "The memory in the tape cartridge has failed, which reduces performance. Do not use the cartridge for further backup operations.",
    "The operation has failed because the tape cartridge was manually ejected while the tape drive was actively writing or reading.",
    "You have loaded of a type that is read-only in this drive. The cartridge will appear as write-protected.",
-   "The directory on the tape cartridge has been corruptrf. File search performance will be degraded. The tape directory can be rebuilt by reading all the data on the cartridge.",
-   "The tape cartridge is newaring the end of its calculated life. It is recommended that you:\n1. Use another tape cartridge for your next backup.\n2.Store this tape in a safe place in casse you need to restore data from it.",
-   "The tape drive needs cleaning:\n1. If the operation has stopped, ejct the tape and clean the drive.\n2. If the operation has not stopped, wait for it ti finish and then clean the drive. Check the tape drive users manual for device specific cleanning instructions.",
-   "The tape drive is due for routine cleaning:\n1. Wait for the cuurent operation to finish.\n2. The use a cleaning cartridge. Check the tape drive users manual for device specific cleaning instructions.",
+   "The directory on the tape cartridge has been corrupted. File search performance will be degraded. The tape directory can be rebuilt by reading all the data on the cartridge.",
+   "The tape cartridge is nearing the end of its calculated life. It is recommended that you:\n1. Use another tape cartridge for your next backup.\n2.Store this tape in a safe place in casse you need to restore data from it.",
+   "The tape drive needs cleaning:\n1. If the operation has stopped, eject the tape and clean the drive.\n2. If the operation has not stopped, wait for it ti finish and then clean the drive. Check the tape drive users manual for device specific cleaning instructions.",
+   "The tape drive is due for routine cleaning:\n1. Wait for the current operation to finish.\n2. The use a cleaning cartridge. Check the tape drive users manual for device specific cleaning instructions.",
    "The last cleaning cartridge used in the tape drive has worn out:\n1. Discard the worn out cleaning cartridge.\n2. Wait for the current operation to finish.\n 3.Then use a new cleaning cartridge.",
    "The last cleaning cartridge used in the tape drive was an invalid type:\n1. Do not use this cleaning cartridge in this drive.\n2. Wait for the current operation to finish.\n 3.Then use a new cleaning cartridge.",
    "The tape drive has requested a retention operation",
    "A redundant interface port on the tape drive has failed",
    "A tape drive cooling fan has failed",
-   "A redundant power supply has dailed inside the tape drive enclosure. Check the enclosure users manual for instructions on replacing the failed power supply.",
+   "A redundant power supply has failed inside the tape drive enclosure. Check the enclosure users manual for instructions on replacing the failed power supply.",
    "The tape drive power consumption is outside the specified range.",
-   "Preventive maintenance of the tape drive is requiired. Check the tape drive users manual for device specific perventive maintenance tasks or call the tape drive supplier helpline.",
+   "Preventive maintenance of the tape drive is required. Check the tape drive users manual for device specific preventive maintenance tasks or call the tape drive supplier helpline.",
    "The tape drive has a hardware fault:\n1. Eject the tape or magazine.\n2. Reset the drive.\n3. Restart the operation.",
    "The tape drive has a hardware fault:\n1. Turn the tape drive off and then on again.\n2. Restart the operation.\n3. If the problem persists, call the tape drive supplier helpline.\n Check the tape drive users manual for device specific instructions on turning the device power in and off.",
    "The tape drive has a problem with the host interface:\n1. Check the cables and calble connections.\n2. Restart the operation.",
@@ -614,20 +614,20 @@ char* scsiTapeAlertsTapeDevice ( unsigned short code)
    "A hardware failure of the tape drive is predicted. Call the tape drive supplier helpline.",
    "The tape drive may have a fault. Check for availability of diagnostic information and run extended diagnostics if applicable. Check the tape drive users manual for instruction on running extended diagnostic tests and retrieving diagnostic data",
    "The changer mechanism is having difficulty communicating with the tape drive:\n1. Turn the autoloader off then on.\n2. Restart the operation.\n3. If problem persists, call the tape drive supplier helpline.",
-   "A tape has been left in the autoloader by a pervious hardware fault:\n1. Insert an empty magazine to clear the fault.\n2. If the fault does not clear, turn the autoloader off and then on again.\n3. If the problem persists, call the tape drive supplier helpline.",
+   "A tape has been left in the autoloader by a previous hardware fault:\n1. Insert an empty magazine to clear the fault.\n2. If the fault does not clear, turn the autoloader off and then on again.\n3. If the problem persists, call the tape drive supplier helpline.",
    "There is a problem with the autoloader mechanism.",
    "The operation has failed because the autoloader door is open:\n1. Clear any obstructions from the autoloader door.\n2. Eject the magazine and then insert it again.\n3. If the fault does not clear, turn the autoloader off and then on again.\n4. If the problem persists, call the tape drive supplier helpline.",
-   "The autoloader has a hardware fault:\n1. Turn the autoloader off and then on again.\n2. Restart the operation.\n3. If the problem persists, call the tape drive supplier helpline.\n Check the autoloader users manual for device specific instrictions on turning the device power on and off.",
+   "The autoloader has a hardware fault:\n1. Turn the autoloader off and then on again.\n2. Restart the operation.\n3. If the problem persists, call the tape drive supplier helpline.\n Check the autoloader users manual for device specific instructions on turning the device power on and off.",
    "The autoloader cannot operate without the magazine,\n1. Insert the magazine into the autoloader.\n 2. Restart the operation.",
    "A hardware failure of the changer mechanism is predicted. Call the tape drive supplier helpline.",
    " ",
    " ",
    " ",
    "Media statistics have been lost at some time in the past",
-   "The tape directory on the tape cartridge just unloaded has been corrupted. File seach performance will be degraded. The tape directory can be rebuilt by reading all the data.",
-   "The tape just unloaded could not write its system area successfully:\n1. Copy data to another tappe cartridge.\n2. Discard the old cartridge.",
+   "The tape directory on the tape cartridge just unloaded has been corrupted. File search performance will be degraded. The tape directory can be rebuilt by reading all the data.",
+   "The tape just unloaded could not write its system area successfully:\n1. Copy data to another tape cartridge.\n2. Discard the old cartridge.",
    "The tape system are could not be read successfully at load time:\n1. Copy data to another tape cartridge.\n2. Discard the old cartridge.",
-   "The start or data could not be found on the tape:\n1. Check you are using the correct format tape.\n2. Discard the tape or return the tape to you supploer",
+   "The start or data could not be found on the tape:\n1. Check you are using the correct format tape.\n2. Discard the tape or return the tape to you supplier",
     };
             
     return ( code > NUMENTRIESINTAPEALERTSTABLE)? "Unknown Alert" : TapeAlertsMessageTable[code];
@@ -772,8 +772,8 @@ UINT8 scsiSmartOfflineTest (int device)
 	tBuf[2] = 0x00; /* Reserved */
 	tBuf[3] = 0x00; /* Page Length MSB */
 	tBuf[4] = 0x04; /* Page Length LSB */
-	tBuf[5] = 0x03; /* SMART REvision */
-	tBuf[6] = 0x00; /* Reservved */
+	tBuf[5] = 0x03; /* SMART Revision */
+	tBuf[6] = 0x00; /* Reserved */
 	tBuf[7] = 0x00; /* Off-line Immediate Time MSB */
 	tBuf[8] = 0x00; /* Off-line Immediate Time LSB */
 

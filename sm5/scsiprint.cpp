@@ -1,4 +1,4 @@
-//  $Id: scsiprint.cpp,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: scsiprint.cpp,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
 /*
  * scsiprint.c
  *
@@ -353,7 +353,7 @@ void scsiPrintMain (int fd)
    {
       if ( scsiSmartExtendSelfTest (fd) != 0) 
       {
-	printf( "S.M.A.R.T. Extendend Self Test Failed\n");
+	printf( "S.M.A.R.T. Extended Self Test Failed\n");
 	exit(-1);
       }
 
@@ -366,7 +366,7 @@ void scsiPrintMain (int fd)
 		
 		if ( scsiSmartExtendCapSelfTest (fd) != 0) 
 		{
-			printf( "S.M.A.R.T. Extendend Self Test Failed\n");
+			printf( "S.M.A.R.T. Extended Self Test Failed\n");
 			exit(-1);
 		}
 		
