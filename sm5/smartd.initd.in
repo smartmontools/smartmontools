@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.16 2003/12/18 10:57:00 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.17 2003/12/19 17:35:44 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -200,7 +200,43 @@ elif [ -f /etc/SuSE-release ] ; then
 elif [ -f /etc/environment.corel ] ; then
     report_unsupported "Corel"
 elif [ -f /etc/debian_version ] ; then
-    report_unsupported "Debian"
+        PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+	SMARTCTL=/usr/sbin/smartctl
+	SMARTD=/usr/sbin/smartd
+	SMARTDPID=/var/run/smartd.pid
+	[ -x $SMARTCTL ] || exit 0
+	[ -x $SMARTD ] || exit 0
+	RET=0
+
+	[ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
+
+	smartd_opts="--pidfile $SMARTDPID $smartd_opts"
+	
+	case "$1" in
+	start)
+		echo -n "Starting S.M.A.R.T. daemon: smartd"
+		if start-stop-daemon --start --quiet --pidfile $SMARTDPID \
+	    	--exec $SMARTD -- $smartd_opts; then 
+	    		echo "."
+		else
+	        	echo " (failed)"
+			RET=1
+	    	fi
+	;;
+	stop)
+		echo -n "Stopping S.M.A.R.T. daemon: smartd"
+		start-stop-daemon --stop --quiet --oknodo --pidfile $SMARTDPID
+		echo "."
+	;;
+	restart|force-reload)
+       		$0 stop
+        	$0 start
+        	;;
+  	*)
+		echo "Usage: /etc/init.d/smartmontools {start|stop|restart|force-reload}"
+		exit 1
+	esac
+ 	exit $RET
 elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
 elif [ -f /etc/turbolinux-release ] ; then
