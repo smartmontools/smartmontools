@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.22 2003/05/07 13:52:58 knan Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.23 2003/06/04 09:24:28 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -158,6 +158,13 @@ const drivesettings knowndrives[] = {
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
+  },
+  { //Samsung SP1604N, tested with FW TM100-23
+    "^SAMSUNG SP1604N$",
+    ".*",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    NULL,NULL
   },
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
