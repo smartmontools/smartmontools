@@ -36,7 +36,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.cpp,v 1.10 2002/10/28 23:46:59 ballen4705 Exp $"
+const char* CVSid4="$Id: scsiprint.cpp,v 1.11 2002/11/17 05:57:32 ballen4705 Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -297,8 +297,14 @@ void scsiPrintStopStart ( int device )
 **/
 }
 
-void scsiPrintMain (int fd)
+void scsiPrintMain (char *device, int fd)
 {
+
+  // See if unit accepts SCSI commmands from us
+  if (testunitnotready(fd)){
+    printf("Smartctl: device %s failed Test Unit Ready\n", device);
+    exit(1);
+  }
 
     if (con->driveinfo)
 	scsiGetDriveInfo(fd); 

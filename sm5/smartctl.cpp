@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.27 2002/11/07 19:07:20 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.28 2002/11/17 05:57:32 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -351,7 +351,7 @@ int main (int argc, char **argv){
   if (tryata)
     retval=ataPrintMain(fd);
   else if (tryscsi)
-    scsiPrintMain (fd);
+    scsiPrintMain (device, fd);
   else {
     pout("Smartctl: specify if this is an ATA or SCSI device with the -%c or -%c options respectively.\n",
 	 NOTSCSIDEVICE, NOTATADEVICE);
