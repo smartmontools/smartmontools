@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.21 2002/10/22 14:57:43 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.cpp,v 1.22 2002/10/22 15:37:15 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -358,9 +358,9 @@ void PrintSmartExtendedSelfTestPollingTime ( struct ata_smart_values data)
 }
 
 
-// onlyfailing=0 : print all attribute values
-// onlyfailing=1:  just ones that are currently failed and have prefailure bit set
-// onlyfailing=2:  ones that are failed, or have failed with or without prefailure bit set
+// onlyfailed=0 : print all attribute values
+// onlyfailed=1:  just ones that are currently failed and have prefailure bit set
+// onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
 void PrintSmartAttribWithThres (struct ata_smart_values data, 
 				struct ata_smart_thresholds thresholds,
 				int onlyfailed){
@@ -391,9 +391,11 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       
       // print header only if needed
       if (needheader){
-	printf ("SMART Data Structure revision number: %i\n",data.revnumber);
-	printf ("Vendor Specific SMART Attributes with Thresholds:\n"
-		"Attribute                    Flag     Value Worst Threshold Type     Ever_Failed? Raw_Value\n");
+	if (!onlyfailed){
+	  printf ("SMART Data Structure revision number: %i\n",data.revnumber);
+	  printf ("Vendor Specific SMART Attributes with Thresholds:\n");
+	}
+	printf("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE     WHEN_FAILED RAW_VALUE\n");
 	needheader=0;
       }
       
@@ -401,7 +403,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       if (failednow)
 	status="FAILED NOW!";
       else if (failedever)
-	status="In the past";
+	status="In_the_past";
       else
 	status="    -";
       
@@ -409,8 +411,8 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       ataPrintSmartAttribName(disk->id);
       
       // printing line for each valid attribute
-      type=disk->status.flag.prefailure?"Pre-fail":"Old age";
-      printf(" 0x%04x   %.3i   %.3i   %.3i       %-9s%-13s", 
+      type=disk->status.flag.prefailure?"Pre-fail":"Old_age";
+      printf(" 0x%04x   %.3i   %.3i   %.3i    %-9s%-13s", 
 	     disk->status.all, disk->current, disk->worst,
 	     thre->threshold, type, status);
       
@@ -702,105 +704,107 @@ void ataPseudoCheckSmart ( struct ata_smart_values data,
 }
 
 void ataPrintSmartAttribName ( unsigned char id ){
+  char *name;
   switch (id){
     
   case 1:
-    printf("(  1)Raw Read Error Rate    ");
+    name="Raw_Read_Error_Rate";
     break;
   case 2:
-    printf("(  2)Throughput Performance ");
+    name="Throughput_Performance";
     break;
   case 3:
-    printf("(  3)Spin Up Time           ");
+    name="Spin_Up_Time";
     break;
   case 4:
-    printf("(  4)Start Stop Count       ");
+    name="Start_Stop_Count";
     break;
   case 5:
-    printf("(  5)Reallocated Sector Ct  ");
+    name="Reallocated_Sector_Ct";
     break;
   case 6:
-    printf("(  6)Read Channel Margin    ");
+    name="Read_Channel_Margin";
     break;
   case 7:
-    printf("(  7)Seek Error Rate        ");
+    name="Seek_Error_Rate";
     break;
   case 8:
-    printf("(  8)Seek Time Performance  ");
+    name="Seek_Time_Performance";
     break;
   case 9:
-    printf("(  9)Power On Hours         ");
+    name="Power_On_Hours";
     break;
   case 10:
-    printf("( 10)Spin Retry Count       ");
+    name="Spin_Retry_Count";
     break;
   case 11:
-    printf("( 11)Calibration Retry Count");
+    name="Calibration_Retry_Count";
     break;
   case 12:
-    printf("( 12)Power Cycle Count      ");
+    name="Power_Cycle_Count";
     break;
   case 13:
-    printf("( 13)Read Soft Error Rate   ");
+    name="Read_Soft_Error_Rate";
     break;
   case 191:
-    printf("(191)G-Sense Error Rate     ");
+    name="G-Sense_Error_Rate";
     break;
   case 192:
-    printf("(192)Power-Off Retract Count");
+    name="Power-Off_Retract_Count";
     break;
   case 193:
-    printf("(193)Load Cycle Count       ");
+    name="Load_Cycle_Count";
     break;
   case 194:
-    printf("(194)Temperature            ");
+    name="Temperature_Centigrade";
     break;
   case 195:
-    printf("(195)Hardware ECC Recovered ");
+    name="Hardware_ECC_Recovered";
     break;
   case 196:
-    printf("(196)Reallocated Event Count");
+    name="Reallocated_Event_Count";
     break;
   case 197:
-    printf("(197)Current Pending Sector ");
+    name="Current_Pending_Sector";
     break;
   case 198:
-    printf("(198)Offline Uncorrectable  ");
+    name="Offline_Uncorrectable";
     break;
   case 199:
-    printf("(199)UDMA CRC Error Count   ");
+    name="UDMA_CRC_Error_Count";
     break;
   case 220:
-    printf("(220)Disk Shift             ");
+    name="Disk_Shift";
     break;
   case 221:
-    printf("(221)G-Sense Error Rate     ");
+    name="G-Sense_Error_Rate";
     break;
   case 222:
-    printf("(222)Loaded Hours           ");
+    name="Loaded_Hours";
     break;
   case 223:
-    printf("(223)Load Retry Count       ");
+    name="Load_Retry_Count";
     break;
   case 224:
-    printf("(224)Load Friction          ");
+    name="Load_Friction";
     break;
   case 225:
-    printf("(225)Load Cycle Count       ");
+    name="Load_Cycle_Count";
     break;
   case 226:
-    printf("(226)Load-in Time           ");
+    name="Load-in_Time";
     break;
   case 227:
-    printf("(227)Torq-amp Count         ");
+    name="Torq-amp_Count";
     break;
   case 228:
-    printf("(228)Power-off Retract Count");
+    name="Power-off_Retract_Count";
     break;
   default:
-    printf("(%3d)Unknown Attribute      ", id);
+    name="Unknown_Attribute";
     break;
   }
+  printf("%3d %-23s",id,name);
 }	
 
 /****
@@ -932,9 +936,13 @@ void ataPrintMain (int fd){
       printf("SMART overall-health self-assessment test result: FAILED!\n"
 	     "Drive failure expected in less than 24 hours. SAVE ALL DATA\n");
       if (ataCheckSmart(smartval, smartthres,1)){
-	printf("Here is a list of failing attributes.  Use -%c option to investigate.\n",
+	printf("SMART prefailure attributes shown below are below threshold.\n"
+	       "Use -%c option to investigate\n",SMARTVENDORATTRIB);
+
+	printf("Below is a list of failing attributes.\nUse -%c option to investigate.\n",
 	       SMARTVENDORATTRIB);
 	PrintSmartAttribWithThres(smartval, smartthres,1);
+	printf("\n");
       }
       else
 	printf("Unable to confirm any failing attributes.\n");
@@ -942,9 +950,10 @@ void ataPrintMain (int fd){
     else {
       printf("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(smartval, smartthres,0)){
-	printf("Note: SMART attributes shown below are or were below threshold. "
+	printf("Note: SMART attributes shown below are below threshold now or were in the past.\n"
 	       "Use -%c option to investigate\n",SMARTVENDORATTRIB);
 	PrintSmartAttribWithThres(smartval, smartthres,2);
+	printf("\n");
       }
     }
   }
