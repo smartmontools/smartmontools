@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.61 2002/11/13 07:39:50 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.62 2002/11/13 10:04:13 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -245,7 +245,7 @@ void Directives() {
   printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  printout(LOG_INFO,"All but -S Directive are only implemented for ATA devices\n");
+  printout(LOG_INFO,"All but -S and -M Directives are only implemented for ATA devices\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
 return;
 }
@@ -274,7 +274,6 @@ int opendevice(char *device){
   return fd;
 }
 
-// returns 1 if problem, else zero
 int closedevice(int fd, char *name){
   if (close(fd)){
     if (errno<sys_nerr)
@@ -433,14 +432,20 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 // This function is hard to read and ought to be rewritten. Why in the
 // world is the four-byte integer cast to a pointer to an eight-byte
 // object?? Can anyone explain this obscurity?
-int scsidevicescan(scsidevices_t *devices, char *device){
+int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
   int i, fd, smartsupport;
+  char *device=cfg->name;
   unsigned char  tBuf[4096];
+
+  // should we try to register this as a SCSI device?
+  if (!(cfg->tryscsi))
+    return 1;
   
-  printout(LOG_INFO,"Device: %s, opening\n", device);
+  // open the device
   if ((fd=opendevice(device))<0)
     // device open failed
     return 1;
+  printout(LOG_INFO,"Device: %s, opened\n", device);
   
   // check that it's ready for commands
   if (!testunitready(fd)){
@@ -475,7 +480,8 @@ int scsidevicescan(scsidevices_t *devices, char *device){
   printout(LOG_INFO, "Device: %s, is SMART capable. Adding to \"monitor\" list.\n",device);
 
   // since device points to global memory, just keep that address
-  devices[numscsidevices].devicename=device;
+  devices->devicename=device;
+  devices->cfg=cfg;
 
   // register the supported functionality.  The smartd code does not
   // seem to make any further use of this information.
@@ -483,16 +489,18 @@ int scsidevicescan(scsidevices_t *devices, char *device){
     for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
       switch ( tBuf[i]){ 
       case TEMPERATURE_PAGE:
-	devices[numscsidevices].TempPageSupported = 1;
+	devices->TempPageSupported = 1;
 	break;
       case SMART_PAGE:
-	devices[numscsidevices].SmartPageSupported = 1;
+	devices->SmartPageSupported = 1;
 	break;
       default:
 	break;
       }
     }	
   }
+
+  // increment number of SCSI devices found
   numscsidevices++;
   closedevice(fd, device);
   return 0;
@@ -708,11 +716,12 @@ int ataCheckDevice(atadevices_t *drive){
 
 
 
-int scsiCheckDevice( scsidevices_t *drive){
+int scsiCheckDevice(scsidevices_t *drive){
   UINT8 returnvalue;
   UINT8 currenttemp;
   UINT8 triptemp;
   int fd;
+  cfgfile *cfg=drive->cfg;
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it
@@ -724,10 +733,13 @@ int scsiCheckDevice( scsidevices_t *drive){
   if (scsiCheckSmart(fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp))
     printout(LOG_INFO, "Device: %s, failed to read SMART values\n", drive->devicename);
   
-  if (returnvalue)
+  if (returnvalue) {
     printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", drive->devicename, 
 	     (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
-  else
+    printandmail(cfg->address, cfg->maildata, LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", drive->devicename, 
+		 (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
+  }
+  else if (debugmode)
     printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", drive->devicename, (int)returnvalue);  
   
   // Seems to completely ignore what capabilities were found on the
@@ -1291,7 +1303,7 @@ int main (int argc, char **argv){
       cantregister(config[i].name, "ATA", config[i].lineno);
     
     // then register SCSI devices
-    if (config[i].tryscsi && scsidevicescan(scsidevicesptr, config[i].name))
+    if (config[i].tryscsi && scsidevicescan(scsidevicesptr+numscsidevices, config+i))
       cantregister(config[i].name, "SCSI", config[i].lineno);
   }
   

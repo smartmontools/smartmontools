@@ -29,7 +29,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.60 2002/11/13 07:41:05 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.61 2002/11/13 10:04:13 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -234,6 +234,7 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Wed Nov 13 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- smartd SCSI devices: can now send warning email message on failure
 - Added a new smartd configuration file Directive: -M ADDRESS.
   This sends a single warning email to ADDRESS for failures or
   errors detected with the -c, -L, -l, or -f Directives.
