@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.395 2004/04/09 00:28:43 ballen4705 Exp $
+$Id: CHANGELOG,v 1.396 2004/04/09 00:42:53 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,7 +28,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
   [BA] smartd: now monitor the Current Pending Sector count (Attribute 197)
-       and the Offline Pending Sector Count (Attribute 197).  Log a
+       and the Offline Pending Sector Count (Attribute 198).  Log a
        warning (and send an email, if so configured) if the raw count
        is nonzero.  These are controlled by new Directives: -C and -U.
        Currently they are enabled by default.
