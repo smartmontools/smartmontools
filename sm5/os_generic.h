@@ -24,12 +24,11 @@
 #ifndef OS_GENERIC_H_
 #define OS_GENERIC_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_generic.h,v 1.1 2003/10/14 12:12:12 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_generic.h,v 1.2 2003/10/17 05:17:15 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
 // system include files <something.h>.  Local #include files
-// <"something.h"> should be #included in os_solaris.c
-
+// <"something.h"> should be #included in os_generic.c
 
 #endif /* OS_GENERIC_H_ */
