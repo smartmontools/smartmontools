@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.35 2003/08/11 13:25:20 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.36 2003/08/13 12:33:23 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -89,6 +89,8 @@ const unsigned char vendoropts_Hitachi_DK23EA[][2] = {
   {0,0}
 };
 
+const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
+const char may_need_minus_F_disabled[]="Contact developers; may need -F samsung disabled";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -148,15 +150,15 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { // Samsung SV4012H (all other firmware)
     "^SAMSUNG SV4012H$",
     ".*",
-    "Contact developers; may need -F disabled",
+    may_need_minus_F_disabled,
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { // Samsung SV1204H (known firmware)
     "^SAMSUNG SV1204H$",
@@ -164,15 +166,15 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { //Samsung SV1204H (all other firmware)
     "^SAMSUNG SV1204H$",
     ".*",
-    "Contact developers; may need -F disabled",
+    may_need_minus_F_disabled,
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { // Samsung SV0412H (known firmware)
     "^SAMSUNG SV0412H$",
@@ -180,15 +182,15 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { // Samsung SV0412H (all other firmware)
     "^SAMSUNG SV0412H$",
     ".*",
-    "Contact developers; may need -F disabled",
+    may_need_minus_F_disabled,
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
-    "Fixes byte order in some SMART data (same as -F)"
+    same_as_minus_F
   },
   { //Samsung SP1604N, tested with FW TM100-23
     "^SAMSUNG SP1604N$",
@@ -205,20 +207,10 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL
   },
-
-
-
-
-
-
-
-
-
-
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "Contact developers; may need -F enabled.\n",
+    "Contact developers; may need -F samsung enabled.\n",
     NULL, NULL, NULL
   },
   { // Maxtor 6L080J4 and 4K080H4
@@ -361,12 +353,17 @@ void showonepreset(const drivesettings *drivetable){
   if (presets && (*presets)[0]) while (1) {
     char out[64];
     const int attr = (*presets)[0], val  = (*presets)[1];
-    
+    unsigned char fakearray[MAX_ATTRIBUTE_NUM];
+
     // if we are at the end of the attribute list, break out
     if (!attr)  
       break;
     
-    ataPrintSmartAttribName(out, attr, val);
+    // This is a hack. ataPrintSmartAttribName() needs a pointer to an
+    // "array" to dereference, so we provide such a pointer.
+    fakearray[attr]=val;
+    ataPrintSmartAttribName(out, attr, fakearray);
+
     // Use leading zeros instead of spaces so that everything lines up.
     out[0] = (out[0] == ' ') ? '0' : out[0];
     out[1] = (out[1] == ' ') ? '0' : out[1];
@@ -442,11 +439,19 @@ void showpresets(const struct hd_driveid *drive){
 // (if any) for the given drive in knowndrives[].  Values that have
 // already been set in opts will not be changed.  Returns <0 if drive
 // not recognized else index >=0 into drive database.
-int applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+int applypresets(const struct hd_driveid *drive, unsigned char **optsptr,
                   smartmonctrl *con) {
   int i;
+  unsigned char *opts;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
   
+  if (*optsptr==NULL && !(*optsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1))){
+    pout("Unable to allocate memory in applypresets()");
+    exit(1);
+  }
+
+  opts=*optsptr;
+
   // get the drive's model/firmware strings
   formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);

@@ -34,7 +34,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.96 2003/07/22 14:08:58 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.97 2003/08/13 12:33:23 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -452,7 +452,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	status="    -";
 
       // Print name of attribute
-      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs[disk->id]);
+      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs);
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
@@ -470,8 +470,8 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       // print a warning if there is inconsistency here!
       if (disk->id != thre->id){
 	char atdat[64],atthr[64];
-	ataPrintSmartAttribName(atdat, disk->id, con->attributedefs[disk->id]);
-	ataPrintSmartAttribName(atthr, thre->id, con->attributedefs[thre->id]);
+	ataPrintSmartAttribName(atdat, disk->id, con->attributedefs);
+	ataPrintSmartAttribName(atthr, thre->id, con->attributedefs);
 	pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
 	pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
       }
@@ -873,8 +873,15 @@ int ataPrintMain (int fd){
   }
 
   // Use preset vendor attribute options unless user has requested otherwise.
-  if (!con->ignorepresets)
-    applypresets(&drive, con->attributedefs, con);
+  if (!con->ignorepresets){
+    unsigned char *charptr;
+    if ((charptr=con->attributedefs))
+      applypresets(&drive, &charptr, con);
+    else {
+      pout("Fatal internal error in ataPrintMain()\n");
+      exit(1);
+    }
+  }
 
   // Print most drive identity information if requested
   if (con->driveinfo){

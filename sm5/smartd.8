@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.104 2003/08/07 09:58:02 ballen4705 Exp $
+\# $Id: smartd.8,v 1.105 2003/08/13 12:33:23 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/07 09:58:02 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/08/13 12:33:23 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -105,10 +105,10 @@ to see the available options.
 .B \-d, \-\-debug
 Runs 
 .B smartd 
-in ""debug"" mode. In this mode, it does not 
-.B fork
-(2) and displays status information to STDOUT.  It also prints more
-verbose information about what it is doing.
+in \(dqdebug\(dq mode. In this mode, it displays status information to
+STDOUT rather than logging it in SYSLOG and does not \fBfork(2)\fP.
+It also prints more verbose information about what it is doing than
+when operating in \(dqdaemon\(dq mode.
 .TP
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
@@ -152,7 +152,7 @@ containing the
 Process ID number (PID).
 To avoid symlink attacks make sure the directory to which
 pidfile is written is only writeable for root.  Without this option,
-or if the --debug option is given, no PID file is written on startup.
+or if the \-\-debug option is given, no PID file is written on startup.
 If
 .B smartd
 is killed with a maskable signal then the pidfile is removed.
@@ -576,9 +576,9 @@ command-line option.]
 .B \-f
 Check for 'failure' of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT
-indicate imminent disk failure.  It ""indicates an advisory condition
+indicate imminent disk failure.  It \(dqindicates an advisory condition
 where the usage or age of the device has exceeded its intended design
-life period."" [Please see the
+life period.\(dq [Please see the
 .B smartctl \-A
 command-line option.]
 
@@ -1322,4 +1322,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.104 2003/08/07 09:58:02 ballen4705 Exp $
+$Id: smartd.8,v 1.105 2003/08/13 12:33:23 ballen4705 Exp $

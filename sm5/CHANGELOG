@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.174 2003/08/11 14:21:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.175 2003/08/13 12:33:22 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,15 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Additional work on dynamic memory allocation/deallocation.
+       This should have no effect on smartctl, but clears that way
+       for smartd to dynamically add and remove entries.  It should
+       also now be easier to modify smartd to re-read its config
+       file on HUP (which is easy) without leaking memory (which is
+       harder). The philosophy is that memory for data structures in
+       smartd is now allocated only on demand, the first time it
+       is needed.
 
   [BA] smartd: finished cleanup.  Now use create/rm functions for
        cfgentries and dynamic memory allocation almost everywhere.
