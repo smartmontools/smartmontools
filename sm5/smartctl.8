@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.13 2002/10/22 12:53:20 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.14 2002/10/22 16:49:16 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/22 12:53:20 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/22 16:49:16 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -316,6 +316,18 @@ shows the vendor attributes, when the disk stores its power-on time
 internally in minutes rather than hours.
 
 .PP
+.SH RETURN VALUES
+
+The return values of smartctl are defined by a bitmask.  For the
+moment this only works on ATA disks.  The different bits in the return
+value are as follows.  Bit 0: Command line did not parse.  Bit 1:
+Device open failed.  Bit 2: SMART command to disk failed.  Bit 3:
+SMART status check returned "DISK FAILING".  Bit 4: SMART status check
+returned "DISK OK" but we found prefail attributes <= threshold.  Bit
+5: SMART status check returned "DISK OK" but we found that some (usage
+or prefail) attributes have been <= threshold at some time in the
+past. Bit 6: Unable to get Device IDENTITY information. 
+.PP
 .SH AUTHOR
 Bruce Allen
 .B smartmontools-support@lists.sourceforge.net
@@ -389,4 +401,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.13 2002/10/22 12:53:20 ballen4705 Exp $
+$Id: smartctl.8,v 1.14 2002/10/22 16:49:16 ballen4705 Exp $

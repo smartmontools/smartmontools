@@ -37,7 +37,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.cpp,v 1.13 2002/10/22 09:50:54 ballen4705 Exp $\n"
+const char* CVSid6="$Id: smartctl.cpp,v 1.14 2002/10/22 16:49:16 ballen4705 Exp $\n"
 "\t" CVSID1 "\t" CVSID2 "\t" CVSID4 "\t" CVSID5 "\t" CVSID6 ;
 
 unsigned char driveinfo               = FALSE;
@@ -201,7 +201,7 @@ void ParseOpts (int argc, char** argv){
       break;
     default:
       Usage();
-      exit (-1);	
+      exit(FAILCMD);	
     }
     
     if ( (smartexeoffimmediate + smartshortselftest +
@@ -209,7 +209,7 @@ void ParseOpts (int argc, char** argv){
 	  smartextendcapselftest +smartselftestabort ) > 1){
       Usage();
       printf ("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
-      exit(-1);
+      exit(FAILCMD);
     }
   }
 }
@@ -217,14 +217,14 @@ void ParseOpts (int argc, char** argv){
 /* Main Program */
 
 int main (int argc, char **argv){
-  int fd;
+  int fd,retval=0;
   char *device;
   
   printf("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
   printf("Home page of smartctl is %s\n",PROJECTHOME);
   
   // Part input arguments
-  ParseOpts (argc,argv);
+  ParseOpts(argc,argv);
   
   // Print Copyright/License info if needed
   if (printcopyleft){
@@ -234,29 +234,31 @@ int main (int argc, char **argv){
     printf("See http://www.gnu.org for further details.\n\n");
     printf("CVS version IDs of files used to build this code are:\n%s%s%s%s%s",CVSid1,CVSid2,CVSid4,CVSid5,CVSid6);
     if (argc==2)
-      exit(0);
- }
-
+      return 0;
+  }
+  
   // Further argument checking
-  if ( argc != 3 ){
+  if (argc != 3){
     Usage();
-    exit (-1);
+    return FAILCMD;
   }
-    
+  
   // open device - read-only mode is enough to issue needed commands
-  fd = open ( device=argv[2], O_RDONLY );
+  fd = open(device=argv[2], O_RDONLY);
   
-  if ( fd < 0) {
-    perror ( "Device open failed");
-    exit(-1);
+  if (fd< 0) {
+    perror ("Smartctl device open failed:");
+    return FAILDEV;
   }
   
-  if ( device[5] == 'h')
-    ataPrintMain (fd );
+  if (device[5] == 'h')
+    retval=ataPrintMain(fd );
   else if (device[5] == 's')
     scsiPrintMain (fd);
-  else 
+  else {
     Usage();
-  
-  return 0;
+    return FAILCMD;
+  }
+
+  return retval;
 }
