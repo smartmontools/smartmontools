@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.28 2002/11/25 08:40:48 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.29 2002/11/27 13:58:30 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2002/11/25 08:40:48 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/11/27 13:58:30 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -197,11 +197,16 @@ Published Disk Specifications.  For example the IBM Travelstar 40GNX
 Hard Disk Drive Specifications (Revision 1.1, 22 April 2002,
 Publication # 1541, Document S07N-7715-02) page 164.]
 
-S.M.A.R.T. provides three basic categories of testing.  The first
-category, called 'online' testing, has no effect on the performance of
+S.M.A.R.T. provides
+.B three basic categories of testing.
+The 
+.B first category,
+called 'online' testing, has no effect on the performance of
 the device.  It is turned on by the '\-e' option.
 
-The second category of testing is called 'offline' testing. This type
+The 
+.B second category of testing
+is called 'offline' testing. This type
 of test can, in principle, degrade the device performance.  The '\-t'
 option causes this offline testing to be carried out, automatically,
 on a regular scheduled basis.  Normally, the disk will suspend any
@@ -216,19 +221,28 @@ Any errors detected in automatic or immediate offline testing will be
 shown in the S.M.A.R.T. error log, and will be reflected in the values
 of the S.M.A.R.T. attributes.  These are visible with the '\-l' and '\-v' options.
 
-The third class of testing is the 'self' testing.  This third type of
+The 
+.B third category of testing
+is the 'self' testing.  This third type of
 test is only performed (immediately) when a command to run it is
 issued.  The '\-S', '\-s', '\-X', '\-x', and '\-A' options below can
 be used to carry out (and abort) such self-tests; please see below for further
 details.
 
-Any errors detected in the self testign will be shown in the
+Any errors detected in the self testing will be shown in the
 S.M.A.R.T. self-test log, which can be examined using the '\-L'
 option.
 
+.B Note:
+in this manual page, the word 
+.B "Test"
+is used in connection with the second category 
+just described, e.g. for the 'offline' testing.  The words 
+.B "Self-test"
+are used in connection with the third category.
 .TP
 .B \-T 
-unTest: Disables S.M.A.R.T. automatic offline test timer. 
+unTest: Disables S.M.A.R.T. automatic offline test timer.
 .TP
 .B \-f
 File: Enables S.M.A.R.T. autosave of device vendor-specific
@@ -257,12 +271,21 @@ this happens, use the '\-a' option to get more information, and
 .B get your data off the disk and someplace safe as soon as you can.
 .TP
 .B \-g
-Generic: Prints only the generic S.M.A.R.T. attributes.  This shows
-the S.M.A.R.T.  capabilities of the device (can it log errors, does it
-support offline surface scanning, and so on).  If the device can carry
-out self-tests, it also lists the estimated time required to run those
-tests.  See REFERENCES below for further information about their
-meaning.
+Generic: Prints only the generic S.M.A.R.T. capabilities.  These show
+what S.M.A.R.T. features are implemented and how the device will
+respond to some of the different S.M.A.R.T. commands.  For example it
+shows if the device logs errors, if it support offline surface
+scanning, and so on.  If the device can carry out self-tests, this
+option also shows the estimated time required to run those tests.
+
+Note that the time required to run the Self-tests (listed in minutes)
+are fixed.  However the time required to run the Immediate Offline
+Test (listed in seconds) is variable.  This means that if you issue a
+command to perform an Immediate Offline test with the '\-O' option,
+then the time may jump to a larger value and then count down as the
+Immediate Offline Test is carried out.  Please see REFERENCES below
+for further information about the the flags and capabilities described
+by this option.
 .TP
 .B \-v
 Vendor: Prints only the vendor specific S.M.A.R.T. attributes.  The
@@ -345,11 +368,22 @@ only a single one of these tests can be run at a time, so no more than one
 of the following options should be given on the command line. 
 .TP
 .B \-O
-Offline: Runs S.M.A.R.T. Immediate offline Test.  This immediately
+Offline: Runs S.M.A.R.T. Immediate Offline Test.  This immediately
 starts the test describe above.  This command can be given during
 normal system operation.  The effects of this test are visible only in
 that it updates the S.M.A.R.T. attribute values, and if errors are
-found they will appear in the S.M.A.R.T. error log, visible with the '\-l' option.
+found they will appear in the S.M.A.R.T. error log, visible with the '\-l' option.  
+
+If the '\-g' option to
+.B smartctl
+shows that the device has the "Suspend Offline collection upon new
+command" capability then you can track the progress of the Immediate Offline
+test using the '\-g' option to
+.B smartctl.
+If the '\-g' option show that the device has the "Abort Offline
+collection upon new command" capability then most commands will abort
+the Immediate Offline Test, so you should not try to track the
+progress of the test with '\-g', as it will abort the test.
 .TP
 .B \-S 
 Selftest: Runs S.M.A.R.T. Short Self Test (usually under ten minutes).
@@ -379,7 +413,9 @@ eXtended: Runs the S.M.A.R.T. Extended Self Test just described, in Captive Mode
 .B Only run this on drives without any mounted partitions.
 .TP
 .B \-A
-Abort: Aborts Non-Captive S.M.A.R.T. Self Tests.
+Abort: Aborts Non-Captive S.M.A.R.T. Self Tests.  Note that this
+command will abort the Offline Immediate Test routine only if your
+disk has the "Abort Offline collection upon new command" capability.
 .PP
 .SH EXAMPLES
 .nf
@@ -557,4 +593,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.28 2002/11/25 08:40:48 ballen4705 Exp $
+$Id: smartctl.8,v 1.29 2002/11/27 13:58:30 ballen4705 Exp $
