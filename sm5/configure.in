@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.9 2003/10/01 09:35:36 guidog Exp $
+# $Id: configure.in,v 1.10 2003/10/01 14:14:51 guidog Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -35,12 +35,14 @@ AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is /etc/rc.d/init.d)])],[initddir="$withval"],[initddir="/etc/rc.d/init.d"])
 AC_SUBST(initddir)
 
-AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir=dir],[Location of documentation (default is /usr/share/doc/smartmontools-5.X)])],[docdir="$withval"],[docdir="/usr/share/doc/${PACKAGE}-${VERSION}"])
+AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir=dir],[Location of documentation (default is ${prefix}/share/doc/smartmontools-5.X)])],[docdir="$withval"],[docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'])
 AC_SUBST(docdir)
 
-dnl no prefix set, so default to /etc
 if test "$prefix" = "NONE"; then
-    AC_SUBST([sysconfdir], ['/etc'])
+    dnl no prefix and no sysconfdir, so default to /etc
+    if test "$sysconfdir" = '${prefix}/etc'; then
+        AC_SUBST([sysconfdir], ['/etc'])
+    fi
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
     if test "$mandir" = '${prefix}/man'; then
     	AC_SUBST([mandir], ['${prefix}/share/man'])
