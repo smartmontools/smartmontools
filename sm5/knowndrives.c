@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.52 2003/11/01 23:41:41 arvoreen Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.53 2003/11/07 19:07:25 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -175,11 +175,11 @@ const drivesettings knowndrives[] = {
     vendoropts_Fujitsu_MHS2020AT,
     NULL, NULL
   },
-  { // Fujitsu MHM2200AT
-    "^FUJITSU MHM2200AT$",
-    ".*",  // Tested with firmware version 3822
-    "The FUJITSU MHM2200AT firmware has a harmless Drive Identity\n"
-      "Structure checksum error bug.",
+  { // Fujitsu MHL2300AT, MHM2200AT, MHM2100AT, MHM2150AT
+    "^FUJITSU MH(L230|M2(20|10|15))0AT$",
+    ".*",
+    "This drive's firmware has a harmless Drive Identity Structure\n"
+      "checksum error bug.",
     vendoropts_9_seconds,
     NULL, NULL
   },
@@ -272,25 +272,25 @@ const drivesettings knowndrives[] = {
     vendoropts_Maxtor_4D080H4,
     NULL, NULL
   },
-  { // Maxtor 4R080J0
-    "^Maxtor (4R080J0|4R080L0|6Y0[6|8]0L0|6Y1[2|6]0P0)$",
+  { // Maxtor 4R080J0 and 4R080L0
+    "^Maxtor 4R080[JL]0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // Maxtor 6Y120P0 (known firmware)
-    "^Maxtor 6Y120P0$",
-    "^YAR41VW0$",
+  { // Maxtor 4W040H3
+    "^Maxtor 4W040H3$",
+    ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // Maxtor 6Y120P0 (any other firmware)
-    "^Maxtor 6Y120P0$",
+  { // Maxtor DiamondMax Plus 9 family
+    "^Maxtor 6Y((060|080|120|160)L0|(080|120|160|200)P0|(060|080|120|160|200)M0)$",
     ".*",
-    "Contact developers at " PACKAGE_BUGREPORT "; may need -v 9,minutes enabled.\n",
     NULL,
+    vendoropts_9_minutes,
     NULL, NULL
   },
   { // HITACHI_DK23BA-20
@@ -307,33 +307,45 @@ const drivesettings knowndrives[] = {
     vendoropts_Hitachi_DK23EA,
     NULL, NULL
   },
+  { // IBM-DARA-212000
+    "^IBM-DARA-212000$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // IBM GXP-180
     "^IC35L120AVV207-[01]$",
     ".*", 
     NULL, NULL, NULL, NULL 
   },
-  {
-    //  IBM Deskstar 120GXP  [Phil -- use for testing]
+  { // IBM Deskstar 120GXP 60GB [Phil -- use for testing]
     "^IC35L060AVVA07-[01]$",
     ".*",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, NULL, NULL, NULL,
+  },
+  { // IBM Deskstar 120GXP 40GB
+    "^IC35L040AVVN07-0$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { // TOSHIBA MK4025GAS
     "^TOSHIBA MK4025GAS$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  {
-    // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
+  { // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
     "^TOSHIBA MK6021GAS$",
     ".*",
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, NULL, NULL, NULL,
+  },
+  { // Seagate Barracuda U Series 20410
+    "^ST320410A$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Seagate Barracuda 7200.7 Plus family
+    "^(ST3120026A|ST3160023A|ST3200822A)$",
+    ".*",
+    NULL, NULL, NULL, NULL,
   },
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
