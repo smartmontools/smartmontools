@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.19 2003/10/21 01:45:50 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.20 2003/10/28 00:44:29 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -188,9 +188,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 #ifndef ATAREQUEST
   // sorry, but without ATAng, we can't do anything here
-  printwarning(OLD_KERNEL,NULL);
+  printwarning(BAD_KERNEL,NULL);
   errno = ENOSYS;
-  return -;
+  return -1;
 #else
   bzero(buff,512);
 
