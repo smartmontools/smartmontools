@@ -108,14 +108,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.347 2004/10/15 15:17:25 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.348 2004/11/06 15:58:54 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.347 2004/10/15 15:17:25 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.348 2004/11/06 15:58:54 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2091,6 +2091,12 @@ int ATACheckDevice(cfgfile *cfg){
   if (cfg->powermode){
     int dontcheck=0, powermode=ataCheckPowerMode(fd);
     char *mode=NULL;
+    if (powermode >= 0) {
+      int powermode2 = ataCheckPowerMode(fd);
+      if (powermode2 > powermode)
+        PrintOut(LOG_INFO, "Device: %s, CHECK POWER STATUS spins up disk (0x%02x -> 0x%02x)\n", name, powermode, powermode2);
+      powermode = powermode2;
+    }
         
     switch (powermode){
     case -1:
