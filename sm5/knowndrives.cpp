@@ -20,13 +20,14 @@
 #include <stdio.h>
 #include <regex.h>
 #include "atacmds.h"
+#include "ataprint.h"
 #include "knowndrives.h"
 #include "utility.h"
 
 #define MODEL_STRING_LENGTH       40
 #define FIRMWARE_STRING_LENGTH     8
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.2 2003/04/13 16:05:23 pjwilliams Exp $" ATACMDS_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.3 2003/04/14 18:48:35 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 /* Table of settings for known drives terminated by an element containing all
  * zeros.  The drivesettings structure is described in knowndrives.h */
@@ -58,7 +59,7 @@ const drivesettings knowndrives[] = {
    *------------------------------------------------------------ */
 /*
   {
-     "^[[:space:]]*IC35L060AVVA07-0[[:space:]]*$",
+     "^IC35L060AVVA07-0$",
      NULL,
      "Hey, you've got an IBM Deskstar 120GXP!\n",
      NULL,
@@ -150,36 +151,14 @@ void showallpresets(void)
   }
 }
 
-static void getmodel(const struct hd_driveid *drive, char model[MODEL_STRING_LENGTH+1])
-{
-  int i;
-
-  for (i = 0; i < MODEL_STRING_LENGTH; i +=2 ) {
-    model[i]   = drive->model[i+1];
-    model[i+1] = drive->model[i];
-  }
-  model[MODEL_STRING_LENGTH] = '\0';
-}
-
-static void getfirmware(const struct hd_driveid *drive, char firmware[FIRMWARE_STRING_LENGTH])
-{
-  int i;
-
-  for (i = 0; i < FIRMWARE_STRING_LENGTH; i += 2) {
-    firmware[i]   = drive->fw_rev[i+1];
-    firmware[i+1] = drive->fw_rev[i];
-  }
-  firmware[FIRMWARE_STRING_LENGTH] = '\0';
-}
-
 // Shows the presets (if any) that are available for the given drive.
 void showpresets(const struct hd_driveid *drive)
 {
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1], out[64];
 
-  getmodel(drive, model);
-  getmodel(drive, firmware);
+  formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
+  formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
   if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
     const int (* presets)[2] = knowndrives[i].vendoropts;
@@ -207,8 +186,8 @@ void applypresets(const struct hd_driveid *drive, unsigned char opts[256])
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
-  getmodel(drive, model);
-  getmodel(drive, firmware);
+  formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
+  formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
   // Look up the drive in knowndrives[] and check vendoropts is non-NULL.
   if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {

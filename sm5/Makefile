@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.61 2003/04/13 16:05:22 pjwilliams Exp $
+# $Id: Makefile,v 1.62 2003/04/14 18:48:31 pjwilliams Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -82,7 +82,7 @@ scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h utility.h Ma
 utility.o: utility.c utility.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c utility.c
 
-knowndrives.o: knowndrives.c knowndrives.h utility.h atacmds.h Makefile
+knowndrives.o: knowndrives.c knowndrives.h utility.h atacmds.h ataprint.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c knowndrives.c
 
 

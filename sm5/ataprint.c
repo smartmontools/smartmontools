@@ -33,42 +33,75 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.73 2003/04/13 16:05:22 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.74 2003/04/14 18:48:32 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
+
+// Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
+// bytes.
+void swapbytes(char *out, const char *in, size_t n)
+{
+  size_t i;
+
+  for (i = 0; i < n; i += 2) {
+    out[i]   = in[i+1];
+    out[i+1] = in[i];
+  }
+}
+
+// Copies in to out, but removes leading and trailing whitespace.
+void trim(char *out, const char *in)
+{
+  int i, first, last;
+
+  // Find the first non-space character (maybe none).
+  first = -1;
+  for (i = 0; in[i]; i++)
+    if (!isspace(in[i])) {
+      first = i;
+      break;
+    }
+
+  if (first == -1) {
+    // There are no non-space characters.
+    out[0] = '\0';
+    return;
+  }
+
+  // Find the last non-space character.
+  for (i = strlen(in)-1; i >= first && isspace(in[i]); i--)
+    ;
+  last = i;
+
+  strncpy(out, in+first, last-first+1);
+  out[last-first+1] = '\0';
+}
+
+// Convenience function for formatting strings from hd_driveid.
+void formatdriveidstring(char *out, const char *in, int n)
+{
+  char tmp[65];
+
+  swapbytes(tmp, in, n);
+  tmp[n] = '\0';
+  trim(out, tmp);
+}
 
 // Function for printing ASCII byte-swapped strings, skipping white
 // space. This is needed on little-endian architectures, eg Intel,
 // Alpha. If someone wants to run this on SPARC they'll need to test
 // for the Endian-ness and skip the byte swapping if it's big-endian.
 void printswap(char *output, char *in, unsigned int n){
-  unsigned int i;
-  char out[64];
-  
-  // swap bytes
-  for (i=0;i<n;i+=2){
-    unsigned int j=i+1;
-    out[i]=in[j];
-    out[j]=in[i];
-  }
+  char tmp[64];
 
-  // add terminating null byte
-  out[n]='\0';
-
-  // find the end of the white space
-  for (i=0;i<n && isspace(out[i]);i++);
-
-  // and do the printing starting from first non-white space
-  if (n-i)
-    snprintf(output, 64, "%.*s\n", (int)(n-i), out+i);
+  formatdriveidstring(tmp, in, n);
+  if (*tmp)
+    snprintf(output, 64, "%s", tmp);
   else
-    snprintf(output, 64, "[No Information Found]\n");
-  
-  pout("%s",output);
-  
-  return;
+    snprintf(output, 64, "[No Information Found]");
+  pout("%s\n", output);
 }
 
 // Issues a warning, if appropriate, about the drive with the given model.
@@ -76,9 +109,9 @@ void drivewarning(const char *model) {
   int i;
 
   // For testing
-  //strcpy(model,"IC35L040AVER07-0\n");
-  //strcpy(model,"IBM-DTLA-305040\n");
-  //strcpy(model,"DTLA-305040\n");
+  //strcpy(model,"IC35L040AVER07-0");
+  //strcpy(model,"IBM-DTLA-305040");
+  //strcpy(model,"DTLA-305040");
 
   if ((i = lookupdrive(model, NULL)) >= 0 && knowndrives[i].warningmsg)
     // model matched regular expression and there is a warning so print it.
