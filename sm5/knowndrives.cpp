@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.50 2003/10/27 00:30:08 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.51 2003/10/27 18:57:24 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -172,6 +172,14 @@ const drivesettings knowndrives[] = {
     ".*",    // Tested on 8004
     NULL,
     vendoropts_Fujitsu_MHS2020AT,
+    NULL, NULL
+  },
+  { // Fujitsu MHM2200AT
+    "^FUJITSU MHM2200AT$",
+    ".*",  // Tested with firmware version 3822
+    "The FUJITSU MHM2200AT firmware has a harmless Drive Identity\n"
+      "Structure checksum error bug.",
+    vendoropts_9_seconds,
     NULL, NULL
   },
   { // Samsung SV4012H (known firmware)

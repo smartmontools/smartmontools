@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.230 2003/10/27 11:11:57 ballen4705 Exp $
+$Id: CHANGELOG,v 1.231 2003/10/27 18:57:24 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added Fujitsu MHM2200AT to knowndrives table.
 
   [BA] To help catch bugs, clear ATA error structures before all
        ioctl calls.  Disable code that attempted to time-out on SCSI
