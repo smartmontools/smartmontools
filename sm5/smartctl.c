@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.112 2004/01/02 16:05:25 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.113 2004/01/26 23:11:23 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -367,8 +367,8 @@ void ParseOpts (int argc, char** argv){
         con->quietmode     = TRUE;
         con->veryquietmode = FALSE;
       } else if (!strcmp(optarg,"silent")) {
+        con->quietmode     = FALSE;
         con->veryquietmode = TRUE;
-        con->quietmode     = TRUE;
       } else {
         badarg = TRUE;
       }
@@ -679,9 +679,9 @@ void ParseOpts (int argc, char** argv){
       EXIT(FAILCMD);
     }
   }
-  // At this point we have processed all command-line options.
-
-  // Do this here, so results are independent of argument order 
+  // At this point we have processed all command-line options.  If the
+  // print output is switchable, then start with the print output
+  // turned off
   if (con->quietmode)
     con->veryquietmode=TRUE;
 
