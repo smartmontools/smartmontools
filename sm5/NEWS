@@ -1,11 +1,22 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.20 2004/04/07 15:40:22 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.21 2004/05/04 22:12:07 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
-Date: 2003-3-6
+Date: 2004-5-4
+Summary: smartmontools release 5.31 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.  It includes
+several new features:
+- Windows smartd daemon
+- smartd now monitors current and pending sector counts
+- Support for ATA-7 selective self-test features (Linux/NetBSD only)
+  Please report sucess/failure with this option to the smartmontools-support
+  mailing list.
+
+Date: 2004-3-6
 Summary: smartmontools release 5.30 (STABLE)
 --------------------------------------------
 This is a stable release of smartmontools: the first stable release
@@ -15,7 +26,7 @@ since 5.26.
   This bug was introduced in version 1.259 of smartd.c by BA and
   is present in smartmontools releases 5.27-5.30 inclusive.
 
-Date: 2003-2-24
+Date: 2004-2-24
 Summary: smartmontools release 5.29 (Experimental, not STABLE)
 --------------------------------------------------------------
 This is another experimental release, to replace the 5.27 release that
@@ -23,7 +34,7 @@ had a damaged configure script.  The next stable release will be 5.30
 - This release has SCSI support for NetBSD
 
 
-Date: 2003-2-12 
+Date: 2004-2-12 
 Summary: smartmontools release 5.27 (Experimental, not STABLE)
 --------------------------------------------------------------
 - WARNING: this release has a broken --prefix=/a/path option to the
