@@ -1,0 +1,23 @@
+#! /bin/bash
+#
+# This is a script from the smartmontools examplescripts/ directory.
+# It can be used as an argument to the -M exec Directive in
+# /etc/smartd.conf, in a line like 
+# -m <nomailer> -M exec /path/to/this/file
+#
+# Please see man 8 smartd or man 5 smartd.conf for further
+# information.
+
+# Warn all users of a problem     
+wall 'Problem detected with disk: ' $SMARTD_DEVICE      
+wall 'Warning message from smartd is: ' "$SMARTD_MESSAGE"      
+wall 'Shutting down machine in 30 seconds... '
+
+# Wait half a minute
+sleep 30 
+
+# Power down the machine (uncomment the shutdown command if you really
+# want to do this!)
+
+# /usr/sbin/shutdown -hf now
+
