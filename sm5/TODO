@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.52 2004/04/17 10:44:47 ballen4705 Exp $
+$Id: TODO,v 1.53 2004/07/31 17:12:04 chrfranke Exp $
 
 SATA devices
 ------------
@@ -99,9 +99,6 @@ to support systems with missing ASPI driver.
 
 Windows
 -------
-Add warning mail feature to smartd, probably using the
-"Blat" mailer as a default (http://www.blat.net/).
-
 Add ability to run smartd as a windows service.
 
 Provide some installer.
