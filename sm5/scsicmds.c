@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.63 2003/11/18 13:44:46 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.64 2003/11/19 06:09:37 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -744,7 +744,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->requestedCurrent = 1;
     if (iecp->modese_len <= 6) {
         if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
-                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 MPAGE_CONTROL_CURRENT, 
                                  iecp->raw_curr, sizeof(iecp->raw_curr)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 iecp->modese_len = 10;
@@ -757,7 +757,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     }
     if (10 == iecp->modese_len) {
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
-                              MODE_PAGE_CONTROL_CURRENT, 
+                              MPAGE_CONTROL_CURRENT, 
                               iecp->raw_curr, sizeof(iecp->raw_curr));
         if (err) {
             iecp->modese_len = 0;
@@ -768,11 +768,11 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->requestedChangeable = 1;
     if (10 == iecp->modese_len)
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
-                                 MODE_PAGE_CONTROL_CHANGEABLE,
+                                 MPAGE_CONTROL_CHANGEABLE,
                                  iecp->raw_chg, sizeof(iecp->raw_chg));
     else if (6 == iecp->modese_len)
         err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
-                            MODE_PAGE_CONTROL_CHANGEABLE, 
+                            MPAGE_CONTROL_CHANGEABLE, 
                             iecp->raw_chg, sizeof(iecp->raw_chg));
     if (err)
         return err;
@@ -1565,7 +1565,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 MPAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1576,7 +1576,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MODE_PAGE_CONTROL_CURRENT, 
+                              MPAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
             return err;
@@ -1736,16 +1736,17 @@ int scsiCountFailedSelfTests(int fd, int noisy)
 
 /* Returns a negative value if failed to fetch Contol mode page or it was
    malformed. Returns 0 if GLTSD bit is zero and returns 1 if the GLTSD
-   bit is set. */
-int scsiFetchControlGLTSD(int device, int modese_len)
+   bit is set. Examines default mode page when current==0 else examines
+   current mode page. */
+int scsiFetchControlGLTSD(int device, int modese_len, int current)
 {
     int err, offset;
     UINT8 buff[64];
+    int pc = current ? MPAGE_CONTROL_CURRENT : MPAGE_CONTROL_DEFAULT;
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                                 MODE_PAGE_CONTROL_CURRENT, 
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, pc, 
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1755,8 +1756,7 @@ int scsiFetchControlGLTSD(int device, int modese_len)
             modese_len = 6;
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MODE_PAGE_CONTROL_CURRENT, 
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, pc,
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
@@ -1767,10 +1767,11 @@ int scsiFetchControlGLTSD(int device, int modese_len)
     return -EINVAL;
 }
 
-/* Attempts to clear GLTSD bit in Control mode page. Returns 0 if
+/* Attempts to set or clear GLTSD bit in Control mode page. If enabled is
+   0 attempts to clear GLTSD otherwise it attempts to set it. Returns 0 if
    successful, negative if low level error, > 0 if higher level error (e.g.
    SIMPLE_ERR_BAD_PARAM if GLTSD bit is not changeable). */
-int scsiClearControlGLTSD(int device, int modese_len)
+int scsiSetControlGLTSD(int device, int enabled, int modese_len)
 {
     int err, offset, resp_len, sp;
     UINT8 buff[64];
@@ -1779,7 +1780,7 @@ int scsiClearControlGLTSD(int device, int modese_len)
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 MPAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1790,7 +1791,7 @@ int scsiClearControlGLTSD(int device, int modese_len)
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MODE_PAGE_CONTROL_CURRENT, 
+                              MPAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
             return err;
@@ -1798,15 +1799,19 @@ int scsiClearControlGLTSD(int device, int modese_len)
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if ((offset < 0) || (buff[offset + 1] < 0xa))
         return SIMPLE_ERR_BAD_RESP;
-    if (0 == (buff[offset + 2] & 2))
-        return 0;       /* already clear so nothing to do */
+
+    if (enabled)
+        enabled = 2;
+    if (enabled == (buff[offset + 2] & 2))
+        return 0;       /* GLTSD already in wanted state so nothing to do */
+
     if (modese_len == 6)
         err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                            MODE_PAGE_CONTROL_CHANGEABLE, 
+                            MPAGE_CONTROL_CHANGEABLE, 
                             ch_buff, sizeof(ch_buff));
     else
         err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MODE_PAGE_CONTROL_CHANGEABLE, 
+                              MPAGE_CONTROL_CHANGEABLE, 
                               ch_buff, sizeof(ch_buff));
     if (err)
         return err;
@@ -1822,7 +1827,10 @@ int scsiClearControlGLTSD(int device, int modese_len)
     }
     sp = (buff[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     buff[offset] &= 0x7f;     /* mask off PS bit */
-    buff[offset + 2] &= 0xfd;   /* clear GLTSD bit in buff */
+    if (enabled)
+        buff[offset + 2] |= 0x2;    /* set GLTSD bit */
+    else
+        buff[offset + 2] &= 0xfd;   /* clear GLTSD bit */
     if (10 == modese_len)
         err = scsiModeSelect10(device, sp, buff, resp_len);
     else if (6 == modese_len)
@@ -1841,7 +1849,7 @@ int scsiFetchTransportProtocol(int device, int modese_len)
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
         if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
-                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 MPAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1852,7 +1860,7 @@ int scsiFetchTransportProtocol(int device, int modese_len)
     }
     if (10 == modese_len) {
         err = scsiModeSense10(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
-                              MODE_PAGE_CONTROL_CURRENT, 
+                              MPAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
