@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.53 2004/06/13 19:49:54 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.54 2004/07/13 14:55:38 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -119,9 +119,13 @@ for your copy of \fBsmartctl\fP to STDOUT and then exits.  Please
 include this information if you are reporting bugs or problems.
 .TP
 .B \-i, \-\-info
-Prints the device model number, serial number, firmware version, and ATA Standard
-version/revision information.  Says if the device supports SMART, and if
-so, whether SMART support is currently enabled or disabled.
+Prints the device model number, serial number, firmware version, and
+ATA Standard version/revision information.  Says if the device
+supports SMART, and if so, whether SMART support is currently enabled
+or disabled.  If the device supports Logical Block Address mode (LBA
+mode) print current user drive capacity in bytes. (If drive is has a
+user protected area reserved, or is "clipped", this may be smaller
+than the potential maximum drive capacity.)
 .TP
 .B \-a, \-\-all
 Prints all SMART information about the disk, or TapeAlert information
@@ -168,22 +172,42 @@ such as:
 .fi
 \fBsmartctl \-a \-d 3ware,2 /dev/sda\fP
 .fi
+or
+.fi
+\fBsmartctl \-a \-d 3ware,0 /dev/twe0\fP
+.fi
+or
+.fi
+\fBsmartctl \-a \-d 3ware,1 /dev/twa0\fP
+.fi
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 (3ware \'port\') within the 3ware ATA RAID controller.  The allowed
-values of N are from 0 to 15 inclusive.
+values of N are from 0 to 15 inclusive.  The first two forms, which
+refer to devices /dev/sda-z and /dev/twe0-15, may be used with 3ware
+series 6000, 7000, and 8000 series controllers that use the 3x-xxxx
+driver.  The final form, which refers to devices /dev/twa0-15, must be
+used with 3ware 9000 series controllers, which use the 3w-9xxx driver.
 
-Be aware that \fBany\fP of the physical disks can be queried or
-examined using \fBany\fP of the 3ware's SCSI logical device /dev/sd?
-entries.  Thus, if logical device /dev/sda is made up of two physical
-disks (3ware ports zero and one) and logical device /dev/sdb is made
-up of two other physical disks (3ware ports two and three) then you
-can examine the SMART data on \fBany\fP of the four physical disks
-using \fBeither\fP SCSI device /dev/sda \fBor\fP /dev/sdb.  If you
-need to know which logical SCSI device a particular physical disk
-(3ware port) is associated with, use the dmesg or SYSLOG output to
-show which SCSI ID corresponds to a particular 3ware unit, and then
-use the 3ware CLI or 3dm tool to determine which ports (physical
-disks) correspond to particular 3ware units.
+Note that if the special character device nodes /dev/twa? and
+/dev/twe? do not exist, or exist with the incorrect major or minor
+numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
+refers to the first 9000-series controller, /dev/twa1 refers to the
+second 9000 series controller, and so on. Likewise /dev/twe0 refers to
+the first 6/7/8000-series controller, /dev/twa1 refers to the second
+6/7/8000 series controller, and so on.
+
+Note that for the 6/7/8000 controllers, \fBany\fP of the physical
+disks can be queried or examined using \fBany\fP of the 3ware's SCSI
+logical device /dev/sd?  entries.  Thus, if logical device /dev/sda is
+made up of two physical disks (3ware ports zero and one) and logical
+device /dev/sdb is made up of two other physical disks (3ware ports
+two and three) then you can examine the SMART data on \fBany\fP of the
+four physical disks using \fBeither\fP SCSI device /dev/sda \fBor\fP
+/dev/sdb.  If you need to know which logical SCSI device a particular
+physical disk (3ware port) is associated with, use the dmesg or SYSLOG
+output to show which SCSI ID corresponds to a particular 3ware unit,
+and then use the 3ware CLI or 3dm tool to determine which ports
+(physical disks) correspond to particular 3ware units.
 
 If the value of N corresponds to a port that does \fBnot\fP exist on
 the 3ware controller, or to a port that does not physically have a
@@ -193,14 +217,20 @@ some cases you will get a warning message that the device does not
 exist. In other cases you will be presented with \'void\' data for a
 non\-existent device.
 
-Note that older 3w\-xxxx drivers do not pass the "Enable Autosave"
+Note that if the /dev/sd? addressing form is used, then older 3w\-xxxx
+drivers do not pass the "Enable Autosave"
 (\'\fB\-S on\fP\') and "Enable Automatic Offline" (\'\fB\-o on\fP\')
 commands to the disk, and produce these types of harmless syslog error
 messages instead: "\fB3w\-xxxx: tw_ioctl(): Passthru size (123392) too
 big\fP". This can be fixed by upgrading to version 1.02.00.037 or
 later of the 3w\-xxxx driver, or by applying a patch to older
 versions. See \fBhttp://smartmontools.sourceforge.net/\fP for
-instructions.
+instructions.  Alternatively, use the character device /dev/twe0-15 interface.
+
+The selective self-test functions ('-t select,A-B') are only supported
+using the character device interface /dev/twa0-15 and /dev/twe0-15.
+The necessary WRITE LOG commands can not be passed through the SCSI
+interface.
 
 .B 3ware controllers are currently ONLY supported under Linux.
 
@@ -1201,7 +1231,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.53 2004/06/13 19:49:54 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.54 2004/07/13 14:55:38 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.62 2004/07/11 11:01:58 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.63 2004/07/13 14:55:37 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.62 2004/07/11 11:01:58 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.63 2004/07/13 14:55:37 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1042,7 +1042,8 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     passthru->sector_count = 0x1;
     // For 64-bit to work correctly, up the size of the command packet
     // in dwords by 1 to account for the 64-bit single sgl 'address'
-    // field.
+    // field. Note that this doesn't agree with the typedefs but it's
+    // right (agree with kernel driver behavior/typedefs).
     if (escalade_type==THREE_WARE_9000_CHAR && sizeof(long)==8)
       passthru->size++;
   }
@@ -1141,7 +1142,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     return -1;
   }
 
-  /* Now send the command down through an ioctl() */
+  // Now send the command down through an ioctl()
   if (escalade_type==THREE_WARE_9000_CHAR)
     ioctlreturn=ioctl(fd, TW_IOCTL_FIRMWARE_PASS_THROUGH, tw_ioctl_apache);
   else if (escalade_type==THREE_WARE_678K_CHAR)
@@ -1149,12 +1150,14 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   else
     ioctlreturn=ioctl(fd, SCSI_IOCTL_SEND_COMMAND, tw_ioctl);
   
+  // Deal with the different error cases
   if (ioctlreturn) {
-    // If error was provoked by driver, tell user how to fix it
-    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select){
+    if (THREE_WARE_678K==escalade_type && (command==AUTO_OFFLINE || command==AUTOSAVE) && select){
       printwarning(command);
       errno=ENOTSUP;
     }
+    if (!errno)
+      errno=EIO;
     return -1;
   }
   
@@ -1162,6 +1165,13 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   if (escalade_type==THREE_WARE_678K)
     passthru=(TW_Passthru *)&(tw_output->output_data);
   
+  // see if the ATA command failed
+  if ((escalade_type!=THREE_WARE_678K || (escalade_type==THREE_WARE_678K && !readdata))
+      && (passthru->status & 0x01)) {
+    errno=EIO;
+    return -1;
+  }
+
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (escalade_type==THREE_WARE_9000_CHAR)
@@ -1191,9 +1201,15 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       return 1;
     
     // Any other values mean that something has gone wrong with the command
-    printwarning(command);
-    errno=ENOSYS;
-    return 0;
+    if (THREE_WARE_678K==escalade_type) {
+      printwarning(command);
+      errno=ENOSYS;
+      return 0;
+    }
+    else {
+      errno=EIO;
+      return -1;
+    }
   }
   
   // copy sector count register (one byte!) to return data
