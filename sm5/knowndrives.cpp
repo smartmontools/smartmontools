@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.90 2004/03/03 19:01:17 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.91 2004/03/03 23:29:00 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -366,8 +366,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // Maxtor DiamondMax Plus 40 series
-    "^Maxtor (54098H8|53073H6|52732H6|52049H4|51536H3|51369H3|51024H2)$",
+  { // Maxtor DiamondMax Plus 40 series (Ultra ATA 66 and Ultra ATA 100)
+    "^Maxtor (54098[UH]8|53073[UH]6|52732[UH]6|52049[UH]4|51536[UH]3|51369[UH]3|51024[UH]2)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -403,6 +403,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor DiamondMax Plus 9 family
     "^Maxtor 6Y((060|080|120|160)L0|(080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor MaXLine Plus II
+    "^Maxtor 7Y250[PM]0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -447,6 +454,11 @@ const drivesettings knowndrives[] = {
   },
   { // IBM Travelstar 14GS
     "^IBM-DCYA-214000$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Hitachi Deskstar 7K250 series
+    "^HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -565,6 +577,11 @@ const drivesettings knowndrives[] = {
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD(4|6|8|10|12|16|18|20|25)00JB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Caviar SE (Serial ATA) family
+    "^WDC WD(4|8|12|16|20|25)00JD-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
