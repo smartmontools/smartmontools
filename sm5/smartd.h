@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.67 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.68 2004/01/13 16:53:06 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -184,9 +184,11 @@ typedef struct configfile_s {
   char ignorepresets;                     // Ignore database of -v options
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
+  char powermode;                         // skip check, if disk in idle or standby mode
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
   testinfo *testdata;                     // Pointer to data on scheduled testing
+  
   
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script

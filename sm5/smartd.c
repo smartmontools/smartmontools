@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.279 2004/01/09 16:35:41 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.280 2004/01/13 16:53:06 ballen4705 Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.279 2004/01/09 16:35:41 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.280 2004/01/13 16:53:06 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -757,6 +757,7 @@ void Directives() {
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
+	   "  -n MODE No check if: never, sleep, standby, idle\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
@@ -1107,6 +1108,21 @@ int ATADeviceScan(cfgfile *cfg){
     if (cfg->smartthres) {
       cfg->smartthres=CheckFree(cfg->smartthres, __LINE__,filenameandversion);
       bytes-=sizeof(struct ata_smart_thresholds);
+    }
+  }
+
+  // capabilities check -- does it support powermode?
+  if (cfg->powermode) {
+    int powermode=ataCheckPowerMode(fd);
+    
+    if (-1 == powermode) {
+      PrintOut(LOG_CRIT, "Device: %s, no ATA CHECK POWER STATUS support, ignoring -n Directive\n", name);
+      cfg->powermode=0;
+    } 
+    else if (powermode!=0 && powermode!=0x80 && powermode!=0xff) {
+      PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
+	       name, powermode);
+      cfg->powermode=0;
     }
   }
 
@@ -1626,6 +1642,51 @@ int ATACheckDevice(cfgfile *cfg){
     return 1;
   }
 
+  // user may have requested (with the -n Directive) to leave the disk
+  // alone if it is in idle or sleeping mode.  In this case check the
+  // power mode and exit without check if needed
+  if (cfg->powermode){
+    int dontcheck=0, powermode=ataCheckPowerMode(fd);
+    char *mode=NULL;
+        
+    switch (powermode){
+    case -1:
+      // SLEEP
+      mode="SLEEP";
+      if (cfg->powermode>=1)
+	dontcheck=1;
+      break;
+    case 0:
+      // STANDBY
+      mode="STANDBY";
+      if (cfg->powermode>=2)
+	dontcheck=1;
+      break;
+    case 0x80:
+      // IDLE
+      mode="IDLE";
+      if (cfg->powermode>=3)
+	dontcheck=1;
+      break;
+    case 0xff:
+      // ACTIVE/IDLE
+      break;
+    default:
+      // UNKNOWN
+      PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
+	       name, powermode);
+      cfg->powermode=0;
+      break;
+    }
+
+    // if we are going to skip a check, return now
+    if (dontcheck){
+      CloseDevice(fd, name);
+      PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
+      return 0;
+    }    
+  }
+
   // check smart status
   if (cfg->smartcheck){
     int status=ataSmartStatus2(fd);
@@ -1955,6 +2016,9 @@ void printoutvaliddirectiveargs(int priority, char d) {
   char *s=NULL;
 
   switch (d) {
+  case 'n':
+    PrintOut(priority, "never, sleep, standby, idle");
+    break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
     break;
@@ -2195,6 +2259,21 @@ int ParseToken(char *token,cfgfile *cfg){
     } else {
       badarg = 1;
     }
+    break;
+  case 'n':
+    // skip disk check if in idle or standby mode
+    if (!(arg = strtok(NULL, delim)))
+      missingarg = 1;
+    else if (!strcmp(arg, "never"))
+      cfg->powermode = 0;
+    else if (!strcmp(arg, "sleep"))
+      cfg->powermode = 1;
+    else if (!strcmp(arg, "standby"))
+      cfg->powermode = 2;
+    else if (!strcmp(arg, "idle"))
+      cfg->powermode = 3;
+    else
+      badarg = 1;
     break;
   case 'S':
     // automatic attribute autosave enable/disable
