@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.413 2004/05/27 16:26:37 card_captor Exp $
+$Id: CHANGELOG,v 1.414 2004/06/01 21:12:27 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,26 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Seagate Medalist 17242, 13032, 10232, 8422, and 4312 to
+       knowndrives table.  Added missing Seagate U Series 5 drives.
+
+  [PW] Added the following QUANTUM models to knowndrives table:
+       FIREBALL EX6.4A, FIREBALLP AS10.2, FIREBALLP AS40.0, FIREBALL CR4.3A,
+       FIREBALLP LM15, FIREBALLP LM30, and FIREBALLlct20 30
+
+  [PW] Added missing Western Digital Protege drives to knowndrives table.
+
+  [PW] Added Maxtor DiamondMax 40 ATA 66 series and DiamondMax 40 VL Ultra
+       ATA 100 series to knowndrives table.
+
+  [PW] Added the following Hitachi/IBM drives to knowndrives table:
+       HITACHI_DK14FA-20B, Travelstar 40GNX series, Travelstar 4LP series,
+       and Travelstar DK23XXB series.  Added the missing Travelstar 80GN
+       drives.
+
+  [PW] Added Fujitsu MPB series and MPG series to knowndrives table.  Added
+       the missing Fujitsu MHSxxxxAT drives.
 
   [KS] Solaris: added workaround for dynamic change of time-zone.
 
