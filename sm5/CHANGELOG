@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.305 2003/12/30 11:58:45 ballen4705 Exp $
+$Id: CHANGELOG,v 1.306 2003/12/30 12:32:18 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: now watches stdout/stderr when trying to run mail, mailx
+       or mail warning script, and reports any output to SYSLOG.  This
+       gives a clearer error message if something is wrong.
 
   [BA] smartd: Solaris init script modified to accomodate grep that
        lacks '-q' quiet option.  Also check for running process to kill
