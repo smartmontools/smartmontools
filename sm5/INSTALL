@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.50 2004/07/17 23:18:59 geoffk1 Exp $
+$Id: INSTALL,v 1.51 2004/07/19 04:45:03 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -13,12 +13,13 @@ Table of contents:
 [3] Installing from source tarball
 [4] Guidelines for different Linux distributions
 [5] Guidelines for FreeBSD
-[6] Guidelines for NetBSD
-[7] Guidelines for Solaris
-[8] Guidelines for Cygwin
-[9] Guidelines for Windows
-[10] Comments
-[11] Detailed description of ./configure options
+[6] Guidelines for Darwin
+[7] Guidelines for NetBSD
+[8] Guidelines for Solaris
+[9] Guidelines for Cygwin
+[10] Guidelines for Windows
+[11] Comments
+[12] Detailed description of ./configure options
 
 [1] System requirements
 =======================
@@ -140,6 +141,34 @@ Table of contents:
 
     SCSI devices are not currently supported.  Detecting the power
     status of a drive is also not currently supported.
+
+    To summarize this, from another point of view, the things that
+    are not supported fall into three categories:
+                                                                                                                 
+   * Could be implemented, but hasn't been done yet:
+     - Listing available devices
+     - checking the power mode (I think) [-n Directive of smartd]
+     - support for SCSI (I think)
+     - support for 3ware controllers (maybe)
+
+   * Can't be implemented easily without more OS support:
+     - running immediate offline, conveyance, or selective tests
+     - running any test in capture mode
+     - aborting tests
+     - switching on automatic offline testing
+                                                                                                          
+   * Are implemented, but don't work due to OS bugs:
+     - switching off SMART (switching *on* works fine)
+     - switching off auto-save (but why would you want to?)
+     - running the short test (that leaves you with only the extended test)
+                                                                                                                 
+The last set have been filed in Apple's bug tracking system and so
+hopefully will be fixed.
+                                                                                                                 
+However, some things do work well.  For ATA devices, all the
+informational output is available, unless you want something that only
+an offline test updates.
+
 
 [2] Installing from CVS
 =======================
@@ -273,12 +302,23 @@ SuSE:
 	/usr/local/etc/smartd.conf.sample
 	/usr/local/etc/rc.d/smartd.sample
 
-[6] Guidelines for NetBSD
+
+[6] Guidelines for Darwin
+=========================
+   Geoff, you should fill this in, along the lines of what is above and below.
+   Basically you should give the recommended ./configure options, and also
+   explain what's needed to install the init script for smartd.
+
+   Note: the init script should probably be modified so that it recognizes Darwin.
+   This file is smartd.initd.in
+
+
+[7] Guidelines for NetBSD
 =========================
   ./configure --prefix=/usr/pkg                                       \
 	      --with-docdir=/usr/pkg/share/doc/smartmontools
 
-[7] Guidelines for Solaris
+[8] Guidelines for Solaris
 ==========================
 
     smartmontools has been partially but not completely ported to
@@ -320,7 +360,7 @@ SuSE:
     sh -c 'for n in S 0 1 2; do ln init.d/smartd rc$n.d/K05smartd; done'
     sh -c 'for n in 3      ; do ln init.d/smartd rc$n.d/S95smartd; done'
 
-[8] Guidelines for Cygwin
+[9] Guidelines for Cygwin
 =========================
 
 Same as Red Hat:
@@ -341,7 +381,7 @@ Same as Red Hat:
   file type ("binmode" mount option) set. The "autogen.sh" script prints a
   warning if DOS type is selected.
 
-[9] Guidelines for Windows
+[10] Guidelines for Windows
 ==========================
 
 To compile the Windows release with MinGW, use the following on Cygwin:
@@ -352,7 +392,7 @@ To compile the Windows release with MinGW, use the following on Cygwin:
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
 
-[10] Comments
+[11] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -413,7 +453,7 @@ The following files are installed if ./configure has no options:
 /usr/local/share/doc/smartmontools-5.X/examplescripts   [Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[11] Detailed description of arguments to configure command
+[12] Detailed description of arguments to configure command
 ===========================================================
 
 When you type:
