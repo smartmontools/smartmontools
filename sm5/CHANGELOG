@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.209 2003/10/13 04:58:01 ballen4705 Exp $
+$Id: CHANGELOG,v 1.210 2003/10/13 14:31:34 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Update MAN pages with notes that 3ware drives are NOT supported
+	under FreeBSD. Cleanup FreeBSD warning message handling.
 
   [EM] FreeBSD only: Fix first user found bug....I guess I was making
        the wrong assumption on how to convert ATA devnames to

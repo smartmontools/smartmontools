@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.16 2003/10/13 02:28:15 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.17 2003/10/13 14:31:34 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -144,6 +144,37 @@ int deviceclose (int fd) {
   return failed;
 }
 
+#define NO_RETURN 0
+#define BAD_SMART 1
+#define NO_3WARE 2
+#define BAD_KERNEL 3
+#define MAX_MSG 3
+
+// Utility function for printing warnings
+void printwarning(int msgNo, const char* extra) {
+  static int printed[] = {0,0,0,0};
+  static const char* message[]={
+    "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\n",
+    
+    "Error SMART Status command failed\nPlease get assistance from \n" PROJECTHOME "\nRegister values returned from SMART Status command are:\n",
+    
+    PACKAGE_STRING " does not currentlly support TWE devices (3ware Escalade)\n",
+    
+    "ATA support is not provided for this kernel version. Please ugrade to a recent 5-CURRENT kernel (post 09/01/2003 or so)\n"
+  };
+
+  if (msgNo >= 0 && msgNo <= MAX_MSG) {
+    if (!printed[msgNo]) {
+      printed[msgNo] = 1;
+      pout("%s", message[msgNo]);
+      if (extra)
+	pout("%s",extra);
+    }
+  }
+  return;
+}
+
+
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data) {
   struct freebsd_dev_channel* con;
@@ -157,6 +188,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 #ifndef ATAREQUEST
   // sorry, but without ATAng, we can't do anything here
+  printwarning(OLD_KERNEL,NULL);
   errno = ENOSYS;
   return -;
 #else
@@ -252,7 +284,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 #endif
     break;
   default:
-    pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
+    pout("Unrecognized command %d in ata_command_interface()\n", command);
     EXIT(1);
     break;
   }
@@ -266,7 +298,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
       return -1;
 
 #ifndef ATA_CMD_READ_REG
-    pout("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\n");
+    printwarning(NO_RETURN,NULL);
 #endif
 
     high = (iocmd.u.request.u.ata.lba >> 16) & 0xff;
@@ -281,16 +313,16 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
       return 1;
     
     // We haven't gotten output that makes sense; print out some debugging info
-    syserror("Error SMART Status command failed");
-    pout("Please get assistance from %s\n",PROJECTHOME);
-    pout("Register values returned from SMART Status command are:\n");
-    pout("CMD=0x%02x\n",(int)iocmd.u.request.u.ata.command);
-    pout("FR =0x%02x\n",(int)iocmd.u.request.u.ata.feature);
-    pout("NS =0x%02x\n",(int)iocmd.u.request.u.ata.count);
-    pout("SC =0x%02x\n",(int)((iocmd.u.request.u.ata.lba) & 0xff));
-    pout("CL =0x%02x\n",(int)((iocmd.u.request.u.ata.lba>>8) & 0xff));
-    pout("CH =0x%02x\n",(int)((iocmd.u.request.u.ata.lba>>16) & 0xff));
-    pout("RETURN =0x%04x\n",(int)iocmd.u.request.error);
+    char buf[512];
+    sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+	    (int)iocmd.u.request.u.ata.command,
+	    (int)iocmd.u.request.u.ata.feature,
+	    (int)iocmd.u.request.u.ata.count,
+	    (int)((iocmd.u.request.u.ata.lba) & 0xff),
+	    (int)((iocmd.u.request.u.ata.lba>>8) & 0xff),
+	    (int)((iocmd.u.request.u.ata.lba>>16) & 0xff),
+	    (int)iocmd.u.request.error);
+    printwarning(BAD_SMART,buf);
     return 0;   
   }
 
@@ -405,7 +437,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data) {
-  // not currently supported
+  printwarning(NO_3WARE,NULL);
   return -1;
 }
 

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5.in,v 1.4 2003/10/06 00:37:04 ballen4705 Exp $
+\# $Id: smartd.conf.5.in,v 1.5 2003/10/13 14:31:34 arvoreen Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,11 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/10/06 00:37:04 $" RELEASE
+.TH SMARTD.CONF 5  "$Date: 2003/10/13 14:31:34 $" RELEASE
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File \- \fBRELEASE\fP
 .SH PACKAGE VERSION
-RELEASE "$Date: 2003/10/06 00:37:04 $"
+RELEASE "$Date: 2003/10/13 14:31:34 $"
 
 .SH DESCRIPTION
 \fB/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
@@ -229,6 +229,8 @@ instead: \fB\'3w-xxxx: tw_ioctl(): Passthru size (123392) too big\'\fP. This
 can be fixed by upgrading to version 1.02.00.037 or later of the
 3w-xxxx driver, or by applying a patch to older versions. See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
+
+.B 3ware controllers are NOT supported under FreeBSD yet.
 
 .I removable
 \- the device or its media is removable.  This indicates to
@@ -945,4 +947,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.4 2003/10/06 00:37:04 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.5 2003/10/13 14:31:34 arvoreen Exp $
