@@ -1,4 +1,4 @@
-//  $Id: smartctl.cpp,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $
+//  $Id: smartctl.cpp,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -229,7 +229,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $");
     if (argc==2)
       exit(0);
  }
@@ -240,8 +240,8 @@ int main (int argc, char **argv){
     exit (-1);
   }
     
-  /* open device */
-  fd = open ( device=argv[2], O_RDWR );
+  // open device - read-only mode is enough to issue needed commands
+  fd = open ( device=argv[2], O_RDONLY );
   
   if ( fd < 0) {
     perror ( "Device open failed");
