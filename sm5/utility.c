@@ -37,7 +37,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.20 2003/10/08 01:56:51 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.21 2003/10/08 03:23:13 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -132,6 +132,7 @@ void dateandtimezone(char *buffer){
 // returns distance that it has moved ahead in the input string
 int massagecvs(char *out, const char *cvsid){
   char *copy,*filename,*date,*version;
+  int retVal=0;
   const char delimiters[] = " ,$";
 
   // make a copy on stack, go to first token,
@@ -151,8 +152,9 @@ int massagecvs(char *out, const char *cvsid){
     return 0;
 
    sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
+   retVal = (date-copy)+strlen(date);
    free(copy);
-   return  (date-copy)+strlen(date);
+   return  retVal;
 }
 
 // prints a single set of CVS ids
