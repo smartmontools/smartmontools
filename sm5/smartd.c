@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.224 2003/10/27 09:26:20 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.225 2003/10/27 10:27:33 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -117,9 +117,10 @@ volatile int caughtsigUSR1=0;
 // set to two, if we catch INT (also reload config file).
 volatile int caughtsigHUP=0;
 
+#if SCSITIMEOUT
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
-
+#endif
 
 // prints CVS identity information for the executable
 void PrintCVS(void){
@@ -1453,10 +1454,12 @@ void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
   return;
 }
 
+#if SCSITIMEOUT
 // This alarm means that a SCSI USB device was hanging
 void AlarmHandler(int signal) {
   longjmp(registerscsienv, 1);
 }
+#endif
 
 // Does initialization right after fork to daemon mode
 void Initialize(time_t *wakeuptime){
@@ -2605,6 +2608,8 @@ void RegisterDevices(int scanning){
     // then register SCSI devices
     if (ent->tryscsi){
       int retscsi=0;
+
+#if SCSITIMEOUT
       struct sigaction alarmAction, defaultaction;
 
       // Set up an alarm handler to catch USB devices that hang on
@@ -2631,6 +2636,9 @@ void RegisterDevices(int scanning){
 	  PrintOut(LOG_CRIT, "Unable to clear SCSI timeout mechanism.\n");
 	}
       }
+#else
+      retscsi=SCSIDeviceScan(ent);
+#endif   
 
       // Now scan SCSI device...
       if (retscsi){
