@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.48 2004/02/04 18:48:12 ballen4705 Exp $
+# $Id: Makefile.am,v 1.49 2004/02/12 18:30:30 card_captor Exp $
 #
 
 @SET_MAKE@
@@ -36,6 +36,7 @@ EXTRA_smartd_SOURCES = os_linux.c \
 		       os_freebsd.h \
 		       os_solaris.c \
 		       os_solaris.h \
+		       os_solaris_ata.s \
                        os_generic.c \
                        os_generic.h
 

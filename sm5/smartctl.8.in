@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.25 2004/02/06 12:11:53 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.26 2004/02/12 18:30:31 card_captor Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -69,7 +69,7 @@ Use the form \fB"/dev/wd[0-9]+[cd]"\fP for IDE/ATA
 devices.  Be sure to specify correct "whole disk" partition letter
 for your architecture.
 .IP \fBSOLARIS\fP: 9
-Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk
+Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
 devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .PP
 Based on the device path, \fBsmartctl\fP will guess the device type
@@ -1036,4 +1036,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.25 2004/02/06 12:11:53 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.26 2004/02/12 18:30:31 card_captor Exp $

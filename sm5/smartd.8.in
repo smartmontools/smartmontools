@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.39 2004/02/06 03:52:02 ballen4705 Exp $
+$Id: smartd.8.in,v 1.40 2004/02/12 18:30:31 card_captor Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
 Authoritative list of disk devices is obtained from sysctl 
 \'hw.disknames\'.
 .IP \fBSOLARIS:\fP 9
-Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk
+Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
 devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .RE
 .PP
@@ -1536,4 +1536,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.39 2004/02/06 03:52:02 ballen4705 Exp $
+$Id: smartd.8.in,v 1.40 2004/02/12 18:30:31 card_captor Exp $
