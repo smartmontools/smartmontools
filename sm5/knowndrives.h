@@ -20,7 +20,7 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.3 2003/04/16 20:09:00 pjwilliams Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.4 2003/04/16 23:04:28 pjwilliams Exp $\n"
 
 #include <linux/hdreg.h>
 #include "extern.h"
@@ -45,6 +45,9 @@
  *                  be terminated with the entry {0,0}.
  *  specialpurpose  Pointer to a function that defines some additional action
  *                  that may be taken for matching devices.
+ *  functiondesc    A description of the effect of the specialpurpose
+ *                  function.  Used by showpresets() and showallpresets() to
+ *                  make the output more informative.
  */
 typedef struct drivesettings_s {
   const char * const modelregexp;
@@ -52,6 +55,7 @@ typedef struct drivesettings_s {
   const char * const warningmsg;
   const int (* const vendoropts)[2];
   void (* const specialpurpose)(smartmonctrl *);
+  const char * const functiondesc;
 } drivesettings;
 
 /* Table of settings for known drives.  Defined in knowndrives.c. */
