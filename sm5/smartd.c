@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.273 2003/12/30 12:32:18 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.274 2003/12/30 18:55:56 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -394,7 +394,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   mailinfo *mail;
   maildata* data=cfg->mailwarn;
   FILE *pfp=NULL;
-  char *newadd=NULL;
+  char *newadd=NULL, *newwarn=NULL;
 
   // See if user wants us to send mail
   if (!data)
@@ -550,52 +550,76 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   
   // tell SYSLOG what we are about to do...
   newadd=address?address:"<nomailer>";
+  newwarn=which?"Warning via":"Test of";
+
   PrintOut(LOG_INFO,"%s %s to %s ...\n",
            which?"Sending warning via ":"Executing test of", executable, newadd);
   
   // issue the command to send mail or to run the user's executable
+  errno=0;
   if (!(pfp=popen(command, "r")))
     // failed to popen() mail process
-    PrintOut(LOG_CRIT,"%s %s to %s failed (unable to fork or pipe to mail process)\n", 
-	     which?"Warning via":"Test of", executable, newadd);
+    PrintOut(LOG_CRIT,"%s %s to %s: failed (fork or pipe failed, or no memory) %s\n", 
+	     newwarn,  executable, newadd, errno?strerror(errno):"");
   else {
     // pipe suceeded!
     int len, status;
     char buffer[EBUFLEN];
-    char *newwarn=which?"Warning via":"Test of";
 
-    // if unexpected output on stdout/stderr, null terminate and print
+    // if unexpected output on stdout/stderr, null terminate, print, and flush
     if ((len=fread(buffer, 1, EBUFLEN, pfp))) {
+      int count=0;
       int newlen = len<EBUFLEN ? len : EBUFLEN-1;
       buffer[newlen]='\0';
       PrintOut(LOG_CRIT,"%s %s to %s produced unexpected output (%s%d bytes) to STDOUT/STDERR: \n%s\n", 
-	       newwarn,
-	       executable,
-	       newadd,
-	       len!=newlen?"here truncated to ":"",
-	       newlen, 
-	       buffer);
+	       newwarn, executable, newadd, len!=newlen?"here truncated to ":"", newlen, buffer);
+      
+      // flush pipe if needed
+      while (fread(buffer, 1, EBUFLEN, pfp) && count<EBUFLEN)
+	count++;
+
+      // tell user that pipe was flushed, or that something is really wrong
+      if (count && count<EBUFLEN)
+	PrintOut(LOG_CRIT,"%s %s to %s: flushed remaining STDOUT/STDERR\n", 
+		 newwarn, executable, newadd);
+      else if (count)
+	PrintOut(LOG_CRIT,"%s %s to %s: more than 1 MB STDOUT/STDERR flushed, breaking pipe\n", 
+		 newwarn, executable, newadd);
     }
     
     // if something went wrong with mail process, print warning
+    errno=0;
     if (-1==(status=pclose(pfp)))
-      PrintOut(LOG_CRIT,"%s %s to %s failed (pclose returned -1)\n", 
-	       newwarn, executable, newadd);
+      PrintOut(LOG_CRIT,"%s %s to %s: pclose(3) failed %s\n", newwarn, executable, newadd,
+	       errno?strerror(errno):"");
     else {
       // mail process apparently succeeded. Check and report exit status
       int status8;
       
-#ifdef WEXITSTATUS
-      status8=WEXITSTATUS(status);
-#else
-      status8=(status>>8) & 0xff;
-#endif 
-      if (status8)  
-	PrintOut(LOG_CRIT,"%s %s to %s failed (32-bit/8-bit exit status: %d/%d)\n", 
-		 newwarn, executable, newadd, status, status8);
-      else
-	PrintOut(LOG_INFO,"%s %s to %s successful\n",
-		 newwarn, executable, newadd);
+      if (WIFEXITED(status)) {
+	// exited 'normally' (but perhaps with nonzero status)
+	status8=WEXITSTATUS(status);
+	
+	if (status8>128)  
+	  PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d) perhaps caught signal %d [%s]\n", 
+		   newwarn, executable, newadd, status, status8, status8-128, strsignal(status8-128));
+	else if (status8)  
+	  PrintOut(LOG_CRIT,"%s %s to %s: failed (32-bit/8-bit exit status: %d/%d)\n", 
+		   newwarn, executable, newadd, status, status8);
+	else
+	  PrintOut(LOG_INFO,"%s %s to %s: successful\n", newwarn, executable, newadd);
+      }
+      
+      if (WIFSIGNALED(status))
+	PrintOut(LOG_INFO,"%s %s to %s: exited because of uncaught signal %d [%s]\n", 
+		 newwarn, executable, newadd, WTERMSIG(status), strsignal(WTERMSIG(status)));
+      
+      // this branch is probably not possible. If subprocess is
+      // stopped then pclose() should not return.
+      if (WIFSTOPPED(status)) 
+      	PrintOut(LOG_CRIT,"%s %s to %s: process STOPPED because it caught signal %d [%s]\n",
+		 newwarn, executable, newadd, WSTOPSIG(status), strsignal(WSTOPSIG(status)));
+      
     }
   }
   

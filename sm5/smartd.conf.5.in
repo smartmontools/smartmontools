@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.25 2003/12/30 11:59:37 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.26 2003/12/30 18:55:56 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -48,13 +48,13 @@ running.
 
 .SH CONFIGURATION FILE /etc/smartd.conf
 In the absence of a configuration file,
-.B smartd 
+\fBsmartd\fP 
 will try to open the 20 ATA devices 
 .B /dev/hd[a-t] 
 and the 26 SCSI devices
 .B /dev/sd[a-z]
 under Linux. Under FreeBSD, 
-.B smartd
+\fBsmartd\fP
 will try to open all existing ATA devices (with entries in /dev)
 .B /dev/ad[0-9]+
 and all existing SCSI devices
@@ -67,7 +67,7 @@ be opened.
 
 One can avoid this problem, and gain more control over the types of
 events monitored by
-.B smartd,
+\fBsmartd\fP,
 by using the configuration file
 .B /etc/smartd.conf.
 This file contains a list of devices to monitor, with one device per
@@ -155,7 +155,7 @@ If the first non-comment entry in the configuration file is the text
 string
 .B DEVICESCAN
 in capital letters, then
-.B smartd
+\fBsmartd\fP
 will ignore any remaining lines in the configuration file, and will
 scan for devices.
 .B DEVICESCAN
@@ -171,7 +171,7 @@ on any line of the
 .B /etc/smartd.conf
 configuration file. Note that
 .B these are NOT command-line options for 
-.B smartd.
+\fBsmartd\fP.
 The Directives below may appear in any order, following the device
 name. 
 
@@ -200,7 +200,7 @@ devices.  Hence all the ATA directives can be used for these disks
 Specifies the type of the device.  This Directive may be used multiple times
 for one device, but the arguments \fIata\fP, \fIscsi\fP, and \fI3ware,N\fP are
 mutually-exclusive. If more than one is given then
-.B smartd
+\fBsmartd\fP
 will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
@@ -208,7 +208,7 @@ first attempt to guess the device type by looking at whether the sixth
 character in the device name is an \'s\' or an \'h\'.  This will work for
 device names like /dev/hda or /dev/sdb, and corresponds to choosing
 \fIata\fP or \fIscsi\fP respectively. If
-.B smartd
+\fBsmartd\fP
 can\'t guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
 
@@ -216,12 +216,12 @@ The valid arguments to this Directive are:
 
 .I ata
 \- the device type is ATA.  This prevents
-.B smartd
+\fBsmartd\fP
 from issuing SCSI commands to an ATA device.
 
 .I scsi
 \- the device type is SCSI.  This prevents
-.B smartd
+\fBsmartd\fP
 from issuing ATA commands to a SCSI device.
 
 .I 3ware,N
@@ -248,7 +248,7 @@ can be fixed by upgrading to version 1.02.00.037 or later of the
 
 .I removable
 \- the device or its media is removable.  This indicates to
-.B smartd
+\fBsmartd\fP
 that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
@@ -256,7 +256,7 @@ with the other \'\-d\' Directives.
 .TP
 .B \-T TYPE
 Specifies how tolerant
-.B smartd
+\fBsmartd\fP
 should be of SMART command failures.  The valid arguments to this
 Directive are:
 
@@ -276,7 +276,7 @@ command-line option.]
 .TP
 .B \-o VALUE
 Enables or disables SMART Automatic Offline Testing when
-.B smartd
+\fBsmartd\fP
 starts up and has no further effect.  The valid arguments to this
 Directive are \fIon\fP and \fIoff\fP.
 
@@ -438,34 +438,43 @@ separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
 
 To test that email is being sent correctly, use the \'\-M test\'
 Directive described below to send one test email message on
-.B smartd
+\fBsmartd\fP
 startup.
 
 By default, email is sent using the system 
 .B mail
 command.  In order that
-.B smartd
+\fBsmartd\fP
 find the mail command (normally /bin/mail) an executable named
 .B \'mail\'
 must be in the path of the shell or environment from which
-.B smartd
+\fBsmartd\fP
 was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
 Note that by default under Solaris, in the previous paragraph,
 \'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
-\'/bin/mail\' does not accept a \'\-s\' argument.
+\'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
+argument.
 
 Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
 exec\' Directive. Please see below for an explanation of its effect.
 
+If the mailer or the shell running it produces any STDERR/STDOUT
+output, then a snippet of that output will be copied to SYSLOG.  The
+remainder of the output is discarded. If problems are encountered in
+sending mail, this should help you to understand and fix them.  If
+you have mail problems, we recommend running \fBsmartd\fP in debug
+mode with the \'-d\' flag, using the \'-M test\' Directive described
+below.
+
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
-.B smartd
+\fBsmartd\fP
 email warnings enabled with the \'\-m\' email Directive described above.
 These \'\-M\' Directives only work in conjunction with the \'\-m\'
 Directive and can not be used without it.
@@ -493,41 +502,36 @@ previous interval.
 .I test
 \- send a single test email
 immediately upon
-.B smartd
+\fBsmartd\fP
 startup.  This allows one to verify that email is delivered correctly.
 
 .I exec PATH
 \- run the executable PATH instead of the default mail command, when
-.B smartd
+\fBsmartd\fP
 needs to send email.  PATH must point to an executable binary file or
 script.
 
 By setting PATH to point to a customized script, you can make
-.B smartd
-perform useful tricks when a disk problem is detected (beeping the
-console, shutting down the machine, broadcasting warnings to all
-logged-in users, etc.)  But please be careful.
-.B smartd
-will
-.B block
-until the executable PATH returns, so if your executable hangs, then
-.B smartd
-will also hang.  Some sample scripts are included in
+\fBsmartd\fP perform useful tricks when a disk problem is detected
+(beeping the console, shutting down the machine, broadcasting warnings
+to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
+will \fBblock\fP until the executable PATH returns, so if your
+executable hangs, then \fBsmartd\fP will also hang. Some sample
+scripts are included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
-The return status of the executable is recorded by
-.B smartd
-in SYSLOG, but the executable\'s STDOUT and STDERR are directed to
-/dev/null, so if you wish to leave some other record behind, the
-executable must send mail or write to a file or device.
+The return status of the executable is recorded by \fBsmartd\fP in
+SYSLOG. The executable is not expectected to write to STDOUT or
+STDERR.  If it does, then this is interpreted as indicating that
+something is going wrong with your executable, and a fragment of this
+output is logged to SYSLOG to help you to understand the problem.
+Normally, if you wish to leave some record behind, the executable
+should send mail or write to a file or device.
 
-Before running the executable,
-.B smartd
-sets a number of environment variables.  These environment variables
-may be used to control the executable\'s behavior.  The environment
-variables exported by
-.B smartd
-are:
+Before running the executable, \fBsmartd\fP sets a number of
+environment variables.  These environment variables may be used to
+control the executable\'s behavior.  The environment variables
+exported by \fBsmartd\fP are:
 .nf
 .fi
 .B SMARTD_MAILER
@@ -588,7 +592,7 @@ admin@example.com).
 .fi
 .B SMARTD_MESSAGE
 is set to the warning email message string from
-.B smartd. 
+\fBsmartd\fP. 
 This message string contains space characters and is NOT quoted. So to
 use $SMARTD_MESSAGE in a bash script you should probably enclose it in
 double quotes.
@@ -609,8 +613,8 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 .B SMARTD_TFIRST.
 
 The shell which is used to run PATH is system-dependent. For vanilla
-linux/glibc it\'s bash. For other systems, the man page for system (3)
-should say what shell is used.
+linux/glibc it\'s bash. For other systems, the man page for
+\fBpopen\fP(3) should say what shell is used.
 
 If the \'\-m ADD\' Directive is given with a normal address argument,
 then the executable pointed to by PATH will be run in a shell with
@@ -714,7 +718,7 @@ report whenever the
 value of Attribute
 .B ID
 changes.  (Normally
-.B smartd
+\fBsmartd\fP
 only tracks/reports changes of the
 .I Normalized
 Attribute values.)
@@ -855,7 +859,7 @@ value for Attribute 123 in this form.
 .TP
 .B \-P TYPE
 Specifies whether
-.B smartd
+\fBsmartd\fP
 should use any preset options that are available for this drive.  The
 valid arguments to this Directive are:
 
@@ -906,7 +910,7 @@ for a few minutes with
 .B smartctl
 to see what SMART functionality your disk(s) support(s).  If you do
 not like voluminous syslog messages, a good choice of
-.B smartd
+\fBsmartd\fP
 configuration file Directives might be:
 .nf
 .B \-H \-l\ selftest \-l\ error \-f.
@@ -920,7 +924,7 @@ If the first non-comment entry in the configuration file is the text
 string
 .B DEVICESCAN
 in capital letters, then
-.B smartd
+\fBsmartd\fP
 will ignore any remaining lines in the configuration file, and will
 scan for devices.
 
@@ -1005,6 +1009,11 @@ that they read/write should not be writable by ordinary users or
 reside in directories like /tmp that are writable by ordinary users
 and may expose your system to symlink attacks.
 
+As previously described, if the scripts write to STDOUT or STDERR,
+this is interpreted as indicating that there was an internal error
+within the script, and a snippet of STDOUT/STDERR is logged to SYSLOG.
+The remainder is flushed.
+
 .\" ENDINCLUDE
 .\" DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
 .\" END OF THE INCLUDED SECTION FROM smartd.8.in
@@ -1044,4 +1053,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.25 2003/12/30 11:59:37 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.26 2003/12/30 18:55:56 ballen4705 Exp $
