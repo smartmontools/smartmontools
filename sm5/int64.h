@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.6 2004/08/30 05:44:50 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.7 2004/08/30 06:19:31 ballen4705 Exp $\n"
 
 #ifndef CONFIG_H_CVSID
 // need HAVE_STDINT_H, HAVE_INTTYPES_H
@@ -64,12 +64,19 @@ typedef unsigned long long uint64_t;
 #endif // _WIN32 && _MSC_VER
 #endif // HAVE_INTTYPES_H
 
-#ifndef PRId64		// not defined in inttypes.h....fix here
-// default is GCC style
+// If macros not defined in inttypes.h, fix here.  Default is GCC
+// style
+#ifndef PRId64		
 #define PRId64 "lld"
-#define PRIu64 "llu"
-#define PRIx64 "llx"
 #endif // ndef PRId64
+
+#ifndef PRIu64
+#define PRIu64 "llu"
+#endif // ndef PRIu64
+
+#ifndef PRIx64
+#define PRIx64 "llx"
+#endif // ndef PRIx64
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
