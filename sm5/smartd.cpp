@@ -85,7 +85,12 @@ typedef int pid_t;
 #define SIGQUIT SIGBREAK
 #define SIGQUIT_KEYNAME "CONTROL-Break"
 #else  // _WIN32
+#ifdef __CYGWIN__
+// 2x CONTROL-C simulates missing SIGQUIT via keyboard
+#define SIGQUIT_KEYNAME "2x CONTROL-C"
+#else // __CYGWIN__
 #define SIGQUIT_KEYNAME "CONTROL-\\"
+#endif // __CYGWIN__
 #endif // _WIN32
 
 #if defined (__SVR4) && defined (__sun)
@@ -98,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.317 2004/04/17 10:44:47 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.318 2004/04/18 15:02:52 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.317 2004/04/17 10:44:47 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.318 2004/04/18 15:02:52 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -3717,13 +3722,27 @@ int main(int argc, char **argv){
     if (firstpass || caughtsigHUP){
       int entries, scanning=0;
 
-      if (!firstpass)
+      if (!firstpass) {
+#ifdef __CYGWIN__
+        // Workaround for missing SIGQUIT via keyboard on Cygwin
+        if (caughtsigHUP==2) {
+          // Simulate SIGQUIT if another SIGINT arrives soon
+          caughtsigHUP=0;
+          sleep(1);
+          if (caughtsigHUP==2) {
+            caughtsigEXIT=SIGQUIT;
+            continue;
+          }
+          caughtsigHUP=2;
+        }
+#endif
         PrintOut(LOG_INFO,
                  caughtsigHUP==1?
                  "Signal HUP - rereading configuration file %s\n":
                  "\a\nSignal INT - rereading configuration file %s ("SIGQUIT_KEYNAME" quits)\n\n",
                  configfile);
-      
+      }
+
       // clears cfgentries, (re)reads config file, makes >=0 entries
       entries=ReadOrMakeConfigEntries(&scanning);
 

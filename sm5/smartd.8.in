@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.61 2004/04/14 13:27:19 chrfranke Exp $
+$Id: smartd.8.in,v 1.62 2004/04/18 15:02:52 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,10 +53,10 @@ every 30 minutes. See the \fB\'\-i\'\fP option below for additional
 details.
 
 \fBsmartd\fP can be configured at start-up using the configuration
-file \fB/etc/smartd.conf\fP.  If the configuration file is
-subsequently modified, \fBsmartd\fP can be told to re-read the
-configuration file by sending it a \fBHUP\fP signal, for example with
-the command:
+file \fB/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+If the configuration file is subsequently modified, \fBsmartd\fP
+can be told to re-read the configuration file by sending it a
+\fBHUP\fP signal, for example with the command:
 .fi
 \fBkillall -HUP smartd\fP.
 .fi
@@ -74,7 +74,7 @@ When \fBsmartd\fP is running in debug mode, the \fBQUIT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
-(Windows: CONTROL-Break).
+(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
 
 On startup, in the absence of the configuration file
 \fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
@@ -119,10 +119,10 @@ Long options are not supported on all systems.  Use \fB\'smartd
 .B \-c FILE, \-\-configfile=FILE
 
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
-the default location \fB/etc/smartd.conf\fP.  If FILE does \fBnot\fP
-exist, then \fBsmartd\fP will print an error message and exit with
-nonzero status.  Thus, \'\-c /etc/smartd.conf\' can be used to verify
-the existence of the default configuration file.
+the default location \fB/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
+message and exit with nonzero status.  Thus, \'\-c /etc/smartd.conf\'
+can be used to verify the existence of the default configuration file.
 
 By using \'\-\' for FILE, the configuration is read from standard
 input. This is useful for commands like:
@@ -140,7 +140,8 @@ terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBQUIT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
-file.  Please use CONTROL-\e to exit (Windows: CONTROL-Break).
+file.  Please use CONTROL-\e to exit
+(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
 
 Windows only: The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
@@ -1653,4 +1654,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.61 2004/04/14 13:27:19 chrfranke Exp $
+$Id: smartd.8.in,v 1.62 2004/04/18 15:02:52 chrfranke Exp $
