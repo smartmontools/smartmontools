@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.60 2004/08/29 07:10:44 snyderx Exp $
+$Id: smartd.conf.5.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -22,18 +22,18 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
 .SH FULL PATH
-.B /etc/smartd.conf
+.B /usr/local/etc/smartd.conf
 
 .SH PACKAGE VERSION
 CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
 
 .SH DESCRIPTION
-\fB/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
+\fB/usr/local/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
 daemon, which monitors the Self-Monitoring, Analysis and Reporting
 Technology (SMART) system built into many ATA-3 and later ATA, IDE and
 SCSI-3 hard drives.
 
-If the configuration file \fB/etc/smartd.conf\fP is present,
+If the configuration file \fB/usr/local/etc/smartd.conf\fP is present,
 \fBsmartd\fP reads it at startup, before \fBfork\fP(2)ing into the
 background. If \fBsmartd\fP subsequently receives a \fBHUP\fP signal,
 it will then re-read the configuration file.  If \fBsmartd\fP is
@@ -46,7 +46,7 @@ running.
 .\" IS AUTOMATICALLY INCLUDED FROM THE FILE smartd.8.in
 .\" STARTINCLUDE
 
-.SH CONFIGURATION FILE /etc/smartd.conf
+.SH CONFIGURATION FILE /usr/local/etc/smartd.conf
 In the absence of a configuration file,
 \fBsmartd\fP 
 will try to open the 20 ATA devices 
@@ -75,12 +75,12 @@ One can avoid this problem, and gain more control over the types of
 events monitored by
 \fBsmartd\fP,
 by using the configuration file
-.B /etc/smartd.conf.
+.B /usr/local/etc/smartd.conf.
 This file contains a list of devices to monitor, with one device per
 line.  An example file is included with the
 .B smartmontools
 distribution. You will find this sample configuration file in
-\fB/usr/share/doc/smartmontools-5.1/\fP. For security, the configuration file
+\fB/usr/local/share/doc/smartmontools-5.1/\fP. For security, the configuration file
 should not be writable by anyone but root. The syntax of the file is as
 follows:
 .IP \(bu 4
@@ -107,7 +107,7 @@ Section below!
 .nf
 .B ################################################
 .B # This is an example smartd startup config
-.B # file /etc/smartd.conf for monitoring three ATA
+.B # file /usr/local/etc/smartd.conf for monitoring three ATA
 .B # disks, three SCSI disks, and six ATA disks
 .B # behind two 3ware controllers.
 .B #
@@ -184,7 +184,7 @@ The following are the Directives that may appear following the device
 name or
 .B DEVICESCAN
 on any line of the
-.B /etc/smartd.conf
+.B /usr/local/etc/smartd.conf
 configuration file. Note that
 .B these are NOT command-line options for 
 \fBsmartd\fP.
@@ -618,7 +618,7 @@ to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
 will \fBblock\fP until the executable PATH returns, so if your
 executable hangs, then \fBsmartd\fP will also hang. Some sample
 scripts are included in
-/usr/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 The return status of the executable is recorded by \fBsmartd\fP in
 SYSLOG. The executable is not expected to write to STDOUT or
@@ -766,7 +766,7 @@ discarded.
 
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
-/usr/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 .TP
 .B \-f
@@ -1125,7 +1125,7 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 cat > /root/msg
 
 # Append the output of smartctl -a to the message:
-/usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
+/usr/local/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
 # Now email the message to the user at address ADD:
 /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
@@ -1154,7 +1154,7 @@ sleep 30
 .fi
 
 Some example scripts are distributed with the smartmontools package,
-in /usr/share/doc/smartmontools-5.1/examplescripts/.
+in /usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 Please note that these scripts typically run as root, so any files
 that they read/write should not be writable by ordinary users or
@@ -1219,4 +1219,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.60 2004/08/29 07:10:44 snyderx Exp $
+$Id: smartd.conf.5.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $

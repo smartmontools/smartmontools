@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.81 2004/08/29 07:10:44 snyderx Exp $
+$Id: smartd.8.in,v 1.82 2004/08/30 16:00:31 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B smartd [options]
 
 .SH FULL PATH
-.B /usr/sbin/smartd
+.B /usr/local/sbin/smartd
 
 .SH PACKAGE VERSION
 CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
@@ -61,7 +61,7 @@ every 30 minutes. See the \fB\'\-i\'\fP option below for additional
 details.
 
 \fBsmartd\fP can be configured at start-up using the configuration
-file \fB/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+file \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
 If the configuration file is subsequently modified, \fBsmartd\fP
 can be told to re-read the configuration file by sending it a
 \fBHUP\fP signal, for example with the command:
@@ -85,7 +85,7 @@ configuration file. To exit \fBsmartd\fP use CONTROL-\e
 (Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
 
 On startup, in the absence of the configuration file
-\fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
+\fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
 devices that support SMART.  The scanning is done as follows:
 .IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
@@ -121,9 +121,9 @@ Long options are not supported on all systems.  Use \fB\'smartd
 .B \-c FILE, \-\-configfile=FILE
 
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
-the default location \fB/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
 If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
-message and exit with nonzero status.  Thus, \'\-c /etc/smartd.conf\'
+message and exit with nonzero status.  Thus, \'\-c /usr/local/etc/smartd.conf\'
 can be used to verify the existence of the default configuration file.
 
 By using \'\-\' for FILE, the configuration is read from standard
@@ -151,7 +151,7 @@ debug mode is enabled.
 .TP
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
-appear in the configuration file /etc/smartd.conf, and then exits.
+appear in the configuration file /usr/local/etc/smartd.conf, and then exits.
 These Directives are also described later in this man page. They may
 appear in the configuration file following the device name.
 .TP
@@ -259,7 +259,7 @@ at startup in the configuration file.  This is the default.
 
 .I errors
 \- Exit if there are no devices to monitor, or if any errors are found
-in the configuration file /etc/smartd.conf at startup or whenever it
+in the configuration file /usr/local/etc/smartd.conf at startup or whenever it
 is reloaded.
 
 .I nodevstartup
@@ -271,7 +271,7 @@ reloaded.
 \- Only exit if a fatal error occurs (no remaining system memory,
 invalid command line arguments). In this mode, even if there are no
 devices to monitor, or if the configuration file
-\fB/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
+\fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
 waiting to load a configuration file listing valid devices.
 
 .I onecheck
@@ -361,15 +361,15 @@ were detected or some other problem was encountered.
 
 .fi 
 Note that \fBsmartmontools\fP provides a start-up script in
-\fB/etc/rc.d/init.d/smartd\fP which is responsible for starting and
+\fB/usr/local/etc/rc.d/init.d/smartd\fP which is responsible for starting and
 stopping the daemon via the normal init interface.  Using this script,
 you can start \fBsmartd\fP by giving the command:
 .nf
-.B /etc/rc.d/init.d/smartd start
+.B /usr/local/etc/rc.d/init.d/smartd start
 .fi
 and stop it by using the command:
 .nf
-.B /etc/rc.d/init.d/smartd stop
+.B /usr/local/etc/rc.d/init.d/smartd stop
 
 .fi
 If you want \fBsmartd\fP to start running whenever your machine is
@@ -386,7 +386,7 @@ and disabled using the command:
 .\" IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
 .\" STARTINCLUDE
 
-.SH CONFIGURATION FILE /etc/smartd.conf
+.SH CONFIGURATION FILE /usr/local/etc/smartd.conf
 In the absence of a configuration file,
 \fBsmartd\fP 
 will try to open the 20 ATA devices 
@@ -415,12 +415,12 @@ One can avoid this problem, and gain more control over the types of
 events monitored by
 \fBsmartd\fP,
 by using the configuration file
-.B /etc/smartd.conf.
+.B /usr/local/etc/smartd.conf.
 This file contains a list of devices to monitor, with one device per
 line.  An example file is included with the
 .B smartmontools
 distribution. You will find this sample configuration file in
-\fB/usr/share/doc/smartmontools-5.1/\fP. For security, the configuration file
+\fB/usr/local/share/doc/smartmontools-5.1/\fP. For security, the configuration file
 should not be writable by anyone but root. The syntax of the file is as
 follows:
 .IP \(bu 4
@@ -447,7 +447,7 @@ Section below!
 .nf
 .B ################################################
 .B # This is an example smartd startup config
-.B # file /etc/smartd.conf for monitoring three ATA
+.B # file /usr/local/etc/smartd.conf for monitoring three ATA
 .B # disks, three SCSI disks, and six ATA disks
 .B # behind two 3ware controllers.
 .B #
@@ -524,7 +524,7 @@ The following are the Directives that may appear following the device
 name or
 .B DEVICESCAN
 on any line of the
-.B /etc/smartd.conf
+.B /usr/local/etc/smartd.conf
 configuration file. Note that
 .B these are NOT command-line options for 
 \fBsmartd\fP.
@@ -958,7 +958,7 @@ to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
 will \fBblock\fP until the executable PATH returns, so if your
 executable hangs, then \fBsmartd\fP will also hang. Some sample
 scripts are included in
-/usr/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 The return status of the executable is recorded by \fBsmartd\fP in
 SYSLOG. The executable is not expected to write to STDOUT or
@@ -1106,7 +1106,7 @@ discarded.
 
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
-/usr/share/doc/smartmontools-5.1/examplescripts/.
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 .TP
 .B \-f
@@ -1465,7 +1465,7 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 cat > /root/msg
 
 # Append the output of smartctl -a to the message:
-/usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
+/usr/local/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
 # Now email the message to the user at address ADD:
 /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
@@ -1494,7 +1494,7 @@ sleep 30
 .fi
 
 Some example scripts are distributed with the smartmontools package,
-in /usr/share/doc/smartmontools-5.1/examplescripts/.
+in /usr/local/share/doc/smartmontools-5.1/examplescripts/.
 
 Please note that these scripts typically run as root, so any files
 that they read/write should not be writable by ordinary users or
@@ -1672,7 +1672,7 @@ ran out of memory during startup.
 .TP
 .B 9:
 A compile time constant of\fB smartd\fP was too small.  This can be caused by an
-excessive number of disks, or by lines in \fB /etc/smartd.conf\fP that are too long.
+excessive number of disks, or by lines in \fB /usr/local/etc/smartd.conf\fP that are too long.
 Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
 .TP
 .B 10
@@ -1683,7 +1683,7 @@ smartmontools-support@lists.sourceforge.net.
 .TP
 .B 16:
 A device explicitly listed in
-.B /etc/smartd.conf
+.B /usr/local/etc/smartd.conf
 can\'t be monitored.
 .TP
 .B 17:
@@ -1781,4 +1781,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.81 2004/08/29 07:10:44 snyderx Exp $
+$Id: smartd.8.in,v 1.82 2004/08/30 16:00:31 ballen4705 Exp $

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.60 2004/08/30 05:52:27 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -26,7 +26,7 @@
 .B smartctl [options] device
 
 .SH FULL PATH
-.B /usr/sbin/smartctl
+.B /usr/local/sbin/smartctl
 
 .SH PACKAGE VERSION
 CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
@@ -1233,7 +1233,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.60 2004/08/30 05:52:27 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
