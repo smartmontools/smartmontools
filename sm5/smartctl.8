@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.76 2003/07/23 21:35:12 pjwilliams Exp $
+\# $Id: smartctl.8,v 1.77 2003/07/29 07:05:23 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/07/23 21:35:12 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/07/29 07:05:23 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -38,9 +38,10 @@ printing the SMART self-test and error logs, and enabling and
 disabling SMART automatic testing. Note: if the user issues a
 SMART command that is (apparently) not implemented by the device,
 .B smartctl
-will print a warning message but issue the command anyway.  This should
-not cause problems: unimplemented SMART commands issued to a
-drive are ignored and return an error.
+will print a warning message but issue the command anyway (see the
+\fB\-T, \-\-tolerance\fP option below).  This should not cause
+problems: on most devices, unimplemented SMART commands issued to a
+drive are ignored and/or return an error.
 
 .B smartctl
 also provides support for polling TapeAlert messages from SCSI tape drives and changers.
@@ -149,14 +150,21 @@ should be of SMART command failures.  The valid arguments to this option
 are:
 
 .I normal
-\- exit on failure of a mandatory SMART command, but not on failure of an
-optional SMART command.  This is the default.  
+\- exit on failure of a mandatory SMART command, and ignore failures
+of optional SMART commands.  This is the default. It can lead to
+messages like \'Feature X not implemented\', followed shortly by
+\'Error: unable to enable Feature X\'.  On some devices, giving
+unimplemented optional SMART commands doesn\'t even cause an error.
+This can result in misleading \fBsmartctl\fP messages such as
+\'Feature X not implemented\', followed shortly by \'Feature X:
+enabled\'.  In most such cases, contrary to the final message, the
+Feature is \fBnot\fP enabled.
 
 .I conservative
 \- exit on failure of any SMART command.
 
 .I permissive
-\- ignore failure of any SMART command.
+\- ignore failures of any SMART commands.
 
 Here "mandatory" means "required by the ATA/ATAPI-5 Specification if the
 device implements the SMART command set" and "optional" means "not
@@ -937,4 +945,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.76 2003/07/23 21:35:12 pjwilliams Exp $
+$Id: smartctl.8,v 1.77 2003/07/29 07:05:23 ballen4705 Exp $
