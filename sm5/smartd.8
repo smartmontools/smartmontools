@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.62 2003/02/09 21:12:32 ballen4705 Exp $
+\# $Id: smartd.8,v 1.63 2003/02/12 19:53:36 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/09 21:12:32 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/12 19:53:36 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -565,7 +565,8 @@ will
 .B block
 until the executable PATH returns, so if your executable hangs, then
 .B smartd
-will also hang.
+will also hang.  Some sample scripts are included in
+/usr/share/doc/smartmontools-5.1/examplescripts/.
 
 The return status of the executable is recorded by
 .B smartd
@@ -665,7 +666,8 @@ command-line arguments, for example:
 .fi
 
 Some EXAMPLES of scripts that can be used with the '\-M exec'
-Directive are given below.
+Directive are given below. Some sample scripts are also included in
+/usr/share/doc/smartmontools-5.1/examplescripts/.
 
 .TP
 .B \-p
@@ -849,6 +851,9 @@ powers down the machine.
 .B /usr/sbin/shutdown -hf now
 .fi
 
+Some example scripts are distributed with the smartmontools package,
+in /usr/share/doc/smartmontools-5.1/examplescripts/.
+
 \# ENDINCLUDE
 \# DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
 \# END OF THE INCLUDE SECTION FOR smartd.conf.5
@@ -966,4 +971,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.62 2003/02/09 21:12:32 ballen4705 Exp $
+$Id: smartd.8,v 1.63 2003/02/12 19:53:36 ballen4705 Exp $

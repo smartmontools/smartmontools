@@ -1,4 +1,4 @@
-Release:  5
+Release:  6
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.88 2003/02/06 19:51:55 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.89 2003/02/12 19:53:39 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -212,7 +212,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %attr(644,root,root) %{_mandir}/man8/smartctl.8*
 %attr(644,root,root) %{_mandir}/man8/smartd.8*
 %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
-%doc WARNINGS CHANGELOG COPYING TODO README VERSION smartd.conf
+%doc WARNINGS CHANGELOG COPYING TODO README VERSION smartd.conf examplescripts
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %config %{_sysconfdir}/smartd.conf.example
 
@@ -252,6 +252,28 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Wed Feb 12 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartd: Created a subdirectory examplescripts/ of source
+       directory that contains executable scripts for the -M exec PATH
+       Directive of smartd.
+- [BA] smartd: DEVICESCAN in /etc/smartd.conf
+       can now be followed by all the same Directives as a regular
+       device name like /dev/hda takes.  This allows one to use
+       (for example):
+       DEVICESCAN -m root@yoyodyne.com
+       in the /etc/smartd.conf file.
+- [BA] smartd: Added -c (--checkonce) command-line option. This checks
+       all devices once, then exits.  The exit status can be
+       used to learn if devices were detected, and if smartd is
+       functioning correctly. This is primarily for Distribution
+       scripters.
+- [BA] smartd: Implemented -M exec Directive for
+       smartd.conf.  This makes it possible to run an
+       arbitrary script or mailing program with the
+       -m option.
+- [PW] smartd: Modified -M Directive so that it can be given
+       multiple times.  Added -M exec Directive.
+
 * Tue Jan 21 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] Fixed bug in smartctl pointed out by Pierre Gentile.
        -d scsi didn't work because tryata and tryscsi were 
