@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.33 2004/01/29 20:47:18 shattered Exp $
+$Id: INSTALL,v 1.34 2004/01/29 21:50:53 shattered Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -51,6 +51,12 @@ Table of contents:
     
     The code has been tested on a variety of Solaris 8 and 9 systems.
     All tested kernels worked correctly.
+
+    D) NetBSD
+
+    The code was tested on a 1.6ZG (i.e., 1.6-current) system. It should
+    also function under 1.6.1 and later releases (unverified).  Currently
+    it only supports ATA devices.
 
 [2] Installing from CVS
 =======================
@@ -132,6 +138,10 @@ FreeBSD:
               --mandir=/usr/local/man                                 \
               --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
               --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+
+NetBSD:
+  ./configure --prefix=/usr/pkg                                       \
+	      --with-docdir=/usr/pkg/share/doc/smartmontools
 
 SuSE:
   ./configure --sbindir=/usr/sbin                                        \
