@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.27 2003/01/22 00:28:19 pjwilliams Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.28 2003/01/31 03:45:25 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -69,8 +69,15 @@ typedef struct mailinfo {
 // Used to store a list of devices and options that were in the
 // configuration file.
 typedef struct configfile_s {
-  // which line was entry in file; what device type and name?
+  // Shich line was entry in file; what device type and name?
   int lineno;
+  // Indicates corresponding entry number in the list of ata or scsi
+  // devices to monitor
+  int scsidevicenum;
+  int atadevicenum;
+  // Initially, tryata and tryscsi indicate which device to try.
+  // Ultimately, one is set and the other not set, depending upon
+  // which type of device was detected.
   char tryata;
   char tryscsi;
   char *name;

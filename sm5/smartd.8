@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.52 2003/01/27 22:41:43 ballen4705 Exp $
+\# $Id: smartd.8,v 1.53 2003/01/31 03:45:24 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/01/27 22:41:43 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/01/31 03:45:24 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -434,27 +434,43 @@ even if more than one failure or error is
 detected or if the failure or error persists.  [This behavior can be
 modified; see the '\-M' Directive below.]
 
-The email is sent using the system 
+To send email to more than one user, please use the following form for
+the address:
+.B  user1@add1,user2@add2,...,userN@addN
+(with no spaces).
+
+By default, email is sent using the system 
 .B mail
 command.  In order that
 .B smartd
-find the mail command (normally /bin/mail) the
-.B mail
-command must be in the path of the
-shell or environment from which
+find the mail command (normally /bin/mail) an executable named
+.B 'mail'
+must be in the path of the shell or environment from which
 .B smartd
 was started.  To test that the mail is being sent correctly, or to
-alter the pattern of when mail is sent, see the `\-M' Directive below.
+alter the pattern of when mail is sent, see the `\-M' Directives
+below.
 
-To send email to more than one user, please use the following form for the address:
-.B  user1@add1,user2@add2,...,userN@addN
-(with no spaces).
+If you wish to specify an explicit path to the mail executable (for
+example /usr/local/bin/mail) or a custom script to run, please see the
+\'\-M exec' Directive below.
+
 .TP
 .B \-M TYPE
-Modifies the behavior of the '\-m' email Directive above,
-and has no effect without this other Directive.  This option controls
-when, and how often, the '\-m' Directive sends email warning messages.
-The valid arguments to this Directive are:
+Controls the behavior of the email warnings sent by
+.B smartd
+and modifies the behavior of the '\-m' email Directive above.  The \-M
+Directives may be used multiple times.  If conflicting \-M Directives
+are given (example: \-M once \-M daily) then the final one (in the
+example, \-M daily) is used.
+
+Normally the \-M Directives are used in conjunction with the \-m
+Directive.  However for special applications the \-M exec Directive
+may be used
+.B without
+the '\-m' Directive.
+
+The valid arguments to the \-M Directive are:
 
 .I once
 \- send only one warning email for each type of disk problem detected.  This
@@ -470,11 +486,102 @@ then a two-day interval, then a four-day interval, and so on for each
 type of disk problem detected. Each interval is twice as long as the
 previous interval.
 
-.I once,test daily,test diminishing,test
-\- same as the respective arguments above, but also send a single test email
+.I test
+\- send a single test email
 immediately upon
 .B smartd
 startup.  This allows one to verify that any email is correctly delivered.
+
+.I exec EXECUTABLE
+\- This Directive is used to provide a path to an executable binary
+or script which is run instead of the default mail command, when
+.B smartd
+wants to send mail.  Here EXECUTABLE can be a path or a quoted
+string.  Examples are given below.
+
+The behavior of the 
+.B \-M exec EXECUTABLE
+Directive depends upon whether or not the
+.B \-m ADD
+Directive is also given.
+
+If the
+.B \-m ADD
+Directive
+.B is present
+then EXECUTABLE should be path to an executable or script.
+Examples include:
+.nf
+.B -M exec /bin/mail
+.B -M exec /path/to/bash/or/other/executable/script  
+.fi
+The specified EXECUTABLE will be run with STDIN receiving the body of
+the email message, and with the command-line arguments
+.nf
+-s '$SMARTD_SUBJECT' $SMARTD_ADDRESS
+.fi
+that would normally be provided to 'mail'.  Note that the EXECUTABLE's
+STDOUT and STDERR are directed to /dev/null.  Thus, to leave some
+record behind, EXECUTABLE must send mail or write to a file or device.
+
+If the
+.B \-m ADD
+Directive
+.B is not present
+then EXECUTABLE may be either a path to an executable script, or a
+double-quoted string containing a shell command line, which may
+include paths to executables, command-line arguments, pipelines, and
+IO redirection. [ See the man page for system(3) to understand what
+shell this command is run in. On vanilla linux systems using glibc the
+default shell is bash.] Examples include:
+.nf
+.B -M exec "echo hello | /bin/mail root"
+.B -M exec /bin/true  
+.B -M exec "echo '$SMARTD_MESSAGE' | /bin/mail -s '$SMARTD_SUBJECT' $SMARTD_ADDRESS"
+.B -M exec "wall 'SMART PROBLEM'; sleep 20; /sbin/shutdown -hf now"
+.fi
+In this case, the executable receives no STDIN and no command line
+arguments other than what appears in the quoted string.  As before,
+both STDOUT and STDERR are directed to /dev/null.  If you want the
+executable to leave some record behind, then it must send mail or write to
+a file or device.
+
+In both cases,
+.B smartd
+will BLOCK until the executable returns.  So if your executable hangs, then
+.B smartd
+will also hang.  Note that the return status of the executable is reported by
+.B smartd
+in SYSLOG.
+
+In both cases
+.B smartd
+sets a number of environment variables before runs EXECUTABLE.  These
+may be used to control the behavior of EXECUTABLE.  The environment
+variables are:
+
+.B SMARTD_MAILER
+is set to the argument of -M exec (example: /bin/mail)
+
+.B SMARTD_DEVICE
+is set to the device path (example: /dev/hda)
+
+.B SMARTD_DEVICETYPE
+is set to the device type (examples: ata, scsi)
+
+.B SMARTD_MESSAGE
+is set to the warning message from
+.B smartd.
+
+.B SMARTD_TFIRST
+is a text string giving the time at which the first problem of this
+type was reported.
+
+.B SMARTD_ADDRESS
+is a text string giving the address provided to the '\-m' Directive, if present.
+
+Please see below for some EXAMPLES of scripts that can be used with
+the '\-M exec' Directive..
 
 .TP
 .B \-p
@@ -575,6 +682,48 @@ configuration file Directives might be:
 .fi
 If you want more frequent information, use:
 .B -a.
+
+.TP
+.B EXAMPLES OF SHELL SCRIPTS FOR \-M exec
+Here are several examples of shell scripts that can be used with the '\-M
+exec' Directive.  The paths to these scripts and similar scripts should be
+the argument to \-M exec.
+
+Example 1: This script is for use with \-m ADD -M exec.  It adds the
+output of
+.B smartctl -a
+to the output of the smartd warning message:
+
+.nf
+.B #! /bin/sh
+.
+.B # Save mail message to a temporary file:
+.B cat > /root/message
+ 
+.B # Add the output of smartctl -a to the mail message:
+.B /usr/sbin/smartctl -a $SMARTD_DEVICE >> /root/message
+ 
+.B # Now mail it to the user at address ADD:
+.B /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /tmp/message
+
+Example 2: This script is for use with \-M exec (without the \-m ADD
+Directive). It warns all users about a disk problem, waits 30 seconds,
+and then powers down the machine.
+
+.nf
+.B #! /bin/sh
+
+.B # Warn all users of a problem
+.B wall "Problem detected with disk" "$SMARTD_DEVICE"
+.B wall "Warning message:" "$SMARTD_MESSAGE"
+.B wall "Shutting down machine in 30 seconds!"
+ 
+.B # Wait half a minute
+.B sleep 30
+ 
+.B # Now shutdown machine
+.B /usr/sbin/shutdown -hf now
+
 
 \# ENDINCLUDE
 \# DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
@@ -693,4 +842,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.52 2003/01/27 22:41:43 ballen4705 Exp $
+$Id: smartd.8,v 1.53 2003/01/31 03:45:24 ballen4705 Exp $
