@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.29 2003/11/24 08:49:07 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.30 2003/11/26 05:57:46 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -364,56 +364,31 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     return -1;   
   }
   
-#if (1)
+#if 1
   // Note to people doing ports to other OSes -- don't worry about
-  // this block -- you can ignore it.  I have put it here because
-  // under linux when you do IDENTIFY DEVICE to a packet device, it
-  // generates an ugly kernel syslog error message.  This is harmless
-  // but frightens users.  So this block is an attempt to detect
-  // packet devices and make IDENTIFY DEVICE fail "nicely" without a
-  // syslog error message.
-
-  // This doesn't always work, since ATA-3 did not have a separate
-  // IDENTIFY PACKET DEVICE command.  In fact while ATAPI was
-  // introduced in ATA-3, IDENTIFY PACKET DEVICE only appeared in ATA
-  // 4 revision 2.  Anyway, this doesn't matter, since packet devices
-  // don't support SMART anyway.
-
-  // for IDENTIFY command, check if device is a packet device, and if
-  // it is, then we simulate a 'clean' error without calling the
-  // lower-level ioctl that will generate a kernel error log message.
+  // this block -- you can safely ignore it.  I have put it here
+  // because under linux when you do IDENTIFY DEVICE to a packet
+  // device, it generates an ugly kernel syslog error message.  This
+  // is harmless but frightens users.  So this block detects packet
+  // devices and make IDENTIFY DEVICE fail "nicely" without a syslog
+  // error message.
   //
-  // To add some extra complexity, note that IDENTIFY PACKET DEVICE
-  // was only introduced in ATA-4 revision 1.  Before that, a packet
-  // device responds to IDENTIFY DEVICE.
-  //
-  // Byte 160: low order bits of IDENTIFY DEVICE word 80
+  // If you read only the ATA specs, it appears as if a packet device
+  // *might* respond to the IDENTIFY DEVICE command.  This is
+  // misleading - it's because around the time that SFF-8020 was
+  // incorporated into the ATA-3/4 standard, the ATA authors were
+  // sloppy. See SFF-8020 and you will see that ATAPI devices have
+  // *always* had IDENTIFY PACKET DEVICE as a mandatory part of their
+  // command set, and return 'Command Aborted' to IDENTIFY DEVICE.
   if (command==IDENTIFY || command==PIDENTIFY){
     unsigned char deviceid[512];
     const int HDIO_GET_IDENTITY=0x030d;
-
-    // we first get the device identity, as seen when the system was
-    // booted or the device was FIRST registered.  This will not be
-    // current if the user has subsequently changed some of the
-    // parameters.
-    int getid=ioctl(device, HDIO_GET_IDENTITY, deviceid);
-
-    // If the IOCTL succeeded, and the device is ATAPI and not ATAPI 1-3...
-    if (
-	!getid                                            &&     // ioctl succeeded
-	deviceid[1]>>7                                    &&     // is Packet device
-	(deviceid[160] || deviceid[161])                  &&     // word 80 valid
-	(deviceid[160]!=0xff || deviceid[161]!=0xff)      &&     // word 80 valid
-	(deviceid[162]!=0x0d || deviceid[163]!=0x00)      &&     // is not ATA-4 revision 6
-        ((deviceid[160] & 0xf0) || (deviceid[161] & 0x8f))       // is ATA-4 through 14
-      ) {
-      // then swap the IDENTIFY and PIDENTIFY commands
-      if (command==IDENTIFY)
-	buff[0]=WIN_PIDENTIFY;
-      
-      if (command==PIDENTIFY)
-	buff[0]=WIN_IDENTIFY;      
-    }
+    // check the device identity, as seen when the system was booted
+    // or the device was FIRST registered.  This will not be current
+    // if the user has subsequently changed some of the parameters. If
+    // device is a packet device, swap the command interpretations.
+    if (!ioctl(device, HDIO_GET_IDENTITY, deviceid) && (deviceid[1] & 0x80))
+      buff[0]=(command==IDENTIFY)?WIN_PIDENTIFY:WIN_IDENTIFY;
   }
 #endif
   
