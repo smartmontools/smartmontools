@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.27 2004/03/02 17:16:31 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.28 2004/03/03 20:38:48 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -555,9 +555,20 @@ The definitions of these terms are:
 .fi
 \fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.
 .fi
+
 \fBIDNF\fP (\fBID N\fPot \fBF\fPound): user-accessible address could
 not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
-that a device data log structure checksum was incorrect.
+that a device data log structure checksum was incorrect.  
+
+If the command that caused the error was a READ or a WRITE error, then
+the Logical Block Address (LBA) at which the error occured will be
+printed.  The LBA is a linear address, which counts 512-byte sectors
+on the disk.  Because of the limitations of the SMART error log, if
+the LBA is greater than 0xfffffff, then no error log entry will be
+made, or it will have an incorrect LBA. This may happen for drives
+with a capacity greater than 128 GiB or 137 GB. On Linux systems the
+smartmontools web page has instructions about how to convert this LBA
+address to the name of the disk file containing the erroneous block.
 
 Please note that some manufacturers \fBignore\fP the ATA
 specifications, and make entries in the error log if the device
@@ -570,14 +581,16 @@ The verify row is only output if it has an element other than zero.
 .I selftest
 \- prints only the SMART self-test log.  The disk maintains a log
 showing the results of the self tests, which can be run using the
-\'\-t\' option described below.  For each of the most recent twenty-one
-self-tests, the log shows the type of test (short or extended,
-off-line or captive) and the final status of the test.  If the test
-did not complete successfully, then the percentage of the test
-remaining is shown.  The time at which the test took place, measured
-in hours of disk lifetime, is also printed.  If any errors were
-detected, the Logical Block Address (LBA) of the first error is
-printed in hexadecimal notation.
+\'\-t\' option described below.  For each of the most recent
+twenty-one self-tests, the log shows the type of test (short or
+extended, off-line or captive) and the final status of the test.  If
+the test did not complete successfully, then the percentage of the
+test remaining is shown.  The time at which the test took place,
+measured in hours of disk lifetime, is also printed.  If any errors
+were detected, the Logical Block Address (LBA) of the first error is
+printed in hexadecimal notation. On Linux systems the smartmontools
+web page has instructions about how to convert this LBA address to the
+name of the disk file containing the erroneous block.
 
 .I selftest [SCSI]
 \- the self-test log for a SCSI device has a slightly different format
@@ -593,10 +606,13 @@ of either the number of the segment that failed during the test, or
 the number of the test that failed and the number of the segment in
 which the test was run, using a vendor-specific method of putting both
 numbers into a single byte.  The Logical Block Address (LBA) of the
-first error is printed in hexadecimal notation. If provided, the SCSI
-Sense Key (SK), Additional Sense Code (ASC) and Additional Sense Code
-Qualifier (ASQ) are also printed. The self tests can be run using the
-\'\-t\' option described below (using the ATA test terminology).
+first error is printed in hexadecimal notation.  On Linux systems the
+smartmontools web page has instructions about how to convert this LBA
+address to the name of the disk file containing the erroneous block.
+If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
+Additional Sense Code Qualifier (ASQ) are also printed. The self tests
+can be run using the \'\-t\' option described below (using the ATA
+test terminology).
 
 .I directory
 \- if the device supports the General Purpose Logging feature set
@@ -1042,4 +1058,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.27 2004/03/02 17:16:31 chrfranke Exp $
+$Id: smartctl.8.in,v 1.28 2004/03/03 20:38:48 ballen4705 Exp $
