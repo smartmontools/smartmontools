@@ -24,4 +24,4 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
-^sm5$ /cvsroot/sitedocs/CVSROOT/cvstools/syncmail smarmontools-dev@lists.sourceforge.net -u %{sVv} smartmontools-cvs@lists.sourceforge.net
+^sm5$ /cvsroot/sitedocs/CVSROOT/cvstools/syncmail smarmontools-dev@lists.sourceforge.net %{sVv} smartmontools-cvs@lists.sourceforge.net
