@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.31 2004/02/06 03:52:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.32 2004/02/13 01:36:51 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -250,7 +250,7 @@ can be fixed by upgrading to version 1.02.00.037 or later of the
 3w-xxxx driver, or by applying a patch to older versions. See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 
-.B 3ware controllers are NOT supported under FreeBSD yet.
+.B 3ware controllers are currently ONLY supported under Linux.
 
 .I removable
 \- the device or its media is removable.  This indicates to
@@ -1110,4 +1110,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.31 2004/02/06 03:52:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.32 2004/02/13 01:36:51 ballen4705 Exp $
