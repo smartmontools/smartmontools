@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.159 2003/05/01 08:53:01 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.160 2003/05/03 10:43:22 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -931,6 +931,7 @@ int ataCheckDevice(atadevices_t *drive){
   // If user has asked, test the email warning system
   if (cfg->emailtest){
     printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", drive->devicename);
+    cfg->emailtest = 0;
   }
 
   // if we can't open device, fail gracefully rather than hard --
@@ -1109,9 +1110,11 @@ int scsiCheckDevice(scsidevices_t *drive)
     const char *cp;
 
     // If the user has asked for it, test the email warning system
-    if (cfg->emailtest)
+    if (cfg->emailtest) {
         printandmail(cfg, 0, LOG_CRIT, 
                      "TEST EMAIL from smartd for device: %s", name);
+        cfg->emailtest = 0;
+    }
 
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it

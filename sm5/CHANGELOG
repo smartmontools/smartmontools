@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.133 2003/04/30 10:16:03 makisara Exp $
+$Id: CHANGELOG,v 1.134 2003/05/03 10:43:22 pjwilliams Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Fixed bug in smartd where test email would be sent regularly (for
+       example, daily if the user had specified -M daily) instead of just
+       once on startup.
+
   [KM] More TapeAlert work. Added translations for media changer
        alerts. TapeAlert support reported according to the log page
        presence. ModeSense not attempted for non-ready tapes (all
