@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.128 2003/10/04 16:21:29 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.129 2003/10/05 12:41:45 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -311,6 +311,11 @@ fi
 # [KM] Kai Mäkisarai
 
 %changelog
+
+* Sun Oct 05 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [GG] Fixed broken Makefile.am (zero length smartd.conf.5
+       was being created)
+- [FM] Improved Slackware init script added to /etc/smartd.initd
 
 * Fri Oct 03 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartctl: added '-T verypermissive' option which is
