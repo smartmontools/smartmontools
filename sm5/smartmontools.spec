@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.74 2002/12/08 14:37:43 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.75 2002/12/16 03:00:41 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,33 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Sun Dec 8 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [PW] smartd --debugmode changed to --debug
+- [BA] smartd/smartctl added attribute 230 Head Amplitude from
+  IBM DPTA-353750.
+- [PW] Added list of proposed new options for smartctl to README.
+- [PW] smartd: ParseOpts() now uses getopt_long() if HAVE_GETOPT_LONG is
+  defined and uses getopt() otherwise.  This is controlled by CPPFLAGS in
+  the Makefile.
+- [BA] smartd: Fixed a couple of error messages done with perror()
+  to redirect them as needed.
+- [BA] smartctl: The -O option to enable an Immediate off-line test
+  did not print out the correct time that the test would take to
+  complete.  This is because the test timer is volatile and not
+  fixed.  This has been fixed, and the smartctl.8 man page has been
+  updated to explain how to track the Immediate offline test as it
+  progresses, and to further emphasize the differences between the
+  off-line immediate test and the self-tests.
+- [BA] smartd/smartctl: Added new attribute (200) Multi_Zone_Error_Rate
+- [BA] smartctl: modified so that arguments could have either a single -
+  as in -ea or multiple ones as in -e -a.  Improved warning message for
+  device not opened, and fixed error in redirection of error output of
+  HD identity command.
+- [PW] smartd: added support for long options.  All short options are still
+  supported; see manpage for available long options.
+- [BA] smartctl.  When raw Attribute value was 2^31 or larger, did
+  not print correctly.
+
 * Fri Nov 22 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - Allen: smartd: added smartd.conf Directives -T and -s.  The -T Directive
   enables/disables Automatic Offline Testing.  The -s Directive
