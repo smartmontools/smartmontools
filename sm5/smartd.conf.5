@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.52 2003/07/24 14:00:35 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.53 2003/08/05 10:07:35 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/07/24 14:00:35 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/05 10:07:35 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -114,6 +114,13 @@ Section below!
 .B \ \ /dev/weird -d scsi
 .B #
 .nf
+.B # Three ATA disks connected to a 3ware controller
+.B #
+.B \ \ /dev/sdb -d 3ware,0 -a
+.B \ \ /dev/sdb -d 3ware,1 -a
+.B \ \ /dev/sdb -d 3ware,2 -a
+.B #
+.nf
 .B # The following line enables monitoring of the 
 .B # ATA Error Log and the Self-Test Error Log.  
 .B # It also tracks changes in both Prefailure
@@ -164,24 +171,33 @@ as if the '\-a' Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-H' option for an ATA disk.  So with the exception of '\-d', '\-m', and '\-M',
-the Directives below are ignored for SCSI
-disks.  For SCSI disks, the '\-m' Directive sends a warning email if
-the SMART status indicates a disk failure or problem, or if the SCSI inquiry about disk status fails.
+to using the '\-H' option for an ATA disk.  So with the exception of
+\'\-d\', \'\-m\', and \'\-M\', the Directives below are ignored for SCSI
+disks.  For SCSI disks, the \'\-m\' Directive sends a warning email if
+the SMART status indicates a disk failure or problem, or if the SCSI
+inquiry about disk status fails.
+
+.B If a 3ware controller is used
+then the corresponding SCSI device must be listed, along with the
+\'\-d 3ware,N\' Directive (see below).  The individual ATA disks
+hosted by the 3ware controller appear to \fBsmartd\fP as normal ATA
+devices.  Hence all the ATA directives can be used for these disks,
+with the exception of \'\-S on\' and \'\-o on\', which are not
+supported by the 3w-xxxx driver.
 
 .TP
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple times
-for one device, but the arguments \fIata\fP and \fIscsi\fP are
-mutually-exclusive and if they are both used then
+for one device, but the arguments \fIata\fP, \fIscsi\fP, and \fI3ware,N\fP are
+mutually-exclusive. If more than one is given then
 .B smartd
-will use the one that appears last.
+will use the last one which appears.
 
-If neither \fIata\fP nor \fIscsi\fP are used then
-.B smartd
-will first attempt to guess the device type by looking at whether the sixth
+If none of these three arguments is given, then \fBsmartd\fP will
+first attempt to guess the device type by looking at whether the sixth
 character in the device name is an 's' or an 'h'.  This will work for
-device names like /dev/hda or /dev/sdb.  If
+device names like /dev/hda or /dev/sdb, and corresponds to choosing
+\fIata\fP or \fIscsi\fP respectively. If
 .B smartd
 can't guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
@@ -198,12 +214,26 @@ from issuing SCSI commands to an ATA device.
 .B smartd
 from issuing ATA commands to a SCSI device.
 
+.I 3ware,N
+\- the device consists of one or more ATA disks connected to a 3ware
+RAID controller. The non-negative integer N (in the range from 0 to 15
+inclusive) denotes which disk on the controller is monitored.  This
+Directive may at first appear confusing, because the 3ware controller
+is a SCSI device (such as /dev/sda) and should be listed as such in
+the the configuration file.  However when the \'\-d 3ware,N\'
+Directive is used, then the corresponding disk is addressed using
+native ATA commands which are \'passed through\' the SCSI driver. All
+ATA Directives listed in this man page may be used, with the exception
+of \'\-S on\' and \'\-o on\', which can not be passed to the disk via
+the 3w-xxxx SCSI driver
+
 .I removable
 \- the device or its media is removable.  This indicates to
 .B smartd
-that it should continue (instead of exiting, which is the default behavior)
-if the device does not appear to be present.
-
+that it should continue (instead of exiting, which is the default
+behavior) if the device does not appear to be present when
+\fBsmartd\fP is started.  This Directive may be used in conjunction
+with the other \'\-d\' Directives.
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -905,4 +935,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.52 2003/07/24 14:00:35 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.53 2003/08/05 10:07:35 ballen4705 Exp $

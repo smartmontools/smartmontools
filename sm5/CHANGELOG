@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.169 2003/08/04 21:57:11 ballen4705 Exp $
+$Id: CHANGELOG,v 1.170 2003/08/05 10:07:35 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd - can now monitor ATA drives behind 3ware controllers.
 
   [BA] smartctl - added code to look at ATA drives behind 3ware RAID
        controllers using the 3w-xxxx driver.  Note that for technical
