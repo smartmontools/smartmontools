@@ -14,11 +14,6 @@
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
  */
 
 #include "config.h"
@@ -27,7 +22,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.3 2004/02/18 22:53:49 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.4 2004/03/13 02:32:52 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
