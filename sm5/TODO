@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.14 2002/10/24 15:25:27 ballen4705 Exp $
+$Id: TODO,v 1.15 2002/10/25 14:23:40 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -45,7 +45,10 @@ error condition.  Make it also look at the smart status, if that is enabled and 
 do that test as well.  Perhaps also see if the number of device errors has changed.
 
 Change smartd so that it monitors the ATA disk error log, and if the number of errors changes,
-log an entry.
+log an entry..
+
+Perhaps modify the -q option (quiet mode) so that it only warns of ATA errors if they have (say)
+taken place in the last 168 hours (week).
 
 Change input command line from using current command line format
 (getopt) to getopt_long() for long input options.  This will be
