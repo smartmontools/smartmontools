@@ -20,6 +20,7 @@
  *
  */
 
+#include "config.h"
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -53,7 +54,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.201 2003/08/30 13:06:48 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.202 2003/09/27 09:54:47 guidog Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -584,8 +585,7 @@ void WritePidFile() {
 
 // Prints header identifying version of code and home
 void PrintHead(){
-  PrintOut(LOG_INFO,"smartd version %d.%d-%d Copyright (C) 2002-3 Bruce Allen\n",
-           (int)RELEASE_MAJOR, (int)RELEASE_MINOR, (int)SMARTMONTOOLS_VERSION);
+  PrintOut(LOG_INFO,"smartd version %s Copyright (C) 2002-3 Bruce Allen\n", VERSION);
   PrintOut(LOG_INFO,"Home page is %s\n\n",PROJECTHOME);
   return;
 }
