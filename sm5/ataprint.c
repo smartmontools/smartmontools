@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.109 2003/10/15 14:06:02 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.110 2003/10/27 00:25:26 pjwilliams Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -104,6 +104,124 @@ void printswap(char *output, char *in, unsigned int n){
     pout("%s\n", output);
   else
     pout("[No Information Found]\n");
+}
+
+/* For the given Command Register (CR) and Features Register (FR), attempts
+ * to construct a string that describes the contents of the Status
+ * Register (ST) and Error Register (ER).  The string is dynamically allocated
+ * memory and the return value is a pointer to this string.  It is up to the
+ * caller to free this memory.  If there is insufficient memory or if the
+ * meanings of the flags of the error register are not known for the given
+ * command then it returns NULL.
+ *
+ * The meanings of the flags of the error register for all commands are
+ * described in the ATA spec and could all be supported here in theory.
+ * Currently, only a few commands are supported (those that have been seen
+ * to produce errors).  If many more are to be added then this function
+ * should probably be redesigned.
+ */
+const char *construct_st_er_desc(unsigned char CR, unsigned char FR,
+                                 unsigned char ST, unsigned char ER)
+{
+  char *s;
+  char *error_flag[8];
+  int i;
+  /* If for any command the Device Fault flag of the status register is
+   * not used then used_device_fault should be set to 0 (in the CR switch
+   * below)
+   */
+  int uses_device_fault = 1;
+
+  /* A value of NULL means that the error flag isn't used */
+  for (i = 0; i < 8; i++)
+    error_flag[i] = NULL;
+
+  switch (CR) {
+  case 0x20:  /* READ SECTOR(S) */
+    error_flag[6] = "UNC";
+    error_flag[5] = "MC";
+    error_flag[4] = "IDNF";
+    error_flag[3] = "MCR";
+    error_flag[2] = "ABRT";
+    error_flag[1] = "NM";
+    error_flag[0] = "obs";
+    break;
+  case 0x25:  /* READ DMA EXT */
+  case 0xC8:  /* READ DMA */
+    error_flag[7] = "ICRC";
+    error_flag[6] = "UNC";
+    error_flag[5] = "MC";
+    error_flag[4] = "IDNF";
+    error_flag[3] = "MCR";
+    error_flag[2] = "ABRT";
+    error_flag[1] = "NM";
+    error_flag[0] = "obs";
+    break;
+  case 0x30:  /* WRITE SECTOR(S) */
+    error_flag[6] = "WP";
+    error_flag[5] = "MC";
+    error_flag[4] = "IDNF";
+    error_flag[3] = "MCR";
+    error_flag[2] = "ABRT";
+    error_flag[1] = "NM";
+    break;
+  case 0xA1:  /* IDENTIFY PACKET DEVICE */
+    error_flag[2] = "ABRT";
+    break;
+  case 0xB0:  /* SMART */
+    switch(FR) {
+    case 0xD6:  /* SMART WRITE LOG */
+      error_flag[4] = "IDNF";
+      error_flag[2] = "ABRT";
+      break;
+    case 0xD9:  /* SMART DISABLE OPERATIONS */
+      error_flag[2] = "ABRT";
+      break;
+    default:
+      return NULL;
+      break;
+    }
+    break;
+  case 0xCA:  /* WRITE DMA */
+    error_flag[7] = "ICRC";
+    error_flag[6] = "WP";
+    error_flag[5] = "MC";
+    error_flag[4] = "IDNF";
+    error_flag[3] = "MCR";
+    error_flag[2] = "ABRT";
+    error_flag[1] = "NM";
+    error_flag[0] = "obs";
+    break;
+  default:
+    return NULL;
+  }
+
+  /* 100 bytes -- that'll be plenty (OK, this is lazy!) */
+  if (!(s = (char *)malloc(100)))
+    return s;
+
+  s[0] = '\0';
+
+  /* We ignore any status flags other than Device Fault and Error */
+
+  if (uses_device_fault && (ST & (1 << 5))) {
+    strcat(s, "Device Fault");
+    if (ST & 1)  // Error flag
+      strcat(s, "; ");
+  }
+  if (ST & 1) {  // Error flag
+    int count = 0;
+
+    strcat(s, "Error: ");
+    for (i = 7; i >= 0; i--)
+      if ((ER & (1 << i)) && (error_flag[i])) {
+        if (count++ > 0)
+          strcat(s, ", ");
+        strcat(s, error_flag[i]);
+      }
+  }
+
+  return s;
 }
 
 void ataPrintDriveInfo (struct ata_identify_device *drive){
@@ -625,6 +743,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   
   // now step through the five error log data structures (table 39 of spec)
   for (k = 4; k >= 0; k-- ) {
+    char *st_er_desc;
 
     // The error log data structure entries are a circular buffer
     i=(data->error_log_pointer+k)%5;
@@ -656,7 +775,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       pout("  After command completion occurred, registers were:\n"
 	   "  ER ST SC SN CL CH DH\n"
 	   "  -- -- -- -- -- -- --\n"
-	   "  %02x %02x %02x %02x %02x %02x %02x\n\n",
+	   "  %02x %02x %02x %02x %02x %02x %02x",
 	   (int)data->errorlog_struct[i].error_struct.error_register,
 	   (int)data->errorlog_struct[i].error_struct.status,
 	   (int)data->errorlog_struct[i].error_struct.sector_count,
@@ -664,6 +783,19 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 	   (int)data->errorlog_struct[i].error_struct.cylinder_low,
 	   (int)data->errorlog_struct[i].error_struct.cylinder_high,
 	   (int)data->errorlog_struct[i].error_struct.drive_head);
+      // Add a description of the contents of the status and error registers
+      // if possible
+      st_er_desc = construct_st_er_desc(
+        data->errorlog_struct[i].commands[4].commandreg,
+        data->errorlog_struct[i].commands[4].featuresreg,
+        data->errorlog_struct[i].error_struct.status,
+        data->errorlog_struct[i].error_struct.error_register
+      );
+      if (st_er_desc) {
+        pout("  %s", st_er_desc);
+        free(st_er_desc);
+      }
+      pout("\n\n");
       pout("  Commands leading to the command that caused the error were:\n"
 	   "  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name\n"
 	   "  -- -- -- -- -- -- -- --   ---------  --------------------\n");
