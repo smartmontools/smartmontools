@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.146 2004/03/26 14:22:08 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.147 2004/04/09 00:28:43 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1786,3 +1786,41 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
   sprintf(out,"%3hu %s",(short int)id,name);
   return;
 }
+
+// Returns raw value of Attribute with ID==id. This will be in the
+// range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
+// return -1.
+int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data) {
+  int i;
+
+  // valid Attribute IDs are in the range 1 to 255 inclusive.
+  if (!id || !data)
+    return -1;
+  
+  // loop over Attributes to see if there is one with the desired ID
+  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    struct ata_smart_attribute *this = data->vendor_attributes + i;
+    if (this->id == id) {
+      // we've found the desired Attribute.  Return its value
+      int64_t rawvalue=0;
+      int j;
+
+      for (j=0; j<6; j++) {
+	// This looks a bit roundabout, but is necessary.  Don't
+	// succumb to the temptation to use raw[j]<<(8*j) since under
+	// the normal rules this will be promoted to the native type.
+	// On a 32 bit machine this might then overflow.
+	int64_t temp;
+	temp = this->raw[j];
+	temp <<= 8*j;
+	rawvalue |= temp;
+      } // loop over j
+      return rawvalue;
+    } // found desired Attribute
+  } // loop over Attributes
+  
+  // fall-through: no such Attribute found
+  return -1;
+}
+
+

@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.69 2004/01/27 06:19:39 shattered Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.70 2004/04/09 00:28:44 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -64,7 +64,7 @@
 
 
 // Number of allowed mail message types
-#define SMARTD_NMAIL 10
+#define SMARTD_NMAIL 12
 
 typedef struct mailinfo_s {
   int logged;// number of times an email has been sent
@@ -76,7 +76,7 @@ typedef struct mailinfo_s {
 // stores the information about them, and track type/date of email
 // messages.
 typedef struct maildata_s {
-  mailinfo maillog[10];                   // log info on when mail sent
+  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
   char *emailcmdline;                     // script to execute
   char *address;                          // email address, or null
   unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
@@ -188,7 +188,8 @@ typedef struct configfile_s {
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
   testinfo *testdata;                     // Pointer to data on scheduled testing
-  
+  unsigned short pending;                 // lower 8 bits: ID of current pending sector count
+                                          // upper 8 bits: ID of offline pending sector count
   
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
@@ -273,3 +274,18 @@ export NJAMD_TRACE_LIBS=1
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
 #define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
+
+// cfg->pending is a 16 bit unsigned quantity.  If the least
+// significant 8 bits are zero, this means monitor Attribute
+// CUR_UNC_DEFAULT's raw value.  If they are CUR_UNC_DEFAULT, this
+// means DON'T MONITOR.  If the most significant 8 bits are zero, this
+// means monitor Attribute OFF_UNC_DEFAULT's raw value.  If they are
+// OFF_UNC_DEFAULT, this means DON'T MONITOR.
+#define OFF_UNC_DEFAULT 198
+#define CUR_UNC_DEFAULT 197
+
+#define CURR_PEND(x) (x & 0xff)
+#define OFF_PEND(x) ((x >> 8) & 0xff)
+
+// if cfg->pending has this value, dont' monitor
+#define DONT_MONITOR_UNC (256*OFF_UNC_DEFAULT+CUR_UNC_DEFAULT)

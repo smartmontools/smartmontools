@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.308 2004/04/07 20:55:31 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.309 2004/04/09 00:28:44 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.308 2004/04/07 20:55:31 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.309 2004/04/09 00:28:44 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -189,6 +189,33 @@ volatile int caughtsigEXIT=0;
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
+
+// tranlate cfg->pending into the correct Attribute numbers
+void TranslatePending(unsigned short pending, unsigned char *current, unsigned char *offline) {
+
+  unsigned char curr = CURR_PEND(pending);
+  unsigned char off =  OFF_PEND(pending);
+
+  // look for special value of CUR_UNC_DEFAULT that means DONT
+  // monitor. 0 means DO test.
+  if (curr==CUR_UNC_DEFAULT)
+    curr=0;
+  else if (curr==0)
+    curr=CUR_UNC_DEFAULT;
+	
+  // look for special value of OFF_UNC_DEFAULT that means DONT
+  // monitor.  0 means DO TEST.
+  if (off==OFF_UNC_DEFAULT)
+    off=0;
+  else if (off==0)
+    off=OFF_UNC_DEFAULT;
+
+  *current=curr;
+  *offline=off;
+
+  return;
+}
+
 
 // free all memory associated with selftest part of configfile entry.  Return NULL
 testinfo* FreeTestData(testinfo *data){
@@ -486,7 +513,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "FAILEDreadsmartdata",        // 6
     "FAILEDreadsmarterrorlog",    // 7
     "FAILEDreadsmartsefltestlog", // 8
-    "FAILEDopendevice"            // 9
+    "FAILEDopendevice",           // 9
+    "CurrentPendingSector",       // 10
+    "OfflinePendingSector"       //  11
   };
   
   char *address, *executable;
@@ -961,6 +990,8 @@ void Directives() {
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
            "  -a      Default: equivalent to -H -f -t -l error -l selftest\n"
            "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
+	   "  -C ID   Monitor current pending sectors in Attribute ID\n"
+	   "  -U ID   Monitor offline uncorrectable sectors in Attribute ID\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
@@ -1228,7 +1259,10 @@ int ATADeviceScan(cfgfile *cfg){
   retainsmartdata=cfg->usagefailed || cfg->prefail || cfg->usage;
   
   // do we need to get SMART data?
-  if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog) {
+  if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog || cfg->pending!=DONT_MONITOR_UNC) {
+
+    unsigned char currentpending, offlinepending;
+
     cfg->smartval=(struct ata_smart_values *)Calloc(1,sizeof(struct ata_smart_values));
     cfg->smartthres=(struct ata_smart_thresholds_pvt *)Calloc(1,sizeof(struct ata_smart_thresholds_pvt));
     
@@ -1241,6 +1275,25 @@ int ATADeviceScan(cfgfile *cfg){
         ataReadSmartThresholds (fd,cfg->smartthres)){
       PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
       retainsmartdata=cfg->usagefailed=cfg->prefail=cfg->usage=0;
+      cfg->pending=DONT_MONITOR_UNC;
+    }
+    
+    // see if the necessary Attribute is there to monitor offline or
+    // current pending sectors
+    TranslatePending(cfg->pending, &currentpending, &offlinepending);
+    
+    if (currentpending && ATAReturnAttributeRawValue(currentpending, cfg->smartval)<0) {
+      PrintOut(LOG_INFO,"Device: %s, can't monitor Current Pending Sector count - no Attribute %d\n",
+	       name, (int)currentpending);
+      cfg->pending &= 0xff00;
+      cfg->pending |= CUR_UNC_DEFAULT;
+    }
+    
+    if (offlinepending && ATAReturnAttributeRawValue(offlinepending, cfg->smartval)<0) {
+      PrintOut(LOG_INFO,"Device: %s, can't monitor Offline Uncorrectable Sector count  - no Attribute %d\n",
+	       name, (int)offlinepending);
+      cfg->pending &= 0x00ff;
+      cfg->pending |= OFF_UNC_DEFAULT<<8;
     }
   }
   
@@ -1910,7 +1963,7 @@ int ATACheckDevice(cfgfile *cfg){
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
-  if (cfg->usagefailed || cfg->prefail || cfg->usage){
+  if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->pending!=DONT_MONITOR_UNC){
     struct ata_smart_values     curval;
     struct ata_smart_thresholds_pvt *thresh=cfg->smartthres;
     
@@ -1919,79 +1972,102 @@ int ATACheckDevice(cfgfile *cfg){
       PrintOut(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
       MailWarning(cfg, 6, "Device: %s, failed to read SMART Attribute Data", name);
     }
-    else {  
-      // look for failed usage attributes, or track usage or prefail attributes
-      for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
-        int att;
-        changedattribute_t delta;
+    else {
+      // look for current or offline pending sectors
+      if (cfg->pending != DONT_MONITOR_UNC) {
+	int64_t rawval;
+	unsigned char currentpending, offlinepending;
+	
+	TranslatePending(cfg->pending, &currentpending, &offlinepending);
+	
+	if (currentpending && (rawval=ATAReturnAttributeRawValue(currentpending, &curval))>0) {
+	  // Unreadable pending sectors!!
+	  PrintOut(LOG_CRIT,   "Device: %s, %"PRIu64" Currently unreadable (pending) sectors\n", name, rawval);
+	  MailWarning(cfg, 10, "Device: %s, %"PRIu64" Currently unreadable (pending) sectors", name, rawval);
+	}
+	
+	if (offlinepending && (rawval=ATAReturnAttributeRawValue(offlinepending, &curval))>0) {
+	  // Unreadable offline sectors!!
+	  PrintOut(LOG_CRIT,   "Device: %s, %"PRIu64" Offline uncorrectable sectors\n", name, rawval);
+	  MailWarning(cfg, 11, "Device: %s, %"PRIu64" Offline uncorrectable sectors", name, rawval);
+	}
+      }
 
-        // This block looks for usage attributes that have failed.
-        // Prefail attributes that have failed are returned with a
-        // positive sign. No failure returns 0. Usage attributes<0.
-        if (cfg->usagefailed && ((att=ataCheckAttribute(&curval, thresh, i))<0)){
-          
-          // are we ignoring failures of this attribute?
-          att *= -1;
-          if (!IsAttributeOff(att, &cfg->monitorattflags, 0, MONITOR_FAILUSE, __LINE__)){
-            char attname[64], *loc=attname;
-            
-            // get attribute name & skip white space
-            ataPrintSmartAttribName(loc, att, cfg->attributedefs);
-            while (*loc && *loc==' ') loc++;
-            
-            // warning message
-            PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
-            MailWarning(cfg, 2, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
-          }
-        }
-        
-        // This block tracks usage or prefailure attributes to see if
-        // they are changing.  It also looks for changes in RAW values
-        // if this has been requested by user.
-        if ((cfg->usage || cfg->prefail) && ATACompareValues(&delta, &curval, cfg->smartval, thresh, i, name)){
-          unsigned char id=delta.id;
+      if (cfg->usagefailed || cfg->prefail || cfg->usage) {
 
-          // if the only change is the raw value, and we're not
-          // tracking raw value, then continue loop over attributes
-          if (!delta.sameraw && delta.newval==delta.oldval && !IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_RAW, __LINE__))
-            continue;
-
-          // are we tracking this attribute?
-          if (!IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_IGNORE, __LINE__)){
-            char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
-
-            // get attribute name, skip spaces
-            ataPrintSmartAttribName(loc, id, cfg->attributedefs);
-            while (*loc && *loc==' ') loc++;
-            
-            // has the user asked for us to print raw values?
-            if (IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_RAWPRINT, __LINE__)) {
-              // get raw values (as a string) and add to printout
-              char rawstring[64];
-              ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg->attributedefs);
-              sprintf(newrawstring, " [Raw %s]", rawstring);
-              ataPrintSmartAttribRawValue(rawstring, cfg->smartval->vendor_attributes+i, cfg->attributedefs);
-              sprintf(oldrawstring, " [Raw %s]", rawstring);
-            }
-            else
-              newrawstring[0]=oldrawstring[0]='\0';
-
-            // prefailure attribute
-            if (cfg->prefail && delta.prefail)
-              PrintOut(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d%s to %d%s\n",
-                       name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
-
-            // usage attribute
-            if (cfg->usage && !delta.prefail)
-              PrintOut(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d%s to %d%s\n",
-                       name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
-          }
-        } // endof block tracking usage or prefailure
-      } // end of loop over attributes
-     
-      // Save the new values into *drive for the next time around
-      *(cfg->smartval)=curval;
-    } 
+	// look for failed usage attributes, or track usage or prefail attributes
+	for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+	  int att;
+	  changedattribute_t delta;
+	  
+	  // This block looks for usage attributes that have failed.
+	  // Prefail attributes that have failed are returned with a
+	  // positive sign. No failure returns 0. Usage attributes<0.
+	  if (cfg->usagefailed && ((att=ataCheckAttribute(&curval, thresh, i))<0)){
+	    
+	    // are we ignoring failures of this attribute?
+	    att *= -1;
+	    if (!IsAttributeOff(att, &cfg->monitorattflags, 0, MONITOR_FAILUSE, __LINE__)){
+	      char attname[64], *loc=attname;
+	      
+	      // get attribute name & skip white space
+	      ataPrintSmartAttribName(loc, att, cfg->attributedefs);
+	      while (*loc && *loc==' ') loc++;
+	      
+	      // warning message
+	      PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
+	      MailWarning(cfg, 2, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
+	    }
+	  }
+	  
+	  // This block tracks usage or prefailure attributes to see if
+	  // they are changing.  It also looks for changes in RAW values
+	  // if this has been requested by user.
+	  if ((cfg->usage || cfg->prefail) && ATACompareValues(&delta, &curval, cfg->smartval, thresh, i, name)){
+	    unsigned char id=delta.id;
+	    
+	    // if the only change is the raw value, and we're not
+	    // tracking raw value, then continue loop over attributes
+	    if (!delta.sameraw && delta.newval==delta.oldval && !IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_RAW, __LINE__))
+	      continue;
+	    
+	    // are we tracking this attribute?
+	    if (!IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_IGNORE, __LINE__)){
+	      char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
+	      
+	      // get attribute name, skip spaces
+	      ataPrintSmartAttribName(loc, id, cfg->attributedefs);
+	      while (*loc && *loc==' ') loc++;
+	      
+	      // has the user asked for us to print raw values?
+	      if (IsAttributeOff(id, &cfg->monitorattflags, 0, MONITOR_RAWPRINT, __LINE__)) {
+		// get raw values (as a string) and add to printout
+		char rawstring[64];
+		ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg->attributedefs);
+		sprintf(newrawstring, " [Raw %s]", rawstring);
+		ataPrintSmartAttribRawValue(rawstring, cfg->smartval->vendor_attributes+i, cfg->attributedefs);
+		sprintf(oldrawstring, " [Raw %s]", rawstring);
+	      }
+	      else
+		newrawstring[0]=oldrawstring[0]='\0';
+	      
+	      // prefailure attribute
+	      if (cfg->prefail && delta.prefail)
+		PrintOut(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d%s to %d%s\n",
+			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
+	      
+	      // usage attribute
+	      if (cfg->usage && !delta.prefail)
+		PrintOut(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d%s to %d%s\n",
+			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
+	    }
+	  } // endof block tracking usage or prefailure
+	} // end of loop over attributes
+	
+	// Save the new values into *drive for the next time around
+	*(cfg->smartval)=curval;
+      }
+    }
   }
   
   // check if number of selftest errors has increased (note: may also DECREASE)
@@ -2008,8 +2084,9 @@ int ATACheckDevice(cfgfile *cfg){
 
     // did command fail?
     if (new<0)
+      // lack of PrintOut here is INTENTIONAL
       MailWarning(cfg, 7, "Device: %s, Read SMART Error Log Failed", name);
-  
+
     // has error count increased?
     if (new>old){
       PrintOut(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
@@ -2065,8 +2142,9 @@ int SCSICheckDevice(cfgfile *cfg)
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it
     if ((fd=OpenDevice(name, "SCSI"))<0) {
-        MailWarning(cfg, 9, "Device: %s, unable to open device", name);
-        return 1;
+      // Lack of PrintOut() here is intentional!
+      MailWarning(cfg, 9, "Device: %s, unable to open device", name);
+      return 1;
     }
     currenttemp = 0;
     asc = 0;
@@ -2378,6 +2456,30 @@ int ParseToken(char *token,cfgfile *cfg){
   switch (sym) {
     int val;
 
+  case 'C':
+    // monitor current pending sector count (default 197)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255))<0)
+      return -1;
+    if (val==CUR_UNC_DEFAULT)
+      val=0;
+    else if (val==0)
+      val=CUR_UNC_DEFAULT;
+    // set bottom 8 bits to correct value
+    cfg->pending &= 0xff00;
+    cfg->pending |= val;
+    break;
+  case 'U':
+    // monitor offline uncorrectable sectors (default 198)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255))<0)
+      return -1;
+    if (val==OFF_UNC_DEFAULT)
+      val=0;
+    else if (val==0)
+      val=OFF_UNC_DEFAULT;
+    // turn off top 8 bits, then set to correct value
+    cfg->pending &= 0xff;
+    cfg->pending |= (val<<8);
+    break;
   case 'T':
     // Set tolerance level for SMART command failures
     if ((arg = strtok(NULL, delim)) == NULL) {
