@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.46 2004/04/17 11:57:43 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.47 2004/04/19 02:42:33 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -515,8 +515,9 @@ ATA/ATAPI\-5 disks seem to respect their meaning, so we have retained
 the option of printing the Attribute values.
 .TP
 .B \-l TYPE, \-\-log=TYPE
-Prints either the SMART error log or the SMART self\-test log.  The
-valid arguments to this option are:
+Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART
+Selective Self-Test Log [ATA only], or the Log Directory [ATA only].
+The valid arguments to this option are:
 
 .I error
 \- prints only the SMART error log.  SMART disks maintain a log of the
@@ -611,22 +612,6 @@ printed in hexadecimal notation. On Linux systems the smartmontools
 web page has instructions about how to convert this LBA address to the
 name of the disk file containing the erroneous block.
 
-.I selective [ATA]
-\- Some ATA\-7 disks (example: Maxtor) also maintain a selective
-self\-test log.  Please see the \'\-t select\' option below for a
-description of selective self\-tests.  The selective self\-test log
-shows the start/end Logical Block Addresses (LBA) of each of the five
-test spans, and their current test status.  If the span is being
-tested or the remainder of the disk is being read\-scanned, the
-current 65536\-sector block of LBAs being tested is also displayed.
-The selective self\-test log also shows if a read\-scan of the
-remainder of the disk will be carried out after the selective
-self\-test has completed (see \'\-t afterselect\' option) and the time
-delay before restarting this read\-scan if it is interrupted (see
-\'\-t pending\' option). This is a new smartmontools feature; please
-report unusual or incorrect behavior to the smartmontools\-support
-mailing list.
-
 .I selftest [SCSI]
 \- the self\-test log for a SCSI device has a slightly different format
 than for an ATA device.  For each of the most recent twenty
@@ -648,6 +633,22 @@ If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
 Additional Sense Code Qualifier (ASQ) are also printed. The self tests
 can be run using the \'\-t\' option described below (using the ATA
 test terminology).
+
+.I selective [ATA]
+\- Some ATA\-7 disks (example: Maxtor) also maintain a selective
+self\-test log.  Please see the \'\-t select\' option below for a
+description of selective self\-tests.  The selective self\-test log
+shows the start/end Logical Block Addresses (LBA) of each of the five
+test spans, and their current test status.  If the span is being
+tested or the remainder of the disk is being read\-scanned, the
+current 65536\-sector block of LBAs being tested is also displayed.
+The selective self\-test log also shows if a read\-scan of the
+remainder of the disk will be carried out after the selective
+self\-test has completed (see \'\-t afterselect\' option) and the time
+delay before restarting this read\-scan if it is interrupted (see
+\'\-t pending\' option). This is a new smartmontools feature; please
+report unusual or incorrect behavior to the smartmontools\-support
+mailing list.
 
 .I directory
 \- if the device supports the General Purpose Logging feature set
@@ -1182,7 +1183,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.46 2004/04/17 11:57:43 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.47 2004/04/19 02:42:33 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
