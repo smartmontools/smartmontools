@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.93 2003/02/12 19:53:33 ballen4705 Exp $
+$Id: CHANGELOG,v 1.94 2003/02/18 21:23:22 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -33,7 +33,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-smartmontools-5.1-6
+smartmontools-5.1-7
 
   [BA] smartd: Created a subdirectory examplescripts/ of source
        directory that contains executable scripts for the -M exec PATH
