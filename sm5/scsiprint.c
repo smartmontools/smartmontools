@@ -1,4 +1,3 @@
-//  $Id: scsiprint.c,v 1.6 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * scsiprint.c
  *
@@ -36,6 +35,8 @@
 #include "scsiprint.h"
 
 #define GBUF_SIZE 65535
+
+const char* CVSid5="$Id: scsiprint.c,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID3 CVSID4 CVSID5 CVSID6 ;
 
 UINT8 gBuf[GBUF_SIZE];
 

@@ -1,4 +1,3 @@
-//  $Id: smartd.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * smartd.h
  *
@@ -22,6 +21,10 @@
  * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
  *
  */
+
+#ifndef CVSID7
+#define CVSID7 "$Id: smartd.h,v 1.6 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 /* Defines for command line options */ 
 #define DEBUGMODE 		'X'

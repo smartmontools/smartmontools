@@ -1,4 +1,3 @@
-//  $Id: smartd.cpp,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -38,6 +37,8 @@
 #include "scsicmds.h"
 #include "smartd.h"
 
+extern const char *CVSid1, *CVSid2;
+const char *CVSid3="$Id: smartd.cpp,v 1.11 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID1 CVSID4 CVSID7 ;
 
 int daemon_init(void){
   pid_t pid;
@@ -277,8 +278,7 @@ char copyleftstring[]=
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
-"See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $\n";
+"See http://www.gnu.org for further details.\n\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 
@@ -321,6 +321,7 @@ int main (int argc, char **argv){
     printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
 		RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
     printout(LOG_INFO,copyleftstring);
+    printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n%s%s%s",CVSid1,CVSid2,CVSid3);
     exit(0);
   }
   

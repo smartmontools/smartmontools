@@ -1,4 +1,3 @@
-//  $Id: scsiprint.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * scsiprint.h
  *
@@ -28,6 +27,9 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
+#ifndef CVSID5
+#define CVSID5 "$Id: scsiprint.h,v 1.6 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 void scsiPrintMain (int fd);
 

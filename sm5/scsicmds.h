@@ -1,4 +1,3 @@
-//  $Id: scsicmds.h,v 1.6 2002/10/22 08:43:22 ballen4705 Exp $
 /*
  * scsicmds.h
  *
@@ -27,6 +26,9 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
+#ifndef CVSID4
+#define CVSID4 "$Id: scsicmds.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d

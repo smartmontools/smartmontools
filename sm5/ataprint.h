@@ -1,7 +1,5 @@
-//  $Id: ataprint.h,v 1.6 2002/10/20 19:22:02 ballen4705 Exp $
-
 /*
- * ataprint.c
+ * ataprint.h
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -26,6 +24,10 @@
 
 #ifndef _SMART_PRINT_H_
 #define _SMART_PRINT_H_
+
+#ifndef CVSID2
+#define CVSID2 "$Id: ataprint.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,4 +1,3 @@
-//  $Id: atacmds.h,v 1.14 2002/10/21 16:45:22 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -25,6 +24,10 @@
 
 #ifndef _ATACMDS_H_
 #define _ATACMDS_H_
+
+#ifndef CVSID1
+#define CVSID1 "$Id: atacmds.h,v 1.15 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 // These are the major and minor versions for smartd and smartctl
 #define PROJECTHOME "http://smartmontools.sourceforge.net/"
