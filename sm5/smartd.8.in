@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.57 2004/04/09 00:42:53 ballen4705 Exp $
+$Id: smartd.8.in,v 1.58 2004/04/09 03:30:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -653,7 +653,7 @@ needed for some Maxtor disks which fail to comply with the ATA
 Specifications and don't properly indicate support for error\- or
 self\-test logging.
 
-[Please see the .B smartctl \-T command-line option.]
+[Please see the \fBsmartctl \-T\fP command-line option.]
 .TP
 .B \-o VALUE
 Enables or disables SMART Automatic Offline Testing when
@@ -690,25 +690,23 @@ Reports increases in the number of errors in one of the two SMART logs.  The
 valid arguments to this Directive are:
 
 .I error
-\- report if that the number of ATA errors reported in the ATA Error Log has
-increased since the last check.
+\- report if the number of ATA errors reported in the ATA Error Log
+has increased since the last check.
 
 .I selftest
 \- report if the number of failed tests reported in the SMART
 Self-Test Log has increased since the last check, or if the timestamp
-associated with the more recent failed test has increased.  Note that
+associated with the most recent failed test has increased.  Note that
 such errors will \fBonly\fP be logged if you run self-tests on the
-disk (and it fails a test!).
-Self-Tests can be run automatically by \fBsmartd\fP: please see the \fB\'\-s\'\fP
-Directive below.
-Self-Tests can also be run manually by using the
-\fB\'\-t\ short\'\fP and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP
-and the results of the testing can be observed using the \fBsmartctl
-\'\-l\ selftest\'\fP command-line option.]
-
-[Please see the
-\fBsmartctl \-l\fP
+disk (and it fails a test!).  Self-Tests can be run automatically by
+\fBsmartd\fP: please see the \fB\'\-s\'\fP Directive below.
+Self-Tests can also be run manually by using the \fB\'\-t\ short\'\fP
+and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP and the results of
+the testing can be observed using the \fBsmartctl \'\-l\ selftest\'\fP
 command-line option.]
+
+[Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
+options.]
 .TP
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
@@ -801,9 +799,10 @@ equivalent default \'\-a\' Directive).
 
 To prevent your email in-box from getting filled up with warning
 messages, by default only a single warning will be sent for each of
-the enabled test types, \'\-H\', \'\-l\', or \'\-f\', even if more than one
-failure or error is detected or if the failure or error persists.
-[This behavior can be modified; see the \'\-M\' Directive below.]
+the enabled alert types, \'\-H\', \'\-l\', \'\-f\', \'\-C\', or
+\'\-O\' even if more than one failure or error is detected or if the
+failure or error persists.  [This behavior can be modified; see the
+\'\-M\' Directive below.]
 
 To send email to more than one user, please use the following "comma
 separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
@@ -931,34 +930,42 @@ gives the reason for the warning or message email.  The possible values that
 it takes and their meanings are:
 .nf
 .fi
-\fIemailtest\fP: this is an email test message.
+\fIEmailTest\fP: this is an email test message.
 .nf
 .fi
-\fIhealth\fP: the SMART health status indicates imminent failure.
+\fIHealth\fP: the SMART health status indicates imminent failure.
 .nf
 .fi
-\fIusage\fP: a usage Attribute has failed.
+\fIUsage\fP: a usage Attribute has failed.
 .nf
 .fi
-\fIselftest\fP: the number of self-test failures has increased.
+\fISelfTest\fP: the number of self-test failures has increased.
 .nf
 .fi
-\fIerrorcount\fP: the number of errors in the ATA error log has increased.
+\fIErrorCount\fP: the number of errors in the ATA error log has increased.
 .nf
 .fi
-\fIFAILEDhealthcheck\fP: the SMART health status command failed.
+\fICurrentPendingSector\fP: one of more disk sectors could not be
+read and are marked to be reallocated (replaced with spare sectors).
 .nf
 .fi
-\fIFAILEDreadsmartdata\fP: the command to read SMART Attribute data failed.
+\fIOfflineUncorrectableSector\fP: during off\-line testing, or self\-testing,
+one or more disk sectors could not be read.
 .nf
 .fi
-\fIFAILEDreadsmarterrorlog\fP: the command to read the SMART error log failed.
+\fIFailedHealthCheck\fP: the SMART health status command failed.
 .nf
 .fi
-\fIFAILEDreadsmartsefltestlog\fP: the command to read the SMART self-test log failed.
+\fIFailedReadSmartData\fP: the command to read SMART Attribute data failed.
 .nf
 .fi
-\fIFAILEDopendevice\fP: the open() command to the device failed.
+\fIFailedReadSmartErrorLog\fP: the command to read the SMART error log failed.
+.nf
+.fi
+\fIFailedReadSmartSeflTestLog\fP: the command to read the SMART self-test log failed.
+.nf
+.fi
+\fIFailedOpenDevice\fP: the open() command to the device failed.
 .IP \fBSMARTD_ADDRESS\fP 4
 is determined by the address argument ADD of the \'\-m\' Directive.
 If ADD is \fB<nomailer>\fP, then \fBSMARTD_ADDRESS\fP is not set.
@@ -1637,4 +1644,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.57 2004/04/09 00:42:53 ballen4705 Exp $
+$Id: smartd.8.in,v 1.58 2004/04/09 03:30:05 ballen4705 Exp $
