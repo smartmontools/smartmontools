@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.45 2003/12/19 22:04:17 ballen4705 Exp $
+# $Id: Makefile.am,v 1.46 2003/12/20 00:04:10 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -108,11 +108,13 @@ uninstall-man:
 	awk '/^.TH/ {$$3="1m"} {print}' < $< | \
 	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
 	    -e 's/smartctl\(.*\)(8)/smartctl\1(1m)/g' \
+            -e 's|/var/log/messages|/var/adm/messages|g' \
 	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
 %.4: %.5
 	awk '/^.TH/ {$$3="4"}  {print}' < $< | \
 	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
 	    -e 's/smartctl\(.*\)(8)/smartdctl\1(1m)/g' \
+            -e 's|/var/log/messages|/var/adm/messages|g' \
 	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
 else
 # For systems that adopts traditional manner
@@ -187,12 +189,6 @@ uninstall-initdDATA:
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
 
-if OS_SOLARIS
-	thesyslog=/var/adm/messages
-else
-	thesyslog=/var/log/messages
-endif
-
 smart%: $(srcdir)/smart%.in Makefile
 	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
 	sed "s|CURRENT_CVS_DATE|$(smartmontools_release_date)|g" | \
@@ -201,7 +197,6 @@ smart%: $(srcdir)/smart%.in Makefile
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
 	sed "s|/etc/rc\\.d/init.d/|$(initddir)/|g" | \
 	sed "s|/usr/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
-	sed "s|/var/log/messages|$(thesyslog)|g" | \
 	sed "s|/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
 
 SUBDIRS= . examplescripts
