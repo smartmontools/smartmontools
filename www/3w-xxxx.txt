@@ -1,8 +1,14 @@
 ---------------------------------------------------------------------------
+# August 12, 2003
+#
+# 3ware has incorporated a more general version of this fix into their latest
+# 3w-xxxx driver release. Rather than using this patch, you can upgrade your 
+# 3w-xxxx driver to version 1.02.00.037 or greater.  Or you can use this patch.
+#
 # August 8, 2003
 # PATCH FOR 3WARE 3w-xxxx DRIVER
 # Bruce Allen ballen at gravity.phys.uwm.edu
-# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.1 2003/08/08 20:35:15 ballen4705 Exp $
+# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.2 2003/08/12 09:08:44 ballen4705 Exp $
 # 
 # To apply this patch, save this entire file to 3w-xxxx.txt in a
 # directory containing the original unpatched 3w-xxxx.c file. Then

@@ -368,35 +368,46 @@ the Operating System files.</p>
 <li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
 
 <p>
-Starting with release 5.1-16, smartmontools contains (experimental)
-support for 3ware SCSI RAID controllers that use ATA disks
-internally. To pass commands through the 3ware controller, use the
-smartmontools <b>-d 3ware,N</b> option or Directive. One of the
-developers is also going to try to add support for Megaraid
-controllers.
+From release 5.1-16, smartmontools supports 3ware SCSI RAID
+controllers that use ATA disks internally. To pass commands through
+the 3ware controller, use the smartmontools <b>-d 3ware,N</b> option
+or Directive.
 </p>
 
 <p>
-In the smartmontools 5.1-16 release, the SMART ENABLE AUTOMATIC
-OFFLINE and the SMART ENABLE ATTRIBUTE AUTOSAVE commands
-(smartmontools <b>-o on</b> and <b>-S on</b>) are <i>not</i> supported
-for 3ware devices, because the stock 3w-xxxx driver can not pass these
-commands through to the ATA disks.  These commands
-<i>are</i> supported by post-5.1-16 smartmontools CVS code and
-releases, but you need to patch the 3ware 3w-xxxx driver for the
-commands to reach the disks.  You may also use an unpatched stock
-3w-xxxx driver, but in this case the driver will not pass the commands
-through to the ATA disks.  Instead, it will print harmless warning
-messages to SYSLOG.</p>
-
-<p>Details, and instructions on patching the 3w-xxxx driver may be
-found in this <a href="3w-xxxx.txt">text file</a>.
+In release 5.1-16, the ENABLE AUTOMATIC OFFLINE and ENABLE ATTRIBUTE
+AUTOSAVE commands (smartmontools <b>-o on</b> and <b>-S on</b>) are
+<i>disabled</i> for 3ware devices, because at the time 5.1-16 was
+released, the 3w-xxxx driver could not pass these commands through to
+the ATA disks.
 </p>
+
+<p>
+Later smartmontools CVS code and releases
+<i>do</i> support these commands.  You may:
+<ul>
+<li>use version <b>1.02.00.037</b> or greater of the 3w-xxxx driver, or</li>
+<li><a href="3w-xxxx.txt">patch</a> earlier 3ware 3w-xxxx drivers so that
+these commands reach the disks, or</li>
+<li> use an <b>unpatched</b> earlier 3w-xxxx driver (which won't pass these
+commands to the disks but will instead print
+harmless warning messages to SYSLOG).</li>
+</ul>
+Since smartmontools 3ware support is new, please report
+positive or negative experiences to the <a
+href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">support
+mailing list</a>, particularly for 64-bit and/or big-endian
+architectures.
+ </p>
+
+
+
 </li>
 
 </ul>
 
-<hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes (TapeAlert)</b>
+<hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
+(TapeAlert)</b>
 <p>Smartmontools for SCSI disks and tapes (including medium changers) is
 discussed on a separate <a href="smartmontools_scsi.html">page</a>.
 </p>
