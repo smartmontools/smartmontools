@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.51 2004/04/11 17:13:39 chrfranke Exp $
+$Id: TODO,v 1.52 2004/04/17 10:44:47 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -49,11 +49,20 @@ Add interface to Megaraid ATA RAID controllers (Erik)
 
 smartctl: 
 ---------
+Add command line option to issue SMART SAVE ATTRIBUTE VALUES command
+Feature Register value ATA_SMART_SAVE 0xd3
+
 Perhaps modify the -q option (quiet mode) so that it only warns of ATA
 errors if they have (say) taken place in the last 168 hours (week).
 
 Parse and print additional Attribute flag meanings (IBM ones, eg
-performance etc).
+performance etc).  These are now documented in atacmds.h -- we just
+need to modify the format of the Attribute table.
+
+Modify the SMART self-test log table printing so that we ALSO print
+the value of the self-test failure checkpoint byte, if it's one of the
+recognized values.  See routine SelfTestFailureCodeName and
+documentation in atacmds.h.
 
 smartd:
 -------

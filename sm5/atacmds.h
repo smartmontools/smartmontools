@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.68 2004/04/09 00:28:44 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.69 2004/04/17 10:44:47 ballen4705 Exp $\n"
 
 #include "int64.h"
 
@@ -151,13 +151,13 @@ struct ata_smart_attribute {
 // both normal operation and off-line testing.
 #define ATTRIBUTE_FLAGS_ONLINE(x) (x & 0x02)
 
-// 2: Performance bit
 
-// The following are (probably) IBM's or Quantum's definitions for the
+// The following are (probably) IBM's, Maxtors and  Quantum's definitions for the
 // vendor-specific bits:
+// 2: Performance type bit
 #define ATTRIBUTE_FLAGS_PERFORMANCE(x) (x & 0x04)
 
-// 3: Errorrate bit
+// 3: Errorrate type bit
 #define ATTRIBUTE_FLAGS_ERRORRATE(x) (x & 0x08)
 
 // 4: Eventcount bit
@@ -178,19 +178,28 @@ struct ata_smart_values {
   unsigned char offline_data_collection_status;
   unsigned char self_test_exec_status;  //IBM # segments for offline collection
   unsigned short int total_time_to_complete_off_line; // IBM different
-  unsigned char vendor_specific_366; // IBM curent segment pointer
+  unsigned char vendor_specific_366; // Maxtor & IBM curent segment pointer
   unsigned char offline_data_collection_capability;
   unsigned short int smart_capability;
   unsigned char errorlog_capability;
-  unsigned char vendor_specific_371;  // IBM: self-test failure checkpoint
+  unsigned char vendor_specific_371;  // Maxtor, IBM: self-test failure checkpoint see below!
   unsigned char short_test_completion_time;
   unsigned char extend_test_completion_time;
   unsigned char conveyance_test_completion_time;
   unsigned char reserved_375_385[11];
-  unsigned char vendor_specific_386_510[125];
+  unsigned char vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   unsigned char chksum;
 }; 
 #pragma pack()
+
+/* Maxtor, IBM: self-test failure checkpoint byte meaning:
+ 00 - write test
+ 01 - servo basic
+ 02 - servo random
+ 03 - G-list scan
+ 04 - Handling damage
+ 05 - Read scan
+*/
 
 /* Vendor attribute of SMART Threshold (compare to ata_smart_attribute above) */
 #pragma pack(1)
@@ -451,6 +460,15 @@ void checksumwarning(const char *string);
 // range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
 // return -1.
 int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data);
+
+
+// This are the meanings of the Self-test failure checkpoint byte.
+// This is in the self-test log at offset 4 bytes into the self-test
+// descriptor and in the SMART READ DATA structure at byte offset
+// 371. These codes are not well documented.  The meanings returned by
+// this routine are used (at least) by Maxtor and IBM. Returns NULL if
+// not recognized.
+const char *SelfTestFailureCodeName(unsigned char which);
 
 
 #define MAX_ATTRIBUTE_NUM 256

@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.316 2004/04/14 13:27:20 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.317 2004/04/17 10:44:47 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.316 2004/04/14 13:27:20 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.317 2004/04/17 10:44:47 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1461,7 +1461,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   // smart if it is off). This may change to be the same as the ATA side.
   if (!scsi_IsExceptionControlEnabled(&iec)) {
     PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n"
-                        "Try 'smartctl -s on %s' to turn on SMART features\n", 
+	               "Try 'smartctl -s on %s' to turn on SMART features\n", 
                         device, device);
     CloseDevice(fd, device);
     return 3;

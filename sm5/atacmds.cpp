@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.147 2004/04/09 00:28:43 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.148 2004/04/17 10:44:47 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -174,6 +174,32 @@ const char *vendorattributeargs[] = {
   // NULL should always terminate the array
   NULL
 };
+
+// This are the meanings of the Self-test failure checkpoint byte.
+// This is in the self-test log at offset 4 bytes into the self-test
+// descriptor and in the SMART READ DATA structure at byte offset
+// 371. These codes are not well documented.  The meanings returned by
+// this routine are used (at least) by Maxtor and IBM. Returns NULL if
+// not recognized.  Currently the maximum length is 15 bytes.
+const char *SelfTestFailureCodeName(unsigned char which){
+  
+  switch (which) {
+  case 0:
+    return "Write_Test";
+  case 1:
+    return "Servo_Basic";
+  case 2:
+    return "Servo_Random";
+  case 3:
+    return "G-list_Scan";
+  case 4:
+    return "Handling_Damage";
+  case 5:
+    return "Read_Scan";
+  default:
+    return NULL;
+  }
+}
 
 // This is a utility function for parsing pairs like "9,minutes" or
 // "220,temp", and putting the correct flag into the attributedefs
