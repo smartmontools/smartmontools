@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.12 2003/10/02 06:31:01 ballen4705 Exp $
+# $Id: configure.in,v 1.13 2003/10/02 13:36:05 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -49,5 +49,7 @@ if test "$prefix" = "NONE"; then
     	AC_SUBST([mandir], ['${prefix}/share/man'])
     fi
 fi
+
+AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
