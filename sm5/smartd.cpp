@@ -49,7 +49,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.137 2003/04/09 20:34:48 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.138 2003/04/10 02:41:58 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -446,6 +446,7 @@ void Directives() {
   printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
   printout(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
+  printout(LOG_INFO,"  -F      Fix byte order in some SMART data (some Samsung disks)\n");
   printout(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\      Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
@@ -634,7 +635,13 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 
   // capability check: self-test-log
   if (cfg->selftest){
-    int val=selftesterrorcount(fd, device);
+    int val;
+
+    // fix bug in Samsung firmware
+    con->reversesamsung=cfg->reversesamsung;
+    
+    // get number of Self-test errors logged
+    val=selftesterrorcount(fd, device);
     if (val>=0)
       cfg->selflogcount=val;
     else
@@ -643,7 +650,13 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   
   // capability check: ATA error log
   if (cfg->errorlog){
-    int val=ataerrorcount(fd, device);
+    int val;
+
+    // fix bug in Samsung firmware
+    con->reversesamsung=cfg->reversesamsung;
+    
+    // get number of ATA errors logged
+    val=ataerrorcount(fd, device);
     if (val>=0)
       cfg->ataerrorcount=val;
     else
@@ -963,8 +976,14 @@ int ataCheckDevice(atadevices_t *drive){
   
   // check if number of selftest errors has increased (note: may also DECREASE)
   if (cfg->selftest){
+    int new;
     unsigned char old=cfg->selflogcount;
-    int new=selftesterrorcount(fd, name);
+    
+    // fix bug in Samsung firmware
+    con->reversesamsung=cfg->reversesamsung;
+
+    // new self test error count
+    new=selftesterrorcount(fd, name);
     
     // did command fail?
     if (new<0)
@@ -986,8 +1005,14 @@ int ataCheckDevice(atadevices_t *drive){
   
   // check if number of ATA errors has increased
   if (cfg->errorlog){
-    int old=cfg->ataerrorcount;
-    int new=ataerrorcount(fd, name);
+
+    int new,old=cfg->ataerrorcount;
+
+    // fix bug in Samsung firmware
+    con->reversesamsung=cfg->reversesamsung;
+
+    // new number of errors
+    new=ataerrorcount(fd, name);
 
     // did command fail?
     if (new<0)
@@ -1260,6 +1285,10 @@ int parsetoken(char *token,cfgfile *cfg){
     } else {
       badarg = 1;
     }
+    break;
+  case 'F':
+    // fix bug in Samsung Firmware
+    cfg->reversesamsung=1;
     break;
   case 'H':
     // check SMART status
