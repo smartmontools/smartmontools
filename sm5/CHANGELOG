@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.292 2003/12/16 19:15:22 ballen4705 Exp $
+$Id: CHANGELOG,v 1.293 2003/12/17 20:34:05 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax Plus D740X family to knowndrives table.
+
+  [PW] Added IBM Travelstar 32GH, 30GT, and 20GN family to knowndrives
+       table.
 
   [BA] Slackware init script modified to search for /etc/slackware-version
        rather than /etc/slackware-release.

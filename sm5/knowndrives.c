@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.67 2003/12/16 20:09:16 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.68 2003/12/17 20:34:05 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -281,8 +281,13 @@ const drivesettings knowndrives[] = {
     "Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung[2] enabled.\n",
     NULL, NULL, NULL
   },
-  { // Maxtor 6L080J4 and 4K080H4
-    "^MAXTOR (6L080J4|4K080H4)$",
+  { // Maxtor DiamondMax Plus D740X family
+    "^MAXTOR 6L0(20[JL]1|40[JL]2|60[JL]3|80[JL]4)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Maxtor 4K080H4
+    "^MAXTOR 4K080H4$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -344,6 +349,11 @@ const drivesettings knowndrives[] = {
   },
   { // IBM Travelstar 25GS, 18GT, and 12GN family
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { // IBM Travelstar 32GH, 30GT, and 20GN family
+    "^IBM-DJSA-2(32|30|20|10|05)$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
