@@ -1,4 +1,7 @@
 ## Process this file with automake to produce Makefile.in
+#
+# $Id: Makefile.am,v 1.5 2003/09/04 12:05:20 ballen4705 Exp $
+#
 sbin_PROGRAMS = smartd 	\
 		smartctl
 
