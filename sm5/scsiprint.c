@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.53 2003/10/19 08:05:55 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.54 2003/11/11 11:05:58 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -52,7 +52,6 @@ extern int exitstatus;
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
-#define LOG_RESP_SELF_TEST_LEN 0x194
 
 /* Log pages supported */
 static int gSmartLPage = 0;     /* Informational Exceptions log page */
