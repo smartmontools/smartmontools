@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.9 2002/10/26 09:24:26 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.10 2002/10/26 09:38:26 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -57,7 +57,6 @@ unsigned char emailnotification       = FALSE;
 unsigned char printcopyleft           = FALSE;
 
 typedef struct atadevices_s {
-	int fd;
 	int selftest;
 	struct hd_driveid drive;
 	struct ata_smart_values smartval;
@@ -66,7 +65,6 @@ typedef struct atadevices_s {
 }  atadevices_t;
 
 typedef struct scsidevices_s {
-	int fd;
 	unsigned char SmartPageSupported;
 	unsigned char TempPageSupported;
 	unsigned char Temperature;

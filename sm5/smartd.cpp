@@ -39,7 +39,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.32 2002/10/26 09:24:26 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.33 2002/10/26 09:38:26 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 // This function prints either to stdout or to the syslog as needed
@@ -185,7 +185,6 @@ int atadevicescan (atadevices_t *devices, char *device){
   }
 
   printout(LOG_INFO,"%s Found and is SMART capable. Adding to \"monitor\" list.\n",device);
-  devices[numatadevices].fd = fd;
   strcpy(devices[numatadevices].devicename, device);
   devices[numatadevices].drive = drive;
   
@@ -244,7 +243,6 @@ int scsidevicescan (scsidevices_t *devices, char *device){
 
   // now we can proceed to register the device
   printout(LOG_INFO, "Device: %s, Found and is SMART capable. Adding to \"monitor\" list.\n",device);
-  devices[numscsidevices].fd = fd;
   strcpy(devices[numscsidevices].devicename,device);
 
   // register the supported functionality.  The smartd code does not
