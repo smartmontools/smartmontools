@@ -1,28 +1,39 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.11 2003/11/19 21:34:07 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.12 2003/11/20 05:40:07 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
 
-Date: 2003-11-18
+
+Date: 2003-11-19
 Summary: smartmontools release 5.25
 -----------------------------------
-From this point on, even numbered releases will be 'stable' ones and
-odd numbered releases (like this one) will be
-unstable/testing/development ones.  This release should not hang when
-accessing USB devices. It provides SCSI self-test log monitoring, and
-a larger table of known ATA drives.  DEVICESCAN should work correctly
+This release should not hang when accessing USB devices. It provides
+smartd SCSI self-test log monitoring for self-test errors, and a
+larger table of known ATA drives.  DEVICESCAN should work correctly
 even on file systems containing XFS or JFS partitions, and on machines
 that use devfs, even without traditional links.
+
+From this time on, even numbered releases will be 'stable' ones and
+odd numbered releases (like 5.25) will be unstable/testing/development
+releases.
+
+Date: 2003-10-30
+Summary: smartmontools release 5.23
+-----------------------------------
+This release has one known problem: DEVICESCAN device scanning does
+not work correctly if the disk with the /dev directory also has XFS
+or JFS file systems on it.
 
 Date: 2003-10-28
 Summary: smartmontools release 5.22
 -----------------------------------
 Replaces flawed 5.21 release: the -T verypermissive option had to be
 entered as -T verpermissive. First experimental solaris support (SCSI
-only).
+only).  This release had a serious flaw: smartd left open file descriptors
+for devices that it couldn't monitor.
 
 
 Date: 2003-10-14
