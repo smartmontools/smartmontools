@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.48 2003/06/17 06:07:56 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.49 2003/06/20 13:24:04 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -450,7 +450,9 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
             int offset;
 
             offset = scsiModePageOffset(pBuf, bufLen, 0);
-            if ((offset >= 0) && (pagenum != (pBuf[offset] & 0x3f)))
+            if (offset < 0)
+                return SIMPLE_ERR_BAD_RESP;
+            else if (pagenum != (pBuf[offset] & 0x3f))
                 return SIMPLE_ERR_BAD_RESP;
         }
     }
@@ -535,7 +537,9 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
             int offset;
 
             offset = scsiModePageOffset(pBuf, bufLen, 1);
-            if ((offset >= 0) && (pagenum != (pBuf[offset] & 0x3f)))
+            if (offset < 0)
+                return SIMPLE_ERR_BAD_RESP;
+            else if (pagenum != (pBuf[offset] & 0x3f))
                 return SIMPLE_ERR_BAD_RESP;
         }
     }
@@ -652,7 +656,14 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
     if ((res = scsiSimpleSenseFilter(&sinfo)))
         return res;
     /* Guard against devices that ignore EVPD bit and do standard INQUIRY */
-    return ((bufLen > 1) && (vpd_page != pBuf[1])) ? 5 : 0;
+    if (bufLen > 1) {
+        if (vpd_page == pBuf[1]) {
+            if ((0x80 == vpd_page) && (bufLen > 2) && (0x0 != pBuf[2]))
+                return SIMPLE_ERR_BAD_RESP;
+        } else
+            return SIMPLE_ERR_BAD_RESP;
+    }
+    return 0;
 }
 
 /* REQUEST SENSE command. Returns 0 if ok, anything else major problem.
