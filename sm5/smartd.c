@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.163 2003/05/06 07:57:05 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.164 2003/05/12 18:34:39 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -435,8 +435,8 @@ void printhead(){
 // prints help info for configuration file Directives
 void Directives() {
   printout(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
-  printout(LOG_INFO,"  -d TYPE Set the device type to one of: ata, scsi\n");
-  printout(LOG_INFO,"  -T TYPE set the tolerance to one of: normal, permissive\n");
+  printout(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable\n");
+  printout(LOG_INFO,"  -T TYPE Set the tolerance to one of: normal, permissive\n");
   printout(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
   printout(LOG_INFO,"  -S VAL  Enable/disable attribute autosave (on/off)\n");
   printout(LOG_INFO,"  -H      Monitor SMART Health Status, report if failed\n");
@@ -1253,7 +1253,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 
   switch (d) {
   case 'd':
-    printout(priority, "ata, scsi");
+    printout(priority, "ata, scsi, removable");
     break;
   case 'T':
     printout(priority, "normal, permissive");
@@ -1373,6 +1373,8 @@ int parsetoken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "scsi")) {
       cfg->tryscsi = 1;
       cfg->tryata  = 0;
+    } else if (!strcmp(arg, "removable")) {
+      cfg->removable = 1;
     } else {
       badarg = 1;
     }
@@ -2178,10 +2180,15 @@ int main (int argc, char **argv){
 	notregistered=0;
     }
     
-    // if device explictly listed and we can't register it, then exit
+    // if device is explictly listed and we can't register it, then exit unless
+    // the user has specified that the device is removable
     if (notregistered && !scanning){
-      printout(LOG_CRIT, "Unable to register device %s - exiting.\n", config[i].name);
-      exit(EXIT_BADDEV);
+      if (config[i].removable)
+        printout(LOG_INFO, "Device %s not available\n", config[i].name);
+      else {
+        printout(LOG_CRIT, "Unable to register device %s - exiting.\n", config[i].name);
+        exit(EXIT_BADDEV);
+      }
     }
   } // done registering entries
 

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.94 2003/04/23 13:19:40 guidog Exp $
+\# $Id: smartd.8,v 1.95 2003/05/12 18:34:39 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/23 13:19:40 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/05/12 18:34:39 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -420,12 +420,13 @@ the SMART status indicates a disk failure or problem, or if the SCSI inquiry abo
 
 .TP
 .B \-d TYPE
-Specifies the type of the device.  This will prevent
+Specifies the type of the device.  This Directive may be used multiple times
+for one device, but the arguments \fIata\fP and \fIscsi\fP are
+mutually-exclusive and if they are both used then
 .B smartd
-from issuing SCSI commands to an ATA device and vice versa.  The valid
-arguments to this Directive are \fIata\fP and \fIscsi\fP.
+will use the one that appears last.
 
-In the absence of this Directive,
+If neither \fIata\fP nor \fIscsi\fP are used then
 .B smartd
 will first attempt to guess the device type by looking at whether the sixth
 character in the device name is an 's' or an 'h'.  This will work for
@@ -433,6 +434,25 @@ device names like /dev/hda or /dev/sdb.  If
 .B smartd
 can't guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
+
+The valid arguments to this Directive are:
+
+.I ata
+\- the device type is ATA.  This prevents
+.B smartd
+from issuing SCSI commands to an ATA device.
+
+.I scsi
+\- the device type is SCSI.  This prevents
+.B smartd
+from issuing ATA commands to a SCSI device.
+
+.I removable
+\- the device or its media is removable.  This indicates to
+.B smartd
+that it should continue (instead of exiting, which is the default behavior)
+if the device does not appear to be present.
+
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -1245,4 +1265,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.94 2003/04/23 13:19:40 guidog Exp $
+$Id: smartd.8,v 1.95 2003/05/12 18:34:39 pjwilliams Exp $

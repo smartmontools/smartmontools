@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.143 2003/05/09 19:20:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.144 2003/05/12 18:34:39 pjwilliams Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,9 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
+  [PW] Added 'removable' argument to -d Directive for smartd.  This indicates
+       that smartd should continue (rather than exit) if the device does not 
+       appear to be present.
 
   [BA] Modified smartmontools.spec [Man pages location] and
        smartd.initd [Extra space kills chkconfig!] for Redhat 6.x
