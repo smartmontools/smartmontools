@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.86 2004/02/16 18:46:32 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.87 2004/02/16 18:56:59 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -144,9 +144,9 @@ const drivesettings knowndrives[] = {
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
     NULL, NULL, NULL
   },
-  { // IBM Deskstar 40GV & 75GXP series (TXAOA5AA firmware)
+  { // IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)
     "(IBM-)?DTLA-30[57]0[123467][05]$",
-    "^TXAOA5AA$",
+    "^T[WX][123468A]OA[56]AA$",
     NULL, NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (all other firmware)

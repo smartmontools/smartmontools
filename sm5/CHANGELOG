@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.337 2004/02/16 18:48:11 pjwilliams Exp $
+$Id: CHANGELOG,v 1.338 2004/02/16 18:56:59 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives with
+       A5AA/A6AA firmware.  Thanks to Gerald Schnabel.
 
   [PW] Added Toshiba TOS MK3019GAXB SUN30G to knowndrives table
 
