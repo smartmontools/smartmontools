@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.48 2003/06/01 12:38:22 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.49 2003/06/17 06:10:08 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -480,12 +480,20 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, &gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-        if (0 == scsiInquiryVpd(device, 0x80, gBuf, 64)) {
+        if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
             len = gBuf[3];
             gBuf[4 + len] = '\0';
             pout("Serial number: %s\n", &gBuf[4]);
+        }
+        else if (con->reportscsiioctl > 0) {
+            QUIETON(con);
+            if (SIMPLE_ERR_BAD_RESP == err)
+                pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
+            else
+                pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
+            QUIETOFF(con);
         }
     } else {
         QUIETON(con);
@@ -527,6 +535,13 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 	        pout(" [%s]\n", scsiErrString(err));
             else
 	        pout("\n");
+            if (SIMPLE_ERR_BAD_RESP == err) {
+                pout(">> Terminate command early due to bad response to IEC "
+                     "mode page\n");
+                QUIETOFF(con);
+                gIecMPage = 0;
+                return 1;
+            }
             QUIETOFF(con);
         }
         gIecMPage = 0;
@@ -635,10 +650,20 @@ static void failuretest(int type, int returnvalue)
                  "than 'conservative'\n");
             exit(returnvalue);
         }
+        return;
     }
-    return;
+    // If this is an error in a "mandatory" SMART command
+    if (type==MANDATORY_CMD) {
+        if (con->permissive)
+            return;
+        pout("A mandatory SMART command has failed: exiting. To continue, "
+             "use the -T option to set the tolerance level to 'permissive'\n");
+        exit(returnvalue);
+    }
+    pout("Smartctl internal error in failuretest(type=%d). Please contact "
+         "%s\n",type,PROJECTHOME);
+    exit(returnvalue|FAILCMD);
 }
-
 
 /* Main entry point used by smartctl command. Return 0 for success */
 int scsiPrintMain(const char *dev_name, int fd)
@@ -649,7 +674,6 @@ int scsiPrintMain(const char *dev_name, int fd)
     int res;
 
     if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {
-        pout("Smartctl: SCSI device INQUIRY Failed\n\n");
         failuretest(MANDATORY_CMD, returnval |= FAILID);
     }
 

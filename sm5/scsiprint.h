@@ -6,6 +6,9 @@
  * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
+ * Additional SCSI work:
+ * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -28,7 +31,7 @@
 #define SCSI_PRINT_H_
 
 #ifndef SCSIPRINT_H_CVSID
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.13 2003/05/01 08:49:04 dpgilbert Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.14 2003/06/17 06:06:33 dpgilbert Exp $\n"
 #endif
 
 // MACROS to control printing behavior (from ataprint.h)

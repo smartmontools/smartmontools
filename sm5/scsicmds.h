@@ -6,6 +6,9 @@
  * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
+ * Additional SCSI work:
+ * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -30,7 +33,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.29 2003/06/01 12:36:12 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.30 2003/06/17 06:07:07 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -40,6 +43,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+
+#define PROJECTHOME "http://smartmontools.sourceforge.net/"
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -87,18 +92,21 @@ typedef int INT32;
 
 struct scsi_cmnd_io
 {
-    UINT8 * cmnd;
-    size_t  cmnd_len;
-    int dxfer_dir;     /* DXFER_NONE, DXFER_FROM_DEVICE, or DXFER_TO_DEVICE */
-    UINT8 * dxferp;
-    size_t dxfer_len;
-    UINT8 * sensep;     /* ptr to sense buffer when CHECK CONDITION status */
-    size_t max_sense_len;
-    unsigned timeout;   /* in seconds, 0-> default timeout (60 seconds?) */
-    size_t resp_sense_len;  /* output: sense buffer length */
-    UINT8 scsi_status;  /* output: 0->ok, 2->CHECK CONDITION, etc ... */
-    int resid;          /* Number of bytes requested to be transferred less */
-                        /*  actual number transferred (0 if not supported) */
+    UINT8 * cmnd;       /* [in]: ptr to SCSI command block (cdb) */
+    size_t  cmnd_len;   /* [in]: number of bytes in SCSI command */
+    int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or 
+                                 DXFER_TO_DEVICE */
+    UINT8 * dxferp;     /* [in]: ptr to outgoing or incoming data buffer */
+    size_t dxfer_len;   /* [in]: bytes to be transferred to/from dxferp */
+    UINT8 * sensep;     /* [in]: ptr to sense buffer, filled when 
+                                 CHECK CONDITION status occurs */
+    size_t max_sense_len; /* [in]: max number of bytes to write to sensep */
+    unsigned timeout;   /* [in]: seconds, 0-> default timeout (60 seconds?) */
+    size_t resp_sense_len;  /* [out]: sense buffer length written */
+    UINT8 scsi_status;  /* [out]: 0->ok, 2->CHECK CONDITION, etc ... */
+    int resid;          /* [out]: Number of bytes requested to be transferred
+                                  less actual number transferred (0 if not
+                                   supported) */
 };
 
 struct scsi_sense_disect {
@@ -179,10 +187,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define CD_DEVICE_PARAMETERS                     0x0d
 #define CD_AUDIO_CONTROL_PAGE                    0x0e
 #define DATA_COMPRESSION_PARAMETERS              0x0f
-#define MEDIUM_PARTITION_MODE_PARAMTERES_1       0x11
-#define MEDIUM_PARTITION_MODE_PARAMTERES_2       0x12
-#define MEDIUM_PARTITION_MODE_PARAMTERES_3       0x13
-#define MEDIUM_PARTITION_MODE_PARAMTERES_4       0x14
+#define MEDIUM_PARTITION_MODE_PARAMETERS_1       0x11
+#define MEDIUM_PARTITION_MODE_PARAMETERS_2       0x12
+#define MEDIUM_PARTITION_MODE_PARAMETERS_3       0x13
+#define MEDIUM_PARTITION_MODE_PARAMETERS_4       0x14
 #define ENCLOSURE_SERVICES_MANAGEMENT            0x14
 #define LUN_CONTROL                              0x18
 #define PORT_CONTROL                             0x19
@@ -196,7 +204,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define DEVICE_CAPABILITIES                      0x1f
 #define CD_CAPABILITIES_AND_MECHANISM_STATUS     0x2a
 
-#define ALL_PARAMETERS                           0x3f
+#define ALL_MODE_PAGES                           0x3f
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
@@ -219,6 +227,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_BAD_OPCODE           2
 #define SIMPLE_ERR_BAD_FIELD            3       /* in cbd */
 #define SIMPLE_ERR_BAD_PARAM            4       /* in data */
+#define SIMPLE_ERR_BAD_RESP             5       /* response fails sanity */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -258,11 +267,13 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
 int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
 
+int scsiModePageOffset(const UINT8 * resp, int len, int modese_10);
+
 int scsiRequestSense(int device, struct scsi_sense_disect * sense_info);
 
 int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
-int scsiReceiveSiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
+int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
 /* SMART specific commands */
 
