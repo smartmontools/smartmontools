@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.54 2003/02/24 15:51:31 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.55 2003/03/06 06:28:47 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -781,6 +781,88 @@ int ataCheckAttribute(struct ata_smart_values *data,
   else
     return -1*(disk->id);
 }
+
+
+// This routine prints the raw value of an attribute as a text string
+// into out. It also returns this 48-bit number as a long long.  The
+// array defs[] contains non-zero values if particular attributes have
+// non-default interpretations.
+
+long long ataPrintSmartAttribRawValue(char *out, 
+				      struct ata_smart_attribute *attribute,
+				      unsigned char *defs){
+  long long rawvalue;
+  int j;
+  
+  // convert the six individual bytes to a long long (8 byte) integer.
+  // This is the value that we'll eventually return.
+  rawvalue = 0;
+  for (j=0; j<6; j++) {
+    // This looks a bit roundabout, but is necessary.  Don't
+    // succumb to the temptation to use raw[j]<<(8*j) since under
+    // the normal rules this will be promoted to the native type.
+    // On a 32 bit machine this might then overflow.
+    long long temp;
+    temp = attribute->raw[j];
+    temp <<= 8*j;
+    rawvalue |= temp;
+  }
+  
+  // This switch statement is where we handle Raw attributes
+  // that are stored in an unusual vendor-specific format,
+  switch (attribute->id){
+    // Spin-up time
+  case 3:
+    {
+      int i, spin[2];
+      // construct two twy-byte quantities, print first
+      for (i=0; i<2; i++){
+	spin[i] = attribute->raw[2*i+1];
+	spin[i] <<= 8;
+	spin[i] |= attribute->raw[2*i];
+      }
+      out+=sprintf(out, "%d", spin[0]);
+      
+      // if second nonzero then it stores the average spin-up time
+      if (spin[1])
+	sprintf(out, " (Average %d)", spin[1]);
+    }
+    break;
+    // Power on time
+  case 9:
+    if (defs[9]==1){
+      // minutes
+      long long tmp1=rawvalue/60;
+      long long tmp2=rawvalue%60;
+      sprintf(out, "%lluh+%02llum", tmp1, tmp2);
+    }
+    else if (defs[9]==3){
+      // seconds
+      long long hours=rawvalue/3600;
+      long long minutes=(rawvalue-3600*hours)/60;
+      long long seconds=rawvalue%60;
+      sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
+    }
+    else
+      // hours
+      sprintf(out, "%llu", rawvalue);  //stored in hours
+    break;
+    // Temperature
+  case 194:
+    out+=sprintf(out, "%d", (int)attribute->raw[0]);
+    if (!(rawvalue==attribute->raw[0]))
+      // The other bytes are in use. Try IBM's model
+      sprintf(out, " (Lifetime Min/Max %d/%d)",(int)attribute->raw[2],
+	      (int)attribute->raw[4]);
+    break;
+  default:
+    sprintf(out, "%llu", rawvalue);
+  }
+
+  // Return the full value
+  return rawvalue;
+}
+
 
 // Note some attribute names appear redundant because different
 // manufacturers use different attribute IDs for an attribute with the

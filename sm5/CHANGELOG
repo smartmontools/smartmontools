@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.96 2003/02/24 15:51:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.97 2003/03/06 06:28:46 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,12 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] smartd: Added -r ID and -R ID for reporting/tracking Raw
+       values of Attributes.
+
+  [BA] smartd/smartctl: Changed printing of spin-up-time attribute
+       raw value to reflect current/average as per IBM standard.
 
   [BA] smartd/smartctl: Added -v 9,seconds option for disks which
        use Attribute 9 for power-on lifetime in seconds.

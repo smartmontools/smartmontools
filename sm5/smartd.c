@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.110 2003/02/09 21:12:33 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.111 2003/03/06 06:28:47 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -378,6 +378,8 @@ void Directives() {
   printout(LOG_INFO,"  -p      Report changes in 'Prefailure' Attributes\n");
   printout(LOG_INFO,"  -u      Report changes in 'Usage' Attributes\n");
   printout(LOG_INFO,"  -t      Equivalent to -p and -u Directives\n");
+  printout(LOG_INFO,"  -r ID   Also report Raw values of Attribute ID with -p, -u or -t\n");
+  printout(LOG_INFO,"  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n");
   printout(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
   printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
@@ -700,22 +702,17 @@ int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
 }
 
 // We compare old and new values of the n'th attribute.  Note that n
-// is NOT the attribute ID number.. If equal, return 0.  The thre
-// structure is used to verify that the attributes are valid ones.  If
-// the new value is lower than the old value, then we return both old
-// and new values. new value=>lowest byte, old value=>next-to-lowest
-// byte, id value=>next-to-next-to-lowest byte., and prefail flag x as
-// bottom bit of highest byte.  See below (lsb on right)
-
-//  [00000000x][attribute ID][old value][new value]
-int  ataCompareSmartValues2(struct ata_smart_values *new,
+// is NOT the attribute ID number.. If (Normalized & Raw) equal,
+// then return 0, else nonzero.
+int  ataCompareSmartValues(changedattribute_t *delta,
+			    struct ata_smart_values *new,
 			    struct ata_smart_values *old,
 			    struct ata_smart_thresholds *thresholds,
 			    int n, char *name){
   struct ata_smart_attribute *now,*was;
   struct ata_smart_threshold_entry *thre;
   unsigned char oldval,newval;
-  int returnvalue;
+  int sameraw;
 
   // check that attribute number in range, and no null pointers
   if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !new || !old || !thresholds)
@@ -738,22 +735,29 @@ int  ataCompareSmartValues2(struct ata_smart_values *new,
     return 0;
   }
 
-  // if values have not changed, return
+  // new and old values of Normalized Attributes
   newval=now->current;
   oldval=was->current;
 
-  // if any values out of the allowed range, or the values haven't changed, return
-  if (!newval || !oldval || newval>0xfe || oldval>0xfe || oldval==newval)
+  // See if the RAW values are unchanged (ie, the same)
+  if (memcmp(now->raw, was->raw, 6))
+    sameraw=0;
+  else
+    sameraw=1;
+  
+  // if any values out of the allowed range, or if the values haven't
+  // changed, return 0
+  if (!newval || !oldval || newval>0xfe || oldval>0xfe || (oldval==newval && sameraw))
     return 0;
   
-  // values have changed.  Construct output
-  returnvalue=0;
-  returnvalue |= newval;
-  returnvalue |= oldval<<8;
-  returnvalue |= now->id<<16;
-  returnvalue |= (now->status.flag.prefailure)<<24;
+  // values have changed.  Construct output and return
+  delta->newval=newval;
+  delta->oldval=oldval;
+  delta->id=now->id;
+  delta->prefail=now->status.flag.prefailure;
+  delta->sameraw=sameraw;
 
-  return returnvalue;
+  return 1;
 }
 
 // This looks to see if the corresponding bit of the 32 bytes is set.
@@ -818,15 +822,17 @@ int ataCheckDevice(atadevices_t *drive){
       // look for failed usage attributes, or track usage or prefail attributes
       for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
 	int att;
-	
+	changedattribute_t delta;
+
+
 	// This block looks for usage attributes that have failed.
 	// Prefail attributes that have failed are returned with a
 	// positive sign. No failure returns 0. Usage attributes<0.
 	if (cfg->usagefailed && ((att=ataCheckAttribute(&curval, thresh, i))<0)){
 	  
-	  // are we tracking this attribute?
+	  // are we ignoring failures of this attribute?
 	  att *= -1;
-	  if (!isattoff(att, cfg->failatt, 0)){
+	  if (!isattoff(att, cfg->monitorattflags, 0)){
 	    char attname[64], *loc=attname;
 	    
 	    // get attribute name & skip white space
@@ -839,36 +845,46 @@ int ataCheckDevice(atadevices_t *drive){
 	  }
 	}
 	
-	// This block tracks usage or prefailure attributes to see if they are changing
-	if ((cfg->usage || cfg->prefail) && ((att=ataCompareSmartValues2(&curval, drive->smartval, thresh, i, name)))){
+	// This block tracks usage or prefailure attributes to see if
+	// they are changing.  It also looks for changes in RAW values
+	// if this has been requested by user.
+	if ((cfg->usage || cfg->prefail) && ataCompareSmartValues(&delta, &curval, drive->smartval, thresh, i, name)){
+	  unsigned char id=delta.id;
 
-	  // I should probably clean this up by defining a union to
-	  // with one int=four unsigned chars to do this.
-	  const int mask=0xff;
-	  int newval =(att>>0)  & mask;
-	  int oldval =(att>>8)  & mask;
-	  int id     =(att>>16) & mask;
-	  int prefail=(att>>24) & mask;
+	  // if the only change is the raw value, and we're not
+	  // tracking raw value, then continue loop over attributes
+	  if (!delta.sameraw && delta.newval==delta.oldval && !isattoff(id, cfg->monitorattflags+96, 0))
+	    continue;
 
-	  // for printing attribute name
-	  char attname[64],*loc=attname;
-	  
 	  // are we tracking this attribute?
-	  if (!isattoff(id, cfg->trackatt, 0)){
-	    
+	  if (!isattoff(id, cfg->monitorattflags+32, 0)){
+	    char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
+
 	    // get attribute name, skip spaces
 	    ataPrintSmartAttribName(loc, id, con->attributedefs);
 	    while (*loc && *loc==' ') loc++;
 	    
+	    // has the user asked for us to print raw values?
+	    if (isattoff(id, cfg->monitorattflags+64, 0)) {
+	      // get raw values (as a string) and add to printout
+	      char rawstring[64];
+	      ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, con->attributedefs);
+	      sprintf(newrawstring, " [Raw %s]", rawstring);
+	      ataPrintSmartAttribRawValue(rawstring, drive->smartval->vendor_attributes+i, con->attributedefs);
+	      sprintf(oldrawstring, " [Raw %s]", rawstring);
+	    }
+	    else
+	      newrawstring[0]=oldrawstring[0]='\0';
+
 	    // prefailure attribute
-	    if (cfg->prefail && prefail)
-	      printout(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d to %d\n",
-		       name, loc, (int)oldval, (int)newval);
+	    if (cfg->prefail && delta.prefail)
+	      printout(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d%s to %d%s\n",
+		       name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
 
 	    // usage attribute
-	    if (cfg->usage && !prefail)
-	      printout(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d to %d\n",
-		       name, loc, (int)oldval, (int)newval);
+	    if (cfg->usage && !delta.prefail)
+	      printout(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d%s to %d%s\n",
+		       name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
 	  }
 	} // endof block tracking usage or prefailure
       } // end of loop over attributes
@@ -1231,12 +1247,23 @@ int parsetoken(char *token,cfgfile *cfg){
   case 'i':
     // ignore failure of usage attribute
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->failatt,1);
+    isattoff(val,cfg->monitorattflags,1);
     break;
   case 'I':
     // ignore attribute for tracking purposes
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
-    isattoff(val,cfg->trackatt,1);
+    isattoff(val,cfg->monitorattflags+32,1);
+    break;
+  case 'r':
+    // print raw value when tracking
+    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
+    isattoff(val,cfg->monitorattflags+64,1);
+    break;
+  case 'R':
+    // track changes in raw value (forces printing of raw value)
+    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
+    isattoff(val,cfg->monitorattflags+64,1);
+    isattoff(val,cfg->monitorattflags+96,1);
     break;
   case 'm':
     // send email to address that follows
@@ -1331,13 +1358,12 @@ int parseconfigline(int entry, int lineno,char *line){
   // bit per possible attribute ID.  See isattoff()
   cfg->name=strdup(name);
   if (!devscan){
-    cfg->failatt=(unsigned char *)calloc(32,1);
-    cfg->trackatt=(unsigned char *)calloc(32,1);
+    cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
     cfg->attributedefs=(unsigned char *)calloc(256,1);
   }
 
   // check that all memory allocations were sucessful
-  if (!cfg->name || (!devscan && (!cfg->failatt || !cfg->trackatt || !cfg->attributedefs))) {
+  if (!cfg->name || (!devscan && (!cfg->monitorattflags || !cfg->attributedefs))) {
     printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(1);
   }
@@ -1693,10 +1719,9 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     
     // put in the device name
     cfg->name=strdup(name);
-    cfg->failatt=(unsigned char *)calloc(32,1);
-    cfg->trackatt=(unsigned char *)calloc(32,1);
+    cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
     cfg->attributedefs=(unsigned char *)calloc(256,1);
-    if (!cfg->name || !cfg->failatt || !cfg->trackatt || !cfg->attributedefs) {
+    if (!cfg->name || !cfg->monitorattflags || !cfg->attributedefs) {
       printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(1);
     }

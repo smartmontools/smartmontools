@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.58 2003/02/24 15:51:32 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.59 2003/03/06 06:28:47 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -452,9 +452,9 @@ void PrintSmartExtendedSelfTestPollingTime ( struct ata_smart_values *data)
 void PrintSmartAttribWithThres (struct ata_smart_values *data, 
 				struct ata_smart_thresholds *thresholds,
 				int onlyfailed){
-  int i,j;
-  long long rawvalue;
+  int i;
   int needheader=1;
+  char rawstring[64];
     
   // step through all vendor attributes
   for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
@@ -505,55 +505,10 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       pout("0x%04x   %.3d   %.3d   %.3d    %-9s%-12s", 
 	     (int)disk->status.all, (int)disk->current, (int)disk->worst,
 	     (int)thre->threshold, type, status);
-      
-      // convert the six individual bytes to a long long (8 byte) integer
-      rawvalue = 0;
-      for (j=0; j<6; j++) {
-	// This looks a bit roundabout, but is necessary.  Don't
-	// succumb to the temptation to use raw[j]<<(8*j) since under
-	// the normal rules this will be promoted to the native type.
-	// On a 32 bit machine this might then overflow.
-	long long temp;
-	temp = disk->raw[j];
-	temp <<= 8*j;
-	rawvalue |= temp;
-      }
 
-      // This switch statement is where we handle Raw attributes
-      // that are stored in an unusual vendor-specific format,
-      switch (disk->id){
-	// Power on time
-      case 9:
-	if (con->attributedefs[9]==1){
-	  // minutes
-	  long long tmp1=rawvalue/60;
-	  long long tmp2=rawvalue%60;
-	  pout("%lluh+%02llum\n", tmp1, tmp2);
-	}
-	else if (con->attributedefs[9]==3){
-	  // seconds
-	  long long hours=rawvalue/3600;
-	  long long minutes=(rawvalue-3600*hours)/60;
-	  long long seconds=rawvalue%60;
-	  pout("%lluh+%02llum+%02llus\n", hours, minutes, seconds);
-	}
-	else
-	  // hours
-	  pout("%llu\n", rawvalue);  //stored in hours
-	break;
-	// Temperature
-      case 194:
-	pout("%d", (int)disk->raw[0]);
-	if (rawvalue==disk->raw[0])
-	  pout("\n");
-	else
-	  // The other bytes are in use. Try IBM's model
-	  pout(" (Lifetime Min/Max %d/%d)\n",(int)disk->raw[2],
-		 (int)disk->raw[4]);
-	break;
-      default:
-	pout("%llu\n", rawvalue);
-      }
+      // print raw value of attribute
+      ataPrintSmartAttribRawValue(rawstring, disk, con->attributedefs);
+      pout("%s\n", rawstring);
       
       // print a warning if there is inconsistency here!
       if (disk->id != thre->id){
@@ -567,7 +522,6 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
   }
   if (!needheader) pout("\n");
 }
-
 
 void ataPrintGeneralSmartValues(struct ata_smart_values *data){
   pout("General SMART Values:\n");
