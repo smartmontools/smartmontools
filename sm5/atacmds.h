@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.33 2003/01/17 12:20:24 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.34 2003/03/06 06:28:47 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -340,6 +340,12 @@ int isSupportSelfTest (struct ata_smart_values *data);
 int ataSmartTest(int device, int testtype);
 
 int TestTime(struct ata_smart_values *data,int testtype);
+
+// Prints the raw value (with appropriate formatting) into the
+// character string out.
+long long ataPrintSmartAttribRawValue(char *out, 
+				      struct ata_smart_attribute *attribute,
+				      unsigned char *defs);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output

@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.28 2003/01/31 03:45:25 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.29 2003/03/06 06:28:47 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -53,6 +53,10 @@
 /* Boolean Values */
 #define TRUE 0x01
 #define FALSE 0x00
+
+// Number of monitoring flags per Attribute.  See monitorattflags
+// below.
+#define NMONITOR 4
 
 
 // If user has requested email warning messages, then this structure
@@ -108,12 +112,14 @@ typedef struct configfile_s {
   // atadevices_t structure.
   unsigned char selflogcount;
   int  ataerrorcount;
-  // following two items point to 32 bytes, in the form of
+  // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags 
   // valid attribute numbers are from 1 <= x <= 255
-  // valid attribute values  are from 1 <= x <= 254
-  unsigned char *failatt;
-  unsigned char *trackatt;
+  // monitorattflags+0  set means ignore failure if it's a usage attribute
+  // monitorattflats+32 set means don't track attribute
+  // monitorattflags+64 set means print raw value when tracking
+  // monitorattflags+96 set means track changes in raw value
+  unsigned char *monitorattflags;
   // See the end of extern.h for a definition of the array of 256
   // bytes that this points to.
   unsigned char *attributedefs;
@@ -138,6 +144,14 @@ typedef struct scsidevices_s {
   cfgfile *cfg;
 } scsidevices_t;
 
+
+typedef struct changedattribute_s {
+  unsigned char newval;
+  unsigned char oldval;
+  unsigned char id;
+  unsigned char prefail;
+  unsigned char sameraw;
+} changedattribute_t;
 
 // Declare our own printing functions...
 void printout(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));

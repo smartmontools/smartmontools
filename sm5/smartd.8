@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.67 2003/02/27 23:19:16 ballen4705 Exp $
+\# $Id: smartd.8,v 1.68 2003/03/06 06:28:47 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/27 23:19:16 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/03/06 06:28:47 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -680,7 +680,7 @@ command-line option.]
 .TP
 .B \-u
 Report anytime that a Usage Attribute has changed its value
-since the last check, N seconds ago. [Please see the
+since the last check, 30 minutes ago. [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
@@ -688,7 +688,7 @@ command-line option.]
 Equivalent to turning on the two previous flags '\-p' and '\-u'.
 Tracks changes in
 .I all
-device Attributes. [Please see the
+device Attributes (both Prefailure and Usage). [Please see the
 .B smartctl \-A
 command-line option.]
 .TP
@@ -697,8 +697,9 @@ Ignore device Attribute number
 .B ID
 when checking for failure of Usage Attributes.
 .B ID
-must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the '\-f' Directive and has no effect without it.  
+must be a decimal integer in the range from 1 to 255.  This Directive
+modifies the behavior of the '\-f' Directive and has no effect without
+it.
 
 This is useful, for example, if you have a very old disk and don't want to keep
 getting messages about the hours-on-lifetime Attribute (usually Attribute 9)
@@ -711,13 +712,57 @@ Ignore device Attribute
 when tracking changes in the Attribute values.
 .B ID
 must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the '\-p', '\-u', and '\-t' Directives and has no effect
-without one of them.  
+the behavior of the '\-p', '\-u', and '\-t' tracking Directives and has no effect
+without one of them.
 
 This is useful, for example, if one of the device Attributes is the disk
 temperature (usually Attribute 194 or 231). It's annoying to get reports
 each time the temperature changes.  This Directive may appear multiple
 times for a single device, if you want to ignore multiple Attributes.
+.TP
+.B \-r ID
+When tracking, report the
+.I Raw
+value of Attribute
+.B ID
+along with its (normally reported)
+.I Normalized
+value.
+.B ID
+must be a decimal integer in the range from 1 to 255.  This Directive modifies
+the behavior of the '\-p', '\-u', and '\-t' tracking Directives and has no effect
+without one of them.  This Directive may be given multiple times.
+
+A common use of this Directive is to track the device Temperature
+(often ID=194 or 231).
+
+.TP
+.B \-R ID
+When tracking,
+report whenever the
+.I Raw
+value of Attribute
+.B ID
+changes.  (Normally
+.B smartd
+only tracks/reports changes of the
+.I Normalized
+Attribute values.)
+.B ID
+must be a decimal integer in the range from 1 to 255.  This Directive
+modifies the behavior of the '\-p', '\-u', and '\-t' tracking Directives and
+has no effect without one of them.  This Directive may be given
+multiple times.
+
+If this Directive is given, it automatically implies the '\-r'
+Directive for the same Attribute, so that the Raw value of the
+Attribute is reported.
+
+A common use of this Directive is to track the device Temperature
+(often ID=194 or 231).  It is also useful for understanding how
+different types of system behavior affects the values of certain
+Attributes.
+
 .TP
 .B \-v N,OPTION
 Modifies the labeling for Attribute N, for disks which use
@@ -860,6 +905,11 @@ then powers down the machine.
 Some example scripts are distributed with the smartmontools package,
 in /usr/share/doc/smartmontools-5.1/examplescripts/.
 
+Please note that these scripts typically run as root, so any files
+that they read/write should not be writable by ordinary users or
+reside in directories like /tmp that are writable by ordinary users
+and may expose your system to symlink attacks.
+
 \# ENDINCLUDE
 \# DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
 \# END OF THE INCLUDE SECTION FOR smartd.conf.5
@@ -977,4 +1027,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.67 2003/02/27 23:19:16 ballen4705 Exp $
+$Id: smartd.8,v 1.68 2003/03/06 06:28:47 ballen4705 Exp $
