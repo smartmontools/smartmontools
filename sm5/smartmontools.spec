@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.122 2003/09/27 09:54:47 guidog Exp $
+# $Id: smartmontools.spec,v 1.123 2003/10/01 11:53:39 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -198,35 +198,37 @@ pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
 %setup -q
 
 %build
-./configure --prefix=$RPM_BUILD_ROOT/usr --mandir=$RPM_BUILD_ROOT/usr/share/man \
---sysconfdir=$RPM_BUILD_ROOT/etc
-make
+  %configure
+  make
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install
+  rm -rf $RPM_BUILD_ROOT
+  rm -rf %{_buildroot}
+  %makeinstall
+  rm -f examplescripts/Makefile*
 
 # Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
-if [ -f /etc/redhat-release ]; then
-  if `cat /etc/redhat-release | grep >/dev/null 2>&1 "release 6."`; then
-    mv -f $RPM_BUILD_ROOT%{_datadir}/man $RPM_BUILD_ROOT%{_prefix}
-  fi
-fi
+   if [ -f /etc/redhat-release ]; then
+     if `cat /etc/redhat-release | grep >/dev/null 2>&1 "release 6."`; then
+       mv -f $RPM_BUILD_ROOT%{_datadir}/man $RPM_BUILD_ROOT%{_prefix}
+     fi
+   fi
 
 %files
-%defattr(-,root,root)
-%attr(755,root,root) %{_sbindir}/smartd
-%attr(755,root,root) %{_sbindir}/smartctl
-%attr(755,root,root) /etc/rc.d/init.d/smartd
-%attr(644,root,root) %{_mandir}/man8/smartctl.8*
-%attr(644,root,root) %{_mandir}/man8/smartd.8*
-%attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
-%doc WARNINGS CHANGELOG COPYING TODO README VERSION examplescripts
-%config(noreplace) %{_sysconfdir}/smartd.conf
+  %defattr(-,root,root)
+  %attr(755,root,root) %{_sbindir}/smartd
+  %attr(755,root,root) %{_sbindir}/smartctl
+  %attr(755,root,root) /etc/rc.d/init.d/smartd
+  %attr(644,root,root) %{_mandir}/man8/smartctl.8*
+  %attr(644,root,root) %{_mandir}/man8/smartd.8*
+  %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
+  %doc WARNINGS CHANGELOG COPYING TODO README smartd.conf examplescripts
+  %config(noreplace) %{_sysconfdir}/smartd.conf
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-rm -rf %{_builddir}/%{name}-%{version}
+  rm -rf $RPM_BUILD_ROOT
+  rm -rf %{_buildroot}
+  rm -rf %{_builddir}/%{name}-%{version}
 
 # The following are executed only by the binary RPM at install/uninstall
 
