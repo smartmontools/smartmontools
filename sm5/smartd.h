@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.19 2002/11/10 21:54:19 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.20 2002/11/12 21:16:25 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -75,8 +75,6 @@ typedef struct mailinfo {
   int logged;
   // time last email was sent, as defined by man 2 time
   time_t lastsent;
-  // address to send email to
-  char *address;
 } mailinfo;
 
 // Used to store a list of devices and options that were in the
@@ -97,7 +95,9 @@ typedef struct configfile_s {
   // Should we ignore missing capabilities/SMART errors
   char permissive;
   // mailing information for each of the previous error types
-  mailinfo *mailinfop[6];
+  mailinfo maildata[4];
+  // address to send email to
+  char *address;
   // counts of ata and self-test errors.  Perhaps ought to be in the
   // atadevices_t structure.
   unsigned char selflogcount;
@@ -120,9 +120,8 @@ typedef struct atadevices_s {
 }  atadevices_t;
 
 
-// Declare our own printing function...
-void printout(int priority,char *fmt, ...)
-     __attribute__ ((format (printf, 2, 3)));
-
+// Declare our own printing functions...
+void printout(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
+void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 
 int ataCheckDevice(atadevices_t *drive);
