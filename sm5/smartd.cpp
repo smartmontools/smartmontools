@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.254 2003/12/02 05:03:34 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.255 2003/12/02 05:54:01 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -604,33 +604,36 @@ void PrintHead(){
 
 // prints help info for configuration file Directives
 void Directives() {
-  PrintOut(LOG_INFO,"Configuration file (%s) Directives (after device name):\n", configfile);
-  PrintOut(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n");
-  PrintOut(LOG_INFO,"  -T TYPE Set the tolerance to one of: normal, permissive\n");
-  PrintOut(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
-  PrintOut(LOG_INFO,"  -S VAL  Enable/disable attribute autosave (on/off)\n");
-  PrintOut(LOG_INFO,"  -H      Monitor SMART Health Status, report if failed\n");
-  PrintOut(LOG_INFO,"  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n");
-  PrintOut(LOG_INFO,"  -f      Monitor 'Usage' Attributes, report failures\n");
-  PrintOut(LOG_INFO,"  -m ADD  Send email warning to address ADD\n");
-  PrintOut(LOG_INFO,"  -M TYPE Modify email warning behavior (see man page)\n");
-  PrintOut(LOG_INFO,"  -p      Report changes in 'Prefailure' Attributes\n");
-  PrintOut(LOG_INFO,"  -u      Report changes in 'Usage' Attributes\n");
-  PrintOut(LOG_INFO,"  -t      Equivalent to -p and -u Directives\n");
-  PrintOut(LOG_INFO,"  -r ID   Also report Raw values of Attribute ID with -p, -u or -t\n");
-  PrintOut(LOG_INFO,"  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n");
-  PrintOut(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
-  PrintOut(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
-  PrintOut(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
-  PrintOut(LOG_INFO,"  -P TYPE Drive-specific presets: use, ignore, show, showall\n");
-  PrintOut(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
-  PrintOut(LOG_INFO,"  -F TYPE Firmware bug workaround: none, samsung, samsung2\n");
-  PrintOut(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
-  PrintOut(LOG_INFO,"   \\      Line continuation character\n");
-  PrintOut(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  PrintOut(LOG_INFO,"SCSI devices: only -d, -m, and -M Directives allowed.\n");
-  PrintOut(LOG_INFO,"Example: /dev/hda -a\n");
-return;
+  PrintOut(LOG_INFO,
+	   "Configuration file (%s) Directives (after device name):\n"
+	   "  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n"
+	   "  -T TYPE Set the tolerance to one of: normal, permissive\n"
+	   "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
+	   "  -S VAL  Enable/disable attribute autosave (on/off)\n"
+	   "  -H      Monitor SMART Health Status, report if failed\n"
+	   "  -S REG  Do Self-Test at time(s) given by regular expression REG\n"
+	   "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
+	   "  -f      Monitor 'Usage' Attributes, report failures\n"
+	   "  -m ADD  Send email warning to address ADD\n"
+	   "  -M TYPE Modify email warning behavior (see man page)\n"
+	   "  -p      Report changes in 'Prefailure' Attributes\n"
+	   "  -u      Report changes in 'Usage' Attributes\n"
+	   "  -t      Equivalent to -p and -u Directives\n"
+	   "  -r ID   Also report Raw values of Attribute ID with -p, -u or -t\n"
+	   "  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n"
+	   "  -i ID   Ignore Attribute ID for -f Directive\n"
+	   "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
+	   "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
+	   "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
+	   "  -a      Default: equivalent to -H -f -t -l error -l selftest\n"
+	   "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
+	   "   #      Comment: text after a hash sign is ignored\n"
+	   "   \\      Line continuation character\n"
+	   "Attribute ID is a decimal integer 1 <= ID <= 255\n"
+	   "SCSI devices: only -d, -m, and -M Directives allowed.\n"
+	   "Example: /dev/hda -a\n", 
+	   configfile);
+  return;
 }
 
 /* Returns a pointer to a static string containing a formatted list of the valid
@@ -923,7 +926,7 @@ int ATADeviceScan(cfgfile *cfg){
 	!isSmartErrorLogCapable(cfg->smartval)               ||
 	(retval=SelfTestErrorCount(fd, name))<0
 	) {
-      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", name);
+      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-Test Log.\n", name);
       cfg->selftest=0;
       cfg->selflogcount=0;
       cfg->selfloghour=0;
@@ -1107,7 +1110,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     int retval=scsiCountFailedSelfTests(fd, 0);
     if (retval<0) {
       // no self-test log, turn off monitoring
-      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
+      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-Test Log.\n", device);
       cfg->selftest=0;
       cfg->selflogcount=0;
       cfg->selfloghour=0;
@@ -1256,7 +1259,7 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
 
   if (new<0)
     // command failed
-    MailWarning(cfg, 8, "Device: %s, Read SMART Self Test Log Failed", name);
+    MailWarning(cfg, 8, "Device: %s, Read SMART Self-Test Log Failed", name);
   else {      
     // old and new error counts
     int oldc=cfg->selflogcount;
@@ -1342,11 +1345,11 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
   int inProgress;
 
   if (scsiSelfTestInProgress(fd, &inProgress)) {
-    PrintOut(LOG_CRIT, "Device: %s, seems not to support self tests\n", name);
+    PrintOut(LOG_CRIT, "Device: %s, seems not to support Self-Tests\n", name);
     return 1;
   }
   if (1 == inProgress) {
-    PrintOut(LOG_INFO, "Device: %s, skip since self test already in "
+    PrintOut(LOG_INFO, "Device: %s, skip since Self-Test already in "
              "progress.\n", name);
     return 1;
   }
@@ -1363,18 +1366,18 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
   }
   // If we can't do the test, exit
   if (NULL == testname) {
-    PrintOut(LOG_CRIT, "Device: %s, not capable of %c Self Test\n", name, 
+    PrintOut(LOG_CRIT, "Device: %s, not capable of %c Self-Test\n", name, 
              testtype);
     return 1;
   }
   if (retval) {
     if ((SIMPLE_ERR_BAD_OPCODE == retval) || 
         (SIMPLE_ERR_BAD_FIELD == retval)) {
-      PrintOut(LOG_CRIT, "Device: %s, not capable of %s Test\n", name, 
+      PrintOut(LOG_CRIT, "Device: %s, not capable of %s-Test\n", name, 
                testname);
       return 1;
     }
-    PrintOut(LOG_CRIT, "Device: %s, %s Test failed (err: %d)\n", name, 
+    PrintOut(LOG_CRIT, "Device: %s, %s-Test failed (err: %d)\n", name, 
              testname, retval);
     return 1;
   }
@@ -1392,29 +1395,29 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   
   // Read current smart data and check status/capability
   if (ataReadSmartValues(fd, &data) || !(data.offline_data_collection_capability)) {
-    PrintOut(LOG_CRIT, "Device: %s, not capable of offline or self testing.\n", name);
+    PrintOut(LOG_CRIT, "Device: %s, not capable of Offline or Self-Testing.\n", name);
     return 1;
   }
   
   // Check for capability to do the test
   switch (testtype) {
   case 'O':
-    testname="Offline Immediate";
+    testname="Offline Immediate ";
     if (isSupportExecuteOfflineImmediate(&data))
       dotest=OFFLINE_FULL_SCAN;
     break;
   case 'C':
-    testname="Conveyance Self";
+    testname="Conveyance Self-";
     if (isSupportConveyanceSelfTest(&data))
       dotest=CONVEYANCE_SELF_TEST;
     break;
   case 'S':
-    testname="Short Self";
+    testname="Short Self-";
     if (isSupportSelfTest(&data))
       dotest=SHORT_SELF_TEST;
     break;
   case 'L':
-    testname="Long Self";
+    testname="Long Self-";
     if (isSupportSelfTest(&data))
       dotest=EXTEND_SELF_TEST;
     break;
@@ -1422,22 +1425,22 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   
   // If we can't do the test, exit
   if (dotest<0) {
-    PrintOut(LOG_CRIT, "Device: %s, not capable of %s Test\n", name, testname);
+    PrintOut(LOG_CRIT, "Device: %s, not capable of %sTest\n", name, testname);
     return 1;
   }
   
   // If currently running a self-test, do not interrupt it to start another.
   if (15==(data.self_test_exec_status >> 4)) {
-    PrintOut(LOG_INFO, "Device: %s, skip scheduled %s Test; %1d0%% remaining of current self-test.\n",
+    PrintOut(LOG_INFO, "Device: %s, skip scheduled %sTest; %1d0%% remaining of current Self-Test.\n",
 	     name, testname, (int)(data.self_test_exec_status & 0x0f));
     return 1;
   }
 
   // else execute the test, and return status
   if ((retval=smartcommandhandler(fd, IMMEDIATE_OFFLINE, dotest, NULL)))
-    PrintOut(LOG_CRIT, "Device: %s, execute %s Test failed.\n", name, testname);
+    PrintOut(LOG_CRIT, "Device: %s, execute %sTest failed.\n", name, testname);
   else
-    PrintOut(LOG_INFO, "Device: %s, starting scheduled %s Test.\n", name, testname);
+    PrintOut(LOG_INFO, "Device: %s, starting scheduled %sTest.\n", name, testname);
   
   return retval;
 }
@@ -1878,7 +1881,7 @@ int ParseToken(char *token,cfgfile *cfg){
   if (*token!='-' || strlen(token)!=2) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              configfile, lineno, name, token);
-    Directives();
+    PrintOut(LOG_CRIT, "Run smartd -D to print a list of valid Directives.\n");
     return -1;
   }
   
@@ -2046,7 +2049,7 @@ int ParseToken(char *token,cfgfile *cfg){
       
       // Free the last pattern given if any
       if (cfg->testregexp) {
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s self-test pattern %s\n",
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s Self-Test pattern %s\n",
 		 configfile, lineno, name, cfg->testregexp);
         cfg->testregexp=FreeNonZero(cfg->testregexp, -1,__LINE__,__FILE__);
       }
