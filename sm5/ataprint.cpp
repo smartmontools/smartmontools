@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.150 2004/04/10 00:24:14 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.151 2004/04/17 11:57:43 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1663,16 +1663,26 @@ int ataPrintMain (int fd){
       PRINT_OFF(con);
       pout("\n");
     }
-    if (isSupportSelectiveSelfTest(&smartval)){
-      struct ata_selective_self_test_log log;
+  }
+
+  // Print SMART selective self-test log
+  if (con->selectivetestlog){
+    struct ata_selective_self_test_log log;
+    
+    if (!isSupportSelectiveSelfTest(&smartval))
+      pout("Device does not support Selective Self Tests/Logging\n");
+    else if(ataReadSelectiveSelfTestLog(fd, &log)) {
+      pout("Smartctl: SMART Selective Self Test Log Read Failed\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else {
       PRINT_ON(con);
-      if (!(ataReadSelectiveSelfTestLog(fd, &log)))
-	ataPrintSelectiveSelfTestLog(&log, &smartval);
+      ataPrintSelectiveSelfTestLog(&log, &smartval);
       PRINT_OFF(con);
       pout("\n");
     }
   }
-  
+
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
   if (con->testcase==-1)
     return returnval;
