@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.28 2002/10/29 17:50:58 ballen4705 Exp $
+# $Id: Makefile,v 1.29 2002/10/29 21:58:25 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -41,12 +41,18 @@ pkgname=smartmontools-5.0
 pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
+	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartd.8\n\tman ./smartctl.8\n"
+	@echo -e "to read the manual pages now.  Unless you do a \"make install\" the manual pages won't be installed.\n"
 
-smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o atacmds.h ataprint.h extern.h scsicmds.h scsiprint.h smartctl.h  VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} smartctl.c atacmds.o scsicmds.o ataprint.o scsiprint.o
+smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
+          smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h extern.h VERSION Makefile
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} smartctl.c \
+                                      atacmds.o scsicmds.o ataprint.o scsiprint.o
 
-smartd:  smartd.c atacmds.o ataprint.o scsicmds.o atacmds.h ataprint.h extern.h scsicmds.h smartd.h  VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c scsicmds.o atacmds.o ataprint.o
+smartd:  smartd.c atacmds.o ataprint.o scsicmds.o \
+         smartd.h atacmds.h ataprint.h scsicmds.h extern.h VERSION Makefile
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c \
+                                      scsicmds.o atacmds.o ataprint.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
 	${CC} ${CFLAGS} -c atacmds.c 
@@ -57,15 +63,16 @@ ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h Makefile
 scsicmds.o: scsicmds.c scsicmds.h Makefile
 	${CC} ${CFLAGS} -c scsicmds.c
 
-scsiprint.o: scsiprint.c  extern.h scsicmds.h scsiprint.h smartctl.h Makefile
+scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
 	${CC} ${CFLAGS} -c scsiprint.c 
 
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz
 
-install: smartctl smartd smartctl.8 smartd.8 smartd.initd Makefile
+install:
+	if [ ! -f smartd -o ! -f smartctl ] ; then echo -e "\n\nYOU MUST FIRST DO \"make\"\n" ; exit 1 ; fi
 	/bin/gzip -c smartctl.8 > smartctl.8.gz
-	/bin/gzip -c smartd.8 > smartd.8.gz
+	/bin/gzip -c smartd.8   > smartd.8.gz
 	rm -f /usr/share/man/man8/smartctl.8
 	rm -f /usr/share/man/man8/smartd.8
 	install -m 755 -o root -g root -D smartctl      $(DESTDIR)/usr/sbin/smartctl
@@ -79,22 +86,25 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd Makefile
 	install -m 644 -o root -g root -D TODO          $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
 	install -m 644 -o root -g root -D VERSION       $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
 	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
+	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
+	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
+	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
+	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0/\n\n"
 
-	@echo -e "\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
-	@echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
-	@echo "Smartd can now use a configuration file /etc/smartd.conf.  Please read man 8 smartd."
-	@echo "Note: you must do a \"make install\" or you won't have the wonderful man pages!"
 
-uninstall: Makefile
-	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8\
-           /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
-	/sbin/chkconfig --del smartd
-	if [ -f /var/lock/subsys/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
-	rm -f /etc/rc.d/init.d/smartd
+uninstall:
+	rm -f /usr/share/man/man8/smartctl.8    /usr/share/man/man8/smartd.8    /usr/sbin/smartctl \
+              /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz /usr/sbin/smartd 
+	rm -rf /usr/share/doc/smartmontools-5.0/
+	if [ -f /var/lock/subsys/smartd -a -f /etc/rc.d/init.d/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
+	if [ -f /etc/rc.d/init.d/smartd ] ; then /sbin/chkconfig --del smartd ; fi
+	if [ -f /etc/rc.d/init.d/smartd ] ; then  rm -f /etc/rc.d/init.d/smartd ; fi
+	if [ -f /etc/smartd.conf ] ; then echo -e "\n\nWe have NOT REMOVED /etc/smartd.conf\n\n" ; fi
+
 
 # All this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
-release: $(releasefiles) clean
+release:
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)
