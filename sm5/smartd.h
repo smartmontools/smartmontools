@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.58 2003/11/17 03:10:41 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.59 2003/11/17 05:21:06 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -167,9 +167,7 @@ typedef struct configfile_s {
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
   unsigned char selflogcount;             // total number of self-test errors
-  unsigned char notused1;                 // for packing alignment
-  unsigned char notused2;
-  unsigned char notused3;
+  unsigned char notused1[3];              // for packing alignment
   unsigned short selfloghour;             // lifetime hours of last self-test error
   char *emailcmdline;                     // Program for sending mail (or NULL)
   char *address;                          // Email addresses (or NULL)
@@ -184,9 +182,7 @@ typedef struct configfile_s {
   unsigned char SuppressReport;           // minimize nuisance reports
   unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
                                           // know yet) 6 or 10
-  unsigned char notused4;                 // for packing alignment
-  unsigned char notused5;
-  unsigned char notused6;
+  unsigned char notused2[3];              // for packing alignment
 
   // ATA ONLY FROM HERE ON TO THE END
   int ataerrorcount;                      // Total number of ATA errors
