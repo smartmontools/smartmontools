@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.124 2003/04/07 04:59:18 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.125 2003/04/07 10:54:49 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -640,47 +640,40 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 }
 
 
-// This function is hard to read and ought to be rewritten. Why in the
-// world is the four-byte integer cast to a pointer to an eight-byte
-// object?? Can anyone explain this obscurity?
-int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
-  int i, fd; 
-  UINT8 smartsupport;
-  char *device=cfg->name;
-  unsigned char  tBuf[4096];
+static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
+{
+    int i, fd, err; 
+    char *device=cfg->name;
+    struct scsi_iec_mode_page iec;
+    UINT8  tBuf[64];
 
-  // should we try to register this as a SCSI device?
-  if (!(cfg->tryscsi))
-    return 1;
+    // should we try to register this as a SCSI device?
+    if (!(cfg->tryscsi))
+        return 1;
   
-  // open the device
-  if ((fd=opendevice(device))<0)
-    // device open failed
-    return 1;
-  printout(LOG_INFO,"Device: %s, opened\n", device);
+    // open the device
+    if ((fd=opendevice(device))<0)
+        return 1; // device open failed
+    printout(LOG_INFO,"Device: %s, opened\n", device);
   
-  // check that it's ready for commands.  Is this really needed?  It's
-  // not part of smartctl at all.
-  if (testunitready(fd)){
-    printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
-    close(fd);
-    return 2;
-  }
+    // check that it's ready for commands. IE stores its stuff on the media.
+    if (scsiTestUnitReady(fd)) {
+        printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
+        close(fd);
+        return 2;
+    }
   
-  // make sure that we can read mode page
-  if (modesense(fd, 0x1c, tBuf, 254)){
-    printout(LOG_INFO,"Device: %s, Failed read of ModePage 0x1c\n", device);
-    close(fd);
-    return 3;
-  }
-  
-  // see if SMART is supported and enabled
-  if (scsiSmartSupport(fd, &smartsupport) ||
-      (smartsupport & DEXCPT_ENABLE)){
-    printout(LOG_INFO,"Device: %s, SMART not supported or not enabled\n", device);
-    close(fd);
-    return 4;
-  }
+    if ((err = scsiFetchIECmpage(fd, &iec))) {
+        printout(LOG_INFO,"Device: %s, Fetch of IEC (SMART) mode page "
+                 "failed, err=%d\n", device, err);
+        return 3;
+    }
+    if (! scsi_IsExceptionControlEnabled(&iec)) {
+        printout(LOG_INFO,"Device: %s, IE (SMART) not enabled\n", device);
+        close(fd);
+        return 4;
+    }
+    /* >>>>>>>>> cleanup to continue below ... dpg 2003/4/7 */
 
   // Device exists, and does SMART.  Add to list
   if (numscsidevices>=MAXSCSIDEVICES){
@@ -1007,7 +1000,7 @@ int scsiCheckDevice(scsidevices_t *drive)
                      "Device: %s, failed to read SMART values", name);
     }
     if (asc > 0) {
-        cp = scsiSmartGetIEString(asc, ascq);
+        cp = scsiGetIEString(asc, ascq);
         if (cp) {
             printout(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
             printandmail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: %s",
