@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.259 2003/11/17 03:10:40 ballen4705 Exp $
+$Id: CHANGELOG,v 1.260 2003/11/17 11:56:28 dpgilbert Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] smartctl: output scsi transport protocol if available
+
+  [DG] scsi: stop device scan in smartd and smartctl if badly formed
+       mode response [heuristic to filter out USB devices before we
+       (potentially) lock them up].
 
   [BA] smartd: deviceclose()->CloseDevice(). Got rid of SCSIDEVELOPMENT
        macro-enabled code.  Added -W to list of gcc specific options to
