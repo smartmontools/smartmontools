@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.36 2002/11/04 13:32:08 ballen4705 Exp $
+$Id: CHANGELOG,v 1.37 2002/11/07 11:00:55 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,21 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+smartmontools-5.0.31
+
+  smartctl: added new options -W, -U, and -P to control if and how the
+  smartctl exits if an error is detected in either a SMART data
+  structure checksum, or a SMART command returns an error.
+
+  modified manual page to break options into slightly more logical
+  categories.
+
+  reformatted 'usage' message order to agree with man page ordering
+
+  modified .spec file so that locale information now contains
+  character set definition.   Changed pt_BR to pt since we do not use any
+  aspect other than language.  See man setlocale.
 
 smartmontools-5.0.30
   smartctl: added new options -n and -N to force device to be ATA or SCSI

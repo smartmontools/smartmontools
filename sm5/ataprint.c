@@ -24,12 +24,13 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <syslog.h>
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.41 2002/10/31 17:40:08 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.42 2002/11/07 11:00:55 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -700,6 +701,45 @@ void ataPseudoCheckSmart ( struct ata_smart_values *data,
 }
 
 
+// Compares failure type to policy in effect, and either exits or
+// simply returns to the calling routine.
+void failuretest(type, returnvalue){
+
+  // If this is an error in an "optional" SMART command
+  if (type==OPTIONAL_CMD){
+    if (con->conservative){
+      pout("An optional SMART command has failed: exiting.  To continue, turn off the -%c option\n",
+	   ULTRACONSERVATIVE);
+      exit(returnvalue);
+    }
+    return;
+  }
+
+  // If this is an error in a "mandatory" SMART command
+  if (type==MANDATORY_CMD){
+    if (con->permissive)
+      return;
+    pout("A mandatory SMART command has failed: exiting. To continue, turn on the -%c option\n",
+	 PERMISSIVE);
+    exit(returnvalue);
+  }
+
+  fprintf(stderr,"Smartctl internal error in failuretest(type=%d). Please contact %s\n",type,PROJECTHOME);
+  exit(returnvalue|FAILCMD);
+}
+
+// Used to warn users about invalid checksums.  However we will not
+// abort on invalid checksums.
+void checksumwarning(const char *string){
+  pout("Warning! %s error: invalid SMART checksum.\n",string);
+  fprintf(stderr,"Warning! %s error: invalid SMART checksum.\n",string);
+  syslog(LOG_INFO,"Warning! %s error: invalid SMART checksum.\n",string);
+
+  if (con->checksumfail)
+    exit(FAILSMART);
+
+  return;
+}
 
 // Initialize to zero just in case some SMART routines don't work
 struct hd_driveid drive;
@@ -715,7 +755,7 @@ int ataPrintMain (int fd){
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if (ataReadHDIdentity(fd,&drive)){
     pout("Smartctl: Hard Drive Read Identity Failed\n\n");
-    returnval|=FAILID;
+    failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
   
   // Print most drive identity information if requested
@@ -727,10 +767,11 @@ int ataPrintMain (int fd){
   // now check if drive supports SMART; otherwise time to exit
   if (!ataSmartSupport(&drive)){
     pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+    failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     pout("                  Checking to be sure by trying SMART ENABLE command.\n");
     if (ataEnableSmart(fd)){
       pout("                  No SMART functionality found. Sorry.\n");
-      return returnval|FAILSMART;
+      failuretest(MANDATORY_CMD,returnval|=FAILSMART);
     }
     else
       pout("                  SMART appears to work.  Continuing.\n"); 
@@ -758,7 +799,7 @@ int ataPrintMain (int fd){
   if (con->smartenable){
     if (ataEnableSmart(fd)) {
       pout("Smartctl: SMART Enable Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Enabled.\n");
@@ -774,7 +815,7 @@ int ataPrintMain (int fd){
   if (con->smartdisable){    
     if (ataDisableSmart(fd)) {
       pout( "Smartctl: SMART Disable Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(MANDATORY_CMD,returnval|=FAILSMART);
     }
     pout("SMART Disabled. Use option -%c to enable it.\n",(int)SMARTENABLE);
     return returnval;		
@@ -783,13 +824,13 @@ int ataPrintMain (int fd){
   // Let's ALWAYS issue this command to get the SMART status
   code=ataSmartStatus2(fd);
   if (code==-1)
-    returnval|=FAILSMART;
-  
+    failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+
   // Enable/Disable Auto-save attributes
   if (con->smartautosaveenable){
     if (ataEnableAutoSave(fd)){
       pout( "Smartctl: SMART Enable Attribute Autosave Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Attribute Autosave Enabled.\n");
@@ -797,7 +838,7 @@ int ataPrintMain (int fd){
   if (con->smartautosavedisable){
     if (ataDisableAutoSave(fd)){
       pout( "Smartctl: SMART Disable Attribute Autosave Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Attribute Autosave Disabled.\n");
@@ -806,21 +847,22 @@ int ataPrintMain (int fd){
   // for everything else read values and thresholds are needed
   if (ataReadSmartValues(fd, &smartval)){
     pout("Smartctl: SMART Read Values failed.\n\n");
-    returnval|=FAILSMART;
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
   if (ataReadSmartThresholds(fd, &smartthres)){
     pout("Smartctl: SMART Read Thresholds failed.\n\n");
-    returnval|=FAILSMART;
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 
   // Enable/Disable Off-line testing
   if (con->smartautoofflineenable){
     if (!isSupportAutomaticTimer(&smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     if (ataEnableAutoOffline(fd)){
       pout( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Automatic Offline Testing Enabled every four hours.\n");
@@ -828,10 +870,11 @@ int ataPrintMain (int fd){
   if (con->smartautoofflinedisable){
     if (!isSupportAutomaticTimer(&smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     if (ataDisableAutoOffline(fd)){
       pout("Smartctl: SMART Disable Automatic Offline Failed.\n\n");
-      returnval|=FAILSMART;
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Automatic Offline Testing Disabled.\n");
@@ -900,14 +943,17 @@ int ataPrintMain (int fd){
   
   // Print SMART error log
   if (con->smarterrorlog){
-    if (!isSmartErrorLogCapable(&smartval))
+    if (!isSmartErrorLogCapable(&smartval)){
       pout("Warning: device does not support Error Logging\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
     if (ataReadErrorLog(fd, &smarterror)){
       pout("Smartctl: SMART Errorlog Read Failed\n");
-      returnval|=FAILSMART;
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+
     }
     else {
-      // turn on quiet mode inside this
+      // quiet mode is turned on inside ataPrintSmartErrorLog()
       ataPrintSmartErrorlog(&smarterror);
       QUIETOFF(con);
     }
@@ -915,12 +961,14 @@ int ataPrintMain (int fd){
   
   // Print SMART self-test log
   if (con->smartselftestlog){
-    if (!isSmartErrorLogCapable(&smartval))
+    if (!isSmartErrorLogCapable(&smartval)){
       pout("Warning: device does not support Self Test Logging\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }    
     else {
       if(ataReadSelfTestLog(fd, &smartselftest)){
 	pout("Smartctl: SMART Self Test Log Read Failed\n");
-	returnval|=FAILSMART;
+	failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
 	QUIETON(con);
@@ -938,14 +986,17 @@ int ataPrintMain (int fd){
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
   // if doing a self-test, be sure it's supported by the hardware
-  if (con->testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(&smartval))
+  if (con->testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(&smartval)){
     pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
-  else if (!isSupportSelfTest(&smartval))
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+  }
+  else if (!isSupportSelfTest(&smartval)){
     pout("Warning: device does not support Self-Test functions.\n\n");
-  
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+  }
   // Now do the test
   if (ataSmartTest(fd, con->testcase))
-    return returnval|=FAILSMART;
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   
   // Tell user how long test will take to complete  
   if ((timewait=TestTime(&smartval,con->testcase))){ 

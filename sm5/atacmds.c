@@ -25,12 +25,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <syslog.h>
 #include <errno.h>
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.36 2002/10/30 10:18:37 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.37 2002/11/07 11:00:55 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -116,15 +115,6 @@ const int actual_ver[] = {
   6,		/* 0x001c	WARNING:	*/
   0		/* 0x001d-0xfffe    		*/
 };
-
-// Used to warn users about invalid checksums.  However we will not
-// abort on invalid checksums.
-void checksumwarning(const char *string){
-  pout("Warning! %s error: invalid SMART checksum.\n",string);
-  fprintf(stderr,"Warning! %s error: invalid SMART checksum.\n",string);
-  syslog(LOG_INFO,"Warning! %s error: invalid SMART checksum.\n",string);
-  return;
-}
 
 // We no longer use this function, because the IOCTL appears to return
 // only the drive identity at the time that the system was booted
@@ -299,7 +289,7 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
   
   // verify that checksum vanishes
   if (chksum)
-    checksumwarning("SMART Data Structure");
+    checksumwarning("SMART Attribute Data Structure");
   
   // copy data and return
   memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE,ATA_SMART_SEC_SIZE);
@@ -324,7 +314,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
   for (i=0;i<ATA_SMART_SEC_SIZE;i++)
     chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
   if (chksum)
-    checksumwarning("SMART Self-Test Log");
+    checksumwarning("SMART Self-Test Log Structure");
   
   // copy data back to the user and return
   memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE); 
@@ -348,7 +338,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   for (i=0;i<ATA_SMART_SEC_SIZE;i++)
     chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
   if (chksum)
-    checksumwarning("SMART Error Log");
+    checksumwarning("SMART ATA Error Log Structure");
   
   //copy data back to user and return
   memcpy(data, buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
@@ -372,7 +362,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   for (i=0;i<ATA_SMART_SEC_SIZE;i++)
     chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
   if (chksum)
-    checksumwarning("SMART Attribute Thresholds");
+    checksumwarning("SMART Attribute Thresholds Structure");
   
   // copy data back to user and return
   memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);

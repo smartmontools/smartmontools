@@ -27,7 +27,7 @@
 
 
 #ifndef CVSID3
-#define CVSID3 "$Id: extern.h,v 1.9 2002/10/28 23:46:59 ballen4705 Exp $\n"
+#define CVSID3 "$Id: extern.h,v 1.10 2002/11/07 11:00:56 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -57,6 +57,9 @@ typedef struct ataprintmain_s {
   int           testcase;
   unsigned char quietmode;
   unsigned char veryquietmode;
+  unsigned char permissive;
+  unsigned char conservative;
+  unsigned char checksumfail;
 } atamainctrl;
 
 #endif
