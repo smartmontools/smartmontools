@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.57 2004/07/09 16:41:08 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.58 2004/07/09 19:39:15 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.57 2004/07/09 16:41:08 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.58 2004/07/09 19:39:15 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -860,7 +860,10 @@ void printwarning(smart_command_set command);
 
 
 /* 512 is the max payload size: increase if needed */
-#define TW_IOCTL_BUFFER_SIZE (MAX(sizeof(TW_Ioctl_Buf_Apache),sizeof(TW_Ioctl))+512)
+#define BUFFER_LEN_678K      ( sizeof(TW_Ioctl)                  )
+#define BUFFER_LEN_9000      ( sizeof(TW_Ioctl_Buf_Apache)+512-1 )
+#define BUFFER_LEN_678K_CHAR ( sizeof(TW_New_Ioctl)+512-1        )
+#define TW_IOCTL_BUFFER_SIZE ( MAX(MAX(BUFFER_LEN_678K, BUFFER_LEN_9000), BUFFER_LEN_678K_CHAR) )
 
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
 
