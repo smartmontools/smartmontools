@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.313 2004/04/09 13:36:22 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.314 2004/04/09 14:27:16 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.313 2004/04/09 13:36:22 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.314 2004/04/09 14:27:16 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -986,16 +986,16 @@ void Directives() {
            "  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n"
            "  -i ID   Ignore Attribute ID for -f Directive\n"
            "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
+	   "  -C ID   Monitor Current Pending Sectors in Attribute ID\n"
+	   "  -U ID   Monitor Offline Uncorrectable Sectors in Attribute ID\n"
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
-           "  -a      Default: equivalent to -H -f -t -l error -l selftest\n"
+           "  -a      Default: -H -f -t -l error -l selftest -C 197 -U 198\n"
            "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
-	   "  -C ID   Monitor current pending sectors in Attribute ID\n"
-	   "  -U ID   Monitor offline uncorrectable sectors in Attribute ID\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
-           "SCSI devices: only -d, -m, and -M Directives allowed.\n"
+	   "Use ID = 0 to turn off -C and/or -U Directives\n"
            "Example: /dev/hda -a\n", 
            configfile);
   return;
