@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.16 2004/07/09 19:24:05 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.17 2004/07/09 19:39:15 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -102,7 +102,8 @@ typedef struct TAG_TW_Passthru {
 #define TW_ATA_PASSTHRU          0x1e
 
 // Adam -- should this be #pramga packed? Otherwise table_align gets
-// moved for byte alignment
+// moved for byte alignment.  Without packing, output_data is 530
+// bytes in, else it is 529 bytes in!
 typedef struct TAG_TW_Ioctl { 
   int input_length;
   int output_length;
