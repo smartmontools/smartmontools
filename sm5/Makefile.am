@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.10 2003/09/23 15:22:35 guidog Exp $
+# $Id: Makefile.am,v 1.11 2003/09/30 14:01:10 guidog Exp $
 #
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -61,7 +61,6 @@ docs_DATA = README    \
 
 sysconf_DATA = smartd.conf
 
-initddir=$(sysconfdir)/rc.d/init.d
 initd_DATA = smartd.initd
 
 EXTRA_DIST = $(man_MANS)		\
