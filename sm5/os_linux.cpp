@@ -73,11 +73,12 @@ int deviceclose(int fd){
 }
 
 // makes a list of device names to scan, for either ATA or SCSI
-// devices.  Return -1 if no memory remaining
+// devices.  Return -1 if no memory remaining, else the number of
+// devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
-  char* base;
-  char** tmp;
-  int i, n;
+  char* base=NULL;
+  char** tmp=NULL;
+  int i, n=0;
   
   // set correct first name (base name) for ATA or SCSI devices
   if (!strcmp(name,"SCSI")) {
@@ -88,8 +89,6 @@ int make_device_names (char*** devlist, const char* name) {
     n = MAXATADEVICES;
     base = CustomStrDup("/dev/hda",1,__LINE__);
   }
-  else
-    n = 0;
   
   // bad type or no devices
   if (!n)
@@ -97,24 +96,23 @@ int make_device_names (char*** devlist, const char* name) {
   
   // allocate storage for the list of device names that we'll be
   // making, and store first name
-  if (!(tmp = (char **)calloc(n, sizeof(char *))))
+  if (!(tmp = *devlist = (char **)calloc(n, sizeof(char *))))
     return -1;
   
   bytes += n*sizeof(char*);
   tmp[0]=base;
   
   // make device names by incrementing the last letter of the base
-  // name
+  // name alphabetically a->b->c...
   for (i = 1; i < n; i++) {
     tmp[i] =  CustomStrDup(tmp[i-1],1,__LINE__);
-    // increment name alphabetically a->b->c...
     tmp[i][7]++; 
   }
-  *devlist = tmp;
+  
   return n;
 }
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.6 2003/10/10 08:25:21 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.7 2003/10/10 08:42:37 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
