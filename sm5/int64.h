@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.2 2004/03/12 23:45:43 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.3 2004/03/15 19:47:22 ballen4705 Exp $\n"
 
 #ifndef CONFIG_H_CVSID
 // need HAVE_STDINT_H, HAVE_INTTYPES_H
@@ -29,6 +29,9 @@
 
 // 64 bit integer typedefs
 
+#ifdef HAVE_SYS_INT_TYPES_H
+#include <sys/int_types.h>
+#else
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #else
@@ -42,7 +45,7 @@ typedef          long long  int64_t;
 typedef unsigned long long uint64_t;
 #endif // _WIN32 && _MSC_VER
 #endif // HAVE_STDINT_H
-
+#endif // HAVE_SSYS_INT_TYPES_H
 // 64 bit integer format strings
 
 #ifdef HAVE_INTTYPES_H
