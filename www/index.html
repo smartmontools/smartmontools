@@ -232,6 +232,17 @@ the -m option (smartctl versions 5.0.X) or the
 display hours and minutes.
 </p></li>
 
+<li><b>What Kernel Version is needed?</b>
+
+<p>
+Unfortunately I can't give a definitive answer to this question.  In
+principle the 2.4 series kernels all provide the needed support.  The
+later 2.2 series kernels should work OK.  However, depending upon the
+2.2 kernel version, patch level, and configuration options, they may
+not support the HDIO_DRIVE_TASK ioctl().  This is needed for the drive
+to execute the ATA SMART RETURN STATUS command.
+</p></li>
+
 <li><b>What attributes does smartmontools not yet recognize?</b>
 
 <p>From a Hitachi disk: (250). From
@@ -308,7 +319,9 @@ printing the S.M.A.R.T. self-test logs, and doesn't print timestamp
 information in the most usable way.&#160; The <tt>smartctl</tt> utility
 in smartmontools has added functionality for this (<tt>-q, -l selftest,-S,
 -T, -v and -m</tt> options), updated documentation, and also fixes small
-technical bugs in smartsuite.&#160; See the 
+technical bugs in smartsuite. [One example: smartsuite does not actually use the
+ATA SMART RETURN STATUS command to find out the health status of a disk.  It instead tries to infer this from the
+SMART Attribute values.]&#160; See the 
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">CHANGELOG</a>
 file in CVS for a summary of what's been done.&#160; The <tt>smartd</tt>
 utility differs from the smartsuite <tt>smartd</tt> in major ways.&#160;
