@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.33 2003/11/02 18:15:53 ballen4705 Exp $
+# $Id: configure.in,v 1.34 2003/11/17 03:10:40 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.24, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.33 2003/11/02 18:15:53 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.34 2003/11/17 03:10:40 ballen4705 Exp $'`
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
@@ -84,10 +84,14 @@ case "${host}" in
 		AC_SUBST([os_libs], ['']) ;;
 esac
 
-# Add -Wall if using gcc and its not already there specified.
+dnl Add -Wall and -W if using gcc and its not already specified.
 if test "x$GCC" = "xyes"; then
   if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
       CFLAGS="$CFLAGS -Wall"
+  fi
+# In the next line, do NOT delete the 2 spaces inside double quotes.
+  if test -z "`echo "$CFLAGS " | grep "\-W " 2> /dev/null`" ; then
+      CFLAGS="$CFLAGS -W"
   fi
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags

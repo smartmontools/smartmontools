@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.30 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.31 2003/11/17 03:10:40 ballen4705 Exp $\n"
 
 // For development and testing of Selective self-test code
 #define DEVELOP_SELECTIVE_SELF_TEST 0
@@ -43,14 +43,17 @@ typedef struct smartmonctrl_s {
   unsigned char checksmart;
   unsigned char smartvendorattrib;
   unsigned char generalsmartvalues;
+
   unsigned char smartlogdirectory;
   unsigned char smartselftestlog;
   unsigned char smarterrorlog;
   unsigned char smartdisable;
+
   unsigned char smartenable; 
   unsigned char smartstatus;
   unsigned char smartexeoffimmediate;
   unsigned char smartshortselftest;
+
   unsigned char smartextendselftest;
   unsigned char smartconveyanceselftest;
 #if DEVELOP_SELECTIVE_SELF_TEST
@@ -58,6 +61,7 @@ typedef struct smartmonctrl_s {
 #endif
   unsigned char smartshortcapselftest;
   unsigned char smartextendcapselftest;
+
   unsigned char smartconveyancecapselftest;
 #if DEVELOP_SELECTIVE_SELF_TEST
   unsigned char smartselectivecapselftest;
@@ -65,25 +69,30 @@ typedef struct smartmonctrl_s {
   unsigned char smartselftestabort;
   unsigned char smartautoofflineenable;
   unsigned char smartautoofflinedisable;
+
   unsigned char smartautosaveenable;
   unsigned char smartautosavedisable;
 #if DEVELOP_SELECTIVE_SELF_TEST
   unsigned long long smartselectivespan[5][2];
   int smartselectivenumspans;
 #endif
-  int           testcase;
   unsigned char quietmode;
   unsigned char veryquietmode;
+
+  int           testcase;
+
   unsigned char permissive;
   unsigned char conservative;
   unsigned char checksumfail;
   unsigned char checksumignore;
+
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
   // If nonzero, escalade is 1 plus the disk number behind an escalade
   // controller
   unsigned char escalade;
+
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
@@ -92,6 +101,10 @@ typedef struct smartmonctrl_s {
   // attributedefs[i] is nonzero, it means that the i'th attribute has
   // a non-default meaning.  See the ataPrintSmartAttribName and
   // and parse_attribute_def functions.
+
+  char notused1;    // make structure pack cleanly without holes
+  char notused2;
+
   unsigned char attributedefs[256];
 } smartmonctrl;
 
