@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.10 2002/11/22 09:29:33 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.11 2002/11/22 09:32:52 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2002/11/22 09:29:33 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2002/11/22 09:32:52 $" "smartmontools-5.0"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -50,8 +50,7 @@ In the absence of a configuration file,
 .B smartd 
 will try to open the 12 ATA devices 
 .B /dev/hd[a-l] 
-and the 26 SCSI
-devices 
+and the 26 SCSI devices
 .B /dev/sd[a-z]. 
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
@@ -161,7 +160,7 @@ possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', and '\-M',
+to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', '\-M', and '\-m',
 the Directives below are ignored for SCSI
 disks.  For SCSI disks, the '\-M' Directive sends a warning email if
 the SMART status indicates a disk failure or problem.
@@ -441,4 +440,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.10 2002/11/22 09:29:33 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.11 2002/11/22 09:32:52 ballen4705 Exp $
