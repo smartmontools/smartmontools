@@ -1,4 +1,4 @@
-Release:  21
+Release:  22
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.32 2002/10/29 17:50:59 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.33 2002/10/29 23:18:30 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,6 +112,13 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- smartd, smartctl now warn if they find an attribute whose ID
+  number does not match between Data and Threshold structures.
+- Fixed nasty bug which led to wrong number of arguments for a
+  varargs statement, with attendent stack corruption.  Sheesh!
+  Have added script to CVS attic to help find such nasties in the
+  future.
 * Tue Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - Eliminated some global variables out of header files and other
   minor cleanup of smartd.
