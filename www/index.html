@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/02 17:23:55 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/04 16:27:18 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.119 2004/02/02 17:23:55 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.120 2004/02/04 16:27:18 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -653,6 +653,18 @@ correct location of the drive(s).  Please also read the 'smartd.conf'
 man page for additional information.
 </p>
 </li>
+
+<li><b>Attribute 194 (Temperature Celsius) behaves strangely on my Seagate disk</b>
+<p>
+Some Seagate disks store the current temperature Celsius in both the
+RAW and NORMALIZED Attribute 194 values, and the maximum lifetime
+temperature in Celsius in the WORST value.  Since cooler is better,
+this means that in this case, <i>lower</i> NORMALIZED Attribute values
+are farther from failure, and that over time the WORST Attribute
+values get <i>larger</i>, not <i>smaller</i> (as with other
+Attributes).
+</p>
+</li>
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -850,8 +862,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/02 17:23:55 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.119 2004/02/02 17:23:55 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/02/04 16:27:18 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.120 2004/02/04 16:27:18 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
