@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.141 2003/11/02 18:15:54 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.142 2003/11/19 21:34:07 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -306,6 +306,83 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Wed Nov 19 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+  [DG] smartd/smartctl: changed scsiClearControlGLTSD() to
+       scsiSetControlGLTSD() with an 'enabled' argument so '-S on'
+       and '-S off' work for SCSI devices (if changing GLTSD supported).
+  [BA] smartd/smartctl: wired in scsiClearControlGLTSD(). Could still
+       use a corresponding Set function.  Left stubs for this purpose.
+  [DG] scsicmds: added scsiClearControlGLTSD() [still to be wired in]
+  [BA] smartctl: make SCSI -T options behave the same way as the
+       ATA ones.
+  [DG] smartctl: output scsi transport protocol if available
+  [DG] scsi: stop device scan in smartd and smartctl if badly formed
+       mode response [heuristic to filter out USB devices before we
+       (potentially) lock them up].
+  [BA] smartd: deviceclose()->CloseDevice(). Got rid of SCSIDEVELOPMENT
+       macro-enabled code.  Added -W to list of gcc specific options to
+       always enable. Made code clean for -W warnings.
+  [PW] Added Maxtor DiamondMax VL 30 family to knowndrives table.
+  [DG] scsi: add warning (when '-l error' active) if Control mode page
+       GLTSD bit is set (global disable of saving log counters)
+  [DG] scsi: remember mode sense cmd length. Output trip temperature
+       from IE lpage (IBM extension) when unavailable from temp lpage.
+  [BA] smartd: for both SCSI and ATA now warns user if either
+       the number of self-test errors OR timestamp of most
+       recent self-test error have increased.
+  [DG] smartctl: output Seagate scsi Cache and Factory log pages (if
+       available) when vendor attributes chosen
+  [DG] smartd: add scsiCountFailedSelfTests() function.
+  [DG] Do more sanity checking of scsi log page responses.
+  [BA] smartd: now warns user if number of self-test errors has
+       increased for SCSI devices.
+  [BA] smartd: warn user if number of ATA self-test errors increases
+       (as before) OR if hour time stamp of most recent self-test
+       error changes.
+  [DG] More checks for well formed mode page responses. This has the side
+       effect of stopping scans on bad SCSI implementations (e.g. some
+       USB disks) prior to sending commands (typically log sense) that
+       locks them up.
+  [PW] Added Western Digital Caviar family and Caviar SE family to
+       knowndrives table.
+  [BA] smartd: added -l daemon (which is the default value if -l
+       is not used).
+  [PW] Added Seagate Barracuda ATA V family to knowndrives table.
+  [BA] smartd: added additional command line argument -l FACILITY
+       or --logfacility FACILITY.  This can be used to redirect
+       messages from smartd to a different file than the one used
+       by other system daemons.
+  [PW] Added Seagate Barracuda 7200.7, Western Digital Protege WD400EB,
+       and Western Digital Caviar AC38400 to knowndrives table.
+  [BA] smartd: scanning should now also work correctly for
+       devfs WITHOUT traditional links /dev/hd[a-t] or /dev/sd[a-z].
+  [PW] Added Maxtor 4W040H3, Seagate Barracuda 7200.7 Plus,
+       IBM Deskstar 120GXP (40GB), Seagate U Series 20410,
+       Fujitsu MHM2100AT, MHL2300AT, MHM2150AT, and IBM-DARA-212000
+       to knowndrives table.
+  [PW] Added remaining Maxtor DiamondMax Plus 9 models to knowndrives
+       table.
+  [EM] smartd: If no matches found, then return 0, rather than an error
+       indication, as it just means no devices of the given type exist.
+       Adjust FreeBSD scan code to mirror Linux version.
+  [BA] smartd: made device scan code simpler and more robust. If
+       too many devices detected, warn user but scan as many
+       as possible.  If error in scanning, warn user but don't
+       die right away.
+  [EM] smartd: To keep as consistent as possible, migrate FreeBSD
+       devicescan code to also use glob(3). Also verified clean 
+       compile on a 4.7 FreeBSD system.
+  [BA] smartd: Modified device scan code to use glob(3). Previously
+       it appeared to have trouble when scanning devices on an XFS
+       file system, and used non-public interface to directory
+       entries. Problems were also reported when /dev/ was on an
+       ext2/3 file system, but there was a JFS partition on the same
+       disk.
+  [BA] Clearer error messages when device scanning finds no suitable
+       devices.
+  [EM] FreeBSD:	Fixup code to allow for proper compilation under 
+       -STABLE branch.
+
 * Fri Oct 31 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd: didn't close file descriptors of ATA packet devices
        that are scanned. Fixed.
