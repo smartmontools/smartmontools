@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.32 2002/10/30 10:18:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.33 2002/10/30 14:26:20 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -22,18 +22,6 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 
 NOTES FOR FUTURE RELEASES: see TODO file.
-
-Added 
-.B \-C <N>
-This sets the time in between disk checks to be 
-.B <N>
-seconds apart.  Note that although you can give this Directive
-multiple times on different lines of the configuration file, only the
-final value that is given has an effect, and applies to all the disks.
-The default value of 
-.B <N> 
-is 1800 sec, and the minimum allowed value is
-ten seconds.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
