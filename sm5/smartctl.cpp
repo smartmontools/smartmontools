@@ -1,6 +1,8 @@
-//  $Id: smartctl.cpp,v 1.8 2002/10/14 15:26:28 ballen4705 Exp $
+//  $Id: smartctl.cpp,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * smartctl.c
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -221,7 +223,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.8 2002/10/14 15:26:28 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $");
     exit(0);
  }
 

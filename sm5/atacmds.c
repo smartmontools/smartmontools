@@ -1,6 +1,8 @@
-//  $Id: atacmds.c,v 1.7 2002/10/15 11:19:46 ballen4705 Exp $
+//  $Id: atacmds.c,v 1.8 2002/10/15 14:24:26 ballen4705 Exp $
 /*
  * atacmds.c
+ * 
+ * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>

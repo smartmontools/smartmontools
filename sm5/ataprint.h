@@ -1,7 +1,9 @@
-//  $Id: ataprint.h,v 1.4 2002/10/14 15:26:15 ballen4705 Exp $
+//  $Id: ataprint.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
 
 /*
  * ataprint.c
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
