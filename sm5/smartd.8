@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.72 2003/03/10 21:07:34 ballen4705 Exp $
+\# $Id: smartd.8,v 1.73 2003/03/10 22:41:13 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/03/10 21:07:34 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/03/10 22:41:13 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -966,7 +966,7 @@ and may expose your system to symlink attacks.
 .B smartd
 will make log entries at loglevel 
 .B LOG_INFO
-if SMART Attribute values have changed, as reported using the
+if the Normalized SMART Attribute values have changed, as reported using the
 .B '\-t', '\-p',
 or
 .B '\-u'
@@ -974,11 +974,27 @@ Directives. For example:
 .nf
 .B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93'
 .fi
-Note that in this message, the value given is the 'Normalized' not
-the 'Raw' Attribute value (the disk temperature in this case is about 22 
-Celsius).  See the 
+Note that in this message, the value given is the 'Normalized' not the 'Raw' 
+Attribute value (the disk temperature in this case is about 22
+Celsius).  The 
+.B '-R'
+and 
+.B '-r'
+Directives modify this behavior, so that the information is printed
+with the Raw values as well, for example:
+.nf
+.B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]'
+.fi
+Here the Raw values are the actual disk temperatures in Celsius.  The
+way in which the Raw values are printed, and the names under which the
+Attributes are reported, is governed by the various
+.B \'-v Num,Description'
+Directives described previously.
+
+Please see the
 .B smartctl
-manual page for further explanation.
+manual page for further explanation of the differences between
+Normalized and Raw Attribute values.
 
 .B smartd
 will make log entries at loglevel
@@ -1075,4 +1091,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.72 2003/03/10 21:07:34 ballen4705 Exp $
+$Id: smartd.8,v 1.73 2003/03/10 22:41:13 ballen4705 Exp $
