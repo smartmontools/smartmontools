@@ -46,7 +46,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.69 2002/11/21 17:45:59 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.70 2002/11/22 09:35:31 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -311,7 +311,7 @@ void Directives() {
   printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  printout(LOG_INFO,"For SCSI devices, only -S, -C, and -M Directives are supported\n");
+  printout(LOG_INFO,"SCSI devices: only -S, -C, -M, and -m Directives allowed.\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
 return;
 }
