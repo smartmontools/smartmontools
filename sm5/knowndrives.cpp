@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.109 2004/06/03 22:27:40 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.110 2004/06/04 17:02:35 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -144,7 +144,8 @@ const drivesettings knowndrives[] = {
     "IC35L0[12346]0AVER07",
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
-      "Please see http://www.geocities.com/dtla_update/index.html#rel",
+    "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
+    "http://www-1.ibm.com/support/docview.wss?rs=0&q=DTLA&uid=psg1MIGR-44195",
     NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)
@@ -156,7 +157,8 @@ const drivesettings knowndrives[] = {
     "(IBM-)?DTLA-30[57]0[123467][05]",
     ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
-      "Please see http://www.geocities.com/dtla_update/",
+    "Please see http://www.geocities.com/dtla_update/ and\n"
+    "http://www-1.ibm.com/support/docview.wss?rs=0&q=DTLA&uid=psg1MIGR-44195",
     NULL, NULL, NULL
   },
   { // ExcelStor J240
