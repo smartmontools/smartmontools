@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.103 2003/06/19 19:27:45 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.104 2003/06/19 19:34:43 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1584,7 +1584,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     break;
   case 206:
     // Fujitsu
-    name="Flying Height Measurement";
+    name="Flying_Height_Measurement";
     break;
   case 220:
     switch (val) {
