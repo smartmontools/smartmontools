@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.23 2003/10/15 05:35:51 ballen4705 Exp $
+$Id: INSTALL,v 1.24 2003/10/20 14:11:55 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -13,8 +13,9 @@ Table of contents:
 [3] Installing from source tarball
 [4] Guidelines for different linux distributions
 [5] Guidelines for FreeBSD
-[6] Comments
-[7] Detailed description of ./configure options
+[6] Guidelines for Solaris
+[7] Comments
+[8] Detailed description of ./configure options
 
 [1] Kernel requirements
 =======================
@@ -159,7 +160,28 @@ up with the following:
 	/usr/local/etc/rc.d/smartd.sample
 
 
-[6] Comments
+[6] Guidelines for Solaris
+==========================
+
+smartmontools has been partially but not completely ported to solaris.
+It can be compiled with either cc or gcc. To compile with gcc:
+
+./configure
+make
+
+To compile with Sun cc
+
+export CC=cc   [Note: bash syntax]
+./configure
+make
+
+Currently, smartd/smartctl have no ATA or SCSI functionality under
+solaris, so they do nothing useful.  Developers: the only functions
+that need to be ported are the handful of skeletons prototyped in
+os_solaris.[hc].  Please contribute code and help us to complete the
+port!
+
+[7] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -218,7 +240,7 @@ The following files are installed:
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[7] Detailed description of arguments to configure command
+[8] Detailed description of arguments to configure command
 ==========================================================
 
 When you type:
