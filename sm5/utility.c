@@ -40,7 +40,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.46 2004/03/29 00:26:03 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.47 2004/05/06 14:12:29 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -84,7 +84,11 @@ void FixGlibcTimeZoneBug(){
   if (!getenv("TZ")) {
     putenv("TZ=GMT");
     tzset();
+#ifndef _WIN32
     putenv("TZ");
+#else
+    putenv("TZ="); // empty value removes TZ, putenv("TZ") does nothing
+#endif
     tzset();
   }
   return;

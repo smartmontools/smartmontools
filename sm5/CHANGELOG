@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.406 2004/05/04 21:23:40 ballen4705 Exp $
+$Id: CHANGELOG,v 1.407 2004/05/06 14:12:29 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Fixed reset of TZ=GMT in glibc timezone bug workaround.
+
+smartmontools 5.31
 
   [DG] move SCSI device temperature and start-stop log page output
        (smartctl) into --attributes section (was in --info section).
