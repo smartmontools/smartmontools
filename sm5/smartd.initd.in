@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.3 2003/10/12 21:02:17 arvoreen Exp $
+# $Id: smartd.initd.in,v 1.4 2003/10/16 09:03:33 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -33,8 +33,8 @@ report_unsupported () {
     exit 1
 }
 
-# Red Hat
-if [ -f /etc/redhat-release ] ; then
+# Red Hat or Yellow Dog
+if [ -f /etc/redhat-release -o -f /etc/yellowdog-release ] ; then
 
 # Source function library
 . /etc/rc.d/init.d/functions
