@@ -1,4 +1,4 @@
-Release:  14
+Release:  15
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.104 2003/06/16 16:32:00 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.105 2003/07/23 21:55:59 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -230,6 +230,8 @@ rm -rf %{_builddir}/%{name}-%{version}
 
 # since this installs the gzipped documentation files, remove
 # non-gzipped ones of the same name.
+
+# run before installation.  Passed "1" the first time package installed, else a larger number
 %pre
 if [ -f /usr/share/man/man8/smartctl.8 ] ; then
 	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartctl.8 to read the new manual page for smartctl."	
@@ -238,23 +240,47 @@ if [ -f /usr/share/man/man8/smartd.8 ] ; then
 	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartd.8 to read the new manual page for smartd."	
 fi
 
+# run after installation.  Passed "1" the first time package installed, else a larger number
 %post
 if [ -f /var/lock/subsys/smartd ]; then
         /etc/rc.d/init.d/smartd restart 1>&2
 	echo "Restarted smartd services"
 else
         echo "Run \"/etc/rc.d/init.d/smartd start\" to start smartd service now."
-	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
 fi
-echo "Note that you can now use a configuration file /etc/smartd.conf to control the"
-echo "startup behavior of the smartd daemon.  See man 8 smartd for details."
 
+if [ "$1" = "1" ]; then
+# first package installation -- tell user what to do
+	printmessage=1
+else	
+# package upgrade -- only tell user what to do if needed
+	/sbin/chkconfig --list smartd > /dev/null
+	printmessage=$?
+fi
+
+if [ $printmessage -ne 0 ] ; then
+	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
+	echo "Note that you can now use a configuration file /etc/smartd.conf to control the"
+	echo "startup behavior of the smartd daemon.  See man 8 smartd for details."
+else
+	echo "smartd is currently configured to start up on system boot"
+fi
+
+
+# run before uninstallation.  Passed zero when the last version uninstalled, else larger
 %preun
 if [ -f /var/lock/subsys/smartd ]; then
         /etc/rc.d/init.d/smartd stop 1>&2
 	echo "Stopping smartd services"
 fi
-/sbin/chkconfig --del smartd
+
+if [ "$1" = "0" ]; then
+# uninstalling the final copy, so remove any links	
+	/sbin/chkconfig --del smartd
+fi
+
+# run after uninstallation. Passed zero when the last version uninstalled, else larger
+#%postun
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 
@@ -270,6 +296,35 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Wed Jul 23 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] Improved formatting of ATA Error Log printout, and added
+       listing of names of commands that caused the error. Added
+       obsolete ATA-4 SMART feature commands to table, along with
+       obsolete SFF-8035i SMART feature command.
+- [PW] Added atacmdnames.[hc], which turn command register &
+       feature register pairs into ATA command names.
+- [BA] Added conveyance self-test.  Some code added for selective
+       self-tests, but #ifdefed out.
+- [BA] Modified smartd exit status and log levels.  If smartd is
+       "cleanly" terminated, for example with SIGTERM, then its
+       exit messages are now logged at LOG_INFO not LOG_CRIT
+- [BA] Added Attribute IDs  (Fujitsu) 0xCA - 0xCE.  This is decimal
+       202-206. Added -v switches for interpretation of Attributes
+       192, 198 and 201. 
+- [BA] Made smartmontools work with any endian order machine for:
+       - SMART selftest log
+       - SMART ATA error log
+       - SMART Attributes values
+       - SMART Attributes thesholds
+       - IDENTIFY DEVICE information
+       - LOG DIRECTORY
+       Smartmontools is now free of endian bias and works correctly
+       on both little- and big-endian hardware.  This has been tested by
+       three independent PPC users on a variety of ATA and SCSI hardware.
+- [DG] Check that certain SCSI command responses are well formed. If
+       IEC mode page response is not well formed exit smartctl. This
+       is to protect aacraid. smartd should ignore a aacraid device.
+
 * Mon Jun 16 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartctl: added column to -A output to show if Attributes are
        updated only during off-line testing or also during normal
