@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.21 2003/04/22 03:13:43 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.22 2003/05/07 13:52:58 knan Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -43,20 +43,19 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.21 2003/04/22 03:13:43 b
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
 
-// This one is common to several models.
+// These two are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {
   PRESET_9_MINUTES,
+  {0,0}
+};
+const unsigned char vendoropts_9_seconds[][2] = {
+  PRESET_9_SECONDS,
   {0,0}
 };
 
 const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
   PRESET_9_MINUTES,
   PRESET_194_UNKNOWN,
-  {0,0}
-};
-
-const unsigned char vendoropts_Fujitsu_MPE3204AT[][2] = {
-  PRESET_9_SECONDS,
   {0,0}
 };
 
@@ -111,7 +110,14 @@ const drivesettings knowndrives[] = {
     "^FUJITSU MPE3204AT$",
     ".*",    // Tested on ED-03-04
     NULL,
-    vendoropts_Fujitsu_MPE3204AT,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MPD3130AT
+    "^FUJITSU MPD3130AT$",
+    ".*",    // Tested on DD-04-47
+    NULL,
+    vendoropts_9_seconds,
     NULL, NULL
   },
   { // Fujitsu MHS2020AT

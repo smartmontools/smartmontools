@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.139 2003/05/06 22:58:01 guidog Exp $
+$Id: CHANGELOG,v 1.140 2003/05/07 13:52:58 knan Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EB] Add another Fujitsu disk to knowndrives.c
 
   [GG] match for scsi/ and ide/ in case of devfs to exclude false postives
 
