@@ -53,22 +53,23 @@
 #include <sys/stat.h>
 #include <glob.h>
 
+#include "config.h"
+
 #ifdef HAVE_LINUX_HDREG_H
 #include <linux/hdreg.h>
 #else
 #define HDIO_DRIVE_TASK   0x031e
 #define HDIO_DRIVE_CMD    0x031f
-#define HDIO_GET_IDENTITY 0x030d
+// #define HDIO_GET_IDENTITY 0x030d
 #endif
 
 #include "atacmds.h"
-#include "config.h"
 #include "os_linux.h"
 #include "scsicmds.h"
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.35 2003/12/09 19:57:55 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.36 2003/12/09 20:19:49 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
