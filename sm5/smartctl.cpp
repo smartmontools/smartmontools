@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.107 2003/11/30 13:53:14 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.108 2003/11/30 16:41:38 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -65,6 +65,8 @@ void printslogan(){
 
 void printcopy(){
   char out[CVSMAXLEN];
+  char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
+
   pout("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
   pout("is free software, and you are welcome to redistribute it\n");
   pout("under the terms of the GNU General Public License Version 2.\n");
@@ -92,7 +94,7 @@ void printcopy(){
   pout("smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
   pout("smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
   pout("smartctl compile dated " __DATE__ " at "__TIME__ "\n");
-  pout("smartmontools configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
+  pout("smartmontools configure arguments: %s\n", configargs);
   return;
 }
 
