@@ -101,3 +101,107 @@ Fourteen files are installed:
 Source and binary RPM files are available at the website listed above.
 
 PLEASE READ THE MANUAL PAGES FOR SMARTCTL AND SMARTD FOR MORE INFORMATION.
+
+
+== PROPOSED OPTION NAMES FOR SMARTCTL ==
+The following is a list of proposed options to replace the existing options in
+smartctl.  If you have any comments or would like to suggest improvements then
+please post to the smartmontools mailing list.
+
+  -V, --version, --copyright, --license
+	Show version, copyright, and license info then exit
+
+  -q MODE, --quietmode=MODE
+	Set the quiet mode to one of errorsonly, silent
+
+  -d TYPE, --devicetype=TYPE
+	Set the device type to one of ata, scsi
+
+  -T N, --tolerance=N
+	Set tolerance level to one of:
+		0 - Exit if any SMART command fails
+		1 - Exit if a mandatory SMART command fails (default)
+		2 - Continue even if a mandatory SMART command fails
+
+  -k, --checksumfail
+	Exit on bad checksum
+
+  -s VALUE, --smart=VALUE
+	Enable/disable SMART.  VALUE is one of on, off 
+
+  -o VALUE, --offline=VALUE
+	Enable/disable automatic offline testing.  VALUE is one of on, off 
+
+  -S VALUE, --autosave=VALUE
+	Enable/disable autosave.  VALUE is one of on, off 
+
+  -h, --showstatus
+	Show SMART health status
+
+  -c, --showcapabilities
+	Show SMART capabilities
+
+  -a, --showattributes
+	Show SMART vendor attributes
+
+  -l TYPE, --showlog=TYPE
+	Show log: type is one of error, selftest
+
+  -i, --showinfo
+	Show drive information
+
+  -A, --showall
+	Show all SMART information.  Equivalent to -hcai -l error -l selftest
+
+  -v N,OPTION , --vendoroptions=N,OPTION
+	Set vendor specific OPTION for attribute N.  Currently supported are:
+
+		  N	OPTION		Effect
+		-----------------------------------------------------------
+		009	minutes		Display in minutes instead of hours
+
+  -t TEST, --test=TEST
+	Perform TEST immediately.  TEST is one of offline, short, long
+
+  -C, --captive
+	When used with -t, performs test in captive mode.  Has no effect on
+	offline test
+
+  -X, --abort
+	Abort any non-captive test
+
+The following table shows the mapping of old options to new options:
+
+  -----------------------------------------------------------------------
+  Old option	New short option	New long option
+  -----------------------------------------------------------------------
+  -V		-V			--version, --copyright, --license
+  -i		-i			--showinfo
+  -q		-q errorsonly		--quietmode=errorsonly
+  -Q		-q silent		--quietmode=silent
+  -n		-d ata			--devicetype=ata
+  -N		-d scsi			--devicetype=scsi
+  -P		-T 2			--tolerance=2
+  -U		-T 0			--tolerance=0
+  -W		-k			--checksumfail
+  -e		-s on			--smart=on
+  -d		-s off			--smart=off
+  -t		-o on			--offline=on
+  -T		-o off			--offline=off
+  -f		-S on			--autosave=on
+  -F		-S off			--autosave=off
+  -c		-h			--showstatus
+  -g		-c			--showcapabilities
+  -v		-a			--showattributes
+  -l		-l error		--showlog=error
+  -L		-l selftest		--showlog=selftest
+  -a		-A			--showall
+  -m		-v 9,minutes		--vendoroptions=9,minutes
+  -O		-t offline		--test=offline
+  -S		-t short		--test=short
+  -s		-Ct short		--test=short --captive
+  -X		-t long			--test=long
+  -x		-Ct long		--test=long --captive
+  -A		-X			--abort
+  -----------------------------------------------------------------------
+
