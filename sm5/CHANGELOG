@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.298 2003/12/19 20:47:00 ballen4705 Exp $
+$Id: CHANGELOG,v 1.299 2003/12/19 22:04:17 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,7 +26,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
   [KS/BA] smartd man page: describe how to set Solaris syslog.conf
-       file to catch all messages.
+       file to catch all messages.  Give correct Solaris SYSLOG default
+       path /var/adm/messages in man pages.
 
   [BA] smartd: incorporated Debian startup script submitted by user.
 
