@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.8 2003/12/11 19:29:16 card_captor Exp $
+$Id: AUTHORS,v 1.9 2004/03/01 17:11:38 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -16,6 +16,7 @@ Erik Inge Bolsø		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
 Casper Dik              <casper@holland.sun.com>
+Christian Franke        <franke@computer.org>
 Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
