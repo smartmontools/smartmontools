@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.87 2004/09/07 13:01:51 ballen4705 Exp $
+$Id: smartd.8.in,v 1.88 2004/09/14 14:20:39 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -566,11 +566,10 @@ directives can be used for these disks (but see note below).
 
 .TP
 .B \-d TYPE
-Specifies the type of the device.  This Directive may be used multiple times
-for one device, but the arguments \fIata\fP, \fIscsi\fP, and \fI3ware,N\fP are
-mutually-exclusive. If more than one is given then
-\fBsmartd\fP
-will use the last one which appears.
+Specifies the type of the device.  This Directive may be used multiple
+times for one device, but the arguments \fIata\fP, \fIscsi\fP,
+\fImarvell\fP, and \fI3ware,N\fP are mutually-exclusive. If more than
+one is given then \fBsmartd\fP will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
 first attempt to guess the device type by looking at whether the sixth
@@ -592,6 +591,10 @@ from issuing SCSI commands to an ATA device.
 \- the device type is SCSI.  This prevents
 \fBsmartd\fP
 from issuing ATA commands to a SCSI device.
+
+.I marvell
+\- Under Linux, interact with SATA disks behind Marvell chip-set
+controllers (using the Marvell rather than libata driver).
 
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
@@ -1794,4 +1797,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.87 2004/09/07 13:01:51 ballen4705 Exp $
+$Id: smartd.8.in,v 1.88 2004/09/14 14:20:39 ballen4705 Exp $
