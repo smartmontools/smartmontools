@@ -1,0 +1,48 @@
+#!/bin/bash
+# chkconfig: 35 40 40 
+# smartmontools init file for smartd
+#
+# description: Self Monitoring and Reporting Technology (SMART) Daemon
+#
+# processname: smartd 
+
+# Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2, or (at your option) any later
+# version.
+# 
+# You should have received a copy of the GNU General Public License (for
+# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+# Mass Ave, Cambridge, MA 02139, USA.
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+case "$1" in
+  start)
+	echo -n "Starting smartd: "
+        daemon /usr/sbin/smartd
+	touch /var/lock/subsys/smartd
+	echo
+	;;
+  stop)
+	echo -n "Shutting down smartd: "
+	killproc smartd
+	rm -f /var/lock/subsys/smartd
+	echo
+	;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  status)
+        status smartd
+        ;;
+  *)
+	echo "Usage: smartd {start|stop|restart|status}"
+	exit 1
+esac
+
+exit 0

@@ -1,0 +1,148 @@
+\# Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+\# 
+\# This program is free software; you can redistribute it and/or modify it
+\# under the terms of the GNU General Public License as published by the Free
+\# Software Foundation; either version 2, or (at your option) any later
+\# version.
+\# 
+\# You should have received a copy of the GNU General Public License (for
+\# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+\# Mass Ave, Cambridge, MA 02139, USA.
+.TH SMARTD 8  "October 9, 2002" "smartmontools-5.0"
+.SH NAME
+smartd \- S.M.A.R.T. Daemon
+.SH SYNOPSIS
+.B smartd  
+[\-pX\]
+
+.SH DESCRIPTION
+.B smartd
+is a daemon that monitors the Self-Monitoring, Analysis and Reporting
+Technology (S.M.A.R.T.) system built into many ATA-3 and later ATA,
+IDE and SCSI-3 hard drives. The purpose of S.M.A.R.T. is to monitor
+the reliability of the hard drive and predict drive failures, and to
+carry out different types of drive self-tests.  This version of
+smartd is compatible with ATA/ATAPI-5 and earlier standards (see
+REFERENCES below)
+
+.B smartd  
+is daemon designed to notify users of S.M.A.R.T. errors and changes of
+S.M.A.R.T. attributes via the SYSLOG interface.  These notifications
+and warnings normally appear in /var/log/messages.
+
+.PP
+.SH SYNTAX
+.PP
+.B 
+smartd 
+takes either no arguments, or a single argument.  The optional
+argument begins with a '\-' followed by a letter or letters. Multiple
+options must begin with a single '\-'.
+
+The 
+.B
+smartd
+daemon scans for all devices that support S.M.A.R.T., using
+"/dev/hd*" for IDE/ATA devices, and "/dev/sd*" for SCSI devices.  It
+polls these devices every 30 minutes checking for S.M.A.R.T. errors.
+.PP
+.SH 
+OPTIONS
+.TP
+p
+Prints license and copyright information onto STDOUT and into the SYSLOG
+log (normally /var/log/messages) and then exits.
+.TP
+X
+Runs smartd in "debug" mode. In this mode, it does not fork and
+displays status information to STDOUT.
+
+
+.SH EXAMPLES
+
+.B
+smartd
+.fi
+runs in forked (daemon) mode. This is the normal way to run
+.B
+smartd
+.fi
+
+Note that smartmontools provides a start-up script in
+.B
+/etc/rc.d/init.d/smartd
+which is responsible for starting and stopping the daemon via the normal init interface.  This can be enabled  using the command:
+.nf
+/sbin/chkconfig --add smartd
+.fi
+and disabled using the command:
+.nf
+/sbin/chkconfig --del smartd
+
+.PP
+.SH AUTHOR
+Bruce Allen
+.B ballen@uwm.edu
+.fi
+University of Wisconsin - Milwaukee Physics Department
+
+.PP
+.SH CREDITS
+.fi
+This code was derived from the smartsuite package, written by
+Michael Cornwell, and from the previous ucsc smartsuite package.  It
+extends these to cover ATA-5 disks.
+.SH
+HOME PAGE FOR SMARTMONTOOLS: 
+.fi
+Please see the following web site for updates, further documentation, bug
+reports and patches:
+.nf
+.B
+http://sourceforge.net/projects/smartmontools
+
+.SH
+SEE ALSO:
+.B
+smartctl (8)
+.SH
+REFERENCES FOR S.M.A.R.T.
+.fi
+If you would like to understand better how S.M.A.R.T. works, and what
+it does, a good place to start is  Section 8.41 of the 'AT
+Attachment with Packet Interface-5' (ATA/ATAPI-5) specification.  This
+documents the S.M.A.R.T. functionality which the smartmontools
+utilities provide access to.  You can find Revision 1 of this document
+at:
+.nf
+.B
+http://www.t13.org/project/d1321r1c.pdf
+.fi
+Future versions of the specifications (ATA/ATAPI-6 and ATA/ATAPI-7),
+and later revisions (2, 3) of the ATA/ATAPI-5 specification are
+available from:
+.nf
+.B
+http://www.t13.org/#FTP_site
+
+.fi
+The functioning of S.M.A.R.T. is also described by the SFF-8035i
+revision 2 specification.  This is a publication of the Small Form
+Factors (SFF) Committee, and can be obtained from:
+.TP
+\ 
+SFF Committee
+.nf
+14426 Black Walnut Ct.
+.nf
+Saratoga, CA 95070, USA
+.nf
+SFF FaxAccess: +01 408-741-1600
+.nf
+Ph: +01 408-867-6630
+.nf
+Fax: +01 408-867-2115
+.nf
+E-Mail: 250-1752@mcimail.com.
+.PP
+Please let us know if there is an on\-line source for this document.
