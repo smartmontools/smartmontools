@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.132 2003/04/29 16:01:08 makisara Exp $
+$Id: CHANGELOG,v 1.133 2003/04/30 10:16:03 makisara Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -39,7 +39,9 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
   [KM] More TapeAlert work. Added translations for media changer
        alerts. TapeAlert support reported according to the log page
        presence. ModeSense not attempted for non-ready tapes (all
-       drives do not support this after all).
+       drives do not support this after all). Get peripheral type from
+       Inquiry even if drive info is not printed. Add QUIETON()
+       QUIETOFF() to TapeAlert log check.
 
   [BA] Stupid bug in atacmds.c minor_str[] affected ataVersionInfo().
        Two missing commas meant that minor_str[] had two few elements,
