@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.36 2002/11/22 13:30:55 ballen4705 Exp $
+\# $Id: smartd.8,v 1.37 2002/11/23 17:05:57 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,12 +16,12 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/22 13:30:55 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/23 17:05:57 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
 .B smartd  
-[\-VX\]
+[OPTION]...
 
 .SH DESCRIPTION
 .B smartd
@@ -92,30 +92,29 @@ harmless. Alternatively, the configuration file can be used to exclude
 non-existent devices by giving a list of devices to monitor at
 start-up.
 
-.PP
-.SH SYNTAX
-.PP
-.B smartd 
-takes either zero, one, or two arguments.  The optional arguments
-begins with a '\-' followed by a letter or letters.
-
-.P
 .SH 
 OPTIONS
 .TP
-.B V
-Version: Prints license, copyright, and CVS version information onto
-STDOUT and then exits. Please include this information if you are
-reporting bugs, or have specific questions about the behavior of
-.B smartd.
-.TP
-.B X
+.B \-X, \-\-debugmode
 eXamine: Runs 
 .B smartd 
 in "debug" mode. In this mode, it does not 
 .B fork
 (2) and displays status information to STDOUT.  It also prints more
 verbose information about what it is doing.
+.TP
+.B \-V, \-\-version, \-\-license, \-\-copyright
+Prints license, copyright, and CVS version information onto
+STDOUT and then exits. Please include this information if you are
+reporting bugs, or have specific questions about the behavior of
+.B smartd.
+.TP
+.B \-h, \-\-help, \-\-usage
+Prints usage message to STDOUT and exits.
+.TP
+.B \-?
+Same as
+.B -h.
 
 .SH EXAMPLES
 
@@ -649,4 +648,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.36 2002/11/22 13:30:55 ballen4705 Exp $
+$Id: smartd.8,v 1.37 2002/11/23 17:05:57 pjwilliams Exp $
