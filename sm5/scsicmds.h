@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.29 2003/06/01 12:36:12 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.29.2.1 2004/08/13 00:04:38 likewise Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -74,6 +74,10 @@
 #endif
 #ifndef SEND_DIAGNOSTIC
 #define SEND_DIAGNOSTIC  0x1d
+#endif
+
+#ifndef SCSI_IOCTL_SEND_COMMAND
+#define SCSI_IOCTL_SEND_COMMAND 1
 #endif
 
 typedef unsigned char UINT8;

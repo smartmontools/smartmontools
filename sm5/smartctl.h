@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef SMARTCTL_H_CVSID
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.17 2003/03/06 07:27:17 ballen4705 Exp $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.17.2.1 2004/08/13 00:04:38 likewise Exp $\n"
 #endif
 
 /* Boolean Values */
@@ -60,6 +60,9 @@
 
 // Device had Errors in the self-test log
 #define FAILLOG (0x01<<7)
+
+// Device is MVSATA 
+#define FAILMVSATA (0x01<<8)
 
 // Classes of SMART commands.  Here 'mandatory' means "Required by the
 // ATA/ATAPI-5 Specification if the device implements the S.M.A.R.T.

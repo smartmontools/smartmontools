@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.36 2003/05/12 18:34:40 pjwilliams Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.36.2.1 2004/08/13 00:04:38 likewise Exp $\n"
 #endif
 
 // Configuration file
@@ -97,6 +97,7 @@ typedef struct configfile_s {
   // which type of device was detected.
   char tryata;
   char tryscsi;
+  char trymvsata;
   char *name;
   // which tests have been enabled?
   char smartcheck;
@@ -158,9 +159,14 @@ typedef struct atadevices_s {
 // used to store a list of SCSI devices to monitor.  Devicename points
 // to a malloced name string.
 typedef struct scsidevices_s {
+  /* ignored for MVSATA adapter */
   unsigned char SmartPageSupported;
   unsigned char TempPageSupported;
   unsigned char Temperature;
+  /* MVSATA support: ata parameters */
+  struct ata_smart_values *smartval;
+  struct ata_smart_thresholds *smartthres;
+  /* end MVSATA support */
   char *devicename;
   cfgfile *cfg;
 } scsidevices_t;

@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.24 2003/04/19 09:53:41 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.24.2.1 2004/08/13 00:04:38 likewise Exp $\n"
 #endif
 
 // Possible values for fixfirmwarebug
@@ -77,6 +77,7 @@ typedef struct smartmonctrl_s {
   // a non-default meaning.  See the ataPrintSmartAttribName and
   // and parse_attribute_def functions.
   unsigned char attributedefs[256];
+  unsigned char ismvsata;
 } smartmonctrl;
 
 #endif

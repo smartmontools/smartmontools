@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.170 2003/06/13 18:01:17 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.170.2.1 2004/08/13 00:04:38 likewise Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -234,7 +234,10 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   // for user scripts
   setenv("SMARTD_MAILER", executable, 1);
   setenv("SMARTD_DEVICE", cfg->name, 1);
-  setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
+  if (cfg->trymvsata)
+    setenv("SMARTD_DEVICETYPE", "mvsata", 1);
+  else
+    setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
   setenv("SMARTD_MESSAGE", message, 1);
   setenv("SMARTD_SUBJECT", subject, 1);
   dateandtimezoneepoch(dates, mail->firstsent);
@@ -435,7 +438,7 @@ void printhead(){
 // prints help info for configuration file Directives
 void Directives() {
   printout(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
-  printout(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable\n");
+  printout(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, mvsata, removable\n");
   printout(LOG_INFO,"  -T TYPE Set the tolerance to one of: normal, permissive\n");
   printout(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
   printout(LOG_INFO,"  -S VAL  Enable/disable attribute autosave (on/off)\n");
@@ -563,7 +566,8 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     // device open failed
     return 1;
   printout(LOG_INFO,"Device: %s, opened\n", device);
-  
+  //set the global MVSATA flag for further ioctl() usage
+  con->ismvsata = cfg->trymvsata;
   // Get drive identity structure
   if (ataReadHDIdentity (fd,&drive)){
     // Unable to read Identity structure
@@ -759,6 +763,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     int k, fd, err; 
     char *device = cfg->name;
     struct scsi_iec_mode_page iec;
+    int  peri_dt = 0, len = 0;
     UINT8  tBuf[64];
 
     // should we try to register this as a SCSI device?
@@ -774,7 +779,38 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 #endif
     }
     printout(LOG_INFO,"Device: %s, opened\n", device);
-  
+
+    //Check whether SCSI controller is MVSATA
+    err = scsiStdInquiry(fd, tBuf, sizeof(tBuf));
+    if (err) 
+    {
+        if (1 == err)
+            printout(LOG_ERR, "Device: %s, failed Inquiry [err=%d]\n", 
+                                            device, err);
+        close(fd);
+
+    }
+    len = tBuf[4] + 5;
+    peri_dt = tBuf[0] & 0x1f;
+    if (peri_dt == 0) /*TYPE_DISK*/
+    {
+        if (len >= 42)
+        {
+            if (!strcmp(&tBuf[36], "MVSATA"))
+            {           
+                /*MVSATA controller detected*/
+                cfg->tryata = 1;
+                cfg->tryscsi = 0;
+                cfg->trymvsata = 1;
+                cfg->scsidevicenum = numscsidevices;
+                cfg->atadevicenum = -1; 
+                closedevice(fd, device);
+                return 3;        
+            }            
+        }
+    }
+    //MVSATA
+
     // check that it's ready for commands. IE stores its stuff on the media.
     if ((err = scsiTestUnitReady(fd))) {
       if (1 == err)
@@ -853,6 +889,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     // record number of device, type of device, increment device count
     cfg->tryata = 0;
     cfg->tryscsi = 1;
+    cfg->trymvsata = 0;
     cfg->scsidevicenum = numscsidevices;
     cfg->atadevicenum = -1;
     ++numscsidevices;
@@ -860,6 +897,218 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     // close file descriptor
     closedevice(fd, device);
     return 0;
+}
+
+int mvsatadevicescan2(scsidevices_t *devices, cfgfile *cfg)
+{
+  int fd;
+  struct hd_driveid drive;
+  char *device=cfg->name;
+  
+  // should we try to register this as an ATA device?
+  if (!(cfg->trymvsata))
+    return 1;
+  
+  // open the device
+  if ((fd=opendevice(device, O_RDONLY | O_NONBLOCK))<0)
+    // device open failed
+    return 1;
+
+  /*set the global MVSATA flag for further ioctl()*/
+  con->ismvsata = cfg->trymvsata;
+  if (cfg->trymvsata)
+  {
+      /*Reset ignored values*/
+      devices->SmartPageSupported = 0;
+      devices->Temperature = 0;
+      devices->TempPageSupported = 0;
+  }
+  printout(LOG_INFO,"Device: %s, opened\n", device);
+  // Get drive identity structure
+  if (ataReadHDIdentity (fd,&drive)){
+    // Unable to read Identity structure
+    printout(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",device);
+    close(fd);
+    return 2; 
+  }
+  
+  // pass user setings on to low-level ATA commands
+  con->fixfirmwarebug = cfg->fixfirmwarebug;
+
+  // Show if device in database, and use preset vendor attribute
+  // options unless user has requested otherwise.
+  if (!cfg->ignorepresets){
+
+    // do whatever applypresets decides to do
+    if (applypresets(&drive, cfg->attributedefs, con)<0)
+      printout(LOG_INFO, "Device: %s, not found in smartd database.\n", device);
+    else
+      printout(LOG_INFO, "Device: %s, found in smartd database.\n", device);
+
+    // then save the correct state of the flag (applypresets may have changed it)
+    cfg->fixfirmwarebug = con->fixfirmwarebug;
+  }
+  else
+    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", device);
+
+  // If requested, show which presets would be used for this drive
+  if (cfg->showpresets) {
+    int savedebugmode=debugmode;
+    printout(LOG_INFO, "Device %s: presets are:\n", device);
+    if (!debugmode)
+      debugmode=2;
+    showpresets(&drive);
+    debugmode=savedebugmode;
+  }
+
+  if (!cfg->permissive && !ataSmartSupport(&drive)){
+    // SMART not supported
+    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",device);
+    close(fd);
+    return 2; 
+  }
+  
+  if (ataEnableSmart(fd)){
+    // Enable SMART command has failed
+    printout(LOG_INFO,"Device: %s, could not enable SMART capability\n",device);
+    close(fd);
+    return 2; 
+  }
+  
+  // disable device attribute autosave...
+  if (cfg->autosave==1){
+    if (ataDisableAutoSave(fd))
+      printout(LOG_INFO,"Device: %s, could not disable SMART Attribute Autosave.\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, disabled SMART Attribute Autosave.\n",device);
+  }
+
+  // or enable device attribute autosave
+  if (cfg->autosave==2){
+    if (ataEnableAutoSave(fd))
+      printout(LOG_INFO,"Device: %s, could not enable SMART Attribute Autosave.\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, enabled SMART Attribute Autosave.\n",device);
+  }
+
+  // capability check: SMART status
+  if (cfg->smartcheck && ataSmartStatus2(fd)==-1){
+    printout(LOG_INFO,"Device: %s, not capable of SMART Health Status check\n",device);
+    cfg->smartcheck=0;
+  }
+  
+  // capability check: Read smart values and thresholds
+  if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->autoofflinetest) {
+    devices->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
+    devices->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
+    
+    if (!devices->smartval || !devices->smartthres){
+      printout(LOG_CRIT,"Not enough memory to obtain SMART data\n");
+      exit(EXIT_NOMEM);
+    }
+    
+    if (ataReadSmartValues(fd,devices->smartval) ||
+        ataReadSmartThresholds (fd,devices->smartthres)){
+      printout(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",device);
+      free(devices->smartval);
+      free(devices->smartthres);
+
+      // make it easy to recognize that we've deallocated
+      devices->smartval=NULL;
+      devices->smartthres=NULL;
+      cfg->usagefailed=cfg->prefail=cfg->usage=0;
+    }
+  }
+
+  // enable/disable automatic on-line testing
+  if (cfg->autoofflinetest){
+    // is this an enable or disable request?
+    char *what=(cfg->autoofflinetest==1)?"disable":"enable";
+    if (!devices->smartval)
+      printout(LOG_INFO,"Device: %s, could not %s SMART Automatic Offline Testing.\n",device, what);
+    else {
+      // if command appears unsupported, issue a warning...
+      if (!isSupportAutomaticTimer(devices->smartval))
+    printout(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",device);
+      // ... but then try anyway
+      if ((cfg->autoofflinetest==1)?ataDisableAutoOffline(fd):ataEnableAutoOffline(fd))
+    printout(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", device, what);
+      else
+    printout(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", device, what);
+    }
+  }
+  
+  // capability check: self-test-log
+  if (cfg->selftest){
+    int val;
+
+    // see if device supports Self-test logging.  Note that the
+    // following line is not a typo: Device supports self-test log if
+    // and only if it also supports error log.
+    if (!isSmartErrorLogCapable(devices->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
+      cfg->selftest=0;
+      cfg->selflogcount=0;
+    }
+    else {
+      // get number of Self-test errors logged
+      val=selftesterrorcount(fd, device);
+      if (val>=0)
+    cfg->selflogcount=val;
+      else
+    cfg->selftest=0;
+    }
+  }
+  
+  // capability check: ATA error log
+  if (cfg->errorlog){
+    int val;
+
+    // see if device supports error logging
+    if (!isSmartErrorLogCapable(devices->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", device);
+      cfg->errorlog=0;
+      cfg->ataerrorcount=0;
+    }
+    else {
+      // get number of ATA errors logged
+      val=ataerrorcount(fd, device);
+      if (val>=0)
+    cfg->ataerrorcount=val;
+      else
+    cfg->errorlog=0;
+    }
+  }
+  
+  // If no tests available or selected, return
+  if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
+        cfg->usagefailed || cfg->prefail || cfg->usage)) {
+    close(fd);
+    return 3;
+  }
+  
+  // Do we still have entries available?
+  if (numatadevices>=MAXATADEVICES){
+    printout(LOG_CRIT,"smartd has found more than MAXATADEVICES=%d ATA devices.\n"
+             "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",(int)numatadevices);
+    exit(EXIT_CCONST);
+  }
+  
+  // register device
+  printout(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",device);
+  
+  // we were called from a routine that has global storage for the name.  Keep pointer.
+  devices->devicename=device;
+  devices->cfg=cfg;  
+  cfg->tryscsi=0;
+  cfg->tryata=1;
+  cfg->trymvsata=1;
+  cfg->atadevicenum = -1;
+  cfg->scsidevicenum = numscsidevices;  
+  numscsidevices++;  
+  // close file descriptor
+  closedevice(fd, device);
+  return 0;
 }
 
 // We compare old and new values of the n'th attribute.  Note that n
@@ -965,7 +1214,8 @@ int ataCheckDevice(atadevices_t *drive){
     printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
     return 1;
   }
-
+  //set MVSATA global flag for further ioctl()
+  con->ismvsata = cfg->trymvsata;
   // check smart status
   if (cfg->smartcheck){
     int status=ataSmartStatus2(fd);
@@ -1122,6 +1372,16 @@ int ataCheckDevice(atadevices_t *drive){
   return 0;
 }
 
+/* Calls ataCheckDevice instead of scsi */
+int mvsataCheckDevice(scsidevices_t *drive)
+{
+    atadevices_t atadrive;
+    atadrive.devicename = drive->devicename;
+    atadrive.cfg = drive->cfg;
+    atadrive.smartthres = drive->smartthres;
+    atadrive.smartval = drive->smartval;
+    return ataCheckDevice(&atadrive);
+}
 
 int scsiCheckDevice(scsidevices_t *drive)
 {
@@ -1191,7 +1451,12 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
       ataCheckDevice(atadevices+i);
     
     for (i=0; i<numscsidevices; i++)
-      scsiCheckDevice(scsidevices+i);
+    {
+        if (scsidevices[i].cfg->trymvsata)
+            mvsataCheckDevice(scsidevices+i);   
+        else
+            scsiCheckDevice(scsidevices+i); 
+    }
 
     // This option is primarily for distribution developers who want
     // an automated procedure for seeing if smartd works correctly.
@@ -1372,12 +1637,21 @@ int parsetoken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "ata")) {
       cfg->tryata  = 1;
       cfg->tryscsi = 0;
+      cfg->trymvsata = 0;
     } else if (!strcmp(arg, "scsi")) {
       cfg->tryscsi = 1;
       cfg->tryata  = 0;
+      cfg->trymvsata = 0;
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
-    } else {
+    } 
+    //set the MVSATA flag if device type is "mvsata"
+    else if (!strcmp(arg, "mvsata")) {
+      cfg->tryscsi = 0;
+      cfg->tryata  = 1;
+      cfg->trymvsata  = 1;
+    }
+    else {
       badarg = 1;
     }
     break;
@@ -1638,7 +1912,8 @@ int parseconfigline(int entry, int lineno,char *line){
   cfg->lineno=lineno;
   cfg->tryscsi=1;
   cfg->tryata=1;
-  
+  //reset the MVSATA flag: will be detected automatically if present
+  cfg->trymvsata=0;
   // Try and recognize if a IDE or SCSI device.  These can be
   // overwritten by configuration file directives.
   if (GUESS_DEVTYPE_ATA == guess_linux_device_type(name))
@@ -2087,7 +2362,8 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     // select if it's a SCSI or ATA device
     cfg->tryata=isata;
     cfg->tryscsi=!isata;
-    
+    //reset trymvsata flag
+    cfg->trymvsata = 0;
     // put in the device name
     cfg->name=strdup(name);
     if (!cfg->name) {
@@ -2118,6 +2394,7 @@ int main (int argc, char **argv){
   atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
   scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
   int i, entries, scandirective=0, scanning=0;
+  int res = 0;
   smartmonctrl control;
   
   // initialize global communications variables
@@ -2160,8 +2437,7 @@ int main (int argc, char **argv){
     // initialize total number of entries to seach for
     entries=0;
     doata=config->tryata;
-    doscsi=config->tryscsi;
-
+    doscsi=config->tryscsi || config->trymvsata;    
     // make list of ATA devices to search for
     if (doata)
       entries+=makeconfigentries(MAXATADEVICES,  "/dev/hda", 1, entries, scandirective);
@@ -2175,17 +2451,41 @@ int main (int argc, char **argv){
     int notregistered=1;
     
     // register ATA devices
-    if (config[i].tryata){
-      if (atadevicescan2(atadevicesptr+numatadevices, config+i))
-	cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
+    if (config[i].trymvsata)
+    {
+        /*scan device connected to MVSATA*/
+      if (mvsatadevicescan2(scsidevicesptr+numscsidevices, config+i))
+        cantregister(config[i].name, "MVSATA", config[i].lineno, scandirective);
       else
-	notregistered=0;
+        notregistered=0;
+    }    
+    else
+    {   
+        if (config[i].tryata)
+        {
+          if (atadevicescan2(atadevicesptr+numatadevices, config+i))
+            cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
+          else
+            notregistered=0;
+        }    
     }
     
     // then register SCSI devices
-    if (config[i].tryscsi){
-      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i))
-	cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
+    if (config[i].tryscsi)
+    {
+      config[i].trymvsata = 0;
+      res = scsidevicescan(scsidevicesptr+numscsidevices, config+i);
+      if (res) 
+      {
+        //if MVSATA controller detected rescan with ATA options
+        if (config[i].trymvsata) 
+        {
+            i--;
+            continue;
+        }
+        else
+            cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
+      }     
       else
 	notregistered=0;
     }

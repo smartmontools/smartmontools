@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.48 2003/06/01 12:38:22 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.48.2.1 2004/08/13 00:04:39 likewise Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -455,9 +455,11 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     int err, len;
     int is_tape = 0;
     int peri_dt = 0;
-        
-    memset(gBuf, 0, 36);
-    if ((err = scsiStdInquiry(device, gBuf, 36))) {
+    /* Reset global MVSATA flag */
+    con->ismvsata = 0;       
+
+    memset(gBuf, 0, 64);
+    if ((err = scsiStdInquiry(device, gBuf, 64))) {
         QUIETON(con);
         pout("Standard Inquiry failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
@@ -467,9 +469,21 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     peri_dt = gBuf[0] & 0x1f;
     if (peripheral_type)
         *peripheral_type = peri_dt;
-    if (! all)
-	return 0;
 
+    if (!all)
+    {
+        /*Check vendor-specific section for presence of MVSATA controller*/
+        if (len >= 42)
+        {
+            if (!strcmp(&gBuf[36], "MVSATA"))
+            {           
+                con->ismvsata = 1;
+                return 1;        
+            }        
+        }
+        return 0;
+    }
+    
     if (len >= 36) {
         memset(manufacturer, 0, sizeof(manufacturer));
         strncpy(manufacturer, &gBuf[8], 8);
@@ -480,6 +494,17 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, &gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+
+       /*Check vendor-specific section for presence of MVSATA controller*/
+        if (len >= 42)
+        {
+            if (!strcmp(&gBuf[36], "MVSATA"))
+            {           
+                con->ismvsata = 1;
+                return 1;        
+            }       
+        }
+
         if (0 == scsiInquiryVpd(device, 0x80, gBuf, 64)) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
@@ -641,6 +666,7 @@ static void failuretest(int type, int returnvalue)
 
 
 /* Main entry point used by smartctl command. Return 0 for success */
+/* Return FAILMVSATA for MVSATA controller */
 int scsiPrintMain(const char *dev_name, int fd)
 {
     int checkedSupportedLogPages = 0;
@@ -648,9 +674,21 @@ int scsiPrintMain(const char *dev_name, int fd)
     int returnval=0;
     int res;
 
-    if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {
-        pout("Smartctl: SCSI device INQUIRY Failed\n\n");
-        failuretest(MANDATORY_CMD, returnval |= FAILID);
+    returnval = scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo);
+    
+
+    if (returnval) 
+    {
+        //Check for MVSATA controller
+        if (con->ismvsata)
+        {
+            return FAILMVSATA;            
+        }
+        else
+        {       
+            pout("Smartctl: SCSI device INQUIRY Failed\n\n");
+            failuretest(MANDATORY_CMD, returnval |= FAILID);
+        }
     }
 
     if (con->smartenable) {
