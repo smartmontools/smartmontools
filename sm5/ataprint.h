@@ -1,9 +1,9 @@
-//  $Id: ataprint.h,v 1.2 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: ataprint.h,v 1.3 2002/10/11 09:20:32 ballen4705 Exp $
 
 /*
  * ataprint.c
  *
- * Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+ * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify

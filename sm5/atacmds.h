@@ -1,8 +1,8 @@
-//  $Id: atacmds.h,v 1.4 2002/10/11 04:35:12 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.5 2002/10/11 09:20:32 ballen4705 Exp $
 /*
  * atacmds.h
  *
- * Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+ * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify

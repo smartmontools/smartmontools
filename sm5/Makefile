@@ -1,8 +1,8 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.8 2002/10/11 01:27:39 ballen4705 Exp $
+# $Id: Makefile,v 1.9 2002/10/11 09:20:32 ballen4705 Exp $
 #
-# Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
+# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
