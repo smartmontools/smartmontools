@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.41 2003/04/30 10:16:03 makisara Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.42 2003/05/01 08:50:17 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -101,15 +101,20 @@ void scsiGetSmartData(int device)
     const char * cp;
     int err;
 
+    QUIETON(con);
     if ((err = scsiCheckIE(device, gSmartPage, gTempPage,
                            &asc, &ascq, &currenttemp))) {
         /* error message already announced */
+        QUIETOFF(con);
         return;
     }
+    QUIETOFF(con);
     cp = scsiGetIEString(asc, ascq);
-    if (cp)
+    if (cp) {
+        QUIETON(con);
         pout("SMART Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
-    else
+        QUIETOFF(con);
+    } else
         pout("SMART Sense: Ok!\n");
 
     if (currenttemp && !gTempPage) {
@@ -121,8 +126,9 @@ void scsiGetSmartData(int device)
 }
 
 
-// Returns number of logged errors or zero if none or reading fails
-int scsiGetTapeAlertsData(int device, int peripheral_type)
+// Returns number of logged errors or zero if none or -1 if fetching
+// TapeAlerts fails
+static int scsiGetTapeAlertsData(int device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
@@ -132,11 +138,13 @@ int scsiGetTapeAlertsData(int device, int peripheral_type)
     QUIETON(con);
     if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
-        return 0;
+        QUIETOFF(con);
+        return -1;
     }
     if (gBuf[0] != 0x2e) {
         pout("TapeAlerts Log Sense Failed\n");
-        return 0;
+        QUIETOFF(con);
+        return -1;
     }
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
 
@@ -170,12 +178,16 @@ void scsiGetStartStopData(int device)
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
                             LOG_RESP_LEN))) {
+        QUIETON(con);
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
+        QUIETOFF(con);
         return;
     }
     if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_PAGE) {
-         pout("StartStop Log Sense Failed\n");
-         return;
+        QUIETON(con);
+        pout("StartStop Log Sense Failed, page mismatch\n");
+        QUIETOFF(con);
+        return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
     if (len > 13) {
@@ -291,7 +303,7 @@ const char * self_test_result[] = {
 
 // See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
 // T10/1416-D Rev 10
-void  scsiPrintSelfTest(int device)
+static int scsiPrintSelfTest(int device)
 {
     int num, k, n, res, err, durationSec;
     int noheader = 1;
@@ -300,19 +312,25 @@ void  scsiPrintSelfTest(int device)
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_PAGE, gBuf, 
                             LOG_RESP_LEN))) {
+        QUIETON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     if (gBuf[0] != SELFTEST_RESULTS_PAGE) {
-        pout("Self-test Log Sense Failed\n");
-        return;
+        QUIETON(con);
+        pout("Self-test Log Sense Failed, page mismatch\n");
+        QUIETOFF(con);
+        return 1;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
+        QUIETON(con);
         pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
@@ -390,9 +408,11 @@ void  scsiPrintSelfTest(int device)
         (durationSec > 0))
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
+    return 0;
 }
  
-void scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
+/* Returns 0 on success */
+static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 {
     char manufacturer[9];
     char product[17];
@@ -404,14 +424,16 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
+        QUIETON(con);
         pout("Standard Inquiry failed [%s]\n", scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     len = gBuf[4] + 5;
     if (peripheral_type)
         *peripheral_type = gBuf[0] & 0x1f;
     if (!all)
-	return;
+	return 0;
 
     if (len >= 36) {
         memset(manufacturer, 0, sizeof(manufacturer));
@@ -430,8 +452,11 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
             gBuf[4 + len] = '\0';
             pout("Serial number: %s\n", &gBuf[4]);
         }
-    } else
+    } else {
+        QUIETON(con);
         pout("Short INQUIRY response, skip product id\n");
+        QUIETOFF(con);
+    }
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);
@@ -442,18 +467,26 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         is_tape = 1;
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
-        if (1 == err)
+        if (1 == err) {
+            QUIETON(con);
             pout("device is NOT READY (media absent, spun down, etc)\n");
-        else
+            QUIETOFF(con);
+        } else {
+            QUIETON(con);
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
-	return;
+            QUIETOFF(con);
+        }
+	return 0;
     }
    
     if ((err = scsiFetchIECmpage(device, &iec))) {
-	if (!is_tape)
+	if (!is_tape) {
+            QUIETON(con);
 	    pout("Device does not support SMART [%s]\n", 
 		 scsiErrString(err));
-        return;
+            QUIETOFF(con);
+        }
+        return 0;
     }
     if (!is_tape)
         pout("Device supports SMART and is %s\n",
@@ -461,60 +494,71 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
                   "Temperature Warning Enabled" :
                   "Temperature Warning Disabled or Not Supported");
+    return 0;
 }
 
-void scsiSmartEnable(int device)
+static int scsiSmartEnable(int device)
 {
     struct scsi_iec_mode_page iec;
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec))) {
+        QUIETON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     if ((err = scsiSetExceptionControlAndWarning(device, 1, &iec))) {
+        QUIETON(con);
         pout("unable to enable Exception control and warning [%s]\n",
              scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
     if ((err = scsiFetchIECmpage(device, &iec))) {
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        return;
+        return 1;
     }
     pout("Informational Exceptions (SMART) %s\n",
          scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
     pout("Temperature warning %s\n",
          scsi_IsWarningEnabled(&iec) ? "enabled" : "disabled");
+    return 0;
 }
         
-void scsiSmartDisable(int device)
+static int scsiSmartDisable(int device)
 {
     struct scsi_iec_mode_page iec;
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec))) {
+        QUIETON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     if ((err = scsiSetExceptionControlAndWarning(device, 0, &iec))) {
+        QUIETON(con);
         pout("unable to disable Exception control and warning [%s]\n",
              scsiErrString(err));
-        return;
+        QUIETOFF(con);
+        return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
     if ((err = scsiFetchIECmpage(device, &iec))) {
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        return;
+        return 1;
     }
     pout("Informational Exceptions (SMART) %s\n",
          scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
     pout("Temperature warning %s\n",
          scsi_IsWarningEnabled(&iec) ? "enabled" : "disabled");
+    return 0;
 }
 
 void scsiPrintTemp(int device)
@@ -535,29 +579,45 @@ void scsiPrintTemp(int device)
         pout("Drive Trip Temperature:        %d C\n", trip);
 }
 
-void scsiPrintStopStart(int device)
+// Compares failure type to policy in effect, and either exits or
+// simply returns to the calling routine.
+static void failuretest(int type, int returnvalue)
 {
-/**
-    unsigned int css;
-
-    if (scsiGetStartStop(device, unsigned int *css))
-        return;
-    pout("Start Stop Count: %d\n", css);
-**/
+    // If this is an error in an "optional" SMART command
+    if (type == OPTIONAL_CMD) {
+        if (con->conservative) {
+            pout("An optional SMART command has failed: exiting.\n"
+                 "To continue, set the tolerance level to something other "
+                 "than 'conservative'\n");
+            exit(returnvalue);
+        }
+    }
+    return;
 }
 
-void scsiPrintMain(const char *dev_name, int fd)
+
+/* Main entry point used by smartctl command. Return 0 for success */
+int scsiPrintMain(const char *dev_name, int fd)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
+    int returnval=0;
+    int res;
 
-    scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo); 
+    if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {
+        pout("Smartctl: SCSI device INQUIRY Failed\n\n");
+        failuretest(MANDATORY_CMD, returnval |= FAILID);
+    }
 
-    if (con->smartenable) 
-        scsiSmartEnable(fd);
+    if (con->smartenable) {
+        if (scsiSmartEnable(fd))
+            failuretest(MANDATORY_CMD, returnval |= FAILSMART);
+    }
 
-    if (con->smartdisable)
-        scsiSmartDisable(fd);
+    if (con->smartdisable) {
+        if (scsiSmartDisable(fd))
+            failuretest(MANDATORY_CMD,returnval |= FAILSMART);
+    }
 
     if (con->checksmart) {
         scsiGetSupportedLogPages(fd);
@@ -567,7 +627,8 @@ void scsiPrintMain(const char *dev_name, int fd)
             if (gTapeAlertsPage) {
 		if (con->driveinfo)
 		    pout("TapeAlert Supported\n");
-                scsiGetTapeAlertsData(fd, peripheral_type);
+                if (-1 == scsiGetTapeAlertsData(fd, peripheral_type))
+                    failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
 	    }
 	    else
 		pout("TapeAlert Not Supported\n");
@@ -588,27 +649,34 @@ void scsiPrintMain(const char *dev_name, int fd)
     if (con->smartselftestlog) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(fd);
+        res = 0;
         if (gSelfTestPage)
-            scsiPrintSelfTest(fd);
+            res = scsiPrintSelfTest(fd);
+        else {
+            pout("Warning: device does not support Self Test Logging\n");
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     if (con->smartexeoffimmediate) {
         if (scsiSmartDefaultSelfTest(fd)) {
             pout( "Default Self Test Failed\n");
-            return;
+            return returnval;
         }
         pout("Default Self Test Successful\n");
     }
     if (con->smartshortcapselftest) {
         if (scsiSmartShortCapSelfTest(fd)) {
             pout("Short Foreground Self Test Failed\n");
-            return;
+            return returnval;
         }
         pout("Short Foreground Self Test Successful\n");
     }
     if (con->smartshortselftest ) { 
         if ( scsiSmartShortSelfTest(fd)) {
             pout("Short Background Self Test Failed\n");
-            return;
+            return returnval;
         }
         pout("Short Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");
@@ -616,7 +684,7 @@ void scsiPrintMain(const char *dev_name, int fd)
     if (con->smartextendselftest) {
         if (scsiSmartExtendSelfTest(fd)) {
             pout("Extended Background Self Test Failed\n");
-            return;
+            return returnval;
         }
         pout("Extended Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");        
@@ -624,15 +692,16 @@ void scsiPrintMain(const char *dev_name, int fd)
     if (con->smartextendcapselftest) {
         if (scsiSmartExtendCapSelfTest(fd)) {
             pout("Extended Foreground Self Test Failed\n");
-            return;
+            return returnval;
         }
         pout("Extended Foreground Self Test Successful\n");
     }
     if (con->smartselftestabort) {
         if (scsiSmartSelfTestAbort(fd)) {
             pout("Self Test Abort Failed\n");
-            return;
+            return returnval;
         }
         pout("Self Test returned without error\n");
     }           
+    return returnval;
 }
