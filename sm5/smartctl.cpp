@@ -49,11 +49,8 @@
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-#if defined(_WIN32) && defined(_MSC_VER)
-extern const char *int64_vc6_c_cvsid;
-#endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.136 2004/09/14 03:34:34 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.137 2004/09/15 10:28:30 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -90,9 +87,6 @@ void printcopy(){
   PrintOneCVS(atacmdnames_c_cvsid);
   PrintOneCVS(atacmds_c_cvsid);
   PrintOneCVS(ataprint_c_cvsid);
-#if defined(_WIN32) && defined(_MSC_VER)
-  PrintOneCVS(int64_vc6_c_cvsid);
-#endif
   PrintOneCVS(knowndrives_c_cvsid);
   PrintOneCVS(os_XXXX_c_cvsid);
 #ifdef NEED_SOLARIS_ATA_CODE

@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.9 2004/09/14 03:34:34 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.10 2004/09/15 10:28:30 chrfranke Exp $\n"
 
 // 64 bit integer typedefs
 
@@ -71,9 +71,11 @@ typedef unsigned __int64   uint64_t;
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
-// for MSVC 6.0: "unsigned __int64 -> double" conversion not implemented
-// replacement function implemented in os_win32/int64_vc6.c
-double uint64_to_double(unsigned __int64 ull);
+// for MSVC 6.0: "unsigned __int64 -> double" conversion not implemented (why?-)
+__inline double uint64_to_double(uint64_t ull) {
+  return ((int64_t)ull >= 0 ? (double)(int64_t)ull :
+    ((double)(int64_t)(ull - 9223372036854775808UI64)) + 9223372036854775808.0);
+}
 #else
 #define uint64_to_double(ull) ((double)(ull))
 #endif // _WIN32 && _MSC_VER

@@ -108,17 +108,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.343 2004/09/15 08:01:31 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.344 2004/09/15 10:28:30 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
-#ifdef _MSC_VER
-extern const char *int64_vc6_c_cvsid;
 #endif
-#endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.343 2004/09/15 08:01:31 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.344 2004/09/15 10:28:30 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -306,9 +303,6 @@ void PrintCVS(void){
   PrintOneCVS(ataprint_c_cvsid);
 #ifdef _WIN32
   PrintOneCVS(daemon_win32_c_cvsid);
-#endif
-#if defined(_WIN32) && defined(_MSC_VER)
-  PrintOneCVS(int64_vc6_c_cvsid);
 #endif
 #ifdef _WIN32
   PrintOneCVS(hostname_win32_c_cvsid);
