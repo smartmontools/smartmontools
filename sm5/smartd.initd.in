@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.2 2003/10/12 20:19:16 arvoreen Exp $
+# $Id: smartd.initd.in,v 1.3 2003/10/12 21:02:17 arvoreen Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -105,7 +105,7 @@ elif [ -f /etc/SuSE-release ] ; then
     report_unsupported "SuSE"
 elif [ -f /etc/turbolinux-release ] ; then
     report_unsupported "Turbolinux"
-elif [ (uname -a | grep -q FreeBSD) ] ; then
+elif uname -a | grep -q FreeBSD ; then
 
 PID_FILE=/var/run/smartd.pid
 
