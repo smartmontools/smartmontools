@@ -21,14 +21,6 @@
  *
  */
 
-/*
-  If you want to do a solaris port, some sample code, showing how to
-  access SCSI data under solaris, can be found here:
-  http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=2003721.204932.21807%40cable.prodigy.com
-  Please contact the smartmontools developers at:
-  smartmontools-support@lists.sourceforge.net
-*/
-
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
@@ -48,9 +40,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.13 2004/01/07 17:13:07 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.14 2004/02/04 13:21:30 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.13 2004/01/07 17:13:07 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.14 2004/02/04 13:21:30 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
