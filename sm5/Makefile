@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.71 2003/08/04 13:06:10 ballen4705 Exp $
+# $Id: Makefile,v 1.72 2003/08/06 22:46:59 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -113,7 +113,8 @@ smartd.conf.5: smartd.8
 	cat tmp.tail           >> smartd.conf.5
 	rm -f tmp.head tmp.tail tmp.directives
 clean:
-	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz smart*.5.gz
+	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* \
+              smart*.8.gz smart*.5.gz examplescripts/*~
 
 install:
 	if [ ! -f smartd -o ! -f smartctl ] ; then echo -e "\n\nYOU MUST FIRST DO \"make\"\n" ; exit 1 ; fi
@@ -164,7 +165,7 @@ uninstall:
 
 # Some of this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
-release: smartd.conf.5
+release: smartd.conf.5 clean
 	if [ ! -f add -o ! -d CVS ] ; then echo "The make release target requires files checked out of CVS" ; exit 1 ; fi
 	cat smartmontools.spec | sed '/Release:/d' > temp.spec
 	echo "Release: " $(counter) > temp.version
