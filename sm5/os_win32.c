@@ -36,7 +36,7 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.1.2.2 2004/02/25 12:59:55 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.1.2.1 2004/02/25 13:06:53 chrfranke Exp $" \
 ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 

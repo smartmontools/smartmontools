@@ -193,7 +193,7 @@ SOURCE=..\knowndrives.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\os_win32.c
+SOURCE=..\os_win32.c
 # End Source File
 # Begin Source File
 
