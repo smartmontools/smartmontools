@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.289 2003/12/11 19:29:16 card_captor Exp $
+$Id: CHANGELOG,v 1.290 2003/12/15 17:29:32 guidog Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [GG] explain howto use autoreconf in autogen.sh
 
   [KS] Makefile.am/configure.in: changed manual page sections for
        Solaris.
