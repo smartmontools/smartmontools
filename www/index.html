@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/10/31 04:14:38 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/10/31 11:39:08 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.101 2003/10/31 04:14:38 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.102 2003/10/31 11:39:08 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -549,6 +549,41 @@ to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"
  that information as well.
 </p>
 </li>
+
+<li><b>My ATA drive is failing its self-tests, but its SMART health status is 'PASS'. What's going on?</b>
+
+<p>
+If your ATA drive supports self-tests, you should run them on a
+regular basis, for example one per week:
+<br/><tt>smartctl -t long /dev/hd?</tt><br/>
+After the test has completed, you should examine the results with:
+<br/><tt>smartctl -l selftest /dev/hd?</tt><br/>
+</p>
+
+<p>
+If the drive fails a self-test, but still has 'PASS' SMART health
+status, this usually means that there is a corrupted sector on the
+disk, which can not be read.  If the disk were able to read that
+sector of data, even once, then the disk firmware would mark the
+sector as 'bad' and then allocate a spare sectors to replace it.  But
+if the disk can't read the sector even once, then it won't reallocate
+the sector, in hopes of being able, at some time in the future, to
+read the data from it.
+</p>
+<p>
+The disk still has passing health status because the firmware has not
+found other signs of trouble, such as a failing servo.
+</p>
+<p>
+Such disks can often be repaired by using the disk manufaturer's 'disk
+evaluation and repair' utility.  Beware: this may force reallocation
+of the lost sector and thus corrupt or destroy any file system on the
+disk.
+</p>
+
+</li>
+
+
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -737,8 +772,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/10/31 04:14:38 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.101 2003/10/31 04:14:38 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2003/10/31 11:39:08 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.102 2003/10/31 11:39:08 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
