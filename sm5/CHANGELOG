@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.164 2003/07/29 12:42:25 ballen4705 Exp $
+$Id: CHANGELOG,v 1.165 2003/08/01 11:09:37 knan Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EB] Fujitsu change in knowndrives ... match the whole MPD and
+       MPE series for vendoropts_9_seconds.
 
   [BA] smartd bug, might cause segv if a device can not be opened. Was
        due to missing comma in char* list.  Consequence is that email
