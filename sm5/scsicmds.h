@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.49 2004/07/09 01:18:27 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.50 2004/07/11 15:16:09 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -229,6 +229,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_BAD_RESP             5       /* response fails sanity */
 #define SIMPLE_ERR_NO_MEDIUM            6       /* no medium present */
 #define SIMPLE_ERR_BECOMING_READY       7       /* device will be ready soon */
+#define SIMPLE_ERR_TRY_AGAIN            8       /* some warning, try again */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */

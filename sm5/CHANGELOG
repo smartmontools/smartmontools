@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.424 2004/07/10 22:16:31 ballen4705 Exp $
+$Id: CHANGELOG,v 1.425 2004/07/11 15:18:38 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] treat "unit attention" SCSI warning as try again in some contexts
+       (test unit ready and mode sense)
 
   [BA] on drives that store max/min rather than min/max, get order
        correct in printing temp.
