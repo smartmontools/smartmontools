@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.93 2003/04/19 12:29:41 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.94 2003/04/21 22:43:03 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -125,6 +125,7 @@ const int actual_ver[] = {
 };
 
 // When you add additional items to this list, you should then:
+// 0 -- update this list
 // 1 -- modify the following function parse_attribute_def()
 // 2 -- modify ataPrintSmartAttribRawValue()
 // 3 -  modify ataPrintSmartAttribName()
@@ -153,6 +154,8 @@ const char *vendorattributeargs[] = {
   "9,halfminutes",
   // 9  defs[194]=1
   "194,10xCelsius",
+  // 10 defs[194]=2
+  "194,unknown",
   // NULL should always terminate the array
   NULL
 };
@@ -211,6 +214,10 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   case 9:
     // attribute 194 is ten times disk temp in Celsius
     defs[194]=1;
+    return 0;
+  case 10:
+    // attribute 194 is unknown
+    defs[194]=2;
     return 0;
   default:
     // pair not found
@@ -1320,6 +1327,9 @@ long long ataPrintSmartAttribRawValue(char *out,
       int tenths=word[0]%10;
       out+=sprintf(out, "%d.%d", deg, tenths);
     }
+    else if (defs[194]==2)
+      // unknown attribute
+      out+=sprintf(out, "%llu", rawvalue);
     else {
       out+=sprintf(out, "%d", word[0]);
       if (!(rawvalue==word[0]))
@@ -1413,6 +1423,10 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     case 1:
       // Samsung SV1204H with RK100-13 firmware
       name="Temperature_Celsius_x10";
+      break;
+    case 2:
+      // for disks with no temperature Attribute
+      name="Unknown_Attribute";
       break;
     default:
       name="Temperature_Celsius";
