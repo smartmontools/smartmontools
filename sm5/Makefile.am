@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.26 2003/10/12 19:21:57 arvoreen Exp $
+# $Id: Makefile.am,v 1.27 2003/10/12 20:19:16 arvoreen Exp $
 #
 
 @SET_MAKE@
@@ -89,6 +89,7 @@ initd_DATA = smartd.initd
 
 EXTRA_DIST = $(man_MANS)		\
                 smartmontools.spec	\
+                smartd.initd.in		\
                 smartd.initd		\
 		smartd.8.in		\
 		smartctl.8.in		\
@@ -98,7 +99,8 @@ EXTRA_DIST = $(man_MANS)		\
 
 DISTCLEANFILES = smartd.conf.5 \
                  smartd.8      \
-	         smartctl.8
+	         smartctl.8    \
+		 smartd.initd
 
 smartd.conf.5.in: smartd.8.in
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
