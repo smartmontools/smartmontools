@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.18 2003/10/03 20:09:09 pervalidus Exp $
+$Id: INSTALL,v 1.19 2003/10/05 13:57:18 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -140,7 +140,7 @@ or to examine the package contents without risk of modifying any
 system files) you can replace the step:
   make install
 with:
-  make prefix=/home/myself/smartmontools-package install
+  make DESTDIR=/home/myself/smartmontools-package install
 
 Use a full path. Paths like ~/smartmontools-package may not work.
 
