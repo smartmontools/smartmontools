@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.112 2004/07/15 15:48:03 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.113 2004/07/15 16:35:06 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -145,7 +145,8 @@ const drivesettings knowndrives[] = {
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
-    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215",
+    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
+    "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
     NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)
@@ -158,7 +159,8 @@ const drivesettings knowndrives[] = {
     ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/ and\n"
-    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215",
+    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
+    "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
     NULL, NULL, NULL
   },
   { // ExcelStor J240
