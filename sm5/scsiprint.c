@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.68 2003/11/20 01:03:26 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.69 2003/11/21 01:24:11 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -882,9 +882,9 @@ int scsiPrintMain(int fd)
         }
     }   
     if (con->smartvendorattrib) {
-        if (gSeagateCacheLPage)
+        if (gSeagateCacheLPage && (SCSI_PT_DIRECT_ACCESS == peripheral_type))
             scsiPrintSeagateCacheLPage(fd);
-        if (gSeagateFactoryLPage)
+        if (gSeagateFactoryLPage && (SCSI_PT_DIRECT_ACCESS == peripheral_type))
             scsiPrintSeagateFactoryLPage(fd);
     }
     if (con->smarterrorlog) {
