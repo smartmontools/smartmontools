@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.130 2004/11/10 22:09:53 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.131 2005/02/17 22:46:16 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -848,8 +848,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // QUANTUM FIREBALLP LM15 and LM30
-    "^QUANTUM FIREBALLP LM(15|30)$",
+  { NULL, // QUANTUM FIREBALLP LM10.2, LM15 and LM30
+    "^QUANTUM FIREBALLP LM(10.2|15|30)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
