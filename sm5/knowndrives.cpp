@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.59 2003/12/06 12:59:14 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.60 2003/12/06 16:31:57 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -194,6 +194,14 @@ const drivesettings knowndrives[] = {
   { // SAMSUNG SP1213N (TL100-23 firmware)
     "^SAMSUNG SP1213N$",
     "^TL100-23$",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung2,
+    same_as_minus_F2
+  },
+  { // SAMSUNG SP0802N (TK100-23 firmware)
+    "^SAMSUNG SP0802N$",
+    "^TK100-23$",
     NULL,
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung2,
