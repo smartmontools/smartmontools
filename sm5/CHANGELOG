@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.102 2003/03/13 15:24:32 ballen4705 Exp $
+$Id: CHANGELOG,v 1.103 2003/03/13 15:34:37 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,10 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+ 
+  <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools-5.1-9
   
   [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
        kernel support, then try to assess drive health by examining
