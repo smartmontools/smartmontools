@@ -2,5 +2,6 @@ The following are controllers/drives where there have been reports of
 serious problems (eg system lockup):
 
 SYSTEM:   Dell servers using AACRAID (SCSI)
+PROBLEM:  Locked up, needed to be rebooted
 REPORTER: drew@eastvan.bc.ca
 LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1311313&forum_id=12495
