@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.194 2003/10/03 13:14:12 ballen4705 Exp $
+$Id: CHANGELOG,v 1.195 2003/10/03 14:01:46 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -17,8 +17,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
- 
+
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.19 [NOTE CHANGE OF RELEASE NUMBERING]
 
   [BA] smartctl: added '-T verypermissive' option which is
        equivalent to giving '-T permissive' many times.

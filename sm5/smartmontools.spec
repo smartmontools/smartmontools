@@ -8,7 +8,7 @@ Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
-Version:	5.19
+Version:	5.20
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.124 2003/10/03 00:13:37 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.125 2003/10/03 14:01:47 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -311,6 +311,35 @@ fi
 # [KM] Kai Mäkisarai
 
 %changelog
+
+* Fri Cct 03 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartctl: added '-T verypermissive' option which is
+       equivalent to giving '-T permissive' many times.
+- [BA] Try harder to identify from IDENTIFY DEVICE structure
+       if SMART supported/enabled.  smartd now does a more
+       thorough job of trying to assess this before sending
+       a SMART status command to find out for sure.
+- [BA] smartctl: it's now possible to override the program's
+       guess of the device type (ATA or SCSI) with -d option.
+- [BA] try hard to avoid sending IDENTIFY DEVICE to packet
+       devices (CDROMS).  They can't do SMART, and this generates
+       annoying syslog messages. At the same time, identify type
+       of Packet device.
+- [BA] smartctl: Can now use permissive option more
+       than once, to control how far to go before giving up.
+- [BA] smartd: if user asked to monitor either error or self-test
+       logs (-l error or -l selftest) WITHOUT monitoring any of the
+       Attribute values, code will SEGV.  For 5.1-18 and earlier,
+       a good workaround is to enable Auto offline (-o on).
+- [BA] smartctl: If enable auto offline command given, update auto
+       offline status before printing capabilities.
+- [GG] Make autotools build the default, remove autotools.diff
+- [GG] Add auto{conf,make} support, not enabled by default. 
+- [BA] Eliminated #include <linux/hdreg.h> from code. This
+       should simplify porting to solaris, FreeBSD, etc. The
+       only linux-specific code is now isolated to three routines,
+       one for SCSI, one for Escalade, one for ATA.
+
 * Fri Aug 22 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd: fixed serious bug - Attributes not monitored unless
        user told smartd to ignore at least one of them!

@@ -1,9 +1,17 @@
-$Id: NEWS,v 1.3 2003/10/02 10:07:44 ballen4705 Exp $
+$Id: NEWS,v 1.4 2003/10/03 14:01:46 ballen4705 Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
 See http://sourceforge.net/news/?group_id=64297 for the most recent news.
 
+
+Date: 2003-10-03
+Summary: smartmontools release 5.19
+-----------------------------------
+This is the first release of smartmontools based on autoconf/automake.
+For this reason, it is a very experimental release.  Please let us
+know in particular about documenation errors/omissions, missing or
+unneccesary files, and similar oversights.
 
 
 Date: 2003-10-02 11:35
