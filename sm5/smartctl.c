@@ -51,7 +51,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.132 2004/08/13 13:57:12 arvoreen Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.133 2004/08/16 00:57:29 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -840,7 +840,8 @@ int main (int argc, char **argv){
   
   if (con->controller_port) {
     // figure out 3Ware type
-    con->controller_type = guess_device_type(device);
+    if (CONTROLLER_SCSI == (con->controller_type = guess_device_type(device)))
+	con->controller_type=THREE_WARE_678K;
   }
 
   // set up mode for open() call.  SCSI case is:
@@ -859,7 +860,7 @@ int main (int argc, char **argv){
       else if (con->controller_type == THREE_WARE_678K_CHAR)
 	mode="ATA_3WARE_678K";
       else 
-	mode="ATA_3WARE_UNKNOWN";
+	mode="ATA";
     }
     break;
   }

@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.35 2004/08/13 13:57:12 arvoreen Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.36 2004/08/16 00:57:29 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -167,9 +167,9 @@ void MsecToText(unsigned int msec, char *txt);
 #define CONTROLLER_TYPE(x)	(x->controller_type & CONTROLLER_MASK)
 
 // 3Ware controller types
-#define THREE_WARE_9000_CHAR  (CONTROLLER_3WARE & 1)
-#define THREE_WARE_678K       (CONTROLLER_3WARE & 2)
-#define THREE_WARE_678K_CHAR  (CONTROLLER_3WARE & 3)
+#define THREE_WARE_9000_CHAR  (CONTROLLER_3WARE | 1)
+#define THREE_WARE_678K       (CONTROLLER_3WARE | 2)
+#define THREE_WARE_678K_CHAR  (CONTROLLER_3WARE | 3)
 #define THREE_WARE_TYPE_MASK	0x0F
 
 #define THREE_WARE_TYPE(x) (x->controller_type & THREE_WARE_TYPE_MASK)
