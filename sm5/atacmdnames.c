@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.8 2003/07/23 21:35:12 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.7 2003/07/22 20:10:16 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -366,7 +366,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xD6:
       return "SMART WRITE LOG";
     case 0xD7:
-      return "SMART WRITE ATTRIBUTE THRESHOLDS [NS, OBS-4]";
+      return "SMART WRITE ATTRIBUTE THRESHOLDS [VS]";
     case 0xD8:
       return "SMART ENABLE OPERATIONS";
     case 0xD9:
@@ -374,7 +374,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xDA:
       return "SMART RETURN STATUS";
     case 0xDB:
-      return "SMART EN/DISABLE AUTO OFFLINE [NS (SFF-8035i)]";
+      return "SMART EN/DISABLE AUTO OFFLINE: SFF-8035i";
     default:
         if (f_reg >= 0xE0)
           return "[Vendor specific SMART command]";
