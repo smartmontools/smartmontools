@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.94 2005/01/13 05:07:37 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.95 2005/01/14 00:29:44 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1065,32 +1065,24 @@ int scsiPrintMain(int fd)
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     if (con->smartexeoffimmediate) {
-        if (scsiSmartDefaultSelfTest(fd)) {
-            pout( "Default Self Test Failed\n");
+        if (scsiSmartDefaultSelfTest(fd))
             return returnval;
-        }
         pout("Default Self Test Successful\n");
     }
     if (con->smartshortcapselftest) {
-        if (scsiSmartShortCapSelfTest(fd)) {
-            pout("Short Foreground Self Test Failed\n");
+        if (scsiSmartShortCapSelfTest(fd))
             return returnval;
-        }
         pout("Short Foreground Self Test Successful\n");
     }
     if (con->smartshortselftest ) { 
-        if ( scsiSmartShortSelfTest(fd)) {
-            pout("Short Background Self Test Failed\n");
+        if (scsiSmartShortSelfTest(fd))
             return returnval;
-        }
         pout("Short Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");
     }
     if (con->smartextendselftest) {
-        if (scsiSmartExtendSelfTest(fd)) {
-            pout("Extended Background Self Test Failed\n");
+        if (scsiSmartExtendSelfTest(fd))
             return returnval;
-        }
         pout("Extended Background Self Test has begun\n");
         if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec, 
                         modese_len)) && (durationSec > 0)) {
@@ -1104,17 +1096,13 @@ int scsiPrintMain(int fd)
         pout("Use smartctl -X to abort test\n");        
     }
     if (con->smartextendcapselftest) {
-        if (scsiSmartExtendCapSelfTest(fd)) {
-            pout("Extended Foreground Self Test Failed\n");
+        if (scsiSmartExtendCapSelfTest(fd))
             return returnval;
-        }
         pout("Extended Foreground Self Test Successful\n");
     }
     if (con->smartselftestabort) {
-        if (scsiSmartSelfTestAbort(fd)) {
-            pout("Self Test Abort Failed\n");
+        if (scsiSmartSelfTestAbort(fd))
             return returnval;
-        }
         pout("Self Test returned without error\n");
     }           
     return returnval;
