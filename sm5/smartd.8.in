@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.59 2004/04/09 04:16:06 ballen4705 Exp $
+$Id: smartd.8.in,v 1.60 2004/04/11 17:13:39 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ the command:
 .fi
 \fBkillall -HUP smartd\fP.
 .fi
-(Windows/Native: Use \'\fBsmartd reload\fP\' to simulate the HUP signal.)
+(Windows: Use \'\fBsmartd reload\fP\' to simulate the HUP signal.)
 
 On startup, if \fBsmartd\fP finds a syntax error in the configuration
 file, it will print an error message and then exit. However if
@@ -74,7 +74,7 @@ When \fBsmartd\fP is running in debug mode, the \fBQUIT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
 configuration file. To exit \fBsmartd\fP use CONTROL-\e
-(Windows/Native: CONTROL-Break).
+(Windows: CONTROL-Break).
 
 On startup, in the absence of the configuration file
 \fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
@@ -97,6 +97,8 @@ for IDE/ATA devices on WinNT4/2000/XP, \fB"/dev/hd[a-d]"\fP
 (bitmask from "\\\\.\\SMARTVSD") for IDE/ATA devices on Win95/98/98SE/ME,
 and \fB"/dev/scsi[0-3][0-7]"\fP (ASPI adapter 0-3, ID 0-7) for SCSI
 devices on all versions of Windows.
+.IP \fBCYGWIN\fP: 9
+See "WINDOWS" above.
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -138,9 +140,9 @@ terminal.  In this mode, \fBsmartd\fP also prints more verbose
 information about what it is doing than when operating in "daemon"
 mode. In this mode, the \fBQUIT\fP signal (normally generated from a
 terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
-file.  Please use CONTROL-\e to exit (Windows/Native: CONTROL-Break).
+file.  Please use CONTROL-\e to exit (Windows: CONTROL-Break).
 
-Windows/Native only: The "debug" mode can be toggled by the command
+Windows only: The "debug" mode can be toggled by the command
 \fBsmartd sigusr2\fP. A new console for debug output is opened when
 debug mode is enabled.
 .TP
@@ -172,7 +174,7 @@ also use:
 .fi
 for the same purpose.
 .fi
-(Windows/Native: Use \'\fBsmartd sigusr1\fP\' to simulate the USR1 signal.)
+(Windows: Use \'\fBsmartd sigusr1\fP\' to simulate the USR1 signal.)
 
 .TP
 .B \-l FACILITY, \-\-logfacility=FACILITY
@@ -213,12 +215,12 @@ For more detailed information, please refer to the man pages for
 to modify the log rotation configuration files; see the man pages for
 \fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
 
-Windows/Cygwin: The current release of Cygwin writes \fBsyslog\fP(3)
+Cygwin: The current release of Cygwin writes \fBsyslog\fP(3)
 messages to Windows event log or to file \fBC:/CYGWIN_SYSLOG.TXT\fP
 if the event log is not available.
 The FACILITY parameter is always ignored by Cygwin.
 
-Windows/Native: Some \fBsyslog\fP(3) functionality is implemented
+Windows: Some \fBsyslog\fP(3) functionality is implemented
 internally in \fBsmartd\fP as follows: If no \'\-l\' option
 (or \'\-l daemon\') is specified, messages are written to Windows
 event log or to file \fB./smartd.log\fP if event log is not available
@@ -843,7 +845,7 @@ you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
 
-Windows/Native: The mail warning facility is not implemented yet.
+Windows: The mail warning facility is not implemented yet.
 By specifying \'\fB-m msgbox\fP\', a warning "email" is displayed
 as a message box on the screen. With \'\fB-m sysmsgbox\fP\', a system
 modal (always on top) message box is used.
@@ -1033,7 +1035,7 @@ Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
-Windows/Native: \'-M exec\' is not implemented yet.
+Windows: \'-M exec\' is not implemented yet.
 The other \'-M\' directives work in conjunction with the display of
 warning message boxes by \'-m msgbox\' or \'-m sysmsgbox\' (see above).
 
@@ -1496,10 +1498,11 @@ to read:
 Alternatively, you can use a local facility to log messages: please
 see the \fBsmartd\fP '-l' command-line option described above.
 
-On Windows, the log messages are written to the event log or to a file.
-See documentation of the '-l FACILITY' option above for details.
+On Cygwin and Windows, the log messages are written to the event log
+or to a file. See documentation of the '-l FACILITY' option above for
+details.
 
-Windows/Native: The following built-in commands can be used to control
+On Windows, the following built-in commands can be used to control
 the \fBsmartd\fP process:
 
 \'\fBsmartd status\fP\' \- check status
@@ -1644,4 +1647,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.59 2004/04/09 04:16:06 ballen4705 Exp $
+$Id: smartd.8.in,v 1.60 2004/04/11 17:13:39 chrfranke Exp $

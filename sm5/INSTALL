@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.41 2004/04/06 22:01:19 chrfranke Exp $
+$Id: INSTALL,v 1.42 2004/04/11 17:13:38 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -15,9 +15,10 @@ Table of contents:
 [5] Guidelines for FreeBSD
 [6] Guidelines for NetBSD
 [7] Guidelines for Solaris
-[8] Guidelines for Windows
-[9] Comments
-[10] Detailed description of ./configure options
+[8] Guidelines for Cygwin
+[9] Guidelines for Windows
+[10] Comments
+[11] Detailed description of ./configure options
 
 [1] System requirements
 =======================
@@ -78,9 +79,9 @@ Table of contents:
     ATAng will not support 100% operation, as the SMART status can not
     be reliably retrieved.  There is patch pending approval of the
     ATAng driver maintainer that will address this issue.
-    
+
     C) Solaris
-    
+
     The SCSI code has been tested on a variety of Solaris 8 and 9
     systems.  ATA/IDE code only works on SPARC platform.  All tested
     kernels worked correctly.
@@ -91,9 +92,18 @@ Table of contents:
     also function under 1.6.1 and later releases (unverified).  Currently
     it doesn't support ATA devices on 3ware RAID controllers.
 
-    E) Windows
+    E) Cygwin
 
-    The Code was tested on Windows 98SE, NT4, 2000 and XP. It should also
+    The code was tested on Cygwin 1.5.7 and should also work on other
+    recent releases.
+
+    Both Cygwin and Windows versions of smartmontools share the same code
+    to access the IDE/ATA or SCSI devices. The information in the "Windows"
+    section below also applies to the Cygwin version.
+
+    F) Windows
+
+    The code was tested on Windows 98SE, NT4, 2000 and XP. It should also
     work on Windows 95(OSR2) and ME.
 
     On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
@@ -108,7 +118,6 @@ Table of contents:
 
     SCSI devices are supported on all versions of Windows. An installed
     ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
-
 
 [2] Installing from CVS
 =======================
@@ -281,17 +290,30 @@ SuSE:
     where <knum> is related to <snum> such that the higher snum is the
     lower knum must be.
 
-[8] Guidelines for Windows
-==========================
-Cygwin:
-  ./configure --mandir=/usr/share/man                            \
+[8] Guidelines for Cygwin
+=========================
+
+Same as Red Hat:
+  ./configure
+  OR EQUIVALENTLY
+  ./configure --sbindir=/usr/sbin                               \
+              --sysconfdir=/etc                                 \
+              --mandir=/usr/share/man                           \
+              --with-initscriptdir=/etc/rc.d/init.d             \
               --with-docdir=/usr/share/doc/smartmontools-VERSION
 
-MinGW:
+[9] Guidelines for Windows
+==========================
+
+To compile the Windows release with MinGW, use the following on Cygwin:
+
   ./configure --disable-dependency-tracking --build mingw32
+  make
 
+  Instead of using "make install", copy the .exe files into
+  some directory in the PATH.
 
-[9] Comments
+[10] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -352,7 +374,7 @@ The following files are installed if ./configure has no options:
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[10] Detailed description of arguments to configure command
+[11] Detailed description of arguments to configure command
 ===========================================================
 
 When you type:
