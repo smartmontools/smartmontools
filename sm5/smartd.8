@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.59 2003/02/06 16:33:55 ballen4705 Exp $
+\# $Id: smartd.8,v 1.60 2003/02/06 20:01:48 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/06 16:33:55 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/06 20:01:48 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -164,13 +164,14 @@ a SIGTERM or SIGKILL and assume that
 .B smartd
 will not operate correctly on the host.  Conversely, if
 .B smartd
-exits with zero status, then it's safe to run it in normal daemon
-mode.
+exits with zero status, then it is safe to run
+.B smartd
+in normal daemon mode.
 
 Note that if
 .B smartd
-is unable to monitor any devices then it will exit with non-zero
-status.
+is unable to monitor any devices or encounters other problems then it
+will return with non-zero exit status.
 
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
@@ -206,9 +207,10 @@ every 30 seconds.
 smartd -c
 .fi
 Registers devices, and checks the status of the devices exactly
-once. The exit status (in bash, the
+once. The exit status (the bash
 .B $?
-variable) will be zero all went well, and nonzero if no devices were detected.
+variable) will be zero if all went well, and nonzero if no devices
+were detected or some other problem was encountered.
 
 .fi
 Note that 
@@ -363,8 +365,7 @@ name.
 
 .B For an ATA device,
 if no Directives appear, then the device will be monitored
-as if the
-'\-a' Directive (monitor all SMART properties) had been given.
+as if the '\-a' Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
@@ -956,4 +957,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.59 2003/02/06 16:33:55 ballen4705 Exp $
+$Id: smartd.8,v 1.60 2003/02/06 20:01:48 ballen4705 Exp $
