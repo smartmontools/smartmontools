@@ -1,0 +1,132 @@
+<pre><tt>
+
+smartctl version 5.0-36 Copyright (C) 2002 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Device Model:     Maxtor 98196H8                          
+Serial Number:    V80HV6NC            
+Firmware Version: ZAH814Y0
+ATA Version is:   6
+ATA Standard is:  ATA/ATAPI-6 T13 1410D revision 0
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Off-line data collection status: (0x00)	Offline data collection activity was
+					never started.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete off-line 
+data collection: 		 (  30) seconds.
+Offline data collection
+capabilities: 			 (0x1b) SMART execute Offline immediate.
+					Automatic timer ON/OFF support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+Short self-test routine 
+recommended polling time: 	 (   2) minutes.
+Extended self-test routine 
+recommended polling time: 	 (  60) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE     WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000a   253   252   000    Old_age      -       26
+  3 Spin_Up_Time            0x0027   208   206   063    Pre-fail     -       11285
+  4 Start_Stop_Count        0x0032   253   253   000    Old_age      -       62
+  5 Reallocated_Sector_Ct   0x0033   253   253   063    Pre-fail     -       0
+  6 Read_Channel_Margin     0x0001   253   253   100    Pre-fail     -       0
+  7 Seek_Error_Rate         0x000a   253   252   000    Old_age      -       0
+  8 Seek_Time_Performance   0x0027   249   244   187    Pre-fail     -       50271
+  9 Power_On_Hours          0x0032   236   236   000    Old_age      -       32671
+ 10 Spin_Retry_Count        0x002b   253   252   223    Pre-fail     -       0
+ 11 Calibration_Retry_Count 0x002b   253   252   223    Pre-fail     -       0
+ 12 Power_Cycle_Count       0x0032   253   253   000    Old_age      -       67
+196 Reallocated_Event_Count 0x0008   253   253   000    Old_age      -       0
+197 Current_Pending_Sector  0x0008   253   253   000    Old_age      -       0
+198 Offline_Uncorrectable   0x0008   253   253   000    Old_age      -       0
+199 UDMA_CRC_Error_Count    0x0008   199   199   000    Old_age      -       0
+200 Unknown_Attribute       0x000a   253   252   000    Old_age      -       0
+201 Unknown_Attribute       0x000a   253   252   000    Old_age      -       1
+202 Unknown_Attribute       0x000a   253   252   000    Old_age      -       0
+203 Unknown_Attribute       0x000b   253   252   180    Pre-fail     -       2
+204 Unknown_Attribute       0x000a   253   252   000    Old_age      -       0
+205 Unknown_Attribute       0x000a   253   252   000    Old_age      -       0
+207 Unknown_Attribute       0x002a   253   252   000    Old_age      -       0
+208 Unknown_Attribute       0x002a   253   252   000    Old_age      -       0
+209 Unknown_Attribute       0x0024   253   253   000    Old_age      -       0
+ 96 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+ 97 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+ 98 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+ 99 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+100 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+101 Unknown_Attribute       0x0004   253   253   000    Old_age      -       0
+
+SMART Error Log Version: 1
+ATA Error Count: 3
+	DCR = Device Control Register
+	FR  = Features Register
+	SC  = Sector Count Register
+	SN  = Sector Number Register
+	CL  = Cylinder Low Register
+	CH  = Cylinder High Register
+	D/H = Device/Head Register
+	CR  = Content written to Command Register
+	ER  = Error register
+	STA = Status register
+Timestamp is seconds since the previous disk power-on.
+Note: timestamp "wraps" after 2^32 msec = 49.710 days.
+
+Error 1 occurred at disk power-on lifetime: 0 hours
+When the command that caused the error occurred, the device was in an unknown state.
+After command completion occurred, registers were:
+ER:04 SC:40 SN:42 CL:97 CH:23 D/H:00 ST:51
+Sequence of commands leading to the command that caused the error were:
+DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp
+ 00   fe   00   00   00   00    00   ef     137.440
+ 00   d9   00   00   4f   c2    00   b0     137.328
+ 00   da   00   00   4f   c2    00   b0     137.232
+ 00   d8   00   00   4f   c2    00   b0     137.152
+ 00   db   00   00   4f   c2    00   b0     136.976
+
+Error 2 occurred at disk power-on lifetime: 0 hours
+When the command that caused the error occurred, the device was in an unknown state.
+After command completion occurred, registers were:
+ER:04 SC:40 SN:40 CL:97 CH:23 D/H:00 ST:51
+Sequence of commands leading to the command that caused the error were:
+DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp
+ 00   fe   00   00   00   00    00   ef     342.432
+ 00   e4   00   00   00   00    00   c3     342.368
+ 00   d0   00   00   0a   00    00   c3     342.368
+ 00   fe   00   00   00   00    00   ef     342.304
+ 00   3d   00   00   00   00    00   c3     342.256
+
+Error 3 occurred at disk power-on lifetime: 0 hours
+When the command that caused the error occurred, the device was in an unknown state.
+After command completion occurred, registers were:
+ER:04 SC:40 SN:40 CL:97 CH:03 D/H:00 ST:51
+Sequence of commands leading to the command that caused the error were:
+DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp
+ 00   fe   00   00   00   00    00   ef     342.304
+ 00   3d   00   00   00   00    00   c3     342.256
+ 00   e4   00   00   00   00    00   c3     342.192
+ 00   3d   00   00   00   00    00   c3     342.192
+ 00   00   01   01   00   00    00   ec     342.144
+
+SMART Self-test log, version number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Short off-line      Completed                     00%      5255         
+
+</tt></pre>
+
