@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.13 2003/04/17 21:53:00 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.14 2003/04/18 10:11:15 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -81,7 +81,7 @@ void specialpurpose_reverse_samsung(smartmonctrl *con)
 
 const drivesettings knowndrives[] = {
   { // IBM Deskstar 60GXP series
-    "IC35L0[12346]0AVER07$",
+    "IC35L0[12346]0AVER07",
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
