@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.82 2003/08/05 10:07:35 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.83 2003/08/07 09:58:02 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -659,16 +659,6 @@ void ParseOpts (int argc, char** argv){
   // Do this here, so results are independent of argument order	
   if (con->quietmode)
     con->veryquietmode=TRUE;
-
-  // error message if user has specified 3ware controller and auto offline or autosave
-  if (con->escalade && con->smartautosaveenable){
-    pout("\nERROR: smartctl can not enable automatic Attribute save (-S on) for 3ware devices.\n");
-    exit(FAILCMD);
-  }
-  if (con->escalade && con->smartautoofflineenable){
-    pout("\nERROR: smartctl can not enable automatic offline testing (-o on) for 3ware devices.\n");
-    exit(FAILCMD);
-  }
 
   // error message if user has asked for more than one test
   if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+

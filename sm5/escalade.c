@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.7 2003/08/05 15:32:32 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.8 2003/08/07 09:58:02 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -64,6 +64,8 @@ const char *escalade_c_cvsid="$Id: escalade.c,v 1.7 2003/08/05 15:32:32 ballen47
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
+
+static int printed=0;
 
 int linux_3ware_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
 
@@ -146,30 +148,14 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.features = SMART_DISABLE;
     break;
   case AUTO_OFFLINE:
-    // NON-DATA COMMAND FROM THE SFF-8035i SPECIFICATIONS. The enable
-    // command requires a sector count value of 0xF8, not supported by
-    // 3ware 3w-xxxx driver.
     passthru.features = SMART_AUTO_OFFLINE;
-    ; // Enable or disable?
+    // Enable or disable?
     passthru.sector_count = select;
-    if (select){
-      pout("WARNING - SMART AUTO OFFLINE ENABLE NOT IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
-      errno=ENOSYS;
-      return -1;
-    }
     break;
   case AUTOSAVE:
-    // NON-DATA COMMAND FROM THE ATA-* SPECIFICATIONS. The enable
-    // command requires a sector count value of 0xF1, not supported by
-    // 3ware 3w-xxxx driver.
     passthru.features = SMART_AUTOSAVE;
     // Enable or disable?
     passthru.sector_count = select;
-    if (select){
-      pout("WARNING - SMART AUTOSAVE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
-      errno=ENOSYS;
-      return -1;
-    }
     break;
   case IMMEDIATE_OFFLINE:
     passthru.features = SMART_IMMEDIATE_OFFLINE;
@@ -202,6 +188,14 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   
   /* Now send the command down through an ioctl() */
   if (ioctl(fd, SCSI_IOCTL_SEND_COMMAND, &ioctlbuf)) {
+    // If error was provoked by driver, tell user how to fix it
+    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select && !printed){
+      printed=1;
+      pout("The SMART AUTO-OFFLINE and AUTOSAVE commands (smartmontools -o on and -S on\n"
+	   "options/Directives) can not be passed through the 3ware 3w-xxxx driver.  This\n"
+	   "can be fixed by applying a simple 3w-xxxx driver patch that can be found here:\n"
+	   PROJECTHOME "\n");
+    }
     return -1;
   }
 

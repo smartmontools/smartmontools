@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.180 2003/08/05 15:32:32 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.181 2003/08/07 09:58:02 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1752,18 +1752,6 @@ int parseconfigline(int entry, int lineno,char *line){
     sprintf(newname,"%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
     free(cfg->name);
     name=cfg->name=newname;
-  }
-
-  // Escalade 3ware controller does not implement autosave or auto offline test
-  if (cfg->escalade && cfg->autosave==2){
-    printout(LOG_CRIT, "Drive: %s on line %d of file %s. Autosave (-S on) unavailable for 3ware devices\n",
-             cfg->name, cfg->lineno, CONFIGFILE);
-    exit(EXIT_BADCONF);
-  }
-  if (cfg->escalade && cfg->autoofflinetest==2){
-    printout(LOG_CRIT, "Drive: %s on line %d of file %s. Auto offline test (-o on) unavailable for 3ware devices\n",
-             cfg->name, cfg->lineno, CONFIGFILE);
-    exit(EXIT_BADCONF);
   }
 
   // If no ATA monitoring directives are set, then set all of them.
