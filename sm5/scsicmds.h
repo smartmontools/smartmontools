@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.38 2003/11/15 02:26:26 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.39 2003/11/16 12:14:07 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -269,11 +269,11 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
 
 int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
-int scsiModeSelect(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen);
 
 int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
-int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen);
 
 int scsiModePageOffset(const UINT8 * resp, int len, int modese_len);
 

@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.58 2003/11/15 02:29:16 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.59 2003/11/16 12:19:04 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -281,9 +281,9 @@ static void scsiPrintSeagateCacheLPage(int device)
         }
         k = pl - 4;
         xp = ucp + 4;
-        if (k > sizeof(ull)) {
-            xp += (k - sizeof(ull));
-            k = sizeof(ull);
+        if (k > (int)sizeof(ull)) {
+            xp += (k - (int)sizeof(ull));
+            k = (int)sizeof(ull);
         }
         ull = 0;
         for (j = 0; j < k; ++j) {
@@ -333,9 +333,9 @@ static void scsiPrintSeagateFactoryLPage(int device)
         }
         k = pl - 4;
         xp = ucp + 4;
-        if (k > sizeof(ull)) {
-            xp += (k - sizeof(ull));
-            k = sizeof(ull);
+        if (k > (int)sizeof(ull)) {
+            xp += (k - (int)sizeof(ull));
+            k = (int)sizeof(ull);
         }
         ull = 0;
         for (j = 0; j < k; ++j) {
@@ -629,7 +629,8 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         QUIETOFF(con);
     }
     // print SCSI peripheral device type
-    if (peri_dt < (sizeof(peripheral_dt_arr) / sizeof(peripheral_dt_arr[0])))
+    if (peri_dt < (int)(sizeof(peripheral_dt_arr) / 
+                        sizeof(peripheral_dt_arr[0])))
         pout("Device type: %s\n", peripheral_dt_arr[peri_dt]);
     else
         pout("Device type: <%d>\n", peri_dt);
@@ -803,7 +804,7 @@ static void failuretest(int type, int returnvalue)
 }
 
 /* Main entry point used by smartctl command. Return 0 for success */
-int scsiPrintMain(const char *dev_name, int fd)
+int scsiPrintMain(const char * dev_name, int fd)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;

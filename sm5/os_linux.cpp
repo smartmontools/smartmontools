@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.26 2003/11/14 05:28:14 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.27 2003/11/16 12:20:14 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -123,8 +123,8 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
   }
 
   // did we find too many paths?
-  lim = globbuf.gl_pathc < max ? globbuf.gl_pathc : max;
-  if (lim < globbuf.gl_pathc)
+  lim = ((int)globbuf.gl_pathc < max) ? (int)globbuf.gl_pathc : max;
+  if (lim < (int)globbuf.gl_pathc)
     pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n", 
 	 (int)globbuf.gl_pathc, max, pattern, (int)(globbuf.gl_pathc-max));
   
@@ -470,11 +470,11 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         const unsigned char * ucp = iop->cmnd;
         const char * np;
         char buff[256];
-        const size_t sz = sizeof(buff);
+        const int sz = (int)sizeof(buff);
 
         np = scsi_get_opcode_name(ucp[0]);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < iop->cmnd_len; ++k)
+        for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
         if ((report > 1) && 
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {

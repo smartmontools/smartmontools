@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.60 2003/11/15 04:29:52 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.61 2003/11/16 12:15:24 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -334,7 +334,7 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
  * 2 if command not supported (then MODE SELECT(10) may be supported), 
  * 3 if field in command not supported, 4 if bad parameter to command
  * or returns negated errno. SPC sections 7.7 and 8.4 */
-int scsiModeSelect(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
+int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -421,7 +421,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
  * command not supported (then MODE SELECT(6) may be supported), 3 if field
  * in command not supported, 4 if bad parameter to command or returns
  * negated errno. SAM sections 7.8 and 8.4 */
-int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
+int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -750,8 +750,10 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
                 iecp->modese_len = 6;
             else if (SIMPLE_ERR_BAD_OPCODE == err)
                 iecp->modese_len = 10;
-            else
+            else {
+                iecp->modese_len = 0;
                 return err;
+            }
         }
     }
     if (10 == iecp->modese_len) {
@@ -890,11 +892,9 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
         }
     }
     if (10 == iecp->modese_len)
-        err = scsiModeSelect10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                               sp, rout, sizeof(rout));
+        err = scsiModeSelect10(device, sp, rout, sizeof(rout));
     else if (6 == iecp->modese_len)
-        err = scsiModeSelect(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             sp, rout, sizeof(rout));
+        err = scsiModeSelect(device, sp, rout, sizeof(rout));
     return err;
 }
 
@@ -1623,7 +1623,7 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
 	}
 	k = pl - 4;
 	xp = ucp + 4;
-	if (k > sizeof(*ullp)) {
+	if (k > (int)sizeof(*ullp)) {
 	    xp += (k - sizeof(*ullp));
 	    k = sizeof(*ullp);
 	}
