@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.46 2003/12/16 05:16:08 ballen4705 Exp $
+$Id: TODO,v 1.47 2004/02/23 20:32:12 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -80,12 +80,6 @@ Add command line option that scans devices then WRITES
 /etc/smartd.conf, perhaps as /etc/smartd.conf.output, just for devices
 that can be monitored.
 
-Solaris
--------
-Try and integrate ATA support.  See
-http://card-captor.dyndns.org/pub/solaris-smart/ for smartmontools
-5.1-18 patched with solaris ATA support (Keiji).
-
 FreeBSD
 -------
 Get interface for 3ware Escalade controllers working (Eduard).
@@ -93,28 +87,6 @@ Modify smartctl -h examples
 
 Packaging
 ---------
-The 'make dist' tarball currently contains these files:
-  examplescripts/Makefile.am
-  Makefile.am
-  configure.in
-  smartd.initd
-  smartd.8
-  smartd.conf.5
-  smartctl.8
-that shouldn't be there.  Note: if the .am files and configure.in
-files are included, then we should also include autogen.sh.
-
-In addition, 'make clean' should remove:  
-  smartd.8
-  smartd.conf.5
-  smartctl.8
-  smartd.initd
-since these are made from the corresponding .in files. But it doesn't
-remove them.
-
 Under freebsd and solaris, the following are wrong:
 smartd.conf: has linux device paths
 smart*.in  : man pages have (mostly) linux device paths
-
-Under freebsd the following is still wrong:
-smartctl   : examples have linux device paths

@@ -1,11 +1,13 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.49 2004/02/12 18:30:30 card_captor Exp $
+# $Id: Makefile.am,v 1.50 2004/02/23 20:32:12 ballen4705 Exp $
 #
 
 @SET_MAKE@
 
 AUTOMAKE_OPTIONS = 1.6
+
+AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR=\"$(sysconfdir)\"
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -160,7 +162,7 @@ EXTRA_DIST = \
 		autogen.sh		\
                 $(docs_DATA)
 
-DISTCLEANFILES = smartd.conf.5 \
+CLEANFILES = smartd.conf.5 \
                  smartd.conf.4 \
                  smartd.8      \
                  smartd.1m     \

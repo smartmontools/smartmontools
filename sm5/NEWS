@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.16 2004/02/12 20:33:34 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.17 2004/02/23 20:32:12 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
@@ -9,6 +9,9 @@ http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=ma
 Date: 
 Summary: smartmontools release 5.27
 -----------------------------------
+- WARNING: this release has a broken --prefix=/a/path option to the
+  configure script.  The consequence is that smartd will not look for the
+  configuration file (smartd.conf) at the desired location.
 - NetBSD support added
 - A new Directive (-s) for smartd.conf now enables flexible automatic
   scheduled self-testing for both ATA and SCSI devices.
