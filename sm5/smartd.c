@@ -37,40 +37,10 @@
 #include "scsicmds.h"
 #include "smartd.h"
 
+// CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.31 2002/10/25 14:54:14 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.32 2002/10/26 09:24:26 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
-
-int daemon_init(void){
-  pid_t pid;
-  int i;  
-
-  if ( (pid = fork()) < 0)
-    // unable to fork!
-    exit(1);
-  else if (pid != 0)
-    // we are the parent process -- exit cleanly
-    exit (0);
-
-  // from here on, we are the child process
-  setsid();
-
-  // close any open file descriptors
-  for (i=getdtablesize();i>=0;--i)
-    close(i);
-
-  // redirect any IO attempts to /dev/null
-  // open stdin
-  i=open("/dev/null",O_RDWR);
-  // stdout
-  dup(i);
-  // stderr
-  dup(i);
-  umask(0);
-  chdir("/");
-  return(0);
-}
-
 
 // This function prints either to stdout or to the syslog as needed
 void printout(int priority,char *fmt, ...){
@@ -85,22 +55,54 @@ void printout(int priority,char *fmt, ...){
   return;
 }
 
-// Printing function for atacmds
+// Printing function for debugging atacmds. For debugging set 0 to 1
+// in #if statement
 void pout(char *fmt, ...){
   va_list ap;
+  
   // initialize variable argument list 
   va_start(ap,fmt);
-  va_end(ap);
-  return;
 #if (0)
-  // print out
   vprintf(fmt,ap);
+#endif
   va_end(ap);
   return;
-#endif
 }
 
+// Forks new process, closes all file descriptors, redirects stdin,
+// stdout, stderr
+int daemon_init(void){
+  pid_t pid;
+  int i;  
 
+  if ((pid=fork()) < 0) {
+    // unable to fork!
+    printout(LOG_CRIT,"Unable to fork daemon process!\n");
+    exit(1);
+  }
+  else if (pid)
+    // we are the parent process -- exit cleanly
+    exit(0);
+  
+  // from here on, we are the child process
+  setsid();
+
+  // close any open file descriptors
+  for (i=getdtablesize();i>=0;--i)
+    close(i);
+  
+  // redirect any IO attempts to /dev/null for stdin
+  i=open("/dev/null",O_RDWR);
+  // stdout
+  dup(i);
+  // stderr
+  dup(i);
+  umask(0);
+  chdir("/");
+  return(0);
+}
+
+// Prints header identifying version of code and home
 void printhead(){
   printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon.\n",
            RELEASE_MAJOR, RELEASE_MINOR, SMARTMONTOOLS_VERSION);
@@ -114,23 +116,45 @@ void Usage (void){
   printout(LOG_INFO,"Read Only Options:\n");
   printout(LOG_INFO,"   %c  Start smartd in debug Mode\n",DEBUGMODE);
   printout(LOG_INFO,"   %c  Print License, Copyright, and version information\n\n",PRINTCOPYLEFT);
-  printout(LOG_INFO,"Configuration file: /etc/smartd.conf\n");
+  printout(LOG_INFO,"Optional configuration file: %s\n",CONFIGFILE);
 }
-	
+
+// returns negative if problem, else fd>=0
+int opendevice(char *device){
+  int fd = open(device, O_RDONLY);
+  if (fd<0) {
+    if (errno<sys_nerr)
+      printout(LOG_INFO,"%s: Device: %s, Opening device failed\n",sys_errlist[errno],device);
+    else
+      printout(LOG_INFO,"Device: %s, Opening device failed\n",device);
+    return -1;
+  }
+  // device opened sucessfully
+  return fd;
+}
+
+// returns 1 if problem, else zero
+int closedevice(int fd){
+  if (close(fd)){
+    if (errno<sys_nerr)
+      printout(LOG_INFO,"%s: Closing file descriptor %d failed\n",sys_errlist[errno],fd);
+    else
+      printout(LOG_INFO,"Closing file descriptor %d failed\n",fd);
+    return 1;
+  }
+  // device opened sucessfully
+  return 0;
+}
+
 // scan to see what ata devices there are, and if they support SMART
 int atadevicescan (atadevices_t *devices, char *device){
   int fd;
   struct hd_driveid drive;
   
   printout(LOG_INFO,"Opening device %s\n", device);
-  fd = open(device, O_RDONLY);
-  if (fd < 0) {
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"%s: Device: %s, Opening device failed\n",sys_errlist[errno],device);
-    else
-      printout(LOG_INFO,"Device: %s, Opening device failed\n",device);
+  if ((fd=opendevice(device))<0)
+    // device open failed
     return 1;
-  }
   
   if (ataReadHDIdentity (fd,&drive) || !ataSmartSupport(drive) || ataEnableSmart(fd)){
     // device exists, but not able to do SMART
@@ -153,7 +177,13 @@ int atadevicescan (atadevices_t *devices, char *device){
     return 4;
   }
   
-  // device exists, and does SMART.  Add to list
+  // Device exists, and does SMART.  Add to list
+  if (numatadevices>=MAXATADEVICES){
+    printout(LOG_CRIT,"smartd has found more than MAXATADEVICES=%d ATA devices.\n"
+	     "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",numatadevices);
+    exit(1);
+  }
+
   printout(LOG_INFO,"%s Found and is SMART capable. Adding to \"monitor\" list.\n",device);
   devices[numatadevices].fd = fd;
   strcpy(devices[numatadevices].devicename, device);
@@ -167,6 +197,7 @@ int atadevicescan (atadevices_t *devices, char *device){
     isSupportSelfTest(devices[numatadevices].smartval);
   
   numatadevices++;
+  closedevice(fd);
   return 0;
 }
 
@@ -177,18 +208,11 @@ int scsidevicescan (scsidevices_t *devices, char *device){
   int i, fd, smartsupport;
   unsigned char  tBuf[4096];
   
-  
-  // open device
   printout(LOG_INFO,"Opening device %s\n", device);
-  fd=open(device, O_RDWR);
-  if (fd<0) {
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"%s: Device: %s, Opening device failed\n",sys_errlist[errno],device);
-    else
-      printout(LOG_INFO,"Device: %s, Opening device failed\n", device);
+  if ((fd=opendevice(device))<0)
+    // device open failed
     return 1;
-  }
-
+  
   // check that it's ready for commands
   if (!testunitready(fd)){
     printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
@@ -209,6 +233,13 @@ int scsidevicescan (scsidevices_t *devices, char *device){
     printout(LOG_INFO,"Device: %s, SMART not supported or not enabled\n", device);
     close(fd);
     return 4;
+  }
+
+  // Device exists, and does SMART.  Add to list
+  if (numscsidevices>=MAXSCSIDEVICES){
+    printout(LOG_CRIT,"smartd has found more than MAXSCSIDEVICES=%d SCSI devices.\n"
+	     "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n",numscsidevices);
+    exit(1);
   }
 
   // now we can proceed to register the device
@@ -233,6 +264,7 @@ int scsidevicescan (scsidevices_t *devices, char *device){
     }	
   }
   numscsidevices++;
+  closedevice(fd);
   return 0;
 }
 
@@ -269,19 +301,28 @@ void ataCompareSmartValues (atadevices_t *device, struct ata_smart_values new ){
 int ataCheckDevice( atadevices_t *drive){
   struct ata_smart_values tempsmartval;
   struct ata_smart_thresholds tempsmartthres;
-  int failed;
+  int failed,fd;
   char *loc,attributename[64];
 
+  // if we can't open device, fail gracefully rather than hard --
+  // perhaps the next time around we'll be able to open it
+  if ((fd=opendevice(drive->devicename))<0)
+    return 1;
+  
   // Coming into this function, *drive contains the last values measured,
   // and we read the NEW values into tempsmartval
-  if (ataReadSmartValues(drive->fd,&tempsmartval))
+  if (ataReadSmartValues(fd,&tempsmartval))
     printout(LOG_INFO, "%s:Failed to read SMART values\n", drive->devicename);
   
   // and we read the new thresholds into tempsmartthres
-  if (ataReadSmartThresholds (drive->fd, &tempsmartthres))
+  if (ataReadSmartThresholds(fd, &tempsmartthres))
     printout(LOG_INFO, "%s:Failed to read SMART thresholds\n",drive->devicename);
   
-  // See if any vendor attributes are below minimum, and print them out
+  // See if any vendor attributes are below minimum, and print them
+  // out.  WHEN IT WORKS, we should here add a call to
+  // ataSmartStatus2() either in addition to or instead of the
+  // ataCheckSmart command below. This is the "right" long-term
+  // solution.
   if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1))){
     ataPrintSmartAttribName(attributename,failed);
     // skip blank space in name
@@ -291,18 +332,15 @@ int ataCheckDevice( atadevices_t *drive){
     printout(LOG_CRIT,"Device: %s, Failed SMART attribute: %s. Use smartctl -a %s.\n",
 	     drive->devicename,loc,drive->devicename);
   }
-
-  // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
-  // either in addition to or instead of the ataCheckSmart command
-  // above. This is the "right" long-term solution.
   
   // see if any values have changed.  Second argument is new values
-  ataCompareSmartValues (drive , tempsmartval);
+  ataCompareSmartValues(drive, tempsmartval);
   
   // Save the new values into *drive for the next time around
   drive->smartval = tempsmartval;
   drive->smartthres = tempsmartthres;
   
+  closedevice(fd);
   return 0;
 }
 
@@ -312,10 +350,16 @@ int scsiCheckDevice( scsidevices_t *drive){
   UINT8 returnvalue;
   UINT8 currenttemp;
   UINT8 triptemp;
-  
+  int fd;
+
+  // if we can't open device, fail gracefully rather than hard --
+  // perhaps the next time around we'll be able to open it
+  if ((fd=opendevice(drive->devicename))<0)
+    return 1;
+
   currenttemp = triptemp = 0;
   
-  if (scsiCheckSmart( drive->fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp ) != 0)
+  if (scsiCheckSmart(fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp))
     printout(LOG_INFO, "%s:Failed to read SMART values\n", drive->devicename);
   
   if (returnvalue)
@@ -327,32 +371,34 @@ int scsiCheckDevice( scsidevices_t *drive){
   // Seems to completely ignore what capabilities were found on the
   // device when scanned
   if (currenttemp){
-    if ( (currenttemp != drive->Temperature) && ( drive->Temperature) )
+    if ((currenttemp != drive->Temperature) && (drive->Temperature))
       printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degrees since last reading\n", 
 	       drive->devicename, (int) (currenttemp - drive->Temperature), (unsigned int) currenttemp );
-    
     drive->Temperature = currenttemp;
-  } 
+  }
+  closedevice(fd);
   return 0;
 }
 
 void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices){
   int i;
   
+  // If there are no devices to monitor, then exit
   if (!numatadevices && !numscsidevices){
     printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
     return;
   }
 
+  // Infinite loop, which checkes devices
   printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
   while (1){
-    for (i = 0; i < numatadevices;i++)
-      ataCheckDevice (  &atadevices[i]);
+    for (i=0; i<numatadevices; i++) 
+      ataCheckDevice(atadevices+i);
     
-    for (i = 0; i < numscsidevices;i++)
-      scsiCheckDevice (  &scsidevices[i]);
+    for (i=0; i<numscsidevices; i++)
+      scsiCheckDevice(scsidevices+i);
     
-    sleep ( checktime );
+    sleep(checktime);
   }
 }
 
@@ -363,7 +409,7 @@ int massagecvs(char *out,const char *in){
   const char *savein=in;
 
   // skip to I of $Id:
-  while (*in !='\0' && *in!='I')
+  while (*in && *in!='I')
     in++;
   
   // skip to start of filename
@@ -442,10 +488,10 @@ int parseconfigfile(){
   if (fp==NULL && errno!=ENOENT){
     // file exists but we can't read it
     if (errno<sys_nerr)
-      printout(LOG_INFO,"%s: Unable to open configuration file %s\n",
+      printout(LOG_CRIT,"%s: Unable to open configuration file %s\n",
 	       sys_errlist[errno],CONFIGFILE);
     else
-      printout(LOG_INFO,"Unable to open configuration file %s\n",CONFIGFILE);
+      printout(LOG_CRIT,"Unable to open configuration file %s\n",CONFIGFILE);
     exit(1);
   }
   
@@ -465,7 +511,7 @@ int parseconfigfile(){
     // See if line is too long
     len=strlen(line);
     if (len>MAXLINELEN){
-      printout(LOG_INFO,"Error: line %d of file %s is more than than %d characters long.\n",
+      printout(LOG_CRIT,"Error: line %d of file %s is more than than %d characters long.\n",
 	       lineno,CONFIGFILE,MAXLINELEN);
       exit(1); 
     }
@@ -488,7 +534,7 @@ int parseconfigfile(){
     
     // We've got a legit entry
     if (entry>=MAXENTRIES){
-      printout(LOG_INFO,"Error: configuration file %s can have no more than %d entries\n",
+      printout(LOG_CRIT,"Error: configuration file %s can have no more than %d entries\n",
 	       CONFIGFILE,MAXENTRIES);
       exit(1);
     }
@@ -511,25 +557,21 @@ int parseconfigfile(){
   if (entry)
     return entry;
   
-  printout(LOG_INFO,"Configuration file %s contained no devices (like /dev/hda)\n",CONFIGFILE);
+  printout(LOG_CRIT,"Configuration file %s contained no devices (like /dev/hda)\n",CONFIGFILE);
   exit(1);
 }
 
-const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'h','?','\0' };
+// const char opts[] = {DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'h','?','\0' };
+const char opts[] = {DEBUGMODE, PRINTCOPYLEFT,'h','?','\0' };
 
-/* Main Program */
-int main (int argc, char **argv){
-  atadevices_t atadevices[MAXATADEVICES], *atadevicesptr;
-  scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr;
-  int optchar,i;
+
+// Parses input line, prints usage message and
+// version/license/copyright messages
+void ParseOpts(int argc, char **argv){
   extern char *optarg;
   extern int  optopt, optind, opterr;
-  int entries;
-  
-  numatadevices=0;
-  numscsidevices=0;
-  scsidevicesptr = scsidevices;
-  atadevicesptr = atadevices;
+  int optchar;
+
   opterr=optopt=0;
 
   // Parse input options:
@@ -550,7 +592,7 @@ int main (int argc, char **argv){
       debugmode=1;
       if (optopt) {
 	printhead();
-	printout(LOG_INFO,"=======> UNRECOGNIZED OPTION: %c <======= \n\n",optopt);
+	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %c <======= \n\n",optopt);
 	Usage();
 	exit(-1);
       }
@@ -574,6 +616,19 @@ int main (int argc, char **argv){
   
   // print header
   printhead();
+  return;
+}
+
+/* Main Program */
+int main (int argc, char **argv){
+  atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
+  scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
+  int i,entries;
+  
+  numatadevices=numscsidevices=0;
+  
+  // Parse input and print header and usage info if needed
+  ParseOpts(argc,argv);
  
   // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
   entries=parseconfigfile();
@@ -583,18 +638,20 @@ int main (int argc, char **argv){
     daemon_init();
   }
   
-  // If we found a config file, look at its entries
+  // If we found a config file, register its entries
   if (entries)
     for (i=0;i<entries;i++){
+      // register ATA devices
       if (config[i].tryata && atadevicescan(atadevicesptr, config[i].name))
 	printout(LOG_INFO,"Unable to register ATA device %s at line %d of file %s\n",
 		 config[i].name, config[i].lineno, CONFIGFILE);
-      
+      // then register SCSI devices
       if (config[i].tryscsi && scsidevicescan(scsidevicesptr, config[i].name))
 	printout(LOG_INFO,"Unable to register SCSI device %s at line %d of file %s\n",
 		 config[i].name, config[i].lineno, CONFIGFILE);
     }
   else {
+    // since there was no config file found, search all ATA and SCSI disks
     char deviceata[] = "/dev/hda";
     char devicescsi[]= "/dev/sda";
     printout(LOG_INFO,"No configuration file %s found. Searching for devices.\n",CONFIGFILE);
@@ -604,6 +661,7 @@ int main (int argc, char **argv){
       scsidevicescan(scsidevicesptr, devicescsi);
   }
   
+  // Now start an infinite loop that checks all devices
   CheckDevices(atadevicesptr, scsidevicesptr); 
   return 0;
 }
