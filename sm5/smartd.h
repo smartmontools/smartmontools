@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.60 2003/11/19 07:50:39 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.61 2003/11/19 19:38:19 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -167,10 +167,6 @@ typedef struct configfile_s {
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
   unsigned char selflogcount;             // total number of self-test errors
-  unsigned short runshort;                // interval to run short self test on
-  unsigned short runlong;                 // interval to run long self test on
-  signed char runshorttime[2];            // 1+start/stop time run for short tests  
-  signed char runlongtime[2];             // 1+start/stop time run for short tests  
   unsigned char notused1[3];              // for packing alignment
   unsigned short selfloghour;             // lifetime hours of last self-test error
   char *emailcmdline;                     // Program for sending mail (or NULL)
