@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.17 2002/10/22 09:56:38 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.18 2002/10/22 11:40:52 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -357,61 +357,96 @@ void PrintSmartExtendedSelfTestPollingTime ( struct ata_smart_values data)
 }
 
 
+// onlyfailing is a bitflag
+// onlyfailing=0 : all values
+// onlyfailing=1:  just ones that are currently failed and have prefailure bit set
+// onlyfailing=2:  ones that are failed, or have failed with or without prefailure bit set
+void PrintSmartAttribWithThres (struct ata_smart_values data, 
+				struct ata_smart_thresholds thresholds,
+				int onlyfailed){
+  int i,j;
+  long long rawvalue;
+  int needheader=1;
+    
+  // step through all vendor attributes
+  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+    char *status;
+    struct ata_smart_attribute *disk=data.vendor_attributes+i;
+    struct ata_smart_threshold_entry *thre=thresholds.thres_entries+i;
+    
+    // consider only valid attributes
+    if (disk->id && thre->id){
+      char *type;
+      int failednow,failedever;
 
-void PrintSmartAttribWithThres ( struct ata_smart_values data, 
-                                 struct ata_smart_thresholds thresholds)
-{
-   int i,j;
-   long long rawvalue; 
-   printf ("Vendor Specific SMART Attributes with Thresholds:\n");
-   printf ("Revision Number: %i\n", data.revnumber);
-   printf ("Attribute                    Flag     Value Worst Threshold Raw Value\n");
-	
-   for ( i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++ ){
-     // step through all vendor attributes
-     if (data.vendor_attributes[i].id && thresholds.thres_entries[i].id){
-       ataPrintSmartAttribName(data.vendor_attributes[i].id);
-       // printing if they contain something sensible
-       printf(" 0x%04x   %.3i   %.3i   %.3i       ", 
-	      data.vendor_attributes[i].status.all,
-	      data.vendor_attributes[i].current,
-	      data.vendor_attributes[i].worst,
-	      thresholds.thres_entries[i].threshold);
-
-       // convert the six individual bytes to a long long (8 byte) integer
-       rawvalue = 0;
-       for (j = 0 ; j < 6 ; j++)
-	 rawvalue |= data.vendor_attributes[i].raw[j] << (8*j) ;
-
-       // This switch statement is where we handle Raw attributes
-       // that are stored in an unusual vendor-specific format,
-       switch (data.vendor_attributes[i].id){
-
-	 // Power on time
-       case 9:
-	 if (smart009minutes)
-	   // minutes
-	   printf ("%llu h + %2llu m\n",rawvalue/60,rawvalue%60);
-	 else
+      failednow =disk->current <= thre->threshold;
+      failedever=disk->worst   <= thre->threshold;
+      
+      // These break out of the loop if we are only printing certain entries...
+      if (onlyfailed==1 && (!disk->status.flag.prefailure || !failednow))
+	break;
+      
+      if (onlyfailed==2 && !failedever)
+	break;
+      
+      // print header only if needed
+      if (needheader){
+	printf ("SMART Data Structure revision number: %i\n",data.revnumber);
+	printf ("Vendor Specific SMART Attributes with Thresholds:\n"
+		"Attribute                    Flag     Value Worst Threshold Type     Ever_Failed? Raw_Value\n");
+	needheader=0;
+      }
+      
+      // is this currently failed, or has it ever failed?
+      if (failednow)
+	status="FAILED NOW";
+      else if (failedever)
+	status="In the past";
+      else
+	status="    -";
+      
+      // Print name of attribute
+      ataPrintSmartAttribName(disk->id);
+      
+      // printing line for each valid attribute
+      type=disk->status.flag.prefailure?"Pre-fail":"Old age";
+      printf(" 0x%04x   %.3i   %.3i   %.3i       %-9s%-13s", 
+	     disk->status.all, disk->current, disk->worst,
+	     thre->threshold, type, status);
+      
+      // convert the six individual bytes to a long long (8 byte) integer
+      rawvalue = 0;
+      for (j = 0 ; j < 6 ; j++)
+	rawvalue |= disk->raw[j] << (8*j) ;
+      
+      // This switch statement is where we handle Raw attributes
+      // that are stored in an unusual vendor-specific format,
+      switch (disk->id){
+	// Power on time
+      case 9:
+	if (smart009minutes)
+	  // minutes
+	  printf ("%llu h + %2llu m\n",rawvalue/60,rawvalue%60);
+	else
 	   // hours
-	   printf ("%llu\n", rawvalue);  //stored in hours
-	 break;
-	 
-	 // Temperature
-       case 194:
-	 printf ("%u", data.vendor_attributes[i].raw[0]);
-	 if (rawvalue==data.vendor_attributes[i].raw[0])
-	   printf("\n");
-	 else
-	   // The other bytes are in use. Try IBM's model
-	   printf(" (Lifetime Min/Max %u/%u)\n",data.vendor_attributes[i].raw[2],
-		  data.vendor_attributes[i].raw[4]);
-	 break;
-       default:
-	 printf("%llu\n", rawvalue);
-       }	    
-     }
-   }
+	  printf ("%llu\n", rawvalue);  //stored in hours
+	break;
+	
+	// Temperature
+      case 194:
+	printf ("%u", disk->raw[0]);
+	if (rawvalue==disk->raw[0])
+	  printf("\n");
+	else
+	  // The other bytes are in use. Try IBM's model
+	  printf(" (Lifetime Min/Max %u/%u)\n",disk->raw[2],
+		 disk->raw[4]);
+	break;
+      default:
+	printf("%llu\n", rawvalue);
+      }	    
+    }
+  }
 }
 
 
@@ -907,7 +942,7 @@ void ataPrintMain (int fd){
   
   // Print vendor-specific attributes
   if (smartvendorattrib)
-    PrintSmartAttribWithThres(smartval, smartthres);
+    PrintSmartAttribWithThres(smartval, smartthres,0);
 	
   // Print SMART error log
   if (smarterrorlog){

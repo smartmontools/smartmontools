@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.12 2002/10/21 16:00:46 ballen4705 Exp $
+$Id: CHANGELOG,v 1.13 2002/10/22 11:40:52 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,6 +28,12 @@ NOTES FOR NEXT RELEASE:
 
 
 smartmontools-5.0-11
+
+    Modified function that prints vendor attributes to say if the
+    attribute has currently failed or has ever failed.
+
+    -p option now prints out license info and CVS strings for all
+    modules in the code.
 
     Previous versions of this code (and Smartsuite) only generate
     SMART failure errors if the value of an attribute is below the
