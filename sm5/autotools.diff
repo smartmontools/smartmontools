@@ -58,11 +58,11 @@ diff -u -p -r1.117 smartmontools.spec
 @@ -1,4 +1,4 @@
 -Release:  19
 +Release:  1
- Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
- Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
- Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
+ Summary:	smartmontools - for monitoring S.M.A.R.T. disks and devices
+ Summary(cs):	smartmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
+ Summary(de):	smartmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
 @@ -8,7 +8,7 @@ Summary(pt):	SMARTmontools - para monito
- Summary(it):	SMARTmontools - per monitare dischi e dispositivi S.M.A.R.T.
+ Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
  Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
  Name:		smartmontools
 -Version:	5.1
