@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.239 2003/11/16 16:53:02 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.240 2003/11/17 03:10:40 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -771,7 +771,7 @@ int ATADeviceScan(cfgfile *cfg){
     else
       PrintOut(LOG_INFO,"Device: %s, packet devices [this device %s] not SMART capable\n",
 	       name, packetdevicetype(retid-1));
-    deviceclose(fd);
+    CloseDevice(fd, name);
     return 2; 
   }
 
@@ -817,7 +817,7 @@ int ATADeviceScan(cfgfile *cfg){
     }
     else {
       PrintOut(LOG_INFO,"Device: %s, to proceed anyway, use '-T permissive' Directive.\n",name);
-      deviceclose(fd);
+      CloseDevice(fd, name);
       return 2;
     }
   }
@@ -825,7 +825,7 @@ int ATADeviceScan(cfgfile *cfg){
   if (ataEnableSmart(fd)){
     // Enable SMART command has failed
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
-    deviceclose(fd);
+    CloseDevice(fd, name);
     return 2; 
   }
   
@@ -958,7 +958,7 @@ int ATADeviceScan(cfgfile *cfg){
   // If no tests available or selected, return
   if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
         cfg->usagefailed || cfg->prefail || cfg->usage)) {
-    deviceclose(fd);
+    CloseDevice(fd, name);
     return 3;
   }
   
@@ -983,144 +983,131 @@ int ATADeviceScan(cfgfile *cfg){
 
 // on success, return 0. On failure, return >0.  Never return <0,
 // please.
-static int SCSIDeviceScan(cfgfile *cfg)
-{
-    int k, fd, err; 
-    char *device = cfg->name;
-    struct scsi_iec_mode_page iec;
-    UINT8  tBuf[64];
-
-    // should we try to register this as a SCSI device?
-    if (! cfg->tryscsi)
-        return 1;
-    // open the device
-    if ((fd = OpenDevice(device, "SCSI")) < 0) {
-#ifdef SCSIDEVELOPMENT
-        PrintOut(LOG_WARNING, "Device: %s, skip\n", device);
-        return 0;
-#else
-        return 1;
-#endif
-    }
-    PrintOut(LOG_INFO,"Device: %s, opened\n", device);
+static int SCSIDeviceScan(cfgfile *cfg) {
+  int k, fd, err; 
+  char *device = cfg->name;
+  struct scsi_iec_mode_page iec;
+  UINT8  tBuf[64];
   
-    // check that it's ready for commands. IE stores its stuff on the media.
-    if ((err = scsiTestUnitReady(fd))) {
-      if (1 == err)
-	PrintOut(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
-		 "down); skip\n", device);
-      else
-	PrintOut(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
-		 device, err);
-      deviceclose(fd);
-#ifdef SCSIDEVELOPMENT
-      return 0;
-#else
-      return 2; 
-#endif
-    }
+  // should we try to register this as a SCSI device?
+  if (!cfg->tryscsi)
+    return 1;
   
-    if ((err = scsiFetchIECmpage(fd, &iec, cfg->modese_len))) {
-      PrintOut(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
-	       "failed, err=%d, skip device\n", device, err);
-      deviceclose(fd);
-#ifdef SCSIDEVELOPMENT
-      return 0;
-#else
-      return 3;
-#endif
-    }
+  // open the device
+  if ((fd = OpenDevice(device, "SCSI")) < 0)
+    return 1;
+  PrintOut(LOG_INFO,"Device: %s, opened\n", device);
+    
+  // check that device is ready for commands. IE stores its stuff on
+  // the media.
+  if ((err = scsiTestUnitReady(fd))) {
+    if (1 == err)
+      PrintOut(LOG_INFO, "Device: %s, NOT READY (media absent, spun down); skip device\n", device);
     else
-        cfg->modese_len = iec.modese_len;
-
-    if (! scsi_IsExceptionControlEnabled(&iec)) {
-      PrintOut(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
-	       "skip device\n", device);
-      deviceclose(fd);
-#ifdef SCSIDEVELOPMENT
-      return 0;
-#else
-      return 3;
-#endif
-    }
-    
-    // Device exists, and does SMART.  Add to list
-    if (numdevscsi >= MAXSCSIDEVICES) {
-      PrintOut(LOG_ERR, "smartd has found more than MAXSCSIDEVICES=%d "
-	       "SCSI devices.\n" "Recompile code from " PROJECTHOME 
-	       " with larger MAXSCSIDEVICES\n", (int)numdevscsi);
-#ifdef SCSIDEVELOPMENT
-      deviceclose(fd);
-      return 0;
-#else
-      EXIT(EXIT_CCONST);
-#endif
-    }
-    
-    // now we can proceed to register the device
-    PrintOut(LOG_INFO, "Device: %s, is SMART capable. Adding "
-             "to \"monitor\" list.\n",device);
- 
-    // Flag that certain log pages are supported (information may be
-    // available from other sources).
-    if (0 == scsiLogSense(fd, SUPPORTED_LPAGES, tBuf, sizeof(tBuf), 0)) {
-        for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
-            switch (tBuf[k]) { 
-                case TEMPERATURE_LPAGE:
-                    cfg->TempPageSupported = 1;
-                    break;
-                case IE_LPAGE:
-                    cfg->SmartPageSupported = 1;
-                    break;
-                default:
-                    break;
-            }
-        }   
-    }
-
-    // record number of device, type of device, increment device count
-    cfg->tryata = 0;
-    cfg->tryscsi = 1;
-
-    // get rid of allocated memory only needed for ATA devices
-    cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
-    cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
-    cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
-    cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,__FILE__);
-
-    // Check if scsiCheckIE() is going to work
-    {
-        UINT8 asc = 0;
-        UINT8 ascq = 0;
-        UINT8 currenttemp = 0;
-        UINT8 triptemp = 0;
-
-        if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
-                        &asc, &ascq, &currenttemp, &triptemp)) {
-            PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART"
-                     " values\n", device);
-            cfg->SuppressReport = 1;
-        }
-    }
-
-    // capability check: self-test-log
-    if (cfg->selftest){
-      int retval=scsiCountFailedSelfTests(fd, 0);
-      if (retval<0) {
-	PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
-	cfg->selftest=0;
-	cfg->selflogcount=0;
-	cfg->selfloghour=0;
-      }
-      else {
-	cfg->selflogcount=SELFTEST_ERRORCOUNT(retval);
-	cfg->selfloghour =SELFTEST_ERRORHOURS(retval);
-      }
-    }
-
-    // close file descriptor
+      PrintOut(LOG_CRIT, "Device: %s, failed Test Unit Ready [err=%d]\n", device, err);
     CloseDevice(fd, device);
-    return 0;
+    return 2; 
+  }
+  
+  // Badly-confirming USB storage devices should fail this check.
+  // Doug, is it possible that a device will have functionality that
+  // we might want to monitor with smartd (such as the Temperature
+  // page or Self-test log) but DOESN'T support the IE mode page?  If
+  // so, we might want to make the 'skip device' contingent on a
+  // problem like the wrong length, rather than simply on
+  // non-existence of the page.
+  if ((err = scsiFetchIECmpage(fd, &iec, cfg->modese_len))) {
+    PrintOut(LOG_INFO, 
+	     "Device: %s, Fetch of IEC (SMART) mode page failed, err=%d, skip device\n", device, err);
+    CloseDevice(fd, device);
+    return 3;
+  }
+  else
+    cfg->modese_len = iec.modese_len;
+    
+  // Doug should we try to enable IE if it's not already enabled?
+  // This is what the ATA code does: enables SMART on devices.
+  if (!scsi_IsExceptionControlEnabled(&iec)) {
+    PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n", device);
+    CloseDevice(fd, device);
+    return 3;
+  }
+  
+  // Device exists, and does SMART.  Add to list
+  if (numdevscsi >= MAXSCSIDEVICES) {
+    PrintOut(LOG_CRIT, 
+	     "smartd has found more than MAXSCSIDEVICES=%d SCSI devices.\n" 
+	     "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n", 
+	     (int)numdevscsi);
+    EXIT(EXIT_CCONST);
+  }
+  
+  // Flag that certain log pages are supported (information may be
+  // available from other sources).
+  if (0 == scsiLogSense(fd, SUPPORTED_LPAGES, tBuf, sizeof(tBuf), 0)) {
+    for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
+      switch (tBuf[k]) { 
+      case TEMPERATURE_LPAGE:
+	cfg->TempPageSupported = 1;
+	break;
+      case IE_LPAGE:
+	cfg->SmartPageSupported = 1;
+	break;
+      default:
+	break;
+      }
+    }   
+  }
+  
+  // record type of device
+  cfg->tryata = 0;
+  cfg->tryscsi = 1;
+  
+  // get rid of allocated memory only needed for ATA devices.  These
+  // might have been allocated if the user specified Ignore options or
+  // other ATA-only Attribute-specific options on the DEVICESCAN line.
+  cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
+  cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
+  cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
+  cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,__FILE__);
+  
+  // Check if scsiCheckIE() is going to work
+  {
+    UINT8 asc = 0;
+    UINT8 ascq = 0;
+    UINT8 currenttemp = 0;
+    UINT8 triptemp = 0;
+    
+    if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
+		    &asc, &ascq, &currenttemp, &triptemp)) {
+      PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART values\n", device);
+      cfg->SuppressReport = 1;
+    }
+  }
+  
+  // capability check: self-test-log
+  if (cfg->selftest){
+    int retval=scsiCountFailedSelfTests(fd, 0);
+    if (retval<0) {
+      // no self-test log, turn off monitoring
+      PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
+      cfg->selftest=0;
+      cfg->selflogcount=0;
+      cfg->selfloghour=0;
+    }
+    else {
+      // register starting values to watch for changes
+      cfg->selflogcount=SELFTEST_ERRORCOUNT(retval);
+      cfg->selfloghour =SELFTEST_ERRORHOURS(retval);
+    }
+  }
+  
+  // tell user we are registering device
+  PrintOut(LOG_INFO, "Device: %s, is SMART capable. Adding to \"monitor\" list.\n", device);
+  
+  // close file descriptor
+  CloseDevice(fd, device);
+  return 0;
 }
 
 // We compare old and new values of the n'th attribute.  Note that n

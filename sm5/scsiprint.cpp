@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.60 2003/11/16 16:59:23 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.61 2003/11/17 03:10:40 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -608,6 +608,22 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, (char *)&gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+
+	/* 
+	   Doug: for a bad USB device, the code hangs in the following
+	   line within scsiInquiryVpd():
+
+	   status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+	   
+	   and within do_scsi_cmnd_io() it hangs in the line:
+
+	   status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
+
+	   which never returns.  Would it be possible to put in a
+	   sanity check to detect such devices and exit with an error
+	   message, before calling scsiInquiryVpd()?
+
+	*/
         if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */

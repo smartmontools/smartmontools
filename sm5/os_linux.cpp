@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.27 2003/11/16 12:20:14 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.28 2003/11/17 03:10:40 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -96,8 +96,10 @@ int deviceclose(int fd){
 int get_dev_names(char*** names, const char* pattern, const char* name, int max) {
   int n = 0, retglob, i, lim;
   char** mp;
-  glob_t globbuf={0};
+  glob_t globbuf;
   
+  memset(&globbuf, 0, sizeof(globbuf));
+
   // in case of non-clean exit
   *names=NULL;
   
