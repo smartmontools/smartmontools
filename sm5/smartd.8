@@ -1,5 +1,7 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
+\# $Id: smartd.8,v 1.23 2002/11/07 21:51:34 ballen4705 Exp $
+\#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
 \# Software Foundation; either version 2, or (at your option) any later
@@ -13,7 +15,8 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/31 17:35:31 $" "smartmontools-5.0"
+\#
+.TH SMARTD 8  "$Date: 2002/11/07 21:51:34 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -162,9 +165,11 @@ by using the configuration file
 This file contains a list of devices to monitor, with one device per
 line.  An example file is included with the
 .B smartmontools
-distribution, but is not normally installed in /etc.  If
+distribution, and is normally placed in 
+.B /etc/smartd.conf.example.
+If
 .B smartmontools
-was properly installed on your system, you will find this sample
+was properly installed on your system, you will also find this sample
 configuration file in
 .B /usr/share/doc/smartmontools-5.0/.
 For security, the configuration file should not be writable by anyone
@@ -447,6 +452,8 @@ http://smartmontools.sourceforge.net/
 
 .SH
 SEE ALSO:
+.B smartd.conf
+(5),
 .B smartctl
 (8),
 .B syslogd
@@ -496,4 +503,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.22 2002/10/31 17:35:31 ballen4705 Exp $
+$Id: smartd.8,v 1.23 2002/11/07 21:51:34 ballen4705 Exp $

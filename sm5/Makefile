@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.35 2002/11/07 19:07:20 ballen4705 Exp $
+# $Id: Makefile,v 1.36 2002/11/07 21:51:34 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -39,7 +39,7 @@ LDFLAGS = # -s
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION smartd.conf
+  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION smartd.conf smartd.conf.5
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
@@ -73,26 +73,28 @@ scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
 	$(CC) $(CFLAGS) -c scsiprint.c 
 
 clean:
-	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz
+	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz smart*.5.gz
 
 install:
 	if [ ! -f smartd -o ! -f smartctl ] ; then echo -e "\n\nYOU MUST FIRST DO \"make\"\n" ; exit 1 ; fi
 	/bin/gzip -c smartctl.8 > smartctl.8.gz
 	/bin/gzip -c smartd.8   > smartd.8.gz
+	/bin/gzip -c smartd.conf.5 > smartd.conf.5.gz
 	rm -f $(DESTDIR)/usr/share/man/man8/smartctl.8
 	rm -f $(DESTDIR)/usr/share/man/man8/smartd.8
-	install -m 755 -o root -g root -D smartctl      $(DESTDIR)/usr/sbin/smartctl
-	install -m 755 -o root -g root -D smartd        $(DESTDIR)/usr/sbin/smartd
-	install -m 755 -o root -g root -D smartd.initd  $(DESTDIR)/etc/rc.d/init.d/smartd
-	install -m 644 -o root -g root -D smartctl.8.gz $(DESTDIR)/usr/share/man/man8/smartctl.8.gz
-	install -m 644 -o root -g root -D smartd.8.gz   $(DESTDIR)/usr/share/man/man8/smartd.8.gz
-	install -m 644 -o root -g root -D CHANGELOG     $(DESTDIR)/usr/share/doc/smartmontools-5.0/CHANGELOG
-	install -m 644 -o root -g root -D COPYING       $(DESTDIR)/usr/share/doc/smartmontools-5.0/COPYING
-	install -m 644 -o root -g root -D README        $(DESTDIR)/usr/share/doc/smartmontools-5.0/README
-	install -m 644 -o root -g root -D TODO          $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
-	install -m 644 -o root -g root -D VERSION       $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
-	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
-	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/etc/smartd.conf.example
+	install -m 755 -o root -g root -D smartctl         $(DESTDIR)/usr/sbin/smartctl
+	install -m 755 -o root -g root -D smartd           $(DESTDIR)/usr/sbin/smartd
+	install -m 755 -o root -g root -D smartd.initd     $(DESTDIR)/etc/rc.d/init.d/smartd
+	install -m 644 -o root -g root -D smartctl.8.gz    $(DESTDIR)/usr/share/man/man8/smartctl.8.gz
+	install -m 644 -o root -g root -D smartd.8.gz      $(DESTDIR)/usr/share/man/man8/smartd.8.gz
+	install -m 644 -o root -g root -D smartd.conf.5.gz $(DESTDIR)/usr/share/man/man5/smartd.conf.5.gz
+	install -m 644 -o root -g root -D CHANGELOG        $(DESTDIR)/usr/share/doc/smartmontools-5.0/CHANGELOG
+	install -m 644 -o root -g root -D COPYING          $(DESTDIR)/usr/share/doc/smartmontools-5.0/COPYING
+	install -m 644 -o root -g root -D README           $(DESTDIR)/usr/share/doc/smartmontools-5.0/README
+	install -m 644 -o root -g root -D TODO             $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
+	install -m 644 -o root -g root -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
+	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
+	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/etc/smartd.conf.example
 	if [ ! -f $(DESTDIR)/etc/smartd.conf ] ; then install -m 644 -o root -g root -D smartd.conf $(DESTDIR)/etc/smartd.conf ; fi
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
@@ -102,8 +104,9 @@ install:
 
 # perhaps for consistency I should also have $(DESTDIR) for the uninstall...
 uninstall:
-	rm -f /usr/share/man/man8/smartctl.8    /usr/share/man/man8/smartd.8    /usr/sbin/smartctl \
-              /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz /usr/sbin/smartd 
+	rm -f /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8 /usr/sbin/smartctl \
+              /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz \
+              /usr/share/man/man5/smartd.conf.5.gz /usr/sbin/smartd 
 	rm -rf /usr/share/doc/smartmontools-5.0/
 	if [ -f /var/lock/subsys/smartd -a -f /etc/rc.d/init.d/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
 	if [ -f /etc/rc.d/init.d/smartd ] ; then /sbin/chkconfig --del smartd ; fi
