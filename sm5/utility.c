@@ -37,7 +37,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.21 2003/10/08 03:23:13 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.22 2003/10/08 09:29:15 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -135,26 +135,35 @@ int massagecvs(char *out, const char *cvsid){
   int retVal=0;
   const char delimiters[] = " ,$";
 
-  // make a copy on stack, go to first token,
-  if (!(copy=strdup(cvsid)) || !(filename=strtok(copy, delimiters))) 
+  // make a copy on the heap, go to first token,
+  if (!(copy=strdup(cvsid)))
     return 0;
+
+  if (!(filename=strtok(copy, delimiters))){
+    free(copy);
+    return 0;
+  }
 
   // move to first instance of "Id:"
   while (strcmp(filename,"Id:"))
-    if (!(filename=strtok(NULL, delimiters)))
+    if (!(filename=strtok(NULL, delimiters))){
+      free(copy);
       return 0;
-
+    }
+  
   // get filename, skip "v", get version and date
   if (!(  filename=strtok(NULL, delimiters)  ) ||
       !(           strtok(NULL, delimiters)  ) ||
       !(   version=strtok(NULL, delimiters)  ) ||
-      !(      date=strtok(NULL, delimiters)  ) )
+      !(      date=strtok(NULL, delimiters)  ) ) {
+    free(copy);
     return 0;
-
-   sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
-   retVal = (date-copy)+strlen(date);
-   free(copy);
-   return  retVal;
+  }
+  
+  sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
+  retVal = (date-copy)+strlen(date);
+  free(copy);
+  return  retVal;
 }
 
 // prints a single set of CVS ids
