@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.104 2003/10/06 00:37:04 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.105 2003/10/06 21:23:08 pjwilliams Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1284,9 +1284,15 @@ int ataPrintMain (int fd){
   
   // Now say how long the test will take to complete
   if ((timewait=TestTime(&smartval,con->testcase))){ 
-    pout("Please wait %d %s for test to complete.\n",
-	 (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
-    
+    if (con->testcase==OFFLINE_FULL_SCAN)
+      pout("Please wait %d seconds for test to complete.\n", (int)timewait);
+    else {
+      time_t t=time(NULL);
+      t+=timewait*60;
+      pout("Please wait %d minutes for test to complete.\n", (int)timewait);
+      pout("Estimated completion time: %s\n", ctime(&t));
+    }
+
     if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
 	con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
 	con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
