@@ -69,7 +69,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.37 2003/12/09 20:21:49 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.38 2003/12/09 21:19:13 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -277,8 +277,8 @@ int make_device_names (char*** devlist, const char* name) {
 
 
 // huge value of buffer size needed because HDIO_DRIVE_CMD assumes
-// that buff[3] is the data size.  Since the SMART_AUTOSAVE and
-// SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
+// that buff[3] is the data size.  Since the ATA_SMART_AUTOSAVE and
+// ATA_SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
 // Otherwise a 4+512 byte buffer would be enough.
 #define STRANGE_BUFFER_LENGTH (4+512*0xf8)
 
@@ -297,58 +297,58 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
   memset(buff, 0, STRANGE_BUFFER_LENGTH);
 
-  buff[0]=WIN_SMART;
+  buff[0]=ATA_SMART_CMD;
   switch (command){
   case READ_VALUES:
-    buff[2]=SMART_READ_VALUES;
+    buff[2]=ATA_SMART_READ_VALUES;
     copydata=buff[3]=1;
     break;
   case READ_THRESHOLDS:
-    buff[2]=SMART_READ_THRESHOLDS;
+    buff[2]=ATA_SMART_READ_THRESHOLDS;
     copydata=buff[1]=buff[3]=1;
     break;
   case READ_LOG:
-    buff[2]=SMART_READ_LOG_SECTOR;
+    buff[2]=ATA_SMART_READ_LOG_SECTOR;
     buff[1]=select;
     copydata=buff[3]=1;
     break;
   case IDENTIFY:
-    buff[0]=WIN_IDENTIFY;
+    buff[0]=ATA_IDENTIFY_DEVICE;
     copydata=buff[3]=1;
     break;
   case PIDENTIFY:
-    buff[0]=WIN_PIDENTIFY;
+    buff[0]=ATA_IDENTIFY_PACKET_DEVICE;
     copydata=buff[3]=1;
     break;
   case ENABLE:
-    buff[2]=SMART_ENABLE;
+    buff[2]=ATA_SMART_ENABLE;
     buff[1]=1;
     break;
   case DISABLE:
-    buff[2]=SMART_DISABLE;
+    buff[2]=ATA_SMART_DISABLE;
     buff[1]=1;
     break;
   case STATUS:
     // this command only says if SMART is working.  It could be
     // replaced with STATUS_CHECK below.
-    buff[2]=SMART_STATUS;
+    buff[2]=ATA_SMART_STATUS;
     break;
   case AUTO_OFFLINE:
-    buff[2]=SMART_AUTO_OFFLINE;
+    buff[2]=ATA_SMART_AUTO_OFFLINE;
     buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
     break;
   case AUTOSAVE:
-    buff[2]=SMART_AUTOSAVE;
+    buff[2]=ATA_SMART_AUTOSAVE;
     buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
     break;
   case IMMEDIATE_OFFLINE:
-    buff[2]=SMART_IMMEDIATE_OFFLINE;
+    buff[2]=ATA_SMART_IMMEDIATE_OFFLINE;
     buff[1]=select;
     break;
   case STATUS_CHECK:
     // This command uses HDIO_DRIVE_TASK and has different syntax than
     // the other commands.
-    buff[1]=SMART_STATUS;
+    buff[1]=ATA_SMART_STATUS;
     break;
   default:
     pout("Unrecognized command %d in linux_ata_command_interface()\n"
@@ -424,7 +424,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     // if the user has subsequently changed some of the parameters. If
     // device is a packet device, swap the command interpretations.
     if (!ioctl(device, HDIO_GET_IDENTITY, deviceid) && (deviceid[1] & 0x80))
-      buff[0]=(command==IDENTIFY)?WIN_PIDENTIFY:WIN_IDENTIFY;
+      buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
   }
 #endif
   
@@ -634,7 +634,7 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
   passthru.cylinder_hi = 0xC2;
   
   // SMART ATA COMMAND REGISTER value
-  passthru.command = WIN_SMART;
+  passthru.command = ATA_SMART_CMD;
   
   // Is this a command that returns 512 bytes?
   if (command == READ_VALUES ||
@@ -661,13 +661,13 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
   // Now set ATA registers depending upon command
   switch (command){
   case READ_VALUES:
-    passthru.features = SMART_READ_VALUES;
+    passthru.features = ATA_SMART_READ_VALUES;
     break;
   case READ_THRESHOLDS:
-    passthru.features = SMART_READ_THRESHOLDS;
+    passthru.features = ATA_SMART_READ_THRESHOLDS;
     break;
   case READ_LOG:
-    passthru.features = SMART_READ_LOG_SECTOR;
+    passthru.features = ATA_SMART_READ_LOG_SECTOR;
     // log number to return
     passthru.sector_num  = select;
     break;
@@ -684,34 +684,34 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     errno=ENODEV;
     return -1;
   case ENABLE:
-    passthru.features = SMART_ENABLE;
+    passthru.features = ATA_SMART_ENABLE;
     break;
   case DISABLE:
-    passthru.features = SMART_DISABLE;
+    passthru.features = ATA_SMART_DISABLE;
     break;
   case AUTO_OFFLINE:
-    passthru.features = SMART_AUTO_OFFLINE;
+    passthru.features = ATA_SMART_AUTO_OFFLINE;
     // Enable or disable?
     passthru.sector_count = select;
     break;
   case AUTOSAVE:
-    passthru.features = SMART_AUTOSAVE;
+    passthru.features = ATA_SMART_AUTOSAVE;
     // Enable or disable?
     passthru.sector_count = select;
     break;
   case IMMEDIATE_OFFLINE:
-    passthru.features = SMART_IMMEDIATE_OFFLINE;
+    passthru.features = ATA_SMART_IMMEDIATE_OFFLINE;
     // What test type to run?
     passthru.sector_num  = select;
     break;
   case STATUS_CHECK:
-    passthru.features = SMART_STATUS;
+    passthru.features = ATA_SMART_STATUS;
     break;
   case STATUS:
     // This is JUST to see if SMART is enabled, by giving SMART status
     // command. But it doesn't say if status was good, or failing.
     // See below for the difference.
-    passthru.features = SMART_STATUS;
+    passthru.features = ATA_SMART_STATUS;
     break;
   default:
     pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
