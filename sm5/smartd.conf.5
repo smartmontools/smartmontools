@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.41 2003/04/19 09:53:42 pjwilliams Exp $
+\# $Id: smartd.conf.5,v 1.42 2003/04/19 12:25:40 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/04/19 09:53:42 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/04/19 12:25:40 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -578,24 +578,27 @@ different types of system behavior affects the values of certain
 Attributes.
 
 .TP
-.B \-F TYPE
-Fixes some types of firmware bug.  The valid arguments to this option
-are:
+.B \-F TYPE, \-\-firmwarebug=TYPE
+Modifies the behavior of
+.B smartctl
+to compensate for some known and understood device firmware bug.  The
+valid arguments to this option are:
 
 .I none
-Don't attempt to fix any firmware bugs.  This is the default.
+Assume that the device firmware obeys the ATA specifications.  This is
+the default.
 
 .I samsung
 In some Samsung disks (example: model SV4012H Firmware Version:
 RM100-08) some of the two- and four-byte quantities in the SMART data
 structures are byte-swapped (relative to the ATA specification).
-Enabling this option tells smartmontools to evaluate these quantities
-in byte-reversed order.
-
-Some signs that your disk needs this option are (1) no self-test log
-printed, even though you have run self-tests; (2) very large numbers
-of ATA errors reported in the ATA erorr log; (3) strange and
-impossible values for the ATA error log timestamps.
+Enabling this option tells
+.B smartctl
+to evaluate these quantities in byte-reversed order.  Some signs that
+your disk needs this option are (1) no self-test log printed, even
+though you have run self-tests; (2) very large numbers of ATA errors
+reported in the ATA erorr log; (3) strange and impossible values for
+the ATA error log timestamps.
 
 [Please see the
 .B smartctl \-F
@@ -861,4 +864,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.41 2003/04/19 09:53:42 pjwilliams Exp $
+$Id: smartd.conf.5,v 1.42 2003/04/19 12:25:40 ballen4705 Exp $
