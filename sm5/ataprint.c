@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.90 2003/06/22 19:52:59 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.91 2003/06/23 04:55:56 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -700,7 +700,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
   if (allentries)
     pout("SMART Self-test log, version number %d\n",(int)data->revnumber);
   if ((data->revnumber!=0x0001) && allentries && con->fixfirmwarebug != FIX_SAMSUNG)
-    pout("Warning - structure revision number does not match spec!\n");
+    pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
   if (data->mostrecenttest==0){
     if (allentries)
       pout("No self-tests have been logged\n\n");
