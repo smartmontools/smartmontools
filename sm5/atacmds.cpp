@@ -1,4 +1,4 @@
-//  $Id: atacmds.cpp,v 1.13 2002/10/21 16:00:47 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.14 2002/10/21 16:11:58 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -549,7 +549,8 @@ int ataSmartTest(int device, int testtype){
   printf("Sending command: \"%s\".\n",cmdmsg);
 
   // Now send the command to test
-  if ((errornum=ioctl(device , HDIO_DRIVE_CMD, parms)) && errornum!=EIO){
+  errornum=ioctl(device, HDIO_DRIVE_CMD, parms);
+  if (!(errornum && errno==EIO && (testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST))){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed.",cmdmsg); 
     perror (errormsg);
