@@ -1,11 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.12 2003/10/01 09:09:23 guidog Exp $
+# $Id: Makefile.am,v 1.13 2003/10/01 14:29:58 guidog Exp $
 #
 sbin_PROGRAMS = smartd 	\
 		smartctl
 
 AM_CFLAGS = -fsigned-char -Wall
+AM_CPPFLAGS = -DSYSCONFDIR=\"$(sysconfdir)\"
 
 smartd_SOURCES = smartd.c \
                 atacmds.c	\
