@@ -1,4 +1,4 @@
-//  $Id: ataprint.cpp,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: ataprint.cpp,v 1.2 2002/10/10 21:36:47 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -312,7 +312,7 @@ void PrintSmartAttribWithThres ( struct ata_smart_values data,
 	  if (data.vendor_attributes[i].id!=194 || rawvalue<200)
 	    printf ("%llu\n", rawvalue);
 	  else
-	    printf("First: %u Second: %u Third: %u\n",
+	    printf("%u (Lifetime Low/Max %u/%u)\n",
 		   data.vendor_attributes[i].raw[0],		   
 		   data.vendor_attributes[i].raw[2],
 		   data.vendor_attributes[i].raw[4]);
