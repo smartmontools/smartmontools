@@ -1,7 +1,10 @@
 #!/bin/bash -ev
 #
 # do a smartmontools release
-# (c) 2003 Guido Guenther <agx@sigxcpu.org>
+# (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
+#          Guido Guenther <agx@sigxcpu.org>
+
+KEYID="Smartmontools Signing Key (through 2004) <smartmontools-support@lists.sourceforge.net>"
 
 if [ -f /etc/redhat-release ]; then
   RPM_BASE=/usr/src/redhat/
@@ -73,6 +76,9 @@ perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spe
 mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
 mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
 cp -f build/smartmontools-$VERSION.tar.gz .
+if [ "$KEYID" ]; then
+  gpg --default-key $KEYID --armor --detach --sign ./smartmontools-$VERSION.tar.gz
+fi
 
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
