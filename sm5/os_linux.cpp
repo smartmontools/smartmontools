@@ -57,7 +57,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.8 2003/10/12 09:10:03 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.9 2003/10/14 14:22:44 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -222,9 +222,10 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     buff[1]=SMART_STATUS;
     break;
   default:
-    pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
-    EXIT(1);
-    break;
+    pout("Unrecognized command %d in linux_ata_command_interface()\n"
+	 "Please contact " PACKAGE_BUGREPORT "\n", command);
+    errno=ENOSYS;
+    return -1;
   }
   
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
@@ -582,7 +583,8 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     passthru.features = SMART_STATUS;
     break;
   default:
-    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n", command, disknum);
+    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
+	 "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
     errno=ENOSYS;
     return -1;
   }
