@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.110 2003/04/07 04:59:18 ballen4705 Exp $
+$Id: CHANGELOG,v 1.111 2003/04/07 11:00:10 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -34,6 +34,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  [DG] Fix scsi smartd problem detecting SMART support. More cleaning
+       and fix (and rename) scsiTestUnitReady(). More scsi renaming.
+
   [BA] Fixed smartd so that if a disk that is explictily listed is not
        found, then smartd will exit with nonzero status BEFORE forking.
        If a disk can't be registered, this will also be detected before
