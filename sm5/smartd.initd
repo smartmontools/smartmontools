@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd,v 1.9 2003/10/02 22:48:17 ballen4705 Exp $
+# $Id: smartd.initd,v 1.10 2003/10/03 17:26:48 pervalidus Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -26,16 +26,17 @@
 #
 
 report_unsupported () {
-    echo "Currently the smartmontools package has no init script for this" $1 "linux distribution".
-    echo "If you can provide one, please contact smartmontools-support@lists.sourceforge.net"
-    echo "and we will inculde it in future distributions of the package."
+    echo "Currently the smartmontools package has no init script for"
+    echo "the $1 Linux distribution. If you can provide one or this"
+    echo "one works only removing some ifdefs, please contact"
+    echo "smartmontools-support@lists.sourceforge.net."
     exit 1
 }
 
 # Red Hat
 if [ -f /etc/redhat-release ] ; then
 
-# source function library
+# Source function library
 . /etc/rc.d/init.d/functions
 
     case "$1" in
@@ -65,28 +66,51 @@ if [ -f /etc/redhat-release ] ; then
     
     exit 0
 
+# Slackware
 elif [ -f /etc/slackware-release ] ; then
-    if [ -x /usr/sbin/smartd ]; then
-	/usr/sbin/smartd
-    fi
+
+    case "$1" in
+	start)
+	    echo -n "Starting smartd: "
+	    smartd
+	    echo
+	    ;;
+	stop)
+	    echo -n "Shutting down smartd: "
+	    killall smartd
+	    echo
+	    ;;
+	restart)
+	    $0 stop
+	    sleep 1
+	    $0 start
+	    ;;
+	*)
+	    echo "Usage: smartd {start|stop|restart}"
+	    exit 1
+    esac
+    
     exit 0
 
-# add scripts for other distributions HERE, using elif...
+# Add other distributions HERE, using elif...
 elif [ -f /etc/environment.corel ] ; then
-    report_unsupported "COREL"
+    report_unsupported "Corel"
 
 elif [ -f /etc/debian_version ] ; then
-    report_unsupported "DEBIAN"
+    report_unsupported "Debian"
+
+elif [ -f /etc/gentoo-release ] ; then
+    report_unsupported "Gentoo"
 
 elif [ -f /etc/mandrake-release ] ; then
-    report_unsupported "MANDRAKE"
+    report_unsupported "Mandrake"
 
-elif [ -f /etc/SuSE-release  ] ; then
-    report_unsupported "SUSE"
+elif [ -f /etc/SuSE-release ] ; then
+    report_unsupported "SuSE"
 
-elif [ -f /etc/turbolinux-release  ] ; then
-    report_unsupported "TURBOLINUX"
+elif [ -f /etc/turbolinux-release ] ; then
+    report_unsupported "Turbolinux"
 
 else
-    report_unsupported "UNKNOWN"
+    report_unsupported "Unknown"
 fi
