@@ -1080,7 +1080,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $id:$
+CVS $Id: smartmontools_scsi.xml,v 1.8 2004/05/05 01:22:22 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
