@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8.in,v 1.6 2003/10/13 14:31:34 arvoreen Exp $
+\# $Id: smartd.8.in,v 1.7 2003/10/15 21:19:36 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/10/13 14:31:34 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/10/15 21:19:36 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -27,7 +27,7 @@
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/13 14:31:34 $"
+\fBRELEASE\fP "$Date: 2003/10/15 21:19:36 $"
 
 .SH DESCRIPTION
 .B smartd
@@ -268,16 +268,11 @@ once. The exit status (the bash
 variable) will be zero if all went well, and nonzero if no devices
 were detected or some other problem was encountered.
 
-.fi
-Note that 
-.B smartmontools
-provides a start-up script in
-.B /etc/rc.d/init.d/smartd
-which is responsible for starting and stopping the daemon via the
-normal init interface. 
-Using this script, you can start
-.B smartd
-by giving the command:
+.fi 
+Note that \fBsmartmontools\fP provides a start-up script in
+\fB/etc/rc.d/init.d/smartd\fP which is responsible for starting and
+stopping the daemon via the normal init interface.  Using this script,
+you can start \fBsmartd\fP by giving the command:
 .nf
 .B /etc/rc.d/init.d/smartd start
 .fi
@@ -286,16 +281,15 @@ and stop it by using the command:
 .B /etc/rc.d/init.d/smartd stop
 
 .fi
-If you want
-.B smartd
-to start running whenever your machine is booted, this can be enabled
-by using the command:
+If you want \fBsmartd\fP to start running whenever your machine is
+booted, this can be enabled by using the command:
 .nf
 .B /sbin/chkconfig --add smartd
 .fi
 and disabled using the command:
 .nf
 .B /sbin/chkconfig --del smartd
+.fi
 
 \# DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
 \# IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
@@ -1338,4 +1332,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.6 2003/10/13 14:31:34 arvoreen Exp $
+$Id: smartd.8.in,v 1.7 2003/10/15 21:19:36 ballen4705 Exp $
