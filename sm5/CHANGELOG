@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.105 2003/03/25 12:30:31 dpgilbert Exp $
+$Id: CHANGELOG,v 1.106 2003/03/25 13:13:07 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,8 @@ CURRENT RELEASE (see VERSION file in this directory):
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
 smartmontools-5.1-9
+  [BA] Changed crit to info in loglevel of smartd complaint to syslog
+       if DEVICESCAN enabled and device not found.
 
   [BA] Added -v 194,10xCelsius option/Directive. Raw Attribute number
        194 is ten times the disk temperature in Celsius.
