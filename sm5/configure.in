@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.73 2004/04/08 18:18:39 ballen4705 Exp $
+# $Id: configure.in,v 1.74 2004/05/04 21:23:40 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.73 2004/04/08 18:18:39 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.74 2004/05/04 21:23:40 ballen4705 Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -64,7 +64,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
-AC_PREFIX_DEFAULT(['/usr'])
 AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 
 AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is ${sysconfdir}/rc.d/init.d)])],[initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
@@ -78,10 +77,6 @@ AC_SUBST(smartd_suffix)
 AM_CONDITIONAL(SMARTD_SUFFIX, test $smartd_suffix)
 
 if test "$prefix" = "NONE"; then
-    dnl no prefix and no sysconfdir, so default to /etc
-    if test "$sysconfdir" = '${prefix}/etc'; then
-        AC_SUBST([sysconfdir], ['/etc'])
-    fi
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
     if test "$mandir" = '${prefix}/man'; then
     	AC_SUBST([mandir], ['${prefix}/share/man'])

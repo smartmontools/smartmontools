@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.405 2004/04/30 06:20:49 dpgilbert Exp $
+$Id: CHANGELOG,v 1.406 2004/05/04 21:23:40 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -29,6 +29,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [DG] move SCSI device temperature and start-stop log page output
        (smartctl) into --attributes section (was in --info section).
+
+  [GG] change default installation location to /usr/local
 
   [CF] Cygwin smartd: Fixed crash on access of SCSI devices after fork().
 
