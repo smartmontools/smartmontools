@@ -1,4 +1,4 @@
-Release:  12
+Release:  13
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.22 2002/10/25 14:54:14 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.23 2002/10/25 15:05:09 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -94,6 +94,8 @@ else
         echo "Run \"/etc/rc.d/init.d/smartd start\" to start smartd service now."
 	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
 fi
+echo "Note that you can now use a configuration file /etc/smartd.conf to control the"
+echo "startup behavior of the smartd daemon.  See man smartd for details."
 
 %preun
 if [ -f /var/lock/subsys/smartd ]; then
