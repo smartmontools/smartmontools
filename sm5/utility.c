@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.54 2004/08/29 01:08:37 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.55 2004/09/16 08:46:04 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -260,31 +260,27 @@ int massagecvs(char *out, const char *cvsid){
   if (!(copy=strdup(cvsid)))
     return 0;
 
-  if (!(filename=strtok(copy, delimiters))){
-    free(copy);
-    return 0;
-  }
+  if (!(filename=strtok(copy, delimiters)))
+    goto endmassage;
 
   // move to first instance of "Id:"
   while (strcmp(filename,"Id:"))
-    if (!(filename=strtok(NULL, delimiters))){
-      free(copy);
-      return 0;
-    }
+    if (!(filename=strtok(NULL, delimiters)))
+      goto endmassage;
   
   // get filename, skip "v", get version and date
   if (!(  filename=strtok(NULL, delimiters)  ) ||
       !(           strtok(NULL, delimiters)  ) ||
       !(   version=strtok(NULL, delimiters)  ) ||
-      !(      date=strtok(NULL, delimiters)  ) ) {
-    free(copy);
-    return 0;
-  }
+      !(      date=strtok(NULL, delimiters)  ) )
+    goto endmassage;
   
   sprintf(out,"%-16s revision: %-5s date: %-15s", filename, version, date);
   retVal = (date-copy)+strlen(date);
+  
+ endmassage:
   free(copy);
-  return  retVal;
+  return retVal;
 }
 
 // prints a single set of CVS ids
