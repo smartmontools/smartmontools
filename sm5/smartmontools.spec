@@ -101,6 +101,101 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Thu Oct 24 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Changed name of -p (print version) option to -V
+- Minor change in philosophy: if a SMART command fails or the device
+    appears incapable of a SMART command that the user has asked for,
+    complain by printing an error message, but go ahead and try
+    anyway.  Since unimplemented SMART commands should just return an
+    error but not cause disk problems, this should't cause any
+    difficulty.
+- Added two new flags: q and Q.  q is quiet mode - only print: For
+    the -l option, errors recorded in the SMART error log; For the -L
+    option, errors recorded in the device self-test log; For the -c
+    SMART "disk failing" status or device attributes (pre-failure or
+    usage) which failed either now or in the past; For the -v option
+    device attributes (pre-failure or usage) which failed either now
+    or in the past.  Q is Very Quiet mode: Print no ouput.  The only
+    way to learn about what was found is to use the exit status of
+    smartctl.
+- smartctl now returns sensible values (bitmask).  See smartctl.h
+    for the values, and the man page for documentation.
+- The SMART status check now uses the correct ATA call.  If failure
+    is detected we search through attributes to list the failed ones.
+    If the SMART status check shows GOOD, we then look to see if their
+    are any usage attributes or prefail attributes have failed at any
+    time.  If so we print them.
+- Modified function that prints vendor attributes to say if the
+    attribute has currently failed or has ever failed.
+- -p option now prints out license info and CVS strings for all
+    modules in the code, nicely formatted.
+- Previous versions of this code (and Smartsuite) only generate
+    SMART failure errors if the value of an attribute is below the
+    threshold and the prefailure bit is set.  However the ATA Spec
+    (ATA4 <=Rev 4) says that it is a SMART failure if the value of an
+    attribute is LESS THAN OR EQUAL to the threshold and the
+    prefailure bit is set.  This is now fixed in both smartctl and
+    smartd.  Note that this is a troubled subject -- the original
+    SFF 8035i specification defining SMART was inconsistent about
+    this.  One section says that Attribute==Threshold is pass,
+    and another section says it is fail.  However the ATA specs are
+    consistent and say Attribute==Threshold is a fail.
+- smartd did not print the correct value of any failing SMART attribute.  It
+    printed the index in the attribute table, not the attribute
+    ID. This is fixed.
+- when starting self-tests in captive mode ioctl returns EIO because
+    the drive has been busied out.  Detect this and don't return an eror
+    in this case.  Check this this is correct (or how to fix it?)
+ - fixed possible error in how to determine ATA standard support
+    for devices with no ATA minor revision number.
+- device opened only in read-only not read-write mode.  Don't need R/W 
+    access to get smart data. Check this with Andre.
+- smartctl now handles all possible choices of "multiple options"
+    gracefully.  It goes through the following phases of operation,
+    in order: INFORMATION, ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
+    Documentation has bee updated to explain the different phases of
+    operation.  Control flow through ataPrintMain()
+    simplified.
+- If reading device identity information fails, try seeing if the info
+    can be accessed using a "DEVICE PACKET" command.  This way we can
+    at least get device info.
+- Modified Makefile to automatically tag CVS archive on issuance of
+    a release
+- Modified drive detection so minor device ID code showing ATA-3 rev
+    0 (no SMART) is known to not be SMART capable.
+- Now verify the checksum of the device ID data structure, and of the
+    attributes threshold structure.  Before neither of these
+    structures had their checksums verified.
+- New behavior vis-a-vis checksums.  If they are wrong, we log
+    warning messages to stdout, stderr, and syslog, but carry on
+    anyway.  All functions now call a checksumwarning routine if the
+    checksum doesn't vanish as it should.
+- Changed Read Hard Disk Identity function to get fresh info from
+    the disk on each call rather than to use the values that were read
+    upon boot-up into the BIOS.  This is the biggest change in this
+    release.  The ioctl(device, HDIO_GET_IDENTITY, buf ) call should
+    be avoided in such code.  Note that if people get garbled strings
+    for the model, serial no and firmware versions of their drives,
+    then blame goes here (the BIOS does the byte swapping for you,
+    apparently!)
+- Function ataSmartSupport now looks at correct bits in drive
+    identity structure to verify first that these bits are valid,
+    before using them.
+- Function ataIsSmartEnabled() written which uses the Drive ID state
+    information to tell if SMART is enabled or not.  We'll carry this
+    along for the moment without using it.
+- Function ataDoesSmartWork() guaranteed to work if the device
+    supports SMART.
+- Replace some numbers by #define MACROS
+- Wrote Function TestTime to return test time associated with each
+    different type of test.
+- Thinking of the future, have added a new function called
+    ataSmartStatus2().  Eventually when I understand how to use the
+    TASKFILE API and am sure that this works correctly, it will
+    replace ataSmartStatus().  This queries the drive directly to
+    see if the SMART status is OK, rather than comparing thresholds to
+    attribute values ourselves. But I need to get some drives that fail
+    their SMART status to check it.
 * Thu Oct 17 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 -   Removed extraneous space before some error message printing.
 -   Fixed some character buffers that were too short for contents.
