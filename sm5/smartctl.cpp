@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.43 2003/01/05 20:05:32 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.44 2003/01/07 00:27:16 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -198,46 +198,42 @@ void Usage (void){
 #endif
 }
 
-/* Print an appropriate error message for option opt when given an invalid argument, optarg */
-void printbadargmessage(int opt, const char *optarg) {
+/* Returns a pointer to a static string containing a formatted list of the valid
+   arguments to the option opt or NULL on failure. */
+const char *getvalidarglist(char opt) {
+  static char *v_list = NULL;
   char *s;
 
-  pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", opt, optarg);
-  pout("=======> VALID ARGUMENTS ARE: ");
   switch (opt) {
   case 'q':
-     pout("errorsonly, silent");
-     break;
+     return "errorsonly, silent";
   case 'd':
-     pout("ata, scsi");
-     break;
+     return "ata, scsi";
   case 'T':
-     pout("normal, conservative, permissive");
-     break;
+     return "normal, conservative, permissive";
   case 'b':
-     pout("warn, exit, ignore");
-     break;
+     return "warn, exit, ignore";
   case 's':
   case 'o':
   case 'S':
-     pout("on, off");
-     break;
+     return "on, off";
   case 'l':
-     pout("error, selftest");
-     break;
+     return "error, selftest";
   case 'v':
-     if (!(s = create_vendor_attribute_arg_list())) {
-       pout("\nInsufficient memory to construct argument list\n");
-       break;
-     }
-     pout("\"help\", %s", s);
+     if (v_list) 
+       return v_list;
+     if (!(s = create_vendor_attribute_arg_list()))
+       return NULL;
+     // Allocate space for "\"help\", " + s + terminating 0
+     v_list = (char *)malloc(9+strlen(s));
+     sprintf(v_list, "\"help\", %s", s);
      free(s);
-     break;
+     return v_list;
   case 't':
-     pout("offline, short, long");
-     break;
+     return "offline, short, long";
+  default:
+    return NULL;
   }
-  pout(" <======= \n\n");
 }
 
 unsigned char tryata=0,tryscsi=0;
@@ -249,9 +245,11 @@ void ParseOpts (int argc, char** argv){
   int captive;
   extern char *optarg;
   extern int optopt, optind, opterr;
+  // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:s:o:S:HcAl:iav:t:CX";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
+  // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
     { "help",            no_argument,       0, 'h' },
     { "usage",           no_argument,       0, 'h' },
@@ -460,37 +458,43 @@ void ParseOpts (int argc, char** argv){
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (strchr(shortopts, optopt) != NULL))
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n",arg+2);
-	else
+        if (optopt && (strchr(shortopts, optopt) != NULL)) {
+          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n", arg+2);
+          pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optopt));
+	} else
 	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
-	pout("Use smartctl --help to get a usage summary\n\n");
+	pout("\nUse smartctl --help to get a usage summary\n\n");
 	exit(FAILCMD);
       }
 #endif
       if (optopt) {
         // Iff optopt holds a valid option then argument must be missing.
-        if (strchr(shortopts, optopt) != NULL)
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n\n",optopt);
-        else
-	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
-	pout("Use smartctl -h to get a usage summary\n\n");
+        if (strchr(shortopts, optopt) != NULL) {
+          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n", optopt);
+          pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optopt));
+        } else
+	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
+	pout("\nUse smartctl -h to get a usage summary\n\n");
 	exit(FAILCMD);
       }
       Usage();
       exit(0);	
     } // closes switch statement to process command-line options
     
-    // At this point we have processed all command-line options.  Now
-    // check to see if any of those options had unrecognized or
-    // incorrect arguments.
+    // Check to see if option had an unrecognized or incorrect argument.
     if (badarg) {
       printslogan();
-      printbadargmessage(optchar, optarg);
-      pout("Use smartctl -h to get a usage summary\n\n");
+      // It would be nice to print the actual option name given by the user
+      // here, but we just print the short form.  Please fix this if you know
+      // a clean way to do it.
+      pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
+      pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optchar));
+      pout("\nUse smartctl -h to get a usage summary\n\n");
       exit(FAILCMD);
     }
   }
+  // At this point we have processed all command-line options.
+
   // Do this here, so results are independent of argument order	
   if (con->quietmode)
     con->veryquietmode=TRUE;
