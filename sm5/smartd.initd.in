@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.9 2003/10/31 22:28:37 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.10 2003/11/03 21:58:30 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -38,6 +38,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 
 # Source function library
 . /etc/rc.d/init.d/functions
+RETVAL=0
 
     case "$1" in
 	start)
@@ -57,14 +58,12 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    killproc /usr/sbin/smartd -HUP
 	    RETVAL=$?
 	    echo
-	    exit $RETVAL
 	    ;;
 	report)
 	    echo -n $"Checking devices now: "
 	    killproc /usr/sbin/smartd -USR1
 	    RETVAL=$?
 	    echo
-	    exit $RETVAL
             ;;
 	restart)
 	    $0 stop
@@ -75,10 +74,10 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    ;;
 	*)
 	    echo "Usage: smartd {start|stop|reload|report|restart|status}"
-	    exit 1
+	    RETVAL=1
     esac
     
-    exit 0
+    exit $RETVAL
 
 # Slackware
 elif [ -f /etc/slackware-release ] ; then
