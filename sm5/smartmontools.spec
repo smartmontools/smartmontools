@@ -27,10 +27,10 @@ Obsoletes:      smartsuite
 Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 # Source code can be found at:
-# http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}.%{release}.tar.gz
+# http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.78 2003/01/04 10:30:06 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.79 2003/01/04 10:38:44 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
