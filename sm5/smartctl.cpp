@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.74 2003/04/22 04:25:38 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.75 2003/04/22 11:40:51 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -682,7 +682,7 @@ int main (int argc, char **argv){
     flags = O_RDWR | O_NONBLOCK;
     tryscsi = 1;
   } else { /* treat "don't know" case as an ATA device as well */
-    flags = O_RDONLY;
+    flags = O_RDONLY | O_NONBLOCK;
     tryata = 1;
   }
 
@@ -690,8 +690,6 @@ int main (int argc, char **argv){
   // scsi generci device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
   // present (e.g. with st). 
-  // N.B. ATAPI cd/dvd devices will also hang awaiting media if O_NONBLOCK 
-  // is not given (see linux cdrom driver).
   fd = open(device, flags);
   if (fd<0) {
     char errmsg[256];

@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.154 2003/04/22 04:26:30 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.155 2003/04/22 11:40:52 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -555,7 +555,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     return 1;
   
   // open the device
-  if ((fd=opendevice(device, O_RDONLY))<0)
+  if ((fd=opendevice(device, O_RDONLY | O_NONBLOCK))<0)
     // device open failed
     return 1;
   printout(LOG_INFO,"Device: %s, opened\n", device);
@@ -919,8 +919,10 @@ int ataCheckDevice(atadevices_t *drive){
   }
 
   // if we can't open device, fail gracefully rather than hard --
-  // perhaps the next time around we'll be able to open it
-  if ((fd=opendevice(name, O_RDONLY))<0){
+  // perhaps the next time around we'll be able to open it.  ATAPI
+  // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
+  // given (see linux cdrom driver).
+  if ((fd=opendevice(name, O_RDONLY | O_NONBLOCK))<0){
     printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
     return 1;
   }
