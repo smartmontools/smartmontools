@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <scsi/scsi_ioctl.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -60,7 +61,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.31 2003/11/26 10:34:29 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.31.2.1 2004/02/23 15:34:46 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
