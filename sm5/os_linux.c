@@ -51,6 +51,9 @@
 #include "os_linux.h"
 #include "utility.h"
 
+// to hold onto exit code for atexit routine
+extern int exitstatus;
+
 int deviceopen(const char *pathname, char *type){
   if (!strcmp(type,"SCSI")) 
     return open(pathname, O_RDWR | O_NONBLOCK);
@@ -98,7 +101,7 @@ void make_device_names (int *n, char*** devlist, const char* name) {
   *devlist = tmp;
 }
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.4 2003/10/10 04:56:39 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.5 2003/10/10 05:11:07 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -201,7 +204,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     break;
   default:
     pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
-    exit(1);
+    EXIT(1);
     break;
   }
   

@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.45 2003/10/08 13:30:20 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.46 2003/10/10 05:11:07 arvoreen Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -50,6 +50,9 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.45 2003/10/08 13:30:20 b
  * knowndrives[]. */
 
 extern long long bytes;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 // These two are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {
@@ -477,7 +480,7 @@ int applypresets(const struct ata_identify_device *drive, unsigned char **optspt
   if (*optsptr==NULL && !(*optsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1))){
     pout("Unable to allocate memory in applypresets()");
     bytes-=MAX_ATTRIBUTE_NUM;
-    exit(1);
+    EXIT(1);
   }
   
   opts=*optsptr;
