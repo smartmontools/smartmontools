@@ -46,11 +46,12 @@
 #include "extern.h"
 #include "scsicmds.h"
 #include "smartd.h"
+#include "utility.h"
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.97 2003/01/16 15:28:57 ballen4705 Exp $" 
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID; 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.98 2003/01/16 15:51:09 ballen4705 Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
 atamainctrl *con=NULL;

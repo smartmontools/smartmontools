@@ -26,12 +26,16 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.1 2003/01/16 15:28:58 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.2 2003/01/16 15:51:10 ballen4705 Exp $\n"
 #endif
 
 // Utility function prints date and time and timezone into a character
 // buffer of length>=64.  All the fuss is needed to get the right
 // timezone info (sigh).
 void dateandtimezone(char *buffer);
+
+// utility function for printing out CVS strings
+#define CVSMAXLEN 512
+void printone(char *block, const char *cvsid);
 
 #endif

@@ -40,10 +40,11 @@
 #include "scsicmds.h"
 #include "scsiprint.h"
 #include "smartctl.h"
+#include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.48 2003/01/16 15:28:57 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID;
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.49 2003/01/16 15:51:09 ballen4705 Exp $"
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
