@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.27 2003/04/29 16:01:11 makisara Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.28 2003/05/11 22:46:40 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -212,6 +212,13 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_ASC_UNKNOWN_PARAM          0x26
 #define SCSI_ASC_WARNING                0xb
 #define SCSI_ASC_IMPENDING_FAILURE      0x5d
+
+/* Simplified error code (negative values as per errno) */
+#define SIMPLE_NO_ERROR                 0
+#define SIMPLE_ERR_NOT_READY            1
+#define SIMPLE_ERR_BAD_OPCODE           2
+#define SIMPLE_ERR_BAD_FIELD            3       /* in cbd */
+#define SIMPLE_ERR_BAD_PARAM            4       /* in data */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
