@@ -34,7 +34,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.97 2003/08/13 12:33:23 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.98 2003/08/30 13:06:47 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -80,7 +80,7 @@ void trim(char *out, const char *in)
   out[last-first+1] = '\0';
 }
 
-// Convenience function for formatting strings from hd_driveid.
+// Convenience function for formatting strings from ata_identify_device
 void formatdriveidstring(char *out, const char *in, int n)
 {
   char tmp[65];
@@ -102,7 +102,7 @@ void printswap(char *output, char *in, unsigned int n){
     pout("[No Information Found]\n");
 }
 
-void ataPrintDriveInfo (struct hd_driveid *drive){
+void ataPrintDriveInfo (struct ata_identify_device *drive){
   int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[64];
@@ -480,7 +480,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
   if (!needheader) pout("\n");
 }
 
-void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct hd_driveid *drive){
+void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identify_device *drive){
   pout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
@@ -850,7 +850,7 @@ void checksumwarning(const char *string){
 }
 
 // Initialize to zero just in case some SMART routines don't work
-struct hd_driveid drive;
+struct ata_identify_device drive;
 struct ata_smart_values smartval;
 struct ata_smart_thresholds smartthres;
 struct ata_smart_errorlog smarterror;

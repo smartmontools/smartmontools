@@ -26,11 +26,10 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.49 2003/08/13 12:33:23 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.50 2003/08/30 13:06:47 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
-#include <linux/hdreg.h>
 #include <sys/fcntl.h>
 #include <sys/types.h>
 
@@ -54,61 +53,29 @@ typedef enum {
 
 /* These defines SHOULD BE in the kernel
    if not we define them */
-							  
-#ifndef WIN_SMART
-#define WIN_SMART		0xb0	
-#endif
 
-#ifndef SMART_READ_VALUES
+// ATA Specification Command Register Values (Commands)
+#define WIN_IDENTIFY            0xec						  
+#define WIN_PIDENTIFY		0xa1
+#define WIN_SMART		0xb0
+
+// ATA Specification Feature Register Values (SMART Subcommands).
+// Note that some are obsolete.
 #define SMART_READ_VALUES	0xd0
-#endif
-
-#ifndef SMART_READ_THRESHOLDS	
 #define SMART_READ_THRESHOLDS	0xd1
-#endif
-
-#ifndef SMART_AUTOSAVE 
 #define SMART_AUTOSAVE		0xd2
-#endif
-
-#ifndef SMART_SAVE
 #define SMART_SAVE		0xd3
-#endif
-
-#ifndef SMART_IMMEDIATE_OFFLINE	
 #define SMART_IMMEDIATE_OFFLINE	0xd4
-#endif
-
-#ifndef SMART_READ_LOG_SECTOR
-#define SMART_READ_LOG_SECTOR 0xd5
-#endif
-
-#ifndef SMART_WRITE_LOG_SECTOR
-#define SMART_WRITE_LOG_SECTOR 0xd6
-#endif
-
-// The following is obsolete -- don't use it!
-#ifndef SMART_WRITE_THRESHOLDS
+#define SMART_READ_LOG_SECTOR   0xd5
+#define SMART_WRITE_LOG_SECTOR  0xd6
 #define SMART_WRITE_THRESHOLDS  0xd7
-#endif
-
-#ifndef SMART_ENABLE
 #define SMART_ENABLE		0xd8
-#endif
-
-#ifndef SMART_DISABLE
 #define SMART_DISABLE		0xd9
-#endif
-
-#ifndef SMART_STATUS
 #define SMART_STATUS		0xda
-#endif
-
-// The following is also marked obsolete in ATA-5
-#ifndef SMART_AUTO_OFFLINE
+// SFF 8035i Specification Feature Register Value (SMART Subcommand
 #define SMART_AUTO_OFFLINE	0xdb
-#endif
 
+// Sector Number values for SMART_IMMEDIATE_OFFLINE Subcommand
 #define OFFLINE_FULL_SCAN		0
 #define SHORT_SELF_TEST			1
 #define EXTEND_SELF_TEST		2
@@ -125,13 +92,25 @@ typedef enum {
 
 #define ATA_SMART_SEC_SIZE		512
 
-#ifndef HDIO_DRIVE_CMD_HDR_SIZE
-#define HDIO_DRIVE_CMD_HDR_SIZE 	4
-#endif
-
-#ifndef HDIO_DRIVE_TASK_HDR_SIZE
-#define HDIO_DRIVE_TASK_HDR_SIZE	7
-#endif
+// Needed parts of the ATA DRIVE IDENTIFY Structure. Those labeled
+// word* are NOT used.
+struct ata_identify_device {
+  unsigned short words000_009[10];
+  unsigned char	 serial_no[20];
+  unsigned short words020_022[3];
+  unsigned char	 fw_rev[8];
+  unsigned char	 model[40];
+  unsigned short words047_079[33];
+  unsigned short major_rev_num;
+  unsigned short minor_rev_num;
+  unsigned short command_set_1;
+  unsigned short command_set_2;
+  unsigned short word084;
+  unsigned short cfs_enable_1;
+  unsigned short word086;
+  unsigned short csf_default;
+  unsigned short words088_255[168];
+};
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 struct ata_smart_attribute {
@@ -349,7 +328,7 @@ struct ata_selective_self_test_log {
 } __attribute__ ((packed));
 
 /* Read S.M.A.R.T information from drive */
-int ataReadHDIdentity(int device, struct hd_driveid *buf);
+int ataReadHDIdentity(int device, struct ata_identify_device *buf);
 int ataReadSmartValues(int device,struct ata_smart_values *);
 int ataReadSmartThresholds(int device, struct ata_smart_thresholds *);
 int ataReadErrorLog(int device, struct ata_smart_errorlog *);
@@ -378,19 +357,19 @@ int ataSmartSelfTestAbort (int device);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
-int ataVersionInfo (const char **description, struct hd_driveid *drive, unsigned short *minor);
+int ataVersionInfo (const char **description, struct ata_identify_device *drive, unsigned short *minor);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(int device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport ( struct hd_driveid *drive);
+int ataSmartSupport ( struct ata_identify_device *drive);
 
 // Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
-int ataIsSmartEnabled(struct hd_driveid *drive);
+int ataIsSmartEnabled(struct ata_identify_device *drive);
 
 /* Check SMART for Threshold failure */
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
@@ -409,7 +388,7 @@ int isExtendedSelfTestTime ( struct ata_smart_values *data);
 
 int isSmartErrorLogCapable ( struct ata_smart_values *data);
 
-int isGeneralPurposeLoggingCapable(struct hd_driveid *identity);
+int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity);
 
 int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data);
 

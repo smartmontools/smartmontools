@@ -20,9 +20,8 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.7 2003/08/13 12:33:23 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.8 2003/08/30 13:06:48 ballen4705 Exp $\n"
 
-#include <linux/hdreg.h>
 #include "extern.h"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
@@ -66,7 +65,7 @@ extern const drivesettings knowndrives[];
 int lookupdrive(const char *model, const char *firmware);
 
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const struct hd_driveid *drive);
+void showpresets(const struct ata_identify_device *drive);
 
 // Shows all presets for drives in knowndrives[].
 void showallpresets(void);
@@ -76,7 +75,7 @@ void showallpresets(void);
 // already been set in opts will not be changed.  Also sets options in
 // con.  Returns <0 if drive not recognized else index of drive in
 // database.
-int applypresets(const struct hd_driveid *drive, unsigned char **opts,
+int applypresets(const struct ata_identify_device *drive, unsigned char **opts,
                   smartmonctrl *con);
 
 #endif

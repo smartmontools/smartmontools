@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <linux/hdreg.h>
 #include <syslog.h>
 #include <stdarg.h>
 #include <signal.h>
@@ -54,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.200 2003/08/26 09:13:47 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.201 2003/08/30 13:06:48 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -737,7 +736,7 @@ int SelfTestErrorCount(int fd, char *name){
 // scan to see what ata devices there are, and if they support SMART
 int ATADeviceScan(cfgfile *cfg){
   int fd;
-  struct hd_driveid drive;
+  struct ata_identify_device drive;
   char *name=cfg->name;
   
   // should we try to register this as an ATA device?

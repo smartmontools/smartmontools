@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.118 2003/08/28 16:50:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.119 2003/08/30 13:06:47 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -504,6 +504,12 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
   unsigned char buff[STRANGE_BUFFER_LENGTH];
   int retval, copydata=0;
 
+  // The two linux IOCTL's that we use.  These MUST be consistent with
+  // the same quantities in the kernel include file linux/hdreg.h
+  const int HDIO_DRIVE_TASK = 0x031e;
+  const int HDIO_DRIVE_CMD  = 0x031f;
+  const int HDIO_DRIVE_CMD_OFFSET = 4;
+  
   // See struct hd_drive_cmd_hdr in hdreg.h
   // buff[0]: ATA COMMAND CODE REGISTER
   // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
@@ -580,10 +586,7 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
     buff[4]=normal_lo;
     buff[5]=normal_hi;
     
-    // HDIO_DRIVE_TASK IOCTL
-#ifdef HDIO_DRIVE_TASK
     if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
-#endif
       return -1;
     
     // Cyl low and Cyl high unchanged means "Good SMART status"
@@ -611,9 +614,9 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
-  
+  // 
   if (copydata)
-    memcpy(data, buff+4, 512);
+    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, 512);
   
   return 0; 
 }
@@ -708,9 +711,9 @@ unsigned char checksum(unsigned char *buffer){
 }
 
 // Reads current Device Identity info (512 bytes) into buf
-int ataReadHDIdentity (int device, struct hd_driveid *buf){
-  unsigned short driveidchecksum;
-  
+int ataReadHDIdentity (int device, struct ata_identify_device *buf){
+  unsigned short *rawstructure=(unsigned short *)buf;
+
   if (smartcommandhandler(device, IDENTIFY, 0, (char *)buf)){
     // See if device responds to packet command...
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
@@ -729,31 +732,10 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
       swap2((char *)(alias+i));
   }
   
-#if 0
-  // The following ifdef is a HACK to distinguish different versions
-  // of the header file defining hd_driveid
-#ifdef CFA_REQ_EXT_ERROR_CODE
-  driveidchecksum=buf->integrity_word;
-#else
-  // Note -- the declaration that appears in
-  // /usr/include/linux/hdreg.h: short words160_255[95], is WRONG.
-  // It should say: short words160_255[96]. I have written to Andre
-  // Hedrick about this on Oct 17 2002.  Please remove this comment
-  // once the fix has made it into the stock kernel tree.
-  driveidchecksum=buf->words160_255[95];
-#endif
-#else
-  // This way is ugly and you may feel ill -- but it always works...
-  {
-    unsigned short *rawstructure=
-      (unsigned short *)buf;
-    driveidchecksum=rawstructure[255];
-  }
-#endif
-  
-  if ((driveidchecksum & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
+  // If there is a checksum there, validate it
+  if ((rawstructure[255] & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
     checksumwarning("Drive Identity Structure");
- 
+  
   return 0;
 }
 
@@ -761,7 +743,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 // describing which revision.  Note that Revision 0 of ATA-3 does NOT
 // support SMART.  For this one case we return -3 rather than +3 as
 // the version number.  See notes above.
-int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned short *minor){
+int ataVersionInfo (const char** description, struct ata_identify_device *drive, unsigned short *minor){
   unsigned short major;
   int i;
 
@@ -783,13 +765,8 @@ int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned
   }
 
   // get major and minor ATA revision numbers
-#ifdef __NEW_HD_DRIVE_ID
   major=drive->major_rev_num;
   *minor=drive->minor_rev_num;
-#else
-  major=drive->word80;
-  *minor=drive->word81;
-#endif
   
   // First check if device has ANY ATA version information in it
   if (major==NOVAL_0 || major==NOVAL_1) {
@@ -821,17 +798,12 @@ int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned
 }
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport(struct hd_driveid *drive){
+int ataSmartSupport(struct ata_identify_device *drive){
   unsigned short word82,word83;
 
   // get correct bits of IDENTIFY DEVICE structure
-#ifdef __NEW_HD_DRIVE_ID
   word82=drive->command_set_1;
   word83=drive->command_set_2;
-#else
-  word82=drive->command_sets;
-  word83=drive->word83;
-#endif
 
   // Note this does not work for ATA3 < Revision 6, when word82 and word83 were added
   // we should check for ATA3 Rev 0 in minor identity code...  
@@ -839,17 +811,12 @@ int ataSmartSupport(struct hd_driveid *drive){
 }
 
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
-int ataIsSmartEnabled(struct hd_driveid *drive){
+int ataIsSmartEnabled(struct ata_identify_device *drive){
     unsigned short word85,word87;
 
   // Get correct bits of IDENTIFY DRIVE structure
-#ifdef __NEW_HD_DRIVE_ID
   word85=drive->cfs_enable_1;
   word87=drive->csf_default;
-#else
-  word85=drive->word85;
-  word87=drive->word87;
-#endif
   
   if ((word87 & 0x0001<<14) && !(word87 & 0x0001<<15))
     // word85 contains valid information, so
@@ -1128,7 +1095,6 @@ int ataDoesSmartWork(int device){
   return !smartcommandhandler(device, STATUS, 0, NULL);
 }
 
-#ifdef HDIO_DRIVE_TASK
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
 int ataSmartStatus2(int device){
@@ -1142,20 +1108,6 @@ int ataSmartStatus2(int device){
   
   return returnval;
 }
-#else
-// Just a hack so that the code compiles on 
-// 2.2 kernels without HDIO_DRIVE TASK support.  
-// Should be fixed by putting in a call to code 
-// that compares smart data to thresholds.
-int ataSmartStatus2(int device){
-  pout("This code was compiled on a machine whose kernel header\n"
-       "files do not support the HDIO_DRIVE_TASK ioctl().\n"
-       "Compile on a linux 2.2 kernel box with HDIO_DRIVE_TASK\n"
-       "support enabled, or on a 2.4 kernel box, please.\n");
-  return ataSmartStatus(device);
-}
-#endif
-
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
@@ -1257,7 +1209,7 @@ int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x01;
 }
 
-int isGeneralPurposeLoggingCapable(struct hd_driveid *identity){
+int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
   unsigned short *rawwords=(unsigned short *)identity;
   unsigned short word84, word87;
 
