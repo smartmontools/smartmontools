@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.11 2004/03/24 08:26:39 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.12 2004/03/25 17:16:13 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -106,10 +106,9 @@ typedef struct TAG_TW_Output {
 } TW_Output; 
 
 
-#ifndef TASKFILE_OUT
-// The following definitions are needed to use the HDIO_DRIVE_TASKFILE
-// ioctl() call.  This is needed to send SMART WRITE LOG commands to
-// the drive.
+// The following definitions are from hdreg.h in the kernel source
+// tree.  They don't carry any Copyright statements, but I think they
+// are primarily from Mark Lord and Andre Hedrick.
 typedef unsigned char task_ioreg_t;
 
 typedef struct hd_drive_task_hdr {
@@ -167,7 +166,12 @@ typedef struct ide_task_request_s {
 #define IDE_DRIVE_TASK_IN		2
 #define IDE_DRIVE_TASK_OUT		3
 
-#endif // #ifndef TASKFILE_OUT
+#define HDIO_DRIVE_CMD       0x031f
+#define HDIO_DRIVE_TASK      0x031e
+#define HDIO_DRIVE_TASKFILE  0x031d
+#define HDIO_GET_IDENTITY    0x030d
+
+
 
 
 #endif /* OS_LINUX_H_ */
