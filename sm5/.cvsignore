@@ -12,7 +12,6 @@ aclocal.m4
 config.h.in
 configure
 core
-cvs-script
 depcomp
 install-sh
 missing
