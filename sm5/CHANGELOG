@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.134 2003/05/03 10:43:22 pjwilliams Exp $
+$Id: CHANGELOG,v 1.135 2003/05/04 13:14:27 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] Add "Device type: [disk | tape | medium changer | ...] line to
+       smartctl -i output for SCSI devices.
 
   [PW] Fixed bug in smartd where test email would be sent regularly (for
        example, daily if the user had specified -M daily) instead of just
