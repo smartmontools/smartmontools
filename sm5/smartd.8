@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.84 2003/04/17 19:28:07 guidog Exp $
+\# $Id: smartd.8,v 1.85 2003/04/17 22:49:56 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/17 19:28:07 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/17 22:49:56 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -1084,10 +1084,12 @@ should not be ignored: they mean that the disk is failing.  Use the
 utility to investigate. 
 
 .SH RETURN VALUES
-The return value (exit status) of smartd can have the following values:
+The return value (exit status) of 
+.B smartd
+can have the following values:
 .TP
 .B 0:
-Daemon startup successfull.
+Daemon startup successful.
 .TP
 .B 1:
 Commandline did not parse.
@@ -1106,9 +1108,9 @@ Couldn't create PID file.
 ran out of memory during startup.
 .TP
 .B 9:
-You hit a compile time constant of\fB smartd\fP.  This can e.g. be caused by an
-excessive number of disks or too long lines in \fB /etc/smartd.conf\fP.
-Please report this kind of problems to \fB smartmontools-support@lists.sourceforge.net\fP.
+A compile time constant of\fB smartd\fP was too small.  This can be caused by an
+excessive number of disks, or by lines in \fB /etc/smartd.conf\fP that are too long.
+Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
 .TP
 .B 16:
 A device specified in
@@ -1202,4 +1204,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.84 2003/04/17 19:28:07 guidog Exp $
+$Id: smartd.8,v 1.85 2003/04/17 22:49:56 ballen4705 Exp $
