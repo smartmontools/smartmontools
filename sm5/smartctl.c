@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.66 2003/04/13 16:05:23 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.67 2003/04/15 00:22:00 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -157,7 +157,7 @@ void Usage (void){
 "  -A, --attributes                                                    (ATA)\n"
 "        Show device SMART vendor-specific Attributes and values\n"
 "  -l TYPE, --log=TYPE\n"
-"        Show device log. Type is one of: error (ATA), selftest\n"
+"        Show device log. Type is one of: error, selftest\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n"
 "  -F, --fixbyteorder                                                  (ATA)\n"
@@ -170,7 +170,7 @@ void Usage (void){
 "  -H        Show device SMART health status\n"
 "  -c        Show device SMART capabilities                            (ATA)\n"
 "  -A        Show device SMART vendor-specific Attributes and values   (ATA)\n"
-"  -l TYPE   Show device log. Type is one of: error (ATA), selftest\n"
+"  -l TYPE   Show device log. Type is one of: error, selftest\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n"
 "  -F        Fix byte order in some SMART data (some Samsung disks)    (ATA)\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall        (ATA)\n"
@@ -653,8 +653,13 @@ int main (int argc, char **argv){
   // Part input arguments
   ParseOpts(argc,argv);
 
-  // open device - read-only mode is enough to issue needed commands
-  fd = open(device=argv[argc-1], O_RDONLY);  
+  // open device - read-write access is needed to use the scsi generic (sg)
+  // device for some commands (e.g. '-s on'). Try and open read-write and 
+  // if that fails with an error suggested writing is not permitted, fall
+  // back to a read-only open.
+  fd = open(device=argv[argc-1], O_RDWR);
+  if ((fd < 0) && ((EACCES == errno) || (EROFS == errno)))
+    fd = open(device=argv[argc-1], O_RDONLY);  
   if (fd<0) {
     char errmsg[256];
     snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);
