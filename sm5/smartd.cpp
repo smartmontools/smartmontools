@@ -84,6 +84,8 @@ typedef int pid_t;
 #define SIGNALFN  daemon_signal
 #define strsignal daemon_strsignal
 #define sleep     daemon_sleep
+#undef EXIT // see utility.h
+#define EXIT(x)  { exitstatus = daemon_winsvc_exitcode = (x); exit((x)); }
 // SIGQUIT does not exits, CONTROL-Break signals SIGBREAK.
 #define SIGQUIT SIGBREAK
 #define SIGQUIT_KEYNAME "CONTROL-Break"
@@ -106,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.330 2004/08/04 18:22:18 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.331 2004/08/06 13:11:34 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -116,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.330 2004/08/04 18:22:18 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.331 2004/08/06 13:11:34 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1112,13 +1114,17 @@ void Usage (void){
 #else
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 (ignored on Cygwin)\n\n");
 #endif
-#endif // __WIN32 || __CYGWIN__
+#endif // _WIN32 || __CYGWIN__
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
   PrintOut(LOG_INFO,"        Quit on one of: %s\n\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
+#ifdef _WIN32
+  PrintOut(LOG_INFO,"  --service\n");
+  PrintOut(LOG_INFO,"        Running as windows service (must be first arg, do not use from console)\n\n");
+#endif // _WIN32
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
@@ -3324,6 +3330,9 @@ void ParseOpts(int argc, char **argv){
     { "interval",       required_argument, 0, 'i' },
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
+#ifdef _WIN32
+    { "service",        no_argument,       0, 'S' },
+#endif
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
     { "copyright",      no_argument,       0, 'V' },
@@ -3455,6 +3464,11 @@ void ParseOpts(int argc, char **argv){
       // output file with PID number
       pid_file=CustomStrDup(optarg, 1, __LINE__,filenameandversion);
       break;
+#ifdef _WIN32
+    case 'S':
+      // running as service, option already handled by deamon_main(), so ignore it
+      break;
+#endif
     case 'V':
       // print version and CVS info
       PrintCopyleft();
@@ -3767,8 +3781,15 @@ void RegisterDevices(int scanning){
   return;
 }
 
-int main(int argc, char **argv){
 
+#ifndef _WIN32
+// Main function
+int main(int argc, char **argv)
+#else
+// Windows: internal main function started direct or by service control manager
+static int smartd_main(int argc, char **argv)
+#endif
+{
   // external control variables for ATA disks
   smartmonctrl control;
 
@@ -3777,16 +3798,6 @@ int main(int argc, char **argv){
 
   // next time to wake up
   time_t wakeuptime;
-
-#ifdef _WIN32
-  // Simulate initd commands in smartd itself
-  {
-    int status;
-    if ((status = daemon_main("smartd", argc, argv)) >= 0)
-      // command handled in daemon_main
-      return status;
-  }
-#endif
 
   // for simplicity, null all global communications variables/lists
   con=&control;
@@ -3898,3 +3909,24 @@ int main(int argc, char **argv){
     wakeuptime=dosleep(wakeuptime);
   }
 }
+
+
+#ifdef _WIN32
+// Main function for Windows
+int main(int argc, char **argv){
+  // Options for smartd windows service
+  static const daemon_winsvc_options svc_opts = {
+    "--service", // cmd_opt
+    "smartd", "SmartD Service", // servicename, displayname
+    // description
+    "Controls and monitors storage devices using the Self-Monitoring, "
+    "Analysis and Reporting Technology System (S.M.A.R.T.) "
+    "built into ATA and SCSI Hard Drives. "
+    PACKAGE_HOMEPAGE
+  };
+  // daemon_main() handles daemon and service specific commands
+  // and starts smartd_main() direct, from a new process,
+  // or via service control manager
+  return daemon_main("smartd", &svc_opts , smartd_main, argc, argv);
+}
+#endif

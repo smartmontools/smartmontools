@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.53 2004/07/31 17:12:04 chrfranke Exp $
+$Id: TODO,v 1.54 2004/08/06 13:11:35 chrfranke Exp $
 
 SATA devices
 ------------
@@ -99,8 +99,6 @@ to support systems with missing ASPI driver.
 
 Windows
 -------
-Add ability to run smartd as a windows service.
-
 Provide some installer.
 
 Packaging
