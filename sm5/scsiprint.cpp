@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.79 2004/07/18 07:33:13 makisara Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.80 2004/08/19 00:26:42 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -637,7 +637,7 @@ static const char * transport_proto_arr[] = {
         "0xf"
 };
  
-/* Returns 0 on success */
+/* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 {
     char manufacturer[9];
@@ -679,6 +679,14 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     memset(revision, 0, sizeof(revision));
     strncpy(revision, (char *)&gBuf[32], 4);
     pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+
+    if (0 == strncmp(manufacturer, "3ware", 8)) {
+        pout("please try '-d 3ware,N'\n");
+	return 2;
+    } else if (0 == strncmp(manufacturer, "MVSATA", 8)) {
+        pout("please try '-d marvell'\n");
+	return 2;
+    }
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */
@@ -874,8 +882,12 @@ int scsiPrintMain(int fd)
     int returnval = 0;
     int res, durationSec;
 
-    if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {
-        failuretest(MANDATORY_CMD, returnval |= FAILID);
+    res = scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo);
+    if (res) {
+	if (2 == res)
+	    return 0;
+	else
+            failuretest(MANDATORY_CMD, returnval |= FAILID);
     }
 
     if (con->smartenable) {
