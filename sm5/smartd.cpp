@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.37 2002/10/28 23:47:00 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.38 2002/10/29 00:02:43 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -415,7 +415,7 @@ int  ataCompareSmartValues2(struct ata_smart_values *new,
   int returnvalue;
 
   // check that attribute number in range, and no null pointers
-  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !new || !old || !thre)
+  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !new || !old || !thresholds)
     return 0;
   
   // pointers to disk's values and vendor's thresholds
