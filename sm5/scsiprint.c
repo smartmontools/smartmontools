@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.86 2004/09/03 04:34:29 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.87 2004/09/05 03:13:35 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -340,7 +340,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
     }
     if (gBuf[0] != SEAGATE_FACTORY_LPAGE) {
         PRINT_ON(con);
-        pout("Seagate Factory Log Sense Failed, page mismatch\n");
+        pout("Seagate/Hitachi Factory Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
         return;
     }
@@ -356,8 +356,8 @@ static void scsiPrintSeagateFactoryLPage(int device)
         default: 
             if (con->reportscsiioctl > 0) {
                 PRINT_ON(con);
-                pout("\nVendor (Seagate) factory lpage has unexpected "
-                     "parameter, skip\n");
+                pout("\nVendor (Seagate/Hitachi) factory lpage has unexpected"
+                     " parameter, skip\n");
                 PRINT_OFF(con);
             }
             return;
@@ -365,7 +365,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
         num -= pl;
         ucp += pl;
     }
-    pout("Vendor (Seagate) factory information\n");
+    pout("Vendor (Seagate/Hitachi) factory information\n");
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
@@ -375,7 +375,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
         case 0: pout("  number of hours powered up"); break;
         case 8: pout("  number of minutes until next internal SMART test");
             break;
-        default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
+        default: pout("  Unknown parameter code [0x%x]", pc); break;
         }
         k = pl - 4;
         xp = ucp + 4;
@@ -431,12 +431,12 @@ static void scsiPrintErrorCounterLog(int device)
     }
     if (found[0] || found[1] || found[2]) {
         pout("\nError counter log:\n");
-        pout("          Errors Corrected    Total      Total   "
-             "Correction     Gigabytes    Total\n");
-        pout("              delay:       [rereads/    errors   "
-             "algorithm      processed    uncorrected\n");
-        pout("            minor | major  rewrites]  corrected  "
-             "invocations   [10^9 bytes]  errors\n");
+        pout("           Errors Corrected by           Total   "
+	     "Correction     Gigabytes    Total\n");
+        pout("               EEC          rereads/    errors   "
+	     "algorithm      processed    uncorrected\n");
+        pout("           fast | delayed   rewrites  corrected  "
+	     "invocations   [10^9 bytes]  errors\n");
         for (k = 0; k < 3; ++k) {
             if (! found[k])
                 continue;
