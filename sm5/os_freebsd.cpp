@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <glob.h>
+#include <fcntl.h>
 
 
 #include "config.h"
@@ -34,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.37 2004/07/27 22:29:58 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.38 2004/08/13 12:41:40 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.37 2004/07/27 22:29:58 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.38 2004/08/13 12:41:40 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -182,7 +183,7 @@ int deviceclose (int fd) {
 void printwarning(int msgNo, const char* extra) {
   static int printed[] = {0,0,0,0};
   static const char* message[]={
-    "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\n",
+    "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\nYou should update to at least 5.2\n",
     
     "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
     
@@ -305,11 +306,6 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     iocmd.u.request.u.ata.feature=ATA_SMART_STATUS;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
     iocmd.u.request.flags=ATA_CMD_CONTROL;
-#ifdef ATA_CMD_READ_REG
-    // this is not offical ATAng code.  Patch submitted, will remove
-    // once accepted and committed.
-    iocmd.u.request.flags |= ATA_CMD_READ_REG;
-#endif
     break;
   default:
     pout("Unrecognized command %d in ata_command_interface()\n"
@@ -326,7 +322,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)))
       return -1;
 
-#ifndef ATA_CMD_READ_REG
+#if __FreeBSD_version < 502000
     printwarning(NO_RETURN,NULL);
 #endif
 
@@ -425,7 +421,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
                 /* datalen */ iop->dxfer_len,
                 /* senselen */ iop->max_sense_len,
                 /* cdblen */ iop->cmnd_len,
-                /* timout */ iop->timeout);
+                /* timout (converted to seconds) */ iop->timeout*1000);
   memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
 
   if (cam_send_ccb(cam_dev,ccb) < 0) {

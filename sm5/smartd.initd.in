@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.25 2004/06/22 15:41:20 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.26 2004/08/13 12:41:40 arvoreen Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -282,35 +282,54 @@ elif [ -f /etc/environment.corel ] ; then
 # PLEASE ADD OTHER LINUX DISTRIBUTIONS JUST BEFORE THIS LINE, USING elif
 
 elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
-
-# Source configuration file.  This should define the shell variable smartd_opts.
-# Email smartmontools-support@lists.sourceforge.net if there is a better choice
-# of path for FreeBSD
-
-    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
-
-    PID_FILE=/var/run/smartd.pid
+# following is replaced by port install
+    PREFIX=@@PREFIX@@
     
-    case "$1" in
-	start)
-	    smartd -p $PID_FILE $smartd_opts
-	    echo -n "smartd "
-	    ;;
-	stop)
-	    kill `cat $PID_FILE`
-	    echo -n "smartd "
-	    ;;
-	restart)
-	    $0 stop
-	    sleep 1
-	    $0 start
-	    ;;
-	*)
-	    echo "Usage: smartd {start|stop|restart}"
-	    exit 1
-    esac
-    
-    exit 0
+# Updated to try both the RCNG version of things from 5.x, or fallback to
+# oldfashioned rc.conf
+
+    if [ -r /etc/rc.subr ]; then 
+# This is RC-NG, pick up our values
+	. /etc/rc.subr
+        name="smartd"
+	rcvar="smartd_enable" 
+        command="${PREFIX}/bin/smartd"
+	load_rc_config $name
+    elif [ -r /etc/defaults/rc.conf ]; then
+# Not a 5.x system, try the default location for variables
+	. /etc/defaults/rc.conf
+	source_rc_confs
+    elif [ -r /etc/rc.conf ]; then
+# Worst case, fallback to system config file
+	. /etc/rc.conf
+    fi
+
+    if [ -r /etc/rc.subr ]; then 
+# Use new functionality from RC-NG
+	run_rc_command "$1"
+    else
+	PID_FILE=/var/run/smartd.pid
+	case "$1" in
+	    start)
+		$PREFIX/bin/smartd -p $PID_FILE $smartd_flags
+		echo -n " smartd"
+		;;
+	    stop)
+		kill `cat $PID_FILE`
+		echo -n " smartd"
+		;;
+	    restart)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	    *)
+		echo "Usage: smartd {start|stop|restart}"
+		exit 1
+	esac
+	
+	exit 0
+    fi
 elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     
 # Source configuration file.  This should define the shell variable smartd_opts.

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.444 2004/08/07 21:59:19 geoffk1 Exp $
+$Id: CHANGELOG,v 1.445 2004/08/13 12:41:40 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Very preliminary support attempt for 3Ware controllers under 
+       FreeBSD. Also, switched 'escalade_type/escalade_port' to
+       'controler_type/controller_port' and moved away from 
+       'tryata/tryscsi' to using new 'controller*' variables to 
+       determine which controller type (ATA/SCSI/3Ware) to use.
 
   [GK] Added initscript support for Darwin.
 
