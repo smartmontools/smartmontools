@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.12 2003/03/24 10:46:37 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.13 2003/03/28 07:20:37 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -102,6 +102,7 @@ struct scsi_cmnd_io
     size_t dxfer_len;
     UINT8 * sensep;     /* ptr to sense buffer when CHECK CONDITION status */
     size_t max_sense_len;
+    unsigned timeout;   /* in seconds, 0-> default timeout (60 seconds?) */
     size_t resp_sense_len;  /* output: sense buffer length */
     UINT8 scsi_status;  /* output: 0->ok, 2->CHECK CONDITION, etc ... */
     int resid;          /* Number of bytes requested to be transferred less */
@@ -217,31 +218,32 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
 
 #define SMART_SENSE_MAX_ENTRY   0x6c
 
-UINT8 scsiCheckSmart(int device, UINT8 method, UINT8 *retval, 
-                     UINT8 *currenttemp, UINT8 *triptemp);
+int scsiCheckSmart(int device, UINT8 method, UINT8 *retval, 
+                   UINT8 *currenttemp, UINT8 *triptemp);
 
-UINT8 scsiSmartSupport (int device, UINT8 *retval);
+int scsiSmartSupport(int device, UINT8 *retval);
 
+int scsiSmartEWASCEnable(int device);
+int scsiSmartEWASCDisable(int device);
 
-UINT8 scsiSmartEWASCEnable (int device);
-UINT8 scsiSmartEWASCDisable (int device);
-
-UINT8 scsiSmartDEXCPTEnable (int device);
-UINT8 scsiSmartDEXCPTDisable (int device);
+int scsiSmartDEXCPTEnable(int device);
+int scsiSmartDEXCPTDisable(int device);
 
 
 /* T10 Standard SMART Sense Code assignment taken from t10.org */
 
 const char* scsiSmartGetSenseCode(UINT8 ascq);
-UINT8 scsiGetTemp ( int device, UINT8 *currenttemp, UINT8 *triptemp);
+int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp);
 
 
-UINT8 scsiSmartOfflineTest (int device);
-UINT8 scsiSmartShortSelfTest (int device);
-UINT8 scsiSmartExtendSelfTest (int device);
-UINT8 scsiSmartShortCapSelfTest (int device);
-UINT8 scsiSmartExtendCapSelfTest (int device);
-UINT8 scsiSmartSelfTestAbort (int device);
+/* int scsiSmartOfflineTest(int device); */
+
+int scsiSmartDefaultSelfTest(int device);
+int scsiSmartShortSelfTest(int device);
+int scsiSmartExtendSelfTest(int device);
+int scsiSmartShortCapSelfTest(int device);
+int scsiSmartExtendCapSelfTest(int device);
+int scsiSmartSelfTestAbort(int device);
 
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 #endif
