@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.35 2004/02/12 18:30:15 card_captor Exp $
+$Id: INSTALL,v 1.36 2004/02/28 20:03:49 pervalidus Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -11,11 +11,13 @@ Table of contents:
 [1] Kernel requirements
 [2] Installing from CVS
 [3] Installing from source tarball
-[4] Guidelines for different linux distributions
+[4] Guidelines for different Linux distributions
 [5] Guidelines for FreeBSD
-[6] Guidelines for Solaris
-[7] Comments
-[8] Detailed description of ./configure options
+[6] Guidelines for NetBSD
+[7] Guidelines for Solaris
+[8] Guidelines for Windows
+[9] Comments
+[10] Detailed description of ./configure options
 
 [1] Kernel requirements
 =======================
@@ -117,14 +119,8 @@ Table of contents:
 Note: Please send corrections/additions to:
 smartmontools-support@lists.sourceforge.net
 
-Red Hat:
-  ./configure
-  OR EQUIVALENTLY
-  ./configure --sbindir=/usr/sbin                               \
-	      --sysconfdir=/etc                                 \
-	      --mandir=/usr/share/man                           \
-	      --with-initscriptdir=/etc/rc.d/init.d             \
-	      --with-docdir=/usr/share/doc/smartmontools-VERSION
+Debian:
+  ./configure --prefix=/usr/local
 
 Filesystem Hierarchy Standard (FHS):
   ./configure --sbindir=/usr/local/sbin                               \
@@ -133,26 +129,14 @@ Filesystem Hierarchy Standard (FHS):
               --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
               --with-docdir=/usr/local/share/doc/smartmontools-VERSION
 
-FreeBSD:
-  ./configure --sbindir=/usr/local/sbin                               \
-              --sysconfdir=/usr/local/etc                             \
-              --mandir=/usr/local/man                                 \
-              --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
-              --with-docdir=/usr/local/share/doc/smartmontools-VERSION
-
-NetBSD:
-  ./configure --prefix=/usr/pkg                                       \
-	      --with-docdir=/usr/pkg/share/doc/smartmontools
-
-SuSE:
-  ./configure --sbindir=/usr/sbin                                        \
-              --sysconfdir=/etc                                          \
-              --mandir=/usr/share/man                                    \
-              --with-initscriptdir=/etc/init.d                           \
-              --with-docdir=/usr/share/doc/packages/smartmontools-VERSION
-
-Debian:
-  ./configure --prefix=/usr/local
+Red Hat:
+  ./configure
+  OR EQUIVALENTLY
+  ./configure --sbindir=/usr/sbin                               \
+	      --sysconfdir=/etc                                 \
+	      --mandir=/usr/share/man                           \
+	      --with-initscriptdir=/etc/rc.d/init.d             \
+	      --with-docdir=/usr/share/doc/smartmontools-VERSION
 
 Slackware:
   If you don't want to overwrite any "distribution" package, use:
@@ -182,8 +166,15 @@ Slackware:
   For a list of options:
   /etc/rc.d/smartd
 
+SuSE:
+  ./configure --sbindir=/usr/sbin                                        \
+              --sysconfdir=/etc                                          \
+              --mandir=/usr/share/man                                    \
+              --with-initscriptdir=/etc/init.d                           \
+              --with-docdir=/usr/share/doc/packages/smartmontools-VERSION
+
 [5] Guidelines for FreeBSD
-================================================
+==========================
   To match the way it will installed when it becomes available as a PORT, use
   the following:
 
@@ -202,8 +193,12 @@ Slackware:
 	/usr/local/etc/smartd.conf.sample
 	/usr/local/etc/rc.d/smartd.sample
 
+[6] Guidelines for NetBSD
+=========================
+  ./configure --prefix=/usr/pkg                                       \
+	      --with-docdir=/usr/pkg/share/doc/smartmontools
 
-[6] Guidelines for Solaris
+[7] Guidelines for Solaris
 ==========================
 
     smartmontools has been partially but not completely ported to
@@ -237,7 +232,13 @@ Slackware:
     where <knum> is related to <snum> such that the higher snum is the
     lower knum must be.
 
-[7] Comments
+[8] Guidelines for Windows
+==========================
+Cygwin:
+  ./configure --mandir=/usr/share/man				\
+	      --with-docdir=/usr/share/doc/smartmontools-VERSION
+
+[9] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -298,8 +299,8 @@ The following files are installed if ./configure has no options:
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[8] Detailed description of arguments to configure command
-==========================================================
+[10] Detailed description of arguments to configure command
+===========================================================
 
 When you type:
 ./configure [options]
