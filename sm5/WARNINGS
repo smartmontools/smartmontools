@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.27 2004/06/10 16:00:21 ballen4705 Exp $
+$Id: WARNINGS,v 1.28 2004/07/16 01:41:19 geoffk1 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -111,3 +111,13 @@ NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support
           Invalid log output has been reported for at least one
           W2K system.
 
+DARWIN
+------
+
+SYSTEM:   Any system before at least 7H63
+PROBLEM:  Can't switch off SMART, can't switch off auto-save, can't run
+	  short tests.
+REPORTER: Geoff Keating <geoffk@geoffk.org>
+NOTE:	  There's a bug in the system library: when you ask it to
+	  do any of these things, it does the inverse (switches on,
+	  runs extended tests).  Radar 3727283.
