@@ -33,11 +33,13 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
+#define ARGUSED(x) ((void)(x))
+
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.20 2004/08/18 19:27:44 likewise Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.21 2004/08/28 23:23:46 card_captor Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.20 2004/08/18 19:27:44 likewise Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.21 2004/08/28 23:23:46 card_captor Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -145,7 +147,7 @@ int guess_device_type (const char* dev_name) {
   else if (isatadev(dev_name))
     return CONTROLLER_ATA;
   else
-    return CONTROLLER_UNKNOW;
+    return CONTROLLER_UNKNOWN;
 }
 
 struct pathlist {
@@ -279,6 +281,7 @@ static void swap_sector(void *p)
 
 // Interface to ATA devices.  See os_linux.c
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
+    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
     return -1;
 }
 
