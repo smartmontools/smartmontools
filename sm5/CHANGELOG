@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.35 2002/10/31 17:01:14 ballen4705 Exp $
+$Id: CHANGELOG,v 1.36 2002/11/04 13:32:08 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -25,18 +25,26 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
+smartmontools-5.0.30
+  smartctl: added new options -n and -N to force device to be ATA or SCSI
+  smartctl: no longer dies silently if device path does not start/dev/X
+  smartctl: now handles arbitrary device paths
+
+smartmontools-5.0.29
+  Modified .spec file and Makefile to make them more compliant with
+  the "right" way of doing things.
+
 smartmontools-5.0.26
+  Fixed typesetting error in man page smartd.8
 
-Fixed typesetting error in man page smartd.8
-
-Removed redundant variable (harmless) from smartd.c
+  Removed redundant variable (harmless) from smartd.c
 
 smartmontools-5.0.25
 
-Added a new directive for the configuration file.  If the word
-DEVICESCAN appears before any non-commented material in the
-configuration file, then the confi file will be ignored and the
-devices wil be scanned.
+  Added a new directive for the configuration file.  If the word
+  DEVICESCAN appears before any non-commented material in the
+  configuration file, then the confi file will be ignored and the
+  devices wil be scanned.
 
 smartmontools-5.0.24
 
