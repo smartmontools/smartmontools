@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.73 2003/04/02 03:55:41 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.74 2003/04/02 04:41:19 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -425,64 +425,64 @@ char *create_vendor_attribute_arg_list(void){
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
 int os_specific_handler(int device, smart_command_set command, int select, char *data){
-  unsigned char buffer[516];
+  unsigned char buff[516];
   int retval, copydata=0;
 
-  // clear out buffer.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
-  memset(buffer, 0, 516);
+  // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
+  memset(buff, 0, 516);
 
-  buffer[0]=WIN_SMART;
+  buff[0]=WIN_SMART;
   switch (command){
   case READ_VALUES:
-    buffer[2]=SMART_READ_VALUES;
-    buffer[3]=1;
+    buff[2]=SMART_READ_VALUES;
+    buff[3]=1;
     break;
   case READ_THRESHOLDS:
-    buffer[2]=SMART_READ_THRESHOLDS;
-    buffer[1]=buffer[3]=1;
+    buff[2]=SMART_READ_THRESHOLDS;
+    buff[1]=buff[3]=1;
     break;
   case READ_LOG:
-    buffer[2]=SMART_READ_LOG_SECTOR;
-    buffer[1]=select;
-    buffer[3]=1;
+    buff[2]=SMART_READ_LOG_SECTOR;
+    buff[1]=select;
+    buff[3]=1;
     break;
   case IDENTIFY:
-    buffer[0]=WIN_IDENTIFY;
-    buffer[3]=1;
+    buff[0]=WIN_IDENTIFY;
+    buff[3]=1;
     break;
   case PIDENTIFY:
-    buffer[0]=WIN_PIDENTIFY;
-    buffer[3]=1;
+    buff[0]=WIN_PIDENTIFY;
+    buff[3]=1;
     break;
   case ENABLE:
-    buffer[2]=SMART_ENABLE;
-    buffer[1]=1;
+    buff[2]=SMART_ENABLE;
+    buff[1]=1;
     break;
   case DISABLE:
-    buffer[2]=SMART_DISABLE;
-    buffer[1]=1;
+    buff[2]=SMART_DISABLE;
+    buff[1]=1;
     break;
   case STATUS:
-    // warning -- this command only says if SMART is working.  It
-    // could be replaced with STATUS_CHECK below.
-    buffer[2]=SMART_STATUS;
+    // this command only says if SMART is working.  It could be
+    // replaced with STATUS_CHECK below.
+    buff[2]=SMART_STATUS;
     break;
   case AUTO_OFFLINE:
-    buffer[2]=SMART_AUTO_OFFLINE;
-    buffer[1]=select;
+    buff[2]=SMART_AUTO_OFFLINE;
+    buff[1]=select;
     break;
   case AUTOSAVE:
-    buffer[2]=SMART_AUTOSAVE;
-    buffer[1]=select;
+    buff[2]=SMART_AUTOSAVE;
+    buff[1]=select;
     break;
   case IMMEDIATE_OFFLINE:
-    buffer[2]=SMART_IMMEDIATE_OFFLINE;
-    buffer[1]=select;
+    buff[2]=SMART_IMMEDIATE_OFFLINE;
+    buff[1]=select;
     break;
-    // the following cases uses HDIO_DRIVE_TASK and has different
-    // syntax than the other commands.
+    // the command uses HDIO_DRIVE_TASK and has different syntax than
+    // the other commands.
   case STATUS_CHECK:
-    buffer[1]=SMART_STATUS;
+    buff[1]=SMART_STATUS;
     break;
   default:
     pout("Unrecognized command %d in os_specific_handler()\n", command);
@@ -493,65 +493,61 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK){
-    unsigned const char normal_cyl_lo=0x4f, normal_cyl_hi=0xc2;
-    unsigned const char failed_cyl_lo=0xf4, failed_cyl_hi=0x2c;
-    buffer[4]=normal_cyl_lo;
-    buffer[5]=normal_cyl_hi;
+    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+    buff[4]=normal_lo;
+    buff[5]=normal_hi;
     
     // HDIO_DRIVE_TASK IOCTL
-    retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
-    
-    if (retval)
+    if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
       return -1;
     
     // Cyl low and Cyl high unchanged means "Good SMART status"
-    if (buffer[4]==normal_cyl_lo && buffer[5]==normal_cyl_hi)
+    if (buff[4]==normal_lo && buff[5]==normal_hi)
       return 0;
     
     // These values mean "Bad SMART status"
-    if (buffer[4]==failed_cyl_lo && buffer[5]==failed_cyl_hi)
+    if (buff[4]==failed_lo && buff[5]==failed_hi)
       return 1;
     
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
     pout("Please get assistance from %s\n",PROJECTHOME);
     pout("Register values returned from SMART Status command are:\n");
-    pout("CMD=0x%02x\n",(int)buffer[0]);
-    pout("FR =0x%02x\n",(int)buffer[1]);
-    pout("NS =0x%02x\n",(int)buffer[2]);
-    pout("SC =0x%02x\n",(int)buffer[3]);
-    pout("CL =0x%02x\n",(int)buffer[4]);
-    pout("CH =0x%02x\n",(int)buffer[5]);
-    pout("SEL=0x%02x\n",(int)buffer[6]);
+    pout("CMD=0x%02x\n",(int)buff[0]);
+    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("NS =0x%02x\n",(int)buff[2]);
+    pout("SC =0x%02x\n",(int)buff[3]);
+    pout("CL =0x%02x\n",(int)buff[4]);
+    pout("CH =0x%02x\n",(int)buff[5]);
+    pout("SEL=0x%02x\n",(int)buff[6]);
     return -1;   
   }
   
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
-  copydata=buffer[3];
-  retval=ioctl(device, HDIO_DRIVE_CMD, buffer);
-  
-  if (retval)
+  copydata=buff[3];
+  if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
   
   if (copydata)
-    memcpy(data, buffer+4, 512);
+    memcpy(data, buff+4, 512);
   
   return 0; 
 }
 
 static char *commandstrings[]={
-  [ENABLE]="SMART ENABLE",
-  [DISABLE]="SMART DISABLE",
-  [AUTOSAVE]="SMART AUTOMATIC ATTRIBUTE SAVE",
+  [ENABLE]=           "SMART ENABLE",
+  [DISABLE]=          "SMART DISABLE",
+  [AUTOSAVE]=         "SMART AUTOMATIC ATTRIBUTE SAVE",
   [IMMEDIATE_OFFLINE]="SMART IMMEDIATE OFFLINE",
-  [AUTO_OFFLINE]="SMART AUTO OFFLINE",
-  [STATUS]="SMART STATUS",
-  [STATUS_CHECK]="SMART STATUS CHECK",
-  [READ_VALUES]="SMART READ ATTRIBUTE VALUES",
-  [READ_THRESHOLDS]="SMART READ ATTRIBUTE THRESHOLDS",
-  [READ_LOG]="SMART READ LOG",
-  [IDENTIFY]="DRIVE IDENTIFY",
-  [PIDENTIFY]="DRIVE PACKET IDENTIFY"
+  [AUTO_OFFLINE]=     "SMART AUTO OFFLINE",
+  [STATUS]=           "SMART STATUS",
+  [STATUS_CHECK]=     "SMART STATUS CHECK",
+  [READ_VALUES]=      "SMART READ ATTRIBUTE VALUES",
+  [READ_THRESHOLDS]=  "SMART READ ATTRIBUTE THRESHOLDS",
+  [READ_LOG]=         "SMART READ LOG",
+  [IDENTIFY]=         "IDENTIFY DEVICE" ,
+  [PIDENTIFY]=        "IDENTIFY PACKET DEVICE" 
 };
 
 void prettyprint(unsigned char *stuff, char *name){
@@ -569,18 +565,24 @@ void prettyprint(unsigned char *stuff, char *name){
 // This function provides the pretty-print reporting
 int smartcommandhandler(int device, smart_command_set command, int select, char *data){
   int retval;
-  int getsdata;
 
-  getsdata=(command==PIDENTIFY || 
-	    command==IDENTIFY || 
-	    command==READ_LOG || 
-	    command==READ_THRESHOLDS || 
-	    command==READ_VALUES);
+  // This conditional is true for commands that return data
+  int getsdata=(command==PIDENTIFY || 
+	        command==IDENTIFY || 
+	        command==READ_LOG || 
+	        command==READ_THRESHOLDS || 
+	        command==READ_VALUES);
   
   // If reporting is enabled, say what the command will be before it's executed
   if (con->reportataioctl){
+	  // conditional is true for commands that use parameters
+	  int usesparam=(command==READ_LOG || 
+			 command==AUTO_OFFLINE || 
+			 command==AUTOSAVE || 
+			 command==IMMEDIATE_OFFLINE);
+		  
     pout("\nSMART-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
-    if (command==READ_LOG || command==AUTO_OFFLINE || command==AUTOSAVE || command==IMMEDIATE_OFFLINE)
+    if (usesparam)
       pout(" InputParameter=%d\n", select);
     else
       pout("\n");
@@ -596,7 +598,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){
-    pout("SMART-IOCTL: DeviceFD=%d Command=%s returned %d.\n", device, commandstrings[command], retval);
+    pout("SMART-IOCTL: DeviceFD=%d Command=%s returned %d\n", device, commandstrings[command], retval);
     // if requested, pretty-print the output data structure
     if (con->reportataioctl>0 && getsdata)
       prettyprint((unsigned char *)data, commandstrings[command]);
