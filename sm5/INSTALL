@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.19 2003/10/05 13:57:18 ballen4705 Exp $
+$Id: INSTALL,v 1.20 2003/10/11 16:18:50 arvoreen Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -12,11 +12,13 @@ Table of contents:
 [2] Installing from CVS
 [3] Installing from source tarball
 [4] Guidelines for different linux distributions
-[5] Comments
-[6] Detailed description of ./configure options
+[5] Guidelines for FreeBSD
+[6] Comments
+[7] Detailed description of ./configure options
 
 [1] Kernel requirements
 =======================
+  A) Linux
 Any recent Linux distribution should support smartmontools.  Note that
 smartmontools requires Linux kernel 2.2.14 or greater in order to run
 at all.  But to give the ATA RETURN SMART STATUS command, the kernel
@@ -24,6 +26,13 @@ needs to support the HDIO_DRIVE_TASK ioctl().  Any 2.4 series kernel
 should provide this support.  Some of the 2.2.20 and later kernels
 also provide this support if they're properly patched and configured.
 Please see FAQ section of the URL above.
+
+  B) FreeBSD
+For FreeBSD support, a 5-current kernel that includes ATAng is required in 
+order to support ATA drives.  Even current versions of ATAng will not support
+100% operation, as the SMART status can not be reliably retrieved.  There
+is patch pending approval of the ATAng driver maintainer that will address 
+this issue.
 
 
 [2] Installing from CVS
@@ -125,7 +134,18 @@ chmod 644 /etc/rc.d/smartd
 For a list of options:
 /etc/rc.d/smartd
 
-[5] Comments
+[5] Guidelines for FreeBSD
+================================================
+To match the way it will installed when it becomese available as a PORT, use
+the following:
+
+./configure --prefix=/usr/local
+
+Note: The rc file currently included and installed may not function. Work is
+ongoing to support a more generic RC format.
+
+
+[6] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -184,7 +204,7 @@ The following files are installed:
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[6] Detailed description of arguments to configure command
+[7] Detailed description of arguments to configure command
 ==========================================================
 
 When you type:

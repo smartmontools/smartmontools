@@ -19,15 +19,16 @@
  *
  */
 
-#include "os_freebsd.h"
+#include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include <camlib.h>
 #include <err.h>
+#include <camlib.h>
 #include <cam/scsi/scsi_message.h>
+#include "os_freebsd.h"
 
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.13 2003/10/11 05:41:02 arvoreen Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.14 2003/10/11 16:18:50 arvoreen Exp $" OS_XXXX_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -145,6 +146,11 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   if (isnotopen(&fd,&con))
       return -1;
 
+#ifndef ATAREQUEST
+  // sorry, but without ATAng, we can't do anything here
+  errno = ENOSYS;
+  return -;
+#else
   bzero(buff,512);
 
   bzero(&iocmd,sizeof(struct ata_cmd));
@@ -229,7 +235,12 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     // replaced with STATUS_CHECK below.
     iocmd.u.request.u.ata.feature=SMART_STATUS;
     iocmd.u.request.u.ata.lba=0xc24f<<8;
-    iocmd.u.request.flags=ATA_CMD_CONTROL|ATA_CMD_READ_REG;
+    iocmd.u.request.flags=ATA_CMD_CONTROL;
+#ifdef ATA_CMD_READ_REG
+    // this is not offical ATAng code.  Patch submitted, will remove
+    // once accepted and committed.
+    iocmd.u.request.flags |= ATA_CMD_READ_REG;
+#endif
     break;
   default:
     pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
@@ -244,6 +255,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     
     if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)))
       return -1;
+
+#ifndef ATA_CMD_READ_REG
+    pout("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\n");
+#endif
 
     high = (iocmd.u.request.u.ata.lba >> 16) & 0xff;
     low = (iocmd.u.request.u.ata.lba >> 8) & 0xff;
@@ -278,7 +293,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
   if (copydata)
     memcpy(data, buff, 512);
   
-  return 0; 
+  return 0;
+#endif
 }
 
 
