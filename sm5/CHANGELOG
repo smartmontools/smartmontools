@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.165 2003/08/01 11:09:37 knan Exp $
+$Id: CHANGELOG,v 1.166 2003/08/01 11:40:04 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [GG] add Fujitsu MHN2300AT to vendoropts_9_seconds.
 
   [EB] Fujitsu change in knowndrives ... match the whole MPD and
        MPE series for vendoropts_9_seconds.
