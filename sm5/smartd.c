@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.85 2002/12/08 12:56:52 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.86 2002/12/15 16:54:29 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -359,10 +359,7 @@ void Usage (void){
 int opendevice(char *device){
   int fd = open(device, O_RDONLY);
   if (fd<0) {
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"Device: %s, %s, open() failed\n",device, sys_errlist[errno]);
-    else
-      printout(LOG_INFO,"Device: %s, open() failed\n",device);
+    printout(LOG_INFO,"Device: %s, %s, open() failed\n",device, strerror(errno));
     return -1;
   }
   // device opened sucessfully
@@ -371,10 +368,7 @@ int opendevice(char *device){
 
 int closedevice(int fd, char *name){
   if (close(fd)){
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"Device: %s, %s, close(%d) failed\n", name, sys_errlist[errno], fd);
-    else
-      printout(LOG_INFO,"Device: %s, close(%d) failed\n",name, fd);
+    printout(LOG_INFO,"Device: %s, %s, close(%d) failed\n", name, strerror(errno), fd);
     return 1;
   }
   // device sucessfully closed
@@ -1102,10 +1096,7 @@ int parseconfigline(int entry, int lineno,char *line){
   static int numtokens=0;
 
   if (!(copy=strdup(line))){
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, sys_errlist[errno]);
-    else
-      printout(LOG_INFO,"No memory to parse file: %s line %d\n", CONFIGFILE, lineno);
+    printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(1);
   }
   
@@ -1146,10 +1137,7 @@ int parseconfigline(int entry, int lineno,char *line){
   cfg->trackatt=(unsigned char *)calloc(32,1);
   
   if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
-    if (errno<sys_nerr)
-      printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, sys_errlist[errno]);
-    else
-      printout(LOG_INFO,"No memory to store file: %s line %d\n", CONFIGFILE, lineno);
+    printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(1);
   }
 
@@ -1421,10 +1409,7 @@ int makeconfigentries(int num, char *name, int isata, int start){
     cfg->failatt=(unsigned char *)calloc(32,1);
     cfg->trackatt=(unsigned char *)calloc(32,1);
     if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
-      if (errno<sys_nerr)
-	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, sys_errlist[errno]);
-      else
-	printout(LOG_INFO,"No memory for %d'th device after %s\n", i, name);
+	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(1);
     }
 
