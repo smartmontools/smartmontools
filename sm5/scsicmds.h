@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.44 2003/12/02 03:22:33 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.45 2003/12/16 20:09:16 ballen4705 Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,8 +40,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-
-#define PROJECTHOME "http://smartmontools.sourceforge.net/"
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
