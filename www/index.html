@@ -223,14 +223,18 @@ attributes, please send an email to <a href="http://lists.sourceforge.net/mailma
 smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
 
-<li><b>My Maxtor/Hitachi disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
+<li><b>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
 
 <p>On some recent disks, Maxtor has started to use Attribute 9 to
 store the lifetime in minutes rather than hours.  In this case, use
 the -m option (smartctl versions 5.0.X) or the
 --vendorattribute=9,minutes (smartctl 5.1.X) option to correctly
 display hours and minutes.
-</p></li>
+</p>
+<p>Some models of Fujitsu disks are known to use Attribute 9
+for lifetime in seconds. In that case, use the --vendorattribute=9,seconds
+option to correctly display hours, minutes and seconds.</p>
+</li>
 
 <li><b>What Kernel Version is needed?</b>
 
@@ -239,7 +243,7 @@ Unfortunately I can't give a definitive answer to this question.  In
 principle the 2.4 series kernels all provide the needed support.  The
 later 2.2 series kernels should work OK.  However, depending upon the
 2.2 kernel version, patch level, and configuration options, they may
-not support the HDIO_DRIVE_TASK ioctl().  This is needed for the drive
+not support the HDIO_DRIVE_TASK ioctl().  This is needed for the ATA drive
 to execute the ATA SMART RETURN STATUS command.
 </p></li>
 
