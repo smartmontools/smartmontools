@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.153 2004/06/04 20:16:32 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.154 2004/06/04 20:59:16 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1042,13 +1042,13 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
     break;
   case  4:msg="Completed_unknown_failure";
     break;
-  case  5:msg="Completed_electrical failure";
+  case  5:msg="Completed_electrical_failure";
     break;
-  case  6:msg="Completed_servo/seek failure";
+  case  6:msg="Completed_servo/seek_failure";
     break;
   case  7:msg="Completed_read_failure";
     break;
-  case  8:msg="Completed_handling damage??";
+  case  8:msg="Completed_handling_damage??";
     break;
   case 15:msg="Self_test_in_progress";
     break;
