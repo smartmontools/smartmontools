@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.24 2003/03/30 11:03:36 pjwilliams Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.25 2003/03/30 11:22:56 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -159,6 +159,8 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     iop->resp_sense_len = 0;
     iop->scsi_status = 0;
     iop->resid = 0;
+    /* The SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't 
+     * support: CDB length (guesses it from opcode), resid and timeout */
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
     if (con->reportscsiioctl) {
       if (-1 == status)
@@ -188,6 +190,21 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         return -ENODEV;      /* give up, assume no device there */
 }
 #endif
+
+void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
+                          struct scsi_sense_disect * out)
+{
+    memset(out, 0, sizeof(out));
+    if ((io_buf->scsi_status & 0x2) && (io_buf->resp_sense_len > 7)) {  
+        /* CHECK CONDITION and CMD TERMINATED */
+        out->error_code = (io_buf->sensep[0] & 0x7f);
+        out->sense_key = (io_buf->sensep[2] & 0xf);
+        if (io_buf->resp_sense_len > 13) {
+            out->asc = io_buf->sensep[12];
+            out->ascq = io_buf->sensep[13];
+        }
+    }
+}
 
 int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
@@ -375,24 +392,39 @@ int inquiry(int device, int pagenum, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-int requestsense(int device, UINT8 *pBuf, int bufLen)
+int requestsense(int device, struct scsi_sense_disect * sense_info)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
-    int status;
+    UINT8 buff[18];
+    int status, len;
+    UINT8 ecode;
 
-    if ((bufLen < 0) || (bufLen > 255))
-        return -EINVAL;
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-    io_hdr.dxfer_len = bufLen;
-    io_hdr.dxferp = pBuf;
+    io_hdr.dxfer_len = sizeof(buff);
+    io_hdr.dxferp = buff;
     cdb[0] = REQUEST_SENSE;
-    cdb[4] = bufLen;
+    cdb[4] = sizeof(buff);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
     status = do_scsi_cmnd_io(device, &io_hdr);
+    if ((0 == status) && (sense_info)) {
+        ecode = buff[0] & 0x7f;
+        sense_info->error_code = ecode;
+        sense_info->sense_key = buff[2] & 0xf;
+        if ((0x70 != ecode) && (0x71 != ecode)) {
+            sense_info->asc = 0;
+            sense_info->ascq = 0;
+            return status;
+        }
+        len = buff[4] + 8;
+        if (len > 13) {
+            sense_info->asc = buff[12];
+            sense_info->ascq = buff[13];
+        }
+    }
     return status;
 }
 
@@ -418,8 +450,8 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     cdb[4] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
-    io_hdr.timeout = 60 * 60;   /* one hour because a foreground extended
-                                   self test can take 20 minutes plus */
+    io_hdr.timeout = 5 * 60 * 60;   /* five hours because a foreground 
+                    extended self tests can take 1 hour plus */
     status = do_scsi_cmnd_io(device, &io_hdr);
     return status;
 }
@@ -550,13 +582,13 @@ int scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
                    UINT8 *currenttemp, UINT8 *triptemp)
 {
     UINT8 tBuf[1024];
-    UINT8 asc;
-    UINT8 ascq;
+    struct scsi_sense_disect sense_info;
     int err;
     unsigned short pagesize;
  
     *currenttemp = *triptemp = 0;
   
+    memset(&sense_info, 0, sizeof(sense_info));
     if (method == CHECK_SMART_BY_LGPG_2F) {
         if ((err = logsense(device, SMART_PAGE, tBuf, sizeof(tBuf)))) {
             *currenttemp = 0;
@@ -568,25 +600,23 @@ int scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
         pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
         if (! pagesize)
             return 1; /* failed read of page 2F\n */
-        asc = tBuf[8]; 
-        ascq = tBuf[9];
+        sense_info.asc = tBuf[8]; 
+        sense_info.ascq = tBuf[9];
         if ((pagesize == 8) && currenttemp && triptemp) {
             *currenttemp = tBuf[10];
             *triptemp =  tBuf[11];
         } 
     } else {
-        if ((err = requestsense(device, tBuf, 254))) {
+        if ((err = requestsense(device, &sense_info))) {
             *currenttemp = 0;
             *triptemp = 0;
             *retval = 0;
             pout("Request Sense failed, err=%d\n", err);
             return 1;
         }
-        asc = tBuf[12]; 
-        ascq = tBuf[13];
     }
-    if (asc == 0x5d)
-        *retval = ascq;
+    if (sense_info.asc == 0x5d)
+        *retval = sense_info.ascq;
     else
         *retval = 0;
     return 0;
@@ -752,7 +782,7 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code)
 }
 
 /* this is a subset of the SCSI additional sense code strings indexed
- * by "asq" for the case when asc==0x5d
+ * by "ascq" for the case when asc==0x5d
  */
 static const char * strs_for_asc_5d[] = {
    /* 0x00 */   "FAILURE PREDICTION THRESHOLD EXCEEDED",
@@ -876,8 +906,8 @@ const char * scsiSmartGetSenseCode(UINT8 ascq)
 }
 
 /* This is not documented in t10.org, page 0x80 is vendor specific */
-#if 0
-int scsiSmartOfflineTest(int device)
+/* Some IBM disks do an offline read-scan when they get this command. */
+int scsiSmartIBMOfflineTest(int device)
 {       
     UINT8 tBuf[256];
         
@@ -893,7 +923,6 @@ int scsiSmartOfflineTest(int device)
     tBuf[7] = 0x00; /* Off-line Immediate Time LSB */
     return senddiagnostic(device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
 }
-#endif
 
 int scsiSmartDefaultSelfTest(int device)
 {       
