@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.158 2003/06/20 00:16:11 ballen4705 Exp $
+$Id: CHANGELOG,v 1.159 2003/06/26 17:21:40 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -48,6 +48,9 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
        - SMART Attributes thesholds
        - IDENTIFY DEVICE information
        - LOG DIRECTORY
+       Smartmontools is now free of endian bias and works correctly
+       on both little- and big-endian hardware.  This has been tested by
+       three independent PPC users on a variety of ATA and SCSI hardware.
 
   [DG] Check that certain SCSI command responses are well formed. If
        IEC mode page response is not well formed exit smartctl. This
