@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.53 2003/03/30 11:03:36 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.54 2003/03/31 21:54:14 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -233,9 +233,9 @@ const char *getvalidarglist(char opt) {
       return v_list;
     if (!(s = create_vendor_attribute_arg_list()))
       return NULL;
-    // Allocate space for "\"help\", " + s + terminating 0
-    v_list = (char *)malloc(9+strlen(s));
-    sprintf(v_list, "\"help\", %s", s);
+    // Allocate space for tab + "help" + newline + s + terminating 0
+    v_list = (char *)malloc(7+strlen(s));
+    sprintf(v_list, "\thelp\n%s", s);
     free(s);
     return v_list;
   case 't':
@@ -249,13 +249,19 @@ const char *getvalidarglist(char opt) {
    <LIST> is the list of valid arguments for option opt. */
 void printvalidarglistmessage(char opt) {
   const char *s;
+  char separator;
 
-  pout("=======> VALID ARGUMENTS ARE: ");
-  if (!(s = getvalidarglist(opt)))
+  if (!(s = getvalidarglist(opt))) {
     pout("Error whilst constructing argument list for option %c", opt);
-  else
-    pout((char *)s);
-  pout(" <=======\n");
+    return;
+  }
+
+  // getvalidarglist() might produce a multiline or single line string.  We
+  // need to figure out which to get the formatting right.
+  separator = strchr(s, '\n') ? '\n' : ' ';
+
+  pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, (char *)s,
+    separator);
 }
 
 unsigned char tryata=0,tryscsi=0;
@@ -454,7 +460,7 @@ void ParseOpts (int argc, char** argv){
           pout("Insufficient memory to construct argument list\n");
           exit(FAILCMD);
         }
-        pout("The valid arguments to -v are: \"help\", %s\n", s);
+        pout("The valid arguments to -v are:\n\thelp\n%s\n", s);
         free(s);
         exit(0);
       }
