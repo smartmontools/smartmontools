@@ -218,15 +218,27 @@ The following table shows the mapping of old options to new options:
   -A            -X                      --abort
 
 
- SHOULD BECOME A COMMAND-LINE ARGUMENT (-C N, --checkinterval N) =======>  -C N    Set checktime        NOW CMD LINE
+ SHOULD BECOME A COMMAND-LINE ARGUMENT (-i N, --interval N) =======>       -C N    Set checktime        NOW CMD LINE
                                                                            -f      usage attributes     -f
-                                                                           -M ADD  Email addresses     -M ADD
-                                                                           -m N    Email mode          -m MODE
+                                                                           -M ADD  Email addresses     -m ADD
+                                                                           -m N    Email mode          -M MODE
                                                                            -i N    Ignore              -i N
                                                                            -I N    Ignore              -I N
                                                                             #      Comment              #
                                                                             \      Line continuation    \
   -------------------------------------------------------------------------------------------------------------------
+
+Suggested changes to smartd options:
+
+  ----------------------------------------------------------------------------------------------------------
+  5.0.x short   5.0.x long                                   5.1.x short   5.1.x long
+  option        option                                       option        option
+  ----------------------------------------------------------------------------------------------------------
+  -h, -?        --help                                       -h, -?        --help
+  -V            --version, --copyright, --license            -V            --version, --copyright, --license
+  -X            --debugmode                                  -d            --debug
+                                                             -i            --interval
+  ----------------------------------------------------------------------------------------------------------
 
 Suggested change order (CVS commit at least after each of these):
 Modify smartctl command-line options
