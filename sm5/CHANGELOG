@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.168 2003/08/04 12:58:40 ballen4705 Exp $
+$Id: CHANGELOG,v 1.169 2003/08/04 21:57:11 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -41,10 +41,7 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
   [BA] smartctl - added code to look at ATA drives behind 3ware RAID
        controllers using the 3w-xxxx driver.  Note that for technical
        reasons related to the 3w-xxxx driver, the "Enable Autosave",
-       "Enable Automatic Offline" commands are not implemented.  For
-       similar reasons, the "SMART RETURN STATUS" command is not
-       implemented, so that the SMART Health Status of the disks is
-       always reported as "passing" even if should report failing.
+       "Enable Automatic Offline" commands are not implemented.
        I will add this to smartd shortly.
 
   [BA] smartd - modified sleep loop, so that smartd no longer comes

@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.4 2003/08/04 19:17:14 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.5 2003/08/04 21:57:11 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -167,9 +167,8 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.sector_num  = select; // What test type to run?
     break;
   case STATUS_CHECK:
-    // NOT YET IMPLEMENTED -- SHOULD BE SMART RETURN STATUS
-    pout("WARNING - SMART CHECK STATUS NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
-    return 0;
+    passthru.features = 0xDA;      //SMART RETURN STATUS
+    break;
   case STATUS:
     // This is JUST to see if SMART is enabled, by giving SMART status
     // command. But it doesn't say if status was good, or failing.
@@ -195,11 +194,31 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     return -1;
   }
 
+#if (0)
+  pout("Registers are CL=0x%02u CH=0x%02u\n", 
+       (unsigned)ioctlbuf.parameter_size_bytes,
+       (unsigned)ioctlbuf.input_data[0]);
+#endif
+
   if (readdata){
     TW_Output *tw_output;
     tw_output = (TW_Output *)&ioctlbuf;
     memcpy(data, tw_output->output_data, 512);
   }
 
-  return 0;
+  if (command!=STATUS_CHECK)
+    return 0;
+
+  // STATUS CHECK requires looking at CYL-LO and CYL-HI.  These seem to be in:
+  if (ioctlbuf.parameter_size_bytes==0x4F && ioctlbuf.input_data[0]==0xC2)
+    return 0;
+  
+  if (ioctlbuf.parameter_size_bytes==0xF4 && ioctlbuf.input_data[0]==0x2C)
+    return 1;
+  
+  // NOT YET IMPLEMENTED -- SHOULD BE SMART RETURN STATUS
+  pout("WARNING - SMART CHECK STATUS NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
+  errno=ENOSYS;
+  return -1;
 }
+
