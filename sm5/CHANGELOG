@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.498 2004/12/27 21:25:35 geoffk1 Exp $
+$Id: CHANGELOG,v 1.499 2005/01/13 05:11:15 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] Change lba of first failure in selftest output to
+       decimal (was hex) to conform with ATA output.
 
   [GK] smartd: Detect most self-test failures even if the hour counter
        has wrapped.
