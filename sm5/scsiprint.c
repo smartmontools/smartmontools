@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.83 2004/08/22 22:01:04 likewise Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.84 2004/08/26 09:19:18 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -636,6 +636,41 @@ static const char * transport_proto_arr[] = {
         "0xe",
         "0xf"
 };
+
+/* This is Linux specific code to look for a specific string in a
+   vendor device identification page. Returns 1 if found else 0. */
+static int isLinuxLibAta(unsigned char * buff, int len)
+{
+    int k, id_len, c_set, assoc, id_type, i_len;
+    unsigned char * ucp;
+    unsigned char * ip;
+
+    if (len < 4) {
+        fprintf(stderr, "Device identification VPD page length too "
+                "short=%d\n", len);
+        return 0;
+    }
+    len -= 4;
+    ucp = buff + 4;
+    for (k = 0; k < len; k += id_len, ucp += id_len) {
+        i_len = ucp[3];
+        id_len = i_len + 4;
+        if ((k + id_len) > len) {
+	    /* short descriptor, badly formed */
+            return 0;
+        }
+        ip = ucp + 4;
+        c_set = (ucp[0] & 0xf);
+        assoc = ((ucp[1] >> 4) & 0x3);
+        id_type = (ucp[1] & 0xf);
+	if ((0 == id_type) && (2 == c_set) && (0 == assoc) &&
+	    (0 == strncmp((const char *)ip,
+			  "Linux ATA-SCSI simulator", i_len))) {
+	    return 1;
+        }
+    }
+    return 0;
+}
  
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
@@ -645,27 +680,30 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     char revision[5];
     char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
-    int err, iec_err, len, val;
+    int err, iec_err, len, req_len, avail_len, val;
     int is_tape = 0;
     int peri_dt = 0;
     int returnval=0;
         
-    memset(gBuf, 0, 36);
-    if ((err = scsiStdInquiry(device, gBuf, 36))) {
+    memset(gBuf, 0, 96);
+    req_len = 36;
+    if ((err = scsiStdInquiry(device, gBuf, req_len))) {
         PRINT_ON(con);
         pout("Standard Inquiry (36 bytes) failed [%s]\n", scsiErrString(err));
         pout("Retrying with a 64 byte Standard Inquiry\n");
         PRINT_OFF(con);
         /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
-        memset(gBuf, 0, 64);
-        if ((err = scsiStdInquiry(device, gBuf, 64))) {
+        req_len = 64;
+        if ((err = scsiStdInquiry(device, gBuf, req_len))) {
             PRINT_ON(con);
-            pout("Standard Inquiry (64 bytes) failed [%s]\n", scsiErrString(err));
+            pout("Standard Inquiry (64 bytes) failed [%s]\n",
+		 scsiErrString(err));
             PRINT_OFF(con);
             return 1;
         }
     }
-    len = gBuf[4] + 5;
+    avail_len = gBuf[4] + 5;
+    len = (avail_len < req_len) ? avail_len : req_len;
     peri_dt = gBuf[0] & 0x1f;
     if (peripheral_type)
         *peripheral_type = peri_dt;
@@ -694,6 +732,28 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     } else if ((len >= 42) && (0 == strncmp(&gBuf[36], "MVSATA", 6))) {
         pout("please try '-d marvell'\n");
 	return 2;
+    } else if ((avail_len >= 96) && (0 == strncmp(manufacturer, "ATA", 3))) {
+	/* <<<< This is Linux specific code to detect SATA disks using a
+                SCSI-ATA command translation layer. This may be generalized
+                later when the t10.org SAT project matures. >>>> */
+	req_len = 96;
+	memset(gBuf, 0, req_len);
+        if ((err = scsiInquiryVpd(device, 0x83, gBuf, req_len))) {
+            PRINT_ON(con);
+            pout("Inquiry for VPD page 0x83 [device id] failed [%s]\n",
+		  scsiErrString(err));
+            PRINT_OFF(con);
+            return 1;
+        }
+        avail_len = ((gBuf[2] << 8) + gBuf[3]) + 4;
+        len = (avail_len < req_len) ? avail_len : req_len;
+	if (isLinuxLibAta(gBuf, len)) {
+	    pout("\nSATA disks accessed via libata are not currently "
+		 "supported by\nsmartmontools. When libata is given "
+		 "an ATA pass-thru ioctl() then an\nadditional '-d libata'"
+		 " device type will be added to smartmontools.\n");
+	    return 2;
+	}
     }
 
     /* Do this here to try and detect badly conforming devices (some USB
