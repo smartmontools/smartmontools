@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.79 2004/08/24 01:44:30 ballen4705 Exp $
+$Id: smartd.8.in,v 1.80 2004/08/29 01:56:06 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1033,10 +1033,16 @@ given, then this string will contain space characters and is NOT
 quoted, so to use it in a bash script you may want to enclose it in
 double quotes.
 .IP \fBSMARTD_MESSAGE\fP 4
-is set to the warning email message string from
+is set to the one sentence summary warning email message string from
 \fBsmartd\fP. 
 This message string contains space characters and is NOT quoted. So to
 use $SMARTD_MESSAGE in a bash script you should probably enclose it in
+double quotes.
+.IP \fBSMARTD_FULLMESSAGE\fP 4
+is set to the contents of the entire email warning message string from
+\fBsmartd\fP. 
+This message string contains space and return characters and is NOT quoted. So to
+use $SMARTD_FULLMESSAGE in a bash script you should probably enclose it in
 double quotes.
 .IP \fBSMARTD_TFIRST\fP 4
 is a text string giving the time and date at which the first problem
@@ -1768,4 +1774,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.79 2004/08/24 01:44:30 ballen4705 Exp $
+$Id: smartd.8.in,v 1.80 2004/08/29 01:56:06 ballen4705 Exp $
