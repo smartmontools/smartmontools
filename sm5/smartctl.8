@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.52 2003/03/25 12:08:18 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.53 2003/04/09 10:00:54 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/03/25 12:08:18 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/09 10:00:54 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -185,6 +185,30 @@ default.
 
 .I ignore
 \- continue silently without issuing a warning.
+
+.TP
+.B \-r TYPE, \-\-report=TYPE
+Intended primarily to help
+.B smartmontools
+developers understand the behavior of
+.B smartmontools
+on non-conforming or poorly conforming hardware.  This option reports
+details of
+.B smartctl
+transactions with the device.  The option can be used multiple times.
+When used just once, it shows a record of the ioctl() transactions
+with the device.  Whe used more than once, the detail of these ioctl()
+transactions are reported in greater detail.  The valid arguments to
+this option are:
+
+.I ioctl
+\- report all ioctl() transactions.
+
+.I ataioctl
+\- report only ioctl() transactions with ATA devices.
+
+.I scsiioctl
+\- report only ioctl() transactions with SCSI devices.
 
 .TP
 .B S.M.A.R.T. FEATURE ENABLE/DISABLE COMMANDS:
@@ -748,4 +772,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.52 2003/03/25 12:08:18 ballen4705 Exp $
+$Id: smartctl.8,v 1.53 2003/04/09 10:00:54 ballen4705 Exp $
