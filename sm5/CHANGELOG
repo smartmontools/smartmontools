@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.420 2004/07/09 03:42:42 dpgilbert Exp $
+$Id: CHANGELOG,v 1.421 2004/07/09 12:39:41 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] linux: experimental "support" for 3ware/AMCC 9000 series
+       controllers that use the 3w-9xxx driver.  This will be in a
+       state of flux for a few days.  Note that this requires the
+       character interface /dev/twa[0-15].
 
   [DG] linux: extend general SCSI OS interface to use the SG_IO ioctl. If
        not available, use the older SCSI_IOCTL_SEND_COMMAND ioctl.
