@@ -38,7 +38,7 @@ ATA/ATAPI-5, -6, and -7</a></li>
 <li><a href="#sampleoutput">Example output from smartmontools</a>
 <b>smartctl</b> utility</li>
 <li><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/">CVS
-Archive</a> and <a href="http://sourceforge.net/projects/smartmontools/">SourceForge's
+repository</a> and <a href="http://sourceforge.net/projects/smartmontools/">SourceForge's
 Project Page</a></li>
 <li>Mailing List <a href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">Information</a>
 and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">Archives</a></li>
@@ -88,18 +88,41 @@ make
 make install (only root can do this)</pre></li>
 </ul>
 
-<b>Third Method - Download code directly from the CVS archive</b>
+<b>Third Method - Install from the CVS repository</b>
 <ul>
-<li>Download the latest code snapshot from CVS.&#160; If prompted for a
-password, simply press the Enter key.&#160; Note that the two lines
-below that start "<tt>cvs</tt>" are long !
-<pre>cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
-cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
-<li>The previous step created a subdirectory called <tt>sm5/</tt>
-containing the code.&#160; Go to that directory, build, and install:
+<li><p>One of the really cool things about CVS is that you can get
+<i>any</i> version of the code you want, from the first release up the
+the most current development version.&#160; And it's trivial, because
+each release is <u>tagged</u> with a name like
+<tt>RELEASE_5_0_26</tt>.&#160; You can see what the different names are
+by looking at the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/">
+CVS repository</a>.&#160; You'll see the tag names in the little scroll
+window where it says "Show only files with tag".&#160; All you need to
+do to get the latest development code is:</p>
+
+<pre>cvs -d: pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
+cvs -d: pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
+
+<li>To instead get the 5.0-26 release:
+
+<pre>cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_0_26 sm5</pre></li>
+
+<li><p>This will create a subdirectory called <tt>sm5/</tt> containing the
+code.&#160; Go to that directory, build, and install:</p>
+
 <pre>cd sm5
 make
 make install (only root can do this)</pre></li>
+
+<li>To update your sources to the 5.0-30 release:
+
+<pre>cd sm5
+cvs up -r RELEASE_5_0_30</pre></li>
+
+<li>To update any tagged release to the latest development code:
+
+<pre>cd sm5
+cvs up -A</pre></li>
 </ul>
 
 <b>After installing using Method 1, 2 or 3 above, you can read the man
@@ -114,8 +137,6 @@ man 8 smartd
 <tt>/usr/share/man/man8</tt>.&#160; If "<tt>man</tt>" does not find the
 manual pages, then you may need to add <tt>/usr/share/man</tt> to your
 <tt>MANPATH</tt> environment variable.</p>
-
-<p><a href="#cvshelp"><b>How to use CVS to get any version of smartmontools</b></a></p>
 
 <hr size="2" />
 
@@ -181,30 +202,6 @@ system doesn't have most of these devices.</p>
 <p>The latest release of smartd can use a configuration file
 <tt>/etc/smartd.conf</tt> to specify which devices to include or exclude
 from start-up search.</p></li>
-
-<li><b><a name="cvshelp"></a>How can I use CVS to get different versions
-of smartmontools?</b>
-
-<p>One of the really cool things about CVS is that you can get
-<i>any</i> version of the code you want, from the first release up the
-the most current development version.&#160; And it's trivial, because
-each release is <u>tagged</u> with a name like
-<tt>RELEASE_5_0_30</tt>.&#160; You can see what the different names are
-by looking at the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/">Smartmontools
-CVS Archive</a>.&#160; You'll see the tag names in the little scroll
-window where it says "Show only the files with Tag".&#160; All you need
-to do is:</p>
-
-<pre>cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
-cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_0_30 sm5</pre>
-
-<p>If prompted for a password, just press Enter.&#160; This will create a
-subdirectory called <tt>sm5/</tt> containing the code.&#160; Go to that
-directory, build, install, and enjoy:</p>
-<pre>
-cd sm5
-make
-make install (only root can do this)</pre></li>
 
 <li><b>What's the story on IBM S.M.A.R.T. disks?</b>
 
