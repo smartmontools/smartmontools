@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003 NAME HERE <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.2 2003/10/12 09:10:03 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.3 2003/10/13 11:49:48 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Like open().  Return positive integer handle, used by functions below only.  type="ATA" or "SCSI".
