@@ -14,11 +14,6 @@
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * This code was originally developed as a Senior Thesis by Michael Cornwell
- * at the Concurrent Systems Laboratory (now part of the Storage Systems
- * Research Center), Jack Baskin School of Engineering, University of
- * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- *
  */
 
 #include <stdlib.h>
@@ -40,9 +35,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.16 2004/02/18 23:41:51 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.17 2004/03/13 02:32:52 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.16 2004/02/18 23:41:51 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.17 2004/03/13 02:32:52 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
