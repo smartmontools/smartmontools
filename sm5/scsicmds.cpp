@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.31 2003/04/06 03:55:41 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.32 2003/04/07 03:43:39 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -243,7 +243,7 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
                 SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
     if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
-	iop->sensep && (len > 0)) {
+        iop->sensep && (len > 0)) {
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
         if (con->reportscsiioctl > 1) {
@@ -271,7 +271,7 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 {
     memset(out, 0, sizeof(out));
     if ((SCSI_STATUS_CHECK_CONDITION == io_buf->scsi_status) && 
-	(io_buf->resp_sense_len > 7)) {  
+        (io_buf->resp_sense_len > 7)) {  
         out->error_code = (io_buf->sensep[0] & 0x7f);
         out->sense_key = (io_buf->sensep[2] & 0xf);
         if (io_buf->resp_sense_len > 13) {
@@ -309,15 +309,15 @@ int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("log sense: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -352,15 +352,15 @@ int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("modesense: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -408,17 +408,17 @@ int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
-	else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
-	    return 3;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
+        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("modeselect: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -452,15 +452,15 @@ int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("modesense10: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -509,17 +509,17 @@ int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
-	else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
-	    return 3;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
+        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("modeselect10: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -578,15 +578,15 @@ int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("inquiry_vpd: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -663,15 +663,15 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("senddiagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -706,15 +706,15 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
-	if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-	    return 1;
-	else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
-	    return 2;
+        if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
+            return 1;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 2;
     }
     if (status > 0) {
         pout("receivediagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
              status, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-	status = -EIO;
+        status = -EIO;
     }
     return status;
 }
@@ -749,21 +749,21 @@ int testunitready(int device)
 
     status = _testunitready(device, &sinfo);
     if (SCSI_SK_NOT_READY == sinfo.sense_key)
-	return 1;
+        return 1;
     else if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
-	/* power on reset, media changed, ok ... try again */
-	status = _testunitready(device, &sinfo);	
+        /* power on reset, media changed, ok ... try again */
+        status = _testunitready(device, &sinfo);        
         if (SCSI_SK_NOT_READY == sinfo.sense_key)
-	    return 1;
+            return 1;
     }
     return status;
 }
 
 /* ModePage1C Handler */
-#define SMART_SUPPORT   0x00    
+#define FETCH_EIC_2BYTE   0x00    
 
 /* Mode page 0x1c is the "Imformation Exception Control" (IEC) page */
-int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
+int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *iec_2p)
 {
     char tBuf[254];
         
@@ -794,8 +794,8 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
             tBuf[14] &= 0xef;
             /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
             break;
-        case SMART_SUPPORT:
-            *retval = tBuf[14] & 0x18;
+        case FETCH_EIC_2BYTE:
+            *iec_2p = tBuf[14] & 0x18;
             /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
             if (con->reportscsiioctl)
                 pout("\n");
@@ -827,9 +827,9 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
     return 0;
 }
 
-int scsiSmartSupport(int device, UINT8 *retval)
+int scsiSmartSupport(int device, UINT8 *iec_2p)
 {
-    return scsiSmartModePage1CHandler( device, SMART_SUPPORT, retval);
+    return scsiSmartModePage1CHandler(device, FETCH_EIC_2BYTE, iec_2p);
 }
 
 int scsiSmartEWASCEnable(int device)
