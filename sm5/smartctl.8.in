@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.20 2004/01/29 03:21:06 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.21 2004/01/29 21:45:57 shattered Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -63,6 +63,10 @@ SCSI Tape Drives and Changers with TapeAlert support use the devices
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
+.IP \fBNETBSD\fP: 9
+Use the form \fB"/dev/wd[0-9]+[cd]"\fP for IDE/ATA
+devices.  Be sure to specify correct "whole disk" partition letter
+for your architecture.
 .IP \fBSOLARIS\fP: 9
 Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk
 devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
@@ -1009,4 +1013,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.20 2004/01/29 03:21:06 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.21 2004/01/29 21:45:57 shattered Exp $
