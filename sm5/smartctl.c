@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.83 2003/08/07 09:58:02 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.84 2003/08/12 03:50:06 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -391,31 +391,25 @@ void ParseOpts (int argc, char** argv){
 	// look for RAID-type device
 	int i;
         char *s;
+	
 	// make a copy of the string to mess with
 	if (!(s = strdup(optarg))) {
           con->veryquietmode = FALSE;
           pout("No memory for argument of -d. Exiting...\n");
           exit(FAILCMD);
-        }
-	if (split_report_arg2(s, &i)) {
-          badarg = TRUE;
-        } else if (!strcmp(s,"3ware")) {
-	  if (i>15){
-	    pout("3ware RAID controller disk number %d too large in -d 3ware,N\n"
-		 "argument. 3ware RAID controller disk numbers 0...15 allowed\n", i);
-	    exit(FAILCMD);
-	  }
-	  if (i<0){
-	    pout("-d 3ware argument must be of form -d 3ware,N\n"
-		 "where N is a non-negative integer 0 <= N <= 15\n");
-	    exit(FAILCMD);
-	  }
+        } else if (strncmp(s,"3ware,",6)) {
+	  badarg = TRUE;
+	} else if (split_report_arg2(s, &i)) {
+	  pout("Option -d 3ware,N requires N to be a non-negative integer\n");
+	  badarg = TRUE;
+        } else if (i<0 || i>15) {
+	  pout("Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
+	  badarg = TRUE;
+	} else {
 	  // NOTE: escalade = disk number + 1
           con->escalade = i+1;
 	  tryata  = TRUE;
 	  tryscsi = FALSE;
-	} else {
-	  badarg = TRUE;
 	}
         free(s);
       } 	
