@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.68 2004/07/01 11:38:25 ballen4705 Exp $
+$Id: smartd.8.in,v 1.69 2004/07/12 21:32:25 zybert Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -111,13 +111,7 @@ See "WINDOWS" above.
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
 Directive in the configuration file; see \fBCONFIGURATION FILE\fP
-below). Note that when there is no configuration file, and
-\fBsmartd\fP scans for devices on startup, \fBwarning messages may
-appear in SYSLOG\fP (by default \fB/var/log/messages\fP) about missing
-block-major-xx devices.  These messages are usually
-harmless. Alternatively, the configuration file can be used to exclude
-non-existent devices by giving a list of devices to monitor at
-start-up.
+below). 
 
 .SH 
 OPTIONS
@@ -1687,4 +1681,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.68 2004/07/01 11:38:25 ballen4705 Exp $
+$Id: smartd.8.in,v 1.69 2004/07/12 21:32:25 zybert Exp $

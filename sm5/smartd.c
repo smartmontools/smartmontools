@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.320 2004/07/10 05:58:49 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.321 2004/07/12 21:32:25 zybert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.320 2004/07/10 05:58:49 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.321 2004/07/12 21:32:25 zybert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1076,7 +1076,7 @@ void Usage (void){
 }
 
 // returns negative if problem, else fd>=0
-static int OpenDevice(char *device, char *mode) {
+static int OpenDevice(char *device, char *mode, int scanning) {
   int fd;
   char *s=device;
   
@@ -1097,11 +1097,14 @@ static int OpenDevice(char *device, char *mode) {
 
     // For linux+devfs, a nonexistent device gives a strange error
     // message.  This makes the error message a bit more sensible.
-    if (errno==ENOENT || errno==ENOTDIR)
-      errno=ENODEV;
-    
-    PrintOut(LOG_INFO,"Device: %s, %s, open() failed\n",
-             device, strerror(errno));
+    // If no debug and scanning - don't print errors
+    if( debugmode || scanning == 0 ) {
+      if (errno==ENOENT || errno==ENOTDIR)
+	errno=ENODEV;
+      
+      PrintOut(LOG_INFO,"Device: %s, %s, open() failed\n",
+	       device, strerror(errno));
+    }
     return -1;
   }
   // device opened sucessfully
@@ -1164,7 +1167,7 @@ int ATADeviceScan(cfgfile *cfg){
     mode="ATA_3WARE_678K";
   
   // open the device
-  if ((fd=OpenDevice(name, mode))<0)
+  if ((fd=OpenDevice(name, mode, 1))<0)
     // device open failed
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", name);
@@ -1433,7 +1436,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     return 1;
   
   // open the device
-  if ((fd = OpenDevice(device, "SCSI")) < 0)
+  if ((fd = OpenDevice(device, "SCSI", 1)) < 0)
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", device);
     
@@ -1920,7 +1923,7 @@ int ATACheckDevice(cfgfile *cfg){
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
   // given (see linux cdrom driver).
-  if ((fd=OpenDevice(name, mode))<0){
+  if ((fd=OpenDevice(name, mode, 0))<0){
     MailWarning(cfg, 9, "Device: %s, unable to open device", name);
     return 1;
   }
@@ -2162,7 +2165,7 @@ int SCSICheckDevice(cfgfile *cfg)
 
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it
-    if ((fd=OpenDevice(name, "SCSI"))<0) {
+    if ((fd=OpenDevice(name, "SCSI", 0))<0) {
       // Lack of PrintOut() here is intentional!
       MailWarning(cfg, 9, "Device: %s, unable to open device", name);
       return 1;
@@ -3521,6 +3524,7 @@ int MakeConfigEntries(const char *type, int start){
 }
  
 void CanNotRegister(char *name, char *type, int line, int scandirective){
+  if( !debugmode && scandirective == 1 ) { return; }
   if (line)
     PrintOut(scandirective?LOG_INFO:LOG_CRIT,
              "Unable to register %s device %s at line %d of file %s\n",
