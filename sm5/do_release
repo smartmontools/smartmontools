@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.24 2004/02/12 21:03:42 ballen4705 Exp $
+# $Id: do_release,v 1.25 2004/02/12 21:06:31 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -24,7 +24,7 @@ setup_cvs()
 
 get_release()
 {
-  VERSION=`grep '^ *VERSION=' configure.in | awk -F= '{ print $2 }' | sed s/,//g`
+  VERSION=`grep 'AC_INIT' configure.in | awk -F= '{ print $2 }' | sed s/,//g`
   RELEASE="RELEASE_${VERSION//\./_}"
   echo "Version: $VERSION"
   echo "Release: $RELEASE"
