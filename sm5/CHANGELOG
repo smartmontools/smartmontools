@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.5 2002/10/15 14:24:26 ballen4705 Exp $
+$Id: CHANGELOG,v 1.6 2002/10/16 07:26:00 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -19,6 +19,17 @@ This code was originally developed as a Senior Thesis by Michael Cornwell
 at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+
+smartmontools-5.0-??
+    Fixed additional typos in documentation
+
+smartmontools-5.0-9
+
+    Put project home path into all source files near the top
+    Corrected typos in the documentation
+    Modified Makefile so that Mandrake Cooker won't increment version number
+    (unless they happen to be working on my machine, which I doubt!)
 
 smartmontools-5.0-8:
 
