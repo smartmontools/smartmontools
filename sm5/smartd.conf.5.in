@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.35 2004/03/05 18:00:00 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -318,13 +318,14 @@ Directive are:
 \- do not try to monitor the disk if a mandatory SMART command fails, but
 continue if an optional SMART command fails.  This is the default.
 
-.I permissive \-
-try to monitor the disk even if it appears to lack SMART capabilities.
-This may be required for some old disks (prior to ATA\-3 revision 4)
-that implemented SMART before the SMART standards were incorporated
-into the ATA/ATAPI Specifications.  This may also be needed for some
-Maxtor disks which fail to comply with the ATA Specifications and
-don't properly indicate support for error\- or self\-test logging.
+.I permissive
+\- try to monitor the disk even if it appears to lack SMART
+capabilities.  This may be required for some old disks (prior to
+ATA\-3 revision 4) that implemented SMART before the SMART standards
+were incorporated into the ATA/ATAPI Specifications.  This may also be
+needed for some Maxtor disks which fail to comply with the ATA
+Specifications and don't properly indicate support for error\- or
+self\-test logging.
 
 [Please see the .B smartctl \-T command-line option.]
 .TP
@@ -463,13 +464,6 @@ for the same hour, the longer test type has precedence.  This is
 usually the desired behavior.
 
 .RE
-.TP
-.B \-f
-Check for \'failure\' of any Usage Attributes.  If these Attributes are
-less than or equal to the threshold, it does NOT indicate imminent
-disk failure.  It "indicates an advisory condition where the usage or
-age of the device has exceeded its intended design life period."
-[Please see the \fBsmartctl \-A\fP command-line option.]
 
 .TP
 .B \-m ADD
@@ -707,6 +701,13 @@ Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
 .TP
+.B \-f
+Check for \'failure\' of any Usage Attributes.  If these Attributes are
+less than or equal to the threshold, it does NOT indicate imminent
+disk failure.  It "indicates an advisory condition where the usage or
+age of the device has exceeded its intended design life period."
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.TP
 .B \-p
 Report anytime that a Prefail Attribute has changed
 its value since the last check, 30 minutes ago. [Please see the
@@ -721,34 +722,26 @@ command-line option.]
 .TP
 .B \-t
 Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
-Tracks changes in
-.I all
-device Attributes (both Prefailure and Usage). [Please see the
-.B smartctl \-A
-command-line option.]
+Tracks changes in \fIall\fP device Attributes (both Prefailure and
+Usage). [Please see the \fBsmartctl\fP \-A command-line option.]
 .TP
 .B \-i ID
-Ignore device Attribute number
-.B ID
-when checking for failure of Usage Attributes.
-.B ID
-must be a decimal integer in the range from 1 to 255.  This Directive
-modifies the behavior of the \'\-f\' Directive and has no effect without
-it.
+Ignore device Attribute number \fBID\fP when checking for failure of
+Usage Attributes.  \fBID\fP must be a decimal integer in the range
+from 1 to 255.  This Directive modifies the behavior of the \'\-f\'
+Directive and has no effect without it.
 
-This is useful, for example, if you have a very old disk and don\'t want to keep
-getting messages about the hours-on-lifetime Attribute (usually Attribute 9)
-failing.  This Directive may appear multiple times for a single device, if you
-want to ignore multiple Attributes.
+This is useful, for example, if you have a very old disk and don\'t
+want to keep getting messages about the hours-on-lifetime Attribute
+(usually Attribute 9) failing.  This Directive may appear multiple
+times for a single device, if you want to ignore multiple Attributes.
 .TP
 .B \-I ID
-Ignore device Attribute
-.B ID
-when tracking changes in the Attribute values.
-.B ID
-must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and has no effect
-without one of them.
+Ignore device Attribute \fBID\fP when tracking changes in the
+Attribute values.  \fBID\fP must be a decimal integer in the range
+from 1 to 255.  This Directive modifies the behavior of the \'\-p\',
+\'\-u\', and \'\-t\' tracking Directives and has no effect without one
+of them.
 
 This is useful, for example, if one of the device Attributes is the disk
 temperature (usually Attribute 194 or 231). It\'s annoying to get reports
@@ -756,36 +749,23 @@ each time the temperature changes.  This Directive may appear multiple
 times for a single device, if you want to ignore multiple Attributes.
 .TP
 .B \-r ID
-When tracking, report the
-.I Raw
-value of Attribute
-.B ID
-along with its (normally reported)
-.I Normalized
-value.
-.B ID
-must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and has no effect
-without one of them.  This Directive may be given multiple times.
+When tracking, report the \fIRaw\fP value of Attribute \fBID\fP along
+with its (normally reported) \fINormalized\fP value.  \fBID\fP must be
+a decimal integer in the range from 1 to 255.  This Directive modifies
+the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives
+and has no effect without one of them.  This Directive may be given
+multiple times.
 
 A common use of this Directive is to track the device Temperature
 (often ID=194 or 231).
 
 .TP
 .B \-R ID
-When tracking,
-report whenever the
-.I Raw
-value of Attribute
-.B ID
-changes.  (Normally
-\fBsmartd\fP
-only tracks/reports changes of the
-.I Normalized
-Attribute values.)
-.B ID
-must be a decimal integer in the range from 1 to 255.  This Directive
-modifies the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and
+When tracking, report whenever the \fIRaw\fP value of Attribute
+\fBID\fP changes.  (Normally \fBsmartd\fP only tracks/reports changes
+of the \fINormalized\fP Attribute values.)  \fBID\fP must be a decimal
+integer in the range from 1 to 255.  This Directive modifies the
+behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and
 has no effect without one of them.  This Directive may be given
 multiple times.
 
@@ -806,12 +786,12 @@ to compensate for some known and understood device firmware bug.  The
 valid arguments to this option are:
 
 .I none
-Assume that the device firmware obeys the ATA specifications.  This is
+\- Assume that the device firmware obeys the ATA specifications.  This is
 the default, unless the device has presets for \'\-F\' in the device
 database.
 
 .I samsung
-In some Samsung disks (example: model SV4012H Firmware Version:
+\- In some Samsung disks (example: model SV4012H Firmware Version:
 RM100-08) some of the two- and four-byte quantities in the SMART data
 structures are byte-swapped (relative to the ATA specification).
 Enabling this option tells \fBsmartctl\fP to evaluate these quantities
@@ -821,7 +801,7 @@ are (1) no self-test log printed, even though you have run self-tests;
 (3) strange and impossible values for the ATA error log timestamps.
 
 .I samsung2
-In more recent Samsung disks (firmware revisions ending in "\-23") the
+\- In more recent Samsung disks (firmware revisions ending in "\-23") the
 number of ATA errors reported is byte swapped.  Enabling this option
 tells \fBsmartctl\fP to evaluate this quantity in byte-reversed order.
 
@@ -1119,4 +1099,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.35 2004/03/05 18:00:00 ballen4705 Exp $
