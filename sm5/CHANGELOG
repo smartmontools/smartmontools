@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.26 2002/10/29 10:16:13 ballen4705 Exp $
+$Id: CHANGELOG,v 1.27 2002/10/29 14:19:10 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -25,6 +25,15 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+smartmontools-5.0-19
+
+    smartd: prints warning message when it gets SIGHUP, saying that it
+    is NOT re-reading the config file.
+
+    smartctl: updated man page to say self-test commands -O,x,X,s,S,A
+    appear to be supported in the code.  [I can't test these,  can anyone
+    report?]
 
 smartmontools-5.0-18
 

@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.22 2002/10/28 23:46:59 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.23 2002/10/29 14:19:11 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -98,12 +98,12 @@ void Usage ( void){
   printf("  %c  Enable  SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEENABLE);
   printf("  %c  Disable SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEDISABLE);
   printf("\nTest Options (no more than one):\n");
-  printf("  %c  Execute Off-line data collection        (ATA Only)\n",    SMARTEXEOFFIMMEDIATE);
-  printf("  %c  Execute Short Self Test                 (ATA Only)\n",    SMARTSHORTSELFTEST );
-  printf("  %c  Execute Short Self Test (Captive Mode)  (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
-  printf("  %c  Execute Extended Self Test              (ATA Only)\n",    SMARTEXTENDSELFTEST );
-  printf("  %c  Execute Extended Self Test (Captive)    (ATA Only)\n",    SMARTEXTENDCAPSELFTEST );
-  printf("  %c  Execute Self Test Abort                 (ATA Only)\n",    SMARTSELFTESTABORT );
+  printf("  %c  Execute Off-line data collection        (ATA/SCSI)\n",    SMARTEXEOFFIMMEDIATE);
+  printf("  %c  Execute Short Self Test                 (ATA/SCSI)\n",    SMARTSHORTSELFTEST );
+  printf("  %c  Execute Short Self Test (Captive Mode)  (ATA/SCSI)\n",    SMARTSHORTCAPSELFTEST );
+  printf("  %c  Execute Extended Self Test              (ATA/SCSI)\n",    SMARTEXTENDSELFTEST );
+  printf("  %c  Execute Extended Self Test (Captive)    (ATA/SCSI)\n",    SMARTEXTENDCAPSELFTEST );
+  printf("  %c  Execute Self Test Abort                 (ATA/SCSI)\n",    SMARTSELFTESTABORT );
   printf("\nExamples:\n");
   printf("  smartctl -etf /dev/hda  (Enables SMART on first disk)\n");
   printf("  smartctl -a   /dev/hda  (Prints all SMART information)\n");

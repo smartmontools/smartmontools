@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.17 2002/10/29 13:38:49 ballen4705 Exp $
+$Id: TODO,v 1.18 2002/10/29 14:19:10 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -35,7 +35,7 @@ Modifications
 -------------
 
 smartctl: 
-
+---------
 Handle extended error and self-test logs gracefully.  Can someone tell
 me a disk that supports more than log pages 1 and 6?  I need to get a
 disk so I can test this functionality, when I add it.
@@ -51,12 +51,16 @@ Parse and print more attribute flag meanings (IBM ones, eg performance
 etc).
 
 smartd:
-
+-------
 Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
 exists? If something doesn't exit then don't try to open it?  This
 should probably be the default option if there is no configuration
 file.
 
+Add following config file directives:
+  -m  USER@ADDRESS      send email to user if critical problems found
+  -f                    enable autosave of attributes
+  -o                    enable automatic offline testing
 
 
 General Fixes
