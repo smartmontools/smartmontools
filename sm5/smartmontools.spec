@@ -1,4 +1,4 @@
-Release:  9
+Release:  10
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -12,6 +12,7 @@ Obsoletes:	smartctl
 Obsoletes:      smartd
 Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
+Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 # SOURCE CODE CAN BE FOUND AT:
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
@@ -100,33 +101,23 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
-* Oct 17 2002 Bruce Allen smartmontools-support@lists.sourceforge.net
-    Removed extraneous space before some error message printing.
-
-    Fixed some character buffers that were too short for contents.
+* Thu Oct 17 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+-   Removed extraneous space before some error message printing.
+-   Fixed some character buffers that were too short for contents.
     Only used for unrecognized drives, so probably damage was minimal.
-* Oct 16 2002 Bruce Allen smartmontools-support@lists.sourceforge.net
-
-    Initial release.  Code is derived from smartsuite, and is
+* Wed Oct 16 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+-   Initial release.  Code is derived from smartsuite, and is
     intended to be compatible with the ATA/ATAPI-5 specifications.
-
-    For IBM disks whose raw temp data includes three temps. print all
+-   For IBM disks whose raw temp data includes three temps. print all
     three
-
-    print timestamps for error log to msec precision
-
-    added -m option for Hitachi disks that store power on life in
+-   print timestamps for error log to msec precision
+-   added -m option for Hitachi disks that store power on life in
     minutes
-
-    added -L option for printing self-test error logs
-
-    in -l option, now print power on lifetime, so that one can see
+-   added -L option for printing self-test error logs
+-   in -l option, now print power on lifetime, so that one can see
     when the error took place
-
-    updated SMART structure definitions to ATA-5 spec
-
-    added -p option
-
-    added -f and -F options to enable/disable autosave threshold
+-   updated SMART structure definitions to ATA-5 spec
+-   added -p option
+-   added -f and -F options to enable/disable autosave threshold
     parameters
 
