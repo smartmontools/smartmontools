@@ -27,7 +27,7 @@
 #define SCSICMDS_H_
 
 #ifndef CVSID4
-#define CVSID4 "$Id: scsicmds.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#define CVSID4 "$Id: scsicmds.h,v 1.8 2002/11/17 05:30:11 ballen4705 Exp $\n"
 #endif
 
 #ifndef LOG_SENSE
@@ -248,7 +248,7 @@ struct modedatahdr {
 #define LOGPAGEHDRSIZE	4
 
 /* STANDARD SCSI Commands  */
-UINT8 testunitready (int device);
+UINT8 testunitnotready (int device);
 
 UINT8 stdinquiry ( int device, UINT8 *pBuffer);
 

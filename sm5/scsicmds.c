@@ -33,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.c,v 1.12 2002/10/28 23:46:59 ballen4705 Exp $" CVSID4;
+const char *CVSid3="$Id: scsicmds.c,v 1.13 2002/11/17 05:30:11 ballen4705 Exp $" CVSID4;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
@@ -408,8 +408,8 @@ UINT8 receivediagnostic (int device, UINT8 pagenum,  UINT8 *pBuf)
 
 }
 
-
-UINT8 testunitready (int device)
+// See if the device accepts IOCTLs at all...
+UINT8 testunitnotready (int device)
 {
   return ioctl( device, 2 , NULL);
 
