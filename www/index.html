@@ -182,16 +182,27 @@ have advanced warning when a disk is going to fail.</p></li>
 <p>The raw S.M.A.R.T. attributes (temperature, power-on lifetime, and so
 on) are stored in vendor-specific structures.&#160; Sometime these are
 strange.&#160; Hitachi disks (at least some of them) store power-on
-lifetime in minutes, rather than hours.&#160; IBM disks (at least some
+lifetime in minutes, rather than hours (see next question below).&#160; IBM disks (at least some
 of them) have three temperatures stored in the raw structure, not just
 one.&#160; And so on.&#160; If you find strange output, or unknown
 attributes, please send an email to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
 smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
 
+<li><b>My Maxtor/Hitachi disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
+
+<p>On some recent disks, Maxtor has started to use Attribute 9 to
+store the lifetime in minutes rather than hours.  In this case, use
+the -m option (smartctl versions 5.0.X) or the
+--vendorattribute=009,minutes (smartctl 5.1.X) option to correctly
+display hours and minutes.
+</p></li>
+
 <li><b>What attributes does smartmontools not yet recognize?</b>
 
-<p>From a Hitachi disk: (230)(250)</p>
+<p>From a Hitachi disk: (230), (250).  From a Toshiba disk (240).  From
+Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208), (209)
+</p>
 
 <p>If you can attach names/meanings to these attributes, please send me
 a note to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
@@ -348,6 +359,7 @@ from smartmontools smartctl utility:</b>
  <li><a href="examples/MAXTOR-3.txt">MAXTOR 6L080J4</a> 80 GB 7200 RPM</li>
  <li><a href="examples/MAXTOR-4.txt">MAXTOR 6L080J4</a> 80 GB 7200 RPM</li>
  <li><a href="examples/Maxtor-5.txt">Maxtor 98196H8</a> 80 GB 5400 RPM</li>
+ <li><a href="examples/MAXTOR-6.txt">Maxtor 4R080J0</a> Note: Attribute 9 (lifetime) stored in minutes!</li>
  <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
  <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
  <li><a href="examples/IC35L120AVV207-0.txt">IBM IC35L120AVV207 (GXP 180 series)</a> 120 GB 7200 RPM</li>
