@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.57 2003/11/13 07:40:43 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.58 2003/11/14 11:43:17 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -695,13 +695,13 @@ int scsiTestUnitReady(int device)
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
  * starts at (relative to resp[0]). Returns -1 if problem */
-int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
+int scsiModePageOffset(const UINT8 * resp, int len, int modese_len)
 {
     int resp_len, bd_len;
     int offset = -1;
 
     if (resp) {
-        if (modese_10) {
+        if (10 == modese_len) {
             resp_len = (resp[0] << 8) + resp[1] + 2;
             bd_len = (resp[6] << 8) + resp[7];
             offset = bd_len + 8;
@@ -735,33 +735,41 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
  * tries a 10 byte MODE SENSE command. Returns 0 if successful, a positive
  * number if a known error (see  SIMPLE_ERR_ ...) or a negative errno
  * value. */
-int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
+int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_len)
 {
-    int err;
+    int err = 0;
 
     memset(iecp, 0, sizeof(*iecp));
+    iecp->modese_len = modese_len;
     iecp->requestedCurrent = 1;
-    if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             MODE_PAGE_CONTROL_CURRENT, 
-                             iecp->raw_curr, sizeof(iecp->raw_curr)))) {
-        if (SIMPLE_ERR_BAD_OPCODE == err) { /* so try 10 byte mode sense */
-            err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             MODE_PAGE_CONTROL_CURRENT, 
-                             iecp->raw_curr, sizeof(iecp->raw_curr));
+    if (iecp->modese_len <= 6) {
+        if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 iecp->raw_curr, sizeof(iecp->raw_curr)))) {
             if (0 == err)
-                iecp->modese_10 = 1;
+                iecp->modese_len = 6;
+            else if (SIMPLE_ERR_BAD_OPCODE == err)
+                iecp->modese_len = 10;
             else
                 return err;
-        } else
+        }
+    }
+    if (10 == iecp->modese_len) {
+        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                              MODE_PAGE_CONTROL_CURRENT, 
+                              iecp->raw_curr, sizeof(iecp->raw_curr));
+        if (err) {
+            iecp->modese_len = 0;
             return err;
+        }
     } 
     iecp->gotCurrent = 1;
     iecp->requestedChangeable = 1;
-    if (iecp->modese_10)
+    if (10 == iecp->modese_len)
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL,
                                  MODE_PAGE_CONTROL_CHANGEABLE,
                                  iecp->raw_chg, sizeof(iecp->raw_chg));
-    else
+    else if (6 == iecp->modese_len)
         err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
                             MODE_PAGE_CONTROL_CHANGEABLE, 
                             iecp->raw_chg, sizeof(iecp->raw_chg));
@@ -777,7 +785,7 @@ int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
 
     if (iecp && iecp->gotCurrent) {
         offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
-                                    iecp->modese_10);
+                                    iecp->modese_len);
         if (offset >= 0)
             return (iecp->raw_curr[offset + 2] & DEXCPT_ENABLE) ? 0 : 1;
         else
@@ -792,7 +800,7 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 
     if (iecp && iecp->gotCurrent) {
         offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
-                                    iecp->modese_10);
+                                    iecp->modese_len);
         if (offset >= 0)
             return (iecp->raw_curr[offset + 2] & EWASC_ENABLE) ? 1 : 0;
         else
@@ -819,19 +827,20 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 int scsiSetExceptionControlAndWarning(int device, int enabled,
                                       const struct scsi_iec_mode_page *iecp)
 {
-    int k, offset, err;
+    int k, offset;
+    int err = 0;
     UINT8 rout[SCSI_IECMP_RAW_LEN];
     int sp, eCEnabled, wEnabled;
 
     if ((! iecp) || (! iecp->gotCurrent))
         return -EINVAL;
     offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
-                                iecp->modese_10);
+                                iecp->modese_len);
     if (offset < 0)
         return -EINVAL;
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
     rout[0] = 0;     /* Mode Data Length reserved in MODE SELECTs */
-    if (iecp->modese_10)
+    if (10 == iecp->modese_len)
         rout[1] = 0;
     sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     rout[offset] &= 0x7f;     /* mask off PS bit */
@@ -880,10 +889,10 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
                 rout[offset + 2] &= TEST_DISABLE;/* clear TEST bit for spec */
         }
     }
-    if (iecp->modese_10)
+    if (10 == iecp->modese_len)
         err = scsiModeSelect10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
                                sp, rout, sizeof(rout));
-    else
+    else if (6 == iecp->modese_len)
         err = scsiModeSelect(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
                              sp, rout, sizeof(rout));
     return err;
@@ -912,18 +921,20 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
  * Returns 0 if ok, else error number. A current temperature of 255
  * (Celsius) implies that the temperature not available. */
 int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
-                UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp)
+                UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp,
+                UINT8 *triptemp)
 {
     UINT8 tBuf[252];
     struct scsi_sense_disect sense_info;
     int err;
     int temperatureSet = 0;
     unsigned short pagesize;
-    UINT8 currTemp, tripTemp;
+    UINT8 currTemp, trTemp;
  
     *asc = 0;
     *ascq = 0;
     *currenttemp = 0;
+    *triptemp = 0;
     memset(tBuf,0,sizeof(tBuf)); // need to clear stack space of junk
     memset(&sense_info, 0, sizeof(sense_info));
     if (hasIELogPage) {
@@ -941,9 +952,11 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
         if (tBuf[7] > 1) {
             sense_info.asc = tBuf[8]; 
             sense_info.ascq = tBuf[9];
-            if (tBuf[7] > 2) { 
-                *currenttemp = tBuf[10];
-                temperatureSet = 1;
+            if (! hasTempLogPage) {
+                if (tBuf[7] > 2) 
+                    *currenttemp = tBuf[10];
+                if (tBuf[7] > 3)        /* IBM extension in SMART (IE) lpage */
+                    *triptemp = tBuf[11];
             }
         } 
     }
@@ -957,8 +970,10 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
     *asc = sense_info.asc;
     *ascq = sense_info.ascq;
     if ((! temperatureSet) && hasTempLogPage) {
-        if (0 == scsiGetTemp(device, &currTemp, &tripTemp))
+        if (0 == scsiGetTemp(device, &currTemp, &trTemp)) {
             *currenttemp = currTemp;
+            *triptemp = trTemp;
+        }
     }
     return 0;
 }
@@ -1537,28 +1552,32 @@ int scsiSmartSelfTestAbort(int device)
     return scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
 }
 
-int scsiFetchExtendedSelfTestTime(int device, int * durationSec)
+int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
 {
     int err, offset, res;
     UINT8 buff[64];
-    int modese_10 = 0;
 
     memset(buff, 0, sizeof(buff));
-    if ((err = scsiModeSense(device, CONTROL_MODE_PAGE_PARAMETERS, 
-                             MODE_PAGE_CONTROL_CURRENT, 
-                             buff, sizeof(buff)))) {
-        if (2 == err) { /* opcode no good so try 10 byte mode sense */
-            err = scsiModeSense10(device, CONTROL_MODE_PAGE_PARAMETERS, 
-                                  MODE_PAGE_CONTROL_CURRENT, 
-                                  buff, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE_PARAMETERS, 
+                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 buff, sizeof(buff)))) {
             if (0 == err)
-                modese_10 = 1;
+                modese_len = 6;
+            else if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
             else
                 return err;
-        } else
+        }
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE_PARAMETERS, 
+                              MODE_PAGE_CONTROL_CURRENT, 
+                              buff, sizeof(buff));
+        if (err)
             return err;
     } 
-    offset = scsiModePageOffset(buff, sizeof(buff), modese_10);
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if (offset < 0)
         return -EINVAL;
     if (buff[offset + 1] >= 0xa) {
