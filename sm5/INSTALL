@@ -16,13 +16,31 @@ run it.
 
 ./configure
 
-This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
---docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts,
-which are correct for Red Hat, Slackware, and probably other Linux
-distributions.
+With no options, as shown, this defaults to --prefix=/usr
+--sysconfdir=/etc --mandir=/usr/share/man --docdir=/usr/share/doc
+--exampledir=/usr/share/doc/examplescripts, which are correct for Red
+Hat, Slackware, and probably other Linux distributions.
 
-For FHS compliance, use --prefix=/usr/local, and for a full list of
-options --help.
+Red Hat, Slackware (default):
+-----------------------------
+./configure
+OR
+./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man  --initscriptdir=/etc/rc.d/init.d
+
+File System Hierarchy Standard (FHS), FreeBSD
+---------------------------------------------
+./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --datadir=/usr/local/share --mandir=/usr/local/man  --initscriptdir=/usr/local/etc/rc.d/init.d
+
+SuSE
+----
+./configure [PLEASE ADD]
+
+Debian
+------
+./configure [PLEASE ADD]
+
+Others Distributions or Operating Systems [PLEASE ADD]
+------------------------------------------------------
 
 make
 make install (only root can do this)
