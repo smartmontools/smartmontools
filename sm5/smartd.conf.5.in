@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.57 2004/08/04 05:52:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.58 2004/08/08 14:32:07 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -559,10 +559,11 @@ below.
 The following extension is available on Windows:
 By specifying \'\fBmsgbox\fP\' as a mail address, a warning
 "email" is displayed as a message box on the screen.
-Using both \'\fBmsgbox\fP\' and regular mail addresses is possible, if
-'\fBmsgbox\fP\' is the first word in the comma separated list.
+Using both \'\fBmsgbox\fP\' and regular mail addresses is possible,
+if \'\fBmsgbox\fP\' is the first word in the comma separated list.
 With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
-is used.
+is used. If running as a service, a service notification message box
+(always shown on current visible desktop) is used.
 
 .TP
 .B \-M TYPE
@@ -1205,4 +1206,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.57 2004/08/04 05:52:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.58 2004/08/08 14:32:07 ballen4705 Exp $
