@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.23 2002/11/04 13:32:08 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.24 2002/11/07 11:00:56 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,11 +15,11 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/11/04 13:32:08 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/11/07 11:00:56 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
-.B smartctl \-[ViqQaedtTfFcgvlLm[O|S|s|X|x|A]] device
+.B smartctl \-[ViaqQnNPUWedtTfFcgvlLm[O|S|s|X|x|A]] device
 
 .SH DESCRIPTION
 .B smartctl
@@ -94,6 +94,12 @@ firmware version, and ATA Standard version/revision information.
 Says if the device supports S.M.A.R.T., and if so, whether
 S.M.A.R.T. support is currently enabled or disabled.
 .TP
+.B a
+All: Prints all parameters for c,i,g,v,t,l,L (for SCSI c,i).  This prints all
+S.M.A.R.T. information about the disk.
+.TP
+.B RUN-TIME BEHAVIOR:
+.TP
 .B q
 Quiet mode: Only print: For the '\-l' option, if nonzero, the number
 of errors recorded in the SMART error log and the power-on time when
@@ -109,10 +115,6 @@ found is to use the exit status of
 .B smartctl
 (see RETURN VALUES below).
 .TP
-.B a
-All: Prints all parameters for c,i,g,v,t,l,L (for SCSI c,i).  This prints all
-S.M.A.R.T. information about the disk.
-.TP
 .B n
 NotSCSI: Device is an ATA device.
 .TP
@@ -121,7 +123,41 @@ NotATA: Device is a SCSI device. If neither this nor the previous
 option are specified, then
 .B smartctl
 will attempt to guess the device type from the device name.  You can
-use this option or the previous option to over-ride to force the type.
+use this option or the previous option to force the type.
+.TP
+.B P
+Permissive: If a mandatory S.M.A.R.T. command to the
+disk fails, do
+.I not
+exit, but carry on in spite of it. Normally (without this option
+enabled)
+.B smartctl
+would exit with an error if a mandatory command failed.  Here 'mandatory'
+means "Required by the ATA/ATAPI-5 Specification if the
+device implements the S.M.A.R.T. command set."  The 'mandatory'
+S.M.A.R.T. commands are: (1) Enable/Disable Attribute Autosave, (2)
+Enable/Disable S.M.A.R.T., and (3) S.M.A.R.T. Return Status.
+.TP
+.B U
+Ultraconservative: Exit
+.B smartctl
+immediately if an optional S.M.A.R.T. command to the disk fails.
+Normally (without this option enabled)
+.B smartctl
+would just carry on if an optional command fails.  Here "optional"
+means "Not required by the ATA/ATAPI-5 Specification even if the
+device implements the S.M.A.R.T. command set."
+.TP
+.B W
+Warning: Exit
+.B smartctl
+immediately if a checksum error is detected in the: (1) Device
+Identity Structure, (2) S.M.A.R.T. Self-Test Log Structure, (3)
+S.M.A.R.T. Attribute Value Structure, (4) S.M.A.R.T. Attribute
+Threshold Structure, or (5) ATA Error Log Structure.  Normally
+(without this option enabled)
+.B smartctl
+will report the incorrect checksum but will carry on in spite of it.
 .TP
 .B S.M.A.R.T. FEATURE ENABLE/DISABLE COMMANDS:
 .IP
@@ -385,7 +421,8 @@ Command line did not parse.
 Device open failed, or device did not return an IDENTIFY DEVICE structure. 
 .TP
 .B Bit 2:
-Some SMART command to the disk failed. 
+Some SMART command to the disk failed, or there was a checksum error
+in a SMART data structure (see '\-W' option above).
 .TP
 .B Bit 3:
 SMART status check returned "DISK FAILING".
@@ -490,4 +527,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.23 2002/11/04 13:32:08 ballen4705 Exp $
+$Id: smartctl.8,v 1.24 2002/11/07 11:00:56 ballen4705 Exp $

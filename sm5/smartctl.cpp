@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.25 2002/11/04 13:32:08 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.26 2002/11/07 11:00:56 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -77,29 +77,34 @@ void printcopy(){
 /*  void prints help information for command syntax */
 void Usage ( void){
   printf("Usage: smartctl -[options] [device]\n");
-  printf("\nRead Only Options:\n");
-  printf("  %c  Show version, copyright and license info\n", PRINTCOPYLEFT);
-  printf("  %c  Show all SMART Information              (ATA/SCSI)\n",SMARTVERBOSEALL);
+  printf("\nShow Information Options:\n");
+  printf("  %c  Show Version, Copyright and License info\n", PRINTCOPYLEFT);
   printf("  %c  Show SMART Drive Info                   (ATA/SCSI)\n",DRIVEINFO);
-  printf("  %c  Show SMART Status                       (ATA/SCSI)\n",CHECKSMART);
-  printf("  %c  Show SMART General Attributes           (ATA Only)\n",    GENERALSMARTVALUES);
-  printf("  %c  Show SMART Vendor Attributes            (ATA Only)\n",    SMARTVENDORATTRIB);
-  printf("  %c  Show SMART Drive Error Log              (ATA Only\n",     SMARTERRORLOG);
-  printf("  %c  Show SMART Drive Self Test Log          (ATA Only)\n",    SMARTSELFTESTLOG);
-  printf("  %c  Quiet: only show SMART drive errors     (ATA Only)\n",    QUIETMODE);
-  printf("  %c  Very Quiet: no display, use exit status (ATA Only)\n",    VERYQUIETMODE);  
-  printf("  %c  Device is an ATA device                 (ATA Only)\n",    NOTSCSIDEVICE);
-  printf("  %c  Device is a SCSI device                 (SCSI Only)\n",   NOTATADEVICE);
-  printf("\nVendor-specific Display Options:\n");
-  printf("  %c  Raw Attribute 009 is minutes            (ATA Only)\n",    SMART009MINUTES);
-  printf("\nEnable/Disable Options:\n");
-  printf("  %c  Enable  SMART data collection           (ATA/SCSI)\n",SMARTENABLE);
-  printf("  %c  Disable SMART data collection           (ATA/SCSI)\n",SMARTDISABLE);
+  printf("  %c  Show all SMART Information              (ATA/SCSI)\n",SMARTVERBOSEALL);
+  printf("\nRun-time Behavior Options:\n");
+  printf("  %c  Quiet: only show SMART Drive Errors     (ATA Only)\n",    QUIETMODE);
+  printf("  %c  Very Quiet: no display, use Exit Status (ATA Only)\n",    VERYQUIETMODE);  
+  printf("  %c  Device is an ATA Device                 (ATA Only)\n",    NOTSCSIDEVICE);
+  printf("  %c  Device is a SCSI Device                 (SCSI Only)\n",   NOTATADEVICE);
+  printf("  %c  Permissive: continue on Mandatory fails (ATA Only)\n",    PERMISSIVE);
+  printf("  %c  Conservative: exit if Optional Cmd fail (ATA Only)\n",    ULTRACONSERVATIVE);  
+  printf("  %c  Warning: exit if Struct Checksum bad    (ATA Only)\n",    EXITCHECKSUMERROR);
+  printf("\nSMART Feature Enable/Disable Commands:\n");
+  printf("  %c  Enable  SMART data collection           (ATA/SCSI)\n",    SMARTENABLE);
+  printf("  %c  Disable SMART data collection           (ATA/SCSI)\n",    SMARTDISABLE);
   printf("  %c  Enable  SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEENABLE);
   printf("  %c  Disable SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEDISABLE);
   printf("  %c  Enable  SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEENABLE);
   printf("  %c  Disable SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEDISABLE);
-  printf("\nTest Options (no more than one):\n");
+  printf("\nRead and Display Data Options:\n");
+  printf("  %c  Show SMART Status                       (ATA/SCSI)\n",    CHECKSMART);
+  printf("  %c  Show SMART General Attributes           (ATA Only)\n",    GENERALSMARTVALUES);
+  printf("  %c  Show SMART Vendor Attributes            (ATA Only)\n",    SMARTVENDORATTRIB);
+  printf("  %c  Show SMART Drive Error Log              (ATA Only\n",     SMARTERRORLOG);
+  printf("  %c  Show SMART Drive Self Test Log          (ATA Only)\n",    SMARTSELFTESTLOG);
+  printf("\nVendor-specific Attribute Display Options:\n");
+  printf("  %c  Raw Attribute id=009 stored in minutes  (ATA Only)\n",    SMART009MINUTES);
+  printf("\nSelf-Test Options (no more than one):\n");
   printf("  %c  Execute Off-line data collection        (ATA/SCSI)\n",    SMARTEXEOFFIMMEDIATE);
   printf("  %c  Execute Short Self Test                 (ATA/SCSI)\n",    SMARTSHORTSELFTEST );
   printf("  %c  Execute Short Self Test (Captive Mode)  (ATA/SCSI)\n",    SMARTSHORTCAPSELFTEST );
@@ -120,7 +125,9 @@ const char opts[] = {
   SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
   SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
   SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,
-  QUIETMODE,VERYQUIETMODE,NOTSCSIDEVICE,NOTATADEVICE,'h','?','\0'
+  QUIETMODE,VERYQUIETMODE,NOTSCSIDEVICE,NOTATADEVICE,
+  EXITCHECKSUMERROR,ULTRACONSERVATIVE,PERMISSIVE,
+  'h','?','\0'
 };
 
 unsigned char printcopyleft=0,tryata=0,tryscsi=0;
@@ -136,6 +143,15 @@ void ParseOpts (int argc, char** argv){
   opterr=optopt=0;
   while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
+    case EXITCHECKSUMERROR:
+      con->checksumfail=1;
+      break;
+    case PERMISSIVE:
+      con->permissive=1;
+      break;
+    case ULTRACONSERVATIVE:
+      con->conservative=1;
+      break;
     case NOTATADEVICE:
       tryata=0;
       tryscsi=1;

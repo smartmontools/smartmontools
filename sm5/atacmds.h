@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.24 2002/10/30 10:18:37 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.25 2002/11/07 11:00:55 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -366,5 +366,13 @@ void printone(char *block, const char *cvsid);
 int ataCheckAttribute(struct ata_smart_values *data,
 		      struct ata_smart_thresholds *thresholds,
 		      int n);
+
+
+// External handler function, for when a checksum is not correct.  Can
+// simply return if no action is desired, or can print error messages
+// as needed, or exit.  Is passed a string with the name of the Data
+// Structure with the incorrect checksum.
+void checksumwarning(const char *string);
+
 
 #endif /* _ATACMDS_H_ */

@@ -1,18 +1,18 @@
-Release:  30
+Release:  31
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
-Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
-Summary(es):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
-Summary(fr):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
-Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
-Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
+Summary(de.iso-8859-1):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
+Summary(es.iso-8859-1):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
+Summary(fr.iso-8859-1):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
+Summary(pt.iso-8859-1):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
+Summary(pl.iso-8859-2):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
 Version:	5.0
 License:	GPL
 Group:		Applications/System
-Group(de):	Applikationen/System
-Group(es):	Aplicaciones/Sistema
-Group(fr):	Applications/Système
-Group(pt_NR):	Aplicativos/Sistema
+Group(de.iso-8859-1):	Applikationen/System
+Group(es.iso-8859-1):	Aplicaciones/Sistema
+Group(fr.iso-8859-1):	Applications/Système
+Group(pt.iso-8859-1):	Aplicativos/Sistema
 Source0:	%{name}-%{version}.tar.gz
 URL:            http://smartmontools.sourceforge.net/
 Prereq:		/sbin/chkconfig
@@ -27,7 +27,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.46 2002/11/05 02:46:16 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.47 2002/11/07 11:00:56 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -66,7 +66,7 @@ modern linux distribution.  The most recent versions of this package and
 additional information can be found at the URL:
 http://smartmontools.sourceforge.net/
 
-%description -l de
+%description -l de.iso-8859-1
 Die SMARTmontools steuern und überwachen Speichergeräte mittels des
 S.M.A.R.T.-Systems (Self-Monitoring, Analysis and Reporting Technology,
 Technologie zur Selbst-Überwachung, Analyse und Berichterstellung), das
@@ -87,7 +87,7 @@ jedem modernen Linux arbeiten.  Die aktuellsten Versionen dieses Pakets
 und zusätzliche Informationen sind zu finden unter der URL:
 http://smartmontools.sourceforge.net/
 
-%description -l es
+%description -l es.iso-8859-1
 SMARTmontools controla y hace el seguimiento de dispositivos de
 almacenamiento usando el Self-Monitoring, Analysis and Reporting
 Technology System (S.M.A.R.T.) incorporado en discos duros ATA y SCSI. 
@@ -107,7 +107,7 @@ funcionaran sin problemas en cualquier distribucion moderna de linux.
 La version mas reciente de estos programas ademas de informacion
 adicional pueden encontrarse en: http://smartmontools.sourceforge.net/
 
-%description -l fr
+%description -l fr.iso-8859-1
 SMARTmontools contrôle et fait le suivi de périphériques de stockage
 utilisant le système Self-Monitoring, Analysis and Reporting
 Technology (S.M.A.R.T) intégré dans les disques durs ATA et SCSI.  Ce
@@ -129,7 +129,7 @@ Les dernières versions de ce paquet et des informations supplémentaires
 peuvent être trouvées à l'adresse URL:
 http://smartmontools.sourceforge.net/
 
-%description -l pt_BR
+%description -l pt.iso-8859-1
 SMARTmontools controla e monitora dispositivos de armazenamento
 utilizando o recurso Self-Monitoring, Analysis and Reporting Technology
 System (S.M.A.R.T.) integrado nos discos rígidos ATA e SCSI, cuja
@@ -148,7 +148,7 @@ Este arquivo RPM é compatível com todas as versões do RedHat a partir da
 Linux.  As mais recentes versões deste pacote e informações adicionais
 podem ser encontradas em http://smartmontools.sourceforge.net/
 
-%description -l pl
+%description -l pl.iso-8859-2
 Pakiet zawiera dwa programy (smartctl oraz smartd) do kontroli i
 monitorowania systemów przechowywania danych za pomoc± S.M.A.R.T -
 systemu wbudowanego w wiêkszo¶æ nowych dysków ATA oraz SCSI. Pakiet
@@ -213,6 +213,17 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Thu Nov 7 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- modified .spec file so that locale information now contains
+  character set definition.   Changed pt_BR to pt since we do not use any
+  aspect other than language.  See man setlocale.
+- smartctl: added new options -W, -U, and -P to control if and how the
+  smartctl exits if an error is detected in either a SMART data
+  structure checksum, or a SMART command returns an error.
+- modified manual page to break options into slightly more logical
+  categories.
+- reformatted 'usage' message order to agree with man page ordering
+
 * Mon Nov 4 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - smartctl: added new options -n and -N to force device to be ATA or SCSI
 - smartctl: no longer dies silently if device path does not start/dev/X

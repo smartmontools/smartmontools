@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.51 2002/10/31 17:40:10 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.52 2002/11/07 11:00:56 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1151,7 +1151,7 @@ int main (int argc, char **argv){
   // Do we mute printing from ataprint commands?
   con->quietmode=0;
   con->veryquietmode=debugmode?0:1;
-  
+  con->checksumfail=0;
 
   // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
   entries=parseconfigfile();

@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.19 2002/10/30 10:18:37 ballen4705 Exp $
+$Id: TODO,v 1.20 2002/11/07 11:00:55 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -61,6 +61,10 @@ Add following config file directives:
   -m  USER@ADDRESS      send email to user if critical problems found
   -f                    enable autosave of attributes
   -o                    enable automatic offline testing
+
+Use daemon (8) function instead of do-it-yourself daemon_init().  But,
+does it close all open file descriptors?  Must read glibc code to see:
+documentation unclear.
 
 
 General Fixes

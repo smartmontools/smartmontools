@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.11 2002/11/04 13:32:09 ballen4705 Exp $\n"
+#define CVSID6 "$Id: smartctl.h,v 1.12 2002/11/07 11:00:56 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
@@ -55,6 +55,9 @@
 #define VERYQUIETMODE           'Q'
 #define NOTATADEVICE            'N'
 #define NOTSCSIDEVICE           'n'
+#define EXITCHECKSUMERROR        'W'
+#define ULTRACONSERVATIVE       'U'
+#define PERMISSIVE              'P'
 
 
 /* Boolean Values */
@@ -88,5 +91,13 @@
 
 // Device had Errors in the self-test log
 #define FAILLOG (0x01<<7)
+
+// Classes of SMART commands.  Here 'mandatory' means "Required by the
+// ATA/ATAPI-5 Specification if the device implements the S.M.A.R.T.
+// command set."  The 'mandatory' S.M.A.R.T.  commands are: (1)
+// Enable/Disable Attribute Autosave, (2) Enable/Disable S.M.A.R.T.,
+// and (3) S.M.A.R.T. Return Status.  All others are optional.
+#define OPTIONAL_CMD 1
+#define MANDATORY_CMD 2
 
 #endif
