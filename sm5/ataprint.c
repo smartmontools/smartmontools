@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.128 2004/02/04 23:09:46 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.129 2004/02/06 03:52:02 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -662,15 +662,6 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
     PrintSmartConveyanceSelfTestPollingTime (data);
   
   pout("\n");
-}
-
-// Returns nonzero if region of memory contains non-zero entries
-int nonempty(unsigned char *testarea,int n){
-  int i;
-  for (i=0;i<n;i++)
-    if (testarea[i])
-      return 1;
-  return 0;
 }
 
 int ataPrintLogDirectory(struct ata_smart_log_directory *data){

@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.33 2004/01/07 17:13:07 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.34 2004/02/06 03:52:02 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -430,4 +430,13 @@ void PrintOut(int priority,char *fmt, ...){
   }
   va_end(ap);
   return;
+}
+
+// Returns nonzero if region of memory contains non-zero entries
+int nonempty(unsigned char *testarea,int n){
+  int i;
+  for (i=0;i<n;i++)
+    if (testarea[i])
+      return 1;
+  return 0;
 }

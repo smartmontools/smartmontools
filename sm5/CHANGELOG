@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.329 2004/02/04 21:41:13 pjwilliams Exp $
+$Id: CHANGELOG,v 1.330 2004/02/06 03:52:01 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] 3ware controllers: documented that one can monitor any of the
+       physical disks from any of the 3ware /dev/sd? logical devices.
+       Better warnings if querying a disk that does not exist.
 
   [PW] Added Hitachi Travelstar DK23DA series, Maxtor DiamondMax Plus 40
        series, Western Digital Caviar WDxxxAA, WDxxxBA, and WDxxxAB series
