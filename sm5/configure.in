@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.101 2004/09/07 22:10:44 shattered Exp $
+# $Id: configure.in,v 1.102 2004/09/10 04:13:41 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,9 +7,9 @@ AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.101 2004/09/07 22:10:44 shattered Exp $'`
-smartmontools_release_date=2004/09/06
-smartmontools_release_time="21:44:17 UTC"
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.102 2004/09/10 04:13:41 ballen4705 Exp $'`
+smartmontools_release_date=2004/09/10
+smartmontools_release_time="04:11:35 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.63 2004/09/05 21:04:56 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.64 2004/09/10 04:13:41 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -231,12 +231,12 @@ later of the 3w\-xxxx driver, or by applying a patch to older
 versions. See \fBhttp://smartmontools.sourceforge.net/\fP for
 instructions.  Alternatively, use the character device /dev/twe0-15 interface.
 
-The selective self-test functions ('-t select,A-B') are only supported
-using the character device interface /dev/twa0-15 and /dev/twe0-15.
+The selective self\-test functions (\'\-t select,A\-B\') are only supported
+using the character device interface /dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
-.B 3ware controllers are currently ONLY supported under Linux.
+.B 3ware controllers are currently ONLY supported under Linux and FreeBSD.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -563,7 +563,7 @@ relatively free format (compared with ATA disk attributes).
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART
-Selective Self-Test Log [ATA only], or the Log Directory [ATA only].
+Selective Self\-Test Log [ATA only], or the Log Directory [ATA only].
 The valid arguments to this option are:
 
 .I error
@@ -845,7 +845,7 @@ in the \fBsmartmontools\fP database, then the presets are used.
 \fBsmartctl\fP can automatically set appropriate options for known
 drives.  For example, the Maxtor 4D080H4 uses Attribute 9 to stores
 power\-on time in minutes whereas most drives use that Attribute to
-store the power\-on time in hours.  The command\-line option \'-v
+store the power\-on time in hours.  The command\-line option \'\-v
 9,minutes\' ensures that \fBsmartctl\fP correctly interprets Attribute
 9 in this case, but that option is preset for the Maxtor 4D080H4 and
 so need not be specified by the user on the \fBsmartctl\fP command
@@ -868,7 +868,7 @@ The valid arguments to this option are:
 .I use
 \- if a drive is recognized, then use the stored presets for it.  This
 is the default. Note that presets will NOT over\-ride additional
-Attribute interpretation (\'-v N,something\') command\-line options or
+Attribute interpretation (\'\-v N,something\') command\-line options or
 explicit \'\-F\' command\-line options..
 
 .I ignore
@@ -890,8 +890,10 @@ Executes TEST immediately.  The \'\-C\' option can be used in
 conjunction with this option to run the short or long (and also for
 ATA devices, selective or conveyance) self\-tests in captive mode
 (known as "foreground mode" for SCSI devices).  Note that only one
-test can be run at a time, so this option should only be used once per
-command line.
+test type can be run at a time, so only one test type should be
+specified per command line.  Note also that if a computer is shutdown
+or power cycled during a self\-test, no harm should result.  The
+self\-test will either be aborted or will resume automatically.
 
 The valid arguments to this option are:  
 
@@ -1237,7 +1239,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.63 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.64 2004/09/10 04:13:41 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.161 2004/09/05 21:04:56 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.162 2004/09/10 04:13:41 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -324,7 +324,10 @@ fi
 # [PW] Phil Williams
 
 %changelog
-* Sun Sep 5 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+* Fri Sep 10 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [BA] smartctl: ATA disks, if SMART ATTRIBUTE THRESHOLDS page has ID
+       errors with some Attributes having NULL IDs, print Attribute
+       info anyway (but issuing a warning to the user).
   [DG] [SCSI] Decode Last n error events log page; decode track following
        and positioning errors [Hitachi]
   [EM] FreeBSD: another tweak, __packed__ introduced in Version 5.0040
@@ -1435,8 +1438,8 @@ fi
   devices wil be scanned.
 - Note: it has now been confirmed that the code modifications between
   5.0.23 and 5.0.24 have eliminated the GCC 3.2 problems.  Note that
-  there is a GCC bug howerver, see #848 at
-  http://gcc.gnu.org/cgi-bin/gnatsweb.pl?database=gcc&cmd=query
+  there is a GCC bug howerver, see #8404 at
+  http://gcc.gnu.org/bugzilla/show_bug.cgi?id=8404
 - Added new Directive for Configuration file:
   -C <N> This sets the time in between disk checks to be <N>
   seconds apart.  Note that  although  you  can  give
