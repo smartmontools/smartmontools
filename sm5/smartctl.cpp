@@ -22,22 +22,24 @@
  *
  */
 
-#include "config.h"
 #include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "config.h"
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
 #if defined(__FreeBSD_version) && (__FreeBSD_version < 500000)
 #include <unistd.h>
 #endif
+
+#include "int64.h"
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
-#include "int64.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
@@ -51,7 +53,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.135 2004/08/18 19:27:45 likewise Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.136 2004/09/14 03:34:34 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare

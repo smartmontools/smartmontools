@@ -17,16 +17,16 @@
  *
  */
 
+#include "config.h"
+#include "int64.h"
 #include <stdio.h>
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
-#include "int64.h"
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
-#include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.118 2004/08/21 15:20:39 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.119 2004/09/14 03:34:34 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

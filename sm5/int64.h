@@ -20,11 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.8 2004/09/07 22:10:44 shattered Exp $\n"
-
-#ifndef CONFIG_H_CVSID
-#include "config.h"
-#endif
+#define INT64_H_CVSID "$Id: int64.h,v 1.9 2004/09/14 03:34:34 ballen4705 Exp $\n"
 
 // 64 bit integer typedefs
 

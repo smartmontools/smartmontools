@@ -26,6 +26,7 @@
 
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
+#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -37,10 +38,10 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.c,v 1.22 2004/09/14 02:42:16 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.c,v 1.23 2004/09/14 03:34:34 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.22 2004/09/14 02:42:16 ballen4705 Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_solaris.c,v 1.23 2004/09/14 03:34:34 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
 int printedout[2];

@@ -17,10 +17,10 @@
  */
 
 #include "config.h"
+#include "int64.h"
 #include "atacmds.h"
 #include "extern.h"
 extern smartmonctrl * con; // con->permissive
-#include "int64.h"
 #include "scsicmds.h"
 #include "utility.h"
 extern int64_t bytes; // malloc() byte count
@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.17 2004/08/18 19:27:44 likewise Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.18 2004/09/14 03:34:34 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

@@ -25,17 +25,18 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "config.h"
+#include "int64.h"
 #include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
-#include "int64.h"
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
-#include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.156 2004/09/10 04:13:41 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.157 2004/09/14 03:34:34 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
