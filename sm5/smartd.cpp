@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "smartd.h"
@@ -44,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.52 2002/11/07 11:00:56 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.53 2002/11/08 10:51:51 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -84,6 +85,59 @@ void printout(int priority,char *fmt, ...){
   }
   va_end(ap);
   return;
+}
+
+
+void printandmail(mailinfo *mail, int priority, char *fmt, ...){
+  int pid;
+  va_list ap;
+  
+  // iitialize variable argument list, then log message to SYSLOG or
+  // stdout, then finish with argument list
+  va_start(ap,fmt);
+  printout(priority, fmt, ap);
+  va_end(ap);
+  
+  // See if user wants us to send mail
+  if (mail==NULL)
+    return;
+  
+  // Have we already sent a message about this?
+  if (mail->logged)
+    return;
+  
+  // Need to send a message -- fork and send
+  pid=fork();
+  
+  if (pid<0){
+    // We are parent, and were unable to fork to send email.  Log
+    // warning then return.
+    if (errno<sys_nerr)
+      printout(LOG_CRIT,"Unable to send email, %s, fork() failed\n", sys_errlist[errno]);
+    else
+      printout(LOG_CRIT,"Unable to send email, fork() failed\n");
+    return;
+  }
+  else if (pid) {
+    // we are the parent process, record the time of the mail message,
+    // and increment counter, then return.
+    mail->logged++;
+    mail->lastsent=time(NULL);
+    return;
+  }
+  else {
+    // We are the child process, send email
+    char command[1024], message[256];
+
+    // print warning string into message
+    va_start(ap, fmt);
+    vsnprintf(message, 256, fmt, ap);
+    va_end(ap);
+
+    // now construct a command to send this as EMAIL, and issue it.
+    snprintf(command,1024, "echo '%s' | mail -s 'smartd warning: S.M.A.R.T. errors' %s > /dev/null 2> /dev/null", message, mail->address);
+    exit(system(command));
+  }
 }
 
 // Printing function for watching ataprint commands, or losing them
