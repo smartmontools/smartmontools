@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.430 2004/07/15 09:29:38 ballen4705 Exp $
+$Id: CHANGELOG,v 1.431 2004/07/15 15:48:03 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -27,6 +27,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added the following drives to the knowndrives table: IBM Travelstar
+       48GH, 30GN, and 15GN family; IBM Deskstar 37GP and 34GXP family;
+       Western Digital WDC WD272AA; Maxtor DiamondMax D540X-4D family;
+       TOSHIBA MK2016GAP, MK2018GAP, MK2018GAS, MK2023GAS; and
+       QUANTUM FIREBALL ST3.2A
 
   [BA] smartd/smarctl now print build HOST/OS information as part
        of startup slogan.  This should make it slightly easier to
