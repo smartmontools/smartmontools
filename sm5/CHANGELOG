@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.47 2002/11/14 14:59:03 ballen4705 Exp $
+$Id: CHANGELOG,v 1.48 2002/11/15 14:07:52 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,9 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Brabec: added Czech descriptions to .spec file
+  Brabec: corrected comment in smartd.conf example
 
   Changed way that entries in the ATA error log are printed,
   to make it clearer which is the most recent error and
