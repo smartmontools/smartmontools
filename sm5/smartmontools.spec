@@ -1,4 +1,4 @@
-Release:  17
+Release:  18
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.28 2002/10/26 20:53:08 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.29 2002/10/29 10:16:13 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
