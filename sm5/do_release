@@ -30,8 +30,10 @@ inc_release()
 {
   MINOR=`echo $VERSION | cut -d. -f2`
   MAJOR=`echo $VERSION | cut -d. -f1`
+  PERL_OLD=$MAJOR\\.$MINOR
   ((MINOR++))
   NEW_VERSION=$MAJOR.$MINOR
+  PERL_NEW=$MAJOR\\.$MINOR	
   NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
   echo "New Version: $NEW_VERSION"
   echo "New Release: $NEW_RELEASE"
@@ -65,8 +67,8 @@ rm -f $SRPMS/smartmontools-$VERSION.tar.gz
 
 # increase release number:
 inc_release
-perl -p -i.bak -e "s/5\.$VERSION/5\.$NEW_VERSION/" configure.in
-perl -p -i.bak -e "s/Version:\t5\.$VERSION/Version:\t5\.$NEW_VERSION/" smartmontools.spec
+perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
+perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spec
 
 mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
 mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
