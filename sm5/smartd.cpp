@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.109 2003/02/06 16:33:55 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.110 2003/02/09 21:12:33 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -116,7 +116,7 @@ void printout(int priority,char *fmt, ...){
 // a warning email, or execute executable
 void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   char command[2048], message[256], hostname[256], additional[256];
-  char original[256], further[256], domainname[256], subject[256];
+  char original[256], further[256], domainname[256], subject[256],dates[64];
   int status;
   time_t epoch;
   va_list ap;
@@ -197,8 +197,10 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 	      (0x01)<<mail->logged);
       break;
     }
-    if (cfg->emailfreq>1 && mail->logged)
-      sprintf(original,"The original email about this issue was sent at %s\n",ctime(&(mail->firstsent)));
+    if (cfg->emailfreq>1 && mail->logged){
+      dateandtimezoneepoch(dates, mail->firstsent);
+      sprintf(original,"The original email about this issue was sent at %s\n", dates);
+    }
   }
   
   snprintf(subject, 256,"SMART error (%s) detected on host: %s", whichfail[which], hostname);
@@ -214,7 +216,10 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
   setenv("SMARTD_MESSAGE", message, 1);
   setenv("SMARTD_SUBJECT", subject, 1);
-  setenv("SMARTD_TFIRST", ctime(&(mail->firstsent)), 1);
+  dateandtimezoneepoch(dates, mail->firstsent);
+  setenv("SMARTD_TFIRST", dates, 1);
+  snprintf(dates, 64,"%d", (int)mail->firstsent);
+  setenv("SMARTD_TFIRSTEPOCH", dates, 1);
   setenv("SMARTD_FAILTYPE", whichfail[which], 1);
   if (address)
     setenv("SMARTD_ADDRESS", address, 1);

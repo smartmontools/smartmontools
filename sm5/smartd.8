@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.61 2003/02/08 18:50:27 pjwilliams Exp $
+\# $Id: smartd.8,v 1.62 2003/02/09 21:12:32 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/08 18:50:27 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/09 21:12:32 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -623,8 +623,17 @@ double quotes.
 .fi
 .B SMARTD_TFIRST
 is a text string giving the time and date at which the first problem
-of this type was reported. Note that this text string contains space
-characters and is NOT quoted.
+of this type was reported. This text string contains space characters
+and no newlines, and is NOT quoted. For example:
+.nf
+.fi
+Sun Feb  9 14:58:19 2003 CST
+.nf
+.fi
+.B SMARTD_TFIRSTEPOCH
+is an integer, which is the unix epoch (number of seconds since Jan 1,
+1970) for
+.B SMARTD_TFIRST.
 
 The shell which is used to run PATH is system-dependent. For vanilla
 linux/glibc it's bash. For other systems, the man page for system (3)
@@ -957,4 +966,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.61 2003/02/08 18:50:27 pjwilliams Exp $
+$Id: smartd.8,v 1.62 2003/02/09 21:12:32 ballen4705 Exp $
