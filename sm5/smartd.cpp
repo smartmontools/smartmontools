@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.146 2003/04/18 22:09:13 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.147 2003/04/18 22:15:54 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -579,6 +579,9 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     showpresets(&drive);
     exit(0);
   }
+
+  // Just in case it was set for a previous drive...
+  con->reversesamsung = 0;
 
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!cfg->ignorepresets){
