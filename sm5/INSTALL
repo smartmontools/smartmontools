@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.24 2003/10/20 14:11:55 ballen4705 Exp $
+$Id: INSTALL,v 1.25 2003/10/26 03:00:06 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -164,7 +164,8 @@ up with the following:
 ==========================
 
 smartmontools has been partially but not completely ported to solaris.
-It can be compiled with either cc or gcc. To compile with gcc:
+It includes complete SCSI support but no ATA or 3ware support.  It can
+be compiled with either cc or gcc. To compile with gcc:
 
 ./configure
 make
@@ -175,11 +176,10 @@ export CC=cc   [Note: bash syntax]
 ./configure
 make
 
-Currently, smartd/smartctl have no ATA or SCSI functionality under
-solaris, so they do nothing useful.  Developers: the only functions
-that need to be ported are the handful of skeletons prototyped in
-os_solaris.[hc].  Please contribute code and help us to complete the
-port!
+
+If someone could send me the correct ./configure arguments, I would be
+glad to include them here.  Likewise, we could use a suitable init
+script.  Please write to: smartmontools-support@lists.souceforge.net
 
 [7] Comments
 ============

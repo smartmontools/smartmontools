@@ -1,17 +1,18 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.9 2003/10/17 13:51:21 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.10 2003/10/26 03:00:07 ballen4705 Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
 See http://sourceforge.net/news/?group_id=64297 for the most recent news.
 
 
-Date: 2003-10-17
+Date: 2003-10-28
 Summary: smartmontools release 5.22
 -----------------------------------
-Replaces flawed 5.21 release: the -T verypermissive option had
-to be entered as -T verpermissive.
+Replaces flawed 5.21 release: the -T verypermissive option had to be
+entered as -T verpermissive. First experimental solaris support (SCSI
+only).
 
 
 Date: 2003-10-14
