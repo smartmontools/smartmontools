@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.103 2004/04/18 22:54:50 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.104 2004/04/24 16:43:49 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -319,15 +319,41 @@ const drivesettings knowndrives[] = {
     may_need_minus_F_enabled,
     NULL, NULL, NULL
   },
+  { // Maxtor Fireball 541DX family
+    "^Maxtor 2B0(0[468]|1[05]|20)H1$",
+    ".*",
+    NULL,
+    vendoropts_Maxtor_4D080H4,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax 3400 Ultra ATA family
+    "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8)|1010E6|0840E5|0640E4)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax D540X-4G family
+    "^Maxtor 4G(120J6|160J[68])$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Maxtor DiamondMax D540X-4K family
+    "^MAXTOR 4K(020H1|040H2|060H3|080H4)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { // Maxtor DiamondMax Plus D740X family
     "^MAXTOR 6L0(20[JL]1|40[JL]2|60[JL]3|80[JL]4)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // Maxtor 4K080H4
-    "^MAXTOR 4K080H4$",
+  { // Maxtor DiamondMax Plus 6800 Ultra ATA 66 family
+    "^Maxtor 9(2732U8|2390U7|2049U6|1707U5|1366U4|1024U3|0845U3|0683U2)$",
     ".*",
-    NULL, NULL, NULL, NULL
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
   },
   { // Maxtor 4D080H4
     "^Maxtor (4D080H4|4G120J6)$",
@@ -336,15 +362,8 @@ const drivesettings knowndrives[] = {
     vendoropts_Maxtor_4D080H4,
     NULL, NULL
   },
-  { // Maxtor 4R060L0, 4R080J0 and 4R080L0 (4R060J0 not tested)
-    "^Maxtor 4R0[68]0[JL]0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
-  },
-  { // Maxtor 54610H6
-    "^Maxtor 54610H6$",
+  { // Maxtor DiamondMax 16 family
+    "^Maxtor 4(R0[68]0[JL]|R1[26]0L|A160J)0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -380,6 +399,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor DiamondMax Plus 40 series (Ultra ATA 66 and Ultra ATA 100)
     "^Maxtor (54098[UH]8|53073[UH]6|52732[UH]6|52049[UH]4|51536[UH]3|51369[UH]3|51024[UH]2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax Plus 45 Ulta ATA 100 family
+    "^Maxtor 5(4610H6|4098H6|3073H4|2049H3|1536H2|1369H2|1023H2)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -449,7 +475,7 @@ const drivesettings knowndrives[] = {
   { // IBM Deskstar 25GP and 22GXP family
     "^IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0$",
     ".*",
-    NULL, NULL, NULL, NULL 
+    NULL, NULL, NULL, NULL
   },
   { // IBM Travelstar 25GS, 18GT, and 12GN family
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
@@ -518,6 +544,11 @@ const drivesettings knowndrives[] = {
   },
   { // TOSHIBA MK2017GAP
     "^TOSHIBA MK2017GAP$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // TOSHIBA MK4018GAS
+    "^TOSHIBA MK4018GAS$",
     ".*",
     NULL, NULL, NULL, NULL
   },

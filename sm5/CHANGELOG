@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.402 2004/04/18 22:54:49 pjwilliams Exp $
+$Id: CHANGELOG,v 1.403 2004/04/24 16:43:48 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added TOSHIBA MK4018GAS and the following Maxtor drive families
+       to knowndrives table: DiamondMax D540X-4G, Fireball 541DX,
+       DiamondMax 3400 Ultra ATA, DiamondMax Plus 6800 Ultra ATA 66.
+
+  [PW] Added missing Maxtor DiamondMax 16, DiamondMax D540X-4K, and
+       DiamondMax Plus 45 Ulta ATA 100 drives to knowndrives table.
 
   [PW] Added ExcelStor J240, Hitachi Travelstar 80GN family, Fujitsu
        MHTxxxxAT family, and IBM Deskstar 25GP and 22GXP families to
