@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.68 2003/04/21 22:43:04 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.69 2003/05/01 11:09:26 makisara Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/21 22:43:04 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/05/01 11:09:26 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -43,15 +43,14 @@ not cause problems: unimplemented SMART commands issued to a
 drive are ignored and return an error.
 
 .B smartctl
-also provides limited TapeAlerts support for some SCSI tape drives and
-changers.
+also provides support for polling TapeAlert messages from SCSI tape drives and changers.
 
 The user must specify the device to be controlled or interrogated as the final
 argument to
 .B smartctl.
 ATA devices use the form "/dev/hd*" and SCSI devices use the form "/dev/sd*".
-For SCSI Tape Drives and Changers with TapeAlerts support use the devices
-"/dev/st*" and "/dev/sg*".  More general paths may also be specified.
+For SCSI Tape Drives and Changers with TapeAlert support use the devices
+"/dev/nst*" and "/dev/sg*".  More general paths may also be specified.
 .B smartctl
 will attempt to guess the device type, but the '\-d' option can be used to
 specify a device type of ATA or SCSI if required.
@@ -76,7 +75,7 @@ SCSI devices only accept the options
 .B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C, \-l selftest, \-l error
 and 
 .B \-X. 
-TapeAlerts devices only accept the options 
+TapeAlert devices only accept the options 
 .B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-t, \-l selftest, \-l error
 and 
 .B \-H.
@@ -103,12 +102,14 @@ to STDOUT and then exits.  Please include this information if you are
 reporting bugs or problems.
 .TP
 .B \-i, \-\-info
-Prints the disk model number, serial number, firmware version, and ATA Standard
+Prints the device model number, serial number, firmware version, and ATA Standard
 version/revision information.  Says if the device supports SMART, and if
 so, whether SMART support is currently enabled or disabled.
 .TP
 .B \-a, \-\-all
-Prints all SMART information about the disk.  This is equivalent to '\-H
+Prints all SMART information about the disk or TapeAlert information
+about the tape drive or changer.
+This is equivalent to '\-H
 \-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i \-l error
 \-l selftest').
 .TP
@@ -238,7 +239,8 @@ this option are \fIon\fP and \fIoff\fP.  Note that the command '\-s on'
 (perhaps used with with the '\-o on' and '\-S on' options) should be placed
 in a start-up script for your machine, for example in rc.local or rc.sysinit.
 In principle the SMART feature settings are preserved over
-power-cycling, but it doesn't hurt to be sure.
+power-cycling, but it doesn't hurt to be sure. It is not necessary (or
+useful) to enable SMART to see the TapeAlert messages.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
 Enables or disables SMART automatic offline test, which scans the drive
@@ -310,10 +312,12 @@ cycles, so you should only need to issue it once.
 .B SMART READ AND DISPLAY DATA OPTIONS:
 .TP
 .B \-H, \-\-health
-Check: Ask the device to report its SMART health status.  It does
-this using information that it has gathered from online and offline
+Check: Ask the device to report its SMART health status or pending
+TapeAlert messages.  SMART status is based on
+information that it has gathered from online and offline
 tests, which were used to determine/update its
-SMART vendor-specific Attribute values.
+SMART vendor-specific Attribute values. TapeAlert status is obtained
+by reading the TapeAlert log page.
 
 If the device reports failing health status, this means
 .B either
@@ -814,6 +818,13 @@ $smartstat will be nonzero if SMART status check returned 'disk
 failing' and zero otherwise.
 
 .PP
+.SH NOTES
+The TapeAlert log page flags are cleared for the initiator when the page is read. This
+means that each alert condition is reported only once by
+.B smartctl
+for each initiator for each activation of the condition.
+
+.PP
 .SH AUTHOR
 Bruce Allen
 .B smartmontools-support@lists.sourceforge.net
@@ -887,4 +898,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.68 2003/04/21 22:43:04 ballen4705 Exp $
+$Id: smartctl.8,v 1.69 2003/05/01 11:09:26 makisara Exp $
