@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.463 2004/09/04 22:11:55 arvoreen Exp $
+$Id: CHANGELOG,v 1.464 2004/09/05 01:07:00 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Cleaner tweak of fixes for FreeBSD 4.x.
 
   [EM] Fix compilation errors under FreeBSD 4.x, as it is still using
        and old GCC
