@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.16 2002/10/22 14:57:43 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.17 2002/10/23 12:24:24 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -372,5 +372,12 @@ int isSupportSelfTest (struct ata_smart_values data);
 int ataSmartTest(int device, int testtype);
 
 int TestTime(struct ata_smart_values data,int testtype);
+
+// like printf() except that we can control it better....
+void pout(char *fmt, ...);
+
+// MACROS to control printing behavior
+#define QUIETON  {if (quietmode) veryquietmode=0;}
+#define QUIETOFF {if (quietmode && !veryquietmode) veryquietmode=1;}
 
 #endif /* _ATACMDS_H_ */
