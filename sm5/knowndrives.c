@@ -18,6 +18,7 @@
  */
 
 #include <stdio.h>
+#include <sys/types.h>
 #include <regex.h>
 #include "atacmds.h"
 #include "ataprint.h"
@@ -26,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.51 2003/10/27 18:57:24 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.52 2003/11/01 23:41:41 arvoreen Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

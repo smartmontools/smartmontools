@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.20 2003/10/28 00:44:29 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.21 2003/11/01 23:41:41 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -402,13 +402,17 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   if (cam_send_ccb(cam_dev,ccb) < 0) {
     warn("error sending SCSI ccb");
+ #if __FreeBSD_version > 500000
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+ #endif
     cam_freeccb(ccb);
     return -1;
   }
 
   if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
+ #if __FreeBSD_version > 500000
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+ #endif
     cam_freeccb(ccb);
     return -1;
   }
@@ -426,8 +430,10 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     cam_close_device(cam_dev);
 
   if (report > 0) {
+    int trunc;
+
     pout("  status=0\n");
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    trunc = (iop->dxfer_len > 256) ? 1 : 0;
     
     pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
 	 (trunc ? " [only first 256 bytes shown]" : ""));
@@ -444,6 +450,9 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
 
 
 static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
+#ifndef ATAREQUEST
+	return -1;
+#else
   // there is no direct correlation between name 'ad0, ad1, ...' and
   // channel/unit number.  So we need to iterate through the possible
   // channels and check each unit to see if we match names
@@ -483,6 +492,7 @@ static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
     return -1;
   else
     return 0;
+#endif
 }
 
 
