@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd,v 1.11 2003/10/03 19:09:38 pervalidus Exp $
+# $Id: smartd.initd,v 1.12 2003/10/04 16:21:29 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -24,6 +24,14 @@
 # Research Center), Jack Baskin School of Engineering, University of
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
 #
+
+report_unsupported () {
+    echo "Currently the smartmontools package has no init script for"
+    echo "the $1 Linux distribution. If you can provide one or this"
+    echo "one works only removing some ifdefs, please contact"
+    echo "smartmontools-support@lists.sourceforge.net."
+    exit 1
+}
 
 # Red Hat
 if [ -f /etc/redhat-release ] ; then
@@ -84,10 +92,19 @@ elif [ -f /etc/slackware-release ] ; then
     
     exit 0
 
+# Add other distributions HERE, using elif...
+elif [ -f /etc/environment.corel ] ; then
+    report_unsupported "Corel"
+elif [ -f /etc/debian_version ] ; then
+    report_unsupported "Debian"
+elif [ -f /etc/gentoo-release ] ; then
+    report_unsupported "Gentoo"
+elif [ -f /etc/mandrake-release ] ; then
+    report_unsupported "Mandrake"
+elif [ -f /etc/SuSE-release ] ; then
+    report_unsupported "SuSE"
+elif [ -f /etc/turbolinux-release ] ; then
+    report_unsupported "Turbolinux"
 else
-    echo "Currently the smartmontools package has no init script for"
-    echo "your Linux distribution. If you can provide one or the"
-    echo "Red Hat or Slackware bits work (edit the script), please"
-    echo "contact smartmontools-support@lists.sourceforge.net."
-    exit 1
+    report_unsupported "Unknown"
 fi
