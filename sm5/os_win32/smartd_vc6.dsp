@@ -202,10 +202,6 @@ SOURCE=..\int64.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\int64_vc6.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\knowndrives.c
 # End Source File
 # Begin Source File
