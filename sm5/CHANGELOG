@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.89 2003/01/21 14:58:32 ballen4705 Exp $
+$Id: CHANGELOG,v 1.90 2003/01/31 21:50:43 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,16 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+smartmontools-5.1-5
+
+  [BA] smartd: Implemented -M exec Directive for
+       smartd.conf.  This makes it possible to run an
+       arbitrary script or mailing program with the
+       -m option.
+
+  ]PW] smartd: Modified -M Directive so that it can be given
+       multiple times.  Added -M exec Directive.
 
 smartmontools-5.1-4
 

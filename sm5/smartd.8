@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.54 2003/01/31 16:18:10 ballen4705 Exp $
+\# $Id: smartd.8,v 1.55 2003/01/31 21:50:43 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/01/31 16:18:10 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/01/31 21:50:43 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -439,8 +439,8 @@ the address:
 .B  user1@add1,user2@add2,...,userN@addN
 (with no spaces).
 
-To test that the mail is being sent correctly, one may use the '\-M
-test' Directive described below to send one test email on
+To test that email is being sent correctly, use the '\-M test'
+Directive described below to send one test email message on
 .B smartd
 startup.
 
@@ -454,13 +454,15 @@ must be in the path of the shell or environment from which
 .B smartd
 was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
-run, please see the '\-M exec' Directive below.
+run, please use the '\-M exec' Directive below.
 
-The address ADD is optional, not required.  However if the address ADD
-is absent (so the '-m' Directive has NO argument) then the '\-M exec'
-Directive
+.B The address ADD is optional.
+However if the address ADD is absent (so the '\-m' Directive has NO
+argument) then the '\-M exec' Directive
 .B must
-be given.  Please see '\-M exec' below for further explanation.
+be given.  This is primarily intended for specialized purposes; most
+users will want to provide and address argument ADD to '\-m'.  Please
+see '\-M exec' below for further explanation.
 
 .TP
 .B \-M TYPE
@@ -500,89 +502,98 @@ startup.  This allows one to verify that any email is correctly delivered.
 \- This Directive is used to provide a path to an executable binary
 or script which is run instead of the default mail command, when
 .B smartd
-wants to send mail.  PATH must point to an executable file or script.
-Examples are given below.
+needs to send email.  PATH must point to an executable file or script.
+The executable's STDOUT and STDERR are directed to /dev/null, so if
+you wish to leave some record behind, the executable must send mail or
+write to a file or device.  Examples are given below.
 
-Please note that the behavior of the
-.B \-M exec PATH
-Directive depends upon whether the
-.B \-m
-Directive appears with or without an ADD address argument.
-
-If the '\-m' Directive is given 
-.B with
-an ADD address argument, then the
-executable PATH will be run with STDIN receiving the body of the email
-message, and with the same command-line arguments:
-.nf
--s '$SMARTD_SUBJECT' $SMARTD_ADDRESS
-.fi
-that would normally be provided to 'mail'.  Examples include:
-.nf
-.B -M exec /bin/mail
-.B -M exec /path/to/Example_1/bash/script/shown/below
-.fi
-The executable's STDOUT and STDERR are directed to /dev/null, so to
-leave some record behind, the executable must send mail or write to a
-file or device.
-
-If the '\-m' Directive is given
-.B without
-an ADD address argument, then the executable pointed to by PATH is run
-in a shell. [See the man system (3) page to understand what shell is
-used. For vanilla linux/glibc it's bash.] For example
-.nf
-.B -M exec /path/to/Example_2/bash/script/shown/below
-.fi
-For this case, when the '\-m' Directive is given with no ADD address
-argument, the executable receives no STDIN and no command line
-arguments, and both STDOUT and STDERR are directed to /dev/null.  If
-you want the executable to leave some record behind, then it must send
-mail or write to a file or device.
-
-In all cases,
+If you use this Directive, please be careful.
 .B smartd
-will BLOCK until the executable PATH returns.  So if your executable hangs, then
+will BLOCK until the executable PATH returns, so if your executable
+hangs, then
 .B smartd
-will also hang.  Note that the return status of the executable is reported by
+will also hang.  Note that the return status of the executable is
+reported by
 .B smartd
 in SYSLOG.
 
-In all cases
+
+Before running the executable,
 .B smartd
-sets a number of environment variables before runs the executable
-PATH.  These may be used to control it's behavior.  The environment
-variables are:
-
+sets a number of environment variables.  These environment variables
+may be used to control the executable's behavior.  The environment
+variables exported by
+.B smartd
+are:
+.nf
+.fi
 .B SMARTD_MAILER
-is set to the argument of -M exec (example: /bin/mail).
-
+is set to the argument of -M exec, if present or else to 'mail'
+(examples: /bin/mail, mail).
+.nf
+.fi
 .B SMARTD_DEVICE
-is set to the device path (example: /dev/hda).
-
+is set to the device path (examples: /dev/hda, /dev/sdb).
+.nf
+.fi
 .B SMARTD_DEVICETYPE
 is set to the device type (examples: ata, scsi).
-
+.nf
+.fi
+.B SMARTD_ADDRESS
+is set to the comma-delineated address argument ADD of the '\-m'
+Directive, if present (example: admin@yoyodyne.com).
+.nf
+.fi
 .B SMARTD_MESSAGE
-is set to the warning message string from
+is set to the warning email message string from
 .B smartd. 
-Note that this message string contains space characters and is NOT
-quoted. So to use it in a bash script you probably want to
-enclose $SMARTD_MESSAGE in double quotes.
-
+This message string contains space characters and is NOT quoted. So to
+use $SMARTD_MESSAGE in a bash script you should probably enclose it in
+double quotes.
+.nf
+.fi
 .B SMARTD_TFIRST
 is a text string giving the time at which the first problem of this
 type was reported. Note that this text string contains space
 characters and is NOT quoted.
 
-.B SMARTD_ADDRESS
-is a text string giving the address provided to the '\-m' Directive,
-if present.  Since this text string contains no space characters,
-$SMARTD_ADDRESS does not be be enclosed in double quotes in bash
-scripts.
+.B The behavior of the
+.B \-M exec PATH
+.B Directive depends upon whether the
+.B \-m
+.B Directive appears with or without the optional ADD address argument.
+If the '\-m' Directive is given 
+.B with
+an ADD address argument, then the executable pointed to by PATH will
+be run in a shell with STDIN receiving the body of the email message,
+and with the same command-line arguments:
+.nf
+-s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS
+.fi
+that would normally be provided to 'mail'.  Examples include:
+.nf
+.B -M exec /bin/mail
+.B -M exec /usr/local/bin/my_mail_program
+.B -M exec /path/to/Example_1/bash/script/shown/below
+.fi
+If the '\-m' Directive is given
+.B without
+an ADD address argument, then the executable pointed to by PATH is run
+in a shell with
+.B no
+STDIN and
+.B no
+command-line arguments, for example:
+.nf
+.B -M exec /path/to/Example_2/bash/script/shown/below
+.fi
+Note: the shell which is used to run the command is system-dependent;
+for vanilla linux/glibc it's bash. For other systems, the man page for
+system (3) should say what shell is used.
 
-Please see below for some EXAMPLES of scripts that can be used with
-the '\-M exec' Directive..
+Some EXAMPLES of scripts that can be used with the '\-M exec'
+Directive are given below.
 
 .TP
 .B \-p
@@ -690,7 +701,7 @@ These are two examples of shell scripts that can be used with
 the '\-M exec' Directive described previously.  The paths to these scripts
 and similar executables is the argument to the '\-M exec' Directive.
 
-Example 1: This script is for use with '\-m ADD -M exec'.  It appends
+Example 1: This script is for use with '\-m ADDRESS -M exec'.  It appends
 the output of
 .B smartctl -a
 to the output of the smartd email warning message:
@@ -705,25 +716,25 @@ to the output of the smartd email warning message:
 .B /usr/sbin/smartctl -a $SMARTD_DEVICE >> /root/msg
  
 .B # Now email the message to the user at address ADD:
-.B /bin/mail -s """"$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+.B /bin/mail -s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS < /root/msg
 .fi
 
-Example 2: This script is for use with '\-m \-M exec'.  It warns all
-users about a disk problem, waits 30 seconds, and then powers down the
-machine.
+Example 2: This script is for use with '\-m \-M exec' (no argument
+given to '\-m').  It warns all users about a disk problem, waits 30
+seconds, and then powers down the machine.
 
 .nf
 .B #! /bin/bash
 
 .B # Warn all users of a problem
-.B wall 'Problem detected with disk:' $SMARTD_DEVICE
-.B wall 'Warning message from smartd is:' """"$SMARTD_MESSAGE"
-.B wall 'Shutting down machine in 30 seconds...'
+.B wall 'Problem detected with disk: ' $SMARTD_DEVICE
+.B wall 'Warning message from smartd is: ' \(dq$SMARTD_MESSAGE\(dq
+.B wall 'Shutting down machine in 30 seconds... '
  
 .B # Wait half a minute
 .B sleep 30
  
-.B # Now shutdown machine
+.B # Power down the machine
 .B /usr/sbin/shutdown -hf now
 .fi
 
@@ -844,4 +855,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.54 2003/01/31 16:18:10 ballen4705 Exp $
+$Id: smartd.8,v 1.55 2003/01/31 21:50:43 ballen4705 Exp $
