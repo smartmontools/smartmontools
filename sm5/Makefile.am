@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.63 2004/08/30 16:00:31 ballen4705 Exp $
+# $Id: Makefile.am,v 1.64 2004/08/30 19:12:14 guidog Exp $
 #
 
 @SET_MAKE@
@@ -213,7 +213,7 @@ CLEANFILES = smartd.conf.5 \
              smartctl.8.txt     \
              smartd.conf.5.html \
              smartd.conf.5.txt  \
-             smartd.initd  \
+             smartd.initd 	\
              SMART
 
 
@@ -265,6 +265,9 @@ install-initdDATA-darwin: $(initd_DATA)
 else
 
 initd_DATA = smartd.initd
+
+smartd.initd: $(srcdir)/smartd.initd.in Makefile
+	sed "s|/usr/local/sbin/|$(sbindir)/|g" $< > $@
 
 initd_install_name = smartd$(smartd_suffix)
 

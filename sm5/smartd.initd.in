@@ -1,8 +1,8 @@
-#! @SHELL@
+#! /bin/sh
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.27 2004/08/30 18:19:10 guidog Exp $
+# $Id: smartd.initd.in,v 1.28 2004/08/30 19:12:14 guidog Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -39,7 +39,7 @@
 # /etc/{default,sysconfig}/smartmontools might override these
 #smartd_opts="--interval=1800"
 
-SMARTD_BIN=/usr/sbin/smartd
+SMARTD_BIN=/usr/local/sbin/smartd
 
 report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
