@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.27 2003/04/06 03:54:46 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.28 2003/04/07 03:39:53 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -56,7 +56,7 @@ UINT8 gStartStopPage = 0;
 UINT8 gTapeAlertsPage = 0;
 
 
-void scsiGetSupportPages(int device)
+static void scsiGetSupportedLogPages(int device)
 {
     int i, err;
 
@@ -103,9 +103,9 @@ void scsiGetSmartData(int device)
     }
     cp = scsiSmartGetIEString(asc, ascq);
     if (cp)
-        pout("S.M.A.R.T. Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
+        pout("SMART Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
     else
-        pout("S.M.A.R.T. Sense: Ok!\n");
+        pout("SMART Sense: Ok!\n");
 
     if (currenttemp && !gTempPage)
         pout("Current Drive Temperature:     %d C\n", currenttemp);
@@ -312,7 +312,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     }
     len = gBuf[4] + 5;
     if (peripheral_type)
-	*peripheral_type = gBuf[0] & 0x1f;
+        *peripheral_type = gBuf[0] & 0x1f;
 
     if (len >= 36) {
         memset(manufacturer, 0, sizeof(manufacturer));
@@ -340,11 +340,11 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
    
     if ((err = scsiSmartSupport(device, &smartsupport))) {
         pout("Device does not support %s\n", (1 == *peripheral_type) ?
-                         "TapeAlerts" : "S.M.A.R.T.");
+                         "TapeAlerts" : "SMART");
         return;
     }
     pout("Device supports %s and is %s\n%s\n", 
-            (1 == *peripheral_type) ? "TapeAlerts" : "S.M.A.R.T.",
+            (1 == *peripheral_type) ? "TapeAlerts" : "SMART",
             (smartsupport & DEXCPT_ENABLE) ? "Disable" : "Enabled",
             (smartsupport & EWASC_ENABLE) ? "Temperature Warning Enabled" :
                 "Temperature Warning Disabled or Not Supported");
@@ -355,7 +355,7 @@ void scsiSmartEnable(int device)
     /* Enable Exception Control */
     if (scsiSmartDEXCPTDisable(device))
         return;
-    pout("S.M.A.R.T. enabled\n");
+    pout("SMART enabled\n");
 
     if (scsiSmartEWASCEnable(device))
         pout("Temperature Warning not Supported\n");
@@ -368,7 +368,7 @@ void scsiSmartDisable(int device)
 {
     if (scsiSmartDEXCPTEnable(device))
         return;
-    pout("S.M.A.R.T. Disabled\n");
+    pout("SMART Disabled\n");
 }
 
 void scsiPrintTemp(int device)
@@ -396,17 +396,17 @@ void scsiPrintStopStart(int device)
 
 void scsiPrintMain(const char *dev_name, int fd)
 {
-    int checkedsupportlogpages = 0;
+    int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int status;
 
     // See if unit accepts SCSI commmands from us
     if ((status = testunitready(fd))) {
-	if (1 == status)
-	    pout("Smartctl: device %s Test Unit Ready: NOT ready\n", dev_name);
-	else
-	    pout("Smartctl: device %s Test Unit Ready: err=%d\n", dev_name, 
-		 status);
+        if (1 == status)
+            pout("Smartctl: device %s Test Unit Ready: NOT ready\n", dev_name);
+        else
+            pout("Smartctl: device %s Test Unit Ready: err=%d\n", dev_name, 
+                 status);
         return;
     }
     if (con->driveinfo)
@@ -419,8 +419,8 @@ void scsiPrintMain(const char *dev_name, int fd)
         scsiSmartDisable(fd);
 
     if (con->checksmart) {
-        scsiGetSupportPages (fd);
-        checkedsupportlogpages = 1;
+        scsiGetSupportedLogPages(fd);
+        checkedSupportedLogPages = 1;
         if(gTapeAlertsPage)
             scsiGetTapeAlertsData(fd);
         else {
@@ -432,8 +432,8 @@ void scsiPrintMain(const char *dev_name, int fd)
         }
     }   
     if (con->smartselftestlog) {
-        if (! checkedsupportlogpages)
-            scsiGetSupportPages(fd);
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(fd);
         if (gSelfTestPage)
             scsiPrintSelfTest(fd);
     }
