@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.47 2003/08/05 15:32:32 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.48 2003/08/05 16:27:43 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -326,6 +326,27 @@ struct ata_smart_log_directory {
   struct ata_smart_log_entry entry[255];
 } __attribute__ ((packed));
 
+
+// SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
+// Revision 3
+struct test_span {
+  unsigned long long start;
+  unsigned long long end;
+} __attribute__ ((packed));
+
+struct ata_selective_self_test_log {
+  unsigned short     logversion;
+  struct test_span   span[5];
+  unsigned char      reserved[337-82+1];
+  unsigned char      vendor_specific1[491-338+1];
+  unsigned long long currentlba;
+  unsigned short     currentspan;
+  unsigned short     flags;
+  unsigned char      vendor_specific2[507-504+1];
+  unsigned short     pendingtime;
+  unsigned char      undefined;  // Error in specs!
+  unsigned char      checksum;
+} __attribute__ ((packed));
 
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity(int device, struct hd_driveid *buf);

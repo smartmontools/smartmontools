@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.113 2003/08/04 19:17:14 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.114 2003/08/05 16:27:43 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -452,6 +452,17 @@ void swap4(char *location){
   return;
 }
 
+// swap eight bytes.  Points to low address
+void swap8(char *location){
+  char tmp=*location;
+  *location=*(location+7);
+  *(location+7)=tmp;
+  tmp=*(location+1);
+  *(location+1)=*(location+6);
+  *(location+6)=tmp;
+  swap4(location+2);
+  return;
+}
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -932,6 +943,30 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
   return 0;
 }
 
+// Reads the selective self-test log (log #9)
+int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data){	
+  
+  // get data from device
+  if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
+    return -1;
+  }
+
+  // swap endian order if needed
+  if (isbigendian()){
+    int i;
+    swap2((char *)&(data->logversion));
+    for (i=0;i<5;i++){
+      swap8((char *)&(data->span[i].start));
+      swap8((char *)&(data->span[i].end));
+    }
+    swap8((char *)&(data->currentlba));
+    swap2((char *)&(data->currentspan));
+    swap2((char *)&(data->flags));
+    swap2((char *)&(data->pendingtime));
+  }
+  return 0;
+}
+
 // This corrects some quantities that are byte reversed in the SMART
 // ATA ERROR LOG
 void fixsamsungerrorlog(struct ata_smart_errorlog *data){
@@ -949,6 +984,7 @@ void fixsamsungerrorlog(struct ata_smart_errorlog *data){
     // Error data structure life timestamp
     swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
   }
+  return;
 }
 
 // Reads the Summary SMART Error Log (log #1). The Comprehensive SMART
