@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.9 2002/10/20 19:40:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.10 2002/10/21 08:49:23 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -29,6 +29,8 @@ NOTES FOR NEXT RELEASE:
 
 smartmontools-5.0-11
 
+    device opened only in read-only not read-write mode.  Don't need R/W 
+    access to get smart data.
 
     smartctl now handles all possible choices of "multiple options"
     gracefully.  It goes through the following phases of operation,
@@ -36,6 +38,10 @@ smartmontools-5.0-11
     Documentation has bee updated to explain the different phases of
     operation.  Control flow through ataPrintMain()
     simplified.
+
+    If reading device identity information fails, try seeing if the info
+    can be accessed using a "DEVICE PACKET" command.  This way we can
+    at least get device info.
 
     Modified Makefile to automatically tag CVS archive on issuance of
     a release

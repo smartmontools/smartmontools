@@ -1,4 +1,4 @@
-//  $Id: atacmds.c,v 1.10 2002/10/20 19:40:23 ballen4705 Exp $
+//  $Id: atacmds.c,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -128,7 +128,7 @@ void checksumwarning(const char *string){
 int ataReadHDIdentity ( int device, struct hd_driveid *buf){
   if (ioctl(device, HDIO_GET_IDENTITY, buf)){ 
     perror ("ATA GET HD Failed");
-    return -1; 
+    return -1;
   }
   return 0;
 }
@@ -138,13 +138,15 @@ int ataReadHDIdentity ( int device, struct hd_driveid *buf){
 // Reads current Device Identity info (512 bytes) into buf
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
   unsigned char parms[HDIO_DRIVE_CMD_HDR_SIZE+sizeof(*buf)]=
-    {WIN_IDENTIFY, 0, 0, 1,};
-
-  if (ioctl(device ,HDIO_DRIVE_CMD,parms)){ 
-    perror ("ATA GET HD Identity Failed");
-    return -1; 
-  }
+  {WIN_IDENTIFY, 0, 0, 1,};
   
+  if (ioctl(device ,HDIO_DRIVE_CMD,parms)){ 
+    parms[0]=WIN_PIDENTIFY;
+    if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
+      perror ("ATA GET HD Identity Failed");
+      return -1; 
+    }
+  }
   // copy data into driveid structure
   memcpy(buf,parms+HDIO_DRIVE_CMD_HDR_SIZE,sizeof(*buf));
   
