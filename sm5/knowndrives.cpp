@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.129 2004/10/12 21:51:41 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.130 2004/11/10 22:09:53 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -172,6 +172,18 @@ const drivesettings knowndrives[] = {
     "^ExcelStor Technology J240$",
     ".*",
     NULL, NULL, NULL, NULL
+  },
+  { NULL, // ExcelStor J340
+    "^ExcelStor Technology J340$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Fujitsu MHJ and MHK series",
+    "^FUJITSU MH[JK]....ATU?$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
   },
   { "Fujitsu MPB series",
     "^FUJITSU MPB....ATU?$",
@@ -691,6 +703,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate U4 family",
+    "^ST3(2112|4311|6421|8421)A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate U8 family",
     "^ST3(8410|4313|17221|13021)A$",
     ".*",
@@ -718,6 +735,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate Barracuda ATA V family",
     "^ST3(12002(3A|4A|9A|3AS)|800(23A|15A|23AS)|60(015A|210A)|40017A)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Barracuda 5400.1",
+    "^ST340015A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -853,6 +875,16 @@ const drivesettings knowndrives[] = {
   },
   { NULL, // QUANTUM FIREBALL EX3.2A
     "^QUANTUM FIREBALL EX3.2A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { NULL, // QUANTUM FIREBALLP KX27.3
+    "^QUANTUM FIREBALLP KX27.3$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { NULL, // QUANTUM FIREBALLP KA10.1
+    "^QUANTUM FIREBALLP KA10.1$",
     ".*",
     NULL, NULL, NULL, NULL
   },
