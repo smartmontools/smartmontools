@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.87 2004/02/16 18:56:59 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.88 2004/03/01 22:11:22 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -165,6 +165,13 @@ const drivesettings knowndrives[] = {
   },
   { // Fujitsu MPF series
     "^FUJITSU MPF3(102A[HT]|153A[HT]|204A[HT])$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MPC series
+    "^FUJITSU MPC3(032AT|043AT|045AH|064A[HT]|084AT|096AT|102AT)$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -408,6 +415,11 @@ const drivesettings knowndrives[] = {
     vendoropts_Hitachi_DK23XX,
     NULL, NULL
   },
+  { // IBM Deskstar 14GXP and 16GP series
+    "^IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // IBM Travelstar 25GS, 18GT, and 12GN family
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
     ".*",
@@ -463,8 +475,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // Seagate Barracuda U Series 20410
-    "^ST320410A$",
+  { // TOSHIBA MK2017GAP
+    "^TOSHIBA MK2017GAP$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate Barracuda U Series family
+    "^ST3(8002|6002|4081|2041)0A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -475,6 +492,11 @@ const drivesettings knowndrives[] = {
   },
   { // Seagate Barracuda ATA II family
     "^ST3(3063|2042|1532|1021)0A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate Barracuda ATA III family
+    "^ST3(40824|30620|20414|15310|10215)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
