@@ -36,25 +36,8 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.1.2.1 2004/02/23 15:02:24 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.1.2.2 2004/02/25 12:59:55 chrfranke Exp $" \
 ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
-
-
-// Quick hack strtoull() for MSVC 6.0 using sscanf
-// Used by utility:split_selective_arg()
-
-__int64 strtoull(char * s, char ** end, int base)
-{
-	__int64 val; int n = -1;
-	if (sscanf(s, "%I64i%n", &val, &n) != 1 && n <= 0) {
-		if (end)
-			*end = s;
-		errno = EINVAL; return -1;
-	}
-	if (end)
-		*end = s + n;
-	return val;
-}
 
 
 static int ata_open(int drive);
@@ -374,7 +357,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	buf->DataBufferSize = datasize;
 
 #ifdef _DEBUG
-	pout("DeviceIoControl(.,0x%lx,.,%lu,.,%lu,.,NULL)\n",
+	pout("DeviceIoControl(.,0x%x,.,%u,.,%u,.,NULL)\n",
 		IOCTL_IDE_PASS_THROUGH, size, size);
 	print_ide_regs(&buf->IdeReg, 0);
 #endif
@@ -808,7 +791,7 @@ static int aspi_io_call(ASPI_SRB * srb)
 			}
 			else {
 				pout("WaitForSingleObject(%lx) = 0x%lx,%ld, Error=%ld\n",
-					event, rc, rc, GetLastError());
+					(unsigned long)event, rc, rc, GetLastError());
 			}
 			// TODO: ASPI_ABORT_IO command
 			aspi_entry = 0;
@@ -891,7 +874,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 		}
 		else
 			j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-	pout(buff);
+		pout(buff);
 	}
 
 	memset(&srb, 0, sizeof(srb));
