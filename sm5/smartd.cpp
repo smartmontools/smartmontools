@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.253 2003/12/02 03:27:13 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.254 2003/12/02 05:03:34 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1684,10 +1684,10 @@ int SCSICheckDevice(cfgfile *cfg)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
     
     if (cfg->testregexp) {
-      // short test
+      // long (extended) background test
       if (DoTestNow(cfg, 'L')>0)
 	DoSCSISelfTest(fd, cfg, 'L');
-      // long test
+      // short background test
       else if (DoTestNow(cfg, 'S')>0)
 	DoSCSISelfTest(fd, cfg, 'S');
     }
