@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.41 2003/01/03 07:00:27 ballen4705 Exp $
+# $Id: Makefile,v 1.42 2003/01/04 10:28:35 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -45,7 +45,7 @@ releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
 pkgname=smartmontools-5.1
-pkgname2=$(pkgname)-$(counter)
+pkgname2=$(pkgname).$(counter)
 
 all: smartd smartctl
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartctl.8\n\tman ./smartd.8\n\tman ./smartd.conf.5\n"

@@ -1,4 +1,4 @@
-Release:  49
+Release:  1
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -27,10 +27,10 @@ Obsoletes:      smartsuite
 Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 # Source code can be found at:
-# http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
+# http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}.%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.76 2003/01/03 07:00:27 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.77 2003/01/04 10:28:35 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,20 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Sat Jan 4 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [DG] add '-l selftest' capability for SCSI devices (update smartctl.8)
+- [BA] smartd,smartctl: added additional Attribute modification option
+  -v 220,temp and -v 9,temp.
+- [PW] Renamed smartd option -X to -d
+- [PW] Changed smartd.conf Directives -- see man page
+- [BA/DG] Fixed uncommented comment in smartd.conf
+- [DG] Correct 'Recommended start stop count' for SCSI devices
+- [PW] Replaced smartd.conf directive -C with smartd option -i
+- [PW] Changed options for smartctl -- see man page.
+- [BA] Use strerror() to generate system call error messages.
+- [BA] smartd: fflush() all open streams before fork().
+- [BA] smartctl, smartd simplified internal handling of checksums
+  for simpler porting and less code.
 * Sun Dec 8 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [PW] smartd --debugmode changed to --debug
 - [BA] smartd/smartctl added attribute 230 Head Amplitude from
