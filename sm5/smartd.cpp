@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.230 2003/11/05 11:16:55 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.231 2003/11/09 20:22:21 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -91,6 +91,10 @@ static char* configfile=SYSCONFDIR "/" CONFIGFILENAME ;
 // command-line: when should we exit?
 static int quit=0;
 
+// command-line; this is the default syslog(3) log facility to use.
+// It is initialzed to LOG_DAEMON
+extern int facility;
+
 // used for control of printing, passing arguments to atacmds.c
 smartmonctrl *con=NULL;
 
@@ -109,7 +113,6 @@ extern long long bytes;
 // exit status
 extern int exitstatus;
 
-
 // set to one if we catch a USR1 (check devices now)
 volatile int caughtsigUSR1=0;
 
@@ -121,6 +124,11 @@ volatile int caughtsigHUP=0;
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
+
+
+
+
+
 
 // prints CVS identity information for the executable
 void PrintCVS(void){
@@ -487,7 +495,7 @@ void pout(char *fmt, ...){
     vprintf(fmt,ap);
   // in debug==2 mode we print output from knowndrives.o functions
   else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl || con->escalade) {
-    openlog("smartd", LOG_PID, LOG_DAEMON);
+    openlog("smartd", LOG_PID, facility);
     vsyslog(LOG_INFO, fmt, ap);
     closelog();
   }
@@ -619,6 +627,8 @@ return;
    arguments to the option opt or NULL on failure. */
 const char *GetValidArgList(char opt) {
   switch (opt) {
+  case 'l':
+    return "local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
     return "nodev, errors, nodevstartup, never, onecheck";
   case 'r':
@@ -644,6 +654,8 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Display this help and exit\n\n");
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
+  PrintOut(LOG_INFO,"  -l local[0-7], --logfacility=local[0-7]\n");
+  PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 rather than daemon\n\n");
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
@@ -653,14 +665,15 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
-  PrintOut(LOG_INFO,"  -d      Start smartd in debug mode\n");
-  PrintOut(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
-  PrintOut(LOG_INFO,"  -h      Display this help and exit\n");
-  PrintOut(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
-  PrintOut(LOG_INFO,"  -p NAME Write PID file NAME\n");
-  PrintOut(LOG_INFO,"  -q WHEN Quit on one of: %s\n", GetValidArgList('q'));
-  PrintOut(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", GetValidArgList('r'));
-  PrintOut(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
+  PrintOut(LOG_INFO,"  -d         Start smartd in debug mode\n");
+  PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
+  PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
+  PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
+  PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7 rather than daemon\n");
+  PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
+  PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
+  PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
+  PrintOut(LOG_INFO,"  -V         Print License, Copyright, and version information\n");
 #endif
 }
 
@@ -2274,11 +2287,12 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "q:dDi:p:r:Vh?";
+  const char *shortopts = "l:q:dDi:p:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
+    { "logfacility",    required_argument, 0, 'l' },
     { "quit",           required_argument, 0, 'q' },
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
@@ -2309,6 +2323,7 @@ void ParseOpts(int argc, char **argv){
     
     switch(optchar) {
     case 'q':
+      // when to quit
       if (!(strcmp(optarg,"nodev"))) {
 	quit=0;
       } else if (!(strcmp(optarg,"nodevstartup"))) {
@@ -2324,10 +2339,33 @@ void ParseOpts(int argc, char **argv){
 	badarg = TRUE;
       }
       break;
+    case 'l':
+      // set the log facility level
+      if (!strcmp(optarg, "local0"))
+	facility=LOG_LOCAL0;
+      else if (!strcmp(optarg, "local1"))
+	facility=LOG_LOCAL1;
+      else if (!strcmp(optarg, "local2"))
+	facility=LOG_LOCAL2;
+      else if (!strcmp(optarg, "local3"))
+	facility=LOG_LOCAL3;
+      else if (!strcmp(optarg, "local4"))
+	facility=LOG_LOCAL4;
+      else if (!strcmp(optarg, "local5"))
+	facility=LOG_LOCAL5;
+      else if (!strcmp(optarg, "local6"))
+	facility=LOG_LOCAL6;
+      else if (!strcmp(optarg, "local7"))
+	facility=LOG_LOCAL7;
+      else
+	badarg = TRUE;
+      break;
     case 'd':
+      // enable debug mode
       debugmode = TRUE;
       break;
     case 'D':
+      // print summary of all valid directives
       debugmode = TRUE;
       Directives();
       EXIT(0);
@@ -2348,6 +2386,7 @@ void ParseOpts(int argc, char **argv){
       checktime = (int)lchecktime;
       break;
     case 'r':
+      // report IOCTL transactions
       {
         int i;
         char *s;
@@ -2379,13 +2418,16 @@ void ParseOpts(int argc, char **argv){
       }
       break;
     case 'p':
+      // output file with PID number
       pid_file=CustomStrDup(optarg, 1, __LINE__,__FILE__);
       break;
     case 'V':
+      // print version and CVS info
       PrintCopyleft();
       EXIT(0);
       break;
     case 'h':
+      // help: print summary of command-line options
       debugmode=1;
       PrintHead();
       Usage();
@@ -2393,6 +2435,7 @@ void ParseOpts(int argc, char **argv){
       break;
     case '?':
     default:
+      // unrecognized option
       debugmode=1;
       PrintHead();
 #ifdef HAVE_GETOPT_LONG

@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.27 2003/10/21 01:45:50 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.28 2003/11/09 20:22:21 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -67,6 +67,10 @@ const char *reportbug="Please report this bug to the Smartmontools developers at
 // hang on to exit code, so we can make use of more generic 'atexit()'
 // functionality and still check our exit code
 int exitstatus = 0;
+
+// facility used by syslog(3).  smartctl should NEVER use this, and
+// smartd can reset it with a command-line argument
+int facility=LOG_DAEMON;
 
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
@@ -400,6 +404,7 @@ char *CustomStrDup(char *ptr, int mustexist, int whatline, char* file){
 // values. This means the objects of type char or short int (whether
 // signed or not) are promoted to either int or unsigned int, as
 // appropriate.]
+extern int facility;
 void PrintOut(int priority,char *fmt, ...){
   va_list ap;
   // initialize variable argument list 
@@ -407,7 +412,7 @@ void PrintOut(int priority,char *fmt, ...){
   if (debugmode) 
     vprintf(fmt,ap);
   else {
-    openlog("smartd",LOG_PID,LOG_DAEMON);
+    openlog("smartd",LOG_PID, facility);
     vsyslog(priority,fmt,ap);
     closelog();
   }

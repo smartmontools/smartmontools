@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.12 2003/10/21 12:00:53 arvoreen Exp $
+$Id: smartd.8.in,v 1.13 2003/11/09 20:22:21 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/10/21 12:00:53 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/11/09 20:22:21 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,45 +28,35 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/21 12:00:53 $"
+\fBRELEASE\fP "$Date: 2003/11/09 20:22:21 $"
 
 .SH DESCRIPTION
-.B smartd
-is a daemon that monitors the Self-Monitoring, Analysis and Reporting
-Technology (SMART) system built into many ATA-3 and later ATA,
-IDE and SCSI-3 hard drives. The purpose of SMART is to monitor
-the reliability of the hard drive and predict drive failures, and to
-carry out different types of drive self-tests.  This version of
-.B smartd
-is compatible with ATA/ATAPI-5 and earlier standards (see 
-.B REFERENCES
-below)
+\fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
+and Reporting Technology (SMART) system built into many ATA-3 and
+later ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to
+monitor the reliability of the hard drive and predict drive failures,
+and to carry out different types of drive self-tests.  This version of
+\fBsmartd\fP is compatible with ATA/ATAPI-5 and earlier standards (see
+\fBREFERENCES\fP below).
 
-.B smartd
-will attempt to enable SMART monitoring on ATA devices (equivalent to
-.B smartctl -s on
-) and polls
-these and SCSI devices every 30 minutes (configurable), logging
-SMART errors and changes of SMART Attributes via the SYSLOG
-interface.  The default location for these SYSLOG notifications and
-warnings is
-.B /var/log/messages. 
+\fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
+(equivalent to \fBsmartctl -s on\fP) and polls these and SCSI devices
+every 30 minutes (configurable), logging SMART errors and changes of
+SMART Attributes via the SYSLOG interface.  The default location for
+these SYSLOG notifications and warnings is \fB/var/log/messages\fP.
+To change this default location, please see the \fB\'-l\'\fP
+command-line option described below.
 
-If you send a 
-.B USR1 
-signal to
-.B smartd
-it will immediately check the status of the disks, and then return to
-polling the disks every 30 minutes. See the
-.B \'\-i\'
-option below for additional details.
+If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
+check the status of the disks, and then return to polling the disks
+every 30 minutes. See the \fB\'\-i\'\fP option below for additional
+details.
 
-.B smartd
-can be configured at start-up using the configuration file
-.B /etc/smartd.conf.
-If the configuration file is subsequently modified, \fBsmartd\fP can
-be told to re-read the configuration file by sending it a \fBHUP\fP
-signal, for example with the command:
+\fBsmartd\fP can be configured at start-up using the configuration
+file \fB/etc/smartd.conf\fP.  If the configuration file is
+subsequently modified, \fBsmartd\fP can be told to re-read the
+configuration file by sending it a \fBHUP\fP signal, for example with
+the command:
 .fi
 \fBkillall -HUP smartd\fP.
 .fi
@@ -101,9 +91,8 @@ start-up.
 
 .SH 
 OPTIONS
-Long options are not supported on all systems.  Use
-.B \'smartd \-h\'
-to see the available options.
+Long options are not supported on all systems.  Use \fB\'smartd
+\-h\'\fP to see the available options.
 .TP
 .B \-d, \-\-debug
 Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
@@ -124,31 +113,59 @@ appear in the configuration file following the device name.
 Prints usage message to STDOUT and exits.
 .TP
 .B \-i N, \-\-interval=N
-Sets the interval between disk checks to
-.I N
-seconds, where
-.I N
-is a decimal integer.  The minimum allowed value is ten and the maximum is the
-largest positive integer that can be represented on your system (often 2^31-1).
-The default is 1800 seconds.
+Sets the interval between disk checks to \fIN\fP seconds, where
+\fIN\fP is a decimal integer.  The minimum allowed value is ten and
+the maximum is the largest positive integer that can be represented on
+your system (often 2^31-1).  The default is 1800 seconds.
 
-Note that the superuser can make
-.B smartd
-check the status of the disks at any time by sending it the 
-.B SIGUSR1
-signal, for example with the command:
+Note that the superuser can make \fBsmartd\fP check the status of the
+disks at any time by sending it the \fBSIGUSR1\fP signal, for example
+with the command:
 .nf
 .B kill -SIGUSR1 <pid>
 .fi
-where 
-.B <pid> 
-is the process id number of
-.B smartd.
-One may also use:
+where \fB<pid>\fP is the process id number of \fBsmartd\fP.  One may
+also use:
 .nf
 .B killall -USR1 smartd
 .fi
 for the same purpose.
+.TP
+.B \-l FACILITY, \-\-logfacility=FACILITY
+Uses syslog facility FACILITY to log the messages from \fBsmartd\fP.
+Here FACILITY is one of \fBlocal0\fP, \fBlocal1\fP, ..., \fBlocal7\fP.
+If this command-line option is not used, then by default messages from
+\fBsmartd\fP are logged to the facility \fBdaemon\fP.
+
+If you would like to have \fBsmartd\fP messages logged somewhere other
+than the default \fB/var/log/messages\fP location, this can typically
+be accomplished with (for example) the following steps:
+.RS 7
+.IP \fB[1]\fP 4
+Modify the script that starts \fBsmartd\fP to include the \fBsmartd\fP
+command-line argument \'\-l local3\'.  This tells \fBsmartd\fP to log its
+messages to facility \fBlocal3\fP.
+.IP \fB[2]\fP 4
+Modify the \fBsyslogd\fP configuration file (typically
+\fB/etc/syslog.conf\fP) to contain a line of the form:
+.nf
+\fBlocal3.* /var/log/smartd.log\fP
+.fi
+which tells \fBsyslogd\fP to log all the messages from facility \fBlocal3\fP to
+the designated file: smartd.log.
+.IP \fB[3]\fP 4
+Tell \fBsyslogd\fP to re-read its configuration file, typically by
+sending the \fBsyslogd\fP process a \fBSIGHUP\fP hang-up signal.
+.IP \fB[4]\fP 4
+restart \fBsmartd\fP.
+.RE
+.RS 6
+
+For more detailed information, please refer to the man pages for
+\fBsyslog.conf\fP, \fBsyslogd\fP, and \fBsyslog\fP.  You may also want
+to modify the log rotation configuration files; see the man pages for
+\fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
+.RE
 .TP
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile
@@ -1337,4 +1354,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.12 2003/10/21 12:00:53 arvoreen Exp $
+$Id: smartd.8.in,v 1.13 2003/11/09 20:22:21 ballen4705 Exp $
