@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.123 2003/10/01 11:53:39 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.124 2003/10/03 00:13:37 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -222,7 +222,7 @@ pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
   %attr(644,root,root) %{_mandir}/man8/smartctl.8*
   %attr(644,root,root) %{_mandir}/man8/smartd.8*
   %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
-  %doc WARNINGS CHANGELOG COPYING TODO README smartd.conf examplescripts
+  %doc AUTHORS CHANGELOG COPYING INSTALL NEWS README TODO WARNINGS smartd.conf examplescripts
   %config(noreplace) %{_sysconfdir}/smartd.conf
 
 %clean
