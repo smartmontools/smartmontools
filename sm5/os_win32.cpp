@@ -20,7 +20,7 @@
 #include "int64.h"
 #include "atacmds.h"
 #include "extern.h"
-extern smartmonctrl * con; // con->permissive
+extern smartmonctrl * con; // con->permissive,reportataioctl
 #include "scsicmds.h"
 #include "utility.h"
 extern int64_t bytes; // malloc() byte count
@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.19 2004/09/15 08:36:32 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.20 2004/09/29 11:19:02 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -317,6 +317,11 @@ static void print_ide_regs(const IDEREGS * r, int out)
 	r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
 }
 
+static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
+{
+	pout("    Input : "); print_ide_regs(ri, 0);
+	pout("    Output: "); print_ide_regs(ro, 1);
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -348,6 +353,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	}
 	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
 		size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
+		// Note: cBufferSize must be 0 on Win9x
 		code = SMART_SEND_DRIVE_COMMAND;
 	}
 	else {
@@ -362,15 +368,13 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 		code, sizeof(SENDCMDINPARAMS)-1, sizeof(SENDCMDOUTPARAMS)-1 + size_out);
 	print_ide_regs(&inpar.irDriveRegs, 0);
 #endif
-	if (!DeviceIoControl(hdevice, code,
-             		&inpar, sizeof(SENDCMDINPARAMS)-1,
-               		outbuf, sizeof(SENDCMDOUTPARAMS)-1 + size_out,
-               		&num_out, NULL)) {
+	if (!DeviceIoControl(hdevice, code, &inpar, sizeof(SENDCMDINPARAMS)-1,
+		outbuf, sizeof(SENDCMDOUTPARAMS)-1 + size_out, &num_out, NULL)) {
 		// CAUTION: DO NOT change "regs" Parameter in this case, see ata_command_interface()
 		long err = GetLastError();
-#ifdef _DEBUG
-		pout("DeviceIoControl failed, Error=%ld\n", err);
-#endif
+		if (con->reportataioctl && (err != ERROR_INVALID_PARAMETER || con->reportataioctl > 1))
+			pout("  SMART_%s failed, Error=%ld\n",
+				(code==SMART_RCV_DRIVE_DATA?"RCV_DRIVE_DATA":"SEND_DRIVE_COMMAND"), err);
 		errno = (   err == ERROR_INVALID_FUNCTION /*9x*/
 		         || err == ERROR_INVALID_PARAMETER/*NT/2K/XP*/ ? ENOSYS : EIO);
 		return -1;
@@ -383,8 +387,10 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 #endif
 
 	if (outpar->DriverStatus.bDriverError) {
-		pout("Error SMART IOCTL DriverError=0x%02x, IDEError=0x%02x\n",
-			outpar->DriverStatus.bDriverError, outpar->DriverStatus.bIDEError);
+		if (con->reportataioctl)
+			pout("  SMART_%s failed, DriverError=0x%02x, IDEError=0x%02x\n",
+				(code==SMART_RCV_DRIVE_DATA?"RCV_DRIVE_DATA":"SEND_DRIVE_COMMAND"),
+				outpar->DriverStatus.bDriverError, outpar->DriverStatus.bIDEError);
 		errno = EIO;
 		return -1;
 	}
@@ -434,36 +440,63 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	unsigned int size = sizeof(ATA_PASS_THROUGH)-1 + datasize;
 	ATA_PASS_THROUGH * buf = (ATA_PASS_THROUGH *)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 	DWORD num_out;
+	const unsigned char magic = 0xcf;
 	assert(sizeof(ATA_PASS_THROUGH)-1 == 12);
 	assert(IOCTL_IDE_PASS_THROUGH == 0x04d028);
 
+	if (!buf) {
+		errno = ENOMEM;
+		return -1;
+	}
+
 	buf->IdeReg = *regs;
 	buf->DataBufferSize = datasize;
-
-#ifdef _DEBUG
-	pout("DeviceIoControl(.,0x%x,.,%u,.,%u,.,NULL)\n",
-		IOCTL_IDE_PASS_THROUGH, size, size);
-	print_ide_regs(&buf->IdeReg, 0);
-#endif
+	if (datasize)
+		buf->DataBuffer[0] = magic;
 
 	if (!DeviceIoControl(hdevice, IOCTL_IDE_PASS_THROUGH, 
 		buf, size, buf, size, &num_out, NULL)) {
 		long err = GetLastError();
-#ifdef _DEBUG
-		pout("DeviceIoControl failed, Error=%ld\n", err);
-#endif
+		if (con->reportataioctl)
+			pout("  IOCTL_IDE_PASS_THROUGH failed, Error=%ld\n", err);
 		VirtualFree(buf, size, MEM_RELEASE);
 		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
 		return -1;
 	}
 
-#ifdef _DEBUG
-	pout("DeviceIoControl returns %lu (%lu) bytes\n", num_out, buf->DataBufferSize);
-	print_ide_regs(&buf->IdeReg, 1);
-#endif
+	// Check ATA status
+	if (buf->IdeReg.bCommandReg/*Status*/ & 0x01) {
+		if (con->reportataioctl) {
+			pout("  IOCTL_IDE_PASS_THROUGH command failed:\n");
+			print_ide_regs_io(regs, &buf->IdeReg);
+		}
+		VirtualFree(buf, size, MEM_RELEASE);
+		errno = EIO;
+		return -1;
+	}
 
-	if (datasize)
+	// Check and copy data
+	if (datasize) {
+		if (   num_out != size
+		    || (buf->DataBuffer[0] == magic && !nonempty(buf->DataBuffer+1, datasize-1))) {
+			if (con->reportataioctl) {
+				pout("  IOCTL_IDE_PASS_THROUGH output data missing (%lu, %lu)\n",
+					num_out, buf->DataBufferSize);
+				print_ide_regs_io(regs, &buf->IdeReg);
+			}
+			VirtualFree(buf, size, MEM_RELEASE);
+			errno = EIO;
+			return -1;
+		}
 		memcpy(data, buf->DataBuffer, datasize);
+	}
+
+	if (con->reportataioctl > 1) {
+		pout("  IOCTL_IDE_PASS_THROUGH suceeded, bytes returned: %lu (buffer %lu)\n",
+			num_out, buf->DataBufferSize);
+		print_ide_regs_io(regs, &buf->IdeReg);
+	}
+
 	VirtualFree(buf, size, MEM_RELEASE);
 	return 0;
 }
@@ -472,7 +505,6 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 /////////////////////////////////////////////////////////////////////////////
 
 static HANDLE h_ata_ioctl = 0;
-static int ide_pass_through_broken = 0;
 
 
 // Print SMARTVSD error message, return errno
@@ -742,19 +774,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	if (smart_ioctl(h_ata_ioctl, fd, &regs, data, (copydata?512:0))) {
 		// Read log only supported on Win9x, retry with pass through command
 		// CAUTION: smart_ioctl() MUST NOT change "regs" Parameter in this case
-		if (errno == ENOSYS && command == READ_LOG && !ide_pass_through_broken) {
+		if (errno == ENOSYS && command == READ_LOG) {
 			errno = 0;
 			memset(data, 0, 512);
-			if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, 512))
-				return -1;
-			if (!nonempty(data, 512)) {
-				// Nothing useful returned => ioctl probably broken
-				pout("IOCTL_IDE_PASS_THROUGH does not work on your version of Windows\n");
-				ide_pass_through_broken = 1; // Do not retry (smartd)
-				errno = ENOSYS;
-				return -1;
-			}
-			return 0;
+			return ide_pass_through_ioctl(h_ata_ioctl, &regs, data, 512);
 		}
 		return -1;
 	}

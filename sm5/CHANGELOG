@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.477 2004/09/26 07:48:24 ballen4705 Exp $
+$Id: CHANGELOG,v 1.478 2004/09/29 11:19:01 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Fixed error checking of IOCTL_IDE_PASS_THROUGH (used
+       for READ_LOG on 2000/XP). Added some diagnostic messages on
+       -r ataioctl[,2]. Thanks to Manfred Schwarb for bug report and testing.
 
   [BA] Fixed code bug that made it impossible to enable SMART on
        disks with failing health status.  This would happen if the
