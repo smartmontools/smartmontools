@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.16 2003/04/01 06:23:39 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.17 2003/04/06 03:53:50 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -109,7 +109,7 @@ struct scsi_sense_disect {
 };
 
 /* ANSI SCSI-3 Log Sense Return Log Pages from device. */
-#define SUPPORT_LOG_PAGES                       0x00
+#define SUPPORTED_LOG_PAGES                     0x00
 #define BUFFER_OVERRUN_PAGE                     0x01
 #define WRITE_ERROR_COUNTER_PAGE                0x02
 #define READ_ERROR_COUNTER_PAGE                 0x03
@@ -122,11 +122,11 @@ struct scsi_sense_disect {
 #define STARTSTOP_CYCLE_COUNTER_PAGE            0x0e
 #define APPLICATION_CLIENT_PAGE                 0x0f
 #define SELFTEST_RESULTS_PAGE                   0x10
+#define IE_LOG_PAGE                             0x2f
 
 /* From IBM Documentation */
 /* See more information at http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_PAGE                         0x2e
-#define SMART_PAGE                               0x2f
 
 /* ANSI SCSI-3 Mode Pages */
 #define VENDOR_UNIQUE_PARAMETERS                 0x00
@@ -177,6 +177,8 @@ struct scsi_sense_disect {
 #define SCSI_ASC_UNKNOWN_OPCODE		0x20
 #define SCSI_ASC_UNKNOWN_FIELD		0x24
 #define SCSI_ASC_UNKNOWN_PARAM		0x26
+#define SCSI_ASC_WARNING		0xb
+#define SCSI_ASC_IMPENDING_FAILURE	0x5d
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -231,10 +233,8 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
 #define CHECK_SMART_BY_LGPG_2F  0x01
 #define CHECK_SMART_BY_REQSENSE 0x00
 
-#define SMART_SENSE_MAX_ENTRY   0x6c
-
-int scsiCheckSmart(int device, UINT8 method, UINT8 *retval, 
-                   UINT8 *currenttemp, UINT8 *triptemp);
+int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
+                UINT8 *currenttemp);
 
 int scsiSmartSupport(int device, UINT8 *retval);
 
@@ -247,7 +247,7 @@ int scsiSmartDEXCPTDisable(int device);
 
 /* T10 Standard SMART Sense Code assignment taken from t10.org */
 
-const char* scsiSmartGetSenseCode(UINT8 ascq);
+const char* scsiSmartGetIEString(UINT8 asc, UINT8 ascq);
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp);
 
 
