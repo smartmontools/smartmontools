@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.55 2003/03/13 15:42:25 ballen4705 Exp $
+# $Id: Makefile,v 1.56 2003/03/13 15:50:40 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -46,7 +46,6 @@ releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.
   utility.c utility.h examplescripts/
 
 counter=$(shell cat VERSION)
-#newcounter=$(shell ./add )
 pkgname=smartmontools-5.1
 pkgname2=$(pkgname)-$(counter)
 
@@ -142,6 +141,7 @@ uninstall:
 # Some of this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
 release: smartd.conf.5
+	if [ ! -f add -o ! -d CVS ] ; then echo "The make release target requires files checked out of CVS" ; exit 1 ; fi
 	cat smartmontools.spec | sed '/Release:/d' > temp.spec
 	echo "Release: " $(counter) > temp.version
 	cat temp.version temp.spec > smartmontools.spec
