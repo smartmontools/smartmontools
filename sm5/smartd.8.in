@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.62 2004/04/18 15:02:52 chrfranke Exp $
+$Id: smartd.8.in,v 1.63 2004/04/19 03:03:00 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -242,7 +242,7 @@ to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile \fINAME\fP containing the \fBsmartd\fP Process ID
 number (PID).  To avoid symlink attacks make sure the directory to
-which pidfile is written is only writeable for root.  Without this
+which pidfile is written is only writable for root.  Without this
 option, or if the \-\-debug option is given, no PID file is written on
 startup.  If \fBsmartd\fP is killed with a maskable signal then the
 pidfile is removed.
@@ -300,7 +300,7 @@ details of
 \fBsmartd\fP
 transactions with the device.  The option can be used multiple times.
 When used just once, it shows a record of the ioctl() transactions
-with the device.  Whe used more than once, the detail of these ioctl()
+with the device.  When used more than once, the detail of these ioctl()
 transactions are reported in greater detail.  The valid arguments to
 this option are:
 
@@ -901,7 +901,7 @@ scripts are included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
 The return status of the executable is recorded by \fBsmartd\fP in
-SYSLOG. The executable is not expectected to write to STDOUT or
+SYSLOG. The executable is not expected to write to STDOUT or
 STDERR.  If it does, then this is interpreted as indicating that
 something is going wrong with your executable, and a fragment of this
 output is logged to SYSLOG to help you to understand the problem.
@@ -1654,4 +1654,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.62 2004/04/18 15:02:52 chrfranke Exp $
+$Id: smartd.8.in,v 1.63 2004/04/19 03:03:00 ballen4705 Exp $
