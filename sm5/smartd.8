@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.108 2003/08/15 19:32:43 ballen4705 Exp $
+\# $Id: smartd.8,v 1.109 2003/08/15 21:05:30 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/15 19:32:43 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/08/15 21:05:30 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -122,6 +122,9 @@ appear in the configuration file /etc/smartd.conf, and then exits.
 These Directives are also described later in this man page. They may
 appear in the configuration file following the device name.
 .TP
+.B \-h, \-\-help, \-\-usage
+Prints usage message to STDOUT and exits.
+.TP
 .B \-i N, \-\-interval=N
 Sets the interval between disk checks to
 .I N
@@ -148,7 +151,6 @@ One may also use:
 .B killall -USR1 smartd
 .fi
 for the same purpose.
-
 .TP
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile
@@ -162,33 +164,31 @@ or if the \-\-debug option is given, no PID file is written on startup.
 If
 .B smartd
 is killed with a maskable signal then the pidfile is removed.
-
 .TP
-.B \-q, \-\-quit
-Specifies when (if ever) \fBsmartd\fP should exit.  The valid
+.B \-q WHEN, \-\-quit=WHEN
+Specifies when, if ever, \fBsmartd\fP should exit.  The valid
 arguments are to this option are:
 
-.I nodev \fP[default]
+.I nodev
 \- Exit if there are no devices to monitor, or if any errors are found
-at startup in the configuration file.
+at startup in the configuration file.  This is the default.
 
 .I errors
 \- Exit if there are no devices to monitor, or if any errors are found
-in the configuration file /etc/smartd.conf at startup or when it is
-reloaded.
+in the configuration file /etc/smartd.conf at startup or whenever it
+is reloaded.
 
 .I nodevstartup
-\- Exit if there are no devices to monitor at startup.  If already
-running, then continue to run if the configuration file is reloaded
-but no devices are found.
+\- Exit if there are no devices to monitor at startup.  But continue
+to run if no devices are found whenever the configuration file is
+reloaded.
 
 .I never
-\- Only exit if a fatal error occurs, such as no remaining system
-memory or invalid command line arguments. In this mode, even if there
-are no devices to monitor at startup or later, or the configuration
-file \fB/etc/smartd.conf\fP has errors on startup or reload,
-\fBsmartd\fP will continue to run, waiting to load a configuration
-file listing valid devices.
+\- Only exit if a fatal error occurs (no remaining system memory,
+invalid command line arguments). In this mode, even if there are no
+devices to monitor, or if the configuration file
+\fB/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
+waiting to load a configuration file listing valid devices.
 
 .I onecheck
 \- Start \fBsmartd\fP in debug mode, then register devices, then check
@@ -207,22 +207,6 @@ should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
 \fBsmartd\fP in normal daemon mode. If \fBsmartd\fP is unable to
 monitor any devices or encounters other problems then it will return
 with non-zero exit status.
-
-.TP
-.B \-V, \-\-version, \-\-license, \-\-copyright
-Prints license, copyright, and CVS version information onto
-STDOUT and then exits. Please include this information if you are
-reporting bugs, or have specific questions about the behavior of
-.B smartd.
-.TP
-.B \-h, \-\-help, \-\-usage
-Prints usage message to STDOUT and exits.
-.TP
-.B \-?
-Same as
-.B -h.
-
-
 .TP
 .B \-r TYPE, \-\-report=TYPE
 Intended primarily to help
@@ -253,7 +237,16 @@ the integer with no spaces.  For example,
 .I ataioctl,2
 The default
 level is 1, so '\-r ataioctl,1' and '\-r ataioctl' are equivalent.
-
+.TP
+.B \-V, \-\-version, \-\-license, \-\-copyright
+Prints license, copyright, and CVS version information onto
+STDOUT and then exits. Please include this information if you are
+reporting bugs, or have specific questions about the behavior of
+.B smartd.
+.TP
+.B \-?
+Same as
+.B -h.
 
 .SH EXAMPLES
 
@@ -272,7 +265,7 @@ Run in foreground (debug) mode, checking the disk status
 every 30 seconds.
 
 .B
-smartd -c
+smartd -q onecheck
 .fi
 Registers devices, and checks the status of the devices exactly
 once. The exit status (the bash
@@ -1343,4 +1336,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.108 2003/08/15 19:32:43 ballen4705 Exp $
+$Id: smartd.8,v 1.109 2003/08/15 21:05:30 ballen4705 Exp $
