@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.156 2004/07/13 14:48:06 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.157 2004/07/29 09:08:16 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1752,7 +1752,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     break;
   case 206:
     // Fujitsu
-    name="Flying_Height_Measurement";
+    name="Flying_Height";
     break;
   case 207:
     // Maxtor
