@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.77 2003/07/29 07:05:23 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.78 2003/07/31 11:13:00 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/07/29 07:05:23 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/07/31 11:13:00 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -467,12 +467,23 @@ are in common use nonetheless; these are marked \fB[NS]\fP, meaning
 non-standard.
 
 The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2 to be
-precise) says \fB"Error log structures shall include UNC errors, IDNF
+precise) says:
+.fi
+\fB"Error log structures shall include UNC errors, IDNF
 errors for which the address requested was valid, servo errors, write
 fault errors, etc.  Error log data structures shall not include errors
 attributed to the receipt of faulty commands such as command codes not
 implemented by the device or requests with invalid parameters or
 invalid addresses."\fP
+.fi
+The definitions of these terms are:
+.fi
+\fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.
+.fi
+\fBIDNF\fP (\fBID N\fPot \fBF\fPound): user-accessible address could
+not be found. For READ LOG type commands this also can indicate that a
+device data log structure checksum was incorrect.
+
 
 .I error [SCSI]
 \- prints the error counter log pages for reads, write and verifies.
@@ -945,4 +956,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.77 2003/07/29 07:05:23 ballen4705 Exp $
+$Id: smartctl.8,v 1.78 2003/07/31 11:13:00 ballen4705 Exp $
