@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.24 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.25 2004/01/07 17:13:07 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -86,16 +86,16 @@ int make_device_names (char ***devlist, const char* name);
 void *Calloc(size_t nmemb, size_t size);
 
 // Utility function to free memory
-void *FreeNonZero(void* address, int size, int whatline, char* file);
+void *FreeNonZero(void* address, int size, int whatline, const char* file);
 
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(char *ptr, int mustexist, int whatline, char* file);
+char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file);
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree(void *address, int whatline, char* file);
+void *CheckFree(void *address, int whatline, const char* file);
 
 // This function prints either to stdout or to the syslog as needed
 

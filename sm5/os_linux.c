@@ -69,7 +69,9 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.41 2004/01/02 16:05:25 ballen4705 Exp $" \
+static const char *filenameandversion="$Id: os_linux.c,v 1.42 2004/01/07 17:13:07 ballen4705 Exp $";
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.42 2004/01/07 17:13:07 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -77,8 +79,6 @@ extern int exitstatus;
 
 // global variable holding byte count of allocated memory
 extern long long bytes;
-
-void *FreeNonZero(void* address, int size,int whatline,char* file);
 
 // equivalent to open(path, flags)
 int deviceopen(const char *pathname, char *type){
@@ -191,7 +191,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
     
     // if not a link (or a strange link), keep it
     if (retlink<=0 || retlink>1023)
-      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
     else {
       // or if it's a link that points to a disc, follow it
       char *p;
@@ -201,7 +201,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
         // using devfs WITH traditional compatibility links. In this
         // case, we add the traditional device name to the list that
         // is returned.
-        mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+        mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
       else {
         // This is the branch of the code that gets followed if we are
         // using devfs WITHOUT traditional compatibility links.  In
@@ -211,7 +211,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
         char *type=strcmp(name,"ATA")?"scsi":"ide";
         if (strstr(linkbuf, type)){
           snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
-          mp[n++] = CustomStrDup(tmpname, 1, __LINE__, __FILE__);
+          mp[n++] = CustomStrDup(tmpname, 1, __LINE__, filenameandversion);
         }
       }
     }

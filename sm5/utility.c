@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.32 2004/01/02 16:05:25 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.33 2004/01/07 17:13:07 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -340,7 +340,7 @@ long long bytes = 0;
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.
-void *FreeNonZero(void *address, int size, int line, char* file){
+void *FreeNonZero(void *address, int size, int line, const char* file){
   if (address) {
     if (size<0)
       bytes-=1+strlen(address);
@@ -353,7 +353,7 @@ void *FreeNonZero(void *address, int size, int line, char* file){
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree(void *address, int whatline,char* file){
+void *CheckFree(void *address, int whatline, const char* file){
   if (address){
     free(address);
     return NULL;
@@ -380,7 +380,7 @@ void *Calloc(size_t nmemb, size_t size) {
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(char *ptr, int mustexist, int whatline, char* file){
+char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file){
   char *tmp;
 
   // report error if ptr is NULL and mustexist is set
