@@ -23,27 +23,34 @@
 
 /*  PORTING NOTES AND COMMENTS
 
-    To port smartmontools to the OS of your choice, you need to:
+    To port smartmontools to the OS of your choice, please:
 
-    [0] Contact smartmontools-support@lists.sourceforge.net to check
-    that it's not already been done.
+ [0] Contact smartmontools-support@lists.sourceforge.net to check
+     that it's not already been done.
 
-    [1] Make copies of os_generic.[hc] called os_myOS.[hc]
+ [1] Make copies of os_generic.[hc] called os_myOS.[hc].
 
-    [2] Modify configure.in so that case "${host}" include myOS
+ [2] Modify configure.in so that case "${host}" includes myOS.
 
-    [3] Verify that ./autogen.sh && ./configure && make compiles the
-    code.  If not, fix any compilation problems.
+ [3] Verify that ./autogen.sh && ./configure && make compiles the
+     code.  If not, fix any compilation problems.  If your OS lacks
+     some function that is used elsewhere in the code, then add a
+     AC_CHECK_FUNCS([missingfunction]) line to configure.in, and
+     surround uses of the function with:
+     #ifdef HAVE_MISSINGFUNCTION
+     ... 
+     #endif
+     where the macro HAVE_MISSINGFUNCTION is (or is not) defined in
+     config.h.
 
-    [4] Provide the functions defined in this file: flesh out the
-    skeletons below. Note that for Darwin much of this already
-    exists. See some partially developed but incomplete code at:
-    http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/.
-    You can entirely eliminate the function 'unsupported()'.
+ [4] Provide the functions defined in this file by fleshing out the
+     skeletons below. Note that for Darwin much of this already
+     exists. See some partially developed but incomplete code at:
+     http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/.
+     You can entirely eliminate the function 'unsupported()'.
 
-    [5] Contact smartmontools-support@lists.sourceforge.net to see
-    about checking your code into the smartmontools CVS archive.
-
+ [5] Contact smartmontools-support@lists.sourceforge.net to see
+     about checking your code into the smartmontools CVS archive.
 */
 
 // These are needed to define prototypes for the functions defined below
@@ -54,39 +61,54 @@
 // This is to include whatever prototypes you define in os_generic.h
 #include "os_generic.h"
 
-// This is only needed for the 'unsupported()' function.  You can eliminate it.
-#include <sys/utsname.h>
-
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.5 2003/11/23 06:57:11 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.6 2003/11/23 10:13:26 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
-// You can eliminate this function - it is only here to warn
-// unsuspectig users that their Operating System is not supported!
+
+// Please eliminate the following block: both the two #includes and
+// the 'unsupported()' function.  They are only here to warn
+// unsuspecting users that their Operating System is not supported! If
+// you wish, you can use a similar warning mechanism for any of the
+// functions in this file that you can not (or choose not to)
+// implement.
+
+#include "config.h"
+#ifdef HAVE_UNAME
+#include <sys/utsname.h>
+#endif
+
 static void unsupported(){
   static int warninggiven;
-  extern unsigned char debugmode;
 
   if (!warninggiven) {
-    struct utsname ostype;
+    char *osname;
+    extern unsigned char debugmode;
     unsigned char savedebugmode=debugmode;
     
-    debugmode=1;
-    warninggiven=1;
+#ifdef HAVE_UNAME
+    struct utsname ostype;
     uname(&ostype);
+    osname=ostype.sysname;
+#else
+    osname="host's";
+#endif
 
+    debugmode=1;
     pout("\n"
 	 "############################################################################\n"
 	 "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-	 "Please see the files os_generic.h and os_generic.c for porting instructions.\n"
+	 "Please see the files os_generic.c and os_generic.h for porting instructions.\n"
 	 "############################################################################\n\n",
-	 ostype.sysname);
-
+	 osname);
     debugmode=savedebugmode;
+    warninggiven=1;
   }
   
-  exit(1);
+  return;
 }
+// End of the 'unsupported()' block that you should eliminate.
+
 
 // tries to guess device type given the name (a path).  See utility.h
 // for return values.
