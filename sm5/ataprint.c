@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.148 2004/03/29 00:26:03 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.149 2004/04/02 05:57:40 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -486,44 +486,44 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
 }
 
 
-/*  prints verbose value Off-line data collection status byte */
-void PrintSmartOfflineStatus(struct ata_smart_values *data){
-  char *message=NULL;
-
-  // the final 7 bits
-  unsigned char stat=data->offline_data_collection_status & 0x7f;
+const char *OfflineDataCollectionStatus(unsigned char status_byte){
+  unsigned char stat=status_byte & 0x7f;
+  
+  switch(stat){
+  case 0x00:
+    return "was never started";
+  case 0x02:
+    return "was completed without error";
+  case 0x03:
+    if (status_byte == 0x03)
+      return "is in progress";
+    else
+      return "is in a Reserved state";
+  case 0x04:
+    return "was suspended by an interrupting command from host";
+  case 0x05:
+    return "was aborted by an interrupting command from host";
+  case 0x06:
+    return "was aborted by the device with a fatal error";
+  default:
+    if (stat >= 0x40)
+      return "is in a Vendor Specific state\n";
+    else
+      return "is in a Reserved state\n";
+  }
+}
+  
+  
+  /*  prints verbose value Off-line data collection status byte */
+  void PrintSmartOfflineStatus(struct ata_smart_values *data){
   
   pout("Offline data collection status:  (0x%02x)\t",
        (int)data->offline_data_collection_status);
     
-  switch(stat){
-  case 0x00:
-    message="never started";
-    break;
-  case 0x02:
-    message="completed without error";
-    break;
-  case 0x04:
-    message="suspended by an interrupting command from host";
-    break;
-  case 0x05:
-    message="aborted by an interrupting command from host";
-    break;
-  case 0x06:
-    message="aborted by the device with a fatal error";
-    break;
-  default:
-    if (stat >= 0x40)
-      pout("Vendor Specific.\n");
-    else
-      pout("Reserved.\n");
-  }
-  
-  if (message)
-    // Off-line data collection status byte is not a reserved
-    // or vendor specific value
-    pout("Offline data collection activity was\n"
-         "\t\t\t\t\t%s.\n", message);
+  // Off-line data collection status byte is not a reserved
+  // or vendor specific value
+  pout("Offline data collection activity\n"
+       "\t\t\t\t\t%s.\n", OfflineDataCollectionStatus(data->offline_data_collection_status));
   
   // Report on Automatic Data Collection Status.  Only IBM documents
   // this bit.  See SFF 8035i Revision 2 for details.
@@ -1018,8 +1018,10 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 }
 
 void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struct ata_smart_values *sv) {
-  int i;
+  int i,field1,field2;
   char *msg;
+  char tmp[64];
+  uint64_t maxl=0,maxr=0;
   uint64_t current=log->currentlba;
   uint64_t currentend=current+65535;
 
@@ -1053,23 +1055,52 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
     break;
   }
 
-  // print the five test spans
-  pout("Span         STARTING_LBA           ENDING_LBA   CURRENT_TEST_STATUS\n");
+  // find the number of columns needed for printing
+  for (i=0; i<5; i++) {
+    uint64_t start=log->span[i].start;
+    uint64_t end  =log->span[i].end; 
+
+    if (start>maxl)
+      maxl=start;
+    if (end > maxr)
+      maxr=end;
+  }
+  if (current>maxl)
+    maxl=current;
+  if (currentend>maxr)
+    maxr=currentend;
+  
+  // we need at least 7 characters wide fields to accomodate the
+  // labels
+  if ((field1=snprintf(tmp,64, "%"PRIu64, maxl))<7)
+    field1=7;
+  if ((field2=snprintf(tmp,64, "%"PRIu64, maxr))<7)
+    field2=7;
+
+  // now print the five test spans
+  pout(" SPAN  %*s  %*s  CURRENT_TEST_STATUS\n", field1, "MIN_LBA", field2, "MAX_LBA");
+
   for (i=0; i<5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end=log->span[i].end;
     
     if ((i+1)==(int)log->currentspan)
       // this span is currently under test
-      pout("   %d %20"PRIu64" %20"PRIu64"   %s (%"PRIu64"-%"PRIu64")\n",
-	   i+1, start, end, msg, current, currentend);
+      pout("    %d  %*"PRIu64"  %*"PRIu64"  %s [%01d0%% left] (%"PRIu64"-%"PRIu64")\n",
+	   i+1, field1, start, field2, end, msg,
+	   (int)(sv->self_test_exec_status & 0x7), current, currentend);
     else
       // this span is not currently under test
-      pout("   %d %20"PRIu64" %20"PRIu64"   Not_testing\n", i+1, start, end);
+      pout("    %d  %*"PRIu64"  %*"PRIu64"  Not_testing\n",
+	   i+1, field1, start, field2, end);
   }  
   
-  if ((log->flags & SELECTIVE_FLAG_DOSCAN) && (log->flags & SELECTIVE_FLAG_ACTIVE) && log->currentspan>5)
-    pout("%4d %20"PRIu64" %20"PRIu64"   Read_scanning\n", (int)log->currentspan, current, currentend);
+  // if we are currently read-scanning, print LBAs and the status of
+  // the read scan
+  if (log->currentspan>5)
+    pout("%5d  %*"PRIu64"  %*"PRIu64"  Read_scanning %s\n",
+	 (int)log->currentspan, field1, current, field2, currentend,
+	 OfflineDataCollectionStatus(sv->offline_data_collection_status));
   
   /* Print selective self-test flags.  Possible flag combinations are
      (numbering bits from 0-15):
@@ -1094,7 +1125,7 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
   }
   else
     pout("  After scanning selected spans, do NOT read-scan remainder of disk.\n");
-
+  
   // print pending time
   pout("If Selective self-test is pending on power-up, resume after %d minute delay.\n",
        (int)log->pendingtime);

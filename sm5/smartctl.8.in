@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.40 2004/03/25 15:39:25 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.41 2004/04/02 05:57:40 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -517,54 +517,55 @@ some common types of errors, the Error Register (ER) and Status
 Register (SR) values are decoded and printed as text. The meanings of these
 are:
 .nf
-   \fBABRT\fP:  Aborted
-   \fBAMNF\fP:  Address Mark Not Found
-   \fBCCTO\fP:  Command Completion Timed Out
-   \fBEOM\fP:   End Of Media
-   \fBICRC\fP:  Interface CRC error
-   \fBIDNF\fP:  Id Not Found
+   \fBABRT\fP:  Command \fBAB\fPo\fBRT\fPed
+   \fBAMNF\fP:  \fBA\fPddress \fBM\fPark \fBN\fPot \fBF\fPound
+   \fBCCTO\fP:  \fBC\fPommand \fBC\fPompletion \fBT\fPimed \fBO\fPut
+   \fBEOM\fP:   \fBE\fPnd \fBO\fPf \fBM\fPedia
+   \fBICRC\fP:  \fBI\fPnterface \fBC\fPyclic \fBR\fPedundancy \fBC\fPode (CRC) error
+   \fBIDNF\fP:  \fBID\fPentity \fBN\fPot \fBF\fPound
    \fBILI\fP:   (packet command-set specific)
-   \fBMC\fP:    Media Changed
-   \fBMCR\fP:   Media Change Request
-   \fBNM\fP:    No Media
-   \fBobs\fP:   Obsolete
-   \fBTK0NF\fP: Track 0 Not Found
-   \fBUNC\fP:   Uncorrectable
-   \fBWP\fP:    Write Protected
+   \fBMC\fP:    \fBM\fPedia \fBC\fPhanged
+   \fBMCR\fP:   \fBM\fPedia \fBC\fPhange \fBR\fPequest
+   \fBNM\fP:    \fBN\fPo \fBM\fPedia
+   \fBobs\fP:   \fBobs\fPolete
+   \fBTK0NF\fP: \fBT\fPrac\fBK 0 N\fPot \fBF\fPound
+   \fBUNC\fP:   \fBUNC\fPorrectable Error in Data
+   \fBWP\fP:    Media is \fBW\fPrite \fBP\fProtected
 .fi
 In addition, up to the last five commands that preceded the error are
-listed, along with a timestamp measured in seconds from the start of
-the corresponding power cycle.  [Note: this time stamp wraps after
-2^32 milliseconds, or 49 days 17 hours 2 minutes and 47.296 seconds.]
-The key ATA disk registers are also recorded in the log.  The final
-column of the error log is a text-string description of the ATA
-command defined by the Command Register (CR) and Feature Register (FR)
-values.  Commands that are obsolete in the most current (ATA-7) spec
-are listed like this: \fBREAD LONG (w/ retry) [OBS-4]\fP, indicating
-that the command became obsolete with or in the ATA-4 specification.
-Similarly, the notation \fB[RET-\fP\fIN\fP\fB]\fP is used to indicate
-that a command was retired in the ATA-\fIN\fP specification.  Some 
-commands are not defined in any version of the ATA specification but
-are in common use nonetheless; these are marked \fB[NS]\fP, meaning
-non-standard.
+listed, along with a timestamp measured from the start of the
+corresponding power cycle. This is displayed in the form
+Dd+HH:MM:SS.msec where D is the number of days, HH is hours, MM is
+minutes, SS is seconds and msec is milliseconds.  [Note: this time
+stamp wraps after 2^32 milliseconds, or 49 days 17 hours 2 minutes and
+47.296 seconds.]  The key ATA disk registers are also recorded in the
+log.  The final column of the error log is a text-string description
+of the ATA command defined by the Command Register (CR) and Feature
+Register (FR) values.  Commands that are obsolete in the most current
+(ATA-7) spec are listed like this: \fBREAD LONG (w/ retry) [OBS-4]\fP,
+indicating that the command became obsolete with or in the ATA-4
+specification.  Similarly, the notation \fB[RET-\fP\fIN\fP\fB]\fP is
+used to indicate that a command was retired in the ATA-\fIN\fP
+specification.  Some commands are not defined in any version of the
+ATA specification but are in common use nonetheless; these are marked
+\fB[NS]\fP, meaning non-standard.
 
-
-The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2 to be
-precise) says:
-\fB"Error log structures shall include UNC errors, IDNF
-errors for which the address requested was valid, servo errors, write
-fault errors, etc.  Error log data structures shall not include errors
+The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2) says:
+\fB"Error log structures shall include UNC errors, IDNF errors for
+which the address requested was valid, servo errors, write fault
+errors, etc.  Error log data structures shall not include errors
 attributed to the receipt of faulty commands such as command codes not
 implemented by the device or requests with invalid parameters or
-invalid addresses."\fP
-The definitions of these terms are:
-.fi
-\fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.
-.fi
-
+invalid addresses."\fP The definitions of these terms are:
+.br
+\fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.  This refers
+to data which as been read from the disk, but for which the Error
+Checking and Correction (ECC) codes are inconsistent.  In effect, this
+means that the data can not be read.
+.br
 \fBIDNF\fP (\fBID N\fPot \fBF\fPound): user-accessible address could
 not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
-that a device data log structure checksum was incorrect.  
+that a device data log structure checksum was incorrect.
 
 If the command that caused the error was a READ or WRITE command, then
 the Logical Block Address (LBA) at which the error occured will be
@@ -1131,4 +1132,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.40 2004/03/25 15:39:25 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.41 2004/04/02 05:57:40 ballen4705 Exp $
+.\" Local Variables:	         
+.\" mode: nroff         
+.\" End:
