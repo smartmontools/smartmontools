@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.475 2004/09/22 22:14:34 likewise Exp $
+$Id: CHANGELOG,v 1.476 2004/09/26 06:56:42 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,13 @@ Maintainers / Developers Key:
 [RZ] Richard Zybert
 
 NOTES FOR FUTURE RELEASES: see TODO file.
+
+  [BA] Fixed code bug that made it impossible to enable SMART on
+       disks with failing health status.  This would happen if the
+       os_*.c author made STATUS and STATUS_CHECK work the same way.
+       I have corrected this at a higher level; we now handle the
+       case where STATUS and STATUS_CHECK are identical without
+       issues. 
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
