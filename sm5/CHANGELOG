@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.138 2003/05/06 03:46:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.139 2003/05/06 22:58:01 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [GG] match for scsi/ and ide/ in case of devfs to exclude false postives
 
   [BA] If SCSI device listed in /etc/smartd.conf fails to open or do
        SMART stuff correctly, or not enough space
