@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.18 2003/11/19 16:58:26 ballen4705 Exp $
+$Id: smartd.8.in,v 1.19 2003/11/20 19:21:01 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/11/19 16:58:26 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/11/20 19:21:01 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/11/19 16:58:26 $"
+\fBRELEASE\fP "$Date: 2003/11/20 19:21:01 $"
 
 .SH DESCRIPTION
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
@@ -71,7 +71,7 @@ signal had never been received.
 When \fBsmartd\fP is running in debug mode, the \fBQUIT\fP signal
 (normally generated from a shell with CONTROL\-C) is treated in the
 same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
-configuration file. To kill \fBsmartd\fP use CONTROL-\\.
+configuration file. To exit \fBsmartd\fP use CONTROL-\\.
 
 On startup, in the absence of the configuration file
 \fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
@@ -96,12 +96,13 @@ Long options are not supported on all systems.  Use \fB\'smartd
 .TP
 .B \-d, \-\-debug
 Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
-information to STDOUT rather than logging it in SYSLOG and does not
-\fBfork(2)\fP.  It also prints more verbose information about what it
-is doing than when operating in "daemon" mode. In this mode, the
-\fBQUIT\fP signal (normally generated from a terminal with CONTROL\-C)
-makes \fBsmartd\fP reload its configuration file.  Use CONTROL-\\ to
-quit.
+information to STDOUT rather than logging it to SYSLOG and does not
+\fBfork(2)\fP into the background and detach from the controlling
+terminal.  In this mode, \fBsmartd\fP also prints more verbose
+information about what it is doing than when operating in "daemon"
+mode. In this mode, the \fBQUIT\fP signal (normally generated from a
+terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
+file.  Please use CONTROL-\\ to exit.
 .TP
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
@@ -1349,4 +1350,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.18 2003/11/19 16:58:26 ballen4705 Exp $
+$Id: smartd.8.in,v 1.19 2003/11/20 19:21:01 ballen4705 Exp $
