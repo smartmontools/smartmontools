@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.19 2003/04/07 10:57:47 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.20 2003/04/09 12:44:20 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -210,25 +210,25 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
 /* STANDARD SCSI Commands  */
 int scsiTestUnitReady(int device);
 
-int stdinquiry(int device, UINT8 *pBuf, int bufLen);
+int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen);
 
-int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
+int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
 
-int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
-int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
-int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiModeSelect(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
 
-int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
 
-int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen);
 
-int requestsense(int device, struct scsi_sense_disect * sense_info);
+int scsiRequestSense(int device, struct scsi_sense_disect * sense_info);
 
-int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
+int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
-int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
+int scsiReceiveSiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
 /* SMART specific commands */
 
