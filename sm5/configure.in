@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.59 2004/02/24 15:53:39 ballen4705 Exp $
+# $Id: configure.in,v 1.60 2004/02/25 14:13:57 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.30, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.59 2004/02/24 15:53:39 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.60 2004/02/25 14:13:57 chrfranke Exp $'`
 smartmontools_release_date=2004/02/24
 smartmontools_release_time="10:02:44 UTC"
 
@@ -101,6 +101,9 @@ case "${host}" in
 	*-*-netbsd*)
 		AC_SUBST([os_deps], ['os_netbsd.o']) 
 		AC_SUBST([os_libs], ['-lutil']) ;;
+	*-*-cygwin*)
+		AC_SUBST([os_deps], ['os_win32.o'])
+		AC_SUBST([os_libs], ['']) ;;
 	*)
 		AC_SUBST([os_deps], ['os_generic.o']) 
 		AC_SUBST([os_libs], ['']) ;;
