@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/01/29 21:53:04 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/02 17:23:55 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.118 2004/01/29 21:53:04 shattered Exp $ -->
+<!-- $Id: index.html,v 1.119 2004/02/02 17:23:55 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -638,7 +638,21 @@ be used.
 </li>
 
 
-
+<li><b>My Fedora Core Linux system displays the startup message: smartd [FAILED]</b>
+<p>
+Fedora Core is distributed with a smartd configuration file
+/etc/smartd.conf that monitors the first IDE disk /dev/hda.  If this
+device does not exist (or lacks SMART capability) you will get the
+error message above.  Look in SYSLOG (/var/log/messages) for
+additional details about what is going wrong.
+</p>
+<p>
+The solution: If your system has only SCSI disks, or has IDE disk(s)
+on a non-primary controller, just edit /etc/smartd.conf to reflect the
+correct location of the drive(s).  Please also read the 'smartd.conf'
+man page for additional information.
+</p>
+</li>
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -836,8 +850,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/01/29 21:53:04 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.118 2004/01/29 21:53:04 shattered Exp $</tt>
+Last updated: <tt>$Date: 2004/02/02 17:23:55 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.119 2004/02/02 17:23:55 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
