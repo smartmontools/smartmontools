@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/04 16:27:18 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/06 03:01:28 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.120 2004/02/04 16:27:18 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.121 2004/02/06 03:01:28 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -665,6 +665,19 @@ values get <i>larger</i>, not <i>smaller</i> (as with other
 Attributes).
 </p>
 </li>
+
+<li><b>What's this smartctl message mean?: Warning: ATA error count 9 inconsistent with error log pointer 5</b>
+<p>
+The ATA error log is stored in a circular buffer, and the ATA
+specifications are unambiguous about how the entries should be
+ordered.  This warning message means that the disk's firmware does not
+strictly obey the ATA specification regarding the ordering of the
+error log entries in the circular buffer.  Smartmontools will correct
+for this oversight, so this warning message can be safely ignored by
+users.  (On the other hand, firmware engineers: please read the ATA
+specs more closely then fix your code!).
+</p>
+</li>
 </ul>
 
 <hr size="2" /><a name="scsi"></a><b>SCSI disks and tapes
@@ -862,8 +875,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/04 16:27:18 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.120 2004/02/04 16:27:18 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/02/06 03:01:28 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.121 2004/02/06 03:01:28 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
