@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.311 2004/04/09 03:55:07 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.312 2004/04/09 04:12:41 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.311 2004/04/09 03:55:07 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.312 2004/04/09 04:12:41 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -512,7 +512,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "FailedHealthCheck",          // 5
     "FailedReadSmartData",        // 6
     "FailedReadSmartErrorLog",    // 7
-    "FailedReadSmartSeflTestLog", // 8
+    "FailedReadSmartSelfTestLog", // 8
     "FailedOpenDevice",           // 9
     "CurrentPendingSector",       // 10
     "OfflineUncorrectableSector" //  11
