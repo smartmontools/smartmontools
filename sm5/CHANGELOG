@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.412 2004/05/21 15:20:20 ballen4705 Exp $
+$Id: CHANGELOG,v 1.413 2004/05/27 16:26:37 card_captor Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [KS] Solaris: added workaround for dynamic change of time-zone.
+
+  [KS] Solaris: fixed problem that autogen.sh cannot detect absence of
+       auto* tools.
 
   [BA] smartd: added time-zone bug information to man page. 
        Reverted CF code for _WIN32 case. 

@@ -34,20 +34,14 @@
 #include <ctype.h>
 #include <syslog.h>
 #include <stdarg.h>
-
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-#if HAVE_SYS_STAT_H
 #include <sys/stat.h>
-#endif
 
 #include "config.h"
 #include "int64.h"
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.50 2004/05/27 15:27:06 card_captor Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.51 2004/05/27 16:26:36 card_captor Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
