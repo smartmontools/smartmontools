@@ -47,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.77 2002/12/01 06:48:14 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.78 2002/12/01 07:07:46 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1358,6 +1358,9 @@ void ParseOpts(int argc, char **argv){
       exit(0);
     }
   }
+
+  // print header
+  printhead();
   return;
 }
 
@@ -1442,17 +1445,13 @@ int main (int argc, char **argv){
   con->veryquietmode=debugmode?0:1;
   con->checksumfail=0;
 
-  // If in background as a daemon, fork and close file descriptors
-  if (!debugmode){
-    daemon_init();
-  }
-  
-  // print header after daemon_init so right process number in syslog
-  printhead();
-
   // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
   entries=parseconfigfile();
 
+  // If in background as a daemon, fork and close file descriptors
+  if (!debugmode)
+    daemon_init();
+  
   // setup signal handler for shutdown
   if (signal(SIGINT, sighandler)==SIG_IGN)
     signal(SIGINT, SIG_IGN);
