@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.129 2003/04/08 03:03:01 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.130 2003/04/08 11:22:34 guidog Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1863,9 +1863,6 @@ void ParseOpts(int argc, char **argv){
   
   // print header
   printhead();
-  
-  // write PID file BEFORE forking
-  write_pid_file();
   
   return;
 }
