@@ -26,7 +26,11 @@ extern smartmonctrl * con; // con->permissive
 extern int64_t bytes; // malloc() byte count
 
 #include <errno.h>
+#ifdef _DEBUG
 #include <assert.h>
+#else
+#define assert(x) /**/
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stddef.h> // offsetof()
@@ -34,7 +38,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.7 2004/03/13 22:31:09 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.8 2004/03/24 19:53:58 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -83,7 +87,7 @@ int make_device_names (char*** devlist, const char* type)
 {
 	if (!strcmp(type, "ATA")) {
 		unsigned drives = ata_scan();
-		int i, n, sz;
+		int i, j, n, sz;
 		if (!drives)
 			return 0;
 		n = 0;
@@ -94,16 +98,19 @@ int make_device_names (char*** devlist, const char* type)
 		assert(n > 0);
 		if (n == 0)
 			return 0;
-		sz = (n+1) * sizeof(char **);
+		sz = n * sizeof(char **);
 		*devlist = (char **)malloc(sz); bytes += sz;
-		for (i = 0; i < n; i++) {
+		for (i = j = 0; i < n; i++) {
 			char * s;
 			sz = sizeof("/dev/hda");
 			s = (char *)malloc(sz); bytes += sz;
-			strcpy(s, "/dev/hda"); s[sz-2] += i;
+			strcpy(s, "/dev/hda");
+			while (j <= 9 && !(drives & (1 << j)))
+				j++;
+			assert(j <= 9);
+			s[sz-2] += j++;
 			(*devlist)[i] = s;
 		}
-		(*devlist)[n] = 0;
 		return n;
 	}
 
@@ -608,6 +615,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 	switch (command) {
 	  case CHECK_POWER_MODE:
+	  case WRITE_LOG:
 		// TODO. Not supported by SMART IOCTL
 		errno = ENOSYS;
 		return -1;
