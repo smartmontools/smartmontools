@@ -12,3 +12,15 @@ depcomp
 install-sh
 missing
 mkinstalldirs
+.deps
+config.h
+config.log
+config.status
+smartctl
+smartctl.8
+smartd
+smartd.8
+smartd.conf.5
+stamp-h1
+Makefile
+examplescripts/Makefile

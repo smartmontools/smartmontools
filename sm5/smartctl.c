@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.92 2003/10/03 01:15:17 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.93 2003/10/03 03:51:16 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -425,10 +425,8 @@ void ParseOpts (int argc, char** argv){
         con->permissive   = FALSE;
       } else if (!strcmp(optarg,"conservative")) {
         con->conservative = TRUE;
-        con->permissive   = FALSE;
       } else if (!strcmp(optarg,"permissive")) {
-        con->permissive   = TRUE;
-        con->conservative = FALSE;
+        con->permissive++;
       } else {
         badarg = TRUE;
       }
@@ -779,15 +777,27 @@ int main (int argc, char **argv){
   ParseOpts(argc,argv);
 
   device = argv[argc-1];
-  dev_type = guess_linux_device_type(device);
-  if (GUESS_DEVTYPE_SCSI == dev_type) {
-    flags = O_RDWR | O_NONBLOCK;
-    tryscsi = 1;
-  } else { /* treat "don't know" case as an ATA device as well */
-    flags = O_RDONLY | O_NONBLOCK;
-    tryata = 1;
-  }
 
+  if (!tryata && !tryscsi) {
+    // user has not specified device type, so guess
+    dev_type = guess_linux_device_type(device);
+    if (GUESS_DEVTYPE_SCSI == dev_type) {
+      tryscsi = 1;
+    } else if (GUESS_DEVTYPE_ATA == dev_type)
+      tryata = 1;
+    else {
+      pout("Smartctl: please specify if this is an ATA or SCSI device with the -d option.\n");
+      Usage();
+      return FAILCMD;
+    }    
+  }
+  
+  // set up flags for open() call.  SCSI case is:
+  flags = O_RDWR | O_NONBLOCK;
+
+  if (tryata)
+    flags = O_RDONLY | O_NONBLOCK;
+    
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
   // scsi generci device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
@@ -811,6 +821,6 @@ int main (int argc, char **argv){
     Usage();
     return FAILCMD;
   }
-
+  
   return retval;
 }

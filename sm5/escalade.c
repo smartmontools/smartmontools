@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.11 2003/08/14 13:33:06 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.12 2003/10/03 03:51:16 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 void printwarning(smart_command_set command);
 
 // PURPOSE
@@ -87,7 +87,7 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   passthru.status        = 0;           
   passthru.flags         = 0x1;
   passthru.drive_head    = 0x0;
-  passthru.sector_num  = 0;
+  passthru.sector_num    = 0;
 
   // All SMART commands use this CL/CH signature.  These are magic
   // values from the ATA specifications.
