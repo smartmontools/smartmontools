@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.21 2003/11/08 01:23:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.22 2003/11/10 19:13:03 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -136,7 +136,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
   
   // now step through the list returned by glob.  If not a link, copy
   // to list.  If it is a link, evaluate it and see if the path ends
-  // in "disk".
+  // in "disc".
   for (i=0; i<lim; i++){
     int retlink;
     
@@ -150,7 +150,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
     if (retlink<=0 || retlink>1023)
       mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
     else {
-      // or if it's a link that  points to a disk, keep it
+      // or if it's a link that  points to a disc, keep it
       char *p, *type;
       
       linkbuf[retlink]='\0';
@@ -198,7 +198,7 @@ int make_device_names (char*** devlist, const char* name) {
     return retval;
   
   // else look for devfs entries without traditional links
-  return get_dev_names(devlist,"/dev/discs/disk*", name, maxdev);
+  return get_dev_names(devlist,"/dev/discs/disc*", name, maxdev);
 }
 
 
