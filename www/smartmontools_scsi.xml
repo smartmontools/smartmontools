@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2003-10-12</pubdate>
+  <pubdate>2003-10-13</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.1</revnumber>
-       <date>2003-10-12</date>
+       <date>2003-10-13</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              freebsd, timestamp
@@ -105,7 +105,7 @@ This article attempts to supply some SCSI specific information for
 those users of smartmontools that wish to monitor SCSI storage devices.
 </para>
 <para>
-This document was last altered on 26th May 2003.
+This document was last altered on 13th October 2003.
 </para>
 </sect1>
 
