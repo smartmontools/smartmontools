@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.72 2003/04/02 00:52:22 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.73 2003/04/02 03:55:41 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -556,14 +556,14 @@ static char *commandstrings[]={
 
 void prettyprint(unsigned char *stuff, char *name){
   int i,j;
-  pout("\n===== DATA STRUCTURE [%s] START (512 Bytes) =====\n", name);
+  pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
   for (i=0; i<32; i++){
     pout("%03d-%03d: ", 16*i, 16*(i+1)-1);
     for (j=0; j<15; j++)
-      pout("0x%02x ",*stuff++);
-    pout("0x%02x\n",*stuff++);
+      pout("%02x ",*stuff++);
+    pout("%02x\n",*stuff++);
   }
-  pout("===== DATA STRUCTURE [%s] END (512 Bytes) =====\n\n", name);
+  pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
 // This function provides the pretty-print reporting
