@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.188 2003/09/24 00:35:17 pervalidus Exp $
+$Id: CHANGELOG,v 1.189 2003/09/27 09:54:47 guidog Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -19,7 +19,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
-  [GG] First round of move to auto{conf,make}.
+  [GG] Make autotools build the default, remove autotools.diff
+
+  [GG] Move to auto{conf,make}. Remove add & cvs-script, this is now
+       handeld by do_release.
 
   [BA] Eliminated #include <linux/hdreg.h> from code. This
        should simplify porting to solaris, FreeBSD, etc. The

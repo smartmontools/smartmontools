@@ -1,4 +1,4 @@
-Release:  19
+Release:  1
 Summary:	smartmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	smartmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	smartmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -8,7 +8,7 @@ Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
-Version:	5.1
+Version:	5.19
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.121 2003/09/24 16:08:49 pervalidus Exp $
+# $Id: smartmontools.spec,v 1.122 2003/09/27 09:54:47 guidog Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -198,11 +198,13 @@ pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
 %setup -q
 
 %build
+./configure --prefix=$RPM_BUILD_ROOT/usr --mandir=$RPM_BUILD_ROOT/usr/share/man \
+--sysconfdir=$RPM_BUILD_ROOT/etc
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install
+make install
 
 # Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
 if [ -f /etc/redhat-release ]; then
@@ -219,7 +221,7 @@ fi
 %attr(644,root,root) %{_mandir}/man8/smartctl.8*
 %attr(644,root,root) %{_mandir}/man8/smartd.8*
 %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
-%doc WARNINGS CHANGELOG COPYING TODO README VERSION smartd.conf examplescripts
+%doc WARNINGS CHANGELOG COPYING TODO README VERSION examplescripts
 %config(noreplace) %{_sysconfdir}/smartd.conf
 
 %clean
