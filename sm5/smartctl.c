@@ -48,7 +48,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.128 2004/07/13 22:33:31 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.129 2004/07/15 09:29:38 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -62,13 +62,19 @@ extern int exitstatus;
 extern int64_t bytes;
 
 void printslogan(){
-  pout("smartctl version %s Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION);
+  pout("smartctl version %s [%s] Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION, SMARTMONTOOLS_BUILD_HOST);
   pout("Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }
 
-void printcopy(){
+void PrintOneCVS(const char *a_cvs_id){
   char out[CVSMAXLEN];
+  printone(out,a_cvs_id);
+  pout("%s",out);
+  return;
+}
+
+void printcopy(){
   char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
 
   pout("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
@@ -76,32 +82,21 @@ void printcopy(){
   pout("under the terms of the GNU General Public License Version 2.\n");
   pout("See http://www.gnu.org for further details.\n\n");
   pout("CVS version IDs of files used to build this code are:\n");
-  printone(out,atacmdnames_c_cvsid);
-  pout("%s",out);
-  printone(out,atacmds_c_cvsid);
-  pout("%s",out);
-  printone(out,ataprint_c_cvsid);
-  pout("%s",out);
- #if defined(_WIN32) && defined(_MSC_VER)
-  printone(out,int64_vc6_c_cvsid);
-  pout("%s",out);
+  PrintOneCVS(atacmdnames_c_cvsid);
+  PrintOneCVS(atacmds_c_cvsid);
+  PrintOneCVS(ataprint_c_cvsid);
+#if defined(_WIN32) && defined(_MSC_VER)
+  PrintOneCVS(int64_vc6_c_cvsid);
 #endif
- printone(out,knowndrives_c_cvsid);
-  pout("%s",out);
-  printone(out,os_XXXX_c_cvsid);
-  pout("%s",out);
+  PrintOneCVS(knowndrives_c_cvsid);
+  PrintOneCVS(os_XXXX_c_cvsid);
 #ifdef NEED_SOLARIS_ATA_CODE
-  printone(out, os_solaris_ata_s_cvsid);
-  pout("%s",out);
+  PrintOneCVS(os_solaris_ata_s_cvsid);
 #endif
-  printone(out,scsicmds_c_cvsid);
-  pout("%s",out);
-  printone(out,scsiprint_c_cvsid);
-  pout("%s",out);
-  printone(out,smartctl_c_cvsid);
-  pout("%s",out);
-  printone(out,utility_c_cvsid);
-  pout("%s",out);
+  PrintOneCVS(scsicmds_c_cvsid);
+  PrintOneCVS(scsiprint_c_cvsid);
+  PrintOneCVS(smartctl_c_cvsid);
+  PrintOneCVS(utility_c_cvsid);
   pout("\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
   pout("smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
   pout("smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");

@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.323 2004/07/13 17:49:09 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.324 2004/07/15 09:29:38 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.323 2004/07/13 17:49:09 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.324 2004/07/15 09:29:38 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -277,46 +277,39 @@ cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, char *listname){
   EXIT(EXIT_NOMEM);
 }
 
+void PrintOneCVS(const char *a_cvs_id){
+  char out[CVSMAXLEN];
+  printone(out,a_cvs_id);
+  PrintOut(LOG_INFO,"%s",out);
+  return;
+}
 
 // prints CVS identity information for the executable
 void PrintCVS(void){
-  char out[CVSMAXLEN];
   char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
 
   PrintOut(LOG_INFO,(char *)copyleftstring);
   PrintOut(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
-  printone(out,atacmdnames_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
-  printone(out,atacmds_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
-  printone(out,ataprint_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(atacmdnames_c_cvsid);
+  PrintOneCVS(atacmds_c_cvsid);
+  PrintOneCVS(ataprint_c_cvsid);
 #ifdef _WIN32
-  printone(out,daemon_win32_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(daemon_win32_c_cvsid);
 #endif
 #if defined(_WIN32) && defined(_MSC_VER)
-  printone(out,int64_vc6_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(int64_vc6_c_cvsid);
 #endif
-  printone(out,knowndrives_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
-  printone(out,os_XXXX_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(knowndrives_c_cvsid);
+  PrintOneCVS(os_XXXX_c_cvsid);
 #ifdef NEED_SOLARIS_ATA_CODE
-  printone(out, os_solaris_ata_s_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS( os_solaris_ata_s_cvsid);
 #endif
-  printone(out,scsicmds_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
-  printone(out,smartd_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(scsicmds_c_cvsid);
+  PrintOneCVS(smartd_c_cvsid);
 #ifdef _WIN32
-  printone(out,syslog_win32_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(syslog_win32_c_cvsid);
 #endif
-  printone(out,utility_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
+  PrintOneCVS(utility_c_cvsid);
   PrintOut(LOG_INFO, "\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
   PrintOut(LOG_INFO, "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
   PrintOut(LOG_INFO, "smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
@@ -964,7 +957,7 @@ void WritePidFile() {
 
 // Prints header identifying version of code and home
 void PrintHead(){
-  PrintOut(LOG_INFO,"smartd version %s Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION);
+  PrintOut(LOG_INFO,"smartd version %s [%s] Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION, SMARTMONTOOLS_BUILD_HOST);
   PrintOut(LOG_INFO,"Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }
