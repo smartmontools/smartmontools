@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.36 2002/11/07 21:51:34 ballen4705 Exp $
+# $Id: Makefile,v 1.37 2002/11/11 12:43:53 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -72,6 +72,18 @@ scsicmds.o: scsicmds.c scsicmds.h Makefile
 scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
 	$(CC) $(CFLAGS) -c scsiprint.c 
 
+# This extracts the configuration file directives from smartd.8 and
+# inserts them into smartd.conf.5
+smartd.conf.5: smartd.8
+	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < smartd.8 > tmp.directives
+	sed '/STARTINCLUDE/,$$D'  < smartd.conf.5 > tmp.head
+	sed '1,/ENDINCLUDE/D'   < smartd.conf.5 > tmp.tail
+	cat tmp.head            > smartd.conf.5
+	echo "\# STARTINCLUDE" >> smartd.conf.5
+	cat tmp.directives     >> smartd.conf.5
+	echo "\# ENDINCLUDE"   >> smartd.conf.5
+	cat tmp.tail           >> smartd.conf.5
+	rm -f tmp.head tmp.tail tmp.directives
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz smart*.5.gz
 
@@ -101,7 +113,6 @@ install:
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
 	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0 and /etc/smartd.conf.example/\n\n"
 
-
 # perhaps for consistency I should also have $(DESTDIR) for the uninstall...
 uninstall:
 	rm -f /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8 /usr/sbin/smartctl \
@@ -117,7 +128,7 @@ uninstall:
 
 # All this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
-release:
+release: smartd.conf.5
 	cat smartmontools.spec | sed '/Release:/d' > temp.spec
 	echo "Release: " $(counter) > temp.version
 	cat temp.version temp.spec > smartmontools.spec
