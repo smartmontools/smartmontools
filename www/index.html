@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/24 04:11:04 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/25 23:53:50 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.124 2004/02/24 04:11:04 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.125 2004/02/25 23:53:50 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -25,9 +25,8 @@ of disk degradation and failure.</p>
 <p>Smartmontools is derived from the <a
 href="http://sourceforge.net/projects/smartsuite/">smartsuite
 package</a>, and includes support for ATA/ATAPI-3 to -7 disks and SCSI
-disk and tape devices.  It should run on any modern linux, FreeBSD, 
-NetBSD, or Solaris system.
-</p>
+disk and tape devices.  It should run on any modern Linux, FreeBSD, 
+NetBSD, Solaris, and <a href="#windows">Windows</a> system.</p>
 
 <p>For printing convenience, everything except for the <a
 href="#sampleoutput">example output</a> is on a single page.</p>
@@ -525,22 +524,43 @@ driver/firmware/utility package version 7.7.0.
 </p>
 </li>
 
-<li><b>Does it work on Windows?</b>
+<hr size="2" /><a name="windows"></a><b>Does it work on Windows?</b>
 
-<p>Currently not (but you can run it from a bootable CD - see above).
-We would welcome a <a href="http://www.cygwin.com/">Cygwin</a> port.
-<a
-href="mailto:smartmontools-support&#64;lists.sourceforge.net">Contact
-us</a> if you're interested in porting it. Some code showing how to
-access SMART data under Windows 98, NT 4, Windows 2000, and Windows XP
-can be found <a
+<p>As of 20040225, <a
+href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
+merged in changes from his <i>RELEASE_5_26_WIN32_BRANCH</i> CVS branch
+that allow current CVS to compile on <a
+href="http://www.cygwin.com/">Cygwin.</p>
+
+<p>A Cygwin package (requires Cygwin <b>1.5.7 or greater</b>) is
+available from <a
+href="http://ftp1.sourceforge.net/cygwin/binaries/">.</p>
+
+<p>To install it, use Cygwin's <a
+href="http://www.cygwin.com/setup.exe">setup.exe</a>. Add
+http://ftp1.sourceforge.net/cygwin/ in <i>Choose Download Site(s)</i>
+and follow as usual.</p>
+
+<p>A smartctl binary that doesn't depend on Cygwin (compiled with
+Cygwin's <i>-mno-cygwin</i>) is available <a
+href="http://ftp1.sourceforge.net/cygwin/binaries/smartctl.zip">here</a>.
+Please not that the required changes to make it compile with the above
+switch (acting like <a href="http://www.mingw.org/">MinGW</a>) haven't
+yet been merged.</p>
+
+<p>Alternatively, you can also run it from a bootable CD - see
+above.</p>
+
+<p>Some code showing how to access SMART data under Windows 98, NT 4,
+Windows 2000, and Windows XP can be found <a
 href="ftp://ftp.heise.de/pub/ct/listings/0207-218.zip">here</a>.
 Additional information from Microsoft can be found <a
 href="http://support.microsoft.com/default.aspx?scid=kb;en-us;Q208048">here</a>.
 A related newsgroup thread (with pointers to additional documentation,
 etc.) is <a
-href="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;oe=UTF-8&amp;th=18cdac9d90f6bda1&amp;rnum=1">here</a>.
-</p> </li>
+href="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;oe=UTF-8&amp;th=18cdac9d90f6bda1&amp;rnum=1">here</a>.</p>
+
+</li>
 
 <li><b>Why did the release version scheme change?</b>
 
@@ -886,8 +906,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/24 04:11:04 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.124 2004/02/24 04:11:04 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/02/25 23:53:50 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.125 2004/02/25 23:53:50 pervalidus Exp $</tt>
 
 <hr size="2" />
 
