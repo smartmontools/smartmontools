@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.69 2004/07/12 21:32:25 zybert Exp $
+$Id: smartd.8.in,v 1.70 2004/07/13 14:55:38 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -435,8 +435,8 @@ Section below!
 .B ################################################
 .B # This is an example smartd startup config
 .B # file /etc/smartd.conf for monitoring three ATA
-.B # disks, three SCSI disks, and three ATA disks
-.B # behind a 3ware controller.
+.B # disks, three SCSI disks, and six ATA disks
+.B # behind two 3ware controllers.
 .B #
 .nf
 .B # First ATA disk on each of two interfaces. On
@@ -459,12 +459,19 @@ Section below!
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Four ATA disks connected to a 3ware controller.
+.B # Four ATA disks on a 3ware 6/7/8000 controller.
 .B # Do short self-tests daily at midnight, 1, 2, and 3 am
+.B # (Note that the syntax /dev/twe0 is also allowed.)
 .B \ \ /dev/sdc -d 3ware,0 -a -s S/../.././00
 .B \ \ /dev/sdc -d 3ware,1 -a -s S/../.././01
 .B \ \ /dev/sdd -d 3ware,2 -a -s S/../.././02
 .B \ \ /dev/sdd -d 3ware,3 -a -s S/../.././03
+.B #
+.nf
+.B # Two ATA disks on a 3ware 9000 controller.
+.B # Do long self-tests Sundays at midnight and 2 am
+.B \ \ /dev/twa0 -d 3ware,0 -a -s L/../../7/00
+.B \ \ /dev/twa0 -d 3ware,1 -a -s L/../../7/02
 .B #
 .nf
 .B # The following line enables monitoring of the 
@@ -525,11 +532,11 @@ indicates a disk failure or problem, if the SCSI inquiry about disk
 status fails, or if new errors appear in the self-test log.
 
 .B If a 3ware controller is used
-then the corresponding SCSI device must be listed, along with the
-\'\-d 3ware,N\' Directive (see below).  The individual ATA disks
-hosted by the 3ware controller appear to \fBsmartd\fP as normal ATA
-devices.  Hence all the ATA directives can be used for these disks
-(but see note below).
+then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?
+or /dev/twa?) must be listed, along with the \'\-d 3ware,N\' Directive
+(see below).  The individual ATA disks hosted by the 3ware controller
+appear to \fBsmartd\fP as normal ATA devices.  Hence all the ATA
+directives can be used for these disks (but see note below).
 
 .TP
 .B \-d TYPE
@@ -569,7 +576,8 @@ with XX in the range from 00 to 15 inclusive.
 
 This Directive may at first appear confusing, because the 3ware
 controller is a SCSI device (such as /dev/sda) and should be listed as
-such in the the configuration file.  However when the \'\-d 3ware,N\'
+such in the the configuration file.
+However when the \'\-d 3ware,N\'
 Directive is used, then the corresponding disk is addressed using
 native ATA commands which are \'passed through\' the SCSI driver. All
 ATA Directives listed in this man page may be used.  Note that while
@@ -579,13 +587,26 @@ messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.  Please
 see the \fBsmartctl\fP man page for further details.
 
+ATA disks behind 3ware controllers may alternatively be accessed via a
+character device interface /dev/twe0-15 (3ware 6000/7000/8000
+controllers) and /dev/twa0-15 (3ware 9000 series controllers).  Note
+that the 9000 series controllers may \fBonly\fP be accessed using the
+character device interface /dev/twa0-15 and not the SCSI device
+interface /dev/sd?.  Please see the \fBsmartctl\fP man page for
+further details.
+
 Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
 (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
-to the disk, and produce these types of harmless syslog error messages
-instead: \fB\'3w-xxxx: tw_ioctl(): Passthru size (123392) too big\'\fP. This
-can be fixed by upgrading to version 1.02.00.037 or later of the
-3w-xxxx driver, or by applying a patch to older versions. See
+to the disk, if the SCSI interface is used, and produce these types of
+harmless syslog error messages instead: \fB\'3w-xxxx: tw_ioctl():
+Passthru size (123392) too big\'\fP. This can be fixed by upgrading to
+version 1.02.00.037 or later of the 3w-xxxx driver, or by applying a
+patch to older versions.  See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
+Alternatively use the character device interfaces /dev/twe0-15 (3ware
+6/7/8000 series controllers) or /dev/twa0-15 (3ware 9000 series
+controllers).
+
 
 .B 3ware controllers are currently ONLY supported under Linux.
 
@@ -1681,4 +1702,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.69 2004/07/12 21:32:25 zybert Exp $
+$Id: smartd.8.in,v 1.70 2004/07/13 14:55:38 ballen4705 Exp $

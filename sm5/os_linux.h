@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.18 2004/07/11 10:21:20 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.19 2004/07/13 14:55:38 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -54,6 +54,7 @@
 #define TW_OP_ATA_PASSTHRU 0x11
 #define MAX(x,y) ( (x)>(y)?(x):(y) )
 
+#pragma pack(1)
 /* Scatter gather list entry */
 typedef struct TAG_TW_SG_Entry {
   unsigned int address;
@@ -109,9 +110,11 @@ typedef struct TAG_TW_Ioctl {
   int output_length;
   unsigned char cdb[16];
   unsigned char opcode;
-  // gets padded HERE by one byte! Might be a good idea to add:
-  // unsigned char padding;
-  // then structure can be packed with no consequences
+  // This one byte of padding is missing from the typedefs in the
+  // kernel code, but it is indeed present.  We put it explicitly
+  // here, so that the structure can be packed.  Adam agrees with
+  // this.
+  unsigned char packing;
   unsigned short table_id;
   unsigned char parameter_id;
   unsigned char parameter_size_bytes;
@@ -121,7 +124,7 @@ typedef struct TAG_TW_Ioctl {
   // Reserve lots of extra space for commands that set Sector Count
   // register to large values
   unsigned char output_data[512]; // starts 530 bytes in!
-  // two more padding bytes here
+  // two more padding bytes here if structure NOT packed.
 } TW_Ioctl;
 
 /* Ioctl buffer output -- SCSI interface only! */
@@ -169,7 +172,7 @@ typedef struct TW_Command_9000 {
     struct {
       u32 lba;
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH_9000];
-      u32 padding;	/* pad to 512 bytes -- comment wrong!!*/
+      u32 padding;
     } io;
     struct {
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH_9000];
@@ -177,7 +180,7 @@ typedef struct TW_Command_9000 {
     } param;
     struct {
       u32 response_queue_pointer;
-      u32 padding[125]; /* pad to 512 bytes */
+      u32 padding[125]; /* pad entire structure to 512 bytes */
     } init_connection;
     struct {
       char version[504];
@@ -230,7 +233,7 @@ typedef struct TAG_TW_Ioctl_Apache {
   char                         padding[488];
   TW_Command_Full_9000         firmware_command;
   char                         data_buffer[1];
-  // three bytes of padding here!
+  // three bytes of padding here if structure not packed!
 } TW_Ioctl_Buf_Apache;
 
 
@@ -266,7 +269,7 @@ typedef struct TW_Command {
     struct {
       u32 lba;
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
-      u32 padding;	/* pad to 512 bytes -- this comment is correct!*/
+      u32 padding;	/* pad to 512 bytes */
     } io;
     struct {
       TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
@@ -289,8 +292,39 @@ typedef struct TAG_TW_New_Ioctl {
   char          data_buffer[1];
   // three bytes of padding here
 } TW_New_Ioctl;
+#pragma pack()
 
+#if 0
+// Useful for checking/understanding packing of 3ware data structures
+// above.
+void my(int x, char *y){
+  printf("The size of %30s is: %5d\n",y, x);
+  return;
+}
 
+int main() {
+  TW_Ioctl tmp;
+  my(sizeof(TW_SG_Entry),"TW_SG_Entry");
+  my(sizeof(TW_Passthru),"TW_Passthru");
+  my(sizeof(TW_Ioctl),"TW_Ioctl");
+  my(sizeof(TW_Output),"TW_Output");
+  my(sizeof(TW_Ioctl_Driver_Command_9000),"TW_Ioctl_Driver_Command_9000");
+  my(sizeof(TW_Command_9000),"TW_Command_9000");
+  my(sizeof(TW_Command_Apache),"TW_Command_Apache");
+  my(sizeof(TW_Command_Apache_Header),"TW_Command_Apache_Header");
+  my(sizeof(TW_Command_Full_9000),"TW_Command_Full_9000");
+  my(sizeof(TW_Ioctl_Buf_Apache),"TW_Ioctl_Buf_Apache");
+  my(sizeof(TW_Command),"TW_Command");
+  my(sizeof(TW_New_Ioctl),"TW_New_Ioctl");                                                                
+  printf("TW_Ioctl.table_id - start = %d (irrelevant)\n",
+         (void *)&tmp.table_id - (void *)&tmp);
+  printf("TW_Ioctl.input_data - start = %d (input passthru location)\n",
+         (void *)&tmp.input_data - (void *)&tmp);
+  printf("TW_Ioctl.output_data - start = %d (irrelevant)\n",
+         (void *)&tmp.output_data - (void *)&tmp);
+  return 0;
+}
+#endif
 
 // The following definitions are from hdreg.h in the kernel source
 // tree.  They don't carry any Copyright statements, but I think they
