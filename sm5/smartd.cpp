@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.314 2004/04/09 14:27:16 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.315 2004/04/12 17:42:19 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.314 2004/04/09 14:27:16 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.315 2004/04/12 17:42:19 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -3026,8 +3026,9 @@ void cleanup(FILE **fpp){
 
 
 // Parses a configuration file.  Return values are:
-// -1:    could not open config file, or syntax error
 //  N=>0: found N entries
+// -1:    syntax error in config file
+// -2:    could not open config file
 // 
 // In the case where the return value is 0, there are three
 // possiblities:
@@ -3047,7 +3048,7 @@ int ParseConfigFile(){
       // file exists but we can't read it or it should exist due to '-c' option
       PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
                strerror(errno),configfile);
-      return -1;
+      return -2;
     }
   }
   else // read from stdin ('-c -' option)
@@ -3509,7 +3510,8 @@ int ReadOrMakeConfigEntries(int *scanning){
  
     // There was an error reading the configuration file.
     RmAllConfigEntries();
-    PrintOut(LOG_CRIT, "Configuration file %s has fatal syntax errors.\n", configfile);
+    if (entries == -1)
+      PrintOut(LOG_CRIT, "Configuration file %s has fatal syntax errors.\n", configfile);
     return -1;
   }
 
