@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.151 2003/04/19 23:30:20 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.152 2003/04/20 15:38:38 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -297,15 +297,17 @@ void pout(char *fmt, ...){
   va_list ap;
   // initialize variable argument list 
   va_start(ap,fmt);
-  // in debug mode we will print the output from the ataprint.o functions!
-  if (debugmode)
+  // in debug==1 mode we will print the output from the ataprint.o functions!
+  if (debugmode && debugmode!=2)
     vprintf(fmt,ap);
-  else if (con->reportataioctl || con->reportscsiioctl) {
+  // in debug==2 mode we print output from knowndrives.o functions
+  else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl) {
     openlog("smartd", LOG_PID, LOG_DAEMON);
     vsyslog(LOG_INFO, fmt, ap);
     closelog();
   }
   va_end(ap);
+  fflush(NULL);
   return;
 }
 
@@ -574,24 +576,35 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     return 2; 
   }
   
-  // If requested, show which presets would be used for this drive and exit.
-  if (cfg->showpresets) {
-    debugmode = TRUE;
-    pout("Presets for %s are:\n", device);
-    showpresets(&drive);
-    exit(0);
-  }
-
-  // Use preset vendor attribute options unless user has requested otherwise.
+  // Show if device in database, and use preset vendor attribute
+  // options unless user has requested otherwise.
   if (!cfg->ignorepresets){
+
     // save what the user set
     con->fixfirmwarebug = cfg->fixfirmwarebug;
+
     // do whatever applypresets decides to do
-    applypresets(&drive, cfg->attributedefs, con);
+    if (applypresets(&drive, cfg->attributedefs, con)<0)
+      printout(LOG_INFO, "Device: %s, not found in smartd database.\n", device);
+    else
+      printout(LOG_INFO, "Device: %s, found in smartd database.\n", device);
+
     // then save the correct state of the flag
     cfg->fixfirmwarebug = con->fixfirmwarebug;
   }
-  
+  else
+    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", device);
+
+  // If requested, show which presets would be used for this drive
+  if (cfg->showpresets) {
+    int savedebugmode=debugmode;
+    printout(LOG_INFO, "Device %s: presets are:\n", device);
+    if (!debugmode)
+      debugmode=2;
+    showpresets(&drive);
+    debugmode=savedebugmode;
+  }
+
   if (!cfg->permissive && !ataSmartSupport(&drive)){
     // SMART not supported
     printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",device);
@@ -1824,7 +1837,7 @@ void printvalidarglistmessage(char opt) {
 
   printout(LOG_CRIT, "=======> VALID ARGUMENTS ARE: ");
   if (!(s = getvalidarglist(opt)))
-    pout("Error whilst constructing argument list for option %c", opt);
+    printout(LOG_CRIT, "Error constructing argument list for option %c", opt);
   else
     printout(LOG_CRIT, (char *)s);
   printout(LOG_CRIT, " <=======\n");
