@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.466 2004/09/05 13:58:02 dpgilbert Exp $
+$Id: CHANGELOG,v 1.467 2004/09/05 21:04:56 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,10 +31,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
+smartmontools 5.33 Experimental Release
+
   [DG] [SCSI] Decode Last n error events log page; decode track following
        and positioning errors [Hitachi]
 
-  [EM] Another tweak, __packed__ introduced in Version 5.0040
+  [EM] FreeBSD: another tweak, __packed__ introduced in Version 5.0040
 
   [EM] Cleaner tweak of fixes for FreeBSD 4.x.
 

@@ -1,9 +1,26 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.23 2004/07/07 14:45:19 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.24 2004/09/05 21:04:56 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
+
+
+Date 2004-9-5
+Summary: smartmontools release 5.33 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.  It includes
+ - support for Darwin/Mac OSX
+ - support for OpenBSD
+ - support for 3ware ATA RAID controllers under FreeBSD
+ - support for 3ware 9500 series SATA RAID controllers under
+   Linux.  Use /dev/twa[0-15] devices to access these.
+ - support for 3ware character device interfaces /dev/twe[0-15]
+   under Linux.  This allows (for example) Selective Self-tests.
+ - support for Marvell chip-set based SATA controllers under Linux.
+Please report sucess/failure with these items to the
+smartmontools-support mailing list.
+
 
 Date 2004-7-5
 Summary: smartmontools release 5.32 (STABLE)

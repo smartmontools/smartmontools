@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.62 2004/09/03 19:41:52 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.63 2004/09/05 21:04:56 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -61,6 +61,10 @@ devices, and \fB"/dev/sd[a\-z]"\fP for SCSI devices. For
 SCSI Tape Drives and Changers with TapeAlert support use the devices
 \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP. 
 More general paths (such as devfs ones) may also be specified.
+.IP \fBDARWIN\fP: 9
+Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
+\fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
+examples. Note that there is currently no Darwin SCSI support.
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0\-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0\-9]+"\fP for SCSI devices.
@@ -1233,7 +1237,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.62 2004/09/03 19:41:52 chrfranke Exp $
+$Id: smartctl.8.in,v 1.63 2004/09/05 21:04:56 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
