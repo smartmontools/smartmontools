@@ -1,22 +1,23 @@
-\# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-\# 
-\# $Id: smartd.8.in,v 1.7 2003/10/15 21:19:36 ballen4705 Exp $
-\#
-\# This program is free software; you can redistribute it and/or modify it
-\# under the terms of the GNU General Public License as published by the Free
-\# Software Foundation; either version 2, or (at your option) any later
-\# version.
-\# 
-\# You should have received a copy of the GNU General Public License (for
-\# example COPYING); if not, write to the Free Software Foundation, Inc., 675
-\# Mass Ave, Cambridge, MA 02139, USA.
-\# 
-\# This code was originally developed as a Senior Thesis by Michael Cornwell
-\# at the Concurrent Systems Laboratory (now part of the Storage Systems
-\# Research Center), Jack Baskin School of Engineering, University of
-\# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-\#
-.TH SMARTD 8  "$Date: 2003/10/15 21:19:36 $" RELEASE
+.ig
+Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ 
+$Id: smartd.8.in,v 1.8 2003/10/16 07:23:56 ballen4705 Exp $
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+ 
+You should have received a copy of the GNU General Public License (for
+example COPYING); if not, write to the Free Software Foundation, Inc.,
+675 Mass Ave, Cambridge, MA 02139, USA.
+ 
+This code was originally developed as a Senior Thesis by Michael
+Cornwell at the Concurrent Systems Laboratory (now part of the Storage
+Systems Research Center), Jack Baskin School of Engineering,
+University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+..
+.TH SMARTD 8  "$Date: 2003/10/16 07:23:56 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -27,7 +28,7 @@
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/15 21:19:36 $"
+\fBRELEASE\fP "$Date: 2003/10/16 07:23:56 $"
 
 .SH DESCRIPTION
 .B smartd
@@ -291,9 +292,9 @@ and disabled using the command:
 .B /sbin/chkconfig --del smartd
 .fi
 
-\# DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
-\# IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
-\# STARTINCLUDE
+.\" DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
+.\" IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
+.\" STARTINCLUDE
 
 .SH CONFIGURATION FILE /etc/smartd.conf
 In the absence of a configuration file,
@@ -1164,9 +1165,9 @@ that they read/write should not be writable by ordinary users or
 reside in directories like /tmp that are writable by ordinary users
 and may expose your system to symlink attacks.
 
-\# ENDINCLUDE
-\# DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
-\# END OF THE INCLUDE SECTION FOR smartd.conf.5
+.\" ENDINCLUDE
+.\" DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
+.\" END OF THE INCLUDE SECTION FOR smartd.conf.5
 
 .SH NOTES
 .B smartd
@@ -1332,4 +1333,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.7 2003/10/15 21:19:36 ballen4705 Exp $
+$Id: smartd.8.in,v 1.8 2003/10/16 07:23:56 ballen4705 Exp $
