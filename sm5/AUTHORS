@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.4 2003/10/03 17:50:32 pervalidus Exp $
+$Id: AUTHORS,v 1.3 2003/10/03 01:03:10 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -15,7 +15,7 @@ Bruce Allen		<smartmontools-support@lists.sourceforge.net>
 Erik Inge Bolsø		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
-Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
+Frédéric L. W. Meunier	<0@pervalidus.tk>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>

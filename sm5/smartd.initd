@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd,v 1.11 2003/10/03 19:09:38 pervalidus Exp $
+# $Id: smartd.initd,v 1.9 2003/10/02 22:48:17 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -25,10 +25,17 @@
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
 #
 
+report_unsupported () {
+    echo "Currently the smartmontools package has no init script for this" $1 "linux distribution".
+    echo "If you can provide one, please contact smartmontools-support@lists.sourceforge.net"
+    echo "and we will inculde it in future distributions of the package."
+    exit 1
+}
+
 # Red Hat
 if [ -f /etc/redhat-release ] ; then
 
-# Source function library
+# source function library
 . /etc/rc.d/init.d/functions
 
     case "$1" in
@@ -58,36 +65,28 @@ if [ -f /etc/redhat-release ] ; then
     
     exit 0
 
-# Slackware
 elif [ -f /etc/slackware-release ] ; then
-
-    case "$1" in
-	start)
-	    echo -n "Starting smartd: "
-	    smartd
-	    echo
-	    ;;
-	stop)
-	    echo -n "Shutting down smartd: "
-	    killall smartd
-	    echo
-	    ;;
-	restart)
-	    $0 stop
-	    sleep 1
-	    $0 start
-	    ;;
-	*)
-	    echo "Usage: smartd {start|stop|restart}"
-	    exit 1
-    esac
-    
+    if [ -x /usr/sbin/smartd ]; then
+	/usr/sbin/smartd
+    fi
     exit 0
 
+# add scripts for other distributions HERE, using elif...
+elif [ -f /etc/environment.corel ] ; then
+    report_unsupported "COREL"
+
+elif [ -f /etc/debian_version ] ; then
+    report_unsupported "DEBIAN"
+
+elif [ -f /etc/mandrake-release ] ; then
+    report_unsupported "MANDRAKE"
+
+elif [ -f /etc/SuSE-release  ] ; then
+    report_unsupported "SUSE"
+
+elif [ -f /etc/turbolinux-release  ] ; then
+    report_unsupported "TURBOLINUX"
+
 else
-    echo "Currently the smartmontools package has no init script for"
-    echo "your Linux distribution. If you can provide one or the"
-    echo "Red Hat or Slackware bits work (edit the script), please"
-    echo "contact smartmontools-support@lists.sourceforge.net."
-    exit 1
+    report_unsupported "UNKNOWN"
 fi
