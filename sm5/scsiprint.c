@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.85 2004/08/26 11:40:03 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.86 2004/09/03 04:34:29 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -637,40 +637,6 @@ static const char * transport_proto_arr[] = {
         "0xf"
 };
 
-/* This is Linux specific code to look for a specific string in a
-   vendor device identification page. Returns 1 if found else 0. */
-static int isLinuxLibAta(unsigned char * buff, int len)
-{
-    int k, id_len, c_set, assoc, id_type, i_len;
-    unsigned char * ucp;
-    unsigned char * ip;
-
-    if (len < 4) {
-        /* Device identification VPD page length too short */
-        return 0;
-    }
-    len -= 4;
-    ucp = buff + 4;
-    for (k = 0; k < len; k += id_len, ucp += id_len) {
-        i_len = ucp[3];
-        id_len = i_len + 4;
-        if ((k + id_len) > len) {
-	    /* short descriptor, badly formed */
-            return 0;
-        }
-        ip = ucp + 4;
-        c_set = (ucp[0] & 0xf);
-        assoc = ((ucp[1] >> 4) & 0x3);
-        id_type = (ucp[1] & 0xf);
-	if ((0 == id_type) && (2 == c_set) && (0 == assoc) &&
-	    (0 == strncmp((const char *)ip,
-			  "Linux ATA-SCSI simulator", i_len))) {
-	    return 1;
-        }
-    }
-    return 0;
-}
- 
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
 static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 {
