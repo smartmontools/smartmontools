@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.89 2004/09/06 03:41:13 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.90 2004/09/23 10:28:24 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -434,7 +434,7 @@ static void scsiPrintErrorCounterLog(int device)
         pout("\nError counter log:\n");
         pout("           Errors Corrected by           Total   "
              "Correction     Gigabytes    Total\n");
-        pout("               EEC          rereads/    errors   "
+        pout("               ECC          rereads/    errors   "
              "algorithm      processed    uncorrected\n");
         pout("           fast | delayed   rewrites  corrected  "
              "invocations   [10^9 bytes]  errors\n");
