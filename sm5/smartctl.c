@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.73 2003/04/20 23:08:48 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.74 2003/04/22 04:25:38 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -668,7 +668,7 @@ int main (int argc, char **argv){
   int fd,retval=0;
   char *device;
   smartmonctrl control;
-  const char *devroot="/dev/";
+  int dev_type, flags;
 
   // define control block for external functions
   con=&control;
@@ -676,37 +676,29 @@ int main (int argc, char **argv){
   // Part input arguments
   ParseOpts(argc,argv);
 
-  // open device - read-write access is needed to use the scsi generic (sg)
-  // device for some commands (e.g. '-s on'). Attempt to open read-write and 
-  // if that fails with an error suggesting writing is not permitted, fall
-  // back to a read-only open. [When opened O_RDONLY invoking '-s on' will 
-  // attempt the scsi command MODE SELECT. Sg disallows it since that scsi 
-  // command potentially modifies mode page data.]
-  fd = open(device=argv[argc-1], O_RDWR);
-  if ((fd < 0) && ((EACCES == errno) || (EROFS == errno)))
-    fd = open(device=argv[argc-1], O_RDONLY);  
+  device = argv[argc-1];
+  dev_type = guess_linux_device_type(device);
+  if (GUESS_DEVTYPE_SCSI == dev_type) {
+    flags = O_RDWR | O_NONBLOCK;
+    tryscsi = 1;
+  } else { /* treat "don't know" case as an ATA device as well */
+    flags = O_RDONLY;
+    tryata = 1;
+  }
+
+  // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
+  // scsi generci device can be used (needs write permission for MODE 
+  // SELECT command) plus O_NONBLOCK to stop open hanging if media not
+  // present (e.g. with st). 
+  // N.B. ATAPI cd/dvd devices will also hang awaiting media if O_NONBLOCK 
+  // is not given (see linux cdrom driver).
+  fd = open(device, flags);
   if (fd<0) {
     char errmsg[256];
     snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);
     errmsg[255]='\0';
     syserror(errmsg);
     return FAILDEV;
-  }
-
-  // if necessary, try to guess if this is an ATA or SCSI device
-  if (!tryata && !tryscsi) {
-    if (!strncmp(device,devroot,strlen(devroot)) && strlen(device)>5){
-      if (device[5] == 'h')
-	tryata=1;
-      if (device[5] == 's')
-	tryscsi=1;
-    }
-    else if (strlen(device)){
-	if (device[0] == 'h')
-	  tryata=1;
-	if (device[0] == 's')
-	  tryscsi=1;
-      }
   }
 
   // now call appropriate ATA or SCSI routine
