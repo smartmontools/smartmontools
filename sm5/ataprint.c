@@ -31,7 +31,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.52 2003/01/12 10:23:29 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.53 2003/01/12 10:30:53 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -103,7 +103,7 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   
   // print current time and date
   tval=time(NULL);
-  pout("Local Time:       %s", ctime(&tval));
+  pout("Local Time is:    %s", ctime(&tval));
   
   if (version>=3)
     return;
