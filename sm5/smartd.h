@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.39 2003/08/10 05:51:17 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.40 2003/08/11 14:31:45 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -137,6 +137,8 @@ typedef struct configfile_s {
   // ATA ONLY:
   unsigned char selflogcount;              // Total number of self-test errors
   int  ataerrorcount;                      // Total number of ATA errors
+
+  // If needed created at registration
   struct ata_smart_values *smartval;       // Pointer to SMART data
   struct ata_smart_thresholds *smartthres; // Pointer to SMART thresholds
 
