@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.231 2003/10/27 18:57:24 pjwilliams Exp $
+$Id: CHANGELOG,v 1.232 2003/10/27 20:59:03 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.22
 
   [PW] Added Fujitsu MHM2200AT to knowndrives table.
 
