@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.64 2002/11/13 10:59:32 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.65 2002/11/16 18:23:37 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -448,7 +448,7 @@ int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
   printout(LOG_INFO,"Device: %s, opened\n", device);
   
   // check that it's ready for commands
-  if (!testunitready(fd)){
+  if (testunitready(fd)){
     printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
     close(fd);
     return 2;
