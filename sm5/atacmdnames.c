@@ -22,7 +22,7 @@
 
 #include "atacmdnames.h"
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.1 2003/07/19 14:36:20 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.2 2003/07/20 16:04:03 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_retired[]         = "[RETIRED]";
@@ -316,18 +316,18 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
   case 0x00:  /* NOP */
     switch (f_reg) {
     case 0x00:
-      return "NOP [abort queued commands]";
+      return "NOP [Abort queued commands]";
     case 0x01:
-      return "NOP [don't abort queued commands]";
+      return "NOP [Don't abort queued commands]";
     default:
       return "NOP [Reserved subcommand]";
     }
   case 0x92:  /* DOWNLOAD MICROCODE */
     switch (f_reg) {
       case 0x01:
-        return "DOWNLOAD MICROCODE [temporary]";
+        return "DOWNLOAD MICROCODE [Temporary]";
       case 0x07:
-        return "DOWNLOAD MICROCODE [save]";
+        return "DOWNLOAD MICROCODE [Save]";
       default:
         return "DOWNLOAD MICROCODE [Reserved subcommand]";
     }
@@ -355,7 +355,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xDB:
         return "[Obsolete SMART command]";
     default:
-        if (f_reg > 0xE0)
+        if (f_reg >= 0xE0)
           return "[Vendor specific SMART command]";
         else
           return "[Reserved SMART command]";
@@ -402,7 +402,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0x42:
       return "SET FEATURES [Enable AAM]";
     case 0x43:
-      return "SET FEATURES [Set Max Host I/F Sector ]";
+      return "SET FEATURES [Set Max Host I/F S Times]";
     case 0x55:
       return "SET FEATURES [Disable read look-ahead]";
     case 0x5D:
@@ -451,15 +451,15 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xE0:
       return "SET FEATURES [Obsolete subcommand]";
     default:
-      if (f_reg > 0xF0)
+      if (f_reg >= 0xF0)
         return "SET FEATURES [Reserved for CFA]";
       else
         return "SET FEATURES [Reserved subcommand]";
     }
-  case 0xF9:  /* SET MAX (or SET MAX ADDRESS?) */
+  case 0xF9:  /* SET MAX */
     switch (f_reg) {
     case 0x00:
-      return "[Obsolete SET MAX command]";
+      return "SET MAX ADDRESS [OBS-6]";
     case 0x01:
       return "SET MAX SET PASSWORD";
     case 0x02:
