@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.18 2002/10/22 11:40:52 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.cpp,v 1.19 2002/10/22 11:47:59 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -399,7 +399,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       
       // is this currently failed, or has it ever failed?
       if (failednow)
-	status="FAILED NOW";
+	status="FAILED NOW!";
       else if (failedever)
 	status="In the past";
       else
