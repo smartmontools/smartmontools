@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.371 2004/03/15 19:47:13 ballen4705 Exp $
+$Id: CHANGELOG,v 1.372 2004/03/15 20:45:21 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+ 
+  [BA] Fixed un-thread-safe exit signal handler pointed out
+       by CF.
 
   [BA] Changed configure script to eliminate warnings under
        Solaris from sys/int_type.h conflicts with int64.h

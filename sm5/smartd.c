@@ -91,7 +91,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.292 2004/03/15 19:47:22 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.293 2004/03/15 20:45:21 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -101,7 +101,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.292 2004/03/15 19:47:22 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.293 2004/03/15 20:45:21 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -164,6 +164,9 @@ volatile int caughtsigUSR1=0;
 // set to one if we catch a HUP (reload config file). In debug mode,
 // set to two, if we catch INT (also reload config file).
 volatile int caughtsigHUP=0;
+
+// set to signal value if we catch INT, QUIT, or TERM
+volatile int caughtsigEXIT=0;
 
 #if SCSITIMEOUT
 // stack environment if we time out during SCSI access (USB devices)
@@ -367,16 +370,9 @@ void HUPhandler(int sig){
 
 // signal handler for TERM, QUIT, and INT (if not in debug mode)
 void sighandler(int sig){
-
-  // are we exiting with SIGTERM?
-  int isterm=(sig==SIGTERM);
-  int isquit=(sig==SIGQUIT);
-  int isok=debugmode?isterm || isquit:isterm;
-
-  PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
-           sig, strsignal(sig));
-  
-  EXIT(isok?0:EXIT_SIGNAL);
+  if (!caughtsigEXIT)
+    caughtsigEXIT=sig;
+  return;
 }
 
 #else // _WIN32
@@ -2146,7 +2142,7 @@ time_t dosleep(time_t wakeuptime){
   }
   
   // sleep until we catch SIGUSR1 or have completed sleeping
-  while (timenow<wakeuptime && !caughtsigUSR1 && !caughtsigHUP){
+  while (timenow<wakeuptime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT){
     
     // protect user again system clock being adjusted backwards
     if (wakeuptime>timenow+checktime){
@@ -3473,6 +3469,19 @@ int main(int argc, char **argv){
   
   // the main loop of the code
   while (1){
+
+    // are we exiting from a signal?
+    if (caughtsigEXIT) {
+      // are we exiting with SIGTERM?
+      int isterm=(caughtsigEXIT==SIGTERM);
+      int isquit=(caughtsigEXIT==SIGQUIT);
+      int isok=debugmode?isterm || isquit:isterm;
+      
+      PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
+	       caughtsigEXIT, strsignal(caughtsigEXIT));
+      
+      EXIT(isok?0:EXIT_SIGNAL);
+    }
 
     // Should we (re)read the config file?
     if (firstpass || caughtsigHUP){
