@@ -1,13 +1,12 @@
-$Id: AUTHORS,v 1.9 2004/03/01 17:11:38 ballen4705 Exp $
+$Id: AUTHORS,v 1.10 2004/03/06 03:13:37 pervalidus Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
-Systems Research Center), Jack Baskin School of Engineering,
-University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+Systems Research Center), Jack Baskin School of Engineering, University
+of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 This package is meant to be an up-to-date replacement for the
-ucsc-smartsuite and smartsuite packages, and is derived from that
-code.
+ucsc-smartsuite and smartsuite packages, and is derived from that code.
 
 Maintainers / Developers:
 
@@ -15,13 +14,13 @@ Bruce Allen		<smartmontools-support@lists.sourceforge.net>
 Erik Inge Bolsø		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
-Casper Dik              <casper@holland.sun.com>
-Christian Franke        <franke@computer.org>
+Casper Dik		<casper@holland.sun.com>
+Christian Franke	<franke@computer.org>
 Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
 Kai Mäkisara		<kai.makisara@kolumbus.fi>
-Eduard Martinescu       <martines@rochester.rr.com>
+Eduard Martinescu	<martines@rochester.rr.com>
 Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
 Sawada Keiji		<card_captor@users.sourceforge.net>
