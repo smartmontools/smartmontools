@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.244 2003/11/08 01:15:14 ballen4705 Exp $
+$Id: CHANGELOG,v 1.245 2003/11/09 19:05:30 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added Seagate Barracuda 7200.7, Western Digital Protege WD400EB,
+       and Western Digital Caviar AC38400 to knowndrives table.
 
   [BA] smartd: scanning should now also work correctly for
        devfs WITHOUT traditional links /dev/hd[a-t] or /dev/sd[a-z].

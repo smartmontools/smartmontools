@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.53 2003/11/07 19:07:25 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.54 2003/11/09 19:05:30 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -342,8 +342,26 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL,
   },
+  { // Seagate Barracuda 7200.7 family
+    "^(ST340014A|ST380011A|ST3120022A|ST3160021A)$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
   { // Seagate Barracuda 7200.7 Plus family
     "^(ST3120026A|ST3160023A|ST3200822A)$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Western Digital Protege WD400EB
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD400EB-00CPF0$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Western Digital Caviar AC38400
+    "^WDC AC38400L$",
     ".*",
     NULL, NULL, NULL, NULL,
   },
