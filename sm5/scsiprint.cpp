@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.67 2003/11/19 07:50:39 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.68 2003/11/20 01:03:26 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -605,6 +605,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     int err, iec_err, len, val;
     int is_tape = 0;
     int peri_dt = 0;
+    int returnval=0;
         
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
@@ -688,14 +689,22 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
             QUIETON(con);
-            pout("device is NOT READY (media absent, spun down, etc)\n");
+            pout("device is NOT READY (e.g. spun down, busy)\n");
+            QUIETOFF(con);
+         } else if (SIMPLE_ERR_NO_MEDIUM == err) {
+            QUIETON(con);
+            pout("NO MEDIUM present on device\n");
+            QUIETOFF(con);
+         } else if (SIMPLE_ERR_BECOMING_READY == err) {
+            QUIETON(con);
+            pout("device becoming ready (wait)\n");
             QUIETOFF(con);
         } else {
             QUIETON(con);
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
             QUIETOFF(con);
         }
-	return 0;
+        failuretest(MANDATORY_CMD, returnval|=FAILID);
     }
    
     if (iec_err) {
@@ -816,7 +825,7 @@ int scsiPrintMain(int fd)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
-    int returnval=0;
+    int returnval = 0;
     int res, durationSec;
 
     if (scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo)) {

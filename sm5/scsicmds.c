@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.64 2003/11/19 06:09:37 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.65 2003/11/20 01:02:27 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -143,7 +143,7 @@ const char * scsi_get_opcode_name(UINT8 opcode)
 void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
                           struct scsi_sense_disect * out)
 {
-    memset(out, 0, sizeof(out));
+    memset(out, 0, sizeof(struct scsi_sense_disect));
     if ((SCSI_STATUS_CHECK_CONDITION == io_buf->scsi_status) && 
         (io_buf->resp_sense_len > 7)) {  
         out->error_code = (io_buf->sensep[0] & 0x7f);
@@ -157,9 +157,17 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 
 static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
 {
-    if (SCSI_SK_NOT_READY == sinfo->sense_key)
-        return SIMPLE_ERR_NOT_READY;
-    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo->sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo->sense_key) {
+        if (SCSI_ASC_NO_MEDIUM == sinfo->asc) 
+            return SIMPLE_ERR_NO_MEDIUM;
+        else if (SCSI_ASC_NOT_READY == sinfo->asc) {
+            if (0x1 == sinfo->ascq)
+                return SIMPLE_ERR_BECOMING_READY;
+            else
+                return SIMPLE_ERR_NOT_READY;
+        } else
+            return SIMPLE_ERR_NOT_READY;
+    } else if (SCSI_SK_ILLEGAL_REQUEST == sinfo->sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo->asc)
             return SIMPLE_ERR_BAD_OPCODE;
         else if (SCSI_ASC_UNKNOWN_FIELD == sinfo->asc)
@@ -187,6 +195,10 @@ const char * scsiErrString(int scsiErr)
             return "badly formed scsi parameters";
         case SIMPLE_ERR_BAD_RESP: 
             return "scsi response fails sanity test";
+        case SIMPLE_ERR_NO_MEDIUM: 
+            return "no medium present";
+        case SIMPLE_ERR_BECOMING_READY: 
+            return "device will be ready soon";
         default:
             return "unknown error";
     }
@@ -680,17 +692,14 @@ int scsiTestUnitReady(int device)
     status = _testunitready(device, &sinfo);
     if (0 != status)
         return status;
-    if (SCSI_SK_NOT_READY == sinfo.sense_key)
-        return SIMPLE_ERR_NOT_READY;
-    else if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
+
+    if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
         /* power on reset, media changed, ok ... try again */
         status = _testunitready(device, &sinfo);        
         if (0 != status)
             return status;
-        if (SCSI_SK_NOT_READY == sinfo.sense_key)
-            return SIMPLE_ERR_BAD_FIELD;
     }
-    return 0;
+    return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
