@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.54 2005/01/14 00:26:21 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.55 2005/04/02 12:02:02 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +72,9 @@
 #endif
 #ifndef SEND_DIAGNOSTIC
 #define SEND_DIAGNOSTIC  0x1d
+#endif
+#ifndef READ_DEFECT_10
+#define READ_DEFECT_10  0x37
 #endif
 
 typedef unsigned char UINT8;
@@ -287,6 +290,9 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
 int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
+
+int scsiReadDefect10(int device, int req_plist, int req_glist, int dl_format,
+                     UINT8 *pBuf, int bufLen);
 
 /* SMART specific commands */
 int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
