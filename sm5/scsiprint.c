@@ -28,6 +28,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #include "smartctl.h"
 #include "scsicmds.h"
@@ -36,7 +37,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.c,v 1.16 2003/01/05 23:50:17 ballen4705 Exp $"
+const char* CVSid4="$Id: scsiprint.c,v 1.17 2003/01/12 10:23:29 ballen4705 Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -324,6 +325,7 @@ void scsiGetDriveInfo ( int device)
    char manufacturer[9];
    char product[17];
    char revision[5];
+   time_t tval;
 
    UINT8 smartsupport;
 	
@@ -344,7 +346,11 @@ void scsiGetDriveInfo ( int device)
    strncpy ((char *) &revision, (char *) &gBuf[32], 4);
    revision[4] = '\0';
    printf("Device: %s %s Version: %s\n", manufacturer, product, revision);
-	
+
+   // print current time and date
+   tval=time(NULL);
+   printf("Local Time: %s", ctime(&tval));
+   
    if ( scsiSmartSupport( device, (UINT8 *) &smartsupport) != 0)
    {
       printf("Device does not support %s\n",(gBuf[0] & 0x1f)?

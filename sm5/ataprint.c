@@ -25,12 +25,13 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <time.h>
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.51 2003/01/05 23:59:19 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.52 2003/01/12 10:23:29 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -69,6 +70,7 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   const char *description;
   char unknown[64];
   unsigned short minorrev;
+  time_t tval;
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
@@ -98,6 +100,10 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   // BEFORE Revision 3.
   pout("ATA Version is:   %d\n",(int)abs(version));
   pout("ATA Standard is:  %s\n",description);
+  
+  // print current time and date
+  tval=time(NULL);
+  pout("Local Time:       %s", ctime(&tval));
   
   if (version>=3)
     return;
