@@ -221,7 +221,13 @@ The following table shows the mapping of old options to new options:
  SHOULD BECOME A COMMAND-LINE ARGUMENT (-i N, --interval N) =======>       -C N    Set checktime        NOW CMD LINE
                                                                            -f      usage attributes     -f
                                                                            -M ADD  Email addresses     -m ADD
-                                                                           -m N    Email mode          -M MODE
+                                                                           -m -3   Email mode          -M diminishing,test
+                                                                           -m -2   Email mode          -M daily,test
+                                                                           -m -1   Email mode          -M once,test
+                                                                           -m 0    Email mode          -M once
+                                                                           -m 1    Email mode          -M once
+                                                                           -m 2    Email mode          -M daily
+                                                                           -m 3    Email mode          -M diminishing
                                                                            -i N    Ignore              -i N
                                                                            -I N    Ignore              -I N
                                                                             #      Comment              #
