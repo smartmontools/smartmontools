@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.43 2003/11/20 00:34:09 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.44 2003/12/02 03:22:33 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -296,6 +296,7 @@ void scsiDecodeNonMediumErrPage(unsigned char * resp,
 int scsiFetchExtendedSelfTestTime(int device, int * durationSec, 
                                   int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
+int scsiSelfTestInProgress(int fd, int * inProgress);
 int scsiFetchControlGLTSD(int device, int modese_len, int current);
 int scsiSetControlGLTSD(int device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(int device, int modese_len);
