@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.30 2002/12/11 00:11:31 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.31 2002/12/19 00:05:19 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -78,82 +78,179 @@ void printcopy(){
 }
 
 /*  void prints help information for command syntax */
-void Usage ( void){
-  printf("Usage: smartctl -[options] [device]\n");
+void Usage (void){
+  printf("Usage: smartctl [options] [device]\n");
   printf("\nShow Information Options:\n");
-  printf("  %c  Show Version, Copyright and License info\n", PRINTCOPYLEFT);
-  printf("  %c  Show SMART Drive Info                   (ATA/SCSI)\n",DRIVEINFO);
-  printf("  %c  Show all SMART Information              (ATA/SCSI)\n",SMARTVERBOSEALL);
-  printf("\nRun-time Behavior Options:\n");
-  printf("  %c  Quiet: only show SMART Drive Errors     (ATA Only)\n",    QUIETMODE);
-  printf("  %c  Very Quiet: no display, use Exit Status (ATA Only)\n",    VERYQUIETMODE);  
-  printf("  %c  Device is an ATA Device                 (ATA Only)\n",    NOTSCSIDEVICE);
-  printf("  %c  Device is a SCSI Device                 (SCSI Only)\n",   NOTATADEVICE);
-  printf("  %c  Permissive: continue on Mandatory fails (ATA Only)\n",    PERMISSIVE);
-  printf("  %c  Conservative: exit if Optional Cmd fail (ATA Only)\n",    ULTRACONSERVATIVE);  
-  printf("  %c  Warning: exit if Struct Checksum bad    (ATA Only)\n",    EXITCHECKSUMERROR);
-  printf("\nSMART Feature Enable/Disable Commands:\n");
-  printf("  %c  Enable  SMART data collection           (ATA/SCSI)\n",    SMARTENABLE);
-  printf("  %c  Disable SMART data collection           (ATA/SCSI)\n",    SMARTDISABLE);
-  printf("  %c  Enable  SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEENABLE);
-  printf("  %c  Disable SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEDISABLE);
-  printf("  %c  Enable  SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEENABLE);
-  printf("  %c  Disable SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEDISABLE);
-  printf("\nRead and Display Data Options:\n");
-  printf("  %c  Show SMART Status                       (ATA/SCSI)\n",    CHECKSMART);
-  printf("  %c  Show SMART General Attributes           (ATA Only)\n",    GENERALSMARTVALUES);
-  printf("  %c  Show SMART Vendor Attributes            (ATA Only)\n",    SMARTVENDORATTRIB);
-  printf("  %c  Show SMART Drive Error Log              (ATA Only\n",     SMARTERRORLOG);
-  printf("  %c  Show SMART Drive Self Test Log          (ATA Only)\n",    SMARTSELFTESTLOG);
-  printf("\nVendor-specific Attribute Display Options:\n");
-  printf("  %c  Raw Attribute id=009 stored in minutes  (ATA Only)\n",    SMART009MINUTES);
-  printf("\nSelf-Test Options (no more than one):\n");
-  printf("  %c  Execute Off-line data collection        (ATA/SCSI)\n",    SMARTEXEOFFIMMEDIATE);
-  printf("  %c  Execute Short Self Test                 (ATA/SCSI)\n",    SMARTSHORTSELFTEST );
-  printf("  %c  Execute Short Self Test (Captive Mode)  (ATA/SCSI)\n",    SMARTSHORTCAPSELFTEST );
-  printf("  %c  Execute Extended Self Test              (ATA/SCSI)\n",    SMARTEXTENDSELFTEST );
-  printf("  %c  Execute Extended Self Test (Captive)    (ATA/SCSI)\n",    SMARTEXTENDCAPSELFTEST );
-  printf("  %c  Execute Self Test Abort                 (ATA/SCSI)\n",    SMARTSELFTESTABORT );
-  printf("\nExamples:\n");
-  printf("  smartctl -etf /dev/hda  (Enables SMART on first disk)\n");
-  printf("  smartctl -a   /dev/hda  (Prints all SMART information)\n");
-  printf("  smartctl -X   /dev/hda  (Executes extended disk self-test)\n");
-  printf("  smartctl -qvL /dev/hda  (Prints Self-Test & Attribute errors.)\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  -h, --help, --usage\n\
+         Display this help and exit\n\
+  -?\n\
+         Same as -h\n\
+  -V, --version, --copyright, --license\n\
+         Print license, copyright, and version information\n\
+  -i, --info                                                          (ATA/SCSI)\n\
+         Show drive information\n\
+  -a, --all                                                           (ATA/SCSI)\n\
+         Show all SMART information for device\n\
+");
+#else
+  printf("\
+  -h        Display this help and exit\n\
+  -?        Same as -h\n\
+  -V        Print license, copyright, and version information\n\
+  -i        Show drive information                                    (ATA/SCSI)\n\
+  -a        Show all SMART information for device                     (ATA/SCSI)\n\
+");
+#endif
+  printf("\n");
+  printf("Run-time Behavior Options:\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  -q TYPE, --quietmode=TYPE                                           (ATA)\n\
+         Set the quiet mode to one of: errorsonly, silent\n\
+  -d TYPE, --device=TYPE\n\
+         Set the device type to one of: ata, scsi\n\
+  -T TYPE, --tolerance=TYPE                                           (ATA)\n\
+         Set tolerance to one of: normal, conservative, permissive\n\
+  -b TYPE, --badsum=TYPE                                              (ATA)\n\
+         Set action on bad checksum to one of: warn, exit, ignore\n\
+");
+#else
+  printf("\
+  -q TYPE   Set the quiet mode to one of: errorsonly, silent          (ATA)\n\
+  -d TYPE   Set the device type to one of: ata, scsi\n\
+  -T TYPE   Set tolerance to one of: normal, conservative, permissive (ATA)\n\
+  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n\
+");
+#endif
+  printf("\n");
+  printf("SMART Feature Enable/Disable Commands:\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  -s VALUE, --smart=VALUE                                             (ATA/SCSI)\n\
+        Enable/disable SMART (on/off)\n\
+  -o VALUE, --offlineauto=VALUE                                       (ATA)\n\
+        Enable/disable automatic offline testing (on/off)\n\
+  -S VALUE, --saveauto=VALUE                                          (ATA)\n\
+        Enable/disable attribute autosave (on/off)\n\
+");
+#else
+  printf("\
+  -s VALUE  Enable/disable SMART (on/off)                             (ATA/SCSI)\n\
+  -o VALUE  Enable/disable automatic offline testing (on/off)         (ATA)\n\
+  -S VALUE  Enable/disable attribute autosave (on/off)                (ATA)\n\
+");
+#endif
+  printf("\n");
+  printf("Read and Display Data Options:\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  -H, --health                                                        (ATA/SCSI)\n\
+        Show SMART health status\n\
+  -c, --capabilities                                                  (ATA)\n\
+        Show SMART capabilities\n\
+  -A, --attributes                                                    (ATA)\n\
+        Show SMART vendor-specific attributes and values\n\
+  -l TYPE, --log=TYPE                                                 (ATA)\n\
+        Show device log. Type is one of: error, selftest\n\
+  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n\
+        Set vendor specific OPTION for attribute N (see man page)\n\
+");
+#else
+  printf("\
+  -H        Show SMART health status                                  (ATA/SCSI)\n\
+  -c        Show SMART capabilities                                   (ATA)\n\
+  -A        Show SMART vendor-specific attributes and values          (ATA)\n\
+  -l TYPE   Show device log. Type is one of: error, selftest          (ATA)\n\
+  -v N,OPT  Set vendor specific OPTion for attribute N (see man page) (ATA)\n\
+");
+#endif
+  printf("\n");
+  printf("Self-Test Options:\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  -t TEST, --test=TEST                                                (ATA/SCSI)\n\
+        Test immediately.  TEST is one of: offline, short, long\n\
+  -C, --captive                                                       (ATA/SCSI)\n\
+        With -t, performs test in captive mode (short/long only)\n\
+  -X, --abort                                                         (ATA/SCSI)\n\
+        Abort any non-captive test\n\
+");
+#else
+  printf("\
+  -t TEST   Test immediately.  TEST is one of: offline, short, long   (ATA/SCSI)\n\
+  -C        With -t, performs test in captive mode (short/long only)  (ATA/SCSI)\n\
+  -X        Abort any non-captive test                                (ATA/SCSI)\n\
+");
+#endif
+  printf("\n");
+  printf("Examples:\n");
+#ifdef HAVE_GETOPT_LONG
+  printf("\
+  smartctl -a /dev/hda\n\
+                                           (Prints all SMART information)\n\
+  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n\
+                                           (Enables SMART on first disk)\n\
+  smartctl -t long /dev/hda\n\
+                                           (Executes extended disk self-test)\n\
+  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n\
+                                           (Prints Self-Test & Attribute errors)\n\
+");
+#else
+  printf("\
+  smartctl -a /dev/hda\n\
+                                           (Prints all SMART information)\n\
+  smartctl -s on -o on -S on /dev/hda\n\
+                                           (Enables SMART on first disk)\n\
+  smartctl -t long /dev/hda\n\
+                                           (Executes extended disk self-test)\n\
+  smartctl -A -l selftest -q errorsonly /dev/hda\n\
+                                           (Prints Self-Test & Attribute errors)\n\
+");
+#endif
 }
 
-const char shortopts[] = {
-  S_OPT_HELP,
-  S_OPT_ALT_HELP,
-  S_OPT_VERSION,
-  S_OPT_QUIETMODE,
-  ':',
-  S_OPT_DEVICE,
-  ':',
-  S_OPT_TOLERANCE,
-  ':',
-  S_OPT_BADSUM,
-  ':',
-  S_OPT_SMART,
-  ':',
-  S_OPT_OFFLINEAUTO,
-  ':',
-  S_OPT_SAVEAUTO,
-  ':',
-  S_OPT_HEALTH,
-  S_OPT_CAPABILITIES,
-  S_OPT_ATTRIBUTES,
-  S_OPT_LOG,
-  ':',
-  S_OPT_INFO,
-  S_OPT_ALL,
-  S_OPT_VENDORATTRIBUTE,
-  ':',
-  S_OPT_TEST,
-  ':',
-  S_OPT_CAPTIVE,
-  S_OPT_ABORT,
-  '\0'
-};
+/* Print an appropriate error message for option opt when given an invalid argument, optarg */
+void printbadargmessage(int opt, const char *optarg) {
+  const char **ps;
+
+  pout("=======> INVALID ARGUMENT: %s <======= \n", optarg);
+  pout("=======> VALID ARGUMENTS ARE: ");
+  switch (opt) {
+  case 'q':
+     pout("errorsonly, silent");
+     break;
+  case 'd':
+     pout("ata, scsi");
+     break;
+  case 'T':
+     pout("normal, conservative, permissive");
+     break;
+  case 'b':
+     pout("warn, exit, ignore");
+     break;
+  case 's':
+  case 'o':
+  case 'S':
+     pout("on, off");
+     break;
+  case 'l':
+     pout("error, selftest");
+     break;
+  case 'v':
+     // Print all strings in vendorattributeargs separated by commas.  The
+     // strings themselves contain commas, so surrounding double quotes are used
+     // for clarity.
+     for (ps = vendorattributeargs; *ps != NULL; ps++)
+       pout("\"%s\"%s", *ps, *(ps+1) ? ", " : "");
+     break;
+  case 't':
+     pout("offline, short, long");
+     break;
+  }
+  pout(" <======= \n\n");
+}
 
 unsigned char printcopyleft=0,tryata=0,tryscsi=0;
 
@@ -162,38 +259,36 @@ void ParseOpts (int argc, char** argv){
   int optchar;
   int badarg;
   int captive;
-  struct {
-    int n;
-    char *option;
-  } vendorattribute;
+  int i;
   extern char *optarg;
   extern int optopt, optind, opterr;
+  const char *shortopts = "h?Vq:d:T:b:s:o:S:HcAl:iav:t:CX";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   struct option longopts[] = {
-    { L_OPT_HELP,            no_argument,       0, S_OPT_HELP            },
-    { L_OPT_USAGE,           no_argument,       0, S_OPT_HELP            },
-    { L_OPT_VERSION,         no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_COPYRIGHT,       no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_LICENSE,         no_argument,       0, S_OPT_VERSION         },
-    { L_OPT_QUIETMODE,       required_argument, 0, S_OPT_QUIETMODE       },
-    { L_OPT_DEVICE,          required_argument, 0, S_OPT_DEVICE          },
-    { L_OPT_TOLERANCE,       required_argument, 0, S_OPT_TOLERANCE       },
-    { L_OPT_BADSUM,          required_argument, 0, S_OPT_BADSUM          },
-    { L_OPT_SMART,           required_argument, 0, S_OPT_SMART           },
-    { L_OPT_OFFLINEAUTO,     required_argument, 0, S_OPT_OFFLINEAUTO     },
-    { L_OPT_SAVEAUTO,        required_argument, 0, S_OPT_SAVEAUTO        },
-    { L_OPT_HEALTH,          no_argument,       0, S_OPT_HEALTH          },
-    { L_OPT_CAPABILITIES,    no_argument,       0, S_OPT_CAPABILITIES    },
-    { L_OPT_ATTRIBUTES,      no_argument,       0, S_OPT_ATTRIBUTES      },
-    { L_OPT_LOG,             required_argument, 0, S_OPT_LOG             },
-    { L_OPT_INFO,            no_argument,       0, S_OPT_INFO            },
-    { L_OPT_ALL,             no_argument,       0, S_OPT_ALL             },
-    { L_OPT_VENDORATTRIBUTE, required_argument, 0, S_OPT_VENDORATTRIBUTE },
-    { L_OPT_TEST,            required_argument, 0, S_OPT_TEST            },
-    { L_OPT_CAPTIVE,         no_argument,       0, S_OPT_CAPTIVE         },
-    { L_OPT_ABORT,           no_argument,       0, S_OPT_ABORT           },
-    { 0,                     0,                 0, 0                     }
+    { "help",            no_argument,       0, 'h' },
+    { "usage",           no_argument,       0, 'h' },
+    { "version",         no_argument,       0, 'V' },
+    { "copyright",       no_argument,       0, 'V' },
+    { "license",         no_argument,       0, 'V' },
+    { "quietmode",       required_argument, 0, 'q' },
+    { "device",          required_argument, 0, 'd' },
+    { "tolerance",       required_argument, 0, 'T' },
+    { "badsum",          required_argument, 0, 'b' },
+    { "smart",           required_argument, 0, 's' },
+    { "offlineauto",     required_argument, 0, 'o' },
+    { "saveauto",        required_argument, 0, 'S' },
+    { "health",          no_argument,       0, 'H' },
+    { "capabilities",    no_argument,       0, 'c' },
+    { "attributes",      no_argument,       0, 'A' },
+    { "log",             required_argument, 0, 'l' },
+    { "info",            no_argument,       0, 'i' },
+    { "all",             no_argument,       0, 'a' },
+    { "vendorattribute", required_argument, 0, 'v' },
+    { "test",            required_argument, 0, 't' },
+    { "captive",         no_argument,       0, 'C' },
+    { "abort",           no_argument,       0, 'X' },
+    { 0,                 0,                 0, 0   }
   };
 #endif
   
@@ -207,10 +302,10 @@ void ParseOpts (int argc, char** argv){
   while (-1 != (optchar = getopt(argc, argv, shortopts))) {
 #endif
     switch (optchar){
-    case S_OPT_VERSION:
+    case 'V':
       printcopyleft=TRUE;
       break;
-    case S_OPT_QUIETMODE:
+    case 'q':
       if (!strcmp(optarg,"errorsonly")) {
         con->quietmode     = TRUE;
         con->veryquietmode = FALSE;
@@ -221,7 +316,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_DEVICE:
+    case 'd':
       if (!strcmp(optarg,"ata")) {
         tryata  = TRUE;
         tryscsi = FALSE;
@@ -232,7 +327,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_TOLERANCE:
+    case 'T':
       if (!strcmp(optarg,"normal")) {
         con->conservative = FALSE;
         con->permissive   = FALSE;
@@ -246,7 +341,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_BADSUM:
+    case 'b':
       if (!strcmp(optarg,"warn")) {
         con->checksumfail   = FALSE;
         con->checksumignore = FALSE;
@@ -260,7 +355,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_SMART:
+    case 's':
       if (!strcmp(optarg,"on")) {
         con->smartenable  = TRUE;
         con->smartdisable = FALSE;
@@ -271,7 +366,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_OFFLINEAUTO:
+    case 'o':
       if (!strcmp(optarg,"on")) {
         con->smartautoofflineenable  = TRUE;
         con->smartautoofflinedisable = FALSE;
@@ -282,7 +377,7 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_SAVEAUTO:
+    case 'S':
       if (!strcmp(optarg,"on")) {
         con->smartautosaveenable  = TRUE;
         con->smartautosavedisable = FALSE;
@@ -293,16 +388,16 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_HEALTH:
+    case 'H':
       con->checksmart = TRUE;		
       break;
-    case S_OPT_CAPABILITIES:
+    case 'c':
       con->generalsmartvalues = TRUE;
       break;
-    case S_OPT_ATTRIBUTES:
+    case 'A':
       con->smartvendorattrib = TRUE;
       break;
-    case S_OPT_LOG:
+    case 'l':
       if (!strcmp(optarg,"error")) {
         con->smarterrorlog = TRUE;
       } else if (!strcmp(optarg,"selftest")) {
@@ -311,10 +406,10 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_INFO:
+    case 'i':
       con->driveinfo = TRUE;
       break;		
-    case S_OPT_ALL:
+    case 'a':
       con->driveinfo          = TRUE;
       con->checksmart         = TRUE;
       con->generalsmartvalues = TRUE;
@@ -322,20 +417,19 @@ void ParseOpts (int argc, char** argv){
       con->smarterrorlog      = TRUE;
       con->smartselftestlog   = TRUE;
       break;
-    case S_OPT_VENDORATTRIBUTE:
-      vendorattribute.option = (char *)malloc(strlen(optarg)+1);
-      if (sscanf(optarg,"%u,%s",&(vendorattribute.n),vendorattribute.option) != 2) {
+    case 'v':
+      for (i=0; vendorattributeargs[i] && strcmp(optarg,vendorattributeargs[i]); i++)
+        ;
+      switch (i) {
+      case 0:
+        con->smart009minutes = TRUE;
+        break;
+      default:
         badarg = TRUE;
+        break;
       }
-      if (vendorattribute.n == 9 && !strcmp(vendorattribute.option,"minutes")) {
-        con->smart009minutes=TRUE;
-      } else {
-        // Should handle this better
-        badarg = TRUE;
-      }
-      free(vendorattribute.option);
       break;
-    case S_OPT_TEST:
+    case 't':
       if (!strcmp(optarg,"offline")) {
         con->smartexeoffimmediate = TRUE;
         con->testcase             = OFFLINE_FULL_SCAN;
@@ -349,23 +443,23 @@ void ParseOpts (int argc, char** argv){
         badarg = TRUE;
       }
       break;
-    case S_OPT_CAPTIVE:
+    case 'C':
       captive = TRUE;
       break;
-    case S_OPT_ABORT:
+    case 'X':
       con->smartselftestabort = TRUE;
       con->testcase           = ABORT_SELF_TEST;
       break;
-    case S_OPT_HELP:
-    case S_OPT_ALT_HELP:
+    case 'h':
+    case '?':
     default:
       con->veryquietmode=FALSE;
       printslogan();
 #ifdef HAVE_GETOPT_LONG
       // Point arg to the argument in which this option was found.
       arg = argv[optind-1];
-      // Check whether the option is a long option and options that map to -h.
-      if (arg[1] == '-' && optchar != S_OPT_HELP) {
+      // Check whether the option is a long option that doesn't map to -h.
+      if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
         if (optopt && (strchr(shortopts, optopt) != NULL)) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n\n",arg+2);
@@ -390,7 +484,7 @@ void ParseOpts (int argc, char** argv){
       exit(0);	
     }
     if (badarg) {
-        pout("=======> INVALID ARGUMENT: %s <======= \n\n",optarg);
+        printbadargmessage(optchar, optarg);
         Usage();
 	exit(FAILCMD);
     }
@@ -502,8 +596,7 @@ int main (int argc, char **argv){
   else if (tryscsi)
     scsiPrintMain (device, fd);
   else {
-    pout("Smartctl: specify if this is an ATA or SCSI device with the -%c or -%c options respectively.\n",
-	 NOTSCSIDEVICE, NOTATADEVICE);
+    pout("Smartctl: specify if this is an ATA or SCSI device with the -d option.\n");
     Usage();
     return FAILCMD;
   }

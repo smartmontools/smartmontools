@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.46 2002/12/12 13:55:54 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.47 2002/12/19 00:05:19 pjwilliams Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -114,6 +114,13 @@ const int actual_ver[] = {
   6,		/* 0x001b	WARNING:	*/
   6,		/* 0x001c	WARNING:	*/
   0		/* 0x001d-0xfffe    		*/
+};
+
+// Array of valid argument strings for the -v option.  The order of elements is
+// important!
+const char *vendorattributeargs[] = {
+  "9,minutes",
+  NULL
 };
 
 // A replacement for perror() that sends output to our choice of

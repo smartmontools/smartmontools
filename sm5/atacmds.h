@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.26 2002/11/25 08:40:48 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.27 2002/12/19 00:05:19 pjwilliams Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -267,7 +267,9 @@ struct ata_smart_selftestlog {
   unsigned char chksum;
 } __attribute__ ((packed));
 
- 
+// Array of valid argument strings to the -v option.  Defined in atamain.c
+extern const char *vendorattributeargs[];
+
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity (int device, struct hd_driveid *buf);
 int ataReadSmartValues (int device,struct ata_smart_values *);
