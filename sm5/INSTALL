@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.16 2003/10/03 00:03:53 ballen4705 Exp $
+$Id: INSTALL,v 1.17 2003/10/03 17:38:27 pervalidus Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -29,8 +29,8 @@ Please see FAQ section of the URL above.
 [2] Installing from CVS
 =======================
 Get the sources from the CVS archive:
-cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
-cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5
+cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
+cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5
 (when prompted for a password, just press Enter)
 
 Then type:
@@ -45,7 +45,7 @@ need GNU Autoconf, GNU Automake, and their dependencies installed in
 order to run it.
 
 
-[3] Installing from the Source Tarball
+[3] Installing from the source tarball
 ======================================
 If you are NOT installing from CVS, then unpack the tarball:
 tar zxvf smartmontools-5.VERSION.tar.gz
@@ -69,13 +69,13 @@ Hat, Slackware, and some other Linux distributions.
 For different installation locations or distributions, simply change
 add arguments to ./configure as shown in [4] below.
 
-[4] Guidelines for different linux distributions
+[4] Guidelines for different Linux distributions
 ================================================
 
-Note: PLEASE send corrections/additions to:
+Note: Please send corrections/additions to:
 smartmontools-support@lists.sourceforge.net
 
-REDHAT
+Red Hat
  ./configure
  OR EQUIVALENTLY
  ./configure --sbindir=/usr/sbin                               \
@@ -84,7 +84,7 @@ REDHAT
              --with-initscriptdir=/etc/rc.d/init.d             \
              --with-docdir=/usr/share/doc/smartmontools-VERSION
 
-FILESYSTEM HIERARCHY STANDARD (FHS), FreeBSD
+Filesystem Hierarchy Standard (FHS), FreeBSD
   ./configure --sbindir=/usr/local/sbin                               \
               --sysconfdir=/usr/local/etc                             \
               --mandir=/usr/local/man                                 \
@@ -94,24 +94,26 @@ FILESYSTEM HIERARCHY STANDARD (FHS), FreeBSD
 SuSE
   ./configure [PLEASE ADD]
 
-DEBIAN
+Debian
  ./configure --prefix=/usr/local
 
-SLACKWARE
+Slackware
  ./configure --sbindir=/usr/sbin                               \
              --sysconfdir=/etc                                 \
              --mandir=/usr/share/man                           \
              --with-initscriptdir=/etc/rc.d                    \
              --with-docdir=/usr/share/doc/smartmontools-VERSION
 
-A Slackware init script is usually called from /etc/rc.d/rc.M with
-something like:
+The included init script works on Slackware. You just have to add an
+entry like the following in /etc/rc.d/rc.M or /etc/rc.d/rc.local:
 
 if [ -x /etc/rc.d/smartd ]; then
-  . /etc/rc.d/smartd
+  . /etc/rc.d/smartd start
 fi
 
-It is disabled by default with chmod 644.
+You can disable it with chmod 644.
+
+Run /etc/rc.d/smartd for a list of options.
 
 [5] Comments
 ============
@@ -172,7 +174,7 @@ The following files are installed:
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-[6] DETAILED DESCRIPTION OF ARGUMENTS TO CONFIGURE COMMAND
+[6] Detailed description of arguments to configure command
 ==========================================================
 
 When you type:
@@ -241,4 +243,3 @@ described in http://www.pathname.com/fhs/ please use:
 
 Additional information about using configure can be found here:
 http://www.gnu.org/manual/autoconf-2.57/html_mono/autoconf.html#SEC139
-
