@@ -16,20 +16,21 @@ run it.
 
 ./configure
 
-With no options, as shown, this defaults to --prefix=/usr
---sysconfdir=/etc --mandir=/usr/share/man --docdir=/usr/share/doc, which
-are correct for Red Hat, Slackware, and probably other Linux
+With no options, as shown, this defaults to --prefix=/usr --sysconfdir=/etc
+--mandir=/usr/share/man --with-docdir=/usr/share/doc/smartmontools-${VERSION},
+which are correct for Red Hat, Slackware, and probably other Linux
 distributions.
+
 
 Red Hat (default)
 -----------------
 ./configure
 OR
-./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man  --initscriptdir=/etc/rc.d/init.d
+./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man  --with-initscriptdir=/etc/rc.d/init.d --with-docdir=/usr/share/doc/smartmontools-${VERSION}
 
 File System Hierarchy Standard (FHS), FreeBSD
 ---------------------------------------------
-./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --datadir=/usr/local/share --mandir=/usr/local/man  --initscriptdir=/usr/local/etc/rc.d/init.d
+./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --datadir=/usr/local/share --mandir=/usr/local/man  --with-initscriptdir=/usr/local/etc/rc.d/init.d
 
 Slackware
 ---------
@@ -61,7 +62,8 @@ SuSE
 
 Debian
 ------
-./configure [PLEASE ADD]
+./configure --prefix=/usr/local
+
 
 Others Distributions or Operating Systems [PLEASE ADD]
 ------------------------------------------------------
@@ -147,6 +149,10 @@ OPTIONS        DEFAULT             AFFECTS
                                    contents of smartd/smartd.conf man pages
 --mandir       [/usr/share/man]    directory for smartctl/smartd/smartd.conf man pages
 --prefix       [no default value]  See below, please
+--with-initscriptdir=dir           Location of init scripts
+               [${sysconfdir}/init.d/rc.d]  
+--with-docdir=dir		   Location of the documentation
+               [${prefix}/share/doc/smartmontools-${VERSION}]		
 
 If you set --prefix and NONE of the other four variables, for example:
 ./configure --prefix=/home/joe
@@ -156,7 +162,7 @@ variables then the different directories that are used will be:
 --sbindir      [/home/joe/usr/sbin]
 --sysconfdir   [/home/joe/etc]
 --datadir      [/home/joe/usr/share]
---mandir       [/home/joe/usr/share/man]
+--mandir       [/home/joe/usr/man]
 This is useful for test installs in a harmless subdirectory somewhere.
 
 Here are the four possible cases for the four variables above:
@@ -169,7 +175,7 @@ Case 1:
 Case 2:
 --prefix set
 --variable not set
-===> VARIABLE gets PREFIX/ appended to default value above
+===> VARIABLE gets PREFIX/ prepended to default value above
 
 Case 3:
 --prefix not set
@@ -184,13 +190,7 @@ Case 4:
 
 For Filesystem Hierarchy Standard (FHS) installation locations
 described in http://www.pathname.com/fhs/ please use:
---sbindir=     /usr/local/sbin
---sysconfidir= /usr/local/etc
---datadir=     /usr/local/share
---mandir=      /usr/local/man
-In this case, there is no need to set a value for --prefix: if you set
-a value of --prefix it will be ignored
-
+--prefix=/usr/local
 
 
 Follows the standard INSTALL file from GNU Automake.
