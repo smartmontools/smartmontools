@@ -52,6 +52,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <glob.h>
+#include <linux/hdreg.h>
 
 #include "atacmds.h"
 #include "config.h"
@@ -60,7 +61,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.33 2003/12/07 19:59:08 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.34 2003/12/08 20:36:03 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -277,10 +278,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   unsigned char buff[STRANGE_BUFFER_LENGTH];
   int retval, copydata=0;
 
-  // The two linux IOCTL's that we use.  These MUST be consistent with
-  // the same quantities in the kernel include file linux/hdreg.h
-  const int HDIO_DRIVE_TASK = 0x031e;
-  const int HDIO_DRIVE_CMD  = 0x031f;
   const int HDIO_DRIVE_CMD_OFFSET = 4;
 
   // See struct hd_drive_cmd_hdr in hdreg.h
@@ -414,7 +411,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // command set, and return 'Command Aborted' to IDENTIFY DEVICE.
   if (command==IDENTIFY || command==PIDENTIFY){
     unsigned char deviceid[512];
-    const int HDIO_GET_IDENTITY=0x030d;
     // check the device identity, as seen when the system was booted
     // or the device was FIRST registered.  This will not be current
     // if the user has subsequently changed some of the parameters. If
