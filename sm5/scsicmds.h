@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.34 2003/10/13 12:43:22 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.35 2003/11/11 11:02:58 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,6 +162,13 @@ struct scsiNonMediumError {
 #define SELFTEST_RESULTS_PAGE                   0x10
 #define IE_LOG_PAGE                             0x2f
 
+/* Seagate vendor specific log pages. */
+#define SEAGATE_CACHE_LOG_PAGE                  0x37
+#define SEAGATE_FACTORY_LOG_PAGE                0x3e
+
+/* Log page response lengths */
+#define LOG_RESP_SELF_TEST_LEN 0x194
+
 /* See the SSC-2 document at www.t10.org . Earler note: From IBM 
 Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_PAGE                         0x2e
@@ -282,14 +289,12 @@ int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
 int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 int scsiSetExceptionControlAndWarning(int device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
-int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
-        UINT8 *byte_2p, UINT8 *mrie_p, unsigned int *interval_timer_p,
-        unsigned int *report_count_p);
 void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
                                 struct scsiNonMediumError *nmep);
 int scsiFetchExtendedSelfTestTime(int device, int * durationSec);
+int scsiCountSelfTests(int fd, int noisy);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
