@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.42 2003/01/05 20:05:32 pjwilliams Exp $
+\# $Id: smartctl.8,v 1.43 2003/01/06 00:54:16 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/05 20:05:32 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/01/06 00:54:16 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -379,28 +379,35 @@ took place.  [Note: this time stamp wraps after 2^32 milliseconds, or
 The key ATA disk registers are also recorded in the log.
 
 .I selftest
-\- prints only the S.M.A.R.T. self-test log.  The disk maintains a
-log showing the results of the self tests, which can be run using
-the '\-t' option described below.  The log will show, for each of
-the most recent twenty-one self-tests, the type of
-test (short or extended, off-line or captive) and the final status of
-the test.  If the test did not complete successfully, the percentage
-of the test remaining is show.  The time at which the test took place,
-measured in hours of disk lifetime, is shown.  If any errors were
-detected, the Logical Block Address (LBA) of the first error is printed
-in hexadecimal notation.
+\- prints only the S.M.A.R.T. self-test log.  The disk maintains a log
+showing the results of the self tests, which can be run using the
+\'\-t' option described below.  For each of the most recent twenty-one
+self-tests, the log shows the type of test (short or extended,
+off-line or captive) and the final status of the test.  If the test
+did not complete successfully, then the percentage of the test
+remaining is shown.  The time at which the test took place, measured
+in hours of disk lifetime, is also printed.  If any errors were
+detected, the Logical Block Address (LBA) of the first error is
+printed in hexadecimal notation.
 
 .I selftest [SCSI]
-\- the self-test log for a SCSI device has a slightly different format.
-The log will show, for each of the most recent twenty self-tests, the type
-of test and the status (final or in progress) of the test. SCSI standards
-use the terms foreground and background (rather than ATA's captive and 
-off-line); and long (rather ATA's extended). The segment number column is
-only relevant when a test fails in the third or later test segment. The
-Logical Block Address (LBA) of the first error is printed in hexadecimal 
-notation. If provided, a SCSI sense key (SK), additional sense code (ASC)
-and additional sense qualifier (ASQ) is output. The self tests can be
-run using the '\-t' option described below (use ATA's test terminology).
+\- the self-test log for a SCSI device has a slightly different format
+than for an ATA device.  For each of the most recent twenty
+self-tests, it shows the type of test and the status (final or in
+progress) of the test. SCSI standards use the terms 'foreground' and
+\'background' (rather than ATA's corresponding 'captive' and
+\'off-line') and \'short' and 'long' (rather than ATA's corresponding
+\'short' and 'extended') to describe the type of the test.  The printed
+segment number is only relevant when a test fails in the third or
+later test segment.  It identifies the test that failed and consists
+of either the number of the segment that failed during the test, or
+the number of the test that failed and the number of the segment in
+which the test was run, using a vendor-specific method of putting both
+numbers into a single byte.  The Logical Block Address (LBA) of the
+first error is printed in hexadecimal notation. If provided, the SCSI
+Sense Key (SK), Additional Sense Code (ASC) and Additional Sense Code
+Qualifier (ASQ) are also printed. The self tests can be run using the
+\'\-t' option described below (using the ATA test terminology).
 
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
@@ -408,7 +415,8 @@ Sets a vendor-specific display OPTION for Attribute N.  Valid
 arguments to this option are:
 
 .I help
-\- Prints (to STDOUT) a list of all valid arguments to this option.
+\- Prints (to STDOUT) a list of all valid arguments to this option,
+then exits.
 
 .I 9,minutes
 \- Raw Attribute number 9 is power-on time in minutes.  It will be
@@ -668,4 +676,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.42 2003/01/05 20:05:32 pjwilliams Exp $
+$Id: smartctl.8,v 1.43 2003/01/06 00:54:16 ballen4705 Exp $
