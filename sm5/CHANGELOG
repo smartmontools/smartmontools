@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.107 2003/03/28 07:25:26 dpgilbert Exp $
+$Id: CHANGELOG,v 1.108 2003/04/02 00:35:07 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,12 @@ CURRENT RELEASE (see VERSION file in this directory):
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
 smartmontools-5.1-9
+  [BA] Replaced all linux-specific ioctl() calls in atacmds.c with
+       a generic handler smartcommandhandler().  Now the only routine
+       that needs to be implemented for a given OS is os_specific_handler().
+       Also implemented the --report ataioctl.  Note, I currently assume
+       that this will be set for two levels of reporting.
+
   [DG] more scsi cleanup. Output scsi device serial number (VPD page
        0x80) if available as part of '-i'. Implement '-t offline' as
        default self test (only self test older disks support).

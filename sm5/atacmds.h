@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.36 2003/04/01 22:05:03 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.37 2003/04/02 00:35:07 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -45,12 +45,10 @@ typedef enum {
   ENABLE,
   DISABLE,
   AUTOSAVE,
-  SAVE,
   IMMEDIATE_OFFLINE,
   AUTO_OFFLINE,
   STATUS,
   STATUS_CHECK,
-
   // return 512 bytes of data:
   READ_VALUES,
   READ_THRESHOLDS,
@@ -58,9 +56,6 @@ typedef enum {
   IDENTIFY,
   PIDENTIFY
 } smart_command_set;
-
-
-
 
 /* These defines SHOULD BE in the kernel
    if not we define them */
