@@ -42,8 +42,8 @@
 #include "smartctl.h"
 #include "utility.h"
 
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.79 2003/07/20 20:46:42 ballen4705 Exp $"
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.80 2003/08/04 12:58:40 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -71,6 +71,8 @@ void printcopy(){
   printone(out,atacmds_c_cvsid);
   pout("%s",out);
   printone(out,ataprint_c_cvsid);
+  pout("%s",out);
+  printone(out,escalade_c_cvsid);
   pout("%s",out);
   printone(out,knowndrives_c_cvsid);
   pout("%s",out);
@@ -114,7 +116,7 @@ void Usage (void){
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent\n\n"
 "  -d TYPE, --device=TYPE\n"
-"         Specify device type to one of: ata, scsi\n\n"
+"         Specify device type to one of: ata, scsi, 3ware,N\n\n"
 "  -T TYPE, --tolerance=TYPE                                           (ATA)\n"
 "         Set tolerance to one of: normal, conservative, permissive\n\n"
 "  -b TYPE, --badsum=TYPE                                              (ATA)\n"
@@ -125,7 +127,7 @@ void Usage (void){
 #else
   printf(
 "  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
-"  -d TYPE   Specify device type to one of: ata, scsi\n"
+"  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N\n"
 "  -T TYPE   Set tolerance to one of: normal, conservative, permissive (ATA)\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n\n"
@@ -240,7 +242,7 @@ const char *getvalidarglist(char opt) {
   case 'q':
     return "errorsonly, silent";
   case 'd':
-    return "ata, scsi";
+    return "ata, scsi, 3ware,N";
   case 'T':
     return "normal, conservative, permissive";
   case 'b':
@@ -374,13 +376,43 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'd':
       if (!strcmp(optarg,"ata")) {
-        tryata  = TRUE;
-        tryscsi = FALSE;
+	tryata  = TRUE;
+	tryscsi = FALSE;
       } else if (!strcmp(optarg,"scsi")) {
-        tryata  = FALSE;
-        tryscsi = TRUE;
+	tryata  = FALSE;
+	tryscsi = TRUE;
       } else {
-        badarg = TRUE;
+	// look for RAID-type device
+	int i;
+        char *s;
+	// make a copy of the string to mess with
+	if (!(s = strdup(optarg))) {
+          con->veryquietmode = FALSE;
+          pout("Can't allocate memory to copy argument to -d option"
+               " - exiting\n");
+          exit(FAILCMD);
+        }
+        if (split_report_arg2(s, &i)) {
+          badarg = TRUE;
+        } else if (!strcmp(s,"3ware")) {
+	  if (i>15){
+	    pout("3ware RAID controller disk number %d too large in -d 3ware,N\n"
+		 "argument. 3ware RAID controller disk numbers 0...15 allowed\n", i);
+	    exit(FAILCMD);
+	  }
+	  if (i<0){
+	    pout("-d 3ware argument must be of form -d3ware,N\n"
+		 "where N is a non-negative integer 0 <= N <= 15\n");
+	    exit(FAILCMD);
+	  }
+	  // NOTE: escalade = disk number + 1
+          con->escalade = i+1;
+	  tryata  = TRUE;
+	  tryscsi = FALSE;
+	} else {
+          badarg = TRUE;
+	}
+        free(s);
       }
       break;
     case 'T':

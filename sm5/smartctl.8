@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.78 2003/07/31 11:13:00 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.79 2003/08/04 12:58:40 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/07/31 11:13:00 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/08/04 12:58:40 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -139,9 +139,24 @@ found is to use the exit status of
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP and \fIscsi\fP.  If this option is not used then
-.B smartctl
-will attempt to guess the device type from the device name.
+are \fIata\fP and \fIscsi\fP and \fI3ware,N\fP. If this option is not
+used then \fBsmartctl\fP will attempt to guess the device type from
+the device name.
+
+\fBWARNING\fP: The code to look at ATA disks behind 3ware SCSI RAID
+controllers is highly experimental.  To access it, use syntax such as
+.fi
+\fBsmartctl -a -d 3ware,2 /dev/sda\fP
+.fi
+where in the argument \fI3ware,N\fP, the integer N is the disk number
+within the 3ware ATA RAID controller.  The allowed values of N are
+from 0 to 15 inclusive.  In the current code, for technical reasons
+related to the 3w-xxxx driver, the \"Enable Autosave\", \"Enable
+Automatic Offline\" commands are not implemented.  For similar
+reasons, the \"SMART RETURN STATUS\" command is not implemented, so
+that the SMART Health Status is always reported as \"passing\" even
+if it should be reported as \"failing\".
+
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 Specifies how tolerant
@@ -956,4 +971,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.78 2003/07/31 11:13:00 ballen4705 Exp $
+$Id: smartctl.8,v 1.79 2003/08/04 12:58:40 ballen4705 Exp $

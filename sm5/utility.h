@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.10 2003/06/19 03:27:53 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.11 2003/08/04 12:58:40 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -38,8 +38,6 @@
 void dateandtimezone(char *buffer);
 // Same, but for time defined by epoch tval
 void dateandtimezoneepoch(char *buffer, time_t tval);
-
-
 
 // utility function for printing out CVS strings
 #define CVSMAXLEN 1024
@@ -64,6 +62,8 @@ int compileregex(regex_t *compiled, const char *pattern, int cflags);
 
 // Function for processing -r option in smartctl and smartd
 int split_report_arg(char *s, int *i);
+// Function for processing -c option in smartctl and smartd
+int split_report_arg2(char *s, int *i);
 
 // Guess device type (ata or scsi) based on device name (Linux specific)
 #define GUESS_DEVTYPE_ATA       0
@@ -73,5 +73,10 @@ int guess_linux_device_type(const char * dev_name);
 
 // run time, determine byte ordering
 int isbigendian();
+
+// These are the major and minor versions for smartd and smartctl
+#define PROJECTHOME "http://smartmontools.sourceforge.net/"
+#define RELEASE_MAJOR 5
+#define RELEASE_MINOR 1
 
 #endif

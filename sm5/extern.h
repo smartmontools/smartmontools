@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.25 2003/07/19 10:21:37 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.26 2003/08/04 12:58:40 ballen4705 Exp $\n"
 #endif
 
 // For development and testing of Selective self-test code
@@ -79,6 +79,9 @@ typedef struct smartmonctrl_s {
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
+  // If nonzero, escalade is 1 plus the disk number behind an escalade
+  // controller
+  unsigned char escalade;
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of

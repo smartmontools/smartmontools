@@ -49,8 +49,8 @@
 #include "smartd.h"
 #include "utility.h"
 
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.176 2003/08/01 13:09:10 ballen4705 Exp $" 
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.177 2003/08/04 12:58:40 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1851,6 +1851,8 @@ void PrintCopyleft(void){
   printone(out,atacmds_c_cvsid);
   printout(LOG_INFO,"%s",out);
   printone(out,ataprint_c_cvsid);
+  printout(LOG_INFO,"%s",out);
+  printone(out,escalade_c_cvsid);
   printout(LOG_INFO,"%s",out);
   printone(out,knowndrives_c_cvsid);
   printout(LOG_INFO,"%s",out);

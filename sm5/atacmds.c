@@ -29,10 +29,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "atacmds.h"
-#include "utility.h"
+#include "escalade.h"
 #include "extern.h"
+#include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.111 2003/07/19 10:21:37 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.112 2003/08/04 12:58:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -451,6 +452,7 @@ void swap4(char *location){
   return;
 }
 
+
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
 //   parts of the code, and to provide a debugging interface.  Each
@@ -478,7 +480,7 @@ void swap4(char *location){
 // Otherwise a 4+512 byte buffer would be enough.
 #define STRANGE_BUFFER_LENGTH (4+512*0xf8)
 
-int os_specific_handler(int device, smart_command_set command, int select, char *data){
+int linux_ata_command_interface(int device, smart_command_set command, int select, char *data){
   unsigned char buff[STRANGE_BUFFER_LENGTH];
   int retval, copydata=0;
 
@@ -545,7 +547,7 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
     buff[1]=SMART_STATUS;
     break;
   default:
-    pout("Unrecognized command %d in os_specific_handler()\n", command);
+    pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
     exit(1);
     break;
   }
@@ -595,6 +597,7 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
   
   return 0; 
 }
+
 
 static char *commandstrings[]={
   [ENABLE]=           "SMART ENABLE",
@@ -655,7 +658,10 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   }
   
   // now execute the command
-  retval=os_specific_handler(device, command, select, data);
+  if (con->escalade)
+    retval=linux_3ware_command_interface(device, con->escalade-1, command, select, data);
+  else
+    retval=linux_ata_command_interface(device, command, select, data);
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){
@@ -1074,6 +1080,7 @@ int ataDisableAutoOffline (int device ){
 // This function does NOTHING except tell us if SMART is working &
 // enabled on the device.  See ataSmartStatus2() for one that actually
 // returns SMART status.
+#if 0
 int ataSmartStatus (int device ){	
   
   if (smartcommandhandler(device, STATUS, 0, NULL)){
@@ -1082,6 +1089,7 @@ int ataSmartStatus (int device ){
   }
   return 0;
 }
+#endif
 
 // If SMART is enabled, supported, and working, then this call is
 // guaranteed to return 1, else zero.  Silent inverse of
