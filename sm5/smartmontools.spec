@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}.%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.77 2003/01/04 10:28:35 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.78 2003/01/04 10:30:06 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,7 +252,7 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
-* Sat Jan 4 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+* Sat Jan 4 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [DG] add '-l selftest' capability for SCSI devices (update smartctl.8)
 - [BA] smartd,smartctl: added additional Attribute modification option
   -v 220,temp and -v 9,temp.
@@ -266,6 +266,7 @@ fi
 - [BA] smartd: fflush() all open streams before fork().
 - [BA] smartctl, smartd simplified internal handling of checksums
   for simpler porting and less code.
+
 * Sun Dec 8 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [PW] smartd --debugmode changed to --debug
 - [BA] smartd/smartctl added attribute 230 Head Amplitude from
