@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.7 2003/10/31 10:02:02 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.8 2003/10/31 10:24:28 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -67,10 +67,6 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    exit $RETVAL
             ;;
 	restart)
-	    $0 stop
-	    $0 start
-	    ;;
-	reload)
 	    $0 stop
 	    $0 start
 	    ;;
