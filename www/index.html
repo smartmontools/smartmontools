@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/26 00:53:17 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/26 03:42:16 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.128 2004/02/26 00:53:17 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.129 2004/02/26 03:42:16 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -529,7 +529,7 @@ driver/firmware/utility package version 7.7.0.
 <p>As of 20040225, <a
 href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
 merged in changes from his <i>RELEASE_5_26_WIN32_BRANCH</i> CVS branch
-that allow current CVS to compile and run on <a
+, allowing current CVS to compile and run on <a
 href="http://www.cygwin.com/">Cygwin</a>.</p>
 
 <p>A Cygwin package (requires Cygwin <b>1.5.7 or greater</b>) is
@@ -538,8 +538,20 @@ href="http://ftp1.sourceforge.net/cygwin/binaries/">here</a>.</p>
 
 <p>To install it, use Cygwin's <a
 href="http://www.cygwin.com/setup.exe">setup.exe</a>. Add
-http://ftp1.sourceforge.net/cygwin/ in <i>Choose Download Site(s)</i>
-and follow as usual.</p>
+<b>http://ftp1.sourceforge.net/cygwin/</b> in <i>Choose Download
+Site(s)</i> and follow as usual. If you want to manually install it (not
+recommended because, among others, you lose the ability to update and
+uninstall it), type:</p>
+
+<pre>
+tar jxf smarmontools-5.30-20040225-1.tar.bz2 -C /
+
+from a Cygwin shell.
+</pre>
+
+<p>The binaries (<b>smartctl.exe</b> and <b>smartd.exe</b>) are
+installed in <i>/usr/sbin</i>. My <i>/etc/smartd.conf</i> configuration
+file has a single line with <i>/dev/hda -a -d ata -I 194</i>.</p>
 
 <p>A smartctl binary that doesn't depend on Cygwin (compiled with
 Cygwin's <i>-mno-cygwin</i>) is available <a
@@ -549,8 +561,8 @@ switch (acting like <a href="http://www.mingw.org/">MinGW</a>) or MSVC
 haven't yet been merged.</p>
 
 <p>Below are parts of an e-mail Christian sent to the smartmontool-devel
-mailing-list. I, Frédéric, also tested smartd.exe on Cygwin, but only
-have access to Windows XP Professional SP1 and a single hard drive.</p>
+mailing-list. I also tested smartd.exe on Cygwin, but only have access
+to Windows XP Professional SP1 and a single hard drive.</p>
 
 <pre>
 Win32 port - file organization, features and problems
@@ -964,8 +976,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/26 00:53:17 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.128 2004/02/26 00:53:17 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/02/26 03:42:16 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.129 2004/02/26 03:42:16 pervalidus Exp $</tt>
 
 <hr size="2" />
 
