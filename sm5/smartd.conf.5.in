@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.38 2004/03/15 17:26:35 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.39 2004/04/01 21:02:11 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -517,6 +517,11 @@ you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
 
+Windows/Native: The mail warning facility is not implemented yet.
+By specifying \'\fB-m msgbox\fP\', a warning "email" is displayed
+as a message box on the screen. With \'\fB-m sysmsgbox\fP\', a system
+modal (always on top) message box is used.
+
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
@@ -693,6 +698,10 @@ discarded.
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
+
+Windows/Native: \'-M exec\' is not implemented yet.
+The other \'-M\' directives work in conjunction with the display of
+warning message boxes by \'-m msgbox\' or \'-m sysmsgbox\' (see above).
 
 .TP
 .B \-f
@@ -1088,4 +1097,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.38 2004/03/15 17:26:35 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.39 2004/04/01 21:02:11 chrfranke Exp $
