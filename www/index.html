@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/08/20 09:21:33 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/08/29 05:45:19 $)</title>
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.79 2003/08/20 09:21:33 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.80 2003/08/29 05:45:19 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -252,19 +252,6 @@ attributes, please send an email to <a href="http://lists.sourceforge.net/mailma
 smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
 
-<li><b>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
-
-<p>On some recent disks, Maxtor has started to use Attribute 9 to
-store the lifetime in minutes rather than hours.  In this case, use
-the -m option (smartctl versions 5.0.X) or the
---vendorattribute=9,minutes (smartctl 5.1.X) option to correctly
-display hours and minutes.
-</p>
-<p>Some models of Fujitsu disks are known to use Attribute 9
-for lifetime in seconds. In that case, use the --vendorattribute=9,seconds
-option to correctly display hours, minutes and seconds.</p>
-</li>
-
 <li><b>What Kernel Version is needed? (Linux)</b>
 
 <p>
@@ -290,8 +277,7 @@ required HDIO_DRIVE_TASK ioctl() is supported.
 
 <li><b>What attributes does smartmontools not yet recognize?</b>
 
-<p>From a Hitachi disk: (250). From
-Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208), (209).
+<p>From Maxtor disks (99), (100), (101)
 </p>
 
 <p>If you can attach names/meanings to these attributes, please send a
@@ -302,6 +288,54 @@ SMART utilities (especially manufacturer-specific ones, see
 below) and can send us comparison output from smartctl and the other
 utility, that's especially useful.</p></li>
 
+<li><b>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
+
+<p>On some recent disks, Maxtor has started to use Attribute 9 to
+store the lifetime in minutes rather than hours.  In this case, use
+the -m option (smartctl versions 5.0.X) or the
+--vendorattribute=9,minutes (smartctl 5.1.X) option to correctly
+display hours and minutes.
+</p>
+<p>Some models of Fujitsu disks are known to use Attribute 9
+for lifetime in seconds. In that case, use the --vendorattribute=9,seconds
+option to correctly display hours, minutes and seconds.</p>
+</li>
+
+<li><b>The power-on timer (Attribute 9 raw value) on my Maxtor disk acts strange.</b>
+
+<p>There are three related problems with Maxtor's SMART firmware:
+</p>
+
+<p>
+<b>1 - </b>
+On some disks from 2001/2002, the raw value of Attribute 9 (Power On
+Time) is <i>supposed</i> to be minutes. But it advances at an
+unpredictable rate, always more slowly than one count per minute.  One
+(unconfirmed) theory is that when the disk is in idle mode, the
+counter stops advancing.  This is only supposed to happen in standby
+mode.
+</p>
+
+<p>
+<b>2 - </b>
+In Maxtor disks that use the raw value of Attribute 9 as a minutes
+counter, only two bytes (of the six available) are used to store the
+raw value.  So it resets to zero once every 65536=2^16 minutes, or
+about once every 1092 hours. This should get fixed.
+</p>
+
+<p>
+<b>3 - </b>
+In Maxtor disks that use the raw value of Attribute 9 as a minutes
+counter, the hour time-stamps in the self-test and ATA error logs are
+calculated by right shifting 6 bits.  This is equivalent to dividing
+by 64 rather than by 60.  As a result, the hour time stamps in these
+logs advance 7% more slowly than they should.  Thus, if you do
+self-tests once per week at the same time, instead of the time-stamps
+being 168 hours apart, they are 157 hours apart.  This should also get
+fixed.
+</p>
+</li>
 
 <li><b>Where can I find manufacturer-specific disk-testing utilities?</b>
 
@@ -592,8 +626,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/08/20 09:21:33 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.79 2003/08/20 09:21:33 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2003/08/29 05:45:19 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.80 2003/08/29 05:45:19 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
