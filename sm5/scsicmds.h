@@ -1,4 +1,4 @@
-//  $Id: scsicmds.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
+//  $Id: scsicmds.h,v 1.6 2002/10/22 08:43:22 ballen4705 Exp $
 /*
  * scsicmds.h
  *
@@ -27,6 +27,38 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
+
+#ifndef LOG_SENSE
+#define LOG_SENSE 0x4d
+#endif
+
+#ifndef MODE_SENSE
+#define MODE_SENSE 0x1a
+#endif
+
+#ifndef MODE_SELECT
+#define MODE_SELECT 0x15
+#endif
+
+#ifndef MODE_SELECT_10
+#define MODE_SELECT_10 0x55
+#endif
+
+#ifndef INQUIRY
+#define INQUIRY 0x12
+#endif
+
+#ifndef REQUEST_SENSE
+#define REQUEST_SENSE  0x03
+#endif
+
+#ifndef RECEIVE_DIAGNOSTIC
+#define RECEIVE_DIAGNOSTIC  0x1c
+#endif
+
+#ifndef SEND_DIAGNOSTIC
+#define SEND_DIAGNOSTIC  0x1d
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
