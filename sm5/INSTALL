@@ -1,3 +1,11 @@
+Any recent Linux distribution should support this package.  Note that
+smartmontools requires Linux kernel 2.2.14 or greater in order to run at
+all.  But to give the ATA RETURN SMART STATUS command, the kernel needs
+to support the HDIO_DRIVE_TASK ioctl().  Any 2.4 series kernel should
+provide this support.  I am told that some of the 2.2.20 and later
+kernels also provide this support if they are properly
+patched/configured.
+
 To install, use the commands:
 
 ./autogen.sh (only required when installing from CVS)
@@ -6,10 +14,17 @@ make
 make install
 
 Please read the manual pages for smartctl, smartd, and smartd.conf for
-more information.
+more information:
+
+man smartctl.conf
+man smartctl
+man smartd
+
+Source and binary RPM files are available at
+http://sourceforge.net/project/showfiles.php?group_id=64297
 
 Refer to http://smartmontools.sourceforge.net/index.html#howtodownload
-for more installation instructions.
+for additional installation instructions.
 
 Seventeen files are installed:
 /usr/sbin/smartctl				[Executable command-line utility]
@@ -22,7 +37,7 @@ Seventeen files are installed:
 /usr/share/doc/smartmontools-5.1/COPYING	[GNU General Public License Version 2] 
 /usr/share/doc/smartmontools-5.1/INSTALL	[What you're reading!]
 /usr/share/doc/smartmontools-5.1/NEWS		[A log of changes. Also see CVS]
-/usr/share/doc/smartmontools-5.1/README		[]
+/usr/share/doc/smartmontools-5.1/README		[Overview]
 /usr/share/doc/smartmontools-5.1/TODO		[Things that need to be done/fixed]
 /usr/share/doc/smartmontools-5.1/VERSION	[Version number]
 /usr/share/doc/smartmontools-5.1/WARNINGS	[Systems where lockups or other serious problems reported]
