@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.497 2004/12/16 11:59:43 chrfranke Exp $
+$Id: CHANGELOG,v 1.498 2004/12/27 21:25:35 geoffk1 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [GK] smartd: Detect most self-test failures even if the hour counter
+       has wrapped.
 
   [BA] smartctl: list 'marvell' as option if user give invalid
        -d argument
