@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.75 2003/04/02 18:24:40 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.76 2003/04/02 18:37:16 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -499,7 +499,9 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
     buff[5]=normal_hi;
     
     // HDIO_DRIVE_TASK IOCTL
+#ifdef HDIO_DRIVE_TASK
     if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
+#endif
       return -1;
     
     // Cyl low and Cyl high unchanged means "Good SMART status"
