@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.2 2002/10/09 18:07:17 ballen4705 Exp $
+# $Id: Makefile,v 1.3 2002/10/09 19:29:33 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
@@ -44,7 +44,7 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	install -m 755 -o root -g root smartd /usr/sbin
 	install -m 644 -o root -g root smartctl.8 /usr/share/man/man8
 	install -m 644 -o root -g root smartd.8 /usr/share/man/man8
-	cp ./smartd.initd /etc/rc.d/init.d/smartd
+	install -m 755 -o root -g root smartd.initd /etc/rc.d/init.d/smartd
 	/sbin/chkconfig --add smartd
 
 uninstall:
