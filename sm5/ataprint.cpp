@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.152 2004/06/04 16:52:05 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.153 2004/06/04 20:16:32 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1056,21 +1056,20 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
     break;
   }
 
-  // find the number of columns needed for printing
+  // find the number of columns needed for printing. If in use, the
+  // start/end of span being read-scanned...
+  if (log->currentspan>5) {
+    maxl=current;
+    maxr=currentend;
+  }
   for (i=0; i<5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end  =log->span[i].end; 
-
+    // ... plus max start/end of each of the five test spans.
     if (start>maxl)
       maxl=start;
     if (end > maxr)
       maxr=end;
-  }
-  if (log->currentspan>5) {
-    if (current>maxl)
-      maxl=current;
-    if (currentend>maxr)
-      maxr=currentend;
   }
   
   // we need at least 7 characters wide fields to accomodate the
