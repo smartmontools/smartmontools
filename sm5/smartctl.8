@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.69 2003/05/01 11:09:26 makisara Exp $
+\# $Id: smartctl.8,v 1.70 2003/06/09 19:11:13 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/05/01 11:09:26 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/06/09 19:11:13 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -528,6 +528,15 @@ digits, for example \'06' or \'31' or '00'.
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
+.I 193,loadunload
+\- Raw Attribute number 193 contains two values. The first is the
+number of load cycles.  The second is the number of unload cycles.
+The difference between these two values is the number of times that
+the drive was unexpectedly powered off (also called an emergency
+unload). As a rule of thumb, the mechanical stress created by one
+emergency unload is equivalent to that created by one hundred normal
+unloads.
+
 .I 194,10xCelsius
 \- Raw Attribute number 194 is ten times the disk temperature in
 Celsius.  This is used by some Samsung disks (example: model SV1204H
@@ -898,4 +907,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.69 2003/05/01 11:09:26 makisara Exp $
+$Id: smartctl.8,v 1.70 2003/06/09 19:11:13 ballen4705 Exp $

@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.98 2003/04/28 18:37:02 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.99 2003/06/09 19:11:11 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -156,6 +156,8 @@ const char *vendorattributeargs[] = {
   "194,10xCelsius",
   // 10 defs[194]=2
   "194,unknown",
+  // 11 defs[193]=1
+  "193,loadunload",
   // NULL should always terminate the array
   NULL
 };
@@ -218,6 +220,10 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   case 10:
     // attribute 194 is unknown
     defs[194]=2;
+    return 0;
+  case 11:
+    // Hitachi : Attributes 193 has 2 values : 1 load, 1 normal unload
+    defs[193]=1;
     return 0;
   default:
     // pair not found
@@ -1336,6 +1342,18 @@ long long ataPrintSmartAttribRawValue(char *out,
       // hours
       out+=sprintf(out, "%llu", rawvalue);  //stored in hours
     break;
+   // Load unload cycles
+  case 193:
+    if (defs[193]==1){
+      // loadunload
+      long load  =attribute->raw[0] + (attribute->raw[1]<<8) + (attribute->raw[2]<<16);
+      long unload=attribute->raw[3] + (attribute->raw[4]<<8) + (attribute->raw[5]<<16);
+      out+=sprintf(out, "%lu/%lu", load, unload);
+    }
+    else
+      // associated
+      out+=sprintf(out, "%llu", rawvalue);
+    break;
     // Temperature
   case 194:
     if (defs[194]==1){
@@ -1433,7 +1451,14 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     name="Power-Off_Retract_Count";
     break;
   case 193:
-    name="Load_Cycle_Count";
+    switch (val){
+    case 1:
+      name="Load/Unload_Count";
+      break;
+    default:
+      name="Load_Cycle_Count";
+      break;
+    }
     break;
   case 194:
     switch (val){
@@ -1513,13 +1538,16 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     break;
   case 230:
     // seen in IBM DTPA-353750
-    name="Head Amplitude";
+    name="Head_Amplitude";
     break;
   case 231:
     name="Temperature_Celsius";
     break;
   case 240:
-    name="Head flying hours";
+    name="Head_Flying_Hours";
+    break;
+  case 250:
+    name="Read_Error_Retry_Rate";
     break;
   default:
     name="Unknown_Attribute";
