@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.77 2004/08/04 05:52:02 ballen4705 Exp $
+$Id: smartd.8.in,v 1.78 2004/08/06 19:48:42 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ can be told to re-read the configuration file by sending it a
 .fi
 \fBkillall -HUP smartd\fP.
 .fi
-(Windows: Use \'\fBsmartd reload\fP\' to simulate the HUP signal.)
+(Windows: See NOTES below.)
 
 On startup, if \fBsmartd\fP finds a syntax error in the configuration
 file, it will print an error message and then exit. However if
@@ -177,7 +177,7 @@ also use:
 .fi
 for the same purpose.
 .fi
-(Windows: Use \'\fBsmartd sigusr1\fP\' to simulate the USR1 signal.)
+(Windows: See NOTES below.)
 
 .TP
 .B \-l FACILITY, \-\-logfacility=FACILITY
@@ -320,6 +320,13 @@ detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
 The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
 equivalent.
+
+.TP
+.B \-\-service
+Windows only: Enables \fBsmartd\fP to run as a Windows service.
+It must be specified in the service command line as the first argument.
+See NOTES below for details.
+
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints license, copyright, and CVS version information onto
@@ -892,10 +899,11 @@ below.
 The following extension is available on Windows:
 By specifying \'\fBmsgbox\fP\' as a mail address, a warning
 "email" is displayed as a message box on the screen.
-Using both \'\fBmsgbox\fP\' and regular mail addresses is possible, if
-'\fBmsgbox\fP\' is the first word in the comma separated list.
+Using both \'\fBmsgbox\fP\' and regular mail addresses is possible,
+if \'\fBmsgbox\fP\' is the first word in the comma separated list.
 With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
-is used.
+is used. If running as a service, a service notification message box
+(always shown on current visible desktop) is used.
 
 .TP
 .B \-M TYPE
@@ -1561,7 +1569,7 @@ or to a file. See documentation of the '-l FACILITY' option above for
 details.
 
 On Windows, the following built-in commands can be used to control
-the \fBsmartd\fP process:
+\fBsmartd\fP, if running as a daemon:
 
 \'\fBsmartd status\fP\' \- check status
 
@@ -1574,6 +1582,35 @@ the \fBsmartd\fP process:
 \'\fBsmartd sigusr1\fP\' \- check disks now
 
 \'\fBsmartd sigusr2\fP\' \- toggle debug mode
+
+On WinNT4/2000/XP, \fBsmartd\fP can also be run as a Windows service:
+
+\'\fBsmartd install [options]\fP\' installs a service
+named "smartd" (display name "SmartD Service") using the command line
+\'/installpath/smartd.exe --service [options]\'.
+
+\'\fBsmartd remove\fP\' can later be used to remove the service entry
+from registry.
+
+Upon startup, the smartd service changes the working directory
+to its own installation path. If smartd.conf and blat.exe are stored
+in this directory, no \'-c\' option and \'-M exec\' directive is needed.
+
+The debug mode (\'-d\', \'-q onecheck\') does not work if smartd is
+running as service.
+
+The service can be controlled as usual with Windows commands \'net\'
+or \'sc\' (\'\fBnet start smartd\fP\', \'\fBnet stop smartd\fP\').
+
+Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
+disk checks (\'-i N\') to infinite.
+
+Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
+interval and rereads the configuration file immediately (like \fBSIGHUP\fP):
+
+Continuing a still running service (\'\fBnet continue smartd\fP\' without
+preceding \'\fBnet pause smartd\fP\') does not reread configuration but
+checks disks immediately (like \fBSIGUSR1\fP).
 
 .SH LOG TIMESTAMP TIMEZONE
 
@@ -1731,4 +1768,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.77 2004/08/04 05:52:02 ballen4705 Exp $
+$Id: smartd.8.in,v 1.78 2004/08/06 19:48:42 chrfranke Exp $
