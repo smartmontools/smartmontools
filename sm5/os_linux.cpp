@@ -44,16 +44,15 @@
 // one for SCSI devices, and one for ATA devices behind escalade
 // controllers.
 
-#include <string.h>
-#include <stdlib.h>
 #include <errno.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <scsi/scsi_ioctl.h>
-#include <dirent.h>
-#include <sys/stat.h>
 #include <glob.h>
+#include <scsi/scsi_ioctl.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "config.h"
 
@@ -68,17 +67,16 @@
 #include "atacmds.h"
 #include "os_linux.h"
 #include "scsicmds.h"
-#include "smartd.h"
 #include "utility.h"
 
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
 #endif
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.48 2004/03/12 23:45:43 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.49 2004/03/17 16:32:04 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.48 2004/03/12 23:45:43 chrfranke Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.49 2004/03/17 16:32:04 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
