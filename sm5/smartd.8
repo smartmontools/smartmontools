@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.110 2003/08/16 06:23:27 ballen4705 Exp $
+\# $Id: smartd.8,v 1.111 2003/08/19 09:14:32 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/16 06:23:27 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/08/19 09:14:32 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -1229,7 +1229,7 @@ The return value (exit status) of
 can have the following values:
 .TP
 .B 0:
-Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM.
+Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM (or in debug mode, a SIGQUIT).
 .TP
 .B 1:
 Commandline did not parse.
@@ -1268,8 +1268,12 @@ can't be monitored.
 didn't find any devices to monitor.
 .TP
 .B 254:
+When in daemon mode,
 .B smartd
-received a SIGINT or SIGQUIT.
+received a SIGINT or SIGQUIT.  (Note that in debug mode, SIGINT has
+the same effect as SIGHUP, and makes \fBsmartd\fP reload its
+configuration file. SIGQUIT has the same effect as SIGTERM and causes
+\fBsmartd\fP to exit with zero exit status.
 .TP
 .B 132 and above
 .B smartd
@@ -1336,4 +1340,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.110 2003/08/16 06:23:27 ballen4705 Exp $
+$Id: smartd.8,v 1.111 2003/08/19 09:14:32 ballen4705 Exp $

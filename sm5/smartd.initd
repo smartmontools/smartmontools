@@ -1,12 +1,12 @@
 #!/bin/bash
-# chkconfig: 35 40 40
+# chkconfig: 2345 40 40
 # smartmontools init file for smartd
 #
 # description: Self Monitoring and Reporting Technology (SMART) Daemon
 #
 # processname: smartd 
 #
-# $Id: smartd.initd,v 1.6 2003/05/09 19:20:23 ballen4705 Exp $
+# $Id: smartd.initd,v 1.7 2003/08/19 09:14:33 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
