@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.157 2003/04/25 22:22:56 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.158 2003/04/26 11:20:22 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -568,12 +568,12 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     return 2; 
   }
   
+  // pass user setings on to low-level ATA commands
+  con->fixfirmwarebug = cfg->fixfirmwarebug;
+
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
   if (!cfg->ignorepresets){
-
-    // save what the user set
-    con->fixfirmwarebug = cfg->fixfirmwarebug;
 
     // do whatever applypresets decides to do
     if (applypresets(&drive, cfg->attributedefs, con)<0)
@@ -581,7 +581,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     else
       printout(LOG_INFO, "Device: %s, found in smartd database.\n", device);
 
-    // then save the correct state of the flag
+    // then save the correct state of the flag (applypresets may have changed it)
     cfg->fixfirmwarebug = con->fixfirmwarebug;
   }
   else
@@ -676,33 +676,45 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   if (cfg->selftest){
     int val;
 
-    // fix firmware bug if requested
-    con->fixfirmwarebug=cfg->fixfirmwarebug;
-    
-    // get number of Self-test errors logged
-    val=selftesterrorcount(fd, device);
-    if (val>=0)
-      cfg->selflogcount=val;
-    else
+    // see if device supports Self-test logging.  Note that the
+    // following line is not a typo: Device supports self-test log if
+    // and only if it also supports error log.
+    if (!isSmartErrorLogCapable(devices->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
       cfg->selftest=0;
+      cfg->selflogcount=0;
+    }
+    else {
+      // get number of Self-test errors logged
+      val=selftesterrorcount(fd, device);
+      if (val>=0)
+	cfg->selflogcount=val;
+      else
+	cfg->selftest=0;
+    }
   }
   
   // capability check: ATA error log
   if (cfg->errorlog){
     int val;
 
-    // fix firmware bug if requested
-    con->fixfirmwarebug=cfg->fixfirmwarebug;
-    
-    // get number of ATA errors logged
-    val=ataerrorcount(fd, device);
-    if (val>=0)
-      cfg->ataerrorcount=val;
-    else
+    // see if device supports error logging
+    if (!isSmartErrorLogCapable(devices->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", device);
       cfg->errorlog=0;
+      cfg->ataerrorcount=0;
+    }
+    else {
+      // get number of ATA errors logged
+      val=ataerrorcount(fd, device);
+      if (val>=0)
+	cfg->ataerrorcount=val;
+      else
+	cfg->errorlog=0;
+    }
   }
   
-  // If not tests available or selected, return
+  // If no tests available or selected, return
   if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
         cfg->usagefailed || cfg->prefail || cfg->usage)) {
     close(fd);
@@ -916,6 +928,9 @@ int ataCheckDevice(atadevices_t *drive){
   char *name=drive->devicename;
   cfgfile *cfg=drive->cfg;
   
+  // fix firmware bug if requested
+  con->fixfirmwarebug=cfg->fixfirmwarebug;
+
   // If user has asked, test the email warning system
   if (cfg->emailtest){
     printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", drive->devicename);
@@ -1034,9 +1049,6 @@ int ataCheckDevice(atadevices_t *drive){
     int new;
     unsigned char old=cfg->selflogcount;
     
-    // fix firmware bug if requested
-    con->fixfirmwarebug=cfg->fixfirmwarebug;
-
     // new self test error count
     new=selftesterrorcount(fd, name);
     
@@ -1062,9 +1074,6 @@ int ataCheckDevice(atadevices_t *drive){
   if (cfg->errorlog){
 
     int new,old=cfg->ataerrorcount;
-
-    // fix firmware bug if requested
-    con->fixfirmwarebug=cfg->fixfirmwarebug;
 
     // new number of errors
     new=ataerrorcount(fd, name);
