@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.38 2003/11/23 10:52:02 ballen4705 Exp $
+# $Id: Makefile.am,v 1.39 2003/11/26 23:55:31 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -126,10 +126,13 @@ smartd.conf.5.in: smartd.8.in
 install-initdDATA: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
 	$(INSTALL_SCRIPT) $(top_builddir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
-	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
-	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
-	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
-	@echo -e "A sample configuration file may be found in ${docdir}.\n\n"
+	@echo -e "\n\n####################################################################\n#"
+	@echo -e "#                       PLEASE READ THIS BOX!\n#"
+	@echo -e "#   To manually start the smartd daemon, run:\n#   ${initddir}/smartd start\n#"
+	@echo -e "#   To automatically start smartd on bootup, run:\n#   /sbin/chkconfig --add smartd\n#"
+	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man 8 smartd"
+	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
+	@echo -e "####################################################################\n\n"
 
 uninstall-initdDATA:
 	rm -rf $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
