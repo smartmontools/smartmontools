@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.62 2003/03/17 03:18:18 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.63 2003/03/18 05:02:37 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -930,12 +930,10 @@ long long ataPrintSmartAttribRawValue(char *out,
     break;
     // Temperature
   case 194:
-    out+=sprintf(out, "%d", (int)attribute->raw[0]);
-    if (!(rawvalue==attribute->raw[0]))
+    out+=sprintf(out, "%d", word[0]);
+    if (!(rawvalue==word[0]))
       // The other bytes are in use. Try IBM's model
-      out+=sprintf(out, " (Lifetime Min/Max %d/%d)",
-		   (int)attribute->raw[2],
-		   (int)attribute->raw[4]);
+      out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
     break;
   default:
     out+=sprintf(out, "%llu", rawvalue);
