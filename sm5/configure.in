@@ -1,11 +1,12 @@
 #
-# $Id: configure.in,v 1.11 2003/10/01 14:37:00 guidog Exp $
+# $Id: configure.in,v 1.12 2003/10/02 06:31:01 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
-AC_INIT(smartd.c)
+AC_INIT(smartmontools, 5.19)
+AC_CONFIG_SRCDIR(smartctl.c)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(smartmontools, 5.19)
+AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE
 
 AC_LANG_C
