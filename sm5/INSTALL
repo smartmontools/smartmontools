@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.47 2004/05/13 14:47:15 chrfranke Exp $
+$Id: INSTALL,v 1.48 2004/05/27 17:04:05 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -186,7 +186,7 @@ Debian:
   If you don't want to overwrite any distribution package, use:
   ./configure
 
-Filesystem Hierarchy Standard (FHS):
+Filesystem Hierarchy Standard (FHS, http://www.pathname.com/fhs/):
   ./configure --sbindir=/usr/local/sbin                               \
               --sysconfdir=/usr/local/etc                             \
               --mandir=/usr/local/man                                 \
@@ -368,23 +368,23 @@ for any additional download and installation instructions.
 
 The following files are installed if ./configure has no options:
 
-/usr/sbin/smartd				[Executable daemon]
-/usr/sbin/smartctl	 			[Executable command-line utility]
-/etc/smartd.conf                                [Configuration file for smartd daemon]
-/etc/rc.d/init.d/smartd	 			[Init/Startup script for smartd]
-/usr/share/man/man5/smartd.conf.5		[Manual page]
-/usr/share/man/man8/smartctl.8			[Manual page]
-/usr/share/man/man8/smartd.8			[Manual page]
-/usr/share/doc/smartmontools-5.X/AUTHORS	[Information about the authors and developers]
-/usr/share/doc/smartmontools-5.X/CHANGELOG	[A log of changes. Also see CVS]
-/usr/share/doc/smartmontools-5.X/COPYING	[GNU General Public License Version 2]
-/usr/share/doc/smartmontools-5.X/INSTALL	[Installation instructions: what you're reading!]
-/usr/share/doc/smartmontools-5.X/NEWS		[Significant bugs discovered in old versions]
-/usr/share/doc/smartmontools-5.X/README		[Overview]
-/usr/share/doc/smartmontools-5.X/TODO		[Things that need to be done/fixed]
-/usr/share/doc/smartmontools-5.X/WARNINGS	[Systems where lockups or other serious problems were reported]
-/usr/share/doc/smartmontools-5.X/smartd.conf	[Example configuration file for smartd]
-/usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
+/usr/local/sbin/smartd                                  [Executable daemon]
+/usr/local/sbin/smartctl                                [Executable command-line utility]
+/usr/local/etc/smartd.conf                              [Configuration file for smartd daemon]
+/usr/local/etc/rc.d/init.d/smartd                       [Init/Startup script for smartd]
+/usr/local/share/man/man5/smartd.conf.5                 [Manual page]
+/usr/local/share/man/man8/smartctl.8                    [Manual page]
+/usr/local/share/man/man8/smartd.8                      [Manual page]
+/usr/local/share/doc/smartmontools-5.X/AUTHORS          [Information about the authors and developers]
+/usr/local/share/doc/smartmontools-5.X/CHANGELOG        [A log of changes. Also see CVS]
+/usr/local/share/doc/smartmontools-5.X/COPYING          [GNU General Public License Version 2]
+/usr/local/share/doc/smartmontools-5.X/INSTALL          [Installation instructions: what you're reading!]
+/usr/local/share/doc/smartmontools-5.X/NEWS             [Significant bugs discovered in old versions]
+/usr/local/share/doc/smartmontools-5.X/README           [Overview]
+/usr/local/share/doc/smartmontools-5.X/TODO             [Things that need to be done/fixed]
+/usr/local/share/doc/smartmontools-5.X/WARNINGS         [Systems where lockups or other serious problems were reported]
+/usr/local/share/doc/smartmontools-5.X/smartd.conf      [Example configuration file for smartd]
+/usr/local/share/doc/smartmontools-5.X/examplescripts   [Executable scripts for -M exec of smartd.conf (4 files)]
 
 
 [11] Detailed description of arguments to configure command
@@ -444,11 +444,6 @@ Case 4:
 --prefix is set
 --variable is set
 ===> PREFIX is IGNORED, VARIABLE gets value that is set
-
-
-For Filesystem Hierarchy Standard (FHS) installation locations
-described in http://www.pathname.com/fhs/ please use:
---prefix=/usr/local
 
 
 Here are the differences with and without --enable-sample, assuming
