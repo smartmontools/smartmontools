@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.26 2003/02/06 17:55:29 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.27 2003/02/09 16:14:31 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/02/06 17:55:29 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/02/09 16:14:31 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -111,7 +111,7 @@ Section below!
 .B # startup.
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -m admin@yoyodyne.com -M once,test
+.B \ \ /dev/sdc -m admin@yoyodyne.com -M test
 .B #
 .nf
 .B # Strange device.  It's SCSI:
@@ -165,8 +165,7 @@ name.
 
 .B For an ATA device,
 if no Directives appear, then the device will be monitored
-as if the
-'\-a' Directive (monitor all SMART properties) had been given.
+as if the '\-a' Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
@@ -684,4 +683,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.26 2003/02/06 17:55:29 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.27 2003/02/09 16:14:31 ballen4705 Exp $
