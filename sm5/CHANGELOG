@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.23 2002/10/26 09:24:26 ballen4705 Exp $
+$Id: CHANGELOG,v 1.24 2002/10/26 09:38:26 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -42,7 +42,8 @@ smartmontools-5.0-VERSION
     since the fd to the device was open.  smartd now opens the device
     when it needs to read values, then closes it.  Also, if one time
     around it can't open the device, it simply prints a warning
-    message but does not give up.
+    message but does not give up.  Have eliminated the .fd field from
+    data structures -- no longer gets used.
 
     smartd now opens SCSI devices as well using O_RDONLY rather than
     O_RDWR.  If someone can no longer monitor a SCSI device that used
