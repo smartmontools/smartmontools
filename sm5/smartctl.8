@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.26 2002/11/22 13:30:55 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.27 2002/11/22 13:44:00 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2002/11/22 13:30:55 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/11/22 13:44:00 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -209,7 +209,7 @@ automatically resume them when the disk would otherwise be idle, so in
 practice it has little effect.  Note that a one-time offline test can
 also be carried out immediately upon receipt of a user command.  See
 the '\-O' option below, which causes a one-time offline test to be
-carried out.
+carried out immediately.
 
 Any errors detected in automatic or immediate offline testing will be
 shown in the S.M.A.R.T. error log, and will be reflected in the values
@@ -218,7 +218,7 @@ of the S.M.A.R.T. attributes.  These are visible with the '\-l' and '\-v' option
 The third class of testing is the 'self' testing.  This third type of
 test is only performed (immediately) when a command to run it is
 issued.  The '\-S', '\-s', '\-X', '\-x', and '\-A' options below can
-be used to carry out such self-tests; please see below for further
+be used to carry out (and abort) such self-tests; please see below for further
 details.
 
 Any errors detected in the self testign will be shown in the
@@ -556,4 +556,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.26 2002/11/22 13:30:55 ballen4705 Exp $
+$Id: smartctl.8,v 1.27 2002/11/22 13:44:00 ballen4705 Exp $
