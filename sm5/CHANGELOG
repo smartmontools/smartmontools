@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.70 2002/12/16 12:27:00 ballen4705 Exp $
+$Id: CHANGELOG,v 1.71 2002/12/28 16:16:52 pjwilliams Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,7 +32,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-  ]BA] Use strerror() to generate system call error messages.
+  [PW] Changed options for smartctl -- see man page.
+
+  [BA] Use strerror() to generate system call error messages.
 
   [BA] smartd: fflush() all open streams before fork().
 
