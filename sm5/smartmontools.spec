@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.37 2002/10/31 17:01:15 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.38 2002/10/31 17:04:00 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,6 +112,9 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Thu Oct 30 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- Fixed typesetting error in man page smartd.8
+- Removed redundant variable (harmless) from smartd.c
 * Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - Added a new directive for the configuration file.  If the word
   DEVICESCAN appears before any non-commented material in the
