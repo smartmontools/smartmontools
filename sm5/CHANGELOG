@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.286 2003/12/09 19:57:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.287 2003/12/09 22:40:13 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax Plus 8 family to knowndrives table.
 
   [BA] linux: check for linux/hdreg.h.  If it's there, use it. If
        not, provide the necessary definitions ourselves.
