@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.117 2003/08/28 16:15:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.118 2003/08/28 16:50:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1679,18 +1679,22 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
   case 202:
     // Fujitsu
     name="TA_Increase_Count";
+    // Maxtor: Data Address Mark Errors
     break;
   case 203:
     // Fujitsu
     name="Run_Out_Cancel";
+    // Maxtor: ECC Errors
     break;
   case 204:
     // Fujitsu
     name="Shock_Count_Write_Opern";
+    // Maxtor: Soft ECC Correction
     break;
   case 205:
     // Fujitsu
     name="Shock_Rate_Write_Opern";
+    // Maxtor: Thermal Aspirates
     break;
   case 206:
     // Fujitsu
@@ -1706,7 +1710,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     break;
   case 209:
     // Maxtor
-    name="Offline_Seek_Performance";
+    name="Offline_Seek_Performnce";
     break;
   case 220:
     switch (val) {
