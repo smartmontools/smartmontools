@@ -4,7 +4,7 @@ Name:		smartmontools
 Version:	5.0
 License:	GPL
 Group:		Applications/System
-Source0:	http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
+Source0:	%{name}-%{version}.tar.gz
 URL:            http://smartmontools.sourceforge.net/
 Prereq:		/sbin/chkconfig
 BuildRoot:	%{_builddir}/%{name}-%{version}-root
@@ -12,6 +12,9 @@ Obsoletes:	smartctl
 Obsoletes:      smartd
 Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
+
+# SOURCE CODE CAN BE FOUND AT:
+# http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
