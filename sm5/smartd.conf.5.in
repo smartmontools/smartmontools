@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.21 2003/12/09 21:54:15 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.22 2003/12/19 20:47:00 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -296,8 +296,8 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 .B \-H
 Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
-failure is predicted in less than 24 hours, and a message at priority
-.B \'CRITICAL\'
+failure is predicted in less than 24 hours, and a message at loglevel
+.B \'LOG_CRITICAL\'
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -1036,4 +1036,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.21 2003/12/09 21:54:15 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.22 2003/12/19 20:47:00 ballen4705 Exp $

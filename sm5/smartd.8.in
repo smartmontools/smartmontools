@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.28 2003/12/10 11:30:31 ballen4705 Exp $
+$Id: smartd.8.in,v 1.29 2003/12/19 20:47:00 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -573,8 +573,8 @@ Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
 .B \-H
 Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
-failure is predicted in less than 24 hours, and a message at priority
-.B \'CRITICAL\'
+failure is predicted in less than 24 hours, and a message at loglevel
+.B \'LOG_CRITICAL\'
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -1330,6 +1330,22 @@ should not be ignored: they mean that the disk is failing.  Use the
 .B smartctl
 utility to investigate. 
 
+Under Solaris with the default \fB/etc/syslog.conf\fP configuration,
+messages below loglevel \fBLOG_NOTICE\fP will \fBnot\fP be recorded.
+Hence all \fBsmartd\fP messages with loglevel \fBLOG_INFO\fP will be
+lost.  If you want to use the existing daemon facility to log all
+messages from \fBsmartd\fP, you should change \fB/etc/syslog.conf\fP
+from:
+.nf
+       ...;daemon.notice;...        /var/adm/messages
+.fi
+to read:
+.nf
+       ...;daemon.info;...          /var/adm/messages
+.fi
+Alternatively, you can use a local facility to log messages: please
+see the \fBsmartd\fP '-l' command-line option described above.
+
 .SH RETURN VALUES
 The return value (exit status) of 
 .B smartd
@@ -1444,4 +1460,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.28 2003/12/10 11:30:31 ballen4705 Exp $
+$Id: smartd.8.in,v 1.29 2003/12/19 20:47:00 ballen4705 Exp $
