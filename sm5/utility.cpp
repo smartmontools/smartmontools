@@ -40,7 +40,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.47 2004/05/06 14:12:29 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.48 2004/05/07 18:33:53 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -80,17 +80,15 @@ unsigned char debugmode = 0;
 // restarting smartd. This is a work-around for a bug in
 // GLIBC. Yuk. See bug number 48184 at http://bugs.debian.org and
 // thanks to Ian Redfern for posting a workaround.
-void FixGlibcTimeZoneBug(){  
+void FixGlibcTimeZoneBug(){
+#if __GLIBC__  
   if (!getenv("TZ")) {
     putenv("TZ=GMT");
     tzset();
-#ifndef _WIN32
     putenv("TZ");
-#else
-    putenv("TZ="); // empty value removes TZ, putenv("TZ") does nothing
-#endif
     tzset();
   }
+#endif
   return;
 }
 
