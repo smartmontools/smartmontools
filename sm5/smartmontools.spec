@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.115 2003/08/22 04:47:22 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.116 2003/08/26 09:40:02 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -589,7 +589,7 @@ fi
        can now be followed by all the same Directives as a regular
        device name like /dev/hda takes.  This allows one to use
        (for example):
-       DEVICESCAN -m root@yoyodyne.com
+       DEVICESCAN -m root@yoyo.dyne.com
        in the /etc/smartd.conf file.
 - [BA] smartd: Added -c (--checkonce) command-line option. This checks
        all devices once, then exits.  The exit status can be
