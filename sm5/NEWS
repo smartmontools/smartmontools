@@ -1,17 +1,17 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.7 2003/10/13 14:31:34 arvoreen Exp $
+CVS ID: $Id: NEWS,v 1.8 2003/10/14 13:59:03 ballen4705 Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
 See http://sourceforge.net/news/?group_id=64297 for the most recent news.
 
-Date: ????
+Date: 2003-10-14
 Summary: smartmontools release 5.21
 -----------------------------------
-
-Preliminary support for FreeBSD.  ATA support requires a 5.1-CURRENT kernel
-while SCSI support should work across multiple versions (any that support CAM)
+Preliminary support for FreeBSD added to smartmontools.  For FreeBSD,
+ATA support requires a 5.1-CURRENT kernel while SCSI support should
+work across multiple versions (any that support CAM)
 
 
 Date: 2003-10-04
@@ -19,6 +19,7 @@ Summary: smartmontools release 5.20
 -----------------------------------
 Replaces flawed 5.19 release (which had a zero-length man page
 smartd.conf.5).
+
 
 Date: 2003-10-03
 Summary: smartmontools release 5.19
@@ -32,6 +33,7 @@ unneccesary files, and similar oversights.  The major changes are:
  [3] supports FHS with ./configure --prefix=/usr/local
  [4] correct paths are inserted into all man pages, binaries, etc.
  [5] tarballs and RPMs are now GPG-signed
+
 
 Date: 2003-10-02 11:35
 Summary: smartd SEGV
