@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.13 2003/10/03 03:51:17 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.14 2003/10/08 01:25:03 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -84,7 +84,8 @@ const char *packetdevicetype(int type);
 
 // These are the major and minor versions for smartd and smartctl
 #define PROJECTHOME "http://smartmontools.sourceforge.net/"
-#define RELEASE_MAJOR 5
-#define RELEASE_MINOR 1
+
+int deviceopen(const char *pathname, char *type);
+int deviceclose(int fd);
 
 #endif

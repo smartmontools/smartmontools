@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.23 2003/10/07 21:43:15 guidog Exp $
+# $Id: Makefile.am,v 1.24 2003/10/08 01:24:58 ballen4705 Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -17,8 +17,6 @@ smartd_SOURCES =  smartd.c       \
                   atacmds.h	\
                   ataprint.c 	\
                   ataprint.h	\
-                  escalade.c	\
-                  escalade.h	\
                   extern.h       \
                   knowndrives.c	\
                   knowndrives.h	\
@@ -44,8 +42,6 @@ smartctl_SOURCES= smartctl.c    \
                   atacmds.h	\
                   ataprint.c	\
                   ataprint.h	\
-                  escalade.c	\
-                  escalade.h	\
                   extern.h      \
                   knowndrives.c	\
                   knowndrives.h	\
@@ -55,6 +51,15 @@ smartctl_SOURCES= smartctl.c    \
                   scsiprint.h	\
                   utility.c	\
                   utility.h
+
+smartctl_LDADD = @os_deps@
+smartctl_DEPENDENCIES = @os_deps@
+EXTRA_smartctl_SOURCES = os_linux.c \
+                       os_linux.h \
+		       os_freebsd.c \
+		       os_freebsd.h
+
+
 
 man_MANS =        smartd.conf.5 \
                   smartctl.8    \

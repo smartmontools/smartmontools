@@ -29,11 +29,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "atacmds.h"
-#include "escalade.h"
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.122 2003/10/06 00:37:03 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.123 2003/10/08 01:24:58 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -473,196 +472,6 @@ void swap8(char *location){
   return;
 }
 
-// PURPOSE
-//   This is an interface routine meant to isolate the OS dependent
-//   parts of the code, and to provide a debugging interface.  Each
-//   different port and OS needs to provide it's own interface.  This
-//   is the linux one.
-// DETAILED DESCRIPTION OF ARGUMENTS
-//   device: is the file descriptor provided by open()
-//   command: defines the different operations.
-//   select: additional input data if needed (which log, which type of
-//           self-test).
-//   data:   location to write output data, if needed (512 bytes).
-//   Note: not all commands use all arguments.
-// RETURN VALUES
-//  -1 if the command failed
-//   0 if the command succeeded,
-//   STATUS_CHECK routine: 
-//  -1 if the command failed
-//   0 if the command succeeded and disk SMART status is "OK"
-//   1 if the command succeeded and disk SMART status is "FAILING"
-
-
-// huge value of buffer size needed because HDIO_DRIVE_CMD assumes
-// that buff[3] is the data size.  Since the SMART_AUTOSAVE and
-// SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
-// Otherwise a 4+512 byte buffer would be enough.
-#define STRANGE_BUFFER_LENGTH (4+512*0xf8)
-
-int linux_ata_command_interface(int device, smart_command_set command, int select, char *data){
-  unsigned char buff[STRANGE_BUFFER_LENGTH];
-  int retval, copydata=0;
-
-  // The two linux IOCTL's that we use.  These MUST be consistent with
-  // the same quantities in the kernel include file linux/hdreg.h
-  const int HDIO_DRIVE_TASK = 0x031e;
-  const int HDIO_DRIVE_CMD  = 0x031f;
-  const int HDIO_DRIVE_CMD_OFFSET = 4;
-
-  // See struct hd_drive_cmd_hdr in hdreg.h
-  // buff[0]: ATA COMMAND CODE REGISTER
-  // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
-  // buff[2]: ATA FEATURES REGISTER
-  // buff[3]: ATA SECTOR COUNT REGISTER
-  
-  // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
-  memset(buff, 0, STRANGE_BUFFER_LENGTH);
-
-  buff[0]=WIN_SMART;
-  switch (command){
-  case READ_VALUES:
-    buff[2]=SMART_READ_VALUES;
-    copydata=buff[3]=1;
-    break;
-  case READ_THRESHOLDS:
-    buff[2]=SMART_READ_THRESHOLDS;
-    copydata=buff[1]=buff[3]=1;
-    break;
-  case READ_LOG:
-    buff[2]=SMART_READ_LOG_SECTOR;
-    buff[1]=select;
-    copydata=buff[3]=1;
-    break;
-  case IDENTIFY:
-    buff[0]=WIN_IDENTIFY;
-    copydata=buff[3]=1;
-    break;
-  case PIDENTIFY:
-    buff[0]=WIN_PIDENTIFY;
-    copydata=buff[3]=1;
-    break;
-  case ENABLE:
-    buff[2]=SMART_ENABLE;
-    buff[1]=1;
-    break;
-  case DISABLE:
-    buff[2]=SMART_DISABLE;
-    buff[1]=1;
-    break;
-  case STATUS:
-    // this command only says if SMART is working.  It could be
-    // replaced with STATUS_CHECK below.
-    buff[2]=SMART_STATUS;
-    break;
-  case AUTO_OFFLINE:
-    buff[2]=SMART_AUTO_OFFLINE;
-    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-    break;
-  case AUTOSAVE:
-    buff[2]=SMART_AUTOSAVE;
-    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-    break;
-  case IMMEDIATE_OFFLINE:
-    buff[2]=SMART_IMMEDIATE_OFFLINE;
-    buff[1]=select;
-    break;
-  case STATUS_CHECK:
-    // This command uses HDIO_DRIVE_TASK and has different syntax than
-    // the other commands.
-    buff[1]=SMART_STATUS;
-    break;
-  default:
-    pout("Unrecognized command %d in linux_ata_command_interface()\n", command);
-    exit(1);
-    break;
-  }
-  
-  // There are two different types of ioctls().  The HDIO_DRIVE_TASK
-  // one is this:
-  if (command==STATUS_CHECK){
-
-    // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You
-    // have to read the IDE driver source code.  Sigh.
-    // buff[0]: ATA COMMAND CODE REGISTER
-    // buff[1]: ATA FEATURES REGISTER
-    // buff[2]: ATA SECTOR_COUNT
-    // buff[3]: ATA SECTOR NUMBER
-    // buff[4]: ATA CYL LO REGISTER
-    // buff[5]: ATA CYL HI REGISTER
-    // buff[6]: ATA DEVICE HEAD
-
-    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
-    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
-    buff[4]=normal_lo;
-    buff[5]=normal_hi;
-    
-    if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
-      return -1;
-    
-    // Cyl low and Cyl high unchanged means "Good SMART status"
-    if (buff[4]==normal_lo && buff[5]==normal_hi)
-      return 0;
-    
-    // These values mean "Bad SMART status"
-    if (buff[4]==failed_lo && buff[5]==failed_hi)
-      return 1;
-    
-    // We haven't gotten output that makes sense; print out some debugging info
-    syserror("Error SMART Status command failed");
-    pout("Please get assistance from %s\n",PROJECTHOME);
-    pout("Register values returned from SMART Status command are:\n");
-    pout("CMD=0x%02x\n",(int)buff[0]);
-    pout("FR =0x%02x\n",(int)buff[1]);
-    pout("NS =0x%02x\n",(int)buff[2]);
-    pout("SC =0x%02x\n",(int)buff[3]);
-    pout("CL =0x%02x\n",(int)buff[4]);
-    pout("CH =0x%02x\n",(int)buff[5]);
-    pout("SEL=0x%02x\n",(int)buff[6]);
-    return -1;   
-  }
-  
-#if (1)
-  // Note to people doing ports to other OSes -- don't worry about
-  // this block -- you can ignore it.  I have put it here because
-  // under linux when you do IDENTIFY DEVICE to a packet device, it
-  // generates an ugly kernel syslog error message.  This is harmless
-  // but frightens users.  So this block is an attempt to detect
-  // packet devices and make IDENTIFY DEVICE fail "nicely" without a
-  // syslog error message.
-
-  // This doesn't always work, since ATA-3 did not have a separate
-  // IDENTIFY PACKET DEVICE command.  In fact while ATAPI was
-  // introduced in ATA-3, IDENTIFY PACKET DEVICE only appeared in ATA
-  // 4 revision 2.  Anyway, this doesn't matter, since packet devices
-  // don't support SMART anyway.
-
-  // for IDENTIFY command, check if device is a packet device, and if
-  // it is, then we simulate a 'clean' error without calling the
-  // lower-level ioctl that will generate a kernel error log message.
-  if (command==IDENTIFY){
-    unsigned char junk[512];
-    const int HDIO_GET_IDENTITY=0x030d;
-    if (!ioctl(device, HDIO_GET_IDENTITY, junk) && (junk[1]>>7)) {
-      // device is PACKET device
-      errno = 5;
-      return -1;
-    }
-  }
-#endif
-  
-  // We are now doing the HDIO_DRIVE_CMD type ioctl.
-  if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
-    return -1;
-
-  // if the command returns data, copy it back
-  if (copydata)
-    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, 512);
-  
-  return 0; 
-}
-
-
 static char *commandstrings[]={
   [ENABLE]=           "SMART ENABLE",
   [DISABLE]=          "SMART DISABLE",
@@ -728,9 +537,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   
   // now execute the command
   if (con->escalade)
-    retval=linux_3ware_command_interface(device, con->escalade-1, command, select, data);
+    retval=escalade_command_interface(device, con->escalade-1, command, select, data);
   else
-    retval=linux_ata_command_interface(device, command, select, data);
+    retval=ata_command_interface(device, command, select, data);
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){

@@ -51,9 +51,9 @@
 
 // These are CVS identification information for *.c and *.h files
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
-                  *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
+                  *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.210 2003/10/06 00:37:04 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.211 2003/10/08 01:25:01 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -115,9 +115,9 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,ataprint_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
-  printone(out,escalade_c_cvsid);
-  PrintOut(LOG_INFO,"%s",out);
   printone(out,knowndrives_c_cvsid);
+  PrintOut(LOG_INFO,"%s",out);
+  printone(out,os_XXXX_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
   printone(out,scsicmds_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
@@ -676,7 +676,7 @@ void Usage (void){
 }
 
 // returns negative if problem, else fd>=0
-static int OpenDevice(char *device, int flags) {
+static int OpenDevice(char *device, char *mode) {
   int fd;
   char *s=device;
   
@@ -686,7 +686,7 @@ static int OpenDevice(char *device, int flags) {
     *s='\0';
 
   // open the device
-  fd = open(device, flags);
+  fd = deviceopen(device, mode);
 
   // if we removed a space, put it back in please
   if (s)
@@ -703,7 +703,7 @@ static int OpenDevice(char *device, int flags) {
 }
 
 int CloseDevice(int fd, char *name){
-  if (close(fd)){
+  if (deviceclose(fd)){
     PrintOut(LOG_INFO,"Device: %s, %s, close(%d) failed\n", name, strerror(errno), fd);
     return 1;
   }
@@ -749,7 +749,7 @@ int ATADeviceScan(cfgfile *cfg){
     return 1;
   
   // open the device
-  if ((fd=OpenDevice(name, O_RDONLY | O_NONBLOCK))<0)
+  if ((fd=OpenDevice(name, "ATA"))<0)
     // device open failed
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", name);
@@ -762,7 +762,7 @@ int ATADeviceScan(cfgfile *cfg){
   if (ataReadHDIdentity (fd,&drive)){
     // Unable to read Identity structure
     PrintOut(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",name);
-    close(fd);
+    deviceclose(fd);
     return 2; 
   }
 
@@ -808,7 +808,7 @@ int ATADeviceScan(cfgfile *cfg){
     }
     else {
       PrintOut(LOG_INFO,"Device: %s, to proceed anyway, use '-T permissive' Directive.\n",name);
-      close(fd);
+      deviceclose(fd);
       return 2;
     }
   }
@@ -816,7 +816,7 @@ int ATADeviceScan(cfgfile *cfg){
   if (ataEnableSmart(fd)){
     // Enable SMART command has failed
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
-    close(fd);
+    deviceclose(fd);
     return 2; 
   }
   
@@ -949,7 +949,7 @@ int ATADeviceScan(cfgfile *cfg){
   // If no tests available or selected, return
   if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
         cfg->usagefailed || cfg->prefail || cfg->usage)) {
-    close(fd);
+    deviceclose(fd);
     return 3;
   }
   
@@ -983,7 +983,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
     if (! cfg->tryscsi)
         return 1;
     // open the device
-    if ((fd = OpenDevice(device, O_RDWR | O_NONBLOCK)) < 0) {
+    if ((fd = OpenDevice(device, "SCSI")) < 0) {
 #ifdef SCSIDEVELOPMENT
         PrintOut(LOG_WARNING, "Device: %s, skip\n", device);
         return 0;
@@ -1001,7 +1001,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
       else
 	PrintOut(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
 		 device, err);
-      close(fd);
+      deviceclose(fd);
 #ifdef SCSIDEVELOPMENT
       return 0;
 #else
@@ -1012,7 +1012,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
     if ((err = scsiFetchIECmpage(fd, &iec))) {
       PrintOut(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
 	       "failed, err=%d, skip device\n", device, err);
-      close(fd);
+      deviceclose(fd);
 #ifdef SCSIDEVELOPMENT
       return 0;
 #else
@@ -1022,7 +1022,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
     if (! scsi_IsExceptionControlEnabled(&iec)) {
       PrintOut(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
 	       "skip device\n", device);
-      close(fd);
+      deviceclose(fd);
 #ifdef SCSIDEVELOPMENT
       return 0;
 #else
@@ -1036,7 +1036,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
 	       "SCSI devices.\n" "Recompile code from " PROJECTHOME 
 	       " with larger MAXSCSIDEVICES\n", (int)numdevscsi);
 #ifdef SCSIDEVELOPMENT
-      close(fd);
+      deviceclose(fd);
       return 0;
 #else
       exit(EXIT_CCONST);
@@ -1215,7 +1215,7 @@ int ATACheckDevice(cfgfile *cfg){
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
   // given (see linux cdrom driver).
-  if ((fd=OpenDevice(name, O_RDONLY | O_NONBLOCK))<0){
+  if ((fd=OpenDevice(name, "ATA"))<0){
     PrintAndMail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
     return 1;
   }
@@ -1392,7 +1392,7 @@ int SCSICheckDevice(cfgfile *cfg)
 
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it
-    if ((fd=OpenDevice(name, O_RDWR | O_NONBLOCK))<0) {
+    if ((fd=OpenDevice(name, "SCSI"))<0) {
         PrintAndMail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device",
                       name);
         return 1;
