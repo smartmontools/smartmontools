@@ -114,18 +114,20 @@ please post to the smartmontools mailing list.
   -q MODE, --quietmode=MODE
         Set the quiet mode to one of: errorsonly, silent
 
-  -d TYPE, --devicetype=TYPE
+  -d TYPE, --device=TYPE
         Set the device type to one of: ata, scsi
 
   -T TYPE, --tolerance=TYPE
         Set tolerance level to one of:
-                conservative - Exit if any SMART command fails
                 normal       - Exit if a mandatory SMART command fails [DEFAULT]
-                (Phil, do we really need this DEFAULT option??? Or just other two??)
+                conservative - Exit if any SMART command fails
                 permissive   - Continue even if a mandatory SMART command fails
 
-  -k, --checksumfail
-        Exit on bad checksum
+  -b TYPE, --badsum=TYPE
+        Action to take on a bad checksum.  TYPE and its meaning are:
+                warn   - Issue a warning, but continue [DEFAULT] 
+                exit   - Exit smartctl
+                silent - Continue silently without issuing a warning [NEW]
 
   -s VALUE, --smart=VALUE
         Enable/disable SMART.  VALUE is one of: on, off 
@@ -133,26 +135,26 @@ please post to the smartmontools mailing list.
   -o VALUE, --offlineauto=VALUE
         Enable/disable automatic offline testing.  VALUE is one of: on, off 
 
-  -S VALUE, --autosave=VALUE
-        Enable/disable autosave.  VALUE is one of: on, off 
+  -S VALUE, --saveauto=VALUE
+        Enable/disable attribute autosave.  VALUE is one of: on, off 
 
-  -h, --showstatus
+  -H, --health
         Show SMART health status
 
-  -c, --showcapabilities
+  -c, --capabilities
         Show SMART capabilities
 
-  -a, --showattributes
+  -A, --attributes
         Show SMART vendor-specific attributes and values.
 
-  -l TYPE, --showlog=TYPE
+  -l TYPE, --log=TYPE
         Show device log. Type is one of: error, selftest
 
-  -i, --showinfo
+  -i, --info
         Show drive information
 
-  -A, --showall
-        Show all SMART information.  Equivalent to -hcai -l error -l selftest
+  -a, --all
+        Show all SMART information.  Equivalent to -HcAi -l error -l selftest
 
   -v N,OPTION , --vendorattribute=N,OPTION
         Set vendor specific OPTION for attribute N.  Currently supported are:
@@ -182,26 +184,26 @@ The following table shows the mapping of old options to new options:
   ------------------------------------------------------------------------------------------------------
   -h, -?        -h, -?                  --help
   -V            -V                      --version, --copyright, --license  
-  -i            -i                      --showinfo                        
+  -i            -i                      --info                        
   -q            -q errorsonly           --quietmode=errorsonly
   -Q            -q silent               --quietmode=silent
-  -n            -d ata                  --devicetype=ata                   -A
-  -N            -d scsi                 --devicetype=scsi                  -S
+  -n            -d ata                  --device=ata                       -A
+  -N            -d scsi                 --device=scsi                      -S
   -P            -T permissive           --tolerance=permissive             -P
   -U            -T conservative         --tolerance=conservative
-  -W            -k                      --checksumfail
+  -W            -b                      --badsum=exit
   -e            -s on                   --smart=on
   -d            -s off                  --smart=off
   -t            -o on                   --offlineauto=on                   -T 1
   -T            -o off                  --offlineauto=off                  -T 0
-  -f            -S on                   --autosave=on                      -s 1
-  -F            -S off                  --autosave=off                     -s 0
-  -c            -h                      --showstatus                       -c
-  -g            -c                      --showcapabilities
-  -v            -a                      --showattributes                   -p, -u, -f, -t
-  -l            -l error                --showlog=error                    -l
-  -L            -l selftest             --showlog=selftest                 -L
-  -a            -A                      --showall                          -a
+  -f            -S on                   --saveauto=on                      -s 1
+  -F            -S off                  --saveauto=off                     -s 0
+  -c            -H                      --health                           -c
+  -g            -c                      --capabilities
+  -v            -A                      --attributes                       -p, -u, -f, -t
+  -l            -l error                --log=error                        -l
+  -L            -l selftest             --log=selftest                     -L
+  -a            -a                      --all                              -a
   -m            -v 9,minutes            --vendorattribute=9,minutes
   -O            -t offline              --test=offline
   -S            -t short                --test=short
