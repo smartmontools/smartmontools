@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.12 2004/05/13 14:35:10 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.13 2004/05/18 07:00:50 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -931,7 +931,7 @@ static int aspi_call(ASPI_SRB * srb)
 		if (++i > 100/*10sek*/) {
 			pout("ASPI Adapter %u: Timeout\n", srb->h.adapter);
 			aspi_entry = 0;
-			FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
+			h_aspi_dll = INVALID_HANDLE_VALUE;
 			errno = EIO;
 			return -1;
 		}
@@ -976,11 +976,11 @@ static int aspi_open_dll(int verbose)
 		return -1;
 	}
 
-	if (!((FARPROC)aspi_entry = GetProcAddress(h_aspi_dll, "SendASPI32Command"))) {
+	if (!(aspi_entry = (UINT (*)(ASPI_SRB *))GetProcAddress(h_aspi_dll, "SendASPI32Command"))) {
 		if (verbose)
 			pout("Missing SendASPI32Command() in WNASPI32.DLL\n");
 		FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
-		errno = ENOENT;
+		errno = ENOSYS;
 		return -1;
 	}
 
@@ -1215,7 +1215,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 	if (srb.h.status != ASPI_STATUS_NO_ERROR) {
 		if (   srb.h.status        == ASPI_STATUS_ERROR
 		    && srb.i.host_status   == ASPI_HSTATUS_NO_ERROR
-			&& srb.i.target_status == ASPI_TSTATUS_CHECK_CONDITION) {
+		    && srb.i.target_status == ASPI_TSTATUS_CHECK_CONDITION) {
 			// Sense valid
 			const unsigned char * sense = ASPI_SRB_SENSE(&srb.i, iop->cmnd_len);
 			int len = (ASPI_SENSE_SIZE < iop->max_sense_len ? ASPI_SENSE_SIZE : iop->max_sense_len);
