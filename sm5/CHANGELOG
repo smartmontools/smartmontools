@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.127 2003/04/22 11:20:25 ballen4705 Exp $
+$Id: CHANGELOG,v 1.128 2003/04/22 22:58:54 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,7 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
+  [GG] Makefile modifications to ease packaging
 
   [DG] Did work for TapeAlerts (SCSI). Now can detect /dev/nst0 as a
        SCSI device. Also open SCSI devices O_NONBLOCK so they don't
