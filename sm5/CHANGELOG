@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.492 2004/11/11 17:56:08 ydario Exp $
+$Id: CHANGELOG,v 1.493 2004/12/06 02:12:50 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] When linux detects a sata_via_libata disk suggest that user try
+       '-d ata' (rather then '-d libata). Anticipate kernel change.
 
   [YD] Added OS/2 and eComStation platform support.
 
