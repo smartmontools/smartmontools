@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.60 2004/12/20 16:48:22 chrfranke Exp $
+$Id: INSTALL,v 1.61 2005/02/20 21:19:23 snyderx Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -14,13 +14,14 @@ Table of contents:
 [4] Guidelines for different Linux distributions
 [5] Guidelines for FreeBSD
 [6] Guidelines for Darwin
-[7] Guidelines for NetBSD/OpenBSD
+[7] Guidelines for NetBSD
 [8] Guidelines for Solaris
 [9] Guidelines for Cygwin
 [10] Guidelines for Windows
 [11] Guidelines for OS/2, eComStation
-[12] Comments
-[13] Detailed description of ./configure options
+[12] Guidelines for OpenBSD
+[13] Comments
+[14] Detailed description of ./configure options
 
 [1] System requirements
 =======================
@@ -333,6 +334,10 @@ SuSE:
   ./configure --prefix=/usr/pkg                                       \
 	      --with-docdir=/usr/pkg/share/doc/smartmontools
 
+  On OpenBSD, it is important that you use GNU make (gmake from 
+  /usr/ports/devel/gmake) to build smartmontools, as the BSD make doesn't
+  know how to make the manpages.
+
 [8] Guidelines for Solaris
 ==========================
 
@@ -449,8 +454,33 @@ To compile the OS/2 code, please run
   make
   make install
 
+[12] Guidelines for OpenBSD
+==========================
+  To match the way it will installed when it becomes available as a PORT, use
+  the following:
 
-[12] Comments
+  ./configure --prefix=/usr/local                                      \
+	      --sysconfdir=/etc
+              --with-initscriptdir=/usr/local/share/doc/smartmontools-VERSION \
+              --with-docdir=/usr/local/share/doc/smartmontools-VERSION \
+	      --enable-sample
+
+  It is important that you use GNU make (gmake from /usr/ports/devel/gmake)
+  to build smartmontools, as the default OpenBSD make doesn't know how to build
+  the man pages.
+
+  NOTE1: --with-initscriptdir installs a SystemV startup script.  It really
+  should be --without-initscriptdir, but the Makefile code is incorrect and
+  trys to install the initscript (smartd) to /no.  So, an interim fix it to
+  set the initscript dir to the doc dir.
+
+  NOTE2: --enable-sample will cause the smartd.conf and smartd RC files to
+  be installed with the string '.sample' append to the name, so you will end
+  up with the following:
+	/usr/local/etc/smartd.conf.sample
+	/usr/local/etc/rc.d/smartd.sample
+
+[13] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -526,7 +556,7 @@ if groff is available:
 make MAN2HTML='groff -man -Thtml' htmlman
 
 
-[13] Detailed description of arguments to configure command
+[14] Detailed description of arguments to configure command
 ===========================================================
 
 When you type:
