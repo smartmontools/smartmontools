@@ -1,7 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.24 2003/10/08 01:24:58 ballen4705 Exp $
+# $Id: Makefile.am,v 1.25 2003/10/11 22:59:37 arvoreen Exp $
 #
+
+@SET_MAKE@
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -27,7 +29,7 @@ smartd_SOURCES =  smartd.c       \
                   utility.c 	\
                   utility.h
 
-smartd_LDADD = @os_deps@
+smartd_LDADD = @os_deps@ @os_libs@
 smartd_DEPENDENCIES = @os_deps@
 EXTRA_smartd_SOURCES = os_linux.c \
                        os_linux.h \
@@ -52,7 +54,7 @@ smartctl_SOURCES= smartctl.c    \
                   utility.c	\
                   utility.h
 
-smartctl_LDADD = @os_deps@
+smartctl_LDADD = @os_deps@ @os_libs@
 smartctl_DEPENDENCIES = @os_deps@
 EXTRA_smartctl_SOURCES = os_linux.c \
                        os_linux.h \

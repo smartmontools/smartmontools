@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.19 2003/10/07 21:35:27 guidog Exp $
+# $Id: configure.in,v 1.20 2003/10/11 22:59:37 arvoreen Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,14 +7,16 @@ AC_INIT(smartmontools, 5.21, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.19 2003/10/07 21:35:27 guidog Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.20 2003/10/11 22:59:37 arvoreen Exp $'`
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",        [smartmontools CVS Tag])
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE
+
+AM_INIT_AUTOMAKE('smartmontools', 5.21)
+
 AM_MAINTAINER_MODE
 
 AC_LANG_C
@@ -62,8 +64,13 @@ AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 
 AC_CANONICAL_HOST
 case "${host}" in
-	*-*-linux-gnu*) AC_SUBST([os_deps], ['os_linux.o']);;
-	*-*-freebsd*) AC_SUBST([os_deps], ['os_freebsd.o']);;
+	*-*-linux-gnu*) 
+		AC_SUBST([os_deps], ['os_linux.o']) 
+		AC_SUBST([os_libs], ['']) ;;
+	*-*-freebsd*) 
+		AC_SUBST([os_deps], ['os_freebsd.o']) 
+		AC_SUBST([os_libs], ['-lcam']);;
 esac
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
+AC_PROG_MAKE_SET
