@@ -38,6 +38,7 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#include <setjmp.h>
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -50,7 +51,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.189 2003/08/13 12:33:23 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.190 2003/08/14 13:34:51 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declarations
@@ -73,6 +74,9 @@ char* pid_file=NULL;
 
 // If set, we should exit after checking all disks once
 int checkonce=0;
+
+// used to recover from config file parsing errors at low level
+jmp_buf jumpenv;
 
 // Flag: user sent SIGUSR1 to wake smartd and check devices now
 volatile int caughtsigusr1=0;
@@ -337,9 +341,13 @@ void pout(char *fmt, ...){
   return;
 }
 
+// set to one if catch a HUP (reload config file)
+volatile int caughtsighup=1;
+
 // tell user that we ignore HUP signals
 void huphandler(int sig){
-  printout(LOG_INFO,"HUP ignored: smartd does NOT re-read /etc/smartd.conf.\n");
+  caughtsighup=1;
+  printout(LOG_INFO,"Signal HUP - rereading configuration file %s\n", CONFIGFILE);
   return;
 }
 
@@ -1241,96 +1249,93 @@ int scsiCheckDevice(cfgfile *cfg)
     return 0;
 }
 
-void CheckDevices(cfgfile **atadevices, cfgfile **scsidevices){
+void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
   static int firstpass=1;
   int i;
   time_t timenow=0, wakeuptime=0;
-    
-  // Infinite loop, which checks devices
-  printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
-  while (1){
-
-    for (i=0; i<numatadevices; i++) 
-      ataCheckDevice(atadevices[i]);
-    
-    for (i=0; i<numscsidevices; i++)
-      scsiCheckDevice(scsidevices[i]);
-
-    // This option is primarily for distribution developers who want
-    // an automated procedure for seeing if smartd works correctly.
-    // Use the -c/--checkonce option and verify zero exit status.
-    if (checkonce) {
-      printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n");
-      printout(LOG_INFO,"smartd is exiting (exit status 0)\n");
-      exit(0);
-    }
-
-    // Initialization setup
-    if (firstpass){
-      
-      // If in background as a daemon, fork and close file descriptors
-      if (!debugmode)
-	daemon_init();
-      
-      // install goobye message and remove pidfile handler
-      on_exit(goodbye, NULL);
-      
-      // write PID file only after installing exit handler
-      if (!debugmode)
-	write_pid_file();
-      
-      // install signal handlers:
-
-      // normal and abnormal exit
-      if (signal(SIGTERM, sighandler)==SIG_IGN)
-	signal(SIGTERM, SIG_IGN);
-      if (signal(SIGINT,  sighandler)==SIG_IGN)
-	signal(SIGINT,  SIG_IGN);
-      if (signal(SIGQUIT, sighandler)==SIG_IGN)
-	signal(SIGQUIT, SIG_IGN);
-      
-      // don't exit
-      if (signal(SIGHUP, huphandler)==SIG_IGN)
-	signal(SIGHUP, SIG_IGN);
-      if (signal(SIGUSR1, sleephandler)==SIG_IGN)
-	signal(SIGUSR1, SIG_IGN);
-
-      // initialize wakeup time
-      wakeuptime=time(NULL)+checktime;
-
-      // done with initialization setup
-      firstpass=0;
-    }
-
-    // If past wake-up-time, compute next wake-up-time
-    timenow=time(NULL);
-    while (wakeuptime<=timenow){
-      int intervals=1+(timenow-wakeuptime)/checktime;
-      wakeuptime+=intervals*checktime;
-    }
-    
-    // sleep until we catch SIGUSR1 or have completed sleeping
-    while (timenow<wakeuptime && !caughtsigusr1){
-      
-      // protect user again system clock being adjusted backwards
-      if (wakeuptime>timenow+checktime){
-	printout(LOG_CRIT, "System clock time adjusted to the past. Resetting next wakeup time.\n");
-	wakeuptime=timenow+checktime;
-      }
-      
-      // Exit sleep when time interval has expired or a signal is received
-      sleep(wakeuptime-timenow);
-      
-      timenow=time(NULL);
-    }
-
-    // if we caught a SIGUSR1 then print message and clear signal
-    if (caughtsigusr1){
-      printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
-	       wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
-      caughtsigusr1=0;
-    }
+  
+  for (i=0; i<numatadevices; i++) 
+    ataCheckDevice(atadevices[i]);
+  
+  for (i=0; i<numscsidevices; i++)
+    scsiCheckDevice(scsidevices[i]);
+  
+  // This option is primarily for distribution developers who want
+  // an automated procedure for seeing if smartd works correctly.
+  // Use the -c/--checkonce option and verify zero exit status.
+  if (checkonce) {
+    printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n");
+    printout(LOG_INFO,"smartd is exiting (exit status 0)\n");
+    exit(0);
   }
+  
+  // Initialization setup
+  if (firstpass){
+    
+    // If in background as a daemon, fork and close file descriptors
+    if (!debugmode)
+      daemon_init();
+    
+    // install goobye message and remove pidfile handler
+    on_exit(goodbye, NULL);
+    
+    // write PID file only after installing exit handler
+    if (!debugmode)
+      write_pid_file();
+    
+    // install signal handlers:
+    
+    // normal and abnormal exit
+    if (signal(SIGTERM, sighandler)==SIG_IGN)
+      signal(SIGTERM, SIG_IGN);
+    if (signal(SIGINT,  sighandler)==SIG_IGN)
+      signal(SIGINT,  SIG_IGN);
+    if (signal(SIGQUIT, sighandler)==SIG_IGN)
+      signal(SIGQUIT, SIG_IGN);
+    
+    // don't exit
+    if (signal(SIGHUP, huphandler)==SIG_IGN)
+      signal(SIGHUP, SIG_IGN);
+    if (signal(SIGUSR1, sleephandler)==SIG_IGN)
+      signal(SIGUSR1, SIG_IGN);
+    
+    // initialize wakeup time
+    wakeuptime=time(NULL)+checktime;
+    
+    // done with initialization setup
+    firstpass=0;
+  }
+  
+  // If past wake-up-time, compute next wake-up-time
+  timenow=time(NULL);
+  while (wakeuptime<=timenow){
+    int intervals=1+(timenow-wakeuptime)/checktime;
+    wakeuptime+=intervals*checktime;
+  }
+  
+  // sleep until we catch SIGUSR1 or have completed sleeping
+  while (timenow<wakeuptime && !caughtsigusr1 && !caughtsighup){
+    
+    // protect user again system clock being adjusted backwards
+    if (wakeuptime>timenow+checktime){
+      printout(LOG_CRIT, "System clock time adjusted to the past. Resetting next wakeup time.\n");
+      wakeuptime=timenow+checktime;
+    }
+    
+    // Exit sleep when time interval has expired or a signal is received
+    sleep(wakeuptime-timenow);
+    
+    timenow=time(NULL);
+  }
+  
+  // if we caught a SIGUSR1 then print message and clear signal
+  if (caughtsigusr1){
+    printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
+	     wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
+    caughtsigusr1=0;
+  }
+
+  return;
 }
 
 // Print out a list of valid arguments for the Directive d
@@ -1386,8 +1391,7 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
   if (!arg) {
     printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes integer argument from %d to %d.\n",
              configfile, lineno, name, token, min, max);
-    Directives();
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
   
   // get argument value (base 10), check that it's integer, and in-range
@@ -1395,8 +1399,7 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
   if (*endptr!='\0' || val<min || val>max )  {
     printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs integer from %d to %d.\n",
              configfile, lineno, name, token, arg, min, max);
-    Directives();
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
 
   // all is well; return value
@@ -1424,7 +1427,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              CONFIGFILE, lineno, name, token);
     Directives();
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
   
   // let's parse the token and swallow its argument
@@ -1585,8 +1588,7 @@ int parsetoken(char *token,cfgfile *cfg){
       if ((arg = strtok(NULL, delim)) == NULL) {
         printout(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
                  CONFIGFILE, lineno, name, token);
-        Directives();
-        exit(EXIT_BADCONF);
+        longjmp(jumpenv, 1);
       }
       // Free the last cmd line given if any
       if (cfg->emailcmdline) {
@@ -1630,13 +1632,11 @@ int parsetoken(char *token,cfgfile *cfg){
     if ((arg = strtok(NULL,delim)) == NULL) {
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
                CONFIGFILE, lineno, name, token);
-      Directives();
-      exit(EXIT_BADCONF);
+      longjmp(jumpenv, 1);
     }
     if (!(cfg->address=strdup(arg))){
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s: no free memory for email address(es) %s\n",
                CONFIGFILE, lineno, name, token, arg);
-      Directives();
       exit(EXIT_NOMEM);
     }
     break;
@@ -1671,7 +1671,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              CONFIGFILE, lineno, name, token);
     Directives();
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
   if (missingarg) {
     printout(LOG_CRIT, "File %s line %d (drive %s): Missing argument to %s Directive\n",
@@ -1685,7 +1685,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT, "Valid arguments to %s Directive are: ", token);
     printoutvaliddirectiveargs(LOG_CRIT, sym);
     printout(LOG_CRIT, "\n");
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
 
   return 1;
@@ -1788,13 +1788,19 @@ void sighandler(int sig){
   exit(isterm?0:EXIT_SIGNAL);
 }
 
+// number of tokens parsed going through config file
+int numtokens;
+
+// points to mallocd memory that might need to be cleared if
+// longjmp() returns from an internal error in parsing.
+char *copy=NULL;
+
 // This is the routine that adds things to the cfgentries list
 int parseconfigline(int entry, int lineno,char *line){
-  char *token=NULL,*copy=NULL;
+  char *token=NULL;
   char *name=NULL;
   char *delim = " \n\t";
   cfgfile *cfg=NULL;
-  static int numtokens=0;
   int devscan=0;
 
   if (!(copy=strdup(line))){
@@ -1813,7 +1819,8 @@ int parseconfigline(int entry, int lineno,char *line){
     devscan=1;
     if (numtokens) {
       printout(LOG_INFO,"Scan Directive %s (line %d) must be the first entry in %s\n",name, lineno, CONFIGFILE);
-      exit(EXIT_BADCONF);
+      copy=checkfree(copy);
+      longjmp(jumpenv, 1);
     }
   }
 
@@ -1897,8 +1904,7 @@ int parseconfigline(int entry, int lineno,char *line){
   if (!cfg->address && (cfg->emailcmdline || cfg->emailfreq || cfg->emailtest)){
     printout(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
              cfg->name, cfg->lineno, CONFIGFILE);
-    Directives();
-    exit(EXIT_BADCONF);
+    longjmp(jumpenv, 1);
   }
   
   // has the user has set <nomailer>?
@@ -1907,8 +1913,7 @@ int parseconfigline(int entry, int lineno,char *line){
     if (!cfg->emailcmdline){
       printout(LOG_CRIT,"Drive: %s, -m <nomailer> Directive on line %d of file %s needs -M exec Directive\n",
                cfg->name, cfg->lineno, CONFIGFILE);
-      Directives();
-      exit(EXIT_BADCONF);
+      longjmp(jumpenv, 1);
     }
     // now free memory.  From here on the sign of <nomailer> is
     // address==NULL and cfg->emailcmdline!=NULL
@@ -1939,13 +1944,15 @@ int parseconfigfile(){
   char line[MAXLINELEN+2];
   char fullline[MAXCONTLINE+1];
 
+  numtokens=0;
+
   // Open config file, if it exists
   fp=fopen(CONFIGFILE,"r");
   if (fp==NULL && errno!=ENOENT){
     // file exists but we can't read it
     printout(LOG_CRIT,"%s: Unable to open configuration file %s\n",
              strerror(errno),CONFIGFILE);
-    exit(EXIT_BADCONF);
+    return -1;
   }
   
   // No configuration file found -- use fake one
@@ -1962,6 +1969,16 @@ int parseconfigfile(){
     }
     fakeconfig=checkfree(fakeconfig);
     return 0;
+  }
+
+  if (setjmp(jumpenv)){
+    // we found an error at low level in the config file
+    if (fp) {
+      fclose(fp);
+      fp=NULL;
+    }
+    copy=freenonzero(copy);
+    return -1;
   }
   
   // configuration file exists
@@ -2009,7 +2026,8 @@ int parseconfigfile(){
         warn="";
       printout(LOG_CRIT,"Error: line %d of file %s %sis more than %d characters.\n",
                (int)contlineno,CONFIGFILE,warn,(int)MAXLINELEN);
-      exit(EXIT_CCONST);
+      fclose(fp);
+      return -1;
     }
 
     // Ignore anything after comment symbol
@@ -2022,7 +2040,8 @@ int parseconfigfile(){
     if (cont+len>MAXCONTLINE){
       printout(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than %d characters.\n",
                lineno, (int)contlineno, CONFIGFILE, (int)MAXCONTLINE);
-      exit(EXIT_CCONST);
+      fclose(fp);
+      return -1;
     }
     
     // copy string so far into fullline, and increment length
@@ -2053,7 +2072,8 @@ int parseconfigfile(){
     return entry;
   
   printout(LOG_CRIT,"Configuration file %s contains no devices (like /dev/hda)\n",CONFIGFILE);
-  exit(EXIT_BADCONF);
+  fclose(fp);
+  return -1;
 }
 
 // Prints copyright, license and version information
@@ -2349,93 +2369,140 @@ int main (int argc, char **argv){
   con->veryquietmode=debugmode?0:1;
   con->checksumfail=0;
 
-  // parse configuration file CONFIGFILE (normally /etc/smartd.conf)
-  entries=parseconfigfile();
+  // the principal loop of the code
+  while (1){
+    
+    if (caughtsighup){
+      
+      // clear list used in parsing config file entries
+      memset(cfgentries, 0,sizeof(cfgfile *)*MAXENTRIES);
 
-  // SCANDIRECTIVE used or no /etc/smartd.conf configuration file
-  if (!entries){
-    // Configuration file's first entry contains all options that were set
-    cfgfile *first=cfgentries[0];
-    int doata = first->tryata;
-    int doscsi= first->tryscsi;
+      // parse configuration file CONFIGFILE (normally /etc/smartd.conf)
+      entries=parseconfigfile();
+      
+      if (entries>=0){
+	// no error parsing config file.  Clear device lists & structures
+	for (i=0; i<numatadevices; i++)
+	  atadevices[i]=rmconfigentry(atadevices[i]);
+
+	for (i=0; i<numscsidevices; i++)
+	  scsidevices[i]=rmconfigentry(scsidevices[i]);
+	
+	numatadevices=0;
+	numscsidevices=0;
+	
+	// SCANDIRECTIVE used or no /etc/smartd.conf configuration file
+	if (entries)
+	  scanning=0;
+	else {
+	  // Configuration file's first entry contains all options that were set
+	  cfgfile *first=cfgentries[0];
+	  int doata = first->tryata;
+	  int doscsi= first->tryscsi;
+	  
+	  scanning=1;
+	  
+	  if (first->lineno)
+	    printout(LOG_INFO,"%s found in configuration file %s - scanning devices\n", SCANDIRECTIVE, CONFIGFILE);
+	  else
+	    printout(LOG_INFO,"No configuration file %s found - scanning devices\n", CONFIGFILE);
+	  
+	  // make list of ATA devices to search for
+	  if (doata)
+	    entries+=makeconfigentries(MAXATADEVICES, "/dev/hda", entries);
+	  // make list of SCSI devices to search for
+	  if (doscsi)
+	    entries+=makeconfigentries(MAXSCSIDEVICES,"/dev/sda", entries);
+	}
+	
+	// Register entries
+	for (i=0;i<entries;i++){
+	  int notregistered=1;
+	  cfgfile *ent=cfgentries[i];
+	  
+	  // register ATA devices
+	  if (ent->tryata){
+	    if (atadevicescan(ent))
+	      cantregister(ent->name, "ATA", ent->lineno, scanning);
+	    else {
+	      notregistered=0;
+	      atadevices[numatadevices++]=ent;
+	    }
+	  }
+	  
+	  // then register SCSI devices
+	  if (ent->tryscsi){
+	    if (scsidevicescan(ent))
+	      cantregister(ent->name, "SCSI", ent->lineno, scanning);
+	    else {
+	      notregistered=0;
+	      scsidevices[numscsidevices++]=ent;
+	    }
+	  }
+	  
+	  // if device is explictly listed and we can't register it, then exit unless
+	  // the user has specified that the device is removable
+	  if (notregistered && !scanning){
+	    if (ent->removable)
+	      printout(LOG_INFO, "Device %s not available\n", ent->name);
+	    else {
+	      printout(LOG_CRIT, "Unable to register device %s (use -d removable Directive?) Exiting.\n", ent->name);
+	      exit(EXIT_BADDEV);
+	    }
+	  }
+	  
+	  // free up memory if not needed
+	  if (notregistered)
+	    cfgentries[i]=ent=rmconfigentry(ent);
+	  
+	} // done registering entries
+	
+	// Internal consistency check
+	{
+	  int total=0;
+	  for (i=0; i<MAXENTRIES; i++)
+	    if (cfgentries[i])
+	      total++;
+	  if (total != numatadevices+numscsidevices){
+	    printout(LOG_CRIT,"Internal inconsistency in smartd data structures: total %d != ata %d + scsi %d\n",
+		     total, numatadevices, numscsidevices);
+	    exit(EXIT_NOMEM);
+	  }
+	}
+	
+	if (numatadevices+numscsidevices)
+	  printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
+	else {
+	  printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices. Exiting...\n");
+	  exit(EXIT_BADDEV);
+	}
+      } // done with entries>=0 cases
+      else {
+	// There was an error in the configuration file!
+	if (numatadevices+numscsidevices) {
+	  printout(LOG_CRIT, "Configuration file contained fatal errors. Continuing with previous configuration.\n");
+	  printout(LOG_INFO,"Continuing to monitor %d ATA and %d SCSI devices.\n",numatadevices,numscsidevices);
+	}
+	else {
+	  printout(LOG_CRIT, "Configuration file contained fatal errors.\n");
+	  printout(LOG_INFO, "Unable to monitor any SMART enabled ATA or SCSI devices. Exiting...\n");
+	  exit(EXIT_BADDEV);
+	}
+	
+	// delete any memory that was already allocated
+	for (i=0; i<MAXENTRIES; i++)
+	  if (cfgentries[i])
+	    cfgentries[i]=rmconfigentry(cfgentries[i]);
+      }
+      
+      caughtsighup=0;
+      
+    } // End of if (caughtsighup) statement 
     
-    scanning=1;
-    
-    if (first->lineno)
-      printout(LOG_INFO,"%s found in configuration file %s - scanning devices\n", SCANDIRECTIVE, CONFIGFILE);
-    else
-      printout(LOG_INFO,"No configuration file %s found - scanning devices\n", CONFIGFILE);
-    
-    // make list of ATA devices to search for
-    if (doata)
-      entries+=makeconfigentries(MAXATADEVICES, "/dev/hda", entries);
-    // make list of SCSI devices to search for
-    if (doscsi)
-      entries+=makeconfigentries(MAXSCSIDEVICES,"/dev/sda", entries);
+      // Now check all devices once
+    CheckDevicesOnce(atadevices, scsidevices); 
   }
-  
-  // Register entries
-  for (i=0;i<entries;i++){
-    int notregistered=1;
-    cfgfile *ent=cfgentries[i];
-    
-    // register ATA devices
-    if (ent->tryata){
-      if (atadevicescan(ent))
-	cantregister(ent->name, "ATA", ent->lineno, scanning);
-      else {
-	notregistered=0;
-	atadevices[numatadevices++]=ent;
-      }
-    }
-    
-    // then register SCSI devices
-    if (ent->tryscsi){
-      if (scsidevicescan(ent))
-	cantregister(ent->name, "SCSI", ent->lineno, scanning);
-      else {
-	notregistered=0;
-	scsidevices[numscsidevices++]=ent;
-      }
-    }
-    
-    // if device is explictly listed and we can't register it, then exit unless
-    // the user has specified that the device is removable
-    if (notregistered && !scanning){
-      if (ent->removable)
-        printout(LOG_INFO, "Device %s not available\n", ent->name);
-      else {
-        printout(LOG_CRIT, "Unable to register device %s (use -d removable Directive?) Exiting.\n", ent->name);
-        exit(EXIT_BADDEV);
-      }
-    }
-
-    // free up memory if not needed
-    if (notregistered)
-      cfgentries[i]=ent=rmconfigentry(ent);
-    
-  } // done registering entries
-
-  // Internal consistency check
- {
-   int total=0;
-   for (i=0; i<MAXENTRIES; i++)
-     if (cfgentries[i])
-       total++;
-   if (total != numatadevices+numscsidevices){
-     printout(LOG_CRIT,"Internal inconsistency in smartd data structures: total %d != ata %d + scsi %d\n",
-	      total, numatadevices, numscsidevices);
-     exit(EXIT_NOMEM);
-   }
- }
-  // If there are no devices to monitor, then exit
-  if (!numatadevices && !numscsidevices){
-    printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
-    exit(EXIT_BADDEV);
-  }
-
-  // Now start an infinite loop that checks all devices
-  CheckDevices(atadevices, scsidevices); 
   return 0;
 }
-
+ 
+  

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.54 2003/08/05 11:15:54 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.55 2003/08/14 13:34:51 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/08/05 11:15:54 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/14 13:34:51 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -29,17 +29,8 @@ monitors the Self-Monitoring, Analysis and Reporting
 Technology (SMART) system built into many ATA-3 and later ATA,
 IDE and SCSI-3 hard drives.
 
-Note that
-.B smartd
-only reads the configuration file at start-up: changes to the
-configuration file take effect only after the
-.B smartd
-daemon is restarted.  If you send a HUP signal to
-.B smartd
-it will log a polite message saying that it ignores this signal and
-that it has
-.I not
-re-read the configuration file.
+If \fBsmartd\fP receives a \fBHUP\fP signal, it will re-read the
+configuration file.
 
 \# DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. WHAT FOLLOWS
 \# IS AUTOMATICALLY INCLUDED FROM THE FILE smartd.8
@@ -181,9 +172,8 @@ inquiry about disk status fails.
 then the corresponding SCSI device must be listed, along with the
 \'\-d 3ware,N\' Directive (see below).  The individual ATA disks
 hosted by the 3ware controller appear to \fBsmartd\fP as normal ATA
-devices.  Hence all the ATA directives can be used for these disks,
-with the exception of \'\-S on\' and \'\-o on\', which are not
-supported by the 3w-xxxx driver.
+devices.  Hence all the ATA directives can be used for these disks
+(but see note below).
 
 .TP
 .B \-d TYPE
@@ -217,15 +207,26 @@ from issuing ATA commands to a SCSI device.
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
 RAID controller. The non-negative integer N (in the range from 0 to 15
-inclusive) denotes which disk on the controller is monitored.  This
-Directive may at first appear confusing, because the 3ware controller
-is a SCSI device (such as /dev/sda) and should be listed as such in
-the the configuration file.  However when the \'\-d 3ware,N\'
+inclusive) denotes which disk on the controller is monitored.
+
+This Directive may at first appear confusing, because the 3ware
+controller is a SCSI device (such as /dev/sda) and should be listed as
+such in the the configuration file.  However when the \'\-d 3ware,N\'
 Directive is used, then the corresponding disk is addressed using
 native ATA commands which are \'passed through\' the SCSI driver. All
-ATA Directives listed in this man page may be used, with the exception
-of \'\-S on\' and \'\-o on\', which can not be passed to the disk via
-the 3w-xxxx SCSI driver
+ATA Directives listed in this man page may be used.
+
+Note that the stock 3w-xxxx drivers do not pass the \'Enable
+Autosave\' (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o
+on\fP) commands to the disk, and produce these harmless syslog error
+messages instead:
+.fi
+3w-xxxx: tw_ioctl(): Passthru size (123392) too big.
+.fi
+3w-xxxx: tw_ioctl(): Passthru size (126976) too big.
+.fi
+This can be fixed by patching the 3w-xxxx driver.  See
+\fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 
 .I removable
 \- the device or its media is removable.  This indicates to
@@ -317,9 +318,9 @@ command-line option.]
 .B \-f
 Check for 'failure' of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT
-indicate imminent disk failure.  It ""indicates an advisory condition
+indicate imminent disk failure.  It \(dqindicates an advisory condition
 where the usage or age of the device has exceeded its intended design
-life period."" [Please see the
+life period.\(dq [Please see the
 .B smartctl \-A
 command-line option.]
 
@@ -945,4 +946,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.54 2003/08/05 11:15:54 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.55 2003/08/14 13:34:51 ballen4705 Exp $
