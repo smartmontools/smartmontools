@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.182 2003/08/22 04:43:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.183 2003/08/26 09:40:02 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -407,7 +407,7 @@ smartmontools-5.1-5
        can now be followed by all the same Directives as a regular
        device name like /dev/hda takes.  This allows one to use
        (for example):
-       DEVICESCAN -m root@yoyodyne.com
+       DEVICESCAN -m root@yoyo.dyne.com
        in the /etc/smartd.conf file.
 
   [BA] smartd: Added -c (--checkonce) command-line option. This checks

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.59 2003/08/26 03:33:03 pervalidus Exp $
+\# $Id: smartd.conf.5,v 1.60 2003/08/26 09:40:02 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/08/26 03:33:03 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/26 09:40:02 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -92,7 +92,7 @@ Section below!
 .nf
 .B # First ATA disk on each of two interfaces:
 .B #
-.B \ \ /dev/hda -a -m admin@yoyodyne.ex,root@localhost 
+.B \ \ /dev/hda -a -m admin@yoyo.dyne.com,root@localhost 
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12
 .B #
 .nf
@@ -100,7 +100,7 @@ Section below!
 .B # startup.
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -m admin@yoyodyne.ex -M test
+.B \ \ /dev/sdc -m admin@yoyo.dyne.com -M test
 .B #
 .nf
 .B # Strange device.  It's SCSI:
@@ -317,9 +317,9 @@ command-line option.]
 .B \-f
 Check for 'failure' of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT
-indicate imminent disk failure.  It \(dqindicates an advisory condition
+indicate imminent disk failure.  It "indicates an advisory condition
 where the usage or age of the device has exceeded its intended design
-life period.\(dq [Please see the
+life period." [Please see the
 .B smartctl \-A
 command-line option.]
 
@@ -485,7 +485,7 @@ is set to the address argument ADD of the '\-m' Directive, unless ADD
 is
 .B <nomailer>.
 This is a comma-delineated list of email addresses (example:
-admin@yoyodyne.ex).
+admin@yoyo.dyne.com).
 .nf
 .fi
 .B SMARTD_MESSAGE
@@ -519,7 +519,7 @@ then the executable pointed to by PATH will be run in a shell with
 STDIN receiving the body of the email message, and with the same
 command-line arguments:
 .nf
--s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS
+-s "$SMARTD_SUBJECT" $SMARTD_ADDRESS
 .fi
 that would normally be provided to 'mail'.  Examples include:
 .nf
@@ -835,16 +835,16 @@ any devices that are found.
 may optionally be followed by any valid Directives, which will be
 applied to all devices that are found in the scan.  For example
 .nf
-.B DEVICESCAN -m root@yoyodyne.ex
+.B DEVICESCAN -m root@yoyo.dyne.com
 .fi
 will scan for all devices, and then monitor them.  It will send one
 email warning per device for any problems that are found.
 .nf
-.B  DEVICESCAN -d ata -m root@yoyodyne.ex
+.B  DEVICESCAN -d ata -m root@yoyo.dyne.com
 .fi
 will do the same, but restricts the scan to ATA devices only.  
 .nf
-.B  DEVICESCAN -H -d ata -m root@yoyodyne.ex
+.B  DEVICESCAN -H -d ata -m root@yoyo.dyne.com
 .fi
 will do the same, but only monitors the SMART health status of the
 devices, (rather than the default \-a, which monitors all SMART
@@ -867,12 +867,12 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 
 .B # Save the email message (STDIN) to a file:
 .B cat > /root/msg
- \(dq
+
 .B # Append the output of smartctl -a to the message:
 .B /usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
 .B # Now email the message to the user at address ADD:
-.B /bin/mail -s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS < /root/msg
+.B /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
 .fi
 
 Example 2: This script is for use with '\-m <nomailer> \-M exec
@@ -883,8 +883,8 @@ then powers down the machine.
 .B #! /bin/bash
 
 .B # Warn all users of a problem
-.B wall 'Problem detected with disk: ' \(dq$SMARTD_DEVICESTRING\(dq
-.B wall 'Warning message from smartd is: ' \(dq$SMARTD_MESSAGE\(dq
+.B wall 'Problem detected with disk: ' "$SMARTD_DEVICESTRING"
+.B wall 'Warning message from smartd is: ' "$SMARTD_MESSAGE"
 .B wall 'Shutting down machine in 30 seconds... '
  
 .B # Wait half a minute
@@ -945,4 +945,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.59 2003/08/26 03:33:03 pervalidus Exp $
+$Id: smartd.conf.5,v 1.60 2003/08/26 09:40:02 ballen4705 Exp $
