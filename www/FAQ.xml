@@ -372,16 +372,17 @@ pass these commands through to the ATA disks.</para>
 role="italic">do</emphasis> correctly support <emphasis
 role="italic">all</emphasis> of these commands.  You may:</para>
 
-<itemizedlist><listitem><para>
-Use version <emphasis role="bold">1.02.00.037</emphasis> or greater of
-the 3w-xxxx driver, or</para></listitem>
+<itemizedlist>
+<listitem><para>Use version <emphasis role="bold">1.02.00.037</emphasis>
+or greater of the 3w-xxxx driver, or</para></listitem>
 <listitem><para>Patch earlier 3ware 3w-xxxx drivers with <ulink url="http://smartmontools.sourceforge.net/3w-xxxx.txt">
 <literal>http://smartmontools.sourceforge.net/3w-xxxx.txt</literal></ulink>
 so that these commands reach the disks, or</para></listitem>
 <listitem><para>Use an <emphasis role="bold">unpatched</emphasis>
 earlier 3w-xxxx driver (which won't pass these commands to the disks but
-will instead print harmless warning messages to SYSLOG).
-</para></listitem></itemizedlist>
+will instead print harmless warning messages to
+SYSLOG).</para></listitem>
+</itemizedlist>
 
 <para>Since smartmontools 3ware support is new, please report positive
 or negative experiences to the mailing list, particularly for 64-bit
@@ -423,17 +424,18 @@ normal ATA disks in Linux.</para>
 
 <para>The smartsuite code was originally developed as a Senior Thesis by
 Michael Cornwell at the Concurrent Systems Laboratory (now part of the
-Storage Systems Research Center - 
-<ulink url="http://ssrc.soe.ucsc.edu/">
-<literal>href=http://ssrc.soe.ucsc.edu/</literal></ulink>), Jack
-Baskin School of Engineering, University of California, Santa Cruz.  You
-can find some information about the original smartsuite project here:
-Press Release 1 - <ulink url="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm">
-<literal>http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm</literal></ulink>
-Press Release 2 - <ulink url="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm">
-<literal>http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm</literal></ulink>
-Press Release 3 - <ulink url="http://www.ucsc.edu/currents/99-00/09-27/smart.html">
-<literal>http://www.ucsc.edu/currents/99-00/09-27/smart.html</literal></ulink></para>
+Storage Systems Research Center - <ulink url="http://ssrc.soe.ucsc.edu/">
+<literal>http://ssrc.soe.ucsc.edu/</literal></ulink>), Jack Baskin
+School of Engineering, University of California, Santa Cruz.  You can
+find some information about the original smartsuite project here:</para>
+<itemizedlist>
+<listitem><para>Press Release 1 - <ulink url="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm">
+<literal>http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm</literal></ulink>.</para></listitem>
+<listitem><para>Press Release 2 - <ulink url="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm">
+<literal>http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm</literal></ulink>.</para></listitem>
+<listitem><para>Press Release 3 - <ulink url="http://www.ucsc.edu/currents/99-00/09-27/smart.html">
+<literal>http://www.ucsc.edu/currents/99-00/09-27/smart.html</literal></ulink>.</para></listitem>
+</itemizedlist>
 
 <para>smartmontools was derived directly from smartsuite.  It differs
 from smartsuite in that it supports the ATA/ATAPI-5 standard.  So for
