@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.13 2003/08/04 12:58:40 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.14 2003/08/11 14:21:52 ballen4705 Exp $" UTILITY_H_CVSID;
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at
@@ -221,31 +221,24 @@ int split_report_arg(char *s, int *i)
 }
 
 // same as above but returns -1 if missing , argument
-int split_report_arg2(char *s, int *i)
-{
-  if ((s = strchr(s, ','))) {
-    // Looks like there's a name part and an integer part.
-    *s++ = '\0';
-    if (!isdigit(*s)) { // The integer part must be positive
-      *i=-1;
-      return 0;
-    }
-    errno = 0;
-    *i = atoi(s);
-    if (errno) {
-      *i=-2;
-      return 0;
-    }
-  } else {
-    // There's no integer part.
-    *i=-3;
-    return 0;
+int split_report_arg2(char *s, int *i){
+  s+=6;
+
+  if (*s=='\0' || !isdigit(*s)) { 
+    // What's left must be integer
+    *i=-1;
+    return 1;
   }
-  
+
+  errno = 0;
+  *i = atoi(s);
+  if (errno) {
+    *i=-1;
+    return 1;
+  }
+
   return 0;
 }
-
-
 
 // Guess device type (ata or scsi) based on device name (Linux
 // specific) SCSI device name in linux can be sd, sr, scd, st, nst,
