@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.17 2003/12/19 17:35:44 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.18 2003/12/30 11:58:45 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -241,7 +241,7 @@ elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
 elif [ -f /etc/turbolinux-release ] ; then
     report_unsupported "Turbolinux"
-elif uname -a | grep -q FreeBSD ; then
+elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 
     PID_FILE=/var/run/smartd.pid
     
@@ -265,7 +265,7 @@ elif uname -a | grep -q FreeBSD ; then
     esac
     
     exit 0
-elif uname -a | grep -q SunOS ; then
+elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     
     PID_FILE=/var/run/smartd.pid
     
@@ -275,7 +275,7 @@ elif uname -a | grep -q SunOS ; then
 	    echo -n "smartd "
 	    ;;
 	stop)
-	    kill `cat $PID_FILE`
+	    [ -f $PID_FILE ] && kill `cat $PID_FILE`
 	    echo -n "smartd "
 	    ;;
 	restart)
