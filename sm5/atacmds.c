@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.160.2.1 2004/08/16 23:57:19 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.160.2.2 2004/08/18 16:21:07 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -771,7 +771,7 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
   if (i==0)
     return 1;
   else
-    return i;;
+    return i;
 }
 
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell

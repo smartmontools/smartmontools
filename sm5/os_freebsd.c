@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.40.2.1 2004/08/16 23:57:19 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.40.2.2 2004/08/18 16:21:20 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.40.2.1 2004/08/16 23:57:19 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.40.2.2 2004/08/18 16:21:20 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -771,7 +771,7 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
-    return CONTROLLER_UNKNOWN;;
+    return CONTROLLER_UNKNOWN;
   
   // Remove the leading /dev/... if it's there
   if (!strncmp(fbsd_dev_prefix, dev_name, dev_prefix_len)) {
