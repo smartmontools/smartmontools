@@ -40,7 +40,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.4 2004/07/16 19:15:49 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.5 2004/07/17 23:39:45 geoffk1 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -88,7 +88,6 @@ int make_device_names (char*** devlist, const char* name) {
   int result;
   int index;
   const char * cls;
-  extern long long bytes;
 
   if (strcmp (name, "ATA") == 0)
     cls = kIOATABlockStorageDeviceClass;
@@ -107,9 +106,8 @@ int make_device_names (char*** devlist, const char* name) {
 
   // Create an array of service names.
   IOIteratorReset (i);
-  *devlist = calloc (result, sizeof (char *));
-  bytes += result * sizeof (char *);
-  if (*devlist == NULL)
+  *devlist = Calloc (result, sizeof (char *));
+  if (! *devlist)
     goto error;
   for (index = 0; (device = IOIteratorNext (i)) != MACH_PORT_NULL; index++)
     {
@@ -117,9 +115,8 @@ int make_device_names (char*** devlist, const char* name) {
       IORegistryEntryGetPath(device, kIOServicePlane, devName);
       IOObjectRelease (device);
 
-      (*devlist)[index] = strdup (devName);
-      bytes += strlen (devName) + 1;
-      if ((*devlist)[index] == NULL)
+      (*devlist)[index] = CustomStrDup (devName, true, __LINE__, __FILE__);
+      if (! (*devlist)[index])
 	goto error;
     }
   IOObjectRelease (i);
@@ -128,16 +125,12 @@ int make_device_names (char*** devlist, const char* name) {
 
  error:
   IOObjectRelease (i);
-  if (*devlist != NULL)
+  if (*devlist)
     {
       for (index = 0; index < result; index++)
-	if ((*devlist)[index] != NULL)
-	  {
-	    bytes -= strlen ((*devlist)[index]) + 1;
-	    free ((*devlist)[index]);
-	  }
-      free (*devlist);
-      bytes -= result * sizeof (char *);
+	if ((*devlist)[index])
+	  FreeNonZero ((*devlist)[index], 0, __LINE__, __FILE__);
+      FreeNonZero (*devlist, result * sizeof (char *), __LINE__, __FILE__);
     }
   return -1;
 }
@@ -174,7 +167,7 @@ int deviceopen(const char *pathname, char *type){
   
   // Find a free device number.
   for (devnum = 0; devnum < sizeof (devices) / sizeof (devices[0]); devnum++)
-    if (devices[devnum].ioob == MACH_PORT_NULL)
+    if (! devices[devnum].ioob)
       break;
   if (devnum == sizeof (devices) / sizeof (devices[0]))
     {
@@ -192,7 +185,7 @@ int deviceopen(const char *pathname, char *type){
     devname = pathname;
 
   // Find the device.
-  if (devname != NULL)
+  if (devname)
     {
       CFMutableDictionaryRef matcher;
       matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
@@ -203,7 +196,7 @@ int deviceopen(const char *pathname, char *type){
       disk = IORegistryEntryFromPath (kIOMasterPortDefault, pathname);
     }
 
-  if (disk == MACH_PORT_NULL)
+  if (! disk)
     {
       errno = ENOENT;
       return -1;
@@ -216,7 +209,7 @@ int deviceopen(const char *pathname, char *type){
       io_object_t notdisk = disk;
 
       err = IORegistryEntryGetParentEntry (notdisk, kIOServicePlane, &disk);
-      if (err != kIOReturnSuccess || disk == MACH_PORT_NULL)
+      if (err != kIOReturnSuccess || ! disk)
 	{
 	  errno = ENODEV;
 	  IOObjectRelease (notdisk);
@@ -247,7 +240,7 @@ int deviceopen(const char *pathname, char *type){
     else
       devices[devnum].hassmart = false;
 
-    if (diskProps != NULL)
+    if (diskProps)
       CFRelease (diskProps);
   }
   
