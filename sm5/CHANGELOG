@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.27 2002/10/29 14:19:10 ballen4705 Exp $
+$Id: CHANGELOG,v 1.28 2002/10/29 15:19:30 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -60,6 +60,7 @@ smartmontools-5.0-17
     -p     Report changes in 'Prefailure' Attributes
     -u     Report changes in 'Usage' Attributes
     -t     Equivalent to -p and -u Directives
+    -a     Equivalent to -c -l -L -f -t Directives
     -i ID  Ignore Attribute ID for -f Directive
     -I ID  Ignore Attribute ID for -p, -u or -t Directive
     #      Comment: text after a hash sign is ignored

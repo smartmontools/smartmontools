@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.41 2002/10/29 14:54:47 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.42 2002/10/29 15:19:30 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -154,13 +154,14 @@ void Directives() {
   printout(LOG_INFO,"Configuration file Directives (following device name):\n");
   printout(LOG_INFO,"  -A    Device is an ATA device\n");
   printout(LOG_INFO,"  -S    Device is a SCSI device\n");
-  printout(LOG_INFO,"  -c    Monitor SMART Health Status\n");
-  printout(LOG_INFO,"  -l    Monitor SMART Error Log for changes\n");
-  printout(LOG_INFO,"  -L    Monitor SMART Self-Test Log for new errors\n");
-  printout(LOG_INFO,"  -f    Monitor for failure of any 'Usage' Attributes\n");
+  printout(LOG_INFO,"  -c    Monitor SMART Health Status, report if failed\n");
+  printout(LOG_INFO,"  -l    Monitor SMART Error Log, report new errors\n");
+  printout(LOG_INFO,"  -L    Monitor SMART Self-Test Log, report new errors\n");
+  printout(LOG_INFO,"  -f    Monitor 'Usage' Attributes, report failures\n");
   printout(LOG_INFO,"  -p    Report changes in 'Prefailure' Attributes\n");
   printout(LOG_INFO,"  -u    Report changes in 'Usage' Attributes\n");
   printout(LOG_INFO,"  -t    Equivalent to -p and -u Directives\n");
+  printout(LOG_INFO,"  -a    Equivalent to -c -l -L -f -t Directives\n");
   printout(LOG_INFO,"  -i ID Ignore Attribute ID for -f Directive\n");
   printout(LOG_INFO,"  -I ID Ignore Attribute ID for -p, -u or -t Directive\n");
   printout(LOG_INFO,"   #    Comment: text after a hash sign is ignored\n");
