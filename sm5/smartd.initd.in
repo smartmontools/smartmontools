@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.26 2004/08/13 12:41:40 arvoreen Exp $
+# $Id: smartd.initd.in,v 1.27 2004/08/30 18:19:10 guidog Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -39,6 +39,8 @@
 # /etc/{default,sysconfig}/smartmontools might override these
 #smartd_opts="--interval=1800"
 
+SMARTD_BIN=/usr/sbin/smartd
+
 report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
     echo "the $1 OS/distribution. If you can provide one or this"
@@ -63,25 +65,25 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
     case "$1" in
 	start)
 	    echo -n $"Starting $prog: "
-	    daemon /usr/sbin/smartd $smartd_opts
+	    daemon $SMARTD_BIN $smartd_opts
 	    touch /var/lock/subsys/smartd
 	    echo
 	    ;;
 	stop)
 	    echo -n $"Shutting down $prog: "
-	    killproc smartd
+	    killproc $SMARTD_BIN
 	    rm -f /var/lock/subsys/smartd
 	    echo
 	    ;;
 	reload)
             echo -n $"Reloading $prog daemon configuration: "
-	    killproc /usr/sbin/smartd -HUP
+	    killproc $SMARTD_BIN -HUP
 	    RETVAL=$?
 	    echo
 	    ;;
 	report)
 	    echo -n $"Checking SMART devices now: "
-	    killproc /usr/sbin/smartd -USR1
+	    killproc $SMARTD_BIN -USR1
 	    RETVAL=$?
 	    echo
             ;;
@@ -111,12 +113,12 @@ elif [ -f /etc/slackware-version ] ; then
     case "$1" in
 	start)
 	    echo -n "Starting smartd: "
-	    smartd $smartd_opts
+	    $SMARTD_BIN $smartd_opts
 	    echo
 	    ;;
 	stop)
 	    echo -n "Shutting down smartd: "
-	    killall smartd
+	    killall $SMARTD_BIN
 	    echo
 	    ;;
 	restart)
@@ -133,10 +135,8 @@ elif [ -f /etc/slackware-version ] ; then
     
 # SuSE
 elif [ -f /etc/SuSE-release ] ; then
-    
-    SMARTD_BIN=/usr/sbin/smartd
     test -x $SMARTD_BIN || exit 5
-
+    
     # Existence of config file is optional
     SMARTD_CONFIG=/etc/smartd.conf
 
@@ -232,11 +232,8 @@ elif [ -f /etc/SuSE-release ] ; then
 # Debian case
 elif [ -f /etc/debian_version ] ; then
         PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-	SMARTCTL=/usr/sbin/smartctl
-	SMARTD=/usr/sbin/smartd
 	SMARTDPID=/var/run/smartd.pid
-	[ -x $SMARTCTL ] || exit 0
-	[ -x $SMARTD ] || exit 0
+	[ -x $SMARTD_BIN ] || exit 0
 	RET=0
 
 # source configuration file
@@ -248,7 +245,7 @@ elif [ -f /etc/debian_version ] ; then
 	start)
 		echo -n "Starting S.M.A.R.T. daemon: smartd"
 		if start-stop-daemon --start --quiet --pidfile $SMARTDPID \
-	    	--exec $SMARTD -- $smartd_opts; then 
+	    	--exec $SMARTD_BIN -- $smartd_opts; then 
 	    		echo "."
 		else
 	        	echo " (failed)"
@@ -293,7 +290,7 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 	. /etc/rc.subr
         name="smartd"
 	rcvar="smartd_enable" 
-        command="${PREFIX}/bin/smartd"
+        command="$SMARTD_BIN"
 	load_rc_config $name
     elif [ -r /etc/defaults/rc.conf ]; then
 # Not a 5.x system, try the default location for variables
@@ -311,7 +308,7 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
 	PID_FILE=/var/run/smartd.pid
 	case "$1" in
 	    start)
-		$PREFIX/bin/smartd -p $PID_FILE $smartd_flags
+		$SMARTD_BIN -p $PID_FILE $smartd_flags
 		echo -n " smartd"
 		;;
 	    stop)
@@ -342,7 +339,7 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     
     case "$1" in
 	start)
-	    smartd -p $PID_FILE $smartd_opts
+	    $SMARTD_BIN -p $PID_FILE $smartd_opts
 	    echo -n "smartd "
 	    ;;
 	stop)
@@ -374,7 +371,7 @@ elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
     case "$1" in
         start)
             echo -n "Starting smartd: "
-            /usr/sbin/smartd -p $PID_FILE $smartd_opts
+            $SMARTD_BIN -p $PID_FILE $smartd_opts
             RETVAL=$?
             ;;
         stop)
