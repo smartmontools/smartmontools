@@ -1,8 +1,10 @@
 TODO list for smartmontools:
 
+Home page of code is: http://smartmontools.sourceforge.net
+
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.6 2002/10/14 15:26:02 ballen4705 Exp $
+$Id: TODO,v 1.7 2002/10/15 14:24:26 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -25,9 +27,25 @@ Test with SCSI devices (I can't do it -- Bruce)
 
 Extensions
 ----------
-Produce version for ATA/ATAPI-6
+Produce version for ATA/ATAPI-6 (support for extended error logs)
+
 Produce version for ATA/ATAPI-7
 
 Modifications
 -------------
 Command line option to specify devices to look for in smartd startup
+
+Print flags meanings in Vendor Attribute list -- not hex value
+
+When actual attribute(s) less than threshold, print these clearly (highlighted)
+
+Also, have test to see if vendor attributes are under threshold even if
+prefailure bit NOT set (old age, for example).
+
+Fixes
+-----
+int ataSmartStatus (int device ) is broken -- see comments in code.
+
+SCSI code in smartd leaves file descriptors open if SMART not supported..
+
+Fix lots of syntax like if (a != 0)

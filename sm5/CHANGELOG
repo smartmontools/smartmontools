@@ -1,8 +1,10 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.4 2002/10/14 15:25:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.5 2002/10/15 14:24:26 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+
+Home page of code is: http://smartmontools.sourceforge.net
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -17,3 +19,40 @@ This code was originally developed as a Senior Thesis by Michael Cornwell
 at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+smartmontools-5.0-8:
+
+    For IBM disks whose raw temp data includes three temps. print all
+    three
+
+    print timestamps for error log to msec precision
+
+    added -m option for Hitachi disks that store power on life in
+    minutes
+
+    added -L option for printing self-test error logs
+
+    in -l option, now print power on lifetime, so that one can see
+    when the error took place
+
+    updated SMART structure definitions to ATA-5 spec
+
+    added -p option
+
+    added -f and -F options to enable/disable autosave threshold
+    parameters
+
+    changed argv parsing to use getops -- elminate buffer overflow
+    vulnerability
+
+    expanded and corrected documentation
+
+    fixed problem with smartd.  It did not actually call
+    ataSmartEnable()!  Since the argument was left out, the test
+    always suceeded because it evaluated to a pointer to the function.
+
+    smartd: closed open file descriptors if device does not support
+    smart. Note: this still needs to be fixed for SCSI devices
+
+
+smartmontools-5.0-0  STARTED with smartsuite-2.1-2

@@ -1,6 +1,8 @@
-//  $Id: scsiprint.h,v 1.4 2002/10/14 15:26:24 ballen4705 Exp $
+//  $Id: scsiprint.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * scsiprint.h
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>

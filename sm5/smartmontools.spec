@@ -1,10 +1,10 @@
-Release:  8
+Release:  9
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
 License:	GPL
 Group:		Applications/System
-Source0:	http://prdownloads.sourceforge.net/%{name}-%{version}.tar.gz
+Source0:	http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 URL:            http://smartmontools.sourceforge.net/
 Prereq:		/sbin/chkconfig
 BuildRoot:	%{_builddir}/%{name}-%{version}-root
@@ -13,12 +13,31 @@ Obsoletes:      smartd
 Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
 
-%description 
-SMARTmontools controls and monitors storage devices using the
-Self-Monitoring, Analysis and Reporting Technology System (S.M.A.R.T.)
-build into ATA and SCSI Hard Drives. This is used to check the
-reliability of the hard drive and predict drive failures. The suite
-contents two utilities.  The first, smartctl, is a command line
+# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# Home page: http://smartmontools.sourceforge.net
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2, or (at your option) any later
+# version.
+# 
+# You should have received a copy of the GNU General Public License (for
+# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+# Mass Ave, Cambridge, MA 02139, USA.
+#
+# This code was originally developed as a Senior Thesis by Michael Cornwell
+# at the Concurrent Systems Laboratory (now part of the Storage Systems
+# Research Center), Jack Baskin School of Engineering, University of
+# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+
+%description
+SMARTmontools controls and monitors storage devices using
+the Self-Monitoring, Analysis and Reporting Technology System
+(S.M.A.R.T.) built into ATA and SCSI Hard Drives. This is used to
+check the reliability of the hard drive and to predict drive
+failures. The suite is derived from the smartsuite package, and
+contains two utilities.  The first, smartctl, is a command line
 utility designed to perform simple S.M.A.R.T. tasks. The second,
 smartd, is a daemon that periodically monitors smart status and
 reports errors to syslog.  The package is compatible with the
@@ -26,7 +45,12 @@ ATA/ATAPI-5 specification.  Future releases will be compatible with
 the ATA/ATAPI-6 andATA/ATAPI-7 specifications.  The package is
 intended to incorporate as much "vendor specific" and "reserved"
 information as possible about disk drives.  man smartctl and man
-smartd will provide more information.
+smartd will provide more information. This RPM file is compatible with
+all RedHat releases back to at least 6.2 and should work OK on any
+modern linux distribution.  The most recent versions of this package
+and additional information can be found at the URL:
+http://smartmontools.sourceforge.net/
+
 
 # The following sections are executed by the SRPM file
 %prep

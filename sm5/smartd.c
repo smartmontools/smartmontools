@@ -1,6 +1,8 @@
-//  $Id: smartd.c,v 1.8 2002/10/14 15:26:30 ballen4705 Exp $
+//  $Id: smartd.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * smartd.c
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
@@ -270,7 +272,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.c,v 1.8 2002/10/14 15:26:30 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 

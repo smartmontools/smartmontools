@@ -1,6 +1,8 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.16 2002/10/14 15:25:58 ballen4705 Exp $
+# Home page: http://smartmontools.sourceforge.net
+#
+# $Id: Makefile,v 1.17 2002/10/15 14:24:26 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -89,6 +91,6 @@ release: $(releasefiles)
 	mv /usr/src/redhat/RPMS/i386/$(pkgname)*.rpm .
 	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .
 	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
-	echo $(newcounter) > VERSION
+	echo `hostname` | grep -q ballen && echo $(newcounter) > VERSION
 
 
