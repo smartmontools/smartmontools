@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.64 2002/12/01 12:14:15 pjwilliams Exp $
+$Id: CHANGELOG,v 1.65 2002/12/01 23:24:00 pjwilliams Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -31,6 +31,8 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [PW] Added list of proposed new options for smartctl to README.
 
   [PW] smartd: ParseOpts() now uses getopt_long() if HAVE_GETOPT_LONG is
   defined and uses getopt() otherwise.  This is controlled by CPPFLAGS in
