@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.40 2002/10/29 13:38:49 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.41 2002/10/29 14:54:47 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -78,7 +78,7 @@ void pout(char *fmt, ...){
 
 // tell user that we ignore HUP signals
 void huphandler(int sig){
-  printout(LOG_CRIT,"HUP ignored. smartd does NOT re-read /etc/smartd.conf.\n");
+  printout(LOG_CRIT,"HUP ignored: smartd does NOT re-read /etc/smartd.conf.\n");
   return;
 }
 
