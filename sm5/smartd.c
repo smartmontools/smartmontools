@@ -44,15 +44,15 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.44 2002/10/29 17:50:58 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.45 2002/10/29 23:09:29 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
 atamainctrl *con=NULL;
 
 // Two other globals -- number of ATA and SCSI devices being monitored
-int numatadevices;
-int numscsidevices;
+int numatadevices=0;
+int numscsidevices=0;
 
 // How long to sleep between checks.  Handy as global variable for
 // debugging
@@ -430,7 +430,7 @@ int scsidevicescan(scsidevices_t *devices, char *device){
 int  ataCompareSmartValues2(struct ata_smart_values *new,
 			    struct ata_smart_values *old,
 			    struct ata_smart_thresholds *thresholds,
-			    int n){
+			    int n, char *name){
   struct ata_smart_attribute *now,*was;
   struct ata_smart_threshold_entry *thre;
   unsigned char oldval,newval;
@@ -445,9 +445,17 @@ int  ataCompareSmartValues2(struct ata_smart_values *new,
   was=old->vendor_attributes+n;
   thre=thresholds->thres_entries+n;
 
-  // consider only valid attributes, with same valid ID in all structures
-  if (!now->id || !was->id || !thre->id || (now->id != was->id) || (now->id != thre->id))
+  // consider only valid attributes
+  if (!now->id || !was->id || !thre->id)
     return 0;
+  
+  
+  // issue warning if they don't have the same ID in all structures:
+  if ( (now->id != was->id) || (now->id != thre->id) ){
+    printout(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %hhu = %hhu = %hhu\n",
+	     name, now->id, was->id, thre->id);
+    return 0;
+  }
 
   // if values have not changed, return
   newval=now->current;
@@ -538,12 +546,12 @@ int ataCheckDevice(atadevices_t *drive){
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
-	    printout(LOG_CRIT,"Device: %s, Failed SMART usage attribute: %s.\n", name, loc, name);
+	    printout(LOG_CRIT,"Device: %s, Failed SMART usage attribute: %s.\n", name, loc);
 	  }
 	}
 	
 	// This block tracks usage or prefailure attributes to see if they are changing
-	if ((cfg->usage || cfg->prefail) && ((att=ataCompareSmartValues2(&curval, drive->smartval, thresh, i)))){
+	if ((cfg->usage || cfg->prefail) && ((att=ataCompareSmartValues2(&curval, drive->smartval, thresh, i, name)))){
 	  const int mask=0xff;
 	  int prefail=(att>>24) & mask;
 	  int id     =(att>>16) & mask;
@@ -1084,9 +1092,6 @@ int main (int argc, char **argv){
   // initialize global communications variables
   con=&control;
   memset(con,0,sizeof(control));
-  
-  // initialize global counters
-  numatadevices=numscsidevices=0;
   
   // Parse input and print header and usage info if needed
   ParseOpts(argc,argv);

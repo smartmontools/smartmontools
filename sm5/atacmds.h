@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.21 2002/10/28 23:46:59 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.22 2002/10/29 23:09:28 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -117,16 +117,6 @@
 #define HDIO_DRIVE_TASK_HDR_SIZE	7
 #endif
 
-
-
-
-/* Smart Values Data Structures */
-
-/* Smart Status Flags */
-
-
-
-
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 struct ata_smart_attribute {
   unsigned char id;
@@ -136,7 +126,7 @@ struct ata_smart_attribute {
       unsigned prefailure:1;   // 0=> low attribute from age/usage
 			       // exceeding design limit,
 			       // 1==prefailure
-
+      
       unsigned online:1;       // 0==> attribute only updated during
 			       // off-line testing. 1==>only updated
 			       // during on-line testing
@@ -230,21 +220,21 @@ struct ata_smart_errorlog_error_struct {
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
 struct ata_smart_errorlog_command_struct {
-	unsigned char devicecontrolreg;
-	unsigned char featuresreg;
-	unsigned char sector_count;
-	unsigned char sector_number;
-	unsigned char cylinder_low;
-	unsigned char cylinder_high;
-	unsigned char drive_head;
-	unsigned char commandreg;
-	unsigned int timestamp;
+  unsigned char devicecontrolreg;
+  unsigned char featuresreg;
+  unsigned char sector_count;
+  unsigned char sector_number;
+  unsigned char cylinder_low;
+  unsigned char cylinder_high;
+  unsigned char drive_head;
+  unsigned char commandreg;
+  unsigned int timestamp;
 } __attribute__ ((packed));
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
 struct ata_smart_errorlog_struct {
-	struct ata_smart_errorlog_command_struct commands[5];
-	struct ata_smart_errorlog_error_struct error_struct;
+  struct ata_smart_errorlog_command_struct commands[5];
+  struct ata_smart_errorlog_error_struct error_struct;
 }  __attribute__ ((packed));
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
@@ -260,26 +250,24 @@ struct ata_smart_errorlog {
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
 struct ata_smart_selftestlog_struct {
   unsigned char selftestnumber; // Sector number register
-	unsigned char selfteststatus;
-	unsigned short int timestamp;
-	unsigned char selftestfailurecheckpoint;
-	unsigned int lbafirstfailure;
-	unsigned char vendorspecific[15];
+  unsigned char selfteststatus;
+  unsigned short int timestamp;
+  unsigned char selftestfailurecheckpoint;
+  unsigned int lbafirstfailure;
+  unsigned char vendorspecific[15];
 } __attribute__ ((packed));
 
 // Table 44 of T13/1321D Rev 1 spec (Self-test log data structure)
 struct ata_smart_selftestlog {
-	unsigned short int revnumber;
-	struct ata_smart_selftestlog_struct selftest_struct[21];
-	unsigned char vendorspecific[2];
-	unsigned char mostrecenttest;
-	unsigned char reserved[2];
-	unsigned char chksum;
+  unsigned short int revnumber;
+  struct ata_smart_selftestlog_struct selftest_struct[21];
+  unsigned char vendorspecific[2];
+  unsigned char mostrecenttest;
+  unsigned char reserved[2];
+  unsigned char chksum;
 } __attribute__ ((packed));
 
  
-
-
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity (int device, struct hd_driveid *buf);
 int ataReadSmartValues (int device,struct ata_smart_values *);
@@ -299,7 +287,6 @@ int ataDisableAutoSave(int device);
 int ataEnableAutoOffline ( int device );
 int ataDisableAutoOffline (int device );
 
-
 /* S.M.A.R.T. test commands */
 int ataSmartOfflineTest (int device);
 int ataSmartExtendSelfTest (int device);
@@ -308,14 +295,9 @@ int ataSmartShortCapSelfTest (int device);
 int ataSmartExtendCapSelfTest (int device);
 int ataSmartSelfTestAbort (int device);
 
-/*Check Parameters of Smart Data */
-
-
-
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
 int ataVersionInfo (const char **description, struct hd_driveid drive, unsigned short *minor);
-
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(int device);
@@ -336,38 +318,25 @@ int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds th
 
 int ataSmartStatus2(int device);
 
-
-
-/* int isOfflineTestTime ( struct ata_smart_values data)
-*  returns S.M.A.R.T. Offline Test Time in seconds
-*/
-
+// int isOfflineTestTime ( struct ata_smart_values data)
+//  returns S.M.A.R.T. Offline Test Time in seconds
 int isOfflineTestTime ( struct ata_smart_values data);
 
 int isShortSelfTestTime ( struct ata_smart_values data);
 
 int isExtendedSelfTestTime ( struct ata_smart_values data);
 
-
-
-
 int isSmartErrorLogCapable ( struct ata_smart_values data);
-
 
 int isSupportExecuteOfflineImmediate ( struct ata_smart_values data);
 
-
 int isSupportAutomaticTimer ( struct ata_smart_values data);
-
 
 int isSupportOfflineAbort ( struct ata_smart_values data);
 
-
 int isSupportOfflineSurfaceScan ( struct ata_smart_values data);
 
-
 int isSupportSelfTest (struct ata_smart_values data);
-
 
 int ataSmartTest(int device, int testtype);
 

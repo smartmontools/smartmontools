@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.14 2002/10/29 17:50:59 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.15 2002/10/29 23:09:29 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -82,7 +82,7 @@ typedef struct configfile_s {
   char errorlog;
   // counts of ata and self-test errors.  Perhaps ought to be in the
   // atadevices_t structure.
-  char selflogcount;
+  unsigned char selflogcount;
   int  ataerrorcount;
   // following two items point to 32 bytes, in the form of
   // 32x8=256 single bit flags 

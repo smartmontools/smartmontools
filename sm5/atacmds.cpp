@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.32 2002/10/29 18:19:02 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.33 2002/10/29 23:09:28 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -806,7 +806,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="Unknown_Attribute";
     break;
   }
-  sprintf(out,"%3d %s",id,name);
+  sprintf(out,"%3hhu %s",id,name);
   return;
 }
 
