@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.296 2003/12/19 17:23:05 ballen4705 Exp $
+$Id: CHANGELOG,v 1.297 2003/12/19 17:35:44 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: incorporated Debian startup script submitted by user.
 
   [BA] smartctl: modified printing of self-test log entry number.  Seagate
        firmware can leave 'holes' in the self-test log while a test is
