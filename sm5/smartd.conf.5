@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.60 2003/08/26 09:40:02 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.61 2003/08/26 10:15:47 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/08/26 09:40:02 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/26 10:15:47 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -49,7 +49,7 @@ and the 26 SCSI devices
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
 problems, you may be annoyed by the string of error log messages about
-block-major devices that can't be found, and SCSI devices that can't
+block-major devices that can\'t be found, and SCSI devices that can\'t
 be opened.
 
 One can avoid this problem, and gain more control over the types of
@@ -77,8 +77,8 @@ non-whitespace or non-comment item on a line.
 
 .PP 0
 .fi
-Here is an example configuration file.  It's for illustrative purposes
-only; please don't copy it onto your system without reading to the end
+Here is an example configuration file.  It\'s for illustrative purposes
+only; please don\'t copy it onto your system without reading to the end
 of the
 .B DIRECTIVES
 Section below!
@@ -103,7 +103,7 @@ Section below!
 .B \ \ /dev/sdc -m admin@yoyo.dyne.com -M test
 .B #
 .nf
-.B # Strange device.  It's SCSI:
+.B # Strange device.  It\'s SCSI:
 .B #
 .B \ \ /dev/weird -d scsi
 .B #
@@ -161,11 +161,11 @@ name.
 
 .B For an ATA device,
 if no Directives appear, then the device will be monitored
-as if the '\-a' Directive (monitor all SMART properties) had been given.
+as if the \'\-a\' Directive (monitor all SMART properties) had been given.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-H' option for an ATA disk.  So with the exception of
+to using the \'\-H\' option for an ATA disk.  So with the exception of
 \'\-d\', \'\-m\', and \'\-M\', the Directives below are ignored for SCSI
 disks.  For SCSI disks, the \'\-m\' Directive sends a warning email if
 the SMART status indicates a disk failure or problem, or if the SCSI
@@ -188,11 +188,11 @@ will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
 first attempt to guess the device type by looking at whether the sixth
-character in the device name is an 's' or an 'h'.  This will work for
+character in the device name is an \'s\' or an \'h\'.  This will work for
 device names like /dev/hda or /dev/sdb, and corresponds to choosing
 \fIata\fP or \fIscsi\fP respectively. If
 .B smartd
-can't guess from this sixth character, then it will simply try to
+can\'t guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
 
 The valid arguments to this Directive are:
@@ -282,7 +282,7 @@ command-line option.]
 Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at priority
-.B 'CRITICAL'
+.B \'CRITICAL\'
 will be logged to syslog.  [Please see the
 .B smartctl \-H
 command-line option.]
@@ -301,13 +301,13 @@ has increased since the last check.  Note that such errors will
 .B only
 be logged if you run self-tests on the disk (and it fails the tests!).
 [Self-Tests can be run by using the
-.B '\-t\ short'
+.B \'\-t\ short\'
 and
-.B '\-t\ long'
+.B \'\-t\ long\'
 options of
 .B smartctl
 and the results of the testing can be observed using the
-.B smartctl '\-l\ selftest'
+.B smartctl \'\-l\ selftest\'
 command-line option.]
 
 [Please see the
@@ -315,34 +315,32 @@ command-line option.]
 command-line option.]
 .TP
 .B \-f
-Check for 'failure' of any Usage Attributes.  If these
-Attributes are less than or equal to the threshold, it does NOT
-indicate imminent disk failure.  It "indicates an advisory condition
-where the usage or age of the device has exceeded its intended design
-life period." [Please see the
-.B smartctl \-A
-command-line option.]
+Check for \'failure\' of any Usage Attributes.  If these Attributes are
+less than or equal to the threshold, it does NOT indicate imminent
+disk failure.  It "indicates an advisory condition where the usage or
+age of the device has exceeded its intended design life period."
+[Please see the \fBsmartctl \-A\fP command-line option.]
 
 .TP
 .B \-m ADD
 Send a warning email to the email address
 .B ADD
-if the '\-H', '\-l', or '\-f' Directives detect a failure or a new
+if the \'\-H\', \'\-l\', or \'\-f\' Directives detect a failure or a new
 error, or if a SMART command to the disk fails. This Directive only
 works in conjunction with these other Directives (or with the
-equivalent default '\-a' Directive).
+equivalent default \'\-a\' Directive).
 
 To prevent your email in-box from getting filled up with warning
 messages, by default only a single warning will be sent for each of
-the enabled test types, '\-H', '\-l', or '\-f', even if more than one
+the enabled test types, \'\-H\', \'\-l\', or \'\-f\', even if more than one
 failure or error is detected or if the failure or error persists.
-[This behavior can be modified; see the '\-M' Directive below.]
+[This behavior can be modified; see the \'\-M\' Directive below.]
 
 To send email to more than one user, please use the following "comma
 separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
 (with no spaces).
 
-To test that email is being sent correctly, use the '\-M test'
+To test that email is being sent correctly, use the \'\-M test\'
 Directive described below to send one test email message on
 .B smartd
 startup.
@@ -352,24 +350,24 @@ By default, email is sent using the system
 command.  In order that
 .B smartd
 find the mail command (normally /bin/mail) an executable named
-.B 'mail'
+.B \'mail\'
 must be in the path of the shell or environment from which
 .B smartd
 was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
-run, please use the '\-M exec' Directive below.
+run, please use the \'\-M exec\' Directive below.
 
 Note that there is a special argument
 .B <nomailer>
-which can be given to the '\-m' Directive in conjunction with the '\-M
-exec' Directive. Please see below for an explanation of its effect.
+which can be given to the \'\-m\' Directive in conjunction with the \'\-M
+exec\' Directive. Please see below for an explanation of its effect.
 
 .TP
 .B \-M TYPE
 These Directives modify the behavior of the
 .B smartd
-email warnings enabled with the '\-m' email Directive described above.
-These '\-M' Directives only work in conjunction with the '\-m'
+email warnings enabled with the \'\-m\' email Directive described above.
+These \'\-M\' Directives only work in conjunction with the \'\-m\'
 Directive and can not be used without it.
 
 Multiple \-M Directives may be given.  If conflicting \-M Directives
@@ -419,21 +417,21 @@ will also hang.  Some sample scripts are included in
 
 The return status of the executable is recorded by
 .B smartd
-in SYSLOG, but the executable's STDOUT and STDERR are directed to
+in SYSLOG, but the executable\'s STDOUT and STDERR are directed to
 /dev/null, so if you wish to leave some other record behind, the
 executable must send mail or write to a file or device.
 
 Before running the executable,
 .B smartd
 sets a number of environment variables.  These environment variables
-may be used to control the executable's behavior.  The environment
+may be used to control the executable\'s behavior.  The environment
 variables exported by
 .B smartd
 are:
 .nf
 .fi
 .B SMARTD_MAILER
-is set to the argument of -M exec, if present or else to 'mail'
+is set to the argument of -M exec, if present or else to \'mail\'
 (examples: /bin/mail, mail).
 .nf
 .fi
@@ -481,7 +479,7 @@ it takes, and their significance, are:
 .nf
 .fi
 .B SMARTD_ADDRESS
-is set to the address argument ADD of the '\-m' Directive, unless ADD
+is set to the address argument ADD of the \'\-m\' Directive, unless ADD
 is
 .B <nomailer>.
 This is a comma-delineated list of email addresses (example:
@@ -511,24 +509,24 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 .B SMARTD_TFIRST.
 
 The shell which is used to run PATH is system-dependent. For vanilla
-linux/glibc it's bash. For other systems, the man page for system (3)
+linux/glibc it\'s bash. For other systems, the man page for system (3)
 should say what shell is used.
 
-If the '\-m ADD' Directive is given with a normal address argument,
+If the \'\-m ADD\' Directive is given with a normal address argument,
 then the executable pointed to by PATH will be run in a shell with
 STDIN receiving the body of the email message, and with the same
 command-line arguments:
 .nf
 -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS
 .fi
-that would normally be provided to 'mail'.  Examples include:
+that would normally be provided to \'mail\'.  Examples include:
 .nf
 .B -m user@home -M exec /bin/mail
 .B -m admin@work -M exec /usr/local/bin/mailto
 .B -m root -M exec /Example_1/bash/script/below
 .fi
 
-If the '\-m ADD' Directive is given with the special address argument
+If the \'\-m ADD\' Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with
 .B no
@@ -539,7 +537,7 @@ command-line arguments, for example:
 .B -m <nomailer> -M exec /Example_2/bash/script/below
 .fi
 
-Some EXAMPLES of scripts that can be used with the '\-M exec'
+Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
@@ -557,7 +555,7 @@ since the last check, 30 minutes ago. [Please see the
 command-line option.]
 .TP
 .B \-t
-Equivalent to turning on the two previous flags '\-p' and '\-u'.
+Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
 Tracks changes in
 .I all
 device Attributes (both Prefailure and Usage). [Please see the
@@ -570,10 +568,10 @@ Ignore device Attribute number
 when checking for failure of Usage Attributes.
 .B ID
 must be a decimal integer in the range from 1 to 255.  This Directive
-modifies the behavior of the '\-f' Directive and has no effect without
+modifies the behavior of the \'\-f\' Directive and has no effect without
 it.
 
-This is useful, for example, if you have a very old disk and don't want to keep
+This is useful, for example, if you have a very old disk and don\'t want to keep
 getting messages about the hours-on-lifetime Attribute (usually Attribute 9)
 failing.  This Directive may appear multiple times for a single device, if you
 want to ignore multiple Attributes.
@@ -584,11 +582,11 @@ Ignore device Attribute
 when tracking changes in the Attribute values.
 .B ID
 must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the '\-p', '\-u', and '\-t' tracking Directives and has no effect
+the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and has no effect
 without one of them.
 
 This is useful, for example, if one of the device Attributes is the disk
-temperature (usually Attribute 194 or 231). It's annoying to get reports
+temperature (usually Attribute 194 or 231). It\'s annoying to get reports
 each time the temperature changes.  This Directive may appear multiple
 times for a single device, if you want to ignore multiple Attributes.
 .TP
@@ -602,7 +600,7 @@ along with its (normally reported)
 value.
 .B ID
 must be a decimal integer in the range from 1 to 255.  This Directive modifies
-the behavior of the '\-p', '\-u', and '\-t' tracking Directives and has no effect
+the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and has no effect
 without one of them.  This Directive may be given multiple times.
 
 A common use of this Directive is to track the device Temperature
@@ -622,11 +620,11 @@ only tracks/reports changes of the
 Attribute values.)
 .B ID
 must be a decimal integer in the range from 1 to 255.  This Directive
-modifies the behavior of the '\-p', '\-u', and '\-t' tracking Directives and
+modifies the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and
 has no effect without one of them.  This Directive may be given
 multiple times.
 
-If this Directive is given, it automatically implies the '\-r'
+If this Directive is given, it automatically implies the \'\-r\'
 Directive for the same Attribute, so that the Raw value of the
 Attribute is reported.
 
@@ -673,23 +671,23 @@ Directive are:
 
 .I 9,minutes
 \- Raw Attribute number 9 is power-on time in minutes.  Its raw value
-will be displayed in the form 'Xh+Ym'.  Here X is hours, and Y is
+will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
 minutes in the range 0-59 inclusive.  Y is always printed with two
-digits, for example \'06' or \'31' or '00'.
+digits, for example \'06\' or \'31\' or \'00\'.
 
 .I 9,seconds
 \- Raw Attribute number 9 is power-on time in seconds.  Its raw value
-will be displayed in the form 'Xh+Ym+Zs'.  Here X is hours, Y is
+will be displayed in the form \'Xh+Ym+Zs\'.  Here X is hours, Y is
 minutes in the range 0-59 inclusive, and Z is seconds in the range
 0-59 inclusive.  Y and Z are always printed with two digits, for
-example \'06' or \'31' or '00'.
+example \'06\' or \'31\' or \'00\'.
 
 .I 9,halfminutes
 \- Raw Attribute number 9 is power-on time, measured in units of 30
 seconds.  This format is used by some Samsung disks.  Its raw value
-will be displayed in the form 'Xh+Ym'.  Here X is hours, and Y is
+will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
 minutes in the range 0-59 inclusive.  Y is always printed with two
-digits, for example \'06' or \'31' or '00'.
+digits, for example \'06\' or \'31\' or \'00\'.
 
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
@@ -735,22 +733,22 @@ http://coredump.free.fr/linux/hddtemp.db
 .I N,raw8
 \- Print the Raw value of Attribute N as six 8-bit unsigned base-10
 integers.  This may be useful for decoding the meaning of the Raw
-value.  The form 'N,raw8' prints Raw values for ALL Attributes in this
-form.  The form (for example) '123,raw8' only prints the Raw value for
+value.  The form \'N,raw8\' prints Raw values for ALL Attributes in this
+form.  The form (for example) \'123,raw8\' only prints the Raw value for
 Attribute 123 in this form.
 
 .I N,raw16
 \- Print the Raw value of Attribute N as three 16-bit unsigned base-10
 integers.  This may be useful for decoding the meaning of the Raw
-value.  The form 'N,raw16' prints Raw values for ALL Attributes in this
-form.  The form (for example) '123,raw16' only prints the Raw value for
+value.  The form \'N,raw16\' prints Raw values for ALL Attributes in this
+form.  The form (for example) \'123,raw16\' only prints the Raw value for
 Attribute 123 in this form.
 
 .I N,raw48
 \- Print the Raw value of Attribute N as a 48-bit unsigned base-10
 integer.  This may be useful for decoding the meaning of the Raw
-value.  The form 'N,raw48' prints Raw values for ALL Attributes in
-this form.  The form (for example) '123,raw48' only prints the Raw
+value.  The form \'N,raw48\' prints Raw values for ALL Attributes in
+this form.  The form (for example) \'123,raw48\' only prints the Raw
 value for Attribute 123 in this form.
 
 .TP
@@ -779,15 +777,15 @@ command-line option.]
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives: 
-.B '\-H' 
+.B \'\-H\' 
 to check the SMART health status,
-.B '\-f' 
+.B \'\-f\' 
 to report failures of Usage (rather than Prefail) Attributes,
-.B '\-t' 
+.B \'\-t\' 
 to track changes in both Prefailure and Usage Attributes,
-.B '\-l\ selftest' 
+.B \'\-l\ selftest\' 
 to report increases in the number of Self-Test Log errors, and
-.B '\-l\ error' 
+.B \'\-l\ error\' 
 to report increases in the number of ATA errors.
 
 Note that \-a is the default for ATA devices.  If none of these other
@@ -851,47 +849,51 @@ devices, (rather than the default \-a, which monitors all SMART
 properties).
 
 .TP
-.B EXAMPLES OF SHELL SCRIPTS FOR '\-M exec'
-These are two examples of shell scripts that can be used with the '\-M
-exec PATH' Directive described previously.  The paths to these scripts
-and similar executables is the PATH argument to the '\-M exec PATH'
+.B EXAMPLES OF SHELL SCRIPTS FOR \'\-M exec\'
+These are two examples of shell scripts that can be used with the \'\-M
+exec PATH\' Directive described previously.  The paths to these scripts
+and similar executables is the PATH argument to the \'\-M exec PATH\'
 Directive.
 
-Example 1: This script is for use with '\-m ADDRESS -M exec PATH'.  It appends
+Example 1: This script is for use with \'\-m ADDRESS -M exec PATH\'.  It appends
 the output of
 .B smartctl -a
 to the output of the smartd email warning message and sends it to ADDRESS.
 
 .nf
-.B #! /bin/bash
+\fB
+#! /bin/bash
 
-.B # Save the email message (STDIN) to a file:
-.B cat > /root/msg
+# Save the email message (STDIN) to a file:
+cat > /root/msg
 
-.B # Append the output of smartctl -a to the message:
-.B /usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
+# Append the output of smartctl -a to the message:
+/usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
-.B # Now email the message to the user at address ADD:
-.B /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+# Now email the message to the user at address ADD:
+/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+\fP
 .fi
 
-Example 2: This script is for use with '\-m <nomailer> \-M exec
-PATH'. It warns all users about a disk problem, waits 30 seconds, and
+Example 2: This script is for use with \'\-m <nomailer> \-M exec
+PATH\'. It warns all users about a disk problem, waits 30 seconds, and
 then powers down the machine.
 
 .nf
-.B #! /bin/bash
+\fB
+#! /bin/bash
 
-.B # Warn all users of a problem
-.B wall 'Problem detected with disk: ' "$SMARTD_DEVICESTRING"
-.B wall 'Warning message from smartd is: ' "$SMARTD_MESSAGE"
-.B wall 'Shutting down machine in 30 seconds... '
+# Warn all users of a problem
+wall \'Problem detected with disk: \' "$SMARTD_DEVICESTRING"
+wall \'Warning message from smartd is: \' "$SMARTD_MESSAGE"
+wall \'Shutting down machine in 30 seconds... \'
  
-.B # Wait half a minute
-.B sleep 30
+# Wait half a minute
+sleep 30
  
-.B # Power down the machine
-.B /sbin/shutdown -hf now
+# Power down the machine
+/sbin/shutdown -hf now
+\fP
 .fi
 
 Some example scripts are distributed with the smartmontools package,
@@ -934,15 +936,9 @@ http://smartmontools.sourceforge.net/
 
 .SH
 SEE ALSO:
-.B smartd
-(8),
-.B smartctl
-(8),
-.B syslogd
-(8)
-
+\fBsmartd\fP(8), \fBsmartctl\fP(8), \fBsyslogd\fP(8).
 
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.60 2003/08/26 09:40:02 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.61 2003/08/26 10:15:47 ballen4705 Exp $
