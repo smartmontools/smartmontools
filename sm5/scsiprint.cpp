@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.31 2003/04/13 09:19:57 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.32 2003/04/14 11:00:26 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -167,6 +167,59 @@ void scsiGetStartStopData(int device)
     pout("Current start stop count:      %u times\n", currentStartStop);
     pout("Recommended start stop count:  %u times\n", recommendedStartStop);
 } 
+
+static void scsiPrintErrorCounterLog(int device)
+{
+    struct scsiErrorCounter errCounterArr[3];
+    struct scsiErrorCounter * ecp;
+    int found[3] = {0, 0, 0};
+    const char * pageNames[3] = {"read:   ", "write:  ", "verify: "};
+    int k;
+    double processed_gb;
+
+    if (0 == scsiLogSense(device, READ_ERROR_COUNTER_PAGE, gBuf, 
+                          LOG_RESP_LEN)) {
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
+        found[0] = 1;
+    }
+    if (0 == scsiLogSense(device, WRITE_ERROR_COUNTER_PAGE, gBuf, 
+                          LOG_RESP_LEN)) {
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
+        found[1] = 1;
+    }
+    if (0 == scsiLogSense(device, VERIFY_ERROR_COUNTER_PAGE, gBuf, 
+                          LOG_RESP_LEN)) {
+        scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
+        ecp = &errCounterArr[2];
+        for (k = 0; k < 7; ++k) {
+            if (ecp->gotPC[k] && ecp->counter[k]) {
+                found[2] = 1;
+                break;
+            }
+        }
+    }
+    if (found[0] || found[1] || found[2]) {
+        pout("\nError counter log:\n");
+        pout("          Errors Corrected    Total      Total   "
+             "Correction     Gigabytes    Total\n");
+        pout("              delay:       [rereads/    errors   "
+             "algorithm      processed    uncorrected\n");
+        pout("            minor | major  rewrites]  corrected  "
+             "invocations   [10^9 bytes]  errors\n");
+        for (k = 0; k < 3; ++k) {
+            if (! found[k])
+                continue;
+            ecp = &errCounterArr[k];
+            pout("%s%8llu %8llu  %8llu  %8llu   %8llu", 
+                 pageNames[k], ecp->counter[0], ecp->counter[1], 
+                 ecp->counter[2], ecp->counter[3], ecp->counter[4]);
+            processed_gb = ecp->counter[5] / 1000000000.0;
+            pout("   %12.3f    %8llu\n", processed_gb, ecp->counter[6]);
+        }
+    }
+    else 
+        pout("\nNo Error counter log to report\n");
+}
 
 const char * self_test_code[] = {
         "Default         ", 
@@ -461,6 +514,8 @@ void scsiPrintMain(const char *dev_name, int fd)
                 scsiGetStartStopData(fd);
         }
     }   
+    if (con->smarterrorlog)
+        scsiPrintErrorCounterLog(fd);
     if (con->smartselftestlog) {
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(fd);

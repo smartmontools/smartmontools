@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.56 2003/04/10 04:13:39 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.57 2003/04/14 11:02:49 dpgilbert Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/10 04:13:39 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/14 11:02:49 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -74,11 +74,11 @@ will execute the corresponding commands in the order: INFORMATION,
 ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 
 SCSI devices only accept the options 
-.B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C \-l selftest
+.B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C, \-l selftest, \-l error
 and 
 .B \-X. 
 TapeAlerts devices only accept the options 
-.B \-h, \-?, \-V, \-i, \-a, \-d, \-s
+.B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-t, \-l selftest, \-l error
 and 
 .B \-H.
 
@@ -110,7 +110,8 @@ so, whether S.M.A.R.T. support is currently enabled or disabled.
 .TP
 .B \-a, \-\-all
 Prints all S.M.A.R.T. information about the disk.  This is equivalent to '\-H
-\-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i \-l selftest').
+\-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i \-l error
+\-l selftest').
 .TP
 .B RUN-TIME BEHAVIOR:
 .TP
@@ -208,7 +209,10 @@ this option are:
 \- report only ioctl() transactions with ATA devices.
 
 .I scsiioctl
-\- report only ioctl() transactions with SCSI devices.
+\- report only ioctl() transactions with SCSI devices. Invoking this once
+shows the SCSI commands in hex and the corresponding status. Invoking
+it a second time adds a hex listing of the first 64 bytes of data send to, 
+or received from the device.
 
 .TP
 .B S.M.A.R.T. FEATURE ENABLE/DISABLE COMMANDS:
@@ -427,6 +431,10 @@ fault errors, etc.  Error log data structures shall not include errors
 attributed to the receipt of faulty commands such as command codes not
 implemented by the device or requests with invalid parameters or
 invalid addresses."
+
+.I error [SCSI]
+\- prints the error counter log pages for reads, write and verifies.
+The verify row is only output if it has an element other than zero.
 
 .I selftest
 \- prints only the S.M.A.R.T. self-test log.  The disk maintains a log
@@ -785,4 +793,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.56 2003/04/10 04:13:39 ballen4705 Exp $
+$Id: smartctl.8,v 1.57 2003/04/14 11:02:49 dpgilbert Exp $

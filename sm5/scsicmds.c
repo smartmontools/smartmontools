@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.36 2003/04/13 09:18:58 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.37 2003/04/14 11:01:47 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1358,4 +1358,51 @@ int scsiSmartExtendCapSelfTest(int device)
 int scsiSmartSelfTestAbort(int device)
 {
     return scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
+}
+
+void scsiDecodeErrCounterPage(unsigned char * resp, 
+                              struct scsiErrorCounter *ecp)
+{
+    int k, j, num, pl, pc;
+    unsigned char * ucp;
+    unsigned char * xp;
+    unsigned long long * ullp;
+
+    memset(ecp, 0, sizeof(*ecp));
+    num = (resp[2] << 8) | resp[3];
+    ucp = &resp[0] + 4;
+    while (num > 3) {
+    	pc = (ucp[0] << 8) | ucp[1];
+	pl = ucp[3] + 4;
+	switch (pc) {
+            case 0: 
+            case 1: 
+            case 2: 
+            case 3: 
+            case 4: 
+            case 5: 
+            case 6: 
+                ecp->gotPC[pc] = 1;
+                ullp = &ecp->counter[pc];
+                break;
+	default: 
+                ecp->gotExtraPC = 1;
+                ullp = &ecp->counter[7];
+                break;
+	}
+	k = pl - 4;
+	xp = ucp + 4;
+	if (k > sizeof(*ullp)) {
+	    xp += (k - sizeof(*ullp));
+	    k = sizeof(*ullp);
+	}
+	*ullp = 0;
+	for (j = 0; j < k; ++j) {
+	    if (j > 0)
+	    	*ullp <<= 8;
+	    *ullp |= xp[j];
+	}
+	num -= pl;
+	ucp += pl;
+    }
 }

@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.21 2003/04/13 09:17:15 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.22 2003/04/14 11:01:06 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -118,6 +118,13 @@ struct scsi_iec_mode_page {
     UINT8 modese_10;
     UINT8 raw_curr[SCSI_IECMP_RAW_LEN];
     UINT8 raw_chg[SCSI_IECMP_RAW_LEN];
+};
+
+/* Carrier for Error counter log pages (e.g. read, write, verify ...) */
+struct scsiErrorCounter {
+    UINT8 gotPC[7];
+    UINT8 gotExtraPC;
+    unsigned long long counter[8];
 };
 
 /* ANSI SCSI-3 Log Sense Return Log Pages from device. */
@@ -249,6 +256,8 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
 int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
         UINT8 *byte_2p, UINT8 *mrie_p, unsigned int *interval_timer_p,
         unsigned int *report_count_p);
+void scsiDecodeErrCounterPage(unsigned char * resp,
+                              struct scsiErrorCounter *ecp);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
