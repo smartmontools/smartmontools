@@ -4,10 +4,13 @@ SMARTMONTOOLS - SMART utility toolset for Linux
 
 == HOME ==
 The home for smartmontools is located at:
-http://smartmontools.sourceforge.net
-Please see this web site
-for updates, documentation, and for submitting patches and bug
-reports.
+    http://smartmontools.sourceforge.net
+Please see this web site for updates, documentation, and for
+submitting patches and bug reports.
+
+You will find a mailing list for support and other questions at:
+http://lists.sourceforge.net/lists/listinfo/smartmontools-support
+
 
 == COPYING ==
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -21,11 +24,13 @@ You should have received a copy of the GNU General Public License (for
 example COPYING); if not, write to the Free Software Foundation, Inc., 675
 Mass Ave, Cambridge, MA 02139, USA.
 
+
 == CREDITS ==
 This code was originally developed as a Senior Thesis by Michael Cornwell
 at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
 
 == OVERVIEW ==
 SMARTMONTOOLS contains utilities that control and monitor storage
@@ -52,13 +57,15 @@ smartctl is a command line utility designed to perform
 smartd   is a daemon that periodically monitors S.M.A.R.T. status and
          reports errors and changes in S.M.A.R.T. attributes to syslog.
 
-You can read about these commands using the man pages.  Within this
+If you have just downloaded smartmontools from the URL above, then
+you can read about these commands using the man pages.  Within this
 directory the commands:
   man ./smartctl.8
 and
   man ./smartd.8
-will display the manual pages for the two commands.  If you install the package on
-your system, then
+
+will display the manual pages for the two commands.  If you have
+already installed the package on your system, then:
   man smartctl
 and
   man smartd
@@ -72,120 +79,19 @@ To install, use the commands:
 The tools require Linux kernel 2.2.14 or greater in order to run. Any
 recent Linux distribution should support this package.
  
-Ten files are installed:
-/usr/sbin/smartd                           [Executable daemon]
-/usr/sbin/smartctl                         [Executable command-line utility]
-/etc/rc.d/init.d/smartd                    [Init/Startup script for smartd]
-/usr/share/man/man8/smartctl.8.gz          [Manual page]
-/usr/share/man/man8/smartd.8.gz            [Manual page]
-/usr/share/doc/smartmontools-5.0/README    [What you are reading!]
-/usr/share/doc/smartmontools-5.0/TODO      [Things that need to be done/fixed]
-/usr/share/doc/smartmontools-5.0/CHANGELOG [A log of changes -- but we'll use CVS]
-/usr/share/doc/smartmontools-5.0/COPYING   [GNU Public License.] 
-/usr/share/doc/smartmontools-5.0/VERSION   [Version number -- don't ask!]
+Eleven files are installed:
+/usr/sbin/smartd                               [Executable daemon]
+/usr/sbin/smartctl                             [Executable command-line utility]
+/etc/rc.d/init.d/smartd                        [Init/Startup script for smartd]
+/usr/share/man/man8/smartctl.8.gz              [Manual page]
+/usr/share/man/man8/smartd.8.gz                [Manual page]
+/usr/share/doc/smartmontools-5.0/README        [What you are reading!]
+/usr/share/doc/smartmontools-5.0/TODO          [Things that need to be done/fixed]
+/usr/share/doc/smartmontools-5.0/CHANGELOG     [A log of changes. Also see CVS]
+/usr/share/doc/smartmontools-5.0/COPYING       [GNU Public License.] 
+/usr/share/doc/smartmontools-5.0/VERSION       [Version number]
+/usr/share/doc/smartmontools-5.0/smartd.conf   [Sample Configuration file for /etc/]
 
 Source and binary RPM files are available at the website listed above.
 
-
-== USAGE ==
-SMARTMONTOOLS contains two utilities:
-
-smartctl - A command line control utility 
-smartd  -  A monitoring daemon
-
-to run smartctl, use the syntax
-
-./smartctl [options] [device]  
-
-See the man page for full details.  A summary of the options is:
-
-Read only:
-V       Print License/Copyright information.
-i       Checks if the device supports S.M.A.R.T, and prints drive model
-        information.
-c       Checks if device has any S.M.A.R.T. Warranty Failures.  This means
-        that the device is predicting failure in the next 24 hours.
-g	Prints only the generic S.M.A.R.T. attributes 
-v	Prints only the vendor specific S.M.A.R.T. attributes & thresholds
-l	Prints only the S.M.A.R.T. error log
-L       Prints only the S.M.A.R.T. self-test log
-a	Prints all parameters for i,c,g,v,t,l,L
-q       Quiet operation; only show errors in error log, or self-test log, or smart status
-Q       Very quiet operation: only output is via the returned status
-
-Modify Display for Vendor-specific S.M.A.R.T. Raw Attribute Data:
-m       Converts Raw Attribute-009 from minutes to hours (Hitachi)
-
-Enable/Disable commands:
-e	Enables S.M.A.R.T. on device
-d	Disables S.M.A.R.T. on device
-f       Enables S.M.A.R.T. attributes auto-save on device
-F       Disables S.M.A.R.T. attributes auto-save on device
-t       Enables S.M.A.R.T. automatic offline self test timer which scans the
-        drive every four hours for disk defects.
-T	Disables S.M.A.R.T. automatic offline self test timer 
-
-Test Commands:
-O	Runs S.M.A.R.T. Immediate offline Test
-S	Runs S.M.A.R.T. Short Self Test (usually under ten minutes)
-s       Runs S.M.A.R.T. Short Self Test in Captive Mode. (WARNING this test
-        will busy out drive for length of test )
-X	Runs S.M.A.R.T. Extended Self Test (tens of minutes)
-x       Runs S.M.A.R.T. Extended Self Test in Captive Mode. (WARNING this
-        test will busy out the drive for the length of the test)
-A 	Aborts Non-Captive S.M.A.R.T. Tests.
-
-devices are IDE devices which usually are:
-
-/dev/hda 	Primary Master
-/dev/hdb	Primary Slave
-/dev/hdc 	Secondary Master
-/dev/hdd 	Secondary Slave	
-
-for SCSI the devices are usually
-
-/dev/sda	First SCSI Disk 
-/dev/sdb	second SCSI disl
-
-Examples:
-  smartctl -e /dev/hda     - enables SMART on hard drive
-  smartctl -c /dev/sda     - checks status of hard drive.
-
-
-smartd will scan for all devices that support SMART and poll them very
-thirty minutes for errors or for changes in attribute values. When an
-error or attribute value change occurs, it sends log information to
-the SYSLOG facility.  Typically these messages and warnings appear in
-/var/log/messages.
-
-smartd                   - starts background daemon to
-                             monitor hard drive status
-You can read about the options using man smartd.
-
-
-== REFERENCES ==
-If you need help in understanding the output of smartctl, a good place
-to start is to read Section 8.41 of the AT Attachment with Packet
-Interface-5 (ATA/ATAPI-5) specification.  This documents the
-S.M.A.R.T. functionality which the smartmontools utilities provide
-access to.  You can find Revision 1 of this document at:
-http://www.t13.org/project/d1321r1c.pdf
-
-Future versions of the specifications (ATA/ATAPI-6 and ATA/ATAPI-7)
-can be obtained from:
-http://www.t13.org/#FTP_site
-Later revisions (2, 3) of the ATA/ATAPI-5 specification are also
-available there.
-
-
-The functioning of S.M.A.R.T. is also described by the SFF-8035i
-revision 2 specification.  This is a publication of the Small Form
-Factors Committee, and can be obtained from SFF Committee, 14426 Black
-Walnut Ct., Saratoga, CA 95070, USA.  
-SFF FaxAccess: (408) 741-1600
-Ph: (408) 867-6630
-Fax: (408) 867-2115
-E-Mail: 250-1752@mcimail.com.
-
-
-$Id: README,v 1.9 2002/10/24 07:50:45 ballen4705 Exp $
+PLEASE READ THE MANUAL PAGES FOR SMARTCTL AND SMARTD FOR MORE INFORMATION.

@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/28 23:47:00 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/29 14:19:11 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -32,15 +32,15 @@ is compatible with ATA/ATAPI-5 and earlier standards (see
 .B REFERENCES
 below)
 
-.B smartd  
-will notify users of S.M.A.R.T. errors and changes of
-S.M.A.R.T. attributes via the SYSLOG interface.  These notifications
-and warnings normally appear in 
+.B smartd
+will attempt to enable S.M.A.R.T. monitoring on devices, and will then
+notify users of S.M.A.R.T. errors and changes of S.M.A.R.T. attributes
+via the SYSLOG interface.  These notifications and warnings normally
+appear in
 .B /var/log/messages.
-It can be configured at start-up
-using the file
+It can be configured at start-up using the file
 .B /etc/smartd.conf.
-Note that 
+Note that
 .B smartd
 only reads the configuration file at start-up.  Changes to the
 configuration file only take effect after the
@@ -403,4 +403,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.14 2002/10/28 23:47:00 ballen4705 Exp $
+$Id: smartd.8,v 1.15 2002/10/29 14:19:11 ballen4705 Exp $
