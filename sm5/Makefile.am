@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.66 2004/09/06 16:52:38 chrfranke Exp $
+# $Id: Makefile.am,v 1.67 2004/09/06 16:54:21 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -191,15 +191,17 @@ smartd.conf$(smartd_suffix): smartd.conf
 	cp smartd.conf smartd.conf$(smartd_suffix)
 endif
 
-EXTRA_DIST = \
-                smartmontools.spec	\
-                smartd.initd.in		\
-		smartd.8.in		\
-		smartctl.8.in		\
-		smartd.conf.5.in	\
-		smartd.conf		\
-		autogen.sh		\
-                $(docs_DATA)
+EXTRA_DIST = smartmontools.spec                    \
+             smartd.initd.in                       \
+             smartd.8.in                           \
+             smartctl.8.in                         \
+             smartd.conf.5.in                      \
+             smartd.conf                           \
+             autogen.sh                            \
+             os_darwin/SMART.in                    \
+             os_darwin/StartupParameters.plist     \
+             os_darwin/English_Localizable.strings \
+             $(docs_DATA)
 
 CLEANFILES = smartd.conf.5      \
              smartd.conf.4      \
