@@ -249,5 +249,6 @@ Changes to smartd options:
   -V            --version, --copyright, --license            -V            --version, --copyright, --license
   -X            --debug                                      -d            --debug
                                                              -i N          --interval=N
+                                                             -D            --showdirectives
   ----------------------------------------------------------------------------------------------------------
 

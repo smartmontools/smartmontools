@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.93 2003/01/04 17:34:16 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.94 2003/01/04 19:31:38 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -346,6 +346,8 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printout(LOG_INFO,"Command Line Options:\n");
   printout(LOG_INFO,"  -d, --debug\n  Start smartd in debug mode\n\n");
+  printout(LOG_INFO,"  -D, --showdirectives\n");
+  printout(LOG_INFO,"  Print the configuration file Directives and exit\n\n");
   printout(LOG_INFO,"  -i N, --interval=N\n");
   printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
@@ -354,14 +356,12 @@ void Usage (void){
 #else
   printout(LOG_INFO,"Command Line Options:\n");
   printout(LOG_INFO,"  -d     Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -D     Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -i N   Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V     Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -h     Display this help and exit\n");
   printout(LOG_INFO,"  -?     Same as -h\n");
 #endif
-  printout(LOG_INFO,"\n");
-  printout(LOG_INFO,"Optional configuration file: %s\n",CONFIGFILE);
-  Directives();
 }
 
 // returns negative if problem, else fd>=0
@@ -1432,18 +1432,19 @@ void ParseOpts(int argc, char **argv){
   int optchar;
   char *tailptr;
   long lchecktime;
-  const char *shortopts = "di:Vh?";
+  const char *shortopts = "dDi:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   struct option longopts[] = {
-    { "debug",     no_argument,       0, 'd' },
-    { "interval",  required_argument, 0, 'i' },
-    { "version",   no_argument,       0, 'V' },
-    { "license",   no_argument,       0, 'V' },
-    { "copyright", no_argument,       0, 'V' },
-    { "help",      no_argument,       0, 'h' },
-    { "usage",     no_argument,       0, 'h' },
-    { 0,           0,                 0, 0   }
+    { "debug",          no_argument,       0, 'd' },
+    { "showdirectives", no_argument,       0, 'D' },
+    { "interval",       required_argument, 0, 'i' },
+    { "version",        no_argument,       0, 'V' },
+    { "license",        no_argument,       0, 'V' },
+    { "copyright",      no_argument,       0, 'V' },
+    { "help",           no_argument,       0, 'h' },
+    { "usage",          no_argument,       0, 'h' },
+    { 0,                0,                 0, 0   }
   };
 #endif
 
@@ -1458,6 +1459,11 @@ void ParseOpts(int argc, char **argv){
     switch(optchar) {
     case 'd':
       debugmode  = TRUE;
+      break;
+    case 'D':
+      debugmode = TRUE;
+      Directives();
+      exit(0);
       break;
     case 'i':
       // Period (time interval) for checking
