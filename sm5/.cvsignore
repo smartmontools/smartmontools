@@ -28,9 +28,12 @@ missing
 mkinstalldirs
 smartctl
 smartctl.8
+smartctl.1m
 smartd
 smartd.8
+smartd.1m
 smartd.conf.5
+smartd.conf.4
 smartd.conf.sample
 smartd.initd
 stamp-h
