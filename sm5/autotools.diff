@@ -81,7 +81,7 @@ diff -u -p -r1.117 smartmontools.spec
  Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
  Name:		smartmontools
 -Version:	5.1
-+Version:	5.27
++Version:	5.19
  License:	GPL
  Group:		Applications/System
  Group(de):	Applikationen/System
