@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.24 2003/12/29 13:19:26 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.25 2003/12/30 11:59:37 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -453,7 +453,7 @@ was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
-Note that bu default under Solaris, in the previous paragraph,
+Note that by default under Solaris, in the previous paragraph,
 \'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
 \'/bin/mail\' does not accept a \'\-s\' argument.
 
@@ -1044,4 +1044,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.24 2003/12/29 13:19:26 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.25 2003/12/30 11:59:37 ballen4705 Exp $
