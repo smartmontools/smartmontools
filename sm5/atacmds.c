@@ -29,7 +29,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.24 2002/10/26 06:27:35 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.25 2002/10/26 06:44:42 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -90,7 +90,7 @@ const int actual_ver[] = {
   1,		/* 0x0003	WARNING: 	*/
   2,		/* 0x0004	WARNING:   This array 		*/
   2,		/* 0x0005	WARNING:   corresponds 		*/
-  -3,		/* 0x0006	WARNING:   *exactly*		*/
+  -3, /*<== */	/* 0x0006	WARNING:   *exactly*		*/
   2,		/* 0x0007	WARNING:   to the ATA/		*/
   -3, /*<== */	/* 0x0008	WARNING:   ATAPI version	*/
   2,		/* 0x0009	WARNING:   listed in	 	*/
@@ -474,6 +474,7 @@ int ataDoesSmartWork(int device){
 }
 
 
+#ifdef HDIO_DRIVE_TASK
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
 int ataSmartStatus2(int device){
@@ -513,6 +514,16 @@ int ataSmartStatus2(int device){
   pout("SEL=0x%02x\n",parms[6]);
   return -1;
 }
+#else
+// Just a hack so that the code compiles on 
+// 2.2 kernels without HDIO_DRIVE TASK support.  
+// Should be fixed by putting in a call to code 
+// that compares smart data to thresholds.
+int ataSmartStatus2(int device){
+    return ataSmartStatus(device)
+}
+#endif
+
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
