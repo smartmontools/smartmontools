@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.7 2004/10/08 14:56:40 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.8 2005/03/11 15:09:28 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -74,10 +74,13 @@ static HANDLE create_event(int sig, BOOL initial, BOOL errmsg, BOOL * exists)
 {
 	char name[EVT_NAME_LEN];
 	HANDLE h;
-	make_name(name, sig);
+	if (sig >= 0)
+		make_name(name, sig);
+	else
+		name[0] = 0;
 	if (exists)
 		*exists = FALSE;
-	if (!(h = CreateEventA(NULL, FALSE, initial, name))) {
+	if (!(h = CreateEventA(NULL, FALSE, initial, (name[0] ? name : NULL)))) {
 		if (errmsg)
 			fprintf(stderr, "CreateEvent(.,\"%s\"): Error=%ld\n", name, GetLastError());
 		return 0;
@@ -231,7 +234,8 @@ static sigfunc_t sig_handlers[MAX_SIG_HANDLERS];
 static int sig_numbers[MAX_SIG_HANDLERS];
 static HANDLE sig_events[MAX_SIG_HANDLERS];
 
-static HANDLE sigint_handle, sigbreak_handle, sigterm_handle;
+static HANDLE sighup_handle, sigint_handle, sigbreak_handle;
+static HANDLE sigterm_handle, sigusr1_handle;
 
 static HANDLE running_event;
 
@@ -333,15 +337,17 @@ sigfunc_t daemon_signal(int sig, sigfunc_t func)
 	}
 	if (num_sig_handlers >= MAX_SIG_HANDLERS)
 		return SIG_ERR;
-	if (!(h = create_event(sig, FALSE, TRUE, NULL)))
+	if (!(h = create_event((!svc_mode ? sig : -1), FALSE, TRUE, NULL)))
 		return SIG_ERR;
 	sig_events[num_sig_handlers]   = h;
 	sig_numbers[num_sig_handlers]  = sig;
 	sig_handlers[num_sig_handlers] = func;
 	switch (sig) {
+		case SIGHUP:   sighup_handle   = h; break;
 		case SIGINT:   sigint_handle   = h; break;
 		case SIGTERM:  sigterm_handle  = h; break;
 		case SIGBREAK: sigbreak_handle = h; break;
+		case SIGUSR1:  sigusr1_handle  = h; break;
 	}
 	num_sig_handlers++;
 	return SIG_DFL;
@@ -831,12 +837,12 @@ static void WINAPI service_control(DWORD ctrlcode)
 		case SERVICE_CONTROL_SHUTDOWN:
 			service_report_status(SERVICE_STOP_PENDING, 30);
 			svc_paused = 0;
-			sig_event(SIGTERM);
+			SetEvent(sigterm_handle);
 			break;
 		case SERVICE_CONTROL_PARAMCHANGE: // Win2000/XP
 			service_report_status(svc_status.dwCurrentState, 0);
 			svc_paused = 0;
-			sig_event(SIGHUP); // reload
+			SetEvent(sighup_handle); // reload
 			break;
 		case SERVICE_CONTROL_PAUSE:
 			service_report_status(SERVICE_PAUSED, 0);
@@ -847,7 +853,7 @@ static void WINAPI service_control(DWORD ctrlcode)
 			{
 				int was_paused = svc_paused;
 				svc_paused = 0;
-				sig_event(was_paused ? SIGHUP : SIGUSR1); // reload:recheck
+				SetEvent(was_paused ? sighup_handle : sigusr1_handle); // reload:recheck
 			}
 			break;
 		case SERVICE_CONTROL_INTERROGATE:
