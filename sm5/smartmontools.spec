@@ -102,6 +102,8 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Thu Oct 24 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- smartd now prints the name of a failed or changed attribute into logfile,
+  not just ID number
 - Changed name of -p (print version) option to -V
 - Minor change in philosophy: if a SMART command fails or the device
     appears incapable of a SMART command that the user has asked for,

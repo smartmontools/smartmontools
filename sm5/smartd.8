@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/24 07:50:45 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/24 10:53:50 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -60,14 +60,14 @@ messages are harmless.]
 .SH 
 OPTIONS
 .TP
-p
-Version: Prints license, copyright, and CVS version information onto STDOUT or into the SYSLOG
-log (normally /var/log/messages) and then exits. Please include this information if you are reporting bugs.
+.B V
+Version: Prints license, copyright, and CVS version information onto
+STDOUT or into the SYSLOG log (normally /var/log/messages) and then
+exits. Please include this information if you are reporting bugs.
 .TP
-X
+.B X
 eXamine: Runs smartd in "debug" mode. In this mode, it does not fork and
 displays status information to STDOUT.
-
 
 .SH EXAMPLES
 
@@ -93,9 +93,9 @@ and stop it by using
 .B '/etc/rc.d/init.d/smartd stop'.
 
 If you want
-.B
-smartd
-to start running whenever your machine is booted, this can be enabled by using the command:
+.B smartd
+to start running whenever your machine is booted, this can be enabled
+by using the command:
 .nf
 .B '/sbin/chkconfig --add smartd'
 .fi
@@ -103,7 +103,27 @@ and disabled using the command:
 .nf
 .B '/sbin/chkconfig --del smartd'
 
+.SH NOTES
+.B smartd
+will make log entries if SMART attribute values have changed,
+for example:
+.nf
+.B 'Device: /dev/hda, SMART Attribute: 194 Temperature_Centigrade changed from 94 to 93'
+.fi
+Note that in this message, the value given is the 'Normalized' not
+the 'Raw' Attribute value (the disk temperature in this case is about 22 
+centigrade).  See the 
+.B smartctl
+manual page for further explanation.
 
+.B smartd
+will also make log entries if a SMART attribute has failed, for example:
+.nf
+.B 'Device: /dev/hdc, Failed SMART attribute: 5 Reallocated_Sector_Ct. Use smartctl -v /dev/hdc.'
+.fi
+Such entries should not be ignored - they mean that the disk is failing.  Use the
+.B smartctl
+utility to investigate.
 .PP
 .SH AUTHOR
 Bruce Allen
@@ -178,4 +198,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.8 2002/10/24 07:50:45 ballen4705 Exp $
+$Id: smartd.8,v 1.9 2002/10/24 10:53:50 ballen4705 Exp $

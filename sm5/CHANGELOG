@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $
+$Id: CHANGELOG,v 1.18 2002/10/24 10:53:50 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,6 +28,9 @@ NOTES FOR NEXT RELEASE:
 
 
 smartmontools-5.0-11
+
+    smartd now prints the name of a failed or changed attribute
+    into logfile, not just ID number
 
     Changed name of -p (print version) option to -V
 
