@@ -24,20 +24,21 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.20 2003/04/22 03:01:35 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.21 2003/04/22 03:13:43 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
 
-
-
+// See vendorattributeargs[] array in atacmds.c for definitions.
 #define PRESET_9_MINUTES                   {   9,  1 }
+#define PRESET_9_TEMP                      {   9,  2 }
 #define PRESET_9_SECONDS                   {   9,  3 }
 #define PRESET_9_HALFMINUTES               {   9,  4 }
 #define PRESET_194_10XCELSIUS              { 194,  1 }
 #define PRESET_194_UNKNOWN                 { 194,  2 }
 #define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
+#define PRESET_220_TEMP                    { 220,  1 }
 
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */

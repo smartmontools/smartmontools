@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.94 2003/04/21 22:43:03 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.95 2003/04/22 03:13:42 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -129,10 +129,12 @@ const int actual_ver[] = {
 // 1 -- modify the following function parse_attribute_def()
 // 2 -- modify ataPrintSmartAttribRawValue()
 // 3 -  modify ataPrintSmartAttribName()
-// 4 -- update smartctl.8
-// 5 -- update smartd.8
-// 6 -- do "make smartd.conf.5" to update smartd.conf.5
-// 7 -- update CHANGELOG file
+// 4 -- add #define PRESET_N_DESCRIPTION at top of knowndrives.c
+// 5 -- add drive in question into knowndrives[] table in knowndrives.c
+// 6 -- update smartctl.8
+// 7 -- update smartd.8
+// 8 -- do "make smartd.conf.5" to update smartd.conf.5
+// 9 -- update CHANGELOG file
 const char *vendorattributeargs[] = {
   // 0  defs[9]=1
   "9,minutes",
