@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.118 2003/09/23 17:18:15 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.119 2003/09/23 17:25:32 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -240,7 +240,7 @@ if [ -f /usr/share/man/man8/smartd.8 ] ; then
 	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartd.8 to read the new manual page for smartd."	
 fi
 if [ -f /usr/share/man/man5/smartd.conf.5 ] ; then
-        echo "You MUST delete (by hand) the outdated file /usr/share/man/man5/smartd.conf.5 to read the new manual page for smartd."
+        echo "You MUST delete (by hand) the outdated file /usr/share/man/man5/smartd.conf.5 to read the new manual page for smartd.conf"
 fi
 
 if [ ! -f /etc/smartd.conf ]; then
