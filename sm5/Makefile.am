@@ -85,4 +85,10 @@ install-initdDATA: $(initd_DATA)
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
 	@echo -e "A sample configuration file may be found in ${docdir}.\n\n"
 
+uninstall-initdDATA:
+	rm -rf $(initddir)/smartd
+
+uninstall-docsDATA:
+	rm -rf $(docsdir)
+
 SUBDIRS= . examplescripts
