@@ -182,17 +182,17 @@ please post to the smartmontools mailing list.
 
 The following table shows the mapping of old options to new options:
 
-  ---------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------------
   Old option    New short option        New long option                    smartd.conf               smartd.conf
-  Versions <=   Versions >=             Versions >=                        Directive                 Directive
+  Versions <=   Versions >=             Versions >=                        DIRECTIVE                 DIRECTIVE
   5.0-X         5.0-Y                   5.0-Y                              <= 5.0-X                  >= 5.0-Y
-  ---------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------------
   -h, -?        -h, -?                  --help
   -V            -V                      --version, --copyright, --license
   -i            -i                      --info                                                          CONFLICT
   -q            -q errorsonly           --quietmode=errorsonly
   -Q            -q silent               --quietmode=silent
-  -n            -d ata                  --device=ata                       -A				-d ata     			
+  -n            -d ata                  --device=ata                       -A				-d ata
   -N            -d scsi                 --device=scsi                      -S                           -d scsi
   -P            -T permissive           --tolerance=permissive             -P                           -T permissive
   -U            -T conservative         --tolerance=conservative
@@ -217,20 +217,21 @@ The following table shows the mapping of old options to new options:
   -x            -t long -C              --test=long --captive
   -A            -X                      --abort
 
-                                   SHOULD BECOME COMMAND-LINE ARGUMENT==>  -C N    Set checktime        NOW CMD LINE
+
+ SHOULD BECOME A COMMAND-LINE ARGUMENT (-C N, --checkinterval N) =======>  -C N    Set checktime        NOW CMD LINE
                                                                            -f      usage attributes     -f
-                                                    
                                                                            -M ADD  Email addresses     -M ADD
                                                                            -m N    Email mode          -m MODE
                                                                            -i N    Ignore              -i N
                                                                            -I N    Ignore              -I N
                                                                             #      Comment              #
                                                                             \      Line continuation    \
-  ---------------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------------
 
 Suggested change order (CVS commit at least after each of these):
 Modify smartctl command-line options
 Modify smartctl man page, README file, CHANGELOG
+Modify smartmontools index.html page to warn users of change in syntax, point to end of README file
 Modify smartd to take -C out of config file, put onto command line
 Modify smartd and smartd.conf man pages, README file, CHANGELOG
 Modify smartd Directive names, parsing
