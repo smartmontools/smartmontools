@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.49 2003/02/06 11:58:30 ballen4705 Exp $
+# $Id: Makefile,v 1.50 2003/02/06 12:01:13 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -23,7 +23,7 @@
 CC	= gcc
 
 # Debugging
-CFLAGS = -fsigned-char -Wall -g
+# CFLAGS = -fsigned-char -Wall -g
 
 # Build against kernel header files.  Change linux-2.4 to correct path for your system
 # CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
@@ -34,7 +34,7 @@ CFLAGS = -fsigned-char -Wall -g
 # #8404.  If you are getting strange output from gcc 3.2 try
 # uncommenting LDFLAGS -s below.  Stripping the symbols seems to fix
 # the problem.
-# CFLAGS	 = -fsigned-char -Wall -O2
+CFLAGS	 = -fsigned-char -Wall -O2
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
 LDFLAGS  = # -s
 
