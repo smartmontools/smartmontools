@@ -1,4 +1,4 @@
-Release:  36
+Release:  37
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
 Summary(es):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
@@ -29,7 +29,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.54 2002/11/11 10:50:09 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.55 2002/11/11 10:55:42 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -233,6 +233,13 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Mon Nov 11, 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Modified perror() statements in atacmds.c so that printout for SMART
+  commands errors is properly suppressed or queued depending upon users
+  choices for error reporting modes.
+- Added Italian descriptions to smartmontools.spec file.
+- Started impementing send-mail-on-error for smartd; not yet enabled.
+ 
 * Sun Nov 10 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - Added -P (Permissive) Directive to smartd.conf file to allow SMART monitoring of
   pre-ATA-3 Rev 4 disks that have SMART but do not have a SMART capability bit.
