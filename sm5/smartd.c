@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.150 2003/04/19 09:53:42 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.151 2003/04/19 23:30:20 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -461,29 +461,31 @@ return;
 void Usage (void){
   printout(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
-  printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -d, --debug\n  Start smartd in debug mode\n\n");
+  printout(LOG_INFO,"  -c, --checkonce\n");
+  printout(LOG_INFO,"        Check all devices once, then exit\n\n");
+  printout(LOG_INFO,"  -d, --debug\n");
+  printout(LOG_INFO,"        Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -D, --showdirectives\n");
-  printout(LOG_INFO,"  Print the configuration file Directives and exit\n\n");
-  printout(LOG_INFO,"  -r, --report=TYPE\n");
-  printout(LOG_INFO,"  Report transactions for one of: %s\n\n", getvalidarglist('r'));
+  printout(LOG_INFO,"        Print the configuration file Directives and exit\n\n");
+  printout(LOG_INFO,"  -h, -?, --help, --usage\n");
+  printout(LOG_INFO,"        Display this help and exit\n\n");
   printout(LOG_INFO,"  -i N, --interval=N\n");
-  printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
-  printout(LOG_INFO,"  -c, --checkonce\n  Check all devices once, then exit\n\n");
-  printout(LOG_INFO,"  -p NAME, --pidfile=NAME\n  Write PID file NAME\n\n");
+  printout(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
+  printout(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
+  printout(LOG_INFO,"        Write PID file NAME\n\n");
+  printout(LOG_INFO,"  -r, --report=TYPE\n");
+  printout(LOG_INFO,"        Report transactions for one of: %s\n\n", getvalidarglist('r'));
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
-  printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
-  printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
+  printout(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
-  printout(LOG_INFO,"Command Line Options:\n");
+  printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
   printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
   printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
-  printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
-  printout(LOG_INFO,"  -p NAME Write PID file NAME\n");
-  printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
-  printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
-  printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
   printout(LOG_INFO,"  -h      Display this help and exit\n");
+  printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
+  printout(LOG_INFO,"  -p NAME Write PID file NAME\n");
+  printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
+  printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -?      Same as -h\n");
 #endif
 }
