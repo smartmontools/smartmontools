@@ -8,7 +8,7 @@ if [ -f /etc/redhat-release ]; then
 else
   RPM_BASE=/usr/src/rpm/
 fi
-SRPMS=$RPM_BASE/SOURCES/
+SOURCES=$RPM_BASE/SOURCES/
 
 setup_cvs()
 {
@@ -57,13 +57,13 @@ cd build
 ../configure
 make dist
 cd ..
-cp build/smartmontools-$VERSION.tar.gz $SRPMS
+cp build/smartmontools-$VERSION.tar.gz $SOURCES
 
 # build rpm
 rpm -ba smartmontools.spec
 
 # remove source tarball
-rm -f $SRPMS/smartmontools-$VERSION.tar.gz
+rm -f $SOURCES/smartmontools-$VERSION.tar.gz
 
 # increase release number:
 inc_release
@@ -77,13 +77,3 @@ cp -f build/smartmontools-$VERSION.tar.gz .
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
        depcomp mkinstalldirs install-sh configure aclocal.m4 missing *.bak
-
-
-# TARBALL PROBLEMS on redhat:
-# if you do ./configure && make && make install:
-# make install: puts executables in wrong place on redhat: /usr/local/sbin not /usr/sbin
-# puts smartd.conf in /usr/local/etc
-# puts man pages in /usr/local/man
-# puts doc in /usr/local/share/doc
-# puts smartd.conf into a subdirectory of doc file called examples
-# puts init scripts into /usr/local/etc/...
