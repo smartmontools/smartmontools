@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.7 2003/10/19 05:55:01 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.8 2003/10/21 09:34:39 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -17,11 +17,11 @@ at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD.CONF 5  "$Date: 2003/10/19 05:55:01 $" RELEASE
+.TH SMARTD.CONF 5  "$Date: 2003/10/21 09:34:39 $" RELEASE
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File \- \fBRELEASE\fP
 .SH PACKAGE VERSION
-RELEASE "$Date: 2003/10/19 05:55:01 $"
+RELEASE "$Date: 2003/10/21 09:34:39 $"
 
 .SH DESCRIPTION
 \fB/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
@@ -45,8 +45,8 @@ running.
 .SH CONFIGURATION FILE /etc/smartd.conf
 In the absence of a configuration file,
 .B smartd 
-will try to open the 12 ATA devices 
-.B /dev/hd[a-l] 
+will try to open the 20 ATA devices 
+.B /dev/hd[a-t] 
 and the 26 SCSI devices
 .B /dev/sd[a-z]. 
 This can be annoying if you have an ATA or SCSI device that hangs or
@@ -948,4 +948,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.7 2003/10/19 05:55:01 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.8 2003/10/21 09:34:39 ballen4705 Exp $

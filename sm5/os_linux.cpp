@@ -58,7 +58,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.10 2003/10/21 01:45:50 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.11 2003/10/21 09:34:38 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -88,7 +88,7 @@ int deviceclose(int fd){
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.  So if we get the equivilent of
 // ls /dev/hd?, we have all the ATA devices on the system
-int get_dev_names(char*** names, const char* prefix) {
+int get_dev_names(char*** names, const char* prefix, int max) {
   DIR* dir;
   struct dirent* dirent;
   int n = 0;
@@ -96,15 +96,15 @@ int get_dev_names(char*** names, const char* prefix) {
   char buf[20]; // temp holding space
 
   // first, preallocate space for upto max number of ATA devices
-  if (!(mp =  (char **)calloc(MAX_NUM_DEV,sizeof(char*))))
+  if (!(mp =  (char **)calloc(max,sizeof(char*))))
     return -1;
   
-  bytes += (sizeof(char*)*MAX_NUM_DEV);
+  bytes += (sizeof(char*)*max);
 
   dir = opendir("/dev");
   if (dir == NULL) {
     int myerr = errno;
-    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
+    mp= FreeNonZero(mp,(sizeof (char*) * max),__LINE__,__FILE__);
     errno = myerr;
     return -1;
   }
@@ -112,8 +112,8 @@ int get_dev_names(char*** names, const char* prefix) {
   // now step through names
   // NOTE: We look for character special OR links, as Linux DEVFS will
   // actually have these as softlinks to real device entry
-  while ((dirent = readdir(dir)) && (n < MAX_NUM_DEV)) {
-    if ((dirent->d_type == DT_CHR || dirent->d_type == DT_LNK) &&
+  while ((dirent = readdir(dir)) && (n < max)) {
+    if ((dirent->d_type == DT_CHR || dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
 	(strstr(dirent->d_name,prefix) != NULL) &&
 	(_D_EXACT_NAMLEN(dirent) == 3)) {
       sprintf(buf,"/dev/%s",dirent->d_name);
@@ -122,7 +122,7 @@ int get_dev_names(char*** names, const char* prefix) {
   }
   closedir(dir);
   mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
-  bytes -= (MAX_NUM_DEV-n)*(sizeof(char*)); // and correct allocated bytes
+  bytes -= (max-n)*(sizeof(char*)); // and correct allocated bytes
   *names=mp;
   return n;
 }
@@ -132,9 +132,11 @@ int get_dev_names(char*** names, const char* prefix) {
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
   if (!strcmp(name,"SCSI"))
-    return get_dev_names(devlist,"sd");
+    //     /dev/sda-sdz
+    return get_dev_names(devlist,"sd", MAXSCSIDEVICES);
   else if (!strcmp(name,"ATA"))
-    return get_dev_names(devlist,"hd");
+    //     /dev/hda-hdt
+    return get_dev_names(devlist,"hd", MAXATADEVICES);
   else
     return 0;
 }
