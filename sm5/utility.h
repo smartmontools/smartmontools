@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.2 2003/01/16 15:51:10 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.3 2003/01/17 12:20:24 ballen4705 Exp $\n"
 #endif
 
 // Utility function prints date and time and timezone into a character
@@ -37,5 +37,17 @@ void dateandtimezone(char *buffer);
 // utility function for printing out CVS strings
 #define CVSMAXLEN 512
 void printone(char *block, const char *cvsid);
+
+// like printf() except that we can control it better. Note --
+// although the prototype is given here, in utility.h, the function
+// itself is defined differently in smartctl and smartd.  So the
+// function definition is in smartd.c and in smartctl.c.
+void pout(char *fmt, ...)  
+     __attribute__ ((format (printf, 1, 2)));
+
+// replacement for perror() with redirected output.
+void syserror(const char *message);
+
+
 
 #endif

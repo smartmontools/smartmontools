@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.32 2003/01/16 15:51:09 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.33 2003/01/17 12:20:24 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -345,14 +345,6 @@ int TestTime(struct ata_smart_values *data,int testtype);
 // 30 byte string with attribute name into output
 void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defs);
 
-// like printf() except that we can control it better....
-void pout(char *fmt, ...)  
-     __attribute__ ((format (printf, 1, 2)));
-
-// replacement for perror() with redirected output.
-void syserror(const char *message);
-
-
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the
 // attribute is > threshold, then returns zero.  If the attribute is
@@ -362,7 +354,6 @@ void syserror(const char *message);
 int ataCheckAttribute(struct ata_smart_values *data,
 		      struct ata_smart_thresholds *thresholds,
 		      int n);
-
 
 // External handler function, for when a checksum is not correct.  Can
 // simply return if no action is desired, or can print error messages

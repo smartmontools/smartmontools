@@ -30,11 +30,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
+#include <stdlib.h>
 #include "utility.h"
-#include "stdlib.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.2 2003/01/16 15:51:10 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.3 2003/01/17 12:20:24 ballen4705 Exp $" UTILITY_H_CVSID;
 
 // Utility function prints date and time and timezone into a character
 // buffer of length>=64.  All the fuss is needed to get the right
@@ -130,3 +131,21 @@ void printone(char *block, const char *cvsid){
   return;
 }
 
+
+// A replacement for perror() that sends output to our choice of
+// printing.
+void syserror(const char *message){
+  const char *errormessage;
+  
+  // Get the correct system error message:
+  errormessage=strerror(errno);
+
+  // Check that caller has handed a sensible string, and provide
+  // appropriate output. See perrror(3) man page to understand better.
+    if (message && *message)
+      pout("%s: %s\n",message, errormessage);
+    else
+      pout("%s\n",errormessage);
+	
+    return;
+}
