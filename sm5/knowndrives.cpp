@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.54 2003/11/09 19:05:30 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.55 2003/11/09 21:09:10 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -339,6 +339,11 @@ const drivesettings knowndrives[] = {
   },
   { // Seagate Barracuda U Series 20410
     "^ST320410A$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Seagate Barracuda ATA V family
+    "^ST3(12002(3A|4A|9A|3AS)|800(23A|15A|23AS)|60(015A|210A)|40017A)$",
     ".*",
     NULL, NULL, NULL, NULL,
   },
