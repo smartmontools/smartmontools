@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.29 2003/11/29 06:27:10 ballen4705 Exp $
+$Id: INSTALL,v 1.30 2003/12/05 12:41:57 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -32,9 +32,12 @@ Table of contents:
     URL above.
 
     If you are using 3ware controllers, for full functionality you
-    must either use1.02.00.037 or greater of the 3w-xxxx driver, or
-    patch earlier 3ware 3w-xxxx drivers.  See
-    file:///home/ballen/projects/SF/www/3w-xxxx.txt for the patch
+    must either use version 1.02.00.037 or greater of the 3w-xxxx
+    driver, or patch earlier 3ware 3w-xxxx drivers.  See:
+	http://smartmontools.sourceforge.net/3w-xxxx.txt
+    for the patch.  The version 1.02.00.037 3w-xxxx.c driver was
+    incorporated into kernel 2.4.23-bk2 on 3 December 2003 and into
+    kernel 2.6.0-test5-bk11 on 23 September 2003.
 
     B) FreeBSD
 
