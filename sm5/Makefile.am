@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.43 2003/12/11 19:29:16 card_captor Exp $
+# $Id: Makefile.am,v 1.44 2003/12/14 04:59:41 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -177,7 +177,7 @@ install-initdDATA: $(initd_DATA)
 	@echo -e "#                       PLEASE READ THIS BOX!\n#"
 	@echo -e "#   To manually start the smartd daemon, run:\n#   ${initddir}/smartd start\n#"
 	@echo -e "#   To automatically start smartd on bootup, run:\n#   /sbin/chkconfig --add smartd\n#"
-	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man 8 smartd"
+	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man smartd"
 	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
 	@echo -e "####################################################################\n\n"
 
