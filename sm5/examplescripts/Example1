@@ -8,7 +8,7 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example1,v 1.6 2004/08/29 01:56:07 ballen4705 Exp $
+# $Id: Example1,v 1.7 2004/08/29 02:33:17 ballen4705 Exp $
 
 # Save standard input into a temp file
 cat > /root/tempfile
@@ -27,7 +27,7 @@ echo "$SMARTD_DEVICE"       >> /root/tempfile
 echo "$SMARTD_DEVICESTRING" >> /root/tempfile
 echo "$SMARTD_DEVICETYPE"   >> /root/tempfile
 echo "$SMARTD_MESSAGE"      >> /root/tempfile
-echo "$SMARTD_FULLMESSAGE"      >> /root/tempfile
+echo "$SMARTD_FULLMESSAGE"  >> /root/tempfile
 echo "$SMARTD_ADDRESS"      >> /root/tempfile
 echo "$SMARTD_SUBJECT"      >> /root/tempfile
 echo "$SMARTD_TFIRST"       >> /root/tempfile
