@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.24 2004/04/11 17:13:39 chrfranke Exp $
+$Id: WARNINGS,v 1.25 2004/06/01 15:52:20 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -78,6 +78,9 @@ LINK:     http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=1wUXW-
 NOTE:     Before freezing, SYSLOG shows the following message(s)
           kernel: hdf: dma timer expiry: dma status == 0x61
           It's not clear if smartmontools plays a role in provoking this problem.
+          FINAL NOTE: Problem was COMPLETELY resolved by replacing the
+          power supply.  See URL above, entry on May 29, 2004 by Holbe.
+    
 
 FREEBSD
 -------
