@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.257 2003/11/15 02:32:49 dpgilbert Exp $
+$Id: CHANGELOG,v 1.258 2003/11/16 22:49:14 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax VL 30 family to knowndrives table.
 
   [DG] scsi: add warning (when '-l error' active) if Control mode page
        GLTSD bit is set (global disable of saving log counters)
