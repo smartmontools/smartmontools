@@ -24,7 +24,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.3 2004/08/30 22:02:12 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.c,v 1.4 2004/08/30 22:51:17 shattered Exp $" \
 ATACMDS_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -319,11 +319,11 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
       return -1;
     }
     /* Cyl low and Cyl high unchanged means "Good SMART status" */
-    if (htole16(req.cylinder) == normal)
+    if (letoh16(req.cylinder) == normal)
       return 0;
 
     /* These values mean "Bad SMART status" */
-    if (htole16(req.cylinder) == failed)
+    if (letoh16(req.cylinder) == failed)
       return 1;
 
     /* We haven't gotten output that makes sense; 
@@ -331,7 +331,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     snprintf(buf, sizeof(buf),
       "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
       (int) req.command, (int) req.features, (int) req.sec_count, (int) req.sec_num,
-      (int) (htole16(req.cylinder) & 0xff), (int) ((htole16(req.cylinder) >> 8) & 0xff),
+      (int) (letoh16(req.cylinder) & 0xff), (int) ((letoh16(req.cylinder) >> 8) & 0xff),
       (int) req.error);
     printwarning(BAD_SMART, buf);
     return 0;
