@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.49 2002/10/30 19:16:42 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.50 2002/10/31 16:38:30 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -819,7 +819,6 @@ int parsetoken(char *token,cfgfile *cfg){
   return 1;
 }
 
-int numtokens=0;
 int parseconfigline(int entry, int lineno,char *line){
   char *token,*copy;
   char *delim=" \n\t";
