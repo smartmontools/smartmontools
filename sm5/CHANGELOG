@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.249 2003/11/10 21:17:11 pjwilliams Exp $
+$Id: CHANGELOG,v 1.250 2003/11/11 11:00:33 dpgilbert Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] More checks for well formed mode page responses. This has the side
+       effect of stopping scans on bad SCSI implementations (e.g. some
+       USB disks) prior to sending commands (typically log sense) that
+       locks them up.
 
   [PW] Added Western Digital Caviar family and Caviar SE family to
        knowndrives table.
