@@ -79,9 +79,15 @@ will display the same information.
 To install, use the commands:
   make
   make install
-The tools require Linux kernel 2.2.14 or greater in order to run. Any
-recent Linux distribution should support this package.
- 
+
+Any recent Linux distribution should support this package.  Note that
+smartmontools requires Linux kernel 2.2.14 or greater in order to run
+at all.  But to give the ATA RETURN SMART STATUS command, the kernel
+needs to support the HDIO_DRIVE_TASK ioctl().  Any 2.4 series kernel
+should provide this support.  I am told that some of the 2.2.20 and
+later kernels also provide this support if they are properly
+patched/configured.
+
 Eighteen files are installed:
 /usr/sbin/smartd                                [Executable daemon]
 /usr/sbin/smartctl                              [Executable command-line utility]
