@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.61 2003/04/18 12:37:14 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.62 2003/04/18 22:09:11 pjwilliams Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/18 12:37:14 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/18 22:09:11 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -213,6 +213,13 @@ this option are:
 shows the SCSI commands in hex and the corresponding status. Invoking
 it a second time adds a hex listing of the first 64 bytes of data send to, 
 or received from the device.
+
+Any argument may include a positive integer to specify the level of detail
+that should be reported.  The argument should be followed by a comma then
+the integer with no spaces.  For example, 
+.I ataioctl,2
+The default
+level is 1, so '\-r ataioctl,1' and '\-r ataioctl' are equivalent.
 
 .TP
 .B S.M.A.R.T. FEATURE ENABLE/DISABLE COMMANDS:
@@ -863,4 +870,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.61 2003/04/18 12:37:14 ballen4705 Exp $
+$Id: smartctl.8,v 1.62 2003/04/18 22:09:11 pjwilliams Exp $

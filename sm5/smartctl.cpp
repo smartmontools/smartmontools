@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.69 2003/04/18 12:37:14 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.70 2003/04/18 22:09:11 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -119,7 +119,7 @@ void Usage (void){
 "  -b TYPE, --badsum=TYPE                                              (ATA)\n"
 "         Set action on bad checksum to one of: warn, exit, ignore\n"
 "  -r TYPE, --report=TYPE\n"
-"         Report transactions for one of: ioctl, ataioctl, scsiioctl\n"
+"         Report transactions (see man page)\n"
   );
 #else
   printf(
@@ -127,7 +127,7 @@ void Usage (void){
 "  -d TYPE   Specify device type to one of: ata, scsi\n"
 "  -T TYPE   Set tolerance to one of: normal, conservative, permissive (ATA)\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
-"  -r TYPE   Report transactions for one of: ioctl, ataioctl, scsiioctl\n"
+"  -r TYPE   Report transactions (see man page)\n"
   );
 #endif
   printf("==============  DEVICE FEATURE ENABLE/DISABLE COMMANDS  ===================\n");
@@ -230,7 +230,7 @@ const char *getvalidarglist(char opt) {
   case 'b':
     return "warn, exit, ignore";
   case 'r':
-    return "ioctl, ataioctl, scsiioctl";
+    return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
   case 's':
   case 'o':
   case 'S':
@@ -390,15 +390,30 @@ void ParseOpts (int argc, char** argv){
       }
       break;
     case 'r':
-      if (!strcmp(optarg,"ioctl")) {
-        con->reportataioctl++;
-        con->reportscsiioctl++;
-      } else if (!strcmp(optarg,"ataioctl")) {
-        con->reportataioctl++;
-      } else if (!strcmp(optarg,"scsiioctl")) {
-        con->reportscsiioctl++;
-      } else {
-        badarg = TRUE;
+      {
+        int i;
+        char *s;
+
+        // split_report_arg() may modify its first argument string, so use a
+        // copy of optarg in case we want optarg for an error message.
+        if (!(s = strdup(optarg))) {
+          con->veryquietmode = FALSE;
+          pout("Can't allocate memory to copy argument to -r option"
+               " - exiting\n");
+          exit(FAILCMD);
+        }
+        if (split_report_arg(s, &i)) {
+          badarg = TRUE;
+        } else if (!strcmp(s,"ioctl")) {
+          con->reportataioctl  = con->reportscsiioctl = i;
+        } else if (!strcmp(s,"ataioctl")) {
+          con->reportataioctl = i;
+        } else if (!strcmp(s,"scsiioctl")) {
+          con->reportscsiioctl = i;
+        } else {
+          badarg = TRUE;
+        }
+        free(s);
       }
       break;
     case 's':

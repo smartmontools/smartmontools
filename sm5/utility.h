@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.7 2003/04/16 23:12:00 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.8 2003/04/18 22:09:14 pjwilliams Exp $\n"
 #endif
 
 #include <time.h>
@@ -61,5 +61,8 @@ void printregexwarning(int errcode, regex_t *compiled);
 
 // A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
 int compileregex(regex_t *compiled, const char *pattern, int cflags);
+
+// Function for processing -r option in smartctl and smartd
+int split_report_arg(char *s, int *i);
 
 #endif

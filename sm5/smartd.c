@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.145 2003/04/18 09:59:05 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.146 2003/04/18 22:09:13 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1795,7 +1795,7 @@ void PrintCopyleft(void){
 const char *getvalidarglist(char opt) {
   switch (opt) {
   case 'r':
-    return "ioctl, ataioctl, scsiioctl";
+    return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
   case 'p':
     return "<FILE_NAME>";
   case 'i':
@@ -1886,15 +1886,29 @@ void ParseOpts(int argc, char **argv){
       checktime = (int)lchecktime;
       break;
     case 'r':
-      if (!strcmp(optarg,"ioctl")) {
-        con->reportataioctl++;
-        con->reportscsiioctl++;
-      } else if (!strcmp(optarg,"ataioctl")) {
-        con->reportataioctl++;
-      } else if (!strcmp(optarg,"scsiioctl")) {
-        con->reportscsiioctl++;
-      } else {
-        badarg = TRUE;
+      {
+        int i;
+        char *s;
+
+        // split_report_arg() may modify its first argument string, so use a
+        // copy of optarg in case we want optarg for an error message.
+        if (!(s = strdup(optarg))) {
+          printout(LOG_CRIT, "Can't allocate memory to copy argument to"
+                             " -r option - exiting\n");
+          exit(EXIT_NOMEM);
+        }
+        if (split_report_arg(s, &i)) {
+          badarg = TRUE;
+        } else if (!strcmp(s,"ioctl")) {
+          con->reportataioctl  = con->reportscsiioctl = i;
+        } else if (!strcmp(s,"ataioctl")) {
+          con->reportataioctl = i;
+        } else if (!strcmp(s,"scsiioctl")) {
+          con->reportscsiioctl = i;
+        } else {
+          badarg = TRUE;
+        }
+        free(s);
       }
       break;
     case 'p':

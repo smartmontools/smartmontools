@@ -32,10 +32,11 @@
 #include <time.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.6 2003/04/13 16:05:23 pjwilliams Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.7 2003/04/18 22:09:14 pjwilliams Exp $" UTILITY_H_CVSID;
 
 
 // Utility function prints date and time and timezone into a character
@@ -182,5 +183,30 @@ int compileregex(regex_t *compiled, const char *pattern, int cflags)
     pout("Please inform smartmontools developers\n");
     return 1;
   }
+  return 0;
+}
+
+// Splits an argument to the -r option into a name part and an (optional) 
+// positive integer part.  s is a pointer to a string containing the
+// argument.  After the call, s will point to the name part and *i the
+// integer part if there is one or 1 otherwise.  Note that the string s may
+// be changed by this function.  Returns zero if successful and non-zero
+// otherwise.
+int split_report_arg(char *s, int *i)
+{
+  if ((s = strchr(s, ','))) {
+    // Looks like there's a name part and an integer part.
+    *s++ = '\0';
+    if (*s == '0' || !isdigit(*s))  // The integer part must be positive
+      return 1;
+    errno = 0;
+    *i = atoi(s);
+    if (errno)
+      return 1;
+  } else {
+    // There's no integer part.
+    *i = 1;
+  }
+
   return 0;
 }
