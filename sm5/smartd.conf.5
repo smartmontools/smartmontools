@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.23 2003/02/01 08:47:00 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.24 2003/02/01 09:01:43 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/02/01 08:47:00 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/02/01 09:01:43 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -304,7 +304,7 @@ executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the '\-M exec' Directive below.
 
 Note that there is a special argument
-.B <notmailer>
+.B <nomailer>
 which can be given to the '\-m' Directive in conjunction with the '\-M
 exec' Directive. Please see below for an explanation of its effect.
 
@@ -401,7 +401,7 @@ errorcount (the number of errors in the ATA error log has increased).
 .B SMARTD_ADDRESS
 is set to the address argument ADD of the '\-m' Directive, unless ADD
 is
-.B <notmailer>.
+.B <nomailer>.
 This is a comma-delineated list of email addresses (example:
 admin@yoyodyne.com).
 .nf
@@ -438,14 +438,14 @@ that would normally be provided to 'mail'.  Examples include:
 .fi
 
 If the '\-m ADD' Directive is given with the special address argument
-.B <notmailer>
+.B <nomailer>
 then the executable pointed to by PATH is run in a shell with
 .B no
 STDIN and
 .B no
 command-line arguments, for example:
 .nf
-.B -m <notmailer> -M exec /Example_2/bash/script/below
+.B -m <nomailer> -M exec /Example_2/bash/script/below
 .fi
 
 Some EXAMPLES of scripts that can be used with the '\-M exec'
@@ -637,4 +637,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.23 2003/02/01 08:47:00 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.24 2003/02/01 09:01:43 ballen4705 Exp $
