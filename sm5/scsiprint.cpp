@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.82 2004/08/21 19:57:47 likewise Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.83 2004/08/22 22:01:04 likewise Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -653,10 +653,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
         PRINT_ON(con);
-        pout("Standard Inquiry (32 bytes) failed [%s]\n", scsiErrString(err));
+        pout("Standard Inquiry (36 bytes) failed [%s]\n", scsiErrString(err));
         pout("Retrying with a 64 byte Standard Inquiry\n");
         PRINT_OFF(con);
-        /* Marvell controllers fail on a 32 bytes StdInquiry, but 64 suffices */
+        /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
         memset(gBuf, 0, 64);
         if ((err = scsiStdInquiry(device, gBuf, 64))) {
             PRINT_ON(con);
