@@ -1,4 +1,4 @@
-Release:  12
+Release:  13
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.100 2003/05/09 19:20:34 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.101 2003/06/12 15:47:32 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -270,6 +270,38 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Thu June 10 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartd: attempt to enable/disable automatic offline testing even
+       if the disk appears not to support it.  Now the same logic
+       as smartctl.
+- [BA] Added definition of Attribute 201, soft read error rate.
+- [BA] Added IBM/Hitachi IC35L120AVV207-1 (GXP-180) and corresponding
+       8MB Cache GXP-120 to drive database.
+- [BA] smartd: if DEVICESCAN Directive used in smartd.conf, and
+       -I, -R or -r Directives used in conjunction with this, got
+       segv errors.  Fixed by correcting memory allocation calls.
+- [BA] smartd: enable automatic offline testing was broken due
+       to cut-and-paste error that disabled it instead of
+       enabling it.  Thanks to Maciej W. Rozycki for pointing
+       out the problem and solution.
+- [BA] Fixed "spelling" of some Attribute names to replace spaces
+       in names by underscores. (Fixed field width easier for awk
+       style parsing.)
+- [BA] Added mods submitted by Guilhem Frezou to support Attribute 193
+       being load/unload cycles. Add -v 193,loadunload option, useful
+       for Hitachi drive DK23EA-30, and add this drive to knowndrive.c
+       Add meaning of attribute 250 : Read error retry rate
+- [BA] Added another entry for Samsung drives to knowndrive table.
+- [DG] Refine SCSI log sense command to do a double fetch in most cases
+       (but not for the TapeAlert log page). Fix TapeAlert and Self Test
+       log pgae response truncation.
+- [PW] Added 'removable' argument to -d Directive for smartd.  This indicates
+       that smartd should continue (rather than exit) if the device does not 
+       appear to be present.
+- [BA] Modified smartmontools.spec [Man pages location] and
+       smartd.initd [Extra space kills chkconfig!] for Redhat 6.x
+       compatibility (thanks to Gerald Schnabel).
+
 * Wed May 7 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [EB] Add another Fujitsu disk to knowndrives.c
 - [GG] match for scsi/ and ide/ in case of devfs to exclude false postives
