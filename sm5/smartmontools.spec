@@ -29,7 +29,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.58 2002/11/12 22:42:11 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.59 2002/11/13 07:39:50 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -233,6 +233,11 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Wed Nov 13 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Added a new smartd configuration file Directive: -M ADDRESS.
+  This sends a single warning email to ADDRESS for failures or
+  errors detected with the -c, -L, -l, or -f Directives.
+
 * Mon Nov 11 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - Modified perror() statements in atacmds.c so that printout for SMART
   commands errors is properly suppressed or queued depending upon users
