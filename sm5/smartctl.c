@@ -38,7 +38,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.c,v 1.18 2002/10/24 08:46:03 ballen4705 Exp $"
+const char* CVSid6="$Id: smartctl.c,v 1.19 2002/10/24 13:36:37 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
 
 unsigned char driveinfo               = FALSE;
@@ -158,37 +158,37 @@ void printcopy(){
 void Usage ( void){
   printf("Usage: smartctl -[options] [device]\n");
   printf("\nRead Only Options:\n");
-  printf("   %c   Show version, copyright and license info\n", PRINTCOPYLEFT);
-  printf("   %c   Show all S.M.A.R.T. Information         (ATA and SCSI)\n",  SMARTVERBOSEALL);
-  printf("   %c   Show S.M.A.R.T. Drive Info              (ATA and SCSI)\n",  DRIVEINFO);
-  printf("   %c   Show S.M.A.R.T. Status                  (ATA and SCSI)\n",  CHECKSMART);
-  printf("   %c   Show S.M.A.R.T. General Attributes      (ATA Only)\n",  GENERALSMARTVALUES);
-  printf("   %c   Show S.M.A.R.T. Vendor Attributes       (ATA Only)\n",  SMARTVENDORATTRIB);
-  printf("   %c   Show S.M.A.R.T. Drive Error Log         (ATA Only\n",   SMARTERRORLOG);
-  printf("   %c   Show S.M.A.R.T. Drive Self Test Log     (ATA Only)\n",  SMARTSELFTESTLOG);
-  printf("   %c   Quiet: only show SMART drive errors     (ATA Only)\n",  QUIETMODE);
-  printf("   %c   Very Quiet: no display, use exit status (ATA Only)\n",  VERYQUIETMODE);
+  printf("  %c  Show version, copyright and license info\n", PRINTCOPYLEFT);
+  printf("  %c  Show all SMART Information              (ATA/SCSI)\n",SMARTVERBOSEALL);
+  printf("  %c  Show SMART Drive Info                   (ATA/SCSI)\n",DRIVEINFO);
+  printf("  %c  Show SMART Status                       (ATA/SCSI)\n",CHECKSMART);
+  printf("  %c  Show SMART General Attributes           (ATA Only)\n",    GENERALSMARTVALUES);
+  printf("  %c  Show SMART Vendor Attributes            (ATA Only)\n",    SMARTVENDORATTRIB);
+  printf("  %c  Show SMART Drive Error Log              (ATA Only\n",     SMARTERRORLOG);
+  printf("  %c  Show SMART Drive Self Test Log          (ATA Only)\n",    SMARTSELFTESTLOG);
+  printf("  %c  Quiet: only show SMART drive errors     (ATA Only)\n",    QUIETMODE);
+  printf("  %c  Very Quiet: no display, use exit status (ATA Only)\n",    VERYQUIETMODE);
   printf("\nVendor-specific Display Options:\n");
-  printf("   %c   Raw Attribute 009 is minutes            (ATA Only)\n",  SMART009MINUTES);
+  printf("  %c  Raw Attribute 009 is minutes            (ATA Only)\n",    SMART009MINUTES);
   printf("\nEnable/Disable Options:\n");
-  printf("   %c   Enable  S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTENABLE);
-  printf("   %c   Disable S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTDISABLE);
-  printf("   %c   Enable  S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEENABLE);
-  printf("   %c   Disable S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEDISABLE);
-  printf("   %c   Enable  S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEENABLE);
-  printf("   %c   Disable S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEDISABLE);
+  printf("  %c  Enable  SMART data collection           (ATA/SCSI)\n",SMARTENABLE);
+  printf("  %c  Disable SMART data collection           (ATA/SCSI)\n",SMARTDISABLE);
+  printf("  %c  Enable  SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEENABLE);
+  printf("  %c  Disable SMART Automatic Offline Test    (ATA Only)\n",    SMARTAUTOOFFLINEDISABLE);
+  printf("  %c  Enable  SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEENABLE);
+  printf("  %c  Disable SMART Attribute Autosave        (ATA Only)\n",    SMARTAUTOSAVEDISABLE);
   printf("\nTest Options (no more than one):\n");
-  printf("   %c   Execute Off-line data collection (ATA Only)\n",          SMARTEXEOFFIMMEDIATE);
-  printf("   %c   Execute Short Self Test (ATA Only)\n",                   SMARTSHORTSELFTEST );
-  printf("   %c   Execute Short Self Test (Captive Mode) (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
-  printf("   %c   Execute Extended Self Test (ATA Only)\n",                SMARTEXTENDSELFTEST );
-  printf("   %c   Execute Extended Self Test (Captive Mode) (ATA Only)\n", SMARTEXTENDCAPSELFTEST );
-  printf("   %c   Execute Self Test Abort (ATA Only)\n",                 SMARTSELFTESTABORT );
+  printf("  %c  Execute Off-line data collection        (ATA Only)\n",    SMARTEXEOFFIMMEDIATE);
+  printf("  %c  Execute Short Self Test                 (ATA Only)\n",    SMARTSHORTSELFTEST );
+  printf("  %c  Execute Short Self Test (Captive Mode)  (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
+  printf("  %c  Execute Extended Self Test              (ATA Only)\n",    SMARTEXTENDSELFTEST );
+  printf("  %c  Execute Extended Self Test (Captive)    (ATA Only)\n",    SMARTEXTENDCAPSELFTEST );
+  printf("  %c  Execute Self Test Abort                 (ATA Only)\n",    SMARTSELFTESTABORT );
   printf("\nExamples:\n");
-  printf("   smartctl -etf /dev/hda  (Enables S.M.A.R.T. on first disk)\n");
-  printf("   smartctl -a   /dev/hda  (Prints all S.M.A.R.T. information)\n");
-  printf("   smartctl -X   /dev/hda  (Executes extended disk self-test)\n");
-  printf("   smartctl -qvL /dev/hda  (Print self-test log and vendor attributes errors.)\n");
+  printf("  smartctl -etf /dev/hda  (Enables SMART on first disk)\n");
+  printf("  smartctl -a   /dev/hda  (Prints all SMART information)\n");
+  printf("  smartctl -X   /dev/hda  (Executes extended disk self-test)\n");
+  printf("  smartctl -qvL /dev/hda  (Prints Self-Test & Attribute errors.)\n");
 }
 
 const char opts[] = { 
@@ -197,7 +197,7 @@ const char opts[] = {
   SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
   SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
   SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
-  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,QUIETMODE,VERYQUIETMODE,'\0'
+  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,QUIETMODE,VERYQUIETMODE,'h','?','\0'
 };
 
 /*      Takes command options and sets features to be run */	
@@ -288,6 +288,13 @@ void ParseOpts (int argc, char** argv){
     case SMARTSELFTESTABORT:
       smartselftestabort = TRUE;
       testcase=ABORT_SELF_TEST;
+      break;
+    case 'h':
+    case '?':
+      veryquietmode=FALSE;
+      printslogan();
+      Usage();
+      exit(0);	
       break;
     default:
       veryquietmode=FALSE;
