@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.107 2003/02/03 19:20:36 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.108 2003/02/06 11:58:30 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -63,6 +63,10 @@ int numscsidevices=0;
 // How long to sleep between checks.  Handy as global variable for
 // debugging
 int checktime=CHECKTIME;
+
+
+// If set, we should exit after checking all disks once
+int checkonce=0;
 
 // Needed to interrupt sleep when catching SIGUSR1.  Unix Gurus: I
 // know that this can be done better.  Please tell me how -- use email
@@ -391,6 +395,7 @@ void Usage (void){
   printout(LOG_INFO,"  Print the configuration file Directives and exit\n\n");
   printout(LOG_INFO,"  -i N, --interval=N\n");
   printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
+  printout(LOG_INFO,"  -c, --checkonce\n  Check all devices once, then exit\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
@@ -400,6 +405,7 @@ void Usage (void){
   printout(LOG_INFO,"  -D     Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -i N   Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V     Print License, Copyright, and version information\n");
+  printout(LOG_INFO,"  -c     Check all devices once, then exit\n");
   printout(LOG_INFO,"  -h     Display this help and exit\n");
   printout(LOG_INFO,"  -?     Same as -h\n");
 #endif
@@ -952,10 +958,10 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
   // If there are no devices to monitor, then exit
   if (!numatadevices && !numscsidevices){
     printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
-    return;
+    exit(1);
   }
 
-  // Infinite loop, which checkes devices
+  // Infinite loop, which checks devices
   printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
   while (1){
     for (i=0; i<numatadevices; i++) 
@@ -963,6 +969,14 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
     
     for (i=0; i<numscsidevices; i++)
       scsiCheckDevice(scsidevices+i);
+
+    // This option is primarily for distribution developers who want
+    // an automated procedure for seeing if smartd works correctly.
+    // Use the -c/--checkonce option and verify zero exit status.
+    if (checkonce) {
+      printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n");
+      exit(0);
+    }
 
     // Unix Gurus: I know that this can be done better.  Please tell
     // me how -- use email address for Bruce Allen at the top of this
@@ -1272,6 +1286,7 @@ int parseconfigline(int entry, int lineno,char *line){
   int len;
   cfgfile *cfg;
   static int numtokens=0;
+  int devscan=0;
 
   if (!(copy=strdup(line))){
     printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
@@ -1286,14 +1301,13 @@ int parseconfigline(int entry, int lineno,char *line){
 
   // Have we detected the DEVICESCAN directive?
   if (!strcmp(SCANDIRECTIVE,name)){
+    devscan=1;
     if (numtokens) {
       printout(LOG_INFO,"Scan Directive %s must be the first entry in %s\n",name,CONFIGFILE);
       exit(1);
     }
     else
-      printout(LOG_INFO,"Scan Directive %s found in %s. Scanning for devices.\n",name,CONFIGFILE);
-    free(copy);
-    return -1;
+      printout(LOG_INFO,"Scan Directive %s found in %s. Will scan for devices.\n",name,CONFIGFILE);
   }
   numtokens++;
 
@@ -1311,17 +1325,22 @@ int parseconfigline(int entry, int lineno,char *line){
   // Save info to process memory for after forking 32 bytes contains 1
   // bit per possible attribute ID.  See isattoff()
   cfg->name=strdup(name);
-  cfg->failatt=(unsigned char *)calloc(32,1);
-  cfg->trackatt=(unsigned char *)calloc(32,1);
-  cfg->attributedefs=(unsigned char *)calloc(256,1);
-  
-  if (!cfg->name || !cfg->failatt || !cfg->trackatt || !cfg->attributedefs) {
+  if (!devscan){
+    cfg->failatt=(unsigned char *)calloc(32,1);
+    cfg->trackatt=(unsigned char *)calloc(32,1);
+    cfg->attributedefs=(unsigned char *)calloc(256,1);
+  }
+
+  // check that all memory allocations were sucessful
+  if (!cfg->name || (!devscan && (!cfg->failatt || !cfg->trackatt || !cfg->attributedefs))) {
     printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(1);
   }
 
+  // Store line number, and by default check for both device types.
   cfg->lineno=lineno;
-  cfg->tryscsi=cfg->tryata=1;
+  cfg->tryscsi=1;
+  cfg->tryata=1;
   
   // Try and recognize if a IDE or SCSI device.  These can be
   // overwritten by configuration file directives.
@@ -1331,23 +1350,38 @@ int parseconfigline(int entry, int lineno,char *line){
   
   if (len>5 && !strncmp("/dev/s",name, 6))
     cfg->tryata=0;
-
-  // parse tokens one at a time from the file
+  
+  // parse tokens one at a time from the file.  This line actually
+  // parses ALL the tokens.
   while ((token=strtok(NULL,delim)) && parsetoken(token,cfg)){
 #if 0
-  printout(LOG_INFO,"Parsed token %s\n",token);
+    printout(LOG_INFO,"Parsed token %s\n",token);
 #endif
   }
-
-  // basic sanity check -- are any directives enabled?
+  // Now we are done parsing tokens.  Time for a basic sanity check --
+  // are any directives enabled?  Note that if tryscsi is set, then we
+  // DON'T need any of the other options turned on. But if the user
+  // has turned off tryscsi, then ATA requires something set.
   if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail || cfg->usage || 
 	cfg->selftest || cfg->errorlog || cfg->tryscsi)){
-    printout(LOG_CRIT,"Drive: %s, no monitoring Directives on line %d of file %s\n",
-	     cfg->name, cfg->lineno, CONFIGFILE);
-    Directives();
-    exit(1);
+    // If user gave SCANDIRECTIVE but without any monitoring
+    // options.  then set equivalent of -a to enable ALL checking
+    if (devscan==1 && cfg->tryata){
+      cfg->smartcheck=1;
+      cfg->usagefailed=1;
+      cfg->prefail=1;
+      cfg->usage=1;
+      cfg->selftest=1;
+      cfg->errorlog=1;
+    }
+    else {
+      printout(LOG_CRIT,"Drive: %s, no monitoring Directives on line %d of file %s\n",
+	       cfg->name, cfg->lineno, CONFIGFILE);
+      Directives();
+      exit(1);
+    }
   }
-
+  
   // additional sanity check. Has user set -M options without -m?
   if (!cfg->address && (cfg->emailcmdline || cfg->emailfreq || cfg->emailtest)){
     printout(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
@@ -1355,7 +1389,7 @@ int parseconfigline(int entry, int lineno,char *line){
     Directives();
     exit(1);
   }
-
+  
   // has the user has set <nomailer>?
   if (cfg->address && !strcmp(cfg->address,"<nomailer>")){
     // check that -M exec is also set
@@ -1377,12 +1411,18 @@ int parseconfigline(int entry, int lineno,char *line){
 
   entry++;
   free(copy);
-  return 1;
+
+  // Return:
+  if (devscan)
+    return -1;
+  else
+    return 1;
 }
 
 // returns number of entries in config file, or 0 if no config file
 // exists.  A config file with zero entries will cause an error
-// message and an exit.
+// message and an exit.  Returns -1 if it found a SCANDEVICE directive
+// in the config file.
 int parseconfigfile(){
   FILE *fp;
   int entry=0,lineno=1,cont=0,contlineno=0;
@@ -1518,10 +1558,11 @@ void ParseOpts(int argc, char **argv){
   int optchar;
   char *tailptr;
   long lchecktime;
-  const char *shortopts = "dDi:Vh?";
+  const char *shortopts = "cdDi:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   struct option longopts[] = {
+    { "checkonce",      no_argument,       0, 'c' },
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
@@ -1543,8 +1584,12 @@ void ParseOpts(int argc, char **argv){
   while (-1 != (optchar = getopt(argc, argv, shortopts))){
 #endif
     switch(optchar) {
+    case 'c':
+      checkonce = TRUE;
+      debugmode = TRUE;
+      break;
     case 'd':
-      debugmode  = TRUE;
+      debugmode = TRUE;
       break;
     case 'D':
       debugmode = TRUE;
@@ -1611,35 +1656,43 @@ void ParseOpts(int argc, char **argv){
 
 // Function we call if no configuration file was found.  It makes
 // entries for /dev/hd[a-l] and /dev/sd[a-z].
-int makeconfigentries(int num, char *name, int isata, int start){
+int makeconfigentries(int num, char *name, int isata, int start, int scandirective){
   int i;
   
+  // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
     printout(LOG_CRIT,"Error: simulated config file can have no more than %d entries\n",(int)MAXENTRIES);
     exit(1);
   }
   
+  // loop over the number of entries that we should create
   for(i=0; i<num; i++){
     cfgfile *cfg=config+start+i;
     
-    // clear all fields of structure
-    memset(cfg,0,sizeof(*cfg));
+    // If user has given the scan directive, copy config files entries
+    if (scandirective){
+      memcpy(cfg, config, sizeof(*cfg));
+    }
+    else {
+      // no config file was used: all structure entries need to be set
+      memset(cfg,0,sizeof(*cfg));
+      
+      // enable all possible tests
+      cfg->smartcheck=1;
+      cfg->prefail=1;
+      cfg->usagefailed=1;
+      cfg->usage=1;
+      cfg->selftest=1;
+      cfg->errorlog=1;
+      
+      // lineno==0 is our clue that the device was not found in a
+      // config file!
+      cfg->lineno=0;    
+    }
     
     // select if it's a SCSI or ATA device
     cfg->tryata=isata;
     cfg->tryscsi=!isata;
-    
-    // enable all possible tests
-    cfg->smartcheck=1;
-    cfg->prefail=1;
-    cfg->usagefailed=1;
-    cfg->usage=1;
-    cfg->selftest=1;
-    cfg->errorlog=1;
-    
-    // lineno==0 is our clue that the device was not found in a
-    // config file!
-    cfg->lineno=0;
     
     // put in the device name
     cfg->name=strdup(name);
@@ -1647,10 +1700,10 @@ int makeconfigentries(int num, char *name, int isata, int start){
     cfg->trackatt=(unsigned char *)calloc(32,1);
     cfg->attributedefs=(unsigned char *)calloc(256,1);
     if (!cfg->name || !cfg->failatt || !cfg->trackatt || !cfg->attributedefs) {
-	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
+      printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(1);
     }
-
+    
     // increment final character of the name
     cfg->name[strlen(name)-1]+=i;
   }
@@ -1712,15 +1765,34 @@ int main (int argc, char **argv){
   
   // if there was no config file, create needed entries
   if (entries<=0){
-    if (entries)
+    int scandirective=entries;
+    int doscsi, doata;
+    // confirm that we are doing device scanning
+    if (scandirective){
       printout(LOG_INFO,"smartd: Scanning for devices.\n");
-    else
+      // free up storage used for SCANDIRECTIVE string
+      free(config->name);
+      config->name=NULL;
+    }
+    else {
+      // since there is no config file, scan for everything
       printout(LOG_INFO,"smartd: file %s not found. Searching for devices.\n",CONFIGFILE);
+      config->tryata=1;
+      config->tryscsi=1;
+    }
+
+    // initialize total number of entries to seach for
     entries=0;
-    entries+=makeconfigentries(MAXATADEVICES,"/dev/hda",1,entries);
-    entries+=makeconfigentries(MAXSCSIDEVICES,"/dev/sda",0,entries);
+    doata=config->tryata;
+    doscsi=config->tryscsi;
+
+    // make list of ATA devices to search for
+    if (doata)
+      entries+=makeconfigentries(MAXATADEVICES,  "/dev/hda", 1, entries, scandirective);
+    // make list of SCSI devices to search for
+    if (doscsi)
+      entries+=makeconfigentries(MAXSCSIDEVICES, "/dev/sda", 0, entries, scandirective);
   }
-  
 
   // Register entries
   for (i=0;i<entries;i++){
@@ -1732,8 +1804,7 @@ int main (int argc, char **argv){
     if (config[i].tryscsi && scsidevicescan(scsidevicesptr+numscsidevices, config+i))
       cantregister(config[i].name, "SCSI", config[i].lineno);
   }
-  
-  
+
   // Now start an infinite loop that checks all devices
   CheckDevices(atadevicesptr, scsidevicesptr); 
   return 0;
