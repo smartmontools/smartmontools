@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.30 2002/10/26 20:10:34 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.31 2002/10/28 23:46:59 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -632,11 +632,11 @@ int isSupportSelfTest (struct ata_smart_values data){
 // condition where imminent loss of data is being predicted."
 
 
-// onlyfailing=0 : are or were any age or prefailure attributes <= threshold
-// onlyfailing=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart (struct ata_smart_values data,
-		   struct ata_smart_thresholds thresholds,
-		   int onlyfailed){
+// onlyfailed=0 : are or were any age or prefailure attributes <= threshold
+// onlyfailed=1:  are any prefailure attributes <= threshold now
+int ataCheckSmart(struct ata_smart_values data,
+		  struct ata_smart_thresholds thresholds,
+		  int onlyfailed){
   int i;
   
   // loop over all attributes
@@ -663,6 +663,40 @@ int ataCheckSmart (struct ata_smart_values data,
   return 0;
 }
 
+
+
+// This checks the n'th attribute in the attribute list, NOT the
+// attribute with id==n.  If the attribute does not exist, or the
+// attribute is > threshold, then returns zero.  If the attribute is
+// <= threshold (failing) then we the attribute number if it is a
+// prefail attribute.  Else we return minus the attribute number if it
+// is a usage attribute.
+int ataCheckAttribute(struct ata_smart_values *data,
+		      struct ata_smart_thresholds *thresholds,
+		      int n){
+  struct ata_smart_attribute *disk;
+  struct ata_smart_threshold_entry *thre;
+  
+  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !data || !thresholds)
+    return 0;
+  
+  // pointers to disk's values and vendor's thresholds
+  disk=data->vendor_attributes+n;
+  thre=thresholds->thres_entries+n;
+
+  if (!disk || !thre)
+    return 0;
+  
+  // consider only valid attributes, check for failure
+  if (!disk->id || !thre->id || (disk->id != thre->id) || disk->current> thre->threshold)
+    return 0;
+  
+  // We have found a failed attribute.  Return positive or negative? 
+  if (disk->status.flag.prefailure)
+    return disk->id;
+  else
+    return -1*(disk->id);
+}
 
 // Note some attribute names appear redundant because different
 // manufacturers use different attribute IDs for an attribute with the

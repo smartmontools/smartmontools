@@ -30,14 +30,17 @@
 #include <errno.h>
 
 #include "smartctl.h"
-#include "extern.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
+#include "extern.h"
 
 #define GBUF_SIZE 65535
 
-const char* CVSid5="$Id: scsiprint.c,v 1.9 2002/10/23 20:36:59 ballen4705 Exp $"
+const char* CVSid4="$Id: scsiprint.c,v 1.10 2002/10/28 23:46:59 ballen4705 Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
+
+// control block which points to external global control variables
+extern atamainctrl *con;
 
 UINT8 gBuf[GBUF_SIZE];
 
@@ -293,20 +296,20 @@ void scsiPrintStopStart ( int device )
   printf ("Start Stop Count: %d\n", css);
 **/
 }
- 
+
 void scsiPrintMain (int fd)
 {
 
-    if (driveinfo)
+    if (con->driveinfo)
 	scsiGetDriveInfo(fd); 
 
-    if (smartenable) 
+    if (con->smartenable) 
 	scsiSmartEnable(fd);
 
-    if (smartdisable)
+    if (con->smartdisable)
 	scsiSmartDisable(fd);
 
-    if (checksmart)
+    if (con->checksmart)
     {
 	scsiGetSupportPages (fd);
         if(gTapeAlertsPage)
@@ -322,7 +325,7 @@ void scsiPrintMain (int fd)
     }	
 
 	
-    if ( smartexeoffimmediate )
+    if ( con->smartexeoffimmediate )
     {
 	if ( scsiSmartOfflineTest (fd) != 0) 
 	{
@@ -336,7 +339,7 @@ void scsiPrintMain (int fd)
     }
 
 
-    if ( smartshortcapselftest )
+    if ( con->smartshortcapselftest )
     {
 	if ( scsiSmartShortCapSelfTest (fd) != 0) 
 	{
@@ -347,7 +350,7 @@ void scsiPrintMain (int fd)
         printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
    }
 
-   if ( smartshortselftest )
+   if ( con->smartshortselftest )
    { 
 		
       if ( scsiSmartShortSelfTest (fd) != 0) 
@@ -359,7 +362,7 @@ void scsiPrintMain (int fd)
         printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);
    }
 	
-   if ( smartextendselftest )
+   if ( con->smartextendselftest )
    {
       if ( scsiSmartExtendSelfTest (fd) != 0) 
       {
@@ -371,7 +374,7 @@ void scsiPrintMain (int fd)
    printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
    }
 	
-	if ( smartextendcapselftest )
+	if ( con->smartextendcapselftest )
 	{
 		
 		if ( scsiSmartExtendCapSelfTest (fd) != 0) 
@@ -384,7 +387,7 @@ void scsiPrintMain (int fd)
         printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
 	}
 
-	if ( smartselftestabort )
+	if ( con->smartselftestabort )
 	{
 		
 		if ( scsiSmartSelfTestAbort (fd) != 0) 

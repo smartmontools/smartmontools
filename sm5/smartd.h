@@ -23,13 +23,15 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.11 2002/10/26 10:19:16 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.12 2002/10/28 23:47:00 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
 #define CONFIGFILE "/etc/smartd.conf"
-#define MAXLINELEN 114
+#define MAXLINELEN 128
 #define MAXENTRIES 64
+#define MAXCONTLINE 511
+#define MAXDEVLEN 51
 
 // BAD PROGRAMMING - GLOBAL VARIABLES SHOULD BE IN .c NOT .h FILE
 
@@ -58,24 +60,49 @@ unsigned char debugmode               = FALSE;
 unsigned char emailnotification       = FALSE;
 unsigned char printcopyleft           = FALSE;
 
-typedef struct atadevices_s {
-	int selftest;
-	struct hd_driveid drive;
-	struct ata_smart_values smartval;
-	struct ata_smart_thresholds smartthres;
-	char devicename[MAXLINELEN+2];
-}  atadevices_t;
 
 typedef struct scsidevices_s {
-	unsigned char SmartPageSupported;
-	unsigned char TempPageSupported;
-	unsigned char Temperature;
-	char devicename[MAXLINELEN+2];
+  unsigned char SmartPageSupported;
+  unsigned char TempPageSupported;
+  unsigned char Temperature;
+  char *devicename;
 } scsidevices_t;
 
+
 typedef struct configfile_s {
+  // which line was entry in file; what device type and name?
   int lineno;
-  int tryata;
-  int tryscsi;
-  char name[MAXLINELEN+2];  // really only needs to be +1
+  char tryata;
+  char tryscsi;
+  char *name;
+
+  // which tests have been enabled?
+  char smartcheck;
+  char usagefailed;
+  char prefail;
+  char usage;
+  char selftest;
+  char errorlog;
+
+  // store counts of ata and self-test errors
+  char selflogcount;
+  int  ataerrorcount;
+  // following two items point to 32 bytes, in the form of are
+  // 32x8=256 single bit flags 
+
+  // valid attribute numbers are from 1 <= x <= 255
+  // valid attribute values  are from 1 <= x <= 254
+  unsigned char *failatt;
+  unsigned char *trackatt;
 } cfgfile;
+
+
+typedef struct atadevices_s {
+  struct ata_smart_values *smartval;
+  struct ata_smart_thresholds *smartthres;
+  cfgfile *cfg;
+  char *devicename;
+}  atadevices_t;
+
+
+int ataCheckDevice(atadevices_t *drive);

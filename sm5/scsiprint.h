@@ -28,11 +28,9 @@
 #define SCSI_PRINT_H_
 
 #ifndef CVSID5
-#define CVSID5 "$Id: scsiprint.h,v 1.6 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#define CVSID5 "$Id: scsiprint.h,v 1.7 2002/10/28 23:46:59 ballen4705 Exp $\n"
 #endif
 
-void scsiPrintMain (int fd);
-
-
+void scsiPrintMain(int fd);
 
 #endif
