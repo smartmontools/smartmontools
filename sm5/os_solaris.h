@@ -24,12 +24,15 @@
 #ifndef OS_SOLARIS_H_
 #define OS_SOLARIS_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_solaris.h,v 1.3 2003/10/13 11:49:48 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_solaris.h,v 1.4 2003/10/14 13:09:06 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
 // system include files <something.h>.  Local #include files
 // <"something.h"> should be #included in os_solaris.c
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #endif /* OS_SOLARIS_H_ */

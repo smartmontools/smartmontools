@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.100 2003/10/13 12:43:22 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.101 2003/10/14 13:09:06 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -92,6 +92,11 @@ void printcopy(){
   pout("smartctl configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
 
 
+  return;
+}
+
+void UsageSummary(){
+  pout("\nUse smartctl -h to get a usage summary\n\n");
   return;
 }
 
@@ -619,7 +624,7 @@ void ParseOpts (int argc, char** argv){
               pout("ERROR: No more than five selective self-test spans may be"
                 " defined\n");
             }
-            pout("\nUse smartctl -h to get a usage summary\n\n");
+	    UsageSummary();
             EXIT(FAILCMD);
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
@@ -640,6 +645,11 @@ void ParseOpts (int argc, char** argv){
       con->testcase           = ABORT_SELF_TEST;
       break;
     case 'h':
+      con->veryquietmode=FALSE;
+      printslogan();
+      Usage();
+      EXIT(0);	
+      break;
     case '?':
     default:
       con->veryquietmode=FALSE;
@@ -655,18 +665,20 @@ void ParseOpts (int argc, char** argv){
           printvalidarglistmessage(optopt);
 	} else
 	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
-	pout("\nUse smartctl --help to get a usage summary\n\n");
+	UsageSummary();
 	EXIT(FAILCMD);
       }
 #endif
       if (optopt) {
-        // Iff optopt holds a valid option then argument must be missing.
+        // Iff optopt holds a valid option then argument must be
+        // missing.  Note (BA) this logic seems to fail using Solaris
+        // getopt!
         if (strchr(shortopts, optopt) != NULL) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n", optopt);
           printvalidarglistmessage(optopt);
         } else
 	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
-	pout("\nUse smartctl -h to get a usage summary\n\n");
+	UsageSummary();
 	EXIT(FAILCMD);
       }
       Usage();
@@ -681,7 +693,7 @@ void ParseOpts (int argc, char** argv){
       // a clean way to do it.
       pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
       printvalidarglistmessage(optchar);
-      pout("\nUse smartctl -h to get a usage summary\n\n");
+      UsageSummary();
       EXIT(FAILCMD);
     }
   }
@@ -697,7 +709,7 @@ void ParseOpts (int argc, char** argv){
     con->veryquietmode=FALSE;
     printslogan();
     pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");
-    pout("Use smartctl -h to get a usage summary\n\n");
+    UsageSummary();
     EXIT(FAILCMD);
   }
 
@@ -730,7 +742,7 @@ void ParseOpts (int argc, char** argv){
   // Warn if the user has provided no device name
   if (argc-optind<1){
     pout("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
-    pout("Use smartctl -h to get a usage summary\n\n");
+    UsageSummary();
     EXIT(FAILCMD);
   }
   
@@ -741,7 +753,7 @@ void ParseOpts (int argc, char** argv){
     pout("You have provided %d device names:\n",argc-optind);
     for (i=0; i<argc-optind; i++)
       pout("%s\n",argv[optind+i]);
-    pout("Use smartctl -h to get a usage summary\n\n");
+    UsageSummary();
     EXIT(FAILCMD);
   }  
 }
@@ -796,7 +808,7 @@ int main (int argc, char **argv){
       tryata = 1;
     else {
       pout("Smartctl: please specify if this is an ATA or SCSI device with the -d option.\n");
-      Usage();
+      UsageSummary();
       return FAILCMD;
     }    
   }
@@ -827,7 +839,7 @@ int main (int argc, char **argv){
     retval = scsiPrintMain(device, fd);
   else {
     pout("Smartctl: specify if this is an ATA or SCSI device with the -d option.\n");
-    Usage();
+    UsageSummary();
     return FAILCMD;
   }
   

@@ -57,7 +57,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.217 2003/10/13 14:50:44 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.218 2003/10/14 13:09:06 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -78,7 +78,7 @@ static int checktime=CHECKTIME;
 static char* pid_file=NULL;
 
 // configuration file name
-static char* configfile=NULL;
+static char* configfile=SYSCONFDIR "/" CONFIGFILENAME ;
 
 // command-line: when should we exit?
 static int quit=0;
@@ -2356,8 +2356,13 @@ void ParseOpts(int argc, char **argv){
       PrintCopyleft();
       EXIT(0);
       break;
-    case '?':
     case 'h':
+      debugmode=1;
+      PrintHead();
+      Usage();
+      EXIT(0);
+      break;
+    case '?':
     default:
       debugmode=1;
       PrintHead();
@@ -2593,23 +2598,6 @@ void RegisterDevices(int scanning){
   return;
 }
 
-
-// create string with configuration file name
-void MakeConfigFileName(){
-  if (!(configfile=(char *)calloc(strlen(SYSCONFDIR)+strlen(CONFIGFILENAME)+2,1))){
-    PrintOut(LOG_CRIT,"Out of memory allocating space for filename %s/%s\n",
-	     SYSCONFDIR, CONFIGFILENAME);
-    EXIT(EXIT_NOMEM);
-  }
-  
-  strcat(configfile, SYSCONFDIR);
-  strcat(configfile,"/");
-  strcat(configfile, CONFIGFILENAME);
-  
-  return;
-}
-
-
 int main(int argc, char **argv){
 
   // external control variables for ATA disks
@@ -2631,9 +2619,6 @@ int main(int argc, char **argv){
   // parse input and print header and usage info if needed
   ParseOpts(argc,argv);
   
-  // make name of configuration file
-  MakeConfigFileName();
-
   // do we mute printing from ataprint commands?
   con->quietmode=0;
   con->veryquietmode=debugmode?0:1;

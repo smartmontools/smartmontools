@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.212 2003/10/14 12:12:12 ballen4705 Exp $
+$Id: CHANGELOG,v 1.213 2003/10/14 13:09:06 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -23,7 +23,9 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   [BA] Modifications so that code now compiles under solaris. Now
        all that's needed (:-) is to fill in os_solaris.[hc].  Added
-       os_generic.[hc] as guide to future ports.
+       os_generic.[hc] as guide to future ports.  Fixed -D option
+       of smartd (no file name).  Modified -h opt of smartd/smartctl
+       to work properly with solaris getopt().
 
   [EM] Update MAN pages with notes that 3ware drives are NOT supported
 	under FreeBSD. Cleanup FreeBSD warning message handling.

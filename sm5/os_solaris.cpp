@@ -37,7 +37,7 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.4 2003/10/14 12:12:12 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.5 2003/10/14 13:09:06 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -51,7 +51,7 @@ char *unimplemented[5]={
 };
 
 int printwarning(int which){
-  if (!unimplemeted[which])
+  if (!unimplemented[which])
     return 0;
 
   if (printedout[which])
@@ -59,9 +59,13 @@ int printwarning(int which){
   
   printedout[which]=1;
   
-  pout("%s not implemented under Solaris.\n"
+  pout("\n"
+       "#######################################################################\n"
+       "%s NOT IMPLEMENTED under Solaris.\n"
        "Please contact smartmontools-support@lists.sourceforge.net if\n"
-       "you want to help in porting smartmontools to Solaris.\n",
+       "you want to help in porting smartmontools to Solaris.\n"
+       "#######################################################################\n"
+       "\n",
        unimplemented[which]);
 
   return 1;
