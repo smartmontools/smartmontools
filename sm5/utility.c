@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.56 2004/11/06 17:51:28 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.57 2004/12/13 19:48:57 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -287,7 +287,7 @@ int massagecvs(char *out, const char *cvsid){
 void printone(char *block, const char *cvsid){
   char strings[CVSMAXLEN];
   const char *here=cvsid;
-  int line=1,len=strlen(cvsid)+1;
+  int bi=0, len=strlen(cvsid)+1;
 
   // check that the size of the output block is sufficient
   if (len>=CVSMAXLEN) {
@@ -296,15 +296,8 @@ void printone(char *block, const char *cvsid){
   }
 
   // loop through the different strings
-  while ((len=massagecvs(strings,here))){
-    switch (line++){
-    case 1:
-      block+=snprintf(block,CVSMAXLEN,"Module:");
-      break;
-    default:
-      block+=snprintf(block,CVSMAXLEN,"  uses:");
-    } 
-    block+=snprintf(block,CVSMAXLEN," %s\n",strings);
+  while (bi<CVSMAXLEN && (len=massagecvs(strings,here))){
+    bi+=snprintf(block+bi,CVSMAXLEN-bi,"%s %s\n",(bi==0?"Module:":"  uses:"),strings);
     here+=len;
   }
   return;
@@ -604,9 +597,12 @@ void MsecToText(unsigned int msec, char *txt){
 
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap)
 {
+  int i;
   if (size <= 0)
     return 0;
-  vsnprintf(buf, size, fmt, ap);
+  i = vsnprintf(buf, size, fmt, ap);
+  if (0 <= i && i < size)
+    return i;
   buf[size-1] = 0;
   return strlen(buf); // Note: cannot detect for overflow, not necessary here.
 }

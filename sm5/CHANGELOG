@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.494 2004/12/11 02:15:43 dpgilbert Exp $
+$Id: CHANGELOG,v 1.495 2004/12/13 19:48:56 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Fixed buffer overflow issues in printone() and safe_vsnprintf()
+       which results in crash on -V option (at least on Windows).
 
   [DG] [SCSI] Add explicit timeouts to INQUIRY and REQUEST SENSE (that
        were missed in an earlier patch). Could have impacted freebsd.
