@@ -22,11 +22,15 @@
  *
  */
 
+#include "config.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif // #ifdef HAVE_LOCALE_H
 
-#include "config.h"
 #include "int64.h"
 #include "atacmdnames.h"
 #include "atacmds.h"
@@ -36,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.157 2004/09/14 03:34:34 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.158 2004/09/17 04:30:37 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -440,7 +444,17 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   unsigned short lba_64         = drive->words088_255[103-88];
   uint64_t capacity_short=0, capacity=0, threedigits, power_of_ten;
   int started=0,k=1000000000;
-  
+  char separator=',';
+
+  // get correct character to use as thousands separator
+#ifdef HAVE_LOCALE_H
+  struct lconv *currentlocale=NULL;
+  setlocale (LC_ALL, "");
+  currentlocale=localeconv();
+  if (*(currentlocale->thousands_sep))
+    separator=*(currentlocale->thousands_sep);
+#endif // #ifdef HAVE_LOCALE_H
+
   // if drive supports LBA addressing, determine 32-bit LBA capacity
   if (capabilities_0 & 0x0200) {
     capacity_short = (unsigned int)sects_32 << 16 | 
@@ -461,8 +475,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   // turn sectors into bytes
   capacity_short = (capacity *= 512);
   
-  // print with comma separators.  I know this is anglo-centric:
-  // tell me what to change to use LOCALE if you want.
+  // print with locale-specific separators (default is comma)
   power_of_ten =  k;
   power_of_ten *= k;
   
@@ -471,7 +484,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
     capacity   -= threedigits*power_of_ten;
     if (started)
       // we have already printed some digits
-      pstring += sprintf(pstring, ",%03"PRIu64, threedigits);
+      pstring += sprintf(pstring, "%c%03"PRIu64, separator, threedigits);
     else if (threedigits || k==6) {
       // these are the first digits that we are printing
       pstring += sprintf(pstring, "%"PRIu64, threedigits);
@@ -490,7 +503,7 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
   char unknown[64], timedatetz[DATEANDEPOCHLEN];
   unsigned short minorrev;
   char model[64], serial[64], firm[64], capacity[64];
-  
+
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
