@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.54 2003/10/27 11:11:57 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.55 2003/11/12 04:20:24 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -168,6 +168,8 @@ typedef struct configfile_s {
   char removable;                         // Device may disappear (not be present)
   char *emailcmdline;                     // Program for sending mail (or NULL)
   char *address;                          // Email addresses (or NULL)
+  int selflogcount;                       // bits 0:7 total number of self-test errors
+                                          // bits 8:XX lifetime hours of last self-test error
 
   // THE NEXT SET OF ENTRIES TRACK DEVICE STATE AND ARE DYNAMIC
   mailinfo maildata[10];                  // Tracks type/date of email messages sent
@@ -179,7 +181,6 @@ typedef struct configfile_s {
   unsigned char SuppressReport;           // minimize nuisance reports
   
   // ATA ONLY FROM HERE ON TO THE END
-  unsigned char selflogcount;             // Total number of self-test errors
   int ataerrorcount;                      // Total number of ATA errors
   
   // following NMONITOR items each point to 32 bytes, in the form of
