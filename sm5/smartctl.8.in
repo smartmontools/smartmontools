@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.59 2004/08/29 07:10:44 snyderx Exp $
+ $Id: smartctl.8.in,v 1.60 2004/08/30 05:52:27 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -651,7 +651,7 @@ the test did not complete successfully, then the percentage of the
 test remaining is shown.  The time at which the test took place,
 measured in hours of disk lifetime, is also printed.  If any errors
 were detected, the Logical Block Address (LBA) of the first error is
-printed in hexadecimal notation. On Linux systems the smartmontools
+printed in decimal notation. On Linux systems the smartmontools
 web page has instructions about how to convert this LBA address to the
 name of the disk file containing the erroneous block.
 
@@ -1233,7 +1233,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.59 2004/08/29 07:10:44 snyderx Exp $
+$Id: smartctl.8.in,v 1.60 2004/08/30 05:52:27 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
