@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/26 21:31:59 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/03/01 21:58:09 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.133 2004/02/26 21:31:59 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.134 2004/03/01 21:58:09 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -394,20 +394,22 @@ also fixed in all Maxtor disks manufactured after July 2003.
 </p>
 </li>
 
-<li><b>The time stamps in the self-test log of my Western Digital disk
+<li><b>The time stamps in the self-test log of my Western Digital (WD) disk
 don't correspond to the power-on time when the test was run</b>
 
 <p>
-The self-test log timestamps in some WD disks roll back to zero every
-1092 hours.  Since this is 2^16 = 65536 minutes, this problem is
-probably due to a firmware bug where the power-on hours lifetime for
-the self-test log is calculated by putting the lifetime in minutes
-into a two-byte register, then dividing by 60.  The two-byte register
-wraps around once every 1092 hours.
+The self-test log timestamps in many WD disks roll back to zero every
+1092 hours (65536 minutes).  This problem is due to a WD firmware bug.
+The power-on lifetime in hours is correctly stored in Attribute
+9. However when the power-on lifetime is calculated for self-test log
+entries, the lifetime in minutes is put into a 16-bit register then
+divided by 60.  The 16-bit register overflows and wraps around every
+1092 hours.
 </p>
 </li>
 
-<li><b>Where can I find manufacturer-specific disk-testing utilities?</b>
+<li><b>Where can I find manufacturer-specific disk-testing
+utilities?</b>
 
 <p>A good listing of such utilities can be found <a
 href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">here</a>.
@@ -989,8 +991,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/26 21:31:59 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.133 2004/02/26 21:31:59 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/03/01 21:58:09 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.134 2004/03/01 21:58:09 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
