@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.339 2004/08/30 06:03:51 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.340 2004/09/03 04:39:08 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.339 2004/08/30 06:03:51 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.340 2004/09/03 04:39:08 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1515,6 +1515,59 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   return 0;
 }
 
+// Returns 1 if device recognised as one we do not want to treat as a general
+// SCSI device. Also returns 1 if INQUIRY fails (all "SCSI" devices should
+// respond to INQUIRY). Otherwise returns 0 (i.e. normal SCSI device).
+static int SCSIFilterKnown(int fd, char * device)
+{
+  char req_buff[256];
+  char di_buff[256];
+  int req_len, avail_len, len;
+
+  memset(req_buff, 0, 96);
+  req_len = 36;
+  if (scsiStdInquiry(fd, req_buff, req_len)) {
+    /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
+    /* watch this spot ... other devices could lock up here */
+    req_len = 64;
+    if (scsiStdInquiry(fd, req_buff, req_len)) {
+      PrintOut(LOG_INFO, "Device: %s, failed on INQUIRY; skip device\n", device);
+      // device doesn't like INQUIRY commands
+      return 1;
+    }
+  }
+  avail_len = req_buff[4] + 5;
+  len = (avail_len < req_len) ? avail_len : req_len;
+  if (len >= 36) {
+    if (0 == strncmp(req_buff + 8, "3ware", 5)) {
+      PrintOut(LOG_INFO, "Device %s, please try '-d 3ware,N'\n", device);
+      return 1;
+    } else if ((len >= 42) && (0 == strncmp(req_buff + 36, "MVSATA", 6))) {
+      PrintOut(LOG_INFO, "Device %s, please try '-d marvell'\n", device);
+      return 1;
+    } else if ((avail_len >= 96) && (0 == strncmp(req_buff + 8, "ATA", 3))) {
+      /* <<<< This is Linux specific code to detect SATA disks using a
+              SCSI-ATA command translation layer. This may be generalized
+              later when the t10.org SAT project matures. >>>> */
+      req_len = 96;
+      memset(di_buff, 0, req_len);
+      if (scsiInquiryVpd(fd, 0x83, di_buff, req_len)) {
+        return 0;    // guess it is normal device
+      }
+      avail_len = ((di_buff[2] << 8) + di_buff[3]) + 4;
+      len = (avail_len < req_len) ? avail_len : req_len;
+      if (isLinuxLibAta(di_buff, len)) {
+        PrintOut(LOG_INFO, "Device %s, SATA disks accessed via libata are not"
+		 " currently supported by\nsmartmontools. When libata is given"
+                 "an ATA pass-thru ioctl() then an\nadditional '-d libata'"
+                 " device type will be added to smartmontools.\n", device);
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 // on success, return 0. On failure, return >0.  Never return <0,
 // please.
 static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
@@ -1536,6 +1589,13 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   if ((fd = OpenDevice(device, "SCSI", scanning)) < 0)
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", device);
+
+  // early skip if device known and needs to be handled by some other
+  // device type (e.g. '-d 3ware,<n>')
+  if (SCSIFilterKnown(fd, device)) {
+    CloseDevice(fd, device);
+    return 2; 
+  }
     
   // check that device is ready for commands. IE stores its stuff on
   // the media.
