@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.88 2004/07/29 21:00:36 chrfranke Exp $
+# $Id: configure.in,v 1.89 2004/07/31 19:18:54 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.88 2004/07/29 21:00:36 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.89 2004/07/31 19:18:54 chrfranke Exp $'`
 smartmontools_release_date=2004/07/05
 smartmontools_release_time="08:10:26 UTC"
 
@@ -116,7 +116,7 @@ case "${host}" in
 		AC_SUBST([os_deps], ['os_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
 	*-*-mingw*)
-		AC_SUBST([os_deps], ['os_win32.o regex.o daemon_win32.o syslog_win32.o'])
+		AC_SUBST([os_deps], ['os_win32.o regex.o daemon_win32.o hostname_win32.o syslog_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
 	*-*-darwin*)
 		AC_SUBST([os_deps], ['os_darwin.o'])

@@ -190,6 +190,14 @@ SOURCE=..\extern.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\hostname_win32.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\hostname_win32.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\int64.h
 # End Source File
 # Begin Source File
