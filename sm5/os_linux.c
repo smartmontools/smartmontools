@@ -48,8 +48,17 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <scsi/scsi_ioctl.h>
+
+#include "atacmds.h"
+#include "config.h"
 #include "os_linux.h"
+#include "scsicmds.h"
+#include "smartd.h"
 #include "utility.h"
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.8 2003/10/12 09:10:03 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -112,7 +121,6 @@ int make_device_names (char*** devlist, const char* name) {
   return n;
 }
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.7 2003/10/10 08:42:37 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -440,16 +448,6 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         return -EIO;      /* give up, assume no device there */
     }
 }
-
-
-
-
-
-#include <string.h>
-#include <scsi/scsi_ioctl.h>
-#include <errno.h>
-#include "atacmds.h"
-#include "utility.h"
 
 void printwarning(smart_command_set command);
 

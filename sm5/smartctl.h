@@ -22,12 +22,10 @@
  *
  */
 
-#ifndef __SMARTCTL_H_
-#define __SMARTCTL_H_
+#ifndef SMARTCTL_H_
+#define SMARTCTL_H_
 
-#ifndef SMARTCTL_H_CVSID
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.17 2003/03/06 07:27:17 ballen4705 Exp $\n"
-#endif
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.18 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 /* Boolean Values */
 #define TRUE 0x01

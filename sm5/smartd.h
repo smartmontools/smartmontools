@@ -22,8 +22,12 @@
  *
  */
 
+#ifndef SMARTD_H_
+#define SMARTD_H_
+
+
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.47 2003/10/10 04:56:39 arvoreen Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.48 2003/10/12 09:10:03 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -223,3 +227,5 @@ export NJAMD_DUMP_LEAKS_ON_EXIT=3;
 export NJAMD_TRACE_LIBS=1
 
 */
+
+#endif
