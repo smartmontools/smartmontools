@@ -29,7 +29,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.36 2002/10/29 10:06:20 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.37 2002/10/29 22:09:52 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -434,17 +434,26 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
 	
 	// Temperature
       case 194:
-	pout ("%u", disk->raw[0]);
+	pout ("%hhu", disk->raw[0]);
 	if (rawvalue==disk->raw[0])
 	  pout("\n");
 	else
 	  // The other bytes are in use. Try IBM's model
-	  pout(" (Lifetime Min/Max %u/%u)\n",disk->raw[2],
+	  pout(" (Lifetime Min/Max %hhu/%hhu)\n",disk->raw[2],
 		 disk->raw[4]);
 	break;
       default:
 	pout("%llu\n", rawvalue);
-      }	    
+      }
+      
+      // print a warning if there is inconsistency here!
+      if (disk->id != thre->id){
+	char atdat[64],atthr[64];
+	ataPrintSmartAttribName(atdat,disk->id);
+	ataPrintSmartAttribName(atthr,thre->id);
+	pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
+	pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
+      }
     }
   }
   if (!needheader) pout("\n");
