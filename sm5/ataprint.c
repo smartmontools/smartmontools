@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.43 2002/11/07 19:07:20 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.44 2002/11/14 14:57:20 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -505,12 +505,18 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
     return;
   }
   QUIETON(con);
-  // if log pointer out of range, return
-  if ( data->error_log_pointer>5 ){
+  // If log pointer out of range, return
+  if (data->error_log_pointer>5){
     pout("Invalid Error Log index = %02x (T13/1321D rev 1c"
 	 "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
 	 (int)data->error_log_pointer);
     return;
+  }
+
+  // Some internal consistency checking of the data structures
+  if ((data->ata_error_count-data->error_log_pointer)%5) {
+    pout("Warning: ATA error count %d inconsistent with error log pointer %d\n\n",
+	 data->ata_error_count,data->error_log_pointer);
   }
   
   // starting printing error log info
@@ -553,7 +559,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
       // See table 42 of ATA5 spec
       QUIETON(con);
       pout("Error %d occurred at disk power-on lifetime: %d hours\n",
-	     (int)(5-k), (int)data->errorlog_struct[i].error_struct.timestamp);
+	     (int)(data->ata_error_count+k-4), (int)data->errorlog_struct[i].error_struct.timestamp);
       QUIETOFF(con);
       pout("When the command that caused the error occurred, the device was %s.\n",msgstate);
       pout("After command completion occurred, registers were:\n");
