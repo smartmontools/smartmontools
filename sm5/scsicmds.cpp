@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.32 2003/04/07 03:43:39 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.33 2003/04/07 10:58:31 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -281,9 +281,9 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
     }
 }
 
-/* Sends LOG SENSE command. Returns 0 if ok, 1 if command not supported,
-   2 if field (within command) not supported or returns negated errno. 
-   SPC sections 7.6 and 8.2 */
+/* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
+   command not supported, 3 if field (within command) not supported or
+   returns negated errno.  SPC sections 7.6 and 8.2 */
 int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -308,11 +308,13 @@ int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("log sense: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -322,10 +324,10 @@ int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-/* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if command not
- * supported (then MODE SENSE(10) should be supported), 2 if field in
- * command not supported or returns negated errno. SPC sections 7.9 
- * and 8.4 */
+/* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
+ * 2 if command not supported (then MODE SENSE(10) should be supported),
+ * 3 if field in command not supported or returns negated errno. 
+ * SPC sections 7.9 and 8.4 */
 int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -351,11 +353,13 @@ int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("modesense: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -368,10 +372,10 @@ int modesense(int device, int pagenum, UINT8 *pBuf, int bufLen)
 /* Sends a 6 byte MODE SELECT command. Assumes given pBuf is the response
  * from a corresponding 6 byte MODE SENSE command. Such a response should
  * have a 4 byte header followed by 0 or more 8 byte block descriptors
- * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if command not
- * supported (then MODE SELECT(10) may be supported), 2 if field in
- * command not supported, 3 if bad parameter to command or returns negated
- * errno. SPC sections 7.7 and 8.4 */
+ * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if NOT READY,
+ * 2 if command not supported (then MODE SELECT(10) may be supported), 
+ * 3 if field in command not supported, 4 if bad parameter to command
+ * or returns negated errno. SPC sections 7.7 and 8.4 */
 int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -407,13 +411,15 @@ int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
-        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 3;
+        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+            return 4;
     }
     if (status > 0) {
         pout("modeselect: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -423,8 +429,8 @@ int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-/* MODE SENSE (10 byte). Returns 0 if ok, 1 if command not supported 
- * (then MODE SENSE(6) might be supported), 2 if field in
+/* MODE SENSE (10 byte). Returns 0 if ok, 1 if NOT READY, 2 if command 
+ * not supported (then MODE SENSE(6) might be supported), 3 if field in
  * command not supported or returns negated errno.  
  * SPC sections 7.10 and 8.4 */
 int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
@@ -451,11 +457,13 @@ int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("modesense10: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -468,10 +476,10 @@ int modesense10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 /* Sends a 10 byte MODE SELECT command. Assumes given pBuf is the response
  * from a corresponding 10 byte MODE SENSE command. Such a response should
  * have a 8 byte header followed by 0 or more 8 byte block descriptors
- * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if command not
- * supported (then MODE SELECT(6) may be supported), 2 if field in
- * command not supported, 3 if bad parameter to command or returns negated
- * errno. SAM sections 7.8 and 8.4 */
+ * (normally 1) and then 1 mode page. Returns 0 if ok, 1 NOT REAFY, 2 if 
+ * command not supported (then MODE SELECT(6) may be supported), 3 if field
+ * in command not supported, 4 if bad parameter to command or returns
+ * negated errno. SAM sections 7.8 and 8.4 */
 int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -508,13 +516,15 @@ int modeselect10(int device, int pagenum, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
-        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 3;
+        else if (SCSI_ASC_UNKNOWN_PARAM == sinfo.asc)
+            return 4;
     }
     if (status > 0) {
         pout("modeselect10: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -548,9 +558,9 @@ int stdinquiry(int device, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-/* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if command not
- * supported, 2 if field in command not supported or returns negated errno.
- * SPC section 7.4 and 8.6 */
+/* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if NOT READY
+ * (unlikely), 2 if command not supported, 3 if field in command not 
+ * supported or returns negated errno. SPC section 7.4 and 8.6 */
 int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -577,11 +587,13 @@ int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("inquiry_vpd: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -628,9 +640,9 @@ int requestsense(int device, struct scsi_sense_disect * sense_info)
     return status;
 }
 
-/* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if command not supported, 
- * 2 if field in command not supported or returns negated errno.
- * SPC section 7.25 */
+/* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if NOT READY, 2 if command
+ * not supported, 3 if field in command not supported or returns negated
+ * errno. SPC section 7.25 */
 int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -662,11 +674,13 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("senddiagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -676,9 +690,9 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     return status;
 }
 
-/* RECEIVE DIAGNOSTIC command. Returns 0 if ok, 1 if command not supported,
- * 2 if field in command not supported or returns negated errno.
- * SPC section 7.17 */
+/* RECEIVE DIAGNOSTIC command. Returns 0 if ok, 1 if NOT READY, 2 if
+ * command not supported, 3 if field in command not supported or returns
+ * negated errno. SPC section 7.17 */
 int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf, 
                       int bufLen)
 {
@@ -705,11 +719,13 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
+    if (SCSI_SK_NOT_READY == sinfo.sense_key)
+        return 1;
+    else if (SCSI_SK_ILLEGAL_REQUEST == sinfo.sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo.asc)
-            return 1;
-        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
             return 2;
+        else if (SCSI_ASC_UNKNOWN_FIELD == sinfo.asc)
+            return 3;
     }
     if (status > 0) {
         pout("receivediagnostic: status=%x sense_key=%x asc=%x ascq=%x\n",
@@ -724,6 +740,7 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -734,6 +751,8 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
     cdb[0] = TEST_UNIT_READY;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
 
     status = do_scsi_cmnd_io(device, &io_hdr);
     scsi_do_sense_disect(&io_hdr, sinfo);
@@ -742,7 +761,7 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
 
 /* Returns 0 for device responds and media ready, 1 for device responds and
    media not ready, or returns a negated errno value */
-int testunitready(int device)
+int scsiTestUnitReady(int device)
 {
     struct scsi_sense_disect sinfo;
     int status;
@@ -760,43 +779,69 @@ int testunitready(int device)
 }
 
 /* ModePage1C Handler */
-#define FETCH_EIC_2BYTE   0x00    
+#define FETCH_IEC_2BYTE   0x00    
+#define DEXCPT_DISABLE  0xf7
+#define DEXCPT_ENABLE   0x08
+#define EWASC_ENABLE    0x10
+#define EWASC_DISABLE   0xef
 
 /* Mode page 0x1c is the "Imformation Exception Control" (IEC) page */
-int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *iec_2p)
+static int scsiModePage1CHandler(int device, UINT8 setting, 
+                                 struct scsi_iec_mode_page *iecp)
 {
-    char tBuf[254];
+    UINT8 tBuf[64];
+    int len, bd_len, err;
+    UINT8 *p; 
         
-    if (modesense(device, 0x1c, tBuf, sizeof(tBuf)))
-        return 1;
-        
+    if ((err = modesense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                         tBuf, sizeof(tBuf))))
+        return err;
+    len = tBuf[0] + 1;
+    bd_len = tBuf[3];
+    p = tBuf + 4 + bd_len;
+    len = len - bd_len - 4;
+    if ((INFORMATIONAL_EXCEPTIONS_CONTROL != (p[0] & 0x3f)) ||
+        ((4 + bd_len + p[1]) > sizeof(tBuf)))  {
+        if (con->reportscsiioctl) {
+            pout("1CHandler: malformed IEC page\n");
+            return 10;
+       }
+    }
     if (con->reportscsiioctl)
-        pout("1C_handle: setting=%d, [2]=0x%x [3]=0x%x", setting, tBuf[14],
-             tBuf[15]);
+        pout("1CHandler: IEC mode page [2]=0x%x [3]=0x%x", p[2], p[3]);
+
     switch (setting) {
-        case DEXCPT_DISABLE:
-            tBuf[14] &= (~0x08) & 0xff;
-            tBuf[15] = 0x04;
+        case DEXCPT_DISABLE:    /* double negative :-) */
+            p[2] &= DEXCPT_DISABLE;
+            p[3] = 0x04;     /* mrie: unconditional generate recovered err */
 #if 0
-            /* >>>> try setting TEST bit */ tBuf[14] |= 0x4;
-            tBuf[15] = 0x06;    /* mrie=='on request' */
+            /* >>>> try setting TEST bit */ p[2] |= 0x4;
+            p[3] = 0x06;    /* mrie=='on request' */
 #endif
             break;
         case DEXCPT_ENABLE:
-            tBuf[14] |= 0x08;
-            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
+            p[2] |= DEXCPT_ENABLE;
+            /* >>>> turn off TEST p[2] &= (~0x04) & 0xff; */
             break;
         case EWASC_ENABLE:
-            tBuf[14] |= 0x10;
-            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
+            p[2] |= EWASC_ENABLE;
             break;
         case EWASC_DISABLE:
-            tBuf[14] &= 0xef;
-            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
+            p[2] &= EWASC_DISABLE;
             break;
-        case FETCH_EIC_2BYTE:
-            *iec_2p = tBuf[14] & 0x18;
-            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
+        case FETCH_IEC_2BYTE:
+            if (iecp) {
+                iecp->byte_2 = p[2];
+                iecp->mrie = p[3] & 0xf;
+                iecp->interval_timer = ((p[4] << 24) & 0xff) +
+                                       ((p[5] << 16) & 0xff) +
+                                       ((p[6] << 8) & 0xff) +
+                                       (p[7] & 0xff);
+                iecp->report_count = ((p[8] << 24) & 0xff) +
+                                     ((p[9] << 16) & 0xff) +
+                                     ((p[10] << 8) & 0xff) +
+                                     (p[11] & 0xff);
+            }
             if (con->reportscsiioctl)
                 pout("\n");
             return 0;
@@ -807,7 +852,7 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *iec_2p)
     }
                         
     if (con->reportscsiioctl)
-        pout(" -> [2']=0x%x [3']=0x%x\n", tBuf[14], tBuf[15]);
+        pout(" -> [2']=0x%x [3']=0x%x\n", p[2], p[3]);
     if (modeselect(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
 #if 0
@@ -827,29 +872,47 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *iec_2p)
     return 0;
 }
 
-int scsiSmartSupport(int device, UINT8 *iec_2p)
+int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
 {
-    return scsiSmartModePage1CHandler(device, FETCH_EIC_2BYTE, iec_2p);
+    return scsiModePage1CHandler(device, FETCH_IEC_2BYTE, iecp);
 }
 
-int scsiSmartEWASCEnable(int device)
+int scsiSetExceptionControl(int device, int enabled,
+                            const struct scsi_iec_mode_page *iecp)
 {
-    return scsiSmartModePage1CHandler(device, EWASC_ENABLE, NULL);
+    if (iecp) {
+        if (enabled == scsi_IsExceptionControlEnabled(iecp))
+            return 0;   /* already done */
+    }
+    return scsiModePage1CHandler(device, 
+                        (enabled ? DEXCPT_DISABLE : DEXCPT_ENABLE), NULL);
 }
 
-int scsiSmartEWASCDisable(int device)
+int scsiSetWarning(int device, int enabled,
+                   const struct scsi_iec_mode_page *iecp)
 {
-    return scsiSmartModePage1CHandler(device, EWASC_DISABLE, NULL);
+    if (iecp) {
+        if (enabled == scsi_IsWarningEnabled(iecp))
+            return 0;   /* already done */
+    }
+    return scsiModePage1CHandler(device, 
+                        (enabled ? EWASC_ENABLE : EWASC_DISABLE), NULL);
 }
 
-int scsiSmartDEXCPTEnable(int device)
+int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
 {
-    return scsiSmartModePage1CHandler(device, DEXCPT_ENABLE, NULL);
+    if (iecp)
+        return (iecp->byte_2 & DEXCPT_ENABLE) ? 0 : 1;
+    else
+        return 0;
 }
 
-int scsiSmartDEXCPTDisable(int device)
+int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 {
-    return scsiSmartModePage1CHandler(device, DEXCPT_DISABLE, NULL);
+    if (iecp)
+        return (iecp->byte_2 & EWASC_ENABLE) ? 1 : 0;
+    else
+        return 0;
 }
 
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
@@ -1192,7 +1255,7 @@ static const char * strs_for_asc_b[] = {
 
 static char spare_buff[128];
 
-const char * scsiSmartGetIEString(UINT8 asc, UINT8 ascq)
+const char * scsiGetIEString(UINT8 asc, UINT8 ascq)
 {
     const char * rp;
 

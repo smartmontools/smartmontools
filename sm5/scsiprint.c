@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.28 2003/04/07 03:39:53 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.29 2003/04/07 10:57:02 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -101,7 +101,7 @@ void scsiGetSmartData(int device)
         pout("scsiGetSmart Failed, err=%d\n", err);
         return;
     }
-    cp = scsiSmartGetIEString(asc, ascq);
+    cp = scsiGetIEString(asc, ascq);
     if (cp)
         pout("SMART Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
     else
@@ -302,7 +302,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     char product[17];
     char revision[5];
     char timedatetz[64];
-    UINT8 smartsupport;
+    struct scsi_iec_mode_page iec;
     int err, len;
         
     memset(gBuf, 0, 36);
@@ -324,7 +324,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
         memset(revision, 0, sizeof(revision));
         strncpy(revision, &gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-        if (0 == inquiry_vpd(device, 0x80, gBuf, 254)) {
+        if (0 == inquiry_vpd(device, 0x80, gBuf, 64)) {
             /* should use VPD page 0x83 and fall back to this page (0x80)
              * if 0x83 not supported. NAA requires a lot of decoding code */
             len = gBuf[3];
@@ -337,38 +337,76 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     // print current time and date and timezone
     dateandtimezone(timedatetz);
     pout("Local Time is: %s\n", timedatetz);
+
+    // See if unit accepts SCSI commmands from us
+    if ((err = scsiTestUnitReady(device))) {
+        if (1 == err)
+            pout("device is NOT READY (start it?)\n");
+        else
+            pout("device Test Unit Ready: err=%d\n", err);
+        return;
+    }
    
-    if ((err = scsiSmartSupport(device, &smartsupport))) {
-        pout("Device does not support %s\n", (1 == *peripheral_type) ?
-                         "TapeAlerts" : "SMART");
+    if ((err = scsiFetchIECmpage(device, &iec))) {
+        pout("Device does not support %s [err=%d]\n", 
+                ((1 == *peripheral_type) ? "TapeAlerts" : "SMART"), err);
         return;
     }
     pout("Device supports %s and is %s\n%s\n", 
             (1 == *peripheral_type) ? "TapeAlerts" : "SMART",
-            (smartsupport & DEXCPT_ENABLE) ? "Disable" : "Enabled",
-            (smartsupport & EWASC_ENABLE) ? "Temperature Warning Enabled" :
+            (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled",
+            (scsi_IsWarningEnabled(&iec)) ? "Temperature Warning Enabled" :
                 "Temperature Warning Disabled or Not Supported");
 }
 
 void scsiSmartEnable(int device)
 {
-    /* Enable Exception Control */
-    if (scsiSmartDEXCPTDisable(device))
-        return;
-    pout("SMART enabled\n");
+    struct scsi_iec_mode_page iec;
+    int err;
 
-    if (scsiSmartEWASCEnable(device))
-        pout("Temperature Warning not Supported\n");
-    else
-        pout("Temperature Warning Enabled\n");
-    return;
+    if ((err = scsiFetchIECmpage(device, &iec))) {
+        pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
+        return;
+    }
+    /* Enable Exception Control */
+    if ((err = scsiSetExceptionControl(device, 1, &iec))) {
+        pout("unable to set Informational Exception (SMART) flag [err=%d]\n",
+             err);
+        return;
+    }
+    pout("Informational Exceptions (SMART) enabled\n");
+    /* Enable Temperature Warning */
+    if ((err = scsiSetWarning(device, 1, &iec))) {
+        pout("unable to set Temperature Warning flag [err=%d]\n",
+             err);
+        return;
+    }
+    pout("Temperature Warning enabled\n");
 }
         
 void scsiSmartDisable(int device)
 {
-    if (scsiSmartDEXCPTEnable(device))
+    struct scsi_iec_mode_page iec;
+    int err;
+
+    if ((err = scsiFetchIECmpage(device, &iec))) {
+        pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
         return;
-    pout("SMART Disabled\n");
+    }
+    /* Disable Exception Control */
+    if ((err = scsiSetExceptionControl(device, 0, &iec))) {
+        pout("unable to clear Informational Exception (SMART) flag [err=%d]\n",
+             err);
+        return;
+    }
+    pout("Informational Exceptions (SMART) disabled\n");
+    /* Disable Temperature Warning */
+    if ((err = scsiSetWarning(device, 0, &iec))) {
+        pout("unable to clear Temperature Warning flag [err=%d]\n",
+             err);
+        return;
+    }
+    pout("Temperature Warning disabled\n");
 }
 
 void scsiPrintTemp(int device)
@@ -398,17 +436,7 @@ void scsiPrintMain(const char *dev_name, int fd)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
-    int status;
 
-    // See if unit accepts SCSI commmands from us
-    if ((status = testunitready(fd))) {
-        if (1 == status)
-            pout("Smartctl: device %s Test Unit Ready: NOT ready\n", dev_name);
-        else
-            pout("Smartctl: device %s Test Unit Ready: err=%d\n", dev_name, 
-                 status);
-        return;
-    }
     if (con->driveinfo)
         scsiGetDriveInfo(fd, &peripheral_type); 
 
