@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.37 2004/08/16 22:44:28 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.38 2004/08/18 19:27:36 likewise Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -162,8 +162,10 @@ void MsecToText(unsigned int msec, char *txt);
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
 #define CONTROLLER_3WARE                0x03  // set by -d option, but converted to one of three types below
-#define CONTROLLER_3WARE_678K      0x04  // NOT set by guess_device_type()
-#define CONTROLLER_3WARE_9000_CHAR 0x05  // set by guess_device_type()
-#define CONTROLLER_3WARE_678K_CHAR 0x06  // set by guess_device_type()
+#define CONTROLLER_3WARE_678K           0x04  // NOT set by guess_device_type()
+#define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
+#define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
+#define CONTROLLER_MARVELL_SATA         0x07  // SATA drives behind Marvell controllers
+
 
 #endif
