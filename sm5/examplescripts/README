@@ -1,0 +1,50 @@
+# Home page: http://smartmontools.sourceforge.net
+#
+# $Id: README,v 1.1 2003/02/12 19:58:33 ballen4705 Exp $
+#
+# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2, or (at your option) any later
+# version.
+# 
+# You should have received a copy of the GNU General Public License (for
+# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+# Mass Ave, Cambridge, MA 02139, USA.
+#
+# This code was originally developed as a Senior Thesis by Michael Cornwell
+# at the Concurrent Systems Laboratory (now part of the Storage Systems
+# Research Center), Jack Baskin School of Engineering, University of
+# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+This directory contains executable bash scripts, that are intended for
+use with the
+  -m address -M exec /path/to/an/executable
+Directive in /etc/smartd.conf.
+
+Details about how to use this Directive may be found in the man pages for
+smartd and smartd.conf.
+  man 8 smartd
+  man 5 smartd.conf
+should display those pages on your system.
+
+If you wish to contribute additional scripts to this collection,
+please email them to <smartmontools-support@lists.sourceforge.net>,
+and include a one-line description to use below.
+
+The files contained in this directory are:
+
+Example1: appends values of $SMARTD_* environment variables and the output
+          of smartctl -a to the normal email message, and sends that
+          to the email address listed as the argument to the -m
+          Directive.
+
+Example2: Appends output of smartctl -a to the normal email message
+	  and sends that to the email address listed as the argument
+	  to the -m Directive.
+
+Example3: Uses wall(1) to send a warning message to all users, then powers
+          down the machine.
+
+
