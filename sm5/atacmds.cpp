@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.65 2003/03/25 12:08:17 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.66 2003/03/25 12:17:51 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -125,7 +125,8 @@ const int actual_ver[] = {
 // 3 -  modify ataPrintSmartAttribName()
 // 4 -- update smartctl.8
 // 5 -- update smartd.8
-// 6 -- do "make smartd.conf.5" to update smartd.conf.5 
+// 6 -- do "make smartd.conf.5" to update smartd.conf.5
+// 7 -- update CHANGELOG file
 const char *vendorattributeargs[] = {
   // 0  defs[9]=1
   "9,minutes",
