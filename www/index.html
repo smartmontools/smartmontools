@@ -249,12 +249,23 @@ to execute the ATA SMART RETURN STATUS command.
 Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208), (209).
 </p>
 
-<p>If you can attach names/meanings to these attributes, please send
-a note to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
+<p>If you can attach names/meanings to these attributes, please send a
+note to <a
+href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
 smartmontools-support</a>.  If you have access to other
-S.M.A.R.T. utilities (especially vendor-specific ones) and can send us
-comparison output from smartctl and the other utility, that's
-especially useful.</p></li>
+S.M.A.R.T. utilities (especially manufacturer-specific ones, see
+below) and can send us comparison output from smartctl and the other
+utility, that's especially useful.</p></li>
+
+
+<li><b>Where can I find manufacturer-specific disk-testing utilities?</b>
+
+<p>A good listing of such utilities can be found <a
+href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">here</a>.
+Unfortunately most of these are for MS operating systems.  If you do
+run one of these utilities, and it identifies the meanings of any
+SMART Attributes that are not known to smartmontools, please report
+them to the mailing list above.</p></li>
 
 <li><b>When I run <tt>smartd</tt>, the SYSLOG <tt>/var/log/messages</tt>
 contains messages like this:</b>
