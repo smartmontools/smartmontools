@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.131 2005/02/17 22:46:16 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.132 2005/02/19 23:07:02 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -168,13 +168,8 @@ const drivesettings knowndrives[] = {
     "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
     NULL, NULL, NULL
   },
-  { NULL, // ExcelStor J240
-    "^ExcelStor Technology J240$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { NULL, // ExcelStor J340
-    "^ExcelStor Technology J340$",
+  { NULL, // ExcelStor J240, J340, and J360
+    "^ExcelStor Technology J(24|34|36)0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -257,7 +252,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Fujitsu MHTxxxxAT family",
-    "^FUJITSU MHT20[23468]0AT$",
+    "^FUJITSU MHT20[23468]0AT( PL)?$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -377,6 +372,13 @@ const drivesettings knowndrives[] = {
   },
   { "Maxtor Fireball 3 family",
     "^Maxtor 2F0[234]0[JL]0$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { "Maxtor DiamondMax 2160 Ultra ATA family",
+    "^Maxtor 8(2160D2|3228D3|3240D3|4320D4|6480D6|8400D8|8455D8)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -516,6 +518,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { "Maxtor DiamondMax 10 family",
+    "^Maxtor 6B(30|25|20|16|12|08)0[MPRS]0$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { "Maxtor DiamondMax Plus 9 family",
     "^Maxtor 6Y((060|080|120|160)L0|(060|080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
     ".*",
@@ -613,6 +622,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL 
   },
+  { "Hitachi Travelstar E7K60 family",
+    "^HTE7260[46]0M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { "IBM/Hitachi Deskstar 120GXP family",
     "^(IBM-)?IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
     ".*",
@@ -648,6 +662,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { NULL, // TOSHIBA MK6022GAX
+    "^TOSHIBA MK6022GAX$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { NULL, // TOSHIBA MK4019GAX/MK4019GAXB
     "^TOSHIBA MK4019GAXB?$",
     ".*",
@@ -668,13 +687,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK4018GAS
-    "^TOSHIBA MK4018GAS$",
+  { NULL, // TOSHIBA MK4018GAS, MK4018GAP
+    "^TOSHIBA MK4018GA[SP]$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { NULL, // TOSHIBA MK3017GAP
     "^TOSHIBA MK3017GAP$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { NULL, // TOSHIBA MK8026GAX
+    "^TOSHIBA MK8026GAX$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -744,7 +768,17 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.7 and 7200.7 Plus family",
-    "^ST3(200822AS?|16002[13]AS?|12002[26]AS?|8001[13]AS?|60014A|40014AS?)$",
+    "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]0827AS|8001[13]AS?|80817AS|60014A|40014AS?)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Barracuda 7200.8 family",
+    "^ST3400832AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
+    "^ST3(17240|13030|10231|8420|4310)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -803,8 +837,9 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // Western Digital Caviar AC12500, AC24300, AC25100, AC36400, AC38400
-    "^WDC AC(125|243|251|364|384)00",
+  { NULL, // Western Digital Caviar AC12500, AC14300, AC23200, AC24300, AC25100,
+          // AC36400, AC38400
+    "^WDC AC(125|143|232|243|251|364|384)00.?",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -823,13 +858,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // Western Digital Caviar AC38400
-    "^WDC AC38400L$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { NULL, // Western Digital Caviar AC23200L
-    "^WDC AC23200L$",
+  { "Western Digital Raptor family",
+    "^WDC WD(360|740)GD",
     ".*",
     NULL, NULL, NULL, NULL
   },
