@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.72 2002/12/29 01:10:41 pjwilliams Exp $
+$Id: CHANGELOG,v 1.73 2002/12/29 09:54:28 dpgilbert Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -27,10 +27,13 @@ Maintainers/Developers Key:
 [PC] Peter Cassidy          <pcassidy@mac.com>
 [FM] Frederic L. W. Meunier <0@pervalidus.net>
 [PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
+[DG] Douglas Gilbert        <dougg@torque.net>
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [DG] Correct 'Recommended start stop count' for SCSI devices
 
   [PW] Replaced smartd.conf directive -C with smartd option -i
 
