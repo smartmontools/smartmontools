@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.277 2004/01/07 17:13:07 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.278 2004/01/07 19:40:28 ballen4705 Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.277 2004/01/07 17:13:07 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.278 2004/01/07 19:40:28 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2685,7 +2685,7 @@ int ParseConfigFile(){
         warn="(including newline!) ";
       else
         warn="";
-      PrintOut(LOG_CRIT,"Error: line %d of file %s %sis more than %d characters.\n",
+      PrintOut(LOG_CRIT,"Error: line %d of file %s %sis more than MAXLINELEN=%d characters.\n",
                (int)contlineno,configfile,warn,(int)MAXLINELEN);
       cleanup(&fp);
       return -1;
@@ -2699,7 +2699,7 @@ int ParseConfigFile(){
 
     // is the total line (made of all continuation lines) too long?
     if (cont+len>MAXCONTLINE){
-      PrintOut(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than %d characters.\n",
+      PrintOut(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than MAXCONTLINE=%d characters.\n",
                lineno, (int)contlineno, configfile, (int)MAXCONTLINE);
       cleanup(&fp);
       return -1;
