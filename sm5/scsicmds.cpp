@@ -1,4 +1,4 @@
-//  $Id: scsicmds.cpp,v 1.7 2002/10/15 14:24:27 ballen4705 Exp $
+//  $Id: scsicmds.cpp,v 1.8 2002/10/22 08:43:22 ballen4705 Exp $
 
 /*
  * scsicmds.c
@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/hdreg.h>
+// We do NOT want to include the kernel SCSI header file, just user space one
+#define  _LINUX_SCSI_H
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 

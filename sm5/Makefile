@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.19 2002/10/20 19:40:23 ballen4705 Exp $
+# $Id: Makefile,v 1.20 2002/10/22 08:43:22 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -21,8 +21,15 @@
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 CC	= gcc
-# CFLAGS = -fsigned-char -Wall -g 
-CFLAGS	= -fsigned-char -Wall -O2
+
+# Debugging
+# CFLAGS = -fsigned-char -Wall -g
+
+# Build against kernel header files.  Change linux-2.4 to correct path for your system
+# CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
+
+# Normal build
+CFLAGS	= -fsigned-char -Wall -O2 
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\

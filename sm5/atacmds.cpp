@@ -1,4 +1,4 @@
-//  $Id: atacmds.cpp,v 1.14 2002/10/21 16:11:58 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.15 2002/10/22 08:43:22 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -144,6 +144,7 @@ int ataReadHDIdentity ( int device, struct hd_driveid *buf){
 
 // Reads current Device Identity info (512 bytes) into buf
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
+  unsigned short driveidchecksum;
   unsigned char parms[HDIO_DRIVE_CMD_HDR_SIZE+sizeof(*buf)]=
   {WIN_IDENTIFY, 0, 0, 1,};
   
@@ -163,7 +164,15 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   // It should say: short words160_255[96]. I have written to Andre
   // Hedrick about this on Oct 17 2002.  Please remove this comment
   // once the fix has made it into the stock kernel tree.
-  if ((buf->words160_255[95] & 0x00ff) == 0x00a5){
+
+  // The following ifdef is a HACK to distinguish different versions
+  // of the header file defining hd_driveid
+#ifdef CFA_REQ_EXT_ERROR_CODE
+  driveidchecksum=buf->integrity_word;
+#else
+  driveidchecksum=buf->words160_255[95];
+#endif
+  if ((driveidchecksum & 0x00ff) == 0x00a5){
     // Device identity structure contains a checksum
     unsigned char cksum=0;
     int i;
