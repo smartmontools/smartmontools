@@ -1,4 +1,4 @@
-//  $Id: smartd.cpp,v 1.7 2002/10/11 12:15:50 ballen4705 Exp $
+//  $Id: smartd.cpp,v 1.8 2002/10/14 15:26:30 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -13,6 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
  */
 
 #include <stdio.h>
@@ -264,7 +270,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.7 2002/10/11 12:15:50 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.cpp,v 1.8 2002/10/14 15:26:30 ballen4705 Exp $\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 

@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.15 2002/10/14 09:17:36 ballen4705 Exp $
+# $Id: Makefile,v 1.16 2002/10/14 15:25:58 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -12,6 +12,11 @@
 # You should have received a copy of the GNU General Public License (for
 # example COPYING); if not, write to the Free Software Foundation, Inc., 675
 # Mass Ave, Cambridge, MA 02139, USA.
+#
+# This code was originally developed as a Senior Thesis by Michael Cornwell
+# at the Concurrent Systems Laboratory (now part of the Storage Systems
+# Research Center), Jack Baskin School of Engineering, University of
+# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 CC	= gcc
 # CFLAGS = -fsigned-char -Wall -g 

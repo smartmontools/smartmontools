@@ -1,4 +1,4 @@
-//  $Id: scsiprint.c,v 1.4 2002/10/11 09:20:32 ballen4705 Exp $
+//  $Id: scsiprint.c,v 1.5 2002/10/14 15:26:23 ballen4705 Exp $
 /*
  * scsiprint.c
  *
@@ -13,6 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
  */
 
 

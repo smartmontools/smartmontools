@@ -1,4 +1,4 @@
-//  $Id: scsicmds.cpp,v 1.5 2002/10/12 11:10:01 ballen4705 Exp $
+//  $Id: scsicmds.cpp,v 1.6 2002/10/14 15:26:18 ballen4705 Exp $
 
 /*
  * scsicmds.c
@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
  */
 
 #include <stdio.h>
