@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.18 2002/10/29 14:19:10 ballen4705 Exp $
+$Id: TODO,v 1.19 2002/10/30 10:18:37 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -67,6 +67,3 @@ General Fixes
 -------------
 
 Fix lots of syntax like if (a != 0)
-
-Pass pointer to big structures like "device" and smartval, not the
-whole 2kB of data!  I've started doing this but haven't finished yet.

@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.23 2002/10/30 06:02:39 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.24 2002/10/30 10:18:37 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -297,50 +297,50 @@ int ataSmartSelfTestAbort (int device);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
-int ataVersionInfo (const char **description, struct hd_driveid drive, unsigned short *minor);
+int ataVersionInfo (const char **description, struct hd_driveid *drive, unsigned short *minor);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(int device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport ( struct hd_driveid drive);
+int ataSmartSupport ( struct hd_driveid *drive);
 
 // Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
-int ataIsSmartEnabled(struct hd_driveid drive);
+int ataIsSmartEnabled(struct hd_driveid *drive);
 
 /* Check SMART for Threshold failure */
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds, int onlyfailed);
+int ataCheckSmart ( struct ata_smart_values *data, struct ata_smart_thresholds *thresholds, int onlyfailed);
 
 int ataSmartStatus2(int device);
 
 // int isOfflineTestTime ( struct ata_smart_values data)
 //  returns S.M.A.R.T. Offline Test Time in seconds
-int isOfflineTestTime ( struct ata_smart_values data);
+int isOfflineTestTime ( struct ata_smart_values *data);
 
-int isShortSelfTestTime ( struct ata_smart_values data);
+int isShortSelfTestTime ( struct ata_smart_values *data);
 
-int isExtendedSelfTestTime ( struct ata_smart_values data);
+int isExtendedSelfTestTime ( struct ata_smart_values *data);
 
-int isSmartErrorLogCapable ( struct ata_smart_values data);
+int isSmartErrorLogCapable ( struct ata_smart_values *data);
 
-int isSupportExecuteOfflineImmediate ( struct ata_smart_values data);
+int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data);
 
-int isSupportAutomaticTimer ( struct ata_smart_values data);
+int isSupportAutomaticTimer ( struct ata_smart_values *data);
 
-int isSupportOfflineAbort ( struct ata_smart_values data);
+int isSupportOfflineAbort ( struct ata_smart_values *data);
 
-int isSupportOfflineSurfaceScan ( struct ata_smart_values data);
+int isSupportOfflineSurfaceScan ( struct ata_smart_values *data);
 
-int isSupportSelfTest (struct ata_smart_values data);
+int isSupportSelfTest (struct ata_smart_values *data);
 
 int ataSmartTest(int device, int testtype);
 
-int TestTime(struct ata_smart_values data,int testtype);
+int TestTime(struct ata_smart_values *data,int testtype);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output

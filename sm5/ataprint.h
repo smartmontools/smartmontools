@@ -26,7 +26,7 @@
 #define _SMART_PRINT_H_
 
 #ifndef CVSID2
-#define CVSID2 "$Id: ataprint.h,v 1.13 2002/10/28 23:46:59 ballen4705 Exp $\n"
+#define CVSID2 "$Id: ataprint.h,v 1.14 2002/10/30 10:18:37 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -40,24 +40,24 @@
 
 
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */
-void ataPrintDriveInfo(struct hd_driveid);
+void ataPrintDriveInfo(struct hd_driveid *);
 
-void ataPrintGeneralSmartValues(struct ata_smart_values);
+void ataPrintGeneralSmartValues(struct ata_smart_values *);
 
-void ataPrintSmartThresholds(struct ata_smart_thresholds);
+void ataPrintSmartThresholds(struct ata_smart_thresholds *);
 
-void ataPrintSmartErrorlog(struct ata_smart_errorlog);
+void ataPrintSmartErrorlog(struct ata_smart_errorlog *);
 
-void PrintSmartAttributes(struct ata_smart_values data);
+void PrintSmartAttributes(struct ata_smart_values *data);
 
-void PrintSmartAttribWithThres(struct ata_smart_values data,
-                                struct ata_smart_thresholds thresholds,
+void PrintSmartAttribWithThres(struct ata_smart_values *data,
+                                struct ata_smart_thresholds *thresholds,
 				int onlyfailed);
 
 // returns number of entries that had logged errors
-int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog data, int allentries);
+int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data, int allentries);
 
-void ataPseudoCheckSmart(struct ata_smart_values, struct ata_smart_thresholds );
+void ataPseudoCheckSmart(struct ata_smart_values *, struct ata_smart_thresholds *);
 
 
 

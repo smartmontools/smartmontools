@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.35 2002/10/30 06:02:38 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.36 2002/10/30 10:18:37 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -199,17 +199,17 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 // describing which revision.  Note that Revision 0 of ATA-3 does NOT
 // support SMART.  For this one case we return -3 rather than +3 as
 // the version number.  See notes above.
-int ataVersionInfo (const char** description, struct hd_driveid drive, unsigned short *minor){
+int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned short *minor){
   unsigned short major;
   int i;
   
   // get major and minor ATA revision numbers
 #ifdef __NEW_HD_DRIVE_ID
-  major=drive.major_rev_num;
-  *minor=drive.minor_rev_num;
+  major=drive->major_rev_num;
+  *minor=drive->minor_rev_num;
 #else
-  major=drive.word80;
-  *minor=drive.word81;
+  major=drive->word80;
+  *minor=drive->word81;
 #endif
   
   // First check if device has ANY ATA version information in it
@@ -242,16 +242,16 @@ int ataVersionInfo (const char** description, struct hd_driveid drive, unsigned 
 }
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport(struct hd_driveid drive){
+int ataSmartSupport(struct hd_driveid *drive){
   unsigned short word82,word83;
 
   // get correct bits of IDENTIFY DEVICE structure
 #ifdef __NEW_HD_DRIVE_ID
-  word82=drive.command_set_1;
-  word83=drive.command_set_2;
+  word82=drive->command_set_1;
+  word83=drive->command_set_2;
 #else
-  word82=drive.command_sets;
-  word83=drive.word83;
+  word82=drive->command_sets;
+  word83=drive->word83;
 #endif
 
   // Note this does not work for ATA3 < Revision 6, when word82 and word83 were added
@@ -260,16 +260,16 @@ int ataSmartSupport(struct hd_driveid drive){
 }
 
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
-int ataIsSmartEnabled(struct hd_driveid drive){
+int ataIsSmartEnabled(struct hd_driveid *drive){
     unsigned short word85,word87;
 
   // Get correct bits of IDENTIFY DRIVE structure
 #ifdef __NEW_HD_DRIVE_ID
-  word85=drive.cfs_enable_1;
-  word87=drive.csf_default;
+  word85=drive->cfs_enable_1;
+  word87=drive->csf_default;
 #else
-  word85=drive.word85;
-  word87=drive.word87;
+  word85=drive->word85;
+  word87=drive->word87;
 #endif
   
   if ((word87 & 0x0001<<14) && !(word87 & 0x0001<<15))
@@ -583,39 +583,39 @@ int ataSmartTest(int device, int testtype){
 }
 
 /* Test Time Functions */
-int TestTime(struct ata_smart_values data,int testtype){
+int TestTime(struct ata_smart_values *data,int testtype){
   switch (testtype){
   case OFFLINE_FULL_SCAN:
-    return (int) data.total_time_to_complete_off_line;
+    return (int) data->total_time_to_complete_off_line;
   case SHORT_SELF_TEST:
   case SHORT_CAPTIVE_SELF_TEST:
-    return (int) data.short_test_completion_time;
+    return (int) data->short_test_completion_time;
   case EXTEND_SELF_TEST:
   case EXTEND_CAPTIVE_SELF_TEST:
-    return (int) data.extend_test_completion_time;
+    return (int) data->extend_test_completion_time;
   default:
     return 0;
   }
 }
 
 
-int isSmartErrorLogCapable ( struct ata_smart_values data){
-   return data.errorlog_capability & 0x01;
+int isSmartErrorLogCapable ( struct ata_smart_values *data){
+   return data->errorlog_capability & 0x01;
 }
-int isSupportExecuteOfflineImmediate ( struct ata_smart_values data){
-   return data.offline_data_collection_capability & 0x01;
+int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x01;
 }
-int isSupportAutomaticTimer ( struct ata_smart_values data){
-   return data.offline_data_collection_capability & 0x02;
+int isSupportAutomaticTimer ( struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x02;
 }
-int isSupportOfflineAbort ( struct ata_smart_values data){
-   return data.offline_data_collection_capability & 0x04;
+int isSupportOfflineAbort ( struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x04;
 }
-int isSupportOfflineSurfaceScan ( struct ata_smart_values data){
-   return data.offline_data_collection_capability & 0x08;
+int isSupportOfflineSurfaceScan ( struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x08;
 }
-int isSupportSelfTest (struct ata_smart_values data){
-   return data.offline_data_collection_capability & 0x10;
+int isSupportSelfTest (struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x10;
 }
 
 
@@ -634,8 +634,8 @@ int isSupportSelfTest (struct ata_smart_values data){
 
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart(struct ata_smart_values data,
-		  struct ata_smart_thresholds thresholds,
+int ataCheckSmart(struct ata_smart_values *data,
+		  struct ata_smart_thresholds *thresholds,
 		  int onlyfailed){
   int i;
   
@@ -643,8 +643,8 @@ int ataCheckSmart(struct ata_smart_values data,
   for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
 
     // pointers to disk's values and vendor's thresholds
-    struct ata_smart_attribute *disk=data.vendor_attributes+i;
-    struct ata_smart_threshold_entry *thre=thresholds.thres_entries+i;
+    struct ata_smart_attribute *disk=data->vendor_attributes+i;
+    struct ata_smart_threshold_entry *thre=thresholds->thres_entries+i;
  
     // consider only valid attributes
     if (disk->id && thre->id){
