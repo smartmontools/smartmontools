@@ -33,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.c,v 1.15 2002/11/21 16:49:44 knan Exp $" CVSID4;
+const char *CVSid3="$Id: scsicmds.c,v 1.16 2002/11/21 21:21:48 knan Exp $" CVSID4;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
@@ -146,7 +146,7 @@ UINT8 modeselect (int device,  UINT8 pagenum, UINT8 *pBuf)
 }
 
 
-
+/* Not currently used */
 
 UINT8 modesense10 (int device, UINT8 pagenum, UINT8 *pBuf)
 {
@@ -162,7 +162,7 @@ UINT8 modesense10 (int device, UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->inbufsize = 0;
   ioctlhdr->outbufsize = 0xff;
    
-  ioctlhdr->cdb[0] = MODE_SELECT_10;
+  ioctlhdr->cdb[0] = MODE_SENSE_10;
   ioctlhdr->cdb[1] = 0x00;
   ioctlhdr->cdb[2] = 0x11;
   ioctlhdr->cdb[3] = 0x00;
@@ -182,7 +182,7 @@ UINT8 modesense10 (int device, UINT8 pagenum, UINT8 *pBuf)
 }
 
 
-
+/* Not currently used */
 
 UINT8 modeselect10 (int device,  UINT8 pagenum, UINT8 *pBuf)
 {
@@ -373,7 +373,7 @@ UINT8 senddiagnostic (int device, UINT8 functioncode,  UINT8 *pBuf)
 
 }
 
-
+/* Not currently used */
 
 UINT8 receivediagnostic (int device, UINT8 pagenum,  UINT8 *pBuf)
 {
