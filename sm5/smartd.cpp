@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.166 2003/06/11 19:03:37 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.167 2003/06/11 21:07:48 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1623,13 +1623,11 @@ int parseconfigline(int entry, int lineno,char *line){
   // Save info to process memory for after forking 32 bytes contains 1
   // bit per possible attribute ID.  See isattoff()
   cfg->name=strdup(name);
-  if (!devscan){
-    cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
-    cfg->attributedefs=(unsigned char *)calloc(256,1);
-  }
+  cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
+  cfg->attributedefs=(unsigned char *)calloc(256,1);
 
   // check that all memory allocations were sucessful
-  if (!cfg->name || (!devscan && (!cfg->monitorattflags || !cfg->attributedefs))) {
+  if (!cfg->name || !cfg->monitorattflags || !cfg->attributedefs) {
     printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(EXIT_NOMEM);
   }
@@ -2051,7 +2049,11 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
   for(i=0; i<num; i++){
     cfgfile *cfg=config+start+i;
     
-    // If user has given the scan directive, copy config files entries
+    // If user has given the scan directive, copy config files
+    // entries.  Note that some allocated memory blocks such as those
+    // for isattoff() get their reference addresses copied.  Other
+    // allocated memory blocks, like those for the name, get
+    // rewritten.
     if (scandirective){
       memcpy(cfg, config, sizeof(*cfg));
     }
@@ -2069,7 +2071,15 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
       
       // lineno==0 is our clue that the device was not found in a
       // config file!
-      cfg->lineno=0;    
+      cfg->lineno=0;
+      
+      // Allocate memory (won't be used!) for checking things to ignore
+      cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
+      cfg->attributedefs=(unsigned char *)calloc(256,1);
+      if (!cfg->monitorattflags || !cfg->attributedefs) {
+	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
+	exit(EXIT_NOMEM);
+      }
     }
     
     // select if it's a SCSI or ATA device
@@ -2078,9 +2088,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     
     // put in the device name
     cfg->name=strdup(name);
-    cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
-    cfg->attributedefs=(unsigned char *)calloc(256,1);
-    if (!cfg->name || !cfg->monitorattflags || !cfg->attributedefs) {
+    if (!cfg->name) {
       printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(EXIT_NOMEM);
     }

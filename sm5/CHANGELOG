@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.148 2003/06/11 19:03:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.149 2003/06/11 21:07:47 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,7 +37,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
-   
+
+  [BA] smartd: if DEVICESCAN Directive used in smartd.conf, and
+       -I, -R or -r Directives used in conjunction with this, got
+       segv errors.  Fixed by correcting memory allocation calls.
+
   [BA] smartd: enable automatic offline testing was broken due
        to cut-and-paste error that disabled it instead of
        enabling it.  Thanks to Maciej W. Rozycki for pointing
