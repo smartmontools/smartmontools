@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.226 2003/10/27 00:25:26 pjwilliams Exp $
+$Id: CHANGELOG,v 1.227 2003/10/27 00:30:08 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added TOSHIBA MK4025GAS to knowndrives table.
 
   [PW] Added a textual interpretation of the status and error registers
        in the SMART error log (ATA).  The interpretation is

@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.49 2003/10/15 14:06:02 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.50 2003/10/27 00:30:08 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -311,6 +311,11 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL,
     NULL,
+  },
+  { // TOSHIBA MK4025GAS
+    "^TOSHIBA MK4025GAS$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   {
     // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
