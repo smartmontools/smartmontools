@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.125 2003/04/07 10:54:49 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.126 2003/04/07 15:08:21 guidog Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -67,6 +67,8 @@ int numscsidevices=0;
 // debugging
 int checktime=CHECKTIME;
 
+// name of PID file (== NULL if no pid_file is used)
+char* pid_file;
 
 // If set, we should exit after checking all disks once
 int checkonce=0;
@@ -313,15 +315,30 @@ void huphandler(int sig){
   return;
 }
 
-// simple signal handler to print goodby message to syslog
+// simple signal handler to print goodbye message to syslog
 void sighandler(int sig){
     printout(LOG_CRIT,"smartd received signal %d: %s\n",
              sig, strsignal(sig));
     exit(1);
 }
 
+// remove the PID file
+int 
+remove_pid_file()
+{
+    if(pid_file) {
+        if( -1 == unlink(pid_file) ) {
+      	    printout(LOG_INFO,"Can't unlink pidfile %s (%s).\n", 
+			    pid_file, strerror(errno));
+	}
+	free(pid_file);
+    }
+    return 0;
+}
+
 void goobye(){
   printout(LOG_CRIT,"smartd is exiting\n");
+  remove_pid_file();
   return;
 }
 
@@ -425,6 +442,7 @@ void Usage (void){
   printout(LOG_INFO,"  -i N, --interval=N\n");
   printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -c, --checkonce\n  Check all devices once, then exit\n\n");
+  printout(LOG_INFO,"  -p NAME, --pidfile=NAME\n  Write PID file NAME\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
@@ -433,6 +451,7 @@ void Usage (void){
   printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
   printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
+  printout(LOG_INFO,"  -p NAME\n  Write PID file NAME\n\n");
   printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
@@ -1126,6 +1145,34 @@ char copyleftstring[]=
 
 cfgfile config[MAXENTRIES];
 
+// create a PID file containing the current process id
+int
+write_pid_file()
+{
+  if(pid_file) {
+      int error = 0;
+      pid_t pid = getpid();
+      mode_t old_umask;
+      FILE* fd; 
+
+      old_umask = umask(0077);
+      fd = fopen(pid_file, "w");
+      umask(old_umask);
+      if (fd == NULL) {
+          error = 1;
+      } else if (fprintf(fd, "%d\n", pid) <= 0) {
+          error = 1;
+      } else if (fclose(fd) != 0) {
+          error = 1;
+      }
+      if (error) {
+        printout(LOG_CRIT,"unable to write pid file - exiting.\n");
+        exit(1);
+      }
+  }
+  return 0;
+}
+
 
 // exits with an error message, or returns integer value of token
 int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, int min, int max){
@@ -1676,7 +1723,7 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "cdDi:r:Vh?";
+  const char *shortopts = "cdDi:p:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -1685,6 +1732,7 @@ void ParseOpts(int argc, char **argv){
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
+    { "pidfile",	required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
@@ -1744,6 +1792,13 @@ void ParseOpts(int argc, char **argv){
         badarg = TRUE;
       }
       break;
+    case 'p':
+      if( -1 == asprintf(&pid_file, "%s", optarg)) {
+	printout(LOG_CRIT, "Can't create pid file %s - exiting.\n", optarg);
+	pid_file = NULL;
+	exit(-1);
+      }
+      break;
     case 'V':
       PrintCopyleft();
       exit(0);
@@ -1797,6 +1852,12 @@ void ParseOpts(int argc, char **argv){
       exit(-1);
     }
   }
+  if(debugmode && pid_file) {
+	// no pidfile in debug mode
+	free(pid_file);
+	pid_file = NULL;
+  }
+
 
   // print header
   printhead();
