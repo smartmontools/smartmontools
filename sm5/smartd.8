@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.30 2002/11/14 06:06:29 ballen4705 Exp $
+\# $Id: smartd.8,v 1.31 2002/11/21 14:11:19 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/14 06:06:29 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/21 14:11:19 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -208,10 +208,11 @@ Section below!
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12
 .B #
 .nf
-.B # SCSI disks:
+.B # SCSI disks.  Send a TEST warning email to admin on
+.B # startup. (Note: the -1 is the argument of -m.)
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -M admin@yoyodyne.com
+.B \ \ /dev/sdc -M admin@yoyodyne.com -m -1
 .B #
 .nf
 .B # Strange device.  It's SCSI:
@@ -255,7 +256,8 @@ name.
 
 .B  For ATA disks, if
 .B no Directives appear, the disk will not be monitored.
-The '\-a' Directive will try to monitor everything possible.
+Conversely, the '\-a' Directive will try to monitor everything
+possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
@@ -339,13 +341,17 @@ life period."
 command-line option.]
 .TP
 .B \-M <ADD>
-Mail:  Send a warning email to the email address <ADD> if the '\-c', '\-l', '\-L', or '\-f'
-Directives detect a failure or a new error.  This Directive only
-works in conjunction with these other Directives (or with the equivalent '\-a'
-Directive).  To prevent your email in-box from getting filled up
-with warning messages, only a single warning will be sent for each of
-the enabled test types, '\-c', '\-l', '\-L', or '\-f', even if more
-than one failure or error is detected.
+Mail: Send a warning email to the email address <ADD> if 
+the '\-c', '\-l', '\-L', or '\-f'
+Directives detect a failure or a new error.
+This Directive only works in conjunction with these other Directives
+(or with the equivalent '\-a' Directive).  To prevent your email
+in-box from getting filled up with warning messages, by default only a
+single warning will be sent for each of the enabled test 
+types, '\-c', '\-l', '\-L', or '\-f', 
+even if more than one failure or error is
+detected or if the failure or error persists.  [This behavior can be
+modified; see the '\-m' Directive below.]
 
 The email is sent using the system 
 .B mail
@@ -356,11 +362,50 @@ find the mail command (normally /bin/mail) the
 command must be in the path of the
 shell or environment from which
 .B smartd
-was started.
+was started.  To test that the mail is being sent correctly, or to
+alter the pattern of when mail is sent, see the `\-m' Directive below.
 
-If you want to send email to more than one user, you can use the form
+To send email to more than one user, please use the following form for the address
+<ADD>:
 .B  user1@add1,user2@add2,...,userN@addN
-with no spaces for <ADD>. 
+(with no spaces).
+.TP
+.B \-m <N>
+Modify Mail: Modifies the behavior of the '\-M' email Directive above,
+and has no effect without this other Directive.  This option controls
+when, and how often, the '\-M' Directive sends email warning messages.
+
+This Directive takes a decimal integer argument <N> in the range from
+-3 to 3 inclusive.
+.nf
+.B If <N>=0 or 1:
+.fi
+equivalent to not having this '\-m' Directive present at all.  Only
+one warning email is sent for each type of disk problem detected.
+.nf
+.B If <N>=2:
+.fi
+send additional warning reminder emails, once per day, for each type
+of disk problem detected.
+.nf
+.B If <N>=3:
+.fi
+send additional warning reminder emails, after a one-day interval,
+then a two-day interval, then a four-day interval, and so on for each
+type of disk problem detected. Each interval is twice as long as the
+previous interval.
+.nf
+.B If <N>=-1, -2, or -3:
+.fi
+Negative values of <N> have the same meaning as the corresponding
+positive value, but also send a single additional "test email"
+immediately upon
+.B smartd
+startup.  This allows one to verify that any email is correctly
+delivered.  For example, setting <N>=-2 will send a test email on
+.B smartd
+startup, and additional warning reminder emails at one-day intervals
+after any disk problems are detected.
 .TP
 .B \-p
 Prefail: Report anytime that a Prefail Attribute has changed
@@ -548,4 +593,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.30 2002/11/14 06:06:29 ballen4705 Exp $
+$Id: smartd.8,v 1.31 2002/11/21 14:11:19 ballen4705 Exp $
