@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.5 2003/09/04 12:05:20 ballen4705 Exp $
+# $Id: Makefile.am,v 1.6 2003/09/21 23:31:47 guidog Exp $
 #
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -102,6 +102,8 @@ uninstall-docsDATA:
 	rm -rf $(docsdir)
 
 smart%: smart%.in
-	sed "s|/usr/share/man|$(mandir)|g" $< > $@
+	sed "s|/usr/share/man/|$(mandir)/|g" $< | \
+	sed "s|/usr/sbin/|$(sbindir)/|g" | \
+	sed "s|/etc/|$(sysconfdir)/|g" > $@
 
 SUBDIRS= . examplescripts
