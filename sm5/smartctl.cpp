@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.45 2003/01/07 00:41:37 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.46 2003/01/07 19:29:26 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -206,31 +206,31 @@ const char *getvalidarglist(char opt) {
 
   switch (opt) {
   case 'q':
-     return "errorsonly, silent";
+    return "errorsonly, silent";
   case 'd':
-     return "ata, scsi";
+    return "ata, scsi";
   case 'T':
-     return "normal, conservative, permissive";
+    return "normal, conservative, permissive";
   case 'b':
-     return "warn, exit, ignore";
+    return "warn, exit, ignore";
   case 's':
   case 'o':
   case 'S':
-     return "on, off";
+    return "on, off";
   case 'l':
-     return "error, selftest";
+    return "error, selftest";
   case 'v':
-     if (v_list) 
-       return v_list;
-     if (!(s = create_vendor_attribute_arg_list()))
-       return NULL;
-     // Allocate space for "\"help\", " + s + terminating 0
-     v_list = (char *)malloc(9+strlen(s));
-     sprintf(v_list, "\"help\", %s", s);
-     free(s);
-     return v_list;
+    if (v_list) 
+      return v_list;
+    if (!(s = create_vendor_attribute_arg_list()))
+      return NULL;
+    // Allocate space for "\"help\", " + s + terminating 0
+    v_list = (char *)malloc(9+strlen(s));
+    sprintf(v_list, "\"help\", %s", s);
+    free(s);
+    return v_list;
   case 't':
-     return "offline, short, long";
+    return "offline, short, long";
   default:
     return NULL;
   }
