@@ -1,4 +1,6 @@
 /*
+ * os_freebsd.c
+ *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
@@ -25,10 +27,17 @@
 #include <err.h>
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
+#include <sys/ata.h>
+
+
+#include "config.h"
+#include "atacmds.h"
+#include "scsicmds.h"
+#include "utility.h"
 #include "os_freebsd.h"
 
-
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.14 2003/10/11 16:18:50 arvoreen Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.15 2003/10/12 09:10:03 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;

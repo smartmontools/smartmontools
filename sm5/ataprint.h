@@ -22,12 +22,10 @@
  *
  */
 
-#ifndef _SMART_PRINT_H_
-#define _SMART_PRINT_H_
+#ifndef ATAPRINT_H_
+#define ATAPRINT_H_
 
-#ifndef ATAPRINT_H_CVSID
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.21 2003/08/30 13:06:47 ballen4705 Exp $\n"
-#endif
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.22 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,16 +1,5 @@
-#ifndef _OS_LINUX_H_
-#define _OS_LINUX_H_
-
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.3 2003/10/10 04:56:39 arvoreen Exp $\n"
-
-#include "config.h"
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "smartd.h"
-
-
 /* 
- *  escalade.h
+ *  os_linux.h
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -44,6 +33,11 @@
  * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
  * 
  */
+
+#ifndef OS_LINUX_H_
+#define OS_LINUX_H_
+
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.4 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -112,4 +106,4 @@ typedef struct TAG_TW_Output {
 } TW_Output; 
 
 
-#endif /* _OS_LINUX_H_ */
+#endif /* OS_LINUX_H_ */

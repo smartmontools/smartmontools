@@ -1,14 +1,30 @@
-#ifndef _OS_FREEBSD_H_
-#define _OS_FREEBSD_H_
+/*
+ * os_freebsd.h
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2003 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
+ */
 
-#include "config.h"
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "utility.h"
+#ifndef OS_FREEBSD_H_
+#define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.6 2003/10/11 05:41:02 arvoreen Exp $\n"
-
-#include <sys/ata.h>
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.7 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 struct freebsd_dev_channel {
   int	channel;		// the ATA channel to work with
@@ -23,5 +39,4 @@ struct freebsd_dev_channel {
 #define FREEBSD_FDOFFSET 16;
 #define MAX_NUM_DEV 26
 
-
-#endif /* _OS_FREEBSD_H_ */
+#endif /* OS_FREEBSD_H_ */

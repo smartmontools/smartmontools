@@ -22,12 +22,10 @@
  *
  */
 
-#ifndef __UTILITY_H_
-#define __UTILITY_H_
+#ifndef UTILITY_H_
+#define UTILITY_H_
 
-#ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.17 2003/10/10 08:25:21 ballen4705 Exp $\n"
-#endif
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.18 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>

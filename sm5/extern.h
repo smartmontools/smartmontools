@@ -22,15 +22,10 @@
  *
  */
 
-#ifndef _EXTERN_H_
-#define _EXTERN_H_
+#ifndef EXTERN_H_
+#define EXTERN_H_
 
-#ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.29 2003/10/08 01:24:58 ballen4705 Exp $\n"
-#endif
-
-
-
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.30 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 // For development and testing of Selective self-test code
 #define DEVELOP_SELECTIVE_SELF_TEST 0

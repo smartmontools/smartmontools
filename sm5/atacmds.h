@@ -22,12 +22,10 @@
  *
  */
 
-#ifndef _ATACMDS_H_
-#define _ATACMDS_H_
+#ifndef ATACMDS_H_
+#define ATACMDS_H_
 
-#ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.53 2003/10/08 01:24:58 ballen4705 Exp $\n"
-#endif
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.54 2003/10/12 09:10:02 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -432,4 +430,4 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
 
 
-#endif /* _ATACMDS_H_ */
+#endif /* ATACMDS_H_ */

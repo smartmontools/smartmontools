@@ -17,12 +17,10 @@
  *
  */
 
-#ifndef __KNOWNDRIVES_H_
-#define __KNOWNDRIVES_H_
+#ifndef KNOWNDRIVES_H_
+#define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.8 2003/08/30 13:06:48 ballen4705 Exp $\n"
-
-#include "extern.h"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.9 2003/10/12 09:10:03 ballen4705 Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
