@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.62 2004/09/03 19:41:52 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -75,7 +75,7 @@ Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
 devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .IP \fBWINDOWS\fP: 9
 Use the forms \fB"/dev/hd[a\-j]"\fP for IDE/ATA devices
-"\\\\.\\PhysicalDisk[0\-9]" on WinNT4/2000/XP,
+"\\\\.\\PhysicalDrive[0\-9]" on WinNT4/2000/XP,
 \fB"/dev/hd[a\-d]"\fP for standard IDE/ATA devices on Win95/98/98SE/ME,
 and \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices on ASPI adapter 0\-9, ID 0\-15.
 The prefix \fB"/dev/"\fP is optional.
@@ -1233,7 +1233,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.61 2004/08/30 16:00:31 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.62 2004/09/03 19:41:52 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
