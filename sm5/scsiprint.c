@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.36 2003/04/18 00:12:09 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.37 2003/04/21 10:44:07 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -129,7 +129,7 @@ void scsiGetTapeAlertsData(int device)
     int failure = 0;
 
     if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
-        pout("scsiGetSmartData Failed [%s]\n", scsiErrString(err));
+        pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
         return;
     }
     if (gBuf[0] != 0x2e) {
@@ -547,9 +547,14 @@ void scsiPrintMain(const char *dev_name, int fd)
     if (con->checksmart) {
         scsiGetSupportedLogPages(fd);
         checkedSupportedLogPages = 1;
-        if (gTapeAlertsPage)
-            scsiGetTapeAlertsData(fd);
-        else {
+        if (1 == peripheral_type) { /* tape device */
+            if (gTapeAlertsPage)
+                scsiGetTapeAlertsData(fd);
+            if (gTempPage)
+                scsiPrintTemp(fd);         
+            if (gStartStopPage)
+                scsiGetStartStopData(fd);
+        } else { /* disk, cd/dvd, enclosure, etc */
             scsiGetSmartData(fd);
             if (gTempPage)
                 scsiPrintTemp(fd);         
