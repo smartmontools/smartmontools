@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.62 2003/12/01 21:53:43 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.63 2003/12/05 13:14:07 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -67,17 +67,26 @@
 #define MONITOR_RAWPRINT  2
 #define MONITOR_RAW       3
 
-// If user has requested email warning messages, then this structure
-// stores the information about them.
-typedef struct mailinfo {
-  // number of times an email has been sent
-  int logged;
-  // time last email was sent, as defined by man 2 time
-  time_t lastsent;
-  // time problem initially logged
-  time_t firstsent;
+
+// Number of allowed mail message types
+#define SMARTD_NMAIL 10
+
+typedef struct mailinfo_s {
+  int logged;// number of times an email has been sent
+  time_t firstsent;// time first email was sent, as defined by time(2)
+  time_t lastsent; // time last email was sent, as defined by time(2)
 } mailinfo;
 
+// If user has requested email warning messages, then this structure
+// stores the information about them, and track type/date of email
+// messages.
+typedef struct maildata_s {
+  mailinfo maillog[10];                   // log info on when mail sent
+  char *emailcmdline;                     // script to execute
+  char *address;                          // email address, or null
+  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
+  unsigned char emailtest;                // Send test email?
+} maildata;
 
 // cfgfile is the main data structure of smartd. It is used in two
 // ways.  First, to store a list of devices/options given in the
@@ -159,24 +168,20 @@ typedef struct configfile_s {
   char permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
-  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
-  unsigned char emailtest;                // Send test email?
   unsigned char fixfirmwarebug;           // Fix firmware bug
   char ignorepresets;                     // Ignore database of -v options
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
   unsigned char selflogcount;             // total number of self-test errors
-  unsigned char notused1[1];              // for packing alignment
+  unsigned char notused1[2];              // for packing alignment
   unsigned short selftesthour;            // 1+hour of year when last scheduled self-test done
   unsigned short selfloghour;             // lifetime hours of last self-test error
-  char *emailcmdline;                     // Program for sending mail (or NULL)
-  char *address;                          // Email addresses (or NULL)
   char *testregexp;                       // Pointer to regexps pattern for selftest types/times.  Not stored in 
                                           // compiled form because POSIX has no 'copy' compiled regex command!
-
-  // THE NEXT SET OF ENTRIES TRACK DEVICE STATE AND ARE DYNAMIC
-  mailinfo maildata[10];                  // Tracks type/date of email messages sent
   
+  // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
+  maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
+
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
