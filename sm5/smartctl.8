@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.12 2002/10/20 19:47:19 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.13 2002/10/22 12:53:20 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/20 19:47:19 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/22 12:53:20 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -168,8 +168,8 @@ disk been powered up.  Each attribute has a 'Raw' value, printed under
 the heading 'Raw Value', and a 'Normalized' value printed under the
 heading 'Value'.  Each vendor uses their own magic to convert the Raw
 value to a Normalized value.  If the Normalized value is
-.B smaller
-than the value given under the 'Threshold' column, then disk failure
+.B less than or equal to
+the value given under the 'Threshold' column, then disk failure
 is imminent.  The column labeled 'Worst' shows the lowest (closest to
 failure) value that the disk has recorded at any time during its
 lifetime when S.M.A.R.T.  was enabled.
@@ -181,6 +181,23 @@ are sensible.  However in some cases a vendor uses unusual
 conventions.  For example the Hitachi disk on my laptop reports its
 power-on hours in minutes, not hours. Some IBM disks track three
 temperatures rather than one, in their raw values.  And so on.
+
+The table printed out by this option also shows the 'Type' of the
+attribute.  Pre-failure attributes are ones which, if less than or
+equal to their threshold values, indicate pending disk failure.  Old
+age, or usage attributes, are ones which indicate end-of-product life
+from old-age or normal aging and wearout, if the attribute value is
+less than or equal to the threshold.
+
+If the attribute's current value is <= threshold, then the 'Ever
+failed' column will display 'FAILED NOW!'.  If not, but the worst
+recorded value is <= threshold, then this column will display 'In the
+past'.
+
+Note that starting with ATA/ATAPI-4, revision 4, the meaning of these
+attribute fields has been made entirely vendor-specific.  However most
+ATA/ATAPI-5 disks seem to respect their meaning, so we have retained
+this option.
 .TP
 .B l
 Log: Prints only the S.M.A.R.T. error log.  S.M.A.R.T. disks maintain
@@ -372,4 +389,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.12 2002/10/20 19:47:19 ballen4705 Exp $
+$Id: smartctl.8,v 1.13 2002/10/22 12:53:20 ballen4705 Exp $
