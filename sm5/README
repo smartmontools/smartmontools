@@ -88,7 +88,7 @@ Source and binary RPM files are available at the website listed above.
 
 
 == USAGE ==
-SMARTMONTOOLS contents two utilities:
+SMARTMONTOOLS contains two utilities:
 
 smartctl - A command line control utility 
 smartd  -  A monitoring daemon
@@ -183,4 +183,4 @@ Fax: (408) 867-2115
 E-Mail: 250-1752@mcimail.com.
 
 
-$Id: README,v 1.6 2002/10/14 15:26:00 ballen4705 Exp $
+$Id: README,v 1.7 2002/10/16 18:54:06 ballen4705 Exp $

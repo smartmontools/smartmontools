@@ -100,6 +100,6 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
-* %{date} Bruce Allen smartmontools-support@lists.sourceforge.net
+* Oct 16 2002 Bruce Allen smartmontools-support@lists.sourceforge.net
 Initial release.  Code is derived from smartsuite, and is
    intended to be compatible with the ATA/ATAPI-5 specifications.
