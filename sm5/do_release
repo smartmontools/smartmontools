@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.23 2004/01/02 16:05:25 ballen4705 Exp $
+# $Id: do_release,v 1.24 2004/02/12 21:03:42 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -24,7 +24,7 @@ setup_cvs()
 
 get_release()
 {
-  VERSION=`grep '^ *VERSION=' configure | awk -F= '{ print $2 }' | sed s/\'//g`
+  VERSION=`grep '^ *VERSION=' configure.in | awk -F= '{ print $2 }' | sed s/,//g`
   RELEASE="RELEASE_${VERSION//\./_}"
   echo "Version: $VERSION"
   echo "Release: $RELEASE"
@@ -48,8 +48,14 @@ if [ -f Makefile ] ; then
   make distcheck || exit 1
   make clean
   make distclean
-  rm -f Makefile
+  rm -f Makefile configure
 fi
+
+smartmontools_release_date=`date -u +"%Y/%m/%d"`
+smartmontools_release_time=`date -u +"%T %Z"`
+cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
+rm -f configure.tmp
 
 ./autogen.sh
 
@@ -57,11 +63,6 @@ get_release
 
 # tag CVS version
 setup_cvs
-smartmontools_release_date=`date -u +"%Y/%m/%d"`
-smartmontools_release_time=`date -u +"%T %Z"`
-cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
-cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
-rm -f configure.tmp
 cvs commit -m "Release $VERSION $RELEASE"
 cvs tag -d $RELEASE 
 cvs tag $RELEASE
