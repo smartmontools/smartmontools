@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.6 2003/04/13 16:05:23 pjwilliams Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.7 2003/04/16 23:12:00 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -42,7 +42,7 @@ void dateandtimezoneepoch(char *buffer, time_t tval);
 
 
 // utility function for printing out CVS strings
-#define CVSMAXLEN 512
+#define CVSMAXLEN 1024
 void printone(char *block, const char *cvsid);
 
 // like printf() except that we can control it better. Note --
