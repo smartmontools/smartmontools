@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="smartctl_vc6" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="smartd_vc6" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=smartctl_vc6 - Win32 Debug
+CFG=smartd_vc6 - Win32 Debug
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
 !MESSAGE 
-!MESSAGE NMAKE /f "smartctl_vc6.mak".
+!MESSAGE NMAKE /f "smartd_vc6.mak".
 !MESSAGE 
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
-!MESSAGE NMAKE /f "smartctl_vc6.mak" CFG="smartctl_vc6 - Win32 Debug"
+!MESSAGE NMAKE /f "smartd_vc6.mak" CFG="smartd_vc6 - Win32 Debug"
 !MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "smartctl_vc6 - Win32 Release" (basierend auf  "Win32 (x86) Console Application")
-!MESSAGE "smartctl_vc6 - Win32 Debug" (basierend auf  "Win32 (x86) Console Application")
+!MESSAGE "smartd_vc6 - Win32 Release" (basierend auf  "Win32 (x86) Console Application")
+!MESSAGE "smartd_vc6 - Win32 Debug" (basierend auf  "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=smartctl_vc6 - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "smartctl_vc6 - Win32 Release"
+!IF  "$(CFG)" == "smartd_vc6 - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -37,8 +37,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "smartctl.r"
-# PROP Intermediate_Dir "smartctl.r"
+# PROP Output_Dir "smartd.r"
+# PROP Intermediate_Dir "smartd.r"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
@@ -50,9 +50,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /out:"smartctl.exe"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /out:"smartd.exe"
 
-!ELSEIF  "$(CFG)" == "smartctl_vc6 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "smartd_vc6 - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -61,8 +61,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "smartctl.d"
-# PROP Intermediate_Dir "smartctl.d"
+# PROP Output_Dir "smartd.d"
+# PROP Intermediate_Dir "smartd.d"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
 # ADD CPP /nologo /W3 /Gm /GX /ZI /Od /I "." /I ".." /I "..\posix" /D "_DEBUG" /D "HAVE_CONFIG_H" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
@@ -79,8 +79,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "smartctl_vc6 - Win32 Release"
-# Name "smartctl_vc6 - Win32 Debug"
+# Name "smartd_vc6 - Win32 Release"
+# Name "smartd_vc6 - Win32 Debug"
 # Begin Group "posix"
 
 # PROP Default_Filter ""
@@ -153,7 +153,7 @@ SOURCE=..\ataprint.h
 
 SOURCE=.\config_vc6.h
 
-!IF  "$(CFG)" == "smartctl_vc6 - Win32 Release"
+!IF  "$(CFG)" == "smartd_vc6 - Win32 Release"
 
 # Begin Custom Build - Copy $(InputPath) config.h
 InputPath=.\config_vc6.h
@@ -163,7 +163,7 @@ InputPath=.\config_vc6.h
 
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "smartctl_vc6 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "smartd_vc6 - Win32 Debug"
 
 # Begin Custom Build - Copy $(InputPath) config.h
 InputPath=.\config_vc6.h
@@ -218,15 +218,23 @@ SOURCE=..\scsiprint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\smartctl.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\smartctl.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\smartd.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\smartd.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\syslog.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\syslog_win32.c
 # End Source File
 # Begin Source File
 
