@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.326 2004/02/01 00:38:05 ballen4705 Exp $
+$Id: CHANGELOG,v 1.327 2004/02/03 16:48:57 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartctl/smartd allow inspection of self-test and error logs even
+       if disk firmware claims that these don't exist.  This is needed
+       for some Maxtor disks whose firmware does not indicate log support
+       even though the disk DOES support it.
 
   [BA] Improved porting instructions and documentation in os_generic.c
 

@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.61 2004/01/27 06:19:37 shattered Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.62 2004/02/03 16:48:58 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -395,7 +395,9 @@ int isShortSelfTestTime ( struct ata_smart_values *data);
 
 int isExtendedSelfTestTime ( struct ata_smart_values *data);
 
-int isSmartErrorLogCapable ( struct ata_smart_values *data);
+int isSmartErrorLogCapable(struct ata_smart_values *data, struct ata_identify_device *identity);
+
+int isSmartTestLogCapable(struct ata_smart_values *data, struct ata_identify_device *identity);
 
 int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity);
 
