@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.44 2003/01/07 00:27:16 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.45 2003/01/07 00:41:37 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -80,7 +80,7 @@ void printcopy(){
 /*  void prints help information for command syntax */
 void Usage (void){
   printf("Usage: smartctl [options] [device]\n");
-  printf("\n**************  SHOW INFORMATION OPTIONS  *********************************\n");
+  printf("\n==============  SHOW INFORMATION OPTIONS  =================================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -h, -?, --help, --usage\n\
@@ -100,7 +100,7 @@ void Usage (void){
   -a        Show all SMART information for device                   \n\
 ");
 #endif
-  printf("**************  SMARTCTL RUN-TIME BEHAVIOR OPTIONS  ***********************\n");
+  printf("==============  SMARTCTL RUN-TIME BEHAVIOR OPTIONS  =======================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -q TYPE, --quietmode=TYPE                                           (ATA)\n\
@@ -120,7 +120,7 @@ void Usage (void){
   -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n\
 ");
 #endif
-  printf("**************  DEVICE FEATURE ENABLE/DISABLE COMMANDS  *******************\n");
+  printf("==============  DEVICE FEATURE ENABLE/DISABLE COMMANDS  ===================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -s VALUE, --smart=VALUE\n\
@@ -137,7 +137,7 @@ void Usage (void){
   -S VALUE  Enable/disable device Attribute autosave (on/off)         (ATA)\n\
 ");
 #endif
-  printf("**************  READ AND DISPLAY DATA OPTIONS  ****************************\n");
+  printf("==============  READ AND DISPLAY DATA OPTIONS  ============================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -H, --health\n\
@@ -160,7 +160,7 @@ void Usage (void){
   -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n\
 ");
 #endif
-  printf("**************  DEVICE SELF-TEST OPTIONS  *********************************\n");
+  printf("==============  DEVICE SELF-TEST OPTIONS  =================================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -t TEST, --test=TEST\n\
@@ -177,7 +177,7 @@ void Usage (void){
   -X        Abort any non-captive test                                \n\
 ");
 #endif
-  printf("**************  SMARTCTL EXAMPLES  ****************************************\n");
+  printf("==============  SMARTCTL EXAMPLES  ========================================\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   smartctl -a /dev/hda                 (Prints all SMART information)\n\
