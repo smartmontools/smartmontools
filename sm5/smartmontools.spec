@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.70 2002/11/21 14:11:20 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.71 2002/11/22 13:37:42 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,27 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Fri Nov 22 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- Allen: smartd: added smartd.conf Directives -T and -s.  The -T Directive
+  enables/disables Automatic Offline Testing.  The -s Directive
+  enables/disables Attribute Autosave. Documentation and
+  example configuration file updated to agree.
+- Allen: smartd: user can make smartd check the disks at any time
+  (ie, interrupt sleep) by sending signal SIGUSR1 to smartd.  This
+  can be done for example with:
+  kill -USR1 <pid>
+  where <pid> is the process ID number of smartd.
+- Bolso: scsi: don't trust the data we receive from the drive too
+  much. It very well might have errors (like zero response length).
+  Seen on Megaraid logical drive, and verified in the driver source.
+- Allen: smartd: added Directive -m for sending test email and
+  for modifying email reminder behavior.  Updated manual, and sample
+  configuration file to illustrate & explain this.
+- Allen: smartd: increased size of a continued smartd.conf line to
+  1023 characters.
+- Allen: Simplified Directive parsers and improved warning/error
+  messages.
+
 * Sun Nov 17 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - Fixed bug in smartd where testunitready logic inverted
   prevented functioning on scsi devices.
