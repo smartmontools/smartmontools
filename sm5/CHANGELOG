@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.440 2004/07/31 17:12:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.441 2004/08/02 09:16:22 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Fixed bug in Windows smartd: Missing close of config file when
+       configuration is reloaded by smartd daemon.
 
   [CF] Windows smartd: Added mail warning feature using the "Blat"
        (http://blat.sourceforge.net/) mailer as a default.

@@ -106,7 +106,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.327 2004/07/31 19:18:54 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.328 2004/08/02 09:16:22 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -116,7 +116,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.327 2004/07/31 19:18:54 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.328 2004/08/02 09:16:22 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -534,7 +534,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 #ifndef _WIN32
   FILE *pfp=NULL;
 #else
-  char stdinbuf[1024], stdoutbuf[1024]; int boxmsgoffs, boxtype;
+  char stdinbuf[1024]; int boxmsgoffs, boxtype;
 #endif
   char *newadd=NULL, *newwarn=NULL;
   const char *unknown="[Unknown]";
@@ -843,6 +843,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     PrintOut(LOG_INFO,"%s message box\n", newwarn);
   }
   if (command[0]) {
+    char stdoutbuf[800]; // < buffer in syslog_win32::vsyslog()
     int rc;
     // run command
     PrintOut(LOG_INFO,"%s %s to %s ...\n",
@@ -988,7 +989,7 @@ void DaemonInit(){
     PrintOut(LOG_CRIT,"smartd unable to detach from console!\n");
     EXIT(EXIT_STARTUP);
   }
-  //PrintOut(LOG_INFO, "smartd has been detached from console.\n");
+  // stdin/out/err now closed if not redirected
 
 #endif // _WIN32
   return;
@@ -3109,9 +3110,10 @@ int ParseConfigLine(int entry, int lineno,char *line){
 }
 
 // clean up utility for ParseConfigFile()
-void cleanup(FILE **fpp){
+void cleanup(FILE **fpp, int is_stdin){
   if (*fpp){
-    if (*fpp != stdin)
+    // (*fpp != stdin) does not work here if stdin has been closed & reopened
+    if (!is_stdin)
       fclose(*fpp);
     *fpp=NULL;
   }
@@ -3137,8 +3139,10 @@ int ParseConfigFile(){
   char line[MAXLINELEN+2];
   char fullline[MAXCONTLINE+1];
 
+  int is_stdin = (configfile == configfile_stdin); // pointer comparison ok here
+
   // Open config file, if it exists and is not <stdin>
-  if (configfile != configfile_stdin) {
+  if (!is_stdin) {
     fp=fopen(configfile,"r");
     if (fp==NULL && (errno!=ENOENT || configfile_alt)) {
       // file exists but we can't read it or it should exist due to '-c' option
@@ -3190,12 +3194,12 @@ int ParseConfigFile(){
         scandevice=ParseConfigLine(entry,contlineno,fullline);
         // See if we found a SCANDIRECTIVE directive
         if (scandevice==-1) {
-          cleanup(&fp);
+          cleanup(&fp, is_stdin);
           return 0;
         }
         // did we find a syntax error
         if (scandevice==-2) {
-          cleanup(&fp);
+          cleanup(&fp, is_stdin);
           return -1;
         }
         // the final line is part of a continuation line
@@ -3218,7 +3222,7 @@ int ParseConfigFile(){
         warn="";
       PrintOut(LOG_CRIT,"Error: line %d of file %s %sis more than MAXLINELEN=%d characters.\n",
                (int)contlineno,configfile,warn,(int)MAXLINELEN);
-      cleanup(&fp);
+      cleanup(&fp, is_stdin);
       return -1;
     }
 
@@ -3232,7 +3236,7 @@ int ParseConfigFile(){
     if (cont+len>MAXCONTLINE){
       PrintOut(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than MAXCONTLINE=%d characters.\n",
                lineno, (int)contlineno, configfile, (int)MAXCONTLINE);
-      cleanup(&fp);
+      cleanup(&fp, is_stdin);
       return -1;
     }
     
@@ -3251,12 +3255,12 @@ int ParseConfigFile(){
 
     // did we find a scandevice directive?
     if (scandevice==-1) {
-      cleanup(&fp);
+      cleanup(&fp, is_stdin);
       return 0;
     }
     // did we find a syntax error
     if (scandevice==-2) {
-      cleanup(&fp);
+      cleanup(&fp, is_stdin);
       return -1;
     }
 
@@ -3264,7 +3268,7 @@ int ParseConfigFile(){
     lineno++;
     cont=0;
   }
-  cleanup(&fp);
+  cleanup(&fp, is_stdin);
   
   // note -- may be zero if syntax of file OK, but no valid entries!
   return entry;
