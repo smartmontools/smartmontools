@@ -96,7 +96,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.298 2004/03/24 22:37:38 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.299 2004/03/26 19:30:57 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -107,7 +107,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.298 2004/03/24 22:37:38 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.299 2004/03/26 19:30:57 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -736,6 +736,11 @@ void pout(char *fmt, ...){
   va_start(ap,fmt);
   // in debug==1 mode we will print the output from the ataprint.o functions!
   if (debugmode && debugmode!=2)
+#ifdef _WIN32
+   if (facility == LOG_LOCAL1) // logging to stdout
+    vfprintf(stderr,fmt,ap);
+   else   
+#endif
     vprintf(fmt,ap);
   // in debug==2 mode we print output from knowndrives.o functions
   else if (debugmode==2 || con->reportataioctl || con->reportscsiioctl || con->escalade) {
@@ -758,6 +763,11 @@ void PrintOut(int priority,char *fmt, ...){
   // initialize variable argument list 
   va_start(ap,fmt);
   if (debugmode) 
+#ifdef _WIN32
+   if (facility == LOG_LOCAL1) // logging to stdout
+    vfprintf(stderr,fmt,ap);
+   else   
+#endif
     vprintf(fmt,ap);
   else {
     openlog("smartd", LOG_PID, facility);
@@ -948,7 +958,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 or daemon [default]\n\n");
 #else
 #ifdef _WIN32
-  PrintOut(LOG_INFO,"        Log to file \"./smartd.log\", \"./smartd[1-7].log\" [default is event log]\n\n");
+  PrintOut(LOG_INFO,"        Log to \"./smartd.log\", stdout, stderr [default is event log]\n\n");
 #else
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 (ignored on Cygwin)\n\n");
 #endif

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.383 2004/03/26 14:22:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.384 2004/03/26 19:30:57 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Win32 smartd: Added ability to log to stdout/stderr
+       (-l local1/2). Toggling debug console still works
+       if stdout is redirected.
 
   [BA] smartctl: selective self-test log, print current status
        in a  more detailed way.  Allow writing of selective self-test

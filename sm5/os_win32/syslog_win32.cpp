@@ -20,8 +20,8 @@
 // Writes to windows event log on NT4/2000/XP
 // (Register syslogevt.exe as event message file)
 // Writes to file "<ident>.log" on 9x/ME.
-// If faility is set to LOG_LOCAL[0-7], log is written to
-// file "<ident>.log", "<ident>[1-7].log".
+// If facility is set to LOG_LOCAL[0-7], log is written to
+// file "<ident>.log", stdout, stderr, "<ident>[1-5].log".
 
 
 #include <stdio.h>
@@ -30,7 +30,7 @@
 
 #include "syslog.h"
 
-const char *syslog_win32_c_cvsid = "$Id: syslog_win32.cpp,v 1.2 2004/03/24 21:08:44 chrfranke Exp $"
+const char *syslog_win32_c_cvsid = "$Id: syslog_win32.cpp,v 1.3 2004/03/26 19:30:58 chrfranke Exp $"
 SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER
@@ -57,6 +57,7 @@ SYSLOG_H_CVSID;
 
 static char sl_ident[100];
 static char sl_logpath[sizeof(sl_ident) + sizeof("0.log")-1];
+static FILE * sl_logfile;
 static HANDLE sl_hevtsrc;
 
 
@@ -64,18 +65,20 @@ void openlog(const char *ident, int logopt, int facility)
 {
 	strncpy(sl_ident, ident, sizeof(sl_ident)-1);
 
-	if (sl_logpath[0] || sl_hevtsrc)
+	if (sl_logpath[0] || sl_logfile || sl_hevtsrc)
 		return; // Already open
 
-	if (LOG_LOCAL0 <= facility && facility <= LOG_LOCAL7) {
-		// Use logfile
-		if (facility == LOG_LOCAL0) // "ident.log"
-			strcat(strcpy(sl_logpath, sl_ident), ".log");
-		else // "ident[1-7].log"
-			snprintf(sl_logpath, sizeof(sl_logpath)-1, "%s%d.log",
-				sl_ident, LOG_FAC(facility)-LOG_FAC(LOG_LOCAL0));
+	if (facility == LOG_LOCAL0) // "ident.log"
+		strcat(strcpy(sl_logpath, sl_ident), ".log");
+	else if (facility == LOG_LOCAL1) // stdout
+		sl_logfile = stdout;
+	else if (facility == LOG_LOCAL2) // stderr
+		sl_logfile = stderr;
+	else if (LOG_LOCAL2 < facility && facility <= LOG_LOCAL7) { // "ident[1-5].log"
+		snprintf(sl_logpath, sizeof(sl_logpath)-1, "%s%d.log",
+			sl_ident, LOG_FAC(facility)-LOG_FAC(LOG_LOCAL2));
 	}
-	else // Assume LOG_DAEMON, use event log if possible
+	else // Assume LOG_DAEMON, use event log if possible, else "ident.log"
 	if (!(sl_hevtsrc = RegisterEventSourceA(NULL/*localhost*/, sl_ident))) {
 		// Cannot open => Use logfile
 		long err = GetLastError();
@@ -87,7 +90,7 @@ void openlog(const char *ident, int logopt, int facility)
 			fprintf(stderr, "%s: Cannot register event source (Error=%ld), writing to %s\n",
 				sl_ident, err, sl_logpath);
 	}
-	//assert(sl_logpath[0] || sl_hevtsrc);
+	//assert(sl_logpath[0] || sl_logfile || sl_hevtsrc);
 
 	// logopt==LOG_PID assumed
 	ARGUSED(logopt);
@@ -134,9 +137,9 @@ static const char * pri2text(int priority)
 		case LOG_CRIT:    return "CRIT ";
 		default:
 		case LOG_ERR:     return "ERROR";
-		case LOG_WARNING: return "Warn ";
-		case LOG_NOTICE:  return "Note ";
-		case LOG_INFO:    return "Info ";
+		case LOG_WARNING: return "Warn";
+		case LOG_NOTICE:  return "Note";
+		case LOG_INFO:    return "Info";
 		case LOG_DEBUG:   return "Debug";
 	}
 }
@@ -168,7 +171,7 @@ static int format_msg(char * buffer, int bufsiz, int logfmt,
 	len += n;
 	// Append pri
 	if (logfmt) {
-		n = snprintf(buffer+len, bufsiz-1-len-20, "%s: ", pri2text(priority));
+		n = snprintf(buffer+len, bufsiz-1-len-20, "%-5s: ", pri2text(priority));
 		if (n < 0)
 			return -1;
 		len += n;
@@ -211,7 +214,12 @@ void vsyslog(int priority, const char * message, va_list args)
 			1   , 0,              // 1 string, ...
 			msgs, NULL);          // ...     , no data
 	}
-	else {
+	else if (sl_logfile) {
+		// Write to stdout/err
+		fputs(buffer, sl_logfile);
+		fflush(sl_logfile);
+	}
+	else if (sl_logpath[0]) {
 		// Append to logfile
 		FILE * f;
 		if (!(f = fopen(sl_logpath, "a")))
