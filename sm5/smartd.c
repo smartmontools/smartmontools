@@ -28,6 +28,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/types.h>  // umask
+#include <sys/stat.h>   // umask
 #endif
 #include <fcntl.h>
 #include <string.h>
@@ -89,7 +91,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.291 2004/03/13 22:31:10 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.292 2004/03/15 19:47:22 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -99,7 +101,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.291 2004/03/13 22:31:10 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.292 2004/03/15 19:47:22 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
