@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.85 2003/08/13 12:33:23 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.86 2003/08/15 19:32:43 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -160,7 +160,7 @@ void Usage (void){
 "  -A, --attributes                                                    (ATA)\n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
-"        Show device log. Type is one of: error, selftest\n\n"
+"        Show device log. Type is one of: error, selftest, directory\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -171,12 +171,12 @@ void Usage (void){
 #else
   printf(
 "  -H        Show device SMART health status\n"
-"  -c        Show device SMART capabilities                            (ATA)\n"
-"  -A        Show device SMART vendor-specific Attributes and values   (ATA)\n"
-"  -l TYPE   Show device log. Type is one of: error, selftest\n"
-"  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n"
-"  -F TYPE   Use firmware bug workaround. Type is one of: none, samsung(ATA)\n"
-"  -P TYPE   Drive-specific presets: use, ignore, show, showall        (ATA)\n\n"
+"  -c        Show device SMART capabilities                             (ATA)\n"
+"  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
+"  -l TYPE   Show device log. Type is one of: error, selftest, directory\n"
+"  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
+"  -F TYPE   Use firmware bug workaround. Type is one of: none, samsung (ATA)\n"
+"  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n\n"
   );
 #endif
   printf("============================================ DEVICE SELF-TEST OPTIONS =====\n\n");

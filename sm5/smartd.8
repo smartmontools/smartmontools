@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.107 2003/08/15 16:58:02 ballen4705 Exp $
+\# $Id: smartd.8,v 1.108 2003/08/15 19:32:43 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/15 16:58:02 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/08/15 19:32:43 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -493,16 +493,12 @@ Directive is used, then the corresponding disk is addressed using
 native ATA commands which are \'passed through\' the SCSI driver. All
 ATA Directives listed in this man page may be used.
 
-Note that the stock 3w-xxxx drivers do not pass the \'Enable
-Autosave\' (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o
-on\fP) commands to the disk, and produce these harmless syslog error
-messages instead:
-.fi
-3w-xxxx: tw_ioctl(): Passthru size (123392) too big.
-.fi
-3w-xxxx: tw_ioctl(): Passthru size (126976) too big.
-.fi
-This can be fixed by patching the 3w-xxxx driver.  See
+Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
+(\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
+to the disk, and produce these types of harmless syslog error messages
+instead: \fB\'3w-xxxx: tw_ioctl(): Passthru size (123392) too big\'\fP. This
+can be fixed by upgrading to version 1.02.00.037 or later of the
+3w-xxxx driver, or by applying a patch to older versions. See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 
 .I removable
@@ -1347,4 +1343,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.107 2003/08/15 16:58:02 ballen4705 Exp $
+$Id: smartd.8,v 1.108 2003/08/15 19:32:43 ballen4705 Exp $
