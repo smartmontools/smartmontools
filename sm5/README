@@ -2,7 +2,7 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
-$Id: README,v 1.48 2003/10/03 14:01:47 ballen4705 Exp $
+$Id: README,v 1.49 2004/01/02 16:05:24 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -18,7 +18,7 @@ You will find a mailing list for support and other questions at:
 
 
 == COPYING ==
-Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free

@@ -1,7 +1,7 @@
 .ig
- Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.18 2003/12/08 23:07:15 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.19 2004/01/02 16:05:25 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1005,4 +1005,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.18 2003/12/08 23:07:15 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.19 2004/01/02 16:05:25 ballen4705 Exp $

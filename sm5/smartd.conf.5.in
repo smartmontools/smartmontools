@@ -1,7 +1,7 @@
 .ig
-Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.26 2003/12/30 18:55:56 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.27 2004/01/02 16:05:25 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1053,4 +1053,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.26 2003/12/30 18:55:56 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.27 2004/01/02 16:05:25 ballen4705 Exp $

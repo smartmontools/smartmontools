@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-4 Doug Gilbert <dougg@torque.net>
  *
  *  Parts of this file are derived from code that was
  *
@@ -69,7 +69,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.40 2003/12/16 20:09:16 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.41 2004/01/02 16:05:25 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine

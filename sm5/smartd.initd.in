@@ -1,8 +1,8 @@
 #! @SHELL@
 
 # smartmontools init file for smartd
-# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.18 2003/12/30 11:58:45 ballen4705 Exp $
+# Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# $Id: smartd.initd.in,v 1.19 2004/01/02 16:05:25 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40

@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-4 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.16 2003/11/16 16:59:23 ballen4705 Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.17 2004/01/02 16:05:25 ballen4705 Exp $\n"
 
 // MACROS to control printing behavior (from ataprint.h)
 #define QUIETON(control)  {if (control->quietmode) control->veryquietmode=0;}
