@@ -20,17 +20,16 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.7 2004/08/30 06:19:31 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.8 2004/09/07 22:10:44 shattered Exp $\n"
 
 #ifndef CONFIG_H_CVSID
-// need HAVE_STDINT_H, HAVE_INTTYPES_H
 #include "config.h"
 #endif
 
 // 64 bit integer typedefs
 
-#ifdef HAVE_SYS_INT_TYPES_H
-#include <sys/int_types.h>
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
 #else
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
@@ -38,31 +37,27 @@
 #ifdef HAVE_SYS_INTTYPES_H
 #include <sys/inttypes.h>
 #else
+#ifdef HAVE_SYS_INT_TYPES_H
+#include <sys/int_types.h>
+#else
 #if defined(_WIN32) && defined(_MSC_VER)
 // for MSVC 6.0
 typedef          __int64    int64_t;
 typedef unsigned __int64   uint64_t;
-#else
-// default is GCC style
-typedef          long long  int64_t;
-typedef unsigned long long uint64_t;
 #endif // _WIN32 && _MSC_VER
+#endif // HAVE_SYS_INT_TYPES_H
 #endif // HAVE_SYS_INTTYPES_H
 #endif // HAVE_STDINT_H
-#endif // HAVE_SYS_INT_TYPES_H
+#endif // HAVE_INTTYPES_H
 
 // 64 bit integer format strings
 
-#ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
-#else
 #if defined(_WIN32) && defined(_MSC_VER)
 // for MSVC 6.0
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
 #define PRIx64 "I64x"
 #endif // _WIN32 && _MSC_VER
-#endif // HAVE_INTTYPES_H
 
 // If macros not defined in inttypes.h, fix here.  Default is GCC
 // style

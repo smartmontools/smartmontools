@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.100 2004/09/06 21:45:09 ballen4705 Exp $
+# $Id: configure.in,v 1.101 2004/09/07 22:10:44 shattered Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.100 2004/09/06 21:45:09 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.101 2004/09/07 22:10:44 shattered Exp $'`
 smartmontools_release_date=2004/09/06
 smartmontools_release_time="21:44:17 UTC"
 
@@ -47,10 +47,12 @@ AC_SEARCH_LIBS(gethostbyname, nsl, , AC_SEARCH_LIBS(gethostbyname, nsl, , , -lso
 dnl Checks for header files.
 AC_CHECK_HEADER([getopt.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
-AC_CHECK_HEADERS([sys/int_types.h])
-AC_CHECK_HEADERS([inttypes.h])
-AC_CHECK_HEADERS([sys/inttypes.h])
 AC_CHECK_HEADERS([netdb.h])
+dnl we need [u]int64_t and friends.
+AC_CHECK_HEADERS([inttypes.h])		dnl C99, UNIX98, solaris 2.6+
+AC_CHECK_HEADERS([stdint.h])		dnl C99
+AC_CHECK_HEADERS([sys/inttypes.h])	dnl pre-UNIX98
+AC_CHECK_HEADERS([sys/int_types.h])	dnl pre-UNIX98, solaris 2.6+
 dnl Check for FreeBSD twe include files...currently missing on 5.2, but should be there
 AC_CHECK_HEADERS([sys/tweio.h])
 AC_CHECK_HEADERS([sys/twereg.h])
