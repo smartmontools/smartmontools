@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.49 2004/05/27 17:19:39 card_captor Exp $
+$Id: INSTALL,v 1.50 2004/07/17 23:18:59 geoffk1 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -122,6 +122,24 @@ Table of contents:
 
     SCSI devices are supported on all versions of Windows. An installed
     ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
+
+    G) MacOS/Darwin
+
+    The code was tested on MacOS 10.3.4.  It should work from 10.3
+    forwards.  It doesn't support 10.2.
+
+    There's an important limitation (see WARNINGS); due to bugs in
+    the libraries used, you cannot run a short test or switch SMART
+    support off on a drive; if you try, you will just run an extended
+    test or switch SMART support on.  So don't panic when your "short"
+    test seems to be taking hours.
+
+    It's also not possible at present to control when the offline
+    routine runs. If your drive doesn't have it running automatically by
+    default, you can't run it at all.
+
+    SCSI devices are not currently supported.  Detecting the power
+    status of a drive is also not currently supported.
 
 [2] Installing from CVS
 =======================

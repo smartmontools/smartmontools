@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.29 2004/07/16 05:55:00 ballen4705 Exp $
+$Id: WARNINGS,v 1.30 2004/07/17 23:19:00 geoffk1 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -114,12 +114,10 @@ NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support
 DARWIN
 ------
 
-SYSTEM:   Any system before at least 7H63
+SYSTEM:   Any system up to at least 7H63
 PROBLEM:  Can't switch off SMART, can't switch off auto-save, can't run
 	  short tests.
 REPORTER: Geoff Keating <geoffk@geoffk.org>
 NOTE:	  There's a bug in the system library: when you ask it to
 	  do any of these things, it does the inverse (switches on,
- 	  runs extended tests).  Radar 3727283.  Geoff can you provide
-          a URL for the bug report(s)?  You should also (perhaps) update
-          the INSTALL file.
+ 	  runs extended tests).  Radar 3727283.
