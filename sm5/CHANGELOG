@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.484 2004/10/13 20:18:03 chrfranke Exp $
+$Id: CHANGELOG,v 1.485 2004/10/15 07:57:22 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -32,7 +32,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
   [CF] Windows: Added function get_os_version_str() to show OS flavor in
-       smartctl output.
+       copyright message.
 
   [CF] Windows: Added function ata_identify_is_cached() to check for outdated
        SMART enabled bit in identify data.
