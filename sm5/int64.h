@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.10 2004/09/15 10:28:30 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.11 2004/12/01 15:10:43 chrfranke Exp $\n"
 
 // 64 bit integer typedefs
 
@@ -40,6 +40,16 @@
 // for MSVC 6.0
 typedef          __int64    int64_t;
 typedef unsigned __int64   uint64_t;
+#else
+// for systems with above includes missing (like ix86-pc-linux-gnulibc1),
+// default to GCC if types are undefined in types.h
+#include <sys/types.h>
+#ifndef HAVE_INT64_T
+typedef          long long  int64_t;
+#endif
+#ifndef HAVE_UINT64_T
+typedef unsigned long long uint64_t;
+#endif
 #endif // _WIN32 && _MSC_VER
 #endif // HAVE_SYS_INT_TYPES_H
 #endif // HAVE_SYS_INTTYPES_H
