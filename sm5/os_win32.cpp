@@ -36,7 +36,7 @@ extern smartmonctrl * con; // con->permissive
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.2 2004/02/25 13:44:13 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.3 2004/02/25 13:50:45 chrfranke Exp $" \
 ATACMDS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 
@@ -131,6 +131,28 @@ int deviceclose(int fd)
 		aspi_close(fd);
 	}
 	return 0;
+}
+
+
+// print examples for smartctl
+void print_smartctl_examples(){
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+#ifdef HAVE_GETOPT_LONG
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "                                              (Enables SMART on first disk)\n\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+#else
+         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+#endif
+         "  smartctl -a /dev/scsi21\n"
+         "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
+  );
 }
 
 
@@ -262,7 +284,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 		inpar.cBufferSize = size_out = 512;
 		code = SMART_RCV_DRIVE_DATA;
 	}
-	else if (regs->bFeaturesReg == SMART_STATUS) {
+	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
 		size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
 		code = SMART_SEND_DRIVE_COMMAND;
 	}
@@ -307,7 +329,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
 	if (datasize)
 		memcpy(data, outpar->bBuffer, 512);
-	else if (regs->bFeaturesReg == SMART_STATUS) {
+	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
 		*regs = *(const IDEREGS *)(outpar->bBuffer);
 #ifdef _DEBUG
 		print_ide_regs(regs, 1);
@@ -497,61 +519,61 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 	// CMD,CYL default to SMART, changed by P?IDENTIFY
 	memset(&regs, 0, sizeof(regs));
-	regs.bCommandReg = WIN_SMART;
+	regs.bCommandReg = ATA_SMART_CMD;
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
 	copydata = 0;
 
 	switch (command) {
 	  case READ_VALUES:
-		regs.bFeaturesReg = SMART_READ_VALUES;
+		regs.bFeaturesReg = ATA_SMART_READ_VALUES;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
 		copydata = 1;
 		break;
 	  case READ_THRESHOLDS:
-		regs.bFeaturesReg = SMART_READ_THRESHOLDS;
+		regs.bFeaturesReg = ATA_SMART_READ_THRESHOLDS;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
 		copydata = 1;
 		break;
 	  case READ_LOG:
-		regs.bFeaturesReg = SMART_READ_LOG_SECTOR;
+		regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
 		copydata = 1;
 		break;
 	  case IDENTIFY:
-		regs.bCommandReg = WIN_IDENTIFY;
+		regs.bCommandReg = ATA_IDENTIFY_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
 		copydata = 1;
 		break;
 	  case PIDENTIFY:
-		regs.bCommandReg = WIN_PIDENTIFY;
+		regs.bCommandReg = ATA_IDENTIFY_PACKET_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
 		copydata = 1;
 		break;
 	  case ENABLE:
-		regs.bFeaturesReg = SMART_ENABLE;
+		regs.bFeaturesReg = ATA_SMART_ENABLE;
 		regs.bSectorNumberReg = 1;
 		break;
 	  case DISABLE:
-		regs.bFeaturesReg = SMART_DISABLE;
+		regs.bFeaturesReg = ATA_SMART_DISABLE;
 		regs.bSectorNumberReg = 1;
 		break;
 	  case STATUS:
 	  case STATUS_CHECK:
-		regs.bFeaturesReg = SMART_STATUS;
+		regs.bFeaturesReg = ATA_SMART_STATUS;
 		break;
 	  case AUTO_OFFLINE:
-		regs.bFeaturesReg = SMART_AUTO_OFFLINE;
+		regs.bFeaturesReg = ATA_SMART_AUTO_OFFLINE;
 		regs.bSectorCountReg = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
 		break;
 	  case AUTOSAVE:
-		regs.bFeaturesReg = SMART_AUTOSAVE;
+		regs.bFeaturesReg = ATA_SMART_AUTOSAVE;
 		regs.bSectorCountReg = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
 		break;
 	  case IMMEDIATE_OFFLINE:
-		regs.bFeaturesReg = SMART_IMMEDIATE_OFFLINE;
+		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
 		break;
 	  default:
@@ -582,7 +604,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 		// We haven't gotten output that makes sense; print out some debugging info
 		syserror("Error SMART Status command failed");
-		pout("Please get assistance from %s\n",PROJECTHOME);
+		pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
 		print_ide_regs(&regs, 1);
 		errno = EIO;
 		return -1;
