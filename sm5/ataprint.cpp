@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.111 2003/10/27 20:48:46 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.112 2003/10/27 20:59:04 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -120,7 +120,7 @@ void printswap(char *output, char *in, unsigned int n){
  * to produce errors).  If many more are to be added then this function
  * should probably be redesigned.
  */
-const char *construct_st_er_desc(unsigned char CR, unsigned char FR,
+char *construct_st_er_desc(unsigned char CR, unsigned char FR,
                                  unsigned char ST, unsigned char ER)
 {
   char *s;

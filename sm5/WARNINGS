@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.16 2003/10/17 13:51:20 ballen4705 Exp $
+$Id: WARNINGS,v 1.17 2003/10/27 20:59:04 ballen4705 Exp $
 
 The following are reports of serious problems (eg system lockup) which
 were due to smartmontools.  There is a "LINUX" and a "FREEBSD" section
@@ -11,6 +11,16 @@ You may also wish to search the linux.kernel mailing list for problem
 reports concerning smartmontools.  Here is the URL:
 http://groups.google.com/groups?as_q=smartmontools&safe=images&ie=UTF-8&oe=UTF-8&as_ugroup=linux.kernel&lr=&num=100&hl=en
 
+SYSTEM:   Any system with USB ports and USB storage devices
+PROBOEM:  Using smartd/smartctl on USB "SCSI" storage devices can cause kernel hang
+REPORTER: see link below
+LINK:     https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=107615
+NOTE:     USB storage devices are handled as SCSI devices by the kernel. But many of these
+          devices do not comply with SCSI specs, and can cause the kernel to hang.
+          Avoid using smartd/smartctl on these devices (they don't do SMART anyway).
+          In particular, the use of smartd DEVICESCAN in /etc/smartd.conf can cause
+          these devices (typically represented by /dev/sda or /dev/sdb) to hang, and
+          the kernel to lock up.
 
 SYSTEM:   Intel 875WP1-E motherboard with SATA drives on motherboard's SATA ports
 PROBLEM:  smartd makes NTP time drift

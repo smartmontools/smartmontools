@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.136 2003/10/19 05:55:02 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.137 2003/10/27 20:59:05 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -297,6 +297,7 @@ fi
 # [EB] Erik Inge Bolsø
 # [SB] Stanislav Brabec
 # [PC] Peter Cassidy
+# [CD] Capser Dik
 # [DK] David Kirkby
 # [DG] Douglas Gilbert
 # [GG] Guido Guenther
@@ -305,11 +306,48 @@ fi
 # [PW] Phil Williams
 
 %changelog
-* Fri Oct 17 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-  [GG] add a note about Debian bug #208964 to WARNINGS.
-  [BA] smartctl: -T verypermissive option broken.  Use
+* Mon Oct 27 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [PW] Added Fujitsu MHM2200AT to knowndrives table.
+- [BA] To help catch bugs, clear ATA error structures before all
+       ioctl calls.  Disable code that attempted to time-out on SCSI
+       devices when they hung (doesn't work).
+- [BA] Documented STATUS/ERROR flags added by [PW] below.
+- [BA] Improved algorithm to recognize ATA packet devices. Should
+       no longer generate SYSLOG kernel noise when user tries either
+       smartd or smartctl on packet device (CD-ROM or DVD).  Clearer
+       warning messages from smartd when scanning ATA packet device.
+- [PW] Added TOSHIBA MK4025GAS to knowndrives table.
+- [PW] Added a textual interpretation of the status and error registers
+       in the SMART error log (ATA).  The interpretation is
+       command-dependent and currently only eight commands are supported
+       (those which produced errors in the error logs that I happen to
+       have seen).
+- [BA] added memory allocation tracking to solaris code.
+       Fixed solaris signal handling (reset handler to default
+       after first call to handler) by using sigset. Added
+       HAVE_SIGSET to configure.in
+- [CD] solaris port: added SCSI functionality to solaris
+       stubs.
+- [BA] smartd: attempt to address bug report about smartd
+       hanging on USB devices when scanning:
+       https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=107615
+       Set a timeout of SCSITIMEOUT (nominally 7 seconds) before
+       giving up.
+- [EM] smartd: DEVICESCAN will follow links in a devfs filesystem and
+       make sure the end point is a disc.  Update documentation, added
+       note about FreeBSD scanning
+- [BA] smartd: DEVICESCAN also looks for block devices in
+       /dev.  Updated documentation.  Now scans for up to
+       20 ATA devices /dev/hda-t rather than previous 12
+       /dev/hda-l.
+- [EM] smartd: mirror the FreeBSD DEVICESCAN logic for Linux,
+       so that smartd now scans only devices found in /dev/. Also,
+       make utility memory functions take a line number and file so
+       that we report errors with the correct location.
+- [GG] add a note about Debian bug #208964 to WARNINGS.
+- [BA] smartctl: -T verypermissive option broken.  Use
        -T verpermissive until the next release, please.
-  [BA] Syntax mods so that code also compiles on Solaris using
+- [BA] Syntax mods so that code also compiles on Solaris using
        Sun Workshop compiler.  Need -xmemalign 1i -xCC flags
        for cc.
 
