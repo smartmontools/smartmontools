@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.53 2004/04/07 20:55:46 chrfranke Exp $
+$Id: smartd.8.in,v 1.54 2004/04/07 21:49:31 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -115,17 +115,19 @@ Long options are not supported on all systems.  Use \fB\'smartd
 \-h\'\fP to see the available options.
 .TP
 .B \-c FILE, \-\-configfile=FILE
-Use FILE instead of \fB/etc/smartd.conf\fP to read the configuration
-directives. If the FILE does not exist, \fBsmartd\fP will print an
-error message and exit. Therefore, '-c /etc/smartd.conf' can be
-used to enforce the existence of the default configuration file.
 
-By specifying '-' as FILE, the configuration is read from standard
+Read \fBsmartd\fP configuration Directives from FILE, instead of from
+the default location \fB/etc/smartd.conf\fP.  If FILE does \fBnot\fP
+exist, then \fBsmartd\fP will print an error message and exit with
+nonzero status.  Thus, \'\-c /etc/smartd.conf\' can be used to verify
+the existence of the default configuration file.
+
+By using \'\-\' for FILE, the configuration is read from standard
 input. This is useful for commands like:
 .nf
-.B echo /dev/hdb -m user@home -M test | smartd -c - -q onecheck
+.B echo /dev/hdb \-m user@home \-M test | smartd \-c \- \-q onecheck
 .fi
-to perform ad hoc checks without a configuration file.
+to perform quick and simple checks without a configuration file.
 
 .TP
 .B \-d, \-\-debug
@@ -1602,4 +1604,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.53 2004/04/07 20:55:46 chrfranke Exp $
+$Id: smartd.8.in,v 1.54 2004/04/07 21:49:31 ballen4705 Exp $
