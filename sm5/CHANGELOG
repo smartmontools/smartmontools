@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.173 2003/08/10 05:51:17 ballen4705 Exp $
+$Id: CHANGELOG,v 1.174 2003/08/11 14:21:51 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd: finished cleanup.  Now use create/rm functions for
+       cfgentries and dynamic memory allocation almost everywhere.
+       Philosophy: aggresively try and provoke SEGV to help find
+       bad code.
+
+  [BA] Added SAMSUNG SV0412H to knowndrives table.
 
   [BA] smartd: if DEVICESCAN used then knowndrives table might not set
        the -v attributes correctly -- may have been the same for all
