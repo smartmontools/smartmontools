@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.40 2002/12/05 06:13:20 ballen4705 Exp $
+# $Id: Makefile,v 1.41 2003/01/03 07:00:27 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -44,7 +44,7 @@ releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
-pkgname=smartmontools-5.0
+pkgname=smartmontools-5.1
 pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
@@ -101,26 +101,26 @@ install:
 	install -m 644 -o root -g root -D smartctl.8.gz    $(DESTDIR)/usr/share/man/man8/smartctl.8.gz
 	install -m 644 -o root -g root -D smartd.8.gz      $(DESTDIR)/usr/share/man/man8/smartd.8.gz
 	install -m 644 -o root -g root -D smartd.conf.5.gz $(DESTDIR)/usr/share/man/man5/smartd.conf.5.gz
-	install -m 644 -o root -g root -D CHANGELOG        $(DESTDIR)/usr/share/doc/smartmontools-5.0/CHANGELOG
-	install -m 644 -o root -g root -D COPYING          $(DESTDIR)/usr/share/doc/smartmontools-5.0/COPYING
-	install -m 644 -o root -g root -D README           $(DESTDIR)/usr/share/doc/smartmontools-5.0/README
-	install -m 644 -o root -g root -D TODO             $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
-	install -m 644 -o root -g root -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
-	install -m 644 -o root -g root -D WARNINGS         $(DESTDIR)/usr/share/doc/smartmontools-5.0/WARNINGS
-	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
+	install -m 644 -o root -g root -D CHANGELOG        $(DESTDIR)/usr/share/doc/smartmontools-5.1/CHANGELOG
+	install -m 644 -o root -g root -D COPYING          $(DESTDIR)/usr/share/doc/smartmontools-5.1/COPYING
+	install -m 644 -o root -g root -D README           $(DESTDIR)/usr/share/doc/smartmontools-5.1/README
+	install -m 644 -o root -g root -D TODO             $(DESTDIR)/usr/share/doc/smartmontools-5.1/TODO
+	install -m 644 -o root -g root -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.1/VERSION
+	install -m 644 -o root -g root -D WARNINGS         $(DESTDIR)/usr/share/doc/smartmontools-5.1/WARNINGS
+	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.1/smartd.conf
 	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/etc/smartd.conf.example
 	if [ ! -f $(DESTDIR)/etc/smartd.conf ] ; then install -m 644 -o root -g root -D smartd.conf $(DESTDIR)/etc/smartd.conf ; fi
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
-	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0 and /etc/smartd.conf.example/\n\n"
+	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.1 and /etc/smartd.conf.example/\n\n"
 
 # perhaps for consistency I should also have $(DESTDIR) for the uninstall...
 uninstall:
 	rm -f /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8 /usr/sbin/smartctl \
               /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz \
               /usr/share/man/man5/smartd.conf.5.gz /usr/sbin/smartd 
-	rm -rf /usr/share/doc/smartmontools-5.0/
+	rm -rf /usr/share/doc/smartmontools-5.1/
 	if [ -f /var/lock/subsys/smartd -a -f /etc/rc.d/init.d/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
 	if [ -f /etc/rc.d/init.d/smartd ] ; then /sbin/chkconfig --del smartd ; fi
 	if [ -f /etc/rc.d/init.d/smartd ] ; then  rm -f /etc/rc.d/init.d/smartd ; fi
@@ -136,7 +136,7 @@ release: smartd.conf.5
 	cat temp.version temp.spec > smartmontools.spec
 	rm -f temp.spec temp.version
 	. cvs-script && cvs commit -m "release $(counter)"
-	. cvs-script && cvs tag -d "RELEASE_5_0_$(counter)" && cvs tag "RELEASE_5_0_$(counter)"
+	. cvs-script && cvs tag -d "RELEASE_5_1_$(counter)" && cvs tag "RELEASE_5_1_$(counter)"
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)

@@ -26,13 +26,13 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.27 2002/12/19 00:05:19 pjwilliams Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.28 2003/01/03 07:00:27 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
 #define PROJECTHOME "http://smartmontools.sourceforge.net/"
 #define RELEASE_MAJOR 5
-#define RELEASE_MINOR 0
+#define RELEASE_MINOR 1
 
 #include <sys/ioctl.h>
 #include <linux/hdreg.h>
