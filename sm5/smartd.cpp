@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.108 2003/02/06 11:58:30 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.109 2003/02/06 16:33:55 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -376,9 +376,9 @@ void Directives() {
   printout(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
   printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
-  printout(LOG_INFO,"  -a      Equivalent to -H -f -t -l error -l selftest Directives\n");
-  printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
-  printout(LOG_INFO,"   \\    Line continuation character\n");
+  printout(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
+  printout(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
+  printout(LOG_INFO,"   \\      Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
   printout(LOG_INFO,"SCSI devices: only -d, -m, and -M Directives allowed.\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
@@ -1358,28 +1358,20 @@ int parseconfigline(int entry, int lineno,char *line){
     printout(LOG_INFO,"Parsed token %s\n",token);
 #endif
   }
-  // Now we are done parsing tokens.  Time for a basic sanity check --
-  // are any directives enabled?  Note that if tryscsi is set, then we
-  // DON'T need any of the other options turned on. But if the user
-  // has turned off tryscsi, then ATA requires something set.
-  if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail || cfg->usage || 
-	cfg->selftest || cfg->errorlog || cfg->tryscsi)){
-    // If user gave SCANDIRECTIVE but without any monitoring
-    // options.  then set equivalent of -a to enable ALL checking
-    if (devscan==1 && cfg->tryata){
-      cfg->smartcheck=1;
-      cfg->usagefailed=1;
-      cfg->prefail=1;
-      cfg->usage=1;
-      cfg->selftest=1;
-      cfg->errorlog=1;
-    }
-    else {
-      printout(LOG_CRIT,"Drive: %s, no monitoring Directives on line %d of file %s\n",
-	       cfg->name, cfg->lineno, CONFIGFILE);
-      Directives();
-      exit(1);
-    }
+
+  // If no ATA monitoring directives are set, then set all of them.
+  if (cfg->tryata && !(cfg->smartcheck || cfg->usagefailed || cfg->prefail || 
+		       cfg->usage || cfg->selftest || cfg->errorlog)){
+    
+    printout(LOG_INFO,"Drive: %s, implied '-a' Directive on line %d of file %s\n",
+	     cfg->name, cfg->lineno, CONFIGFILE);
+    
+    cfg->smartcheck=1;
+    cfg->usagefailed=1;
+    cfg->prefail=1;
+    cfg->usage=1;
+    cfg->selftest=1;
+    cfg->errorlog=1;
   }
   
   // additional sanity check. Has user set -M options without -m?
@@ -1763,11 +1755,13 @@ int main (int argc, char **argv){
   // install goobye message
   atexit(goobye);
   
-  // if there was no config file, create needed entries
+  // if SCANDEVICE used or there was no /etc/smartd.conf config file,
+  // then create needed entries for scanning
   if (entries<=0){
     int scandirective=entries;
     int doscsi, doata;
-    // confirm that we are doing device scanning
+
+    // Was SCANDEVICE Directive given?
     if (scandirective){
       printout(LOG_INFO,"smartd: Scanning for devices.\n");
       // free up storage used for SCANDIRECTIVE string
@@ -1775,8 +1769,8 @@ int main (int argc, char **argv){
       config->name=NULL;
     }
     else {
-      // since there is no config file, scan for everything
-      printout(LOG_INFO,"smartd: file %s not found. Searching for devices.\n",CONFIGFILE);
+      // No config file given, so scan for both ATA and SCSI devices
+      printout(LOG_INFO,"smartd: file %s not found. Searching for ATA & SCSI devices.\n",CONFIGFILE);
       config->tryata=1;
       config->tryscsi=1;
     }
