@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.58 2003/03/08 15:37:13 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.59 2003/03/08 15:46:52 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -171,12 +171,12 @@ int parse_attribute_def(char *pair, unsigned char *defs){
       defs[j]=253;
     return 0;
   case 5:
-    // print all attributes in raw 8-bit form
+    // print all attributes in raw 16-bit form
     for (j=0; j<256; j++)
       defs[j]=254;
     return 0;
   case 6:
-    // print all attributes in raw 8-bit form
+    // print all attributes in raw 48-bit form
     for (j=0; j<256; j++)
       defs[j]=255;
     return 0;
