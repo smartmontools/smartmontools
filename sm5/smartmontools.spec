@@ -1,15 +1,16 @@
 Release:  30
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
-Summary(es_):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
+Summary(es):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
 Summary(fr):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
+Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
 Version:	5.0
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
-Group(es_):	Aplicaciones/Sistema
+Group(es):	Aplicaciones/Sistema
 Group(fr):	Applications/Système
 Group(pt_NR):	Aplicativos/Sistema
 Source0:	%{name}-%{version}.tar.gz
@@ -26,7 +27,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.45 2002/11/05 02:35:43 pervalidus Exp $
+# $Id: smartmontools.spec,v 1.46 2002/11/05 02:46:16 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -108,11 +109,11 @@ adicional pueden encontrarse en: http://smartmontools.sourceforge.net/
 
 %description -l fr
 SMARTmontools contrôle et fait le suivi de périphériques de stockage
-utilisant le système "Self-Monitoring, Analysis and Reporting
-Technology" (S.M.A.R.T) intégré dans les disques durs ATA et SCSI.  Ce
+utilisant le système Self-Monitoring, Analysis and Reporting
+Technology (S.M.A.R.T) intégré dans les disques durs ATA et SCSI.  Ce
 système est utilisé pour vérifier la fiabilité du disque dur et prédire
 les défaillances du lecteur.  La suite logicielle dérive du paquet
-"smartsuite" et contient deux utilitaires.  Le premier, smartctl,
+smartsuite et contient deux utilitaires.  Le premier, smartctl,
 fonctionne en ligne de commande et permet de réaliser des tâches
 S.M.A.R.T. simples.  Le second, smartd, est un démon qui fait
 périodiquement le suivi du statut smart et transmet les erreurs au
@@ -147,6 +148,11 @@ Este arquivo RPM é compatível com todas as versões do RedHat a partir da
 Linux.  As mais recentes versões deste pacote e informações adicionais
 podem ser encontradas em http://smartmontools.sourceforge.net/
 
+%description -l pl
+Pakiet zawiera dwa programy (smartctl oraz smartd) do kontroli i
+monitorowania systemów przechowywania danych za pomoc± S.M.A.R.T -
+systemu wbudowanego w wiêkszo¶æ nowych dysków ATA oraz SCSI. Pakiet
+pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
 
 # The following sections are executed by the SRPM file
 %prep
