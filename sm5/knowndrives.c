@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.71 2003/12/17 22:48:12 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.72 2003/12/29 23:01:16 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -319,6 +319,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { // Maxtor DiamondMax Plus 60 family
+    "^Maxtor 5T0(60H6|40H4|30H3|20H2|10H1)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { // Maxtor DiamondMax Plus 8 family
     "^Maxtor 6E0[234]0L0$",
     ".*",
@@ -394,6 +401,11 @@ const drivesettings knowndrives[] = {
   },
   { // Seagate Barracuda U Series 20410
     "^ST320410A$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Seagate U Series 5 20413
+    "^ST320413A$",
     ".*",
     NULL, NULL, NULL, NULL,
   },

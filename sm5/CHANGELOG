@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.302 2003/12/29 13:19:25 ballen4705 Exp $
+$Id: CHANGELOG,v 1.303 2003/12/29 23:01:16 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax Plus 60 family and Seagate U Series 5 20413
+       to knowndrives table.
 
   [BA] smartd: under Solaris, made default mailer be 'mailx' not
        'mail', since Solaris 'mail' does not accept a '-s' argument.
