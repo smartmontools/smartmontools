@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.27 2002/12/07 06:23:54 ballen4705 Exp $
+$Id: TODO,v 1.28 2002/12/11 15:41:36 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -38,6 +38,16 @@ manufacturer.  We should either incorporate this into the code, or at
 least provide a command line option that enables attributes 194, 231
 or 9 to be interpreted as Temperature_Celsius.
 http://coredump.free.fr/linux/hddtemp.db
+
+Replace code like this:
+  if (errno<sys_nerr)
+    errormessage=sys_errlist[errno];
+  else
+    errormessage="unrecognized system error";
+with
+    errormessage=strerror(errno);
+
+
 
 smartctl: 
 ---------
