@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.7 2003/10/01 09:10:49 guidog Exp $
+# $Id: configure.in,v 1.8 2003/10/01 09:19:52 guidog Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -41,7 +41,7 @@ if test "$prefix" = "NONE"; then
     AC_SUBST([sysconfdir], ['/etc'])
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
     if test "$mandir" = '${prefix}/man'; then
-    	AC_SUBST([mandir], ['${ac_default_prefix}/share/man'])
+    	AC_SUBST([mandir], ['${prefix}/share/man'])
     fi
 fi
 
