@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.306 2003/12/30 12:32:18 ballen4705 Exp $
+$Id: CHANGELOG,v 1.307 2003/12/30 14:13:55 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Catch up FreeBSD code to switch PROJECTHOME to PACKAGE_HOMEPAGE
+       macros.
 
   [BA] smartd: now watches stdout/stderr when trying to run mail, mailx
        or mail warning script, and reports any output to SYSLOG.  This
