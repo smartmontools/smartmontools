@@ -1,11 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.29 2003/10/13 14:50:44 ballen4705 Exp $
+# $Id: Makefile.am,v 1.30 2003/10/14 09:01:10 guidog Exp $
 #
 
 @SET_MAKE@
 
-AUTOMAKE_OPTIONS = 1.7
+AUTOMAKE_OPTIONS = 1.6
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
