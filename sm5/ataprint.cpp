@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.133 2004/02/14 20:05:09 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.134 2004/02/15 20:48:23 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -106,33 +106,6 @@ void printswap(char *output, char *in, unsigned int n){
     pout("[No Information Found]\n");
 }
 
-/*
- This routine computes Logical Block Address (LBA) making use of the fact that a 28-bit LBA
-has:
-  bits 0-7:   SN
-  bits 8-15:  CL
-  bits 16-23: CH
-  bits 24-27: bits 0-3 of DH
-
-  reg[0] = DH 
-  reg[1] = CH
-  reg[2] = CL
-  reg[3] = SN
-*/
-int compute_lba(unsigned char *reg){
-  int i;
-  int lba = (reg[0] & 0xf);
-
-  for (i=1; i<4; i++) {
-    // left shift 8 bits
-    lba <<= 8;
-    // then mask in lower 8 bits
-    lba |= reg[i];
-  }
-
-  return lba;
-}
-
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
  * Register (ST) and Error Register (ER).  The string is dynamically allocated
@@ -152,27 +125,15 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   unsigned char FR=data->commands[4].featuresreg;
   unsigned char ST=data->error_struct.status;
   unsigned char ER=data->error_struct.error_register;
-  unsigned char SN=data->error_struct.sector_number;
-  unsigned char CL=data->error_struct.cylinder_low;
-  unsigned char CH=data->error_struct.cylinder_high;
-  unsigned char DH=data->error_struct.drive_head;
   char *s;
   char *error_flag[8];
-  int i;
-  int lba=-1;
+  int i, do_lba=0;
 
   /* If for any command the Device Fault flag of the status register is
    * not used then used_device_fault should be set to 0 (in the CR switch
    * below)
    */
   int uses_device_fault = 1;
-  unsigned char reg[4];
-
-  // set up registers needed to compute LBA
-  reg[0]=DH;
-  reg[1]=CH;
-  reg[2]=CL;
-  reg[3]=SN;
 
   /* A value of NULL means that the error flag isn't used */
   for (i = 0; i < 8; i++)
@@ -188,7 +149,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    lba=compute_lba(reg);
+    do_lba=1;
     break;
   case 0x25:  /* READ DMA EXT */
   case 0xC8:  /* READ DMA */
@@ -200,7 +161,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    lba=compute_lba(reg);
+    do_lba=1;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0xC5:  /* WRITE MULTIPLE */
@@ -210,7 +171,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
-    lba=compute_lba(reg);
+    do_lba=1;
     break;
   case 0xA0:  /* PACKET */
     /* Bits 4-7 are all used for sense key (a 'command packet set specific error
@@ -273,7 +234,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    lba=compute_lba(reg);
+    do_lba=1;
     break;
   default:
     return NULL;
@@ -299,12 +260,37 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     for (i = 7; i >= 0; i--)
       if ((ER & (1 << i)) && (error_flag[i])) {
         if (count++ > 0)
-          strcat(s, ", ");
+           strcat(s, ", ");
         strcat(s, error_flag[i]);
       }
   }
-  if (lba>=0) {
+
+  // If the error was a READ or WRITE error, print the Logical Block
+  // Address (LBA) at which the read or write failed.
+  if (do_lba) {
     char tmp[128];
+    unsigned char reg[4];
+    int i,lba=0;
+
+    // set up registers needed to compute LBA:
+    // bits 24-27: bits 0-3 of DH
+    reg[0]=(data->error_struct.drive_head) & (0x0f);
+    // bits 16-23: CH
+    reg[1]=data->error_struct.cylinder_high;   
+    // bits 8-15:  CL
+    reg[2]=data->error_struct.cylinder_low;
+    // bits 0-7:   SN
+    reg[3]=data->error_struct.sector_number;
+    
+    // compute LBA
+    for (i=0; i<4; i++) {
+      // left shift 8 bits
+      lba <<= 8;
+      // then mask in lower 8 bits
+      lba |= reg[i];
+    }
+
+    // print LBA, and append to print string
     snprintf(tmp, 128, " at LBA = 0x%08x = %d", lba, lba);
     strcat(s, tmp);
   }
