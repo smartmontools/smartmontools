@@ -16,12 +16,13 @@
 ; *
 ; */
 ;
-;// $Id: syslogevt.mc,v 1.1 2004/03/15 10:48:28 chrfranke Exp $
+;// $Id: syslogevt.mc,v 1.2 2004/04/07 11:17:08 chrfranke Exp $
 ;
 ;// Use message compiler "mc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin
 ;// from this file.
 ;// MSG_SYSLOG in syslogmsg.h must be zero
+;// MSG_SYSLOG_nn must be == nn
 ;
 ;
 
@@ -31,4 +32,130 @@ Facility=Application
 SymbolicName=MSG_SYSLOG
 Language=English
 %1
+.
+;// 1-10 Line SYSLOG Messages
+;// %1=Ident, %2=PID, %3=Severity, %[4-13]=Line 1-10
+MessageId=0x1
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_01
+Language=English
+%1[%2]:%3: %4
+.
+MessageId=0x2
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_02
+Language=English
+%1[%2]:%3%n
+%4%n
+%5
+.
+MessageId=0x3
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_03
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6
+.
+MessageId=0x4
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_04
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7
+.
+MessageId=0x5
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_05
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8
+.
+MessageId=0x6
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_06
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8%n
+%9
+.
+MessageId=0x7
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_07
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8%n
+%9%n
+%10
+.
+MessageId=0x8
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_08
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8%n
+%9%n
+%10%n
+%11
+.
+MessageId=0x9
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_09
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8%n
+%9%n
+%10%n
+%11%n
+%12
+.
+MessageId=0xa
+Severity=Success
+Facility=Application
+SymbolicName=MSG_SYSLOG_10
+Language=English
+%1[%2]:%3%n
+%4%n
+%5%n
+%6%n
+%7%n
+%8%n
+%9%n
+%10%n
+%11%n
+%12%n
+%13
 .
