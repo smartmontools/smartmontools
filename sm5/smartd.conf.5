@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.51 2003/07/08 13:23:55 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.52 2003/07/24 14:00:35 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/07/08 13:23:55 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/07/24 14:00:35 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -298,7 +298,7 @@ command-line option.]
 Send a warning email to the email address
 .B ADD
 if the '\-H', '\-l', or '\-f' Directives detect a failure or a new
-error, or is a SMART command to the disk fails. This Directive only
+error, or if a SMART command to the disk fails. This Directive only
 works in conjunction with these other Directives (or with the
 equivalent default '\-a' Directive).
 
@@ -308,9 +308,8 @@ the enabled test types, '\-H', '\-l', or '\-f', even if more than one
 failure or error is detected or if the failure or error persists.
 [This behavior can be modified; see the '\-M' Directive below.]
 
-To send email to more than one user, please use the following form for
-the address:
-.B  user1@add1,user2@add2,...,userN@addN
+To send email to more than one user, please use the following "comma
+separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
 (with no spaces).
 
 To test that email is being sent correctly, use the '\-M test'
@@ -367,7 +366,7 @@ previous interval.
 \- send a single test email
 immediately upon
 .B smartd
-startup.  This allows one to verify that any email is correctly delivered.
+startup.  This allows one to verify that email is delivered correctly.
 
 .I exec PATH
 \- run the executable PATH instead of the default mail command, when
@@ -616,7 +615,7 @@ Enabling this option tells
 to evaluate these quantities in byte-reversed order.  Some signs that
 your disk needs this option are (1) no self-test log printed, even
 though you have run self-tests; (2) very large numbers of ATA errors
-reported in the ATA erorr log; (3) strange and impossible values for
+reported in the ATA error log; (3) strange and impossible values for
 the ATA error log timestamps.
 
 [Please see the
@@ -906,4 +905,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.51 2003/07/08 13:23:55 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.52 2003/07/24 14:00:35 ballen4705 Exp $
