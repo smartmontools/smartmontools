@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.74 2004/09/14 03:34:34 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.75 2004/10/13 11:25:08 chrfranke Exp $\n"
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -490,6 +490,11 @@ char *create_vendor_attribute_arg_list(void);
 int ata_command_interface(int device, smart_command_set command, int select, char *data);
 int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
 int marvell_command_interface(int device, smart_command_set command, int select, char *data);
+// Optional functions of os_*.c
+#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
+// Return true if OS caches the ATA identify sector
+int ata_identify_is_cached(int fd);
+#endif
 
 // This function is exported to give low-level capability
 int smartcommandhandler(int device, smart_command_set command, int select, char *data);

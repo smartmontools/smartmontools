@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.160 2004/09/18 17:17:30 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.161 2004/10/13 11:25:08 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1474,9 +1474,17 @@ int ataPrintMain (int fd){
       pout("                  Checking to be sure by trying SMART RETURN STATUS command.\n");
       isenabled=ataDoesSmartWork(fd);
     }
-    else
+    else {
       pout("SMART support is: Available - device has SMART capability.\n");
-    
+#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
+      if (ata_identify_is_cached(fd)) {
+        pout("                  %sabled status cached by OS, trying SMART RETURN STATUS cmd.\n",
+                    (isenabled?"En":"Dis"));
+        isenabled=ataDoesSmartWork(fd);
+      }
+#endif
+    }
+
     if (isenabled)
       pout("SMART support is: Enabled\n");
     else {
