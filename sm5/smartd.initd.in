@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.21 2004/03/05 14:55:14 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.22 2004/04/04 11:43:52 guidog Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -36,6 +36,11 @@
 # Research Center), Jack Baskin School of Engineering, University of
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
 
+# Uncomment the line below to pass options to smartd on startup. 
+# Note that distribution specific configuration files like
+# /etc/{default,sysconfig}/smartmontools might override these
+#smartd_opts="--interval=1800"
+
 report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
     echo "the $1 OS/distribution. If you can provide one or this"
@@ -49,6 +54,9 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
     
 # Source function library
     . /etc/rc.d/init.d/functions
+
+# Source configuration file
+    [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
     
     RETVAL=0
     
@@ -57,7 +65,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
     case "$1" in
 	start)
 	    echo -n $"Starting $prog: "
-	    daemon /usr/sbin/smartd
+	    daemon /usr/sbin/smartd $smartd_opts
 	    touch /var/lock/subsys/smartd
 	    echo
 	    ;;
@@ -99,7 +107,7 @@ elif [ -f /etc/slackware-version ] ; then
     case "$1" in
 	start)
 	    echo -n "Starting smartd: "
-	    smartd
+	    smartd $smartd_opts
 	    echo
 	    ;;
 	stop)
@@ -128,6 +136,8 @@ elif [ -f /etc/SuSE-release ] ; then
     # Existence of config file is optional
     SMARTD_CONFIG=/etc/smartd.conf
 
+# source configuration file
+    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
    # Shell functions sourced from /etc/rc.status:
    #      rc_check         check and set local and overall rc status
    #      rc_status        check and set local and overall rc status
@@ -162,7 +172,7 @@ elif [ -f /etc/SuSE-release ] ; then
 	    
             # startproc should return 0, even if service is
             # already running to match LSB spec.
-            startproc $SMARTD_BIN
+            startproc $SMARTD_BIN $smartd_opts
 	    
             # Remember status and be verbose
             rc_status -v
@@ -226,6 +236,7 @@ elif [ -f /etc/debian_version ] ; then
 	[ -x $SMARTD ] || exit 0
 	RET=0
 
+# source configuration file
 	[ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
 
 	smartd_opts="--pidfile $SMARTDPID $smartd_opts"
@@ -265,7 +276,7 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
     
     case "$1" in
 	start)
-	    smartd -p $PID_FILE
+	    smartd -p $PID_FILE $smartd_opts
 	    echo -n "smartd "
 	    ;;
 	stop)
@@ -289,7 +300,7 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     
     case "$1" in
 	start)
-	    smartd -p $PID_FILE
+	    smartd -p $PID_FILE $smartd_opts
 	    echo -n "smartd "
 	    ;;
 	stop)
