@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.70 2003/04/18 22:09:11 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.71 2003/04/19 09:53:41 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -160,8 +160,8 @@ void Usage (void){
 "        Show device log. Type is one of: error, selftest\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n"
-"  -F, --fixbyteorder                                                  (ATA)\n"
-"        Fix byte order in some SMART data (some Samsung disks)\n"
+"  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
+"        Fix firmware bug. Type is one of: none, samsung\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n"
   );
@@ -172,7 +172,7 @@ void Usage (void){
 "  -A        Show device SMART vendor-specific Attributes and values   (ATA)\n"
 "  -l TYPE   Show device log. Type is one of: error, selftest\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n"
-"  -F        Fix byte order in some SMART data (some Samsung disks)    (ATA)\n"
+"  -F TYPE   Fix firmware bug. Type is one of: none, samsung           (ATA)\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall        (ATA)\n"
   );
 #endif
@@ -251,6 +251,8 @@ const char *getvalidarglist(char opt) {
     return "use, ignore, show, showall";
   case 't':
     return "offline, short, long";
+  case 'F':
+    return "none, samsung";
   default:
     return NULL;
   }
@@ -285,7 +287,7 @@ void ParseOpts (int argc, char** argv){
   extern char *optarg;
   extern int optopt, optind, opterr;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -314,7 +316,7 @@ void ParseOpts (int argc, char** argv){
     { "test",            required_argument, 0, 't' },
     { "captive",         no_argument,       0, 'C' },
     { "abort",           no_argument,       0, 'X' },
-    { "fixbyteorder",    no_argument,       0, 'F' },
+    { "firmwarebug",     required_argument, 0, 'F' },
     { 0,                 0,                 0, 0   }
   };
 #endif
@@ -453,7 +455,13 @@ void ParseOpts (int argc, char** argv){
       con->checksmart = TRUE;		
       break;
     case 'F':
-      con->reversesamsung = TRUE;
+      if (!strcmp(optarg,"none")) {
+        con->fixfirmwarebug = FIX_NONE;
+      } else if (!strcmp(optarg,"samsung")) {
+        con->fixfirmwarebug = FIX_SAMSUNG;
+      } else {
+        badarg = TRUE;
+      }
       break;
     case 'c':
       con->generalsmartvalues = TRUE;

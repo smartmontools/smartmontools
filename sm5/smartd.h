@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.34 2003/04/17 19:28:06 guidog Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.35 2003/04/19 09:53:42 pjwilliams Exp $\n"
 #endif
 
 // Configuration file
@@ -137,7 +137,7 @@ typedef struct configfile_s {
   // bytes that this points to.
   unsigned char *attributedefs;
   // enables equivalent of -F option for smartctl
-  unsigned char reversesamsung;
+  unsigned char fixfirmwarebug;
   // Don't use the preset vendor options from knowndrives[] for this device.
   char ignorepresets;
   // Show the preset vendor options from knowndrives[] for this device.

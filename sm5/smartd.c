@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.149 2003/04/18 23:55:59 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.150 2003/04/19 09:53:42 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -448,7 +448,7 @@ void Directives() {
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
   printout(LOG_INFO,"  -P TYPE Drive-specific presets: use, ignore, show, showall\n");
   printout(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
-  printout(LOG_INFO,"  -F      Fix byte order in some SMART data (some Samsung disks)\n");
+  printout(LOG_INFO,"  -F TYPE Fix firmware bug. Type is one of: none, samsung\n");
   printout(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\      Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
@@ -583,11 +583,11 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!cfg->ignorepresets){
     // save what the user set
-    con->reversesamsung = cfg->reversesamsung;
+    con->fixfirmwarebug = cfg->fixfirmwarebug;
     // do whatever applypresets decides to do
     applypresets(&drive, cfg->attributedefs, con);
     // then save the correct state of the flag
-    cfg->reversesamsung = con->reversesamsung;
+    cfg->fixfirmwarebug = con->fixfirmwarebug;
   }
   
   if (!cfg->permissive && !ataSmartSupport(&drive)){
@@ -669,8 +669,8 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   if (cfg->selftest){
     int val;
 
-    // fix bug in Samsung firmware
-    con->reversesamsung=cfg->reversesamsung;
+    // fix firmware bug if requested
+    con->fixfirmwarebug=cfg->fixfirmwarebug;
     
     // get number of Self-test errors logged
     val=selftesterrorcount(fd, device);
@@ -684,8 +684,8 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   if (cfg->errorlog){
     int val;
 
-    // fix bug in Samsung firmware
-    con->reversesamsung=cfg->reversesamsung;
+    // fix firmware bug if requested
+    con->fixfirmwarebug=cfg->fixfirmwarebug;
     
     // get number of ATA errors logged
     val=ataerrorcount(fd, device);
@@ -1022,8 +1022,8 @@ int ataCheckDevice(atadevices_t *drive){
     int new;
     unsigned char old=cfg->selflogcount;
     
-    // fix bug in Samsung firmware
-    con->reversesamsung=cfg->reversesamsung;
+    // fix firmware bug if requested
+    con->fixfirmwarebug=cfg->fixfirmwarebug;
 
     // new self test error count
     new=selftesterrorcount(fd, name);
@@ -1051,8 +1051,8 @@ int ataCheckDevice(atadevices_t *drive){
 
     int new,old=cfg->ataerrorcount;
 
-    // fix bug in Samsung firmware
-    con->reversesamsung=cfg->reversesamsung;
+    // fix firmware bug if requested
+    con->fixfirmwarebug=cfg->fixfirmwarebug;
 
     // new number of errors
     new=ataerrorcount(fd, name);
@@ -1239,6 +1239,9 @@ void printoutvaliddirectiveargs(int priority, char d) {
   case 'P':
     printout(priority, "use, ignore, show, showall");
     break;
+  case 'F':
+    printout(priority, "none, samsung");
+    break;
   }
 }
 
@@ -1335,8 +1338,16 @@ int parsetoken(char *token,cfgfile *cfg){
     }
     break;
   case 'F':
-    // fix bug in Samsung Firmware
-    cfg->reversesamsung=1;
+    // fix firmware bug
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "none")) {
+      cfg->fixfirmwarebug = FIX_NONE;
+    } else if (!strcmp(arg, "samsung")) {
+      cfg->fixfirmwarebug = FIX_SAMSUNG;
+    } else {
+      badarg = 1;
+    }
     break;
   case 'H':
     // check SMART status

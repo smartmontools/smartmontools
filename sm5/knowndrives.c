@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.15 2003/04/18 11:18:01 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.16 2003/04/19 09:53:41 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -69,7 +69,7 @@ const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
 {
-  con->reversesamsung = 1;
+  con->fixfirmwarebug = FIX_SAMSUNG;
 }
 
 /* Table of settings for known drives terminated by an element containing all

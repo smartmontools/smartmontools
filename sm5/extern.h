@@ -27,8 +27,12 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.23 2003/04/13 16:05:23 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.24 2003/04/19 09:53:41 pjwilliams Exp $\n"
 #endif
+
+// Possible values for fixfirmwarebug
+#define FIX_NONE             0
+#define FIX_SAMSUNG          1
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
@@ -63,7 +67,7 @@ typedef struct smartmonctrl_s {
   unsigned char checksumignore;
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
-  unsigned char reversesamsung;
+  unsigned char fixfirmwarebug;
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
