@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.234 2003/10/31 10:02:01 ballen4705 Exp $
+$Id: CHANGELOG,v 1.235 2003/10/31 20:37:49 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.23
+
+  [BA] smartd: doesn't close file descriptors of ATA packet devices
+       that are scanned.
 
   [BA] Added reload/report targets to the smartmontools init script.
        reload: reloads config file
