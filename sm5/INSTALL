@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.22 2003/10/12 21:16:44 arvoreen Exp $
+$Id: INSTALL,v 1.23 2003/10/15 05:35:51 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -46,13 +46,11 @@ Then type:
 ./autogen.sh
 and continue with step [3] below, skipping the "unpack the tarball" step.
 
-
 Further details of using CVS can be found at the URL above.
 
 The autogen.sh command is ONLY required when installing from CVS. You
-need GNU Autoconf, GNU Automake, and their dependencies installed in
-order to run it.
-
+need GNU Autoconf (version 2.50 or greater) GNU Automake (version 1.6
+or greater) and their dependencies installed in order to run it.
 
 [3] Installing from the source tarball
 ======================================
@@ -77,8 +75,12 @@ following set of installation directories:
 These will overwrite existing "distribution" installations for Red
 Hat, Slackware, and some other Linux distributions.
 
-For different installation locations or distributions, simply change
-add arguments to ./configure as shown in [4] below.
+For different installation locations or distributions, simply add
+arguments to ./configure as shown in [4] below.
+
+If you wish to alter the default C-compiler flags, set an environment
+variable CFLAGS='your options' before doing ./configure, or else do
+make CFLAGS='your options',
 
 [4] Guidelines for different Linux distributions
 ================================================

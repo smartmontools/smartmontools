@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.47 2003/10/12 09:10:03 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.48 2003/10/15 05:35:51 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -176,11 +176,19 @@ const drivesettings knowndrives[] = {
   },
   { // Samsung SV4012H (known firmware)
     "^SAMSUNG SV4012H$",
-    "^RM100-08",
+    "^RM100-08$",
     NULL,
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung,
     same_as_minus_F
+  },
+  { // Samsung SV4012H (match revision *-23 firmware)
+    "^SAMSUNG .*$",
+    ".*-23$",
+    may_need_minus_F2_disabled,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung2,
+    same_as_minus_F2
   },
   { // Samsung SV4012H (all other firmware)
     "^SAMSUNG SV4012H$",
@@ -240,7 +248,7 @@ const drivesettings knowndrives[] = {
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung enabled.\n",
+    "Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung[2] enabled.\n",
     NULL, NULL, NULL
   },
   { // Maxtor 6L080J4 and 4K080H4
