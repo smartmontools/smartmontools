@@ -1,32 +1,54 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.39 2003/10/03 14:01:47 ballen4705 Exp $
+$Id: TODO,v 1.40 2003/11/28 13:50:27 ballen4705 Exp $
 
-Testing
+SATA devices
+------------
+Currently work OK if you use the standard IDE drivers in
+drivers/ide. If you use the new libata drivers, it won't work
+correctly because libata doesn't yet support the needed
+ATA-passthrough ioctl() calls. Jeff Garzik, the libata developer, says
+that this support will be added in the future. When this happens, add
+support to smartmontools for a new SATA/libata device type '-d sata'.
+
+USB devices
+-----------
+Some USB devices can hang smartctl or smartd.  This is because these
+devices fail to comply with SCSI specifications for their packet
+command sets.  Work on improving the detection and bail-out procedures
+for these flawed devices, so that the user sees an informative error
+message and smartd/smartctl don't hang.
+
+ATA-6/7
 -------
-Test with SCSI, FireWire, USB, and SATA devices.  Doug Gilbert is now
-doing some of this.
+Support selective self-tests (requires an HDIO_DRIVE_TASKFILE ioctl()
+interface).
 
-Extensions
-----------
-Produce version for ATA/ATAPI-6 (support for extended error logs)
-Produce version for ATA/ATAPI-7
+Support extended error logs
 
+Support extended self-test logs
+
+smartctl/smartd
+---------------
+Add additional -v options (corresponding to comments in
+atacmds.c:ataPrintSmartAttribName().
+
+Add interface to Megaraid ATA RAID controllers (Erik)
 
 smartctl: 
 ---------
-Handle extended error and self-test logs gracefully.  Can someone tell
-me a disk that supports more than ATA log pages 1 and 6?  I need to
-get a disk so I can test this functionality, when I add it.
-
 Perhaps modify the -q option (quiet mode) so that it only warns of ATA
 errors if they have (say) taken place in the last 168 hours (week).
 
-Parse and print more attribute flag meanings (IBM ones, eg performance
-etc).
+Parse and print additional Attribute flag meanings (IBM ones, eg
+performance etc).
 
 smartd:
 -------
+Add a scheduled self-test Directive.  This should either steal code
+from gcrond so that we can use cron syntax, or implement something
+similar (but simple!).
+
 Perhaps change <nomailer> special argument to -m to have also
 <nomailer_fork> which would actually work with -M exec to run the
 executable/script in the background rather than in the foreground.
@@ -42,10 +64,30 @@ Add ability to monitor "worst" value from attributes (sometimes it
 gets larger!) and to monitor the threshold value (sometimes it
 changes!).
 
-Ports
------
-Port to other platforms.  One for Windows (Cygwin) is badly needed
-since some people asked for it, but we need volunteers for any such
-work. Bruce has some code fragments for accessing SMART data under
-Windows.  FreeBSD and Solaris ports are underway -- please email the
-support list if you are interested.
+Add command line option that scans devices then WRITES
+/etc/smartd.conf, perhaps as /etc/smartd.conf.output, just for devices
+that can be monitored.
+
+Solaris
+-------
+Try and integrate ATA support.  See
+http://card-captor.dyndns.org/pub/solaris-smart/ for smartmontools
+5.1-18 patched with solaris ATA support (Keiji).
+
+Figure out a way to get man pages into sections 1m (smartctl, smartd)
+and 4 (smartd.conf).  This requires a change to Makefile.am (Guido).
+
+FreeBSD
+-------
+Get interface for 3ware Escalade controllers working (Eduard).
+
+
+
+Packaging
+---------
+Modify autogen.sh so that it puts the date it is run into
+configure.in/Makefile.am:
+    smartmontools_date=`date -u +"%Y/%m/%d"`
+Then use THIS date to timestamp the manual pages and also as part of
+the output of smartd -V and smartctl -V.
+
