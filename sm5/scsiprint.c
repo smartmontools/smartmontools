@@ -36,7 +36,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.c,v 1.13 2002/12/29 02:14:47 dpgilbert Exp $"
+const char* CVSid4="$Id: scsiprint.c,v 1.14 2003/01/04 01:37:48 dpgilbert Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -184,6 +184,87 @@ void scsiGetStartStopData ( int device)
     printf("Recommended start stop count:  %u times\n", recommendedStartStop);
 } 
 
+const char * self_test_code[] = {
+        "Default         ", 
+	"Background short", 
+	"Background long ", 
+	"Reserved(3)     ",
+	"Abort background", 
+	"Foreground short", 
+	"Foreground long ",
+	"Reserved(7)     "
+};
+
+const char * self_test_result[] = {
+        "Completed                ",
+	"Interrupted ('-X' switch)",
+	"Interrupted (bus reset ?)",
+	"Unknown error, incomplete",
+	"Completed, segment failed",
+	"Failed in first segment  ",
+	"Failed in second segment ",
+	"Failed in segment -->    ",
+	"Reserved(8)              ", 
+	"Reserved(9)              ", 
+	"Reserved(10)             ", 
+	"Reserved(11)             ", 
+	"Reserved(12)             ", 
+	"Reserved(13)             ", 
+	"Reserved(14)             ",
+	"Self test in progress ..."
+};
+
+void  scsiPrintSelfTest(int device)
+{
+	int num, k, n, res;
+	UINT8 * ucp;
+	unsigned long long ull;
+
+	if (logsense(device, SELFTEST_RESULTS_PAGE, gBuf) != 0)
+	{
+		perror ( "scsiPrintSelfTest Failed");
+		exit (1);
+	}
+	if (gBuf[0] != SELFTEST_RESULTS_PAGE)
+	{
+		printf("Self-test Log Sense Failed\n");
+		exit(-1);
+	}
+	num = (gBuf[2] << 8) + gBuf[3];
+	if (num < 0x190) {
+		printf("Self-test Log Sense too short\n");
+		exit(-1);
+	}
+	ucp = &gBuf[0] + 4;
+	printf(",\nSMART Self-test log\n");
+	printf("Num  Test              Status                 segment  "
+		"LifeTime  LBA_first_err [SK ASC ASQ]\n");
+	printf("     Description                              number   "
+		"(hours)\n");
+	for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
+	n = (ucp[6] << 8) | ucp[7];
+	if ((0 == n) && (0 == ucp[4]))
+	    break;
+	printf("#%2d  %s", (ucp[0] << 8) | ucp[1], 
+	       self_test_code[(ucp[4] >> 5) & 0x7]);
+	res = ucp[4] & 0xf;
+	printf("  %s", self_test_result[res]);
+	printf(" %3d",  (int)ucp[5]);
+	printf(" %5d",  n);
+	ull = ucp[8]; ull <<= 8; ull |= ucp[9]; ull <<= 8; ull |= ucp[10];
+	ull <<= 8; ull |= ucp[11]; ull <<= 8; ull |= ucp[12];
+	ull <<= 8; ull |= ucp[13]; ull <<= 8; ull |= ucp[14];
+	ull <<= 8; ull |= ucp[14]; ull <<= 8; ull |= ucp[15];
+	if ((0xffffffffffffffffULL != ull) && (res > 0) && ( res < 0xf))
+		printf(" 0x%10llx", ull);
+	else
+		printf("             ");
+        if (ucp[16] & 0xf)
+		printf(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
+	else
+		printf("\n");
+    }
+}
  
 void scsiGetDriveInfo ( int device)
 {
@@ -299,6 +380,7 @@ void scsiPrintStopStart ( int device )
 
 void scsiPrintMain (char *device, int fd)
 {
+  int checkedsupportlogpages = 0;
 
   // See if unit accepts SCSI commmands from us
   if (testunitnotready(fd)){
@@ -318,6 +400,7 @@ void scsiPrintMain (char *device, int fd)
     if (con->checksmart)
     {
 	scsiGetSupportPages (fd);
+	checkedsupportlogpages = 1;
         if(gTapeAlertsPage)
           scsiGetTapeAlertsData (fd);
        else
@@ -330,6 +413,12 @@ void scsiPrintMain (char *device, int fd)
         }
     }	
 
+    if (con->smartselftestlog) {
+	if (! checkedsupportlogpages)
+	    scsiGetSupportPages(fd);
+	if (gSelfTestPage)
+            scsiPrintSelfTest(fd);
+    }
 	
     if ( con->smartexeoffimmediate )
     {

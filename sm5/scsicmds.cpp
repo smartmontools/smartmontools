@@ -28,13 +28,33 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/hdreg.h>
-// We do NOT want to include the kernel SCSI header file, just user space one
-#define  _LINUX_SCSI_H
-#include <scsi/scsi.h>
+/* #include <scsi/scsi.h>	bypass for now */
+/* #include <scsi/scsi_ioctl.h> bypass for now */
 #include "scsicmds.h"
 
-const char *CVSid3="$Id: scsicmds.cpp,v 1.16 2002/11/21 21:21:48 knan Exp $" CVSID4;
+const char *CVSid3="$Id: scsicmds.cpp,v 1.17 2003/01/04 01:37:48 dpgilbert Exp $" CVSID4;
 
+static int send_scsi_cmd(int device, int cmnd_len, void * io_hdr)
+{
+    	int status;
+
+#ifdef SCSI_DEBUG
+	{
+		int k;
+		const unsigned char * ucp = io_hdr;
+
+		ucp += 2 * sizeof(int);
+		fprintf(stderr, "cmnd: [");
+		for (k = 0; k < cmnd_len; ++k)
+			fprintf(stderr, "%02x ", ucp[k]);
+	}
+#endif
+	status =  ioctl(device, SCSI_IOCTL_SEND_COMMAND , io_hdr);
+#ifdef SCSI_DEBUG
+	fprintf(stderr, "] status=0x%x\n", status);
+#endif
+	return status;
+}
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
 {
@@ -61,8 +81,7 @@ UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->cdb[8] = 0x00;
   ioctlhdr->cdb[9] = 0x00;
 
-  status =  ioctl( device, 1 , &tBuf);
-
+  status = send_scsi_cmd(device, 10, &tBuf);
 	
   memcpy ( pBuf, &tBuf[8], 1024); 
 
@@ -96,8 +115,7 @@ UINT8 modesense (int device,  UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->cdb[4] = CDB_6_MAX_DATA_SIZE;
   ioctlhdr->cdb[5] = 0x00;
   
-  
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 256); 
 
@@ -139,7 +157,7 @@ UINT8 modeselect (int device,  UINT8 pagenum, UINT8 *pBuf)
 
   tBuf[26] &= 0x3f;		
  
-  status = ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
 
   return status;
 
@@ -173,7 +191,7 @@ UINT8 modesense10 (int device, UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->cdb[8] = 0xff;
   ioctlhdr->cdb[9] = 0x00;
 
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 10, &tBuf);
  
   memcpy ( pBuf, &tBuf[8], 0xff); 
   
@@ -218,7 +236,7 @@ UINT8 modeselect10 (int device,  UINT8 pagenum, UINT8 *pBuf)
 
   tBuf[26] &= 0x3f;		
  
-  status = ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 10, &tBuf);
 
   return status;
 
@@ -251,7 +269,7 @@ UINT8 stdinquiry ( int device, UINT8 *pBuf)
   ioctlhdr->cdb[5] = 0x00;
   
   
-  status =  ioctl( device, 1, &tBuf );
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 255); 
 
@@ -286,8 +304,7 @@ UINT8 inquiry ( int device, UINT8 pagenum, UINT8 *pBuf)
   ioctlhdr->cdb[4] = CDB_6_MAX_DATA_SIZE;
   ioctlhdr->cdb[5] = 0x00;
   
-  
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 255); 
 
@@ -321,8 +338,7 @@ UINT8 requestsense (int device, UINT8 *pBuf)
   ioctlhdr->cdb[4] = CDB_6_MAX_DATA_SIZE;
   ioctlhdr->cdb[5] = 0x00;
   
-  
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 255); 
 
@@ -364,7 +380,7 @@ UINT8 senddiagnostic (int device, UINT8 functioncode,  UINT8 *pBuf)
 				pBuf[0]);
   }
 
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   if (pBuf != NULL)
   	memcpy ( pBuf, &tBuf[8], 256); 
@@ -400,7 +416,7 @@ UINT8 receivediagnostic (int device, UINT8 pagenum,  UINT8 *pBuf)
   ioctlhdr->cdb[5] = 0x00;
   
 
-  status =  ioctl( device, 1 , &tBuf);
+  status = send_scsi_cmd(device, 6, &tBuf);
   
   memcpy ( pBuf, &tBuf[8], 256); 
 
@@ -411,7 +427,7 @@ UINT8 receivediagnostic (int device, UINT8 pagenum,  UINT8 *pBuf)
 // See if the device accepts IOCTLs at all...
 UINT8 testunitnotready (int device)
 {
-  return ioctl( device, 2 , NULL);
+  return ioctl( device, SCSI_IOCTL_TEST_UNIT_READY , NULL);
 
 }
 

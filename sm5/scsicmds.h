@@ -27,15 +27,22 @@
 #define SCSICMDS_H_
 
 #ifndef CVSID4
-#define CVSID4 "$Id: scsicmds.h,v 1.8 2002/11/17 05:30:11 ballen4705 Exp $\n"
+#define CVSID4 "$Id: scsicmds.h,v 1.9 2003/01/04 01:37:48 dpgilbert Exp $\n"
 #endif
 
+/* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
+
+/* Following conditional defines bypass inclusion of scsi/scsi.h and
+ * scsi/scsi_ioctl.h . Issue will be resolved later ... */
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d
 #endif
 
 #ifndef MODE_SENSE
 #define MODE_SENSE 0x1a
+#endif
+#ifndef MODE_SENSE_10
+#define MODE_SENSE_10 0x5a
 #endif
 
 #ifndef MODE_SELECT
@@ -60,6 +67,13 @@
 
 #ifndef SEND_DIAGNOSTIC
 #define SEND_DIAGNOSTIC  0x1d
+#endif
+
+#ifndef SCSI_IOCTL_SEND_COMMAND
+#define SCSI_IOCTL_SEND_COMMAND 1
+#endif
+#ifndef SCSI_IOCTL_TEST_UNIT_READY
+#define SCSI_IOCTL_TEST_UNIT_READY 2
 #endif
 
 #include <stdio.h>
