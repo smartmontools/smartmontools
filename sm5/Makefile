@@ -1,5 +1,7 @@
 # Makefile for smartmontools
 #
+# $Id: Makefile,v 1.2 2002/10/09 18:07:17 ballen4705 Exp $
+#
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
 # This program is free software; you can redistribute it and/or modify it
