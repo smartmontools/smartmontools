@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.58 2003/11/26 20:41:56 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.58.2.1 2004/02/23 15:25:39 chrfranke Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -51,7 +51,7 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.58 2003/11/26 20:41:56 p
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
 
-extern long long bytes;
+extern int64_t bytes;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -280,8 +280,8 @@ const drivesettings knowndrives[] = {
     vendoropts_Maxtor_4D080H4,
     NULL, NULL
   },
-  { // Maxtor 4R080J0 and 4R080L0
-    "^Maxtor 4R080[JL]0$",
+  { // Maxtor 4R060L0, 4R080J0 and 4R080L0 (4R060J0 not tested)
+    "^Maxtor 4R0[68]0[JL]0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -289,6 +289,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor 4W040H3
     "^Maxtor 4W040H3$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor 54610H6
+    "^Maxtor 54610H6$",
     ".*",
     NULL,
     vendoropts_9_minutes,
