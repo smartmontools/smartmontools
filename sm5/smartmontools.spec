@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.24 2002/10/25 15:13:20 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.25 2002/10/25 17:06:17 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -86,6 +86,12 @@ rm -rf %{_builddir}/%{name}-%{version}
 
 # The following are executed only by the binary RPM at install/uninstall
 
+# since this installs the gzipped documentation files, remove
+# non-gzipped ones of the same name.
+%pre
+rm -f /usr/share/man/man8/smartctl.8
+rm -f /usr/share/man/man8/smartd.8
+
 %post
 if [ -f /var/lock/subsys/smartd ]; then
         /etc/rc.d/init.d/smartd restart 1>&2
@@ -95,7 +101,7 @@ else
 	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
 fi
 echo "Note that you can now use a configuration file /etc/smartd.conf to control the"
-echo "startup behavior of the smartd daemon.  See man smartd for details."
+echo "startup behavior of the smartd daemon.  See man 8 smartd for details."
 
 %preun
 if [ -f /var/lock/subsys/smartd ]; then
@@ -107,13 +113,16 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Fri Oct 25 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
--   smartd on startup now looks in the configuration file /etc/smartd.conf for
-    a list of devices which to include in its monitoring list.  See man page
-    (man smartd) for syntax. If not found, try all ata and ide devices.
--   smartd: close file descriptors of SCSI device if not SMART capable
-    Closes ALL file descriptors after forking to daemon.
--   added new temperature attribute (231, temperature)
--   smartd: now open ATA disks using O_RDONLY
+- changes to the Makefile and spec file so that if there are ungzipped manual
+  pages in place these will be removed so that the new gzipped man pages are
+  visible.
+- smartd on startup now looks in the configuration file /etc/smartd.conf for
+  a list of devices which to include in its monitoring list.  See man page
+  (man smartd) for syntax. If not found, try all ata and ide devices.
+- smartd: close file descriptors of SCSI device if not SMART capable
+  Closes ALL file descriptors after forking to daemon.
+- added new temperature attribute (231, temperature)
+- smartd: now open ATA disks using O_RDONLY
 * Thu Oct 24 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - smartd now prints the name of a failed or changed attribute into logfile,
   not just ID number
