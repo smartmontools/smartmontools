@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/05/19 18:06:59 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/06/16 04:46:10 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.156 2004/05/19 18:06:59 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.157 2004/06/16 04:46:10 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -471,6 +471,15 @@ Let H = power on hours as shown by Attribute 9 (correct)<br/>
 Let M = 60*H (power on minutes, correct)<br/>
 Let m = M mod 65536 (incorrect value of power on minutes, shown in self-test log)<br/>
 Let h = m/60 (incorrect value of power on hours)
+</p>
+</li>
+
+<li><b>The (normalized) WORST Attribute values of my Western Digital
+(WD) disk are <u>larger</u> than the (normalized) CURRENT Attribute
+values</b>
+<p>Western Digital firmware initializes SMART Attributes 10, 11, and
+199 after either 120 spin-ups or 8 power-on hours.  Until that time,
+they have the uninitialized value 253.
 </p>
 </li>
 
@@ -984,6 +993,7 @@ from smartmontools smartctl utility:</b>
  <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
  <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
  <li><a href="examples/IC35L120AVV207-0.txt">IBM IC35L120AVV207 (GXP 180 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
+ <li><a href="examples/IC35L120AVV207-1.txt">IBM IC35L120AVV207 (GXP 180 series)</a> (failing SMART status and self-tests)</li>
  <li><a href="examples/HITACHI_DK23BA-20-0.txt">HITACHI_DK23BA-20</a> Hitachi 20 GB Laptop Disk</li>
  <li><a href="examples/HITACHI_DK23AA-12B.txt">HITACHI_DK23AA-12B</a> Really sick failing Hitachi Laptop Disk</li>
  <li><a href="examples/TOSHIBA-0.txt">TOSHIBA MK2018GAS</a> Toshiba 20 GB Laptop Disk</li>
@@ -995,8 +1005,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/05/19 18:06:59 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.156 2004/05/19 18:06:59 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/06/16 04:46:10 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.157 2004/06/16 04:46:10 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
