@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.35 2003/04/19 09:53:42 pjwilliams Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.36 2003/05/12 18:34:40 pjwilliams Exp $\n"
 #endif
 
 // Configuration file
@@ -142,6 +142,8 @@ typedef struct configfile_s {
   char ignorepresets;
   // Show the preset vendor options from knowndrives[] for this device.
   char showpresets;
+  // Indicates that device may not always be present.
+  char removable;
 } cfgfile;
 
 
