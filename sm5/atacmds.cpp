@@ -28,8 +28,9 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "atacmds.h"
+#include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.52 2003/01/16 15:51:09 ballen4705 Exp $" ATACMDS_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.53 2003/01/17 12:20:24 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -194,23 +195,6 @@ char *create_vendor_attribute_arg_list(void){
   return s;
 }
 
-// A replacement for perror() that sends output to our choice of
-// printing.
-void syserror(const char *message){
-  const char *errormessage;
-  
-  // Get the correct system error message:
-  errormessage=strerror(errno);
-
-  // Check that caller has handed a sensible string, and provide
-  // appropriate output. See perrror(3) man page to understand better.
-    if (message && *message)
-      pout("%s: %s\n",message, errormessage);
-    else
-      pout("%s\n",errormessage);
-	
-    return;
-}
 
 // We no longer use this function, because the IOCTL appears to return
 // only the drive identity at the time that the system was booted
