@@ -24,12 +24,16 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.34 2002/10/26 19:59:01 ballen4705 Exp $"
-CVSID2 CVSID3 CVSID6;
+const char *CVSid2="$Id: ataprint.c,v 1.35 2002/10/28 23:46:59 ballen4705 Exp $"
+CVSID1 CVSID2 CVSID3 CVSID6;
+
+// for passing global control variables
+extern atamainctrl *con;
 
 // Function for printing ASCII byte-swapped strings, skipping white
 // space. This is needed on little-endian architectures, eg Intel,
@@ -420,7 +424,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       switch (disk->id){
 	// Power on time
       case 9:
-	if (smart009minutes)
+	if (con->smart009minutes)
 	  // minutes
 	  pout ("%llu h + %2llu m\n",rawvalue/60,rawvalue%60);
 	else
@@ -494,7 +498,8 @@ int nonempty(unsigned char *testarea,int n){
       return 1;
   return 0;
 }
-  
+
+// returns number of errors
 void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   int i,j,k;
   
@@ -505,7 +510,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
     pout ("No Errors Logged\n\n");
     return;
   }
-  QUIETON;
+  QUIETON(con);
   // if log pointer out of range, return
   if ( data.error_log_pointer>5 ){
     pout("Invalid Error Log index = %02x (T13/1321D rev 1c"
@@ -520,7 +525,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   else
     pout ( "ATA Error Count: %u (device log contains only the most recent five errors)\n",
 	   data.ata_error_count);
-  QUIETOFF;
+  QUIETOFF(con);
   pout("\tDCR = Device Control Register\n");
   pout("\tFR  = Features Register\n");
   pout("\tSC  = Sector Count Register\n");
@@ -552,10 +557,10 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
       default:   msgstate="in a vendor specific or reserved state";
       }
       // See table 42 of ATA5 spec
-      QUIETON;
+      QUIETON(con);
       pout("Error %i occurred at disk power-on lifetime: %u hours\n",
 	     5-k,data.errorlog_struct[i].error_struct.timestamp);
-      QUIETOFF;
+      QUIETOFF(con);
       pout("When the command that caused the error occurred, the device was %s.\n",msgstate);
       pout("After command completion occurred, registers were:\n");
       pout("ER:%02x SC:%02x SN:%02x CL:%02x CH:%02x D/H:%02x ST:%02x\n",
@@ -588,15 +593,15 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
       pout("\n");
     }
   }
-  QUIETON;
-  if (quietmode)
+  QUIETON(con);
+  if (con->quietmode)
     pout("\n");
-  QUIETOFF;
+  QUIETOFF(con);
   return;  
 }
 
 // return value is number of entries found where the self-test showed an error
-int ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data,int allentries){
+int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog data,int allentries){
   int i,j,noheaderprinted=1;
   int retval=0;
 
@@ -701,7 +706,7 @@ struct ata_smart_selftestlog smartselftest;
 int ataPrintMain (int fd){
   int timewait,code;
   int returnval=0;
-  
+
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if (ataReadHDIdentity(fd,&drive)){
     pout("Smartctl: Hard Drive Read Identity Failed\n\n");
@@ -709,7 +714,7 @@ int ataPrintMain (int fd){
   }
   
   // Print most drive identity information if requested
-  if (driveinfo){
+  if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");
     ataPrintDriveInfo(drive);
   }
@@ -724,11 +729,11 @@ int ataPrintMain (int fd){
     }
     else
       pout("                  SMART appears to work.  Continuing.\n"); 
-    if (!driveinfo) pout("\n");
+    if (!con->driveinfo) pout("\n");
   }
   
   // Now print remaining drive info: is SMART enabled?    
-  if (driveinfo){
+  if (con->driveinfo){
     pout("SMART support is: Available - device has SMART capability.\n");
     if (ataDoesSmartWork(fd))
       pout("SMART support is: Enabled\n");
@@ -739,13 +744,13 @@ int ataPrintMain (int fd){
 
   
   // START OF THE ENABLE/DISABLE SECTION OF THE CODE
-  if (smartenable || smartdisable || 
-      smartautosaveenable || smartautosavedisable || 
-      smartautoofflineenable || smartautoofflinedisable)
+  if (con->smartenable || con->smartdisable || 
+      con->smartautosaveenable || con->smartautosavedisable || 
+      con->smartautoofflineenable || con->smartautoofflinedisable)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
   // Enable/Disable SMART commands
-  if (smartenable){
+  if (con->smartenable){
     if (ataEnableSmart(fd)) {
       pout("Smartctl: SMART Enable Failed.\n\n");
       returnval|=FAILSMART;
@@ -761,7 +766,7 @@ int ataPrintMain (int fd){
   }
   
   // Turn off SMART on device
-  if (smartdisable){    
+  if (con->smartdisable){    
     if (ataDisableSmart(fd)) {
       pout( "Smartctl: SMART Disable Failed.\n\n");
       returnval|=FAILSMART;
@@ -776,7 +781,7 @@ int ataPrintMain (int fd){
     returnval|=FAILSMART;
   
   // Enable/Disable Auto-save attributes
-  if (smartautosaveenable){
+  if (con->smartautosaveenable){
     if (ataEnableAutoSave(fd)){
       pout( "Smartctl: SMART Enable Attribute Autosave Failed.\n\n");
       returnval|=FAILSMART;
@@ -784,7 +789,7 @@ int ataPrintMain (int fd){
     else
       pout("SMART Attribute Autosave Enabled.\n");
   }
-  if (smartautosavedisable){
+  if (con->smartautosavedisable){
     if (ataDisableAutoSave(fd)){
       pout( "Smartctl: SMART Disable Attribute Autosave Failed.\n\n");
       returnval|=FAILSMART;
@@ -804,7 +809,7 @@ int ataPrintMain (int fd){
   }
 
   // Enable/Disable Off-line testing
-  if (smartautoofflineenable){
+  if (con->smartautoofflineenable){
     if (!isSupportAutomaticTimer(smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
     }
@@ -815,7 +820,7 @@ int ataPrintMain (int fd){
     else
       pout ("SMART Automatic Offline Testing Enabled every four hours.\n");
   }
-  if (smartautoofflinedisable){
+  if (con->smartautoofflinedisable){
     if (!isSupportAutomaticTimer(smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
     }
@@ -828,28 +833,28 @@ int ataPrintMain (int fd){
   }
 
   // all this for a newline!
-  if (smartenable || smartdisable || 
-      smartautosaveenable || smartautosavedisable || 
-      smartautoofflineenable || smartautoofflinedisable)
+  if (con->smartenable || con->smartdisable || 
+      con->smartautosaveenable || con->smartautosavedisable || 
+      con->smartautoofflineenable || con->smartautoofflinedisable)
     pout("\n");
 
   // START OF READ-ONLY OPTIONS APART FROM -V and -i
-  if (checksmart || generalsmartvalues || smartvendorattrib || smarterrorlog || smartselftestlog)
+  if (con->checksmart || con->generalsmartvalues || con->smartvendorattrib || con->smarterrorlog || con->smartselftestlog)
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
   // Check SMART status (use previously returned value)
-  if (checksmart){
+  if (con->checksmart){
     if (code) {
-      QUIETON;
+      QUIETON(con);
       pout("SMART overall-health self-assessment test result: FAILED!\n"
 	     "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-      QUIETOFF;
+      QUIETOFF(con);
       if (ataCheckSmart(smartval, smartthres,1)){
 	returnval|=FAILATTR;
-	if (smartvendorattrib)
+	if (con->smartvendorattrib)
 	  pout("See vendor-specific Attribute list for failed Attributes.\n\n");
 	else {
-	  QUIETON;
+	  QUIETON(con);
 	  pout("Failed Attributes:\n");
 	  PrintSmartAttribWithThres(smartval, smartthres,1);
 	}
@@ -857,15 +862,15 @@ int ataPrintMain (int fd){
       else
 	pout("No failed Attributes found.\n\n");   
       returnval|=FAILSTATUS;
-      QUIETOFF;
+      QUIETOFF(con);
     }
     else {
       pout("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(smartval, smartthres,0)){
-	if (smartvendorattrib)
+	if (con->smartvendorattrib)
 	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
 	else {
-	  QUIETON;
+	  QUIETON(con);
 	  pout("Please note the following marginal attributes:\n");
 	  PrintSmartAttribWithThres(smartval, smartthres,2);
 	} 
@@ -874,22 +879,22 @@ int ataPrintMain (int fd){
       else
 	pout("\n");
     }
-    QUIETOFF;
+    QUIETOFF(con);
   }
   
   // Print general SMART values
-  if (generalsmartvalues)
+  if (con->generalsmartvalues)
     ataPrintGeneralSmartValues(smartval); 
   
   // Print vendor-specific attributes
-  if (smartvendorattrib){
-    QUIETON;
-    PrintSmartAttribWithThres(smartval, smartthres,quietmode?2:0);
-    QUIETOFF;
+  if (con->smartvendorattrib){
+    QUIETON(con);
+    PrintSmartAttribWithThres(smartval, smartthres,con->quietmode?2:0);
+    QUIETOFF(con);
   }
   
   // Print SMART error log
-  if (smarterrorlog){
+  if (con->smarterrorlog){
     if (!isSmartErrorLogCapable(smartval))
       pout("Warning: device does not support Error Logging\n");
     if (ataReadErrorLog(fd, &smarterror)){
@@ -899,12 +904,12 @@ int ataPrintMain (int fd){
     else {
       // turn on quiet mode inside this
       ataPrintSmartErrorlog(smarterror);
-      QUIETOFF;
+      QUIETOFF(con);
     }
   }
   
   // Print SMART self-test log
-  if (smartselftestlog){
+  if (con->smartselftestlog){
     if (!isSmartErrorLogCapable(smartval))
       pout("Warning: device does not support Self Test Logging\n");
     else {
@@ -913,36 +918,36 @@ int ataPrintMain (int fd){
 	returnval|=FAILSMART;
       }
       else {
-	QUIETON;
-	if (ataPrintSmartSelfTestlog(smartselftest,!quietmode))
+	QUIETON(con);
+	if (ataPrintSmartSelfTestlog(smartselftest,!con->quietmode))
 	  returnval|=FAILLOG;
-	QUIETOFF;
+	QUIETOFF(con);
 	pout("\n");
       }
     } 
   }
   
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
-  if (testcase==-1)
+  if (con->testcase==-1)
     return returnval;
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
   // if doing a self-test, be sure it's supported by the hardware
-  if (testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval))
+  if (con->testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval))
     pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
   else if (!isSupportSelfTest(smartval))
     pout ("Warning: device does not support Self-Test functions.\n\n");
   
   // Now do the test
-  if (ataSmartTest(fd, testcase))
+  if (ataSmartTest(fd, con->testcase))
     return returnval|=FAILSMART;
   
   // Tell user how long test will take to complete  
-  if ((timewait=TestTime(smartval,testcase))){ 
+  if ((timewait=TestTime(smartval,con->testcase))){ 
     pout ("Please wait %d %s for test to complete.\n",
-	    timewait, testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
+	    timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
     
-    if (testcase!=SHORT_CAPTIVE_SELF_TEST && testcase!=EXTEND_CAPTIVE_SELF_TEST)
+    if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && con->testcase!=EXTEND_CAPTIVE_SELF_TEST)
       pout ("Use smartctl -%c to abort test.\n", SMARTSELFTESTABORT);	
   }    
   return returnval;

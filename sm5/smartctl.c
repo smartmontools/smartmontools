@@ -36,39 +36,19 @@
 #include "ataprint.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
+#include "extern.h"
 
-extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.c,v 1.21 2002/10/26 19:33:40 ballen4705 Exp $"
-CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
+extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
+const char* CVSid5="$Id: smartctl.c,v 1.22 2002/10/28 23:46:59 ballen4705 Exp $"
+CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
-unsigned char driveinfo               = FALSE;
-unsigned char checksmart              = FALSE;
-unsigned char smartvendorattrib       = FALSE;
-unsigned char generalsmartvalues      = FALSE;
-unsigned char smartselftestlog        = FALSE;
-unsigned char smarterrorlog           = FALSE;
-unsigned char smartdisable            = FALSE;
-unsigned char smartenable             = FALSE;
-unsigned char smartstatus             = FALSE;
-unsigned char smartexeoffimmediate    = FALSE;
-unsigned char smartshortselftest      = FALSE;
-unsigned char smartextendselftest     = FALSE;
-unsigned char smartshortcapselftest   = FALSE;
-unsigned char smartextendcapselftest  = FALSE;
-unsigned char smartselftestabort      = FALSE;
-unsigned char smartautoofflineenable  = FALSE;
-unsigned char smartautoofflinedisable = FALSE;
-unsigned char smartautosaveenable     = FALSE;
-unsigned char smartautosavedisable    = FALSE;
-unsigned char printcopyleft           = FALSE;
-unsigned char smart009minutes         = FALSE;
-unsigned char quietmode               = FALSE;
-unsigned char veryquietmode           = FALSE;
-int           testcase                = -1;
-
+// This is a block containing all the "control variables".  We declare
+// this globally in this file, and externally in other files.
+atamainctrl *con=NULL;
 
 void printslogan(){
-  pout("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+  pout("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",
+       RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
   pout("Home page is %s\n\n",PROJECTHOME);
   return;
 }
@@ -81,11 +61,11 @@ void printcopy(){
   pout("under the terms of the GNU General Public License Version 2.\n");
   pout("See http://www.gnu.org for further details.\n\n");
   pout("CVS version IDs of files used to build this code are:\n");
-  printone(out,CVSid6);
-  pout("%s",out);
   printone(out,CVSid1);
   pout("%s",out);
   printone(out,CVSid2);
+  pout("%s",out);
+  printone(out,CVSid3);
   pout("%s",out);
   printone(out,CVSid4);
   pout("%s",out);
@@ -140,99 +120,103 @@ const char opts[] = {
   SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,QUIETMODE,VERYQUIETMODE,'h','?','\0'
 };
 
+unsigned char printcopyleft=0;
+
 /*      Takes command options and sets features to be run */	
 void ParseOpts (int argc, char** argv){
   int optchar;
   extern char *optarg;
   extern int optopt, optind, opterr;
   
+  memset(con,0,sizeof(*con));
+  con->testcase=-1;
   opterr=optopt=0;
   while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
     case QUIETMODE:
-      quietmode=TRUE;
+      con->quietmode=TRUE;
       break;
     case VERYQUIETMODE:
-      veryquietmode=TRUE;
+      con->veryquietmode=TRUE;
       break;
     case SMART009MINUTES:
-      smart009minutes=TRUE;
+      con->smart009minutes=TRUE;
       break;
     case PRINTCOPYLEFT :
       printcopyleft=TRUE;
       break;
     case DRIVEINFO :
-      driveinfo  = TRUE;
+      con->driveinfo  = TRUE;
       break;		
     case CHECKSMART :
-      checksmart = TRUE;		
+      con->checksmart = TRUE;		
       break;
     case SMARTVERBOSEALL :
-      driveinfo = TRUE;
-      checksmart = TRUE;
-      generalsmartvalues = TRUE;
-      smartvendorattrib = TRUE;
-      smarterrorlog = TRUE;
-      smartselftestlog = TRUE;
+      con->driveinfo = TRUE;
+      con->checksmart = TRUE;
+      con->generalsmartvalues = TRUE;
+      con->smartvendorattrib = TRUE;
+      con->smarterrorlog = TRUE;
+      con->smartselftestlog = TRUE;
       break;
     case SMARTVENDORATTRIB :
-      smartvendorattrib = TRUE;
+      con->smartvendorattrib = TRUE;
       break;
     case GENERALSMARTVALUES :
-      generalsmartvalues = TRUE;
+      con->generalsmartvalues = TRUE;
       break;
     case SMARTERRORLOG :
-      smarterrorlog = TRUE;
+      con->smarterrorlog = TRUE;
       break;
     case SMARTSELFTESTLOG :
-      smartselftestlog = TRUE;
+      con->smartselftestlog = TRUE;
       break;
     case SMARTDISABLE :
-      smartdisable = TRUE;
+      con->smartdisable = TRUE;
       break;
     case SMARTENABLE :
-      smartenable   = TRUE;
+      con->smartenable   = TRUE;
       break;
     case SMARTAUTOSAVEENABLE:
-      smartautosaveenable = TRUE;
+      con->smartautosaveenable = TRUE;
       break;
     case SMARTAUTOSAVEDISABLE:
-      smartautosavedisable = TRUE;
+      con->smartautosavedisable = TRUE;
       break;
     case SMARTAUTOOFFLINEENABLE: 
-      smartautoofflineenable = TRUE;
+      con->smartautoofflineenable = TRUE;
       break;
     case SMARTAUTOOFFLINEDISABLE:
-      smartautoofflinedisable = TRUE;
+      con->smartautoofflinedisable = TRUE;
       break;
     case SMARTEXEOFFIMMEDIATE:
-      smartexeoffimmediate = TRUE;
-      testcase=OFFLINE_FULL_SCAN;
+      con->smartexeoffimmediate = TRUE;
+      con->testcase=OFFLINE_FULL_SCAN;
       break;
     case SMARTSHORTSELFTEST :
-      smartshortselftest = TRUE;
-      testcase=SHORT_SELF_TEST;
+      con->smartshortselftest = TRUE;
+      con->testcase=SHORT_SELF_TEST;
       break;
     case SMARTEXTENDSELFTEST :
-      smartextendselftest = TRUE;
-      testcase=EXTEND_SELF_TEST;
+      con->smartextendselftest = TRUE;
+      con->testcase=EXTEND_SELF_TEST;
       break;
     case SMARTSHORTCAPSELFTEST:
-      smartshortcapselftest = TRUE;
-      testcase=SHORT_CAPTIVE_SELF_TEST;
+      con->smartshortcapselftest = TRUE;
+      con->testcase=SHORT_CAPTIVE_SELF_TEST;
       break;
     case SMARTEXTENDCAPSELFTEST:
-      smartextendcapselftest = TRUE;
-      testcase=EXTEND_CAPTIVE_SELF_TEST;
+      con->smartextendcapselftest = TRUE;
+      con->testcase=EXTEND_CAPTIVE_SELF_TEST;
       break;
     case SMARTSELFTESTABORT:
-      smartselftestabort = TRUE;
-      testcase=ABORT_SELF_TEST;
+      con->smartselftestabort = TRUE;
+      con->testcase=ABORT_SELF_TEST;
       break;
     case 'h':
     case '?':
     default:
-      veryquietmode=FALSE;
+      con->veryquietmode=FALSE;
       printslogan();
       if (optopt){
 	pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
@@ -244,13 +228,13 @@ void ParseOpts (int argc, char** argv){
     }
   }
   // Do this here, so results are independent of argument order	
-  if (quietmode)
-    veryquietmode=TRUE;
+  if (con->quietmode)
+    con->veryquietmode=TRUE;
   
   // error message if user has asked for more than one test
-  if (1<(smartexeoffimmediate+smartshortselftest+smartextendselftest+
-	 smartshortcapselftest+smartextendcapselftest+smartselftestabort)){
-    veryquietmode=FALSE;
+  if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
+	 con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
+    con->veryquietmode=FALSE;
     printslogan();
     Usage();
     printf ("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
@@ -269,13 +253,13 @@ void ParseOpts (int argc, char** argv){
 }
 
 
-// Printing function (controlled by global veryquietmode)
+// Printing function (controlled by global con->veryquietmode)
 void pout(char *fmt, ...){
   va_list ap;
 
   // initialize variable argument list 
   va_start(ap,fmt);
-  if (veryquietmode){
+  if (con->veryquietmode){
     va_end(ap);
     return;
   }
@@ -291,7 +275,11 @@ void pout(char *fmt, ...){
 int main (int argc, char **argv){
   int fd,retval=0;
   char *device;
-  
+  atamainctrl control;
+
+  // define control block for external functions
+  con=&control;
+
   // Part input arguments
   ParseOpts(argc,argv);
     

@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.24 2002/10/26 20:53:08 ballen4705 Exp $
+# $Id: Makefile,v 1.25 2002/10/28 23:46:59 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -23,13 +23,13 @@
 CC	= gcc
 
 # Debugging
-# CFLAGS = -fsigned-char -Wall -g
+CFLAGS = -fsigned-char -Wall -g
 
 # Build against kernel header files.  Change linux-2.4 to correct path for your system
 # CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
 
 # Normal build
-CFLAGS	= -fsigned-char -Wall -O2 
+# CFLAGS	= -fsigned-char -Wall -O2 
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
@@ -42,22 +42,22 @@ pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
 
-smartctl: atacmds.o scsicmds.o smartctl.c smartctl.h ataprint.o scsiprint.o atacmds.h ataprint.h scsicmds.h scsiprint.h VERSION Makefile
+smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o atacmds.h ataprint.h extern.h scsicmds.h scsiprint.h smartctl.h  VERSION Makefile
 	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} smartctl.c atacmds.o scsicmds.o ataprint.o scsiprint.o
 
-smartd:  atacmds.o scsicmds.o smartd.c smartd.h atacmds.h scsicmds.h VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c scsicmds.o atacmds.o
+smartd:  smartd.c atacmds.o ataprint.o scsicmds.o atacmds.h ataprint.h extern.h scsicmds.h smartd.h  VERSION Makefile
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c scsicmds.o atacmds.o ataprint.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
 	${CC} ${CFLAGS} -c atacmds.c 
 
-ataprint.o: atacmds.o ataprint.h ataprint.c smartctl.h extern.h Makefile
+ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h Makefile
 	${CC} ${CFLAGS} -c ataprint.c
 
-scsicmds.o: scsicmds.h scsicmds.c Makefile
+scsicmds.o: scsicmds.c scsicmds.h Makefile
 	${CC} ${CFLAGS} -c scsicmds.c
 
-scsiprint.o: scsiprint.h scsiprint.c scsicmds.o smartctl.h extern.h scsicmds.h Makefile
+scsiprint.o: scsiprint.c  extern.h scsicmds.h scsiprint.h smartctl.h Makefile
 	${CC} ${CFLAGS} -c scsiprint.c 
 
 clean:

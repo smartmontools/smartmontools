@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.20 2002/10/26 19:59:01 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.21 2002/10/28 23:46:59 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -384,8 +384,15 @@ void pout(char *fmt, ...);
 #define CVSMAXLEN 512
 void printone(char *block, const char *cvsid);
 
-// MACROS to control printing behavior
-#define QUIETON  {if (quietmode) veryquietmode=0;}
-#define QUIETOFF {if (quietmode && !veryquietmode) veryquietmode=1;}
+
+// This checks the n'th attribute in the attribute list, NOT the
+// attribute with id==n.  If the attribute does not exist, or the
+// attribute is > threshold, then returns zero.  If the attribute is
+// <= threshold (failing) then we the attribute number if it is a
+// prefail attribute.  Else we return minus the attribute number if it
+// is a usage attribute.
+int ataCheckAttribute(struct ata_smart_values *data,
+		      struct ata_smart_thresholds *thresholds,
+		      int n);
 
 #endif /* _ATACMDS_H_ */

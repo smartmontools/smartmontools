@@ -27,30 +27,36 @@
 
 
 #ifndef CVSID3
-#define CVSID3 "$Id: extern.h,v 1.8 2002/10/23 12:24:24 ballen4705 Exp $\n"
+#define CVSID3 "$Id: extern.h,v 1.9 2002/10/28 23:46:59 ballen4705 Exp $\n"
 #endif
 
-extern unsigned char driveinfo;
-extern unsigned char checksmart;
-extern unsigned char smartvendorattrib;
-extern unsigned char generalsmartvalues;
-extern unsigned char smartselftestlog;
-extern unsigned char smarterrorlog;
-extern unsigned char smartdisable;
-extern unsigned char smartenable; 
-extern unsigned char smartstatus;
-extern unsigned char smartexeoffimmediate;
-extern unsigned char smartshortselftest;
-extern unsigned char smartextendselftest;
-extern unsigned char smartshortcapselftest;
-extern unsigned char smartextendcapselftest;
-extern unsigned char smartselftestabort;
-extern unsigned char smartautoofflineenable;
-extern unsigned char smartautoofflinedisable;
-extern unsigned char smartautosaveenable;
-extern unsigned char smartautosavedisable;
-extern unsigned char smart009minutes;
-extern int           testcase;
-extern unsigned char quietmode;
-extern unsigned char veryquietmode;
+// Block used for global control/communications.  If you need more
+// global variables, this should be the only place that you need to
+// add them.
+typedef struct ataprintmain_s {
+  unsigned char driveinfo;
+  unsigned char checksmart;
+  unsigned char smartvendorattrib;
+  unsigned char generalsmartvalues;
+  unsigned char smartselftestlog;
+  unsigned char smarterrorlog;
+  unsigned char smartdisable;
+  unsigned char smartenable; 
+  unsigned char smartstatus;
+  unsigned char smartexeoffimmediate;
+  unsigned char smartshortselftest;
+  unsigned char smartextendselftest;
+  unsigned char smartshortcapselftest;
+  unsigned char smartextendcapselftest;
+  unsigned char smartselftestabort;
+  unsigned char smartautoofflineenable;
+  unsigned char smartautoofflinedisable;
+  unsigned char smartautosaveenable;
+  unsigned char smartautosavedisable;
+  unsigned char smart009minutes;
+  int           testcase;
+  unsigned char quietmode;
+  unsigned char veryquietmode;
+} atamainctrl;
+
 #endif
