@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.57 2003/04/03 07:50:59 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.58 2003/04/05 05:32:31 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -274,7 +274,7 @@ void ParseOpts (int argc, char** argv){
   extern char *optarg;
   extern int optopt, optind, opterr;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:t:CX";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:t:CXF";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -302,6 +302,7 @@ void ParseOpts (int argc, char** argv){
     { "test",            required_argument, 0, 't' },
     { "captive",         no_argument,       0, 'C' },
     { "abort",           no_argument,       0, 'X' },
+    { "fixbug",          no_argument,       0, 'F' },
     { 0,                 0,                 0, 0   }
   };
 #endif
@@ -423,6 +424,9 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'H':
       con->checksmart = TRUE;		
+      break;
+    case 'F':
+      con->fixbuginerrorlog = TRUE;
       break;
     case 'c':
       con->generalsmartvalues = TRUE;

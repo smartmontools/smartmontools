@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.80 2003/04/03 17:33:48 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.81 2003/04/05 05:32:30 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -792,6 +792,43 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
 }
 
 
+// swap two bytes.  Point to low address
+void swap2(char *location){
+  char tmp=*location;
+  *location=*(location+1);
+  *(location+1)=tmp;
+  return;
+}
+
+// swap four bytes.  Point to low address
+void swap4(char *location){
+  char tmp=*location;
+  *location=*(location+3);
+  *(location+3)=tmp;
+  swap2(location+1);
+  return;
+}
+
+void fixbuginerrorlog(struct ata_smart_errorlog *data){
+  char *start=(char *)data;
+  int i;
+
+  // Device error count in bytes 452-3
+  swap2(start+452);
+
+  // step through 5 error log data structures
+  for (i=0; i<5; i++){
+    int j;
+    char* elog=start+90*i+2;
+    // step through 5 command data structures
+    for (j=0; j<5; j++)
+      // Command data structure 4-byte millisec timestamp
+      swap4(elog+12*j+8);
+    // Error data structure life timestamp
+    swap2(elog+5*12+28);
+  }
+}
+    
 // Reads the Error Log (log #1)
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
   
@@ -805,6 +842,11 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART ATA Error Log Structure");
   
+  // Some disks have the byte order reversed in some SMART Summary
+  // Error log entries
+  if (con->fixbuginerrorlog)
+    fixbuginerrorlog(data);
+
   return 0;
 }
 
