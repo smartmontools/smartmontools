@@ -1,4 +1,4 @@
-//  $Id: atacmds.cpp,v 1.5 2002/10/14 15:26:05 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.6 2002/10/15 08:58:40 ballen4705 Exp $
 /*
  * atacmds.c
  *
@@ -486,22 +486,20 @@ int isSupportSelfTest (struct ata_smart_values data)
 }
 
 
-int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds)
-{
-   int i;
+// Loop over all valid attributes.  If they are prefailure attributes
+// and are below the threshold value, then return the index of the
+// lowest failing attribute.  Return 0 if all prefailure attributes
+// are in bounds.
+int ataCheckSmart (struct ata_smart_values data, struct ata_smart_thresholds thresholds){
+  int i;
   
-   for ( i = 0 ; i < 30 ; i++ )
-   {
-      if ( (data.vendor_attributes[i].id !=0) &&   
-           (thresholds.thres_entries[i].id != 0) &&
-           (data.vendor_attributes[i].status.flag.prefailure) &&
-           (data.vendor_attributes[i].current <
-             thresholds.thres_entries[i].threshold) &&
-           (thresholds.thres_entries[i].threshold != 0xFE) )
-      {
-         return i;
-      }
-   }
-
-   return 0;
+  for (i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++){
+    if (data.vendor_attributes[i].id &&   
+	thresholds.thres_entries[i].id &&
+	data.vendor_attributes[i].status.flag.prefailure &&
+	(data.vendor_attributes[i].current < thresholds.thres_entries[i].threshold) &&
+	(thresholds.thres_entries[i].threshold != 0xFE))
+      return i;
+  }
+  return 0;
 }
