@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.33 2002/11/04 08:47:38 ballen4705 Exp $
+# $Id: Makefile,v 1.34 2002/11/07 11:28:17 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -115,6 +115,12 @@ uninstall:
 # All this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
 release:
+	cat smartmontools.spec | sed '/Release:/d' > temp.spec
+	echo "Release: " $(counter) > temp.version
+	cat temp.version temp.spec > smartmontools.spec
+	rm -f temp.spec temp.version
+	. cvs-script && cvs commit -m "release $(counter)"
+	. cvs-script && cvs tag -d "RELEASE_5_0_$(counter)" && cvs tag "RELEASE_5_0_$(counter)"
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)
@@ -123,10 +129,6 @@ release:
 	tar zcvf $(pkgname2).tar.gz $(pkgname2)
 	rm -rf $(pkgname2)
 	mv -f $(pkgname).tar.gz /usr/src/redhat/SOURCES/
-	cat smartmontools.spec | sed '/Release:/d' > temp.spec
-	echo "Release: " $(counter) > temp.version
-	cat temp.version temp.spec > smartmontools.spec
-	rm -f temp.spec temp.version
 	rpm -ba smartmontools.spec
 	mv /usr/src/redhat/RPMS/i386/$(pkgname)*.rpm .
 	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .

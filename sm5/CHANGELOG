@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.37 2002/11/07 11:00:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.38 2002/11/07 11:28:17 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,6 +26,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
 
 smartmontools-5.0.31
+
+  Changed Makefile so that the -V option does not reflect file state
+  before commit!
 
   smartctl: added new options -W, -U, and -P to control if and how the
   smartctl exits if an error is detected in either a SMART data
