@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.101 2003/06/19 03:27:53 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.102 2003/06/19 15:16:29 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -917,6 +917,24 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   if (con->fixfirmwarebug == FIX_SAMSUNG)
     fixsamsungerrorlog(data);
 
+  // Correct endian order if necessary
+  if (isbigendian()){
+    int i,j;
+    
+    // Device error count in bytes 452-3
+    swap2((char *)&(data->ata_error_count));
+    
+    // step through 5 error log data structures
+    for (i=0; i<5; i++){
+      // step through 5 command data structures
+      for (j=0; j<5; j++)
+	// Command data structure 4-byte millisec timestamp
+	swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
+      // Error data structure life timestamp
+      swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
+    }
+  }
+  
   return 0;
 }
 
