@@ -36,8 +36,17 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.11 2003/05/06 22:58:00 guidog Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.12 2003/06/19 03:02:02 ballen4705 Exp $" UTILITY_H_CVSID;
 
+// Returns 1 if machine is big endian, else zero.  This is a run-time
+// rather than a compile-time function.  We could do it at
+// compile-time but in principle there are architectures that can run
+// with either byte-ordering.
+int isbigendian(){
+  short i=0x0100;
+  char *tmp=(char *)&i;
+  return *tmp;
+}
 
 // Utility function prints date and time and timezone into a character
 // buffer of length>=64.  All the fuss is needed to get the right
