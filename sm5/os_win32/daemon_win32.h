@@ -19,7 +19,7 @@
 #ifndef DAEMON_WIN32_H
 #define DAEMON_WIN32_H
 
-#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.1 2004/03/24 22:37:37 chrfranke Exp $\n"
+#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.2 2004/03/29 21:50:52 chrfranke Exp $\n"
 
 #include <signal.h>
 
@@ -43,6 +43,9 @@ void daemon_disable_console(void);
 int daemon_enable_console(const char * title);
 
 // Detach from console
-int daemon_detach(void);
+int daemon_detach(const char * ident);
+
+// Display a message box
+int daemon_messagebox(int system, const char * title, const char * text);
 
 #endif // DAEMON_WIN32_H

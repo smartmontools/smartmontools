@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.385 2004/03/29 00:26:03 ballen4705 Exp $
+$Id: CHANGELOG,v 1.386 2004/03/29 21:50:44 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Win32/native smartd: Added ability to display warning "emails"
+       as message box by "-m msgbox" directive. With "-m sysmsgbox",
+       a system modal (always on top) message box is shown.
 
   [BA] smartctl: printing of self-test log for disks that support
        Selective self-testing now shows the status of the (optional)

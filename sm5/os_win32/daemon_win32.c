@@ -27,10 +27,13 @@
 #define _WIN32_WINDOWS 0x0800
 #endif
 #include <windows.h>
+#ifdef _DEBUG
+#include <crtdbg.h>
+#endif
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.1 2004/03/24 22:37:37 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.2 2004/03/29 21:50:52 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -128,6 +131,16 @@ static int sig_event(int sig)
 	SetEvent(h);
 	CloseHandle(h);
 	return 1;
+}
+
+
+static void daemon_help(FILE * f, const char * ident, const char * message)
+{
+	fprintf(f,
+		"%s: %s.\n"
+		"Use \"%s status|stop|reload|restart|sigusr1|sigusr2\" to control daemon.\n",
+		ident, message, ident);
+	fflush(f);
 }
 
 
@@ -410,14 +423,32 @@ int daemon_enable_console(const char * title)
 
 // Detach daemon from console & parent
 
-int daemon_detach()
+int daemon_detach(const char * ident)
 {
 	// Signal detach to parent
 	if (sig_event(EVT_DETACHED) != 1) {
 		if (!debugging())
 			return -1;
 	}
+	if (ident) {
+		// Print help
+		FILE * f = ( isatty(fileno(stdout)) ? stdout
+		           : isatty(fileno(stderr)) ? stderr : NULL);
+		if (f)
+			daemon_help(f, ident, "now detaches from console into background mode");
+	}
 	daemon_disable_console();
+	return 0;
+}
+
+
+// Display a message box
+
+int daemon_messagebox(int system, const char * title, const char * text)
+{
+	if (MessageBoxA(NULL, text, title,
+	                MB_OK|MB_ICONWARNING|(system?MB_SYSTEMMODAL:MB_APPLMODAL)) != IDOK)
+		return -1;
 	return 0;
 }
 
@@ -436,6 +467,7 @@ static int wait_signaled(HANDLE h, int seconds)
 		fputchar('.'); fflush(stdout);
 	}
 }
+
 
 static int wait_evt_running(int seconds, int exists)
 {
@@ -562,6 +594,12 @@ int daemon_main(const char * ident, int argc, char **argv)
 	HANDLE rev;
 	BOOL exists;
 
+#ifdef _DEBUG
+	// Enable Debug heap checks
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG)
+		|_CRTDBG_ALLOC_MEM_DF|_CRTDBG_CHECK_ALWAYS_DF|_CRTDBG_LEAK_CHECK_DF);
+#endif
+
 	// Check for [status|stop|reload] parameters
 	if ((rc = initd_main(ident, argc, argv)) >= 0)
 		return rc;
@@ -584,9 +622,7 @@ int daemon_main(const char * ident, int argc, char **argv)
 	}
 
 	// Event no longer signaled => Already running!
-	printf("%s: already running.\n"
-	       "Use \"%s status|stop|reload|restart|sigusr1|sigusr2\" to control daemon.\n",
-	       ident, ident);
+	daemon_help(stdout, ident, "already running");
 	CloseHandle(rev);
 	return 1;
 }
