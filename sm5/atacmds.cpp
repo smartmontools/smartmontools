@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.110 2003/07/08 13:23:55 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.111 2003/07/19 10:21:37 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -484,7 +484,7 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
 
   // See struct hd_drive_cmd_hdr in hdreg.h
   // buff[0]: ATA COMMAND CODE REGISTER
-  // buff[1]: ATA SECTOR NUMBER REGISTER
+  // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
   // buff[2]: ATA FEATURES REGISTER
   // buff[3]: ATA SECTOR COUNT REGISTER
   
@@ -945,7 +945,9 @@ void fixsamsungerrorlog(struct ata_smart_errorlog *data){
   }
 }
 
-// Reads the Error Log (log #1)
+// Reads the Summary SMART Error Log (log #1). The Comprehensive SMART
+// Error Log is #2, and the Extended Comprehensive SMART Error log is
+// #3
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
   
   // get data from device
@@ -1183,6 +1185,9 @@ int TestTime(struct ata_smart_values *data,int testtype){
   case EXTEND_SELF_TEST:
   case EXTEND_CAPTIVE_SELF_TEST:
     return (int) data->extend_test_completion_time;
+  case CONVEYANCE_SELF_TEST:
+  case CONVEYANCE_CAPTIVE_SELF_TEST:
+    return (int) data->conveyance_test_completion_time;
   default:
     return 0;
   }

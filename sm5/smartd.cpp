@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.171 2003/06/22 19:52:59 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.172 2003/07/19 10:21:37 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -86,7 +86,7 @@ volatile int sleeptime=CHECKTIME;
 void sleephandler(int sig){
   int oldsleeptime=sleeptime;
   sleeptime=0;
-  printout(LOG_CRIT,"Signal USR1 - checking devices now rather than in %d seconds.\n",oldsleeptime<0?0:oldsleeptime);
+  printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",oldsleeptime<0?0:oldsleeptime);
   return;
 }
 
@@ -322,10 +322,17 @@ void huphandler(int sig){
 }
 
 // signal handler that tells users about signals that were caught
+// currently called for INT, TERM, and QUIT
 void sighandler(int sig){
-    printout(LOG_CRIT,"smartd received signal %d: %s\n",
-             sig, strsignal(sig));
-    exit(EXIT_SIGNAL);
+
+  // are we exiting with SIGTERM?
+  int isterm=(sig==SIGTERM);
+
+  printout(isterm?LOG_INFO:LOG_CRIT, 
+	   "smartd received signal %d: %s\n",
+	   sig, strsignal(sig));
+  
+  exit(isterm?0:EXIT_SIGNAL);
 }
 
 // remove the PID file
@@ -340,8 +347,8 @@ void remove_pid_file(){
 }
 
 // signal handler that prints goodbye message and removes pidfile
-void goodbye(){
-  printout(LOG_CRIT,"smartd is exiting\n");
+void goodbye(int exitstatus, void *notused){  
+  printout(exitstatus?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", exitstatus);
   remove_pid_file();
   return;
 }
@@ -1198,6 +1205,7 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
     // Use the -c/--checkonce option and verify zero exit status.
     if (checkonce) {
       printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n");
+      printout(LOG_INFO,"smartd is exiting (exit status 0)\n");
       exit(0);
     }
 
@@ -1209,19 +1217,23 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 	daemon_init();
       
       // install goobye message and remove pidfile handler
-      atexit(goodbye);
+      on_exit(goodbye, NULL);
       
       // write PID file only after installing exit handler
       if (!debugmode)
 	write_pid_file();
       
-      // install signal handlers
-      if (signal(SIGINT, sighandler)==SIG_IGN)
-	signal(SIGINT, SIG_IGN);
+      // install signal handlers:
+
+      // normal and abnormal exit
       if (signal(SIGTERM, sighandler)==SIG_IGN)
 	signal(SIGTERM, SIG_IGN);
+      if (signal(SIGINT,  sighandler)==SIG_IGN)
+	signal(SIGINT,  SIG_IGN);
       if (signal(SIGQUIT, sighandler)==SIG_IGN)
 	signal(SIGQUIT, SIG_IGN);
+      
+      // don't exit
       if (signal(SIGHUP, huphandler)==SIG_IGN)
 	signal(SIGHUP, SIG_IGN);
       if (signal(SIGUSR1, sleephandler)==SIG_IGN)

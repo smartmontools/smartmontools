@@ -22,7 +22,6 @@
  *
  */
 
-
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -44,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.76 2003/05/01 08:51:46 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.77 2003/07/19 10:21:37 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -180,17 +179,32 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printf(
 "  -t TEST, --test=TEST\n"
-"        Run test on device.  TEST is one of: offline, short, long\n\n"
+#if DEVELOP_SELECTIVE_SELF_TEST
+"        Run test.  TEST is: offline, short, long, conveyance, selective\n\n"
+#else
+"        Run test.  TEST is: offline, short, long, conveyance\n\n"
+#endif
+
 "  -C, --captive\n"
-"        With -t, performs test in captive mode (short/long only)\n\n"
+#if DEVELOP_SELECTIVE_SELF_TEST
+"        With -t, do test in captive mode (short/long/conveyance/selective)\n\n"
+#else
+"        With -t, do test in captive mode (short/long/conveyance)\n\n"
+#endif
+
 "  -X, --abort\n"
 "        Abort any non-captive test on device\n\n"
 );
 #else
   printf(
-"  -t TEST   Run test on device.  TEST is one of: offline, short, long   \n"
-"  -C        With -t, performs test in captive mode (short/long only)  \n"
-"  -X        Abort any non-captive test                                \n\n"
+#if DEVELOP_SELECTIVE_SELF_TEST
+"  -t TEST   Run test.  TEST is: offline, short, long, conveyance, selective\n"
+"  -C        With -t, do test in captive mode (short/long/conveyance/selective)\n"
+#else
+"  -t TEST   Run test.  TEST is: offline, short, long, conveyance\n"
+"  -C        With -t, do test in captive mode (short/long/conveyance)\n"
+#endif
+"  -X        Abort any non-captive test\n\n"
   );
 #endif
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
@@ -250,7 +264,11 @@ const char *getvalidarglist(char opt) {
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-    return "offline, short, long";
+#if DEVELOP_SELECTIVE_SELF_TEST
+    return "offline, short, long, conveyance, selective";
+#else
+    return "offline, short, long, conveyance";
+#endif
   case 'F':
     return "none, samsung";
   default:
@@ -532,6 +550,14 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"long")) {
         con->smartextendselftest = TRUE;
         con->testcase            = EXTEND_SELF_TEST;
+      } else if (!strcmp(optarg,"conveyance")) {
+        con->smartconveyanceselftest = TRUE;
+        con->testcase            = CONVEYANCE_SELF_TEST;
+#if DEVELOP_SELECTIVE_SELF_TEST
+      } else if (!strcmp(optarg,"selective")) {
+        con->smartselectiveselftest = TRUE;
+        con->testcase            = SELECTIVE_SELF_TEST;
+#endif
       } else {
         badarg = TRUE;
       }
@@ -607,15 +633,27 @@ void ParseOpts (int argc, char** argv){
 
   // If captive option was used, change test type if appropriate.
   if (captive && con->smartshortselftest) {
-      con->smartshortselftest    = FALSE;
-      con->smartshortcapselftest = TRUE;
-      con->testcase              = SHORT_CAPTIVE_SELF_TEST;
+    con->smartshortselftest    = FALSE;
+    con->smartshortcapselftest = TRUE;
+    con->testcase              = SHORT_CAPTIVE_SELF_TEST;
   } else if (captive && con->smartextendselftest) {
-      con->smartextendselftest    = FALSE;
-      con->smartextendcapselftest = TRUE;
-      con->testcase               = EXTEND_CAPTIVE_SELF_TEST;
+    con->smartextendselftest    = FALSE;
+    con->smartextendcapselftest = TRUE;
+    con->testcase               = EXTEND_CAPTIVE_SELF_TEST;
   }
-
+  else if (captive && con->smartconveyanceselftest) {
+    con->smartconveyanceselftest    = FALSE;
+    con->smartconveyancecapselftest = TRUE;
+    con->testcase                   = CONVEYANCE_CAPTIVE_SELF_TEST;
+  }
+#if DEVELOP_SELECTIVE_SELF_TEST
+  else if (captive && con->smartselectiveselftest) {
+    con->smartselectiveselftest    = FALSE;
+    con->smartselectivecapselftest = TRUE;
+    con->testcase                  = SELECTIVE_CAPTIVE_SELF_TEST;
+  }
+#endif 
+ 
   // From here on, normal operations...
   printslogan();
   
