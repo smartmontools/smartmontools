@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.15 2003/12/16 19:15:22 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.16 2003/12/18 10:57:00 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -92,7 +92,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
     exit $RETVAL
 
 # Slackware
-elif [ -f /etc/slackware-version] ; then
+elif [ -f /etc/slackware-version ] ; then
     
     case "$1" in
 	start)
