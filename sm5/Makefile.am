@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.62 2004/08/30 05:44:50 ballen4705 Exp $
+# $Id: Makefile.am,v 1.63 2004/08/30 16:00:31 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -295,11 +295,11 @@ smart%: $(srcdir)/smart%.in Makefile
 	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
 	sed "s|CURRENT_CVS_DATE|$(smartmontools_release_date)|g" | \
 	sed "s|CURRENT_CVS_TIME|$(smartmontools_release_time)|g" | \
-	sed "s|/usr/share/man/|$(mandir)/|g" | \
-	sed "s|/usr/sbin/|$(sbindir)/|g" | \
-	sed "s|/etc/rc\\.d/init.d/|$(initddir)/|g" | \
-	sed "s|/usr/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
-	sed "s|/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
+	sed "s|/usr/local/share/man/|$(mandir)/|g" | \
+	sed "s|/usr/local/sbin/|$(sbindir)/|g" | \
+	sed "s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g" | \
+	sed "s|/usr/local/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
+	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
 
 
 # Commands to convert man pages into .html and .txt
