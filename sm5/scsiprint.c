@@ -37,7 +37,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.21 2003/03/24 10:48:31 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.22 2003/03/26 08:15:51 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -55,15 +55,15 @@ UINT8 gTapeAlertsPage = 0;
 
 void scsiGetSupportPages(int device)
 {
-    int i;
+    int i, err;
 
-    if (logsense(device ,SUPPORT_LOG_PAGES, gBuf, LOG_RESP_LEN) != 0) {
-        perror ( "Log Sense failed"); 
-        exit (1);
+    if ((err = logsense(device ,SUPPORT_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
+        pout("Log Sense failed, err=%d\n", err); 
+        return;
     } 
 
     for (i = 4; i < gBuf[3] + LOGPAGEHDRSIZE; i++) {
-        switch ( gBuf[i])
+        switch (gBuf[i])
         {
             case TEMPERATURE_PAGE:
                 gTempPage = 1;
@@ -88,25 +88,25 @@ void scsiGetSupportPages(int device)
 
 void scsiGetSmartData(int device)
 {
-
     UINT8 returnvalue;
     UINT8 currenttemp;
     UINT8 triptemp;
+    int err;
 
-    if (scsiCheckSmart(device, gSmartPage, 
-                       &returnvalue, &currenttemp, &triptemp) != 0) {
-        perror ( "scsiGetSmartData Failed");
-        exit (1);
+    if ((err = scsiCheckSmart(device, gSmartPage, 
+                       &returnvalue, &currenttemp, &triptemp))) {
+        pout("scsiGetSmartData Failed, err=%d\n", err);
+        return;
     }
     if (returnvalue)
-        printf("S.M.A.R.T. Sense: (%02x) %s\n", (UINT8)returnvalue, 
-               scsiSmartGetSenseCode(returnvalue));
+        pout("S.M.A.R.T. Sense: (%02x) %s\n", (UINT8)returnvalue, 
+             scsiSmartGetSenseCode(returnvalue));
     else
-        printf("S.M.A.R.T. Sense: Ok!\n");
+        pout("S.M.A.R.T. Sense: Ok!\n");
 
-    if ( (currenttemp || triptemp) && !gTempPage) {
-        printf("Current Drive Temperature:     %d C\n", currenttemp);
-        printf("Drive Trip Temperature:        %d C\n", triptemp);
+    if ((currenttemp || triptemp) && !gTempPage) {
+        pout("Current Drive Temperature:     %d C\n", currenttemp);
+        pout("Drive Trip Temperature:        %d C\n", triptemp);
     }
 }
 
@@ -115,16 +115,16 @@ void scsiGetTapeAlertsData(int device)
 {
     unsigned short pagelength;
     unsigned short parametercode;
-    int i;
+    int i, err;
     int failure = 0;
 
-    if (logsense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN) != 0) {
-        perror("scsiGetSmartData Failed");
-        exit (1);
+    if ((err = logsense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
+        pout("scsiGetSmartData Failed, err=%d\n", err);
+        return;
     }
     if (gBuf[0] != 0x2e) {
-        printf("TapeAlerts Log Sense Failed\n");
-        exit(-1);
+        pout("TapeAlerts Log Sense Failed\n");
+        return;
     }
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
 
@@ -132,37 +132,38 @@ void scsiGetTapeAlertsData(int device)
         parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
 
         if (gBuf[i + 4]) {
-            printf("Tape Alerts Error!!!\n%s\n",
+            pout("Tape Alerts Error!!!\n%s\n",
                    scsiTapeAlertsTapeDevice(parametercode));
             failure = 1; 
         }          
     }
 
-    if (!failure)
-        printf("No Tape Alerts Failure\n");
+    if (! failure)
+        pout("No Tape Alerts Failure\n");
 }
 
 void scsiGetStartStopData(int device)
 {
     UINT32 currentStartStop;
     UINT32 recommendedStartStop; 
+    int err;
 
-    if (logsense(device, STARTSTOP_CYCLE_COUNTER_PAGE, 
-                 gBuf, LOG_RESP_LEN) != 0) {
-        perror ( "scsiGetStartStopData Failed");
-        exit (1);
+    if ((err = logsense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
+                        LOG_RESP_LEN))) {
+        pout("scsiGetStartStopData Failed, err=%d\n", err);
+        return;
     }
     if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_PAGE) {
-         printf("StartStop Log Sense Failed\n");
-         exit(-1);
+         pout("StartStop Log Sense Failed\n");
+         return;
     }
     recommendedStartStop= gBuf[28]<< 24 | gBuf[29] << 16 |
                                        gBuf[30] << 8 | gBuf[31];
     currentStartStop= gBuf[36]<< 24 | gBuf[37] << 16 |
                                        gBuf[38] << 8 | gBuf[39];
 
-    printf("Current start stop count:      %u times\n", currentStartStop);
-    printf("Recommended start stop count:  %u times\n", recommendedStartStop);
+    pout("Current start stop count:      %u times\n", currentStartStop);
+    pout("Recommended start stop count:  %u times\n", recommendedStartStop);
 } 
 
 const char * self_test_code[] = {
@@ -199,24 +200,25 @@ const char * self_test_result[] = {
 // T10/1416-D Rev 10
 void  scsiPrintSelfTest(int device)
 {
-    int num, k, n, res, noheader=1;
+    int num, k, n, res, err;
+    int noheader = 1;
     UINT8 * ucp;
     unsigned long long ull=0;
 
-    if (logsense(device, SELFTEST_RESULTS_PAGE, gBuf, LOG_RESP_LEN) != 0) {
-        perror ( "scsiPrintSelfTest Failed");
-        exit (1);
+    if ((err = logsense(device, SELFTEST_RESULTS_PAGE, gBuf, LOG_RESP_LEN))) {
+        pout("scsiPrintSelfTest Failed, err=%d", err);
+        return;
     }
     if (gBuf[0] != SELFTEST_RESULTS_PAGE) {
-        printf("Self-test Log Sense Failed\n");
-        exit(1);
+        pout("Self-test Log Sense Failed\n");
+        return;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
-        printf("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
-	exit(1);
+        pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
+	return;
     }
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
@@ -232,21 +234,21 @@ void  scsiPrintSelfTest(int device)
 
         // only print header if needed
         if (noheader) {
-            printf("\nSMART Self-test log\n");
-	    printf("Num  Test              Status                 segment  "
+            pout("\nSMART Self-test log\n");
+	    pout("Num  Test              Status                 segment  "
 		   "LifeTime  LBA_first_err [SK ASC ASQ]\n");
-	    printf("     Description                              number   "
+	    pout("     Description                              number   "
 		   "(hours)\n");
 	    noheader=0;
         }
 
         // print parameter code (test number) & self-test code text
-	printf("#%2d  %s", (ucp[0] << 8) | ucp[1], 
+	pout("#%2d  %s", (ucp[0] << 8) | ucp[1], 
             self_test_code[(ucp[4] >> 5) & 0x7]);
 
         // self-test result
         res = ucp[4] & 0xf;
-        printf("  %s", self_test_result[res]);
+        pout("  %s", self_test_result[res]);
 
         // self-test number identifies test that failed and consists
         // of either the number of the segment that failed during
@@ -255,16 +257,16 @@ void  scsiPrintSelfTest(int device)
         // vendor-specific method of putting both numbers into a
         // single byte.
 	if (ucp[5])
-            printf(" %3d",  (int)ucp[5]);
+            pout(" %3d",  (int)ucp[5]);
 	else
-	    printf("   -");
+	    pout("   -");
 
 	// print time that the self-test was completed
 	if (n==0 && res==0xf)
         // self-test in progress
-            printf("   NOW");
+            pout("   NOW");
 	else   
-	    printf(" %5d", n);
+	    pout(" %5d", n);
 	  
 	// construct 8-byte integer address of first failure
 	for (i = 0; i < 8; i++) {
@@ -273,23 +275,23 @@ void  scsiPrintSelfTest(int device)
 	}
 	// print Address of First Failure, if sensible
 	if ((0xffffffffffffffffULL != ull) && (res > 0) && ( res < 0xf))
-	    printf("  0x%16llx", ull);
+	    pout("  0x%16llx", ull);
 	else
-	    printf("                   -");
+	    pout("                   -");
 
 	// if sense key nonzero, then print it, along with
 	// additional sense code and additional sense code qualifier
 	if (ucp[16] & 0xf)
-	    printf(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
+	    pout(" [0x%x 0x%x 0x%x]\n", ucp[16] & 0xf, ucp[17], ucp[18]);
 	else
-	    printf(" [-   -    -]\n");
+	    pout(" [-   -    -]\n");
     }
 
     // if header never printed, then there was no output
     if (noheader)
-        printf("No self-tests have been logged\n\n");
+        pout("No self-tests have been logged\n\n");
     else
-        printf("\n");
+        pout("\n");
     return;
 }
  
@@ -300,10 +302,13 @@ void scsiGetDriveInfo(int device)
     char revision[5];
     char timedatetz[64];
     UINT8 smartsupport;
+    int err;
 	
     memset(gBuf, 0, 36);
-    if (stdinquiry(device, gBuf, 36) != 0)
-        perror ( "Standard Inquiry failed");
+    if ((err = stdinquiry(device, gBuf, 36))) {
+        pout("Standard Inquiry failed, err=%d\n", err);
+        return;
+    }
 
     memset(manufacturer, 0, sizeof(manufacturer));
     strncpy(manufacturer, &gBuf[8], 8);
@@ -313,45 +318,43 @@ void scsiGetDriveInfo(int device)
 	
     memset(revision, 0, sizeof(revision));
     strncpy(revision, &gBuf[32], 4);
-    printf("Device: %s %s Version: %s\n", manufacturer, product, revision);
+    pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);
-    printf("Local Time is: %s\n", timedatetz);
+    pout("Local Time is: %s\n", timedatetz);
    
-    if (scsiSmartSupport(device, &smartsupport) != 0) {
-        printf("Device does not support %s\n", (gBuf[0] & 0x1f) ?
+    if ((err = scsiSmartSupport(device, &smartsupport))) {
+        pout("Device does not support %s\n", (gBuf[0] & 0x1f) ?
                          "TapeAlerts" : "S.M.A.R.T.");
-        exit (1);
+        return;
     }
-	
-    printf("Device supports %s and is %s\n%s\n", 
+    pout("Device supports %s and is %s\n%s\n", 
             (gBuf[0] & 0x1f) ? "TapeAlerts" : "S.M.A.R.T.",
             (smartsupport & DEXCPT_ENABLE) ? "Disable" : "Enabled",
             (smartsupport & EWASC_ENABLE) ? "Temperature Warning Enabled" :
 		"Temperature Warning Disabled or Not Supported");
 }
 
-
 void scsiSmartEnable(int device)
 {
     /* Enable Exception Control */
-    if (scsiSmartDEXCPTDisable(device) != 0)
-        exit (1);
-    printf("S.M.A.R.T. enabled\n");
+    if (scsiSmartDEXCPTDisable(device))
+        return;
+    pout("S.M.A.R.T. enabled\n");
 
-    if (scsiSmartEWASCEnable(device) != 0)
-        printf("Temperature Warning not Supported\n");
+    if (scsiSmartEWASCEnable(device))
+        pout("Temperature Warning not Supported\n");
     else
-        printf("Temperature Warning Enabled\n");
+        pout("Temperature Warning Enabled\n");
     return;
 }
 	
 void scsiSmartDisable(int device)
 {
-    if ( scsiSmartDEXCPTEnable(device) != 0)
-        exit (1);
-    printf("S.M.A.R.T. Disabled\n");
+    if (scsiSmartDEXCPTEnable(device))
+        return;
+    pout("S.M.A.R.T. Disabled\n");
 }
 
 void scsiPrintTemp(int device)
@@ -359,11 +362,11 @@ void scsiPrintTemp(int device)
     UINT8 temp;
     UINT8 trip;
 
-    if (scsiGetTemp(device, &temp, &trip) != 0)
-        exit (1);
+    if (scsiGetTemp(device, &temp, &trip))
+        return;
   
-    printf("Current Drive Temperature:     %d C\n", temp);
-    printf("Drive Trip Temperature:        %d C\n", trip);
+    pout("Current Drive Temperature:     %d C\n", temp);
+    pout("Drive Trip Temperature:        %d C\n", trip);
 }
 
 void scsiPrintStopStart(int device)
@@ -371,9 +374,9 @@ void scsiPrintStopStart(int device)
 /**
     unsigned int css;
 
-    if (scsiGetStartStop(device, unsigned int *css) != 0)
-        exit (1);
-    printf ("Start Stop Count: %d\n", css);
+    if (scsiGetStartStop(device, unsigned int *css))
+        return;
+    pout("Start Stop Count: %d\n", css);
 **/
 }
 
@@ -383,8 +386,8 @@ void scsiPrintMain(char *device, int fd)
 
     // See if unit accepts SCSI commmands from us
     if (testunitready(fd)) {
-        printf("Smartctl: device %s failed Test Unit Ready\n", device);
-        exit(1);
+        pout("Smartctl: device %s failed Test Unit Ready\n", device);
+        return;
     }
     if (con->driveinfo)
 	scsiGetDriveInfo(fd); 
@@ -395,8 +398,7 @@ void scsiPrintMain(char *device, int fd)
     if (con->smartdisable)
 	scsiSmartDisable(fd);
 
-    if (con->checksmart)
-    {
+    if (con->checksmart) {
 	scsiGetSupportPages (fd);
 	checkedsupportlogpages = 1;
         if(gTapeAlertsPage)
@@ -416,50 +418,50 @@ void scsiPrintMain(char *device, int fd)
             scsiPrintSelfTest(fd);
     }
     if (con->smartexeoffimmediate) {
-	if ( scsiSmartOfflineTest (fd) != 0) {
-            printf( "Smartctl: Smart Offline Failed\n");
-            exit(-1);
+	if ( scsiSmartOfflineTest(fd)) {
+            pout( "Smartctl: Smart Offline Failed\n");
+            return;
 	}
-	printf ("Drive Command Successful offline test has begun\n");
-        printf ("Use smartctl -X to abort test\n");	
+	pout("Drive Command Successful offline test has begun\n");
+        pout("Use smartctl -X to abort test\n");	
     }
     if (con->smartshortcapselftest) {
-        if (scsiSmartShortCapSelfTest (fd) != 0) {
-            printf( "Smartctl: Smart Short Self Test Failed\n");
-            exit(-1);
+        if (scsiSmartShortCapSelfTest(fd)) {
+            pout("Smartctl: Smart Short Self Test Failed\n");
+            return;
 	}
-	printf ("Drive Command Successful Short Self test has begun\n");
-        printf ("Use smartctl -X to abort test\n");	
+	pout("Drive Command Successful Short Self test has begun\n");
+        pout("Use smartctl -X to abort test\n");	
     }
     if (con->smartshortselftest ) { 
-        if ( scsiSmartShortSelfTest (fd) != 0) {
-            printf( "Smartctl: Smart Short Self Test Failed\n");
-            exit(-1);
+        if ( scsiSmartShortSelfTest(fd)) {
+            pout("Smartctl: Smart Short Self Test Failed\n");
+            return;
         }
-	printf ("Drive Command Successful Short Self test has begun\n");
-        printf ("Use smartctl -X to abort test\n");
+	pout("Drive Command Successful Short Self test has begun\n");
+        pout("Use smartctl -X to abort test\n");
     }
     if (con->smartextendselftest) {
-        if (scsiSmartExtendSelfTest (fd) != 0) {
-            printf( "S.M.A.R.T. Extended Self Test Failed\n");
-	    exit(-1);
+        if (scsiSmartExtendSelfTest(fd)) {
+            pout("S.M.A.R.T. Extended Self Test Failed\n");
+	    return;
         }
-        printf ("Drive Command Successful Extended Self test has begun\n");
-        printf ("Use smartctl -X to abort test\n");	
+        pout("Drive Command Successful Extended Self test has begun\n");
+        pout("Use smartctl -X to abort test\n");	
     }
     if (con->smartextendcapselftest) {
-        if (scsiSmartExtendCapSelfTest (fd) != 0) {
-            printf( "S.M.A.R.T. Extended Self Test Failed\n");
-            exit(-1);
+        if (scsiSmartExtendCapSelfTest(fd)) {
+            pout("S.M.A.R.T. Extended Self Test Failed\n");
+            return;
         }
-        printf ("Drive Command Successful Extended Self test has begun\n");
-        printf ("Use smartctl -X to abort test\n");	
+        pout("Drive Command Successful Extended Self test has begun\n");
+        pout("Use smartctl -X to abort test\n");	
     }
     if (con->smartselftestabort) {
-        if (scsiSmartSelfTestAbort (fd) != 0) {
-            printf( "S.M.A.R.T. Self Test Abort Failed\n");
-            exit(-1);
+        if (scsiSmartSelfTestAbort(fd)) {
+            pout("S.M.A.R.T. Self Test Abort Failed\n");
+            return;
         }
-        printf ("Drive Command Successful self test aborted\n");
+        pout("Drive Command Successful self test aborted\n");
     }		
 }

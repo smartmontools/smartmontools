@@ -30,8 +30,9 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include "scsicmds.h"
+#include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.21 2003/03/24 10:47:40 dpgilbert Exp $" SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.22 2003/03/26 08:14:53 dpgilbert Exp $" SCSICMDS_H_CVSID;
 
 
 #if 0
@@ -73,7 +74,7 @@ static void dStrHex(const char* str, int len, int no_ascii)
         }
         if (cpos > (cpstart+15))
         {
-            printf("%s\n", buff);
+            pout("%s\n", buff);
             bpos = bpstart;
             cpos = cpstart;
             a += 16;
@@ -84,7 +85,7 @@ static void dStrHex(const char* str, int len, int no_ascii)
     }
     if (cpos > cpstart)
     {
-        printf("%s\n", buff);
+        pout("%s\n", buff);
     }
 }
 #endif
@@ -127,9 +128,9 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         int k;
         const unsigned char * ucp = iop->cmnd;
 
-        fprintf(stderr, "cmnd: [");
+        pout("cmnd: [");
         for (k = 0; k < iop->cmnd_len; ++k)
-            fprintf(stderr, "%02x ", ucp[k]);
+            pout("%02x ", ucp[k]);
     }
 #endif
     switch (iop->dxfer_dir) {
@@ -151,7 +152,7 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
             wrk.outbufsize = 0;
             break;
         default:
-            fprintf(stderr, "do_scsi_cmnd_io: bad dxfer_dir\n");
+            pout("do_scsi_cmnd_io: bad dxfer_dir\n");
             return -EINVAL;
     }
     iop->resp_sense_len = 0;
@@ -160,9 +161,9 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
 #ifdef SCSI_DEBUG
     if (-1 == status)
-        fprintf(stderr, "] status=-1, errno=%d\n", errno);
+        pout("] status=-1, errno=%d\n", errno);
     else
-        fprintf(stderr, "] status=0x%x\n", status);
+        pout("] status=0x%x\n", status);
 #endif
     if (-1 == status)
         return -errno;
@@ -470,7 +471,7 @@ UINT8 scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
 {
     char tBuf[254];
         
-    if (modesense(device, 0x1c, tBuf, sizeof(tBuf)) != 0)
+    if (modesense(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
         
     switch (setting) {
@@ -494,7 +495,7 @@ UINT8 scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
             return 1;
     }
                         
-    if (modeselect(device, 0x1c, tBuf, sizeof(tBuf)) != 0)
+    if (modeselect(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
         
     return 0;
@@ -525,13 +526,16 @@ UINT8 scsiSmartDEXCPTDisable(int device)
     return scsiSmartModePage1CHandler(device, DEXCPT_DISABLE, NULL);
 }
 
-UINT8 scsiGetTemp (int device, UINT8 *currenttemp, UINT8 *triptemp)
+UINT8 scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
 {
     UINT8 tBuf[1024];
+    int err;
 
-    if (logsense(device, TEMPERATURE_PAGE, tBuf, sizeof(tBuf)) != 0) {
-        perror ( "Log Sense failed");
-        exit (1);
+    if ((err = logsense(device, TEMPERATURE_PAGE, tBuf, sizeof(tBuf)))) {
+        *currenttemp = 0;
+        *triptemp = 0;
+        pout("Log Sense failed, err=%d\n", err);
+        return 1;
     }
     *currenttemp = tBuf[9];
     *triptemp = tBuf[15];
@@ -544,33 +548,40 @@ UINT8 scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
     UINT8 tBuf[1024];
     UINT8 asc;
     UINT8 ascq;
+    int err;
     unsigned short pagesize;
  
     *currenttemp = *triptemp = 0;
   
-    if ( method == CHECK_SMART_BY_LGPG_2F) {
-        if (logsense(device, SMART_PAGE, tBuf, sizeof(tBuf)) != 0) {
-            perror ("Log Sense failed");
-            exit (1);
+    if (method == CHECK_SMART_BY_LGPG_2F) {
+        if ((err = logsense(device, SMART_PAGE, tBuf, sizeof(tBuf)))) {
+            *currenttemp = 0;
+            *triptemp = 0;
+            *retval = 0;
+            pout("Log Sense failed, err=%d\n", err);
+            return 1;
         }
         pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
-        if ( !pagesize )
+        if (! pagesize)
             return 1; /* failed read of page 2F\n */
         asc = tBuf[8]; 
         ascq = tBuf[9];
-        if ((pagesize == 8) && (currenttemp != NULL) && (triptemp != NULL)) {
+        if ((pagesize == 8) && currenttemp && triptemp) {
             *currenttemp = tBuf[10];
             *triptemp =  tBuf[11];
         } 
     } else {
-        if (requestsense(device, tBuf, sizeof(tBuf)) != 0) {
-            perror ( "Request Sense failed");
-            exit (1);
+        if ((err = requestsense(device, tBuf, 254))) {
+            *currenttemp = 0;
+            *triptemp = 0;
+            *retval = 0;
+            pout("Request Sense failed, err=%d\n", err);
+            return 1;
         }
         asc = tBuf[12]; 
         ascq = tBuf[13];
     }
-    if ( asc == 0x5d )
+    if (asc == 0x5d)
         *retval = ascq;
     else
         *retval = 0;
@@ -852,9 +863,9 @@ static const char * strs_for_asc_5d[] = {
 
 const char * scsiSmartGetSenseCode(UINT8 ascq)
 {
-    if ( ascq == 0xff)
+    if (ascq == 0xff)
         return "FAILURE PREDICTION THRESHOLD EXCEEDED (FALSE)";
-    else if ( ascq <= SMART_SENSE_MAX_ENTRY)
+    else if (ascq <= SMART_SENSE_MAX_ENTRY)
         return strs_for_asc_5d[ascq];
     else
         return "Unknown Failure";
@@ -864,7 +875,7 @@ UINT8 scsiSmartOfflineTest(int device)
 {       
     UINT8 tBuf[256];
         
-    memset ( tBuf, 0, sizeof(tBuf));
+    memset(tBuf, 0, sizeof(tBuf));
     /* Build SMART Off-line Immediate Diag Header */
     tBuf[0] = 0x80; /* Page Code */
     tBuf[1] = 0x00; /* Reserved */
@@ -874,30 +885,30 @@ UINT8 scsiSmartOfflineTest(int device)
     tBuf[5] = 0x00; /* Reserved */
     tBuf[6] = 0x00; /* Off-line Immediate Time MSB */
     tBuf[7] = 0x00; /* Off-line Immediate Time LSB */
-    return senddiagnostic (device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
+    return senddiagnostic(device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
 }
 
 UINT8 scsiSmartShortSelfTest(int device)
 {       
-    return senddiagnostic (device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
+    return senddiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
 }
 
 UINT8 scsiSmartExtendSelfTest(int device)
 {       
-    return senddiagnostic (device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
+    return senddiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
 }
 
 UINT8 scsiSmartShortCapSelfTest(int device)
 {       
-    return senddiagnostic (device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
+    return senddiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
 }
 
 UINT8 scsiSmartExtendCapSelfTest(int device)
 {
-    return senddiagnostic (device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, NULL, 0);
+    return senddiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, NULL, 0);
 }
 
 UINT8 scsiSmartSelfTestAbort(int device)
 {
-    return senddiagnostic (device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
+    return senddiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
 }
