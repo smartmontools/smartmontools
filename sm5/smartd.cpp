@@ -108,7 +108,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.338 2004/08/30 05:44:50 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.339 2004/08/30 06:03:51 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -118,7 +118,7 @@ extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.338 2004/08/30 05:44:50 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.339 2004/08/30 06:03:51 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -530,7 +530,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "OfflineUncorrectableSector" //  11
   };
   
-  char *address, *executable;
+  char *comma, *address, *executable;
   mailinfo *mail;
   maildata* data=cfg->mailwarn;
 #ifndef _WIN32
@@ -542,7 +542,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   const char *unknown="[Unknown]";
 
   // See if user wants us to send mail
-  if (!data)
+  if(!data)
     return;
   
   address=data->address;
@@ -668,7 +668,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   if (address) {
     address=CustomStrDup(data->address, 1, __LINE__, filenameandversion);
 #ifndef _WIN32 // blat mailer needs comma
-    char *comma=address;
+    comma=address;
     while ((comma=strchr(comma, ',')))
       *comma=' ';
 #endif
