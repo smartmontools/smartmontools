@@ -47,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.79 2002/12/01 07:14:25 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.80 2002/12/01 07:16:16 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -294,7 +294,7 @@ int daemon_init(void){
 
 // Prints header identifying version of code and home
 void printhead(){
-  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Monitoring Daemon.\n",
+  printout(LOG_INFO,"smartd version %d.%d-%d: S.M.A.R.T. Monitoring Daemon\n",
            (int)RELEASE_MAJOR, (int)RELEASE_MINOR, (int)SMARTMONTOOLS_VERSION);
   printout(LOG_INFO,"Home page is %s\n\n",PROJECTHOME);
   return;
