@@ -59,7 +59,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.12 2003/10/21 12:00:53 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.13 2003/10/21 16:22:23 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -87,8 +87,8 @@ int deviceclose(int fd){
 
 
 // we are going to take advantage of the fact that Linux's devfs will only
-// have device entries for devices that exist.  So if we get the equivilent of
-// ls /dev/hd?, we have all the ATA devices on the system
+// have device entries for devices that exist.  So if we get the equivalent of
+// ls /dev/hd[a-t], we have all the ATA devices on the system
 int get_dev_names(char*** names, const char* prefix, int max) {
   DIR* dir;
   struct dirent* dirent;
@@ -114,7 +114,7 @@ int get_dev_names(char*** names, const char* prefix, int max) {
   }
   
   // now step through names
-  // NOTE: We look for character special OR links, as Linux DEVFS will
+  // NOTE: We look for block special OR links, as Linux DEVFS will
   // actually have these as softlinks to real device entry
   while ((dirent = readdir(dir)) && (n < max)) {
     if ((dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
