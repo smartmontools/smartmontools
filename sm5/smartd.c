@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.196 2003/08/18 07:10:41 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.197 2003/08/18 12:40:34 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1348,9 +1348,13 @@ int scsiCheckDevice(cfgfile *cfg)
     ascq = 0;
     if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
                     &asc, &ascq, &currenttemp)) {
-        printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
-        printandmail(cfg, 6, LOG_CRIT, 
-                     "Device: %s, failed to read SMART values", name);
+        if (! cfg->SuppressReport) {
+            printout(LOG_INFO, "Device: %s, failed to read SMART values\n",
+                      name);
+            printandmail(cfg, 6, LOG_CRIT, 
+                         "Device: %s, failed to read SMART values", name);
+            cfg->SuppressReport = 1;
+        }
     }
     if (asc > 0) {
         cp = scsiGetIEString(asc, ascq);
