@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.72 2004/03/13 15:03:56 chrfranke Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.73 2004/03/20 08:53:41 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -251,6 +251,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
         io_hdr.cmnd_len = sizeof(cdb);
         io_hdr.sensep = sense;
         io_hdr.max_sense_len = sizeof(sense);
+        io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
     
         status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
         if (0 != status)
@@ -284,6 +285,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -326,6 +328,7 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 == status) {
@@ -380,6 +383,7 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -413,6 +417,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 == status) {
@@ -468,6 +473,7 @@ int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -533,6 +539,7 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -617,8 +624,8 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
-    io_hdr.timeout = 5 * 60 * 60;   /* five hours because a foreground 
-                    extended self tests can take 1 hour plus */
+    io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
+    /* worst case is an extended foreground self test on a big disk */
     
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -653,6 +660,7 @@ int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
@@ -679,6 +687,7 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
