@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.5 2003/10/04 16:21:29 ballen4705 Exp $
+$Id: AUTHORS,v 1.6 2003/10/08 13:26:18 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -19,5 +19,6 @@ Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
 Kai Mäkisara		<kai.makisara@kolumbus.fi>
+Eduard Martinescu       <martines@rochester.rr.com>
 Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
