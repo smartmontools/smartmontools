@@ -1,4 +1,4 @@
-Release:  27
+Release:  28
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Name:		smartmontools
@@ -20,7 +20,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.40 2002/11/04 08:47:38 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.41 2002/11/04 09:13:37 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -94,11 +94,11 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 %files
 %defattr(-,root,root)
-/usr/sbin/smartd
-/usr/sbin/smartctl
+%{_sbindir}/smartd
+%{_sbindir}/smartctl
 /etc/rc.d/init.d/smartd
-%doc %attr(644,root,root) /usr/share/man/man8/smartctl.8.gz
-%doc %attr(644,root,root) /usr/share/man/man8/smartd.8.gz
+%attr(0644,root,root) %{_mandir}/man8/smartctl.8*
+%attr(0644,root,root) %{_mandir}/man8/smartd.8*
 %doc CHANGELOG COPYING TODO README VERSION smartd.conf
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %config %{_sysconfdir}/smartd.conf.example
@@ -140,6 +140,7 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Mon Nov 4 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- Added additional macros for manual and sbin paths in this SPEC file.
 - Modified Makefile to install /etc/smartd.conf, but without overwriting existing config file
 - Modified this specfile to do the same, and to not remove any files that it did not install
 
