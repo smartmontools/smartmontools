@@ -40,7 +40,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.5 2004/07/17 23:39:45 geoffk1 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.6 2004/08/07 20:45:41 geoffk1 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -220,18 +220,15 @@ int deviceopen(const char *pathname, char *type){
   devices[devnum].ioob = disk;
   
   {
-    CFMutableDictionaryRef diskProps = NULL;
     CFDictionaryRef diskChars = NULL;
     CFNumberRef diskFeatures = NULL;
     UInt32 ataFeatures;
 
     // Determine whether the drive actually supports SMART.
-    if (IORegistryEntryCreateCFProperties (disk, &diskProps,
-					   kCFAllocatorDefault,
-					   kNilOptions) == kIOReturnSuccess
-	&& CFDictionaryGetValueIfPresent (diskProps,
-				   CFSTR (kIOPropertyDeviceCharacteristicsKey),
-					  (const void **)&diskChars)
+    if ((diskChars = IORegistryEntryCreateCFProperty (disk, 
+			      CFSTR (kIOPropertyDeviceCharacteristicsKey),
+						      kCFAllocatorDefault,
+						      kNilOptions)) != NULL
 	&& CFDictionaryGetValueIfPresent (diskChars, CFSTR ("ATA Features"),
 					  (const void **)&diskFeatures)
 	&& CFNumberGetValue (diskFeatures, kCFNumberLongType, &ataFeatures)
@@ -239,9 +236,8 @@ int deviceopen(const char *pathname, char *type){
       devices[devnum].hassmart = true;
     else
       devices[devnum].hassmart = false;
-
-    if (diskProps)
-      CFRelease (diskProps);
+    if (diskChars)
+      CFRelease (diskChars);
   }
   
   {
