@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.150 2004/05/11 14:53:05 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.151 2004/05/22 10:50:40 shattered Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1822,7 +1822,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     break;
   case 209:
     // Maxtor
-    name="Offline_Seek_Performnce";
+    name="Offline_Seek_Performance";
     break;
   case 210:
     name="Self-Test_Incomplete";
@@ -1944,5 +1944,4 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *da
   // fall-through: no such Attribute found
   return -1;
 }
-
 
