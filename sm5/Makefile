@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.37 2002/11/11 12:43:53 ballen4705 Exp $
+# $Id: Makefile,v 1.38 2002/11/15 14:51:31 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -39,7 +39,7 @@ LDFLAGS = # -s
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION smartd.conf smartd.conf.5
+  smartd.8 smartd.c smartd.h smartd.initd TODO WARNINGS VERSION smartd.conf smartd.conf.5
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
@@ -105,6 +105,7 @@ install:
 	install -m 644 -o root -g root -D README           $(DESTDIR)/usr/share/doc/smartmontools-5.0/README
 	install -m 644 -o root -g root -D TODO             $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
 	install -m 644 -o root -g root -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
+	install -m 644 -o root -g root -D WARNINGS         $(DESTDIR)/usr/share/doc/smartmontools-5.0/WARNINGS
 	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
 	install -m 644 -o root -g root -D smartd.conf      $(DESTDIR)/etc/smartd.conf.example
 	if [ ! -f $(DESTDIR)/etc/smartd.conf ] ; then install -m 644 -o root -g root -D smartd.conf $(DESTDIR)/etc/smartd.conf ; fi
