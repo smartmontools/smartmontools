@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.14 2003/03/30 11:23:27 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.15 2003/03/31 12:49:38 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -40,38 +40,30 @@
 #ifndef TEST_UNIT_READY
 #define TEST_UNIT_READY 0x0
 #endif
-
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d
 #endif
-
 #ifndef MODE_SENSE
 #define MODE_SENSE 0x1a
 #endif
 #ifndef MODE_SENSE_10
 #define MODE_SENSE_10 0x5a
 #endif
-
 #ifndef MODE_SELECT
 #define MODE_SELECT 0x15
 #endif
-
 #ifndef MODE_SELECT_10
 #define MODE_SELECT_10 0x55
 #endif
-
 #ifndef INQUIRY
 #define INQUIRY 0x12
 #endif
-
 #ifndef REQUEST_SENSE
 #define REQUEST_SENSE  0x03
 #endif
-
 #ifndef RECEIVE_DIAGNOSTIC
 #define RECEIVE_DIAGNOSTIC  0x1c
 #endif
-
 #ifndef SEND_DIAGNOSTIC
 #define SEND_DIAGNOSTIC  0x1d
 #endif
@@ -172,6 +164,18 @@ struct scsi_sense_disect {
 #define CD_CAPABILITIES_AND_MECHANISM_STATUS     0x2a
 
 #define ALL_PARAMETERS                           0x3f
+
+/* defines for useful SCSI Status codes */
+#define SCSI_STATUS_CHECK_CONDITION	0x2
+
+/* defines for useful Sense Key codes */
+#define SCSI_SK_NOT_READY		0x2
+#define SCSI_SK_ILLEGAL_REQUEST		0x5
+#define SCSI_SK_UNIT_ATTENTION		0x6
+
+/* defines for useful Additional Sense Codes (ASCs) */
+#define SCSI_ASC_UNKNOWN_OPCODE		0x20
+#define SCSI_ASC_UNKNOWN_FIELD		0x24
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
