@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.25 2004/09/14 01:48:35 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.26 2004/09/14 14:22:13 chrfranke Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
@@ -18,6 +18,8 @@ This is an unstable/experimental release of smartmontools.  It includes
  - support for 3ware character device interfaces /dev/twe[0-15]
    under Linux.  This allows (for example) Selective Self-tests.
  - support for Marvell chip-set based SATA controllers under Linux.
+ - smartd mail now works also under Windows (using "Blat" mailer).
+ - smartd can now be run as a Windows service.
 Please report sucess/failure with these items to the
 smartmontools-support mailing list.
 
