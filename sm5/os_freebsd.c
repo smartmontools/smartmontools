@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.26 2003/12/10 11:30:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.27 2003/12/30 14:13:55 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -187,7 +187,7 @@ void printwarning(int msgNo, const char* extra) {
   static const char* message[]={
     "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\n",
     
-    "Error SMART Status command failed\nPlease get assistance from \n" PROJECTHOME "\nRegister values returned from SMART Status command are:\n",
+    "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
     
     PACKAGE_STRING " does not currentlly support TWE devices (3ware Escalade)\n",
     
@@ -623,10 +623,11 @@ int get_dev_names(char*** names, const char* prefix) {
   int n = 0;
   char** mp;
   int retglob,lim;
-  glob_t globbuf={0};
+  glob_t globbuf;
   int i;
   char pattern1[128],pattern2[128];
 
+  bzero(&globbuf,sizeof(globbuf));
   // in case of non-clean exit
   *names=NULL;
 
