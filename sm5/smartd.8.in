@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.78 2004/08/06 19:48:42 chrfranke Exp $
+$Id: smartd.8.in,v 1.79 2004/08/24 01:44:30 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ and Reporting Technology (SMART) system built into many ATA-3 and
 later ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to
 monitor the reliability of the hard drive and predict drive failures,
 and to carry out different types of drive self-tests.  This version of
-\fBsmartd\fP is compatible with ATA/ATAPI-5 and earlier standards (see
+\fBsmartd\fP is compatible with ATA/ATAPI-7 and earlier standards (see
 \fBREFERENCES\fP below).
 
 \fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
@@ -1768,4 +1768,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.78 2004/08/06 19:48:42 chrfranke Exp $
+$Id: smartd.8.in,v 1.79 2004/08/24 01:44:30 ballen4705 Exp $
