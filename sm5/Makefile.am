@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.18 2003/10/04 15:15:20 guidog Exp $
+# $Id: Makefile.am,v 1.19 2003/10/04 16:01:32 guidog Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -61,8 +61,7 @@ docs_DATA = AUTHORS   \
             NEWS      \
             README    \
             TODO      \
-            WARNINGS  \
-            smartd.conf
+            WARNINGS
 
 sysconf_DATA = smartd.conf
 
@@ -74,6 +73,7 @@ EXTRA_DIST = $(man_MANS)		\
 		smartd.8.in		\
 		smartctl.8.in		\
 		smartd.conf.5.in	\
+		smartd.conf		\
                 $(docs_DATA)
 
 DISTCLEANFILES = smartd.conf.5 \
