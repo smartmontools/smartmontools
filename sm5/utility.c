@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.34 2004/02/06 03:52:02 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.35 2004/02/13 17:29:10 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -181,7 +181,7 @@ int massagecvs(char *out, const char *cvsid){
     return 0;
   }
   
-  sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
+  sprintf(out,"%-16s revision: %-5s date: %-15s", filename, version, date);
   retVal = (date-copy)+strlen(date);
   free(copy);
   return  retVal;

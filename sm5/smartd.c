@@ -69,9 +69,11 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.285 2004/02/04 18:48:12 ballen4705 Exp $";
-
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.285 2004/02/04 18:48:12 ballen4705 Exp $" 
+static const char *filenameandversion="$Id: smartd.c,v 1.286 2004/02/13 17:29:09 ballen4705 Exp $";
+#ifdef NEED_SOLARIS_ATA_CODE
+extern const char *os_solaris_ata_s_cvsid;
+#endif
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.286 2004/02/13 17:29:09 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -206,6 +208,10 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,os_XXXX_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
+#ifdef NEED_SOLARIS_ATA_CODE
+  printone(out, os_solaris_ata_s_cvsid);
+  pout("%s",out);
+#endif
   printone(out,scsicmds_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
   printone(out,smartd_c_cvsid);
