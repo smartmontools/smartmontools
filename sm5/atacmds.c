@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.132 2003/11/28 23:21:58 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.133 2003/12/05 12:42:43 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -740,11 +740,14 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
 void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
   int i;
   
-  // swap with one byte of reserved
+  // bytes 508/509 (numbered from 0) swapped (swap of self-test index
+  // with one byte of reserved.
   swap2((char *)&(data->mostrecenttest));
 
-  // LBA low register (here called 'selftestnumber") is byte swapped
-  // with Self-test execution status byte.
+  // LBA low register (here called 'selftestnumber", containing
+  // information about the TYPE of the self-test) is byte swapped with
+  // Self-test execution status byte.  These are bytes N, N+1 in the
+  // entries.
   for (i=0; i<21; i++)
     swap2((char *)&(data->selftest_struct[i].selftestnumber));
 
@@ -893,9 +896,11 @@ void fixsamsungerrorlog(struct ata_smart_errorlog *data){
   for (i=0; i<5; i++){
     // step through 5 command data structures
     for (j=0; j<5; j++)
-      // Command data structure 4-byte millisec timestamp
+      // Command data structure 4-byte millisec timestamp.  These are
+      // bytes (N+8, N+9, N+10, N+11).
       swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
-    // Error data structure life timestamp
+    // Error data structure two-byte hour life timestamp.  These are
+    // bytes (N+28, N+29).
     swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
   }
   return;
