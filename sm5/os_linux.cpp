@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.19 2003/11/06 04:27:15 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.20 2003/11/08 01:15:15 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -93,7 +93,7 @@ int deviceclose(int fd){
 //
 // If any errors occur, leave errno set as it was returned by the
 // system call, and return <0.
-int get_dev_names(char*** names, const char* pattern, int max) {
+int get_dev_names(char*** names, const char* pattern, const char* name, int max) {
   int n = 0, retglob, i, lim;
   char** mp;
   glob_t globbuf={0};
@@ -133,36 +133,42 @@ int get_dev_names(char*** names, const char* pattern, int max) {
     pout("Out of memory constructing scan device list\n");
     return -1;
   }
-
+  
   // now step through the list returned by glob.  If not a link, copy
   // to list.  If it is a link, evaluate it and see if the path ends
   // in "disk".
   for (i=0; i<lim; i++){
     int retlink;
-
+    
     // prepare a buffer for storing the link
     char linkbuf[1024];
-
+    
     // see if path is a link
     retlink=readlink(globbuf.gl_pathv[i], linkbuf, 1023);
-
+    
     // if not a link (or a strange link), keep it
     if (retlink<=0 || retlink>1023)
       mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
     else {
       // or if it's a link that  points to a disk, keep it
-      char *p;
+      char *p, *type;
+      
       linkbuf[retlink]='\0';
-      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc"))
+      if (!strcmp(name,"ATA"))
+	type="ide";
+      else
+	type="scsi";
+      
+      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc") && strstr(linkbuf, type))
 	mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
     }
   }
-
+  
   // free memory, track memory usage
   globfree(&globbuf);
   mp = realloc(mp,n*(sizeof(char*)));
   bytes += n*(sizeof(char*));
-
+  
   // and set up return values
   *names=mp;
   return n;
@@ -172,20 +178,27 @@ int get_dev_names(char*** names, const char* pattern, int max) {
 // devices.  Return -1 if no memory remaining, else the number of
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
-
+  int retval;
+  
 #if 0
   // for testing case where no device names are found
   return 0;
 #endif
-
+  
   if (!strcmp(name,"SCSI"))
-    //     /dev/sda-sdz
-    return get_dev_names(devlist,"/dev/sd[a-z]", MAXSCSIDEVICES);
+    retval=get_dev_names(devlist,"/dev/sd[a-z]", name, MAXSCSIDEVICES);
   else if (!strcmp(name,"ATA"))
-    //     /dev/hda-hdt
-    return get_dev_names(devlist,"/dev/hd[a-t]", MAXATADEVICES);
+    retval=get_dev_names(devlist,"/dev/hd[a-t]", name, MAXATADEVICES);
   else
+    // don't recognize disk type!
     return 0;
+
+  // if we found traditional links, we are done
+  if (retval>0)
+    return retval;
+  
+  // else look for devfs entries without traditional links
+  return get_dev_names(devlist,"/dev/discs/disk*", name, MAXATADEVICES);
 }
 
 
@@ -826,3 +839,22 @@ int guess_device_type(const char * dev_name) {
   // we failed to recognize any of the forms
   return GUESS_DEVTYPE_DONT_KNOW;
 }
+
+
+#if 0
+
+[ed@firestorm ed]$ ls -l  /dev/discs
+total 0
+lr-xr-xr-x    1 root     root           30 Dec 31  1969 disc0 -> ../ide/host2/bus0/target0/lun0/
+lr-xr-xr-x    1 root     root           30 Dec 31  1969 disc1 -> ../ide/host2/bus1/target0/lun0/
+[ed@firestorm ed]$ ls -l  dev/ide/host*/bus*/target*/lun*/disc
+ls: dev/ide/host*/bus*/target*/lun*/disc: No such file or directory
+[ed@firestorm ed]$ ls -l  /dev/ide/host*/bus*/target*/lun*/disc
+brw-------    1 root     root      33,   0 Dec 31  1969 /dev/ide/host2/bus0/target0/lun0/disc
+brw-------    1 root     root      34,   0 Dec 31  1969 /dev/ide/host2/bus1/target0/lun0/disc
+[ed@firestorm ed]$ ls -l  /dev/ide/c*b*t*u*
+ls: /dev/ide/c*b*t*u*: No such file or directory
+[ed@firestorm ed]$ 
+Script done on Fri Nov  7 13:46:28 2003
+
+#endif
