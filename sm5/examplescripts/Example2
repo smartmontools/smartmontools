@@ -7,6 +7,8 @@
 #
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
+#
+# $Id: Example2,v 1.2 2003/02/12 20:01:45 ballen4705 Exp $
 
 # Save the email message (STDIN) to a file:
 cat > /root/msg
