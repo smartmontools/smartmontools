@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2003-05-23</pubdate>
+  <pubdate>2003-05-26</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.0</revnumber>
-       <date>2003-05-23</date>
+       <date>2003-05-26</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              first cut
@@ -85,18 +85,18 @@ the "sbp2" protocol.
 </para>
 <para>
 The primary web site for smartmontools is at
-<ulink url="http://smartmontools.sourceforge.net">
+<ulink url="index.html">
 <literal>smartmontools.sourceforge.net</literal></ulink> from which the
 latest versions (both source and binaries) can be obtained. Smartmontools
 grew out of the now dormant <emphasis>smartsuite</emphasis> project which
-is now archived on the sourceforge site. The smartmontools site
+is still available on the sourceforge site. The smartmontools main page
 concentrates on ATA devices (whose draft standards can be found at
 <ulink url="http://www.t13.org"><literal>www.t13.org</literal></ulink>).
 This article attempts to supply some SCSI specific information for
-those users of smartmontool that wish to monitor SCSI storage devices.
+those users of smartmontools that wish to monitor SCSI storage devices.
 </para>
 <para>
-This document was last altered on 23rd May 2003.
+This document was last altered on 26th May 2003.
 </para>
 </sect1>
 
@@ -251,7 +251,7 @@ REQUEST SENSE command. The sense key is also found in the sense buffer.
 Synchronous SCSI commands that fail return a single byte status code of
 CHECK CONDITION. An OS kernel would see this error/warning status and
 then check the sense buffer (by doing a REQUEST SENSE or by other means)
-and decide how to continue. From smartmontools' point of view, its
+and decide how to continue. From smartmontools's point of view, its
 <command>smartd</command> daemon would like to process Informational 
 Exceptions without interference from the OS. This is done by setting up
 the IEC mode page's MRIE field set to 6. This instructs the SCSI 
@@ -629,53 +629,53 @@ command. Mostly it is for the '--all' option.
 <itemizedlist>
 <listitem><para>
 StorageTek LT20 tape 'jukebox': the
-<ulink url="bnch_DLT1.html">
+<ulink url="examples/bnch_DLT1.html">
 <literal>tape reading mechanism</literal></ulink>
 and the
-<ulink url="bnch_robot.html">
+<ulink url="examples/bnch_robot.html">
 <literal>medium changer</literal></ulink> (robot).
 Note the TapeAlert warnings in the medium changer output.
 </para></listitem>
 <listitem><para>
 HP DDS-4 
-<ulink url="hp_c5713a_smt_a.html">
+<ulink url="examples/hp_c5713a_smt_a.html">
 <literal>tape</literal></ulink>
 drive.
 </para></listitem>
 <listitem><para>
 Generic ATAPI CD-RW
-<ulink url="atapi_cdrw_smt_a.html">
+<ulink url="examples/atapi_cdrw_smt_a.html">
 <literal>cd writer</literal></ulink> is an example of a device that
 does not support SMART.
 </para></listitem>
 <listitem><para>
 IBM DDRS 39130
-<ulink url="ddrs_39130_smt_a.html">
+<ulink url="examples/ddrs_39130_smt_a.html">
 <literal>disk</literal></ulink>
  manufactured in 1998. 
 </para></listitem>
 <listitem><para>
 Fujitsu MAM3184MP 18 GigaByte 
-<ulink url="mam3184_smt_a.html">
+<ulink url="examples/mam3184_smt_a.html">
 <literal>disk</literal></ulink> when all is well. Here is the output from
 the <command>smartctl -H</command> command after the IEC Test bit has been 
 set (with the <command>smartctl -s on -r ioctl,3</command> command) on the
-same Fujitsu <ulink url="mam3184_smt_health.html">
+same Fujitsu <ulink url="examples/mam3184_smt_health.html">
 <literal>disk</literal></ulink> .
 </para></listitem>
 <listitem><para>
 Fujitsu MAP3735NP 73 GigaByte 
-<ulink url="map3735_smt_a.html">
+<ulink url="examples/map3735_smt_a.html">
 <literal>disk</literal></ulink>
 </para></listitem>
 <listitem><para>
 Quantum ATLAS IV 36 WLS, 36 GigaByte 
-<ulink url="ativ_36_smt_a.html">
+<ulink url="examples/ativ_36_smt_a.html">
 <literal>disk</literal></ulink>
 </para></listitem>
 <listitem><para>
 Seagate Cheetah ST318451LW 18 GigaByte 
-<ulink url="st318451_smt_a.html">
+<ulink url="examples/st318451_smt_a.html">
 <literal>disk</literal></ulink>. It would seem that the total count of bytes
 written is reset every time the disk is power cycled. However the total
 count of bytes read seems to accumulate over power cycles.
