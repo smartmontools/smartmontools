@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.99 2004/04/10 00:24:14 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.100 2004/04/16 08:53:29 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -510,13 +510,28 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // Seagate Barracuda U Series family
-    "^ST3(8002|6002|4081|2041)0A$",
+  { // Seagate Medalist 8641 family
+    "^ST3(2110|3221|4312|6531|8641)A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate U Series X family
+    "^ST3(10014A(CE)?|20014A)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate U Series 6 family
+    "^ST3(8002|6002|4081|3061|2041)0A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { // Seagate U Series 5 20413
     "^ST320413A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate U8 family
+    "^ST3(8410|4313|17221|13021)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
