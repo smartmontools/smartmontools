@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.126 2004/09/26 23:06:58 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.127 2004/09/26 23:30:11 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -203,21 +203,21 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHN2300AT",
+  { NULL, // Fujitsu MHN2300AT
     "^FUJITSU MHN2300AT$",
     ".*",
     NULL,
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHR2040AT",
+  { NULL, // Fujitsu MHR2040AT
     "^FUJITSU MHR2040AT$",
     ".*",    // Tested on 40BA
     NULL,
     vendoropts_Fujitsu_MHR2040AT,
     NULL, NULL
   },
-  { "Fujitsu MHR2020AT",
+  { NULL, // Fujitsu MHR2020AT
     "^FUJITSU MHR2020AT$",
     ".*",
     NULL,
@@ -329,7 +329,7 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung2,
     same_as_minus_F2
   },
-  { "All Samsung drives with '.*-25' firmware",
+  { NULL, // All Samsung drives with '.*-25' firmware
     "^SAMSUNG.*",
     ".*-25$",
     may_need_minus_F2_disabled,
@@ -337,7 +337,7 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung2,
     same_as_minus_F2
   },
-  { "All Samsung drives with '.*-26 or later (currently to -39)' firmware",
+  { NULL, // All Samsung drives with '.*-26 or later (currently to -39)' firmware
     "^SAMSUNG.*",
     ".*-(2[6789]|3[0-9])$",
     NULL,
@@ -513,7 +513,7 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "HITACHI_DK14FA-20B",
+  { NULL, // HITACHI_DK14FA-20B
     "^HITACHI_DK14FA-20B$",
     ".*",
     NULL,
@@ -587,7 +587,7 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "IBM/Hitachi Deskstar GXP-180 family ",
+  { "IBM/Hitachi Deskstar GXP-180 family",
     "^(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]$",
     ".*", 
     NULL, NULL, NULL, NULL 
