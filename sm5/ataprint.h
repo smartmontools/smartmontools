@@ -26,7 +26,7 @@
 #define _SMART_PRINT_H_
 
 #ifndef CVSID2
-#define CVSID2 "$Id: ataprint.h,v 1.11 2002/10/23 12:24:24 ballen4705 Exp $\n"
+#define CVSID2 "$Id: ataprint.h,v 1.12 2002/10/24 09:54:02 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -54,10 +54,6 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog data, int allentries);
 
 void ataPseudoCheckSmart (struct ata_smart_values , 
                           struct ata_smart_thresholds );
-
-/* Prints Attribute Name for standard SMART attributes */
-/* prints 20 character string */
-void ataPrintSmartAttribName (unsigned char id);
 
 int ataPrintMain ( int fd );
 

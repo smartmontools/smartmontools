@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.19 2002/10/24 08:50:35 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.20 2002/10/24 09:54:02 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,7 +15,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/24 08:50:35 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/24 09:54:02 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -269,11 +269,13 @@ found they will appear in the S.M.A.R.T. error log, visible with the '\-l' optio
 .B S 
 Selftest: Runs S.M.A.R.T. Short Self Test (usually under ten minutes).
 This command can be given during normal system operation.  This is a
-test in a different category than the immediate or automatic offline tests.
-The 'Self' tests check the electrical and mechanical performance as well
-as the read performance of the disk.  Their results are reported in
-the Self Test Error Log, readable with the '\-L' option.  Note that
-the progress of the test can be monitored by watching this log during the test.
+test in a different category than the immediate or automatic offline
+tests.  The 'Self' tests check the electrical and mechanical
+performance as well as the read performance of the disk.  Their
+results are reported in the Self Test Error Log, readable with
+the '\-L' option.  Note that on some disks the progress of the test can be
+monitored by watching this log during the test; with other disks use
+the '\-g option to monitor progress.
 .TP
 .B s
 Selftest: Runs the S.M.A.R.T. Short Self Test just described, in Captive Mode.
@@ -318,8 +320,7 @@ init files.  You can issue this command on a running system.
 .fi
 Begin an extended self-test of drive /dev/hdc.  You can issue this
 command on a running system.  The results can be seen in the self-test
-log visible with the '\-L' option while the test is running and after
-it has completed.
+log visible with the '\-L' option after it has completed.
 .PP
 .nf
 .B smartctl -eO /dev/hda
@@ -329,12 +330,28 @@ drive /dev/hda.  You can issue this command on a running system.  The
 results uare only used to update the S.M.A.R.T. attributes, visible
 with the '\-v' option.  If any device errors occur, they are logged
 the S.M.A.R.T. error log., which can be seen with the '\-l' option.
- .PP
+.PP
 .nf
 .B smartctl -vm /dev/hda
 .fi
-shows the vendor attributes, when the disk stores its power-on time
+Shows the vendor attributes, when the disk stores its power-on time
 internally in minutes rather than hours.
+.PP
+.nf
+.B smartctl -qcL /dev/hda
+.fi
+Produces output only if the device returns failing S.M.A.R.T. status,
+or if some of the logged self-tests ended with errors.
+.PP
+.nf
+.B smartctl -Qa /dev/hda
+.fi
+Examine all S.M.A.R.T. data for device /dev/hda, but produce no
+printed output.  You must use the exit status (the
+.B $?
+shell variable) to learn if any attributes are out of bound, if the
+S.M.A.R.T. status is failing, if there are errors recorded in the
+self-test log, or if there are errors recorded in the disk error log.
 
 .PP
 .SH RETURN VALUES
@@ -441,4 +458,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.19 2002/10/24 08:50:35 ballen4705 Exp $
+$Id: smartctl.8,v 1.20 2002/10/24 09:54:02 ballen4705 Exp $

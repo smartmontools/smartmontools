@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.32 2002/10/24 08:46:03 ballen4705 Exp $"
+const char *CVSid4="$Id: ataprint.cpp,v 1.33 2002/10/24 09:54:02 ballen4705 Exp $"
 CVSID2 CVSID3 CVSID6;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -378,6 +378,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
     if (disk->id && thre->id){
       char *type;
       int failednow,failedever;
+      char attributename[64];
 
       failednow =disk->current <= thre->threshold;
       failedever=disk->worst   <= thre->threshold;
@@ -408,11 +409,12 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
 	status="    -";
       
       // Print name of attribute
-      ataPrintSmartAttribName(disk->id);
-      
+      ataPrintSmartAttribName(attributename,disk->id);
+      pout("%-28s",attributename);
+
       // printing line for each valid attribute
       type=disk->status.flag.prefailure?"Pre-fail":"Old_age";
-      pout(" 0x%04x   %.3i   %.3i   %.3i    %-9s%-12s", 
+      pout("0x%04x   %.3i   %.3i   %.3i    %-9s%-12s", 
 	     disk->status.all, disk->current, disk->worst,
 	     thre->threshold, type, status);
       
@@ -695,113 +697,6 @@ void ataPseudoCheckSmart ( struct ata_smart_values data,
 	 "SMART overall-health self-assessment test result: PASSED");
 }
 
-void ataPrintSmartAttribName ( unsigned char id ){
-  char *name;
-  switch (id){
-    
-  case 1:
-    name="Raw_Read_Error_Rate";
-    break;
-  case 2:
-    name="Throughput_Performance";
-    break;
-  case 3:
-    name="Spin_Up_Time";
-    break;
-  case 4:
-    name="Start_Stop_Count";
-    break;
-  case 5:
-    name="Reallocated_Sector_Ct";
-    break;
-  case 6:
-    name="Read_Channel_Margin";
-    break;
-  case 7:
-    name="Seek_Error_Rate";
-    break;
-  case 8:
-    name="Seek_Time_Performance";
-    break;
-  case 9:
-    name="Power_On_Hours";
-    break;
-  case 10:
-    name="Spin_Retry_Count";
-    break;
-  case 11:
-    name="Calibration_Retry_Count";
-    break;
-  case 12:
-    name="Power_Cycle_Count";
-    break;
-  case 13:
-    name="Read_Soft_Error_Rate";
-    break;
-  case 191:
-    name="G-Sense_Error_Rate";
-    break;
-  case 192:
-    name="Power-Off_Retract_Count";
-    break;
-  case 193:
-    name="Load_Cycle_Count";
-    break;
-  case 194:
-    name="Temperature_Centigrade";
-    break;
-  case 195:
-    name="Hardware_ECC_Recovered";
-    break;
-  case 196:
-    name="Reallocated_Event_Count";
-    break;
-  case 197:
-    name="Current_Pending_Sector";
-    break;
-  case 198:
-    name="Offline_Uncorrectable";
-    break;
-  case 199:
-    name="UDMA_CRC_Error_Count";
-    break;
-  case 220:
-    name="Disk_Shift";
-    break;
-  case 221:
-    name="G-Sense_Error_Rate";
-    break;
-  case 222:
-    name="Loaded_Hours";
-    break;
-  case 223:
-    name="Load_Retry_Count";
-    break;
-  case 224:
-    name="Load_Friction";
-    break;
-  case 225:
-    name="Load_Cycle_Count";
-    break;
-  case 226:
-    name="Load-in_Time";
-    break;
-  case 227:
-    name="Torq-amp_Count";
-    break;
-  case 228:
-    name="Power-off_Retract_Count";
-    break;
-  default:
-    name="Unknown_Attribute";
-    break;
-  }
-  pout("%3d %-23s",id,name);
-}	
-
-/****
- Called by smartctl to access ataprint  
-**/
 
 
 // Initialize to zero just in case some SMART routines don't work

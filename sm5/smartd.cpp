@@ -34,9 +34,10 @@
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "smartd.h"
+#include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.16 2002/10/24 07:50:45 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.17 2002/10/24 09:54:02 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -211,10 +212,13 @@ void ataCompareSmartValues (atadevices_t *device, struct ata_smart_values new ){
 	// if it's a valid attribute, compare values
 	newval=new.vendor_attributes[i].current;
 	oldval=device->smartval.vendor_attributes[i].current;
-	if (oldval!=newval)
+	if (oldval!=newval){
 	  // values have changed; print them
-	  printout(LOG_INFO, "Device: %s, S.M.A.R.T. Attribute: %i Changed from %i to %i\n",
-		   device->devicename,idnew,oldval,newval);
+	  char attributename[64];
+	  ataPrintSmartAttribName(attributename,idnew);
+	  printout(LOG_INFO, "Device: %s, S.M.A.R.T. Attribute: %s Changed from %i to %i\n",
+		   device->devicename,attributename,oldval,newval);
+	}
       }
     }
 }
@@ -224,6 +228,7 @@ int ataCheckDevice( atadevices_t *drive){
   struct ata_smart_values tempsmartval;
   struct ata_smart_thresholds tempsmartthres;
   int failed;
+  char attributename[64];
 
   // Coming into this function, *drive contains the last values measured,
   // and we read the NEW values into tempsmartval
@@ -235,11 +240,15 @@ int ataCheckDevice( atadevices_t *drive){
     printout(LOG_INFO, "%s:Failed to read smart thresholds\n",drive->devicename);
   
   // See if any vendor attributes are below minimum, and print them out
-  if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1)))
-    printout(LOG_CRIT,"Device: %s, Failed attribute: %i\n",drive->devicename,failed);
-  
-  // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
+  if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1))){
+    ataPrintSmartAttribName(attributename,failed);
+    printout(LOG_CRIT,"Device: %s, Failed attribute: %s\n",drive->devicename,attributename);
+  }
 
+  // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
+  // either in addition to or instead of the ataCheckSmart command
+  // above. This is the "right" long-term solution.
+  
   // see if any values have changed.  Second argument is new values
   ataCompareSmartValues (drive , tempsmartval);
   
