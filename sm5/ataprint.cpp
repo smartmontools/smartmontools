@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.64 2003/03/29 11:01:32 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.65 2003/03/31 03:04:06 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -171,7 +171,10 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
 
   // unrecognized minor revision code
   if (!description){
-    sprintf(unknown,"Unrecognized. Minor revision code: 0x%02hx",minorrev);
+    if (!minorrev)
+      sprintf(unknown, "Exact ATA specification draft version not indicated");
+    else
+      sprintf(unknown,"Not recognized. Minor revision code: 0x%02hx", minorrev);
     description=unknown;
   }
   
