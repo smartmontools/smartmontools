@@ -59,9 +59,10 @@
 #ifdef HAVE_LINUX_HDREG_H
 #include <linux/hdreg.h>
 #else
-#define HDIO_DRIVE_TASK   0x031e
-#define HDIO_DRIVE_CMD    0x031f
-#define HDIO_GET_IDENTITY 0x030d
+#define HDIO_DRIVE_CMD       0x031f
+#define HDIO_DRIVE_TASK      0x031e
+#define HDIO_DRIVE_TASKFILE  0x031d
+#define HDIO_GET_IDENTITY    0x030d
 #endif
 
 #include "atacmds.h"
@@ -74,9 +75,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.50 2004/03/23 13:08:40 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.51 2004/03/24 08:26:39 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.50 2004/03/23 13:08:40 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.51 2004/03/24 08:26:39 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
