@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.275 2003/12/01 06:02:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.276 2003/12/01 14:55:13 guidog Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+  
+  [GG] don't include manpages in make-dist-tarball.
 
   [BA] smartctl: on-line examples given with -h are now correct
        for solaris and linux, but wrong for freebsd.  Ed?
