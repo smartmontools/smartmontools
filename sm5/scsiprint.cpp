@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.43 2003/05/01 11:08:45 makisara Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.44 2003/05/04 13:11:21 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -418,6 +418,25 @@ static int scsiPrintSelfTest(int device)
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
     return 0;
 }
+
+static const char * peripheral_dt_arr[] = {
+        "disk",
+        "tape",
+        "printer",
+        "processor",
+        "optical disk(4)",
+        "CD/DVD",
+        "scanner",
+        "optical disk(7)",
+        "medium changer",
+        "communications",
+        "graphics(10)",
+        "graphics(11)",
+        "storage array",
+        "enclosure",
+        "simplified disk",
+        "optical card reader"
+};
  
 /* Returns 0 on success */
 static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
@@ -429,6 +448,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     struct scsi_iec_mode_page iec;
     int err, len;
     int is_tape = 0;
+    int peri_dt = 0;
         
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
@@ -438,9 +458,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         return 1;
     }
     len = gBuf[4] + 5;
+    peri_dt = gBuf[0] & 0x1f;
     if (peripheral_type)
-        *peripheral_type = gBuf[0] & 0x1f;
-    if (!all)
+        *peripheral_type = peri_dt;
+    if (! all)
 	return 0;
 
     if (len >= 36) {
@@ -465,6 +486,11 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         pout("Short INQUIRY response, skip product id\n");
         QUIETOFF(con);
     }
+    // print SCSI peripheral device type
+    if (peri_dt < (sizeof(peripheral_dt_arr) / sizeof(peripheral_dt_arr[0])))
+        pout("Device type: %s\n", peripheral_dt_arr[peri_dt]);
+    else
+        pout("Device type: <%d>\n", peri_dt);
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);
