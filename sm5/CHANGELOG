@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.350 2004/03/03 19:01:17 ballen4705 Exp $
+$Id: CHANGELOG,v 1.351 2004/03/03 23:29:00 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor MaXLine Plus II, Western Digital Caviar SE (Serial ATA)
+       series, Hitachi Deskstar 7K250 series, and Ultra ATA 66 models of
+       the Maxtor DiamondMax Plus 40 series to knowndrives table.
 
   [BA] Added Maxtor Diamondmax 250 GB drives to database.  Note that
        these model numbers are not listed in Maxtor documentation, but
