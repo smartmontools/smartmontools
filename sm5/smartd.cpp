@@ -64,15 +64,7 @@ typedef int pid_t;
 #include <io.h> // umask()
 #include <process.h> // getpid()
 
-// MinGW Note: There is a type redefintion warning because 
-// scsicmds.h and MinGW's w32api/basetsd.h both define INT32 and UINT32.
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h> // Sleep(), SetConsoleCtrlHandler(), FreeConsole()
-#undef TRUE // redefined in smartd.h
-#undef FALSE
-
 #endif // _WIN32
-
 
 // locally included files
 #include "atacmds.h"
@@ -84,29 +76,44 @@ typedef int pid_t;
 #include "smartd.h"
 #include "utility.h"
 
+#ifdef _WIN32
+// fork()/signal()/initd simulation for native Windows
+#include "daemon_win32.h" // daemon_main/detach/signal()
+#undef SIGNALFN
+#define SIGNALFN  daemon_signal
+#define strsignal daemon_strsignal
+#define sleep     daemon_sleep
+// SIGQUIT does not exits, CONTROL-Break signals SIGBREAK.
+#define SIGQUIT SIGBREAK
+#define SIGQUIT_KEYNAME "CONTROL-Break"
+#else  // _WIN32
+#define SIGQUIT_KEYNAME "CONTROL-\\"
+#endif // _WIN32
+
 #define ARGUSED(x) ((void)(x))
 
 // These are CVS identification information for *.c and *.h files
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.297 2004/03/24 21:13:51 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.298 2004/03/24 22:37:38 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
+extern const char *daemon_win32_c_cvsid;
 extern const char *syslog_win32_c_cvsid;
 #ifdef _MSC_VER
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.297 2004/03/24 21:13:51 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.298 2004/03/24 22:37:38 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
 SYSLOG_H_CVSID
 #endif
-UTILITY_H_CVSID; 
+UTILITY_H_CVSID;
 
 extern const char *reportbug;
 
@@ -159,6 +166,11 @@ extern int exitstatus;
 
 // set to one if we catch a USR1 (check devices now)
 volatile int caughtsigUSR1=0;
+
+#ifdef _WIN32
+// set to one if we catch a USR2 (toggle debug mode)
+volatile int caughtsigUSR2=0;
+#endif
 
 // set to one if we catch a HUP (reload config file). In debug mode,
 // set to two, if we catch INT (also reload config file).
@@ -241,6 +253,10 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,ataprint_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
+#ifdef _WIN32
+  printone(out,daemon_win32_c_cvsid);
+  PrintOut(LOG_INFO,"%s",out);
+#endif
 #if defined(_WIN32) && defined(_MSC_VER)
   printone(out,int64_vc6_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
@@ -348,14 +364,21 @@ void RemovePidFile(){
 }
 
 
-#ifndef _WIN32
-
 //  Note if we catch a SIGUSR1
 void USR1handler(int sig){
   if (SIGUSR1==sig)
     caughtsigUSR1=1;
   return;
 }
+
+#ifdef _WIN32
+//  Note if we catch a SIGUSR2
+void USR2handler(int sig){
+  if (SIGUSR2==sig)
+    caughtsigUSR2=1;
+  return;
+}
+#endif
 
 // Note if we catch a HUP (or INT in debug mode)
 void HUPhandler(int sig){
@@ -372,48 +395,6 @@ void sighandler(int sig){
     caughtsigEXIT=sig;
   return;
 }
-
-#else // _WIN32
-
-// Handle Win32 console signals direct. The signal() implementations
-// of MinGW and MSVC only support SIGINT and SIGBREAK.
-
-static BOOL WINAPI win32_sighandler(DWORD sig)
-{
-  // Caution: runs in a new thread
-  switch (sig) {
-    case CTRL_C_EVENT: // <CONTROL-C> (SIGINT) => Reread config
-      caughtsigHUP = 1;
-      return TRUE;
-    case CTRL_BREAK_EVENT: // <CONTROL-Break> (SIGBREAK) => Stop
-    case CTRL_CLOSE_EVENT: // User closed console or abort via task manager
-    case CTRL_LOGOFF_EVENT:
-    case CTRL_SHUTDOWN_EVENT:
-      caughtsigEXIT = sig; // This would NOT work for CTRL_C_EVENT (0)
-      return TRUE;
-  }
-  return FALSE; // continue with next handler
-}
-
-static const char * win32_strsignal(sig)
-{
-  switch (sig) {
-    case CTRL_BREAK_EVENT:    return "CTRL_BREAK_EVENT";
-    case CTRL_CLOSE_EVENT:    return "CTRL_CLOSE_EVENT";
-    case CTRL_LOGOFF_EVENT:   return "CTRL_LOGOFF_EVENT";
-    case CTRL_SHUTDOWN_EVENT: return "CTRL_SHUTDOWN_EVENT";
-    default:                  return "*UNKNOWN*";
-  }
-}
-
-
-// Poor man's interruptible sleep()
-void sleep(int seconds){
-  for ( ; seconds > 0 && !caughtsigHUP && !caughtsigEXIT; seconds--)
-    Sleep(1000L); // not interrupted by signals
-}
-
-#endif
 
 
 // signal handler that prints Goodbye message and removes pidfile
@@ -842,21 +823,17 @@ void DaemonInit(){
 #else // _WIN32
 
   // No fork() on native Win32
+  // Detach this process from console
+  if (isatty(fileno(stdout)))
+    puts("smartd now detaches from console into background mode.\n"
+         "Use \"smartd status|stop|reload|restart|sigusr1|sigusr2\" to control daemon.");
   fflush(NULL);
 
-#if 0
-  // TODO: Detach this process from console
-  FreeConsole();
-#ifdef _DEBUG
-  AllocConsole();
-#endif
-  PrintOut(LOG_INFO, "smartd has been detached from console.\n");
-#else
-  // Detaching from console is left out for now,
-  // until a reasonable signal()ing is implemented.
-  puts("smartd: background processing not implemented yet.\n"
-    "Type CONTROL-C to reread configuration file, CONTROL-Break to quit.");
-#endif // 0
+  if (daemon_detach()) {
+    PrintOut(LOG_CRIT,"smartd unable to detach from console!\n");
+    EXIT(EXIT_STARTUP);
+  }
+  //PrintOut(LOG_INFO, "smartd has been detached from console.\n");
 
 #endif // _WIN32
   return;
@@ -2120,8 +2097,6 @@ void Initialize(time_t *wakeuptime){
   // it resets the handler to SIG_DFL after each call.  So use sigset()
   // instead.  So SIGNALFN()==signal() or SIGNALFN()==sigset().
   
-#ifndef _WIN32
-
   // normal and abnormal exit
   if (SIGNALFN(SIGTERM, sighandler)==SIG_IGN)
     SIGNALFN(SIGTERM, SIG_IGN);
@@ -2137,21 +2112,42 @@ void Initialize(time_t *wakeuptime){
     SIGNALFN(SIGHUP, SIG_IGN);
   if (SIGNALFN(SIGUSR1, USR1handler)==SIG_IGN)
     SIGNALFN(SIGUSR1, SIG_IGN);
-
-#else // _WIN32
-
-  // <CONTROL-Break> => Exit
-  // <CONTROL-C> => Reread config (HUP)
-  if (!SetConsoleCtrlHandler(win32_sighandler, TRUE/*add*/))
-    PrintOut(LOG_CRIT, "SetConsoleCtrlHandler() failed, Error=%ld\n", GetLastError());
-
-#endif // _WIN32
+#ifdef _WIN32
+  if (SIGNALFN(SIGUSR2, USR2handler)==SIG_IGN)
+    SIGNALFN(SIGUSR2, SIG_IGN);
+#endif
 
   // initialize wakeup time to CURRENT time
   *wakeuptime=time(NULL);
   
   return;
 }
+
+#ifdef _WIN32
+// Toggle debug mode implemented for native windows only
+// (there is no easy way to reopen tty on *nix)
+static void ToggleDebugMode()
+{
+  if (!debugmode) {
+    PrintOut(LOG_INFO,"Signal USR2 - enabling debug mode\n");
+    if (!daemon_enable_console("smartd [Debug]")) {
+      debugmode = 1;
+      daemon_signal(SIGINT, HUPhandler);
+      PrintOut(LOG_INFO,"smartd debug mode enabled, PID=%d\n", getpid());
+    }
+    else
+      PrintOut(LOG_INFO,"enable console failed\n");
+  }
+  else if (debugmode == 1) {
+    daemon_disable_console();
+    debugmode = 0;
+    daemon_signal(SIGINT, sighandler);
+    PrintOut(LOG_INFO,"Signal USR2 - debug mode disabled\n");
+  }
+  else
+    PrintOut(LOG_INFO,"Signal USR2 - debug mode %d not changed\n", debugmode);
+}
+#endif
 
 time_t dosleep(time_t wakeuptime){
   time_t timenow=0;
@@ -2174,7 +2170,15 @@ time_t dosleep(time_t wakeuptime){
     
     // Exit sleep when time interval has expired or a signal is received
     sleep(wakeuptime-timenow);
-    
+
+#ifdef _WIN32
+    // toggle debug mode?
+    if (caughtsigUSR2) {
+      ToggleDebugMode();
+      caughtsigUSR2 = 0;
+    }
+#endif
+
     timenow=time(NULL);
   }
  
@@ -3226,6 +3230,15 @@ void ParseOpts(int argc, char **argv){
     }
   }
 
+  // non-option arguments are not allowed
+  if (argc > optind) {
+    debugmode=1;
+    PrintHead();
+    PrintOut(LOG_CRIT, "=======> UNRECOGNIZED ARGUMENT: %s <=======\n\n", argv[optind]);
+    PrintOut(LOG_CRIT, "\nUse smartd -h to get a usage summary\n\n");
+    EXIT(EXIT_BADCMD);
+  }
+
   // no pidfile in debug mode
   if (debugmode && pid_file) {
     debugmode=1;
@@ -3475,6 +3488,16 @@ int main(int argc, char **argv){
   // next time to wake up
   time_t wakeuptime;
 
+#ifdef _WIN32
+  // Simulate initd commands in smartd itself
+  {
+    int status;
+    if ((status = daemon_main("smartd", argc, argv)) >= 0)
+      // command handled in daemon_main
+      return status;
+  }
+#endif
+
   // for simplicity, null all global communications variables/lists
   con=&control;
   memset(con,        0,sizeof(control));
@@ -3494,7 +3517,6 @@ int main(int argc, char **argv){
 
     // are we exiting from a signal?
     if (caughtsigEXIT) {
-#ifndef _WIN32
       // are we exiting with SIGTERM?
       int isterm=(caughtsigEXIT==SIGTERM);
       int isquit=(caughtsigEXIT==SIGQUIT);
@@ -3504,13 +3526,6 @@ int main(int argc, char **argv){
 	       caughtsigEXIT, strsignal(caughtsigEXIT));
       
       EXIT(isok?0:EXIT_SIGNAL);
-
-#else // _WIN32
-      // No SIGTERM/QUIT for now, assume OK, print name of actual CTRL_*_EVENT
-      PrintOut(LOG_INFO, "smartd received signal %d: %s\n",
-               caughtsigEXIT, win32_strsignal(caughtsigEXIT));
-      EXIT(0);
-#endif // _WIN32
     }
 
     // Should we (re)read the config file?
@@ -3519,15 +3534,9 @@ int main(int argc, char **argv){
 
       if (!firstpass)
         PrintOut(LOG_INFO,
-#ifndef _WIN32
                  caughtsigHUP==1?
                  "Signal HUP - rereading configuration file %s\n":
-                 "\a\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
-#else
-                 !debugmode?
-                 "CONTROL-C - rereading configuration file %s\n":
-                 "\a\nCONTROL-C - rereading configuration file %s (CONTROL-Break quits)\n\n",
-#endif
+                 "\a\nSignal INT - rereading configuration file %s ("SIGQUIT_KEYNAME" quits)\n\n",
                  configfile);
       
       // clears cfgentries, (re)reads config file, makes >=0 entries

@@ -178,6 +178,14 @@ InputPath=.\config_vc6.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\daemon_win32.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\daemon_win32.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\extern.h
 # End Source File
 # Begin Source File

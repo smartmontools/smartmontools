@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.67 2004/03/15 19:47:14 ballen4705 Exp $
+# $Id: configure.in,v 1.68 2004/03/24 22:37:38 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.67 2004/03/15 19:47:14 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.68 2004/03/24 22:37:38 chrfranke Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -90,12 +90,12 @@ case "${host}" in
 		AC_SUBST([os_deps], ['os_freebsd.o']) 
 		AC_SUBST([os_libs], ['-lcam']);;
 	sparc-*-solaris*) 
-                AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer])
+		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer])
 		AC_DEFINE_UNQUOTED(NEED_SOLARIS_ATA_CODE, "os_solaris_ata.s", [need assembly code os_solaris_ata.s])
 		AC_SUBST([os_deps], ['os_solaris.o os_solaris_ata.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 	pc-*-solaris*) 
-                AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
+		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
 		AC_SUBST([os_deps], ['os_solaris.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 	*-*-netbsd*)
@@ -109,8 +109,8 @@ case "${host}" in
 		CPPFLAGS="$CPPFLAGS -mno-cygwin"
 		LDFLAGS="$LDFLAGS -mno-cygwin"
 		# Include path setting is OK for now but should be done before first AC_CHECK_HEADER:
-		CPPFLAGS="$CPPFLAGS -idirafter posix -idirafter os_win32"
-		AC_SUBST([os_deps], ['os_win32.o regex.o syslog_win32.o'])
+		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
+		AC_SUBST([os_deps], ['os_win32.o regex.o daemon_win32.o syslog_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
 	*)
 		AC_SUBST([os_deps], ['os_generic.o']) 
