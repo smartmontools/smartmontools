@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003 Bruce Allen, Philip Williams
+ * Copyright (C) 2003 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,10 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.2 2003/04/13 16:05:23 pjwilliams Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.3 2003/04/16 20:09:00 pjwilliams Exp $\n"
 
 #include <linux/hdreg.h>
+#include "extern.h"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -50,7 +51,7 @@ typedef struct drivesettings_s {
   const char * const firmwareregexp;
   const char * const warningmsg;
   const int (* const vendoropts)[2];
-  const void (* const specialpurpose)();
+  void (* const specialpurpose)(smartmonctrl *);
 } drivesettings;
 
 /* Table of settings for known drives.  Defined in knowndrives.c. */
@@ -68,7 +69,8 @@ void showallpresets(void);
 
 // Sets preset vendor attribute options in opts by finding the entry (if any)
 // for the given drive in knowndrives[].  Values that have already been set in
-// opts will not be changed.
-void applypresets(const struct hd_driveid *drive, unsigned char opts[256]);
+// opts will not be changed.  Also sets options in con.
+void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
+                  smartmonctrl *con);
 
 #endif
