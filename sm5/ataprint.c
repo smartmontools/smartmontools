@@ -1,4 +1,3 @@
-//  $Id: ataprint.c,v 1.14 2002/10/21 16:00:48 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -28,6 +27,8 @@
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
+
+const char *CVSid4="$Id: ataprint.c,v 1.15 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID2 CVSID3 CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
 // space. This is needed on little-endian architectures, eg Intel,

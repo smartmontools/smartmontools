@@ -1,4 +1,3 @@
-//  $Id: extern.h,v 1.6 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * extern.h
  *
@@ -25,6 +24,11 @@
 
 #ifndef _EXTERN_H_
 #define _EXTERN_H_
+
+
+#ifndef CVSID3
+#define CVSID3 "$Id: extern.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 extern unsigned char driveinfo;
 extern unsigned char checksmart;

@@ -1,4 +1,3 @@
-//  $Id: smartctl.h,v 1.6 2002/10/15 14:24:27 ballen4705 Exp $
 /*
  * smartctl.h
  *
@@ -25,6 +24,10 @@
 
 #ifndef __SMARTCTL_H_
 #define __SMARTCTL_H_
+
+#ifndef CVSID6
+#define CVSID6 "$Id: smartctl.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#endif
 
 /* Defines for command line options */ 
 #define DRIVEINFO		'i'

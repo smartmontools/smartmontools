@@ -1,5 +1,3 @@
-//  $Id: scsicmds.c,v 1.8 2002/10/22 08:43:22 ballen4705 Exp $
-
 /*
  * scsicmds.c
  *
@@ -35,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-
+const char *CVSid2="$Id: scsicmds.c,v 1.9 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID4 ;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)

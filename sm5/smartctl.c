@@ -1,4 +1,3 @@
-//  $Id: smartctl.c,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -36,6 +35,9 @@
 #include "ataprint.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
+
+extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
+const char* CVSid6="$Id: smartctl.c,v 1.12 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID1 CVSID2 CVSID4 CVSID5 CVSID6 ;
 
 unsigned char driveinfo               = FALSE;
 unsigned char checksmart              = FALSE;
@@ -229,7 +231,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $");
+    printf("CVS version IDs of files used to build this code are:\n%s%s%s%s%s",CVSid1,CVSid2,CVSid4,CVSid5,CVSid6);
     if (argc==2)
       exit(0);
  }
