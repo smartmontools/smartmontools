@@ -108,14 +108,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.349 2004/12/06 02:08:00 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.350 2004/12/27 21:25:35 geoffk1 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.349 2004/12/06 02:08:00 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.350 2004/12/27 21:25:35 geoffk1 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1857,16 +1857,22 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
                name, oldc, newc);
       MailWarning(cfg, 3, "Device: %s, Self-Test Log error count increased from %d to %d",
                    name, oldc, newc);
-    } else if (oldh<newh) {
+    } else if (oldh!=newh) {
       // more recent error
+      // a 'more recent' error might actually be a smaller hour number,
+      // if the hour number has wrapped.
+      // There's still a bug here.  You might just happen to run a new test
+      // exactly 32768 hours after the previous failure, and have run exactly
+      // 20 tests between the two, in which case smartd will miss the
+      // new failure.
       PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
                name, newh);
       MailWarning(cfg, 3, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
                    name, newh);
     }
     
-    // Needed since self-test error count may DECREASE.  Hour should
-    // never decrease but this does no harm.
+    // Needed since self-test error count may DECREASE.  Hour might
+    // also have changed.
     cfg->selflogcount= newc;
     cfg->selfloghour = newh;
   }
