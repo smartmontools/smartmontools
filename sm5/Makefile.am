@@ -53,10 +53,8 @@ docs_DATA = README    \
             TODO      \
             WARNINGS  \
             CHANGELOG \
-            COPYING
-
-examplesdir=$(exampledir)
-examples_DATA = smartd.conf
+            COPYING   \
+            smartd.conf
 
 sysconf_DATA = smartd.conf
 
@@ -66,8 +64,7 @@ initd_DATA = smartd.initd
 EXTRA_DIST = $(man_MANS)		\
                 smartmontools.spec	\
                 smartd.initd		\
-                $(docs_DATA)		\
-                $(examples_DATA)
+                $(docs_DATA)
 
 smartd.conf.5: smartd.8
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8 > $(top_builddir)/tmp.directives
