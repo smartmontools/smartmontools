@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.26 2002/11/07 11:00:56 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.27 2002/11/07 19:07:20 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -325,8 +325,7 @@ int main (int argc, char **argv){
   }
   
   // open device - read-only mode is enough to issue needed commands
-  fd = open(device=argv[2], O_RDONLY);
-  
+  fd = open(device=argv[2], O_RDONLY);  
   if (fd<0) {
     perror("Smartctl device open failed");
     return FAILDEV;
