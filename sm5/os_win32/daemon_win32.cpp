@@ -33,7 +33,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.2 2004/03/29 21:50:52 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.3 2004/07/31 16:56:20 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -185,7 +185,7 @@ static int parent_main(HANDLE rev)
 		NULL, cmdline,
 		NULL, NULL, TRUE/*inherit*/,
 		0, NULL, NULL, &si, &pi)) {
-		fprintf(stderr, "CreateProcess(.,\"%s\",.) failed, Error=%ld\n", cmdline);
+		fprintf(stderr, "CreateProcess(.,\"%s\",.) failed, Error=%ld\n", cmdline, GetLastError());
 		CloseHandle(rev); CloseHandle(dev);
 		return 101;
 	}
@@ -289,7 +289,7 @@ static void child_exit(void)
 		NULL, cmdline,
 		NULL, NULL, TRUE/*inherit*/,
 		0, NULL, NULL, &si, &pi)) {
-		fprintf(stderr, "CreateProcess(.,\"%s\",.) failed, Error=%ld\n", cmdline);
+		fprintf(stderr, "CreateProcess(.,\"%s\",.) failed, Error=%ld\n", cmdline, GetLastError());
 	}
 	CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
 }
@@ -453,6 +453,116 @@ int daemon_messagebox(int system, const char * title, const char * text)
 }
 
 
+// Spawn a command and redirect <inpbuf >outbuf
+// return command's exitcode or -1 on error
+
+int daemon_spawn(const char * cmd,
+                 const char * inpbuf, int inpsize,
+                 char *       outbuf, int outsize )
+{
+	HANDLE pipe_inp_r, pipe_inp_w, pipe_out_r, pipe_out_w, pipe_err_w, h;
+	DWORD num_io, exitcode; int i;
+	SECURITY_ATTRIBUTES sa;
+	STARTUPINFO si; PROCESS_INFORMATION pi;
+	HANDLE self = GetCurrentProcess();
+
+	// Create stdin pipe with inheritable read side
+	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
+	sa.bInheritHandle = TRUE;
+	if (!CreatePipe(&pipe_inp_r, &h, &sa, inpsize*2+13))
+		return -1;
+	if (!DuplicateHandle(self, h, self, &pipe_inp_w,
+		0, FALSE/*!inherit*/, DUPLICATE_SAME_ACCESS)) {
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
+	}
+	CloseHandle(h);
+
+	// Create stdout pipe with inheritable write side
+	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
+	sa.bInheritHandle = TRUE;
+	if (!CreatePipe(&h, &pipe_out_w, &sa, outsize)) {
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
+	}
+	if (!DuplicateHandle(self, h, self, &pipe_out_r,
+		0, FALSE/*!inherit*/, DUPLICATE_SAME_ACCESS)) {
+		CloseHandle(h);          CloseHandle(pipe_out_w);
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
+	}
+	CloseHandle(h);
+
+	// Create stderr handle as dup of stdout write side
+	if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
+		0, TRUE/*inherit*/, DUPLICATE_SAME_ACCESS)) {
+		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
+	}
+
+	// Create process with pipes as stdio
+	memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
+	si.hStdInput  = pipe_inp_r;
+	si.hStdOutput = pipe_out_w;
+	si.hStdError  = pipe_err_w;
+	si.dwFlags = STARTF_USESTDHANDLES;
+	if (!CreateProcessA(
+		NULL, (char*)cmd,
+		NULL, NULL, TRUE/*inherit*/,
+		DETACHED_PROCESS/*no new console*/,
+		NULL, NULL, &si, &pi)) {
+		CloseHandle(pipe_err_w);
+		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
+		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		return -1;
+	}
+	CloseHandle(pi.hThread);
+	// Close inherited handles
+	CloseHandle(pipe_inp_r);
+	CloseHandle(pipe_out_w);
+	CloseHandle(pipe_err_w);
+
+	// Copy inpbuf to stdin
+	// convert \n => \r\n 
+	for (i = 0; i < inpsize; ) {
+		int len = 0;
+		while (i+len < inpsize && inpbuf[i+len] != '\n')
+			len++;
+		if (len > 0)
+			WriteFile(pipe_inp_w, inpbuf+i, len, &num_io, NULL);
+		i += len;
+		if (i < inpsize) {
+			WriteFile(pipe_inp_w, "\r\n", 2, &num_io, NULL);
+			i++;
+		}
+	}
+	CloseHandle(pipe_inp_w);
+
+	// Copy stdout to output buffer until full, rest to /dev/null
+	// convert \r\n => \n
+	for (i = 0; ; ) {
+		char buf[256];
+		int j;
+		if (!ReadFile(pipe_out_r, buf, sizeof(buf), &num_io, NULL) || num_io == 0)
+			break;
+		for (j = 0; i < outsize-1 && j < (int)num_io; j++) {
+			if (buf[j] != '\r')
+				outbuf[i++] = buf[j];
+		}	
+	}
+	outbuf[i] = 0;
+	CloseHandle(pipe_out_r);
+
+	// Wait for process exitcode
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	exitcode = 42;
+	GetExitCodeProcess(pi.hProcess, &exitcode);
+	CloseHandle(pi.hProcess);
+	return exitcode;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // Initd Functions
 
@@ -600,7 +710,7 @@ int daemon_main(const char * ident, int argc, char **argv)
 		|_CRTDBG_ALLOC_MEM_DF|_CRTDBG_CHECK_ALWAYS_DF|_CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	// Check for [status|stop|reload] parameters
+	// Check for [status|stop|reload|restart|sigusr1|sigusr2] parameters
 	if ((rc = initd_main(ident, argc, argv)) >= 0)
 		return rc;
 

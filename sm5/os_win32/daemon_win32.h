@@ -19,7 +19,7 @@
 #ifndef DAEMON_WIN32_H
 #define DAEMON_WIN32_H
 
-#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.2 2004/03/29 21:50:52 chrfranke Exp $\n"
+#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.3 2004/07/31 16:56:20 chrfranke Exp $\n"
 
 #include <signal.h>
 
@@ -47,5 +47,10 @@ int daemon_detach(const char * ident);
 
 // Display a message box
 int daemon_messagebox(int system, const char * title, const char * text);
+
+// Spawn a process and redirect stdio
+int daemon_spawn(const char * cmd,
+                 const char * inpbuf, int inpsize,
+                 char *       outbuf, int outsize );
 
 #endif // DAEMON_WIN32_H
