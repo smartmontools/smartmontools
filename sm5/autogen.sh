@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# $Id: autogen.sh,v 1.4 2004/03/04 02:44:39 pervalidus Exp $
+# $Id: autogen.sh,v 1.5 2004/03/09 04:20:02 arvoreen Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -21,7 +21,7 @@ typep()
     return 1
 }
 
-test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.8` || AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake-1.6` ||
+test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.8` || AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake-1.6` || AUTOMAKE=`typep automake17` ||
 {
 echo
 echo "You must have at least GNU Automake 1.6 (up to 1.8.x) installed"

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.361 2004/03/06 19:43:17 ballen4705 Exp $
+$Id: CHANGELOG,v 1.362 2004/03/09 04:20:02 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Modified autogen.sh as FreeBSD installs automake 1.7 as 
+       'automake17' and NOT 'automake-1.7'
 
 smartmontools 5.30
 
