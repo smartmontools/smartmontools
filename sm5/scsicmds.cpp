@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.43 2003/05/01 11:06:27 makisara Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.44 2003/05/11 22:47:46 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -249,7 +249,7 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         return 0;
     }
     iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
-    if (DRIVER_SENSE == ((status >> 24) & 0xff))
+    if (DRIVER_SENSE == ((status >> 24) & 0xf))
         iop->scsi_status = 2;
     len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
                 SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
@@ -274,9 +274,9 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         return 0;
     else {
         if (con->reportscsiioctl > 0)
-            pout("  ioctl status=0x%x but scsi status=0, fail with ENODEV\n", 
+            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n", 
                  status);
-        return -ENODEV;      /* give up, assume no device there */
+        return -EIO;      /* give up, assume no device there */
     }
 }
 
@@ -305,16 +305,16 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
 {
     if (SCSI_SK_NOT_READY == sinfo->sense_key)
-        return 1;
+        return SIMPLE_ERR_NOT_READY;
     else if (SCSI_SK_ILLEGAL_REQUEST == sinfo->sense_key) {
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo->asc)
-            return 2;
+            return SIMPLE_ERR_BAD_OPCODE;
         else if (SCSI_ASC_UNKNOWN_FIELD == sinfo->asc)
-            return 3;
+            return SIMPLE_ERR_BAD_FIELD;
         else if (SCSI_ASC_UNKNOWN_PARAM == sinfo->asc)
-            return 4;
+            return SIMPLE_ERR_BAD_PARAM;
     }
-    return 0;
+    return SIMPLE_NO_ERROR;
 }
 
 const char * scsiErrString(int scsiErr)
@@ -322,15 +322,15 @@ const char * scsiErrString(int scsiErr)
     if (scsiErr < 0)
         return strerror(-scsiErr);
     switch (scsiErr) {
-        case 0: 
+        case SIMPLE_NO_ERROR: 
             return "no error";
-        case 1: 
+        case SIMPLE_ERR_NOT_READY: 
             return "device not ready";
-        case 2: 
+        case SIMPLE_ERR_BAD_OPCODE: 
             return "unsupported scsi opcode";
-        case 3: 
-            return "bad value in scsi command";
-        case 4: 
+        case SIMPLE_ERR_BAD_FIELD: 
+            return "unsupported field in scsi command";
+        case SIMPLE_ERR_BAD_PARAM: 
             return "badly formed scsi parameters";
         default:
             return "unknown error";
@@ -743,12 +743,12 @@ int scsiTestUnitReady(int device)
 
     status = _testunitready(device, &sinfo);
     if (SCSI_SK_NOT_READY == sinfo.sense_key)
-        return 1;
+        return SIMPLE_ERR_NOT_READY;
     else if (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key) {
         /* power on reset, media changed, ok ... try again */
         status = _testunitready(device, &sinfo);        
         if (SCSI_SK_NOT_READY == sinfo.sense_key)
-            return 1;
+            return SIMPLE_ERR_BAD_FIELD;
     }
     return status;
 }
@@ -775,8 +775,8 @@ static int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
         } else if ((offset + 2) > resp_len) {
-            pout("scsiModePageOffset: bad resp_len=%d offset=%d bd_len=%d\n",
-                 resp_len, offset, bd_len);
+            pout("scsiModePageOffset: response length too short, resp_len=%d"
+                 " offset=%d bd_len=%d\n", resp_len, offset, bd_len);
             offset = -1;
         }
     }
@@ -798,7 +798,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
     iecp->requestedCurrent = 1;
     if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
                              0, iecp->raw_curr, sizeof(iecp->raw_curr)))) {
-        if (2 == err) { /* opcode no good so try 10 byte mode sense */
+        if (SIMPLE_ERR_BAD_OPCODE == err) { /* so try 10 byte mode sense */
             err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
                              0, iecp->raw_curr, sizeof(iecp->raw_curr));
             if (0 == err)
@@ -986,7 +986,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
         *currenttemp = 0;
         *triptemp = 0;
         pout("Log Sense for temperature failed [%s]\n", scsiErrString(err));
-        return 1;
+        return err;
     }
     *currenttemp = tBuf[9];
     *triptemp = tBuf[15];
@@ -996,7 +996,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
- * (Centigrade) if for temperature not available. */
+ * (Centigrade) implies that the temperature not available. */
 int scsiCheckIE(int device, int method, int hasTempLogPage,
                 UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp)
 {
@@ -1014,12 +1014,12 @@ int scsiCheckIE(int device, int method, int hasTempLogPage,
     if (method == CHECK_SMART_BY_LGPG_2F) {
         if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, sizeof(tBuf)))) {
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
-            return 5;
+            return err;
         }
         pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("Log Sense failed, IE page, bad parameter code or length\n");
-            return 5;
+            return SIMPLE_ERR_BAD_PARAM;
         }
         if (tBuf[7] > 1) {
             sense_info.asc = tBuf[8]; 
@@ -1034,7 +1034,7 @@ int scsiCheckIE(int device, int method, int hasTempLogPage,
         /* ties in with MRIE field of 6 in IEC mode page (0x1c) */
         if ((err = scsiRequestSense(device, &sense_info))) {
             pout("Request Sense failed, [%s]\n", scsiErrString(err));
-            return 5;
+            return err;
         }
     }
     *asc = sense_info.asc;
