@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.29 2004/03/04 01:38:45 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.30 2004/03/04 04:57:05 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -517,12 +517,14 @@ some common types of errors, the Error Register (ER) and Status
 Register (SR) values are decoded and printed as text. The meanings of these
 are: 
 \fBABRT\fP: Aborted,
+\fAMNF\fP: Address Mark Not Found,
 \fBICRC\fP: Interface CRC error,
 \fBIDNF\fP: Id Not Found,
 \fBMC\fP: Media Changed,
 \fBMCR\fP: Media Change Request,
 \fBNM\fP: No Media,
 \fBobs\fP: Obsolete,
+\fBTK0NF\fP: Track 0 Not Found,
 \fBUNC\fP: Uncorrectable,
 \fBWP\fP: Write Protected.
 
@@ -1059,4 +1061,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.29 2004/03/04 01:38:45 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.30 2004/03/04 04:57:05 ballen4705 Exp $
