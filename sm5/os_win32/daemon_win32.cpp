@@ -22,10 +22,8 @@
 #include <io.h>
 
 #define WIN32_LEAN_AND_MEAN
-#ifdef _DEBUG
-// IsDebuggerPresent() only included if compiling for >= NT4, >= Win98
-#define _WIN32_WINDOWS 0x0800
-#endif
+// Need MB_SERVICE_NOTIFICATION (NT4/2000/XP), IsDebuggerPresent() (Win98/ME/NT4/2000/XP)
+#define _WIN32_WINNT 0x0400 
 #include <windows.h>
 #ifdef _DEBUG
 #include <crtdbg.h>
@@ -33,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.3 2004/07/31 16:56:20 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.4 2004/08/06 13:08:45 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -215,6 +213,12 @@ static int parent_main(HANDLE rev)
 // Child Process
 
 
+static int svc_mode;   // Running as service?
+static int svc_paused; // Service paused?
+
+static void service_report_status(int state, int waithint);
+
+
 // Tables of signal handler and corresponding events
 typedef void (*sigfunc_t)(int);
 
@@ -294,7 +298,7 @@ static void child_exit(void)
 	CloseHandle(pi.hThread); CloseHandle(pi.hProcess);
 }
 
-static int child_main(HANDLE hev)
+static int child_main(HANDLE hev,int (*main_func)(int, char **), int argc, char **argv)
 {
 	// Keep EVT_RUNNING open until exit
 	running_event = hev;
@@ -305,8 +309,8 @@ static int child_main(HANDLE hev)
 	// Install restart handler
 	atexit(child_exit);
 
-	// Continue in main() to do the real work
-	return -1;
+	// Continue in main_func() to do the real work
+	return main_func(argc, argv);
 }
 
 
@@ -362,22 +366,26 @@ const char * daemon_strsignal(int sig)
 
 void daemon_sleep(int seconds)
 {
-	if (num_sig_handlers <= 0) {
-		Sleep(seconds*1000L);
-	}
-	else {
-		// Wait for any signal or timeout
-		DWORD rc = WaitForMultipleObjects(num_sig_handlers, sig_events,
-			FALSE/*OR*/, seconds*1000L);
-		if (rc == WAIT_TIMEOUT)
-			return;
-		if (!(/*WAIT_OBJECT_0(0) <= rc && */ rc < WAIT_OBJECT_0+(unsigned)num_sig_handlers)) {
-			fprintf(stderr,"WaitForMultipleObjects returns %lu\n", rc);
-			return;
+	do {
+		if (num_sig_handlers <= 0) {
+			Sleep(seconds*1000L);
 		}
-		// Call Handler
-		sig_handlers[rc-WAIT_OBJECT_0](sig_numbers[rc-WAIT_OBJECT_0]);
-	}
+		else {
+			// Wait for any signal or timeout
+			DWORD rc = WaitForMultipleObjects(num_sig_handlers, sig_events,
+				FALSE/*OR*/, seconds*1000L);
+			if (rc != WAIT_TIMEOUT) {
+				if (!(/*WAIT_OBJECT_0(0) <= rc && */ rc < WAIT_OBJECT_0+(unsigned)num_sig_handlers)) {
+					fprintf(stderr,"WaitForMultipleObjects returns %lu\n", rc);
+					Sleep(seconds*1000L);
+					return;
+				}
+				// Call Handler
+				sig_handlers[rc-WAIT_OBJECT_0](sig_numbers[rc-WAIT_OBJECT_0]);
+				break;
+			}
+		}
+	} while (svc_paused);
 }
 
 
@@ -425,19 +433,26 @@ int daemon_enable_console(const char * title)
 
 int daemon_detach(const char * ident)
 {
-	// Signal detach to parent
-	if (sig_event(EVT_DETACHED) != 1) {
-		if (!debugging())
-			return -1;
+	if (!svc_mode) {
+		if (ident) {
+			// Print help
+			FILE * f = ( isatty(fileno(stdout)) ? stdout
+					   : isatty(fileno(stderr)) ? stderr : NULL);
+			if (f)
+				daemon_help(f, ident, "now detaches from console into background mode");
+		}
+		// Signal detach to parent
+		if (sig_event(EVT_DETACHED) != 1) {
+			if (!debugging())
+				return -1;
+		}
+		daemon_disable_console();
 	}
-	if (ident) {
-		// Print help
-		FILE * f = ( isatty(fileno(stdout)) ? stdout
-		           : isatty(fileno(stderr)) ? stderr : NULL);
-		if (f)
-			daemon_help(f, ident, "now detaches from console into background mode");
+	else {
+		// Signal end of initialization to service control manager
+		service_report_status(SERVICE_RUNNING, 0);
 	}
-	daemon_disable_console();
+
 	return 0;
 }
 
@@ -446,8 +461,9 @@ int daemon_detach(const char * ident)
 
 int daemon_messagebox(int system, const char * title, const char * text)
 {
-	if (MessageBoxA(NULL, text, title,
-	                MB_OK|MB_ICONWARNING|(system?MB_SYSTEMMODAL:MB_APPLMODAL)) != IDOK)
+	if (MessageBoxA(NULL, text, title, MB_OK|MB_ICONWARNING
+	                |(svc_mode?MB_SERVICE_NOTIFICATION:0)
+	                |(system?MB_SYSTEMMODAL:MB_APPLMODAL)  ) != IDOK)
 		return -1;
 	return 0;
 }
@@ -694,16 +710,252 @@ static int initd_main(const char * ident, int argc, char **argv)
 
 
 /////////////////////////////////////////////////////////////////////////////
+// Windows Service Functions
+
+int daemon_winsvc_exitcode; // Set by app to exit(code)
+
+static SERVICE_STATUS_HANDLE svc_handle;
+static SERVICE_STATUS svc_status;
+
+
+// Report status to SCM
+
+static void service_report_status(int state, int seconds)
+{
+	// TODO: Avoid race
+	static DWORD checkpoint = 1;
+	svc_status.dwCurrentState = state;
+	svc_status.dwWaitHint = seconds*1000;
+	switch (state) {
+		default:
+			svc_status.dwCheckPoint = checkpoint++;
+			break;
+		case SERVICE_RUNNING:
+		case SERVICE_STOPPED:
+			svc_status.dwCheckPoint = 0;
+	}
+	switch (state) {
+		case SERVICE_START_PENDING:
+		case SERVICE_STOP_PENDING:
+			svc_status.dwControlsAccepted = 0;
+			break;
+		default:
+			svc_status.dwControlsAccepted =
+				SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN|
+				SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_PARAMCHANGE;
+			break;
+	}
+	SetServiceStatus(svc_handle, &svc_status);
+}
+
+
+// Control the service, called by SCM
+
+static void WINAPI service_control(DWORD ctrlcode)
+{
+	switch (ctrlcode) {
+		case SERVICE_CONTROL_STOP:
+		case SERVICE_CONTROL_SHUTDOWN:
+			svc_paused = 0;
+			sig_event(SIGTERM);
+			service_report_status(SERVICE_STOP_PENDING, 30);
+			break;
+		case SERVICE_CONTROL_PARAMCHANGE: // Win2000/XP
+			svc_paused = 0;
+			sig_event(SIGHUP); // reload
+			service_report_status(svc_status.dwCurrentState, 0);
+			break;
+		case SERVICE_CONTROL_PAUSE:
+			svc_paused = 1;
+			service_report_status(SERVICE_PAUSED, 0);
+			break;
+		case SERVICE_CONTROL_CONTINUE:
+			{
+				int was_paused = svc_paused;
+				svc_paused = 0;
+				sig_event(was_paused ? SIGHUP : SIGUSR1); // reload:recheck
+			}
+			service_report_status(SERVICE_RUNNING, 0);
+			break;
+		case SERVICE_CONTROL_INTERROGATE:
+		default: // unknown
+			service_report_status(svc_status.dwCurrentState, 0);
+			break;
+	}
+}
+
+
+// Exit handler for service
+
+static void service_exit(void)
+{
+	// Close signal events
+	int i;
+	for (i = 0; i < num_sig_handlers; i++)
+		CloseHandle(sig_events[i]);
+	num_sig_handlers = 0;
+
+	// Set exitcode
+	if (daemon_winsvc_exitcode) {
+		svc_status.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+		svc_status.dwServiceSpecificExitCode = daemon_winsvc_exitcode;
+	}
+	// Report stopped
+	service_report_status(SERVICE_STOPPED, 0);
+}
+
+
+// Variables for passing main(argc, argv) from daemon_main to service_main()
+static int (*svc_main_func)(int, char **);
+static int svc_main_argc;
+static char ** svc_main_argv;
+
+// Main function for service, called by service dispatcher
+
+static void WINAPI service_main(DWORD argc, LPSTR * argv)
+{
+	char path[MAX_PATH], *p;
+
+	// Register control handler
+	svc_handle = RegisterServiceCtrlHandler(argv[0], service_control);
+
+	// Init service status
+	svc_status.dwServiceType = SERVICE_WIN32_OWN_PROCESS|SERVICE_INTERACTIVE_PROCESS;
+	service_report_status(SERVICE_START_PENDING, 10);
+
+	// Service started in \windows\system32, change to .exe directory
+	if (GetModuleFileNameA(NULL, path, sizeof(path)) && (p = strrchr(path, '\\'))) {
+		*p = 0;	SetCurrentDirectoryA(path);
+	}
+	
+	// Install exit handler
+	atexit(service_exit);
+
+	// Do the real work, service status later updated by daemon_detach()
+	daemon_winsvc_exitcode = svc_main_func(svc_main_argc, svc_main_argv);
+
+	exit(daemon_winsvc_exitcode);
+	// ... continued in service_exit()
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Windows Service Admin Functions
+
+// Set Service description (Win2000/XP)
+
+static int svcadm_setdesc(SC_HANDLE hs, const char * desc)
+{
+	HANDLE hdll;
+	BOOL (WINAPI * ChangeServiceConfig2A_p)(SC_HANDLE, DWORD, LPVOID);
+	BOOL ret;
+	if (!(hdll = LoadLibraryA("ADVAPI32.DLL")))
+		return FALSE;
+	if (!((ChangeServiceConfig2A_p = (BOOL (WINAPI *)(SC_HANDLE, DWORD, LPVOID))GetProcAddress(hdll, "ChangeServiceConfig2A"))))
+		ret = FALSE;
+	else {
+		SERVICE_DESCRIPTIONA sd = { (char *)desc };
+		ret = ChangeServiceConfig2A_p(hs, SERVICE_CONFIG_DESCRIPTION, &sd);
+	}
+	FreeLibrary(hdll);
+	return ret;
+}
+
+
+// Service install/remove commands
+
+static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opts,
+                       int argc, char **argv                                      )
+{
+	int remove;
+	SC_HANDLE hm, hs;
+
+	if (argc < 2)
+		return -1;
+	if (!strcmp(argv[1], "install"))
+		remove = 0;
+	else if (!strcmp(argv[1], "remove")) {
+		if (argc != 2) {
+			printf("%s: no arguments allowed for command remove\n", ident);
+			return 1;
+		}
+		remove = 1;
+	}
+	else
+		return -1;
+
+	printf("%s service %s:", (!remove?"Installing":"Removing"), ident); fflush(stdout);
+
+	// Open SCM
+	if (!(hm = OpenSCManager(NULL/*local*/, NULL/*default*/, SC_MANAGER_ALL_ACCESS))) {
+		printf(" cannot open SCManager, Error=%ld\n", GetLastError());
+		return 1;
+	}
+
+	if (!remove) {
+		char path[MAX_PATH+100];
+		int i;
+		// Get program path
+		if (!GetModuleFileNameA(NULL, path, MAX_PATH)) {
+			printf(" unknown program path, Error=%ld\n", GetLastError());
+			CloseServiceHandle(hm);
+			return 1;
+		}
+		// Append options
+		strcat(path, " "); strcat(path, svc_opts->cmd_opt);
+		for (i = 2; i < argc; i++) {
+			const char * s = argv[i];
+			if (strlen(path)+strlen(s)+1 >= sizeof(path))
+				break;
+			strcat(path, " "); strcat(path, s);
+		}
+		// Create
+		if (!(hs = CreateService(hm,
+			svc_opts->svcname, svc_opts->dispname,
+			SERVICE_ALL_ACCESS,
+			SERVICE_WIN32_OWN_PROCESS|SERVICE_INTERACTIVE_PROCESS,
+			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path,
+			NULL/*no load ordering*/, NULL/*no tag id*/,
+			""/*no depedencies*/, NULL/*local system account*/, NULL/*no pw*/))) {
+			printf(" failed, Error=%ld\n", GetLastError());
+			CloseServiceHandle(hm);
+			return 1;
+		}
+		// Set optional description
+		if (svc_opts->descript)
+			svcadm_setdesc(hs, svc_opts->descript);
+	}
+	else {
+		// Open
+		if (!(hs = OpenService(hm, ident, SERVICE_ALL_ACCESS))) {
+			puts(" not found");
+			CloseServiceHandle(hm);
+			return 1;
+		}
+		// TODO: Stop service if running
+		// Remove
+		if (!DeleteService(hs)) {
+			printf(" failed, Error=%ld\n", GetLastError());
+			CloseServiceHandle(hs); CloseServiceHandle(hm);
+			return 1;
+		}
+	}
+	puts(" done");
+	CloseServiceHandle(hs); CloseServiceHandle(hm);
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 // Main Function
 
 // This function must be called from main()
+// main_func is the function doing the real work
 
-int daemon_main(const char * ident, int argc, char **argv)
+int daemon_main(const char * ident, const daemon_winsvc_options * svc_opts,
+                int (*main_func)(int, char **), int argc, char **argv      )
 {
 	int rc;
-	HANDLE rev;
-	BOOL exists;
-
 #ifdef _DEBUG
 	// Enable Debug heap checks
 	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG)
@@ -713,28 +965,62 @@ int daemon_main(const char * ident, int argc, char **argv)
 	// Check for [status|stop|reload|restart|sigusr1|sigusr2] parameters
 	if ((rc = initd_main(ident, argc, argv)) >= 0)
 		return rc;
+	// Check for [install|remove] parameters
+	if (svc_opts && (rc = svcadm_main(ident, svc_opts, argc, argv)) >= 0)
+		return rc;
 
-	// Create main event to detect process type:
-	// 1. new: parent process => start child and wait for detach() or exit() of child.
-	// 2. exists && signaled: child process => do the real work, signal detach() to parent
-	// 3. exists && !signaled: already running => exit()
-	if (!(rev = create_event(EVT_RUNNING, TRUE/*signaled*/, TRUE, &exists)))
-		return 100;
+	// Run as service if svc_opts.cmd_opt is given as first(!) argument
+	svc_mode = (svc_opts && argc >= 2 && !strcmp(argv[1], svc_opts->cmd_opt));
 
-	if (!exists && !debugging()) {
-		// Event new => parent process
-		return parent_main(rev);
+	if (!svc_mode) {
+		// Daemon: Try to simulate a Unix-like daemon
+		HANDLE rev;
+		BOOL exists;
+
+		// Create main event to detect process type:
+		// 1. new: parent process => start child and wait for detach() or exit() of child.
+		// 2. exists && signaled: child process => do the real work, signal detach() to parent
+		// 3. exists && !signaled: already running => exit()
+		if (!(rev = create_event(EVT_RUNNING, TRUE/*signaled*/, TRUE, &exists)))
+			return 100;
+
+		if (!exists && !debugging()) {
+			// Event new => parent process
+			return parent_main(rev);
+		}
+
+		if (WaitForSingleObject(rev, 0) == WAIT_OBJECT_0) {
+			// Event was signaled => In child process
+			return child_main(rev, main_func, argc, argv);
+		}
+
+		// Event no longer signaled => Already running!
+		daemon_help(stdout, ident, "already running");
+		CloseHandle(rev);
+		return 1;
 	}
+	else {
+		// Service: Start service_main() via SCM
+		SERVICE_TABLE_ENTRY service_table[] = {
+			{ (char*)svc_opts->svcname, service_main }, { NULL, NULL }
+		};
 
-	if (WaitForSingleObject(rev, 0) == WAIT_OBJECT_0) {
-		// Event was signaled => In child process
-		return child_main(rev);
+		svc_main_func = main_func;
+		svc_main_argc = argc;
+		svc_main_argv = argv;
+		if (!StartServiceCtrlDispatcher(service_table)) {
+			fprintf(stderr, "%s: Cannot dispatch service, Error=%ld\n", ident, GetLastError());
+#ifdef _DEBUG
+			if (debugging())
+				service_main(argc, argv);
+#endif
+			return 100;
+		}
+		Sleep(1000);
+		ExitThread(0); // Do not redo exit() processing
+		/*NOTREACHED*/
+		return 0;
 	}
-
-	// Event no longer signaled => Already running!
-	daemon_help(stdout, ident, "already running");
-	CloseHandle(rev);
-	return 1;
 }
 
 
@@ -750,17 +1036,15 @@ static void sig_handler(int sig)
 	caughtsig = sig;
 }
 
-static void main_exit(void)
+static void test_exit(void)
 {
 	printf("Main exit\n");
 }
 
-int main(int argc, char **argv)
+int test_main(int argc, char **argv)
 {
 	int i;
 	int debug = 0;
-	if ((i = daemon_main("testd", argc, argv)) >= 0)
-		return i;
 
 	printf("PID=%ld\n", GetCurrentProcessId());
 	for (i = 0; i < argc; i++) {
@@ -775,12 +1059,12 @@ int main(int argc, char **argv)
 	daemon_signal(SIGHUP, sig_handler);
 	daemon_signal(SIGUSR2, sig_handler);
 
-	atexit(main_exit);
+	atexit(test_exit);
 
 	if (!debug) {
 		printf("Preparing to detach...\n");
 		Sleep(2000);
-		daemon_detach();
+		daemon_detach("test");
 		printf("Detached!\n");
 	}
 
@@ -790,7 +1074,10 @@ int main(int argc, char **argv)
 		if (caughtsig) {
 			if (caughtsig == SIGUSR2) {
 				debug ^= 1;
-				daemon_console(debug, "Daemon[Debug]");
+				if (debug)
+					daemon_enable_console("Daemon[Debug]");
+				else
+					daemon_disable_console();
 			}
 			printf("[PID=%ld: Signal=%d]", GetCurrentProcessId(), caughtsig); fflush(stdout);
 			if (caughtsig == SIGTERM || caughtsig == SIGBREAK)
@@ -800,6 +1087,16 @@ int main(int argc, char **argv)
 	}
 	printf("\nExiting on signal %d\n", caughtsig);
 	return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+	static const daemon_winsvc_options svc_opts = {
+	"-s", "test", "Test Service", "Service to test daemon_win32.c Module"
+	};
+
+	return daemon_main("testd", &svc_opts, test_main, argc, argv);
 }
 
 #endif
