@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.480 2004/10/01 15:16:24 chrfranke Exp $
+$Id: CHANGELOG,v 1.481 2004/10/03 20:49:16 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Fujitsu MPG3153AH, Hitachi Endurastar J4K20/N4K20 (formerly
+       DK23FA-20J), Seagate Momentus family, and Maxtor Fireball 3 family
+       to knowndrives table.
+
+  [PW] Added missing Maxtor DiamondMax 16, Seagate Barracuda ATA IV, and
+       Western Digital Caviar WDxxxAA/WDxxxBA drives to knowndrives table.
 
   [CF] Windows: Added ATA check power mode for smartd -n directive.
 
