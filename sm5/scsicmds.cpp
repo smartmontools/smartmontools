@@ -32,7 +32,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.22 2003/03/26 08:14:53 dpgilbert Exp $" SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.23 2003/03/28 07:21:35 dpgilbert Exp $" SCSICMDS_H_CVSID;
 
 
 #if 0
@@ -411,11 +411,14 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
         cdb[1] = 0x14;  /* PF and SelfTest bit */
     else if (SCSI_DIAG_NO_SELF_TEST != functioncode)
         cdb[1] = (functioncode << 5 ) | 0x10; /* SelfTest _code_ + PF bit */
+    else   /* SCSI_DIAG_NO_SELF_TEST == functioncode */
+        cdb[1] = 0x10;  /* PF bit */
     cdb[3] = (bufLen >> 8) & 0xff;
     cdb[4] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
-
+    io_hdr.timeout = 60 * 60;   /* one hour because a foreground extended
+                                   self test can take 20 minutes plus */
     status = do_scsi_cmnd_io(device, &io_hdr);
     return status;
 }
@@ -467,7 +470,7 @@ int testunitready(int device)
 /* ModePage1C Handler */
 #define SMART_SUPPORT   0x00    
 
-UINT8 scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
+int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
 {
     char tBuf[254];
         
@@ -501,32 +504,32 @@ UINT8 scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
     return 0;
 }
 
-UINT8 scsiSmartSupport(int device, UINT8 *retval)
+int scsiSmartSupport(int device, UINT8 *retval)
 {
     return scsiSmartModePage1CHandler( device, SMART_SUPPORT, retval);
 }
 
-UINT8 scsiSmartEWASCEnable(int device)
+int scsiSmartEWASCEnable(int device)
 {
     return scsiSmartModePage1CHandler(device, EWASC_ENABLE, NULL);
 }
 
-UINT8 scsiSmartEWASCDisable(int device)
+int scsiSmartEWASCDisable(int device)
 {
     return scsiSmartModePage1CHandler(device, EWASC_DISABLE, NULL);
 }
 
-UINT8 scsiSmartDEXCPTEnable(int device)
+int scsiSmartDEXCPTEnable(int device)
 {
     return scsiSmartModePage1CHandler(device, DEXCPT_ENABLE, NULL);
 }
 
-UINT8 scsiSmartDEXCPTDisable(int device)
+int scsiSmartDEXCPTDisable(int device)
 {
     return scsiSmartModePage1CHandler(device, DEXCPT_DISABLE, NULL);
 }
 
-UINT8 scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
+int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
 {
     UINT8 tBuf[1024];
     int err;
@@ -542,8 +545,8 @@ UINT8 scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     return 0;
 }
 
-UINT8 scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
-                     UINT8 *currenttemp, UINT8 *triptemp)
+int scsiCheckSmart(int device, UINT8 method, UINT8 *retval,
+                   UINT8 *currenttemp, UINT8 *triptemp)
 {
     UINT8 tBuf[1024];
     UINT8 asc;
@@ -871,7 +874,9 @@ const char * scsiSmartGetSenseCode(UINT8 ascq)
         return "Unknown Failure";
 }
 
-UINT8 scsiSmartOfflineTest(int device)
+/* This is not documented in t10.org, page 0x80 is vendor specific */
+#if 0
+int scsiSmartOfflineTest(int device)
 {       
     UINT8 tBuf[256];
         
@@ -887,28 +892,34 @@ UINT8 scsiSmartOfflineTest(int device)
     tBuf[7] = 0x00; /* Off-line Immediate Time LSB */
     return senddiagnostic(device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
 }
+#endif
 
-UINT8 scsiSmartShortSelfTest(int device)
+int scsiSmartDefaultSelfTest(int device)
+{       
+    return senddiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, NULL, 0);
+}
+
+int scsiSmartShortSelfTest(int device)
 {       
     return senddiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
 }
 
-UINT8 scsiSmartExtendSelfTest(int device)
+int scsiSmartExtendSelfTest(int device)
 {       
     return senddiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
 }
 
-UINT8 scsiSmartShortCapSelfTest(int device)
+int scsiSmartShortCapSelfTest(int device)
 {       
     return senddiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
 }
 
-UINT8 scsiSmartExtendCapSelfTest(int device)
+int scsiSmartExtendCapSelfTest(int device)
 {
     return senddiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, NULL, 0);
 }
 
-UINT8 scsiSmartSelfTestAbort(int device)
+int scsiSmartSelfTestAbort(int device)
 {
     return senddiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
 }
