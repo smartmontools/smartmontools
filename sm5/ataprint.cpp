@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.84 2003/04/25 22:22:56 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.85 2003/04/25 22:31:41 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1154,7 +1154,7 @@ int ataPrintMain (int fd){
   
   // Print SMART self-test log
   if (con->smartselftestlog){
-    // Note that in spite of it's name, isSmartErrorLogCapable() is
+    // Note that in spite of its name, isSmartErrorLogCapable() is
     // the CORRECT way to see if a device supports the self-test log.
     // The ATA spec says "if this command (READ LOG) is implemented,
     // all address values for which the contents are defined shall be
