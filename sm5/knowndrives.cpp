@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.84 2004/02/04 21:41:13 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.85 2004/02/11 02:18:21 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -104,7 +104,7 @@ const unsigned char vendoropts_Samsung_SV1204H[][2] = {
   {0,0}
 };
 
-const unsigned char vendoropts_Hitachi_DK23EA[][2] = {
+const unsigned char vendoropts_Hitachi_DK23XX[][2] = {
   PRESET_9_MINUTES,
   PRESET_193_LOADUNLOAD,
   {0,0}
@@ -401,18 +401,11 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // HITACHI Travelstar DK23BA series
-    "^HITACHI_DK23BA-",
+  { // HITACHI Travelstar DK23XX series
+    "^HITACHI_DK23..-..$",
     ".*",
     NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
-  },
-  { // HITACHI Travelstar DK23DA and DK23EA series
-    "^HITACHI_DK23[DE]A-",
-    ".*",
-    NULL,
-    vendoropts_Hitachi_DK23EA,
+    vendoropts_Hitachi_DK23XX,
     NULL, NULL
   },
   { // IBM Travelstar 25GS, 18GT, and 12GN family
