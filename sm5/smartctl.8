@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.46 2003/02/24 15:51:37 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.47 2003/03/03 15:25:59 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/02/24 15:51:37 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/03/03 15:25:59 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -385,16 +385,24 @@ Prints either the S.M.A.R.T. error log or the S.M.A.R.T. self-test log.  The
 valid arguments to this option are:
 
 .I error
-\- prints only the S.M.A.R.T. error log.  S.M.A.R.T. disks maintain
-a log of the most recent five non-trivial errors.  For each of these
+\- prints only the S.M.A.R.T. error log.  S.M.A.R.T. disks maintain a
+log of the most recent five non-trivial errors. For each of these
 errors, the disk power-on lifetime at which the error occurred is
 recorded, as is the device status (idle, standby, etc) at the time of
 the error.  Finally, up to the last five commands that preceded the
 error are also recorded, along with a timestamp measured in seconds
 from when the disk was powered up during the session where the error
 took place.  [Note: this time stamp wraps after 2^32 milliseconds, or
-49 days 17 hours 2 minutes and 47.296 seconds.]
-The key ATA disk registers are also recorded in the log.
+49 days 17 hours 2 minutes and 47.296 seconds.]  The key ATA disk
+registers are also recorded in the log.
+
+The ATA Specification (ATA-5 Revision 1c, Section 8.41.6.8.2 to be
+precise) says "Error log structures shall include UNC errors, IDNF
+errors for which the address requested was valid, servo errors, write
+fault errors, etc.  Error log data structures shall not include errors
+attributed to the receipt of faulty commands such as command codes not
+implemented by the device or requests with invalid parameters or
+invalid addresses."
 
 .I selftest
 \- prints only the S.M.A.R.T. self-test log.  The disk maintains a log
@@ -703,4 +711,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.46 2003/02/24 15:51:37 ballen4705 Exp $
+$Id: smartctl.8,v 1.47 2003/03/03 15:25:59 ballen4705 Exp $
