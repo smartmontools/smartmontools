@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.33 2004/03/05 18:00:00 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.34 2004/03/05 23:06:42 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -520,6 +520,7 @@ are:
 .nf
 \fBABRT\fP:  Aborted
 \fBAMNF\fP:  Address Mark Not Found
+\fBCCTO\fP:  Command Completion Timed Out
 \fBEOM\fP:   End Of Media
 \fBICRC\fP:  Interface CRC error
 \fBIDNF\fP:  Id Not Found
@@ -1074,4 +1075,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.33 2004/03/05 18:00:00 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.34 2004/03/05 23:06:42 ballen4705 Exp $
