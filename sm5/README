@@ -154,7 +154,7 @@ please post to the smartmontools mailing list.
   -A, --showall
         Show all SMART information.  Equivalent to -hcai -l error -l selftest
 
-  -v N,OPTION , --vendoroptions=N,OPTION
+  -v N,OPTION , --vendorattribute=N,OPTION
         Set vendor specific OPTION for attribute N.  Currently supported are:
 
                   N     OPTION          Effect
@@ -201,7 +201,7 @@ The following table shows the mapping of old options to new options:
   -l            -l error                --showlog=error
   -L            -l selftest             --showlog=selftest
   -a            -A                      --showall
-  -m            -v 9,minutes            --vendoroptions=9,minutes
+  -m            -v 9,minutes            --vendorattribute=9,minutes
   -O            -t offline              --test=offline
   -S            -t short                --test=short
   -s            -t short -C             --test=short --captive
