@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.252 2003/12/01 22:24:31 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.253 2003/12/02 03:27:13 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1333,11 +1333,52 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   return retval;
 }
 
-// Doug, do a short (testtype=='S' or long testtype=='L' self-test.
-// Return zero on success, nonzero on failure.  See corresponding ATA
-// function below for print on success and failure.
+// Return zero on success, nonzero on failure. Perform offline (background)
+// short or long (extended) self test on given scsi device.
 int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
-  return 1;
+  int retval = 0;
+  char *testname = NULL;
+  char *name = cfg->name;
+  int inProgress;
+
+  if (scsiSelfTestInProgress(fd, &inProgress)) {
+    PrintOut(LOG_CRIT, "Device: %s, seems not to support self tests\n", name);
+    return 1;
+  }
+  if (1 == inProgress) {
+    PrintOut(LOG_INFO, "Device: %s, skip since self test already in "
+             "progress.\n", name);
+    return 1;
+  }
+
+  switch (testtype) {
+  case 'S':
+    testname = "Short Self";
+    retval = scsiSmartShortSelfTest(fd);
+    break;
+  case 'L':
+    testname = "Long Self";
+    retval = scsiSmartExtendSelfTest(fd);
+    break;
+  }
+  // If we can't do the test, exit
+  if (NULL == testname) {
+    PrintOut(LOG_CRIT, "Device: %s, not capable of %c Self Test\n", name, 
+             testtype);
+    return 1;
+  }
+  if (retval) {
+    if ((SIMPLE_ERR_BAD_OPCODE == retval) || 
+        (SIMPLE_ERR_BAD_FIELD == retval)) {
+      PrintOut(LOG_CRIT, "Device: %s, not capable of %s Test\n", name, 
+               testname);
+      return 1;
+    }
+    PrintOut(LOG_CRIT, "Device: %s, %s Test failed (err: %d)\n", name, 
+             testname, retval);
+    return 1;
+  }
+  return 0;
 }
 
 // Do an offline immediate or self-test.  Return zero on success,
@@ -1642,8 +1683,6 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->selftest)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
     
-
-    // Doug, here's where you add scheduled self-tests
     if (cfg->testregexp) {
       // short test
       if (DoTestNow(cfg, 'L')>0)
