@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.36 2003/10/16 07:23:56 ballen4705 Exp $
+# $Id: Makefile.am,v 1.37 2003/11/23 10:40:47 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -143,6 +143,7 @@ smart%: $(srcdir)/smart%.in Makefile
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
 	sed "s|/etc/rc\\.d/init.d/|$(initddir)/|g" | \
 	sed "s|/usr/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
+	sed 's/"\$$Date: 2003/11/23 10:40:47 $$"//g' | \
 	sed "s|/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
 
 SUBDIRS= . examplescripts
