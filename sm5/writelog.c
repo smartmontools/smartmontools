@@ -37,9 +37,11 @@
 // compile: cc -Wall -o writelog thisfile.c
 // run:     ./writelog /dev/hda
 //
+// Kernel error messages are reproduced below after the code
+//
 // Bruce Allen, ballen at gravity dot phys dot uwm dot edu
 //
-// $Id: writelog.c,v 1.2 2003/09/04 12:01:53 ballen4705 Exp $
+// $Id: writelog.c,v 1.3 2003/09/04 19:21:57 ballen4705 Exp $
 
 // set to zero to try using HDIO_DRIVE_CMD ioctl()
 #define USE_HDIO_DRIVE_TASK 1
@@ -148,3 +150,58 @@ int main(int argc, char **argv){
   printf("SUCCESS writing selective self-test log -- BUG FIXED!\n");
   exit(0);
 }
+
+// What follow are the run-time messages and syslog output for the
+// code run with both possible choices of ioctl() type.
+
+#if 0
+
+[root@medusa-slave301 root]# uname -a
+Linux medusa-slave301.medusa.phys.uwm.edu 2.4.20-1medusa #1 Wed Feb 12 17:20:41 CST 2003 i686 unknown
+
+
+With HDIO_DRIVE_TASK, the code segvs in the write log ioctl():
+
+[root@medusa-slave301 root]# ./writelog /dev/hdb
+Device /dev/hdb opened
+Sucessfully read selective self-test log
+Segmentation fault
+
+  Syslog says:
+
+Sep  4 14:10:42 medusa-slave301 kernel:  hdb: lost interrupt
+Sep  4 14:10:42 medusa-slave301 kernel: hdb: drive_cmd: status=0x58 { DriveReady SeekComplete DataRequest }
+Sep  4 14:10:42 medusa-slave301 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep  4 14:10:42 medusa-slave301 kernel:  printing eip:
+Sep  4 14:10:42 medusa-slave301 kernel: 00000000
+Sep  4 14:10:42 medusa-slave301 kernel: *pde = 00000000
+Sep  4 14:10:42 medusa-slave301 kernel: Oops: 0000
+Sep  4 14:10:42 medusa-slave301 kernel: CPU:    0
+Sep  4 14:10:42 medusa-slave301 kernel: EIP:    0010:[<00000000>]    Not tainted
+Sep  4 14:10:42 medusa-slave301 kernel: EFLAGS: 00010296
+Sep  4 14:10:42 medusa-slave301 kernel: eax: fffffffb   ebx: 00000000   ecx: 00000000   edx: fffffffb
+Sep  4 14:10:42 medusa-slave301 kernel: esi: 00000000   edi: 00000000   ebp: 00000000   esp: d5addf8c
+Sep  4 14:10:42 medusa-slave301 kernel: ds: 0018   es: 0018   ss: 0018
+Sep  4 14:10:42 medusa-slave301 kernel: Process writelog (pid: 5004, stackpage=d5add000)
+Sep  4 14:10:42 medusa-slave301 kernel: Stack: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+Sep  4 14:10:42 medusa-slave301 kernel:        00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+Sep  4 14:10:42 medusa-slave301 kernel:        00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+Sep  4 14:10:42 medusa-slave301 kernel: Call Trace:   
+Sep  4 14:10:42 medusa-slave301 kernel: 
+Sep  4 14:10:42 medusa-slave301 kernel: Code:  Bad EIP value.
+
+
+With HDIO_DRIVE_CMD, the code returns unsucessfully from the HDIO_DRIVE_CMD ioctl():
+
+[root@medusa-slave301 root]# ./writelog /dev/hdb
+Device /dev/hdb opened
+Sucessfully read selective self-test log
+SMART WRITE SELECTIVE SELF-TEST LOG: Input/output error
+Unable to write selective self test log using HDIO_DRIVE_CMD
+
+  Syslog says:
+
+Sep  4 14:13:35 medusa-slave301 kernel:  hdb: lost interrupt
+Sep  4 14:13:35 medusa-slave301 kernel: hdb: drive_cmd: status=0x58 { DriveReady SeekComplete DataRequest }
+
+#endif
