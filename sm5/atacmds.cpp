@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.33 2002/10/29 23:09:28 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.34 2002/10/30 00:56:19 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -286,7 +286,7 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
   int i;
   unsigned char chksum=0;
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE]= 
-    {WIN_SMART, 0, SMART_READ_VALUES, 1};
+    {WIN_SMART, 0, SMART_READ_VALUES, 1, };
   
   if (ioctl(device,HDIO_DRIVE_CMD,buf)){
     perror("Error SMART Values Read failed");
