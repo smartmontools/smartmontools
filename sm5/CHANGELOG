@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.111 2003/04/07 11:00:10 dpgilbert Exp $
+$Id: CHANGELOG,v 1.112 2003/04/07 15:08:29 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,12 +28,17 @@ Maintainers/Developers Key:
 [FM] Frederic L. W. Meunier <0@pervalidus.net>
 [PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
 [DG] Douglas Gilbert        <dougg@torque.net>
+[GG] Guido Guenther         <agx@sigxcpu.org>
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [GG] add {-p,--pidfile} option to smartd to write a PID file on
+       startup. Update the manpage accordingly.
+
   [DG] Fix scsi smartd problem detecting SMART support. More cleaning
        and fix (and rename) scsiTestUnitReady(). More scsi renaming.
 
