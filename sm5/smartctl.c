@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.31 2002/12/19 00:05:19 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.32 2003/01/03 17:25:12 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -215,7 +215,7 @@ void Usage (void){
 void printbadargmessage(int opt, const char *optarg) {
   const char **ps;
 
-  pout("=======> INVALID ARGUMENT: %s <======= \n", optarg);
+  pout("=======> INVALID ARGUMENT OF -%c: %s <======= \n", opt, optarg);
   pout("=======> VALID ARGUMENTS ARE: ");
   switch (opt) {
   case 'q':
@@ -259,7 +259,6 @@ void ParseOpts (int argc, char** argv){
   int optchar;
   int badarg;
   int captive;
-  int i;
   extern char *optarg;
   extern int optopt, optind, opterr;
   const char *shortopts = "h?Vq:d:T:b:s:o:S:HcAl:iav:t:CX";
@@ -418,17 +417,10 @@ void ParseOpts (int argc, char** argv){
       con->smartselftestlog   = TRUE;
       break;
     case 'v':
-      for (i=0; vendorattributeargs[i] && strcmp(optarg,vendorattributeargs[i]); i++)
-        ;
-      switch (i) {
-      case 0:
-        con->smart009minutes = TRUE;
-        break;
-      default:
-        badarg = TRUE;
-        break;
-      }
-      break;
+      // parse vendor-specific definitions of attributes
+      if (parse_attribute_def(optarg, con->attributedefs))
+	badarg = TRUE;
+      break;    
     case 't':
       if (!strcmp(optarg,"offline")) {
         con->smartexeoffimmediate = TRUE;

@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.28 2003/01/03 07:00:27 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.29 2003/01/03 17:25:12 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -267,9 +267,6 @@ struct ata_smart_selftestlog {
   unsigned char chksum;
 } __attribute__ ((packed));
 
-// Array of valid argument strings to the -v option.  Defined in atamain.c
-extern const char *vendorattributeargs[];
-
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity (int device, struct hd_driveid *buf);
 int ataReadSmartValues (int device,struct ata_smart_values *);
@@ -346,7 +343,7 @@ int TestTime(struct ata_smart_values *data,int testtype);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
-void ataPrintSmartAttribName(char *output, unsigned char id);
+void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defs);
 
 // like printf() except that we can control it better....
 void pout(char *fmt, ...)  
@@ -379,5 +376,11 @@ int ataCheckAttribute(struct ata_smart_values *data,
 // Structure with the incorrect checksum.
 void checksumwarning(const char *string);
 
+extern const char *vendorattributeargs[];
+
+// function to parse pairs like "9,minutes" or "220,temp".  See end of
+// extern.h for definition of defs[].  Returns 0 if pair recognized,
+// else 1 if there is a problem.
+int parse_attribute_def(char *pair, unsigned char *defs);
 
 #endif /* _ATACMDS_H_ */

@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.91 2003/01/03 12:23:41 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.92 2003/01/03 17:25:12 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -330,6 +330,7 @@ void Directives() {
   printout(LOG_INFO,"  -t      Equivalent to -p and -u Directives\n");
   printout(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
   printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
+  printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
   printout(LOG_INFO,"  -a      Equivalent to -H -f -t -l error -l selftest Directives\n");
   printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
@@ -767,7 +768,7 @@ int ataCheckDevice(atadevices_t *drive){
 	    char attname[64], *loc=attname;
 	    
 	    // get attribute name & skip white space
-	    ataPrintSmartAttribName(loc, att);
+	    ataPrintSmartAttribName(loc, att, con->attributedefs);
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
@@ -794,7 +795,7 @@ int ataCheckDevice(atadevices_t *drive){
 	  if (!isattoff(id, cfg->trackatt, 0)){
 	    
 	    // get attribute name, skip spaces
-	    ataPrintSmartAttribName(loc, id);
+	    ataPrintSmartAttribName(loc, id, con->attributedefs);
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // prefailure attribute
@@ -1147,18 +1148,37 @@ int parsetoken(char *token,cfgfile *cfg){
     arg=strtok(NULL,delim);
     if (!arg) {
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
-        CONFIGFILE, lineno, name, token);
+	       CONFIGFILE, lineno, name, token);
       Directives();
       exit(1);
     }
     if (!(cfg->address=strdup(arg))){
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s: no free memory for email address(es) %s\n",
-        CONFIGFILE, lineno, name, token, arg);
+	       CONFIGFILE, lineno, name, token, arg);
+      Directives();
+      exit(1);
+    }
+    break;
+  case 'v':
+    // non-default vendor-specific attribute meaning
+    arg=strtok(NULL,delim);
+    if (!arg) {
+      // user forgot argument!
+      printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs attribute #,action pair\n",
+	       CONFIGFILE, lineno, name, token);
+      Directives();
+      exit(1);
+    }
+    if (parse_attribute_def(arg, cfg->attributedefs)){	
+      // user argument not recognized
+      printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s argument %s not recognized\n",
+	       CONFIGFILE, lineno, name, token, arg);
       Directives();
       exit(1);
     }
     break;
   default:
+    // Directive not recognized
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
              CONFIGFILE, lineno, name, token);
     Directives();
@@ -1228,8 +1248,9 @@ int parseconfigline(int entry, int lineno,char *line){
   cfg->name=strdup(name);
   cfg->failatt=(unsigned char *)calloc(32,1);
   cfg->trackatt=(unsigned char *)calloc(32,1);
+  cfg->attributedefs=(unsigned char *)calloc(256,1);
   
-  if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
+  if (!cfg->name || !cfg->failatt || !cfg->trackatt || !cfg->attributedefs) {
     printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
     exit(1);
   }
@@ -1532,7 +1553,8 @@ int makeconfigentries(int num, char *name, int isata, int start){
     cfg->name=strdup(name);
     cfg->failatt=(unsigned char *)calloc(32,1);
     cfg->trackatt=(unsigned char *)calloc(32,1);
-    if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
+    cfg->attributedefs=(unsigned char *)calloc(256,1);
+    if (!cfg->name || !cfg->failatt || !cfg->trackatt || !cfg->attributedefs) {
 	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(1);
     }

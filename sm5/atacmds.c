@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.47 2002/12/19 00:05:19 pjwilliams Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.48 2003/01/03 17:25:12 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -116,12 +116,46 @@ const int actual_ver[] = {
   0		/* 0x001d-0xfffe    		*/
 };
 
-// Array of valid argument strings for the -v option.  The order of elements is
-// important!
+
 const char *vendorattributeargs[] = {
+  // 0
   "9,minutes",
+  // 1
+  "220,temp",
+  // 2
+  "9,temp",
+  // NULL should always terminate the array
   NULL
 };
+
+// This is a utility function for parsing pairs like "9,minutes" or
+// "220,temp", and putting the correct flag into the attributedefs
+// array.  Returns 1 if problem, 0 if pair has been recongized.
+int parse_attribute_def(char *pair, unsigned char *defs){
+  int i;
+
+  // look along list and see if we find the pair
+  for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++);
+
+  switch (i) {
+  case 0:
+    // power on time stored in minutes
+    defs[9]=1;
+    return 0;
+  case 1:
+    // attribute 220 is temperature in celsius
+    defs[220]=1;
+    return 0;
+  case 2:
+    // attribute 9 is temperature in celsius
+    defs[9]=2;
+    return 0;
+  default:
+    // pair not found
+    return 1;
+  }
+}
+
 
 // A replacement for perror() that sends output to our choice of
 // printing.
@@ -724,8 +758,9 @@ int ataCheckAttribute(struct ata_smart_values *data,
 
 // Note some attribute names appear redundant because different
 // manufacturers use different attribute IDs for an attribute with the
-// same name.
-void ataPrintSmartAttribName(char *out, unsigned char id){
+// same name.  The array defs[] contains non-zero values if particular
+// attributes have non-default interpretations.
+void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
   char *name;
   switch (id){
     
@@ -754,7 +789,17 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="Seek_Time_Performance";
     break;
   case 9:
-    name="Power_On_Hours";
+    switch (defs[id]) {
+    case 1:
+      name="Power_On_Minutes";
+      break;
+    case 2:
+      name="Temperature_Celsius";
+      break;
+    default:
+      name="Power_On_Hours";
+      break;
+    }
     break;
   case 10:
     name="Spin_Retry_Count";
@@ -800,8 +845,14 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="Multi_Zone_Error_Rate";
     break;
   case 220:
-    // Note -- this is also apparently used for temperature.
-    name="Disk_Shift";
+    switch (defs[id]) {
+    case 1:
+      name="Temperature_Celsius";
+      break;
+    default:
+      name="Disk_Shift";
+      break;
+    }
     break;
   case 221:
     name="G-Sense_Error_Rate";

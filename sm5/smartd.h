@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.24 2002/11/23 17:06:45 pjwilliams Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.25 2003/01/03 17:25:13 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -102,6 +102,9 @@ typedef struct configfile_s {
   // valid attribute values  are from 1 <= x <= 254
   unsigned char *failatt;
   unsigned char *trackatt;
+  // See the end of extern.h for a definition of the array of 256
+  // bytes that this points to.
+  unsigned char *attributedefs;
 } cfgfile;
 
 
