@@ -1,4 +1,4 @@
-Release:  26
+Release:  27
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Name:		smartmontools
@@ -20,7 +20,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.39 2002/11/02 00:00:08 pervalidus Exp $
+# $Id: smartmontools.spec,v 1.40 2002/11/04 08:47:38 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -100,6 +100,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %doc %attr(644,root,root) /usr/share/man/man8/smartctl.8.gz
 %doc %attr(644,root,root) /usr/share/man/man8/smartd.8.gz
 %doc CHANGELOG COPYING TODO README VERSION smartd.conf
+%config(noreplace) %{_sysconfdir}/smartd.conf
+%config %{_sysconfdir}/smartd.conf.example
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -110,8 +112,12 @@ rm -rf %{_builddir}/%{name}-%{version}
 # since this installs the gzipped documentation files, remove
 # non-gzipped ones of the same name.
 %pre
-rm -f /usr/share/man/man8/smartctl.8
-rm -f /usr/share/man/man8/smartd.8
+if [ -f /usr/share/man/man8/smartctl.8 ] ; then
+	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartctl.8 to read the new manual page for smartctl."	
+fi
+if [ -f /usr/share/man/man8/smartd.8 ] ; then
+	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartd.8 to read the new manual page for smartd."	
+fi
 
 %post
 if [ -f /var/lock/subsys/smartd ]; then
@@ -133,9 +139,14 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Mon Nov 4 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- Modified Makefile to install /etc/smartd.conf, but without overwriting existing config file
+- Modified this specfile to do the same, and to not remove any files that it did not install
+
 * Thu Oct 30 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - Fixed typesetting error in man page smartd.8
 - Removed redundant variable (harmless) from smartd.c
+
 * Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - Added a new directive for the configuration file.  If the word
   DEVICESCAN appears before any non-commented material in the
@@ -177,6 +188,7 @@ fi
   varargs statement, with attendent stack corruption.  Sheesh!
   Have added script to CVS attic to help find such nasties in the
   future.
+
 * Tue Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - Eliminated some global variables out of header files and other
   minor cleanup of smartd.
@@ -233,6 +245,7 @@ fi
   to be readable, this may well be the reason why.
 - smartd never checked if the number of ata or scsi devices detected
   was greater than the max number it could monitor.  Now it does.
+
 * Fri Oct 25 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - changes to the Makefile and spec file so that if there are ungzipped manual
   pages in place these will be removed so that the new gzipped man pages are
@@ -244,6 +257,7 @@ fi
   Closes ALL file descriptors after forking to daemon.
 - added new temperature attribute (231, temperature)
 - smartd: now open ATA disks using O_RDONLY
+
 * Thu Oct 24 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - smartd now prints the name of a failed or changed attribute into logfile,
   not just ID number
@@ -341,10 +355,12 @@ fi
     see if the SMART status is OK, rather than comparing thresholds to
     attribute values ourselves. But I need to get some drives that fail
     their SMART status to check it.
+
 * Thu Oct 17 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 -   Removed extraneous space before some error message printing.
 -   Fixed some character buffers that were too short for contents.
     Only used for unrecognized drives, so probably damage was minimal.
+
 * Wed Oct 16 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 -   Initial release.  Code is derived from smartsuite, and is
     intended to be compatible with the ATA/ATAPI-5 specifications.
