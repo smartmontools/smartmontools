@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.38 2002/10/29 00:02:43 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.39 2002/10/29 10:06:20 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -516,7 +516,7 @@ int ataCheckDevice(atadevices_t *drive){
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
-	    printout(LOG_CRIT,"Device: %s, Failed SMART usage attribute: %s. Use smartctl -v %s.\n", name, loc, name);
+	    printout(LOG_CRIT,"Device: %s, Failed SMART usage attribute: %s.\n", name, loc, name);
 	  }
 	}
 	
@@ -1098,7 +1098,7 @@ int main (int argc, char **argv){
   
   // if there was no config file, create needed entries
   if (!entries){
-    printout(LOG_INFO,"smartctl: file %s not found. Searching for devices.\n",CONFIGFILE);
+    printout(LOG_INFO,"smartd: file %s not found. Searching for devices.\n",CONFIGFILE);
     entries+=makeconfigentries(MAXATADEVICES,"/dev/hda",1,entries);
     entries+=makeconfigentries(MAXSCSIDEVICES,"/dev/sda",0,entries);
   }
