@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.307 2004/04/07 19:27:33 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.308 2004/04/07 20:55:31 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.307 2004/04/07 19:27:33 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.308 2004/04/07 20:55:31 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -139,6 +139,10 @@ static char* configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
 #else
 static char* configfile = "./" CONFIGFILENAME ;
 #endif
+// configuration file "name" if read from stdin
+static /*const*/ char * const configfile_stdin = "<stdin>";
+// allocated memory for alternate configuration file name
+static char* configfile_alt = NULL;
 
 // command-line: when should we exit?
 static int quit=0;
@@ -408,6 +412,9 @@ void Goodbye(void){
 
   // delete PID file, if one was created
   RemovePidFile();
+
+  // remove alternate configfile name
+  configfile_alt=FreeNonZero(configfile_alt, -1,__LINE__,filenameandversion);
 
   // useful for debugging -- have we managed memory correctly?
   if (debugmode || (bytes && exitstatus!=EXIT_NOMEM))
@@ -967,8 +974,10 @@ void Directives() {
    arguments to the option opt or NULL on failure. */
 const char *GetValidArgList(char opt) {
   switch (opt) {
+  case 'c':
+    return "<FILE_NAME>, -";
   case 's':
-    return "valid_regular_expresssion";
+    return "valid_regular_expression";
   case 'l':
     return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
@@ -988,6 +997,8 @@ const char *GetValidArgList(char opt) {
 void Usage (void){
   PrintOut(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
+  PrintOut(LOG_INFO,"  -c NAME|-, --configfile=NAME|-\n");
+  PrintOut(LOG_INFO,"        Read configuration file NAME or stdin [default is %s]\n\n", configfile);
   PrintOut(LOG_INFO,"  -d, --debug\n");
   PrintOut(LOG_INFO,"        Start smartd in debug mode\n\n");
   PrintOut(LOG_INFO,"  -D, --showdirectives\n");
@@ -1015,6 +1026,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
+  PrintOut(LOG_INFO,"  -c NAME|-  Read configuration file NAME or stdin [default is %s]\n", configfile);
   PrintOut(LOG_INFO,"  -d         Start smartd in debug mode\n");
   PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
   PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
@@ -2902,7 +2914,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
 // clean up utility for ParseConfigFile()
 void cleanup(FILE **fpp){
   if (*fpp){
-    fclose(*fpp);
+    if (*fpp != stdin)
+      fclose(*fpp);
     *fpp=NULL;
   }
 
@@ -2925,14 +2938,18 @@ int ParseConfigFile(){
   char line[MAXLINELEN+2];
   char fullline[MAXCONTLINE+1];
 
-  // Open config file, if it exists
-  fp=fopen(configfile,"r");
-  if (fp==NULL && errno!=ENOENT){
-    // file exists but we can't read it
-    PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
-             strerror(errno),configfile);
-    return -1;
+  // Open config file, if it exists and is not <stdin>
+  if (configfile != configfile_stdin) {
+    fp=fopen(configfile,"r");
+    if (fp==NULL && (errno!=ENOENT || configfile_alt)) {
+      // file exists but we can't read it or it should exist due to '-c' option
+      PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
+               strerror(errno),configfile);
+      return -1;
+    }
   }
+  else // read from stdin ('-c -' option)
+    fp = stdin;
   
   // No configuration file found -- use fake one
   if (fp==NULL) {
@@ -3085,11 +3102,12 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "l:q:dDi:p:r:Vh?";
+  const char *shortopts = "c:l:q:dDi:p:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
+    { "configfile",     required_argument, 0, 'c' },
     { "logfacility",    required_argument, 0, 'l' },
     { "quit",           required_argument, 0, 'q' },
     { "debug",          no_argument,       0, 'd' },
@@ -3216,6 +3234,13 @@ void ParseOpts(int argc, char **argv){
         }
         s=CheckFree(s, __LINE__,filenameandversion);
       }
+      break;
+    case 'c':
+      // alternate configuration file
+      if (strcmp(optarg,"-"))
+        configfile=configfile_alt=CustomStrDup(optarg, 1, __LINE__,filenameandversion);
+      else // read from stdin
+        configfile=configfile_stdin;
       break;
     case 'p':
       // output file with PID number
