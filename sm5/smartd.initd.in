@@ -2,13 +2,13 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.22 2004/04/04 11:43:52 guidog Exp $
-#
+# $Id: smartd.initd.in,v 1.23 2004/04/04 12:49:31 ballen4705 Exp $
+
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
 # description: Self Monitoring and Reporting Technology (SMART) Daemon
 # processname: smartd 
-#
+
 # For SuSE and cousins
 ### BEGIN INIT INFO
 # Provides:          smartd
@@ -21,16 +21,14 @@
 # Short-Description: Monitors disk and tape health via S.M.A.R.T.
 # Description:       Start S.M.A.R.T. disk and tape monitor.
 ### END INIT INFO
-#
+
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation; either version 2, or (at your option) any later
-# version.
-# 
+# version. 
 # You should have received a copy of the GNU General Public License (for
 # example COPYING); if not, write to the Free Software Foundation, Inc., 675
 # Mass Ave, Cambridge, MA 02139, USA.
-#
 # This code was originally developed as a Senior Thesis by Michael Cornwell
 # at the Concurrent Systems Laboratory (now part of the Storage Systems
 # Research Center), Jack Baskin School of Engineering, University of
@@ -55,7 +53,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 # Source function library
     . /etc/rc.d/init.d/functions
 
-# Source configuration file
+# Source configuration file.  This should define the shell variable smartd_opts
     [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
     
     RETVAL=0
@@ -104,6 +102,12 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 # Slackware
 elif [ -f /etc/slackware-version ] ; then
     
+# Source configuration file.  This should define the shell variable smartd_opts.
+# Email smartmontools-support@lists.sourceforge.net if there is a better choice
+# of path for Slackware.
+
+    [ -r /etc/sysconfig/smartmontools ] && . /etc/sysconfig/smartmontools
+
     case "$1" in
 	start)
 	    echo -n "Starting smartd: "
@@ -136,8 +140,9 @@ elif [ -f /etc/SuSE-release ] ; then
     # Existence of config file is optional
     SMARTD_CONFIG=/etc/smartd.conf
 
-# source configuration file
+# source configuration file. This should set the shell variable smartd_opts
     [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
+
    # Shell functions sourced from /etc/rc.status:
    #      rc_check         check and set local and overall rc status
    #      rc_status        check and set local and overall rc status
@@ -223,10 +228,8 @@ elif [ -f /etc/SuSE-release ] ; then
     esac
     
     rc_exit
-    
-# Add other linux distributions HERE, using elif...
-elif [ -f /etc/environment.corel ] ; then
-    report_unsupported "Corel"
+
+# Debian case
 elif [ -f /etc/debian_version ] ; then
         PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 	SMARTCTL=/usr/sbin/smartctl
@@ -266,11 +269,25 @@ elif [ -f /etc/debian_version ] ; then
 		exit 1
 	esac
  	exit $RET
+
 elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
+
 elif [ -f /etc/turbolinux-release ] ; then
     report_unsupported "Turbolinux"
+
+elif [ -f /etc/environment.corel ] ; then
+    report_unsupported "Corel"
+
+# PLEASE ADD OTHER LINUX DISTRIBUTIONS JUST BEFORE THIS LINE, USING elif
+
 elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
+
+# Source configuration file.  This should define the shell variable smartd_opts.
+# Email smartmontools-support@lists.sourceforge.net if there is a better choice
+# of path for FreeBSD
+
+    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
 
     PID_FILE=/var/run/smartd.pid
     
@@ -296,6 +313,12 @@ elif uname -a | grep FreeBSD > /dev/null 2>&1 ; then
     exit 0
 elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     
+# Source configuration file.  This should define the shell variable smartd_opts.
+# Email smartmontools-support@lists.sourceforge.net if there is a better choice
+# of path for Solaris
+
+    [ -r /etc/default/smartmontools ] && . /etc/default/smartmontools
+
     PID_FILE=/var/run/smartd.pid
     
     case "$1" in
@@ -318,6 +341,7 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     esac
     
     exit 0
+# Add other OSes HERE, using elif...
 else
     report_unsupported "Unknown"
 fi
