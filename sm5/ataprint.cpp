@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.87 2003/06/13 12:41:51 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.88 2003/06/13 17:36:08 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -167,47 +167,46 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
 
 /*  prints verbose value Off-line data collection status byte */
 void PrintSmartOfflineStatus(struct ata_smart_values *data){
-  unsigned char stat=data->offline_data_collection_status;
   char *message=NULL;
+
+  // the final 7 bits
+  unsigned char stat=data->offline_data_collection_status & 0x7f;
   
-  pout("Off-line data collection status: (0x%02x)\t", (int)stat);
+  pout("Off-line data collection status: (0x%02x)\t",
+       (int)data->offline_data_collection_status);
     
   switch(stat){
   case 0x00:
-  case 0x80:
     message="never started";
     break;
   case 0x02:
-  case 0x82:
     message="completed without error";
     break;
   case 0x04:
-  case 0x84:
     message="suspended by an interrupting command from host";
     break;
   case 0x05:
-  case 0x85:
     message="aborted by an interrupting command from host";
     break;
   case 0x06:
-  case 0x86:
     message="aborted by the device with a fatal error";
     break;
   default:
-    if (((stat >= 0x07) && (stat <= 0x3f)) ||
-	((stat >= 0xc0) && (stat <= 0xff)) )
+    if (stat >= 0x40)
       pout("Vendor Specific.\n");
     else
       pout("Reserved.\n");
   }
-
+  
   if (message)
+    // Off-line data collection status byte is not a reserved
+    // or vendor specific value
     pout("Offline data collection activity was\n"
 	 "\t\t\t\t\t%s.\n", message);
-
-  // report on Automatic Data Collection Status.  Only IBM documents
+  
+  // Report on Automatic Data Collection Status.  Only IBM documents
   // this bit.  See SFF 8035i Revision 2 for details.
-  if (stat & 0x80)
+  if (data->offline_data_collection_status & 0x80)
     pout("\t\t\t\t\tAuto Off-line Data Collection: Enabled.\n");
   else
     pout("\t\t\t\t\tAuto Off-line Data Collection: Disabled.\n");
