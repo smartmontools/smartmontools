@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.40 2003/11/30 13:53:14 ballen4705 Exp $
+# $Id: Makefile.am,v 1.41 2003/12/01 14:55:13 guidog Exp $
 #
 
 @SET_MAKE@
@@ -97,7 +97,7 @@ endif
 
 initd_DATA = smartd.initd
 
-EXTRA_DIST = $(man_MANS)		\
+EXTRA_DIST = \
                 smartmontools.spec	\
                 smartd.initd.in		\
                 smartd.initd		\
