@@ -5,3 +5,9 @@ SYSTEM:   Dell servers using AACRAID (SCSI)
 PROBLEM:  Locked up, needed to be rebooted
 REPORTER: drew@eastvan.bc.ca
 LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1311313&forum_id=12495
+
+SYSTEM:   Box with Promise 20265 IDE-controller (pdc202xx-driver) and > 2.4.18 kernel with ide-taskfile support
+PROBLEM:  Smartctl locks system solid when used on /dev/hd[ef].
+REPORTER: Georg Acher <acher@in.tum.de>
+LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1457979&forum_id=12495
+NOTE:     Lockup doesn't happen with 2.4.18 kernel, and doesn't affect /dev/hd[a-d]
