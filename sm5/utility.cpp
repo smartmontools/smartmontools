@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.23 2003/10/10 04:56:39 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.24 2003/10/10 05:06:41 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -188,7 +188,7 @@ void printone(char *block, const char *cvsid){
   // check that the size of the output block is sufficient
   if (len>=CVSMAXLEN) {
     pout("CVSMAXLEN=%d must be at least %d\n",CVSMAXLEN,len+1);
-    exit(1);
+    EXIT(1);
   }
 
   // loop through the different strings

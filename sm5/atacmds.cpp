@@ -32,7 +32,10 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.123 2003/10/08 01:24:58 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.124 2003/10/10 05:06:41 arvoreen Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -179,7 +182,7 @@ int parse_attribute_def(char *pair, unsigned char **defsptr){
   // If array does not exist, allocate it
   if (!*defsptr && !(*defsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM, 1))){
     pout("Out of memory in parse_attribute_def\n");
-    exit(1);
+    EXIT(1);
   }
 
   defs=*defsptr;

@@ -43,12 +43,15 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.98 2003/10/10 04:56:39 arvoreen Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.99 2003/10/10 05:06:41 arvoreen Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
 smartmonctrl *con=NULL;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 // Track memory use
 extern long long bytes;
@@ -459,7 +462,7 @@ void ParseOpts (int argc, char** argv){
           con->veryquietmode = FALSE;
           pout("Can't allocate memory to copy argument to -r option"
                " - exiting\n");
-          exit(FAILCMD);
+          EXIT(FAILCMD);
         }
         if (split_report_arg(s, &i)) {
           badarg = TRUE;
@@ -558,16 +561,16 @@ void ParseOpts (int argc, char** argv){
         printslogan();
         if (!(s = create_vendor_attribute_arg_list())) {
           pout("Insufficient memory to construct argument list\n");
-          exit(FAILCMD);
+          EXIT(FAILCMD);
         }
         pout("The valid arguments to -v are:\n\thelp\n%s\n", s);
         free(s);
-        exit(0);
+        EXIT(0);
       }
       charp=con->attributedefs;
       if (!charp){
 	pout("Fatal internal error in ParseOpts()\n");
-	exit(FAILCMD);
+	EXIT(FAILCMD);
       }
       if (parse_attribute_def(optarg, &charp))
 	badarg = TRUE;
@@ -581,7 +584,7 @@ void ParseOpts (int argc, char** argv){
         con->showpresets = TRUE;
       } else if (!strcmp(optarg, "showall")) {
         showallpresets();
-        exit(0);
+        EXIT(0);
       } else {
         badarg = TRUE;
       }
@@ -617,7 +620,7 @@ void ParseOpts (int argc, char** argv){
                 " defined\n");
             }
             pout("\nUse smartctl -h to get a usage summary\n\n");
-            exit(FAILCMD);
+            EXIT(FAILCMD);
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
           con->smartselectivespan[con->smartselectivenumspans][1] = stop;
@@ -653,7 +656,7 @@ void ParseOpts (int argc, char** argv){
 	} else
 	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
 	pout("\nUse smartctl --help to get a usage summary\n\n");
-	exit(FAILCMD);
+	EXIT(FAILCMD);
       }
 #endif
       if (optopt) {
@@ -664,10 +667,10 @@ void ParseOpts (int argc, char** argv){
         } else
 	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
 	pout("\nUse smartctl -h to get a usage summary\n\n");
-	exit(FAILCMD);
+	EXIT(FAILCMD);
       }
       Usage();
-      exit(0);	
+      EXIT(0);	
     } // closes switch statement to process command-line options
     
     // Check to see if option had an unrecognized or incorrect argument.
@@ -679,7 +682,7 @@ void ParseOpts (int argc, char** argv){
       pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
       printvalidarglistmessage(optchar);
       pout("\nUse smartctl -h to get a usage summary\n\n");
-      exit(FAILCMD);
+      EXIT(FAILCMD);
     }
   }
   // At this point we have processed all command-line options.
@@ -695,7 +698,7 @@ void ParseOpts (int argc, char** argv){
     printslogan();
     pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");
     pout("Use smartctl -h to get a usage summary\n\n");
-    exit(FAILCMD);
+    EXIT(FAILCMD);
   }
 
   // If captive option was used, change test type if appropriate.
@@ -728,7 +731,7 @@ void ParseOpts (int argc, char** argv){
   if (argc-optind<1){
     pout("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
     pout("Use smartctl -h to get a usage summary\n\n");
-    exit(FAILCMD);
+    EXIT(FAILCMD);
   }
   
   // Warn if the user has provided more than one device name
@@ -739,7 +742,7 @@ void ParseOpts (int argc, char** argv){
     for (i=0; i<argc-optind; i++)
       pout("%s\n",argv[optind+i]);
     pout("Use smartctl -h to get a usage summary\n\n");
-    exit(FAILCMD);
+    EXIT(FAILCMD);
   }  
 }
 

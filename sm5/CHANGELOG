@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.202 2003/10/10 04:56:38 arvoreen Exp $
+$Id: CHANGELOG,v 1.203 2003/10/10 05:06:41 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -21,10 +21,14 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-  [EM] Move the DEVICESCAN code to os specific files. Also moved some of the
-	smartd Memory functions to utility.c to make available to smartctl
+  [EM] Switch over to using 'atexit' rather than 'on_exit' routine. This also
+  	meant we needed to save the exit status elsewhere so our 'Goodbye'
+	routine could examine it.
 
-  [EM] Code janitor work is os_freebsd.c
+  [EM] Move the DEVICESCAN code to os specific files. Also moved some of the
+	smartd Memory functions to utility.c to make available to smartctl.
+
+  [EM] Code janitor work on os_freebsd.c.
 
   [EM] Added os_freebsd.[hc] code.  Additional code janitor
        work.
