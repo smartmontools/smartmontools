@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.26 2003/04/01 06:22:51 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.27 2003/04/06 03:54:46 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -60,7 +60,7 @@ void scsiGetSupportPages(int device)
 {
     int i, err;
 
-    if ((err = logsense(device, SUPPORT_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
+    if ((err = logsense(device, SUPPORTED_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
         pout("Log Sense failed, err=%d\n", err); 
         return;
     } 
@@ -77,7 +77,7 @@ void scsiGetSupportPages(int device)
             case SELFTEST_RESULTS_PAGE:
                 gSelfTestPage = 1;
                 break;
-            case SMART_PAGE:
+            case IE_LOG_PAGE:
                 gSmartPage = 1;
                 break;
             case TAPE_ALERTS_PAGE:
@@ -91,26 +91,24 @@ void scsiGetSupportPages(int device)
 
 void scsiGetSmartData(int device)
 {
-    UINT8 returnvalue;
+    UINT8 asc;
+    UINT8 ascq;
     UINT8 currenttemp;
-    UINT8 triptemp;
+    const char * cp;
     int err;
 
-    if ((err = scsiCheckSmart(device, gSmartPage, 
-                       &returnvalue, &currenttemp, &triptemp))) {
-        pout("scsiGetSmartData Failed, err=%d\n", err);
+    if ((err = scsiCheckIE(device, gSmartPage, &asc, &ascq, &currenttemp))) {
+        pout("scsiGetSmart Failed, err=%d\n", err);
         return;
     }
-    if (returnvalue)
-        pout("S.M.A.R.T. Sense: (%02x) %s\n", (UINT8)returnvalue, 
-             scsiSmartGetSenseCode(returnvalue));
+    cp = scsiSmartGetIEString(asc, ascq);
+    if (cp)
+        pout("S.M.A.R.T. Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
     else
         pout("S.M.A.R.T. Sense: Ok!\n");
 
-    if ((currenttemp || triptemp) && !gTempPage) {
+    if (currenttemp && !gTempPage)
         pout("Current Drive Temperature:     %d C\n", currenttemp);
-        pout("Drive Trip Temperature:        %d C\n", triptemp);
-    }
 }
 
 
