@@ -59,7 +59,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.14 2003/10/27 09:26:20 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.15 2003/11/02 18:15:53 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -116,10 +116,10 @@ int get_dev_names(char*** names, const char* prefix, int max) {
   // now step through names
   // NOTE: We look for block special OR links, as Linux DEVFS will
   // actually have these as softlinks to real device entry
-  while ((dirent = readdir(dir)) && (n < max)) {
+  while ((dirent = readdir(dir)) && n < max) {
     if ((dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
-	(strstr(dirent->d_name,prefix) != NULL) &&
-	(_D_EXACT_NAMLEN(dirent) == 3)) {
+	strstr(dirent->d_name,prefix) &&
+	_D_EXACT_NAMLEN(dirent) == 3) {
       sprintf(buf,"/dev/%s",dirent->d_name);
       // if it is a link, then let's check what the link points to
       if (dirent->d_type == DT_LNK) {
@@ -149,6 +149,12 @@ int get_dev_names(char*** names, const char* prefix, int max) {
 // devices.  Return -1 if no memory remaining, else the number of
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
+
+#if 0
+  // for testing case where no device names are found
+  return 0;
+#endif
+
   if (!strcmp(name,"SCSI"))
     //     /dev/sda-sdz
     return get_dev_names(devlist,"sd", MAXSCSIDEVICES);

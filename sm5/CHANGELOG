@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.237 2003/11/01 23:41:41 arvoreen Exp $
+$Id: CHANGELOG,v 1.238 2003/11/02 18:15:53 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Clearer error messages when device scanning finds no suitable
+       devices.
 
   [EM] FreeBSD:	Fixup code to allow for proper compilation under 
        -STABLE branch.
