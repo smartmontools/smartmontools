@@ -133,7 +133,7 @@ pages, and try out the commands:</b>
 
 <pre>man 8 smartctl
 man 8 smartd
-/usr/sbin/smartctl -etf /dev/hda (only root can do this)
+/usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
 /usr/sbin/smartctl -a /dev/hda (only root can do this)</pre>
 
 <p>Note that the default location for the manual pages are in
@@ -268,8 +268,8 @@ from smartsuite in that it supports the ATA/ATAPI-5 standard.&#160; So
 for example <tt>smartctl</tt> from smartsuite has no facility for
 printing the S.M.A.R.T. self-test logs, and doesn't print timestamp
 information in the most usable way.&#160; The <tt>smartctl</tt> utility
-in smartmontools has added functionality for this (<tt>-q,-Q, -L,-f, -F, -U, -P
-and -m</tt> options), updated documentation, and also fixes small
+in smartmontools has added functionality for this (<tt>-q, -l selftest,-S,
+-T, -v and -m</tt> options), updated documentation, and also fixes small
 technical bugs in smartsuite.&#160; See the 
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">CHANGELOG</a>
 file in CVS for a summary of what's been done.&#160; The <tt>smartd</tt>
