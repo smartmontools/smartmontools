@@ -1,5 +1,5 @@
 /*
- * os_generic.c
+ * os_darwin.c
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -15,6 +15,18 @@
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+/*
+  Geoff, does the nex paragraph still have any relevance or interest?
+  Should I move sm5_Darwin into the CVS Attic/?  Also, should Peter
+  Cassidy's name be added to the Copyright above?  I don't know if you
+  made any use of his code in writing this.
+  -- BA
+
+  Note that for Darwin much of this already exists. See some partially
+  developed but incomplete code at:
+  http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/.
+*/
 
 #include <stdbool.h>
 #include <errno.h>
@@ -41,7 +53,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.1 2004/07/16 01:41:20 geoffk1 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.2 2004/07/16 05:55:00 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

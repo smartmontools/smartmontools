@@ -39,10 +39,8 @@
      config.h.
 
  [4] Provide the functions defined in this file by fleshing out the
-     skeletons below. Note that for Darwin much of this already
-     exists. See some partially developed but incomplete code at:
-     http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/.
-     You can entirely eliminate the function 'unsupported()'.
+     skeletons below.  You can entirely eliminate the function
+     'unsupported()'.
 
  [5] Contact smartmontools-support@lists.sourceforge.net to see
      about checking your code into the smartmontools CVS archive.
@@ -57,7 +55,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.13 2004/07/10 06:32:48 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.14 2004/07/16 05:55:00 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

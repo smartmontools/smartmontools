@@ -1,11 +1,11 @@
-$Id: WARNINGS,v 1.28 2004/07/16 01:41:19 geoffk1 Exp $
+$Id: WARNINGS,v 1.29 2004/07/16 05:55:00 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
 
 The following are reports of serious problems (eg system lockup) which
-were due to smartmontools.  There are LINUX, FREEBSD, SOLARIS and
-WINDOWS sections below.
+were due to smartmontools.  There are DARWIN, LINUX, FREEBSD, SOLARIS
+and WINDOWS sections below.
 
 
 LINUX
@@ -120,4 +120,6 @@ PROBLEM:  Can't switch off SMART, can't switch off auto-save, can't run
 REPORTER: Geoff Keating <geoffk@geoffk.org>
 NOTE:	  There's a bug in the system library: when you ask it to
 	  do any of these things, it does the inverse (switches on,
-	  runs extended tests).  Radar 3727283.
+ 	  runs extended tests).  Radar 3727283.  Geoff can you provide
+          a URL for the bug report(s)?  You should also (perhaps) update
+          the INSTALL file.
