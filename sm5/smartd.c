@@ -47,11 +47,11 @@
 #include "scsicmds.h"
 #include "smartd.h"
 #include "utility.h"
+#include "knowndrives.h"
 
-// CVS ID strings
-extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.133 2003/04/08 18:46:32 ballen4705 Exp $" 
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.134 2003/04/08 21:40:01 pjwilliams Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
 const char *getvalidarglist(char opt);
@@ -1683,6 +1683,8 @@ void PrintCopyleft(void){
   printone(out,atacmds_c_cvsid);
   printout(LOG_INFO,"%s",out);
   printone(out,ataprint_c_cvsid);
+  printout(LOG_INFO,"%s",out);
+  printone(out,knowndrives_c_cvsid);
   printout(LOG_INFO,"%s",out);
   printone(out,scsicmds_c_cvsid);
   printout(LOG_INFO,"%s",out);
