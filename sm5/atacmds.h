@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.77 2004/11/01 14:30:43 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.78 2004/11/05 21:42:34 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -34,6 +34,14 @@
 // your compiler.
 #define ASSERT_SIZEOF_STRUCT(s, n) \
   typedef char assert_sizeof_struct_##s[(sizeof(struct s) == (n)) ? 1 : -1]
+
+// Add __attribute__((packed)) if compiler supports it
+// because some gcc versions (at least ARM) lack support of #pragma pack()
+#ifdef HAVE_ATTR_PACKED
+#define ATTR_PACKED __attribute__((packed))
+#else
+#define ATTR_PACKED
+#endif
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -129,7 +137,7 @@ struct ata_smart_attribute {
   unsigned char worst;
   unsigned char raw[6];
   unsigned char reserv;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_attribute, 12);
 
@@ -197,7 +205,7 @@ struct ata_smart_values {
   unsigned char reserved_375_385[11];
   unsigned char vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   unsigned char chksum;
-}; 
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_values, 512);
 
@@ -216,7 +224,7 @@ struct ata_smart_threshold_entry {
   unsigned char id;
   unsigned char threshold;
   unsigned char reserved[10];
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_threshold_entry, 12);
 
@@ -228,7 +236,7 @@ struct ata_smart_thresholds_pvt {
   struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
   unsigned char chksum;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_thresholds_pvt, 512);
 
@@ -247,7 +255,7 @@ struct ata_smart_errorlog_error_struct {
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_error_struct, 30);
 
@@ -264,7 +272,7 @@ struct ata_smart_errorlog_command_struct {
   unsigned char drive_head;
   unsigned char commandreg;
   unsigned int timestamp;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_command_struct, 12);
 
@@ -273,7 +281,7 @@ ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_command_struct, 12);
 struct ata_smart_errorlog_struct {
   struct ata_smart_errorlog_command_struct commands[5];
   struct ata_smart_errorlog_error_struct error_struct;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_struct, 90);
 
@@ -286,7 +294,7 @@ struct ata_smart_errorlog {
   unsigned short int ata_error_count;
   unsigned char reserved[57];
   unsigned char checksum;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog, 512);
 
@@ -299,7 +307,7 @@ struct ata_smart_selftestlog_struct {
   unsigned char selftestfailurecheckpoint;
   unsigned int lbafirstfailure;
   unsigned char vendorspecific[15];
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog_struct, 24);
 
@@ -312,7 +320,7 @@ struct ata_smart_selftestlog {
   unsigned char mostrecenttest;
   unsigned char reserved[2];
   unsigned char chksum;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog, 512);
 
@@ -321,7 +329,7 @@ ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog, 512);
 struct ata_smart_log_entry {
   unsigned char numsectors;
   unsigned char reserved;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_log_entry, 2);
 
@@ -329,7 +337,7 @@ ASSERT_SIZEOF_STRUCT(ata_smart_log_entry, 2);
 struct ata_smart_log_directory {
   unsigned short int logversion;
   struct ata_smart_log_entry entry[255];
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_log_directory, 512);
 
@@ -339,7 +347,7 @@ ASSERT_SIZEOF_STRUCT(ata_smart_log_directory, 512);
 struct test_span {
   uint64_t start;
   uint64_t end;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(test_span, 16);
 
@@ -356,7 +364,7 @@ struct ata_selective_self_test_log {
   unsigned short     pendingtime;
   unsigned char      reserved2;
   unsigned char      checksum;
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 
