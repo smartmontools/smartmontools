@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.98 2004/03/13 15:03:56 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.99 2004/04/10 00:24:14 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -112,8 +112,10 @@ const unsigned char vendoropts_Hitachi_DK23XX[][2] = {
 const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
 const char same_as_minus_F2[]="Fixes byte order in some SMART data (same as -F samsung2)";
 
-const char may_need_minus_F_disabled[]="May need -F samsung disabled; see manual for details.";
+const char may_need_minus_F_disabled[] ="May need -F samsung disabled; see manual for details.";
 const char may_need_minus_F2_disabled[]="May need -F samsung2 disabled; see manual for details.";
+const char may_need_minus_F2_enabled[] ="May need -F samsung2 enabled; see manual for details.";
+const char may_need_minus_F_enabled[]  ="May need -F samsung or -F samsung2 enabled; see manual for details.";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -231,9 +233,9 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung2,
     same_as_minus_F2
   },
-  { // Any other Samsung disk with *-23 firmware
+  { // Any other Samsung disk with *-23 *-24 firmware
     "^SAMSUNG .*$",
-    ".*-23$",
+    ".*-2[34]$",
     may_need_minus_F2_disabled,
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung2,
@@ -279,12 +281,13 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     same_as_minus_F
   },
-  { //Samsung SP1604N, tested with FW TM100-23
+  { //Samsung SP1604N, tested with FW TM100-23 and TM100-24
     "^SAMSUNG SP1604N$",
-    ".*",
-    NULL,
+    ".*-2[34]",
+    may_need_minus_F2_disabled,
     vendoropts_Samsung_SV4012H,
-    NULL,NULL
+    specialpurpose_reverse_samsung2,
+    same_as_minus_F2
   },
   { //SAMSUNG SV0322A with FW JK200-35
     "^SAMSUNG SV0322A$",
@@ -297,7 +300,7 @@ const drivesettings knowndrives[] = {
   { // All Samsung drives with '.*-25' firmware
     "^SAMSUNG.*",
     ".*-25$",
-    "May need -F samsung2 enabled; see manual for details.\n",
+    may_need_minus_F2_enabled,
     vendoropts_9_halfminutes,
     NULL, NULL
   },
@@ -312,7 +315,7 @@ const drivesettings knowndrives[] = {
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "May need -F samsung or -F samsung2 enabled; see manual for details.\n",
+    may_need_minus_F_enabled,
     NULL, NULL, NULL
   },
   { // Maxtor DiamondMax Plus D740X family
