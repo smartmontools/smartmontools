@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.23 2002/10/24 10:53:50 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.24 2002/10/24 10:56:10 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -250,7 +250,7 @@ int ataCheckDevice( atadevices_t *drive){
     loc=attributename;
     while (*loc && *loc==' ')
       loc++;
-    printout(LOG_CRIT,"Device: %s, Failed SMART attribute: %s. Use smartctl -v %s.\n",
+    printout(LOG_CRIT,"Device: %s, Failed SMART attribute: %s. Use smartctl -a %s.\n",
 	     drive->devicename,loc,drive->devicename);
   }
 
