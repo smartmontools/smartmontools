@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.59 2003/04/18 08:15:15 pjwilliams Exp $
+\# $Id: smartctl.8,v 1.60 2003/04/18 09:48:52 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/18 08:15:15 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/18 09:48:52 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -552,43 +552,54 @@ impossible values for the ATA error log timestamps.
 .B \-P TYPE, \-\-presets=TYPE
 Specifies whether
 .B smartctl
-should use any preset options that are available for this drive.
+should use any preset options that are available for this drive. By
+default, if the drive is recognized in the smartmontools database,
+then the presets are used.
 
 .B smartctl
-can automatically set appropriate options for some known drives.  For
-example, the Maxtor 4D080H4 uses attribute 9 to stores power-on time in
-minutes whereas most drives use that attribute to store the power-on time
-in hours.  The command-line option '-v 9,minutes' ensures that
+can automatically set appropriate options for known drives.  For
+example, the Maxtor 4D080H4 uses Attribute 9 to stores power-on time
+in minutes whereas most drives use that Attribute to store the
+power-on time in hours.  The command-line option '-v 9,minutes'
+ensures that
 .B smartctl
-correctly interprets attribute 9 in this case, but that option is preset
-for the Maxtor 4D080H4 and so need not be specified by the user.
+correctly interprets Attribute 9 in this case, but that option is
+preset for the Maxtor 4D080H4 and so need not be specified by the user
+on the
+.B smartctl
+command line.
 
 The argument
 .I show
-will tell you whether or not there are preset options for
-your drive and the argument
+will show any preset options for your drive and the argument
 .I showall
-will show the preset options that are available for all known drives.  If
-there are no presets for your drive and you think there should be (for
-example, if you have to use \-v or \-F to get
+will show all known drives in the smartmontools database, along with
+their preset options.  If there are no presets for your drive and you
+think there should be (for example, a \-v or \-F option is needed to
+get
 .B smartctl
 to display correct values) then please contact the
 .B smartmontools
-developers (there are contact details at the end of this man page).
+developers so that this information can be added to the smartmontools
+database.  Contact information is at the end of this man page.
 
 The valid arguments to this option are:
 
 .I use
-\- use any presets that are available for this drive.  This is the default.
+\- if a drive is recognized, then use the stored presets for it.  This
+is the default. Note that presets will NOT over-ride additional
+Attribute interpretation ('-v N,something') command-line options.
 
 .I ignore
-\- do not use any presets for this drive.
+\- do not use presets.
 
 .I show
-\- show the presets that are available for this drive and then exit.
+\- show if the drive is recognized in the database, and if so, its
+presets, then exit.
 
 .I showall
-\- show the presets that are available for all drives and then exit.
+\- list all recognized drives, and the presets that are set for them,
+then exit.
 
 .TP
 .B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
@@ -836,4 +847,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.59 2003/04/18 08:15:15 pjwilliams Exp $
+$Id: smartctl.8,v 1.60 2003/04/18 09:48:52 ballen4705 Exp $
