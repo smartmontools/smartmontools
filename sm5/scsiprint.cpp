@@ -37,7 +37,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.cpp,v 1.17 2003/01/12 10:23:29 ballen4705 Exp $"
+const char* CVSid4="$Id: scsiprint.cpp,v 1.18 2003/01/12 10:30:53 ballen4705 Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -349,7 +349,7 @@ void scsiGetDriveInfo ( int device)
 
    // print current time and date
    tval=time(NULL);
-   printf("Local Time: %s", ctime(&tval));
+   printf("Local Time is: %s", ctime(&tval));
    
    if ( scsiSmartSupport( device, (UINT8 *) &smartsupport) != 0)
    {
