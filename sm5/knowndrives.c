@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.101 2004/04/16 13:23:48 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.102 2004/04/16 13:48:45 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -217,51 +217,11 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     same_as_minus_F
   },
-  { // SAMSUNG SP1213N (TL100-23 firmware)
-    "^SAMSUNG SP1213N$",
-    "^TL100-23$",
-    NULL,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
-  },
-  { // SAMSUNG SP0802N (TK100-23 firmware)
-    "^SAMSUNG SP0802N$",
-    "^TK100-23$",
-    NULL,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
-  },
-  { // Any other Samsung disk with *-23 *-24 firmware
-    "^SAMSUNG .*$",
-    ".*-2[34]$",
-    may_need_minus_F2_disabled,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
-  },
   { // Samsung SV4012H (all other firmware)
     "^SAMSUNG SV4012H$",
     ".*",
     may_need_minus_F_disabled,
     vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
-  },
-  { // Samsung SV1204H (known firmware)
-    "^SAMSUNG SV1204H$",
-    "^RK100-1[3-5]$",
-    NULL,
-    vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
-  },
-  { //Samsung SV1204H (all other firmware)
-    "^SAMSUNG SV1204H$",
-    ".*",
-    may_need_minus_F_disabled,
-    vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
     same_as_minus_F
   },
@@ -281,15 +241,23 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     same_as_minus_F
   },
-  { //Samsung SP1604N, tested with FW TM100-23 and TM100-24
-    "^SAMSUNG SP1604N$",
-    ".*-2[34]",
-    may_need_minus_F2_disabled,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
+  { // Samsung SV1204H (known firmware)
+    "^SAMSUNG SV1204H$",
+    "^RK100-1[3-5]$",
+    NULL,
+    vendoropts_Samsung_SV1204H,
+    specialpurpose_reverse_samsung,
+    same_as_minus_F
   },
-  { //SAMSUNG SV0322A with FW JK200-35
+  { //Samsung SV1204H (all other firmware)
+    "^SAMSUNG SV1204H$",
+    ".*",
+    may_need_minus_F_disabled,
+    vendoropts_Samsung_SV1204H,
+    specialpurpose_reverse_samsung,
+    same_as_minus_F
+  },
+  { //SAMSUNG SV0322A tested with FW JK200-35
     "^SAMSUNG SV0322A$",
     ".*",
     NULL,
@@ -304,6 +272,18 @@ const drivesettings knowndrives[] = {
     vendoropts_9_halfminutes,
     specialpurpose_reverse_samsung,
     same_as_minus_F
+  },
+  { 
+    // Any other Samsung disk with *-23 *-24 firmware
+    // SAMSUNG SP1213N (TL100-23 firmware)
+    // SAMSUNG SP0802N (TK100-23 firmware)
+    // Samsung SP1604N, tested with FW TM100-23 and TM100-24
+    "^SAMSUNG .*$",
+    ".*-2[34]$",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung2,
+    same_as_minus_F2
   },
   { // All Samsung drives with '.*-25' firmware
     "^SAMSUNG.*",
