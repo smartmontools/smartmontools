@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.79 2004/12/11 02:09:04 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.80 2005/01/14 00:28:32 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -159,7 +159,8 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 
 static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
 {
-    if (SCSI_SK_NOT_READY == sinfo->sense_key) {
+    switch (sinfo->sense_key) {
+    case SCSI_SK_NOT_READY:
         if (SCSI_ASC_NO_MEDIUM == sinfo->asc) 
             return SIMPLE_ERR_NO_MEDIUM;
         else if (SCSI_ASC_NOT_READY == sinfo->asc) {
@@ -169,16 +170,23 @@ static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
                 return SIMPLE_ERR_NOT_READY;
         } else
             return SIMPLE_ERR_NOT_READY;
-    } else if (SCSI_SK_ILLEGAL_REQUEST == sinfo->sense_key) {
+    case SCSI_SK_MEDIUM_ERROR:
+    case SCSI_SK_HARDWARE_ERROR:
+	return SIMPLE_ERR_MEDIUM_HARDWARE;
+    case SCSI_SK_ILLEGAL_REQUEST:
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo->asc)
             return SIMPLE_ERR_BAD_OPCODE;
         else if (SCSI_ASC_UNKNOWN_FIELD == sinfo->asc)
             return SIMPLE_ERR_BAD_FIELD;
         else if (SCSI_ASC_UNKNOWN_PARAM == sinfo->asc)
             return SIMPLE_ERR_BAD_PARAM;
-    } else if (SCSI_SK_UNIT_ATTENTION == sinfo->sense_key)
+        else
+            return SIMPLE_ERR_BAD_PARAM;    /* all other illegal request */
+    case SCSI_SK_UNIT_ATTENTION:
         return SIMPLE_ERR_TRY_AGAIN;
-    return SIMPLE_NO_ERROR;
+    default:
+        return SIMPLE_NO_ERROR;
+    }
 }
 
 const char * scsiErrString(int scsiErr)
@@ -204,6 +212,8 @@ const char * scsiErrString(int scsiErr)
             return "device will be ready soon";
         case SIMPLE_ERR_TRY_AGAIN: 
             return "unit attention reported, try again";
+        case SIMPLE_ERR_MEDIUM_HARDWARE: 
+            return "medium or hardware error (serious)";
         default:
             return "unknown error";
     }
@@ -1560,6 +1570,7 @@ const char * scsiGetIEString(UINT8 asc, UINT8 ascq)
 int scsiSmartIBMOfflineTest(int device)
 {       
     UINT8 tBuf[256];
+    int res;
         
     memset(tBuf, 0, sizeof(tBuf));
     /* Build SMART Off-line Immediate Diag Header */
@@ -1571,39 +1582,72 @@ int scsiSmartIBMOfflineTest(int device)
     tBuf[5] = 0x00; /* Reserved */
     tBuf[6] = 0x00; /* Off-line Immediate Time MSB */
     tBuf[7] = 0x00; /* Off-line Immediate Time LSB */
-    return scsiSendDiagnostic(device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
+    res = scsiSendDiagnostic(device, SCSI_DIAG_NO_SELF_TEST, tBuf, 8);
+    if (res)
+        pout("IBM offline test failed [%s]\n", scsiErrString(res));
+    return res;
 }
 
 int scsiSmartDefaultSelfTest(int device)
 {       
-    return scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Default self test failed [%s]\n", scsiErrString(res));
+    return res;
 }
 
 int scsiSmartShortSelfTest(int device)
 {       
-    return scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Short offline self test failed [%s]\n", scsiErrString(res));
+    return res;
 }
 
 int scsiSmartExtendSelfTest(int device)
 {       
-    return scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, 
-                              NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Long (extended) offline self test failed [%s]\n",
+             scsiErrString(res));
+    return res;
 }
 
 int scsiSmartShortCapSelfTest(int device)
 {       
-    return scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Short foreground self test failed [%s]\n", scsiErrString(res));
+    return res;
 }
 
 int scsiSmartExtendCapSelfTest(int device)
 {
-    return scsiSendDiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, 
-                              NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Long (extended) foreground self test failed [%s]\n",
+             scsiErrString(res));
+    return res;
 }
 
 int scsiSmartSelfTestAbort(int device)
 {
-    return scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
+    int res;
+
+    res = scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
+    if (res)
+        pout("Abort self test failed [%s]\n", scsiErrString(res));
+    return res;
 }
 
 /* Returns 0 and the expected duration of an extended self test (in seconds)
