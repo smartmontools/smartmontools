@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.5 2003/04/16 23:04:28 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.6 2003/04/17 16:22:44 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -79,8 +79,8 @@ const drivesettings knowndrives[] = {
    *  IBM Deskstar 60GXP series   
    *------------------------------------------------------------ */
   {
-    "IC35L0[12346]0AVER07",
-    ".*"
+    "IC35L0[12346]0AVER07$", // Phil -- please confirm $ and remove comment
+    ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
     NULL,
@@ -91,8 +91,8 @@ const drivesettings knowndrives[] = {
    *  IBM Deskstar 40GV & 75GXP series
    *------------------------------------------------------------ */
   {
-    "(IBM-)?DTLA-30[57]0[123467][05]",
-    ".*"
+    "(IBM-)?DTLA-30[57]0[123467][05]$", // Phil -- please confirm $ and remove comment
+    ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/",
     NULL,
@@ -246,17 +246,17 @@ void showallpresets(void)
     int first_preset = 1;
     int width = 20;
 
-    if (!presets)
-      continue;
-
-    pout("%-*s %s\n", width, "MODEL", knowndrives[i].modelregexp);
-    pout("%-*s %s\n", width, "FIRMWARE", knowndrives[i].firmwareregexp ?
+    // print model and firmware regular expressions
+    pout("%-*s %s\n", width, "MODEL REGEXP:", knowndrives[i].modelregexp);
+    pout("%-*s %s\n", width, "FIRMWARE REGEXP:", knowndrives[i].firmwareregexp ?
                                            knowndrives[i].firmwareregexp : "");
 
-    while (1) {
+    // if there are any presets, then show them
+    if (presets) while (1) {
       char out[64];
       const int attr = (*presets)[0], val  = (*presets)[1];
 
+      // if we are at the end of the attribute list, break out
       if (!attr)  
         break;
 
@@ -264,17 +264,25 @@ void showallpresets(void)
       // Use leading zeros instead of spaces so that everything lines up.
       out[0] = (out[0] == ' ') ? '0' : out[0];
       out[1] = (out[1] == ' ') ? '0' : out[1];
-      pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS" : "", out);
+      pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
       first_preset = 0;
       presets++;
     }
-    pout("%-*s ", width, "OTHER PRESETS");
-    if (knowndrives[i].specialpurpose)
+
+    // Is a special purpose function defined?  If so, describe it
+    if (knowndrives[i].specialpurpose){
+      pout("%-*s ", width, "OTHER PRESETS:");
       pout("%s\n", knowndrives[i].functiondesc ?
-                   knowndrives[i].functiondesc : "A special purpose function "
-                                                 "is defined for this drive");
-    else
-      pout("None\n");
+	   knowndrives[i].functiondesc : "A special purpose function "
+	   "is defined for this drive"); 
+    }
+
+    // Print any special warnings
+    if (knowndrives[i].warningmsg){
+      pout("%-*s ", width, "WARNINGS:");
+      pout("%s\n", knowndrives[i].warningmsg);
+    }
+
     pout("\n");
   }
 }
