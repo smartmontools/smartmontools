@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.8 2003/04/17 16:56:49 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.9 2003/04/17 17:16:37 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -177,6 +177,29 @@ const drivesettings knowndrives[] = {
     NULL
   },
   /*------------------------------------------------------------
+   *  Maxtor 4R080J0
+   *------------------------------------------------------------ */
+  {
+    "^Maxtor 4R080J0$",
+    ".*",
+    NULL,
+    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
+    NULL,
+    NULL
+  },
+
+  /*------------------------------------------------------------
+   *  HITACHI_DK23BA-20
+   *------------------------------------------------------------ */
+  {
+    "^HITACHI_DK23BA-20$",
+    ".*",
+    NULL,
+    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
+    NULL,
+    NULL
+  },
+  /*------------------------------------------------------------
    *  Phil's IBM Deskstar 120GXP (FOR TESTING)
    *------------------------------------------------------------ */
 /*
@@ -320,7 +343,12 @@ void showpresets(const struct hd_driveid *drive)
 	 model, firmware);
     return;
   }
-
+    
+  pout("Match found!  Drive identity strings:\n"
+	 "MODEL:    %s\n"
+	 "FIRMWARE: %s\n"
+	 "match drive table entry:\n\n",
+	 model, firmware);
   showonepreset(&knowndrives[i]);
   return;
 }
