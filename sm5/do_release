@@ -1,0 +1,69 @@
+#!/bin/bash -e
+#
+# do a smartmontools release
+# (c) 2003 Guido Guenther <agx@sigxcpu.org>
+
+if [ -f /etc/redhat_release ]; then
+  RPM_BASE=/usr/src/redhat/
+else
+  RPM_BASE=/usr/src/rpm/
+fi
+SRPMS=$RPM_BASE/SOURCES/
+
+setup_cvs()
+{
+  unset CVS_SERVER
+  export CVS_RSH=ssh
+  export CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+}
+
+get_release()
+{
+  VERSION=`grep '^ *VERSION=' configure | awk -F= '{ print $2 }'`
+  RELEASE="RELEASE_${VERSION//\./_}"
+  echo "Version: $VERSION"
+  echo "Release: $RELEASE"
+}
+
+inc_release()
+{
+  MINOR=`echo $VERSION | cut -d. -f2`
+  MAJOR=`echo $VERSION | cut -d. -f1`
+  ((MINOR++))
+  NEW_VERSION=$MAJOR.$MINOR
+  NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
+  echo "New Version: $NEW_VERSION"
+  echo "New Release: $NEW_RELEASE"
+}
+
+# run automake/autoconf
+./autogen.sh
+
+get_release
+
+# tag CVS version
+setup_cvs
+echo cvs commit -m "Release $VERSION"
+echo cvs tag -d $RELEASE 
+echo cvs tag $RELEASE
+
+# build .tar.gz
+rm -rf build
+mkdir build
+cd build
+../configure
+make dist
+cd ..
+cp build/smartmontools-$VERSION.tar.gz $SRPMS
+
+# build rpm
+rpm -ba smartmontools.spec
+
+# increase release number:
+inc_release
+perl -p -i.bak -e "s/$VERSION/$NEW_VERSION/" configure.in
+perl -p -i.bak -e "s/$VERSION/$NEW_VERSION/" smartmontools.spec
+
+# cleanup
+rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
+       depcomp mkinstalldirs install-sh configure aclocal.m4 missing *.bak
