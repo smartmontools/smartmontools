@@ -1,6 +1,9 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.264 2003/11/19 06:23:22 dpgilbert Exp $
+$Id: CHANGELOG,v 1.265 2003/11/19 21:34:07 ballen4705 Exp $
+
+The most recent version of this file is:
+http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -19,9 +22,15 @@ Maintainers / Developers Key:
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
-CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
+<ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
-  <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+
+smartmontools 5.25
+
+Note: there was no '5.24' release. From this point on, even numbered
+releases will be 'stable' ones and odd numbered releases will be
+unstable/testing/development ones.
 
   [DG] smartd/smartctl: changed scsiClearControlGLTSD() to
        scsiSetControlGLTSD() with an 'enabled' argument so '-S on'
