@@ -1,14 +1,14 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.38 2004/03/13 22:46:47 chrfranke Exp $
+$Id: INSTALL,v 1.39 2004/04/02 19:57:21 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
 
 Table of contents:
 
-[1] Kernel requirements
+[1] System requirements
 [2] Installing from CVS
 [3] Installing from source tarball
 [4] Guidelines for different Linux distributions
@@ -19,19 +19,45 @@ Table of contents:
 [9] Comments
 [10] Detailed description of ./configure options
 
-[1] Kernel requirements
+[1] System requirements
 =======================
 
     A) Linux
 
-    Any recent Linux distribution should support smartmontools.  Note
-    that smartmontools requires Linux kernel 2.2.14 or greater in
-    order to run at all.  But to give the ATA RETURN SMART STATUS
-    command, the kernel needs to support the HDIO_DRIVE_TASK ioctl().
-    Any 2.4 series kernel should provide this support.  Some of the
-    2.2.20 and later kernels also provide this support if they're
-    properly patched and configured.  Please see FAQ section of the
-    URL above.
+    Any Linux distribution will support smartmontools if it has a
+    kernel version greater than or equal to 2.2.14. So any recent
+    Linux distribution should support smartmontools.
+
+    There are two parts of smartmontools that may require a patched or
+    nonstandard kernel:
+
+    (1) To get the ATA RETURN SMART STATUS command, the kernel needs
+    to support the HDIO_DRIVE_TASK ioctl().
+
+    (2) To run Selective Self-tests, the kernel needs to support the
+    HDIO_DRIVE_TASKFILE ioctl().
+
+    If your kernel does not support one or both of these ioctls, then
+    smartmontools will "mostly" work.  The things that don't work will
+    give you harmless warning messages.
+
+    For item (1) above, any 2.4 or 2.6 series kernel will provide
+    HDIO_DRIVE_TASK support.  Some 2.2.20 and later kernels also
+    provide this support IF they're properly patched and
+    configured. If the configuration option CONFIG_IDE_TASK_IOCTL
+    exists in your 2.2.X kernel source code tree, then your 2.2.X
+    kernel will probably support this ioctl. [Note that this kernel
+    configuration option does not need to be enabled. Its presence
+    merely indicates that the required HDIO_DRIVE_TASK ioctl() is
+    supported.]
+
+    For item (2) above, your kernel must be configured with the kernel
+    configuration option CONFIG_IDE_TASKFILE_IO enabled.  This
+    configuration option is present in all 2.4 and 2.6 series
+    kernels. Some 2.2.20 and later kernels also provide this support
+    IF they're properly patched and configured
+
+    Please see FAQ section of the URL above for additional details.
 
     If you are using 3ware controllers, for full functionality you
     must either use version 1.02.00.037 or greater of the 3w-xxxx
