@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.13 2004/05/18 07:00:50 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.14 2004/06/24 12:28:39 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -893,6 +893,7 @@ typedef union {
 #define ASPI_STATUS_INVALID_COMMAND     0x80
 #define ASPI_STATUS_INVALID_ADAPTER     0x81
 #define ASPI_STATUS_INVALID_TARGET      0x82
+#define ASPI_STATUS_NO_ADAPTERS         0xE8
 
 // Adapter (host) status
 #define ASPI_HSTATUS_NO_ERROR           0x00
@@ -944,16 +945,38 @@ static int aspi_call(ASPI_SRB * srb)
 }
 
 
+// Get ASPI entrypoint from wnaspi32.dll
+
+static FARPROC aspi_get_address(const char * name, int verbose)
+{
+	FARPROC addr;
+	assert(h_aspi_dll && h_aspi_dll != INVALID_HANDLE_VALUE);
+
+	if (!(addr = GetProcAddress(h_aspi_dll, name))) {
+		if (verbose)
+			pout("Missing %s() in WNASPI32.DLL\n", name);
+		aspi_entry = 0;
+		FreeLibrary(h_aspi_dll);
+		h_aspi_dll = INVALID_HANDLE_VALUE;
+		errno = ENOSYS;
+		return 0;
+	}
+	return addr;
+}
+
+
 static int aspi_open_dll(int verbose)
 {
-	ASPI_SRB srb;
+	UINT (*aspi_info)(void);
+	UINT info, rc;
+
 	assert(!aspi_entry_valid());
 
 	// Check structure layout
-	assert(sizeof(srb.h) == 8);
-	assert(sizeof(srb.q) == 58);
-	assert(sizeof(srb.t) == 12);
-	assert(sizeof(srb.i) == 64+ASPI_SENSE_SIZE);
+	assert(sizeof(ASPI_SRB_HEAD) == 8);
+	assert(sizeof(ASPI_SRB_INQUIRY) == 58);
+	assert(sizeof(ASPI_SRB_DEVTYPE) == 12);
+	assert(sizeof(ASPI_SRB_IO) == 64+ASPI_SENSE_SIZE);
 	assert(offsetof(ASPI_SRB,h.cmd) == 0);
 	assert(offsetof(ASPI_SRB,h.flags) == 3);
 	assert(offsetof(ASPI_SRB_IO,lun) == 9);
@@ -967,7 +990,7 @@ static int aspi_open_dll(int verbose)
 		return -1;
 	}
 
-	// Get ASPI entrypoint from winaspi.dll
+	// Load ASPI DLL
 	if (!(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
 		if (verbose)
 			pout("Cannot load WNASPI32.DLL, Error=%ld\n", GetLastError());
@@ -976,35 +999,33 @@ static int aspi_open_dll(int verbose)
 		return -1;
 	}
 
-	if (!(aspi_entry = (UINT (*)(ASPI_SRB *))GetProcAddress(h_aspi_dll, "SendASPI32Command"))) {
-		if (verbose)
-			pout("Missing SendASPI32Command() in WNASPI32.DLL\n");
-		FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
-		errno = ENOSYS;
+	// Get ASPI entrypoints
+	if (!(aspi_info = (UINT (*)(void))aspi_get_address("GetASPI32SupportInfo", verbose)))
 		return -1;
-	}
-
-	// Get number of adapters
-	memset(&srb, 0, sizeof(srb));
-	srb.h.cmd = ASPI_CMD_ADAPTER_INQUIRE;
-	if (aspi_call(&srb))
+	if (!(aspi_entry = (UINT (*)(ASPI_SRB *))aspi_get_address("SendASPI32Command", verbose)))
 		return -1;
-	if (srb.h.status != ASPI_STATUS_NO_ERROR) {
-		if (verbose)
-			pout("ASPI Adapter Inquriy failed, Error=0x%02x\n", srb.h.status);
-		if (!is_permissive()) {
-			aspi_entry = 0;
-			FreeLibrary(h_aspi_dll); h_aspi_dll = INVALID_HANDLE_VALUE;
-			errno = ENOSYS;
-			return -1;
-		}
-		srb.q.adapters = 10;
-	}
 
-	num_aspi_adapters = srb.q.adapters;
+	// Init ASPI manager and get number of adapters
+	info = (aspi_info)();
 #ifdef _DEBUG
-	pout("%u ASPI adapters on manager \"%.16s\"\n", num_aspi_adapters, srb.q.manager_id);
+	pout("GetASPI32SupportInfo() returns 0x%04x\n", info);
 #endif
+	rc = (info >> 8) & 0xff;
+	if (rc == ASPI_STATUS_NO_ADAPTERS) {
+		num_aspi_adapters = 0;
+	}
+	else if (rc == ASPI_STATUS_NO_ERROR) {
+		num_aspi_adapters = info & 0xff;
+	}
+	else {
+		if (verbose)
+			pout("Got strange 0x%04x from GetASPI32SupportInfo()\n", info);
+		aspi_entry = 0;
+		FreeLibrary(h_aspi_dll);
+		h_aspi_dll = INVALID_HANDLE_VALUE;
+		errno = ENOENT;
+		return -1;
+	}
 
 #ifdef __CYGWIN__
 	// save PID to detect fork() in aspi_entry_valid()
