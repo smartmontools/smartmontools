@@ -31,6 +31,9 @@
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
+#if __FreeBSD_version < 500000
+#include <unistd.h>
+#endif
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
@@ -48,7 +51,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.129 2004/07/15 09:29:38 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.130 2004/07/27 22:29:58 arvoreen Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
