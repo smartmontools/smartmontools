@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.44 2003/05/04 13:11:21 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.45 2003/05/11 22:49:01 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -50,11 +50,14 @@ UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
 
 /* Log pages supported */
-static int gSmartPage = 0;
-static int gTempPage = 0;
-static int gSelfTestPage = 0;
-static int gStartStopPage = 0;
-static int gTapeAlertsPage = 0;
+static int gSmartLPage = 0;     /* Informational Exceptions log page */
+static int gTempLPage = 0;
+static int gSelfTestLPage = 0;
+static int gStartStopLPage = 0;
+static int gTapeAlertsLPage = 0;
+
+/* Mode pages supported */
+static int gIecMPage = 0;
 
 
 static void scsiGetSupportedLogPages(int device)
@@ -73,19 +76,19 @@ static void scsiGetSupportedLogPages(int device)
         switch (gBuf[i])
         {
             case TEMPERATURE_PAGE:
-                gTempPage = 1;
+                gTempLPage = 1;
                 break;
             case STARTSTOP_CYCLE_COUNTER_PAGE:
-                gStartStopPage = 1;
+                gStartStopLPage = 1;
                 break;
             case SELFTEST_RESULTS_PAGE:
-                gSelfTestPage = 1;
+                gSelfTestLPage = 1;
                 break;
             case IE_LOG_PAGE:
-                gSmartPage = 1;
+                gSmartLPage = 1;
                 break;
             case TAPE_ALERTS_PAGE:
-                gTapeAlertsPage = 1;
+                gTapeAlertsLPage = 1;
                 break;
             default:
                 break;
@@ -102,7 +105,7 @@ void scsiGetSmartData(int device)
     int err;
 
     QUIETON(con);
-    if ((err = scsiCheckIE(device, gSmartPage, gTempPage,
+    if ((err = scsiCheckIE(device, gSmartLPage, gTempLPage,
                            &asc, &ascq, &currenttemp))) {
         /* error message already announced */
         QUIETOFF(con);
@@ -114,10 +117,10 @@ void scsiGetSmartData(int device)
         QUIETON(con);
         pout("SMART Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
         QUIETOFF(con);
-    } else
+    } else if (gIecMPage)
         pout("SMART Sense: Ok!\n");
 
-    if (currenttemp && !gTempPage) {
+    if (currenttemp && !gTempLPage) {
         if (255 != currenttemp)
             pout("Current Drive Temperature:     %d C\n", currenttemp);
         else
@@ -270,7 +273,7 @@ static void scsiPrintErrorCounterLog(int device)
         }
     }
     else 
-        pout("\nNo Error counter log to report\n");
+        pout("\nDevice does not support Error Counter logging\n");
     if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_PAGE, gBuf, 
                           LOG_RESP_LEN)) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
@@ -501,7 +504,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         is_tape = 1;
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
-        if (1 == err) {
+        if (SIMPLE_ERR_NOT_READY == err) {
             QUIETON(con);
             pout("device is NOT READY (media absent, spun down, etc)\n");
             QUIETOFF(con);
@@ -516,12 +519,16 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if ((err = scsiFetchIECmpage(device, &iec))) {
 	if (!is_tape) {
             QUIETON(con);
-	    pout("Device does not support SMART [%s]\n", 
-		 scsiErrString(err));
+	    pout("Device does not support SMART");
+            if (con->reportscsiioctl > 0)
+	        pout(" [%s]\n", scsiErrString(err));
+            else
+	        pout("\n");
             QUIETOFF(con);
         }
         return 0;
-    }
+    } else
+        gIecMPage = 1;
     if (!is_tape)
         pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
@@ -658,7 +665,7 @@ int scsiPrintMain(const char *dev_name, int fd)
         checkedSupportedLogPages = 1;
         if ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
             (SCSI_PT_MEDIUM_CHANGER == peripheral_type)) { /* tape device */
-            if (gTapeAlertsPage) {
+            if (gTapeAlertsLPage) {
 		if (con->driveinfo)
 		    pout("TapeAlert Supported\n");
                 if (-1 == scsiGetTapeAlertsData(fd, peripheral_type))
@@ -666,15 +673,15 @@ int scsiPrintMain(const char *dev_name, int fd)
 	    }
 	    else
 		pout("TapeAlert Not Supported\n");
-            if (gTempPage)
+            if (gTempLPage)
                 scsiPrintTemp(fd);         
-            if (gStartStopPage)
+            if (gStartStopLPage)
                 scsiGetStartStopData(fd);
         } else { /* disk, cd/dvd, enclosure, etc */
             scsiGetSmartData(fd);
-            if (gTempPage)
+            if (gTempLPage)
                 scsiPrintTemp(fd);         
-            if (gStartStopPage)
+            if (gStartStopLPage)
                 scsiGetStartStopData(fd);
         }
     }   
@@ -684,10 +691,10 @@ int scsiPrintMain(const char *dev_name, int fd)
         if (! checkedSupportedLogPages)
             scsiGetSupportedLogPages(fd);
         res = 0;
-        if (gSelfTestPage)
+        if (gSelfTestLPage)
             res = scsiPrintSelfTest(fd);
         else {
-            pout("Warning: device does not support Self Test Logging\n");
+            pout("Device does not support Self Test logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
