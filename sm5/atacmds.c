@@ -29,7 +29,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.22 2002/10/24 09:54:02 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.23 2002/10/24 11:16:51 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -717,6 +717,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
     name="UDMA_CRC_Error_Count";
     break;
   case 220:
+    // Note -- this is also apparently used for temperature.
     name="Disk_Shift";
     break;
   case 221:
@@ -743,6 +744,8 @@ void ataPrintSmartAttribName(char *out, unsigned char id){
   case 228:
     name="Power-off_Retract_Count";
     break;
+  case 231:
+    name="Temperature_Centigrade";
   default:
     name="Unknown_Attribute";
     break;
