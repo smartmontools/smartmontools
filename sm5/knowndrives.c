@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.106 2004/04/27 17:42:21 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.107 2004/06/01 21:12:27 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -164,6 +164,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { // Fujitsu MPB series
+    "^FUJITSU MPB....ATU?$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
   { // Fujitsu MPD and MPE series
     "^FUJITSU MP[DE]....A[HTE]$",
     ".*",
@@ -173,6 +180,13 @@ const drivesettings knowndrives[] = {
   },
   { // Fujitsu MPF series
     "^FUJITSU MPF3(102A[HT]|153A[HT]|204A[HT])$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MPG series
+    "^FUJITSU MPG3(102A(H|T  E)|204A(H|[HT]  E)|307A(H  E|T)|409A[HT]  E)$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -199,9 +213,9 @@ const drivesettings knowndrives[] = {
     vendoropts_Fujitsu_MHR2040AT,
     NULL, NULL
   },
-  { // Fujitsu MHS2020AT
-    "^FUJITSU MHS2020AT$",
-    ".*",    // Tested on 8004
+  { // Fujitsu MHSxxxxAT family
+    "^FUJITSU MHS20[6432]0AT(  .)?$",
+    ".*",
     NULL,
     vendoropts_Fujitsu_MHS2020AT,
     NULL, NULL
@@ -397,8 +411,22 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { // Maxtor DiamondMax 40 ATA 66 series
+    "^Maxtor 9(0684U2|1024U2|1362U3|1536U3|2049U4|2562U5|3073U6|4098U8)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { // Maxtor DiamondMax Plus 40 series (Ultra ATA 66 and Ultra ATA 100)
     "^Maxtor (54098[UH]8|53073[UH]6|52732[UH]6|52049[UH]4|51536[UH]3|51369[UH]3|51024[UH]2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax 40 VL Ultra ATA 100 series
+    "^Maxtor 3(1024H1|1535H2|2049H2|3073H3|4098H4)( B)?$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -460,8 +488,15 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // HITACHI Travelstar DK23XX series
-    "^HITACHI_DK23..-..$",
+  { // HITACHI_DK14FA-20B
+    "^HITACHI_DK14FA-20B$",
+    ".*",
+    NULL,
+    vendoropts_Hitachi_DK23XX,
+    NULL, NULL
+  },
+  { // HITACHI Travelstar DK23XX/DK23XXB series
+    "^HITACHI_DK23..-..B?$",
     ".*",
     NULL,
     vendoropts_Hitachi_DK23XX,
@@ -492,8 +527,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL 
   },
+  { // IBM/Hitachi Travelstar 40GNX family
+    "^IC25N0[42]0ATC[SX]05-.$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // Hitachi Travelstar 80GN family
-    "^IC25N0[248]0ATMR04-.$",
+    "^IC25N0[23468]0ATMR04-.$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -509,6 +549,11 @@ const drivesettings knowndrives[] = {
   },
   { // IBM Travelstar 14GS
     "^IBM-DCYA-214000$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // IBM Travelstar 4LP
+    "^IBM-DTNA-2(180|216)0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -567,8 +612,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // Seagate U Series 5 20413
-    "^ST320413A$",
+  { // Seagate U Series 5 family
+    "^ST3(40823|30621|20413|15311|10211)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -602,11 +647,16 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // Western Digital Protege WD400EB
+  { // Seagate Medalist 17242, 13032, 10232, 8422, and 4312
+    "^ST3(1724|1303|1023|842|431)2A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Protege
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted. */
-    "^WDC WD400EB-.*$",
+    "^WDC WD([2468]00E|1[26]00A)B-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -630,7 +680,7 @@ const drivesettings knowndrives[] = {
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted. */
-    "^WDC WD(64|84|102|136|205|307)AA$",
+    "^WDC WD(64|84|102|136|205|307)AA(-.*)?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -675,13 +725,33 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // QUANTUM FIREBALLlct20 20 and QUANTUM FIREBALLlct20 40
-    "^QUANTUM FIREBALLlct20 [24]0$",
+  { // QUANTUM FIREBALLlct20 series
+    "^QUANTUM FIREBALLlct20 [234]0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { // QUANTUM FIREBALL CX10.2A
     "^QUANTUM FIREBALL CX10.2A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALLP LM15 and LM30
+    "^QUANTUM FIREBALLP LM(15|30)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALL CR4.3A
+    "^QUANTUM FIREBALL CR4.3A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALLP AS10.2 and AS40.0
+    "^QUANTUM FIREBALLP AS(10.2|40.0)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALL EX6.4A
+    "^QUANTUM FIREBALL EX6.4A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
