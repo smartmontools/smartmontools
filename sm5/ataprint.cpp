@@ -27,14 +27,15 @@
 #include <syslog.h>
 #include <string.h>
 #include "atacmds.h"
+#include "atacmdnames.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.92 2003/07/19 10:21:37 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.93 2003/07/20 20:09:38 ballen4705 Exp $"
+ATACMDS_H_CVSID ATACMDNAMES_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -573,7 +574,7 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *data){
 }
 
 // returns number of errors
-int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
+int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   int i,j,k;
   
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
@@ -605,22 +606,22 @@ int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
     pout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
 	   (int)data->ata_error_count);
   QUIETOFF(con);
-  pout("\tDCR = Device Control Register\n");
-  pout("\tFR  = Features Register\n");
-  pout("\tSC  = Sector Count Register\n");
-  pout("\tSN  = Sector Number Register\n");
-  pout("\tCL  = Cylinder Low Register\n");
-  pout("\tCH  = Cylinder High Register\n");
-  pout("\tD/H = Device/Head Register\n");
-  pout("\tCR  = Content written to Command Register\n");
-  pout("\tER  = Error register\n");
-  pout("\tSTA = Status register\n");
-  pout("Timestamp is seconds since the previous disk power-on.\n");
-  pout("Note: timestamp \"wraps\" after 2^32 msec = 49.710 days.\n\n");
+  pout("\tCR = Command Register [HEX]\n"
+       "\tFR = Features Register [HEX]\n"
+       "\tSC = Sector Count Register [HEX]\n"
+       "\tSN = Sector Number Register [HEX]\n"
+       "\tCL = Cylinder Low Register [HEX]\n"
+       "\tCH = Cylinder High Register [HEX]\n"
+       "\tDH = Device/Head Register [HEX]\n"
+       "\tDC = Device Command Register [HEX]\n"
+       "\tER = Error register [HEX]\n"
+       "\tST = Status register [HEX]\n"
+       "Timestamp = decimal seconds since the previous disk power-on.\n"
+       "Note: timestamp \"wraps\" after 2^32 msec = 49.710 days.\n\n");
   
   // now step through the five error log data structures (table 39 of spec)
   for (k = 4; k >= 0; k-- ) {
-    
+
     // The error log data structure entries are a circular buffer
     i=(data->error_log_pointer+k)%5;
     
@@ -647,34 +648,38 @@ int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
       pout("Error %d occurred at disk power-on lifetime: %d hours\n",
 	     (int)(data->ata_error_count+k-4), (int)data->errorlog_struct[i].error_struct.timestamp);
       QUIETOFF(con);
-      pout("When the command that caused the error occurred, the device was %s.\n",msgstate);
-      pout("After command completion occurred, registers were:\n");
-      pout("ER:%02x SC:%02x SN:%02x CL:%02x CH:%02x D/H:%02x ST:%02x\n",
+      pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
+      pout("  After command completion occurred, registers were:\n"
+	   "  ER ST SC SN CL CH DH\n"
+	   "  -- -- -- -- -- -- --\n"
+	   "  %02x %02x %02x %02x %02x %02x %02x\n\n",
 	   (int)data->errorlog_struct[i].error_struct.error_register,
+	   (int)data->errorlog_struct[i].error_struct.status,
 	   (int)data->errorlog_struct[i].error_struct.sector_count,
 	   (int)data->errorlog_struct[i].error_struct.sector_number,
 	   (int)data->errorlog_struct[i].error_struct.cylinder_low,
 	   (int)data->errorlog_struct[i].error_struct.cylinder_high,
-	   (int)data->errorlog_struct[i].error_struct.drive_head,
-	   (int)data->errorlog_struct[i].error_struct.status);
-      pout("Sequence of commands leading to the command that caused the error were:\n");
-      pout("DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp\n");
+	   (int)data->errorlog_struct[i].error_struct.drive_head);
+      pout("  Commands leading to the command that caused the error were:\n"
+	   "  CR FR SC SN CL CH DH DC   Timestamp Command/Feature_Name\n"
+	   "  -- -- -- -- -- -- -- --   --------- --------------------\n");
       for ( j = 4; j >= 0; j--){
 	struct ata_smart_errorlog_command_struct *thiscommand=&(data->errorlog_struct[i].commands[j]);
 	
 	// Spec says: unused data command structures shall be zero filled
 	if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand)))
-	  pout(" %02x   %02x   %02x   %02x   %02x   %02x    %02x   %02x     %d.%03d\n", 
-	       (int)thiscommand->devicecontrolreg,
+	  pout("  %02x %02x %02x %02x %02x %02x %02x %02x %7d.%03d %s\n",
+	       (int)thiscommand->commandreg,
 	       (int)thiscommand->featuresreg,
 	       (int)thiscommand->sector_count,
 	       (int)thiscommand->sector_number,
 	       (int)thiscommand->cylinder_low,
 	       (int)thiscommand->cylinder_high,
 	       (int)thiscommand->drive_head,
-	       (int)thiscommand->commandreg,
+	       (int)thiscommand->devicecontrolreg,
 	       (unsigned int)(thiscommand->timestamp / 1000U),
-	       (unsigned int)(thiscommand->timestamp % 1000U)); 
+	       (unsigned int)(thiscommand->timestamp % 1000U),
+	       look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg));
       }
       pout("\n");
     }

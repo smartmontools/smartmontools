@@ -22,7 +22,7 @@
 
 #include "atacmdnames.h"
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.2 2003/07/20 16:04:03 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.3 2003/07/20 20:09:38 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_retired[]         = "[RETIRED]";
@@ -334,26 +334,29 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
   case 0xB0:  /* SMART */
     switch (f_reg) {
     case 0xD0:
-        return "SMART READ DATA";
-    case 0xD2:
-        return "SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE";
-    case 0xD4:
-        return "SMART EXECUTE OFF-LINE IMMEDIATE";
-    case 0xD5:
-        return "SMART READ LOG";
-    case 0xD6:
-        return "SMART WRITE LOG";
-    case 0xD8:
-        return "SMART ENABLE OPERATIONS";
-    case 0xD9:
-        return "SMART DISABLE OPERATIONS";
-    case 0xDA:
-        return "SMART RETURN STATUS";
+      return "SMART READ DATA";
     case 0xD1:
+      return "SMART READ THRESHOLDS [OBS-4]";
+    case 0xD2:
+      return "SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE";
     case 0xD3:
+      return "SMART SAVE ATTRIBUTES [OBS-4]";
+    case 0xD4:
+      return "SMART EXECUTE OFF-LINE IMMEDIATE";
+    case 0xD5:
+      return "SMART READ LOG";
+    case 0xD6:
+      return "SMART WRITE LOG";
     case 0xD7:
+      return "SMART WRITE THRESHOLDS [OBS-4]";
+    case 0xD8:
+      return "SMART ENABLE OPERATIONS";
+    case 0xD9:
+      return "SMART DISABLE OPERATIONS";
+    case 0xDA:
+      return "SMART RETURN STATUS";
     case 0xDB:
-        return "[Obsolete SMART command]";
+      return "SMART AUTO OFFLINE [OBS-SFF_8035i]";
     default:
         if (f_reg >= 0xE0)
           return "[Vendor specific SMART command]";

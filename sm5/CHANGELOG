@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.161 2003/07/19 10:21:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.162 2003/07/20 20:09:38 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Improved formatting of ATA Error Log printout, and added
+       listing of names of commands that caused the error. Added
+       obsolete ATA-4 SMART feature commands to table, along with
+       obsolete SFF-8035i SMART feature command.
+
+  [PW] Added atacmdnames.[hc], which turn command register &
+       feature register pairs into ATA command names.
 
   [BA] Added conveyance self-test.  Some code added for selective
        self-tests, but #ifdefed out.
