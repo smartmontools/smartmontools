@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.61 2003/11/16 12:15:24 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.62 2003/11/17 11:48:47 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -743,7 +743,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->modese_len = modese_len;
     iecp->requestedCurrent = 1;
     if (iecp->modese_len <= 6) {
-        if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+        if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  iecp->raw_curr, sizeof(iecp->raw_curr)))) {
             if (0 == err)
@@ -757,7 +757,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
         }
     }
     if (10 == iecp->modese_len) {
-        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
                               MODE_PAGE_CONTROL_CURRENT, 
                               iecp->raw_curr, sizeof(iecp->raw_curr));
         if (err) {
@@ -768,11 +768,11 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->gotCurrent = 1;
     iecp->requestedChangeable = 1;
     if (10 == iecp->modese_len)
-        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL,
+        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
                                  MODE_PAGE_CONTROL_CHANGEABLE,
                                  iecp->raw_chg, sizeof(iecp->raw_chg));
     else if (6 == iecp->modese_len)
-        err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+        err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
                             MODE_PAGE_CONTROL_CHANGEABLE, 
                             iecp->raw_chg, sizeof(iecp->raw_chg));
     if (err)
@@ -1766,3 +1766,38 @@ int scsiFetchControlGLTSD(int device, int modese_len)
         return (buff[offset + 2] & 2) ? 1 : 0;
     return -EINVAL;
 }
+
+/* Returns a negative value if failed to fetch Protocol specific port mode 
+   page or it was malformed. Returns transport protocol identifier when
+   value >= 0 . */
+int scsiFetchTransportProtocol(int device, int modese_len)
+{
+    int err, offset;
+    UINT8 buff[64];
+
+    memset(buff, 0, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
+                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 buff, sizeof(buff)))) {
+            if (0 == err)
+                modese_len = 6;
+            else if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
+            else
+                return -EINVAL;
+        }
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
+                              MODE_PAGE_CONTROL_CURRENT, 
+                              buff, sizeof(buff));
+        if (err)
+            return -EINVAL;
+    } 
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
+    if ((offset >= 0) && (buff[offset + 1] > 1))
+        return (buff[offset + 2] & 0xf);
+    return -EINVAL;
+}
+
