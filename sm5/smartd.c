@@ -1,7 +1,7 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,6 +64,12 @@ typedef int pid_t;
 #include <process.h> // getpid()
 #endif // _WIN32
 
+#ifdef __CYGWIN__
+// From <windows.h>:
+// BOOL WINAPI FreeConsole(void);
+int __stdcall FreeConsole(void);
+#endif // __CYGWIN__
+
 // locally included files
 #include "int64.h"
 #include "atacmds.h"
@@ -108,14 +114,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.350 2004/12/27 21:25:35 geoffk1 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.351 2005/04/06 18:17:52 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.350 2004/12/27 21:25:35 geoffk1 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.351 2005/04/06 18:17:52 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -983,6 +989,11 @@ void DaemonInit(){
   for (i=getdtablesize();i>=0;--i)
     close(i);
   
+#ifdef __CYGWIN__
+  // Cygwin's setsid() does not detach the process from Windows console
+  FreeConsole();
+#endif // __CYGWIN__
+
   // redirect any IO attempts to /dev/null for stdin
   i=open("/dev/null",O_RDWR);
   // stdout
