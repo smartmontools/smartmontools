@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.262 2003/11/18 13:51:14 dpgilbert Exp $
+$Id: CHANGELOG,v 1.263 2003/11/18 16:55:52 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd/smartctl: wired in scsiClearControlGLTSD(). Could still
+       use a corresponding Set function.  Left stubs for this purpose.
 
   [DG] scsicmds: added scsiClearControlGLTSD() [still to be wired in]
 
