@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.279 2003/12/05 13:14:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.280 2003/12/05 22:00:12 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,7 +31,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        ever be noticed!)  
 
   [DG] smartd: added SCSI scheduled self-tests (Background
-       short or extended.
+       short or extended).
 
   [BA] smartd: can now run scheduled offline immediate and
        self-tests.  See man page and -s Directive for details.
