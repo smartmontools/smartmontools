@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.10 2004/03/23 13:08:40 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.11 2004/03/24 08:26:39 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -106,7 +106,7 @@ typedef struct TAG_TW_Output {
 } TW_Output; 
 
 
-
+#ifndef TASKFILE_OUT
 // The following definitions are needed to use the HDIO_DRIVE_TASKFILE
 // ioctl() call.  This is needed to send SMART WRITE LOG commands to
 // the drive.
@@ -166,5 +166,8 @@ typedef struct ide_task_request_s {
 #define IDE_DRIVE_TASK_NO_DATA		0
 #define IDE_DRIVE_TASK_IN		2
 #define IDE_DRIVE_TASK_OUT		3
+
+#endif // #ifndef TASKFILE_OUT
+
 
 #endif /* OS_LINUX_H_ */
