@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.42 2003/11/19 06:08:46 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.43 2003/11/20 00:34:09 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -214,6 +214,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_SK_UNIT_ATTENTION          0x6
 
 /* defines for useful Additional Sense Codes (ASCs) */
+#define SCSI_ASC_NOT_READY              0x4     /* more info in ASCQ code */
+#define SCSI_ASC_NO_MEDIUM              0x3a    /* more info in ASCQ code */
 #define SCSI_ASC_UNKNOWN_OPCODE         0x20
 #define SCSI_ASC_UNKNOWN_FIELD          0x24
 #define SCSI_ASC_UNKNOWN_PARAM          0x26
@@ -227,6 +229,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SIMPLE_ERR_BAD_FIELD            3       /* in cbd */
 #define SIMPLE_ERR_BAD_PARAM            4       /* in data */
 #define SIMPLE_ERR_BAD_RESP             5       /* response fails sanity */
+#define SIMPLE_ERR_NO_MEDIUM            6       /* no medium present */
+#define SIMPLE_ERR_BECOMING_READY       7       /* device will be ready soon */
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
