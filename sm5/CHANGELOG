@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.433 2004/07/20 20:40:31 ballen4705 Exp $
+$Id: CHANGELOG,v 1.434 2004/07/25 20:45:03 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added QUANTUM FIREBALL EX3.2A and missing Western Digital Caviar SE
+       drives to knowndrives table.
 
   [BA] Modified Hitachi Travelstar 80GN family regexp in drive database.
        Thanks to [GK/CF] for problem & solution.
