@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.126 2003/10/03 14:06:37 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.127 2003/10/03 14:09:16 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -312,7 +312,7 @@ fi
 
 %changelog
 
-* Fri Cct 03 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+* Fri Oct 03 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartctl: added '-T verypermissive' option which is
        equivalent to giving '-T permissive' many times.
 - [BA] Try harder to identify from IDENTIFY DEVICE structure
