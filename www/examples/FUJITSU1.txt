@@ -1,3 +1,5 @@
+[root/]# smartctl -v 9,seconds -v 200,writeerrorcount /dev/hda
+
 smartctl version 5.1-18 Copyright (C) 2002-3 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
