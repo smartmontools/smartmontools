@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.19 2003/12/01 21:53:43 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.20 2003/12/02 13:48:37 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -330,15 +330,14 @@ command-line option.]
 .B \-s REGEXP
 Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
 Self- or Offline Immediate Test will be run at the end of periodic
-device polling, if \fB/T/MM/DD/d/HH/\fP matches
-the extended regular expression \fBREGEXP\fP.
-Here:
+device polling, if all 12 characters of the string \fBT/MM/DD/d/HH\fP
+match the extended regular expression \fBREGEXP\fP. Here:
 .RS 7
 .IP \fBT\fP 4
 is the type of the test.  The values that \fBsmartd\fP will try to
-match (in order) are: \'L\' for a Long Self-Test, or \'S\' for a Short
-Self-Test, or \'C\' for a Conveyance Self-Test (ATA only), or \'O\'
-for an Offline Immediate Test (ATA only).  As soon as a match is
+match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a \fBS\fPhort
+Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA only), and \'O\'
+for an \fBO\fPffline Immediate Test (ATA only).  As soon as a match is
 found, the test will be started and no additional matches will be
 sought for that device and that polling cycle.
 .IP \fBMM\fP 4
@@ -349,7 +348,7 @@ is the day of the month, expressed with two decimal digits. The
 range is from 01 to 31 inclusive.
 .IP \fBd\fP 4
 is the day of the week, expressed with one decimal digit.  The
-range is from 1 (Sunday) to 7 (Saturday) inclusive.
+range is from 1 (Monday) to 7 (Sunday) inclusive.
 .IP \fBHH\fP 4
 is the hour of the day, written with two decimal digits, and given in
 hours after midnight.  The range is 00 (midnight to just before 1am) to 23 (11pm
@@ -357,50 +356,57 @@ to just before midnight) inclusive.
 .RE
 .RS 7
 .PP
-For example, to schedule a short Self-Test at 2am every morning, use:
+Some examples follow.  In reading these, keep in mind that in extended
+regular expressions a dot \fB\'.\'\fP matches any single character, and
+a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one of the three possibilities \fBA\fP,
+\fBB\fP, or \fBC\fP.
+
+To schedule a short Self-Test between 2-3am every morning, use:
 .nf
-\fB \-s /S/.*/.*/.*/02/\fP
+\fB \-s S/../.././02\fP
 .fi
-To schedule a long Self-Test at 4am every Sunday morning, use:
+To schedule a long Self-Test between 4-5am every Sunday morning, use:
 .nf
-\fB \-s /L/.*/.*/1/04/\fP
+\fB \-s L/../../7/04\fP
 .fi
-To schedule a long Self-Test at 10pm on the first and fifteenth day of
-each month, use:
+To schedule a long Self-Test between 10-11pm on the first and
+fifteenth day of each month, use:
 .nf
-\fB \-s /L/.*/(01|15)/.*/22/\fP
+\fB \-s L/../(01|15)/./22\fP
 .fi
-To schedule an Offline Immediate test every 6 hours (midnight, 6am, noon, 6pm)
-plus a Short Self-Test daily at 1am and a Long Self-Test every
-Saturday at 3am, use:
+To schedule an Offline Immediate test after every midnight, 6am,
+noon,and 6pm, plus a Short Self-Test daily at 1-2am and a Long
+Self-Test every Saturday at 3-4am, use:
 .nf
-\fB \-s (/O/.*/.*/.*/(00|06|12|18)/|/S/.*/.*/.*/01/|/L/.*/.*/7/03/)
+\fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)
 .fi
 .PP
 
-The scheduled tests are run immediately following the
-regularly-scheduled device polling, if the current local date and
-time, and the test type, match \fBREGEXP\fP.  By default the
-regularly-scheduled device polling occurs every thirty minutes after
-starting \fBsmartd\fP.  However if you use the \'\-i\' option to make
-this polling interval more than sixty minutes then the poll times may
-fail to coincide with any of the testing times that you have specified
-with \fBREGEXP\fP.
+Scheduled tests are run immediately following the regularly-scheduled
+device polling, if the current local date, time, and test type, match
+\fBREGEXP\fP.  By default the regularly-scheduled device polling
+occurs every thirty minutes after starting \fBsmartd\fP.  Take caution
+if you use the \'\-i\' option to make this polling interval more than
+sixty minutes: the poll times may fail to coincide with any of the
+testing times that you have specified with \fBREGEXP\fP, and so the
+self tests may not take place as you wish.
 
-Before running a test, \fBsmartd\fP checks to be sure that another
-test is not already running.  If so, the currently running test will
-\fBnot\fP be interrupted to begin another test.  \fBsmartd\fP will not
-attempt to run any type of test if another test was run in the same
-hour.
+Before running an offline or self-test, \fBsmartd\fP checks to be sure
+that a self-test is not already running.  If a self-test \fBis\fP
+already running, then this running self test will \fBnot\fP be
+interrupted to begin another test.
+
+\fBsmartd\fP will not attempt to run \fBany\fP type of test if another
+test was already started or run in the same hour.
 
 Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
 You can use these to verify that you constructed \fBREGEXP\fP
-correctly.  The matching order (L before S before C before O) ensures
-that if multiple test types are all scheduled for the same hour, the
-longer test type has precedence.  This is usually the desired
-behavior.
-.RE
+correctly.  The matching order (\fBL\fP before \fBS\fP before \fBC\fP
+before \fBO\fP) ensures that if multiple test types are all scheduled
+for the same hour, the longer test type has precedence.  This is
+usually the desired behavior.
 
+.RE
 .TP
 .B \-f
 Check for \'failure\' of any Usage Attributes.  If these Attributes are
@@ -1030,4 +1036,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.19 2003/12/01 21:53:43 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.20 2003/12/02 13:48:37 ballen4705 Exp $
