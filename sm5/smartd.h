@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.23 2002/11/22 13:30:56 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.24 2002/11/23 17:06:45 pjwilliams Exp $\n"
 #endif
 
 // Configuration file
@@ -49,10 +49,6 @@
 
 // maximum number of SCSI devices to monitor
 #define MAXSCSIDEVICES	26
-
-/* Defines for command line options */ 
-#define DEBUGMODE 		'X'
-#define PRINTCOPYLEFT           'V'
 
 /* Boolean Values */
 #define TRUE 0x01
