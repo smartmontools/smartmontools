@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.213 2003/10/10 04:56:39 arvoreen Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.214 2003/10/10 08:25:21 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2406,15 +2406,19 @@ void ParseOpts(int argc, char **argv){
 int MakeConfigEntries(const char *type, int start){
   int i;
   int num;
-  char** devlist = 0;
+  char** devlist = NULL;
   cfgfile *first=cfgentries[0],*cfg=first;
 
-  make_device_names(&num,&devlist,type); // make list of devices
+  // make list of devices
+  if ((num=make_device_names(&devlist,type))<0){
+    PrintOut(LOG_CRIT,"No memory to create device name scan list\n");
+    EXIT(EXIT_NOMEM);
+  }
   
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
     PrintOut(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
-    // need to clean up data allocated by make_device_names
+    // need to clean up memory allocated by make_device_names
     for (i=0; i < num; i++) {
       devlist[i] = FreeNonZero(devlist[i],strlen((char*)devlist[i]));
     }
@@ -2433,12 +2437,14 @@ int MakeConfigEntries(const char *type, int start){
     cfg->tryata = !strcmp(type,"ATA");
     cfg->tryscsi= !strcmp(type,"SCSI");
     
-    // Remove device name, if it's there, and put in correct one
+    // remove device name, if it's there, and put in correct one
     cfg->name=FreeNonZero(cfg->name, -1);
-    cfg->name=devlist[i];	// grab pointer to data
+    // save pointer to the device name created within
+    // make_device_names
+    cfg->name=devlist[i];
   }
-
-  // clean up the devlist
+  
+  // free memory used for devlist: pointers now in cfgentries[]->names
   devlist = FreeNonZero(devlist,(sizeof (char*) * num));
   
   return num;

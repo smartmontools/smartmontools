@@ -54,6 +54,10 @@
 // to hold onto exit code for atexit routine
 extern int exitstatus;
 
+// keep track of memory allocated/deallocated
+extern long long bytes;
+
+// equivalent to open(path, flags)
 int deviceopen(const char *pathname, char *type){
   if (!strcmp(type,"SCSI")) 
     return open(pathname, O_RDWR | O_NONBLOCK);
@@ -63,45 +67,54 @@ int deviceopen(const char *pathname, char *type){
     return -1;
 }
 
+// equivalent to close(file descriptor)
 int deviceclose(int fd){
   return close(fd);
 }
 
-extern long long bytes;
-
-void *FreeNonZero(void* address, int size);
-
-
-void make_device_names (int *n, char*** devlist, const char* name) {
+// makes a list of device names to scan, for either ATA or SCSI
+// devices.  Return -1 if no memory remaining
+int make_device_names (char*** devlist, const char* name) {
   char* base;
   char** tmp;
-  int i;
+  int i, n;
   
+  // set correct first name (base name) for ATA or SCSI devices
   if (!strcmp(name,"SCSI")) {
-    *n = MAXSCSIDEVICES;
+    n = MAXSCSIDEVICES;
     base = CustomStrDup("/dev/sda",1,__LINE__);
   }
   else if (!strcmp(name,"ATA")) {
-    *n = MAXATADEVICES;
+    n = MAXATADEVICES;
     base = CustomStrDup("/dev/hda",1,__LINE__);
   }
-  else {
-    *n = 0; // bad type, no devices
-    return;
-  }
+  else
+    n = 0;
   
-  tmp = (char **)malloc(sizeof(char *) * (*n));
-  bytes += (sizeof(char*)*(*n));
-  for (i = 0; i < *n; i++) {
-    tmp[i] = base;
-    base = CustomStrDup(base,1,__LINE__);
-    base[7]++; // go to next device, alphabetically a->b->c...
+  // bad type or no devices
+  if (!n)
+    return 0;
+  
+  // allocate storage for the list of device names that we'll be
+  // making, and store first name
+  if (!(tmp = (char **)calloc(n, sizeof(char *))))
+    return -1;
+  
+  bytes += n*sizeof(char*);
+  tmp[0]=base;
+  
+  // make device names by incrementing the last letter of the base
+  // name
+  for (i = 1; i < n; i++) {
+    tmp[i] =  CustomStrDup(tmp[i-1],1,__LINE__);
+    // increment name alphabetically a->b->c...
+    tmp[i][7]++; 
   }
-  FreeNonZero(base,-1); // free the extra copy
   *devlist = tmp;
+  return n;
 }
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.5 2003/10/10 05:11:07 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.6 2003/10/10 08:25:21 ballen4705 Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
