@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.57 2003/03/07 00:39:46 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.58 2003/03/08 15:37:13 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -128,6 +128,12 @@ const char *vendorattributeargs[] = {
   "9,temp",
   // 3
   "220,temp",
+  // 4
+  "N,raw8",
+  // 5
+  "N,raw16",
+  // 6
+  "N,raw48",
   // NULL should always terminate the array
   NULL
 };
@@ -136,7 +142,8 @@ const char *vendorattributeargs[] = {
 // "220,temp", and putting the correct flag into the attributedefs
 // array.  Returns 1 if problem, 0 if pair has been recongized.
 int parse_attribute_def(char *pair, unsigned char *defs){
-  int i;
+  int i,j;
+  char temp[32];
 
   // look along list and see if we find the pair
   for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++);
@@ -158,10 +165,53 @@ int parse_attribute_def(char *pair, unsigned char *defs){
     // attribute 220 is temperature in celsius
     defs[220]=1;
     return 0;
+  case 4:
+    // print all attributes in raw 8-bit form
+    for (j=0; j<256; j++)
+      defs[j]=253;
+    return 0;
+  case 5:
+    // print all attributes in raw 8-bit form
+    for (j=0; j<256; j++)
+      defs[j]=254;
+    return 0;
+  case 6:
+    // print all attributes in raw 8-bit form
+    for (j=0; j<256; j++)
+      defs[j]=255;
+    return 0;
   default:
     // pair not found
-    return 1;
+    break;
   }
+  // At this point, either the pair was not found, or it is of the
+  // form N,uninterpreted, in which case we need to parse N
+  j=sscanf(pair,"%d,%14s", &i, temp);
+ 
+  // if no match to pattern, unrecognized
+  if (j!=2 || i<0 || i >255)
+    return 1;
+
+  // check for recognized strings
+  if (!strcmp(temp, "raw8")) {
+    defs[i]=253;
+    return 0;
+  }
+  
+  // check for recognized strings
+  if (!strcmp(temp, "raw16")) {
+    defs[i]=254;
+    return 0;
+  }
+  
+  // check for recognized strings
+  if (!strcmp(temp, "raw48")) {
+    defs[i]=255;
+    return 0;
+  }
+ 
+  // didn't recognize the string
+  return 1;
 }
 
 // Function to return a string containing a list of the arguments in 
@@ -794,6 +844,7 @@ long long ataPrintSmartAttribRawValue(char *out,
 				      struct ata_smart_attribute *attribute,
 				      unsigned char *defs){
   long long rawvalue;
+  unsigned word[3];
   int j;
   
   // convert the six individual bytes to a long long (8 byte) integer.
@@ -809,26 +860,43 @@ long long ataPrintSmartAttribRawValue(char *out,
     temp <<= 8*j;
     rawvalue |= temp;
   }
+
+  // convert quantities to three two-byte words
+  for (j=0; j<3; j++){
+    word[j] = attribute->raw[2*j+1];
+    word[j] <<= 8;
+    word[j] |= attribute->raw[2*j];
+  }
   
+  // Print six one-byte quantities.
+  if (defs[attribute->id]==253){
+    for (j=0; j<5; j++)
+      out+=sprintf(out, "%d ", attribute->raw[5-j]);
+    out+=sprintf(out, "%d ", attribute->raw[0]);
+    return rawvalue;
+  } 
+  
+  // Print three two-byte quantities
+  if (defs[attribute->id]==254){
+    out+=sprintf(out, "%d %d %d", word[2], word[1], word[0]); 
+    return rawvalue;
+  } 
+  
+  // Print one six-byte quantity
+  if (defs[attribute->id]==255){
+    out+=sprintf(out, "%llu", rawvalue);
+    return rawvalue;
+  }
+
   // This switch statement is where we handle Raw attributes
   // that are stored in an unusual vendor-specific format,
   switch (attribute->id){
     // Spin-up time
   case 3:
-    {
-      int i, spin[2];
-      // construct two twy-byte quantities, print first
-      for (i=0; i<2; i++){
-	spin[i] = attribute->raw[2*i+1];
-	spin[i] <<= 8;
-	spin[i] |= attribute->raw[2*i];
-      }
-      out+=sprintf(out, "%d", spin[0]);
-      
-      // if second nonzero then it stores the average spin-up time
-      if (spin[1])
-	sprintf(out, " (Average %d)", spin[1]);
-    }
+    out+=sprintf(out, "%d", word[0]);
+    // if second nonzero then it stores the average spin-up time
+    if (word[1])
+      out+=sprintf(out, " (Average %d)", word[1]);
     break;
     // Power on time
   case 9:
@@ -836,31 +904,32 @@ long long ataPrintSmartAttribRawValue(char *out,
       // minutes
       long long tmp1=rawvalue/60;
       long long tmp2=rawvalue%60;
-      sprintf(out, "%lluh+%02llum", tmp1, tmp2);
+      out+=sprintf(out, "%lluh+%02llum", tmp1, tmp2);
     }
     else if (defs[9]==3){
       // seconds
       long long hours=rawvalue/3600;
       long long minutes=(rawvalue-3600*hours)/60;
       long long seconds=rawvalue%60;
-      sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
+      out+=sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
     }
     else
       // hours
-      sprintf(out, "%llu", rawvalue);  //stored in hours
+      out+=sprintf(out, "%llu", rawvalue);  //stored in hours
     break;
     // Temperature
   case 194:
     out+=sprintf(out, "%d", (int)attribute->raw[0]);
     if (!(rawvalue==attribute->raw[0]))
       // The other bytes are in use. Try IBM's model
-      sprintf(out, " (Lifetime Min/Max %d/%d)",(int)attribute->raw[2],
-	      (int)attribute->raw[4]);
+      out+=sprintf(out, " (Lifetime Min/Max %d/%d)",
+		   (int)attribute->raw[2],
+		   (int)attribute->raw[4]);
     break;
   default:
-    sprintf(out, "%llu", rawvalue);
+    out+=sprintf(out, "%llu", rawvalue);
   }
-
+  
   // Return the full value
   return rawvalue;
 }

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.69 2003/03/06 07:27:17 ballen4705 Exp $
+\# $Id: smartd.8,v 1.70 2003/03/08 15:37:13 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/03/06 07:27:17 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/03/08 15:37:13 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -766,23 +766,55 @@ Attributes.
 .TP
 .B \-v N,OPTION
 Modifies the labeling for Attribute N, for disks which use
-non-standard Attribute definitions.  Valid arguments to this Directive
-are:
+non-standard Attribute definitions.  This is useful in connection with
+the Attribute tracking/reporting Directives.
+
+This Directive may appear multiple times. Valid arguments to this
+Directive are:
 
 .I 9,minutes
-\- Raw Attribute number 9 is power-on time in minutes (not hours).
+\- Raw Attribute number 9 is power-on time in minutes.  Its raw value
+will be displayed in the form 'Xh+Ym'.  Here X is hours, and Y is
+minutes in the range 0-59 inclusive.  Y is always printed with two
+digits, for example \'06' or \'31' or '00'.
 
 .I 9,seconds
-\- Raw Attribute number 9 is power-on time in seconds (not hours).
+\- Raw Attribute number 9 is power-on time in seconds.  Its raw value
+will be displayed in the form 'Xh+Ym+Zs'.  Here X is hours, Y is
+minutes in the range 0-59 inclusive, and Z is seconds in the range
+0-59 inclusive.  Y and Z are always printed with two digits, for
+example \'06' or \'31' or '00'.
 
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
 .I 220,temp
-\- Raw attribute number 220 is the disk temperature in Celsius.
+\- Raw Attribute number 220 is the disk temperature in Celsius.
 
-A table of hard drive models, listing which Attribute corresponds to
-temperature, can be found at: http://coredump.free.fr/linux/hddtemp.db
+Note: a table of hard drive models, listing which Attribute
+corresponds to temperature, can be found at:
+http://coredump.free.fr/linux/hddtemp.db
+
+.I N,raw8
+\- Print the Raw value of Attribute N as six 8-bit unsigned base-10
+integers.  This may be useful for decoding the meaning of the Raw
+value.  The form 'N,raw8' prints Raw values for ALL Attributes in this
+form.  The form (for example) '123,raw8' only prints the Raw value for
+Attribute 123 in this form.
+
+.I N,raw16
+\- Print the Raw value of Attribute N as three 16-bit unsigned base-10
+integers.  This may be useful for decoding the meaning of the Raw
+value.  The form 'N,raw16' prints Raw values for ALL Attributes in this
+form.  The form (for example) '123,raw16' only prints the Raw value for
+Attribute 123 in this form.
+
+.I N,raw48
+\- Print the Raw value of Attribute N as a 48-bit unsigned base-10
+integer.  This may be useful for decoding the meaning of the Raw
+value.  The form 'N,raw48' prints Raw values for ALL Attributes in
+this form.  The form (for example) '123,raw48' only prints the Raw
+value for Attribute 123 in this form.
 
 .TP
 .B \-a
@@ -1027,4 +1059,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.69 2003/03/06 07:27:17 ballen4705 Exp $
+$Id: smartd.8,v 1.70 2003/03/08 15:37:13 ballen4705 Exp $
