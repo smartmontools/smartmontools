@@ -103,10 +103,9 @@ Source and binary RPM files are available at the website listed above.
 PLEASE READ THE MANUAL PAGES FOR SMARTCTL AND SMARTD FOR MORE INFORMATION.
 
 
-== PROPOSED OPTION NAMES FOR SMARTCTL ==
-The following is a list of proposed options to replace the existing options in
-smartctl.  If you have any comments or would like to suggest improvements then
-please post to the smartmontools mailing list.
+== NEW OPTION NAMES FOR SMARTCTL 5.1 ==
+The following is a synopsis of the new options in smartctl 5.1 -- please see the
+man page for more information.
 
   -h, --help, --usage
         Show usage and syntax help
@@ -180,12 +179,13 @@ please post to the smartmontools mailing list.
   -X, --abort
         Abort any non-captive test
 
-The following table shows the mapping of old options to new options:
+The following table shows the mapping of old to new smartctl options and of
+old to new smartd.conf directives:
 
   -------------------------------------------------------------------------------------------------------------------
   Old option    New short option        New long option                    smartd.conf               smartd.conf
-  Versions <=   Versions >=             Versions >=                        DIRECTIVE                 DIRECTIVE
-  5.0-X         5.0-Y                   5.0-Y                              <= 5.0-X                  >= 5.0-Y
+  Versions <=   Versions >= 5.1         Versions >= 5.1                    DIRECTIVE                 DIRECTIVE
+  5.0                                                                      <= 5.0                     >= 5.1
   -------------------------------------------------------------------------------------------------------------------
   -h, -?        -h, -?                  --help
   -V            -V                      --version, --copyright, --license
@@ -234,10 +234,10 @@ The following table shows the mapping of old options to new options:
                                                                             \      Line continuation    \
   -------------------------------------------------------------------------------------------------------------------
 
-Suggested changes to smartd options:
+Changes to smartd options (not yet implemented):
 
   ----------------------------------------------------------------------------------------------------------
-  5.0.x short   5.0.x long                                   5.1.x short   5.1.x long
+  5.0 short     5.0 long                                     5.1 short     5.1 long
   option        option                                       option        option
   ----------------------------------------------------------------------------------------------------------
   -h, -?        --help                                       -h, -?        --help
@@ -246,11 +246,3 @@ Suggested changes to smartd options:
                                                              -i N          --interval=N
   ----------------------------------------------------------------------------------------------------------
 
-Suggested change order (CVS commit at least after each of these):
-Modify smartctl command-line options
-Modify smartctl man page, README file, CHANGELOG
-Modify smartmontools index.html page to warn users of change in syntax, point to end of README file
-Modify smartd to take -C out of config file, put onto command line
-Modify smartd and smartd.conf man pages, README file, CHANGELOG
-Modify smartd Directive names, parsing
-Modify smartd and smartd.conf man pages, README file, CHANGELOG, example smartd.conf configuration file
