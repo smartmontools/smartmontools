@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.32 2003/01/03 17:25:12 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.33 2003/01/04 08:26:10 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -152,8 +152,8 @@ void Usage (void){
         Show SMART capabilities\n\
   -A, --attributes                                                    (ATA)\n\
         Show SMART vendor-specific attributes and values\n\
-  -l TYPE, --log=TYPE                                                 (ATA)\n\
-        Show device log. Type is one of: error, selftest\n\
+  -l TYPE, --log=TYPE                                                 (ATA/SCSI)\n\
+        Show device log. Type is one of: error [ATA only], selftest\n\
   -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n\
         Set vendor specific OPTION for attribute N (see man page)\n\
 ");
