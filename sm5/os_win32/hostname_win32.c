@@ -18,7 +18,7 @@
 
 #include "hostname_win32.h"
 
-const char * hostname_win32_c_cvsid = "$Id: hostname_win32.c,v 1.1 2004/07/31 19:18:54 chrfranke Exp $" HOSTNAME_WIN32_H_CVSID;
+const char * hostname_win32_c_cvsid = "$Id: hostname_win32.c,v 1.2 2004/09/15 13:58:48 chrfranke Exp $" HOSTNAME_WIN32_H_CVSID;
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -72,7 +72,7 @@ static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
 	BOOL ret;
 	if (!(hdll = LoadLibraryA("KERNEL32.DLL")))
 		return FALSE;
-	if (!((FARPROC)GetComputerNameExA_p = GetProcAddress(hdll, "GetComputerNameExA")))
+	if (!(GetComputerNameExA_p = (BOOL (WINAPI *)(int, LPSTR, LPDWORD))GetProcAddress(hdll, "GetComputerNameExA")))
 		ret = FALSE;
 	else
 		ret = GetComputerNameExA_p(type, name, size);
@@ -86,11 +86,11 @@ static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
 static DWORD CallGetNetworkParams(PFIXED_INFO info, PULONG size)
 {
 	HANDLE hdll;
-	DWORD (WINAPI * GetNetworkParams_p)(PFIXED_INFO info, PULONG size);
+	DWORD (WINAPI * GetNetworkParams_p)(PFIXED_INFO, PULONG);
 	DWORD ret;
 	if (!(hdll = LoadLibraryA("IPHlpApi.dll")))
 		return ERROR_NOT_SUPPORTED;
-	if (!((FARPROC)GetNetworkParams_p = GetProcAddress(hdll, "GetNetworkParams")))
+	if (!(GetNetworkParams_p = (DWORD (WINAPI *)(PFIXED_INFO, PULONG))GetProcAddress(hdll, "GetNetworkParams")))
 		ret = ERROR_NOT_SUPPORTED;
 	else
 		ret = GetNetworkParams_p(info, size);
