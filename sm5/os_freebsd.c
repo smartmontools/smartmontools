@@ -39,9 +39,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.32 2004/02/19 02:35:14 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.33 2004/03/10 18:35:01 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.32 2004/02/19 02:35:14 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.33 2004/03/10 18:35:01 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -484,7 +484,9 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
 
 static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 #ifndef ATAREQUEST
-        return -1;
+  *dev=0;
+  *unit=0;
+return 0;
 #else
   // there is no direct correlation between name 'ad0, ad1, ...' and
   // channel/unit number.  So we need to iterate through the possible
