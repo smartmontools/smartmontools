@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.348 2004/03/01 22:11:22 pjwilliams Exp $
+$Id: CHANGELOG,v 1.349 2004/03/03 18:39:07 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -27,6 +27,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
+  [BA] Removed the 'contact developers' phrase from the Samsung disk
+       warning messages.
 
   [PW] Added TOSHIBA MK2017GAP, IBM Deskstar 14GXP and 16GP series,
        Fujitsu MPC series, Seagate Barracuda ATA III family, and missing

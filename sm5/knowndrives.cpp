@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.88 2004/03/01 22:11:22 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.89 2004/03/03 18:39:07 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -113,8 +113,8 @@ const unsigned char vendoropts_Hitachi_DK23XX[][2] = {
 const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
 const char same_as_minus_F2[]="Fixes byte order in some SMART data (same as -F samsung2)";
 
-const char may_need_minus_F_disabled[]="Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung disabled";
-const char may_need_minus_F2_disabled[]="Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung2 disabled";
+const char may_need_minus_F_disabled[]="May need -F samsung disabled; see manual for details.";
+const char may_need_minus_F2_disabled[]="May need -F samsung2 disabled; see manual for details.";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -296,7 +296,7 @@ const drivesettings knowndrives[] = {
   { // All Samsung drives with '.*-25' firmware
     "^SAMSUNG.*",
     ".*-25$",
-    "May need -F samsung2 enabled; see manual page for description of -F.\n",
+    "May need -F samsung2 enabled; see manual for details.\n",
     vendoropts_9_halfminutes,
     NULL, NULL
   },
@@ -311,7 +311,7 @@ const drivesettings knowndrives[] = {
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung[2] enabled.\n",
+    "May need -F samsung or -F samsung2 enabled; see manual for details.\n",
     NULL, NULL, NULL
   },
   { // Maxtor DiamondMax Plus D740X family
