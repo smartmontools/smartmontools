@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.89 2002/12/29 01:10:42 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.90 2003/01/01 23:27:31 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -313,30 +313,28 @@ void printhead(){
 }
 
 
-// prints help info for configuration file directives
+// prints help info for configuration file Directives
 void Directives() {
   printout(LOG_INFO,"Configuration file Directives (following device name):\n");
-  printout(LOG_INFO,"  -A     Device is an ATA device\n");
-  printout(LOG_INFO,"  -S     Device is a SCSI device\n");
-  printout(LOG_INFO,"  -P     Permissive, ignore apparent lack of SMART.\n");
-  printout(LOG_INFO,"  -T N   Automatic offline tests. N=0: Disable, 1: Enable.\n");
-  printout(LOG_INFO,"  -s N   Attribute Autosave. N=0: Disable, 1: Enable.\n");
-  printout(LOG_INFO,"  -c     Monitor SMART Health Status, report if failed\n");
-  printout(LOG_INFO,"  -l     Monitor SMART Error Log, report new errors\n");
-  printout(LOG_INFO,"  -L     Monitor SMART Self-Test Log, report new errors\n");
-  printout(LOG_INFO,"  -f     Monitor 'Usage' Attributes, report failures\n");
-  printout(LOG_INFO,"  -M ADD Send email warning to address ADD\n");
-  printout(LOG_INFO,"  -m N   Modify email warning behavior. -3 <= N <= 3\n");
-  printout(LOG_INFO,"  -p     Report changes in 'Prefailure' Attributes\n");
-  printout(LOG_INFO,"  -u     Report changes in 'Usage' Attributes\n");
-  printout(LOG_INFO,"  -t     Equivalent to -p and -u Directives\n");
-  printout(LOG_INFO,"  -a     Equivalent to -c -l -L -f -t Directives\n");
-  printout(LOG_INFO,"  -i ID  Ignore Attribute ID for -f Directive\n");
-  printout(LOG_INFO,"  -I ID  Ignore Attribute ID for -p, -u or -t Directive\n");
+  printout(LOG_INFO,"  -d TYPE Set the device type to one of: ata, scsi\n");
+  printout(LOG_INFO,"  -T TYPE set the tolerance to one of: normal, permissive\n");
+  printout(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
+  printout(LOG_INFO,"  -S VAL  Enable/disable attribute autosave (on/off)\n");
+  printout(LOG_INFO,"  -H      Monitor SMART Health Status, report if failed\n");
+  printout(LOG_INFO,"  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n");
+  printout(LOG_INFO,"  -f      Monitor 'Usage' Attributes, report failures\n");
+  printout(LOG_INFO,"  -m ADD  Send email warning to address ADD\n");
+  printout(LOG_INFO,"  -M TYPE Modify email warning behavior (see man page)\n");
+  printout(LOG_INFO,"  -p      Report changes in 'Prefailure' Attributes\n");
+  printout(LOG_INFO,"  -u      Report changes in 'Usage' Attributes\n");
+  printout(LOG_INFO,"  -t      Equivalent to -p and -u Directives\n");
+  printout(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
+  printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
+  printout(LOG_INFO,"  -a      Equivalent to -H -f -t -l error -l selftest Directives\n");
   printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  printout(LOG_INFO,"SCSI devices: only -S, -M, and -m Directives allowed.\n");
+  printout(LOG_INFO,"SCSI devices: only -d, -m, and -M Directives allowed.\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
 return;
 }
@@ -439,7 +437,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   
   if (!cfg->permissive && !ataSmartSupport(&drive)){
     // SMART not supported
-    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-P' Directive to try anyway.\n",device);
+    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",device);
     close(fd);
     return 2; 
   }
@@ -933,6 +931,28 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
   }
 }
 
+// Print out a list of valid arguments for the Directive d
+void printoutvaliddirectiveargs(int priority, char d) {
+  switch (d) {
+  case 'd':
+    printout(priority, "ata, scsi");
+    break;
+  case 'T':
+    printout(priority, "normal, permissive");
+    break;
+  case 'o':
+  case 'S':
+    printout(priority, "on, off");
+    break;
+  case 'l':
+    printout(priority, "error, selftest");
+    break;
+  case 'M':
+    printout(priority, "\"once\", \"daily\", \"diminishing\", \"once,test\", \"daily,test\", \"diminishing,test\"");
+    break;
+  }
+}
+
 char copyleftstring[]=
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
@@ -970,12 +990,15 @@ int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, i
 
 // This function returns non-zero if it has correctly parsed a token,
 // else zero if it has failed to parse a token.  Or it exits with a
-// directive message if there is a token-parsing problem.
+// Directive message if there is a token-parsing problem.
 int parsetoken(char *token,cfgfile *cfg){
   char sym;
   char *name=cfg->name;
   int lineno=cfg->lineno;
   char *delim=" \n\t";
+  int badarg = 0;
+  int missingarg = 0;
+  char *arg = NULL;
 
   // is the rest of the line a comment
   if (*token=='#')
@@ -984,31 +1007,46 @@ int parsetoken(char *token,cfgfile *cfg){
   // is the token not recognized?
   if (*token!='-' || strlen(token)!=2) {
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
-	     CONFIGFILE, lineno, name, token);
+             CONFIGFILE, lineno, name, token);
     Directives();
     exit(1);
   }
   
   // let's parse the token and swallow its argument
   switch (sym=token[1]) {
-    char *arg;
     int val;
-    
-  case 'P':
-    // Permissive mode; ignore errors from Mandatory SMART commands
-    cfg->permissive=1;
+
+  case 'T':
+    // Set tolerance level for SMART command failures
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "normal")) {
+      // Normal mode: exit on failure of a mandatory S.M.A.R.T. command, but
+      // not on failure of an optional S.M.A.R.T. command.
+      // This is the default so we don't need to actually do anything here.
+      ;
+    } else if (!strcmp(arg, "permissive")) {
+      // Permissive mode; ignore errors from Mandatory SMART commands
+      cfg->permissive = 1;
+    } else {
+      badarg = 1;
+    }
     break;
-  case 'A':
-    // ATA device
-    cfg->tryata=1;
-    cfg->tryscsi=0;
+  case 'd':
+    // specify the device type
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "ata")) {
+      cfg->tryata  = 1;
+      cfg->tryscsi = 0;
+    } else if (!strcmp(arg, "scsi")) {
+      cfg->tryscsi = 1;
+      cfg->tryata  = 0;
+    } else {
+      badarg = 1;
+    }
     break;
-  case 'S':
-    //SCSI device
-    cfg->tryscsi=1;
-    cfg->tryata=0;
-    break;
-  case 'c':
+  case 'H':
     // check SMART status
     cfg->smartcheck=1;
     break;
@@ -1029,13 +1067,19 @@ int parsetoken(char *token,cfgfile *cfg){
     //  track changes in usage vendor attributes
     cfg->usage=1;
     break;
-  case 'L':
-    // track changes in self-test log
-    cfg->selftest=1;
-    break;
   case 'l':
-    // track changes ATA error log
-    cfg->errorlog=1;
+    // track changes in SMART logs
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "selftest")) {
+      // track changes in self-test log
+      cfg->selftest=1;
+    } else if (!strcmp(arg, "error")) {
+      // track changes in ATA error log
+      cfg->errorlog=1;
+    } else {
+      badarg = 1;
+    }
     break;
   case 'a':
     // monitor everything
@@ -1046,17 +1090,47 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->selftest=1;
     cfg->errorlog=1;
     break;
-  case 'T':
-    // Automatic offline testing on/off.  Note "1+" below!
-    cfg->autoofflinetest=1+inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 0, 1);
+  case 'o':
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "on")) {
+      cfg->autoofflinetest = 2;
+    } else if (!strcmp(arg, "off")) {
+      cfg->autoofflinetest = 1;
+    } else {
+      badarg = 1;
+    }
     break;
-  case 's':
-    // Attribute autosave on/off.  Note "1+" below!
-    cfg->autosave=1+inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 0, 1);
+  case 'S':
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "on")) {
+      cfg->autosave = 2;
+    } else if (!strcmp(arg, "off")) {
+      cfg->autosave = 1;
+    } else {
+      badarg = 1;
+    }
     break;
-  case 'm':
+  case 'M':
     // email warning option
-    cfg->emailopt=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, -3, 3);
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "once")) {
+      cfg->emailopt = 1;
+    } else if (!strcmp(arg, "daily")) {
+      cfg->emailopt = 2;
+    } else if (!strcmp(arg, "diminishing")) {
+      cfg->emailopt = 3;
+    } else if (!strcmp(arg, "once,test")) {
+      cfg->emailopt = -1;
+    } else if (!strcmp(arg, "daily,test")) {
+      cfg->emailopt = -2;
+    } else if (!strcmp(arg, "diminishing,test")) {
+      cfg->emailopt = -3;
+    } else {
+      badarg = 1;
+    }
     break;
   case 'i':
     // ignore failure of usage attribute
@@ -1068,27 +1142,40 @@ int parsetoken(char *token,cfgfile *cfg){
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->trackatt,1);
     break;
-  case 'M':
+  case 'm':
     // send email to address that follows
     arg=strtok(NULL,delim);
     if (!arg) {
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
-	       CONFIGFILE, lineno, name, token);
+        CONFIGFILE, lineno, name, token);
       Directives();
       exit(1);
     }
     if (!(cfg->address=strdup(arg))){
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s: no free memory for email address(es) %s\n",
-	       CONFIGFILE, lineno, name, token, arg);
+        CONFIGFILE, lineno, name, token, arg);
       Directives();
       exit(1);
     }
     break;
   default:
     printout(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
-	     CONFIGFILE, lineno, name, token);
+             CONFIGFILE, lineno, name, token);
     Directives();
     exit(1);
+  }
+  if (missingarg) {
+    printout(LOG_CRIT, "File %s line %d (drive %s): Missing argument to Directive: %s\n", CONFIGFILE, lineno, name, token);
+  }
+  if (badarg) {
+    printout(LOG_CRIT, "File %s line %d (drive %s): Invalid argument: %s\n", CONFIGFILE, lineno, name, arg);
+  }
+  if (missingarg || badarg) {
+      printout(LOG_CRIT, "Valid arguments to %s Directive are:", token);
+      printoutvaliddirectiveargs(LOG_CRIT, sym);
+      printout(LOG_CRIT, "\n");
+      Directives();
+      exit(1);
   }
   return 1;
 }
@@ -1175,9 +1262,9 @@ int parseconfigline(int entry, int lineno,char *line){
     exit(1);
   }
 
-  // additional sanity check. Has user set -m without -M?
+  // additional sanity check. Has user set -M without -m?
   if (cfg->emailopt && !cfg->address){
-    printout(LOG_CRIT,"Drive: %s, Directive -m useless without address Directive -M on line %d of file %s\n",
+    printout(LOG_CRIT,"Drive: %s, Directive -M useless without address Directive -m on line %d of file %s\n",
 	     cfg->name, cfg->lineno, CONFIGFILE);
     Directives();
     exit(1);
