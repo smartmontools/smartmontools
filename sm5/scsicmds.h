@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.26 2003/04/22 02:07:06 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.27 2003/04/29 16:01:11 makisara Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -294,5 +294,6 @@ int scsiSmartExtendCapSelfTest(int device);
 int scsiSmartSelfTestAbort(int device);
 
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
+const char * scsiTapeAlertsChangerDevice(unsigned short code);
 #endif
 

@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.41 2003/04/22 12:24:33 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.42 2003/04/29 16:01:09 makisara Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1205,6 +1205,108 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code)
 
     return (code < num) ?  TapeAlertsMessageTable[code] : "Unknown Alert"; 
 }
+
+static const char * ChangerTapeAlertsMessageTable[]= {  
+    " ",
+    "The library mechanism is having difficulty communicating with the drive:\n"
+        "1. Turn the library off then on.\n"
+        "2. Restart the operation.\n"
+        "3. If the problem persists, call the library supplier help line.",
+    "There is a problem with the library mechanism. If problem persists,\n"
+        "call the library supplier help line.",
+    "The library has a hardware fault:\n"
+        "1. Reset the library.\n"
+        "2. Restart the operation.\n"
+        "Check the library users manual for device specific instructions on resetting\n"
+        "the device.",
+    "The library has a hardware fault:\n"
+        "1. Turn the library off then on again.\n"
+        "2. Restart the operation.\n"
+        "3. If the problem persists, call the library supplier help line.\n"
+        "Check the library users manual for device specific instructions on turning the\n"
+        "device power on and off.",
+    "The library mechanism may have a hardware fault.\n"
+        "Run extended diagnostics to verify and diagnose the problem. Check the library\n"
+        "users manual for device specific instructions on running extended diagnostic\n"
+        "tests.",
+    "The library has a problem with the host interface:\n"
+        "1. Check the cables and connections.\n"
+        "2. Restart the operation.",
+    "A hardware failure of the library is predicted. Call the library\n"
+        "supplier help line.",
+    "Preventive maintenance of the library is required.\n"
+        "Check the library users manual for device specific preventative maintenance\n"
+        "tasks, or call your library supplier help line.",
+    "General environmental conditions inside the library are outside the\n"
+        "specified humidity range.",
+    "General environmental conditions inside the library are outside the\n"
+        "specified temperature range.",
+    "The voltage supply to the library is outside the specified range.\n"
+        "There is a potential problem with the power supply or failure of\n"
+        "a redundant power supply.",
+    "A cartridge has been left inside the library by a previous hardware\n"
+        "fault:\n"
+        "1. Insert an empty magazine to clear the fault.\n"
+        "2. If the fault does not clear, turn the library off and then on again.\n"
+        "3. If the problem persists, call the library supplier help line.",
+    "There is a potential problem with the drive ejecting cartridges or with\n"
+        "the library mechanism picking a cartridge from a slot.\n"
+        "1. No action needs to be taken at this time.\n"
+        "2. If the problem persists, call the library supplier help line.",
+    "There is a potential problem with the library mechanism placing a cartridge\n"
+        "into a slot.\n"
+        "1. No action needs to be taken at this time.\n"
+        "2. If the problem persists, call the library supplier help line.",
+    "There is a potential problem with the drive or the library mechanism\n"
+        "loading cartridges, or an incompatible cartridge.",
+    "The library has failed because the door is open:\n"
+        "1. Clear any obstructions from the library door.\n"
+        "2. Close the library door.\n"
+        "3. If the problem persists, call the library supplier help line.",
+    "There is a mechanical problem with the library media import/export\n"
+        "mailslot.",
+    "The library cannot operate without the magazine.\n"
+        "1. Insert the magazine into the library.\n"
+        "2. Restart the operation.",
+    "Library security has been compromised.",
+    "The library security mode has been changed.\n"
+        "The library has either been put into secure mode, or the library has exited\n"
+        "the secure mode.\n"
+        "This is for information purposes only. No action is required.",
+    "The library has been manually turned offline and is unavailable for use.",
+    "A drive inside the library has been taken offline.\n"
+        "This is for information purposes only. No action is required.",
+    "There is a potential problem with the bar code label or the scanner\n"
+        "hardware in the library mechanism.\n"
+        "1. No action needs to be taken at this time.\n"
+        "2. If the problem persists, call the library supplier help line.",
+    "The library has detected an inconsistency in its inventory.\n"
+        "1. Redo the library inventory to correct inconsistency.\n"
+        "2. Restart the operation.\n"
+        "Check the applications users manual or the hardware users manual for\n"
+        "specific instructions on redoing the library inventory.",
+    "A library operation has been attempted that is invalid at this time.",
+    "A redundant interface port on the library has failed.",
+    "A library cooling fan has failed.",
+    "A redundant power supply has failed inside the library. Check the\n"
+        "library users manual for instructions on replacing the failed power supply.",
+    "The library power consumption is outside the specified range.",
+    "A failure has occurred in the cartridge pass-through mechanism between\n"
+        "two library modules.",
+    "A cartridge has been left in the pass-through mechanism from a previous\n"
+        "hardware fault. Check the library users guide for instructions on clearing\n"
+        "this fault.",
+    "The library was unable to read the bar code on a cartridge.",
+};
+
+const char * scsiTapeAlertsChangerDevice(unsigned short code)
+{
+    const int num = sizeof(ChangerTapeAlertsMessageTable) /
+                        sizeof(ChangerTapeAlertsMessageTable[0]);
+
+    return (code < num) ?  ChangerTapeAlertsMessageTable[code] : "Unknown Alert"; 
+}
+
 
 /* this is a subset of the SCSI additional sense code strings indexed
  * by "ascq" for the case when asc==SCSI_ASC_IMPENDING_FAILURE (0x5d)

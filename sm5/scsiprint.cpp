@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.39 2003/04/22 08:26:28 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.40 2003/04/29 16:01:13 makisara Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -121,7 +121,7 @@ void scsiGetSmartData(int device)
 }
 
 
-void scsiGetTapeAlertsData(int device)
+void scsiGetTapeAlertsData(int device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
@@ -142,14 +142,18 @@ void scsiGetTapeAlertsData(int device)
         parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
 
         if (gBuf[i + 4]) {
-            pout("Tape Alerts Error!!!\n%s\n",
+	    if (!failure)
+		pout("TapeAlert Errors:\n");
+            pout("[0x%02x] %s\n", parametercode,
+		   SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
+		   scsiTapeAlertsChangerDevice(parametercode) :
                    scsiTapeAlertsTapeDevice(parametercode));
             failure = 1; 
         }          
     }
 
     if (! failure)
-        pout("No Tape Alerts Failure\n");
+        pout("No TapeAlert Failure\n");
 }
 
 void scsiGetStartStopData(int device)
@@ -435,19 +439,16 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
             pout("device is NOT READY (media absent, spun down, etc)\n");
         else
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
-        if (! is_tape)
-            return;
+	return;
     }
    
     if ((err = scsiFetchIECmpage(device, &iec))) {
-        pout("Device does not support %s [%s]\n", 
-             (is_tape ? "TapeAlerts" : "SMART"), 
-             scsiErrString(err));
+	if (!is_tape)
+	    pout("Device does not support SMART [%s]\n", 
+		 scsiErrString(err));
         return;
     }
-    if (is_tape)
-        pout("Device supports TapeAlerts\n");
-    else
+    if (!is_tape)
         pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
     pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
@@ -557,8 +558,12 @@ void scsiPrintMain(const char *dev_name, int fd)
         checkedSupportedLogPages = 1;
         if ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
             (SCSI_PT_MEDIUM_CHANGER == peripheral_type)) { /* tape device */
-            if (gTapeAlertsPage)
-                scsiGetTapeAlertsData(fd);
+            if (gTapeAlertsPage) {
+		pout("TapeAlert Supported\n");
+                scsiGetTapeAlertsData(fd, peripheral_type);
+	    }
+	    else
+		pout("TapeAlert Not Supported\n");
             if (gTempPage)
                 scsiPrintTemp(fd);         
             if (gStartStopPage)
