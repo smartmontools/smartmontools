@@ -50,10 +50,11 @@ and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-su
 <b><a name="howtodownload"></a>How to download and install
 smartmontools</b>
 
-<p>There are three different ways to get and install smartmontools.&#160; 
-You can use any one of these three procedures.&#160; Just after "Method
-3" below are some instructions for trying out smartmontools once you
-have completed the installation.</p>
+<p>There are four different ways to get and install
+smartmontools.&#160; You can use any of the first three procedures
+(the fourth is for Debian only).&#160; Just after "Method 4" below are
+some instructions for trying out smartmontools once you have completed
+the installation.</p>
 
 <b>First Method - Install from the RPM file</b>
 <ul>
@@ -128,18 +129,19 @@ cvs up -r RELEASE_5_0_30</pre></li>
 cvs up -A</pre></li>
 </ul>
 
-<b>Forth Method - Install the Debian package</b>
+<b>Fourth Method - Install the Debian package (for machines using the Debian linux distribution)</b>
 <UL>
 <LI>
-The latest version of the smartmontools package in <I>.deb</I> format can be
-found at it's  <a HREF="http://packages.debian.org/unstable/utils/smartmontools.html">Debian
+The latest version of the smartmontools package in <I>.deb</I> format is
+available at the  <a HREF="http://packages.debian.org/unstable/utils/smartmontools.html">Debian smartmontools
 package page</a>.
 This package is for the (unreleased) <a HREF="http://www.debian.org/releases/">unstable</a>
 distribution.</LI>
 <LI>If you're running Debian <a
 HREF="http://www.debian.org/releases/stable/">stable</a> please download the
 package from <a
-HREF="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">here</a>.
+HREF="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">here</a>.</LI>
+<LI>
 You can then install the package using:
 <pre>
 dpkg -i smartmontools_5.1.4-2.agx0_i386.deb
@@ -154,7 +156,7 @@ apt-get update &amp;&amp; apt-get install smartmontools
 </LI>
 </UL>
 
-<b>After installing using Method 1, 2, 3 or 4 above, you can read the man
+<b>After installing smartmontools using Method 1, 2, 3 or 4 above, you can read the man
 pages, and try out the commands:</b>
 
 <pre>man 8 smartctl
