@@ -1,0 +1,20 @@
+This code was originally developed as a Senior Thesis by Michael
+Cornwell at the Concurrent Systems Laboratory (now part of the Storage
+Systems Research Center), Jack Baskin School of Engineering, University
+of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+This package is meant to be an up-to-date replacement for the
+ucsc-smartsuite and smartsuite packages, and is derived from that code.
+
+Maintainers / Developers:
+
+Bruce Allen		<smartmontools-support@lists.sourceforge.net>
+Erik Inge Bolsø		<knan@mo.himolde.no>
+Stanislav Brabec	<sbrabec@suse.cz>
+Peter Cassidy		<pcassidy@mac.com>
+Frédéric L. W. Meunier	<0@pervalidus.tk>
+Phil Williams		<phil@subbacultcha.demon.co.uk>
+Douglas Gilbert		<dougg@torque.net>
+Guido Guenther		<agx@sigxcpu.org>
+Kai Mäkisara		<kai.makisara@kolumbus.fi>
+Guilhem Frézou		<guilhem.frezou@catii.fr>
