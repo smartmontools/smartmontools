@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.16 2003/11/23 10:40:48 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.17 2003/11/30 13:53:14 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,7 @@
  California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTCTL 8 "$Date: 2003/11/23 10:40:48 $" RELEASE "$Date: 2003/11/23 10:40:48 $"
+.TH SMARTCTL 8 CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
@@ -29,7 +29,7 @@
 .B /usr/sbin/smartctl
 
 .SH PACKAGE VERSION
-RELEASE dated "$Date: 2003/11/23 10:40:48 $"
+CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self-Monitoring, Analysis and Reporting
@@ -995,4 +995,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.16 2003/11/23 10:40:48 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.17 2003/11/30 13:53:14 ballen4705 Exp $

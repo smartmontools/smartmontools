@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.15 2003/11/27 06:43:48 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.16 2003/11/30 13:53:14 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -17,7 +17,7 @@ at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD.CONF 5  "$Date: 2003/11/27 06:43:48 $" RELEASE "$Date: 2003/11/27 06:43:48 $"
+.TH SMARTD.CONF CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 
@@ -25,7 +25,7 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /etc/smartd.conf
 
 .SH PACKAGE VERSION
-RELEASE dated "$Date: 2003/11/27 06:43:48 $"
+CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
 
 .SH DESCRIPTION
 \fB/etc/smartd.conf\fP is the configuration file for the \fBsmartd\fP
@@ -952,4 +952,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.15 2003/11/27 06:43:48 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.16 2003/11/30 13:53:14 ballen4705 Exp $

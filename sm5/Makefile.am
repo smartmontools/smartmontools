@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.39 2003/11/26 23:55:31 ballen4705 Exp $
+# $Id: Makefile.am,v 1.40 2003/11/30 13:53:14 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -141,12 +141,13 @@ uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
 
 smart%: $(srcdir)/smart%.in Makefile
-	sed "s|RELEASE|$(releaseversion)|g" $< | \
+	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
+	sed "s|CURRENT_CVS_DATE|$(smartmontools_release_date)|g" | \
+	sed "s|CURRENT_CVS_TIME|$(smartmontools_release_time)|g" | \
 	sed "s|/usr/share/man/|$(mandir)/|g" | \
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
 	sed "s|/etc/rc\\.d/init.d/|$(initddir)/|g" | \
 	sed "s|/usr/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
-	sed 's/"\$$\Date: //g; s/ [0-9:]* \$$"//g' | \
 	sed "s|/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
 
 SUBDIRS= . examplescripts
