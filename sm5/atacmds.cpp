@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.144 2004/03/25 15:39:24 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.145 2004/03/25 15:48:19 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -905,7 +905,8 @@ int ataWriteSelectiveSelfTestLog(int device){
     return -2;
   }
 
-  // Fix logversion if needed
+  // Host is NOT allowed to write selective self-test log if a selective
+  // self-test is in progress.
   if (0<data->currentspan && data->currentspan<6) {
     pout("Error SMART Selective Self-Test in progress.\n");
     return -4;
