@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.134 2004/02/15 20:48:23 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.135 2004/02/15 21:15:20 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -127,7 +127,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   unsigned char ER=data->error_struct.error_register;
   char *s;
   char *error_flag[8];
-  int i, do_lba=0;
+  int i, print_lba=0;
 
   /* If for any command the Device Fault flag of the status register is
    * not used then used_device_fault should be set to 0 (in the CR switch
@@ -149,7 +149,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    do_lba=1;
+    print_lba=1;
     break;
   case 0x25:  /* READ DMA EXT */
   case 0xC8:  /* READ DMA */
@@ -161,7 +161,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    do_lba=1;
+    print_lba=1;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0xC5:  /* WRITE MULTIPLE */
@@ -171,7 +171,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
-    do_lba=1;
+    print_lba=1;
     break;
   case 0xA0:  /* PACKET */
     /* Bits 4-7 are all used for sense key (a 'command packet set specific error
@@ -234,7 +234,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
-    do_lba=1;
+    print_lba=1;
     break;
   default:
     return NULL;
@@ -267,28 +267,21 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
 
   // If the error was a READ or WRITE error, print the Logical Block
   // Address (LBA) at which the read or write failed.
-  if (do_lba) {
+  if (print_lba) {
     char tmp[128];
-    unsigned char reg[4];
-    int i,lba=0;
+    int lba;
 
-    // set up registers needed to compute LBA:
     // bits 24-27: bits 0-3 of DH
-    reg[0]=(data->error_struct.drive_head) & (0x0f);
+    lba   = 0xf & data->error_struct.drive_head;
+    lba <<= 8;
     // bits 16-23: CH
-    reg[1]=data->error_struct.cylinder_high;   
+    lba  |= data->error_struct.cylinder_high;
+    lba <<= 8;
     // bits 8-15:  CL
-    reg[2]=data->error_struct.cylinder_low;
+    lba  |= data->error_struct.cylinder_low;
+    lba <<= 8;
     // bits 0-7:   SN
-    reg[3]=data->error_struct.sector_number;
-    
-    // compute LBA
-    for (i=0; i<4; i++) {
-      // left shift 8 bits
-      lba <<= 8;
-      // then mask in lower 8 bits
-      lba |= reg[i];
-    }
+    lba  |= data->error_struct.sector_number;
 
     // print LBA, and append to print string
     snprintf(tmp, 128, " at LBA = 0x%08x = %d", lba, lba);
