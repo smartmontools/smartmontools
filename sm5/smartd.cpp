@@ -47,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.76 2002/11/25 11:45:28 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.77 2002/12/01 06:48:14 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1090,7 +1090,10 @@ int parseconfigline(int entry, int lineno,char *line){
   static int numtokens=0;
 
   if (!(copy=strdup(line))){
-    perror("no memory available to parse line");
+    if (errno<sys_nerr)
+      printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, sys_errlist[errno]);
+    else
+      printout(LOG_INFO,"No memory to parse file: %s line %d\n", CONFIGFILE, lineno);
     exit(1);
   }
   
@@ -1115,7 +1118,7 @@ int parseconfigline(int entry, int lineno,char *line){
 
   // Is there space for another entry?
   if (entry>=MAXENTRIES){
-    printout(LOG_CRIT,"Error: configuration file %s can have no more than %d entries\n",
+    printout(LOG_CRIT,"Error: configuration file %s can have no more than MAXENTRIES=%d entries\n",
 	     CONFIGFILE,MAXENTRIES);
     exit(1);
   }
@@ -1131,7 +1134,10 @@ int parseconfigline(int entry, int lineno,char *line){
   cfg->trackatt=(unsigned char *)calloc(32,1);
   
   if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
-    perror("no memory available to save name");
+    if (errno<sys_nerr)
+      printout(LOG_INFO,"No memory to store file: %s line %d, %s\n", CONFIGFILE, lineno, sys_errlist[errno]);
+    else
+      printout(LOG_INFO,"No memory to store file: %s line %d\n", CONFIGFILE, lineno);
     exit(1);
   }
 
@@ -1352,9 +1358,6 @@ void ParseOpts(int argc, char **argv){
       exit(0);
     }
   }
-  
-  // print header
-  printhead();
   return;
 }
 
@@ -1395,9 +1398,13 @@ int makeconfigentries(int num, char *name, int isata, int start){
     cfg->failatt=(unsigned char *)calloc(32,1);
     cfg->trackatt=(unsigned char *)calloc(32,1);
     if (!cfg->name || !cfg->failatt || !cfg->trackatt) {
-      perror("no memory available to save name");
+      if (errno<sys_nerr)
+	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, sys_errlist[errno]);
+      else
+	printout(LOG_INFO,"No memory for %d'th device after %s\n", i, name);
       exit(1);
     }
+
     // increment final character of the name
     cfg->name[strlen(name)-1]+=i;
   }
@@ -1435,13 +1442,16 @@ int main (int argc, char **argv){
   con->veryquietmode=debugmode?0:1;
   con->checksumfail=0;
 
-  // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
-  entries=parseconfigfile();
-
   // If in background as a daemon, fork and close file descriptors
   if (!debugmode){
     daemon_init();
   }
+  
+  // print header after daemon_init so right process number in syslog
+  printhead();
+
+  // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
+  entries=parseconfigfile();
 
   // setup signal handler for shutdown
   if (signal(SIGINT, sighandler)==SIG_IGN)
@@ -1454,7 +1464,6 @@ int main (int argc, char **argv){
     signal(SIGHUP, SIG_IGN);
   if (signal(SIGUSR1, sleephandler)==SIG_IGN)
     signal(SIGUSR1, SIG_IGN);
-
   
   // install goobye message
   atexit(goobye);
