@@ -38,7 +38,6 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
-#include <setjmp.h>
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
@@ -54,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.206 2003/10/03 01:15:17 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.207 2003/10/03 01:41:56 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
