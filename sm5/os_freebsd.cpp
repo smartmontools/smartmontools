@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.15 2003/10/12 09:10:03 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.16 2003/10/13 02:28:15 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -409,6 +409,50 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
   return -1;
 }
 
+
+static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
+  // there is no direct correlation between name 'ad0, ad1, ...' and
+  // channel/unit number.  So we need to iterate through the possible
+  // channels and check each unit to see if we match names
+  struct ata_cmd iocmd;
+  int fd,maxunit;
+  
+  bzero(&iocmd, sizeof(struct ata_cmd));
+
+  if ((fd = open("/dev/ata", O_RDWR)) < 0)
+    return -errno;
+  
+  iocmd.cmd = ATAGMAXCHANNEL;
+  if (ioctl(fd, IOCATA, &iocmd) < 0) {
+    return -errno;
+    close(fd);
+  }
+  maxunit = iocmd.u.maxchan;
+  for (*unit = 0; *unit < maxunit; (*unit)++) {
+    iocmd.channel = *unit;
+    iocmd.device = -1;
+    iocmd.cmd = ATAGPARM;
+    if (ioctl(fd, IOCATA, &iocmd) < 0) {
+      close(fd);
+      return -errno;
+    }
+    if (iocmd.u.param.type[0] && !strcmp(name,iocmd.u.param.name[0])) {
+      *dev = 0;
+      break;
+    }
+    if (iocmd.u.param.type[1] && !strcmp(name,iocmd.u.param.name[1])) {
+      *dev = 1;
+      break;
+    }
+  }
+  close(fd);
+  if (*unit == maxunit)
+    return -1;
+  else
+    return 0;
+}
+
+
 // Guess device type (ata or scsi) based on device name (FreeBSD
 // specific) SCSI device name in FreeBSD can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
@@ -438,10 +482,10 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   // form /dev/ad* or ad*
   if (!strncmp(fbsd_dev_ata_disk_prefix, dev_name,
 	       strlen(fbsd_dev_ata_disk_prefix))) {
-    int  devnum = *(dev_name += strlen(fbsd_dev_ata_disk_prefix)) - '0';
     if (chan != NULL) {
-      chan->channel=devnum/2;	// 2 drives per channel
-      chan->device=devnum%2;	// so dividend = channel, remainder=device
+      if (get_ata_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
+	return GUESS_DEVTYPE_DONT_KNOW;
+      }
     }
     return GUESS_DEVTYPE_ATA;
   }

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.207 2003/10/12 19:21:57 arvoreen Exp $
+$Id: CHANGELOG,v 1.208 2003/10/13 02:28:15 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Fix first user found bug....I guess I was making the wrong assumption
+  	on how to convert ATA devnames to channel/unit numbers.
   
   [EM] Allow for option --enable-sample to append '.sample' to installed
 	smartd.conf and rc script files. Also, let rc script shell setting
