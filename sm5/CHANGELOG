@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.99 2003/03/08 15:37:13 ballen4705 Exp $
+$Id: CHANGELOG,v 1.100 2003/03/10 20:49:04 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,10 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA  smartd: Now send email if any of the SMART commands fails,
+       or if open()ing the device fails.  This is often noted
+       as a common disk failure mode.
 
   [BA] smartd/smartctl: Added -v N,raw8 -v N,raw16 and -v N,raw48
        Directives/Options for printing Raw Attributes in different

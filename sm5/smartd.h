@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.30 2003/03/06 07:27:18 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.31 2003/03/10 20:49:09 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -99,7 +99,7 @@ typedef struct configfile_s {
   // Disable (1) or Enable (2) autmatic offline testing
   char autoofflinetest;
   // mailing information for four of the previous error types plus mailtest
-  mailinfo maildata[5];
+  mailinfo maildata[10];
   // Frequency with which to send emails: 1 - once, 2 - daily, 3 - diminishing
   unsigned char emailfreq;
   // Should we send a test email

@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.112 2003/03/06 07:27:17 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.113 2003/03/10 20:49:07 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -122,7 +122,19 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   va_list ap;
   const int day=24*3600;
   int days=0;
-  char *whichfail[]={"emailtest","health","usage","selftest","errorcount"};
+  char *whichfail[]={
+    "emailtest", // 0
+    "health",    // 1
+    "usage",     // 2
+    "selftest",  // 3
+    "errorcount" // 4
+    "FAILEDhealthcheck",         //5
+    "FAILEDreadsmartdata",       //6
+    "FAILEDreadsmarterrorlog",   //7
+    "FAILEDreadsmartsefltestlog",//8
+    "FAILEDopendevice"           //9
+  };
+  
   char *address=cfg->address;
   char *executable=cfg->emailcmdline;
   mailinfo *mail=cfg->maildata+which;
@@ -136,7 +148,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
     printout(LOG_INFO,"internal error in printandmail(): cfg->emailfreq=%d\n",cfg->emailfreq);
     return;
   }
-  if (which<0 || which>4) {
+  if (which<0 || which>9) {
     printout(LOG_INFO,"internal error in printandmail(): which=%d\n",which);
     return;
   }
@@ -796,14 +808,18 @@ int ataCheckDevice(atadevices_t *drive){
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it
-  if ((fd=opendevice(name))<0)
+  if ((fd=opendevice(name))<0){
+    printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
     return 1;
-  
+  }
+
   // check smart status
   if (cfg->smartcheck){
     int status=ataSmartStatus2(fd);
-    if (status==-1)
+    if (status==-1){
       printout(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
+      printandmail(cfg, 5, LOG_CRIT, "Device: %s, not capable of SMART self-check", name);
+    }
     else if (status==1){
       printout(LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
       printandmail(cfg, 1, LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!", name);
@@ -816,8 +832,10 @@ int ataCheckDevice(atadevices_t *drive){
     struct ata_smart_thresholds *thresh=drive->smartthres;
     
     // Read current attribute values. *drive contains old values and thresholds
-    if (ataReadSmartValues(fd,&curval))
+    if (ataReadSmartValues(fd,&curval)){
       printout(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
+      printandmail(cfg, 6, LOG_CRIT, "Device: %s, failed to read SMART Attribute Data", name);
+    }
     else {  
       // look for failed usage attributes, or track usage or prefail attributes
       for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
@@ -898,14 +916,21 @@ int ataCheckDevice(atadevices_t *drive){
   if (cfg->selftest){
     unsigned char old=cfg->selflogcount;
     int new=selftesterrorcount(fd, name);
+    
+    // did command fail?
+    if (new<0)
+      printandmail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
+    
+    // hsa self-test error count increased?
     if (new>old){
       printout(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
 	       name, (int)old, new);
       printandmail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",
 		   name, (int)old, new);
     }
+
+    // Needed since self-test error count may  DECREASE
     if (new>=0)
-      // Needed suince self-test error count may  DECREASE
       cfg->selflogcount=new;
   }
 
@@ -914,16 +939,26 @@ int ataCheckDevice(atadevices_t *drive){
   if (cfg->errorlog){
     int old=cfg->ataerrorcount;
     int new=ataerrorcount(fd, name);
+
+    // did command fail?
+    if (new<0)
+      printandmail(cfg, 7, LOG_CRIT, "Device: %s, Read SMART Error Log Failed", name);
+  
+    // has error count increased?
     if (new>old){
       printout(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
 	       name, old, new);
       printandmail(cfg, 4, LOG_CRIT, "Device: %s, ATA error count increased from %d to %d",
 		   name, old, new);
     }
+    
     // this last line is probably not needed, count always increases
     if (new>=0)
       cfg->ataerrorcount=new;
   }
+  
+  // Don't leave device open -- the OS/user may want to access it
+  // before the next smartd cycle!
   closedevice(fd, name);
   return 0;
 }
@@ -936,40 +971,45 @@ int scsiCheckDevice(scsidevices_t *drive){
   UINT8 triptemp;
   int fd;
   cfgfile *cfg=drive->cfg;
+  char *name=drive->devicename;
 
   // If the user has asked for it, test the email warning system
   if (cfg->emailtest){
-    printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", drive->devicename);
+    printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", name);
   }
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it
-  if ((fd=opendevice(drive->devicename))<0)
+  if ((fd=opendevice(name))<0){
+    printandmail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
     return 1;
-
+  }
+  
   currenttemp = triptemp = 0;
   
-  if (scsiCheckSmart(fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp))
-    printout(LOG_INFO, "Device: %s, failed to read SMART values\n", drive->devicename);
-  
+  if (scsiCheckSmart(fd, drive->SmartPageSupported, &returnvalue, &currenttemp, &triptemp)){
+    printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
+    printandmail(cfg, 6, LOG_CRIT, "Device: %s, failed to read SMART values", name);
+  }
+
   if (returnvalue) {
-    printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", drive->devicename, 
+    printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", name, 
 	     (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
-    printandmail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: (%d) %s", drive->devicename, 
+    printandmail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: (%d) %s", name, 
 		 (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
   }
   else if (debugmode)
-    printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", drive->devicename, (int)returnvalue);  
+    printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", name, (int)returnvalue);  
   
   // Seems to completely ignore what capabilities were found on the
   // device when scanned
   if (currenttemp){
     if ((currenttemp != drive->Temperature) && (drive->Temperature))
       printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degrees since last reading\n", 
-	       drive->devicename, (int) (currenttemp - drive->Temperature), (int)currenttemp );
+	       name, (int) (currenttemp - drive->Temperature), (int)currenttemp );
     drive->Temperature = currenttemp;
   }
-  closedevice(fd, drive->devicename);
+  closedevice(fd, name);
   return 0;
 }
 
