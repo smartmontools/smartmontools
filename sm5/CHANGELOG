@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.260 2003/11/17 11:56:28 dpgilbert Exp $
+$Id: CHANGELOG,v 1.261 2003/11/17 17:31:32 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartctl: make SCSI -T options behave the same way as the
+       ATA ones.
 
   [DG] smartctl: output scsi transport protocol if available
 

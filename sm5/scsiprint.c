@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.62 2003/11/17 11:54:32 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.63 2003/11/17 17:31:32 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -68,33 +68,9 @@ static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
 /* Remember last successful mode sense/select command */
 static int modese_len = 0;
 
-
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
-static void failuretest(int type, int returnvalue)
-{
-    // If this is an error in an "optional" SMART command
-    if (type == OPTIONAL_CMD) {
-        if (con->conservative) {
-            pout("An optional SMART command has failed: exiting.\n"
-                 "To continue, set the tolerance level to something other "
-                 "than 'conservative'\n");
-            EXIT(returnvalue);
-        }
-        return;
-    }
-    // If this is an error in a "mandatory" SMART command
-    if (type==MANDATORY_CMD) {
-        if (con->permissive)
-            return;
-        pout("A mandatory SMART command has failed: exiting. To continue, "
-             "use the -T option to set the tolerance level to 'permissive'\n");
-        exit(returnvalue);
-    }
-    pout("Smartctl internal error in failuretest(type=%d). Please contact "
-         "%s\n",type,PROJECTHOME);
-    exit(returnvalue|FAILCMD);
-}
+extern void failuretest(int type, int returnvalue);
 
 static void scsiGetSupportedLogPages(int device)
 {
