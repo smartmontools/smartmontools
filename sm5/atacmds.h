@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.59 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.60 2004/01/13 16:53:06 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -46,7 +46,9 @@ typedef enum {
   READ_THRESHOLDS,
   READ_LOG,
   IDENTIFY,
-  PIDENTIFY
+  PIDENTIFY,
+  // returns 1 byte of data
+  CHECK_POWER_MODE
 #if DEVELOP_SELECTIVE_SELF_TEST
   // writes 512 bytes of data:
   , WRITE_LOG
@@ -57,6 +59,7 @@ typedef enum {
 #define ATA_IDENTIFY_DEVICE             0xec                                              
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
 #define ATA_SMART_CMD                   0xb0
+#define ATA_CHECK_POWER_MODE            0xe5
 
 // ATA Specification Feature Register Values (SMART Subcommands).
 // Note that some are obsolete as of ATA-7.
@@ -330,8 +333,11 @@ struct ata_selective_self_test_log {
 };
 #pragma pack()
 
-/* Read S.M.A.R.T information from drive */
+// Get information from drive
 int ataReadHDIdentity(int device, struct ata_identify_device *buf);
+int ataCheckPowerMode(int device);
+
+/* Read S.M.A.R.T information from drive */
 int ataReadSmartValues(int device,struct ata_smart_values *);
 int ataReadSmartThresholds(int device, struct ata_smart_thresholds *);
 int ataReadErrorLog(int device, struct ata_smart_errorlog *);

@@ -69,9 +69,9 @@
 #include "smartd.h"
 #include "utility.h"
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.42 2004/01/07 17:13:07 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.43 2004/01/13 16:53:06 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.42 2004/01/07 17:13:07 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.43 2004/01/13 16:53:06 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -288,37 +288,49 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
   const int HDIO_DRIVE_CMD_OFFSET = 4;
 
-  // See struct hd_drive_cmd_hdr in hdreg.h
+  // See struct hd_drive_cmd_hdr in hdreg.h.  Before calling ioctl()
   // buff[0]: ATA COMMAND CODE REGISTER
   // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
   // buff[2]: ATA FEATURES REGISTER
   // buff[3]: ATA SECTOR COUNT REGISTER
+
+  // Note that on return:
+  // buff[2] contains the ATA SECTOR COUNT REGISTER
   
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
   memset(buff, 0, STRANGE_BUFFER_LENGTH);
 
   buff[0]=ATA_SMART_CMD;
   switch (command){
+  case CHECK_POWER_MODE:
+    buff[0]=ATA_CHECK_POWER_MODE;
+    copydata=1;
+    break;
   case READ_VALUES:
     buff[2]=ATA_SMART_READ_VALUES;
-    copydata=buff[3]=1;
+    buff[3]=1;
+    copydata=512;
     break;
   case READ_THRESHOLDS:
     buff[2]=ATA_SMART_READ_THRESHOLDS;
-    copydata=buff[1]=buff[3]=1;
+    buff[1]=buff[3]=1;
+    copydata=512;
     break;
   case READ_LOG:
     buff[2]=ATA_SMART_READ_LOG_SECTOR;
     buff[1]=select;
-    copydata=buff[3]=1;
+    buff[3]=1;
+    copydata=512;
     break;
   case IDENTIFY:
     buff[0]=ATA_IDENTIFY_DEVICE;
-    copydata=buff[3]=1;
+    buff[3]=1;
+    copydata=512;
     break;
   case PIDENTIFY:
     buff[0]=ATA_IDENTIFY_PACKET_DEVICE;
-    copydata=buff[3]=1;
+    buff[3]=1;
+    copydata=512;
     break;
   case ENABLE:
     buff[2]=ATA_SMART_ENABLE;
@@ -432,9 +444,14 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
 
-  // if the command returns data, copy it back
+  // CHECK POWER MODE command returns information in the Sector Count
+  // register (buff[3]).  Copy to return data buffer.
+  if (command==CHECK_POWER_MODE)
+    buff[HDIO_DRIVE_CMD_OFFSET]=buff[2];
+
+  // if the command returns data then copy it back
   if (copydata)
-    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, 512);
+    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, copydata);
   
   return 0; 
 }
@@ -660,6 +677,12 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
   
   // Now set ATA registers depending upon command
   switch (command){
+  case CHECK_POWER_MODE:
+    passthru.command  = ATA_CHECK_POWER_MODE;
+    passthru.features    = 0;
+    passthru.cylinder_lo = 0;
+    passthru.cylinder_hi = 0;
+    break;
   case READ_VALUES:
     passthru.features = ATA_SMART_READ_VALUES;
     break;
@@ -673,7 +696,7 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     break;
   case IDENTIFY:
     // ATA IDENTIFY DEVICE
-    passthru.command     = 0xEc;
+    passthru.command     = ATA_IDENTIFY_DEVICE;
     passthru.features    = 0;
     passthru.cylinder_lo = 0;
     passthru.cylinder_hi = 0;
@@ -745,12 +768,9 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     memcpy(data, tw_output->output_data, 512);
   }
   
-  // We are finished with all commands except for STATUS_CHECK
-  if (command!=STATUS_CHECK) {
-    return 0;
-  }
-  else {
-
+  // For STATUS_CHECK, we need to check register values
+  if (command==STATUS_CHECK) {
+    
     // To find out if the SMART RETURN STATUS is good or failing, we
     // need to examine the values of the Cylinder Low and Cylinder
     // High Registers.
@@ -773,6 +793,15 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     errno=ENOSYS;
     return 0;
   }
+
+  // copy sector count register (one byte!) to return data
+  if (command==CHECK_POWER_MODE) {
+    TW_Output *tw_output=(TW_Output *)&ioctlbuf;
+    TW_Passthru *tw_passthru_returned=(TW_Passthru *)&(tw_output->output_data);
+    *data=*(char *)&(tw_passthru_returned->sector_count);
+  }
+  return 0;
+
 }
 
 // Utility function for printing warnings

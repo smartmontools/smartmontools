@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.28 2004/01/07 16:49:55 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.29 2004/01/13 16:53:06 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -253,6 +253,50 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
+.TP
+.B \-n POWERMODE
+ATA disks have five different power states. In order of increasing
+power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
+and \'ACTIVE\'.  Typically in the OFF, SLEEP, and STANDBY modes the
+disk\'s platters are not spinning. But usually, in response to SMART
+commands issued by \fBsmartd\fP, the disk platters are spun up.  So if
+this option is not used, then a disk which is in a low\-power mode may
+be spun up and put into a higher\-power mode when it is periodically
+polled by \fBsmartd\fP.
+
+Note that if the disk is in SLEEP mode when \fBsmartd\fP is started,
+then it won't respond to \fBsmartd\fP commands, and so it won't be
+registered as a device for \fBsmartd\fP to monitor. If a disk is in
+any other low\-power mode, then the commands issued by \fBsmartd\fP to
+register it will probably cause it to spin\-up.
+
+The \'\fB\-n\fP\' (nocheck) Directive specifies if \fBsmartd\fP\'s
+periodic checks should still be carried out when the device is in a
+low\-power mode.  It may be used to prevent a disk from being spun\-up
+by periodic \fBsmartd\fP polling.  The allowed values of POWERMODE
+are:
+
+.I never
+\- \fBsmartd\fP will poll (check) the device regardless of its power
+mode. This may cause a disk which is spun\-down to be spun\-up when
+\fBsmartd\fP checks it.  This is the default behavior if the '\-n'
+Directive is not given.
+
+.I sleep
+\- do not check the device if it is in SLEEP mode.
+
+.I standby
+\- do not check the device if it is in SLEEP or STANDBY mode.  In
+these modes most disks are not spinning, so if you want to prevent
+a laptop disk from spinning up each time that \fBsmartd\fP polls,
+this is probably what you want.
+
+.I idle
+\- do not check the device if it is in SLEEP, STANDBY or IDLE mode.
+In the IDLE state, most disks are still spinning, so this is probably
+not what you want.
+
+
 .TP
 .B \-T TYPE
 Specifies how tolerant
@@ -1060,4 +1104,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.28 2004/01/07 16:49:55 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.29 2004/01/13 16:53:06 ballen4705 Exp $

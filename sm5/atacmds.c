@@ -28,11 +28,13 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
+
 #include "atacmds.h"
+#include "config.h"
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.135 2004/01/02 16:05:24 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.136 2004/01/13 16:53:06 ballen4705 Exp $" ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -487,7 +489,9 @@ static char *commandstrings[]={
   "SMART READ ATTRIBUTE THRESHOLDS",
   "SMART READ LOG",
   "IDENTIFY DEVICE",
-  "IDENTIFY PACKET DEVICE"
+  "IDENTIFY PACKET DEVICE",
+  "CHECK POWER MODE",
+  "WARNING (UNDEFINED COMMAND -- CONTACT DEVELOPERS AT " PACKAGE_BUGREPORT ")\n"
 };
 
 void prettyprint(unsigned char *stuff, char *name){
@@ -513,7 +517,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
                 command==IDENTIFY || 
                 command==READ_LOG || 
                 command==READ_THRESHOLDS || 
-                command==READ_VALUES);
+                command==READ_VALUES ||
+		command==CHECK_POWER_MODE);
   
   // If reporting is enabled, say what the command will be before it's executed
   if (con->reportataioctl){
@@ -538,8 +543,12 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   // The reporting is cleaner, and we will find coding bugs faster, if
   // the commands that failed clearly return empty (zeroed) data
   // structures
-  if (getsdata)
-    memset(data, '\0', 512);
+  if (getsdata) {
+    if (command==CHECK_POWER_MODE)
+      data[0]=0;
+    else
+      memset(data, '\0', 512);
+  }
 
   // In case the command produces an error, we'll want to know what it is:
   errno=0;
@@ -560,8 +569,12 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
            device, commandstrings[command], retval);
     
     // if requested, pretty-print the output data structure
-    if (con->reportataioctl>1 && getsdata)
-      prettyprint((unsigned char *)data, commandstrings[command]);
+    if (con->reportataioctl>1 && getsdata) {
+      if (command==CHECK_POWER_MODE)
+	pout("Sector Count Register (BASE-16): %02x\n", *data);
+      else
+	prettyprint((unsigned char *)data, commandstrings[command]);
+    }
   }
   return retval;
 }
@@ -579,6 +592,27 @@ unsigned char checksum(unsigned char *buffer){
 
   return sum;
 }
+
+// returns -1 if command fails or the device is in Sleep mode, else
+// value of Sector Count register.  Sector Count result values:
+//   00h device is in Standby mode. 
+//   80h device is in Idle mode.
+//   FFh device is in Active mode or Idle mode.
+
+int ataCheckPowerMode(int device) {
+  unsigned char result;
+
+  if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, &result)))
+    return -1;
+
+  if (result!=0 && result!=0x80 && result!=0xff)
+    pout("ataCheckPowerMode(): ATA CHECK POWER MODE returned unknown Sector Count Register value %02x\n", result);
+
+  return (int)result;
+}
+
+
+
 
 // Reads current Device Identity info (512 bytes) into buf.  Returns 0
 // if all OK.  Returns -1 if no ATA Device identity can be
