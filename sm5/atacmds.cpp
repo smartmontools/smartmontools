@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.28 2002/10/26 19:33:39 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.29 2002/10/26 19:59:01 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -132,7 +132,7 @@ void checksumwarning(const char *string){
 // state information, and for example the checksum is usually
 // wrong. The replacement function follows afterwards
 #if (0)
-int ataReadHDIdentity ( int device, struct hd_driveid *buf){
+int ataReadHDIdentity (int device, struct hd_driveid *buf){
   if (ioctl(device, HDIO_GET_IDENTITY, buf)){ 
     perror ("ATA GET HD Failed");
     return -1;
@@ -199,17 +199,17 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 // describing which revision.  Note that Revision 0 of ATA-3 does NOT
 // support SMART.  For this one case we return -3 rather than +3 as
 // the version number.  See notes above.
-int ataVersionInfo (const char** description, struct hd_driveid drive){
-  unsigned short major,minor;
+int ataVersionInfo (const char** description, struct hd_driveid drive, unsigned short *minor){
+  unsigned short major;
   int i;
   
   // get major and minor ATA revision numbers
 #ifdef __NEW_HD_DRIVE_ID
   major=drive.major_rev_num;
-  minor=drive.minor_rev_num;
+  *minor=drive.minor_rev_num;
 #else
   major=drive.word80;
-  minor=drive.word81;
+  *minor=drive.word81;
 #endif
   
   // First check if device has ANY ATA version information in it
@@ -219,10 +219,10 @@ int ataVersionInfo (const char** description, struct hd_driveid drive){
   }
   
   // The minor revision number has more information - try there first
-  if (minor && (minor<=MINOR_MAX)){
-    int std = actual_ver[minor];
+  if (*minor && (*minor<=MINOR_MAX)){
+    int std = actual_ver[*minor];
     if (std) {
-      *description=minor_str[minor];
+      *description=minor_str[*minor];
       return std;
     }
   }
@@ -530,7 +530,7 @@ int ataSmartStatus2(int device){
 // Should be fixed by putting in a call to code 
 // that compares smart data to thresholds.
 int ataSmartStatus2(int device){
-    return ataSmartStatus(device)
+  return ataSmartStatus(device);
 }
 #endif
 

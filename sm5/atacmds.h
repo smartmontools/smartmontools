@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.19 2002/10/26 19:33:39 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.20 2002/10/26 19:59:01 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -314,7 +314,7 @@ int ataSmartSelfTestAbort (int device);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
-int ataVersionInfo (const char **description, struct hd_driveid drive);
+int ataVersionInfo (const char **description, struct hd_driveid drive, unsigned short *minor);
 
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.

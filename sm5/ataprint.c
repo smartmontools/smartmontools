@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.33 2002/10/24 09:54:02 ballen4705 Exp $"
+const char *CVSid4="$Id: ataprint.c,v 1.34 2002/10/26 19:59:01 ballen4705 Exp $"
 CVSID2 CVSID3 CVSID6;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -63,6 +63,7 @@ void ataPrintDriveInfo (struct hd_driveid drive){
   int version;
   const char *description;
   char unknown[64];
+  unsigned short minorrev;
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
@@ -75,11 +76,11 @@ void ataPrintDriveInfo (struct hd_driveid drive){
   printswap(drive.fw_rev,8);
 
   // now get ATA version info
-  version=ataVersionInfo(&description,drive);
+  version=ataVersionInfo(&description,drive, &minorrev);
 
   // unrecognized minor revision code
   if (!description){
-    sprintf(unknown,"Unrecognized. Minor revision code: 0x%02x",drive.minor_rev_num);
+    sprintf(unknown,"Unrecognized. Minor revision code: 0x%02x",minorrev);
     description=unknown;
   }
   
@@ -104,67 +105,59 @@ void ataPrintDriveInfo (struct hd_driveid drive){
 
 /* void PrintSmartOfflineStatus ( struct ata_smart_values data) 
    prints verbose value Off-line data collection status byte */
-
-void PrintSmartOfflineStatus ( struct ata_smart_values data)
-{
-   pout ("Off-line data collection status: ");	
-   
-   switch (data.offline_data_collection_status){
-   case 0x00:
-   case 0x80:
-     pout ("(0x%02x)\tOffline data collection activity was\n\t\t\t\t\t",
-	     data.offline_data_collection_status);
-     pout("never started.\n");
-     break;
-   case 0x01:
-   case 0x81:
-     pout ("(0x%02x)\tReserved.\n",
-	     data.offline_data_collection_status);
-     break;
-   case 0x02:
-   case 0x82:
-     pout ("(0x%02x)\tOffline data collection activity \n\t\t\t\t\t",
-	     data.offline_data_collection_status);
-     pout ("completed without error.\n");
-     break;
-   case 0x03:
-   case 0x83:
-     pout ("(0x%02x)\tReserved.\n",
-	     data.offline_data_collection_status);
-     break;
-   case 0x04:
-   case 0x84:
-     pout ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	     data.offline_data_collection_status);
-     pout ("suspended by an interrupting command from host.\n");
-     break;
-   case 0x05:
-   case 0x85:
-     pout ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	     data.offline_data_collection_status);
-     pout ("aborted by an interrupting command from host.\n");
-     break;
-   case 0x06:
-   case 0x86:
-     pout ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	     data.offline_data_collection_status);
-     pout ("aborted by the device with a fatal error.\n");
-     break;
-   default:
-     if ( ((data.offline_data_collection_status >= 0x07) &&
-	   (data.offline_data_collection_status <= 0x3f)) ||
-	  ((data.offline_data_collection_status >= 0xc0) &&
-	   (data.offline_data_collection_status <= 0xff)) )
-       {
-	 pout ("(0x%02x)\tVendor Specific.\n",
-		 data.offline_data_collection_status);
-       } 
-     else 
-       {
-	 pout ("(0x%02x)\tReserved.\n",
-		 data.offline_data_collection_status);
-       }
-   }
+void PrintSmartOfflineStatus(struct ata_smart_values data){
+  pout("Off-line data collection status: ");	
+  
+  switch(data.offline_data_collection_status){
+  case 0x00:
+  case 0x80:
+    pout("(0x%02x)\tOffline data collection activity was\n\t\t\t\t\t",
+	 data.offline_data_collection_status);
+    pout("never started.\n");
+    break;
+  case 0x01:
+  case 0x81:
+    pout("(0x%02x)\tReserved.\n",
+	 data.offline_data_collection_status);
+    break;
+  case 0x02:
+  case 0x82:
+    pout("(0x%02x)\tOffline data collection activity \n\t\t\t\t\t",
+	 data.offline_data_collection_status);
+    pout("completed without error.\n");
+    break;
+  case 0x03:
+  case 0x83:
+    pout("(0x%02x)\tReserved.\n",
+	 data.offline_data_collection_status);
+    break;
+  case 0x04:
+  case 0x84:
+    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	 data.offline_data_collection_status);
+    pout("suspended by an interrupting command from host.\n");
+    break;
+  case 0x05:
+  case 0x85:
+    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	 data.offline_data_collection_status);
+    pout("aborted by an interrupting command from host.\n");
+    break;
+  case 0x06:
+  case 0x86:
+    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	 data.offline_data_collection_status);
+    pout("aborted by the device with a fatal error.\n");
+    break;
+  default:
+    if ( ((data.offline_data_collection_status >= 0x07) &&
+	  (data.offline_data_collection_status <= 0x3f)) ||
+	 ((data.offline_data_collection_status >= 0xc0) &&
+	  (data.offline_data_collection_status <= 0xff)) )
+      pout("(0x%02x)\tVendor Specific.\n",data.offline_data_collection_status);
+    else
+      pout("(0x%02x)\tReserved.\n",data.offline_data_collection_status);
+  }
 }
 
 
@@ -237,11 +230,10 @@ void PrintSmartSelfExecStatus ( struct ata_smart_values data)
 
 
 
-void PrintSmartTotalTimeCompleteOffline ( struct ata_smart_values data)
-{
-   pout ("Total time to complete off-line \n");
-   pout ("data collection: \t\t (%4d) seconds.\n", 
-           data.total_time_to_complete_off_line);
+void PrintSmartTotalTimeCompleteOffline ( struct ata_smart_values data){
+  pout("Total time to complete off-line \n");
+  pout("data collection: \t\t (%4d) seconds.\n", 
+       data.total_time_to_complete_off_line);
 }
 
 
