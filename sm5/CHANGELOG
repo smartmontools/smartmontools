@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.447 2004/08/16 22:44:15 ballen4705 Exp $
+$Id: CHANGELOG,v 1.448 2004/08/17 18:16:59 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Fixed nasty DEVICESCAN bug
 
   [BA] Additional modifications of Ed's controller scheme.  Fixed
        broken 3ware support under linux, problems with scanning
