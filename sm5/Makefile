@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.52 2003/02/12 20:07:10 ballen4705 Exp $
+# $Id: Makefile,v 1.53 2003/02/12 20:36:20 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -151,6 +151,7 @@ release: smartd.conf.5
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)
+	rm -rf $(pkgname)/examplescripts/CVS
 	tar zcvf $(pkgname).tar.gz $(pkgname)
 	mv -f $(pkgname) $(pkgname2)
 	tar zcvf $(pkgname2).tar.gz $(pkgname2)
