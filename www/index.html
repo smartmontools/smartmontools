@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/07/22 19:30:31 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/08/03 08:12:06 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.166 2004/07/22 19:30:31 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.167 2004/08/03 08:12:06 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -537,8 +537,11 @@ system doesn't have most of these devices.</p>
 
 <p>Apparently some of the older SMART firmware on IBM disks can 
 interfere with the regular operation of the disk.&#160; If you have this
-problem, here is an <a href="http://www.geocities.com/dtla_update/">IBM
-DISK FIRMWARE UPGRADE</a> that fixes the problem.
+problem, here are some links:<br/>
+<a href="http://www.geocities.com/dtla_update/">Geocities Site</a>,
+<a href="http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215">IBM Site #1</a>,
+<a href="http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215">IBM Site #2</a><br/>
+to an IBM Firmware Upgrade that fixes the problem.
 </p></li>
 
 <li><b>How can I check that the package hasn't been tampered with?</b>
@@ -620,6 +623,17 @@ version 2.4.23-bk2 on 3 December 2003.  It was officially released on
 the 3ware web site on December 19, 2003 as part of their
 driver/firmware/utility package version 7.7.0.
 </p>
+
+<p>
+Note (added 29 July 2004): starting with smartmontools (experimental)
+release 5.33, one can also access SMART data from drives behind 3ware
+controllers using the (character) devices /dev/twe0-15.  This should
+work correctly even with older versions of the 3w-xxxx driver. One can
+also access SMART data from drives behind 3ware 9000-series
+controllers (3w-9xxx driver) using the (character) devices
+/dev/twa0-15.
+</p>
+
 </li>
 
 <li><a name="windows"></a><b>Does it work on Windows?</b>
@@ -683,25 +697,28 @@ numbered as follows:<br/>
 </p>
 
 <p>
+<b>
  If your drive is not in the database, pleaes check <a
  href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>
  to be sure that you are using the latest smartmontools release.  Each
- new release has additional drives added to the database.
+ new release has additional drives added to the database.  Please do
+ not submit a new drive for the database without checking to see if it
+ is already in the database of the current smartmontools release
+ version.
+</b>
 </p>
 
 <p>
- If your drive is not in the database of the current release,
+<b> If your drive is not in the database of the current release,</b>
  to have it added to the database, first use the command:<br/>
- <tt>smartctl -t short /dev/hd?</tt><br/> 
- to run a short self-test on
+ <tt>smartctl -t short /dev/hd?</tt><br/> to run a short self-test on
  the drive, and wait a few minutes for the test to complete.  Then
- email the output from:<br/>
-<tt>smartctl -a /dev/hd?</tt><br/>
+ email the entire output from:<br/> <tt>smartctl -a /dev/hd?</tt><br/>
  to <a
  href="https://lists.sourceforge.net/lists/listinfo/smartmontools-database">smartmontools-database</a>
- as a plain-text email attachment (file type: ".txt").  The timestamp in the self-test log will help
- us to determine whether Attribute 9 is being used to store the
- lifetime in hours, minutes, or seconds.
+ as a plain-text email attachment (file type: ".txt").  The timestamp
+ in the self-test log will help us to determine whether Attribute 9 is
+ being used to store the lifetime in hours, minutes, or seconds.
 </p>
 <p>
 If you need to use any of the vendor-specific display options
@@ -772,10 +789,10 @@ unreadable sector with a spare good sector, but only at the price of
 losing the 512 bytes of data forever.
 </p>
 <p>
-Disks with uncorrectable can often be repaired by using the disk
-manufaturer's 'disk evaluation and repair' utility (see previous FAQ
-entry).  Beware: this may force reallocation of the lost sector and
-thus corrupt or destroy any file system on the disk. See <a
+Disks with uncorrectable sectors can often be repaired by using the
+disk manufaturer's 'disk evaluation and repair' utility (see previous
+FAQ entry).  Beware: this may force reallocation of the lost sector
+and thus corrupt or destroy any file system on the disk. See <a
 href="http://smartmontools.sourceforge.net/BadBlockHowTo.txt">BadBlockHowTo</a>
 for generic Linux instructions.
 </p>
@@ -952,13 +969,25 @@ can be found <a href="http://sourceforge.net/projects/smartsuite/">here</a>.</p>
 SMART and the  ATA/ATAPI standards</big></b>
 
 <p><big>If you are having trouble understanding the output of smartctl
-or smartd, please first read the manual pages:</big></p>
+or smartd, please first read the manual pages installed on your
+system:</big></p>
 
 <pre>
-man 5 smartd.conf
 man 8 smartctl
 man 8 smartd
+man 5 smartd.conf
 </pre>
+
+<p>
+Here are on-line versions of the smartmontools man pages:<br/> <a
+href="man/smartctl.8.html">smartctl manual page</a><br/> <a
+href="man/smartd.8.html">smartd manual page</a><br/> <a
+href="man/smartd.conf.5.html">smartd.conf manual page</a><br/> Note
+that these are the manual pages for the <b><i>current version</i></b>
+of smartmontools in the developers CVS repository; they might not
+correspond to the (possibly older) version of smartmontools installed
+on <i>your</i> system.  So the manual pages installed on your system
+should be regarded as definitive for your installation.</p>
 
 <p><big>If you'd like to know more about SMART, then the following
 references may be helpful:</big></p>
@@ -969,11 +998,11 @@ references may be helpful:</big></p>
 Revision 1 specification</a> (start with Section 8.41)</li>
  <li>The <a href="http://www.t13.org/docs2002/d1410r3b.pdf"> ATAPI/ATA-6
 Revision 3b specification</a></li>
- <li>The  ATAPI/ATA-7
-specification (Draft 2a) <a href="http://www.t13.org/docs2003/d1532v1r2a.pdf">Volume 1</a>,
-  <a href="http://www.t13.org/docs2003/d1532v2r2a.pdf">Volume 2</a>,
-  <a href="http://www.t13.org/docs2003/d1532v3r2a.pdf">Volume 3</a></li>
- <li><a href="http://www.t13.org/#FTP_site">Earlier revisions
+ <li>The  ATAPI/ATA-7 specification (Draft 4b) 
+  <a href="http://www.t13.org/docs2004/d1532v1r4b%20ATA-ATAPI-7.pdf">Volume 1 (has SMART documentation)</a>,
+  <a href="http://www.t13.org/docs2004/d1532v2r4b%20ATA-ATAPI-7.pdf">Volume 2</a>,
+  <a href="http://www.t13.org/docs2004/d1532v3r4b%20ATA-ATAPI-7.pdf">Volume 3</a></li>
+ <li><a href="http://www.t13.org/#FTP_site">Other revisions
 of the ATAPI/ATA Specs</a></li>
 <li>SCSI References:
 <ul>
@@ -1059,8 +1088,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/07/22 19:30:31 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.166 2004/07/22 19:30:31 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2004/08/03 08:12:06 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.167 2004/08/03 08:12:06 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
