@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.181 2003/08/19 09:25:31 ballen4705 Exp $
+$Id: CHANGELOG,v 1.182 2003/08/22 04:43:51 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.1-18
+
+  [BA] smartd: fixed serious bug - Attributes not monitored unless
+       user told smartd to ignore at least one of them!
 
 smartmontools 5.1-17
 
