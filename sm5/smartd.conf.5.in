@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.23 2003/12/21 13:53:05 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.24 2003/12/29 13:19:26 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -104,10 +104,12 @@ Section below!
 .B # behind a 3ware controller.
 .B #
 .nf
-.B # First ATA disk on each of two interfaces:
+.B # First ATA disk on each of two interfaces. On
+.B # the second disk, do a long self-test every
+.B # Sunday at 3am.
 .B #
 .B \ \ /dev/hda -a -m admin@example.com,root@localhost 
-.B \ \ /dev/hdc -a -I 194 -I 5 -i 12
+.B \ \ /dev/hdc -a -I 194 -I 5 -i 12 -s L/../../7/03
 .B #
 .nf
 .B # SCSI disks.  Send a TEST warning email to admin on
@@ -117,16 +119,16 @@ Section below!
 .B \ \ /dev/sdc -m admin@example.com -M test
 .B #
 .nf
-.B # Strange device.  It\'s SCSI:
-.B #
-.B \ \ /dev/weird -d scsi
+.B # Strange device.  It\'s SCSI. Do a scheduled
+.B # long self test at 5am Monday/Thursday
+.B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Three ATA disks connected to a 3ware controller
-.B #
-.B \ \ /dev/sdb -d 3ware,0 -a
-.B \ \ /dev/sdb -d 3ware,1 -a
-.B \ \ /dev/sdb -d 3ware,2 -a
+.B # Three ATA disks connected to a 3ware controller.
+.B # Do short self-tests daily at midnight, 1 and 2 am
+.B \ \ /dev/sdb -d 3ware,0 -a -s S/../.././00
+.B \ \ /dev/sdb -d 3ware,1 -a -s S/../.././01
+.B \ \ /dev/sdb -d 3ware,2 -a -s S/../.././02
 .B #
 .nf
 .B # The following line enables monitoring of the 
@@ -451,7 +453,11 @@ was started.  If you wish to specify an explicit path to the mail
 executable (for example /usr/local/bin/mail) or a custom script to
 run, please use the \'\-M exec\' Directive below.
 
-Note that there is a special argument
+Note that bu default under Solaris, in the previous paragraph,
+\'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
+\'/bin/mail\' does not accept a \'\-s\' argument.
+
+Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
 exec\' Directive. Please see below for an explanation of its effect.
@@ -525,7 +531,7 @@ are:
 .nf
 .fi
 .B SMARTD_MAILER
-is set to the argument of -M exec, if present or else to \'mail\'
+is set to the argument of \-M exec, if present or else to \'mail\'
 (examples: /bin/mail, mail).
 .nf
 .fi
@@ -1038,4 +1044,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.23 2003/12/21 13:53:05 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.24 2003/12/29 13:19:26 ballen4705 Exp $

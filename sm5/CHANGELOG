@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.301 2003/12/22 05:01:32 dpgilbert Exp $
+$Id: CHANGELOG,v 1.302 2003/12/29 13:19:25 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: under Solaris, made default mailer be 'mailx' not
+       'mail', since Solaris 'mail' does not accept a '-s' argument.
+       A workaround for Solaris users of earlier versions is to
+       have '-M exec /bin/mailx' in their smartd.conf config file.
 
   [DG] some SCSI controllers don't like odd length transfers so make
        sure LOG SENSE transfers are rounded up to an even number when
