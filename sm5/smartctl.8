@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.37 2003/01/04 11:01:23 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.38 2003/01/04 11:32:14 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/04 11:01:23 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/01/04 11:32:14 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -432,10 +432,11 @@ displayed in the form 'X h + Y m', where X is hours and Y is minutes.
 .B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
 .TP
 .B \-t TEST, \-\-test=TEST
-Executes TEST immediately.  The '\-C' option can be used in conjunction
-with this option to run the short or long self-tests in captive mode.
-Note that only one test can be run at a time, so this option should only
-be used once per command line.
+Executes TEST immediately.  The '\-C' option can be used in
+conjunction with this option to run the short or long self-tests in
+captive mode (known as 'foreground mode' for SCSI devices).  Note that
+only one test can be run at a time, so this option should only be used
+once per command line.
 
 The valid arguments to this option are:  
 
@@ -460,6 +461,8 @@ progress of the test with '\-c', as it will abort the test.
 
 .I short
 \- runs S.M.A.R.T. Short Self Test (usually under ten minutes).
+[Note: in the case of SCSI devices,
+this command option runs the 'Background short' self-test.]
 This command can be given during normal system operation (unless run in
 captive mode \- see the '\-C' option below).  This is a
 test in a different category than the immediate or automatic offline
@@ -467,11 +470,14 @@ tests.  The 'Self' tests check the electrical and mechanical
 performance as well as the read performance of the disk.  Their
 results are reported in the Self Test Error Log, readable with
 the '\-l selftest' option.  Note that on some disks the progress of the
-test can be monitored by watching this log during the test; with other disks
+self-test can be monitored by watching this log during the self-test; with other disks
 use the '\-c' option to monitor progress.
 
 .I long
-\- runs S.M.A.R.T. Extended Self Test (tens of minutes).  This is a
+\- runs S.M.A.R.T. Extended Self Test (tens of minutes).
+[Note: in the case of SCSI devices,
+this command option runs the 'Background long' self-test.]
+This is a
 longer and more thorough version of the Short Self Test described
 above.  Note that this command can be given during normal
 system operation (unless run in captive mode \- see the '\-C' option below).
@@ -479,7 +485,8 @@ system operation (unless run in captive mode \- see the '\-C' option below).
 .TP
 .B \-C, \-\-captive
 With '\-t short' or '\-t long', runs the self-test in captive mode.  This has
-no effect with '\-t offline' or if the '\-t' option is not used.
+no effect with '\-t offline' or if the '\-t' option is not used. [Note: in the case
+of SCSI devices, this command option runs the self-test in 'Foreground' mode.]
 
 .B WARNING: Tests run in captive mode may busy out the drive for the length
 .B of the test.  Only run captive tests on drives without any mounted partitions!
@@ -666,4 +673,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.37 2003/01/04 11:01:23 ballen4705 Exp $
+$Id: smartctl.8,v 1.38 2003/01/04 11:32:14 ballen4705 Exp $
