@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.328 2004/02/04 14:21:50 ballen4705 Exp $
+$Id: CHANGELOG,v 1.329 2004/02/04 21:41:13 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Hitachi Travelstar DK23DA series, Maxtor DiamondMax Plus 40
+       series, Western Digital Caviar WDxxxAA, WDxxxBA, and WDxxxAB series
+       to knowndrives table
 
   [BA] missing 'pragma pack' on ATA IDENIFY DEVICE structure may have
        caused odd or incorrect results on 64-bit machines.

@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.83 2004/01/31 17:12:29 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.84 2004/02/04 21:41:13 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -359,6 +359,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { // Maxtor DiamondMax Plus 40 series
+    "^Maxtor (54098H8|53073H6|52732H6|52049H4|51536H3|51369H3|51024H2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { // Maxtor DiamondMax Plus 60 family
     "^Maxtor 5T0(60H6|40H4|30H3|20H2|10H1)$",
     ".*",
@@ -401,8 +408,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // HITACHI Travelstar DK23EA series
-    "^HITACHI_DK23EA-",
+  { // HITACHI Travelstar DK23DA and DK23EA series
+    "^HITACHI_DK23[DE]A-",
     ".*",
     NULL,
     vendoropts_Hitachi_DK23EA,
@@ -504,6 +511,30 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { // Western Digital Caviar WDxxxAB series
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD(3|4|6)00AB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Caviar WDxxxAA series
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD(64|84|102|136|205|307)AA$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Western Digital Caviar WDxxxBA series
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD(102|136|153|205)BA$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { // Western Digital Caviar SE family
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
@@ -519,14 +550,6 @@ const drivesettings knowndrives[] = {
   },
   { // Western Digital Caviar AC23200L
     "^WDC AC23200L$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { // Western Digital Caviar WD136AA
-  /* Western Digital drives with this comment all appear to use Attribute 9 in
-   * a  non-standard manner.  These entries may need to be updated when it
-   * is understood exactly how Attribute 9 should be interpreted. */
-    "^WDC WD136AA$",
     ".*",
     NULL, NULL, NULL, NULL
   },
