@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.169 2003/06/12 14:28:37 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.170 2003/06/13 18:01:17 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -674,7 +674,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
       if ((cfg->autoofflinetest==1)?ataDisableAutoOffline(fd):ataEnableAutoOffline(fd))
 	printout(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", device, what);
       else
-	printout(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing .\n", device, what);
+	printout(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", device, what);
     }
   }
   
