@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.31 2003/01/01 08:21:00 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.32 2003/01/03 06:19:55 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/01 08:21:00 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2003/01/03 06:19:55 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -37,7 +37,8 @@ is a command line utility designed to perform S.M.A.R.T. tasks such as
 printing the S.M.A.R.T. self-test and error logs, and enabling and
 disabling S.M.A.R.T. automatic testing. Note: if the user issues a
 S.M.A.R.T. command that is (apparently) not implemented by the device,
-we print a warning message but issue the command anyway.  This should
+.B smartctl
+will print a warning message but issue the command anyway.  This should
 not cause problems: unimplemented S.M.A.R.T. commands issued to a
 drive are ignored and return an error.
 
@@ -45,7 +46,7 @@ drive are ignored and return an error.
 also provides limited TapeAlerts support for some SCSI tape drives and
 changers.
 
-The user must specify the device to be controlled or interrogated as an
+The user must specify the device to be controlled or interrogated as the final
 argument to
 .B smartctl.
 ATA devices use the form "/dev/hd*" and SCSI devices use the form "/dev/sd*".
@@ -55,14 +56,22 @@ For SCSI Tape Drives and Changers with TapeAlerts support use the devices
 will attempt to guess the device type, but the '\-d' option can be used to
 specify a device type of ATA or SCSI if required.
 
+Note that the printed output of
+.B smartctl
+displays most numerical values in base 10 (decimal), but some values
+are displayed in base 16 (hexidecimal).  To distinguish them, the base
+16 values are always displayed with a leading
+.B "0x"
+for example: "0xff". This convention is also followed in this man
+page.
 
 .PP
 .SH OPTIONS
 .PP
 The options are grouped below into several categories.
 .B smartctl
-will execute these in the order: INFORMATION, ENABLE/DISABLE, DISPLAY
-DATA, RUN/ABORT TESTS.
+will execute the corresponding commands in the order: INFORMATION,
+ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 
 SCSI devices only accept the options 
 .B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C
@@ -74,7 +83,7 @@ and
 .B \-H.
 
 Long options  are  not  supported  on  all  systems.   Use
-.B 'smartd \-h'
+.B 'smartctl \-h'
 to see the available options.
 
 .TP
@@ -308,35 +317,52 @@ by this option.
 Prints only the vendor specific S.M.A.R.T. attributes.  The
 attributes are numbered from 1 to 253 and have specific names. For
 example attribute 12 is 'power cycle count': how many times has the
-disk been powered up.  Each attribute has a 'Raw' value, printed under
-the heading 'Raw Value', and a 'Normalized' value printed under the
-heading 'Value'.  [Note: 
+disk been powered up.
+
+Each attribute has a 'Raw' value, printed under the heading 'RAW_VALUE',
+and a 'Normalized' value printed under the heading 'VALUE'.  [Note:
 .B smartctl
 prints these values in base-10.]
-Each vendor uses their own magic to convert the Raw
-value to a Normalized value.  If the Normalized value is
-.B less than or equal to
-the value given under the 'Threshold' column, then disk failure
-is imminent.  The column labeled 'Worst' shows the lowest (closest to
-failure) value that the disk has recorded at any time during its
-lifetime when S.M.A.R.T.  was enabled.
+In the example just given, the 'Raw Value' for attribute 12 would be the actual
+number of times that the disk has been power-cycled, for example 365 if the disk
+has been turned on once per day for exactly one year.
+Each vendor uses their own magic to convert this Raw
+value to a Normalized value in the range from 1 to 254.
 
-Note that the conversion from 'Raw' value to physical units is not
-specified by the S.M.A.R.T. standard. In most cases, the values printed by
+Note that the conversion from 'Raw' value to a quantity with physical
+units is not specified by the S.M.A.R.T. standard. In most cases, the
+values printed by
 .B smartctl
-are sensible.  However in some cases a vendor uses unusual
-conventions.  For example the Hitachi disk on my laptop reports its
-power-on hours in minutes, not hours. Some IBM disks track three
-temperatures rather than one, in their raw values.  And so on.
+are sensible.  For example the temperature attribute generally has its
+raw value equal to the temperature in Celsius.  However in some cases
+vendors use unusual conventions.  For example the Hitachi disk on my
+laptop reports its power-on hours in minutes, not hours. Some IBM
+disks track three temperatures rather than one, in their raw values.
+And so on.
 
-The table printed out by this option also shows the 'Type' of the
-attribute.  Pre-failure attributes are ones which, if less than or
-equal to their threshold values, indicate pending disk failure.  Old
-age, or usage attributes, are ones which indicate end-of-product life
-from old-age or normal aging and wearout, if the attribute value is
-less than or equal to the threshold.
+Each attribute also has a Threshold value (whose range is 0 to 255)
+which is printed under the heading 'THRESH'.  If the Normalized value
+is
+.B less than or equal to
+the Threshold value, then disk failure
+is imminent.
 
-If the attribute's current value is <= threshold, then the 'Ever
+Each attribute also has a 'Worst' value shown under the heading 'WORST'.
+This is the smallest (closest to failure) value that the
+disk has recorded at any time during its lifetime when S.M.A.R.T.  was
+enabled.  [Note however that some vendors will have firmware which will
+.B increase
+the 'Worst' value for some "rate-type" attributes.]
+
+The attribute table printed out by 
+.B smartctl
+also shows the 'Type' of the attribute.  Pre-failure attributes are
+ones which, if less than or equal to their threshold values, indicate
+pending disk failure.  Old age, or usage attributes, are ones which
+indicate end-of-product life from old-age or normal aging and wearout,
+if the attribute value is less than or equal to the threshold.
+
+If the attribute's current Normalized value is <= threshold, then the 'Ever
 failed' column will display 'FAILED NOW!'.  If not, but the worst
 recorded value is <= threshold, then this column will display 'In the
 past'.
@@ -344,7 +370,7 @@ past'.
 Note that starting with ATA/ATAPI-4, revision 4, the meaning of these
 attribute fields has been made entirely vendor-specific.  However most
 ATA/ATAPI-5 disks seem to respect their meaning, so we have retained
-this option.
+the option of printing the attribute values.
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the S.M.A.R.T. error log or the S.M.A.R.T. self-test log.  The
@@ -381,7 +407,8 @@ one valid argument to this option:
 
 .I 9,minutes
 \- the disk stores Raw Attribute number 9 (power on time) in
-minutes rather than hours, so divide by 60 before displaying it.
+minutes rather than hours, so display it in the form 'X h + Y m',
+where X is hours and Y is minutes.
 
 .TP
 .B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
@@ -437,7 +464,7 @@ With '\-t short' or '\-t long', runs the self-test in captive mode.  This has
 no effect with '\-t offline' or if the '\-t' option is not used.
 
 .B WARNING: Tests run in captive mode may busy out the drive for the length
-.B of the test.  Only run this on drives without any mounted partitions.
+.B of the test.  Only run captive tests on drives without any mounted partitions!
 
 .TP
 .B \-X, \-\-abort
@@ -621,4 +648,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.31 2003/01/01 08:21:00 ballen4705 Exp $
+$Id: smartctl.8,v 1.32 2003/01/03 06:19:55 ballen4705 Exp $
