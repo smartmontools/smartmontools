@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.44 2003/12/01 06:18:37 ballen4705 Exp $
+$Id: TODO,v 1.45 2003/12/07 05:33:42 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -18,6 +18,22 @@ devices fail to comply with SCSI specifications for their packet
 command sets.  Work on improving the detection and bail-out procedures
 for these flawed devices, so that the user sees an informative error
 message and smartd/smartctl don't hang.
+
+ATA-4 (no kidding!)
+-------------------
+smartctl: add another -t TESTTYPE option to accomodate old-style ATA-4
+IBM disks (ATA-4 has no self-test commands). See IBM S25L-2426-02 OEM
+HARD DISK DRIVE SPECIFICATIONS for DBCA-203240/204860/206480 2.5-Inch
+Hard Disk Drive with ATA Interface Revision (1.0)
+http://www.hgst.com/tech/techlib.nsf/techdocs/85256AB8006A31E587256A7D00642A1D/$file/dbca_sp.pdf
+section 12.30.1.5 for details.  These disks offer no self-test option,
+and the -t offline command only tests a small part of the disk (a
+'segment').  We need a -t multioffline that:
+ (1) issues auto offline immediate command (tests ONE segment)
+ (2) waits until estimated completion time
+ (3) tests if off-line data collection status is set to 0x02 (all
+     segments completed)
+ (4) if not, return to (1)
 
 ATA-6/7
 -------
