@@ -50,11 +50,13 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.187 2003/08/11 14:21:52 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.188 2003/08/11 20:43:05 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
-// Forward declaration
+// Forward declarations
 const char *getvalidarglist(char opt);
+void sighandler(int sig);
+
 
 // global variable used for control of printing, passing arguments, etc.
 smartmonctrl *con=NULL;
@@ -298,6 +300,21 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   // increment mail sent counter
   mail->logged++;
   
+#if (0)
+  // Unset environment variables
+  unsetenv("SMARTD_MAILER");
+  unsetenv("SMARTD_MESSAGE");
+  unsetenv("SMARTD_SUBJECT");
+  unsetenv("SMARTD_TFIRST");
+  unsetenv("SMARTD_TFIRSTEPOCH");
+  unsetenv("SMARTD_FAILTYPE");
+  unsetenv("SMARTD_DEVICESTRING");
+  unsetenv("SMARTD_DEVICETYPE");
+  unsetenv("SMARTD_DEVICE");
+  if (address)
+    unsetenv("SMARTD_ADDRESS");
+#endif
+
   return;
 }
 
@@ -324,20 +341,6 @@ void pout(char *fmt, ...){
 void huphandler(int sig){
   printout(LOG_CRIT,"HUP ignored: smartd does NOT re-read /etc/smartd.conf.\n");
   return;
-}
-
-// signal handler that tells users about signals that were caught
-// currently called for INT, TERM, and QUIT
-void sighandler(int sig){
-
-  // are we exiting with SIGTERM?
-  int isterm=(sig==SIGTERM);
-
-  printout(isterm?LOG_INFO:LOG_CRIT, 
-	   "smartd received signal %d: %s\n",
-	   sig, strsignal(sig));
-  
-  exit(isterm?0:EXIT_SIGNAL);
 }
 
 // To help with memory checking
@@ -1354,9 +1357,6 @@ char copyleftstring[]=
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n";
 
-// Pointers to (real or simulated) entries in configuration file /etc/smartd.conf
-cfgfile *cfgentries[MAXENTRIES];
-
 // exits with an error message, or returns integer value of token
 int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, int min, int max){
   char *endptr;
@@ -1745,7 +1745,29 @@ cfgfile *rmconfigentry(cfgfile *original){
   return NULL;
 }
 
+// Pointers to (real or simulated) entries in configuration file /etc/smartd.conf
+cfgfile *cfgentries[MAXENTRIES];
 
+// signal handler that tells users about signals that were caught
+// currently called for INT, TERM, and QUIT
+void sighandler(int sig){
+
+  // are we exiting with SIGTERM?
+  int i,isterm=(sig==SIGTERM);
+  
+  printout(isterm?LOG_INFO:LOG_CRIT, 
+	   "smartd received signal %d: %s\n",
+	   sig, strsignal(sig));
+  
+  // clean up memory -- useful for debugging purposes
+  for (i=0; i<MAXENTRIES; i++)
+    if (cfgentries[i])
+      rmconfigentry(cfgentries[i]);
+  
+  exit(isterm?0:EXIT_SIGNAL);
+}
+
+// This is the routine that adds things to the cfgentries list
 int parseconfigline(int entry, int lineno,char *line){
   char *token=NULL,*copy=NULL;
   char *name=NULL;
@@ -1942,8 +1964,10 @@ int parseconfigfile(){
       if (cont) {
         scandevice=parseconfigline(entry,contlineno,fullline);
         // See if we found a SCANDIRECTIVE directive
-        if (scandevice<0)
+        if (scandevice<0) {
+	  fclose(fp);
           return 0;
+	}
         // the final line is part of a continuation line
         cont=0;
         entry+=scandevice;
@@ -1994,8 +2018,10 @@ int parseconfigfile(){
     scandevice=parseconfigline(entry,contlineno,fullline);
 
     // did we find a scandevice directive?
-    if (scandevice<0)
+    if (scandevice<0) {
+      fclose(fp);
       return 0;
+    }
 
     entry+=scandevice;
     lineno++;
