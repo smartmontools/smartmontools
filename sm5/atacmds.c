@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.109 2003/07/06 13:43:31 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.110 2003/07/08 13:23:55 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -125,8 +125,8 @@ const int actual_ver[] = {
 // When you add additional items to this list, you should then:
 // 0 -- update this list
 // 1 -- modify the following function parse_attribute_def()
-// 2 -- modify ataPrintSmartAttribRawValue()
-// 3 -  modify ataPrintSmartAttribName()
+// 2 -- if needed, modify ataPrintSmartAttribRawValue()
+// 3 -  if needed, modify ataPrintSmartAttribName()
 // 4 -- add #define PRESET_N_DESCRIPTION at top of knowndrives.c
 // 5 -- add drive in question into knowndrives[] table in knowndrives.c
 // 6 -- update smartctl.8
@@ -158,6 +158,12 @@ const char *vendorattributeargs[] = {
   "194,unknown",
   // 11 defs[193]=1
   "193,loadunload",
+  // 12 defs[201]=1
+  "201,detectedtacount",
+  // 13 defs[192]=1
+  "192,emergencyretractcyclect",
+  // 14 defs[198]=1
+  "198,offlinescanuncsectorct",
   // NULL should always terminate the array
   NULL
 };
@@ -224,6 +230,18 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   case 11:
     // Hitachi : Attributes 193 has 2 values : 1 load, 1 normal unload
     defs[193]=1;
+    return 0;
+  case 12:
+    // Fujitsu
+    defs[201]=1;
+    return 0;
+  case 13:
+    // Fujitsu
+    defs[192]=1;
+    return 0;
+  case 14:
+    // Fujitsu
+    defs[198]=1;
     return 0;
   default:
     // pair not found
@@ -1520,14 +1538,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     }
     break;
   case 193:
-    switch (val){
-    case 1:
-      name="Load/Unload_Count";
-      break;
-    default:
-      name="Load_Cycle_Count";
-      break;
-    }
+    name="Load_Cycle_Count";
     break;
   case 194:
     switch (val){
@@ -1545,15 +1556,8 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     }
     break;
   case 195:
-    switch (val){
-    case 1:
-      // Fujitsu
-      name="ECC_On_The_Fly_Count";
-      break;
-    default:
-      name="Hardware_ECC_Recovered";
-      break;
-    }
+    // Fujitsu name="ECC_On_The_Fly_Count";
+    name="Hardware_ECC_Recovered";
     break;
   case 196:
     name="Reallocated_Event_Count";

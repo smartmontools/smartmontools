@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.50 2003/06/12 14:28:37 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.51 2003/07/08 13:23:55 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/06/12 14:28:37 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/07/08 13:23:55 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -655,6 +655,9 @@ digits, for example \'06' or \'31' or '00'.
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
+.I 192,emergencyretractcyclect
+\- Raw Attribute number 192 is the Emergency Retract Cycle Count.
+
 .I 193,loadunload
 \- Raw Attribute number 193 contains two values. The first is the
 number of load cycles.  The second is the number of unload cycles.
@@ -674,8 +677,14 @@ with RK100-13 firmware).
 interpretation is unknown. This is primarily useful for the -P
 (presets) Directive.
 
+.I 198,offlinescanuncsectorct
+\- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
+
 .I 200,writeerrorcount
 \- Raw Attribute number 200 is the Write Error Count.
+
+.I 201,detectedtacount
+\- Raw Attribute number 201 is the Detected TA Count.
 
 .I 220,temp
 \- Raw Attribute number 220 is the disk temperature in Celsius.
@@ -897,4 +906,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.50 2003/06/12 14:28:37 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.51 2003/07/08 13:23:55 ballen4705 Exp $

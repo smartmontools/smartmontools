@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.26 2003/07/08 09:16:19 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.27 2003/07/08 13:23:55 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -35,10 +35,13 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.26 2003/07/08 09:16:19
 #define PRESET_9_TEMP                      {   9,  2 }
 #define PRESET_9_SECONDS                   {   9,  3 }
 #define PRESET_9_HALFMINUTES               {   9,  4 }
+#define PRESET_192_EMERGENCYRETRACTCYCLECT { 192,  1 }
 #define PRESET_193_LOADUNLOAD              { 193,  1 }
 #define PRESET_194_10XCELSIUS              { 194,  1 }
 #define PRESET_194_UNKNOWN                 { 194,  2 }
+#define PRESET_198_OFFLINESCANUNCSECTORCT  { 198,  1 }
 #define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
+#define PRESET_201_DETECTEDTACOUNT         { 201,  1 }         
 #define PRESET_220_TEMP                    { 220,  1 }
 
 /* Arrays of preset vendor-specific attribute options for use in
@@ -61,7 +64,11 @@ const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
 };
 
 const unsigned char vendoropts_Fujitsu_MHS2020AT[][2] = {
+  PRESET_9_SECONDS,
+  PRESET_192_EMERGENCYRETRACTCYCLECT,
+  PRESET_198_OFFLINESCANUNCSECTORCT,
   PRESET_200_WRITEERRORCOUNT,
+  PRESET_201_DETECTEDTACOUNT,
   {0,0}
 };
 
