@@ -130,7 +130,7 @@ please post to the smartmontools mailing list.
         Action to take on a bad checksum.  TYPE and its meaning are:
                 warn   - Issue a warning, but continue [DEFAULT] 
                 exit   - Exit smartctl
-                silent - Continue silently without issuing a warning [NEW]
+                ignore - Continue silently without issuing a warning [NEW]
 
   -s VALUE, --smart=VALUE
         Enable/disable SMART.  VALUE is one of: on, off 
