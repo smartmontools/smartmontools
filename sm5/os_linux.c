@@ -53,6 +53,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <glob.h>
+#include <sys/ioctl.h>
 
 #include "atacmds.h"
 #include "config.h"
@@ -61,7 +62,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.31.2.1 2004/02/23 15:34:46 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.31.2.2 2004/02/23 16:02:30 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
