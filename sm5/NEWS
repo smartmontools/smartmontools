@@ -1,9 +1,16 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.18 2004/02/24 09:57:27 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.19 2004/03/06 19:43:17 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
+
+Date: 2003-3-6
+Summary: smartmontools release 5.30 (STABLE)
+--------------------------------------------
+This is a stable release of smartmontools: the first stable release
+since 5.26.
+
 
 Date: 2003-2-24
 Summary: smartmontools release 5.29 (Experimental, not STABLE)

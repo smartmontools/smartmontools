@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.95 2004/03/05 23:38:46 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.96 2004/03/06 19:43:17 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -119,11 +119,13 @@ const char may_need_minus_F2_disabled[]="May need -F samsung2 disabled; see manu
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
 {
-  con->fixfirmwarebug = FIX_SAMSUNG;
+  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
+    con->fixfirmwarebug = FIX_SAMSUNG;
 }
 void specialpurpose_reverse_samsung2(smartmonctrl *con)
 {
-  con->fixfirmwarebug = FIX_SAMSUNG2;
+  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
+    con->fixfirmwarebug = FIX_SAMSUNG2;
 }
 
 /* Table of settings for known drives terminated by an element containing all
@@ -820,10 +822,10 @@ int applypresets(const struct ata_identify_device *drive, unsigned char **optspt
     }
     
     // If a special-purpose function is defined for this drive then
-    // call it.  We might call a special purpose function even if now
-    // Attribute interpretation presets are set.  We ONLY call this
-    // function if the user has NOT already specified a '-F' option.
-    if (knowndrives[i].specialpurpose && con->fixfirmwarebug==FIX_NOTSPECIFIED)
+    // call it. Note that if command line arguments or Directives
+    // over-ride this choice, then the specialpurpose function that is
+    // called must deal with this.
+    if (knowndrives[i].specialpurpose)
       (*knowndrives[i].specialpurpose)(con);
   }
   

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.360 2004/03/05 23:38:46 pjwilliams Exp $
+$Id: CHANGELOG,v 1.361 2004/03/06 19:43:17 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -20,12 +20,14 @@ Maintainers / Developers Key:
 [EM] Eduard Martinescu
 [FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
-[PW] Phil Williams
 [SS] Sergey Svishchev
+[PW] Phil Williams
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+smartmontools 5.30
 
   [PW] Added QUANTUM FIREBALLlct15 30, QUANTUM FIREBALLlct20 40, and
        Maxtor 6Y060P0 (DiamondMax Plus 9 60GB) to knowndrives table.

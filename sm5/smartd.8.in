@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.45 2004/03/05 18:00:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.46 2004/03/06 19:43:18 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1058,11 +1058,11 @@ different types of system behavior affects the values of certain
 Attributes.
 
 .TP
-.B \-F TYPE, \-\-firmwarebug=TYPE
-Modifies the behavior of
-.B smartctl
-to compensate for some known and understood device firmware bug.  The
-valid arguments to this option are:
+.B \-F TYPE
+Modifies the behavior of \fBsmartd\fP to compensate for some known and
+understood device firmware bug.  The arguments to this Directive are
+exclusive, so that only the final Directive given is used.  The valid
+values are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This is
@@ -1073,7 +1073,7 @@ database.
 \- In some Samsung disks (example: model SV4012H Firmware Version:
 RM100-08) some of the two- and four-byte quantities in the SMART data
 structures are byte-swapped (relative to the ATA specification).
-Enabling this option tells \fBsmartctl\fP to evaluate these quantities
+Enabling this option tells \fBsmartd\fP to evaluate these quantities
 in byte-reversed order.  Some signs that your disk needs this option
 are (1) no self-test log printed, even though you have run self-tests;
 (2) very large numbers of ATA errors reported in the ATA error log;
@@ -1082,7 +1082,7 @@ are (1) no self-test log printed, even though you have run self-tests;
 .I samsung2
 \- In more recent Samsung disks (firmware revisions ending in "\-23") the
 number of ATA errors reported is byte swapped.  Enabling this option
-tells \fBsmartctl\fP to evaluate this quantity in byte-reversed order.
+tells \fBsmartd\fP to evaluate this quantity in byte-reversed order.
 
 Note that an explicit \'\-F\' Directive will over-ride any preset
 values for \'\-F\' (see the \'\-P\' option below).
@@ -1524,4 +1524,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.45 2004/03/05 18:00:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.46 2004/03/06 19:43:18 ballen4705 Exp $
