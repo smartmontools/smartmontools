@@ -35,6 +35,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_STRINGS_H
+// needed for index(3) in solaris
+#include <strings.h>
+#endif
 #include <time.h>
 #include <limits.h>
 #ifdef HAVE_GETOPT_LONG
@@ -53,7 +57,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.216 2003/10/13 13:09:57 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.217 2003/10/13 14:50:44 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -248,13 +252,26 @@ void Goodbye(){
   return;
 }
 
+#define ENVLENGTH 512
 
+// a replacement for setenv() which is not available on all platforms.
+// Note that the string passed to putenv must not be freed or made
+// invalid, since a pointer to it is kept by putenv(). This means that
+// it must either be a static buffer or allocated off the heap. The
+// string can be freed if the environment variable is redefined or
+// deleted via another call to putenv(). So we keep these on the stack
+// as long as the system() call is underway.
+int exportenv(char* stackspace, const char *name, const char *value){
+  snprintf(stackspace,ENVLENGTH, "%s=%s", name, value);
+  return putenv(stackspace);
+}
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
 void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   char command[2048], message[256], hostname[256], additional[256];
   char original[256], further[256], domainname[256], subject[256],dates[64];
+  char environ_strings[10][ENVLENGTH];
   int status;
   time_t epoch;
   va_list ap;
@@ -370,31 +387,31 @@ void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...){
     
   // Export information in environment variables that will be useful
   // for user scripts
-  setenv("SMARTD_MAILER", executable, 1);
-  setenv("SMARTD_MESSAGE", message, 1);
-  setenv("SMARTD_SUBJECT", subject, 1);
+  exportenv(environ_strings[0], "SMARTD_MAILER", executable);
+  exportenv(environ_strings[1], "SMARTD_MESSAGE", message);
+  exportenv(environ_strings[2], "SMARTD_SUBJECT", subject);
   dateandtimezoneepoch(dates, mail->firstsent);
-  setenv("SMARTD_TFIRST", dates, 1);
+  exportenv(environ_strings[3], "SMARTD_TFIRST", dates);
   snprintf(dates, 64,"%d", (int)mail->firstsent);
-  setenv("SMARTD_TFIRSTEPOCH", dates, 1);
-  setenv("SMARTD_FAILTYPE", whichfail[which], 1);
+  exportenv(environ_strings[4], "SMARTD_TFIRSTEPOCH", dates);
+  exportenv(environ_strings[5], "SMARTD_FAILTYPE", whichfail[which]);
   if (address)
-    setenv("SMARTD_ADDRESS", address, 1);
-  setenv("SMARTD_DEVICESTRING", cfg->name, 1);
+    exportenv(environ_strings[6], "SMARTD_ADDRESS", address);
+  exportenv(environ_strings[7], "SMARTD_DEVICESTRING", cfg->name);
 
   if (cfg->escalade){
     char *s,devicetype[16];
     sprintf(devicetype, "3ware,%d", cfg->escalade-1);
-    setenv("SMARTD_DEVICETYPE", devicetype, 1);
+    exportenv(environ_strings[8], "SMARTD_DEVICETYPE", devicetype);
     if ((s=strchr(cfg->name, ' ')))
       *s='\0';
-    setenv("SMARTD_DEVICE", cfg->name, 1);
+    exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
     if (s)
       *s=' ';
   }
   else {
-    setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
-    setenv("SMARTD_DEVICE", cfg->name, 1);
+    exportenv(environ_strings[8], "SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi");
+    exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
   }
 
   // now construct a command to send this as EMAIL
@@ -532,7 +549,7 @@ void WritePidFile() {
     umask(old_umask);
     if (fp == NULL) {
       error = 1;
-    } else if (fprintf(fp, "%d\n", pid) <= 0) {
+    } else if (fprintf(fp, "%d\n", (int)pid) <= 0) {
       error = 1;
     } else if (fclose(fp) != 0) {
       error = 1;
@@ -541,7 +558,7 @@ void WritePidFile() {
       PrintOut(LOG_CRIT, "unable to write PID file %s - exiting.\n", pid_file);
       EXIT(EXIT_PID);
     }
-    PrintOut(LOG_INFO, "file %s written containing PID %d\n", pid_file, pid);
+    PrintOut(LOG_INFO, "file %s written containing PID %d\n", pid_file, (int)pid);
   }
   return;
 }

@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.124 2003/10/10 05:06:41 arvoreen Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.125 2003/10/13 14:50:44 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -314,7 +314,7 @@ char *pad_numbers(const char *s)
   r = s + strlen(s);
   u = t;
   while (( r-- >= s)) {
-    if (isdigit(*r))
+    if (isdigit((int)*r))
       ndigits++;
     else if (ndigits > 0) {
       while (ndigits++ < 3)
@@ -1665,6 +1665,6 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     name="Unknown_Attribute";
     break;
   }
-  sprintf(out,"%3hhu %s",id,name);
+  sprintf(out,"%3hu %s",(short int)id,name);
   return;
 }

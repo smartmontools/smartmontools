@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.28 2003/10/13 09:54:29 guidog Exp $
+# $Id: Makefile.am,v 1.29 2003/10/13 14:50:44 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -36,7 +36,10 @@ smartd_DEPENDENCIES = @os_deps@
 EXTRA_smartd_SOURCES = os_linux.c \
                        os_linux.h \
 		       os_freebsd.c \
-		       os_freebsd.h
+		       os_freebsd.h \
+		       os_solaris.c \
+		       os_solaris.h
+
 
 smartctl_SOURCES= smartctl.c    \
                   smartctl.h    \
@@ -59,9 +62,11 @@ smartctl_SOURCES= smartctl.c    \
 smartctl_LDADD = @os_deps@ @os_libs@
 smartctl_DEPENDENCIES = @os_deps@
 EXTRA_smartctl_SOURCES = os_linux.c \
-                       os_linux.h \
+                       os_linux.h   \
 		       os_freebsd.c \
-		       os_freebsd.h
+		       os_freebsd.h \
+		       os_solaris.c \
+		       os_solaris.h
 
 
 
