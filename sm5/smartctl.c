@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.41 2003/01/05 07:30:13 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.42 2003/01/05 09:00:40 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -128,13 +128,13 @@ void Usage (void){
   -o VALUE, --offlineauto=VALUE                                       (ATA)\n\
         Enable/disable automatic offline testing on device (on/off)\n\
   -S VALUE, --saveauto=VALUE                                          (ATA)\n\
-        Enable/disable attribute autosave on device (on/off)\n\
+        Enable/disable Attribute autosave on device (on/off)\n\
 ");
 #else
   printf("\
   -s VALUE  Enable/disable SMART on device (on/off)\n\
   -o VALUE  Enable/disable device automatic offline testing (on/off)  (ATA)\n\
-  -S VALUE  Enable/disable device attribute autosave (on/off)         (ATA)\n\
+  -S VALUE  Enable/disable device Attribute autosave (on/off)         (ATA)\n\
 ");
 #endif
   printf("**************  READ AND DISPLAY DATA OPTIONS  ****************************\n");
@@ -145,19 +145,19 @@ void Usage (void){
   -c, --capabilities                                                  (ATA)\n\
         Show device SMART capabilities\n\
   -A, --attributes                                                    (ATA)\n\
-        Show device SMART vendor-specific attributes and values\n\
+        Show device SMART vendor-specific Attributes and values\n\
   -l TYPE, --log=TYPE\n\
         Show device log. Type is one of: error (ATA), selftest\n\
   -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n\
-        Set display OPTION for vendor attribute N (see man page)\n\
+        Set display OPTION for vendor Attribute N (see man page)\n\
 ");
 #else
   printf("\
   -H        Show device SMART health status\n\
   -c        Show device SMART capabilities                            (ATA)\n\
-  -A        Show device SMART vendor-specific attributes and values   (ATA)\n\
+  -A        Show device SMART vendor-specific Attributes and values   (ATA)\n\
   -l TYPE   Show device log. Type is one of: error (ATA), selftest\n\
-  -v N,OPT  Set display OPTion for vendor attribute N (see man page)  (ATA)\n\
+  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n\
 ");
 #endif
   printf("**************  DEVICE SELF-TEST OPTIONS  *********************************\n");
