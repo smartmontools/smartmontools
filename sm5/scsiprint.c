@@ -36,7 +36,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid4="$Id: scsiprint.c,v 1.11 2002/11/17 05:57:32 ballen4705 Exp $"
+const char* CVSid4="$Id: scsiprint.c,v 1.12 2002/12/19 00:05:19 pjwilliams Exp $"
 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // control block which points to external global control variables
@@ -340,7 +340,7 @@ void scsiPrintMain (char *device, int fd)
 	}
 	printf ("Drive Command Successful offline test has begun\n");
 
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
+        printf ("Use smartctl -X to abort test\n");	
 			
     }
 
@@ -353,7 +353,7 @@ void scsiPrintMain (char *device, int fd)
             exit(-1);
 	}
 	printf ("Drive Command Successful Short Self test has begun\n");
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
+        printf ("Use smartctl -X to abort test\n");	
    }
 
    if ( con->smartshortselftest )
@@ -365,7 +365,7 @@ void scsiPrintMain (char *device, int fd)
 	exit(-1);
       }
 	printf ("Drive Command Successful Short Self test has begun\n");
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);
+        printf ("Use smartctl -X to abort test\n");
    }
 	
    if ( con->smartextendselftest )
@@ -377,7 +377,7 @@ void scsiPrintMain (char *device, int fd)
       }
 
    printf ("Drive Command Successful Extended Self test has begun\n");
-   printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
+   printf ("Use smartctl -X to abort test\n");	
    }
 	
 	if ( con->smartextendcapselftest )
@@ -390,7 +390,7 @@ void scsiPrintMain (char *device, int fd)
 		}
 		
 		printf ("Drive Command Successful Extended Self test has begun\n");
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
+        printf ("Use smartctl -X to abort test\n");	
 	}
 
 	if ( con->smartselftestabort )

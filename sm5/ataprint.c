@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.48 2002/12/11 23:15:43 pjwilliams Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.49 2002/12/19 00:05:19 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -722,8 +722,7 @@ void failuretest(int type, int returnvalue){
   // If this is an error in an "optional" SMART command
   if (type==OPTIONAL_CMD){
     if (con->conservative){
-      pout("An optional SMART command has failed: exiting.  To continue, turn off the -%c option\n",
-	   ULTRACONSERVATIVE);
+      pout("An optional SMART command has failed: exiting.  To continue, set the tolerance level to something other than 'conservative'\n");
       exit(returnvalue);
     }
     return;
@@ -733,8 +732,7 @@ void failuretest(int type, int returnvalue){
   if (type==MANDATORY_CMD){
     if (con->permissive)
       return;
-    pout("A mandatory SMART command has failed: exiting. To continue, turn on the -%c option\n",
-	 PERMISSIVE);
+    pout("A mandatory SMART command has failed: exiting. To continue, use the -T option to set the tolerance level to 'permissive'\n");
     exit(returnvalue);
   }
 
@@ -824,7 +822,7 @@ int ataPrintMain (int fd){
   
   // From here on, every command requires that SMART be enabled...
   if (!ataDoesSmartWork(fd)) {
-    pout("SMART Disabled. Use option -%c to enable it.\n", (int)SMARTENABLE );
+    pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
     return returnval;
   }
   
@@ -834,7 +832,7 @@ int ataPrintMain (int fd){
       pout( "Smartctl: SMART Disable Failed.\n\n");
       failuretest(MANDATORY_CMD,returnval|=FAILSMART);
     }
-    pout("SMART Disabled. Use option -%c to enable it.\n",(int)SMARTENABLE);
+    pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
     return returnval;		
   }
   
@@ -1035,7 +1033,7 @@ int ataPrintMain (int fd){
 	 (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
     
     if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && con->testcase!=EXTEND_CAPTIVE_SELF_TEST)
-      pout("Use smartctl -%c to abort test.\n", (int)SMARTSELFTESTABORT);	
+      pout("Use smartctl -X to abort test.\n");	
   }    
   return returnval;
 }
