@@ -37,6 +37,7 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#include <getopt.h>
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "smartd.h"
@@ -46,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.73 2002/11/22 16:51:49 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.74 2002/11/23 17:09:59 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -80,7 +81,6 @@ void sleephandler(int sig){
 // Global Variables for command line options. These should go into a
 // structure at some point.
 unsigned char debugmode               = FALSE;
-unsigned char printcopyleft           = FALSE;
 
 // This function prints either to stdout or to the syslog as needed
 
@@ -328,10 +328,14 @@ return;
 
 /* prints help information for command syntax */
 void Usage (void){
-  printout(LOG_INFO,"usage: smartd -[opts] \n\n");
+  printout(LOG_INFO,"Usage: smartd [OPTION]...\n\n");
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  %c  Start smartd in debug Mode\n",(int)DEBUGMODE);
-  printout(LOG_INFO,"  %c  Print License, Copyright, and version information\n\n",(int)PRINTCOPYLEFT);
+  printout(LOG_INFO,"  -X, --debugmode              Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
+  printout(LOG_INFO,"                               Print License, Copyright, and version information\n");
+  printout(LOG_INFO,"  -h, --help, --usage          Display this help and exit\n");
+  printout(LOG_INFO,"  -?                           Same as -h\n");
+  printout(LOG_INFO,"\n");
   printout(LOG_INFO,"Optional configuration file: %s\n",CONFIGFILE);
   Directives();
 }
@@ -1282,7 +1286,20 @@ int parseconfigfile(){
   exit(1);
 }
 
-const char opts[] = {DEBUGMODE, PRINTCOPYLEFT,'h','?','\0' };
+// Prints copyright, license and version information
+void PrintCopyleft(void){
+  char out[CVSMAXLEN];
+  debugmode=1;
+  printhead();
+  printout(LOG_INFO,copyleftstring);
+  printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
+  printone(out,CVSid1);
+  printout(LOG_INFO,"%s",out);
+  printone(out,CVSid2);
+  printout(LOG_INFO,"%s",out);
+  printone(out,CVSid6);
+  printout(LOG_INFO,"%s",out);
+}
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
@@ -1290,17 +1307,27 @@ void ParseOpts(int argc, char **argv){
   extern char *optarg;
   extern int  optopt, optind, opterr;
   int optchar;
+  struct option long_options[] = {
+    { "debugmode", no_argument, 0, 'X'},
+    { "version",   no_argument, 0, 'V'},
+    { "license",   no_argument, 0, 'V'},
+    { "copyright", no_argument, 0, 'V'},
+    { "help",      no_argument, 0, 'h'},
+    { "usage",     no_argument, 0, 'h'},
+    { 0,           0,           0, 0  }
+  };
 
   opterr=optopt=0;
 
   // Parse input options:
-  while (-1 != (optchar = getopt(argc, argv, opts))){
+  while (-1 != (optchar = getopt_long(argc, argv, "XVh?", long_options, NULL))){
     switch(optchar) {
-    case PRINTCOPYLEFT:
-      printcopyleft=TRUE;
-      break;
-    case DEBUGMODE :
+    case 'X':
       debugmode  = TRUE;
+      break;
+    case 'V':
+      PrintCopyleft();
+      exit(0);
       break;
     case '?':
     case 'h':
@@ -1311,27 +1338,16 @@ void ParseOpts(int argc, char **argv){
 	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %c <======= \n\n",optopt);
 	Usage();
 	exit(-1);
+      } else if (optchar == '?' && argv[optind-1][1] == '-') {
+	printhead();
+	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %s <======= \n\n",argv[optind-1]+2);
+	Usage();
+	exit(-1);
       }
       printhead();
       Usage();
       exit(0);
     }
-  }
-  
-  // If needed print copyright, license and version information
-  if (printcopyleft){
-    char out[CVSMAXLEN];
-    debugmode=1;
-    printhead();
-    printout(LOG_INFO,copyleftstring);
-    printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
-    printone(out,CVSid1);
-    printout(LOG_INFO,"%s",out);
-    printone(out,CVSid2);
-    printout(LOG_INFO,"%s",out);
-    printone(out,CVSid6);
-    printout(LOG_INFO,"%s",out);
-    exit(0);
   }
   
   // print header
