@@ -35,22 +35,19 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.3 2003/01/17 12:20:24 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.4 2003/02/09 21:12:33 ballen4705 Exp $" UTILITY_H_CVSID;
+
 
 // Utility function prints date and time and timezone into a character
 // buffer of length>=64.  All the fuss is needed to get the right
 // timezone info (sigh).
-void dateandtimezone(char *buffer){
-  time_t tval;
+void dateandtimezoneepoch(char *buffer, time_t tval){
   struct tm *tmval;
   char *timezonename;
   char datebuffer[64];
   
-  // First get the time in seconds since Jan 1 1970
-  tval=time(NULL);
-  
-  // Now get the time structure.  We need this to determine if we
-  // are in daylight savings time or not.
+  // Get the time structure.  We need this to determine if we are in
+  // daylight savings time or not.
   tmval=localtime(&tval);
   
   // Convert to an ASCII string, put in datebuffer
@@ -76,6 +73,15 @@ void dateandtimezone(char *buffer){
   return;
 }
 
+// Date and timezone gets printed into string pointed to by buffer
+void dateandtimezone(char *buffer){
+  
+  // Get the epoch (time in seconds since Jan 1 1970)
+  time_t tval=time(NULL);
+  
+  dateandtimezoneepoch(buffer, tval);
+  return;
+}
 
 // These are two utility functions for printing CVS IDs. Massagecvs()
 // returns distance that it has moved ahead in the input string
