@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.175 2003/08/13 12:33:22 ballen4705 Exp $
+$Id: CHANGELOG,v 1.176 2003/08/14 13:34:51 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,17 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd now responds to a HUP signal by re-reading its
+       configuration file /etc/smartd.conf.  If there are
+       errors in this file, then the configuration file is
+       ignored and smartd continues to monitor the devices that
+       it was monitoring prior to receiving the HUP signal.
+
+  [BA] Now correctly get SMART status from disks behind 3ware
+       controllers, thanks to Adam Radford. Need 3w-xxxx driver
+       version 1.02.00.037 or later. Previously the smartmontools
+       SMART status always returned "OK" for 3ware controllers.
 
   [BA] Additional work on dynamic memory allocation/deallocation.
        This should have no effect on smartctl, but clears that way
