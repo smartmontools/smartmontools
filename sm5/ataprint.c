@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.61 2003/03/08 15:43:28 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.62 2003/03/13 15:24:33 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -959,10 +959,30 @@ int ataPrintMain (int fd){
   
   // Check SMART status (use previously returned value)
   if (con->checksmart){
-    if (code) {
+    switch (code) {
+
+    case 0:
+      // The case where the disk health is OK
+      pout("SMART overall-health self-assessment test result: PASSED\n");
+      if (ataCheckSmart(&smartval, &smartthres,0)){
+	if (con->smartvendorattrib)
+	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
+	else {
+	  QUIETON(con);
+	  pout("Please note the following marginal Attributes:\n");
+	  PrintSmartAttribWithThres(&smartval, &smartthres,2);
+	} 
+	returnval|=FAILAGE;
+      }
+      else
+	pout("\n");
+      break;
+      
+    case 1:
+      // The case where the disk health is NOT OK
       QUIETON(con);
       pout("SMART overall-health self-assessment test result: FAILED!\n"
-	     "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
+	   "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
       QUIETOFF(con);
       if (ataCheckSmart(&smartval, &smartthres,1)){
 	returnval|=FAILATTR;
@@ -978,24 +998,47 @@ int ataPrintMain (int fd){
 	pout("No failed Attributes found.\n\n");   
       returnval|=FAILSTATUS;
       QUIETOFF(con);
-    }
-    else {
-      pout("SMART overall-health self-assessment test result: PASSED\n");
-      if (ataCheckSmart(&smartval, &smartthres,0)){
+      break;
+
+    case -1:
+    default:
+      // The case where something went wrong with HDIO_DRIVE_TASK ioctl()
+      if (ataCheckSmart(&smartval, &smartthres,1)){
+	QUIETON(con);
+	pout("SMART overall-health self-assessment test result: FAILED!\n"
+	     "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
+	QUIETOFF(con);
+	returnval|=FAILATTR;
+	returnval|=FAILSTATUS;
 	if (con->smartvendorattrib)
-	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
+	  pout("See vendor-specific Attribute list for failed Attributes.\n\n");
 	else {
 	  QUIETON(con);
-	  pout("Please note the following marginal Attributes:\n");
-	  PrintSmartAttribWithThres(&smartval, &smartthres,2);
-	} 
-	returnval|=FAILAGE;
+	  pout("Failed Attributes:\n");
+	  PrintSmartAttribWithThres(&smartval, &smartthres,1);
+	}
       }
-      else
-	pout("\n");
-    }
+      else {
+	pout("SMART overall-health self-assessment test result: PASSED\n");
+	if (ataCheckSmart(&smartval, &smartthres,0)){
+	  if (con->smartvendorattrib)
+	    pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
+	  else {
+	    QUIETON(con);
+	    pout("Please note the following marginal Attributes:\n");
+	    PrintSmartAttribWithThres(&smartval, &smartthres,2);
+	  } 
+	  returnval|=FAILAGE;
+	}
+	else
+	  pout("\n");
+      } 
+      QUIETOFF(con);
+      break;
+    } // end of switch statement
+    
     QUIETOFF(con);
-  }
+  } // end of checking SMART Status
   
   // Print general SMART values
   if (con->generalsmartvalues)
