@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.8 2003/10/31 10:24:28 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.9 2003/10/31 22:28:37 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -53,7 +53,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    echo
 	    ;;
 	reload)
-            echo -n $"Reloading smartd.conf: "
+            echo -n $"Reloading config file smartd.conf: "
 	    killproc /usr/sbin/smartd -HUP
 	    RETVAL=$?
 	    echo
