@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.177 2003/08/15 16:58:02 ballen4705 Exp $
+$Id: CHANGELOG,v 1.178 2003/08/16 22:44:50 pjwilliams Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] It is no longer permissible for the integer part (if any) of
+       arguments to --report and --device to be followed by non-digits.
+       For example, the "foo" in --report=ioctl,2foo was previously
+       ignored, but now causes an error.
 
   [BA] smartd: added -q/--quit command line option to specify
        under what circumstances smartd should exit.  The old

@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.14 2003/08/11 14:21:52 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.15 2003/08/16 22:44:50 pjwilliams Exp $" UTILITY_H_CVSID;
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at
@@ -205,12 +205,14 @@ int split_report_arg(char *s, int *i)
 {
   if ((s = strchr(s, ','))) {
     // Looks like there's a name part and an integer part.
+    char *tailptr;
+
     *s++ = '\0';
     if (*s == '0' || !isdigit(*s))  // The integer part must be positive
       return 1;
     errno = 0;
-    *i = atoi(s);
-    if (errno)
+    *i = (int) strtol(s, &tailptr, 10);
+    if (errno || *tailptr != '\0')
       return 1;
   } else {
     // There's no integer part.
@@ -220,8 +222,9 @@ int split_report_arg(char *s, int *i)
   return 0;
 }
 
-// same as above but returns -1 if missing , argument
+// same as above but sets *i to -1 if missing , argument
 int split_report_arg2(char *s, int *i){
+  char *tailptr;
   s+=6;
 
   if (*s=='\0' || !isdigit(*s)) { 
@@ -231,8 +234,8 @@ int split_report_arg2(char *s, int *i){
   }
 
   errno = 0;
-  *i = atoi(s);
-  if (errno) {
+  *i = (int) strtol(s, &tailptr, 10);
+  if (errno || *tailptr != '\0') {
     *i=-1;
     return 1;
   }
