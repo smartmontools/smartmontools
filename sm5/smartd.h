@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.56 2003/11/14 07:41:40 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.57 2003/11/14 11:52:33 dpgilbert Exp $\n"
 #endif
 
 // Configuration file
@@ -179,6 +179,8 @@ typedef struct configfile_s {
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
   unsigned char Temperature;              // last recorded figure (in Celsius)
   unsigned char SuppressReport;           // minimize nuisance reports
+  unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
+                                          // know yet) 6 or 10
   
   // ATA ONLY FROM HERE ON TO THE END
   int ataerrorcount;                      // Total number of ATA errors
