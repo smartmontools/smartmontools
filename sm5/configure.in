@@ -27,6 +27,7 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 AC_SUBST([docdir], ['${prefix}/share/doc/${PACKAGE}-${VERSION}'])
+AC_SUBST([mandir], ['${prefix}/share/man'])
 AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 dnl simulate old Makefile behaviour for now
 AC_PREFIX_DEFAULT(['/usr'])
