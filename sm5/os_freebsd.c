@@ -1,11 +1,33 @@
+/*
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2003 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); if not, write to the Free
+ * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
+ */
+
 #include "os_freebsd.h"
 #include <sys/types.h>
 #include <dirent.h>
+#include <camlib.h>
+#include <err.h>
+#include <cam/scsi/scsi_message.h>
 
-// Eduard could you please add the boilerplace GPL2 copyright
-// boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.12 2003/10/10 08:25:21 ballen4705 Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.13 2003/10/11 05:41:02 arvoreen Exp $" OS_XXXX_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -34,24 +56,31 @@ int deviceopen (const char* dev, char* mode) {
     return -1;
   }
 
-  fdchan = malloc(sizeof(struct freebsd_dev_channel));
+  fdchan = calloc(1,sizeof(struct freebsd_dev_channel));
   if (fdchan == NULL) {
     // errno already set by call to malloc()
     return -1;
   }
 
   parse_ok = parse_ata_chan_dev (dev,fdchan);
-  if (parse_ok != GUESS_DEVTYPE_ATA) {
+  if (parse_ok == GUESS_DEVTYPE_DONT_KNOW) {
     free(fdchan);
     errno = ENOTTY;
-    return -1; // can't handle non ATA for now
+    return -1; // can't handle what we don't know
   }
 
-  if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
-    int myerror = errno;	//preserve across free call
-    free (fdchan);
-    errno = myerror;
-    return -1;
+  if (parse_ok == GUESS_DEVTYPE_ATA) {
+    if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
+      int myerror = errno;	//preserve across free call
+      free (fdchan);
+      errno = myerror;
+      return -1;
+    }
+  }
+
+  if (parse_ok == GUESS_DEVTYPE_SCSI) {
+    // this is really a NO-OP, as the parse takes care
+    // of filling in correct details
   }
   
   // return pointer to "file descriptor" table entry, properly offset.
@@ -76,14 +105,23 @@ static int isnotopen(int *fd, struct freebsd_dev_channel** fdchan) {
 // Like close().  Acts on handles returned by above function.
 int deviceclose (int fd) {
   struct freebsd_dev_channel *fdchan;
-  int failed;
+  int failed = 0;
 
   // check for valid file descriptor
   if (isnotopen(&fd, &fdchan))
     return -1;
   
-  // close device
-  failed=close(fdchan->atacommand);
+
+  // did we allocate a SCSI device name?
+  if (fdchan->devname)
+    free(fdchan->devname);
+  
+  // close device, if open
+  if (fdchan->atacommand)
+    failed=close(fdchan->atacommand);
+
+  if (fdchan->scsicontrol)
+    failed=close(fdchan->scsicontrol);
   
   // if close succeeded, then remove from device list
   // Eduard, should we also remove it from list if close() fails?  I'm
@@ -245,10 +283,99 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 
 // Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
+int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
-  // not currently supported
-  return -ENOSYS;
+  struct freebsd_dev_channel* con = NULL;
+  struct cam_device* cam_dev = NULL;
+  union ccb *ccb;
+  
+  
+    if (report > 0) {
+        int k;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+
+        np = scsi_get_opcode_name(ucp[0]);
+        pout(" [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < iop->cmnd_len; ++k)
+            pout("%02x ", ucp[k]);
+        if ((report > 1) && 
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+                 (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            pout("]");
+    }
+
+  // check that "file descriptor" is valid
+  if (isnotopen(&fd,&con))
+      return -ENOTTY;
+
+
+  if (!(cam_dev = cam_open_spec_device(con->devname,con->unitnum,O_RDWR,NULL))) {
+    warnx("%s",cam_errbuf);
+    return -1;
+  }
+
+  if (!(ccb = cam_getccb(cam_dev))) {
+    warnx("error allocating ccb");
+    return -ENOMEM;
+  }
+
+  // clear out structure, except for header that was filled in for us
+  bzero(&(&ccb->ccb_h)[1],
+	sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
+
+  cam_fill_csio(&ccb->csio,
+		/*retrires*/ 1,
+		/*cbfcnp*/ NULL,
+		/* flags */ (iop->dxfer_dir == DXFER_NONE ? CAM_DIR_NONE :(iop->dxfer_dir == DXFER_FROM_DEVICE ? CAM_DIR_IN : CAM_DIR_OUT)),
+		/* tagaction */ MSG_SIMPLE_Q_TAG,
+		/* dataptr */ iop->dxferp,
+		/* datalen */ iop->dxfer_len,
+		/* senselen */ iop->max_sense_len,
+		/* cdblen */ iop->cmnd_len,
+		/* timout */ iop->timeout);
+  memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
+
+  if (cam_send_ccb(cam_dev,ccb) < 0) {
+    warn("error sending SCSI ccb");
+    cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+    cam_freeccb(ccb);
+    return -1;
+  }
+
+  if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
+    cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+    cam_freeccb(ccb);
+    return -1;
+  }
+
+  if (iop->sensep) {
+    memcpy(&(ccb->csio.sense_data),iop->sensep,sizeof(struct scsi_sense_data));
+    iop->resp_sense_len = sizeof(struct scsi_sense_data);
+  }
+
+  iop->scsi_status = ccb->csio.scsi_status;
+
+  cam_freeccb(ccb);
+  
+  if (cam_dev)
+    cam_close_device(cam_dev);
+
+  if (report > 0) {
+    pout("  status=0\n");
+    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    
+    pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+	 (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+  }
+  return 0;
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
@@ -262,10 +389,10 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
 // osst, nosst and sg.
 static const char * fbsd_dev_prefix = "/dev/";
 static const char * fbsd_dev_ata_disk_prefix = "ad";
-static const char * fbsd_dev_scsi_disk_plus = "s";
-static const char * fbsd_dev_scsi_tape1 = "ns";
-static const char * fbsd_dev_scsi_tape2 = "os";
-static const char * fbsd_dev_scsi_tape3 = "nos";
+static const char * fbsd_dev_scsi_disk_plus = "da";
+static const char * fbsd_dev_scsi_tape1 = "sa";
+static const char * fbsd_dev_scsi_tape2 = "nsa";
+static const char * fbsd_dev_scsi_tape3 = "esa";
 
 static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
   int len;
@@ -294,13 +421,39 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
     return GUESS_DEVTYPE_ATA;
   }
   
-  // form /dev/s* or s*
+  // form /dev/da* or da*
   if (!strncmp(fbsd_dev_scsi_disk_plus, dev_name,
 	       strlen(fbsd_dev_scsi_disk_plus)))
-    return GUESS_DEVTYPE_SCSI;
+    goto handlescsi;
 
+  // form /dev/sa* or sa*
+  if (!strncmp(fbsd_dev_scsi_tape1, dev_name,
+	      strlen(fbsd_dev_scsi_tape1)))
+    goto handlescsi;
+
+  // form /dev/nsa* or nsa*
+  if (!strncmp(fbsd_dev_scsi_tape2, dev_name,
+	      strlen(fbsd_dev_scsi_tape2)))
+    goto handlescsi;
+
+  // form /dev/esa* or esa*
+  if (!strncmp(fbsd_dev_scsi_tape3, dev_name,
+	      strlen(fbsd_dev_scsi_tape3)))
+    goto handlescsi;
+  
   // we failed to recognize any of the forms
   return GUESS_DEVTYPE_DONT_KNOW;
+
+ handlescsi:
+  if (chan != NULL) {
+    if (!(chan->devname = calloc(1,DEV_IDLEN+1)))
+      return GUESS_DEVTYPE_DONT_KNOW;
+    
+    if (cam_get_device(dev_name,chan->devname,DEV_IDLEN,&(chan->unitnum)) == -1)
+      return GUESS_DEVTYPE_DONT_KNOW;
+  }
+  return GUESS_DEVTYPE_SCSI;
+  
 }
 
 int guess_device_type (const char* dev_name) {
@@ -322,9 +475,9 @@ int get_dev_names(char*** names, const char* prefix) {
   char** mp;
 
   // first, preallocate space for upto max number of ATA devices
-  mp =  (char **)malloc(MAX_NUM_DEV*sizeof(char*));
-  if (!mp)
-    perror("Failed to allocate memory!");
+  if (!(mp =  (char **)calloc(MAX_NUM_DEV,sizeof(char*))))
+    return -1;
+  
   bytes += (sizeof(char*)*MAX_NUM_DEV);
 
   dir = opendir("/dev");

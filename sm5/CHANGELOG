@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.203 2003/10/10 05:06:41 arvoreen Exp $
+$Id: CHANGELOG,v 1.204 2003/10/11 05:41:02 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Implement SCSI CAM support for FreeBSD.  NOTE: I am not an expert
+	in the use of CAM.  It seems to work for me, but I may be doing
+	something horribly wrong, so please exercise caution.
 
   [EM] Switch over to using 'atexit' rather than 'on_exit' routine. This also
   	meant we needed to save the exit status elsewhere so our 'Goodbye'
