@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.27 2004/02/06 03:52:02 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.28 2004/03/11 10:34:38 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -33,6 +33,7 @@
 // Utility function prints current date and time and timezone into a
 // character buffer of length>=64.  All the fuss is needed to get the
 // right timezone info (sigh).
+#define DATEANDEPOCHLEN 64
 void dateandtimezone(char *buffer);
 // Same, but for time defined by epoch tval
 void dateandtimezoneepoch(char *buffer, time_t tval);

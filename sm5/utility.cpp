@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.35 2004/02/13 17:29:10 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.36 2004/03/11 10:34:38 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -100,27 +100,27 @@ int isbigendian(){
   return *tmp;
 }
 
-#define DBLEN 64
-
 // Utility function prints date and time and timezone into a character
 // buffer of length>=64.  All the fuss is needed to get the right
 // timezone info (sigh).
 void dateandtimezoneepoch(char *buffer, time_t tval){
   struct tm *tmval;
   char *timezonename;
-  char datebuffer[DBLEN];
-  
+  char datebuffer[DATEANDEPOCHLEN];
+  int lenm1;
+
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
   tmval=localtime(&tval);
   
   // Convert to an ASCII string, put in datebuffer
   // same as: asctime_r(tmval, datebuffer);
-  strncpy(datebuffer, asctime(tmval), DBLEN);
-  datebuffer[DBLEN-1]='\0';
+  strncpy(datebuffer, asctime(tmval), DATEANDEPOCHLEN);
+  datebuffer[DATEANDEPOCHLEN-1]='\0';
   
   // Remove newline
-  datebuffer[strlen(datebuffer)-1]='\0';
+  lenm1=strlen(datebuffer)-1;
+  datebuffer[lenm1>=0?lenm1:0]='\0';
   
   // correct timezone name
   if (tmval->tm_isdst==0)
@@ -134,7 +134,7 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
     timezonename="";
   
   // Finally put the information into the buffer as needed.
-  snprintf(buffer, DBLEN, "%s %s", datebuffer, timezonename);
+  snprintf(buffer, DATEANDEPOCHLEN, "%s %s", datebuffer, timezonename);
   
   return;
 }

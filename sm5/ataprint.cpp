@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.140 2004/03/06 22:08:00 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.141 2004/03/11 10:34:36 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -426,7 +426,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
 void ataPrintDriveInfo (struct ata_identify_device *drive){
   int version, drivetype;
   const char *description;
-  char unknown[64], timedatetz[64];
+  char unknown[64], timedatetz[DATEANDEPOCHLEN];
   unsigned short minorrev;
   char model[64], serial[64], firm[64];
   

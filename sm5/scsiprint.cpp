@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.73 2004/01/27 15:29:16 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.74 2004/03/11 10:34:37 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -638,7 +638,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     char manufacturer[9];
     char product[17];
     char revision[5];
-    char timedatetz[64];
+    char timedatetz[DATEANDEPOCHLEN];
     struct scsi_iec_mode_page iec;
     int err, iec_err, len, val;
     int is_tape = 0;
