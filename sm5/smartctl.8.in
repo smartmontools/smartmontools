@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.36 2004/03/07 18:50:37 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.37 2004/03/07 18:58:24 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -514,7 +514,7 @@ most recent five non-trivial errors. For each of these errors, the
 disk power-on lifetime at which the error occurred is recorded, as is
 the device status (idle, standby, etc) at the time of the error.  For
 some common types of errors, the Error Register (ER) and Status
-qqRegister (SR) values are decoded and printed as text. The meanings of these
+Register (SR) values are decoded and printed as text. The meanings of these
 are:
 .nf
    \fBABRT\fP:  Aborted
@@ -1073,4 +1073,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.36 2004/03/07 18:50:37 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.37 2004/03/07 18:58:24 ballen4705 Exp $
