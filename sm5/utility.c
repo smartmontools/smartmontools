@@ -32,18 +32,14 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
-#ifndef _WIN32
 #include <syslog.h>
-#else
-#define LOG_CRIT 2
-#endif
 #include <stdarg.h>
 #include "int64.h"
 #include "utility.h"
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.39 2004/03/13 15:03:57 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.40 2004/03/13 22:31:10 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {

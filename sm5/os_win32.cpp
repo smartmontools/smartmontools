@@ -31,9 +31,10 @@ extern int64_t bytes; // malloc() byte count
 #include <windows.h>
 #include <stddef.h> // offsetof()
 
+#define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.6 2004/03/13 15:03:56 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.7 2004/03/13 22:31:09 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -528,6 +529,7 @@ static int ata_open(int drive)
 
 static void ata_close(int fd)
 {
+	ARGUSED(fd);
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
 }
@@ -605,6 +607,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	copydata = 0;
 
 	switch (command) {
+	  case CHECK_POWER_MODE:
+		// TODO. Not supported by SMART IOCTL
+		errno = ENOSYS;
+		return -1;
 	  case READ_VALUES:
 		regs.bFeaturesReg = ATA_SMART_READ_VALUES;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
@@ -699,6 +705,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
 {
 	static int warned = 0;
+	ARGUSED(fd); ARGUSED(disknum); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 	if (!warned) {
 		  pout(
 		"#######################################################################\n"
@@ -934,6 +941,7 @@ static int aspi_open(unsigned adapter, unsigned id)
 
 static void aspi_close(int fd)
 {
+	ARGUSED(fd);
 }
 
 

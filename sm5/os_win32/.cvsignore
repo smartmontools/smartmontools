@@ -1,6 +1,11 @@
-*.exe
-*.ncb
-*.opt
-*.plg
-*.d
-*.r
+config.h
+smartctl.d
+smartctl.r
+smartctl.exe
+smartctl_vc6.plg
+smartd.d
+smartd.r
+smartd.exe
+smartd_vc6.plg
+smartmontools_vc6.ncb
+smartmontools_vc6.opt

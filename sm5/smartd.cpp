@@ -23,22 +23,20 @@
 // unconditionally included files
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <sys/ioctl.h>
 #include <sys/types.h>
-#include <sys/stat.h>
+#ifndef _WIN32
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
+#endif
 #include <fcntl.h>
 #include <string.h>
 #include <syslog.h>
 #include <stdarg.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 #include <time.h>
 #include <limits.h>
-#include <regex.h>
 
 #if SCSITIMEOUT
 #include <setjmp.h>
@@ -51,10 +49,29 @@
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
-#ifdef HAVE_STRINGS_H
-// needed for index(3) in solaris
-#include <strings.h>
+
+#ifdef _WIN32
+// Mailing feature for Win32 will be implemented later
+#define NO_MAIL_WARNING
+
+#ifdef _MSC_VER
+#pragma warning(disable:4761) // "conversion supplied"
+typedef unsigned short mode_t;
+typedef int pid_t;
 #endif
+
+#include <io.h> // umask()
+#include <process.h> // getpid()
+
+// MinGW Note: There is a type redefintion warning because 
+// scsicmds.h and MinGW's w32api/basetsd.h both define INT32 and UINT32.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h> // Sleep(), SetConsoleCtrlHandler(), FreeConsole()
+#undef TRUE // redefined in smartd.h
+#undef FALSE
+
+#endif // _WIN32
+
 
 // locally included files
 #include "atacmds.h"
@@ -66,17 +83,29 @@
 #include "smartd.h"
 #include "utility.h"
 
+#define ARGUSED(x) ((void)(x))
+
 // These are CVS identification information for *.c and *.h files
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.290 2004/03/13 15:03:57 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.291 2004/03/13 22:31:10 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.290 2004/03/13 15:03:57 chrfranke Exp $" 
-                            ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
-                            KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+#ifdef _WIN32
+extern const char *syslog_win32_c_cvsid;
+#ifdef _MSC_VER
+extern const char *int64_vc6_c_cvsid;
+#endif
+#endif
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.291 2004/03/13 22:31:10 chrfranke Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
+KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
+#ifdef SYSLOG_H_CVSID
+SYSLOG_H_CVSID
+#endif
+UTILITY_H_CVSID; 
 
 extern const char *reportbug;
 
@@ -95,7 +124,11 @@ static int checktime=CHECKTIME;
 static char* pid_file=NULL;
 
 // configuration file name
+#ifndef _WIN32
 static char* configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
+#else
+static char* configfile = "./" CONFIGFILENAME ;
+#endif
 
 // command-line: when should we exit?
 static int quit=0;
@@ -118,7 +151,7 @@ int atadevlist_max=0, scsidevlist_max=0;
 int numdevata=0, numdevscsi=0;
 
 // track memory usage
-extern long long bytes;
+extern int64_t bytes;
 
 // exit status
 extern int exitstatus;
@@ -134,6 +167,7 @@ volatile int caughtsigHUP=0;
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
+
 
 // free all memory associated with selftest part of configfile entry.  Return NULL
 testinfo* FreeTestData(testinfo *data){
@@ -206,16 +240,24 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,knowndrives_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
+#if defined(_WIN32) && defined(_MSC_VER)
+  printone(out,int64_vc6_c_cvsid);
+  PrintOut(LOG_INFO,"%s",out);
+#endif
   printone(out,os_XXXX_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
 #ifdef NEED_SOLARIS_ATA_CODE
   printone(out, os_solaris_ata_s_cvsid);
-  pout("%s",out);
+  PrintOut(LOG_INFO,"%s",out);
 #endif
   printone(out,scsicmds_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
   printone(out,smartd_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
+#ifdef _WIN32
+  printone(out,syslog_win32_c_cvsid);
+  PrintOut(LOG_INFO,"%s",out);
+#endif
   printone(out,utility_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
   PrintOut(LOG_INFO, "\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
@@ -302,6 +344,9 @@ void RemovePidFile(){
   return;
 }
 
+
+#ifndef _WIN32
+
 //  Note if we catch a SIGUSR1
 void USR1handler(int sig){
   if (SIGUSR1==sig)
@@ -332,8 +377,41 @@ void sighandler(int sig){
   EXIT(isok?0:EXIT_SIGNAL);
 }
 
+#else // _WIN32
+
+// Handle Win32 console signals direct. The signal() implementations
+// of MinGW and MSVC only support SIGINT and SIGBREAK.
+
+static BOOL WINAPI win32_sighandler(DWORD sig)
+{
+  // Caution: runs in a new thread
+  switch (sig) {
+    case CTRL_C_EVENT: // <CONTROL-C> (SIGINT) => Reread config
+      caughtsigHUP = 1;
+      return TRUE;
+    case CTRL_BREAK_EVENT: // <CONTROL-Break> (SIGBREAK) => Stop
+    case CTRL_CLOSE_EVENT: // User closed console or abort via task manager
+    case CTRL_LOGOFF_EVENT:
+    case CTRL_SHUTDOWN_EVENT:
+      //TODO: os_win32/syslog_win32.c must be thread-save to do this:
+      //PrintOut(LOG_INFO, "smartd received signal %d\n", (int)sig);
+      EXIT(0);
+      return TRUE;
+  }
+  return FALSE; // continue with next handler
+}
+
+// Poor man's interruptible sleep()
+void sleep(int seconds){
+  for ( ; seconds > 0 && !caughtsigHUP; seconds--)
+    Sleep(1000L); // not interrupted by signals
+}
+
+#endif
+
+
 // signal handler that prints Goodbye message and removes pidfile
-void Goodbye(){  
+void Goodbye(void){
   
   // clean up memory -- useful for debugging
   RmAllConfigEntries();
@@ -378,6 +456,7 @@ int exportenv(char* stackspace, const char *name, const char *value){
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
 void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
+#ifndef NO_MAIL_WARNING // Not implemented for Win32
   char command[2048], message[256], hostname[256], additional[256];
   char original[256], further[256], domainname[256], subject[256],dates[DATEANDEPOCHLEN];
   char environ_strings[10][ENVLENGTH];
@@ -457,6 +536,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   mail->lastsent=epoch;
   
   // get system host & domain names (not null terminated if length=MAX) 
+
   if (gethostname(hostname, 256))
     sprintf(hostname,"Unknown host");
   else
@@ -611,7 +691,6 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     else {
       // mail process apparently succeeded. Check and report exit status
       int status8;
-      
       if (WIFEXITED(status)) {
 	// exited 'normally' (but perhaps with nonzero status)
 	status8=WEXITSTATUS(status);
@@ -644,6 +723,12 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   
   // free copy of address (without commas)
   address=FreeNonZero(address, -1, __LINE__, filenameandversion);
+
+#else // NO_MAIL_WARNING
+
+  ARGUSED(cfg); ARGUSED(which); ARGUSED(fmt);
+
+#endif // NO_MAIL_WARNING
 
   return;
 }
@@ -695,6 +780,7 @@ void PrintOut(int priority,char *fmt, ...){
 // http://www.iar.unlp.edu.ar/~fede/revistas/lj/Magazines/LJ47/2335.html
 // for a good description of why we do things this way.
 void DaemonInit(){
+#ifndef _WIN32
   pid_t pid;
   int i;  
 
@@ -741,6 +827,26 @@ void DaemonInit(){
   
   PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());
 
+#else // _WIN32
+
+  // No fork() on native Win32
+  fflush(NULL);
+
+#if 0
+  // Detach this process from console
+  FreeConsole();
+#ifdef _DEBUG
+  AllocConsole();
+#endif
+  PrintOut(LOG_INFO, "smartd has been detached from console.\n");
+#else
+  // Detaching from console is left out for now,
+  // until a reasonable signal()ing is implemented.
+  puts("smartd: background processing not implemented yet.\n"
+    "Type CONTROL-C to reread configuration file, CONTROL-Break to stop.");
+#endif // 0
+
+#endif // _WIN32
   return;
 }
 
@@ -786,13 +892,15 @@ void Directives() {
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-	   "  -n MODE No check if: never, sleep, standby, idle\n"
+           "  -n MODE No check if: never, sleep, standby, idle\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
            "  -f      Monitor 'Usage' Attributes, report failures\n"
+#ifndef NO_MAIL_WARNING
            "  -m ADD  Send email warning to address ADD\n"
            "  -M TYPE Modify email warning behavior (see man page)\n"
+#endif
            "  -p      Report changes in 'Prefailure' Attributes\n"
            "  -u      Report changes in 'Usage' Attributes\n"
            "  -t      Equivalent to -p and -u Directives\n"
@@ -846,8 +954,10 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Display this help and exit\n\n");
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
+#if !(defined(_WIN32) || defined(__CYGWIN__)) // facility ignored
   PrintOut(LOG_INFO,"  -l local[0-7], --logfacility=local[0-7]\n");
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 or daemon [default]\n\n");
+#endif
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
@@ -861,7 +971,9 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
   PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
   PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
+#if !(defined(_WIN32) || defined(__CYGWIN__))
   PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7, or daemon\n");
+#endif
   PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
@@ -1988,6 +2100,8 @@ void Initialize(time_t *wakeuptime){
   // it resets the handler to SIG_DFL after each call.  So use sigset()
   // instead.  So SIGNALFN()==signal() or SIGNALFN()==sigset().
   
+#ifndef _WIN32
+
   // normal and abnormal exit
   if (SIGNALFN(SIGTERM, sighandler)==SIG_IGN)
     SIGNALFN(SIGTERM, SIG_IGN);
@@ -2003,6 +2117,15 @@ void Initialize(time_t *wakeuptime){
     SIGNALFN(SIGHUP, SIG_IGN);
   if (SIGNALFN(SIGUSR1, USR1handler)==SIG_IGN)
     SIGNALFN(SIGUSR1, SIG_IGN);
+
+#else // _WIN32
+
+  // <CONTROL-Break> => Exit
+  // <CONTROL-C> => Reread config (HUP)
+  if (!SetConsoleCtrlHandler(win32_sighandler, TRUE/*add*/))
+    PrintOut(LOG_CRIT, "SetConsoleCtrlHandler() failed, Error=%ld\n", GetLastError());
+
+#endif // _WIN32
 
   // initialize wakeup time to CURRENT time
   *wakeuptime=time(NULL);
@@ -2806,7 +2929,7 @@ int ParseConfigFile(){
     }
 
     // Ignore anything after comment symbol
-    if ((comment=index(line,'#'))){
+    if ((comment=strchr(line,'#'))){
       *comment='\0';
       len=strlen(line);
     }
@@ -2824,7 +2947,7 @@ int ParseConfigFile(){
     cont+=len;
 
     // is this a continuation line.  If so, replace \ by space and look at next line
-    if ( (lastslash=rindex(line,'\\')) && !strtok(lastslash+1," \n\t")){
+    if ( (lastslash=strrchr(line,'\\')) && !strtok(lastslash+1," \n\t")){
       *(fullline+(cont-len)+(lastslash-line))=' ';
       continue;
     }
