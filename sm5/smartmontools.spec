@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.114 2003/08/22 04:44:38 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.115 2003/08/22 04:47:22 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -304,6 +304,10 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Fri Aug 22 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartd: fixed serious bug - Attributes not monitored unless
+       user told smartd to ignore at least one of them!
+
 * Tue Aug 19 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] Default runlevels for smartd changed from 3 and 5 to
        2, 3, 4, and 5.
