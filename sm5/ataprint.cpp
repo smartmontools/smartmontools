@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.19 2002/10/22 11:47:59 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.cpp,v 1.20 2002/10/22 12:09:14 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -51,7 +51,7 @@ void printswap(char *in, unsigned int n){
 
   // and do the printing starting from first non-white space
   if (n-i)
-    printf("%.*s\n",n-i,out+i);
+    printf("%.*s\n",(int)(n-i),out+i);
   else
     printf("[No Information Found]\n");
 
