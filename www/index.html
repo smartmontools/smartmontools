@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/12/16 18:02:22 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/12/18 10:28:11 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.110 2003/12/16 18:02:22 pjwilliams Exp $ -->
+<!-- $Id: index.html,v 1.111 2003/12/18 10:28:11 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -35,7 +35,7 @@ href="#sampleoutput">example output</a> is on a single page.</p>
 <hr size="2" />
 
 <ul>
-<li><a href="http://www.linuxjournal.com/article.php?sid=6983">Monitoring Hard Disks with SMART (Linux Journal, Jan 2004)</a></li>
+<li><a href="http://www.linuxjournal.com/article.php?sid=6983">Monitoring Hard Disks with SMART (Linux Journal, January 2004, page 74)</a></li>
 <li><a href="#howtodownload">How to download and install
 smartmontools</a></li>
 <li><a href="#PROBLEMS">Serious Problem Reports (system lockup, etc.)</a></li>
@@ -284,7 +284,7 @@ cluster</a> with 600 ATA-5 and -6 disks (300 IBM and 300
 Maxtor).&#160; We have more than 50 TB of data stored on the
 system.&#160; I also help out with a <a
 href="http://pandora.aei.mpg.de/merlin/"> cluster</a> at the Albert
-Einstein Institute that has another 300 IBM ATA-6 disks (36 TB
+Einstein Institute that has 540 IBM ATA-6 disks (65 TB
 total). It's nice to have advanced warning when a disk is going to
 fail.</p></li>
 
@@ -301,31 +301,33 @@ smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
 
 <li><b>What Kernel Version is needed? (Linux)</b>
-
 <p>
 Kernel versions 2.4.0 or later should work. We recommend the latest
-2.4 kernel.<br /><br />
-
+2.4 kernel.</p>
+<p>
 Vanilla kernel.org 2.2.X kernels do not support the HDIO_DRIVE_TASK
 ioctl(), which is needed for the ATA drive to execute the ATA SMART
-RETURN STATUS command. So these kernels will not work.<br /><br />
-
+RETURN STATUS command. So these kernels will not work.</p>
+<p>
 Vendor-supplied 2.2.X kernels, and vanilla 2.2.X kernels patched with
 <a href="http://www.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/">Andre
 Hedrick's IDE patches</a> (available from your local kernel.org
 mirror, not updated for 2.2.21 or later, and probably still containing
-a few bugs) may support the needed ioctl().<br /><br />
-
+a few bugs) may support the needed ioctl().</p>
+<p>
 If the configuration option CONFIG_IDE_TASK_IOCTL exists in your 2.2.X
 kernel source code tree, then your 2.2.X kernel will probably support
 smartmontools.  Note that this kernel configuration option does
 <i>not</i> need to be enabled. Its presence merely indicates that the
-required HDIO_DRIVE_TASK ioctl() is supported.
-</p></li>
+required HDIO_DRIVE_TASK ioctl() is supported.</p>
+<p>
+If you are using a 3ware RAID controller, please see below for information
+about the correct <tt>3w-xxxx</tt> module/driver version.</p>
+</li>
 
 <li><b>What attributes does smartmontools not yet recognize?</b>
 
-<p>From Maxtor disks (99), (100), (101)
+<p>From Maxtor disks (99), (100), and (101).
 </p>
 
 <p>If you can attach names/meanings to these attributes, please send a
@@ -338,14 +340,15 @@ utility, that's especially useful.</p></li>
 
 <li><b>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
 
-<p>On some recent disks, Maxtor has started to use Attribute 9 to
-store the lifetime in minutes rather than hours.  In this case, use
-the -m option (smartctl versions 5.0.X) or the
---vendorattribute=9,minutes (smartctl 5.1.X) option to correctly
-display hours and minutes.
+<p>On recent disks, Maxtor has started to use Attribute 9 to
+store the power-on disk lifetime in minutes rather than hours.  In this case, use
+the:<br/>
+<tt>-v 9,minutes</tt><br/>
+option to correctly display hours and minutes.
 </p>
-<p>Some models of Fujitsu disks are known to use Attribute 9
-for lifetime in seconds. In that case, use the --vendorattribute=9,seconds
+<p>Some models of Fujitsu disks use Attribute 9 to store
+the power-on disk lifetime in seconds. In that case, use the:<br/>
+<tt>-v 9,seconds</tt><br/>
 option to correctly display hours, minutes and seconds.</p>
 </li>
 
@@ -413,14 +416,14 @@ contains messages like this:</b>
 <pre>smartd: Reading Device /dev/sdv
 modprobe: modprobe: Can't locate module block-major-65</pre>
 
-<p>This is because when <tt>smartd</tt> starts, it looks for all ATA and
-SCSI devices to monitor (matching the pattern <tt>/dev/hd[a-z]</tt> or
+<p>This is because when <tt>smartd</tt> starts, if there is no
+configuration file, it looks for all ATA and SCSI devices to monitor
+(matching the pattern <tt>/dev/hd[a-t]</tt> or
 <tt>/dev/sd[a-z]</tt>).&#160; The log messages appear because your
 system doesn't have most of these devices.</p>
 
-<p>Recent releases of smartd can use a configuration file
-<tt>/etc/smartd.conf</tt> to specify which devices to include or exclude
-from start-up search.</p></li>
+<p>The solution is simple: use the <tt>smartd</tt> configuration file
+<tt>/etc/smartd.conf</tt> to specify which devices to monitor.</p></li>
 
 <li><b>What's the story on IBM SMART disks?</b>
 
@@ -477,7 +480,7 @@ the 3ware controller, use the smartmontools <b>-d 3ware,N</b> option
 or Directive.
 </p>
 <p>
-3ware linux device drivers (3w-xxxx) versions <b>1.02.00.036</b>
+3ware linux device drivers (<tt>3w-xxxx</tt>) versions <b>1.02.00.036</b>
 and earlier do not return the SMART HEALTH STATUS (smartmontools
 <b>-H</b>) of the disks. In addition, the ENABLE AUTOMATIC OFFLINE and
 ENABLE ATTRIBUTE AUTOSAVE commands (smartmontools <b>-o on</b> and
@@ -485,18 +488,25 @@ ENABLE ATTRIBUTE AUTOSAVE commands (smartmontools <b>-o on</b> and
 Later driver versions support <i>all</i> of these commands.  You may:
 </p>
 <ul>
-<li>use version <b>1.02.00.037</b> or greater of the 3w-xxxx driver, or</li>
-<li><a href="3w-xxxx.txt">patch</a> earlier 3ware 3w-xxxx drivers so that
+<li>use version <b>1.02.00.037</b> or greater of the <tt>3w-xxxx</tt> driver, or</li>
+<li><a href="3w-xxxx.txt">patch</a> earlier 3ware <tt>3w-xxxx</tt> drivers so that
 these commands reach the disks, or</li>
-<li> use an <b>unpatched</b> earlier 3w-xxxx driver (which won't pass these
+<li> use an <b>unpatched</b> earlier <tt>3w-xxxx</tt> driver (which won't pass these
 commands to the disks but will instead print
 harmless warning messages to SYSLOG).</li>
 </ul>
 <p>
-To see if your system's 3w-xxxx driver has been patched, give the
-command <b>smartctl -H -S on -o on -d 3ware,? /dev/sd?</b>.  If you
+To see if your system's <tt>3w-xxxx</tt> driver has been patched, give the
+command:<br/>
+<tt>smartctl -H -S on -o on -d 3ware,? /dev/sd?</tt>
+<br/>
+If you
 have an unpatched kernel, you'll see warning messages prompting you to
-patch the kernel.
+patch the kernel.</p>
+<p>
+The 3ware <tt>3w-xxxx</tt> version 1.02.00.037 driver first appeared in
+kernel version 2.6.0-test5-bk11 on 24 September 2003 and in kernel
+version 2.4.23-bk2 on 3 December 2003.
 </p>
 </li>
 
@@ -517,13 +527,24 @@ etc.) is <a
 href="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;oe=UTF-8&amp;th=18cdac9d90f6bda1&amp;rnum=1">here</a>.
 </p> </li>
 
-<li><b>Why has the versioning scheme changed?</b>
+<li><b>Why did the release version scheme change?</b>
 
 <p>It was non-standard.  So with the move to GNU Autoconf and GNU
-Automake it changed from 5.X-Y (where X and Y are one or more numbers)
-to 5.Y.  So the releases are numbered (starting with the oldest and
-moving forward in time):
-5.0-1,...,5.0-45,5.1-1,...,5.1-18,5.19,5.20,...
+Automake it changed from 5.X-Y (where X and Y are one or more digits)
+to 5.Y. Starting with the first release, and moving forward in time, the releases are
+numbered as follows:<br/>
+<tt>
+5.0-1,&nbsp;
+5.0-2,&nbsp;
+...,&nbsp;
+5.0-45,&nbsp;
+5.1-1,&nbsp;
+...,&nbsp;
+5.1-18,&nbsp;
+5.19,&nbsp;
+5.20,&nbsp;
+...
+</tt>
 </p>
 </li>
 
@@ -531,9 +552,9 @@ moving forward in time):
 
 <p>
  If your drive is not in the database, then the
- <i>names</i> of the Attributes (displayed in the <b>ID#</b> column of
- <b>smartctl -A /dev/hd?</b>) and the <i>format</i> of the the raw Attribute
- values shown in the <b>RAW_VALUE</b> column may be incorrect.  This
+ <i>names</i> of the Attributes (displayed in the <tt>ID#</tt> column of
+ <tt>smartctl -A /dev/hd?</tt>) and the <i>format</i> of the the raw Attribute
+ values shown in the <tt>RAW_VALUE</tt> column may be incorrect.  This
  is mostly cosmetic: the essential drive health monitoring/testing
  functionality of <b>smartmontools</b> does <i>not</i> depend upon the
  database.
@@ -541,17 +562,21 @@ moving forward in time):
 
 <p>
  To have your drive added to the database, first use the command:<br/>
- <tt>smartctl -t short /dev/hd?</tt><br/> to run a short self-test on
- the drive, and wait a few minutes for the test to complete.  The
- timestamp in the self-test log will help us to determine whether
- Attribute 9 is being used to store the lifetime in hours, minutes, or
- seconds.  Then email the output from:<br/> <tt>smartctl -a
- /dev/hd?</tt><br/> to <a
+ <tt>smartctl -t short /dev/hd?</tt><br/> 
+ to run a short self-test on
+ the drive, and wait a few minutes for the test to complete.  Then
+ email the output from:<br/>
+<tt>smartctl -a /dev/hd?</tt><br/>
+ to <a
  href="https://lists.sourceforge.net/lists/listinfo/smartmontools-database">smartmontools-database</a>
- as an email attachment.  If you need to use any of the
- vendor-specific display options (<b>-v</b> options) with this drive
- or if any of the Attributes are behaving strangely please include
- that information as well.
+ as an email attachment.  The timestamp in the self-test log will help
+ us to determine whether Attribute 9 is being used to store the
+ lifetime in hours, minutes, or seconds.
+</p>
+<p>
+If you need to use any of the vendor-specific display options
+ (<tt>-v</tt> options) with the drive, or if any of the Attributes are
+ behaving strangely, please include that information as well.
 </p>
 </li>
 
@@ -801,8 +826,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/12/16 18:02:22 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.110 2003/12/16 18:02:22 pjwilliams Exp $</tt>
+Last updated: <tt>$Date: 2003/12/18 10:28:11 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.111 2003/12/18 10:28:11 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
