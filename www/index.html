@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/07/16 22:37:59 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/07/22 19:30:31 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.165 2004/07/16 22:37:59 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.166 2004/07/22 19:30:31 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -105,7 +105,7 @@ to use:
 <pre>rpm -e --noscripts smartmontools</pre></li>
 </ul>
 
-<b>Second Method (Linux/Solaris/FreeBSD/NetBSD) - Install from the source tarball</b>
+<b>Second Method (Linux/Solaris/FreeBSD/NetBSD/Cygwin) - Install from the source tarball</b>
 <ul>
 <li>Download the latest source tarball from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 Note: you probably want the most recent release.</li>
@@ -149,7 +149,7 @@ Use a full path: <tt>~/smartmontools-test</tt> won't work.
 only root can do <tt>make install</tt></li>
 </ul>
 
-<b>Third Method (Darwin/FreeBSD/Linux/NetBSD/Solaris) - Install from the CVS repository</b>
+<b>Third Method (Darwin/FreeBSD/Linux/NetBSD/Solaris/Cygwin) - Install from the CVS repository</b>
 <ul>
 <li><p>One of the really cool things about CVS is that you can get
 <i>any</i> version of the code you want, from the first release up the
@@ -227,8 +227,9 @@ apt-get update &amp;&amp; apt-get install smartmontools
 
 
 <b><a name="CygwinInstall"></a>
-Fifth Method - Install the Cygwin package (for Windows machines with
-<a href="http://www.cygwin.com/">Cygwin</a> installed)</b>
+Fifth Method (Windows with <a href="http://www.cygwin.com/">Cygwin</a>
+installed) - Install the Cygwin package
+</b>
 <ul>
 <li>To install it, use Cygwin's
 <a href="http://www.cygwin.com/setup.exe">setup.exe</a>.
@@ -239,27 +240,25 @@ and follow as usual (requires Cygwin <b>1.5.7 or greater</b>).
 </li>
 <li><p>If you want to manually install it (not recommended
 because, among others, you lose the ability to update and uninstall it),
-download the latest Cygwin package (<tt>*-cygwin.tar.bz2</tt>) from
+download the latest Cygwin package (<tt>*.cygwin.tar.bz2</tt>) from
 <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>,
 and type:</p>
 <pre>
-tar jxf smartmontools-5.30-1-cygwin.tar.bz2 -C /
+tar jxf smartmontools-5.32-1.cygwin.tar.bz2 -C /
 </pre>
 from a Cygwin shell.
 </li>
 </ul>
 
-<b><a name="MinGWInstall"></a>
-Sixth Method - Install the Windows/Native package (for Windows machines,
-not depending on Cygwin)
+<b><a name="WindowsInstall"></a>
+Sixth Method (Windows) - Install the Windows package
 </b>
 <ul>
-<li>Download the latest Windows/Native package
-(<tt>*.zip</tt> with <i>exe (32-bit Windows)</i> as type) from
+<li>Download the latest Windows package (<tt>*.win32.zip</tt>) from
 <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 </li>
-<li>Unzip the files into a directory of your choice.
-A directory in the PATH is recommended for the <tt>*.exe</tt> files.
+<li><p>Unzip the files into a directory of your choice.
+A directory in the PATH is recommended for the <tt>*.exe</tt> files.</p>
 </li>
 </ul>
 
@@ -279,6 +278,9 @@ man smartd
 "<tt>man</tt>" doesn't find them, then you may need to add
 <tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
 variable.</p>
+
+<p>The Windows package (see Method 6 above) provides preformatted man pages
+in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
 
 <hr size="2" />
 
@@ -629,10 +631,10 @@ was first checked in 2004/02/23 on CVS branch
 RELEASE_5_26_WIN32_BRANCH</a> and has been merged to the CVS trunk later.</p>
 
 <p>The <a href="http://www.cygwin.com/">Cygwin</a> environment can be
-used to built both Cygwin and Native (<a href="http://www.mingw.org/">MinGW</a>,
-not depending on Cygwin) versions of smartctl and smartd.
-Installation instructions can be found <a href="#CygwinInstall">here</a>
-and <a href="#MinGWInstall">here</a>.</p>
+used to built both Cygwin and Windows (using <a href="http://www.mingw.org/">MinGW</a>)
+versions of smartctl and smartd.
+Installation instructions for binary distributions can be found
+<a href="#CygwinInstall">here</a> and <a href="#WindowsInstall">here</a>.</p>
 
 <p>Alternatively, you can also run it from a
 <a href="#bootable">bootable CD</a></p>
@@ -1057,8 +1059,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/07/16 22:37:59 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.165 2004/07/16 22:37:59 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/07/22 19:30:31 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.166 2004/07/22 19:30:31 chrfranke Exp $</tt>
 
 <hr size="2" />
 
