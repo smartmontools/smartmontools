@@ -2,7 +2,7 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
-$Id: README,v 1.51 2004/08/18 19:27:44 likewise Exp $
+$Id: README,v 1.52 2004/08/31 18:20:40 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -122,6 +122,3 @@ to start the daemon in background mode.  This will log messages to
 SYSLOG.  If you would like to get email warning messages, please set
 up the configuration file smartd.conf with the '-m' mail warning
 Directive.  See the manual page 'man smartd' for more information.
-
-
-

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.64 2004/08/30 19:12:14 guidog Exp $
+# $Id: Makefile.am,v 1.65 2004/08/31 18:20:40 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -10,8 +10,8 @@ AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR=\"$(sysconfdir)\"
 sbin_PROGRAMS = smartd 	\
 		smartctl
 
-smartd_SOURCES =  smartd.c       \
-                  smartd.h       \
+smartd_SOURCES =  smartd.c      \
+                  smartd.h      \
                   atacmdnames.c	\
                   atacmdnames.h	\
                   atacmds.c	\
@@ -31,38 +31,38 @@ smartd_SOURCES =  smartd.c       \
 
 smartd_LDADD = @os_deps@ @os_libs@
 smartd_DEPENDENCIES = @os_deps@
-EXTRA_smartd_SOURCES = os_darwin.c \
-		       os_darwin.h \
-		       os_linux.c \
-                       os_linux.h \
-		       os_freebsd.c \
-		       os_freebsd.h \
-		       os_netbsd.c \
-		       os_netbsd.h \
-		       os_openbsd.c \
-		       os_openbsd.h \
-		       os_solaris.c \
-		       os_solaris.h \
+EXTRA_smartd_SOURCES = os_darwin.c      \
+		       os_darwin.h      \
+		       os_linux.c       \
+                       os_linux.h       \
+		       os_freebsd.c     \
+		       os_freebsd.h     \
+		       os_netbsd.c      \
+		       os_netbsd.h      \
+		       os_openbsd.c     \
+		       os_openbsd.h     \
+		       os_solaris.c     \
+		       os_solaris.h     \
 		       os_solaris_ata.s \
-		       os_win32.c \
-	               os_generic.c \
+		       os_win32.c       \
+	               os_generic.c     \
 	               os_generic.h
 
 
 if OS_WIN32_MINGW
 
-EXTRA_smartd_SOURCES += \
-                posix/regex.h \
-                posix/regex.c \
-                posix/regcomp.c \
-                posix/regexec.c \
-                posix/regex_internal.c \
-                posix/regex_internal.h \
-                os_win32/daemon_win32.h \
-                os_win32/daemon_win32.c \
+EXTRA_smartd_SOURCES +=                   \
+                posix/regex.h             \
+                posix/regex.c             \
+                posix/regcomp.c           \
+                posix/regexec.c           \
+                posix/regex_internal.c    \
+                posix/regex_internal.h    \
+                os_win32/daemon_win32.h   \
+                os_win32/daemon_win32.c   \
                 os_win32/hostname_win32.h \
                 os_win32/hostname_win32.c \
-                os_win32/syslog.h \
+                os_win32/syslog.h         \
                 os_win32/syslog_win32.c
 
 endif
@@ -92,23 +92,23 @@ EXTRA_smartctl_SOURCES = os_linux.c \
                        os_linux.h   \
 		       os_freebsd.c \
 		       os_freebsd.h \
-		       os_netbsd.c \
-		       os_netbsd.h \
+		       os_netbsd.c  \
+		       os_netbsd.h  \
 		       os_openbsd.c \
 		       os_openbsd.h \
 		       os_solaris.c \
 		       os_solaris.h \
-		       os_win32.c \
+		       os_win32.c   \
 		       os_generic.c \
 		       os_generic.h
 
 if OS_WIN32_MINGW
 
-EXTRA_smartctl_SOURCES += \
-                posix/regex.h \
-                posix/regex.c \
-                posix/regcomp.c \
-                posix/regexec.c \
+EXTRA_smartctl_SOURCES +=              \
+                posix/regex.h          \
+                posix/regex.c          \
+                posix/regcomp.c        \
+                posix/regexec.c        \
                 posix/regex_internal.c \
                 posix/regex_internal.h \
                 os_win32/syslog.h
@@ -174,14 +174,14 @@ man_MANS =        smartd.conf.5 \
 endif
 
 docsdir=$(docdir)
-docs_DATA = AUTHORS   \
-            CHANGELOG \
-            COPYING   \
-            INSTALL   \
-            NEWS      \
-            README    \
-            TODO      \
-            WARNINGS  \
+docs_DATA = AUTHORS     \
+            CHANGELOG   \
+            COPYING     \
+            INSTALL     \
+            NEWS        \
+            README      \
+            TODO        \
+            WARNINGS    \
             smartd.conf
 
 sysconf_DATA = smartd.conf$(smartd_suffix)
@@ -201,14 +201,14 @@ EXTRA_DIST = \
 		autogen.sh		\
                 $(docs_DATA)
 
-CLEANFILES = smartd.conf.5 \
-             smartd.conf.4 \
-             smartd.8      \
-             smartd.1m     \
-             smartd.8.html \
-             smartd.8.txt  \
-             smartctl.8    \
-             smartctl.1m   \
+CLEANFILES = smartd.conf.5      \
+             smartd.conf.4      \
+             smartd.8           \
+             smartd.1m          \
+             smartd.8.html      \
+             smartd.8.txt       \
+             smartctl.8         \
+             smartctl.1m        \
              smartctl.8.html    \
              smartctl.8.txt     \
              smartd.conf.5.html \
@@ -230,8 +230,8 @@ smartd.conf.5.in: smartd.8.in
 	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
 
 if OS_DARWIN
-initd_DATA = SMART \
-	os_darwin/StartupParameters.plist \
+initd_DATA = SMART                            \
+	os_darwin/StartupParameters.plist     \
 	os_darwin/English_Localizable.strings
 
 initd_install_name = SMART
@@ -301,8 +301,8 @@ smart%: $(srcdir)/smart%.in Makefile
 	sed "s|/usr/local/share/man/|$(mandir)/|g" | \
 	sed "s|/usr/local/sbin/|$(sbindir)/|g" | \
 	sed "s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g" | \
-	sed "s|/usr/local/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
-	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
+	sed "s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g" | \
+	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" > $@
 
 
 # Commands to convert man pages into .html and .txt
