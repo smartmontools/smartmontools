@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.64 2004/05/21 15:20:21 ballen4705 Exp $
+$Id: smartd.8.in,v 1.65 2004/05/25 15:44:24 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -592,8 +592,12 @@ that it should continue (instead of exiting, which is the default
 behavior) if the device does not appear to be present when
 \fBsmartd\fP is started.  This Directive may be used in conjunction
 with the other \'\-d\' Directives.
+
 .TP
 .B \-n POWERMODE
+This \'nocheck\' Directive is used to prevent a disk from being
+spun-up when it is periodically polled by \fBsmartd\fP.
+
 ATA disks have five different power states. In order of increasing
 power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
 and \'ACTIVE\'.  Typically in the OFF, SLEEP, and STANDBY modes the
@@ -604,10 +608,10 @@ be spun up and put into a higher\-power mode when it is periodically
 polled by \fBsmartd\fP.
 
 Note that if the disk is in SLEEP mode when \fBsmartd\fP is started,
-then it won't respond to \fBsmartd\fP commands, and so it won't be
-registered as a device for \fBsmartd\fP to monitor. If a disk is in
+then it won't respond to \fBsmartd\fP commands, and so the disk won't
+be registered as a device for \fBsmartd\fP to monitor. If a disk is in
 any other low\-power mode, then the commands issued by \fBsmartd\fP to
-register it will probably cause it to spin\-up.
+register the disk will probably cause it to spin\-up.
 
 The \'\fB\-n\fP\' (nocheck) Directive specifies if \fBsmartd\fP\'s
 periodic checks should still be carried out when the device is in a
@@ -1670,4 +1674,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.64 2004/05/21 15:20:21 ballen4705 Exp $
+$Id: smartd.8.in,v 1.65 2004/05/25 15:44:24 ballen4705 Exp $
