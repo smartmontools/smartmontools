@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.25 2003/10/11 22:59:37 arvoreen Exp $
+# $Id: Makefile.am,v 1.26 2003/10/12 19:21:57 arvoreen Exp $
 #
 
 @SET_MAKE@
@@ -78,7 +78,12 @@ docs_DATA = AUTHORS   \
             WARNINGS  \
             smartd.conf
 
-sysconf_DATA = smartd.conf
+sysconf_DATA = smartd.conf$(smartd_suffix)
+
+if SMARTD_SUFFIX
+smartd.conf$(smartd_suffix): smartd.conf
+	cp smartd.conf smartd.conf$(smartd_suffix)
+endif
 
 initd_DATA = smartd.initd
 
@@ -108,14 +113,14 @@ smartd.conf.5.in: smartd.8.in
 
 install-initdDATA: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
-	$(INSTALL_SCRIPT) $(srcdir)/smartd.initd $(DESTDIR)$(initddir)/smartd
+	$(INSTALL_SCRIPT) $(srcdir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
 	@echo -e "A sample configuration file may be found in ${docdir}.\n\n"
 
 uninstall-initdDATA:
-	rm -rf $(DESTDIR)$(initddir)/smartd
+	rm -rf $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
 
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.206 2003/10/11 22:59:37 arvoreen Exp $
+$Id: CHANGELOG,v 1.207 2003/10/12 19:21:57 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  
+  [EM] Allow for option --enable-sample to append '.sample' to installed
+	smartd.conf and rc script files. Also, let rc script shell setting
+	be determined by configure
 
   [EM] Minor autoconf update to include -lcam for FreeBSD
 
