@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.13 2004/09/04 15:56:09 arvoreen Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.14 2004/09/04 22:11:55 arvoreen Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -46,6 +46,9 @@ struct freebsd_dev_channel {
  *  The following cut out of twereg.h
  *
  */
+#if __FreeBSD_version < 500000
+#define __packed
+#endif
 
 #define TWE_MAX_SGL_LENGTH		62
 #define TWE_MAX_ATA_SGL_LENGTH		60
