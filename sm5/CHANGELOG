@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.144 2003/05/12 18:34:39 pjwilliams Exp $
+$Id: CHANGELOG,v 1.145 2003/06/01 12:39:07 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] Refine SCSI log sense command to do a double fetch in most cases
+       (but not for the TapeAlert log page). Fix TapeAlert and Self Test
+       log pgae response truncation.
 
   [PW] Added 'removable' argument to -d Directive for smartd.  This indicates
        that smartd should continue (rather than exit) if the device does not 

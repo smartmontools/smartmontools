@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.46 2003/05/26 09:04:10 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.47 2003/06/01 12:37:03 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -341,10 +341,14 @@ const char * scsiErrString(int scsiErr)
    command not supported, 3 if field (within command) not supported or
    returns negated errno.  SPC sections 7.6 and 8.2 N.B. Sets PC==1
    to fetch "current cumulative" log pages.
-   Send the command twice: first ask for only the initial 4 bytes to
-   deduce the response length, then send the command again requesting
-   the deduced response length. This protects certain fragile HBAs.  */
-int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen)
+   If known_resp_len > 0 then a single fetch is done for this response
+   length. If known_resp_len == 0 then twin fetches are performed, the
+   first to deduce the response length, then send the same command again
+   requesting the deduced response length. This protects certain fragile 
+   HBAs. The twin fetch technique should not be used with the TapeAlert
+   log page since it clears its state flags after each fetch. */
+int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
+                 int known_resp_len)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -353,37 +357,40 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen)
     int pageLen;
     int status, res;
 
-    /* Get page length first. */
-    pageLen = 4;
-    if (pageLen > bufLen)
+    if (known_resp_len > bufLen)
         return -EIO;
+    if (known_resp_len > 0)
+        pageLen = known_resp_len;
+    else {
+        /* Starting twin fetch strategy: first fetch to find respone length */
+        pageLen = 4;
+        if (pageLen > bufLen)
+            return -EIO;
 
-    memset(&io_hdr, 0, sizeof(io_hdr));
-    memset(cdb, 0, sizeof(cdb));
-    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-    io_hdr.dxfer_len = pageLen;
-    io_hdr.dxferp = pBuf;
-    cdb[0] = LOG_SENSE;
-    cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
-    cdb[7] = (pageLen >> 8) & 0xff;
-    cdb[8] = pageLen & 0xff;
-    io_hdr.cmnd = cdb;
-    io_hdr.cmnd_len = sizeof(cdb);
-    io_hdr.sensep = sense;
-    io_hdr.max_sense_len = sizeof(sense);
-
-    status = do_scsi_cmnd_io(device, &io_hdr);
-    scsi_do_sense_disect(&io_hdr, &sinfo);
-    if ((res = scsiSimpleSenseFilter(&sinfo)))
-        return res;
-    if (status > 0)
-        return -EIO;
-
-    /* Now get the whole page. */
-    pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
-    if (pageLen > bufLen)
-        pageLen = bufLen;
-
+        memset(&io_hdr, 0, sizeof(io_hdr));
+        memset(cdb, 0, sizeof(cdb));
+        io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+        io_hdr.dxfer_len = pageLen;
+        io_hdr.dxferp = pBuf;
+        cdb[0] = LOG_SENSE;
+        cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
+        cdb[7] = (pageLen >> 8) & 0xff;
+        cdb[8] = pageLen & 0xff;
+        io_hdr.cmnd = cdb;
+        io_hdr.cmnd_len = sizeof(cdb);
+        io_hdr.sensep = sense;
+        io_hdr.max_sense_len = sizeof(sense);
+    
+        status = do_scsi_cmnd_io(device, &io_hdr);
+        scsi_do_sense_disect(&io_hdr, &sinfo);
+        if ((res = scsiSimpleSenseFilter(&sinfo)))
+            return res;
+        if (status > 0)
+            return -EIO;
+        pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
+        if (pageLen > bufLen)
+            pageLen = bufLen;
+    }
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
@@ -1018,7 +1025,8 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     UINT8 tBuf[252];
     int err;
 
-    if ((err = scsiLogSense(device, TEMPERATURE_PAGE, tBuf, sizeof(tBuf)))) {
+    if ((err = scsiLogSense(device, TEMPERATURE_PAGE, tBuf, 
+                            sizeof(tBuf), 0))) {
         *currenttemp = 0;
         *triptemp = 0;
         pout("Log Sense for temperature failed [%s]\n", scsiErrString(err));
@@ -1048,7 +1056,8 @@ int scsiCheckIE(int device, int method, int hasTempLogPage,
     *currenttemp = 0;
     memset(&sense_info, 0, sizeof(sense_info));
     if (method == CHECK_SMART_BY_LGPG_2F) {
-        if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, sizeof(tBuf)))) {
+        if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, 
+                                sizeof(tBuf), 0))) {
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
             return err;
         }

@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.47 2003/05/15 07:40:57 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.48 2003/06/01 12:38:22 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -48,6 +48,8 @@ extern smartmonctrl *con;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
+#define LOG_RESP_TAPE_ALERT_LEN 0x144
+#define LOG_RESP_SELF_TEST_LEN 0x194
 
 /* Log pages supported */
 static int gSmartLPage = 0;     /* Informational Exceptions log page */
@@ -65,7 +67,7 @@ static void scsiGetSupportedLogPages(int device)
     int i, err;
 
     if ((err = scsiLogSense(device, SUPPORTED_LOG_PAGES, gBuf, 
-                            LOG_RESP_LEN))) {
+                            LOG_RESP_LEN, 0))) {
         if (con->reportscsiioctl > 0)
             pout("Log Sense for supported pages failed [%s]\n", 
                  scsiErrString(err)); 
@@ -143,7 +145,8 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     int failures = 0;
 
     QUIETON(con);
-    if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, LOG_RESP_LEN))) {
+    if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, 
+                        LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
         return -1;
@@ -188,7 +191,7 @@ void scsiGetStartStopData(int device)
     char str[6];
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
-                            LOG_RESP_LEN))) {
+                            LOG_RESP_LEN, 0))) {
         QUIETON(con);
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
@@ -233,17 +236,17 @@ static void scsiPrintErrorCounterLog(int device)
     double processed_gb;
 
     if (0 == scsiLogSense(device, READ_ERROR_COUNTER_PAGE, gBuf, 
-                          LOG_RESP_LEN)) {
+                          LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
         found[0] = 1;
     }
     if (0 == scsiLogSense(device, WRITE_ERROR_COUNTER_PAGE, gBuf, 
-                          LOG_RESP_LEN)) {
+                          LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
         found[1] = 1;
     }
     if (0 == scsiLogSense(device, VERIFY_ERROR_COUNTER_PAGE, gBuf, 
-                          LOG_RESP_LEN)) {
+                          LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
         ecp = &errCounterArr[2];
         for (k = 0; k < 7; ++k) {
@@ -275,7 +278,7 @@ static void scsiPrintErrorCounterLog(int device)
     else 
         pout("\nDevice does not support Error Counter logging\n");
     if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_PAGE, gBuf, 
-                          LOG_RESP_LEN)) {
+                          LOG_RESP_LEN, 0)) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8llu\n", nme.counterPC0);
@@ -322,7 +325,7 @@ static int scsiPrintSelfTest(int device)
     unsigned long long ull=0;
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_PAGE, gBuf, 
-                            LOG_RESP_LEN))) {
+                            LOG_RESP_SELF_TEST_LEN, 0))) {
         QUIETON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
