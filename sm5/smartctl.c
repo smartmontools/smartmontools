@@ -38,7 +38,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.c,v 1.19 2002/10/24 13:36:37 ballen4705 Exp $"
+const char* CVSid6="$Id: smartctl.c,v 1.20 2002/10/25 08:50:21 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
 
 unsigned char driveinfo               = FALSE;
@@ -206,7 +206,7 @@ void ParseOpts (int argc, char** argv){
   extern char *optarg;
   extern int optopt, optind, opterr;
   
-  opterr=1;
+  opterr=optopt=0;
   while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
     case QUIETMODE:
@@ -291,17 +291,16 @@ void ParseOpts (int argc, char** argv){
       break;
     case 'h':
     case '?':
-      veryquietmode=FALSE;
-      printslogan();
-      Usage();
-      exit(0);	
-      break;
     default:
       veryquietmode=FALSE;
-      pout("\n");
       printslogan();
+      if (optopt){
+	pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
+	Usage();
+	exit(FAILCMD);
+      }
       Usage();
-      exit(FAILCMD);	
+      exit(0);	
     }
   }
   // Do this here, so results are independent of argument order	
