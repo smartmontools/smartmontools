@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.119 2003/04/02 14:57:00 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.120 2003/04/02 18:14:29 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1716,12 +1716,12 @@ void ParseOpts(int argc, char **argv){
       break;
     case 'r':
       if (!strcmp(optarg,"ioctl")) {
-        con->reportataioctl  = TRUE;
-        con->reportscsiioctl = TRUE;
+        con->reportataioctl++;
+        con->reportscsiioctl++;
       } else if (!strcmp(optarg,"ataioctl")) {
-        con->reportataioctl  = TRUE;
+        con->reportataioctl++;
       } else if (!strcmp(optarg,"scsiioctl")) {
-        con->reportscsiioctl  = TRUE;
+        con->reportscsiioctl++;
       } else {
         badarg = TRUE;
       }
