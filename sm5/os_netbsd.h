@@ -24,17 +24,22 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.6 2004/03/30 20:12:11 shattered Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.7 2004/04/29 19:00:36 shattered Exp $\n"
 
+#include <sys/device.h>
 #include <sys/param.h>
 #include <sys/sysctl.h>
+
+#include <sys/scsiio.h>
+#include <sys/ataio.h>
+
+#define ata_smart_selftestlog __netbsd_ata_smart_selftestlog
 #include <dev/ata/atareg.h>
 #if HAVE_DEV_ATA_ATAVAR_H
 #include <dev/ata/atavar.h>
 #endif
 #include <dev/ic/wdcreg.h>
-#include <sys/ataio.h>
-#include <sys/scsiio.h>
+#undef ata_smart_selftestlog
 
 #include <err.h>
 #include <fcntl.h>
