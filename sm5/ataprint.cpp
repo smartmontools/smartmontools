@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.62 2003/03/13 15:24:33 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.63 2003/03/15 16:01:28 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -567,7 +567,7 @@ int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
   QUIETON(con);
   // If log pointer out of range, return
   if (data->error_log_pointer>5){
-    pout("Invalid Error Log index = %02x (T13/1321D rev 1c"
+    pout("Invalid Error Log index = 0x%02x (T13/1321D rev 1c "
 	 "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
 	 (int)data->error_log_pointer);
     return 0;
