@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/12/05 09:54:08 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/12/05 22:19:52 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.186 2004/12/05 09:54:08 makisara Exp $ -->
+<!-- $Id: index.html,v 1.187 2004/12/05 22:19:52 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -411,6 +411,28 @@ one.&#160; And so on.&#160; If you find strange output, or unknown
 attributes, please send an email to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
 smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
+
+
+<li><b>Why is my disk temperature s reported by smartd as 150 Celsius?</b>
+<p>
+It's not.  Please read the end of the <b>smartd</b> man page (NOTES).
+For example, in the message: <br/>
+<b>'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93'</b><br/>
+the value given is the 'Normalized' not the 'Raw' Attribute value (the
+disk temperature in this case is about 22 Celsius).  The
+<b>'-R'</b> and <b>'-r'</b> Directives modify this behavior, so that
+the information is printed with the Raw values as well, for example:
+<br/>
+<b>'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]'</b><br/>
+Here the Raw values are the actual disk temperatures in Celsius.  The
+way in which the Raw values are printed, and the names under which the
+Attributes are reported, is governed by the various
+<b>'-v Num,Description'</b> Directives described in the <b>smartd</b>
+man page. Please see the <b>smartctl</b> manual page for further
+explanation of the differences between Normalized and Raw Attribute
+values.
+</p>
+</li>
 
 <li><b>What are the operating system requirements?</b>
 <p>
@@ -1130,8 +1152,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/12/05 09:54:08 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.186 2004/12/05 09:54:08 makisara Exp $</tt>
+Last updated: <tt>$Date: 2004/12/05 22:19:52 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.187 2004/12/05 22:19:52 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
