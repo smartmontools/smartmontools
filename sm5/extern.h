@@ -27,7 +27,7 @@
 
 
 #ifndef CVSID3
-#define CVSID3 "$Id: extern.h,v 1.11 2002/12/11 00:11:30 pjwilliams Exp $\n"
+#define CVSID3 "$Id: extern.h,v 1.12 2003/01/03 17:25:12 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -53,7 +53,6 @@ typedef struct ataprintmain_s {
   unsigned char smartautoofflinedisable;
   unsigned char smartautosaveenable;
   unsigned char smartautosavedisable;
-  unsigned char smart009minutes;
   int           testcase;
   unsigned char quietmode;
   unsigned char veryquietmode;
@@ -61,6 +60,23 @@ typedef struct ataprintmain_s {
   unsigned char conservative;
   unsigned char checksumfail;
   unsigned char checksumignore;
+  // The i'th entry in this array will modify the printed meaning of
+  // the i'th SMART attribute.  The default definitions of the
+  // Attributes are obtained by having the array be all zeros.  If
+  // attributedefs[i] is nonzero, it means that the i'th attribute has
+  // a non-default meaning.  See the ataPrintSmartAttribName function,
+  // and list below.
+  unsigned char attributedefs[256];
 } atamainctrl;
 
 #endif
+
+/*
+
+attributedefs[9]:
+  1 -- time in minutes
+  2 -- temperature in Celsius
+attributedefs[220]:
+  1 -- temperature in Celsius
+
+*/

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.32 2003/01/03 06:19:55 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.33 2003/01/03 17:25:12 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/03 06:19:55 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2003/01/03 17:25:12 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -402,13 +402,18 @@ in hexadecimal notation.
 
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
-Sets a vendor-specific display OPTION for attribute N.  There is currently only
-one valid argument to this option:
+Sets a vendor-specific display OPTION for Attribute N.  Valid
+arguments to this option are:
 
 .I 9,minutes
-\- the disk stores Raw Attribute number 9 (power on time) in
-minutes rather than hours, so display it in the form 'X h + Y m',
-where X is hours and Y is minutes.
+\- Raw Attribute number 9 is power-on time in minutes.  It will be
+displayed in the form 'X h + Y m', where X is hours and Y is minutes.
+
+.I 9,temp
+\- Raw attribute number 220 is the disk temperature in Celsius.
+
+.I 220,temp
+\- Raw attribute number 220 is the disk temperature in Celsius.
 
 .TP
 .B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
@@ -648,4 +653,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.32 2003/01/03 06:19:55 ballen4705 Exp $
+$Id: smartctl.8,v 1.33 2003/01/03 17:25:12 ballen4705 Exp $

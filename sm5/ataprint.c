@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.49 2002/12/19 00:05:19 pjwilliams Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.50 2003/01/03 17:25:12 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -405,7 +405,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	status="    -";
       
       // Print name of attribute
-      ataPrintSmartAttribName(attributename,disk->id);
+      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs);
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
@@ -432,7 +432,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       switch (disk->id){
 	// Power on time
       case 9:
-	if (con->smart009minutes){
+	if (con->attributedefs[9]==1){
 	  // minutes
 	  long long tmp1=rawvalue/60;
 	  long long tmp2=rawvalue%60;
@@ -460,8 +460,8 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       // print a warning if there is inconsistency here!
       if (disk->id != thre->id){
 	char atdat[64],atthr[64];
-	ataPrintSmartAttribName(atdat,disk->id);
-	ataPrintSmartAttribName(atthr,thre->id);
+	ataPrintSmartAttribName(atdat, disk->id, con->attributedefs);
+	ataPrintSmartAttribName(atthr, thre->id, con->attributedefs);
 	pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
 	pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
       }
