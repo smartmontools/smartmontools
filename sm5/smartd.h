@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.44 2003/08/18 12:39:18 dpgilbert Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.45 2003/08/19 09:14:33 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -222,12 +222,11 @@ typedef struct changedattribute_s {
   unsigned char sameraw;
 } changedattribute_t;
 
-// Declare our own printing functions...
-void printout(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
-void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
+// Declare our own printing functions. Doing this provides error
+// messages if the argument number/types don't match the format.
+void PrintOut(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
-int ataCheckDevice(cfgfile *cfg);
-
+void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 
 /* Debugging notes: to check for memory allocation/deallocation problems, use:
 
