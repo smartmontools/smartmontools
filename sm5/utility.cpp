@@ -33,11 +33,13 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <syslog.h>
+#include <stdarg.h>
 #include "utility.h"
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.22 2003/10/08 09:29:15 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.23 2003/10/10 04:56:39 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -57,6 +59,17 @@ const char * packet_types[] = {
         "Reduced block command (simplified disk)",
         "Optical card reader/writer"
 };
+
+// Whenever exit() status is EXIT_BADCODE, please print this message
+const char *reportbug="Please report this bug to the Smartmontools developers at " PACKAGE_BUGREPORT ".\n";
+
+
+// hang on to exit code, so we can make use of more generic 'atexit()'
+// functionality and still check our exit code
+int exitstatus = 0;
+
+// command-line argument: are we running in debug mode?.
+unsigned char debugmode = 0;
 
 
 // This value follows the peripheral device type value as defined in
@@ -315,3 +328,85 @@ int split_selective_arg(char *s, unsigned long long *start,
   return 0;
 }
 
+long long bytes = 0;
+// Helps debugging.  If the second argument is non-negative, then
+// decrement bytes by that amount.  Else decrement bytes by (one plus)
+// length of null terminated string.
+void *FreeNonZero(void *address, int size){
+  if (address) {
+    if (size<0)
+      bytes-=1+strlen(address);
+    else
+      bytes-=size;
+    return CheckFree(address, __LINE__);
+  }
+  return NULL;
+}
+
+// To help with memory checking.  Use when it is known that address is
+// NOT null.
+void *CheckFree(void *address, int whatline){
+  if (address){
+    free(address);
+    return NULL;
+  }
+  
+  PrintOut(LOG_CRIT, "Internal error in CheckFree() at line %d of file %s\n%s", 
+	   whatline, __FILE__, reportbug);
+  EXIT(EXIT_BADCODE);
+}
+
+
+// A custom version of strdup() that keeps track of how much memory is
+// being allocated. If mustexist is set, it also throws an error if we
+// try to duplicate a NULL string.
+char *CustomStrDup(char *ptr, int mustexist, int whatline){
+  char *tmp;
+
+  // report error if ptr is NULL and mustexist is set
+  if (ptr==NULL){
+    if (mustexist) {
+      PrintOut(LOG_CRIT, "Internal error in CustomStrDup() at line %d of file %s\n%s", 
+	       whatline, __FILE__, reportbug);
+      EXIT(EXIT_BADCODE);
+    }
+    else
+      return NULL;
+  }
+
+  // make a copy of the string...
+  tmp=strdup(ptr);
+  
+  if (!tmp) {
+    PrintOut(LOG_CRIT, "No memory to duplicate string %s\n", ptr);
+    EXIT(EXIT_NOMEM);
+  }
+  
+  // and track memory usage
+  bytes+=1+strlen(ptr);
+  
+  return tmp;
+}
+
+// This function prints either to stdout or to the syslog as needed
+
+// [From GLIBC Manual: Since the prototype doesn't specify types for
+// optional arguments, in a call to a variadic function the default
+// argument promotions are performed on the optional argument
+// values. This means the objects of type char or short int (whether
+// signed or not) are promoted to either int or unsigned int, as
+// appropriate.]
+void PrintOut(int priority,char *fmt, ...){
+  va_list ap;
+  // initialize variable argument list 
+  va_start(ap,fmt);
+  if (debugmode) 
+    vprintf(fmt,ap);
+  else {
+    openlog("smartd",LOG_PID,LOG_DAEMON);
+    vsyslog(priority,fmt,ap);
+    closelog();
+  }
+  va_end(ap);
+  return;
+}

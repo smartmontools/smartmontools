@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.15 2003/10/08 01:56:51 arvoreen Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.16 2003/10/10 04:56:39 arvoreen Exp $\n"
 #endif
 
 #include <time.h>
@@ -74,6 +74,35 @@ int split_selective_arg(char *s, unsigned long long *start,
 #define GUESS_DEVTYPE_DONT_KNOW 2
 int guess_device_type(const char * dev_name);
 
+// Create and return the list of devices to probe automatically
+// if the DEVICESCAN option is in the smartd config file
+void make_device_names (int *n, char ***devlist, const char* name);
+
+
+#define EXIT(x)  { exitstatus = (x); exit((x)); }
+
+// Utility function to free memory
+void *FreeNonZero(void* address, int size);
+
+// A custom version of strdup() that keeps track of how much memory is
+// being allocated. If mustexist is set, it also throws an error if we
+// try to duplicate a NULL string.
+char *CustomStrDup(char *ptr, int mustexist, int whatline);
+
+// To help with memory checking.  Use when it is known that address is
+// NOT null.
+void *CheckFree(void *address, int whatline);
+
+// This function prints either to stdout or to the syslog as needed
+
+// [From GLIBC Manual: Since the prototype doesn't specify types for
+// optional arguments, in a call to a variadic function the default
+// argument promotions are performed on the optional argument
+// values. This means the objects of type char or short int (whether
+// signed or not) are promoted to either int or unsigned int, as
+// appropriate.]
+void PrintOut(int priority,char *fmt, ...);
+
 // run time, determine byte ordering
 int isbigendian();
 
@@ -87,5 +116,21 @@ const char *packetdevicetype(int type);
 
 int deviceopen(const char *pathname, char *type);
 int deviceclose(int fd);
+
+// Exit codes
+#define EXIT_BADCMD    1   // command line did not parse
+#define EXIT_BADCONF   2   // problem reading/parsing config file
+#define EXIT_STARTUP   3   // problem forking daemon
+#define EXIT_PID       4   // problem creating pid file
+
+#define EXIT_NOMEM     8   // out of memory
+#define EXIT_CCONST    9   // we hit a compile time constant
+#define EXIT_BADCODE   10  // internal error - should NEVER happen
+
+#define EXIT_BADDEV    16  // we can't monitor this device
+#define EXIT_NODEV     17  // no devices to monitor
+
+#define EXIT_SIGNAL    254 // abort on signal
+
 
 #endif

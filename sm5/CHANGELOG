@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.201 2003/10/08 14:09:01 arvoreen Exp $
+$Id: CHANGELOG,v 1.202 2003/10/10 04:56:38 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,6 +20,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [EM] Move the DEVICESCAN code to os specific files. Also moved some of the
+	smartd Memory functions to utility.c to make available to smartctl
 
   [EM] Code janitor work is os_freebsd.c
 

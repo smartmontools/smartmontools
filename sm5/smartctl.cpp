@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.97 2003/10/08 01:56:51 arvoreen Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.98 2003/10/10 04:56:39 arvoreen Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -51,7 +51,7 @@ ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVS
 smartmonctrl *con=NULL;
 
 // Track memory use
-long long bytes=0;
+extern long long bytes;
 
 void printslogan(){
   pout("smartctl version %s Copyright (C) 2002-3 Bruce Allen\n", VERSION);

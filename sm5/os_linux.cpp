@@ -64,7 +64,41 @@ int deviceclose(int fd){
   return close(fd);
 }
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.3 2003/10/08 01:56:51 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
+extern long long bytes;
+
+void *FreeNonZero(void* address, int size);
+
+
+void make_device_names (int *n, char*** devlist, const char* name) {
+  char* base;
+  char** tmp;
+  int i;
+  
+  if (!strcmp(name,"SCSI")) {
+    *n = MAXSCSIDEVICES;
+    base = CustomStrDup("/dev/sda",1,__LINE__);
+  }
+  else if (!strcmp(name,"ATA")) {
+    *n = MAXATADEVICES;
+    base = CustomStrDup("/dev/hda",1,__LINE__);
+  }
+  else {
+    *n = 0; // bad type, no devices
+    return;
+  }
+  
+  tmp = (char **)malloc(sizeof(char *) * (*n));
+  bytes += (sizeof(char*)*(*n));
+  for (i = 0; i < *n; i++) {
+    tmp[i] = base;
+    base = CustomStrDup(base,1,__LINE__);
+    base[7]++; // go to next device, alphabetically a->b->c...
+  }
+  FreeNonZero(base,-1); // free the extra copy
+  *devlist = tmp;
+}
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.4 2003/10/10 04:56:39 arvoreen Exp $" OS_XXXX_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
