@@ -1,12 +1,13 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.223 2003/10/25 13:03:26 ballen4705 Exp $
+$Id: CHANGELOG,v 1.224 2003/10/26 02:12:33 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
+[CD] Caper Dik
 [GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
@@ -21,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [CD] solaris port: added SCSI functionality to solaris
+       stubs.
 
   [BA] smartd: attempt to address bug report about smartd
        hanging on USB devices when scanning:

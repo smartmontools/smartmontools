@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.6 2003/10/08 13:26:18 ballen4705 Exp $
+$Id: AUTHORS,v 1.7 2003/10/26 02:12:33 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -15,6 +15,7 @@ Bruce Allen		<smartmontools-support@lists.sourceforge.net>
 Erik Inge Bolsø		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
+Casper Dik              <casper@holland.sun.com>
 Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>

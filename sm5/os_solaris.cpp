@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003 NAME HERE <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003 Casper Dik <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,14 @@
   smartmontools-support@lists.sourceforge.net
 */
 
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/param.h>
+
 // These are needed to define prototypes for the functions defined below
 #include "atacmds.h"
 #include "scsicmds.h"
@@ -37,17 +45,14 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.6 2003/10/15 14:06:02 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.7 2003/10/26 02:12:33 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
-int printedout[5];
-char *unimplemented[5]={
-  "guess_device_type()",
-  "make_device_names()",
+int printedout[2];
+char *unimplemented[2]={
   "ATA command routine ata_command_interface()",
   "3ware Escalade Controller command routine escalade_command_interface()",
-  "SCSI command interface do_scsi_cmnd_io()"
 };
 
 int printwarning(int which){
@@ -71,19 +76,151 @@ int printwarning(int which){
   return 1;
 }
 
+static const char *uscsidrvrs[] = {
+	"sd",
+	"ssd",
+	"st"
+};
+
+static const char *atadrvrs[] = {
+	"cmdk",
+	"dad",
+};
+
+static int
+isdevtype(const char *dev_name, const char *table[], int tsize)
+{
+  char devpath[MAXPATHLEN];
+  int i;
+  char *basename;
+
+  if (realpath(dev_name, devpath) == NULL)
+    return 0;
+ 
+  if ((basename = strrchr(devpath, '/')) == NULL)
+    return 0;
+
+  basename++;
+
+  for (i = 0; i < tsize; i++) {
+    int l = strlen(table[i]);
+    if (strncmp(basename, table[i], l) == 0 && basename[l] == '@')
+      return 1;
+  }
+  return 0;
+}
+
+static int
+isscsidev(const char *path)
+{
+  return isdevtype(path, uscsidrvrs, sizeof (uscsidrvrs) / sizeof (char *));
+}
+
+static int
+isatadev(const char *path)
+{
+  return isdevtype(path, atadrvrs, sizeof (atadrvrs) / sizeof (char *));
+}
+
 // tries to guess device type given the name (a path)
 int guess_device_type (const char* dev_name) {
-  if (printwarning(0))
+  if (isscsidev(dev_name))
+    return GUESS_DEVTYPE_SCSI;
+  else if (isatadev(dev_name))
+    return GUESS_DEVTYPE_ATA;
+  else
     return GUESS_DEVTYPE_DONT_KNOW;
-  return GUESS_DEVTYPE_DONT_KNOW;
+}
+
+struct pathlist {
+	char **names;
+	int  nnames;
+	int  maxnames;
+};
+
+static int
+addpath(const char *path, struct pathlist *res)
+{
+	if (++res->nnames > res->maxnames) {
+		res->maxnames += 16;
+		res->names = realloc(res->names,
+		    res->maxnames * sizeof (char *));
+		if (res->names == NULL)
+			return -1;
+	}
+	if ((res->names[res->nnames-1] = strdup(path)) == NULL)
+		return -1;
+	return 0;
+}
+
+static int 
+grokdir(const char *dir, struct pathlist *res, int testfun(const char *))
+{
+	char pathbuf[MAXPATHLEN];
+	size_t len;
+	DIR *dp;
+	struct dirent *de;
+	int isdisk = strstr(dir, "dsk") != NULL;
+	char *p;
+
+	len = snprintf(pathbuf, sizeof (pathbuf), "%s/", dir);
+	if (len >= sizeof (pathbuf))
+		return -1;
+
+	dp = opendir(dir);
+	if (dp == NULL)
+		return 0;
+
+	while ((de = readdir(dp)) != NULL) {
+		if (de->d_name[0] == '.')
+			continue;
+
+		if (strlen(de->d_name) + len >= sizeof (pathbuf))
+			continue;
+
+		if (isdisk) {
+			/* Disk represented by slice 0 */
+			p = strstr(de->d_name, "s0");
+			/* String doesn't end in "s0\0" */
+			if (p == NULL || p[2] != '\0')
+				continue;
+		} else {
+			/* Tape drive represented by the all-digit device */
+			for (p = de->d_name; *p; p++)
+				if (!isdigit(*p))
+					break;
+			if (*p != '\0')
+				continue;
+		}
+		strcpy(&pathbuf[len], de->d_name);
+		if (testfun(pathbuf)) {
+			if (addpath(pathbuf, res) == -1) {
+				closedir(dp);
+				return -1;
+			}
+		}
+	}
+	closedir(dp);
+
+	return 0;
 }
 
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of
 // smartd.  Returns number of devices, or -1 if out of memory.
 int make_device_names (char*** devlist, const char* name) {
-  if (printwarning(1))
-    return 0;
-  return 0;
+	struct pathlist res;
+
+	res.nnames = res.maxnames = 0;
+	res.names = NULL;
+	if (strcmp(name, "SCSI") == 0) {
+		if (grokdir("/dev/rdsk", &res, isscsidev) == -1)
+			return (-1);
+		if (grokdir("/dev/rmt", &res, isscsidev) == -1)
+			return (-1);
+		*devlist = res.names;
+		return res.nnames;
+	}
+	return 0;
 }
 
 // Like open().  Return integer handle, used by functions below only.
@@ -105,22 +242,91 @@ int deviceclose(int fd){
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
-  if (printwarning(2))
+  if (printwarning(0))
     return -1;
   return -1;
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
-  if (printwarning(3))
+  if (printwarning(1))
     return -1;
   return -1;
 }
 
 #include <errno.h>
+#include <sys/scsi/generic/commands.h>
+#include <sys/scsi/generic/status.h>
+#include <sys/scsi/impl/types.h>
+#include <sys/scsi/impl/uscsi.h>
+
 // Interface to SCSI devices.  See os_linux.c
 int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
-  if (printwarning(4))
-    return -ENOSYS;
-  return -ENOSYS;
+  struct uscsi_cmd uscsi;
+
+    if (report > 0) {
+        int k;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+
+        np = scsi_get_opcode_name(ucp[0]);
+        pout(" [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < iop->cmnd_len; ++k)
+            pout("%02x ", ucp[k]);
+        if ((report > 1) && 
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+                 (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            pout("]");
+    }
+
+
+  memset(&uscsi, 0, sizeof (uscsi));
+
+  uscsi.uscsi_cdb = (void *)iop->cmnd;
+  uscsi.uscsi_cdblen = iop->cmnd_len;
+  if (iop->timeout == 0)
+    uscsi.uscsi_timeout = 60; /* XXX */
+  else
+    uscsi.uscsi_timeout = iop->timeout;
+  uscsi.uscsi_bufaddr = (void *)iop->dxferp;
+  uscsi.uscsi_buflen = iop->dxfer_len;
+  uscsi.uscsi_rqbuf = (void *)iop->sensep;
+  uscsi.uscsi_rqlen = iop->max_sense_len;
+
+  switch (iop->dxfer_dir) {
+  case DXFER_NONE:
+  case DXFER_FROM_DEVICE:
+    uscsi.uscsi_flags = USCSI_READ;
+    break;
+  case DXFER_TO_DEVICE:
+    uscsi.uscsi_flags = USCSI_WRITE;
+    break;
+  default:
+    return -EINVAL;
+  }
+  uscsi.uscsi_flags |= USCSI_ISOLATE;
+
+  if (ioctl(fd, USCSICMD, &uscsi))
+    return -errno;
+
+  iop->scsi_status = uscsi.uscsi_status;
+  iop->resid = uscsi.uscsi_resid;
+  iop->resp_sense_len = iop->max_sense_len - uscsi.uscsi_rqresid;
+
+  if (report > 0) {
+    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    pout("  status=0\n");
+    
+    pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+         (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+  }
+
+  return (0);
 }
