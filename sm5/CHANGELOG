@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.409 2004/05/07 18:33:53 ballen4705 Exp $
+$Id: CHANGELOG,v 1.410 2004/05/10 15:33:20 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] added additional Attribute definitions from
+       http://smart.friko.pl/attributes.php
 
   [BA] smartd: reworked TimeZone bug workaround so it is only invoked
        for glibc.  Note: this might not be right -- a similar bug may
