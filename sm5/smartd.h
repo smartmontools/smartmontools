@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.26 2003/01/16 15:28:58 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.27 2003/01/22 00:28:19 pjwilliams Exp $\n"
 #endif
 
 // Configuration file
@@ -89,7 +89,12 @@ typedef struct configfile_s {
   char autoofflinetest;
   // mailing information for four of the previous error types plus mailtest
   mailinfo maildata[5];
-  char emailopt;
+  // Frequency with which to send emails: 1 - once, 2 - daily, 3 - diminishing
+  unsigned char emailfreq;
+  // Should we send a test email
+  unsigned char emailtest;
+  // Execute this command line and include output in emails
+  char *emailcmdline;
   // address to send email to
   char *address;
   // counts of ata and self-test errors.  Perhaps ought to be in the

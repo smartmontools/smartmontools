@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.98 2003/01/16 15:51:09 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.99 2003/01/22 00:28:19 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -124,26 +124,26 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   // See if user wants us to send mail
   if (!address)
     return;
-  
+
   // check for sanity
-  if (cfg->emailopt<0 || cfg->emailopt>3){
-    printout(LOG_INFO,"internal error in printandmail(): cfg->emailopts=%d\n",cfg->emailopt);
+  if (cfg->emailfreq<1 || cfg->emailfreq>3) {
+    printout(LOG_INFO,"internal error in printandmail(): cfg->emailfreq=%d\n",cfg->emailfreq);
     return;
   }
   
   // Return if a single warning mail has been sent.
-  if ((cfg->emailopt==0 || cfg->emailopt==1) && mail->logged)
+  if ((cfg->emailfreq==1) && mail->logged)
     return;
   
   // To decide if to send mail, we need to know what time it is.
   epoch=time(NULL);
 
   // Return if less than one day has gone by
-  if (cfg->emailopt==2 && mail->logged && epoch<(mail->lastsent+day))
+  if (cfg->emailfreq==2 && mail->logged && epoch<(mail->lastsent+day))
     return;
 
   // Return if less than 2^(logged-1) days have gone by
-  if (cfg->emailopt==3 && mail->logged){
+  if (cfg->emailfreq==3 && mail->logged){
     days=0x01<<(mail->logged-1);
     days*=day;
     if  (epoch<(mail->lastsent+days))
@@ -175,8 +175,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   if (which) {
     sprintf(further,"You can also use the smartctl utility for further investigation.\n");
 
-    switch (cfg->emailopt){
-    case 0:
+    switch (cfg->emailfreq){
     case 1:
       sprintf(additional,"No additional email messages about this problem will be sent.\n");
       break;
@@ -188,7 +187,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 	      (0x01)<<mail->logged);
       break;
     }
-    if (cfg->emailopt>1 && mail->logged)
+    if (cfg->emailfreq>1 && mail->logged)
       sprintf(original,"The original email about this issue was sent at %s\n",ctime(&(mail->firstsent)));
   }
   
@@ -723,8 +722,7 @@ int ataCheckDevice(atadevices_t *drive){
   cfgfile *cfg=drive->cfg;
   
   // If user has asked, test the email warning system
-  if (cfg->emailopt<0){
-    cfg->emailopt*=-1;
+  if (cfg->emailtest){
     printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s\n", drive->devicename);
   }
 
@@ -860,8 +858,7 @@ int scsiCheckDevice(scsidevices_t *drive){
   cfgfile *cfg=drive->cfg;
 
   // If the user has asked for it, test the email warning system
-  if (cfg->emailopt<0){
-    cfg->emailopt*=-1;
+  if (cfg->emailtest){
     printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s\n", drive->devicename);
   }
 
@@ -951,7 +948,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     printout(priority, "error, selftest");
     break;
   case 'M':
-    printout(priority, "\"once\", \"daily\", \"diminishing\", \"once,test\", \"daily,test\", \"diminishing,test\"");
+    printout(priority, "\"once\", \"daily\", \"diminishing\", \"test\", \"exec\"");
     break;
   case 'v':
     if (!(s = create_vendor_attribute_arg_list())) {
@@ -962,6 +959,55 @@ void printoutvaliddirectiveargs(int priority, char d) {
     free(s);
     break;
   }
+}
+
+// Set start to point to the first token in newstring or NULL if there are no
+// tokens.  The first character after the token is overwritten with '\0'.  If
+// newstring is NULL then gettoken() continues searching the last string it was
+// given from immediately after the end of the last token in much the same way
+// as strtok().  The possible return values are:
+//   0  - success
+//   1  - no newstring has been used to initialise gettoken()
+//   2  - unterminated string token
+int gettoken(char *newstring, char **start) {
+  static char *s = NULL;
+
+  if (newstring)
+    s = newstring;
+  if (!s)
+    return 1;
+
+  // Find the start of the first token (if any) in s.
+  while (*s != '\0' && (*s == ' ' || *s == '\t' || *s == '\n'))
+    s++;
+  if (*s == '\0') {
+    *start = NULL;
+    return 0;
+  }
+  *start = s;
+
+  // Find the end of the token.
+  if (*s == '\"') {
+    // Reading a string token - find terminating double-quote.
+    while (1) {
+      s++;
+      if (*s == '\0')
+        return 2;
+      if (*s == '\"')
+        break;
+    }
+    s++;
+  } else {
+    // Reading a non-string token - find terminating whitespace.
+    while (*s != '\0' && *s != ' ' && *s != '\t' && *s != '\n')
+      s++;
+  }
+
+  // Ensure the next call will start reading from the right position.
+  if (*s != '\0')
+    *s++ = '\0';
+
+  return 0;
 }
 
 char copyleftstring[]=
@@ -1006,7 +1052,6 @@ int parsetoken(char *token,cfgfile *cfg){
   char sym;
   char *name=cfg->name;
   int lineno=cfg->lineno;
-  char *delim=" \n\t";
   int badarg = 0;
   int missingarg = 0;
   char *arg = NULL;
@@ -1029,7 +1074,8 @@ int parsetoken(char *token,cfgfile *cfg){
 
   case 'T':
     // Set tolerance level for SMART command failures
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "normal")) {
       // Normal mode: exit on failure of a mandatory S.M.A.R.T. command, but
@@ -1045,7 +1091,8 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'd':
     // specify the device type
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "ata")) {
       cfg->tryata  = 1;
@@ -1080,7 +1127,8 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'l':
     // track changes in SMART logs
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "selftest")) {
       // track changes in self-test log
@@ -1102,7 +1150,8 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->errorlog=1;
     break;
   case 'o':
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "on")) {
       cfg->autoofflinetest = 2;
@@ -1113,7 +1162,8 @@ int parsetoken(char *token,cfgfile *cfg){
     }
     break;
   case 'S':
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "on")) {
       cfg->autosave = 2;
@@ -1125,37 +1175,63 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'M':
     // email warning option
-    if ((arg = strtok(NULL, delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (!strcmp(arg, "once")) {
-      cfg->emailopt = 1;
+      cfg->emailfreq = 1;
     } else if (!strcmp(arg, "daily")) {
-      cfg->emailopt = 2;
+      cfg->emailfreq = 2;
     } else if (!strcmp(arg, "diminishing")) {
-      cfg->emailopt = 3;
-    } else if (!strcmp(arg, "once,test")) {
-      cfg->emailopt = -1;
-    } else if (!strcmp(arg, "daily,test")) {
-      cfg->emailopt = -2;
-    } else if (!strcmp(arg, "diminishing,test")) {
-      cfg->emailopt = -3;
+      cfg->emailfreq = 3;
+    } else if (!strcmp(arg, "test")) {
+      cfg->emailtest = 1;
+    } else if (!strcmp(arg, "exec")) {
+      // Get the next argument (the command line)
+      if (gettoken(NULL, &arg) == 2) {
+        printout(LOG_CRIT, "File %s line %d (drive %s): unterminated string\n",
+          CONFIGFILE, lineno, name);
+        exit(1);
+      }
+      if (!arg) {
+        printout(LOG_CRIT, "File %s line %d (drive %s): exec argument must be followed by command line argument for Directive: %s\n", CONFIGFILE, lineno, name, token);
+        Directives();
+        exit(1);
+      }
+      // Free the last cmd line given if any
+      if (cfg->emailcmdline)
+        free(cfg->emailcmdline);
+      // Attempt to copy the argument
+      if (!(cfg->emailcmdline = strdup(arg))) {
+        printout(LOG_CRIT, "File %s line %d (drive %s): no free memory for command line argument to exec: %s\n",
+          CONFIGFILE, lineno, name, arg);
+          Directives();
+          exit(1);
+      }
+      // Strip off any double quotes
+      if (*cfg->emailcmdline == '\"') {
+        cfg->emailcmdline++;
+        cfg->emailcmdline[strlen(cfg->emailcmdline)-1] = '\0';
+      }
     } else {
       badarg = 1;
     }
     break;
   case 'i':
     // ignore failure of usage attribute
-    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
+    gettoken(NULL, &arg);
+    val=inttoken(arg, name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->failatt,1);
     break;
   case 'I':
     // ignore attribute for tracking purposes
-    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
+    gettoken(NULL, &arg);
+    val=inttoken(arg, name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->trackatt,1);
     break;
   case 'm':
     // send email to address that follows
-    arg=strtok(NULL,delim);
+    gettoken(NULL, &arg);
     if (!arg) {
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
 	       CONFIGFILE, lineno, name, token);
@@ -1171,7 +1247,8 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
-    if ((arg=strtok(NULL,delim)) == NULL) {
+    gettoken(NULL, &arg);
+    if (!arg) {
       missingarg = 1;
     } else if (parse_attribute_def(arg, cfg->attributedefs)){	
       badarg = 1;
@@ -1191,7 +1268,7 @@ int parsetoken(char *token,cfgfile *cfg){
     printout(LOG_CRIT, "File %s line %d (drive %s): Invalid argument: %s\n", CONFIGFILE, lineno, name, arg);
   }
   if (missingarg || badarg) {
-      printout(LOG_CRIT, "Valid arguments to %s Directive are:", token);
+      printout(LOG_CRIT, "Valid arguments to %s Directive are: ", token);
       printoutvaliddirectiveargs(LOG_CRIT, sym);
       printout(LOG_CRIT, "\n");
       Directives();
@@ -1202,7 +1279,6 @@ int parsetoken(char *token,cfgfile *cfg){
 
 int parseconfigline(int entry, int lineno,char *line){
   char *token,*copy;
-  char *delim=" \n\t";
   char *name;
   int len;
   cfgfile *cfg;
@@ -1214,7 +1290,8 @@ int parseconfigline(int entry, int lineno,char *line){
   }
   
   // get first token -- device name
-  if (!(name=strtok(copy,delim)) || *name=='#'){
+  gettoken(copy, &name);
+  if (!name || *name=='#'){
     free(copy);
     return 0;
   }
@@ -1268,7 +1345,7 @@ int parseconfigline(int entry, int lineno,char *line){
     cfg->tryata=0;
 
   // parse tokens one at a time from the file
-  while ((token=strtok(NULL,delim)) && parsetoken(token,cfg)){
+  while (!gettoken(NULL, &token) && token && parsetoken(token,cfg)){
 #if 0
   printout(LOG_INFO,"Parsed token %s\n",token);
 #endif
@@ -1284,12 +1361,16 @@ int parseconfigline(int entry, int lineno,char *line){
   }
 
   // additional sanity check. Has user set -M without -m?
-  if (cfg->emailopt && !cfg->address){
+  if ((cfg->emailfreq || cfg->emailtest || cfg->emailcmdline) && !cfg->address){
     printout(LOG_CRIT,"Drive: %s, Directive -M useless without address Directive -m on line %d of file %s\n",
 	     cfg->name, cfg->lineno, CONFIGFILE);
     Directives();
     exit(1);
   }
+
+  // set cfg->emailfreq to 1 (once) if user hasn't set it
+  if (!cfg->emailfreq)
+    cfg->emailfreq = 1;
 
   entry++;
   free(copy);
