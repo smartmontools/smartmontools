@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.174 2003/07/20 20:46:42 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.175 2003/07/29 12:42:25 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -132,7 +132,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
     "health",    // 1
     "usage",     // 2
     "selftest",  // 3
-    "errorcount" // 4
+    "errorcount",// 4
     "FAILEDhealthcheck",         //5
     "FAILEDreadsmartdata",       //6
     "FAILEDreadsmarterrorlog",   //7

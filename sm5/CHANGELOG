@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.163 2003/07/23 23:13:19 ballen4705 Exp $
+$Id: CHANGELOG,v 1.164 2003/07/29 12:42:25 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd bug, might cause segv if a device can not be opened. Was
+       due to missing comma in char* list.  Consequence is that email
+       failure messages might have had the wrong Subject: heading for
+       errorcount, FAILEDhealthcheck, FAILEDreadsmartdata, FAILEDreadsmarterrorlog,
+       FAILEDreadsmartsefltestlog, FAILEDopendevice were all displaced by
+       one.  And FAILEDopendevice might have caused a segv if -m was being
+       used as a smartd Directive.
 
   [BA] Cleaned up smartmontools.spec so that upgrading, removing
        and other such operations correctly preserve running behavior
