@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.9 2002/10/12 11:10:01 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.10 2002/10/13 13:10:56 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -114,8 +114,13 @@ struct ata_smart_attribute {
   union {
     unsigned short all; 
     struct {
-      unsigned prefailure:1;   
-      unsigned online:1;   
+      unsigned prefailure:1;   // 0=> low attribute from age/usage
+			       // exceeding design limit,
+			       // 1==prefailure
+
+      unsigned online:1;       // 0==> attribute only updated during
+			       // off-line testing. 1==>only updated
+			       // during on-line testing
       unsigned performance:1;
       unsigned errorrate:1;	
       unsigned eventcount:1 ;
@@ -130,6 +135,24 @@ struct ata_smart_attribute {
 } __attribute__ ((packed));
 
 
+// What follows is the ATA/ATAPI-4 Rev 13 data structure equivalent:
+// Table 23 DEVICE SMART DATA STRUCTURE
+#if 0
+struct ata_smart_values {
+  unsigned short int revnumber;
+  struct ata_smart_attribute vendor_attributes [NUMBER_ATA_SMART_ATTRIBUTES];
+  unsigned char offline_data_collection_status;
+  unsigned char vendor_specific_363;  //IBM # segments for offline collection
+  unsigned short int total_time_to_complete_off_line; // IBM different
+  unsigned char vendor_specific_366; // IBM curent segment pointer
+  unsigned char offline_data_collection_capability;
+  unsigned short int smart_capability;
+  unsigned char reserved_370_385;;
+  unsigned char vendor_specific_386-510;  // IBM: self-test failure checkpoint
+  unsigned char chksum;
+} __attribute__ ((packed));
+#endif
+
 
 /* ata_smart_values is format of the read drive Attribute command */
 /* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */
@@ -137,9 +160,9 @@ struct ata_smart_values {
   unsigned short int revnumber;
   struct ata_smart_attribute vendor_attributes [NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char offline_data_collection_status;
-  unsigned char self_test_exec_status;
-  unsigned short int total_time_to_complete_off_line;
-  unsigned char vendor_specific_366;
+  unsigned char self_test_exec_status;  //IBM # segments for offline collection
+  unsigned short int total_time_to_complete_off_line; // IBM different
+  unsigned char vendor_specific_366; // IBM curent segment pointer
   unsigned char offline_data_collection_capability;
   unsigned short int smart_capability;
   unsigned char errorlog_capability;
@@ -165,7 +188,7 @@ struct ata_smart_threshold_entry {
 /* Compare to ata_smart_values above */
 struct ata_smart_thresholds {
   unsigned short int revnumber;
-  struct ata_smart_threshold_entry thres_entries[30];
+  struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
   unsigned char chksum;
 } __attribute__ ((packed));

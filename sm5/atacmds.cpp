@@ -1,4 +1,4 @@
-//  $Id: atacmds.cpp,v 1.3 2002/10/12 11:10:01 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.4 2002/10/13 13:10:56 ballen4705 Exp $
 /*
  * atacmds.c
  *
@@ -22,7 +22,8 @@
 #include "atacmds.h"
 
 
-// Drive identity stuff shamelessly ripped from hdparm 5.2
+// These Drive Identity tables are taken from hdparm 5.2. That's the
+// "Gold Standard"
 #define NOVAL_0			0x0000
 #define NOVAL_1			0xffff
 /* word 81: minor version number */
@@ -159,38 +160,30 @@ int ataSmartSupport ( struct hd_driveid drive){
   return 0;
 }
 
-int ataReadSmartValues (int device, struct ata_smart_values *data)
-{	
-   int i;
-   unsigned char chksum;
-   unsigned char buf[ HDIO_DRIVE_CMD_HDR_SIZE + 
-                      ATA_SMART_SEC_SIZE] = 
-                      { WIN_SMART, 0, SMART_READ_VALUES, 1};
-	
-   if (ioctl ( device , HDIO_DRIVE_CMD,  (unsigned char *) &buf ) != 0)
-   {
-       perror ("Smart Values Read failed");
-       return -1;
-   }
-   chksum = 0;
-
-   for ( i =  HDIO_DRIVE_CMD_HDR_SIZE;  
-         i < ATA_SMART_SEC_SIZE + HDIO_DRIVE_CMD_HDR_SIZE; 
-         i++ )
-	chksum +=  buf[i];
-
-   if (  (unsigned char) chksum != 0)
-   {
-       perror ("Smart Read Failed, Chksum error");
-       return -1;
-   }	
-
-   memcpy( data, 
-           &buf[HDIO_DRIVE_CMD_HDR_SIZE] ,
-           ATA_SMART_SEC_SIZE );
-
-   return 0;
-
+int ataReadSmartValues (int device, struct ata_smart_values *data){	
+  int i;
+  unsigned char chksum=0;
+  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE]= 
+    {WIN_SMART, 0, SMART_READ_VALUES, 1};
+  
+  if (ioctl(device,HDIO_DRIVE_CMD,buf)){
+    perror ("Smart Values Read failed");
+    return -1;
+  }
+  
+  // compute checksum
+  for (i=0;i<ATA_SMART_SEC_SIZE;i++)
+    chksum+=buf[i+HDIO_DRIVE_CMD_HDR_SIZE];
+  
+  // verify that checksum vanishes
+  if (chksum){
+    perror ("Smart Read Failed, Checksum error!");
+    return -1;
+  }	
+  
+  // copy data and return
+  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE,ATA_SMART_SEC_SIZE);
+  return 0;
 }
 
 
@@ -369,8 +362,9 @@ int ataDisableAutoOffline (int device )
 }
 
 
-int ataSmartStatus (int device )
-{	
+// Not being used correctly.  Must examine the CL and CH registers to
+// see what the smart status was.  How to fix this?  I don't know...
+int ataSmartStatus (int device ){	
    unsigned char parms[4] = { WIN_SMART, 0, SMART_STATUS, 0};
 
    if (ioctl ( device , HDIO_DRIVE_CMD,  &parms) != 0)
@@ -386,7 +380,7 @@ int ataSmartTest (int device, int testtype)
 {	
    unsigned char parms[4] = { WIN_SMART, testtype, 
                     SMART_IMMEDIATE_OFFLINE, 0};
-	
+   
    if (ioctl ( device , HDIO_DRIVE_CMD, &parms) != 0)
    {
        perror ("Smart Offline failed");

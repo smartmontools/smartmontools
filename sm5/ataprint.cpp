@@ -1,4 +1,4 @@
-//  $Id: ataprint.cpp,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $
+//  $Id: ataprint.cpp,v 1.8 2002/10/13 13:10:56 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -308,7 +308,7 @@ void PrintSmartAttribWithThres ( struct ata_smart_values data,
    printf ("Revision Number: %i\n", data.revnumber);
    printf ("Attribute                    Flag     Value Worst Threshold Raw Value\n");
 	
-   for ( i = 0 ; i < 30 ; i++ ){
+   for ( i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++ ){
      // step through all vendor attributes
      if (data.vendor_attributes[i].id && thresholds.thres_entries[i].id){
        ataPrintSmartAttribName(data.vendor_attributes[i].id);
@@ -400,7 +400,7 @@ void ataPrintSmartThresholds (struct ata_smart_thresholds data)
    printf ("SMART Thresholds\n");
    printf ("SMART Threshold Revision Number: %i\n", data.revnumber);
 	
-   for ( i = 0 ; i < 30 ; i++) {
+   for ( i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
       if (data.thres_entries[i].id)	
           printf ("Attribute %3i threshold: %02x (%2i)\n", 
                    data.thres_entries[i].id, 
@@ -527,7 +527,7 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
     printf("Warning - structure revision number does not match spec!\n");
   
   if (data.mostrecenttest==0){
-    printf("No self-test have been logged\n");
+    printf("No self-tests have been logged\n");
     return;
   }
 
@@ -591,7 +591,7 @@ void ataPsuedoCheckSmart ( struct ata_smart_values data,
                            struct ata_smart_thresholds thresholds) {
    int i;
    int failed = 0;
-   for (i = 0 ; i < 30 ; i++ ) {
+   for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++ ) {
      if (data.vendor_attributes[i].id &&   
 	  thresholds.thres_entries[i].id &&
 	  data.vendor_attributes[i].status.flag.prefailure &&
@@ -603,85 +603,110 @@ void ataPsuedoCheckSmart ( struct ata_smart_values data,
      } 
    }   
    printf("%s\n", ( failed )?
-	  "SMART drive overall health self-assessment test result: FAILED!\n"
+	  "SMART overall-health self-assessment test result: FAILED!\n"
 	  "Drive failure expected in less than 24 hours. SAVE ALL DATA\n":
-	  "SMART drive overall health self-assessment test result: PASSED\n");
+	  "SMART overall-health self-assessment test result: PASSED\n");
 }
 
-void ataPrintSmartAttribName ( unsigned char id )
-{
-   switch (id)
-   {
-	
-      case 1:
-         printf("(  1)Raw Read Error Rate    ");
-	 break;
-      case 2:
-         printf("(  2)Throughput Performance ");
-         break;
-      case 3:
-         printf("(  3)Spin Up Time           ");
-         break;
-      case 4:
-         printf("(  4)Start Stop Count       ");
-         break;
-      case 5:
-         printf("(  5)Reallocated Sector Ct  ");
-	 break;
-      case 6:
-         printf("(  6)Read Channel Margin    ");
-	 break;
-      case 7:
-         printf("(  7)Seek Error Rate        ");
-         break;
-      case 8:
-         printf("(  8)Seek Time Performance  ");
-         break;
-      case 9:
-         printf("(  9)Power On Hours         ");
-         break;
-      case 10:
-         printf("( 10)Spin Retry Count       ");
-         break;
-      case 11:
-         printf("( 11)Calibration Retry Count");
-         break;
-      case 12:
-         printf("( 12)Power Cycle Count      ");
-         break;
-      case 13:
-         printf("( 13)Read Soft Error Rate   ");
-         break;
-      case 191:
-         printf("(191)Gsense Error Rate      ");
-         break;
-      case 192:
-         printf("(192)Power-Off Retract Count");
-         break;
-      case 193:
-         printf("(193)Load Cycle Count       ");
-         break;
-      case 194:
-         printf("(194)Temperature            ");
-         break;
-      case 195:
-         printf("(195)Hardware ECC Recovered ");
-         break;
-      case 196:
-         printf("(196)Reallocated Event Count");
-         break;
-      case 197:
-         printf("(197)Current Pending Sector ");
-         break;
-      case 198:
-         printf("(198)Offline Uncorrectable  ");
-         break;
-      case 199:
-         printf("(199)UDMA CRC Error Count   ");
-         break;
-      default:
-         printf("(%3d)Unknown Attribute      ", id);
-         break;
+void ataPrintSmartAttribName ( unsigned char id ){
+  switch (id){
+    
+  case 1:
+    printf("(  1)Raw Read Error Rate    ");
+    break;
+  case 2:
+    printf("(  2)Throughput Performance ");
+    break;
+  case 3:
+    printf("(  3)Spin Up Time           ");
+    break;
+  case 4:
+    printf("(  4)Start Stop Count       ");
+    break;
+  case 5:
+    printf("(  5)Reallocated Sector Ct  ");
+    break;
+  case 6:
+    printf("(  6)Read Channel Margin    ");
+    break;
+  case 7:
+    printf("(  7)Seek Error Rate        ");
+    break;
+  case 8:
+    printf("(  8)Seek Time Performance  ");
+    break;
+  case 9:
+    printf("(  9)Power On Hours         ");
+    break;
+  case 10:
+    printf("( 10)Spin Retry Count       ");
+    break;
+  case 11:
+    printf("( 11)Calibration Retry Count");
+    break;
+  case 12:
+    printf("( 12)Power Cycle Count      ");
+    break;
+  case 13:
+    printf("( 13)Read Soft Error Rate   ");
+    break;
+  case 191:
+    printf("(191)G-Sense Error Rate     ");
+    break;
+  case 192:
+    printf("(192)Power-Off Retract Count");
+    break;
+  case 193:
+    printf("(193)Load Cycle Count       ");
+    break;
+  case 194:
+    printf("(194)Temperature            ");
+    break;
+  case 195:
+    printf("(195)Hardware ECC Recovered ");
+    break;
+  case 196:
+    printf("(196)Reallocated Event Count");
+    break;
+  case 197:
+    printf("(197)Current Pending Sector ");
+    break;
+  case 198:
+    printf("(198)Offline Uncorrectable  ");
+    break;
+  case 199:
+    printf("(199)UDMA CRC Error Count   ");
+    break;
+  case 220:
+    printf("(220)Disk Shift             ");
+    break;
+  case 221:
+    printf("(221)G-Sense Error Rate     ");
+    break;
+  case 222:
+    printf("(222)Loaded Hours           ");
+    break;
+  case 223:
+    printf("(223)Load Retry Count       ");
+    break;
+  case 224:
+    printf("(224)Load Friction          ");
+    break;
+  case 225:
+    printf("(225)Load Cycle Count       ");
+    break;
+  case 226:
+    printf("(226)Load-in Time           ");
+    break;
+  case 227:
+    printf("(227)Torq-amp Count         ");
+    break;
+  case 228:
+    printf("(228)Power-off Retract Count");
+    break;
+  default:
+    printf("(%3d)Unknown Attribute      ", id);
+    break;
   }
 }	
 
