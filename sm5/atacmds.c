@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.107 2003/06/23 04:55:56 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.108 2003/06/30 10:14:57 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -726,14 +726,14 @@ int ataVersionInfo (const char** description, struct hd_driveid *drive, unsigned
   if (sizeof(minor_str) != sizeof(char *)*(1+MINOR_MAX)){
     pout("Internal error in ataVersionInfo().  minor_str[] size %d\n"
 	 "is not consistent with value of MINOR_MAX+1 = %d\n", 
-	 sizeof(minor_str)/sizeof(char *), MINOR_MAX+1);
+	 (int)sizeof(minor_str)/sizeof(char *), MINOR_MAX+1);
     fflush(NULL);
     abort();
   }
   if (sizeof(actual_ver) != sizeof(int)*(1+MINOR_MAX)){
     pout("Internal error in ataVersionInfo().  actual_ver[] size %d\n"
 	 "is not consistent with value of MINOR_MAX = %d\n",
-	 sizeof(actual_ver)/sizeof(int), MINOR_MAX+1);
+	 (int)sizeof(actual_ver)/sizeof(int), MINOR_MAX+1);
     fflush(NULL);
     abort();
   }
