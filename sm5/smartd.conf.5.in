@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.22 2003/12/19 20:47:00 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.23 2003/12/21 13:53:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1031,9 +1031,11 @@ http://smartmontools.sourceforge.net/
 
 .SH
 SEE ALSO:
-\fBsmartd\fP(8), \fBsmartctl\fP(8), \fBsyslogd\fP(8).
-
+\fBsmartd\fP(8),
+\fBsmartctl\fP(8),
+\fBsyslogd\fP(8),
+\fBsyslog.conf\fP(5).
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.22 2003/12/19 20:47:00 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.23 2003/12/21 13:53:05 ballen4705 Exp $

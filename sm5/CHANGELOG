@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.299 2003/12/19 22:04:17 ballen4705 Exp $
+$Id: CHANGELOG,v 1.300 2003/12/21 13:53:05 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd man pages: under Solaris, correct section numbers in the
+       'See also' section.
 
   [KS/BA] smartd man page: describe how to set Solaris syslog.conf
        file to catch all messages.  Give correct Solaris SYSLOG default

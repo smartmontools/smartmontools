@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.29 2003/12/19 20:47:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.30 2003/12/21 13:53:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -381,10 +381,12 @@ Section below!
 .B # behind a 3ware controller.
 .B #
 .nf
-.B # First ATA disk on each of two interfaces:
+.B # First ATA disk on each of two interfaces. On
+.B # the second disk, do a long self-test every
+.B # Sunday at 3am.
 .B #
 .B \ \ /dev/hda -a -m admin@example.com,root@localhost 
-.B \ \ /dev/hdc -a -I 194 -I 5 -i 12
+.B \ \ /dev/hdc -a -I 194 -I 5 -i 12 -s L/../../7/03
 .B #
 .nf
 .B # SCSI disks.  Send a TEST warning email to admin on
@@ -394,16 +396,16 @@ Section below!
 .B \ \ /dev/sdc -m admin@example.com -M test
 .B #
 .nf
-.B # Strange device.  It\'s SCSI:
-.B #
-.B \ \ /dev/weird -d scsi
+.B # Strange device.  It\'s SCSI. Do a scheduled
+.B # long self test at 5am Monday/Thursday
+.B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Three ATA disks connected to a 3ware controller
-.B #
-.B \ \ /dev/sdb -d 3ware,0 -a
-.B \ \ /dev/sdb -d 3ware,1 -a
-.B \ \ /dev/sdb -d 3ware,2 -a
+.B # Three ATA disks connected to a 3ware controller.
+.B # Do short self-tests daily at midnight, 1 and 2 am
+.B \ \ /dev/sdb -d 3ware,0 -a -s S/../.././00
+.B \ \ /dev/sdb -d 3ware,1 -a -s S/../.././01
+.B \ \ /dev/sdb -d 3ware,2 -a -s S/../.././02
 .B #
 .nf
 .B # The following line enables monitoring of the 
@@ -1435,7 +1437,8 @@ http://smartmontools.sourceforge.net/
 SEE ALSO:
 \fBsmartd.conf\fP(5),
 \fBsmartctl\fP(8),
-\fBsyslogd\fP(8).
+\fBsyslogd\fP(8),
+\fBsyslog.conf\fP(5).
 .SH
 REFERENCES FOR SMART
 .fi
@@ -1460,4 +1463,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.29 2003/12/19 20:47:00 ballen4705 Exp $
+$Id: smartd.8.in,v 1.30 2003/12/21 13:53:05 ballen4705 Exp $
