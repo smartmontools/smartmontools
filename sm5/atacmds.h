@@ -1,5 +1,5 @@
-#define SMARTMONTOOLS_VERSION  2
-//  $Id: atacmds.h,v 1.6 2002/10/11 12:15:49 ballen4705 Exp $
+#define SMARTMONTOOLS_VERSION  1
+//  $Id: atacmds.h,v 1.7 2002/10/11 12:21:09 ballen4705 Exp $
 /*
  * atacmds.h
  *

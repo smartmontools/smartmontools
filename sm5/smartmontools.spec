@@ -47,7 +47,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 /etc/rc.d/init.d/smartd
 %doc %attr(644,root,root) /usr/share/man/man8/smartctl.8.gz
 %doc %attr(644,root,root) /usr/share/man/man8/smartd.8.gz
-%doc CHANGELOG COPYING TODO README
+%doc CHANGELOG COPYING TODO README VERSION
 
 %clean
 rm -rf $RPM_BUILD_ROOT
