@@ -40,9 +40,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.15 2004/02/12 18:30:30 card_captor Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.16 2004/02/18 23:41:51 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.15 2004/02/12 18:30:30 card_captor Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.16 2004/02/18 23:41:51 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -334,7 +334,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     /* Above smart_* routines uses undocumented ioctls of "dada"
      * driver, which is specific to SPARC Solaris. x86 Solaris seems
      * not to provide similar or alternative interface... */
-    if (printwarning(1))
+    if (printwarning(0))
 	return -1;
 #endif
     return -1;

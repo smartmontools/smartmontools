@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.340 2004/02/18 23:12:21 shattered Exp $
+$Id: CHANGELOG,v 1.341 2004/02/18 23:41:51 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] On solaris, wrong warning message if no ATA support.  Warning message
+       concerns 3ware controller, not ATA.  Keiji, please confirm.
 
   [SS] Added SCSI support for NetBSD.
 
