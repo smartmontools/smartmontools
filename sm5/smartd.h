@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.12 2002/10/28 23:47:00 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.13 2002/10/29 16:59:02 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -32,8 +32,6 @@
 #define MAXENTRIES 64
 #define MAXCONTLINE 511
 #define MAXDEVLEN 51
-
-// BAD PROGRAMMING - GLOBAL VARIABLES SHOULD BE IN .c NOT .h FILE
 
 /* how often SMART status is checked, in seconds */
 int checktime = 1800;

@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.26 2002/10/28 23:47:39 ballen4705 Exp $
+# $Id: Makefile,v 1.27 2002/10/29 16:59:02 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -113,4 +113,4 @@ release: $(releasefiles)
 	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
 	. cvs-script && cvs commit -m "release $(counter)"
 	. cvs-script && cvs tag -d "RELEASE_5_0_$(counter)" && cvs tag "RELEASE_5_0_$(counter)"
-	echo `hostname` | grep -q ballen && echo $(newcounter) > VERSION
+	echo `hostname` | grep -q ballen && echo $(newcounter) > VERSION && chown ballen.ballen *

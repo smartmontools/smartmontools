@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.42 2002/10/29 15:19:30 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.43 2002/10/29 16:59:02 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -167,7 +167,7 @@ void Directives() {
   printout(LOG_INFO,"   #    Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  printout(LOG_INFO,"All but -S directive are only implemented for ATA devices\n");
+  printout(LOG_INFO,"All but -S Directive are only implemented for ATA devices\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
 return;
 }
@@ -495,7 +495,7 @@ int ataCheckDevice(atadevices_t *drive){
     if (status==-1)
       printout(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
     else if (status==1)
-      printout(LOG_INFO,"Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n",name);
+      printout(LOG_CRIT,"Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n",name);
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
@@ -505,7 +505,7 @@ int ataCheckDevice(atadevices_t *drive){
     
     // Read current attribute values. *drive contains old values adn thresholds
     if (ataReadSmartValues(fd,&curval))
-      printout(LOG_INFO, "Device: %s, failed to read SMART Attribute Data\n", name);
+      printout(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
     else {  
       // look for failed usage attributes, or track usage or prefail attributes
       for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++) {
@@ -1058,7 +1058,7 @@ int makeconfigentries(int num, char *name, int isata, int start){
 
 void cantregister(char *name, char *type, int line){
   if (line)
-    printout(LOG_INFO,"Unable to register %s device %s at line %d of file %s\n",
+    printout(LOG_CRIT,"Unable to register %s device %s at line %d of file %s\n",
 	     type, name, line, CONFIGFILE);
   else
     printout(LOG_INFO,"Unable to register %s device %s\n",
