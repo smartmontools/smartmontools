@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/03/20 11:55:11 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/04/02 20:09:13 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.138 2004/03/20 11:55:11 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.139 2004/04/02 20:09:13 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -314,30 +314,12 @@ attributes, please send an email to <a href="http://lists.sourceforge.net/mailma
 smartmontools-support</a> and we'll help you try and figure it
 out.</p></li>
 
-<li><b>What Kernel Version is needed? (Linux)</b>
+<li><b>What are the operating system requirements?</b>
 <p>
-Kernel versions 2.4.0 or later should work. We recommend the latest
-2.4 kernel.</p>
-<p>
-Vanilla kernel.org 2.2.X kernels do not support the HDIO_DRIVE_TASK
-ioctl(), which is needed for the ATA drive to execute the ATA SMART
-RETURN STATUS command. So these kernels will not work.</p>
-<p>
-Vendor-supplied 2.2.X kernels, and vanilla 2.2.X kernels patched with
-<a href="http://www.funet.fi/pub/linux/kernel/people/hedrick/ide-2.2.20/">Andre
-Hedrick's IDE patches</a> (available from your local kernel.org
-mirror, not updated for 2.2.21 or later, and probably still containing
-a few bugs) may support the needed ioctl().</p>
-<p>
-If the configuration option CONFIG_IDE_TASK_IOCTL exists in your 2.2.X
-kernel source code tree, then your 2.2.X kernel will probably support
-smartmontools.  Note that this kernel configuration option does
-<i>not</i> need to be enabled. Its presence merely indicates that the
-required HDIO_DRIVE_TASK ioctl() is supported.</p>
-<p>
-If you are using a 3ware RAID controller, please see below for information
-about the correct <tt>3w-xxxx</tt> module/driver version.</p>
-</li>
+
+Please see the first section of the <a
+href="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
+file.
 
 <li><b>What Attributes does smartmontools not yet recognize?</b>
 
@@ -1014,8 +996,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/03/20 11:55:11 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.138 2004/03/20 11:55:11 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/04/02 20:09:13 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.139 2004/04/02 20:09:13 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
