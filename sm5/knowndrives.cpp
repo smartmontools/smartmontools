@@ -18,9 +18,15 @@
  */
 
 #include <stdio.h>
+#include <regex.h>
+#include "atacmds.h"
 #include "knowndrives.h"
+#include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.1 2003/04/08 21:40:01 pjwilliams Exp $" KNOWNDRIVES_H_CVSID;
+#define MODEL_STRING_LENGTH       40
+#define FIRMWARE_STRING_LENGTH     8
+
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.2 2003/04/13 16:05:23 pjwilliams Exp $" ATACMDS_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 /* Table of settings for known drives terminated by an element containing all
  * zeros.  The drivesettings structure is described in knowndrives.h */
@@ -64,3 +70,167 @@ const drivesettings knowndrives[] = {
    *------------------------------------------------------------ */
   {0, 0, 0, 0, 0}
 };
+
+// Searches knowndrives[] for a drive with the given model number and firmware
+// string.  If either the drive's model or firmware strings are not set by the
+// manufacturer then values of NULL may be used.  Returns the index of the
+// first match in knowndrives[] or -1 if no match if found.
+int lookupdrive(const char *model, const char *firmware)
+{
+  regex_t regex;
+  int i, index;
+  const char *empty = "";
+
+  model = model ? model : empty;
+  firmware = firmware ? firmware : empty;
+
+  for (i = 0, index = -1; index == -1 && knowndrives[i].modelregexp; i++) {
+    // Attempt to compile regular expression.
+    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+      goto CONTINUE;
+
+    // Check whether model matches the regular expression in knowndrives[i].
+    if (!regexec(&regex, model, 0, NULL, 0)) {
+      // model matches, now check firmware.
+      if (!knowndrives[i].firmwareregexp)
+        // The firmware regular expression in knowndrives[i] is NULL, which is
+        // considered a match.
+        index = i;
+      else {
+        // Compare firmware against the regular expression in knowndrives[i].
+        regfree(&regex);  // Recycle regex.
+        if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+          goto CONTINUE;
+        if (!regexec(&regex, firmware, 0, NULL, 0))
+          index = i;
+      }
+    }
+  CONTINUE:
+    regfree(&regex);
+  }
+
+  return index;
+}
+
+// Shows all presets for drives in knowndrives[].
+void showallpresets(void)
+{
+  int i;
+
+  for (i = 0; knowndrives[i].modelregexp; i++) {
+    const int (* presets)[2] = knowndrives[i].vendoropts;
+    int first_preset = 1;
+    int width = 11;
+
+    if (!presets)
+      continue;
+
+    pout("%-*s %s\n", width, "MODEL", knowndrives[i].modelregexp);
+    pout("%-*s %s\n", width, "FIRMWARE", knowndrives[i].firmwareregexp ?
+                                           knowndrives[i].firmwareregexp : "");
+
+    while (1) {
+      char out[64];
+      const int attr = (*presets)[0], val  = (*presets)[1];
+
+      if (!attr)  
+        break;
+
+      ataPrintSmartAttribName(out, attr, val);
+      // Use leading zeros instead of spaces so that everything lines up.
+      out[0] = (out[0] == ' ') ? '0' : out[0];
+      out[1] = (out[1] == ' ') ? '0' : out[1];
+      pout("%-*s %s\n", width, first_preset ? "PRESETS" : "", out);
+      first_preset = 0;
+      presets++;
+    }
+    if (knowndrives[i].specialpurpose)
+      pout("%-*s There is a special-purpose function defined for this drive\n",           width, "");
+    pout("\n");
+  }
+}
+
+static void getmodel(const struct hd_driveid *drive, char model[MODEL_STRING_LENGTH+1])
+{
+  int i;
+
+  for (i = 0; i < MODEL_STRING_LENGTH; i +=2 ) {
+    model[i]   = drive->model[i+1];
+    model[i+1] = drive->model[i];
+  }
+  model[MODEL_STRING_LENGTH] = '\0';
+}
+
+static void getfirmware(const struct hd_driveid *drive, char firmware[FIRMWARE_STRING_LENGTH])
+{
+  int i;
+
+  for (i = 0; i < FIRMWARE_STRING_LENGTH; i += 2) {
+    firmware[i]   = drive->fw_rev[i+1];
+    firmware[i+1] = drive->fw_rev[i];
+  }
+  firmware[FIRMWARE_STRING_LENGTH] = '\0';
+}
+
+// Shows the presets (if any) that are available for the given drive.
+void showpresets(const struct hd_driveid *drive)
+{
+  int i;
+  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1], out[64];
+
+  getmodel(drive, model);
+  getmodel(drive, firmware);
+
+  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
+    const int (* presets)[2] = knowndrives[i].vendoropts;
+    while (1) {
+      const int attr = (*presets)[0];
+      const int val  = (*presets)[1];
+
+      if (!attr)  
+        break;
+
+      ataPrintSmartAttribName(out, attr, val);
+      pout("%s\n", out);
+      presets++;
+    }
+  } else {
+    pout("No presets are defined for this drive\n");
+  }
+}
+
+// Sets preset vendor attribute options in opts by finding the entry (if any)
+// for the given drive in knowndrives[].  Values that have already been set in
+// opts will not be changed.
+void applypresets(const struct hd_driveid *drive, unsigned char opts[256])
+{
+  int i;
+  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
+
+  getmodel(drive, model);
+  getmodel(drive, firmware);
+
+  // Look up the drive in knowndrives[] and check vendoropts is non-NULL.
+  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
+    const int (* presets)[2];
+
+    // For each attribute in list of attribute/val pairs...
+    presets = knowndrives[i].vendoropts;
+    while (1) {
+      const int attr = (*presets)[0];
+      const int val  = (*presets)[1];
+
+      if (!attr)  
+        break;
+
+      // ... set attribute if user hasn't already done so.
+      if (!opts[attr])
+        opts[attr] = val;
+      presets++;
+    }
+
+    // If a function is defined for this drive then call it.
+    if (knowndrives[i].specialpurpose)
+      (*knowndrives[i].specialpurpose)();
+  }
+}

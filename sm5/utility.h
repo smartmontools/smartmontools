@@ -26,8 +26,11 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.5 2003/03/06 07:27:18 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.6 2003/04/13 16:05:23 pjwilliams Exp $\n"
 #endif
+
+#include <time.h>
+#include <regex.h>
 
 // Utility function prints current date and time and timezone into a
 // character buffer of length>=64.  All the fuss is needed to get the
@@ -52,6 +55,11 @@ void pout(char *fmt, ...)
 // replacement for perror() with redirected output.
 void syserror(const char *message);
 
+// Prints a warning message for a failed regular expression compilation from
+// regcomp().
+void printregexwarning(int errcode, regex_t *compiled);
 
+// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
+int compileregex(regex_t *compiled, const char *pattern, int cflags);
 
 #endif

@@ -44,13 +44,14 @@
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
+#include "knowndrives.h"
 #include "scsicmds.h"
 #include "smartd.h"
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.138 2003/04/10 02:41:58 ballen4705 Exp $" 
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.139 2003/04/13 16:05:23 pjwilliams Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
 const char *getvalidarglist(char opt);
@@ -445,6 +446,7 @@ void Directives() {
   printout(LOG_INFO,"  -i ID   Ignore Attribute ID for -f Directive\n");
   printout(LOG_INFO,"  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n");
   printout(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
+  printout(LOG_INFO,"  -P TYPE Drive-specific presets: use, ignore, show, showall\n");
   printout(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
   printout(LOG_INFO,"  -F      Fix byte order in some SMART data (some Samsung disks)\n");
   printout(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
@@ -558,6 +560,18 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     return 2; 
   }
   
+  // If requested, show which presets would be used for this drive and exit.
+  if (cfg->showpresets) {
+    debugmode = TRUE;
+    pout("Presets for %s are:\n", device);
+    showpresets(&drive);
+    exit(0);
+  }
+
+  // Use preset vendor attribute options unless user has requested otherwise.
+  if (!cfg->ignorepresets)
+    applypresets(&drive, cfg->attributedefs);
+
   if (!cfg->permissive && !ataSmartSupport(&drive)){
     // SMART not supported
     printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",device);
@@ -916,7 +930,7 @@ int ataCheckDevice(atadevices_t *drive){
             char attname[64], *loc=attname;
             
             // get attribute name & skip white space
-            ataPrintSmartAttribName(loc, att, cfg->attributedefs);
+            ataPrintSmartAttribName(loc, att, cfg->attributedefs[att]);
             while (*loc && *loc==' ') loc++;
             
             // warning message
@@ -941,7 +955,7 @@ int ataCheckDevice(atadevices_t *drive){
             char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
 
             // get attribute name, skip spaces
-            ataPrintSmartAttribName(loc, id, cfg->attributedefs);
+            ataPrintSmartAttribName(loc, id, cfg->attributedefs[id]);
             while (*loc && *loc==' ') loc++;
             
             // has the user asked for us to print raw values?
@@ -1191,6 +1205,9 @@ void printoutvaliddirectiveargs(int priority, char d) {
     printout(priority, "\n%s\n", s);
     free(s);
     break;
+  case 'P':
+    printout(priority, "use, ignore, show, showall");
+    break;
   }
 }
 
@@ -1433,6 +1450,24 @@ int parsetoken(char *token,cfgfile *cfg){
     if ((arg=strtok(NULL,delim)) == NULL) {
       missingarg = 1;
     } else if (parse_attribute_def(arg, cfg->attributedefs)){   
+      badarg = 1;
+    }
+    break;
+  case 'P':
+    // Define use of drive-specific presets.
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else if (!strcmp(arg, "use")) {
+      cfg->ignorepresets = FALSE;
+    } else if (!strcmp(arg, "ignore")) {
+      cfg->ignorepresets = TRUE;
+    } else if (!strcmp(arg, "show")) {
+      cfg->showpresets = TRUE;
+    } else if (!strcmp(arg, "showall")) {
+      debugmode = TRUE;
+      showallpresets();
+      exit(0);
+    } else {
       badarg = 1;
     }
     break;
@@ -2061,7 +2096,7 @@ int main (int argc, char **argv){
     printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
     exit(1);
   }
-  
+
   // Now start an infinite loop that checks all devices
   CheckDevices(atadevicesptr, scsidevicesptr); 
   return 0;

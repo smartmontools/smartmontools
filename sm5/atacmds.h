@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.41 2003/04/03 07:54:14 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.42 2003/04/13 16:05:22 pjwilliams Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -391,7 +391,7 @@ long long ataPrintSmartAttribRawValue(char *out,
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
-void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defs);
+void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char val);
 
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the

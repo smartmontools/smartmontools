@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.22 2003/04/11 18:19:43 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.23 2003/04/13 16:05:23 pjwilliams Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -64,6 +64,8 @@ typedef struct smartmonctrl_s {
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char reversesamsung;
+  unsigned char ignorepresets;
+  unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
   // the i'th SMART attribute.  The default definitions of the
   // Attributes are obtained by having the array be all zeros.  If

@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.86 2003/04/10 02:41:57 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.87 2003/04/13 16:05:22 pjwilliams Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1281,9 +1281,9 @@ long long ataPrintSmartAttribRawValue(char *out,
 
 // Note some attribute names appear redundant because different
 // manufacturers use different attribute IDs for an attribute with the
-// same name.  The array defs[] contains non-zero values if particular
-// attributes have non-default interpretations.
-void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
+// same name.  The variable val should contain a non-zero value if a particular
+// attributes has a non-default interpretation.
+void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
   char *name;
   switch (id){
     
@@ -1312,7 +1312,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     name="Seek_Time_Performance";
     break;
   case 9:
-    switch (defs[id]) {
+    switch (val) {
     case 1:
       name="Power_On_Minutes";
       break;
@@ -1352,7 +1352,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     name="Load_Cycle_Count";
     break;
   case 194:
-    switch (defs[id]){
+    switch (val){
     case 1:
       // Samsung SV1204H with RK100-13 firmware
       name="Temperature_Celsius_x10";
@@ -1378,7 +1378,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     name="UDMA_CRC_Error_Count";
     break;
   case 200:
-    switch (defs[id]) {
+    switch (val) {
     case 1:
       // Fujitsu MHS2020AT
       name="Write_Error_Count";
@@ -1390,7 +1390,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     }
     break;
   case 220:
-    switch (defs[id]) {
+    switch (val) {
     case 1:
       name="Temperature_Celsius";
       break;

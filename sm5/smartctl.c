@@ -37,14 +37,15 @@
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
+#include "knowndrives.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.65 2003/04/10 09:40:35 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.66 2003/04/13 16:05:23 pjwilliams Exp $"
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
@@ -161,6 +162,8 @@ void Usage (void){
 "        Set display OPTION for vendor Attribute N (see man page)\n"
 "  -F, --fixbyteorder                                                  (ATA)\n"
 "        Fix byte order in some SMART data (some Samsung disks)\n"
+"  -P TYPE, --presets=TYPE                                             (ATA)\n"
+"        Drive-specific presets: use, ignore, show, showall\n"
   );
 #else
   printf(
@@ -170,6 +173,7 @@ void Usage (void){
 "  -l TYPE   Show device log. Type is one of: error (ATA), selftest\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)  (ATA)\n"
 "  -F        Fix byte order in some SMART data (some Samsung disks)    (ATA)\n"
+"  -P TYPE   Drive-specific presets: use, ignore, show, showall        (ATA)\n"
   );
 #endif
   printf("==============  DEVICE SELF-TEST OPTIONS  =================================\n");
@@ -243,6 +247,8 @@ const char *getvalidarglist(char opt) {
     sprintf(v_list, "\thelp\n%s", s);
     free(s);
     return v_list;
+  case 'P':
+    return "use, ignore, show, showall";
   case 't':
     return "offline, short, long";
   default:
@@ -279,7 +285,7 @@ void ParseOpts (int argc, char** argv){
   extern char *optarg;
   extern int optopt, optind, opterr;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:t:CXF";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -304,6 +310,7 @@ void ParseOpts (int argc, char** argv){
     { "info",            no_argument,       0, 'i' },
     { "all",             no_argument,       0, 'a' },
     { "vendorattribute", required_argument, 0, 'v' },
+    { "presets",         required_argument, 0, 'P' },
     { "test",            required_argument, 0, 't' },
     { "captive",         no_argument,       0, 'C' },
     { "abort",           no_argument,       0, 'X' },
@@ -478,6 +485,20 @@ void ParseOpts (int argc, char** argv){
       if (parse_attribute_def(optarg, con->attributedefs))
 	badarg = TRUE;
       break;    
+    case 'P':
+      if (!strcmp(optarg, "use")) {
+        con->ignorepresets = FALSE;
+      } else if (!strcmp(optarg, "ignore")) {
+        con->ignorepresets = TRUE;
+      } else if (!strcmp(optarg, "show")) {
+        con->showpresets = TRUE;
+      } else if (!strcmp(optarg, "showall")) {
+        showallpresets();
+        exit(0);
+      } else {
+        badarg = TRUE;
+      }
+      break;
     case 't':
       if (!strcmp(optarg,"offline")) {
         con->smartexeoffimmediate = TRUE;

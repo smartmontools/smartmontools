@@ -25,7 +25,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <syslog.h>
-#include <regex.h>
 #include <string.h>
 #include "atacmds.h"
 #include "ataprint.h"
@@ -34,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.72 2003/04/10 22:10:35 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.73 2003/04/13 16:05:22 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -70,73 +69,6 @@ void printswap(char *output, char *in, unsigned int n){
   pout("%s",output);
   
   return;
-}
-
-void printregexwarning(int errcode, regex_t *compiled){
-  size_t length = regerror(errcode, compiled, NULL, 0);
-  char *buffer = malloc(length);
-  if (!buffer){
-    pout("Out of memory in printregexwarning()\n");
-    return;
-  }
-  regerror(errcode, compiled, buffer, length);
-  pout("%s\n", buffer);
-  free(buffer);
-  return;
-}
-
-// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
-int compileregex(regex_t *compiled, const char *pattern, int cflags)
-{
-  int errorcode;
-
-  if ((errorcode = regcomp(compiled, pattern, cflags))) {
-    pout("Internal error: unable to compile regular expression %s", pattern);
-    printregexwarning(errorcode, compiled);
-    pout("Please inform smartmontools developers\n");
-    return 1;
-  }
-  return 0;
-}
-
-// Searches knowndrives[] for a drive with the given model number and firmware
-// string.  If either the drive's model or firmware strings are not set by the
-// manufacturer then values of NULL may be used.  Returns the index of the
-// first match in knowndrives[] or -1 if no match if found.
-int lookupdrive(const char *model, const char *firmware) {
-  regex_t regex;
-  int i, index;
-  const char *empty = "";
-
-  model = model ? model : empty;
-  firmware = firmware ? firmware : empty;
-
-  for (i = 0, index = -1; index == -1 && knowndrives[i].modelregexp; i++) {
-    // Attempt to compile regular expression.
-    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
-      goto CONTINUE;
-
-    // Check whether model matches the regular expression in knowndrives[i].
-    if (!regexec(&regex, model, 0, NULL, 0)) {
-      // model matches, now check firmware.
-      if (!knowndrives[i].firmwareregexp)
-        // The firmware regular expression in knowndrives[i] is NULL, which is
-        // considered a match.
-        index = i;
-      else {
-        // Compare firmware against the regular expression in knowndrives[i].
-        regfree(&regex);  // Recycle regex.
-        if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
-          goto CONTINUE;
-        if (!regexec(&regex, firmware, 0, NULL, 0))
-          index = i;
-      }
-    }
-  CONTINUE:
-    regfree(&regex);
-  }
-
-  return index;
 }
 
 // Issues a warning, if appropriate, about the drive with the given model.
@@ -517,7 +449,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	status="    -";
       
       // Print name of attribute
-      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs);
+      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs[disk->id]);
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
@@ -533,8 +465,8 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
       // print a warning if there is inconsistency here!
       if (disk->id != thre->id){
 	char atdat[64],atthr[64];
-	ataPrintSmartAttribName(atdat, disk->id, con->attributedefs);
-	ataPrintSmartAttribName(atthr, thre->id, con->attributedefs);
+	ataPrintSmartAttribName(atdat, disk->id, con->attributedefs[disk->id]);
+	ataPrintSmartAttribName(atthr, thre->id, con->attributedefs[thre->id]);
 	pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
 	pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
       }
@@ -907,6 +839,16 @@ int ataPrintMain (int fd){
     pout("Smartctl: Hard Drive Read Identity Failed\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
+
+  // If requested, show which presets would be used for this drive and exit.
+  if (con->showpresets) {
+    showpresets(&drive);
+    exit(0);
+  }
+
+  // Use preset vendor attribute options unless user has requested otherwise.
+  if (!con->ignorepresets)
+    applypresets(&drive, con->attributedefs);
 
   // Print most drive identity information if requested
   if (con->driveinfo){
