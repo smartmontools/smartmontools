@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.39 2003/01/04 13:45:41 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.40 2003/01/04 18:57:42 pjwilliams Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/04 13:45:41 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/01/04 18:57:42 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -135,11 +135,8 @@ found is to use the exit status of
 (see RETURN VALUES below).
 .TP
 .B \-d TYPE, \-\-device=TYPE
-Specifies the type of the device.  The valid arguments to this option are
-.I ata
-and
-.I scsi.
-If this option is not used then
+Specifies the type of the device.  The valid arguments to this option
+are \fIata\fP and \fIscsi\fP.  If this option is not used then
 .B smartctl
 will attempt to guess the device type from the device name.
 .TP
@@ -202,23 +199,17 @@ the corresponding disable command.
 .TP
 .B \-s VALUE, \-\-smart=VALUE 
 Enables or disables S.M.A.R.T. on device.  The valid arguments to
-this option are
-.I on
-and
-.I off.
-Note that the command '\-s on' (perhaps
-used with with the '\-o on' and '\-S on' options) should be placed in a
-start-up script for your machine, for example in rc.local or rc.sysinit.
+this option are \fIon\fP and \fIoff\fP.  Note that the command '\-s on'
+(perhaps used with with the '\-o on' and '\-S on' options) should be placed
+in a start-up script for your machine, for example in rc.local or rc.sysinit.
 In principle the S.M.A.R.T. feature settings are preserved over
 power-cycling, but it doesn't hurt to be sure.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
 Enables or disables S.M.A.R.T. automatic offline test, which scans the drive
 every four hours for disk defects. This command can be given during normal
-system operation.  The valid arguments to this option are
-.I on
-and
-.I off.
+system operation.  The valid arguments to this option are \fIon\fP
+and \fIoff\fP.
 
 Note that the S.M.A.R.T. automatic offline test command is listed as 'Obsolete'
 in every version of the ATA and ATA/ATAPI Specifications
@@ -274,12 +265,9 @@ are used in connection with the third category.
 .TP
 .B \-S VALUE, \-\-saveauto=VALUE
 Enables or disables S.M.A.R.T. autosave of device vendor-specific
-Attributes. The valid arguments to this option are
-.I on
-and
-.I off.
-Note that this feature is preserved across disk power cycles, so you should only
-need to issue it once.
+Attributes. The valid arguments to this option are \fIon\fP
+and \fIoff\fP.  Note that this feature is preserved across disk power
+cycles, so you should only need to issue it once.
 .TP
 .B S.M.A.R.T. READ AND DISPLAY DATA OPTIONS:
 .TP
@@ -676,4 +664,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.39 2003/01/04 13:45:41 ballen4705 Exp $
+$Id: smartctl.8,v 1.40 2003/01/04 18:57:42 pjwilliams Exp $
