@@ -99,7 +99,9 @@ each release is <u>tagged</u> with a name like
 by looking at the <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/">
 CVS repository</a>.&#160; You'll see the tag names in the little scroll
 window where it says "Show only files with tag".&#160; All you need to
-do to get the latest development code is:</p>
+do to get the latest development code is
+(but note that the development code may be unstable, and that the
+documentation and code may be inconsistent):</p>
 
 <pre>cvs -d: pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
 cvs -d: pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5</pre></li>
@@ -233,6 +235,10 @@ with SCSI devices as the smartsuite tools did.</p>
 a developer, of maintaining the SCSI code.&#160; Do you have a beowulf
 cluster with a few hundred SCSI disks?&#160; Please volunteer !</p>
 
+<p>Some useful utilities to examine SCSI log information can be found
+on the <a href="http://www.torque.net/sg/">scsi generic (sg) driver home page</a>.
+The utilities are called <tt>sg_utils</tt> and <tt>sg3_utils</tt>.</p>
+
 <hr size="2" /><a name="differfromsmartsuite"></a><b>How does
 smartmontools differ from smartsuite?</b>
 
@@ -343,8 +349,9 @@ from smartmontools smartctl utility:</b>
  <li><a href="examples/MAXTOR-3.txt">MAXTOR 6L080J4</a> 80 GB 7200 RPM</li>
  <li><a href="examples/MAXTOR-4.txt">MAXTOR 6L080J4</a> 80 GB 7200 RPM</li>
  <li><a href="examples/Maxtor-5.txt">Maxtor 98196H8</a> 80 GB 5400 RPM</li>
- <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07</a> 120 GB 7200 RPM</li>
- <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07</a> 120 GB 7200 RPM</li>
+ <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
+ <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
+ <li><a href="examples/IC35L120AVV207-0.txt">IBM IC35L120AVV207 (GXP 180 series)</a> 120 GB 7200 RPM</li>
  <li><a href="examples/HITACHI_DK23BA-20-0.txt">HITACHI_DK23BA-20</a> Hitachi 20 GB Laptop Disk</li>
  <li><a href="examples/TOSHIBA-0.txt">TOSHIBA MK2018GAS</a> Toshiba 20 GB Laptop Disk</li>
 </ul>
