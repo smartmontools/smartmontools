@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.30 2002/10/30 06:02:38 ballen4705 Exp $
+# $Id: Makefile,v 1.31 2002/11/01 19:41:39 pervalidus Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -33,6 +33,7 @@ CC	= gcc
 # -Os.  I'll remove this comment when this is resolved, or I am reminded of it!
 # If you are getting strange output from gcc 3.2 try changing O2 to Os.
 CFLAGS	= -fsigned-char -Wall -O2
+LDFLAGS = # -s
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
@@ -49,12 +50,12 @@ all: smartd smartctl
 
 smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
           smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h extern.h VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} smartctl.c \
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} ${LDFLAGS} smartctl.c \
                                       atacmds.o scsicmds.o ataprint.o scsiprint.o
 
 smartd:  smartd.c atacmds.o ataprint.o scsicmds.o \
          smartd.h atacmds.h ataprint.h scsicmds.h extern.h VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c \
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} ${LDFLAGS} smartd.c \
                                       scsicmds.o atacmds.o ataprint.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
