@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.46 2002/10/30 06:02:40 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.47 2002/10/30 10:18:37 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -173,6 +173,7 @@ void Directives() {
   printout(LOG_INFO,"Configuration file Directives (following device name):\n");
   printout(LOG_INFO,"  -A    Device is an ATA device\n");
   printout(LOG_INFO,"  -S    Device is a SCSI device\n");
+  printout(LOG_INFO,"  -C N  Check disks once every N seconds, where N>=10.\n");
   printout(LOG_INFO,"  -c    Monitor SMART Health Status, report if failed\n");
   printout(LOG_INFO,"  -l    Monitor SMART Error Log, report new errors\n");
   printout(LOG_INFO,"  -L    Monitor SMART Self-Test Log, report new errors\n");
@@ -251,7 +252,7 @@ int selftesterrorcount(int fd, char *name){
   }
   
   // return current number of self-test errors
-  return ataPrintSmartSelfTestlog(log,0);
+  return ataPrintSmartSelfTestlog(&log,0);
 }
 
 
@@ -274,7 +275,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   
   // Get drive identity structure
   // May want to add options to enable autosave, automatic online testing
-  if (ataReadHDIdentity (fd,&drive) || !ataSmartSupport(drive) || ataEnableSmart(fd)){
+  if (ataReadHDIdentity (fd,&drive) || !ataSmartSupport(&drive) || ataEnableSmart(fd)){
     // device exists, but not able to do SMART
     printout(LOG_INFO,"Device: %s, not SMART capable, or couldn't enable SMART\n",device);
     close(fd);
@@ -530,7 +531,7 @@ int ataCheckDevice(atadevices_t *drive){
     struct ata_smart_values     curval;
     struct ata_smart_thresholds *thresh=drive->smartthres;
     
-    // Read current attribute values. *drive contains old values adn thresholds
+    // Read current attribute values. *drive contains old values and thresholds
     if (ataReadSmartValues(fd,&curval))
       printout(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
     else {  
@@ -559,11 +560,16 @@ int ataCheckDevice(atadevices_t *drive){
 	
 	// This block tracks usage or prefailure attributes to see if they are changing
 	if ((cfg->usage || cfg->prefail) && ((att=ataCompareSmartValues2(&curval, drive->smartval, thresh, i, name)))){
+
+	  // I should probably clean this up by defining a union to
+	  // with one int=four unsigned chars to do this.
 	  const int mask=0xff;
-	  int prefail=(att>>24) & mask;
-	  int id     =(att>>16) & mask;
-	  int oldval =(att>>8)  & mask;
 	  int newval =(att>>0)  & mask;
+	  int oldval =(att>>8)  & mask;
+	  int id     =(att>>16) & mask;
+	  int prefail=(att>>24) & mask;
+
+	  // for printing attribute name
 	  char attname[64],*loc=attname;
 	  
 	  // are we tracking this attribute?
@@ -587,7 +593,7 @@ int ataCheckDevice(atadevices_t *drive){
       } // end of loop over attributes
      
       // Save the new values into *drive for the next time around
-      memcpy(drive->smartval,&curval,sizeof(curval));
+      *drive->smartval=curval;
     } 
   }
   
@@ -760,10 +766,11 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->selftest=1;
     cfg->errorlog=1;
     break;
-  case 'i':
-  case 'I':
+  case 'i': // ignore
+  case 'I': // ignore
+  case 'C': // period (time interval) for checking
     // ignore a particular vendor attribute for tracking (i) or
-    // failure (I)
+    // failure (I).  Or give a check interval for sleeping.
     arg=strtok(NULL,delim);
     // make sure argument is there
     if (!arg) {
@@ -775,21 +782,34 @@ int parsetoken(char *token,cfgfile *cfg){
     // get argument value, check that it's properly-formed, an
     // integer, and in-range
     val=strtol(arg,&endptr,10);
-    if (*endptr!='\0' || val<=0 || val>255)  {
-      printout(LOG_CRIT,"Drive %s Directive: %s at line %d of file %s has argument: %s, needs 0 < n < 256\n",
-	       name,token,lineno,CONFIGFILE,arg);
-      Directives();
-      exit(1);
+    switch (sym) {
+    case 'C':
+      if (*endptr!='\0' || val<10) {
+	printout(LOG_CRIT,"Drive %s Directive: %s, line %d, file %s, has argument: %s, mimimum is ten secoonds\n",
+		 name,token,lineno,CONFIGFILE,arg);
+	Directives();
+	exit(1);
+      }
+      checktime=val;
+      return 1;
+    case 'i':
+    case 'I':
+      if (*endptr!='\0' || val<=0 || val>255 )  {
+	printout(LOG_CRIT,"Drive %s Directive: %s, line %d, file %s, has argument: %s, needs 0 < n < 256\n",
+		 name,token,lineno,CONFIGFILE,arg);
+	Directives();
+	exit(1);
+      }
+      // put into correct list (bitmaps, access only with isattoff()
+      // function. Turns OFF corresponding attribute.
+      if (sym=='I')
+	isattoff(val,cfg->trackatt,1);
+      else
+	isattoff(val,cfg->failatt,1);
+      return 1;
     }
-    // put into correct list (bitmaps, access only with isattoff()
-    // function. Turns OFF corresponding attribute.
-    if (sym=='I')
-      isattoff(val,cfg->trackatt,1);
-    else
-      isattoff(val,cfg->failatt,1);
-    break;
   default:
-    printout(LOG_CRIT,"Drive: %s, unknown option: %s at line %d of file %s\n",
+    printout(LOG_CRIT,"Drive: %s, unknown Directive: %s at line %d of file %s\n",
 	     name,token,lineno,CONFIGFILE);
     Directives();
     exit(1);

@@ -1,4 +1,4 @@
-Release:  23
+Release:  24
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.34 2002/10/30 06:02:40 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.35 2002/10/30 10:18:37 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,7 +112,24 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+
 * Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+ Added new Directive for Configuration file:
+-C <N> This sets the time in between disk checks to be <N>
+  seconds apart.  Note that  although  you  can  give
+  this Directive multiple times on different lines of
+  the configuration file, only the final  value  that
+  is  given  has  an  effect,  and applies to all the
+  disks.  The default value of <N> is 1800  sec,  and
+  the minimum allowed value is ten seconds.
+- Problem wasn't the print format. F.L.W. Meunier <0@pervalidus.net>
+  sent me a gcc 3.2 build and I ran it under a debugger.  The
+  problem seems to be with passing the very large (2x512+4) byte
+  data structures as arguments.  I never liked this anyway; it was
+  inherited from smartsuite.  So I've changed all the heavyweight
+  functions (ATA ones, anyone) to just passing pointers, not hideous
+  kB size structures on the stack.  Hopefully this will now build OK
+  under gcc 3.2 with any sensible compilation options.
 - Because of reported problems with GCC 3.2 compile, I have gone
   thorough the code and explicitly changed all print format
   parameters to correspond EXACTLY to int unless they have to be
@@ -123,7 +140,6 @@ fi
   values. This means the objects of type char or short int (whether
   signed or not) are promoted to either int or unsigned int, as
   required.
-* Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - smartd, smartctl now warn if they find an attribute whose ID
   number does not match between Data and Threshold structures.
 - Fixed nasty bug which led to wrong number of arguments for a
