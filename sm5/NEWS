@@ -1,11 +1,19 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.5 2003/10/03 21:11:12 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.6 2003/10/13 05:24:29 ballen4705 Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
 See http://sourceforge.net/news/?group_id=64297 for the most recent news.
 
+Eduard, in preparation for the upcoming release, please add a
+preliminary entry here (a few lines) describing the FreeBSD support.
+
+Date: 2003-10-04
+Summary: smartmontools release 5.20
+-----------------------------------
+Replaces flawed 5.19 release (which had a zero-length man page
+smartd.conf.5).
 
 Date: 2003-10-03
 Summary: smartmontools release 5.19
