@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.46 2003/12/20 00:04:10 ballen4705 Exp $
+# $Id: Makefile.am,v 1.47 2003/12/21 13:53:05 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -74,7 +74,11 @@ EXTRA_smartctl_SOURCES = os_linux.c \
 
 
 if OS_SOLARIS
-# For systems that has automake-unfriendly manual page sectioning policy
+# This block is required because Solaris uses manual page section 1m
+# for administrative command (linux/freebsd use section 8) and Solaris
+# uses manual page section 4 for file formats (linux/freebsd use
+# section 5).  Automake can deal cleanly with man page sections 1-8
+# and n, but NOT with sections of the form 1m.
 extra_MANS =      smartd.conf.4 \
                   smartctl.1m   \
                   smartd.1m
@@ -107,13 +111,17 @@ uninstall-man:
 %.1m: %.8
 	awk '/^.TH/ {$$3="1m"} {print}' < $< | \
 	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
+            -e 's/syslog\.conf\(.*\)(5)/syslog.conf\1(4)/g' \
 	    -e 's/smartctl\(.*\)(8)/smartctl\1(1m)/g' \
+	    -e 's/syslogd\(.*\)(8)/syslogd\1(1m)/g' \
             -e 's|/var/log/messages|/var/adm/messages|g' \
 	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
 %.4: %.5
 	awk '/^.TH/ {$$3="4"}  {print}' < $< | \
 	sed -e 's/smartd\.conf\(.*\)(5)/smartd.conf\1(4)/g' \
+            -e 's/syslog\.conf\(.*\)(5)/syslog.conf\1(4)/g' \
 	    -e 's/smartctl\(.*\)(8)/smartdctl\1(1m)/g' \
+	    -e 's/syslogd\(.*\)(8)/syslogd\1(1m)/g' \
             -e 's|/var/log/messages|/var/adm/messages|g' \
 	    -e 's/smartd\(.*\)(8)/smartd\1(1m)/g' > $@
 else
