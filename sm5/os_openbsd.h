@@ -26,21 +26,11 @@
 #ifndef OS_OPENBSD_H_
 #define OS_OPENBSD_H_
 
-#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.1 2004/08/29 07:10:44 snyderx Exp $\n"
+#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.2 2004/09/09 04:39:51 snyderx Exp $\n"
 
 /* from NetBSD: atareg.h,v 1.17, by Manuel Bouyer */
 /* Actually fits _perfectly_ into OBSDs wdcreg.h, but... */
 /* Subcommands for SMART (features register) */
-#define WDSM_RD_DATA            0xd0
-#define WDSM_RD_THRESHOLDS      0xd1
-#define WDSM_ATTR_AUTOSAVE_EN   0xd2
-#define WDSM_SAVE_ATTR          0xd3
-#define WDSM_EXEC_OFFL_IMM      0xd4
-#define WDSM_RD_LOG             0xd5
-#define WDSM_ENABLE_OPS         0xd8
-#define WDSM_DISABLE_OPS        0xd9
-#define WDSM_STATUS             0xda
-
 #define WDSMART_CYL             0xc24f
 
 #include <sys/device.h>
