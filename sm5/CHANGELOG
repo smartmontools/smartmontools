@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.375 2004/03/22 04:36:59 ballen4705 Exp $
+$Id: CHANGELOG,v 1.376 2004/03/23 13:08:40 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+  
+  [BA] Added Selective Self-test to smartctl (-t selective,M-N).
+       Currently only supported under Linux; Solaris, NetBSD, FreeBSD
+       and Windows developers must add WRITE LOG functionality to
+       os_*.c
 
   [BA] Added workaround for an annoying glibc bug: if you change
        timezones, (eg, flying with a laptop from USA to Europe)

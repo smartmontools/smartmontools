@@ -25,10 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $\n"
-
-// For development and testing of Selective self-test code
-#define DEVELOP_SELECTIVE_SELF_TEST 0
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.35 2004/03/23 13:08:40 ballen4705 Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -58,26 +55,20 @@ typedef struct smartmonctrl_s {
 
   unsigned char smartextendselftest;
   unsigned char smartconveyanceselftest;
-#if DEVELOP_SELECTIVE_SELF_TEST
   unsigned char smartselectiveselftest;
-#endif
   unsigned char smartshortcapselftest;
   unsigned char smartextendcapselftest;
 
   unsigned char smartconveyancecapselftest;
-#if DEVELOP_SELECTIVE_SELF_TEST
   unsigned char smartselectivecapselftest;
-#endif
   unsigned char smartselftestabort;
   unsigned char smartautoofflineenable;
   unsigned char smartautoofflinedisable;
 
   unsigned char smartautosaveenable;
   unsigned char smartautosavedisable;
-#if DEVELOP_SELECTIVE_SELF_TEST
-  unsigned long long smartselectivespan[5][2];
+  uint64_t smartselectivespan[5][2];
   int smartselectivenumspans;
-#endif
   unsigned char printing_switchable;
   unsigned char dont_print;
 

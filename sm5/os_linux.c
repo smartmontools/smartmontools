@@ -72,10 +72,11 @@
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
 #endif
+typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.49 2004/03/17 16:32:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.50 2004/03/23 13:08:40 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.49 2004/03/17 16:32:04 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.50 2004/03/23 13:08:40 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -288,7 +289,9 @@ int make_device_names (char*** devlist, const char* name) {
 
 int ata_command_interface(int device, smart_command_set command, int select, char *data){
   unsigned char buff[STRANGE_BUFFER_LENGTH];
-  int retval, copydata=0;
+  // positive: bytes to write to caller.  negative: bytes to READ from
+  // caller. zero: non-data command
+  int copydata=0;
 
   const int HDIO_DRIVE_CMD_OFFSET = 4;
 
@@ -325,6 +328,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     buff[1]=select;
     buff[3]=1;
     copydata=512;
+    break;
+  case WRITE_LOG:
     break;
   case IDENTIFY:
     buff[0]=ATA_IDENTIFY_DEVICE;
@@ -373,9 +378,45 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     return -1;
   }
   
+  // This command uses the HDIO_DRIVE_TASKFILE ioctl(). This is the
+  // only ioctl() that can be used to WRITE data to the disk.
+  if (command==WRITE_LOG) {    
+    unsigned char task[sizeof(ide_task_request_t)+512];
+    ide_task_request_t *reqtask=(ide_task_request_t *) task;
+    task_struct_t      *taskfile=(task_struct_t *) reqtask->io_ports;
+    int retval;
+
+    memset(task,      0, sizeof(task));
+    
+    taskfile->data           = 0;
+    taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
+    taskfile->sector_count   = 1;
+    taskfile->sector_number  = select;
+    taskfile->low_cylinder   = 0x4f;;
+    taskfile->high_cylinder  = 0xc2;
+    taskfile->device_head    = 0;
+    taskfile->command        = ATA_SMART_CMD;
+    
+    reqtask->data_phase      = TASKFILE_OUT;
+    reqtask->req_cmd         = IDE_DRIVE_TASK_OUT;
+    reqtask->out_size        = 512;
+    reqtask->in_size         = 0;
+    
+    // copy user data into the task request structure
+    memcpy(task+sizeof(ide_task_request_t), data, 512);
+      
+    if ((retval=ioctl(device, HDIO_DRIVE_TASKFILE, task))) {
+      if (retval==-EINVAL)
+	pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
+      return -1;
+    }
+    return 0;
+  }
+    
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK){
+    int retval;
 
     // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You
     // have to read the IDE driver source code.  Sigh.
@@ -392,8 +433,15 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     buff[4]=normal_lo;
     buff[5]=normal_hi;
     
-    if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff)))
+    if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff))) {
+      if (retval==-EINVAL) {
+	pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
+	pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
+      }
+      else
+	syserror("Error SMART Status command failed");
       return -1;
+    }
     
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buff[4]==normal_lo && buff[5]==normal_hi)
@@ -445,7 +493,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 #endif
   
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
-  if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
+  if ((ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
 
   // CHECK POWER MODE command returns information in the Sector Count

@@ -47,7 +47,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.120 2004/03/16 14:46:14 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.121 2004/03/23 13:08:40 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -210,31 +210,16 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printf(
 "  -t TEST, --test=TEST\n"
-#if DEVELOP_SELECTIVE_SELF_TEST
 "        Run test.  TEST is: offline, short, long, conveyance, selective,M-N\n\n"
-#else
-"        Run test.  TEST is: offline, short, long, conveyance\n\n"
-#endif
-
 "  -C, --captive\n"
-#if DEVELOP_SELECTIVE_SELF_TEST
 "        With -t, do test in captive mode (short/long/conveyance/selective)\n\n"
-#else
-"        With -t, do test in captive mode (short/long/conveyance)\n\n"
-#endif
-
 "  -X, --abort\n"
 "        Abort any non-captive test on device\n\n"
 );
 #else
   printf(
-#if DEVELOP_SELECTIVE_SELF_TEST
 "  -t TEST   Run test.  TEST is: offline, short, long, conveyance, selective,M-N\n"
 "  -C        With -t, do test in captive mode (short/long/conveyance/selective)\n"
-#else
-"  -t TEST   Run test.  TEST is: offline, short, long, conveyance\n"
-"  -C        With -t, do test in captive mode (short/long/conveyance)\n"
-#endif
 "  -X        Abort any non-captive test\n\n"
   );
 #endif
@@ -265,11 +250,7 @@ const char *getvalidarglist(char opt) {
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-#if DEVELOP_SELECTIVE_SELF_TEST
     return "offline, short, long, conveyance, selective,M-N";
-#else
-    return "offline, short, long, conveyance";
-#endif
   case 'F':
     return "none, samsung, samsung2";
   case 'v':
@@ -600,9 +581,8 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"conveyance")) {
         con->smartconveyanceselftest = TRUE;
         con->testcase            = CONVEYANCE_SELF_TEST;
-#if DEVELOP_SELECTIVE_SELF_TEST
       } else if (!strncmp(optarg,"selective",strlen("selective"))) {
-        unsigned long long start, stop;
+        uint64_t start, stop;
 
         if (split_selective_arg(optarg, &start, &stop)) {
           badarg = TRUE;
@@ -625,7 +605,6 @@ void ParseOpts (int argc, char** argv){
           con->smartselectivenumspans++;
           con->testcase            = SELECTIVE_SELF_TEST;
         }
-#endif
       } else {
         badarg = TRUE;
       }
@@ -721,13 +700,11 @@ void ParseOpts (int argc, char** argv){
     con->smartconveyancecapselftest = TRUE;
     con->testcase                   = CONVEYANCE_CAPTIVE_SELF_TEST;
   }
-#if DEVELOP_SELECTIVE_SELF_TEST
   else if (captive && con->smartselectiveselftest) {
     con->smartselectiveselftest    = FALSE;
     con->smartselectivecapselftest = TRUE;
     con->testcase                  = SELECTIVE_CAPTIVE_SELF_TEST;
   }
-#endif 
  
   // From here on, normal operations...
   printslogan();

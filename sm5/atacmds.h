@@ -25,10 +25,9 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.64 2004/03/12 23:45:43 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.65 2004/03/23 13:08:40 ballen4705 Exp $\n"
 
 #include "int64.h"
-
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -46,11 +45,9 @@ typedef enum {
   IDENTIFY,
   PIDENTIFY,
   // returns 1 byte of data
-  CHECK_POWER_MODE
-#if DEVELOP_SELECTIVE_SELF_TEST
+  CHECK_POWER_MODE,
   // writes 512 bytes of data:
-  , WRITE_LOG
-#endif
+  WRITE_LOG
 } smart_command_set;
 
 // ATA Specification Command Register Values (Commands)
@@ -321,14 +318,14 @@ struct test_span {
 struct ata_selective_self_test_log {
   unsigned short     logversion;
   struct test_span   span[5];
-  unsigned char      reserved[337-82+1];
+  unsigned char      reserved1[337-82+1];
   unsigned char      vendor_specific1[491-338+1];
   uint64_t           currentlba;
   unsigned short     currentspan;
   unsigned short     flags;
   unsigned char      vendor_specific2[507-504+1];
   unsigned short     pendingtime;
-  unsigned char      undefined;  // Error in specs!
+  unsigned char      reserved2;
   unsigned char      checksum;
 };
 #pragma pack()

@@ -31,11 +31,11 @@
 
 #include "atacmds.h"
 #include "config.h"
-#include "extern.h"
 #include "int64.h"
+#include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.142 2004/03/16 14:46:14 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.143 2004/03/23 13:08:40 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -493,6 +493,7 @@ static char *commandstrings[]={
   "IDENTIFY DEVICE",
   "IDENTIFY PACKET DEVICE",
   "CHECK POWER MODE",
+  "SMART WRITE LOG",
   "WARNING (UNDEFINED COMMAND -- CONTACT DEVELOPERS AT " PACKAGE_BUGREPORT ")\n"
 };
 
@@ -521,6 +522,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
                 command==READ_THRESHOLDS || 
                 command==READ_VALUES ||
 		command==CHECK_POWER_MODE);
+
+  int sendsdata=(command==WRITE_LOG);
   
   // If reporting is enabled, say what the command will be before it's executed
   if (con->reportataioctl){
@@ -528,7 +531,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
           int usesparam=(command==READ_LOG || 
                          command==AUTO_OFFLINE || 
                          command==AUTOSAVE || 
-                         command==IMMEDIATE_OFFLINE);
+                         command==IMMEDIATE_OFFLINE ||
+                         command==WRITE_LOG);
                   
     pout("\nREPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
     if (usesparam)
@@ -537,7 +541,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
       pout("\n");
   }
   
-  if (getsdata && !data){
+  if ((getsdata || sendsdata) && !data){
     pout("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
     return -1;
   }
@@ -550,6 +554,15 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
       data[0]=0;
     else
       memset(data, '\0', 512);
+  }
+
+
+  // If reporting is enabled, say what input was sent to the command
+  if (con->reportataioctl && sendsdata){
+    pout("REPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
+    // if requested, pretty-print the output data structure
+    if (con->reportataioctl>1)
+      prettyprint((unsigned char *)data, commandstrings[command]);
   }
 
   // In case the command produces an error, we'll want to know what it is:
@@ -844,9 +857,14 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
+    syserror("Error SMART Read Selective Self-Test Log failed");
     return -1;
   }
-
+  
+  // compute its checksum, and issue a warning if needed
+  if (checksum((unsigned char *)data))
+    checksumwarning("SMART Selective Self-Test Log Structure");
+  
   // swap endian order if needed
   if (isbigendian()){
     int i;
@@ -860,35 +878,54 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
     swap2((char *)&(data->flags));
     swap2((char *)&(data->pendingtime));
   }
+  
+  if (data->logversion != 1)
+    pout("SMART Selective Self-Test Log Data Structure Revision Number (%d) should be 1\n", data->logversion);
+  
   return 0;
 }
 
-#if DEVELOP_SELECTIVE_SELF_TEST
 // Writes the selective self-test log (log #9)
 int ataWriteSelectiveSelfTestLog(int device){   
   int i;
   struct ata_selective_self_test_log sstlog, *data=&sstlog;
   unsigned char cksum=0;
   unsigned char *ptr=(unsigned char *)data;
-
+  
   // Read log
-  ataReadSelectiveSelfTestLog(device, data);
-
+  if (ataReadSelectiveSelfTestLog(device, data)) {
+    pout("Since Read failed, will not attempt to WRITE Selective Self-test Log\n");
+    return -1;
+  }
+  
+  // Fix logversion if needed
+  if (data->logversion !=1) {
+    pout("Error SMART Selective Self-Test Log Data Structure Revision not recognized\n"
+	 "Revision number should be 1 but is %d.  To be safe, aborting WRITE LOG\n", data->logversion);
+    return -2;
+  }
+  
   // Clear spans
   for (i=0; i<5; i++)
     memset(data->span+i, 0, sizeof(struct test_span));
-
+  
   // Set spans for testing 
   for (i=0; i<con->smartselectivenumspans; i++){
     data->span[i].start = con->smartselectivespan[i][0];
     data->span[i].end   = con->smartselectivespan[i][1];
   }
 
-  // Do NOT perform off-line scan after selective 
-  data->flags=0;
-  data->undefined=data->checksum=0;
+  // host must initialize to zero before initiating selective self-test
+  data->currentlba=0;
+  data->currentspan=0;
+  
+  // Do NOT perform off-line scan after selective test.  Turn off bits
+  // 1, 3 and 4 (bits numbered 0-15)
+  data->flags &= ~(0x001a);
 
-  // Put in correct checksum
+ 
+  // Set checksum to zero, then compute checksum
+  data->checksum=0;
   for (i=0; i<512; i++)
     cksum+=ptr[i];
   cksum=~cksum;
@@ -909,14 +946,14 @@ int ataWriteSelectiveSelfTestLog(int device){
     swap2((char *)&(data->pendingtime));
   }
 
-  // send data to device -- ioctl NOT implemented yet!
+  // write new selective self-test log
   if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
-    return -1;
+    syserror("Error Write Selective Self-Test Log failed");
+    return -3;
   }
 
   return 0;
 }
-#endif
 
 // This corrects some quantities that are byte reversed in the SMART
 // ATA ERROR LOG.
@@ -1080,17 +1117,7 @@ int ataDoesSmartWork(int device){
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
 int ataSmartStatus2(int device){
-
-  int returnval=smartcommandhandler(device, STATUS_CHECK, 0, NULL);
-
-#ifdef linux
-  if (returnval==-1){
-    syserror("Error SMART Status command via HDIO_DRIVE_TASK failed");
-    pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support enabled\n");
-  }
-#endif
-  
-  return returnval;
+  return smartcommandhandler(device, STATUS_CHECK, 0, NULL);  
 }
 
 // This is the way to execute ALL tests: offline, short self-test,
@@ -1102,7 +1129,7 @@ int ataSmartTest(int device, int testtype){
 
   // Boolean, if set, says test is captive
   cap=testtype & CAPTIVE_MASK;
-  
+
   // Boolean, if set, then test is selective
   select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST);
 
@@ -1120,17 +1147,15 @@ int ataSmartTest(int device, int testtype){
     type="Extended self-test";
   else if (testtype==CONVEYANCE_SELF_TEST || testtype==CONVEYANCE_CAPTIVE_SELF_TEST)
     type="Conveyance self-test";
-#if DEVELOP_SELECTIVE_SELF_TEST
   else if (select){
     int i;
     type="Selective self-test";
     pout("Using test spans:\n");
     for (i = 0; i < con->smartselectivenumspans; i++)
-      pout("%"PRId64" - %"PRId64"\n",
+      pout("   %"PRId64" - %"PRId64"\n",
            con->smartselectivespan[i][0],
            con->smartselectivespan[i][1]);
   }
-#endif
   else
     type="[Unrecognized] self-test";
   
@@ -1141,17 +1166,10 @@ int ataSmartTest(int device, int testtype){
     sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
   pout("Sending command: \"%s\".\n",cmdmsg);
 
-#if DEVELOP_SELECTIVE_SELF_TEST
   // If doing a selective self-test, issue WRITE_LOG command
-  if (select && ataWriteSelectiveSelfTestLog(device)){
-    char errormsg[256];
-    sprintf(errormsg,"Command \"%s\" failed to WRITE Selective Self-Test Log ",cmdmsg); 
-    syserror(errormsg);
-    pout("\n");
+  if (select && ataWriteSelectiveSelfTestLog(device))
     return -1;
-  }
-#endif
-
+  
   // Now send the command to test
   errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
 

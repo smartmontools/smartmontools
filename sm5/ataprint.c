@@ -29,13 +29,14 @@
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
+#include "int64.h"
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.142 2004/03/12 23:45:43 chrfranke Exp $"
-ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.143 2004/03/23 13:08:40 ballen4705 Exp $"
+ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1570,7 +1571,6 @@ int ataPrintMain (int fd){
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     break;
-#if DEVELOP_SELECTIVE_SELF_TEST
   case SELECTIVE_SELF_TEST:
   case SELECTIVE_CAPTIVE_SELF_TEST:
     if (!isSupportSelectiveSelfTest(&smartval)){
@@ -1578,7 +1578,6 @@ int ataPrintMain (int fd){
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     break;
-#endif
   default:
     pout("Internal error in smartctl: con->testcase==%d not recognized\n", (int)con->testcase);
     pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
@@ -1589,38 +1588,40 @@ int ataPrintMain (int fd){
   // messages
   if (ataSmartTest(fd, con->testcase))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-  
-  // Tell user how long test will take to complete.  This is tricky
-  // because in the case of an Offline Full Scan, the completion timer
-  // is volatile, and needs to be read AFTER the command is given. If
-  // this will interrupt the Offline Full Scan, we don't do it, just
-  // warn user.
-  if (con->testcase==OFFLINE_FULL_SCAN){
-    if (isSupportOfflineAbort(&smartval))
-      pout("Note: giving further SMART commands will abort Offline testing\n");
-    else if (ataReadSmartValues(fd, &smartval)){
-      pout("Smartctl: SMART Read Values failed.\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+  else {  
+    // Tell user how long test will take to complete.  This is tricky
+    // because in the case of an Offline Full Scan, the completion
+    // timer is volatile, and needs to be read AFTER the command is
+    // given. If this will interrupt the Offline Full Scan, we don't
+    // do it, just warn user.
+    if (con->testcase==OFFLINE_FULL_SCAN){
+      if (isSupportOfflineAbort(&smartval))
+	pout("Note: giving further SMART commands will abort Offline testing\n");
+      else if (ataReadSmartValues(fd, &smartval)){
+	pout("Smartctl: SMART Read Values failed.\n");
+	failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+    }
+    
+    // Now say how long the test will take to complete
+    if ((timewait=TestTime(&smartval,con->testcase))){ 
+      time_t t=time(NULL);
+      if (con->testcase==OFFLINE_FULL_SCAN) {
+	t+=timewait;
+	pout("Please wait %d seconds for test to complete.\n", (int)timewait);
+      } else {
+	t+=timewait*60;
+	pout("Please wait %d minutes for test to complete.\n", (int)timewait);
+      }
+      pout("Test will complete after %s\n", ctime(&t));
+      
+      if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
+	  con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
+	  con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
+	  con->testcase!=SELECTIVE_CAPTIVE_SELF_TEST)
+	pout("Use smartctl -X to abort test.\n"); 
     }
   }
-  
-  // Now say how long the test will take to complete
-  if ((timewait=TestTime(&smartval,con->testcase))){ 
-    time_t t=time(NULL);
-    if (con->testcase==OFFLINE_FULL_SCAN) {
-      t+=timewait;
-      pout("Please wait %d seconds for test to complete.\n", (int)timewait);
-    } else {
-      t+=timewait*60;
-      pout("Please wait %d minutes for test to complete.\n", (int)timewait);
-    }
-    pout("Test will complete after %s\n", ctime(&t));
-    
-    if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
-        con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
-        con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
-        con->testcase!=SELECTIVE_CAPTIVE_SELF_TEST)
-      pout("Use smartctl -X to abort test.\n"); 
-  }    
+
   return returnval;
 }

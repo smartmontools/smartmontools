@@ -32,8 +32,8 @@
 #include <errno.h>
 
 #include "config.h"
-#include "extern.h"
 #include "int64.h"
+#include "extern.h"
 #include "scsicmds.h"
 #include "scsiprint.h"
 #include "smartctl.h"
@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.76 2004/03/13 15:03:57 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.77 2004/03/23 13:08:40 ballen4705 Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables

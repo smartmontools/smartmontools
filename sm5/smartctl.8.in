@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.37 2004/03/07 18:58:24 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.38 2004/03/23 13:08:40 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -811,13 +811,11 @@ then exit.
 .TP
 .B \-t TEST, \-\-test=TEST
 Executes TEST immediately.  The \'\-C\' option can be used in
-conjunction with this option to run the short or long (and also for ATA
-devices,
-.\" selective or
-conveyance) self-tests in captive mode (known
-as "foreground mode" for SCSI devices).  Note that only one test can be
-run at a time, so this option should only be used once per command
-line.
+conjunction with this option to run the short or long (and also for
+ATA devices, selective or conveyance) self-tests in captive mode
+(known as "foreground mode" for SCSI devices).  Note that only one
+test can be run at a time, so this option should only be used once per
+command line.
 
 The valid arguments to this option are:  
 
@@ -863,22 +861,27 @@ above.  Note that this command can be given during normal
 system operation (unless run in captive mode \- see the \'\-C\' option below).
 
 .I conveyance
-\- [ATA ONLY] runs a SMART Conveyance Self Test (minutes).  This self-test routine
-is intended to identify damage incurred during transporting of the
-device. This self-test routine should take on the order of minutes to
-complete.  Note that this command can be given during normal system
-operation (unless run in captive mode \- see the \'\-C\' option below).
+\- [ATA ONLY] runs a SMART Conveyance Self Test (minutes).  This
+self-test routine is intended to identify damage incurred during
+transporting of the device. This self-test routine should take on the
+order of minutes to complete.  Note that this command can be given
+during normal system operation (unless run in captive mode \- see the
+\'\-C\' option below).
 
-.ig
-.I selective
-\- [ATA ONLY: \fBNOT YET IMPLEMENTED\fP] runs a SMART Selective Self Test.
-This self-test routine is intended to check specific ranges of disk
-Logical Block Addresses (LBAs).  Each range that is checked is called
-a "span".  Each span is specified by a starting LBA and an ending LBA.
-Up to 5 spans can be specified.  Note that this command can be given
-during normal system operation (unless run in captive mode \- see
-the \'\-C\' option below).
-..
+.I selective,N-M
+\- [ATA ONLY] runs a SMART Selective Self Test.  This self-test
+routine checks specific ranges of disk Logical Block Addresses (LBAs).
+Each range that is checked is called a "span".  Each span is specified
+by a starting LBA (N) and an ending LBA (M).  Up to 5 spans can be
+specified. For example:
+.nf
+smartctl -t selective,10-20 ...
+smartctl -t selective,0-1000 -t selective,2000-400000 ...
+.fi
+Up to five such LBA ranges can be given.  Note that this command can
+be given during normal system operation (unless run in captive mode \-
+see the \'\-C\' option below).
+
 .TP
 .B \-C, \-\-captive
 Runs self-tests in captive mode.  This has no effect with \'\-t
@@ -886,8 +889,9 @@ offline\' or if the \'\-t\' option is not used. [Note: in the case of
 SCSI devices, this command option runs the self-test in "Foreground"
 mode.]
 
-.B WARNING: Tests run in captive mode may busy out the drive for the length
-.B of the test.  Only run captive tests on drives without any mounted partitions!
+\fBWARNING: Tests run in captive mode may busy out the drive for the
+length of the test.  Only run captive tests on drives without any
+mounted partitions!\fP
 
 .TP
 .B \-X, \-\-abort
@@ -1073,4 +1077,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.37 2004/03/07 18:58:24 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.38 2004/03/23 13:08:40 ballen4705 Exp $
