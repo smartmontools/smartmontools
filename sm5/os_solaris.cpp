@@ -48,7 +48,7 @@
 
 extern long long bytes;
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.8 2003/10/26 02:20:40 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.9 2003/12/01 06:02:08 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -77,6 +77,30 @@ int printwarning(int which){
        unimplemented[which]);
 
   return 1;
+}
+
+// print examples for smartctl
+void print_smartctl_examples(){
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
+#ifdef HAVE_GETOPT_LONG
+  printf(
+	 "  smartctl -a /dev/rdsk/c0t0d0s0             (Prints all SMART information)\n\n"
+	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/rdsk/c0t0d0s0\n"
+	 "                                              (Enables SMART on first disk)\n\n"
+	 "  smartctl -t long /dev/rdsk/c0t0d0s0 (Executes extended disk self-test)\n\n"
+	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/rdsk/c0t0d0s0\n"
+	 "                                      (Prints Self-Test & Attribute errors)\n"
+	 );
+#else
+  printf(
+	 "  smartctl -a /dev/rdsk/c0t0d0s0               (Prints all SMART information)\n"
+	 "  smartctl -s on -o on -S on /dev/rdsk/c0t0d0s0 (Enables SMART on first disk)\n"
+	 "  smartctl -t long /dev/rdsk/c0t0d0s0      (Executes extended disk self-test)\n"
+	 "  smartctl -A -l selftest -q errorsonly /dev/rdsk/c0t0d0s0\n"
+	 "                                        (Prints Self-Test & Attribute errors)\n"
+	 );
+#endif
+  return;
 }
 
 static const char *uscsidrvrs[] = {

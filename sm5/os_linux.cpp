@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.31 2003/11/26 10:34:29 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.32 2003/12/01 06:02:08 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -88,6 +88,34 @@ int deviceopen(const char *pathname, char *type){
 // equivalent to close(file descriptor)
 int deviceclose(int fd){
   return close(fd);
+}
+
+// print examples for smartctl
+void print_smartctl_examples(){
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
+#ifdef HAVE_GETOPT_LONG
+  printf(
+	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+	 "                                              (Enables SMART on first disk)\n\n"
+	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+	 "                                      (Prints Self-Test & Attribute errors)\n"
+	 "  smartctl -a -device=3ware,2 /dev/sda\n"
+	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+	 );
+#else
+  printf(
+	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
+	 "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+	 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+	 "                                      (Prints Self-Test & Attribute errors)\n"
+	 "  smartctl -a -d 3ware,2 /dev/sda\n"
+	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+	 );
+#endif
+  return;
 }
 
 
