@@ -41,7 +41,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.3 2003/08/04 19:04:34 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.4 2003/08/04 19:17:14 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -151,7 +151,6 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
       return -1;
     }
     break;
-  case STATUS:
   case AUTOSAVE:
     // NOTE -- this is a NON-DATA COMMAND - same as above. To enable
     // requires a sector count value of 0xF1.
@@ -171,6 +170,11 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     // NOT YET IMPLEMENTED -- SHOULD BE SMART RETURN STATUS
     pout("WARNING - SMART CHECK STATUS NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
     return 0;
+  case STATUS:
+    // This is JUST to see if SMART is enabled, by giving SMART status
+    // command. But it doesn't say if status was good, or failing.
+    passthru.features = 0xDA;      //SMART RETURN STATUS
+    break;
   default:
     pout("Unrecognized command %d in os_specific_handler()\n", command);
     errno=ENOSYS;
