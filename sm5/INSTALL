@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.30 2003/12/05 12:41:57 ballen4705 Exp $
+$Id: INSTALL,v 1.31 2004/01/25 12:22:35 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -177,7 +177,7 @@ Slackware:
 
   ./configure --prefix=/usr/local                                     \
               --with-initscriptdir=/usr/local/etc/rc.d/               \
-              --with-docdir=/usr/local/share/doc/smartmontool	      \
+              --with-docdir=/usr/local/share/doc/smartmontools        \
 	      --enable-sample
 
   Also, it is important that you use GNU make (gmake from /usr/ports/devel/gmake)
