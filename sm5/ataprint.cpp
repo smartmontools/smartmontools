@@ -29,7 +29,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.cpp,v 1.40 2002/10/30 10:18:37 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.cpp,v 1.41 2002/10/31 17:40:08 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -876,7 +876,7 @@ int ataPrintMain (int fd){
 	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
 	else {
 	  QUIETON(con);
-	  pout("Please note the following marginal attributes:\n");
+	  pout("Please note the following marginal Attributes:\n");
 	  PrintSmartAttribWithThres(&smartval, &smartthres,2);
 	} 
 	returnval|=FAILAGE;

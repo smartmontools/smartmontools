@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.50 2002/10/31 16:38:30 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.51 2002/10/31 17:40:10 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -556,7 +556,7 @@ int ataCheckDevice(atadevices_t *drive){
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
-	    printout(LOG_CRIT,"Device: %s, Failed SMART usage attribute: %s.\n", name, loc);
+	    printout(LOG_CRIT,"Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
 	  }
 	}
 	
@@ -651,7 +651,7 @@ int scsiCheckDevice( scsidevices_t *drive){
     printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", drive->devicename, 
 	     (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
   else
-    printout(LOG_INFO,"Device: %s, Acceptable attribute: %d\n", drive->devicename, (int)returnvalue);  
+    printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", drive->devicename, (int)returnvalue);  
   
   // Seems to completely ignore what capabilities were found on the
   // device when scanned
