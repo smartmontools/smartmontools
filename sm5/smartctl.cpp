@@ -38,7 +38,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.cpp,v 1.15 2002/10/23 12:24:24 ballen4705 Exp $\n"
+const char* CVSid6="$Id: smartctl.cpp,v 1.16 2002/10/23 14:29:49 ballen4705 Exp $\n"
 "\t" CVSID1 "\t" CVSID2 "\t" CVSID4 "\t" CVSID5 "\t" CVSID6 ;
 
 unsigned char driveinfo               = FALSE;
@@ -69,7 +69,7 @@ int           testcase                = -1;
 
 void printslogan(){
   pout("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
-  pout("Home page of smartctl is %s\n\n",PROJECTHOME);
+  pout("Home page is %s\n\n",PROJECTHOME);
   return;
 }
 
@@ -156,42 +156,39 @@ void printcopy(){
 
 /*  void prints help information for command syntax */
 void Usage ( void){
-  printf( "Usage: smartctl -[options] [device]\n\n");
-  printf( "Read Only Options:\n");
-  printf( "\t\t%c\t\tShow version, copyright and license information\n", PRINTCOPYLEFT);
-  printf( "\t\t%c\t\tShow all S.M.A.R.T. Information         (ATA and SCSI)\n",  SMARTVERBOSEALL);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Info              (ATA and SCSI)\n",  DRIVEINFO);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Status                  (ATA and SCSI)\n",  CHECKSMART);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. General Attributes      (ATA Only)\n",  GENERALSMARTVALUES);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Vendor Attributes       (ATA Only)\n",  SMARTVENDORATTRIB);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Error Log         (ATA Only\n",   SMARTERRORLOG);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Self Test Log     (ATA Only)\n",  SMARTSELFTESTLOG);
-  printf( "\t\t%c\t\tQuiet: only show SMART drive errors     (ATA Only)\n",  QUIETMODE);
-  printf( "\t\t%c\t\tVery Quiet: no display, use exit status (ATA Only)\n",  VERYQUIETMODE);
-  printf( "\n");
-  printf( "Vendor-specific Display Options:\n");
-  printf( "\t\t%c\t\tRaw Attribute 009 is minutes            (ATA Only)\n",  SMART009MINUTES);
-  printf( "\n");
-  printf( "Enable/Disable Options:\n");
-  printf( "\t\t%c\t\tEnable  S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTDISABLE);
-  printf( "\t\t%c\t\tEnable  S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEDISABLE);
-  printf( "\t\t%c\t\tEnable  S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEDISABLE);
-  printf( "\n");
-  printf( "Test Options:\n");
-  printf( "\t\t%c\t\tExecute Off-line data collection (ATA Only)\n",          SMARTEXEOFFIMMEDIATE);
-  printf( "\t\t%c\t\tExecute Short Self Test (ATA Only)\n",                   SMARTSHORTSELFTEST );
-  printf( "\t\t%c\t\tExecute Short Self Test (Captive Mode) (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
-  printf( "\t\t%c\t\tExecute Extended Self Test (ATA Only)\n",                SMARTEXTENDSELFTEST );
-  printf( "\t\t%c\t\tExecute Extended Self Test (Captive Mode) (ATA Only)\n", SMARTEXTENDCAPSELFTEST );
-  printf( "\t\t%c\t\tExecute Self Test Abort (ATA Only)\n",                 SMARTSELFTESTABORT );
-  printf( "Examples:\n");
-  printf("\tsmartctl -etf /dev/hda   (Enables S.M.A.R.T. on first disk)\n");
-  printf("\tsmartctl -a   /dev/hda   (Prints all S.M.A.R.T. information)\n");
-  printf("\tsmartctl -X   /dev/hda   (Executes extended disk self-test)\n\n");
-  printf("Please see the man pages or %s for further information.\n",PROJECTHOME);
+  printf("Usage: smartctl -[options] [device]\n");
+  printf("\nRead Only Options:\n");
+  printf("   %c   Show version, copyright and license info\n", PRINTCOPYLEFT);
+  printf("   %c   Show all S.M.A.R.T. Information         (ATA and SCSI)\n",  SMARTVERBOSEALL);
+  printf("   %c   Show S.M.A.R.T. Drive Info              (ATA and SCSI)\n",  DRIVEINFO);
+  printf("   %c   Show S.M.A.R.T. Status                  (ATA and SCSI)\n",  CHECKSMART);
+  printf("   %c   Show S.M.A.R.T. General Attributes      (ATA Only)\n",  GENERALSMARTVALUES);
+  printf("   %c   Show S.M.A.R.T. Vendor Attributes       (ATA Only)\n",  SMARTVENDORATTRIB);
+  printf("   %c   Show S.M.A.R.T. Drive Error Log         (ATA Only\n",   SMARTERRORLOG);
+  printf("   %c   Show S.M.A.R.T. Drive Self Test Log     (ATA Only)\n",  SMARTSELFTESTLOG);
+  printf("   %c   Quiet: only show SMART drive errors     (ATA Only)\n",  QUIETMODE);
+  printf("   %c   Very Quiet: no display, use exit status (ATA Only)\n",  VERYQUIETMODE);
+  printf("\nVendor-specific Display Options:\n");
+  printf("   %c   Raw Attribute 009 is minutes            (ATA Only)\n",  SMART009MINUTES);
+  printf("\nEnable/Disable Options:\n");
+  printf("   %c   Enable  S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTENABLE);
+  printf("   %c   Disable S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTDISABLE);
+  printf("   %c   Enable  S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEENABLE);
+  printf("   %c   Disable S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEDISABLE);
+  printf("   %c   Enable  S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEENABLE);
+  printf("   %c   Disable S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEDISABLE);
+  printf("\nTest Options (no more than one):\n");
+  printf("   %c   Execute Off-line data collection (ATA Only)\n",          SMARTEXEOFFIMMEDIATE);
+  printf("   %c   Execute Short Self Test (ATA Only)\n",                   SMARTSHORTSELFTEST );
+  printf("   %c   Execute Short Self Test (Captive Mode) (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
+  printf("   %c   Execute Extended Self Test (ATA Only)\n",                SMARTEXTENDSELFTEST );
+  printf("   %c   Execute Extended Self Test (Captive Mode) (ATA Only)\n", SMARTEXTENDCAPSELFTEST );
+  printf("   %c   Execute Self Test Abort (ATA Only)\n",                 SMARTSELFTESTABORT );
+  printf("\nExamples:\n");
+  printf("   smartctl -etf /dev/hda  (Enables S.M.A.R.T. on first disk)\n");
+  printf("   smartctl -a   /dev/hda  (Prints all S.M.A.R.T. information)\n");
+  printf("   smartctl -X   /dev/hda  (Executes extended disk self-test)\n");
+  printf("   smartctl -qvL /dev/hda  (Print self-test log and vendor attributes errors.)\n");
 }
 
 const char opts[] = { 
@@ -296,6 +293,7 @@ void ParseOpts (int argc, char** argv){
       break;
     default:
       veryquietmode=FALSE;
+      pout("\n");
       printslogan();
       Usage();
       exit(FAILCMD);	
