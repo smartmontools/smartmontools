@@ -48,7 +48,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.124 2004/04/17 11:57:43 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.125 2004/04/30 06:23:59 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -185,7 +185,7 @@ void Usage (void){
 "        Show device SMART health status\n\n"
 "  -c, --capabilities                                                  (ATA)\n"
 "        Show device SMART capabilities\n\n"
-"  -A, --attributes                                                    (ATA)\n"
+"  -A, --attributes                                                         \n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory\n\n"
