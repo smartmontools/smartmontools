@@ -22,9 +22,17 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2003-05-26</pubdate>
+  <pubdate>2003-10-12</pubdate>
 
   <revhistory>
+     <revision>
+       <revnumber>1.1</revnumber>
+       <date>2003-10-12</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             freebsd, timestamp
+       </revremark>
+     </revision>
      <revision>
        <revnumber>1.0</revnumber>
        <date>2003-05-26</date>
@@ -59,10 +67,10 @@ ps, txt, etc.
   <abstract>
   <para>
     This article describes how smartmontools interacts with SCSI 
-    storage devices. Smartmontools is a SMART utility toolset for the
-    Linux operating system and may soon be ported to other OSes.
-    <acronym>SMART</acronym> is an acronym for Self-Monitoring, Analysis
-     and Reporting Technology.
+    storage devices (including tapes). Smartmontools is a SMART
+    utility toolset for the Unix based operating system (including 
+    Linux and FreeBSD). <acronym>SMART</acronym> is an acronym for
+    Self-Monitoring, Analysis and Reporting Technology.
   </para>
   </abstract>
  </articleinfo>
@@ -76,8 +84,9 @@ ps, txt, etc.
 <para>
 Smartmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology System 
-(<acronym>SMART</acronym>). Currently it is a toolset for Linux but
-it is hoped that it will soon be ported to other Operating Systems.
+(<acronym>SMART</acronym>). This toolset was originally built
+for Linux but recently has been ported to FreeBSD and another
+port for Solaris is taking shape.
 This article describes how smartmontools interacts with SCSI devices.
 Passing reference is also made to devices that use the SCSI command
 set such as USB mass storage devices and IEEE1394 devices that use
@@ -325,11 +334,11 @@ on a simple READ command.
 <footnote><para>
 Linux has an additional problem with the foreground extended self tests:
 it will attempt to time out the command after 10 seconds. This will appear
-in the self test log page as an aborted self test. A patch has been
-submitted to extend this period to 2 hours but will take some time before
-it appears in Linux distributions. Use the background extended test instead.
-Also some disks silently ignored foreground self tests (e.g. Seagate
-Cheetah 15K.1).
+in the self test log page as an aborted self test. This problem is fixed
+in lk 2.4.22 and the soon to be released lk 2.6 series (by extending the
+timeout to 2 hours). To be on the safe side use the background extended
+test instead. Also some disks silently ignored foreground self 
+tests (e.g. Seagate Cheetah 15K.1).
 </para></footnote>
 </para>
 <para>
@@ -463,6 +472,19 @@ option
 </itemizedlist>
 See this <link linkend="testbit">footnote</link> for more information about the
 use of the IEC mode page TEST bit.
+</para>
+<para>
+One shortcoming of the Informational Exception data provided by
+SCSI devices (at least as defined in the current standard) is that
+no LOG SENSE page tells the user how many hours the device has been
+in use for. The device needs to track its "age" for applying timestamps
+to self test results (seen in the "Lifetime (hours)" column of the
+<command>smartctl -l selftest</command> command) if they are supported.
+So one way to circumvent this shortcoming is to do dummy self 
+tests. Hence do a <command>smartctl -t short</command> command and then
+wait 2 minutes to see the result in the self test log in which the most
+recent self test row (i.e. the first) will have the current lifetime of
+the device.
 </para>
 </sect1>
 
