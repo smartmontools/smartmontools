@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.11 2004/03/06 19:43:16 ballen4705 Exp $
+$Id: AUTHORS,v 1.12 2004/07/12 20:21:09 zybert Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -26,3 +26,4 @@ Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Keiji Sawada		<card_captor@users.sourceforge.net>
 Sergey Svishchev	<svs@ropnet.ru>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
+Richard Zybert		<richard.zybert@zybert.co.uk>
