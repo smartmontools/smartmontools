@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.58 2003/11/14 11:43:17 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.59 2003/11/15 02:27:45 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1552,6 +1552,8 @@ int scsiSmartSelfTestAbort(int device)
     return scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
 }
 
+/* Returns 0 and the expected duration of an extended self test (in seconds)
+   if successful; any other return value indicates a failure. */
 int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
 {
     int err, offset, res;
@@ -1559,7 +1561,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE_PARAMETERS, 
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
                                  MODE_PAGE_CONTROL_CURRENT, 
                                  buff, sizeof(buff)))) {
             if (0 == err)
@@ -1571,7 +1573,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
         }
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE_PARAMETERS, 
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
                               MODE_PAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
@@ -1679,10 +1681,10 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
    of the most recent failed self-test. Return value is negative if
    this function has a problem (typically -1), otherwise the bottom 8
    bits are the number of failed self tests and the 16 bits above that
-   are the poweron hour of the most recent failure. Note aborted self
-   tests (typically by the user) are not considered failures.
-   See Working Draft SCSI Primary Commands - 3 (SPC-3) section 7.2.10
-   T10/1416-D Rev 15 */
+   are the poweron hour of the most recent failure. Note: aborted self
+   tests (typically by the user) and self tests in progress are not 
+   considered failures. See Working Draft SCSI Primary Commands - 3 
+   (SPC-3) section 7.2.10 T10/1416-D Rev 15 */
 int scsiCountFailedSelfTests(int fd, int noisy)
 {
     int num, k, n, err, res, fails, fail_hour;
@@ -1730,3 +1732,37 @@ int scsiCountFailedSelfTests(int fd, int noisy)
     return (fail_hour << 8) + fails;
 }
 
+
+/* Returns a negative value if failed to fetch Contol mode page or it was
+   malformed. Returns 0 if GLTSD bit is zero and returns 1 if the GLTSD
+   bit is set. */
+int scsiFetchControlGLTSD(int device, int modese_len)
+{
+    int err, offset;
+    UINT8 buff[64];
+
+    memset(buff, 0, sizeof(buff));
+    if (modese_len <= 6) {
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
+                                 MODE_PAGE_CONTROL_CURRENT, 
+                                 buff, sizeof(buff)))) {
+            if (0 == err)
+                modese_len = 6;
+            else if (SIMPLE_ERR_BAD_OPCODE == err)
+                modese_len = 10;
+            else
+                return err;
+        }
+    }
+    if (10 == modese_len) {
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
+                              MODE_PAGE_CONTROL_CURRENT, 
+                              buff, sizeof(buff));
+        if (err)
+            return err;
+    } 
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
+    if ((offset >= 0) && (buff[offset + 1] >= 0xa))
+        return (buff[offset + 2] & 2) ? 1 : 0;
+    return -EINVAL;
+}
