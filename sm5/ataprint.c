@@ -34,7 +34,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.94 2003/07/20 20:46:42 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.95 2003/07/21 02:59:55 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -661,14 +661,14 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 	   (int)data->errorlog_struct[i].error_struct.cylinder_high,
 	   (int)data->errorlog_struct[i].error_struct.drive_head);
       pout("  Commands leading to the command that caused the error were:\n"
-	   "  CR FR SC SN CL CH DH DC   Timestamp Command/Feature_Name\n"
-	   "  -- -- -- -- -- -- -- --   --------- --------------------\n");
+	   "  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name\n"
+	   "  -- -- -- -- -- -- -- --   ---------  --------------------\n");
       for ( j = 4; j >= 0; j--){
 	struct ata_smart_errorlog_command_struct *thiscommand=&(data->errorlog_struct[i].commands[j]);
 	
 	// Spec says: unused data command structures shall be zero filled
 	if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand)))
-	  pout("  %02x %02x %02x %02x %02x %02x %02x %02x %7d.%03d %s\n",
+	  pout("  %02x %02x %02x %02x %02x %02x %02x %02x %7d.%03d  %s\n",
 	       (int)thiscommand->commandreg,
 	       (int)thiscommand->featuresreg,
 	       (int)thiscommand->sector_count,
