@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.125 2004/09/19 21:01:58 geoffk1 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.126 2004/09/26 23:06:58 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -141,7 +141,7 @@ void specialpurpose_reverse_samsung2(smartmonctrl *con)
 
 const drivesettings knowndrives[] = {
   { "IBM Deskstar 60GXP series",
-    "IC35L0[12346]0AVER07",
+    "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
@@ -543,7 +543,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL 
   },
   { "IBM Travelstar 48GH, 30GN, and 15GN family",
-    "^IC25(T048ATDA05|N0(30|20|15|12|10|07|06|05)ATDA04)-.$",
+    "^(IBM-|Hitachi )?IC25(T048ATDA05|N0(30|20|15|12|10|07|06|05)ATDA04)-.$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
@@ -558,12 +558,12 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL 
   },
   { "IBM/Hitachi Travelstar 60GH and 40GN family",
-    "^IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.$",
+    "^(IBM-|Hitachi )?IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
   { "IBM/Hitachi Travelstar 40GNX family",
-    "^IC25N0[42]0ATC[SX]05-.$",
+    "^(IBM-|Hitachi )?IC25N0[42]0ATC[SX]05-.$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
