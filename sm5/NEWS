@@ -1,1 +1,38 @@
-Refer to the CHANGELOG file.
+Refer to the CHANGELOG file for a complete change log.
+
+See http://sourceforge.net/news/?group_id=64297 for the most recent news.
+
+
+
+Date: 2003-10-02 11:35
+Summary: smartd SEGV
+--------------------
+Some versions of smartd, including smartmontools release 5.1-18, will
+SEGV if the combination of Directives in /etc/smartd.conf contains
+-l error
+AND/OR
+-l selftest
+without any Attribute monitoring Directives.  This is fixed in 5.19
+and above.
+
+A good workaround is to add:
+-o on
+OR
+-o off
+to enable or disable automatic offline data collection.
+
+
+Date: 2002-11-17 07:41
+Summary: testunitready bug in smartd
+------------------------------------
+A bug in smartd prevented functioning on scsi devices.
+The bug in question only affects smartd users with scsi devices.
+To see if your version of smartd has the testunitready() bug, do
+smartd -V
+If the version of the module smartd.c in a line like:
+Module: smartd.c revision: 1.66 date: 2002/11/17
+has a revision greater than or equal to 1.30, and less than or
+equal to 1.64, then your version of the code has this problem.
+
+This problem affected releases starting with RELEASE_5_0_16 up to and
+including RELEASE_5_0_43.
