@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.425 2004/07/11 15:18:38 dpgilbert Exp $
+$Id: CHANGELOG,v 1.426 2004/07/12 21:32:25 zybert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -22,10 +22,14 @@ Maintainers / Developers Key:
 [KS] Keiji Sawada
 [SS] Sergey Svishchev
 [PW] Phil Williams
+[RZ] Richard Zybert
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [RZ] Made DEVICESCAN quiet about non-existing devices unless debug
+       is on.
 
   [DG] treat "unit attention" SCSI warning as try again in some contexts
        (test unit ready and mode sense)
