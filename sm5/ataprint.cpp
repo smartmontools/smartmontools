@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.66 2003/04/03 05:07:27 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.67 2003/04/03 07:50:58 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -571,6 +571,63 @@ int nonempty(unsigned char *testarea,int n){
   return 0;
 }
 
+int ataPrintLogDirectory(struct ata_smart_log_directory *data){
+  int i;
+  char *name;
+
+  pout("SMART Log Directory Logging Version %d%s\n",
+       data->logversion, data->logversion==1?" [multi-sector log support]":"");
+  for (i=0; i<=255; i++){
+    int numsect;
+    
+    if (i)
+      // Non Directory log length
+      numsect=data->entry[i-1].numsectors;
+    else
+      // Directory log length
+      numsect=1;
+    
+    if (numsect){
+      switch (i) {
+      case 0:
+	name="Log Directory"; break;
+      case 1:
+	name="Summary SMART error log"; break;
+      case 2:
+	name="Comprehensive SMART error log"; break;
+      case 3:
+	name="Extended Comprehensive SMART error log"; break;
+      case 6:
+	name="SMART self-test log"; break;
+      case 7:
+	name="Extended self-test log"; break;
+      case 9:
+	name="Selective self-test log"; break;
+      case 0x20:
+	name="Streaming performance log"; break;
+      case 0x21:
+	name="Write stream error log"; break;
+      case 0x22:
+	name="Read stream error log"; break;
+      case 0x23:
+	name="Delayed sector log"; break;
+      default:
+	if (0xa0<=i && i<=0xff) 
+	  name="Device vendor specific";
+	else if (0x80<=i && i<=0x9f)
+	  name="Host vendor specific";
+	else
+	  name="Reserved log";
+	break;
+      }
+
+      pout("Log at address 0x%02x has %03d sectors [%s]\n",
+	   i, numsect, name);
+    }
+  }
+  return 0;
+}
+
 // returns number of errors
 int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
   int i,j,k;
@@ -1067,6 +1124,19 @@ int ataPrintMain (int fd){
   if (con->smartvendorattrib){
     QUIETON(con);
     PrintSmartAttribWithThres(&smartval, &smartthres,con->quietmode?2:0);
+    QUIETOFF(con);
+  }
+
+  // Print SMART log Directory.  For the moment this command is hidden
+  if (con->smartlogdirectory){
+    struct ata_smart_log_directory smartlogdirectory;
+    QUIETON(con);
+    if (ataReadLogDirectory(fd, &smartlogdirectory))
+      pout("Device does not support Log Directory\n\n");
+    else {
+      pout("Log Directory Supported\n");
+      ataPrintLogDirectory( &smartlogdirectory);
+    }
     QUIETOFF(con);
   }
   
