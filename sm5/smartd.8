@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.77 2003/04/07 15:08:26 guidog Exp $
+\# $Id: smartd.8,v 1.78 2003/04/08 02:19:53 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/07 15:08:26 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/08 02:19:53 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -145,11 +145,18 @@ for the same purpose.
 
 .TP
 .B \-p NAME, \-\-pidfile=NAME
-Writes pidfile 
+Writes pidfile
 .I NAME
-containing the daemons current PID on startup. To avoid symlink attacks make
-sure the directory to which pidfile is written is only writeable for root.
-Without this option no PID file is written on startup.
+containing the PID of
+.B smartd
+after
+.B smartd
+forks. To avoid symlink attacks make sure the directory to which
+pidfile is written is only writeable for root.  Without this option,
+or if the --debug option is given, no PID file is written on startup.
+If
+.B smartd
+is killed with a maskable signal then the pidfile is removed.
 
 .TP
 .B \-c, \-\-checkonce
@@ -1114,4 +1121,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.77 2003/04/07 15:08:26 guidog Exp $
+$Id: smartd.8,v 1.78 2003/04/08 02:19:53 ballen4705 Exp $

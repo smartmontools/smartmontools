@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.126 2003/04/07 15:08:21 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.127 2003/04/08 02:19:53 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -68,7 +68,7 @@ int numscsidevices=0;
 int checktime=CHECKTIME;
 
 // name of PID file (== NULL if no pid_file is used)
-char* pid_file;
+char* pid_file=NULL;
 
 // If set, we should exit after checking all disks once
 int checkonce=0;
@@ -323,17 +323,14 @@ void sighandler(int sig){
 }
 
 // remove the PID file
-int 
-remove_pid_file()
-{
-    if(pid_file) {
-        if( -1 == unlink(pid_file) ) {
-      	    printout(LOG_INFO,"Can't unlink pidfile %s (%s).\n", 
-			    pid_file, strerror(errno));
-	}
-	free(pid_file);
-    }
-    return 0;
+void remove_pid_file(){
+  if (pid_file) {
+    if ( -1==unlink(pid_file) )
+      printout(LOG_INFO,"Can't unlink pidfile %s (%s).\n", 
+	       pid_file, strerror(errno));
+    free(pid_file);
+  }
+  return;
 }
 
 void goobye(){
@@ -344,7 +341,7 @@ void goobye(){
 
 // Forks new process, closes all file descriptors, redirects stdin,
 // stdout, stderr
-int daemon_init(void){
+void daemon_init(){
   pid_t pid;
   int i;  
 
@@ -388,7 +385,34 @@ int daemon_init(void){
   dup(i);
   umask(0);
   chdir("/");
-  return 0;
+  
+  return;
+}
+
+// create a PID file containing the current process id
+void write_pid_file() {
+  if (pid_file) {
+    int error = 0;
+    pid_t pid = getpid();
+    mode_t old_umask;
+    FILE* fd; 
+    
+    old_umask = umask(0077);
+    fd = fopen(pid_file, "w");
+    umask(old_umask);
+    if (fd == NULL) {
+      error = 1;
+    } else if (fprintf(fd, "%d\n", pid) <= 0) {
+      error = 1;
+    } else if (fclose(fd) != 0) {
+      error = 1;
+    }
+    if (error) {
+      printout(LOG_CRIT,"unable to write pid file %s - exiting.\n", pid_file);
+      exit(1);
+    }
+  }
+  return;
 }
 
 // Prints header identifying version of code and home
@@ -1066,7 +1090,8 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 
     // If in background as a daemon, fork and close file descriptors
     if (!debugmode && !forked){
-      daemon_init();      
+      daemon_init();
+      write_pid_file();
       forked=1;
     }
 
@@ -1144,35 +1169,6 @@ char copyleftstring[]=
 "See http://www.gnu.org for further details.\n\n";
 
 cfgfile config[MAXENTRIES];
-
-// create a PID file containing the current process id
-int
-write_pid_file()
-{
-  if(pid_file) {
-      int error = 0;
-      pid_t pid = getpid();
-      mode_t old_umask;
-      FILE* fd; 
-
-      old_umask = umask(0077);
-      fd = fopen(pid_file, "w");
-      umask(old_umask);
-      if (fd == NULL) {
-          error = 1;
-      } else if (fprintf(fd, "%d\n", pid) <= 0) {
-          error = 1;
-      } else if (fclose(fd) != 0) {
-          error = 1;
-      }
-      if (error) {
-        printout(LOG_CRIT,"unable to write pid file - exiting.\n");
-        exit(1);
-      }
-  }
-  return 0;
-}
-
 
 // exits with an error message, or returns integer value of token
 int inttoken(char *arg, char *name, char *token, int lineno, char *configfile, int min, int max){
@@ -1852,13 +1848,14 @@ void ParseOpts(int argc, char **argv){
       exit(-1);
     }
   }
-  if(debugmode && pid_file) {
-	// no pidfile in debug mode
-	free(pid_file);
-	pid_file = NULL;
+
+  // no pidfile in debug mode
+  if (debugmode && pid_file) {
+    printout(LOG_INFO, "warning: pid file %s not written in debug mode\n", pid_file);
+    free(pid_file);
+    pid_file = NULL;
   }
-
-
+  
   // print header
   printhead();
   return;
