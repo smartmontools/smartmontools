@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.50 2003/01/04 19:31:38 pjwilliams Exp $
+\# $Id: smartd.8,v 1.51 2003/01/04 21:31:33 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/01/04 19:31:38 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/01/04 21:31:33 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -106,7 +106,10 @@ in "debug" mode. In this mode, it does not
 verbose information about what it is doing.
 .TP
 .B \-D, \-\-showdirectives
-Prints the configuration file Directives to STDOUT and exits.
+Prints a list (to STDOUT) of all the possible Directives which may
+appear in the configuration file /etc/smartd.conf, and then exits.
+These Directives are also described later in this man page. They may
+appear in the configuration file following the device name.
 .TP
 .B \-i N, \-\-interval=N
 Sets the interval between disk checks to
@@ -687,4 +690,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.50 2003/01/04 19:31:38 pjwilliams Exp $
+$Id: smartd.8,v 1.51 2003/01/04 21:31:33 ballen4705 Exp $
