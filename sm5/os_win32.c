@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.20 2004/09/29 11:19:02 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.21 2004/10/01 15:16:25 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -496,6 +496,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 			num_out, buf->DataBufferSize);
 		print_ide_regs_io(regs, &buf->IdeReg);
 	}
+	*regs = buf->IdeReg;
 
 	VirtualFree(buf, size, MEM_RELEASE);
 	return 0;
@@ -693,25 +694,32 @@ static unsigned ata_scan()
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
 	IDEREGS regs;
-	int copydata;
+	int copydata, try_ioctl;
 
 	if (!(0 <= fd && fd <= 3)) {
-	  errno = EBADF;
-	  return -1;
+		errno = EBADF;
+		return -1;
 	}
 
-	// CMD,CYL default to SMART, changed by P?IDENTIFY
+	// CMD,CYL default to SMART, changed by P?IDENTIFY and CHECK_POWER_MODE
 	memset(&regs, 0, sizeof(regs));
 	regs.bCommandReg = ATA_SMART_CMD;
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
 	copydata = 0;
+	try_ioctl = 0x01; // 0x01=SMART_*, 0x02=IDE_PASS_THROUGH [, 0x04=ATA_PASS_THROUGH]
 
 	switch (command) {
-	  case CHECK_POWER_MODE:
 	  case WRITE_LOG:
-		// TODO. Not supported by SMART IOCTL
+		// TODO. Not supported by SMART IOCTL (no data out ioctl available),
+		//  also not supported by IOCTL_IDE_PASS_THROUGH (data out not working)
 		errno = ENOSYS;
 		return -1;
+	  case CHECK_POWER_MODE:
+		regs.bCommandReg = ATA_CHECK_POWER_MODE;
+		regs.bCylLowReg = regs.bCylHighReg = 0;
+		try_ioctl = 0x02; // IOCTL_IDE_PASS_THROUGH
+		// Note: returns SectorCountReg in data[0]
+		break;
 	  case READ_VALUES:
 		regs.bFeaturesReg = ATA_SMART_READ_VALUES;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
@@ -726,9 +734,12 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
+		// Read log only supported on Win9x, retry with pass through command
+		try_ioctl = 0x03; // SMART_RCV_DRIVE_DATA, then IOCTL_IDE_PASS_THROUGH
 		copydata = 1;
 		break;
 	  case IDENTIFY:
+		// Note: Win2000/XP returns identify data cached during boot
 		regs.bCommandReg = ATA_IDENTIFY_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
@@ -771,18 +782,31 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		return -1;
 	}
 
-	if (smart_ioctl(h_ata_ioctl, fd, &regs, data, (copydata?512:0))) {
-		// Read log only supported on Win9x, retry with pass through command
-		// CAUTION: smart_ioctl() MUST NOT change "regs" Parameter in this case
-		if (errno == ENOSYS && command == READ_LOG) {
-			errno = 0;
-			memset(data, 0, 512);
-			return ide_pass_through_ioctl(h_ata_ioctl, &regs, data, 512);
+	if (try_ioctl & 0x01) {
+		if (smart_ioctl(h_ata_ioctl, fd, &regs, data, (copydata?512:0))) {
+			if (!(try_ioctl & 0x02) || errno != ENOSYS)
+				return -1;
+			// CAUTION: smart_ioctl() MUST NOT change "regs" Parameter in this case
 		}
-		return -1;
+		else
+			try_ioctl = 0;
 	}
 
-	if (command == STATUS_CHECK) {
+	if (try_ioctl & 0x02) {
+		errno = 0;
+		if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
+			return -1;
+		try_ioctl = 0;
+	}
+	assert(!try_ioctl);
+
+	switch (command) {
+	  case CHECK_POWER_MODE:
+		// Return power mode from SectorCountReg in data[0]
+		data[0] = regs.bSectorCountReg;
+		return 0;
+
+	  case STATUS_CHECK:
 		// Cyl low and Cyl high unchanged means "Good SMART status"
 		if (regs.bCylHighReg == SMART_CYL_HI && regs.bCylLowReg == SMART_CYL_LOW)
 		  return 0;
@@ -797,9 +821,11 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		print_ide_regs(&regs, 1);
 		errno = EIO;
 		return -1;
-	}
 
-	return 0;
+	  default:
+		return 0;
+	}
+	/*NOTREACHED*/
 }
 
 

@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.56 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: TODO,v 1.57 2004/10/01 15:16:25 chrfranke Exp $
 
 SATA devices under Linux
 ------------------------
@@ -99,7 +99,7 @@ Add support for 3ware 9000 series SATA controllers.
 
 Cygwin and Windows
 ------------------
-Add IDE/ATA selective self test and check power mode.
+Add IDE/ATA selective self test.
 
 Access SCSI devices via IOCTL_SCSI_PASS_THROUGH on 2000/XP
 to support systems with missing ASPI driver.
