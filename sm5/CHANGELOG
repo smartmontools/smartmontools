@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.393 2004/04/07 16:41:42 card_captor Exp $
+$Id: CHANGELOG,v 1.394 2004/04/07 20:55:32 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Added option -c FILE, --configfile=FILE to smartd to specify
+       an alternate configuration FILE or '-' for standard input.
 
   [KS] configure.in now searches for -lnsl and -lsocket for Solaris.
 
