@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/31 17:01:15 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/31 17:10:06 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -373,12 +373,12 @@ Comment: ignore the remainder of the line.
 Continuation character: if this is the last non-white or non-comment
 character on a line, then the following line is a continuation of the current
 one.
-
+.PP
 If you are not sure which Directives to use, I suggest experimenting
 for a few minutes with
 .B smartctl
 to see what SMART functionality your disk(s) support(s).  If you do
-not like syslog messages, a good choice of
+not like voluminous syslog messages, a good choice of
 .B smartd
 configuration file Directives might be 
 .B \-c \-L \-l \-f.
@@ -492,4 +492,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.19 2002/10/31 17:01:15 ballen4705 Exp $
+$Id: smartd.8,v 1.20 2002/10/31 17:10:06 ballen4705 Exp $
