@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.95 2005/01/14 00:29:44 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.96 2005/01/27 13:08:08 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -136,27 +136,30 @@ static void scsiGetSupportedLogPages(int device)
     }
 }
 
-void scsiGetSmartData(int device, int attribs)
+/* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
+   (or at least something to report). */
+static int scsiGetSmartData(int device, int attribs)
 {
     UINT8 asc;
     UINT8 ascq;
     UINT8 currenttemp = 0;
     UINT8 triptemp = 0;
     const char * cp;
-    int err;
+    int err = 0;
 
     PRINT_ON(con);
-    if ((err = scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, 
-                           &ascq, &currenttemp, &triptemp))) {
+    if (scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, &ascq,
+                    &currenttemp, &triptemp)) {
         /* error message already announced */
         PRINT_OFF(con);
-        return;
+        return -1;
     }
     PRINT_OFF(con);
     cp = scsiGetIEString(asc, ascq);
     if (cp) {
+	err = -2;
         PRINT_ON(con);
-        pout("SMART Health Status: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
+        pout("SMART Health Status: %s [asc=%x, ascq=%x]\n", cp, asc, ascq); 
         PRINT_OFF(con);
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
@@ -173,6 +176,7 @@ void scsiGetSmartData(int device, int attribs)
         if (triptemp)
             pout("Drive Trip Temperature:        %d C\n", triptemp);
     }
+    return err;
 }
 
 
@@ -228,7 +232,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     return failures;
 }
 
-void scsiGetStartStopData(int device)
+static void scsiGetStartStopData(int device)
 {
     UINT32 currentStartStop;
     UINT32 recommendedStartStop; 
@@ -515,7 +519,7 @@ static void scsiPrintErrorCounterLog(int device)
     }
 }
 
-const char * self_test_code[] = {
+static const char * self_test_code[] = {
         "Default         ", 
         "Background short", 
         "Background long ", 
@@ -526,7 +530,7 @@ const char * self_test_code[] = {
         "Reserved(7)     "
 };
 
-const char * self_test_result[] = {
+static const char * self_test_result[] = {
         "Completed                ",
         "Interrupted ('-X' switch)",
         "Interrupted (bus reset ?)",
@@ -546,7 +550,7 @@ const char * self_test_result[] = {
 };
 
 // See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
-// T10/1416-D Rev 10
+// T10/1416-D Rev 10. Returns 0 if ok else 1.
 static int scsiPrintSelfTest(int device)
 {
     int num, k, n, res, err, durationSec;
@@ -953,7 +957,7 @@ static int scsiSmartDisable(int device)
     return 0;
 }
 
-void scsiPrintTemp(int device)
+static void scsiPrintTemp(int device)
 {
     UINT8 temp = 0;
     UINT8 trip = 0;
@@ -1025,7 +1029,12 @@ int scsiPrintMain(int fd)
             else
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
-            scsiGetSmartData(fd, con->smartvendorattrib);
+            if (res == scsiGetSmartData(fd, con->smartvendorattrib)) {
+                if (-2 == res)
+                    returnval |= FAILSTATUS;
+                else
+                    returnval |= FAILSMART;
+            }
         }
     }   
     if (con->smartvendorattrib) {
@@ -1066,23 +1075,23 @@ int scsiPrintMain(int fd)
     }
     if (con->smartexeoffimmediate) {
         if (scsiSmartDefaultSelfTest(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Default Self Test Successful\n");
     }
     if (con->smartshortcapselftest) {
         if (scsiSmartShortCapSelfTest(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Short Foreground Self Test Successful\n");
     }
     if (con->smartshortselftest ) { 
         if (scsiSmartShortSelfTest(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Short Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");
     }
     if (con->smartextendselftest) {
         if (scsiSmartExtendSelfTest(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Extended Background Self Test has begun\n");
         if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec, 
                         modese_len)) && (durationSec > 0)) {
@@ -1097,12 +1106,12 @@ int scsiPrintMain(int fd)
     }
     if (con->smartextendcapselftest) {
         if (scsiSmartExtendCapSelfTest(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Extended Foreground Self Test Successful\n");
     }
     if (con->smartselftestabort) {
         if (scsiSmartSelfTestAbort(fd))
-            return returnval;
+            return returnval | FAILSMART;
         pout("Self Test returned without error\n");
     }           
     return returnval;
