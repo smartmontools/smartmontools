@@ -54,8 +54,8 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.205 2003/10/03 01:03:10 ballen4705 Exp $" 
-                            ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.206 2003/10/03 01:15:17 ballen4705 Exp $" 
+                            ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Whenever exit() status is EXIT_BADCODE, please print this message
@@ -128,7 +128,6 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   PrintOut(LOG_INFO,"\nsmartd build configured on " SMARTMONTOOLS_CONFIGURE_DATE "\n");
   PrintOut(LOG_INFO,"smartd configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
-  PrintOut(LOG_INFO,"configure.in CVS tag: " SMARTMONTOOLS_CVS_TAG "\n");
   return;
 }
 
