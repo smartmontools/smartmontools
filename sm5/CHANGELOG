@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.251 2003/11/11 17:40:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.252 2003/11/12 04:20:23 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -23,9 +23,12 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-  [BA] smartd: warn user if number of self-test errors increases (as
-       before) OR if hour time stamp of most recent self-test error
-       changes.
+  [BA] smartd: now warns user if number of self-test errors has
+       increased for SCSI devices.
+
+  [BA] smartd: warn user if number of ATA self-test errors increases
+       (as before) OR if hour time stamp of most recent self-test
+       error changes.
 
   [DG] More checks for well formed mode page responses. This has the side
        effect of stopping scans on bad SCSI implementations (e.g. some
