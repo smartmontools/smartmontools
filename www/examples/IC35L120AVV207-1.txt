@@ -1,0 +1,191 @@
+smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Device Model:     IC35L120AVV207-1
+Serial Number:    VNVD09G4H3HPMT
+Firmware Version: V24OA66A
+Device is:        In smartctl database [for details use: -P show]
+ATA Version is:   6
+ATA Standard is:  ATA/ATAPI-6 T13 1410D revision 3a
+Local Time is:    Tue Jun 15 23:38:56 2004 CDT
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+Drive failure expected in less than 24 hours. SAVE ALL DATA.
+See vendor-specific Attribute list for failed Attributes.
+
+General SMART Values:
+Offline data collection status:  (0x84)	Offline data collection activity
+					was suspended by an interrupting command from host.
+					Auto Offline Data Collection: Enabled.
+Self-test execution status:      ( 121)	The previous self-test completed having
+					the read element of the test failed.
+Total time to complete Offline 
+data collection: 		 (2855) seconds.
+Offline data collection
+capabilities: 			 (0x1b) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					No Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					General Purpose Logging supported.
+Short self-test routine 
+recommended polling time: 	 (   1) minutes.
+Extended self-test routine
+recommended polling time: 	 (  48) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000b   089   089   060    Pre-fail  Always       -       1703986
+  2 Throughput_Performance  0x0005   015   015   050    Pre-fail  Offline  FAILING_NOW 5518
+  3 Spin_Up_Time            0x0007   100   100   024    Pre-fail  Always       -       278
+  4 Start_Stop_Count        0x0012   100   100   000    Old_age   Always       -       9
+  5 Reallocated_Sector_Ct   0x0033   091   091   005    Pre-fail  Always       -       277
+  7 Seek_Error_Rate         0x000b   100   100   067    Pre-fail  Always       -       0
+  8 Seek_Time_Performance   0x0005   123   123   020    Pre-fail  Offline      -       37
+  9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       2759
+ 10 Spin_Retry_Count        0x0013   100   100   060    Pre-fail  Always       -       0
+ 12 Power_Cycle_Count       0x0032   100   100   000    Old_age   Always       -       9
+192 Power-Off_Retract_Count 0x0032   100   100   050    Old_age   Always       -       45
+193 Load_Cycle_Count        0x0012   100   100   050    Old_age   Always       -       45
+194 Temperature_Celsius     0x0002   166   166   000    Old_age   Always       -       33 (Lifetime Min/Max 23/44)
+196 Reallocated_Event_Count 0x0032   092   092   000    Old_age   Always       -       319
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       49
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       20
+199 UDMA_CRC_Error_Count    0x000a   200   200   000    Old_age   Always       -       0
+
+SMART Error Log Version: 1
+ATA Error Count: 161 (device log contains only the most recent five errors)
+	CR = Command Register [HEX]
+	FR = Features Register [HEX]
+	SC = Sector Count Register [HEX]
+	SN = Sector Number Register [HEX]
+	CL = Cylinder Low Register [HEX]
+	CH = Cylinder High Register [HEX]
+	DH = Device/Head Register [HEX]
+	DC = Device Command Register [HEX]
+	ER = Error register [HEX]
+	ST = Status register [HEX]
+Powered_Up_Time is measured from power on, and printed as
+DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,
+SS=sec, and sss=millisec. It "wraps" after 49.710 days.
+
+Error 161 occurred at disk power-on lifetime: 2752 hours (114 days + 16 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 46 c2 a7 02 e0  Error: UNC 70 sectors at LBA = 0x0002a7c2 = 174018
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  25 00 46 c2 a7 02 e0 00  23d+03:19:20.800  READ DMA EXT
+  25 00 48 c0 a7 02 e0 00  23d+03:19:16.000  READ DMA EXT
+  25 00 1c a4 a7 02 e0 00  23d+03:19:15.200  READ DMA EXT
+  25 00 1e a2 a7 02 e0 00  23d+03:19:10.400  READ DMA EXT
+  25 00 20 a0 a7 02 e0 00  23d+03:19:02.200  READ DMA EXT
+
+Error 160 occurred at disk power-on lifetime: 2752 hours (114 days + 16 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 47 c1 a7 02 e0  Error: UNC 71 sectors at LBA = 0x0002a7c1 = 174017
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  25 00 48 c0 a7 02 e0 00  23d+03:19:16.000  READ DMA EXT
+  25 00 1c a4 a7 02 e0 00  23d+03:19:15.200  READ DMA EXT
+  25 00 1e a2 a7 02 e0 00  23d+03:19:10.400  READ DMA EXT
+  25 00 20 a0 a7 02 e0 00  23d+03:19:02.200  READ DMA EXT
+  25 00 22 9e a7 02 e0 00  23d+03:18:57.400  READ DMA EXT
+
+Error 159 occurred at disk power-on lifetime: 2752 hours (114 days + 16 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 02 be a7 02 e0  Error: UNC 2 sectors at LBA = 0x0002a7be = 174014
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  25 00 1e a2 a7 02 e0 00  23d+03:19:10.400  READ DMA EXT
+  25 00 20 a0 a7 02 e0 00  23d+03:19:02.200  READ DMA EXT
+  25 00 22 9e a7 02 e0 00  23d+03:18:57.400  READ DMA EXT
+  25 00 24 9c a7 02 e0 00  23d+03:18:52.400  READ DMA EXT
+  25 00 26 9a a7 02 e0 00  23d+03:18:40.200  READ DMA EXT
+
+Error 158 occurred at disk power-on lifetime: 2752 hours (114 days + 16 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 02 be a7 02 e0  Error: UNC 2 sectors at LBA = 0x0002a7be = 174014
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  25 00 20 a0 a7 02 e0 00  23d+03:19:02.200  READ DMA EXT
+  25 00 22 9e a7 02 e0 00  23d+03:18:57.400  READ DMA EXT
+  25 00 24 9c a7 02 e0 00  23d+03:18:52.400  READ DMA EXT
+  25 00 26 9a a7 02 e0 00  23d+03:18:40.200  READ DMA EXT
+  25 00 28 98 a7 02 e0 00  23d+03:18:32.100  READ DMA EXT
+
+Error 157 occurred at disk power-on lifetime: 2752 hours (114 days + 16 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 03 bd a7 02 e0  Error: UNC 3 sectors at LBA = 0x0002a7bd = 174013
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  25 00 22 9e a7 02 e0 00  23d+03:18:57.400  READ DMA EXT
+  25 00 24 9c a7 02 e0 00  23d+03:18:52.400  READ DMA EXT
+  25 00 26 9a a7 02 e0 00  23d+03:18:40.200  READ DMA EXT
+  25 00 28 98 a7 02 e0 00  23d+03:18:32.100  READ DMA EXT
+  25 00 2a 96 a7 02 e0 00  23d+03:18:26.400  READ DMA EXT
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Extended offline    Completed: read failure       90%      2692         173893
+# 2  Short offline       Completed: read failure       10%      2654         173911
+# 3  Extended offline    Completed: read failure       90%      2524         174132
+# 4  Extended offline    Completed without error       00%      2358         -
+# 5  Extended offline    Completed without error       00%      2192         -
+# 6  Extended offline    Completed without error       00%      2023         -
+# 7  Extended offline    Completed without error       00%      1857         -
+# 8  Extended offline    Completed without error       00%      1689         -
+# 9  Extended offline    Completed without error       00%      1521         -
+#10  Extended offline    Completed without error       00%      1355         -
+#11  Extended offline    Completed without error       00%      1187         -
+#12  Extended offline    Completed without error       00%      1020         -
+#13  Extended offline    Completed without error       00%       854         -
+#14  Extended offline    Completed without error       00%       685         -
+#15  Extended offline    Completed without error       00%       517         -
+#16  Extended offline    Completed without error       00%       349         -
+#17  Extended offline    Completed without error       00%       181         -
+#18  Extended offline    Completed without error       00%        13         -
+#19  Extended offline    Completed without error       00%         4         -
+
+Device does not support Selective Self Tests/Logging
