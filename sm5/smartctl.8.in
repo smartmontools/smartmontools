@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.21 2004/01/29 21:45:57 shattered Exp $
+ $Id: smartctl.8.in,v 1.22 2004/01/31 10:30:37 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -60,6 +60,7 @@ Use the forms \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices. For
 SCSI Tape Drives and Changers with TapeAlert support use the devices
 \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP. 
+More general paths (such as devfs ones) may also be specified.
 .IP \fBFREEBSD\fP: 9
 Use the forms \fB"/dev/ad[0-9]+"\fP for IDE/ATA
 devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
@@ -71,10 +72,9 @@ for your architecture.
 Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk
 devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
 .PP
-More general paths (such as devfs ones) may also be specified.
-\fBsmartctl\fP will attempt to guess the device type, but the \'\-d\'
-option can be used to specify a device type of ATA or SCSI if
-required.
+Based on the device path, \fBsmartctl\fP will guess the device type
+(ATA or SCSI).  If necessary, the \'\-d\' option can be used to over-ride
+this guess
 
 Note that the printed output of \fBsmartctl\fP displays most numerical
 values in base 10 (decimal), but some values are displayed in base 16
@@ -1013,4 +1013,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.21 2004/01/29 21:45:57 shattered Exp $
+$Id: smartctl.8.in,v 1.22 2004/01/31 10:30:37 ballen4705 Exp $
