@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.74 2003/08/27 10:43:38 ballen4705 Exp $
+# $Id: Makefile,v 1.75 2003/08/30 18:47:01 pervalidus Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -25,18 +25,12 @@ CC	= gcc
 # Debugging
 # CFLAGS = -fsigned-char -Wall -g
 
-# Build against kernel header files.  Change linux-2.4 to correct path for your system
-# CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
-
-# Normal build NOTE: I have had reports that with gcc 3.2 this code
-# fails if you use anything but -Os.  I'll remove this comment when
-# this is resolved, or I am reminded of it! GCC GNATS bug report
-# #8404.  If you are getting strange output from gcc 3.2 try
-# uncommenting LDFLAGS -s below.  Stripping the symbols seems to fix
-# the problem.
-CFLAGS	 = -fsigned-char -Wall -O2
+# Build against kernel header files.  Comment out the line and change
+# 'linux' to the correct path for your system
+#KHEADERS = -I/usr/src/linux/include
+CFLAGS	 = -fsigned-char -Wall -O2 $(KHEADERS)
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
-LDFLAGS  = # -s
+LDFLAGS  = # -Wl,-s
 
 GZIP=/bin/gzip
 INSTALL = install
