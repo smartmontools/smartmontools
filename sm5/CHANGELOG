@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.104 2003/03/25 12:17:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.105 2003/03/25 12:30:31 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -39,6 +39,12 @@ smartmontools-5.1-9
 
   [BA] Added -v 194,10xCelsius option/Directive. Raw Attribute number
        194 is ten times the disk temperature in Celsius.
+
+  [DG] scsicmds.[hc] + scsiprint.c: clean up indentation, remove tabs.
+       Introduce new intermediate interface based on "struct scsi_cmnd_io"
+       to isolate SCSI generic commands + responses from Linux details;
+       should help port to FreeBSD of SCSI part of smartmontools.
+       Make SCSI command builders more parametric.
   
   [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
        kernel support, then try to assess drive health by examining
