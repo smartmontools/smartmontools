@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.21 2004/10/01 15:16:25 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.22 2004/10/13 11:25:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -739,7 +739,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		copydata = 1;
 		break;
 	  case IDENTIFY:
-		// Note: Win2000/XP returns identify data cached during boot
+		// Note: WinNT4/2000/XP return identify data cached during boot
+		// (true for SMART_RCV_DRIVE_DATA and IOCTL_IDE_PASS_THROUGH)
 		regs.bCommandReg = ATA_IDENTIFY_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
@@ -826,6 +827,19 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		return 0;
 	}
 	/*NOTREACHED*/
+}
+
+
+#ifndef HAVE_ATA_IDENTIFY_IS_CACHED
+#error define of HAVE_ATA_IDENTIFY_IS_CACHED missing in config.h
+#endif
+
+// Return true if OS caches the ATA identify sector
+int ata_identify_is_cached(int fd)
+{
+	ARGUSED(fd);
+	// WinNT4/2000/XP => true, Win9x/ME => false
+	return ((GetVersion() & 0x80000000) == 0);
 }
 
 
