@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.24 2003/02/01 09:01:43 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.25 2003/02/06 11:58:30 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/02/01 09:01:43 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/02/06 11:58:30 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -144,10 +144,18 @@ string
 .B DEVICESCAN
 in capital letters, then
 .B smartd
-will ignore the configuration file, and will scan for devices.
+will ignore any remaining lines in the configuration file, and will
+scan for devices.
+.B DEVICESCAN
+may optionally be followed by Directives that will apply to all
+devices that are found in the scan.  Please see below for additional
+details.
+
 .sp 2
 The following are the Directives that may appear following the device
-name on any line of the
+name or
+.B DEVICESCAN
+on any line of the
 .B /etc/smartd.conf
 configuration file. Note that
 .B these are NOT command-line options for 
@@ -552,6 +560,45 @@ If you want more frequent information, use:
 .B -a.
 
 .TP
+.B ADDITIONAL DETAILS ABOUT DEVICESCAN
+If the first non-comment entry in the configuration file is the text
+string
+.B DEVICESCAN
+in capital letters, then
+.B smartd
+will ignore any remaining lines in the configuration file, and will
+scan for devices.
+
+If
+.B DEVICESCAN 
+is not followed by any Directives, then smartd will scan for both ATA
+and SCSI devices, and will monitor all possible SMART properties of
+any devices that are found.
+
+.B DEVICESCAN
+may optionally be followed by any valid Directives, which will be
+applied to all devices that are found in the scan.  For example
+.nf
+.B DEVICESCAN -m root@yoyodyne.com
+.fi
+will scan for all devices, and then monitor them.  It will send one
+email warning per device for any problems that are found.
+.nf
+.B  DEVICESCAN -d ata -m root@yoyodyne.com
+.fi
+will do the same, but restricts the scan to ATA devices only.  In this
+case (using
+.B DEVICESCAN
+to monitor ATA devices) unless one or more of the Directives
+.B \-H, \-f, \-t, \-l\ selftest,
+or
+.B \-l\ error
+is explicity listed, then
+.B \-a
+(which is equivalent to ALL of these Directives and monitors all the
+SMART properties of the devices) is assumed.
+
+.TP
 .B EXAMPLES OF SHELL SCRIPTS FOR '\-M exec'
 These are two examples of shell scripts that can be used with 
 the '\-M exec' Directive described previously.  The paths to these scripts
@@ -637,4 +684,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.24 2003/02/01 09:01:43 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.25 2003/02/06 11:58:30 ballen4705 Exp $

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.57 2003/02/01 09:01:43 ballen4705 Exp $
+\# $Id: smartd.8,v 1.58 2003/02/06 11:58:30 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/01 09:01:43 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/06 11:58:30 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -142,6 +142,37 @@ One may also use:
 for the same purpose.
 
 .TP
+.B \-c, \-\-checkonce
+Start
+.B smartd
+in debug mode, then register devices, then check device's SMART status
+once, and then exit with zero exit status if 
+all of these steps worked correctly.
+
+This option is intended for 'distribution-writers' who
+want to create automated scripts to determine whether or not to
+automatically start up
+.B smartd
+after installing smartmontools.  After starting
+.B smartd
+with this command-line option, the distribution's install scripts should
+wait a reasonable length of time (say ten seconds).  If
+.B smartd
+has not exited with zero status by that time, the script should send
+.B smartd
+a SIGTERM or SIGKILL and assume that
+.B smartd
+will not operate correctly on the host.  Conversely, if
+.B smartd
+exits with zero status, then it's safe to run it in normal daemon
+mode.
+
+Note that if
+.B smartd
+is unable to monitor any devices then it will exit with non-zero
+status.
+
+.TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints license, copyright, and CVS version information onto
 STDOUT and then exits. Please include this information if you are
@@ -164,6 +195,20 @@ Runs the daemon in forked mode. This is the normal way to run
 .B smartd.
 Entries are logged to SYSLOG (by default
 .B /var/log/messages.)
+
+.B
+smartd -d -i 30
+.fi
+Run in foreground (debug) mode, checking the disk status
+every 30 seconds.
+
+.B
+smartd -c
+.fi
+Registers devices, and checks the status of the devices exactly
+once. The exit status (in bash, the
+.B $?
+variable) will be zero all went well, and nonzero if no devices were detected.
 
 .fi
 Note that 
@@ -297,10 +342,18 @@ string
 .B DEVICESCAN
 in capital letters, then
 .B smartd
-will ignore the configuration file, and will scan for devices.
+will ignore any remaining lines in the configuration file, and will
+scan for devices.
+.B DEVICESCAN
+may optionally be followed by Directives that will apply to all
+devices that are found in the scan.  Please see below for additional
+details.
+
 .sp 2
 The following are the Directives that may appear following the device
-name on any line of the
+name or
+.B DEVICESCAN
+on any line of the
 .B /etc/smartd.conf
 configuration file. Note that
 .B these are NOT command-line options for 
@@ -705,6 +758,45 @@ If you want more frequent information, use:
 .B -a.
 
 .TP
+.B ADDITIONAL DETAILS ABOUT DEVICESCAN
+If the first non-comment entry in the configuration file is the text
+string
+.B DEVICESCAN
+in capital letters, then
+.B smartd
+will ignore any remaining lines in the configuration file, and will
+scan for devices.
+
+If
+.B DEVICESCAN 
+is not followed by any Directives, then smartd will scan for both ATA
+and SCSI devices, and will monitor all possible SMART properties of
+any devices that are found.
+
+.B DEVICESCAN
+may optionally be followed by any valid Directives, which will be
+applied to all devices that are found in the scan.  For example
+.nf
+.B DEVICESCAN -m root@yoyodyne.com
+.fi
+will scan for all devices, and then monitor them.  It will send one
+email warning per device for any problems that are found.
+.nf
+.B  DEVICESCAN -d ata -m root@yoyodyne.com
+.fi
+will do the same, but restricts the scan to ATA devices only.  In this
+case (using
+.B DEVICESCAN
+to monitor ATA devices) unless one or more of the Directives
+.B \-H, \-f, \-t, \-l\ selftest,
+or
+.B \-l\ error
+is explicity listed, then
+.B \-a
+(which is equivalent to ALL of these Directives and monitors all the
+SMART properties of the devices) is assumed.
+
+.TP
 .B EXAMPLES OF SHELL SCRIPTS FOR '\-M exec'
 These are two examples of shell scripts that can be used with 
 the '\-M exec' Directive described previously.  The paths to these scripts
@@ -864,4 +956,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.57 2003/02/01 09:01:43 ballen4705 Exp $
+$Id: smartd.8,v 1.58 2003/02/06 11:58:30 ballen4705 Exp $
