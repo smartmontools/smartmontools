@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.39 2004/09/14 03:34:35 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.40 2004/10/13 20:18:03 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -124,6 +124,12 @@ const char *packetdevicetype(int type);
 int deviceopen(const char *pathname, char *type);
 
 int deviceclose(int fd);
+
+// Optional functions of os_*.c
+#ifdef HAVE_GET_OS_VERSION_STR
+// Return build host and OS version as static string
+const char * get_os_version_str(void);
+#endif
 
 // returns 1 if any of the n bytes are nonzero, else zero.
 int nonempty(unsigned char *testarea,int n);

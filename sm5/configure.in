@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.106 2004/10/13 11:25:08 chrfranke Exp $
+# $Id: configure.in,v 1.107 2004/10/13 20:18:03 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.34, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.106 2004/10/13 11:25:08 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.107 2004/10/13 20:18:03 chrfranke Exp $'`
 smartmontools_release_date=2004/09/10
 smartmontools_release_time="04:11:35 UTC"
 
@@ -137,10 +137,14 @@ case "${host}" in
 		AC_SUBST([os_libs], ['']) ;;
 esac
 
-# Define symbols for optional functions in os specific module
+# Define symbols for optional functions in OS specific module
 case "${os_deps}" in
   os_win32*)
-    AC_DEFINE(HAVE_ATA_IDENTIFY_IS_CACHED, 1, [Define to 1 if you have the `ata_identify_is_cached' function in os*.c.]) ;;
+    AC_DEFINE(HAVE_ATA_IDENTIFY_IS_CACHED, 1, [Define to 1 if you have the `ata_identify_is_cached' function in os_*.c.]) ;;
+esac
+case "${os_deps}" in
+  os_win32*)
+    AC_DEFINE(HAVE_GET_OS_VERSION_STR, 1, [Define to 1 if you have the `get_os_version_str' function in os_*.c.]) ;;
 esac
 
 dnl Define platform-specific symbol.
