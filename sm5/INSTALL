@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.46 2004/05/11 09:57:35 chrfranke Exp $
+$Id: INSTALL,v 1.47 2004/05/13 14:47:15 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -104,10 +104,14 @@ Table of contents:
     F) Windows
 
     The code was tested on Windows 98SE, NT4, 2000 and XP. It should also
-    work on Windows 95(OSR2) and ME.
+    work on Windows 95(OSR2), 98, and ME.
 
     On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
-    The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS.
+    The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS
+    to get loaded at Windows startup. The default location in a new
+    installation of some versions of Windows is the WINDOWS\SYSTEM folder.
+    In this case, move SMARTVSD.VXD to WINDOWS\SYSTEM\IOSUBSYS and reboot
+    (http://support.microsoft.com/default.aspx?scid=kb;en-us;265854).
 
     On NT4/2000/XP, also other ATA or SATA devices are supported if
     the device driver implements the SMART IOCTL.
