@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.79 2003/01/03 17:58:16 ballen4705 Exp $
+$Id: CHANGELOG,v 1.80 2003/01/04 01:37:47 dpgilbert Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,8 @@ CURRENT RELEASE (see VERSION file in this directory):
 
 
 smartmontools-5.1.1
+
+  [DG] add '-l selftest' capability for SCSI devices (update smartctl.8)
 
   [BA] smartd,smartctl: added additional Attribute modification option
        -v 220,temp and -v 9,temp.

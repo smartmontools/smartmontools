@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.34 2003/01/03 20:31:11 pjwilliams Exp $
+\# $Id: smartctl.8,v 1.35 2003/01/04 01:37:48 dpgilbert Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/03 20:31:11 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2003/01/04 01:37:48 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -74,7 +74,7 @@ will execute the corresponding commands in the order: INFORMATION,
 ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 
 SCSI devices only accept the options 
-.B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C
+.B \-h, \-?, \-V, \-i, \-a, \-d, \-s, \-H, \-t, \-C \-l selftest
 and 
 .B \-X. 
 TapeAlerts devices only accept the options 
@@ -109,7 +109,7 @@ so, whether S.M.A.R.T. support is currently enabled or disabled.
 .TP
 .B \-a, \-\-all
 Prints all S.M.A.R.T. information about the disk.  This is equivalent to '\-H
-\-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i').
+\-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i \-l selftest').
 .TP
 .B RUN-TIME BEHAVIOR:
 .TP
@@ -400,6 +400,18 @@ measured in hours of disk lifetime, is shown.  If any errors were
 detected, the Logical Block Address (LBA) of the first error is printed
 in hexadecimal notation.
 
+.I selftest [SCSI]
+\- the self-test log for a SCSI device has a slightly different format.
+The log will show, for each of the most recent twenty self-tests, the type
+of test and the status (final or in progress) of the test. SCSI standards
+use the terms foreground and background (rather than ATA's captive and 
+off-line); and long (rather ATA's extended). The segment number column is
+only relevant when a test fails in the third or later test segment. The
+Logical Block Address (LBA) of the first error is printed in hexadecimal 
+notation. If provided, a SCSI sense key (SK), additional sense code (ASC)
+and additional sense qualifier (ASQ) is output. The self tests can be
+run using the '\-t' option described below (use ATA's test terminology).
+
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
 Sets a vendor-specific display OPTION for Attribute N.  Valid
@@ -653,4 +665,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.34 2003/01/03 20:31:11 pjwilliams Exp $
+$Id: smartctl.8,v 1.35 2003/01/04 01:37:48 dpgilbert Exp $
