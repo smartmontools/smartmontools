@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.108 2004/06/01 23:13:18 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.109 2004/06/03 22:27:40 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -148,12 +148,12 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)
-    "(IBM-)?DTLA-30[57]0[123467][05]$",
+    "(IBM-)?DTLA-30[57]0[123467][05]",
     "^T[WX][123468A]OA[56]AA$",
     NULL, NULL, NULL, NULL
   },
   { // IBM Deskstar 40GV & 75GXP series (all other firmware)
-    "(IBM-)?DTLA-30[57]0[123467][05]$",
+    "(IBM-)?DTLA-30[57]0[123467][05]",
     ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/",
