@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.27 2002/11/13 10:04:13 ballen4705 Exp $
+\# $Id: smartd.8,v 1.28 2002/11/13 10:14:40 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/13 10:04:13 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/13 10:14:40 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -250,9 +250,11 @@ name on any line of the
 configuration file. Note that
 .B these are NOT command-line options for 
 .B smartd.
-The Directives below may appear in any order,
-following the device name.  For the moment, apart from the '\-S' and '\-M'
-Directives, these Directives only apply to ATA disks. 
+The Directives below may appear in any order, following the device
+name.  For the moment, apart from the '\-S', '\-C', and '\-M'
+Directives, these Directives only apply to ATA disks. For SCSI disks,
+the '\-M' Directive sends a warning email if the SMART status
+indicates a disk failure or problem.
 .B  For ATA disks, if
 .B no Directives appear, the disk will not be monitored.
 The '\-a' Directive will try to monitor everything possible.
@@ -540,4 +542,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.27 2002/11/13 10:04:13 ballen4705 Exp $
+$Id: smartd.8,v 1.28 2002/11/13 10:14:40 ballen4705 Exp $
