@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.128 2003/04/08 02:47:19 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.129 2003/04/08 03:03:01 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1692,6 +1692,10 @@ const char *getvalidarglist(char opt) {
   switch (opt) {
   case 'r':
     return "ioctl, ataioctl, scsiioctl";
+  case 'p':
+    return "<FILE_NAME>";
+  case 'i':
+    return "<INTEGER_SECONDS>";
   default:
     return NULL;
   }
@@ -1791,7 +1795,7 @@ void ParseOpts(int argc, char **argv){
       break;
     case 'p':
       if( -1 == asprintf(&pid_file, "%s", optarg)) {
-	printout(LOG_CRIT, "Can't create pid file %s - exiting.\n", optarg);
+	printout(LOG_CRIT, "Can't allocate memory for pid file name %s - exiting.\n", optarg);
 	pid_file = NULL;
 	exit(-1);
       }
@@ -1857,14 +1861,15 @@ void ParseOpts(int argc, char **argv){
     pid_file = NULL;
   }
   
-  // write PID file BEFORE forking
-  write_pid_file();
-
   // print header
   printhead();
+  
+  // write PID file BEFORE forking
+  write_pid_file();
+  
   return;
 }
-
+  
 // Function we call if no configuration file was found or if the
 // DEVICESCAN Directive was found.  It makes entries for /dev/hd[a-l]
 // and /dev/sd[a-z].
