@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.14 2003/10/03 13:43:09 ballen4705 Exp $
+# $Id: do_release,v 1.15 2003/10/03 14:07:44 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -50,7 +50,7 @@ get_release
 
 # tag CVS version
 setup_cvs
-cvs commit -m "Release $VERSION"
+cvs commit -m "Release $VERSION $RELEASE"
 cvs tag -d $RELEASE 
 cvs tag $RELEASE
 
