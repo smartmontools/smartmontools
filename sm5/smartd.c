@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.56 2002/11/12 21:16:25 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.57 2002/11/12 21:53:52 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -92,13 +92,7 @@ void printout(int priority,char *fmt, ...){
 void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
   int pid;
   va_list ap;
-  
-  // iitialize variable argument list, then log message to SYSLOG or
-  // stdout, then finish with argument list
-  va_start(ap,fmt);
-  printout(priority, fmt, ap);
-  va_end(ap);
-  
+    
   // See if user wants us to send mail
   if (!address)
     return;
@@ -142,6 +136,8 @@ void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
     // now construct a command to send this as EMAIL, and issue it.
     snprintf(command,1024, "echo '%s' | mail -s '%s: smartd detected SMART errors' %s > /dev/null 2> /dev/null",
 	     message, hostname, address);
+  
+    // we should uninstall exit handler!
     exit(system(command));
   }
 }
@@ -600,8 +596,10 @@ int ataCheckDevice(atadevices_t *drive){
     int status=ataSmartStatus2(fd);
     if (status==-1)
       printout(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
-    else if (status==1)
+    else if (status==1){
+      printout(LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
       printandmail(cfg->address, cfg->maildata , LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
+    }
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
@@ -632,6 +630,7 @@ int ataCheckDevice(atadevices_t *drive){
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
+	    printout(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
 	    printandmail(cfg->address, cfg->maildata+1, LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
 	  }
 	}
@@ -680,8 +679,10 @@ int ataCheckDevice(atadevices_t *drive){
     unsigned char old=cfg->selflogcount;
     int new=selftesterrorcount(fd, name);
     if (new>old){
-      printandmail(cfg->address, cfg->maildata+2, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
+      printout(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
 	       name, (int)old, new);
+      printandmail(cfg->address, cfg->maildata+2, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
+		   name, (int)old, new);
     }
     if (new>=0)
       // Needed suince self-test error count may  DECREASE
@@ -694,8 +695,10 @@ int ataCheckDevice(atadevices_t *drive){
     int old=cfg->ataerrorcount;
     int new=ataerrorcount(fd, name);
     if (new>old){
-      printandmail(cfg->address, cfg->maildata+3, LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
+      printout(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
 	       name, old, new);
+      printandmail(cfg->address, cfg->maildata+3, LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
+		   name, old, new);
     }
     // this last line is probably not needed, count always increases
     if (new>=0)
