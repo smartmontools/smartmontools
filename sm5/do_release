@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.28 2004/03/06 19:46:55 ballen4705 Exp $
+# $Id: do_release,v 1.29 2004/05/03 15:58:33 ballen4705 Exp $
 
 USECVS=1
 
@@ -21,7 +21,7 @@ setup_cvs()
   CVS_SERVER=fakevalue
   unset CVS_SERVER || echo "can't unset CVS_SERVER=$CVS_SERVER"
   CVS_RSH=ssh
-  CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+  CVSROOT=:ext:ballen4705@cvs.sourceforge.net:/cvsroot/smartmontools
 }
 
 get_release()
