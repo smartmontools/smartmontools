@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.39 2003/08/30 13:06:48 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.40 2003/09/04 21:32:38 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -72,6 +72,14 @@ const unsigned char vendoropts_Fujitsu_MHS2020AT[][2] = {
   PRESET_198_OFFLINESCANUNCSECTORCT,
   PRESET_200_WRITEERRORCOUNT,
   PRESET_201_DETECTEDTACOUNT,
+  {0,0}
+};
+
+const unsigned char vendoropts_Fujitsu_MHR2040AT[][2] = {
+  PRESET_9_SECONDS,
+  PRESET_192_EMERGENCYRETRACTCYCLECT,
+  PRESET_198_OFFLINESCANUNCSECTORCT,
+  PRESET_200_WRITEERRORCOUNT,
   {0,0}
 };
 
@@ -138,6 +146,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL,
     vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MHR2040AT
+    "^FUJITSU MHR2040AT$",
+    ".*",    // Tested on 40BA
+    NULL,
+    vendoropts_Fujitsu_MHR2040AT,
     NULL, NULL
   },
   { // Fujitsu MHS2020AT
