@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.182 2003/08/07 10:27:58 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.183 2003/08/08 03:24:34 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1193,18 +1193,24 @@ int scsiCheckDevice(scsidevices_t *drive)
         printout(LOG_INFO,"Device: %s, Acceptable asc,ascq: %d,%d\n", 
                  name, (int)asc, (int)ascq);  
   
-    // Seems to completely ignore what capabilities were found on the
-    // device when scanned
+    if (255 == currenttemp) /* this means temperature unavailable */
+        currenttemp = 0;    /* less likely to worry people */
     if (currenttemp) {
-        if (255 == currenttemp) /* this means temperature unavailable */
-            currenttemp = 0;    /* less likely to worry people */
-        if ((currenttemp != drive->Temperature) && (drive->Temperature))
-            printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
-                     "to %d degrees since last reading\n", name, 
-                     (int)(currenttemp - drive->Temperature), 
-                     (int)currenttemp);
+        if (drive->Temperature) {
+            if (currenttemp != drive->Temperature)
+                printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
+                         "to %d degrees since last reading\n", name, 
+                         (int)(currenttemp - drive->Temperature), 
+                         (int)currenttemp);
+        }
+        else 
+            printout(LOG_INFO, "Device: %s, initial Temperature is %d "
+                     "degrees\n", name, (int)currenttemp);
         drive->Temperature = currenttemp;
     }
+    else
+        drive->Temperature = 0;
+
     closedevice(fd, name);
     return 0;
 }
