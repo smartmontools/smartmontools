@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.355 2004/03/05 14:55:12 ballen4705 Exp $
+$Id: CHANGELOG,v 1.356 2004/03/05 16:24:37 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -36,7 +36,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
   [BA] smartctl/smartd: user-provided '-F samsung' and '-F samsung2'
        command line options/Directives did NOT over-ride preset values
        unless user specified '-P ignore'.  Now they will always over-ride
-       preset values from the database.  Phil, please check the code.
+       preset values from the database.
 
   [BA] Added error decoding for a few more READ and WRITE commands.
 

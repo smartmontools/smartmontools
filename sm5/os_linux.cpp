@@ -69,9 +69,13 @@
 #include "smartd.h"
 #include "utility.h"
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.46 2004/02/18 19:58:59 ballen4705 Exp $";
+#ifndef ENOTSUP
+#define ENOTSUP ENOSYS
+#endif
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.46 2004/02/18 19:58:59 ballen4705 Exp $" \
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.47 2004/03/05 16:24:37 ballen4705 Exp $";
+
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.47 2004/03/05 16:24:37 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
