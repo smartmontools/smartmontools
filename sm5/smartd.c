@@ -1,4 +1,4 @@
-//  $Id: smartd.c,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: smartd.c,v 1.2 2002/10/09 18:01:18 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -260,7 +260,7 @@ void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices)
 
 char copyleftstring[]=
 "\nHome page of smartd is http://sourceforge.net/projects/smartmontools\n\n"
-"CVS Version ID $Id: smartd.c,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $"
+"CVS Version ID $Id: smartd.c,v 1.2 2002/10/09 18:01:18 ballen4705 Exp $\n"
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
