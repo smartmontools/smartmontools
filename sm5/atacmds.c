@@ -29,7 +29,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.25 2002/10/26 06:44:42 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.26 2002/10/26 11:32:33 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -163,6 +163,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   // Hedrick about this on Oct 17 2002.  Please remove this comment
   // once the fix has made it into the stock kernel tree.
 
+#if 0
   // The following ifdef is a HACK to distinguish different versions
   // of the header file defining hd_driveid
 #ifdef CFA_REQ_EXT_ERROR_CODE
@@ -170,6 +171,15 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 #else
   driveidchecksum=buf->words160_255[95];
 #endif
+#else
+  // This way is ugly and you may feel ill -- but it always works...
+  {
+    unsigned short *rawstructure=
+      (unsigned short *)(parms+HDIO_DRIVE_CMD_HDR_SIZE);
+    driveidchecksum=rawstructure[255];
+  }
+#endif
+
   if ((driveidchecksum & 0x00ff) == 0x00a5){
     // Device identity structure contains a checksum
     unsigned char cksum=0;
