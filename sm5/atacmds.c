@@ -29,7 +29,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.23 2002/10/24 11:16:51 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.24 2002/10/26 06:27:35 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -158,7 +158,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   memcpy(buf,parms+HDIO_DRIVE_CMD_HDR_SIZE,sizeof(*buf));
   
   // Note -- the declaration that appears in
-  // /usr/include/linux/hdregs.h: short words160_255[95], is WRONG.
+  // /usr/include/linux/hdreg.h: short words160_255[95], is WRONG.
   // It should say: short words160_255[96]. I have written to Andre
   // Hedrick about this on Oct 17 2002.  Please remove this comment
   // once the fix has made it into the stock kernel tree.
