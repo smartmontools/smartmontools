@@ -24,7 +24,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.4 2004/08/30 22:51:17 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.5 2004/09/09 04:39:51 snyderx Exp $" \
 ATACMDS_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -184,7 +184,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
   switch (command) {
   case READ_VALUES:
     req.flags = ATACMD_READ;
-    req.features = WDSM_RD_DATA;
+    req.features = ATA_SMART_READ_VALUES;
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
@@ -194,7 +194,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     break;
   case READ_THRESHOLDS:
     req.flags = ATACMD_READ;
-    req.features = WDSM_RD_THRESHOLDS;
+    req.features = ATA_SMART_READ_THRESHOLDS;
     req.command = ATAPI_SMART;
     req.databuf = (caddr_t) inbuf;
     req.datalen = sizeof(inbuf);
@@ -244,14 +244,14 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     break;
   case ENABLE:
     req.flags = ATACMD_READ;
-    req.features = WDSM_ENABLE_OPS;
+    req.features = ATA_SMART_ENABLE;
     req.command = ATAPI_SMART;
     req.cylinder = htole16(WDSMART_CYL);
     req.timeout = 1000;
     break;
   case DISABLE:
     req.flags = ATACMD_READ;
-    req.features = WDSM_DISABLE_OPS;
+    req.features = ATA_SMART_DISABLE;
     req.command = ATAPI_SMART;
     req.cylinder = htole16(WDSMART_CYL);
     req.timeout = 1000;
@@ -293,7 +293,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     /* same command, no HDIO in NetBSD */
   case STATUS:
     req.flags = ATACMD_READ;
-    req.features = WDSM_STATUS;
+    req.features = ATA_SMART_STATUS;
     req.command = ATAPI_SMART;
     req.cylinder = htole16(WDSMART_CYL);
     req.timeout = 1000;
