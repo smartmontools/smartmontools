@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.20 2003/11/08 01:15:15 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.21 2003/11/08 01:23:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -178,7 +178,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
 // devices.  Return -1 if no memory remaining, else the number of
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
-  int retval;
+  int retval, maxdev;
   
 #if 0
   // for testing case where no device names are found
@@ -186,9 +186,9 @@ int make_device_names (char*** devlist, const char* name) {
 #endif
   
   if (!strcmp(name,"SCSI"))
-    retval=get_dev_names(devlist,"/dev/sd[a-z]", name, MAXSCSIDEVICES);
+    retval=get_dev_names(devlist,"/dev/sd[a-z]", name, maxdev=MAXSCSIDEVICES);
   else if (!strcmp(name,"ATA"))
-    retval=get_dev_names(devlist,"/dev/hd[a-t]", name, MAXATADEVICES);
+    retval=get_dev_names(devlist,"/dev/hd[a-t]", name, maxdev=MAXATADEVICES);
   else
     // don't recognize disk type!
     return 0;
@@ -198,7 +198,7 @@ int make_device_names (char*** devlist, const char* name) {
     return retval;
   
   // else look for devfs entries without traditional links
-  return get_dev_names(devlist,"/dev/discs/disk*", name, MAXATADEVICES);
+  return get_dev_names(devlist,"/dev/discs/disk*", name, maxdev);
 }
 
 
