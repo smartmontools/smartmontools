@@ -2,7 +2,7 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
-$Id: README,v 1.49 2004/01/02 16:05:24 ballen4705 Exp $
+$Id: README,v 1.50 2004/05/03 15:58:33 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -73,14 +73,14 @@ http://sourceforge.net/project/showfiles.php?group_id=64297
 CVS
 ---
 
-cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
-cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools co sm5
 
 This will create a subdirectory called sm5/ containing the code.
 
 To instead get the 5.1-16 release:
 
-cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
 
 To update your sources to the 5.1-18 release:
 
