@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.291 2003/12/16 16:10:33 pjwilliams Exp $
+$Id: CHANGELOG,v 1.292 2003/12/16 19:15:22 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Slackware init script modified to search for /etc/slackware-version
+       rather than /etc/slackware-release.
 
   [PW] Added Seagate Barracuda ATA II family and TOSHIBA MK4019GAXB to
        knowndrives table.
