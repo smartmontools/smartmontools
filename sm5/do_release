@@ -3,6 +3,7 @@
 # do a smartmontools release
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
+# $Id: do_release,v 1.12 2003/09/04 12:05:20 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
