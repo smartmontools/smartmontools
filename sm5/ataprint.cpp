@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.137 2004/03/04 04:57:05 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.138 2004/03/04 05:40:48 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -126,8 +126,24 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   unsigned char ST=data->error_struct.status;
   unsigned char ER=data->error_struct.error_register;
   char *s;
-  char *error_flag[8];
+  const char *error_flag[8];
   int i, print_lba=0;
+
+  // Set of character strings corresponding to different error codes.
+  // Please keep in alphabetic order if you add more.
+  const char  *abrt  = "ABRT";  // ABORTED
+ const char   *amnf  = "AMNF";  // ADDRESS MARK NOT FOUND
+ const char   *eom   = "EOM";   // END OF MEDIA
+ const char   *icrc  = "ICRC";  // INTERFACE CRC ERROR
+ const char   *idnf  = "IDNF";  // ID NOT FOUND
+ const char   *ili   = "ILI";   // MEANING OF THIS BIT IS COMMAND-SET SPECIFIC
+ const char   *mc    = "MC";    // MEDIA CHANGED 
+ const char   *mcr   = "MCR";   // MEDIA CHANGE REQUEST
+ const char   *nm    = "NM";    // NO MEDIA
+ const char   *obs   = "obs";   // OBSOLETE
+ const char   *tk0nf = "TK0NF"; // TRACK 0 NOT FOUND
+ const char   *unc   = "UNC";   // UNCORRECTABLE
+ const char   *wp    = "WP";    // WRITE PROTECTED
 
   /* If for any command the Device Fault flag of the status register is
    * not used then used_device_fault should be set to 0 (in the CR switch
@@ -141,71 +157,71 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
 
   switch (CR) {
   case 0x10:  // RECALIBRATE
-    error_flag[2] = "ABRT";
-    error_flag[1] = "TK0NF";
+    error_flag[2] = abrt;
+    error_flag[1] = tk0nf;
     break;
   case 0x20:  /* READ SECTOR(S) */
   case 0x21:
   case 0xC4:  /* READ MULTIPLE */
-    error_flag[6] = "UNC";
-    error_flag[5] = "MC";
-    error_flag[4] = "IDNF";
-    error_flag[3] = "MCR";
-    error_flag[2] = "ABRT";
-    error_flag[1] = "NM";
-    error_flag[0] = "AMNF";
+    error_flag[6] = unc;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0x22:  // READ LONG (with retries)
   case 0x23:  // READ LONG (without retries)
-    error_flag[4] = "IDNF";
-    error_flag[2] = "ABRT";
-    error_flag[0] = "AMNF";
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0x25:  /* READ DMA EXT */
   case 0xC8:  /* READ DMA */
   case 0xC9:
-    error_flag[7] = "ICRC";
-    error_flag[6] = "UNC";
-    error_flag[5] = "MC";
-    error_flag[4] = "IDNF";
-    error_flag[3] = "MCR";
-    error_flag[2] = "ABRT";
-    error_flag[1] = "NM";
-    error_flag[0] = "AMNF";
+    error_flag[7] = icrc;
+    error_flag[6] = unc;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0x31:
   case 0xC5:  /* WRITE MULTIPLE */
-    error_flag[6] = "WP";
-    error_flag[5] = "MC";
-    error_flag[4] = "IDNF";
-    error_flag[3] = "MCR";
-    error_flag[2] = "ABRT";
-    error_flag[1] = "NM";
+    error_flag[6] = wp;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
     print_lba=1;
     break;
   case 0x32:  // WRITE LONG (with retries)
   case 0x33:  // WRITE LONG (without retries)
-    error_flag[4] = "IDNF";
-    error_flag[2] = "ABRT";
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
     print_lba=1;
     break;
   case 0x3C:  // WRITE VERIFY
-    error_flag[6] = "UNC";
-    error_flag[4] = "IDNF";
-    error_flag[2] = "ABRT";
-    error_flag[0] = "AMNF";
+    error_flag[6] = unc;
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0x40: // READ VERIFY SECTOR(S) with retries
   case 0x41: // READ VERIFY SECTOR(S) without retries
-    error_flag[6] = "UNC";
-    error_flag[4] = "IDNF";
-    error_flag[2] = "ABRT";
-    error_flag[0] = "AMNF";
+    error_flag[6] = unc;
+    error_flag[4] = idnf;
+    error_flag[2] = abrt;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0xA0:  /* PACKET */
@@ -218,32 +234,32 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[6] = "Sense key (bit 2)",
     error_flag[5] = "Sense key (bit 1)",
     error_flag[4] = "Sense key (bit 0)",
-    error_flag[2] = "ABRT";
-    error_flag[1] = "EOM";
-    error_flag[0] = "ILI";
+    error_flag[2] = abrt;
+    error_flag[1] = eom;
+    error_flag[0] = ili;
     break;
   case 0xA1:  /* IDENTIFY PACKET DEVICE */
   case 0xEF:  /* SET FEATURES */
   case 0x00:  /* NOP */
   case 0xC6:  /* SET MULTIPLE MODE */
-    error_flag[2] = "ABRT";
+    error_flag[2] = abrt;
     break;
   case 0xB0:  /* SMART */
     switch(FR) {
     case 0xD5:  /* SMART READ LOG */
-      error_flag[6] = "UNC";
-      error_flag[4] = "IDNF";
-      error_flag[2] = "ABRT";
-      error_flag[0] = "obs";
+      error_flag[6] = unc;
+      error_flag[4] = idnf;
+      error_flag[2] = abrt;
+      error_flag[0] = obs;
       break;
     case 0xD6:  /* SMART WRITE LOG */
-      error_flag[4] = "IDNF";
-      error_flag[2] = "ABRT";
-      error_flag[0] = "obs";
+      error_flag[4] = idnf;
+      error_flag[2] = abrt;
+      error_flag[0] = obs;
       break;
     case 0xD9:  /* SMART DISABLE OPERATIONS */
     case 0xDA:  /* SMART RETURN STATUS */
-      error_flag[2] = "ABRT";
+      error_flag[2] = abrt;
       break;
     default:
       return NULL;
@@ -253,7 +269,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   case 0xB1:  /* DEVICE CONFIGURATION */
     switch (FR) {
     case 0xC0:  /* DEVICE CONFIGURATION RESTORE */
-      error_flag[2] = "ABRT";
+      error_flag[2] = abrt;
       break;
     default:
       return NULL;
@@ -262,19 +278,19 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     break;
   case 0xCA:  /* WRITE DMA */
   case 0xCB:
-    error_flag[7] = "ICRC";
-    error_flag[6] = "WP";
-    error_flag[5] = "MC";
-    error_flag[4] = "IDNF";
-    error_flag[3] = "MCR";
-    error_flag[2] = "ABRT";
-    error_flag[1] = "NM";
-    error_flag[0] = "AMNF";
+    error_flag[7] = icrc;
+    error_flag[6] = wp;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
+    error_flag[0] = amnf;
     print_lba=1;
     break;
   case 0xE4: // READ BUFFER
   case 0xE8: // WRITE BUFFER
-    error_flag[2] = "ABRT";
+    error_flag[2] = abrt;
     break;
   default:
     return NULL;
