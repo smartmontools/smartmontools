@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.79 2003/04/03 07:50:58 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.80 2003/04/03 17:33:48 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -74,7 +74,7 @@ const char *minor_str[] = {			/* word 81 value: */
   "ATA/ATAPI-4 T13 1153D revision 17",		/* 0x0017	*/
   "ATA/ATAPI-6 T13 1410D revision 0",		/* 0x0018	*/
   "ATA/ATAPI-6 T13 1410D revision 3a",		/* 0x0019	*/
-  "Reserved",					/* 0x001a	*/
+  "ATA/ATAPI-7 T13 1532D revision 1",		/* 0x001a	*/
   "ATA/ATAPI-6 T13 1410D revision 2",		/* 0x001b	*/
   "ATA/ATAPI-6 T13 1410D revision 1",		/* 0x001c	*/
   "reserved"					/* 0x001d	*/
