@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.56 2003/11/12 01:46:28 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.57 2003/11/13 07:40:43 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -221,6 +221,8 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
         pageLen = 4;
         if (pageLen > bufLen)
             return -EIO;
+        else
+            memset(pBuf, 0, pageLen);
 
         memset(&io_hdr, 0, sizeof(io_hdr));
         memset(cdb, 0, sizeof(cdb));
@@ -242,10 +244,16 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
         scsi_do_sense_disect(&io_hdr, &sinfo);
         if ((res = scsiSimpleSenseFilter(&sinfo)))
             return res;
+        /* sanity check on response */
+        if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+            return SIMPLE_ERR_BAD_RESP;
+        if (0 == ((pBuf[2] << 8) + pBuf[3]))
+            return SIMPLE_ERR_BAD_RESP;
         pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
         if (pageLen > bufLen)
             pageLen = bufLen;
     }
+    memset(pBuf, 0, 4);
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
@@ -264,7 +272,15 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
     if (0 != status)
         return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
-    return scsiSimpleSenseFilter(&sinfo);
+    status = scsiSimpleSenseFilter(&sinfo);
+    if (0 != status)
+        return status;
+    /* sanity check on response */
+    if ((SUPPORTED_LPAGES != pagenum) && (pBuf[0] != pagenum))
+        return SIMPLE_ERR_BAD_RESP;
+    if (0 == ((pBuf[2] << 8) + pBuf[3]))
+        return SIMPLE_ERR_BAD_RESP;
+    return 0;
 }
 
 /* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
@@ -721,15 +737,17 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
  * value. */
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
 {
-    int err, offset;
+    int err;
 
     memset(iecp, 0, sizeof(*iecp));
     iecp->requestedCurrent = 1;
     if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             0, iecp->raw_curr, sizeof(iecp->raw_curr)))) {
+                             MODE_PAGE_CONTROL_CURRENT, 
+                             iecp->raw_curr, sizeof(iecp->raw_curr)))) {
         if (SIMPLE_ERR_BAD_OPCODE == err) { /* so try 10 byte mode sense */
             err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             0, iecp->raw_curr, sizeof(iecp->raw_curr));
+                             MODE_PAGE_CONTROL_CURRENT, 
+                             iecp->raw_curr, sizeof(iecp->raw_curr));
             if (0 == err)
                 iecp->modese_10 = 1;
             else
@@ -737,30 +755,21 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
         } else
             return err;
     } 
-    offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
-                                iecp->modese_10);
-    if (offset < 1) /* sanity check */
-        return SIMPLE_ERR_BAD_RESP;
     iecp->gotCurrent = 1;
     iecp->requestedChangeable = 1;
-    if (iecp->modese_10) {
-        if (0 == scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                                 1, iecp->raw_chg, sizeof(iecp->raw_chg)))
-            iecp->gotChangeable = 1;
-    } else {
-        if (0 == scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                               1, iecp->raw_chg, sizeof(iecp->raw_chg)))
-            iecp->gotChangeable = 1;
-    }
-    if (iecp->gotChangeable) {
-        offset = scsiModePageOffset(iecp->raw_chg, sizeof(iecp->raw_chg),
-                                    iecp->modese_10);
-        if (offset < 1) /* sanity check */
-            return SIMPLE_ERR_BAD_RESP;
-    }
+    if (iecp->modese_10)
+        err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL,
+                                 MODE_PAGE_CONTROL_CHANGEABLE,
+                                 iecp->raw_chg, sizeof(iecp->raw_chg));
+    else
+        err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                            MODE_PAGE_CONTROL_CHANGEABLE, 
+                            iecp->raw_chg, sizeof(iecp->raw_chg));
+    if (err)
+        return err;
+    iecp->gotChangeable = 1;
     return 0;
 }
-
 
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
 {
@@ -885,7 +894,8 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     UINT8 tBuf[252];
     int err;
 
-    if ((err = scsiLogSense(device, TEMPERATURE_PAGE, tBuf, 
+    memset(tBuf, 0, sizeof(tBuf));
+    if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, tBuf, 
                             sizeof(tBuf), 0))) {
         *currenttemp = 0;
         *triptemp = 0;
@@ -917,7 +927,7 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
     memset(tBuf,0,sizeof(tBuf)); // need to clear stack space of junk
     memset(&sense_info, 0, sizeof(sense_info));
     if (hasIELogPage) {
-        if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, 
+        if ((err = scsiLogSense(device, IE_LPAGE, tBuf, 
                                 sizeof(tBuf), 0))) {
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
             return err;
@@ -1535,10 +1545,12 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec)
 
     memset(buff, 0, sizeof(buff));
     if ((err = scsiModeSense(device, CONTROL_MODE_PAGE_PARAMETERS, 
-                             0, buff, sizeof(buff)))) {
+                             MODE_PAGE_CONTROL_CURRENT, 
+                             buff, sizeof(buff)))) {
         if (2 == err) { /* opcode no good so try 10 byte mode sense */
             err = scsiModeSense10(device, CONTROL_MODE_PAGE_PARAMETERS, 
-                             0, buff, sizeof(buff));
+                                  MODE_PAGE_CONTROL_CURRENT, 
+                                  buff, sizeof(buff));
             if (0 == err)
                 modese_10 = 1;
             else
@@ -1644,21 +1656,27 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
     }
 }
 
-// See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
-// T10/1416-D Rev 10
-int scsiCountSelfTests(int fd, int noisy)
+/* Counts number of failed self-tests. Also encodes the poweron_hour
+   of the most recent failed self-test. Return value is negative if
+   this function has a problem (typically -1), otherwise the bottom 8
+   bits are the number of failed self tests and the 16 bits above that
+   are the poweron hour of the most recent failure. Note aborted self
+   tests (typically by the user) are not considered failures.
+   See Working Draft SCSI Primary Commands - 3 (SPC-3) section 7.2.10
+   T10/1416-D Rev 15 */
+int scsiCountFailedSelfTests(int fd, int noisy)
 {
-    int num, k, n, err;
+    int num, k, n, err, res, fails, fail_hour;
     UINT8 * ucp;
     unsigned char resp[LOG_RESP_SELF_TEST_LEN];
 
-    if ((err = scsiLogSense(fd, SELFTEST_RESULTS_PAGE, resp, 
+    if ((err = scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, resp, 
                             LOG_RESP_SELF_TEST_LEN, 0))) {
         if (noisy)
             pout("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
         return -1;
     }
-    if (resp[0] != SELFTEST_RESULTS_PAGE) {
+    if (resp[0] != SELFTEST_RESULTS_LPAGE) {
         if (noisy)
             pout("Self-test Log Sense Failed, page mismatch\n");
         return -1;
@@ -1671,6 +1689,8 @@ int scsiCountSelfTests(int fd, int noisy)
             pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n", num);
         return -1;
     }
+    fails = 0;
+    fail_hour = 0;
     // loop through the twenty possible entries
     for (k = 0, ucp = resp + 4; k < 20; ++k, ucp += 20 ) {
 
@@ -1681,7 +1701,13 @@ int scsiCountSelfTests(int fd, int noisy)
         // DG has found otherwise.  So this is a heuristic.
         if ((0 == n) && (0 == ucp[4]))
             break;
+        res = ucp[4] & 0xf;
+        if ((res > 2) && (res < 8)) {
+            fails++;
+            if (1 == fails) 
+                fail_hour = (ucp[6] << 8) + ucp[7];
+        }
     }
-    return k;
+    return (fail_hour << 8) + fails;
 }
 
