@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.240 2003/11/17 03:10:40 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.241 2003/11/17 11:50:44 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1009,13 +1009,12 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     return 2; 
   }
   
-  // Badly-confirming USB storage devices should fail this check.
-  // Doug, is it possible that a device will have functionality that
-  // we might want to monitor with smartd (such as the Temperature
-  // page or Self-test log) but DOESN'T support the IE mode page?  If
-  // so, we might want to make the 'skip device' contingent on a
-  // problem like the wrong length, rather than simply on
-  // non-existence of the page.
+  // Badly-conforming USB storage devices may fail this check.
+  // The response to the following IE mode page fetch (current and
+  // changeable values) is carefully examined. It has been found
+  // that various USB devices that malform the response will lock up
+  // if asked for a log page (e.g. temperature) so it is best to
+  // bail out now.
   if ((err = scsiFetchIECmpage(fd, &iec, cfg->modese_len))) {
     PrintOut(LOG_INFO, 
 	     "Device: %s, Fetch of IEC (SMART) mode page failed, err=%d, skip device\n", device, err);
@@ -1025,8 +1024,8 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   else
     cfg->modese_len = iec.modese_len;
     
-  // Doug should we try to enable IE if it's not already enabled?
-  // This is what the ATA code does: enables SMART on devices.
+  // N.B. The following is passive (i.e. it doesn't attempt to turn on
+  // smart if it is off). This may change to be the same as the ATA side.
   if (!scsi_IsExceptionControlEnabled(&iec)) {
     PrintOut(LOG_INFO, "Device: %s, IE (SMART) not enabled, skip device\n", device);
     CloseDevice(fd, device);
