@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.128 2004/10/03 20:49:17 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.129 2004/10/12 21:51:41 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -140,7 +140,12 @@ void specialpurpose_reverse_samsung2(smartmonctrl *con)
 // http://www.zeus.com/extra/docsystem/docroot/apps/web/docs/modules/access/regex.html
 
 const drivesettings knowndrives[] = {
-  { "IBM Deskstar 60GXP series",
+  { "IBM Deskstar 60GXP series",  // ER60A46A firmware
+    "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
+    "^ER60A46A$",
+    NULL, NULL, NULL, NULL
+  },
+  { "IBM Deskstar 60GXP series",  // All other firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
