@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.51 2004/09/03 04:32:33 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.52 2004/09/05 13:52:05 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,6 +135,10 @@ struct scsiNonMediumError {
     UINT8 gotPC0;
     UINT8 gotExtraPC;
     uint64_t counterPC0;
+    UINT8 gotTFE_H;
+    uint64_t counterTFE_H; /* Track following errors [Hitachi] */
+    UINT8 gotPE_H;
+    uint64_t counterPE_H;  /* Positioning errors [Hitachi] */
 };
 
 /* SCSI Peripheral types (of interest) */

@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.77 2004/09/03 04:33:09 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.78 2004/09/05 13:53:14 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1709,6 +1709,36 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
                     if (j > 0)
                         nmep->counterPC0 <<= 8;
                     nmep->counterPC0 |= xp[j];
+                }
+                break;
+            case 0x8009: 
+                nmep->gotTFE_H = 1;
+                k = pl - 4;
+                xp = ucp + 4;
+                if (k > szof) {
+                    xp += (k - szof);
+                    k = szof;
+                }
+                nmep->counterTFE_H = 0;
+                for (j = 0; j < k; ++j) {
+                    if (j > 0)
+                        nmep->counterTFE_H <<= 8;
+                    nmep->counterTFE_H |= xp[j];
+                }
+                break;
+            case 0x8015: 
+                nmep->gotPE_H = 1;
+                k = pl - 4;
+                xp = ucp + 4;
+                if (k > szof) {
+                    xp += (k - szof);
+                    k = szof;
+                }
+                nmep->counterPE_H = 0;
+                for (j = 0; j < k; ++j) {
+                    if (j > 0)
+                        nmep->counterPE_H <<= 8;
+                    nmep->counterPE_H |= xp[j];
                 }
                 break;
         default: 
