@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.54 2003/03/06 07:27:14 ballen4705 Exp $
+# $Id: Makefile,v 1.55 2003/03/13 15:42:25 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -46,7 +46,7 @@ releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.
   utility.c utility.h examplescripts/
 
 counter=$(shell cat VERSION)
-newcounter=$(shell ./add )
+#newcounter=$(shell ./add )
 pkgname=smartmontools-5.1
 pkgname2=$(pkgname)-$(counter)
 
@@ -161,4 +161,4 @@ release: smartd.conf.5
 	mv /usr/src/redhat/RPMS/i386/$(pkgname)*.rpm .
 	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .
 	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
-	echo `hostname` | grep -q lap && echo $(newcounter) > VERSION
+	echo `hostname` | grep -q lap && echo $(shell ./add) > VERSION
