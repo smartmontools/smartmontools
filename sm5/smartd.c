@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.211 2003/10/08 01:25:01 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.212 2003/10/08 01:56:51 arvoreen Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1459,8 +1459,10 @@ void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
 // Does initialization right after fork to daemon mode
 void Initialize(time_t *wakeuptime){
 
+#ifdef __linux__
   // install goobye message and remove pidfile handler
   on_exit(Goodbye, NULL);
+#endif
   
   // write PID file only after installing exit handler
   if (!debugmode)
@@ -2016,9 +2018,9 @@ int ParseConfigLine(int entry, int lineno,char *line){
   
   // Try and recognize if a IDE or SCSI device.  These can be
   // overwritten by configuration file directives.
-  if (GUESS_DEVTYPE_ATA == guess_linux_device_type(cfg->name))
+  if (GUESS_DEVTYPE_ATA == guess_device_type(cfg->name))
     cfg->tryscsi=0;
-  else if (GUESS_DEVTYPE_SCSI == guess_linux_device_type(cfg->name))
+  else if (GUESS_DEVTYPE_SCSI == guess_device_type(cfg->name))
     cfg->tryata=0;
   /* in "don't know" case leave both tryata and tryscsi set */
   

@@ -37,7 +37,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.19 2003/10/03 03:51:17 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.20 2003/10/08 01:56:51 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -304,70 +304,3 @@ int split_selective_arg(char *s, unsigned long long *start,
   return 0;
 }
 
-// Guess device type (ata or scsi) based on device name (Linux
-// specific) SCSI device name in linux can be sd, sr, scd, st, nst,
-// osst, nosst and sg.
-static const char * lin_dev_prefix = "/dev/";
-static const char * lin_dev_ata_disk_plus = "h";
-static const char * lin_dev_ata_devfs_disk_plus = "ide/";
-static const char * lin_dev_scsi_devfs_disk_plus = "scsi/";
-static const char * lin_dev_scsi_disk_plus = "s";
-static const char * lin_dev_scsi_tape1 = "ns";
-static const char * lin_dev_scsi_tape2 = "os";
-static const char * lin_dev_scsi_tape3 = "nos";
-
-int guess_linux_device_type(const char * dev_name) {
-  int len;
-  int dev_prefix_len = strlen(lin_dev_prefix);
-  
-  // if dev_name null, or string length zero
-  if (!dev_name || !(len = strlen(dev_name)))
-    return GUESS_DEVTYPE_DONT_KNOW;
-  
-  // Remove the leading /dev/... if it's there
-  if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
-    if (len <= dev_prefix_len)
-      // if nothing else in the string, unrecognized
-      return GUESS_DEVTYPE_DONT_KNOW;
-    // else advance pointer to following characters
-    dev_name += dev_prefix_len;
-  }
-  
-  // form /dev/h* or h*
-  if (!strncmp(lin_dev_ata_disk_plus, dev_name,
-	       strlen(lin_dev_ata_disk_plus)))
-    return GUESS_DEVTYPE_ATA;
-  
-  // form /dev/ide/* or ide/*
-  if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
-	       strlen(lin_dev_ata_devfs_disk_plus)))
-    return GUESS_DEVTYPE_ATA;
-
-  // form /dev/s* or s*
-  if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
-	       strlen(lin_dev_scsi_disk_plus)))
-    return GUESS_DEVTYPE_SCSI;
-
-  // form /dev/scsi/* or scsi/*
-  if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
-	       strlen(lin_dev_scsi_devfs_disk_plus)))
-    return GUESS_DEVTYPE_SCSI;
-  
-  // form /dev/ns* or ns*
-  if (!strncmp(lin_dev_scsi_tape1, dev_name,
-	       strlen(lin_dev_scsi_tape1)))
-    return GUESS_DEVTYPE_SCSI;
-  
-  // form /dev/os* or os*
-  if (!strncmp(lin_dev_scsi_tape2, dev_name,
-	       strlen(lin_dev_scsi_tape2)))
-    return GUESS_DEVTYPE_SCSI;
-  
-  // form /dev/nos* or nos*
-  if (!strncmp(lin_dev_scsi_tape3, dev_name,
-	       strlen(lin_dev_scsi_tape3)))
-    return GUESS_DEVTYPE_SCSI;
-  
-  // we failed to recognize any of the forms
-  return GUESS_DEVTYPE_DONT_KNOW;
-}
