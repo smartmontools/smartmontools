@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.129 2003/10/27 11:11:57 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.130 2003/11/24 08:49:07 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -617,9 +617,10 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
     if (
 	(rawbyte[160] || rawbyte[161])                  &&    // word 80 valid
 	(rawbyte[160]!=0xff || rawbyte[161]!=0xff)      &&    // word 80 valid
+	(rawbyte[162]!=0x0d || rawbyte[163]!=0x00)      &&    // is not ATA-4 revision 6
         ((rawbyte[160] & 0xf0) || (rawbyte[161] & 0x8f))      // is ATA-4 through 14
 	)
-      // ATAPI-4 and on indicates device type in bits 8-12 of word 0:
+      // ATAPI-4 revision 7 and on indicates device type in bits 8-12 of word 0:
       return 1+(rawbyte[1] & 0x1f);
     else
       //  ATAPI 1-3 device -- let's guess a CDROM
