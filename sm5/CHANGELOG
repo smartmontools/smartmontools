@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.140 2003/05/07 13:52:58 knan Exp $
+$Id: CHANGELOG,v 1.141 2003/05/07 14:29:19 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -29,7 +29,7 @@ Maintainers/Developers Key:
 [PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
 [DG] Douglas Gilbert        <dougg@torque.net>
 [GG] Guido Guenther         <agx@sigxcpu.org>
-[KM] Kai Mäkisara	    <kai.makisara@kolumbus.fi>
+[KM] Kai Mäkisara           <kai.makisara@kolumbus.fi>
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 

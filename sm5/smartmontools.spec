@@ -1,4 +1,4 @@
-Release:  10
+Release:  11
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.97 2003/04/23 13:19:40 guidog Exp $
+# $Id: smartmontools.spec,v 1.98 2003/05/07 14:29:19 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -250,7 +250,66 @@ fi
 /sbin/chkconfig --del smartd
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
+
+# Maintainers/Developers Key:
+# [BA] Bruce Allen            <smartmontools-support@lists.sourceforge.net>
+# [EB] Erik Inge Bolsø        <knan@mo.himolde.no>
+# [SB] Stanislav Brabec       <sbrabec@suse.cz>
+# [PC] Peter Cassidy          <pcassidy@mac.com>
+# [FM] Frederic L. W. Meunier <0@pervalidus.net>
+# [PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
+# [DG] Douglas Gilbert        <dougg@torque.net>
+# [GG] Guido Guenther         <agx@sigxcpu.org>
+# [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
+
 %changelog
+* Wed May 7 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [EB] Add another Fujitsu disk to knowndrives.c
+- [GG] match for scsi/ and ide/ in case of devfs to exclude false postives
+- [BA] If SCSI device listed in /etc/smartd.conf fails to open or do
+       SMART stuff correctly, or not enough space
+       to list all SCSI devices, fail with error unless
+       -DSCSIDEVELOPMENT set during compile-time.
+- [BA] Added automatic recognition of /dev/i* (example: /dev/ide/...)
+       as an ATA device.
+- [DG] Add "Device type: [disk | tape | medium changer | ...]" line to
+       smartctl -i output for SCSI devices.
+- [PW] Fixed bug in smartd where test email would be sent regularly (for
+       example, daily if the user had specified -M daily) instead of just
+       once on startup.
+- [KM] More TapeAlert work. Added translations for media changer
+       alerts. TapeAlert support reported according to the log page
+       presence. ModeSense not attempted for non-ready tapes (all
+       drives do not support this after all). Get peripheral type from
+       Inquiry even if drive info is not printed. Add QUIETON()
+       QUIETOFF() to TapeAlert log check.
+- [BA] Stupid bug in atacmds.c minor_str[] affected ataVersionInfo().
+       Two missing commas meant that minor_str[] had two few elements,
+       leading to output like this:
+       Device Model:     Maxtor 6Y120L0
+       Serial Number:    Y40BF74E
+       Firmware Version: YAR41VW0
+       Device is:        Not in smartctl database [for details use: -P showall]
+       ATA Version is:   7
+       ATA Standard is:  9,minutes
+                         ^^^^^^^^^
+       Missing commas inserted.
+- [BA] Fixed smartd bug.  On device registration, if ATA device did
+       not support SMART error or self-test logs but user had asked to
+       monitor them, an attempt would be made to read them anyway,
+       possibly generating "Drive Seek" errors.  We now check that
+       the self-test and error logs are supported before trying to
+       access them the first time.
+- [GG/BA] Fixed bug where if SMART ATA error log not supported,
+       command was tried anyway. Changed some error printing to use
+       print handlers.
+- [GG] Makefile modifications to ease packaging
+- [DG] Did work for TapeAlerts (SCSI). Now can detect /dev/nst0 as a
+       SCSI device. Also open SCSI devices O_NONBLOCK so they don't
+       hang on open awaiting media. The ATA side should worry about
+       this also: during a DEVICESCAN a cd/dvd device without media
+       will hang. Added some TapeAlert code suggested by Kai Makisara.
+
 * Mon Apr 21 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [PW] Extended the -F option/Directive to potentially fix other firmware
        bugs in addition to the Samsung byte-order bug.  Long option name is
