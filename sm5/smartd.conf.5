@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.15 2002/12/29 01:10:42 pjwilliams Exp $
+\# $Id: smartd.conf.5,v 1.16 2003/01/02 16:38:29 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2002/12/29 01:10:42 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2003/01/02 16:38:29 $" "smartmontools-5.0"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -103,20 +103,20 @@ Section below!
 .nf
 .B # First ATA disk on each of two interfaces:
 .B #
-.B \ \ /dev/hda -a -M admin@yoyodyne.com,root@localhost 
+.B \ \ /dev/hda -a -m admin@yoyodyne.com,root@localhost 
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12
 .B #
 .nf
 .B # SCSI disks.  Send a TEST warning email to admin on
-.B # startup. (Note: the -1 is the argument of -m.)
+.B # startup.
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -M admin@yoyodyne.com -m -1
+.B \ \ /dev/sdc -m admin@yoyodyne.com -M once,test
 .B #
 .nf
 .B # Strange device.  It's SCSI:
 .B #
-.B \ \ /dev/weird -S
+.B \ \ /dev/weird -d scsi
 .B #
 .nf
 .B # The following line enables monitoring of the 
@@ -125,10 +125,12 @@ Section below!
 .B # and Usage Attributes, apart from Attributes
 .B # 9, 194, and 231, and shows  continued lines:
 .B #
-.B \ \ /dev/hdd\ -L\ -l\ -t\ \ \(rs\ \ # Attributes not tracked:
-.B \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \(rs\ \ # temperature
-.B \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \(rs\ \ # also temperature
-.B \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I 9\ \ \ \ \ \ # power-on hours
+.B \ \ /dev/hdd\ -l\ error\ \(rs
+.B \ \ \ \ \ \ \ \ \ \ \ -l\ selftest\ \(rs
+.B \ \ \ \ \ \ \ \ \ \ \ -t\ \(rs\ \ \ \ \ \ # Attributes not tracked:
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \(rs\ \ # temperature
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \(rs\ \ # also temperature
+.B \ \ \ \ \ \ \ \ \ \ \ -I 9\ \ \ \ \ \ # power-on hours
 .B #
 .B ################################################
 .fi
@@ -160,20 +162,19 @@ possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-M', and '\-m',
+to using the '\-H' option for an ATA disk.  So with the exception of '\-d', '\-m', and '\-M',
 the Directives below are ignored for SCSI
-disks.  For SCSI disks, the '\-M' Directive sends a warning email if
+disks.  For SCSI disks, the '\-m' Directive sends a warning email if
 the SMART status indicates a disk failure or problem.
 
 .TP
-.B \-A
-ATA: The device is an ATA device.  Don't try issuing SCSI commands to it.
-.TP
-.B \-S
-SCSI: The device is a SCSI device.  Don't try issuing IDE/ATA
-commands to it.  
+.B \-d TYPE
+Specifies the type of the device.  This will prevent
+.B smartd
+from issuing SCSI commands to an ATA device and vice versa.  The valid
+arguments to this Directive are \fIata\fP and \fIscsi\fP.
 
-In the absence of either of these previous two Directives,
+In the absence of this Directive,
 .B smartd
 will first attempt to guess the device type by looking at whether the sixth
 character in the device name is an 's' or an 'h'.  This will work for
@@ -182,94 +183,103 @@ device names like /dev/hda or /dev/sdb.  If
 can't guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
 .TP
-.B \-P
-Permissive: Even if the disk appears to lack SMART capabilities, try
-to monitor it anyway.  This may be required for some old disks (prior
-to ATA-3 revision 4) that implemented SMART before the SMART standards
-were incorporated into the ATA/ATAPI Specifications.  [Please see the
-.B smartctl \-P
+.B \-T TYPE
+Specifies how tolerant
+.B smartd
+should be of SMART command failures.  The valid arguments to this
+Directive are:
+
+.I normal
+\- do not try to monitor the disk if a mandatory SMART command fails, but
+continue if an optional SMART command fails.  This is the default.
+
+.I permissive
+\- try to monitor the disk even if it appears to lack SMART capabilities.
+This may be required for some old disks (prior to ATA-3 revision 4) that
+implemented SMART before the SMART standards
+were incorporated into the ATA/ATAPI Specifications.
+
+[Please see the
+.B smartctl \-T
 command-line option.]
 .TP
-.B \-T <N>
-Testing: This Directive takes a decimal integer argument <N> which can
-have value 0 or 1.  If <N>=1 this Directive enables Automatic Offline
-Testing.  The delay between tests is vendor-specific but is typically
-four hours. If <N>=0 this Directive disables Automatic Offline Testing.
-This Directive will enable/disable Automatic Offline Testing when
+.B \-o VALUE
+Enables or disables SMART Automatic Offline Testing when
 .B smartd
-starts up and will have no further effect.
+starts up and has no further effect.  The valid arguments to this
+Directive are \fIon\fP and \fIoff\fP.
+
+The delay between tests is vendor-specific, but is typically four hours.
 [Please see the
-.B smartctl \-t
-and
-.B \-T
-command-line options.]
+.B smartctl \-o
+command-line option.]
 .TP
-.B \-s <N>
-Save:
-This Directive takes a decimal integer argument <N> which can
-have value 0 or 1.  If <N>=1 this Directive enables Attribute Autosave.
-If <N>=0 this Directive disables Attribute Autosave.  This Directive
-will enable/disable Attribute Autosave when
+.B \-S VALUE
+Enables or disables Attribute Autosave when
 .B smartd
-starts up and will have no further effect.
-[Please see the
+starts up and has no further effect.  The valid arguments to this
+Directive are \fIon\fP and \fIoff\fP.  [Please see the
 .B smartctl \-f
-and
-.B \-F
-command-line options.]
+command-line option.]
 .TP
-.B \-c
-Check: Will check the SMART status of the disk.  If any Prefailure
+.B \-H
+Check the SMART health status of the disk.  If any Prefailure
 Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at priority
 .B 'CRITICAL'
-will be logged to syslog. [Please see the
+will be logged to syslog.  [Please see the
 .B smartctl \-c
 command-line option.]
 .TP
-.B \-l
-Log: Report if that the number of ATA errors reported in the ATA
-Error Log has increased since the last check.
+.B \-l TYPE
+Reports increases in the number of errors in one of the two SMART logs.  The
+valid arguments to this Directive are:
+
+.I error
+\- report if that the number of ATA errors reported in the ATA Error Log has
+increased since the last check.
+
+.I selftest
+\- report if that the number of errors reported in the SMART Self-Test Log
+has increased since the last check.  Note that such errors will
+.I only
+be logged if you run self-tests on the disk (and it fails the tests!).
+[Self-Tests can be run by using the
+.B '\-t\ short'
+and
+.B '\-t\ long'
+options of
+.B smartctl
+and the results of the testing can be observed using the
+.B smartctl '\-l\ selftest'
+command-line option.]
+
 [Please see the
 .B smartctl \-l
 command-line option.]
 .TP
-.B \-L
-Log: Report if that the number of errors reported in the SMART
-Self-Test Log has increased since the last check.  Note that such
-errors will
-.I only 
-be logged if you run self-tests on the disk (and it fails the 
-tests!). [Self-Tests can be run by using the 
-.B '\-SXsx' 
-options of
-.B smartctl,
-and the results of the testing can be observed using the 
-.B smartctl \-L
-command line option.]
-.TP
 .B \-f
-Fail: Check for 'failure' of any Usage Attributes.  If these
+Check for 'failure' of any Usage Attributes.  If these
 Attributes are less than or equal to the threshold, it does NOT
 indicate imminent disk failure.  It "indicates an advisory condition
 where the usage or age of the device has exceeded its intended design
-life period."
-[Please see the
-.B smartctl \-v
+life period." [Please see the
+.B smartctl \-A
 command-line option.]
 .TP
-.B \-M <ADD>
-Mail: Send a warning email to the email address <ADD> if 
-the '\-c', '\-l', '\-L', or '\-f'
+.B \-m ADD
+Send a warning email to the email address
+.B ADD
+if the '\-H', '\-l', or '\-f'
 Directives detect a failure or a new error.
 This Directive only works in conjunction with these other Directives
 (or with the equivalent '\-a' Directive).  To prevent your email
 in-box from getting filled up with warning messages, by default only a
 single warning will be sent for each of the enabled test 
-types, '\-c', '\-l', '\-L', or '\-f', 
+types, '\-H', '\-l', or '\-f', 
 even if more than one failure or error is
 detected or if the failure or error persists.  [This behavior can be
-modified; see the '\-m' Directive below.]
+modified; see the '\-M' Directive below.]
 
 The email is sent using the system 
 .B mail
@@ -281,104 +291,97 @@ command must be in the path of the
 shell or environment from which
 .B smartd
 was started.  To test that the mail is being sent correctly, or to
-alter the pattern of when mail is sent, see the `\-m' Directive below.
+alter the pattern of when mail is sent, see the `\-M' Directive below.
 
-To send email to more than one user, please use the following form for the address
-<ADD>:
+To send email to more than one user, please use the following form for the address:
 .B  user1@add1,user2@add2,...,userN@addN
 (with no spaces).
 .TP
-.B \-m <N>
-Modify Mail: Modifies the behavior of the '\-M' email Directive above,
+.B \-M TYPE
+Modifies the behavior of the '\-m' email Directive above,
 and has no effect without this other Directive.  This option controls
-when, and how often, the '\-M' Directive sends email warning messages.
+when, and how often, the '\-m' Directive sends email warning messages.
+The valid arguments to this Directive are:
 
-This Directive takes a decimal integer argument <N> in the range from
--3 to 3 inclusive.
-.nf
-.B If <N>=0 or 1:
-.fi
-equivalent to not having this '\-m' Directive present at all.  Only
-one warning email is sent for each type of disk problem detected.
-.nf
-.B If <N>=2:
-.fi
-send additional warning reminder emails, once per day, for each type
+.I once
+\- send only one warning email for each type of disk problem detected.  This
+is the default.
+
+.I daily
+\- send additional warning reminder emails, once per day, for each type
 of disk problem detected.
-.nf
-.B If <N>=3:
-.fi
-send additional warning reminder emails, after a one-day interval,
+
+.I diminishing
+\- send additional warning reminder emails, after a one-day interval,
 then a two-day interval, then a four-day interval, and so on for each
 type of disk problem detected. Each interval is twice as long as the
 previous interval.
-.nf
-.B If <N>=-1, -2, or -3:
-.fi
-Negative values of <N> have the same meaning as the corresponding
-positive value, but also send a single additional "test email"
+
+.I once,test daily,test diminishing,test
+\- same as the respective arguments above, but also send a single test email
 immediately upon
 .B smartd
-startup.  This allows one to verify that any email is correctly
-delivered.  For example, setting <N>=-2 will send a test email on
-.B smartd
-startup, and additional warning reminder emails at one-day intervals
-after any disk problems are detected.
+startup.  This allows one to verify that any email is correctly delivered.
+
 .TP
 .B \-p
-Prefail: Report anytime that a Prefail Attribute has changed
+Report anytime that a Prefail Attribute has changed
 its value since the last check, 30 minutes ago. [Please see the
-.B smartctl \-v
+.B smartctl \-A
 command-line option.]
 .TP
 .B \-u
-Usage: Report anytime that a Usage Attribute has changed its value
+Report anytime that a Usage Attribute has changed its value
 since the last check, N seconds ago. [Please see the
-.B smartctl \-v
+.B smartctl \-A
 command-line option.]
 .TP
 .B \-t
-Track: Equivalent to turning on the two previous flags '\-t' and '\-u'.
+Equivalent to turning on the two previous flags '\-p' and '\-u'.
 Tracks changes in
 .I all
 device Attributes. [Please see the
-.B smartctl \-v
+.B smartctl \-A
 command-line option.]
 .TP
-.B \-i <ID>
-Ignore: This Directive modifies the behavior of the '\-f' Directive
-and has no effect without it.  
-.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
-It means to ignore device Attribute number <ID>, when checking for
-failure of Usage Attributes.  This is useful, for example, if you have
-a very old disk and don't want to keep getting messages about the
-hours-on-lifetime Attribute (usually Attribute 9) failing.  This
-Directive may appear multiple times for a single device, if you want
-to ignore multiple Attributes.
-.TP
-.B \-I <ID>
-Ignore: This Directive modifies the
-behavior of the '\-p', '\-u', and '\-t' Directives
-and has no effect without one of them.  
-.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
-It means to ignore device Attribute <ID>, when tracking changes in the
-Attribute values.  This is useful, for example, if one of the device
-Attributes is the disk temperature (usually Attribute 194 or
-231). It's annoying to get reports each time the temperature changes.
-This Directive may appear multiple times for a single device, if you
+.B \-i ID
+Ignore device Attribute number
+.B ID
+when checking for failure of Usage Attributes.
+.B ID
+must be a decimal integer in the range from 1 to 255.  This Directive modifies
+the behavior of the '\-f' Directive and has no effect without it.  
+
+This is useful, for example, if you have a very old disk and don't want to keep
+getting messages about the hours-on-lifetime Attribute (usually Attribute 9)
+failing.  This Directive may appear multiple times for a single device, if you
 want to ignore multiple Attributes.
 .TP
+.B \-I ID
+Ignore device Attribute
+.B ID
+when tracking changes in the Attribute values.
+.B ID
+must be a decimal integer in the range from 1 to 255.  This Directive modifies
+the behavior of the '\-p', '\-u', and '\-t' Directives and has no effect
+without one of them.  
+
+This is useful, for example, if one of the device Attributes is the disk
+temperature (usually Attribute 194 or 231). It's annoying to get reports
+each time the temperature changes.  This Directive may appear multiple
+times for a single device, if you want to ignore multiple Attributes.
+.TP
 .B \-a
-All: equivalent to turning on the following Directives: 
-.B '\-c' 
-to check the SMART status,
+Equivalent to turning on all of the following Directives: 
+.B '\-H' 
+to check the SMART health status,
 .B '\-f' 
 to report failures of Usage (rather than Prefail) Attributes,
 .B '\-t' 
 to track changes in both Prefailure and Usage Attributes,
-.B '\-L' 
+.B '\-l\ selftest' 
 to report increases in the number of Self-Test Log errors, and
-.B '\-l' 
+.B '\-l\ error' 
 to report increases in the number of ATA errors.
 .TP
 .B #
@@ -396,7 +399,7 @@ to see what SMART functionality your disk(s) support(s).  If you do
 not like voluminous syslog messages, a good choice of
 .B smartd
 configuration file Directives might be 
-.B \-c \-L \-l \-f.
+.B \-H \-l\ selftest \-l\ error \-f.
 If you want more frequent information, use 
 .B -a.
 
@@ -443,4 +446,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.15 2002/12/29 01:10:42 pjwilliams Exp $
+$Id: smartd.conf.5,v 1.16 2003/01/02 16:38:29 pjwilliams Exp $
