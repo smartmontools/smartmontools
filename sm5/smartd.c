@@ -103,7 +103,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.321 2004/07/12 21:32:25 zybert Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.322 2004/07/13 17:25:40 zybert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -114,7 +114,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.321 2004/07/12 21:32:25 zybert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.322 2004/07/13 17:25:40 zybert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1148,7 +1148,7 @@ int SelfTestErrorCount(int fd, char *name){
 }
 
 // scan to see what ata devices there are, and if they support SMART
-int ATADeviceScan(cfgfile *cfg){
+int ATADeviceScan(cfgfile *cfg, int scanning){
   int fd, supported=0;
   struct ata_identify_device drive;
   char *name=cfg->name;
@@ -1167,7 +1167,7 @@ int ATADeviceScan(cfgfile *cfg){
     mode="ATA_3WARE_678K";
   
   // open the device
-  if ((fd=OpenDevice(name, mode, 1))<0)
+  if ((fd=OpenDevice(name, mode, scanning))<0)
     // device open failed
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", name);
@@ -1425,7 +1425,7 @@ int ATADeviceScan(cfgfile *cfg){
 
 // on success, return 0. On failure, return >0.  Never return <0,
 // please.
-static int SCSIDeviceScan(cfgfile *cfg) {
+static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   int k, fd, err; 
   char *device = cfg->name;
   struct scsi_iec_mode_page iec;
@@ -1436,7 +1436,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     return 1;
   
   // open the device
-  if ((fd = OpenDevice(device, "SCSI", 1)) < 0)
+  if ((fd = OpenDevice(device, "SCSI", scanning)) < 0)
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", device);
     
@@ -3620,7 +3620,7 @@ void RegisterDevices(int scanning){
     
     // register ATA devices
     if (ent->tryata){
-      if (ATADeviceScan(ent))
+      if (ATADeviceScan(ent,scanning))
         CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
       else {
         // move onto the list of ata devices
@@ -3645,7 +3645,7 @@ void RegisterDevices(int scanning){
       if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
         // if we can't set timeout, just scan device
         PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
-        retscsi=SCSIDeviceScan(ent);
+        retscsi=SCSIDeviceScan(ent,scanning);
       }
       else {
         // prepare return point in case of bad SCSI device
@@ -3655,7 +3655,7 @@ void RegisterDevices(int scanning){
         else {
         // Set alarm, make SCSI call, reset alarm
           alarm(SCSITIMEOUT);
-          retscsi=SCSIDeviceScan(ent);
+          retscsi=SCSIDeviceScan(ent,scanning);
           alarm(0);
         }
         if (sigaction(SIGALRM, &defaultaction, NULL)){
@@ -3663,7 +3663,7 @@ void RegisterDevices(int scanning){
         }
       }
 #else
-      retscsi=SCSIDeviceScan(ent);
+      retscsi=SCSIDeviceScan(ent,scanning);
 #endif   
 
       // Now scan SCSI device...
