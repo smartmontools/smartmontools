@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.22 2004/07/05 07:41:52 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.23 2004/07/07 14:45:19 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
@@ -9,6 +9,11 @@ Date 2004-7-5
 Summary: smartmontools release 5.32 (STABLE)
 -----------------------------------------------------------
 This is an stable release of smartmontools.
+Note added 2004/7/7: users building a Solaris/Intel version of the code should 
+modify the 'configure' file, changing "pc-*-solaris*" on line 106
+to read "*-pc-solaris*".  Reference:
+http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/configure.in?r1=1.83&r2=1.84
+
 
 Date: 2004-5-4
 Summary: smartmontools release 5.31 (UNSTABLE/EXPERIMENTAL)
@@ -29,7 +34,12 @@ since 5.26.
 - KNOWN BUG (identified/fixed by CF): smartd will segv and crash if
   the configuration file /etc/smartd.conf contains NO valid entries.
   This bug was introduced in version 1.259 of smartd.c by BA and
-  is present in smartmontools releases 5.27-5.30 inclusive.
+  is present in smartmontools releases 5.27-5.30 inclusive. This can
+  be fixed by editing line 3389 of smartd.c, and changing:
+  "else if (cfgentries[0]) {"
+  to read:
+  "else if (cfgentries && cfgentries[0]) {"
+
 
 Date: 2004-2-24
 Summary: smartmontools release 5.29 (Experimental, not STABLE)
