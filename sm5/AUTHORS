@@ -1,12 +1,13 @@
-$Id: AUTHORS,v 1.2 2003/10/02 10:07:44 ballen4705 Exp $
+$Id: AUTHORS,v 1.3 2003/10/03 01:03:10 ballen4705 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
-Systems Research Center), Jack Baskin School of Engineering, University
-of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+Systems Research Center), Jack Baskin School of Engineering,
+University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 This package is meant to be an up-to-date replacement for the
-ucsc-smartsuite and smartsuite packages, and is derived from that code.
+ucsc-smartsuite and smartsuite packages, and is derived from that
+code.
 
 Maintainers / Developers:
 
