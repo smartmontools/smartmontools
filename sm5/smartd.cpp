@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.260 2003/12/08 17:25:58 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.261 2003/12/09 21:19:48 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1452,10 +1452,13 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
                testname);
       return 1;
     }
-    PrintOut(LOG_CRIT, "Device: %s, %s-Test failed (err: %d)\n", name, 
+    PrintOut(LOG_CRIT, "Device: %s, execute %s-Test failed (err: %d)\n", name, 
              testname, retval);
     return 1;
   }
+
+  PrintOut(LOG_INFO, "Device: %s, starting scheduled %s-Test.\n", name, testname);
+
   return 0;
 }
 
