@@ -1,0 +1,138 @@
+THIS DOCUMENT SHOWS HOW TO IDENTIFY THE FILE ASSOCIATED WITH AN
+UNREADABLE DISK SECTOR, AND HOW TO FORCE THAT SECTOR TO REALLOCATE.
+
+Assumptions: Linux OS, ext2 or ext3 file system.
+
+Bruce Allen <smartmontools-support@lists.sourceforge.net>
+
+Thanks to Sergey Vlasov, Theodore Ts'o, Michael Bendzick, and others
+for explaining this to me. I would like to add text showing how to do
+this for other file systems, in particular ReiserFS, XFS, and JFS:
+please email me if you can provide this information.
+
+
+
+In this example, the disk is failing self-tests at Logical Block
+Address LBA = 0x016561e9 = 23421417.  The LBA counts sectors in units
+of 512 bytes, and starts at zero.
+
+-----------------------------------------------------------------------------------------------
+root]# smartctl -l selftest /dev/hda:
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Extended offline    Completed: read failure       90%       217         0x016561e9
+-----------------------------------------------------------------------------------------------
+
+Note that other signs that there is a bad sector on the disk can be
+found in the non-zero value of the Current Pending Sector count:
+-----------------------------------------------------------------------------------------------
+root]# smartctl -A /dev/hda
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  5 Reallocated_Sector_Ct   0x0033   100   100   005    Pre-fail  Always       -       0
+196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       0
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       1
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       1
+-----------------------------------------------------------------------------------------------
+
+First Step: We need to locate the partition on which this sector of
+the disk lives:
+-----------------------------------------------------------------------------------------------
+root]# fdisk -lu /dev/hda
+
+Disk /dev/hda: 123.5 GB, 123522416640 bytes
+255 heads, 63 sectors/track, 15017 cylinders, total 241254720 sectors
+Units = sectors of 1 * 512 = 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *        63   4209029   2104483+  83  Linux
+/dev/hda2       4209030   5269319    530145   82  Linux swap
+/dev/hda3       5269320 238227884 116479282+  83  Linux
+/dev/hda4     238227885 241248104   1510110   83  Linux
+-----------------------------------------------------------------------------------------------
+
+The partition /dev/hda3 starts at LBA 5269320 and extends past the
+'problem' LBA.  The 'problem' LBA is offset 23421417 - 5269320 =
+18152097 sectors into the partition /dev/hda3.
+
+To verify the type of the file system and the mount point, look in
+/etc/fstab:
+-----------------------------------------------------------------------------------------------
+root]# grep hda3 /etc/fstab
+/dev/hda3 /data ext2 defaults 1 2
+-----------------------------------------------------------------------------------------------
+You can see that this is an ext2 file system, mounted at /data.
+
+Second Step: we need to find the blocksize of the file system
+(normally 4096 bytes for ext2):
+-----------------------------------------------------------------------------------------------
+root]# tune2fs -l /dev/hda3 | grep Block
+Block count:              29119820
+Block size:               4096
+-----------------------------------------------------------------------------------------------
+In this case the block size is 4096 bytes.
+
+Third Step: we need to determine which File System Block contains this
+LBA.  The formula is:
+  b = (int)((L-S)*512/B)
+where:
+b = File System block number
+B = File system block size in bytes
+L = LBA of bad sector
+S = Starting sector of partition as shown by fdisk -lu
+and (int) denotes the integer part.
+
+In our example, L=23421417, S=5269320, and B=4096.  Hence the
+'problem' LBA is in block number
+   b = (int)18152097*512/4096 = (int)2269012.125
+so b=2269012.
+
+Note: the fractional part of 0.125 indicates that this problem LBA is
+actually the second of the eight sectors that make up this file system
+block.
+
+Fourth Step: we use debugfs to locate the inode stored in this block,
+and the file that contains that inode:
+-----------------------------------------------------------------------------------------------
+root]# debugfs
+debugfs 1.32 (09-Nov-2002)
+debugfs:  open /dev/hda3
+debugfs:  icheck 2269012
+Block	Inode number
+2269012	41032
+debugfs:  ncheck 41032
+Inode	Pathname
+41032	/S1/R/H/714197568-714203359/H-R-714202192-16.gwf
+-----------------------------------------------------------------------------------------------
+
+In this example, you can see that the problematic file (with the mount
+point included in the path) is:
+/data/S1/R/H/714197568-714203359/H-R-714202192-16.gwf
+
+
+To force the disk to reallocate this bad block we'll write zeros to
+the bad block, and sync the disk:
+-----------------------------------------------------------------------------------------------
+root]# dd if=/dev/zero of=/dev/hda3 bs=4096 count=1 seek=2269012
+root]# sync
+-----------------------------------------------------------------------------------------------
+
+NOTE: THIS LAST STEP HAS PERMANENTLY AND IRRETREVIABLY DESTROYED SOME
+OF THE DATA THAT WAS IN THIS FILE.  DON'T DO THIS UNLESS YOU DON'T
+NEED THE FILE OR YOU CAN REPLACE IT WITH A FRESH OR CORRECT VERSION.
+
+
+Now everything is back to normal: the sector has been reallocated.
+Compare the output just below to similar output near the top of this
+article:
+-----------------------------------------------------------------------------------------------
+root]# smartctl -A /dev/hda
+ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  5 Reallocated_Sector_Ct   0x0033   100   100   005    Pre-fail  Always       -       1
+196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       1
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       1
+-----------------------------------------------------------------------------------------------
+
+Note: for some disks it may be necessary to update the SMART Attribute values by using
+smartctl -t offline /dev/hda
