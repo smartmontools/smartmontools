@@ -20,13 +20,14 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.12 2004/09/18 17:17:31 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.13 2004/09/20 07:41:04 chrfranke Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
  *
- *  modelfamily     CHRISTIAN -- PLEASE DOCUMENT THIS!!
- * 
+ *  modelfamily     Informal string about the model family/series of a 
+ *                  device. Set to NULL if no info (apart from device id)
+ *                  known.
  *  modelregexp     POSIX regular expression to match the model of a device.
  *                  This should never be NULL (except to terminate the
  *                  knowndrives array).
