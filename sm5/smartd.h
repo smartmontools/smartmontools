@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.22 2002/11/21 14:11:20 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.23 2002/11/22 13:30:56 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -87,6 +87,10 @@ typedef struct configfile_s {
   char errorlog;
   // Should we ignore missing capabilities/SMART errors
   char permissive;
+  // Disable (1) or Enable (2) device attribute autosave
+  char autosave;
+  // Disable (1) or Enable (2) autmatic offline testing
+  char autoofflinetest;
   // mailing information for four of the previous error types plus mailtest
   mailinfo maildata[5];
   char emailopt;

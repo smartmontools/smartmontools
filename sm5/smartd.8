@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.35 2002/11/22 09:32:52 ballen4705 Exp $
+\# $Id: smartd.8,v 1.36 2002/11/22 13:30:55 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/22 09:32:52 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/22 13:30:55 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -288,12 +288,14 @@ ATA: The device is an ATA device.  Don't try issuing SCSI commands to it.
 SCSI: The device is a SCSI device.  Don't try issuing IDE/ATA
 commands to it.  
 
-In the absence of either of these Directives,
+In the absence of either of these previous two Directives,
 .B smartd
-will attempt to guess the device type by looking at whether the fifth
-character in the device name is an 's' or an 'h'.  If it can't guess
-from this fifth character, then it will simply try to access the
-device using first ATA and then SCSI ioctl()s.
+will first attempt to guess the device type by looking at whether the sixth
+character in the device name is an 's' or an 'h'.  This will work for
+device names like /dev/hda or /dev/sdb.  If
+.B smartd
+can't guess from this sixth character, then it will simply try to
+access the device using first ATA and then SCSI ioctl()s.
 .TP
 .B \-C <N>
 This sets the time in between disk checks to be 
@@ -329,6 +331,28 @@ to ATA-3 revision 4) that implemented SMART before the SMART standards
 were incorporated into the ATA/ATAPI Specifications.  [Please see the
 .B smartctl \-P
 command-line option.]
+.TP
+.B \-T <N>
+Testing: This Directive takes a decimal integer argument <N> which can
+have value 0 or 1.  If <N>=1 this Directive enables Automatic Offline
+Testing.  The delay between tests is vendor-specific but is typically
+four hours. If <N>=0 this Directive disables Automatic Offline Testing.
+[Please see the
+.B smartctl \-t
+and
+.B \-T
+command-line options.]
+.TP
+.B \-s <N>
+Save:
+This Directive takes a decimal integer argument <N> which can
+have value 0 or 1.  If <N>=1 this Directive enables Attribute Autosave.
+If <N>=0 this Directive disables Attribute Autosave.
+[Please see the
+.B smartctl \-f
+and
+.B \-F
+command-line options.]
 .TP
 .B \-c
 Check: Will check the SMART status of the disk.  If any Prefailure
@@ -625,4 +649,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.35 2002/11/22 09:32:52 ballen4705 Exp $
+$Id: smartd.8,v 1.36 2002/11/22 13:30:55 ballen4705 Exp $

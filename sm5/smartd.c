@@ -46,7 +46,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.70 2002/11/22 09:35:31 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.71 2002/11/22 13:30:55 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -296,6 +296,8 @@ void Directives() {
   printout(LOG_INFO,"  -S     Device is a SCSI device\n");
   printout(LOG_INFO,"  -C N   Check disks once every N seconds, where N>=10.\n");
   printout(LOG_INFO,"  -P     Permissive, ignore apparent lack of SMART.\n");
+  printout(LOG_INFO,"  -T N   Automatic offline tests. N=0: Disable, 1: Enable.\n");
+  printout(LOG_INFO,"  -s N   Attribute Autosave. N=0: Disable, 1: Enable.\n");
   printout(LOG_INFO,"  -c     Monitor SMART Health Status, report if failed\n");
   printout(LOG_INFO,"  -l     Monitor SMART Error Log, report new errors\n");
   printout(LOG_INFO,"  -L     Monitor SMART Self-Test Log, report new errors\n");
@@ -397,7 +399,6 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   printout(LOG_INFO,"Device: %s, opened\n", device);
   
   // Get drive identity structure
-  // May want to add options to enable autosave, automatic online testing
   if (ataReadHDIdentity (fd,&drive)){
     // Unable to read Identity structure
     printout(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",device);
@@ -411,14 +412,30 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     close(fd);
     return 2; 
   }
-
- if (ataEnableSmart(fd)){
+  
+  if (ataEnableSmart(fd)){
     // Enable SMART command has failed
     printout(LOG_INFO,"Device: %s, could not enable SMART capability\n",device);
     close(fd);
     return 2; 
   }
   
+  // disable device attribute autosave...
+  if (cfg->autosave==1){
+    if (ataDisableAutoSave(fd))
+      printout(LOG_INFO,"Device: %s, could not disable SMART Attribute Autosave.\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, disabled SMART Attribute Autosave.\n",device);
+  }
+
+  // or enable device attribute autosave
+  if (cfg->autosave==2){
+    if (ataEnableAutoSave(fd))
+      printout(LOG_INFO,"Device: %s, could not enable SMART Attribute Autosave.\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, enabled SMART Attribute Autosave.\n",device);
+  }
+
   // capability check: SMART status
   if (cfg->smartcheck && ataSmartStatus2(fd)==-1){
     printout(LOG_INFO,"Device: %s, not capable of SMART Health Status check\n",device);
@@ -426,7 +443,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   }
   
   // capability check: Read smart values and thresholds
-  if (cfg->usagefailed || cfg->prefail || cfg->usage) {
+  if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->autoofflinetest) {
     devices->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
     devices->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
     
@@ -447,7 +464,23 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
       cfg->usagefailed=cfg->prefail=cfg->usage=0;
     }
   }
-  
+
+  // disable automatic on-line testing
+  if (cfg->autoofflinetest==1){
+    if (devices->smartval && isSupportAutomaticTimer(devices->smartval) && !ataDisableAutoOffline(fd))
+      printout(LOG_INFO,"Device: %s, disabled SMART Automatic Offline Testing .\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, could not disable SMART Automatic Offline Testing.\n",device);
+  }
+
+  // enable automatic on-line testing
+  if (cfg->autoofflinetest==2){
+    if (devices->smartval && isSupportAutomaticTimer(devices->smartval) && !ataDisableAutoOffline(fd))
+      printout(LOG_INFO,"Device: %s, enabled SMART Automatic Offline Testing.\n",device);
+    else
+      printout(LOG_INFO,"Device: %s, could not enable SMART Automatic Offline Testing.\n",device);
+  }
+
   // capability check: self-test-log
   if (cfg->selftest){
     int val=selftesterrorcount(fd, device);
@@ -972,6 +1005,14 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->usage=1;
     cfg->selftest=1;
     cfg->errorlog=1;
+    break;
+  case 'T':
+    // Automatic offline testing on/off.  Note "1+" below!
+    cfg->autoofflinetest=1+inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 0, 1);
+    break;
+  case 's':
+    // Attribute autosave on/off.  Note "1+" below!
+    cfg->autosave=1+inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 0, 1);
     break;
   case 'm':
     // email warning option
