@@ -95,7 +95,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.302 2004/04/05 15:14:11 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.303 2004/04/07 14:34:24 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -106,7 +106,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.302 2004/04/05 15:14:11 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.303 2004/04/07 14:34:24 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -2911,7 +2911,7 @@ void cleanup(FILE **fpp){
 // 
 // In the case where the return value is 0, there are three
 // possiblities:
-// Empty configuration file ==> cfgentries[0]==NULL
+// Empty configuration file ==> cfgentries==NULL
 // No configuration file    ==> cfgentries[0]->lineno == 0
 // SCANDIRECTIVE found      ==> cfgentries[0]->lineno != 0
 int ParseConfigFile(){
@@ -3389,7 +3389,7 @@ int ReadOrMakeConfigEntries(int *scanning){
     // we did not find a SCANDIRECTIVE and did find valid entries
     PrintOut(LOG_INFO, "Configuration file %s parsed.\n", configfile);
   }
-  else if (cfgentries[0]) {
+  else if (cfgentries && cfgentries[0]) {
     // we found a SCANDIRECTIVE or there was no configuration file so
     // scan.  Configuration file's first entry contains all options
     // that were set
