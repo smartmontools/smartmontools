@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.341 2004/02/18 23:41:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.342 2004/02/19 02:35:14 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [EM] Correct copying of sense data in FreeBSD SCSI implementation. Thanks
+       to Sergey Svishchev for noticing the bug.
 
   [BA] On solaris, wrong warning message if no ATA support.  Warning message
        concerns 3ware controller, not ATA.  Keiji, please confirm.
