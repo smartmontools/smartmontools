@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------
+# August 14, 2003
+#
+# Adam Radford has incorporated a change that now allows the 3w-xxxx
+# driver to return the Cylinder Low/High values.  These are needed to
+# get the SMART health status.  This patch incorporates those changes
+# as well.
+#
 # August 12, 2003
 #
 # 3ware has incorporated a more general version of this fix into their latest
@@ -8,7 +15,7 @@
 # August 8, 2003
 # PATCH FOR 3WARE 3w-xxxx DRIVER
 # Bruce Allen ballen at gravity.phys.uwm.edu
-# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.2 2003/08/12 09:08:44 ballen4705 Exp $
+# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.3 2003/08/14 14:56:07 ballen4705 Exp $
 # 
 # To apply this patch, save this entire file to 3w-xxxx.txt in a
 # directory containing the original unpatched 3w-xxxx.c file. Then
@@ -60,37 +67,44 @@
 #
 # -----------------------------------------------------------------------
 
---- 3w-xxxx.c.original	Thu Aug  7 01:54:15 2003
-+++ 3w-xxxx.c	Thu Aug  7 10:13:19 2003
-@@ -167,6 +167,7 @@
-                  Fix tw_scsi_queue() spinlocks.
-    1.02.00.033 - Fix tw_aen_complete() to not queue 'queue empty' AEN's.
-                  Initialize queues correctly when loading with no valid units.
-+   1.02.00.034 - Detect SMART non-data commands with nonzero sector-count
- */
- 
- #include <linux/module.h>
-@@ -1915,7 +1916,11 @@
+--- 3w-xxxx.c.save	Thu Aug 14 16:28:35 2003
++++ 3w-xxxx.c	Thu Aug 14 16:44:04 2003
+@@ -1915,12 +1915,15 @@
  			}
  
  			passthru = (TW_Passthru *)tw_dev->command_packet_virtual_address[request_id];
 -			passthru->sg_list[0].length = passthru->sector_count*512;
-+			/* detect SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE or SMART (SFF) ENABLE/DISABLE AUTOMATIC OFF-LINE */
-+			if (passthru->command == 0xb0 && (passthru->features == 0xd2 || passthru->features == 0xdb))
-+				passthru->sg_list[0].length = 0;
-+			else
+-			if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {
+-				printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);
+-				return 1;
++			/* Don't load sg_list for non-data ATA cmds */
++			if ((passthru->param != 0) && (passthru->param != 0x8)) {
 +				passthru->sg_list[0].length = passthru->sector_count*512;
- 			if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {
- 				printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);
- 				return 1;
-@@ -2171,7 +2176,9 @@
++				if (passthru->sg_list[0].length > TW_MAX_PASSTHRU_BYTES) {
++					printk(KERN_WARNING "3w-xxxx: tw_ioctl(): Passthru size (%d) too big.\n", passthru->sg_list[0].length);
++					return 1;
++				}
++				passthru->sg_list[0].address = tw_dev->alignment_physical_address[request_id];
+ 			}
+-			passthru->sg_list[0].address = tw_dev->alignment_physical_address[request_id];
+ 			tw_post_command_packet(tw_dev, request_id);
+ 			return 0;
+ 		case TW_CMD_PACKET:
+@@ -2170,8 +2173,15 @@
+ 	ioctl = (TW_Ioctl *)buff;
  	switch (ioctl->opcode) {
  		case TW_ATA_PASSTHRU:
- 			passthru = (TW_Passthru *)ioctl->data;
+-			passthru = (TW_Passthru *)ioctl->data;
 -			memcpy(buff, tw_dev->alignment_virtual_address[request_id], passthru->sector_count * 512);
-+			/* detect SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE or SMART (SFF) ENABLE/DISABLE AUTOMATIC OFF-LINE */
-+			if (!(passthru->command == 0xb0 && (passthru->features == 0xd2 || passthru->features == 0xdb)))
++		        passthru = (TW_Passthru *)ioctl->data;
++			/* Don't return data for non-data ATA cmds */
++			if ((passthru->param != 0) && (passthru->param != 0x8))
 +				memcpy(buff, tw_dev->alignment_virtual_address[request_id], passthru->sector_count * 512);
++			else {
++			/* For non-data cmds, return cmd pkt */
++				if (tw_dev->srb[request_id]->request_bufflen >= sizeof(TW_Command))
++					memcpy(buff, tw_dev->command_packet_virtual_address[request_id], sizeof(TW_Command));
++			}
  			break;
  		case TW_CMD_PACKET_WITH_DATA:
  			dprintk(KERN_WARNING "3w-xxxx: tw_ioctl_complete(): caught TW_CMD_PACKET_WITH_DATA.\n");
