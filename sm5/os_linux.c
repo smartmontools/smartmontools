@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.56 2004/07/09 15:32:03 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.57 2004/07/09 16:41:08 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.56 2004/07/09 15:32:03 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.57 2004/07/09 16:41:08 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -865,44 +865,44 @@ void printwarning(smart_command_set command);
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
 
   // return value and buffer for ioctl()
-  int  ioctlreturn;
+  int  ioctlreturn, readdata=0;
+
+  // Used by both the SCSI and char interfaces
+  TW_Passthru *passthru=NULL;
   char ioctl_buffer[TW_IOCTL_BUFFER_SIZE];
-  int  readdata=0;
 
   // only used for SCSI device interface
-  TW_Ioctl   *tw_ioctl = (TW_Ioctl *)ioctl_buffer;
-  TW_Output *tw_output = (TW_Output *)tw_ioctl;
-  
+  TW_Ioctl   *tw_ioctl=NULL;
+  TW_Output *tw_output=NULL;
+
   // only used for 6000/7000/8000 char device interface
-  TW_New_Ioctl *tw_ioctl_char = (TW_New_Ioctl *)ioctl_buffer;
+  TW_New_Ioctl *tw_ioctl_char=NULL;
 
   // only used for 9000 character device interface
-  TW_Ioctl_Buf_Apache *tw_ioctl_apache = (TW_Ioctl_Buf_Apache *)ioctl_buffer;
-  
-  // Used for all SCSI and char interfaces
-  TW_Passthru *passthru;
+  TW_Ioctl_Buf_Apache *tw_ioctl_apache=NULL;
   
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
 
-  // CHECKME -- IS THIS RIGHT?? Even for non data I/O commands?
-  tw_ioctl->cdb[0]        = TW_IOCTL;
-  tw_ioctl->opcode        = TW_ATA_PASSTHRU;
-  tw_ioctl->input_length  = 512;
-  tw_ioctl->output_length = 512;
-
-  /* Fill out ioctl buf structure */
-  tw_ioctl_apache->driver_command.control_code  = TW_IOCTL_FIRMWARE_PASS_THROUGH;
-  tw_ioctl_apache->driver_command.buffer_length = 512; /* payload size */
-
-  /* Fill out char interface for 6/7/8k */
-  tw_ioctl_char->data_buffer_length = 512;
-
-  if (escalade_type==THREE_WARE_9000_CHAR)
-    passthru = (TW_Passthru *)&(tw_ioctl_apache->firmware_command.command.oldcommand);
-  else if (escalade_type==THREE_WARE_678K_CHAR)
-    passthru = (TW_Passthru *)&(tw_ioctl_char->firmware_command);
-  else if (escalade_type==THREE_WARE_678K)
-    passthru = (TW_Passthru *)&(tw_ioctl->input_data);
+  if (escalade_type==THREE_WARE_9000_CHAR) {
+    tw_ioctl_apache                               = (TW_Ioctl_Buf_Apache *)ioctl_buffer;
+    tw_ioctl_apache->driver_command.control_code  = TW_IOCTL_FIRMWARE_PASS_THROUGH;
+    tw_ioctl_apache->driver_command.buffer_length = 512; /* payload size */
+    passthru                                      = (TW_Passthru *)&(tw_ioctl_apache->firmware_command.command.oldcommand);
+  }
+  else if (escalade_type==THREE_WARE_678K_CHAR) {
+    tw_ioctl_char                                 = (TW_New_Ioctl *)ioctl_buffer;
+    tw_ioctl_char->data_buffer_length             = 512;
+    passthru                                      = (TW_Passthru *)&(tw_ioctl_char->firmware_command);
+  }
+  else if (escalade_type==THREE_WARE_678K) {
+    tw_ioctl                                      = (TW_Ioctl *)ioctl_buffer;
+    tw_ioctl->cdb[0]                              = TW_IOCTL;
+    tw_ioctl->opcode                              = TW_ATA_PASSTHRU;
+    tw_ioctl->input_length                        = 512; // correct even for non-data commands
+    tw_ioctl->output_length                       = 512; // correct even for non-data commands
+    tw_output                                     = (TW_Output *)tw_ioctl;
+    passthru                                      = (TW_Passthru *)&(tw_ioctl->input_data);
+  }
   else {
     pout("Unrecognized escalade_type %d in linux_3ware_command_interface(disk %d)\n"
          "Please contact " PACKAGE_BUGREPORT "\n", escalade_type, disknum);
@@ -922,13 +922,19 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 
   // All SMART commands use this CL/CH signature.  These are magic
   // values from the ATA specifications.
-  passthru->cylinder_lo = 0x4F;
-  passthru->cylinder_hi = 0xC2;
+  passthru->cylinder_lo   = 0x4F;
+  passthru->cylinder_hi   = 0xC2;
   
   // SMART ATA COMMAND REGISTER value
-  passthru->command = ATA_SMART_CMD;
+  passthru->command       = ATA_SMART_CMD;
   
   // Is this a command that reads or returns 512 bytes?
+  // passthru->param values are:
+  // 0x0 - non data command without TFR write check,
+  // 0x8 - non data command with TFR write check,
+  // 0xD - data command that returns data to host from device
+  // 0xF - data command that writes data from host to device
+  // passthru->size values are 0x5 for non-data and 0x07 for data
   if (command == READ_VALUES     ||
       command == READ_THRESHOLDS ||
       command == READ_LOG        ||
@@ -942,9 +948,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   }
   else {
     // Non data command -- but doesn't use large sector 
-    // count register values.  passthru->param values are:
-    // 0x00 - non data command without TFR write check,
-    // 0x08 - non data command with TFR write check,
+    // count register values.  
     passthru->byte0.sgloff = 0x0;
     passthru->size         = 0x5;
     passthru->param        = 0x8;
@@ -982,7 +986,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     if (escalade_type == THREE_WARE_9000_CHAR)
       memcpy((unsigned char *)tw_ioctl_apache->data_buffer, data, 512);
     else if (escalade_type == THREE_WARE_678K_CHAR)
-      memcpy((unsigned char *)tw_ioctl_char->data_buffer, data, 512);
+      memcpy((unsigned char *)tw_ioctl_char->data_buffer,   data, 512);
     else {
       // COMMAND NOT SUPPORTED VIA SCSI IOCTL INTERFACE
       // memcpy(tw_output->output_data, data, 512);
@@ -1060,12 +1064,12 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       errno=ENOTSUP;
     }
     return -1;
-    }
+  }
   
   // note that we set passthru to a different value after ioctl()
   if (escalade_type==THREE_WARE_678K)
     passthru=(TW_Passthru *)&(tw_output->output_data);
- 
+  
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (escalade_type==THREE_WARE_9000_CHAR)
@@ -1075,7 +1079,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     else
       memcpy(data, tw_output->output_data, 512);
   }
-
+  
   // For STATUS_CHECK, we need to check register values
   if (command==STATUS_CHECK) {
     
@@ -1099,423 +1103,19 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     errno=ENOSYS;
     return 0;
   }
-
+  
   // copy sector count register (one byte!) to return data
   if (command==CHECK_POWER_MODE)
     *data=*(char *)&(passthru->sector_count);
-
+  
   // look for nonexistent devices/ports
   if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
     errno=ENODEV;
     return -1;
   }
-
+  
   return 0;
 }
-
-#if 0
-// The following is a non-unified escalade interface being kept for historical purposes
-
-// prototypes
-int escalade_command_interface_char(int fd, int disknum, smart_command_set command, int select, char *data);
-int escalade_command_interface_scsi(int fd, int disknum, smart_command_set command, int select, char *data);
-
-int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  if (escalade_type==THREE_WARE_678K)
-    return escalade_command_interface_scsi(fd, disknum, command, select, data);
-
-  if (escalade_type==THREE_WARE_678K_CHAR)
-    return escalade_command_interface_char(fd, disknum, command, select, data);
-
-  if (escalade_type==THREE_WARE_9000_CHAR)
-    return escalade_command_interface_char(fd, disknum, command, select, data);
-
-  // type was not recognized -- we should NEVER get here!
-  pout("Unrecognized command %d in escalade_command_interface(disk %d)\n"
-       "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
-  errno=ENOSYS;
-  return -1;
-}
-
-int escalade_command_interface_char(int fd, int disknum, smart_command_set command, int select, char *data){
-
-  // Structures for passing commands through 3Ware Escalade Linux Driver
-  // TW_Ioctl ioctlbuf;
-  // TW_Passthru passthru;
-  TW_Passthru *passthru;
-
-  TW_Ioctl_Buf_Apache *tw_ioctl;
-
-  // If command returns 512 bytes, set to 1, else 0
-  int readdata=0;
-
-  /* 512 is the payload size for this example, increase for bigger 
-     payloads, or 0 for no payload */
-  char ioctl_buffer[sizeof(TW_Ioctl_Buf_Apache)+512-1];
-
-  tw_ioctl = (TW_Ioctl_Buf_Apache *)&ioctl_buffer;
-
-  /* Clear the ioctl buffers */
-  memset(tw_ioctl, 0, sizeof(TW_Ioctl_Buf_Apache)+512-1);
-  	
-  /* Fill out ioctl buf structure */
-  tw_ioctl->driver_command.control_code = TW_IOCTL_FIRMWARE_PASS_THROUGH;
-  tw_ioctl->driver_command.buffer_length = 512; /* payload size */
-
-  passthru = (TW_Passthru *)&(tw_ioctl->firmware_command.command.oldcommand);
-
-  // Same for (almost) all commands - but some reset below
-  passthru->byte0.opcode  = 0x11;
-  passthru->request_id    = 0xFF;
-  passthru->byte3.aport   = disknum;
-  passthru->byte3.host_id = 0;
-  passthru->status        = 0;           
-  passthru->flags         = 0x1;
-  passthru->drive_head    = 0x0;
-  passthru->sector_num    = 0;
-
-  // All SMART commands use this CL/CH signature.  These are magic
-  // values from the ATA specifications.
-  passthru->cylinder_lo = 0x4F;
-  passthru->cylinder_hi = 0xC2;
-  
-  // SMART ATA COMMAND REGISTER value
-  passthru->command = ATA_SMART_CMD;
-  
-  // Is this a command that returns 512 bytes?
-  if (command == READ_VALUES ||
-      command == READ_THRESHOLDS ||
-      command == READ_LOG ||
-      command == IDENTIFY) {
-    readdata=1;
-    passthru->byte0.sgloff = 0x5;
-    passthru->size         = 0x7;
-    passthru->param        = 0xD;
-    passthru->sector_count = 0x1;
-  }
-  else {
-    // Non data command -- but doesn't use large sector 
-    // count register values.  passthru->param values are:
-    // 0x00 - non data command without TFR write check,
-    // 0x08 - non data command with TFR write check,
-    passthru->byte0.sgloff = 0x0;
-    passthru->size         = 0x5;
-    passthru->param        = 0x8;
-    passthru->sector_count = 0x0;
-  }
-
-  /* For 64-bit to work correctly, up the size of the command
-     packet in dwords by 1 to account for the 64-bit single sgl
-     'address' field.  */
-  if (sizeof(long) == 8)
-    passthru->size += 1;
-  
-  // Now set ATA registers depending upon command
-  switch (command){
-  case CHECK_POWER_MODE:
-    passthru->command  = ATA_CHECK_POWER_MODE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case READ_VALUES:
-    passthru->features = ATA_SMART_READ_VALUES;
-    break;
-  case READ_THRESHOLDS:
-    passthru->features = ATA_SMART_READ_THRESHOLDS;
-    break;
-  case READ_LOG:
-    passthru->features = ATA_SMART_READ_LOG_SECTOR;
-    // log number to return
-    passthru->sector_num  = select;
-    break;
-  case IDENTIFY:
-    // ATA IDENTIFY DEVICE
-    passthru->command     = ATA_IDENTIFY_DEVICE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case PIDENTIFY:
-    // 3WARE controller can NOT have packet device internally
-    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
-    errno=ENODEV;
-    return -1;
-  case ENABLE:
-    passthru->features = ATA_SMART_ENABLE;
-    break;
-  case DISABLE:
-    passthru->features = ATA_SMART_DISABLE;
-    break;
-  case AUTO_OFFLINE:
-    passthru->features = ATA_SMART_AUTO_OFFLINE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case AUTOSAVE:
-    passthru->features = ATA_SMART_AUTOSAVE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case IMMEDIATE_OFFLINE:
-    passthru->features = ATA_SMART_IMMEDIATE_OFFLINE;
-    // What test type to run?
-    passthru->sector_num  = select;
-    break;
-  case STATUS_CHECK:
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  case STATUS:
-    // This is JUST to see if SMART is enabled, by giving SMART status
-    // command. But it doesn't say if status was good, or failing.
-    // See below for the difference.
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  default:
-    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
-    errno=ENOSYS;
-    return -1;
-  }
-  
-  /* Now send the command down through an ioctl() */
-  if (ioctl(fd, TW_IOCTL_FIRMWARE_PASS_THROUGH, tw_ioctl)) {
-    // If error was provoked by driver, tell user how to fix it
-    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select){
-      printwarning(command);
-      errno=ENOTSUP;
-    }
-    return -1;
-  }
-
-  // If this is a read data command, copy data to output buffer
-  if (readdata)
-    memcpy(data, (unsigned char *)tw_ioctl->data_buffer, 512);
-  
-  // For STATUS_CHECK, we need to check register values
-  if (command==STATUS_CHECK) {
-    
-    // To find out if the SMART RETURN STATUS is good or failing, we
-    // need to examine the values of the Cylinder Low and Cylinder
-    // High Registers.
-    
-    unsigned short cyl_lo=passthru->cylinder_lo;
-    unsigned short cyl_hi=passthru->cylinder_hi;
-    
-    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
-    if (cyl_lo==0x4F && cyl_hi==0xC2)
-      return 0;
-    
-    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
-    if (cyl_lo==0xF4 && cyl_hi==0x2C)
-      return 1;
-    
-    // Any other values mean that something has gone wrong with the command
-    printwarning(command);
-    errno=ENOSYS;
-    return 0;
-  }
-
-  // copy sector count register (one byte!) to return data
-  if (command==CHECK_POWER_MODE) {
-    *data=*(char *)&(passthru->sector_count);
-  }
-
-  // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
-    errno=ENODEV;
-    return -1;
-  }
-
-  return 0;
-
-}
-
-int escalade_command_interface_scsi(int fd, int disknum, smart_command_set command, int select, char *data){
-
-  // Structures for passing commands through 3Ware Escalade Linux Driver
-  TW_Ioctl ioctlbuf;
-  TW_Passthru *passthru;
-  TW_Output *tw_output=(TW_Output *)&ioctlbuf;
-
-  // If command returns 512 bytes, set to 1, else 0
-  int readdata=0;
-
-  // Clear out the data structures
-  memset (&ioctlbuf, 0, sizeof(TW_Ioctl));
-
-  // CHECKME -- IS THIS RIGHT?? Even for non data I/O commands?
-  ioctlbuf.input_length = 512;
-  ioctlbuf.output_length = 512;
-  ioctlbuf.cdb[0] = TW_IOCTL;
-  ioctlbuf.opcode = TW_ATA_PASSTHRU;
-
-  passthru = (TW_Passthru *)&(ioctlbuf.input_data);
-
-  // Same for (almost) all commands - but some reset below
-  passthru->byte0.opcode  = 0x11;
-  passthru->request_id    = 0xFF;
-  passthru->byte3.aport   = disknum;
-  passthru->byte3.host_id = 0;
-  passthru->status        = 0;           
-  passthru->flags         = 0x1;
-  passthru->drive_head    = 0x0;
-  passthru->sector_num    = 0;
-
-  // All SMART commands use this CL/CH signature.  These are magic
-  // values from the ATA specifications.
-  passthru->cylinder_lo = 0x4F;
-  passthru->cylinder_hi = 0xC2;
-  
-  // SMART ATA COMMAND REGISTER value
-  passthru->command = ATA_SMART_CMD;
-  
-  // Is this a command that returns 512 bytes?
-  if (command == READ_VALUES ||
-      command == READ_THRESHOLDS ||
-      command == READ_LOG ||
-      command == IDENTIFY) {
-    readdata=1;
-    passthru->byte0.sgloff = 0x5;
-    passthru->size         = 0x7;
-    passthru->param        = 0xD;
-    passthru->sector_count = 0x1;
-  }
-  else {
-    // Non data command -- but doesn't use large sector 
-    // count register values.  passthru->param values are:
-    // 0x00 - non data command without TFR write check,
-    // 0x08 - non data command with TFR write check,
-    passthru->byte0.sgloff = 0x0;
-    passthru->size         = 0x5;
-    passthru->param        = 0x8;
-    passthru->sector_count = 0x0;
-  }
-  
-  // Now set ATA registers depending upon command
-  switch (command){
-  case CHECK_POWER_MODE:
-    passthru->command  = ATA_CHECK_POWER_MODE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case READ_VALUES:
-    passthru->features = ATA_SMART_READ_VALUES;
-    break;
-  case READ_THRESHOLDS:
-    passthru->features = ATA_SMART_READ_THRESHOLDS;
-    break;
-  case READ_LOG:
-    passthru->features = ATA_SMART_READ_LOG_SECTOR;
-    // log number to return
-    passthru->sector_num  = select;
-    break;
-  case IDENTIFY:
-    // ATA IDENTIFY DEVICE
-    passthru->command     = ATA_IDENTIFY_DEVICE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case PIDENTIFY:
-    // 3WARE controller can NOT have packet device internally
-    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
-    errno=ENODEV;
-    return -1;
-  case ENABLE:
-    passthru->features = ATA_SMART_ENABLE;
-    break;
-  case DISABLE:
-    passthru->features = ATA_SMART_DISABLE;
-    break;
-  case AUTO_OFFLINE:
-    passthru->features = ATA_SMART_AUTO_OFFLINE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case AUTOSAVE:
-    passthru->features = ATA_SMART_AUTOSAVE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case IMMEDIATE_OFFLINE:
-    passthru->features = ATA_SMART_IMMEDIATE_OFFLINE;
-    // What test type to run?
-    passthru->sector_num  = select;
-    break;
-  case STATUS_CHECK:
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  case STATUS:
-    // This is JUST to see if SMART is enabled, by giving SMART status
-    // command. But it doesn't say if status was good, or failing.
-    // See below for the difference.
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  default:
-    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
-    errno=ENOSYS;
-    return -1;
-  }
-
-  /* Now send the command down through an ioctl() */
-  if (ioctl(fd, SCSI_IOCTL_SEND_COMMAND, &ioctlbuf)) {
-    // If error was provoked by driver, tell user how to fix it
-    if ((command==AUTO_OFFLINE || command==AUTOSAVE) && select){
-      printwarning(command);
-      errno=ENOTSUP;
-    }
-    return -1;
-  }
-
-  // note that we set passthru to a different value after ioctl()
-  passthru=(TW_Passthru *)&(tw_output->output_data);
- 
-  // If this is a read data command, copy data to output buffer
-  if (readdata)
-    memcpy(data, tw_output->output_data, 512);
-
-  // For STATUS_CHECK, we need to check register values
-  if (command==STATUS_CHECK) {
-    
-    // To find out if the SMART RETURN STATUS is good or failing, we
-    // need to examine the values of the Cylinder Low and Cylinder
-    // High Registers.
-    
-    unsigned short cyl_lo=passthru->cylinder_lo;
-    unsigned short cyl_hi=passthru->cylinder_hi;
-    
-    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
-    if (cyl_lo==0x4F && cyl_hi==0xC2)
-      return 0;
-    
-    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
-    if (cyl_lo==0xF4 && cyl_hi==0x2C)
-      return 1;
-    
-    // Any other values mean that something has gone wrong with the command
-    printwarning(command);
-    errno=ENOSYS;
-    return 0;
-  }
-
-  // copy sector count register (one byte!) to return data
-  if (command==CHECK_POWER_MODE)
-    *data=*(char *)&(passthru->sector_count);
-
-  // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
-    errno=ENODEV;
-    return -1;
-  }
-
-  return 0;
-
-}
-#endif // historical interface
-
 
 // Utility function for printing warnings
 void printwarning(smart_command_set command){
