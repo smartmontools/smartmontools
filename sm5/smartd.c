@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.114 2003/03/24 10:44:11 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.115 2003/03/25 13:13:07 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1717,8 +1717,9 @@ void ParseOpts(int argc, char **argv){
   return;
 }
 
-// Function we call if no configuration file was found.  It makes
-// entries for /dev/hd[a-l] and /dev/sd[a-z].
+// Function we call if no configuration file was found or if the
+// DEVICESCAN Directive was found.  It makes entries for /dev/hd[a-l]
+// and /dev/sd[a-z].
 int makeconfigentries(int num, char *name, int isata, int start, int scandirective){
   int i;
   
@@ -1772,23 +1773,23 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
   return i;
 }
 
-
-void cantregister(char *name, char *type, int line){
+void cantregister(char *name, char *type, int line, int scandirective){
   if (line)
-    printout(LOG_CRIT,"Unable to register %s device %s at line %d of file %s\n",
+    printout(scandirective?LOG_INFO:LOG_CRIT,
+	     "Unable to register %s device %s at line %d of file %s\n",
 	     type, name, line, CONFIGFILE);
   else
     printout(LOG_INFO,"Unable to register %s device %s\n",
 	     type, name);
   return;
 }
-
-
+ 
+ 
 /* Main Program */
 int main (int argc, char **argv){
   atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
   scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
-  int i,entries;
+  int i, entries, scandirective=0;
   atamainctrl control;
   
   // initialize global communications variables
@@ -1828,10 +1829,10 @@ int main (int argc, char **argv){
   // if SCANDEVICE used or there was no /etc/smartd.conf config file,
   // then create needed entries for scanning
   if (entries<=0){
-    int scandirective=entries;
     int doscsi, doata;
 
     // Was SCANDEVICE Directive given?
+    scandirective=entries;
     if (scandirective){
       printout(LOG_INFO,"smartd: Scanning for devices.\n");
       // free up storage used for SCANDIRECTIVE string
@@ -1862,11 +1863,11 @@ int main (int argc, char **argv){
   for (i=0;i<entries;i++){
     // register ATA devices
     if (config[i].tryata && atadevicescan2(atadevicesptr+numatadevices, config+i))
-      cantregister(config[i].name, "ATA", config[i].lineno);
+      cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
     
     // then register SCSI devices
     if (config[i].tryscsi && scsidevicescan(scsidevicesptr+numscsidevices, config+i))
-      cantregister(config[i].name, "SCSI", config[i].lineno);
+      cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
   }
 
   // Now start an infinite loop that checks all devices
