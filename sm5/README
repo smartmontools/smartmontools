@@ -226,13 +226,14 @@ old to new smartd.conf directives:
  NOW A COMMAND-LINE OPTION (-i N, --interval N) =======>                   -C N    Set checktime        CMD LINE: -i N
                                                                            -f      usage attributes     -f
                                                                            -M ADD  Email addresses     -m ADD
-                                                                           -m -3   Email mode          -M diminishing,test
-                                                                           -m -2   Email mode          -M daily,test
-                                                                           -m -1   Email mode          -M once,test
+                                                                           -m -3   Email mode          -M diminishing -M test
+                                                                           -m -2   Email mode          -M daily -M test
+                                                                           -m -1   Email mode          -M once -M test
                             If no -M is given, this is the DEFAULT =====>  -m 0    Email mode          -M once
                                                                            -m 1    Email mode          -M once
                                                                            -m 2    Email mode          -M daily
                                                                            -m 3    Email mode          -M diminishing
+                            New feature (see man page) =====>                                          -M exec SCRIPT
                                                                            -i N    Ignore              -i N
                                                                            -I N    Ignore              -I N
                                                                             #      Comment              #
