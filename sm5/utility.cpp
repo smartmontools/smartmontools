@@ -35,12 +35,19 @@
 #include <syslog.h>
 #include <stdarg.h>
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
 #include "config.h"
 #include "int64.h"
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.49 2004/05/21 15:20:21 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.50 2004/05/27 15:27:06 card_captor Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -73,6 +80,33 @@ int exitstatus = 0;
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
 
+
+// Solaris only: Get site-default timezone. This is called from
+// UpdateTimezone() when TZ environment variable is unset at startup.
+#if defined (__SVR4) && defined (__sun)
+static const char *TIMEZONE_FILE = "/etc/TIMEZONE";
+
+static char *ReadSiteDefaultTimezone(){
+  FILE *fp;
+  char buf[512], *tz;
+  int n;
+
+  tz = NULL;
+  fp = fopen(TIMEZONE_FILE, "r");
+  if(fp == NULL) return NULL;
+  while(fgets(buf, sizeof(buf), fp)) {
+    if (strncmp(buf, "TZ=", 3))    // searches last "TZ=" line
+      continue;
+    n = strlen(buf) - 1;
+    if (buf[n] == '\n') buf[n] = 0;
+    if (tz) free(tz);
+    tz = strdup(buf);
+  }
+  fclose(fp);
+  return tz;
+}
+#endif
+
 // Make sure that this executable is aware if the user has changed the
 // time-zone since the last time we polled devices. The cannonical
 // example is a user who starts smartd on a laptop, then flies across
@@ -96,6 +130,48 @@ void FixGlibcTimeZoneBug(){
     putenv("TZ=GMT");
     tzset();
     putenv("TZ=");  // empty value removes TZ, putenv("TZ") does nothing
+    tzset();
+  }
+#elif defined (__SVR4) && defined (__sun)
+  // In Solaris, putenv("TZ=") sets null string and invalid timezone.
+  // putenv("TZ") does nothing.  With invalid TZ, tzset() do as if
+  // TZ=GMT.  With TZ unset, /etc/TIMEZONE will be read only _once_ at
+  // first tzset() call.  Conclusion: Unlike glibc, dynamic
+  // configuration of timezone can be done only by changing actual
+  // value of TZ environment value.
+  enum tzstate { NOT_CALLED_YET, USER_TIMEZONE, TRACK_TIMEZONE };
+  static enum tzstate state = NOT_CALLED_YET;
+
+  static struct stat prev_stat;
+  static char *prev_tz;
+  struct stat curr_stat;
+  char *curr_tz;
+
+  if(state == NOT_CALLED_YET) {
+    if(getenv("TZ")) {
+      state = USER_TIMEZONE; // use supplied timezone
+    } else {
+      state = TRACK_TIMEZONE;
+      if(stat(TIMEZONE_FILE, &prev_stat)) {
+	state = USER_TIMEZONE;	// no TZ, no timezone file; use GMT forever
+      } else {
+	prev_tz = ReadSiteDefaultTimezone(); // track timezone file change
+	if(prev_tz) putenv(prev_tz);
+      }
+    }
+    tzset();
+  } else if(state == TRACK_TIMEZONE) {
+    if(stat(TIMEZONE_FILE, &curr_stat) == 0
+       && (curr_stat.st_ctime != prev_stat.st_ctime
+	    || curr_stat.st_mtime != prev_stat.st_mtime)) {
+      // timezone file changed
+      curr_tz = ReadSiteDefaultTimezone();
+      if(curr_tz) {
+	putenv(curr_tz);
+	if(prev_tz) free(prev_tz);
+	prev_tz = curr_tz; prev_stat = curr_stat; 
+      }
+    }
     tzset();
   }
 #endif
