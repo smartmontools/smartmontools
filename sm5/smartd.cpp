@@ -54,7 +54,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.203 2003/10/01 18:08:36 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.204 2003/10/02 09:06:26 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -741,6 +741,7 @@ int ATADeviceScan(cfgfile *cfg){
   int fd;
   struct ata_identify_device drive;
   char *name=cfg->name;
+  int retainsmartdata=0;
   
   // should we try to register this as an ATA device?
   if (!(cfg->tryata))
@@ -826,8 +827,17 @@ int ATADeviceScan(cfgfile *cfg){
     cfg->smartcheck=0;
   }
   
-  // capability check: Read smart values and thresholds
-  if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->autoofflinetest) {
+  // capability check: Read smart values and thresholds.  Note that
+  // smart values are ALSO needed even if we ONLY want to know if the
+  // device is self-test log or error-log capable!  After ATA-5, this
+  // information was ALSO reproduced in the IDENTIFY DEVICE response,
+  // but sadly not for ATA-5.  Sigh.
+
+  // do we need to retain SMART data after returning from this routine?
+  retainsmartdata=cfg->usagefailed || cfg->prefail || cfg->usage;
+  
+  // do we need to get SMART data?
+  if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog) {
     cfg->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
     cfg->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
     
@@ -843,16 +853,12 @@ int ATADeviceScan(cfgfile *cfg){
     }
     
     if (ataReadSmartValues(fd,cfg->smartval) ||
-        ataReadSmartThresholds (fd,cfg->smartthres)){
+	ataReadSmartThresholds (fd,cfg->smartthres)){
       PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
-      cfg->smartval=CheckFree(cfg->smartval, __LINE__);
-      cfg->smartthres=CheckFree(cfg->smartthres, __LINE__);
-      bytes-=sizeof(struct ata_smart_values);
-      bytes-=sizeof(struct ata_smart_thresholds);
-      cfg->usagefailed=cfg->prefail=cfg->usage=0;
+      retainsmartdata=cfg->usagefailed=cfg->prefail=cfg->usage=0;
     }
   }
-
+  
   // enable/disable automatic on-line testing
   if (cfg->autoofflinetest){
     // is this an enable or disable request?
@@ -878,7 +884,7 @@ int ATADeviceScan(cfgfile *cfg){
     // see if device supports Self-test logging.  Note that the
     // following line is not a typo: Device supports self-test log if
     // and only if it also supports error log.
-    if (!isSmartErrorLogCapable(cfg->smartval)){
+    if (!cfg->smartval || !isSmartErrorLogCapable(cfg->smartval)){
       PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", name);
       cfg->selftest=0;
       cfg->selflogcount=0;
@@ -898,7 +904,7 @@ int ATADeviceScan(cfgfile *cfg){
     int val;
 
     // see if device supports error logging
-    if (!isSmartErrorLogCapable(cfg->smartval)){
+    if (!cfg->smartval || !isSmartErrorLogCapable(cfg->smartval)){
       PrintOut(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", name);
       cfg->errorlog=0;
       cfg->ataerrorcount=0;
@@ -913,6 +919,18 @@ int ATADeviceScan(cfgfile *cfg){
     }
   }
   
+  // If we don't need to save SMART data, get rid of it now
+  if (!retainsmartdata) {
+    if (cfg->smartval) {
+      cfg->smartval=CheckFree(cfg->smartval, __LINE__);
+      bytes-=sizeof(struct ata_smart_values);
+    }
+    if (cfg->smartthres) {
+      cfg->smartthres=CheckFree(cfg->smartthres, __LINE__);
+      bytes-=sizeof(struct ata_smart_thresholds);
+    }
+  }
+
   // If no tests available or selected, return
   if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
         cfg->usagefailed || cfg->prefail || cfg->usage)) {

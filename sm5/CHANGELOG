@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.191 2003/10/01 20:32:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.192 2003/10/02 09:06:26 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -20,8 +20,13 @@ CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-  [BA] If enable auto offline command given, update auto offline
-       status before printing capabilities.
+  [BA] smartd: if user asked to monitor either error or self-test
+       logs (-l error or -l selftest) WITHOUT monitoring any of the
+       Attribute values, code will SEGV.  For 5.1-18 and earlier,
+       a good workaround is to enable Auto offline (-o on).
+
+  [BA] smartctl: If enable auto offline command given, update auto
+       offline status before printing capabilities.
 
   [GG] Make autotools build the default, remove autotools.diff
 
