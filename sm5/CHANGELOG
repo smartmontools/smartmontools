@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.374 2004/03/20 08:55:21 dpgilbert Exp $
+$Id: CHANGELOG,v 1.375 2004/03/22 04:36:59 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,14 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added workaround for an annoying glibc bug: if you change
+       timezones, (eg, flying with a laptop from USA to Europe)
+       localtime() does not notice this in a running
+       executable, so time that appears in the system log (syslog!)
+       will be incorrect.  See
+       http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=48184
+       for additional examples of this bug.
 
   [DG] Set explicit timeouts for SCSI commands (most default to 6 seconds).
        Previously a 0 second timeout was meant to be interpreted as a 

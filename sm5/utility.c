@@ -40,7 +40,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.41 2004/03/16 14:46:14 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.42 2004/03/22 04:37:00 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -73,6 +73,22 @@ int exitstatus = 0;
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
 
+// Make sure that this executable is aware if the user has changed the
+// time-zone since the last time we polled devices. The cannonical
+// example is a user who starts smartd on a laptop, then flies across
+// time-zones with a laptop, and then changes the timezone, WITHOUT
+// restarting smartd. This is a work-around for a bug in
+// GLIBC. Yuk. See but number 48184 at http://bugs.debian.org and
+// thanks to Ian Redfern for posting a workaround.
+void FixGlibcTimeZoneBug(){  
+  if (!getenv("TZ")) {
+    putenv("TZ=GMT");
+    tzset();
+    putenv("TZ");
+    tzset();
+  }
+  return;
+}
 
 // This value follows the peripheral device type value as defined in
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
@@ -107,6 +123,8 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   char datebuffer[DATEANDEPOCHLEN];
   int lenm1;
 
+  FixGlibcTimeZoneBug();
+  
   // Get the time structure.  We need this to determine if we are in
   // daylight savings time or not.
   tmval=localtime(&tval);

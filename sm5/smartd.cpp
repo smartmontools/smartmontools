@@ -90,7 +90,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.295 2004/03/16 14:46:14 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.296 2004/03/22 04:36:59 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -100,7 +100,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.295 2004/03/16 14:46:14 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.296 2004/03/22 04:36:59 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -171,7 +171,6 @@ volatile int caughtsigEXIT=0;
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
-
 
 // free all memory associated with selftest part of configfile entry.  Return NULL
 testinfo* FreeTestData(testinfo *data){
@@ -749,6 +748,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 // appropriate.]
 void pout(char *fmt, ...){
   va_list ap;
+
+  // get the correct time in syslog()
+  FixGlibcTimeZoneBug();
   // initialize variable argument list 
   va_start(ap,fmt);
   // in debug==1 mode we will print the output from the ataprint.o functions!
@@ -769,6 +771,9 @@ void pout(char *fmt, ...){
 // This function is also used by utility.c to report LOG_CRIT errors.
 void PrintOut(int priority,char *fmt, ...){
   va_list ap;
+  
+  // get the correct time in syslog()
+  FixGlibcTimeZoneBug();
   // initialize variable argument list 
   va_start(ap,fmt);
   if (debugmode) 
@@ -1610,6 +1615,10 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   if (!dat)
     return 0;
   
+  // since we are about to call localtime(), be sure glibc is informed
+  // of any timezone changes we make.
+  FixGlibcTimeZoneBug();
+  
   // construct pattern containing the month, day of month, day of
   // week, and hour
   time(&epochnow);
@@ -2164,7 +2173,7 @@ time_t dosleep(time_t wakeuptime){
     
     timenow=time(NULL);
   }
-  
+ 
   // if we caught a SIGUSR1 then print message and clear signal
   if (caughtsigUSR1){
     PrintOut(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
