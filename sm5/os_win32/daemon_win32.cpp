@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.6 2004/10/01 10:17:50 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.7 2004/10/08 14:56:40 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -941,7 +941,7 @@ static int svcadm_setdesc(SC_HANDLE hs, const char * desc)
 static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opts,
                        int argc, char **argv                                      )
 {
-	int remove;
+	int remove; long err;
 	SC_HANDLE hm, hs;
 
 	if (argc < 2)
@@ -962,7 +962,12 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 
 	// Open SCM
 	if (!(hm = OpenSCManager(NULL/*local*/, NULL/*default*/, SC_MANAGER_ALL_ACCESS))) {
-		printf(" cannot open SCManager, Error=%ld\n", GetLastError());
+		if ((err = GetLastError()) == ERROR_ACCESS_DENIED)
+			puts(" access to SCManager denied");
+		else if (err == ERROR_CALL_NOT_IMPLEMENTED)
+			puts(" services not implemented on this version of Windows");
+		else
+			printf(" cannot open SCManager, Error=%ld\n", err);
 		return 1;
 	}
 
@@ -991,7 +996,13 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, path,
 			NULL/*no load ordering*/, NULL/*no tag id*/,
 			""/*no depedencies*/, NULL/*local system account*/, NULL/*no pw*/))) {
-			printf(" failed, Error=%ld\n", GetLastError());
+			if ((err = GetLastError()) == ERROR_SERVICE_EXISTS)
+				puts(" the service is already installed");
+			else if (err == ERROR_SERVICE_MARKED_FOR_DELETE)
+				puts(" service is still running and marked for deletion\n"
+				     "Stop the service and retry install");
+			else
+				printf(" failed, Error=%ld\n", err);
 			CloseServiceHandle(hm);
 			return 1;
 		}
@@ -1009,7 +1020,11 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 		// TODO: Stop service if running
 		// Remove
 		if (!DeleteService(hs)) {
-			printf(" failed, Error=%ld\n", GetLastError());
+			if ((err = GetLastError()) == ERROR_SERVICE_MARKED_FOR_DELETE)
+				puts(" service is still running and marked for deletion\n"
+				     "Stop the service to remove it");
+			else
+				printf(" failed, Error=%ld\n", err);
 			CloseServiceHandle(hs); CloseServiceHandle(hm);
 			return 1;
 		}
