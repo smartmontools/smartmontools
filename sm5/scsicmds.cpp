@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.50 2003/06/30 10:14:58 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.51 2003/08/18 12:37:41 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1075,7 +1075,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
  * (Celsius) implies that the temperature not available. */
-int scsiCheckIE(int device, int method, int hasTempLogPage,
+int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
                 UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp)
 {
     UINT8 tBuf[252];
@@ -1089,7 +1089,7 @@ int scsiCheckIE(int device, int method, int hasTempLogPage,
     *ascq = 0;
     *currenttemp = 0;
     memset(&sense_info, 0, sizeof(sense_info));
-    if (method == CHECK_SMART_BY_LGPG_2F) {
+    if (hasIELogPage) {
         if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, 
                                 sizeof(tBuf), 0))) {
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));

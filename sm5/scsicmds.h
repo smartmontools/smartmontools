@@ -33,7 +33,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.30 2003/06/17 06:07:07 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.31 2003/08/18 12:36:36 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -275,12 +275,9 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
 int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
+
 /* SMART specific commands */
-
-#define CHECK_SMART_BY_LGPG_2F  0x01
-#define CHECK_SMART_BY_REQSENSE 0x00
-
-int scsiCheckIE(int device, int method, int hasTempLogPage,
+int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
                 UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp);
 
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp);
