@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.149 2004/04/02 05:57:40 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.150 2004/04/10 00:24:14 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -924,8 +924,9 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
        "\tDC = Device Command Register [HEX]\n"
        "\tER = Error register [HEX]\n"
        "\tST = Status register [HEX]\n"
-       "Timestamp = decimal seconds since the previous disk power-on.\n"
-       "Note: timestamp \"wraps\" after 2^32 msec = 49.710 days.\n\n");
+       "Powered_Up_Time is measured from power on, and printed as\n"
+       "DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,\n"
+       "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
   
   // now step through the five error log data structures (table 39 of spec)
   for (k = 4; k >= 0; k-- ) {
@@ -982,8 +983,8 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       }
       pout("\n\n");
       pout("  Commands leading to the command that caused the error were:\n"
-           "  CR FR SC SN CL CH DH DC  Power_Up_Time    Command/Feature_Name\n"
-           "  -- -- -- -- -- -- -- --  ---------------  --------------------\n");
+           "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
+           "  -- -- -- -- -- -- -- --  ----------------  --------------------\n");
       for ( j = 4; j >= 0; j--){
         struct ata_smart_errorlog_command_struct *thiscommand=elog->commands+j;
 
@@ -994,7 +995,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 	  // Convert integer milliseconds to a text-format string
 	  MsecToText(thiscommand->timestamp, timestring);
 	  
-          pout("  %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
+          pout("  %02x %02x %02x %02x %02x %02x %02x %02x  %16s  %s\n",
                (int)thiscommand->commandreg,
                (int)thiscommand->featuresreg,
                (int)thiscommand->sector_count,
