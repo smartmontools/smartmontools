@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.45 2003/05/11 22:49:01 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.46 2003/05/14 07:21:47 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -115,10 +115,10 @@ void scsiGetSmartData(int device)
     cp = scsiGetIEString(asc, ascq);
     if (cp) {
         QUIETON(con);
-        pout("SMART Sense: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
+        pout("SMART Health Status: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
         QUIETOFF(con);
     } else if (gIecMPage)
-        pout("SMART Sense: Ok!\n");
+        pout("SMART Health Status: OK\n");
 
     if (currenttemp && !gTempLPage) {
         if (255 != currenttemp)
