@@ -242,7 +242,7 @@ Suggested changes to smartd options:
   ----------------------------------------------------------------------------------------------------------
   -h, -?        --help                                       -h, -?        --help
   -V            --version, --copyright, --license            -V            --version, --copyright, --license
-  -X            --debugmode                                  -d            --debug
+  -X            --debug                                      -d            --debug
                                                              -i N          --interval=N
   ----------------------------------------------------------------------------------------------------------
 
