@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.72 2004/11/23 16:48:18 ydario Exp $
+ $Id: smartctl.8.in,v 1.73 2004/12/29 11:41:38 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -841,8 +841,12 @@ are (1) no self\-test log printed, even though you have run self\-tests;
 .I samsung2
 \- In more recent Samsung disks (firmware revisions ending in "\-23")
 the number of ATA errors reported is byte swapped.  Enabling this
-option tells \fBsmartctl\fP to evaluate this quantity in byte\-reversed
-order.
+option tells \fBsmartctl\fP to evaluate this quantity in
+byte\-reversed order. An indication that your Samsung disk needs this
+option is that the self-test log is printed correctly, but there are a
+very large number of errors in the SMART error log.  This is because
+the error count is byte swapped.  Thus a disk with five errors
+(0x0005) will appear to have 20480 errors (0x5000).
 
 Note that an explicit \'\-F\' option on the command line will
 over\-ride any preset values for \'\-F\' (see the \'\-P\' option
@@ -1246,7 +1250,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.72 2004/11/23 16:48:18 ydario Exp $
+$Id: smartctl.8.in,v 1.73 2004/12/29 11:41:38 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
