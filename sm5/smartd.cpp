@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.140 2003/04/15 09:37:23 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.141 2003/04/16 03:36:32 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -490,11 +490,23 @@ void Usage (void){
 
 // returns negative if problem, else fd>=0
 int opendevice(char *device){
-  int fd = open(device, O_RDONLY);
+  int fd = open(device, O_RDWR);
+  
+  // open device - read-write access is needed to use the scsi generic
+  // (sg) device for some commands (e.g. '-s on'). Attempt to open
+  // read-write and if that fails with an error suggesting writing is
+  // not permitted, fall back to a read-only open. [When opened
+  // O_RDONLY invoking '-s on' will attempt the scsi command MODE
+  // SELECT. Sg disallows it since that scsi command potentially
+  // modifies mode page data.]  
+  if (fd<0 && ((EACCES == errno) || (EROFS == errno)))
+    fd = open(device, O_RDONLY);  
+  
   if (fd<0) {
     printout(LOG_INFO,"Device: %s, %s, open() failed\n",device, strerror(errno));
     return -1;
   }
+
   // device opened sucessfully
   return fd;
 }
