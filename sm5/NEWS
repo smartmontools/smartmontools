@@ -1,10 +1,27 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.26 2004/09/14 14:22:13 chrfranke Exp $
+CVS ID: $Id: NEWS,v 1.27 2004/11/06 18:04:03 chrfranke Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
+
+Date <Not released yet>
+Summary: smartmontools release 5.34 (STABLE)
+-----------------------------------------------------------
+All Platforms:
+ - Added info about drive family to 'smartctl -i' output.
+ - Added option ',q' for smartd '-n' directive to suppress
+   'skipping checks' message which may spin up laptop disk.
+ - Added message if smartd '-n' check power mode spins up disk.
+Cygwin and Windows:
+ - Added info about Windows version and service pack to banner line.
+ - Added support for smartd '-n' directive for Win2000/XP.
+ - Added support for READ_LOG for WinNT4 also.
+ - Fixed bug that prevents display of empty logs on Win2000/XP
+ - Fixed use of cached smart enabled state in 'smartctl -i' output. 
+Windows:
+ - Fixed bug that prevents running smartd as service on WinNT4.
 
 Date 2004-9-5
 Summary: smartmontools release 5.33 (UNSTABLE/EXPERIMENTAL)
