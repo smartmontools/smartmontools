@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.155 2004/07/13 14:48:06 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.156 2004/09/10 04:13:41 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -797,8 +797,9 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
     struct ata_smart_attribute *disk=data->vendor_attributes+i;
     struct ata_smart_threshold_entry *thre=thresholds->thres_entries+i;
     
-    // consider only valid attributes
-    if (disk->id && thre->id){
+    // consider only valid attributes (allowing some screw-ups in the
+    // thresholds page data to slip by)
+    if (disk->id){
       char *type, *update;
       int failednow,failedever;
       char attributename[64];

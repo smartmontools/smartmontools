@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.467 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: CHANGELOG,v 1.468 2004/09/10 04:13:41 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -32,6 +32,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.33 Experimental Release
+
+  [BA] smartctl: ATA disks, if SMART ATTRIBUTE THRESHOLDS page has ID
+       errors with some Attributes having NULL IDs, print Attribute
+       info anyway (but issuing a warning to the user).
 
   [DG] [SCSI] Decode Last n error events log page; decode track following
        and positioning errors [Hitachi]
@@ -1599,11 +1603,12 @@ smartmontools-5.0.24
 
     Note: it has now been confirmed that the code modifications between
     5.0.23 and 5.0.24 have eliminated the GCC 3.2 problems.  Note that
-    there is a GCC bug howerver, see #848 at
+    there is a GCC bug howerver, see #8404 at
     http://gcc.gnu.org/cgi-bin/gnatsweb.pl?database=gcc&cmd=query
+    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=8404
 
       Added new Directive for Configuration file:
--C <N> This sets the time in between disk checks to be <N>
+      -C <N> This sets the time in between disk checks to be <N>
       seconds apart.  Note that  although  you  can  give
        this Directive multiple times on different lines of
        the configuration file, only the final  value  that
