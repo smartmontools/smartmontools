@@ -39,7 +39,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.33 2002/10/26 09:38:26 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.34 2002/10/26 09:58:05 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 // This function prints either to stdout or to the syslog as needed
@@ -509,8 +509,13 @@ int parseconfigfile(){
     // See if line is too long
     len=strlen(line);
     if (len>MAXLINELEN){
-      printout(LOG_CRIT,"Error: line %d of file %s is more than than %d characters long.\n",
-	       lineno,CONFIGFILE,MAXLINELEN);
+      char *warn;
+      if (line[len-1]=='\n')
+	warn="(including newline!) ";
+      else
+	warn="";
+      printout(LOG_CRIT,"Error: line %d of file %s %sis more than than %d characters long.\n",
+	       lineno,CONFIGFILE,warn,MAXLINELEN);
       exit(1); 
     }
     
