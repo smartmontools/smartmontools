@@ -1,4 +1,4 @@
-//  $Id: smartd.c,v 1.2 2002/10/09 18:01:18 ballen4705 Exp $
+//  $Id: smartd.c,v 1.3 2002/10/10 13:21:17 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -259,12 +259,13 @@ void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices)
 }
 
 char copyleftstring[]=
-"\nHome page of smartd is http://sourceforge.net/projects/smartmontools\n\n"
-"CVS Version ID $Id: smartd.c,v 1.2 2002/10/09 18:01:18 ballen4705 Exp $\n"
+"Home page of smartd is " PROJECTHOME "\n\n"
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
-"See http://www.gnu.org for further details.\n";
+"See http://www.gnu.org for further details.\n\n"
+"CVS Version ID $Id: smartd.c,v 1.3 2002/10/10 13:21:17 ballen4705 Exp $\n";
+
 
 /* Main Program */
 int main (int argc, char **argv){
@@ -294,17 +295,21 @@ int main (int argc, char **argv){
       break;
     case '?':
     default:
+      debugmode=1;
       Usage();
       exit(-1);	
     }
   }
   
   if (printcopyleft){
+    debugmode=1;
+    printout(LOG_INFO,"smartd version %d.%d Copyright (C) Bruce Allen 2002\n",VERSION_MAJOR,VERSION_MINOR);
     printout(LOG_INFO,copyleftstring);
     exit(0);
   }
-
-  printout(LOG_INFO, "smartd started\n");
+  
+  printout(LOG_INFO,"smartd version %d.%d Copyright (C) Bruce Allen 2002\n",VERSION_MAJOR,VERSION_MINOR);
+  
   if (!debugmode){
     daemon_init();
   }

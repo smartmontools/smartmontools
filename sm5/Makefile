@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.4 2002/10/10 11:54:13 ballen4705 Exp $
+# $Id: Makefile,v 1.5 2002/10/10 13:21:14 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <ballen@uwm.edu>
 # 
@@ -37,7 +37,7 @@ scsicmds.o: scsicmds.h scsicmds.c
 	${CC} ${CFLAGS} -c scsicmds.c
 
 clean:
-	rm -f *.o smartctl smartd *~
+	rm -f *.o smartctl smartd *~ smartmontools*.tar.gz
 
 install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	install -m 755 -o root -g root smartctl /usr/sbin
@@ -50,6 +50,7 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 uninstall:
 	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8  /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
 	/sbin/chkconfig --del smartd
+	/etc/rc.d/init.d/smartd stop
 	rm -f /etc/rc.d/init.d/smartd
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\

@@ -5,7 +5,8 @@ SMARTMONTOOLS - SMART utility toolset for Linux
 
 == HOME ==
 The home for smartmontools is located at:
-http://sourceforge.net/projects/smartmontools Please see this web site
+http://smartmontools.sourceforge.net
+Please see this web site
 for updates, documentation, and for submitting patches and bug
 reports.
 
@@ -171,4 +172,4 @@ Fax: (408) 867-2115
 E-Mail: 250-1752@mcimail.com.
 
 
-$Id: README,v 1.2 2002/10/09 18:07:17 ballen4705 Exp $
+$Id: README,v 1.3 2002/10/10 13:21:14 ballen4705 Exp $
