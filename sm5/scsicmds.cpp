@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.25 2003/03/30 11:22:56 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.26 2003/03/30 12:23:21 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -278,7 +278,7 @@ int modeselect(int device, int pagenum, UINT8 *pBuf, int bufLen)
     io_hdr.dxfer_len = hdr_plus_1_pg;
     io_hdr.dxferp = pBuf;
     cdb[0] = MODE_SELECT;
-    cdb[2] = 0x11;      /* set PF and SP bits */
+    cdb[1] = 0x11;      /* set PF and SP bits */
     cdb[4] = hdr_plus_1_pg; /* make sure only one page sent */
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
@@ -510,6 +510,10 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
     if (modesense(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
         
+#if 0
+    pout("1C_handle: setting=%d, [2]=0x%x [3]=0x%x\n", setting, tBuf[14],
+         tBuf[15]);
+#endif
     switch (setting) {
         case DEXCPT_DISABLE:
             tBuf[14] &= 0xf7;
@@ -525,7 +529,7 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
             tBuf[14] &= 0xef;
             break;
         case SMART_SUPPORT:
-            *retval = tBuf[14] & 0x08;
+            *retval = tBuf[14] & 0x18;
             return 0;
         default:
             return 1;
