@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.56 2003/03/06 07:27:15 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.57 2003/03/07 00:39:46 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -41,7 +41,7 @@ const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.56 2003/03/06 07:27:15 ballen4
 #define NOVAL_0			0x0000
 #define NOVAL_1			0xffff
 /* word 81: minor version number */
-#define MINOR_MAX 0x1C
+#define MINOR_MAX 0x1e
 const char *minor_str[] = {			/* word 81 value: */
   "Device does not report version",		/* 0x0000	*/
   "ATA-1 X3T9.2 781D prior to revision 4",	/* 0x0001	*/
@@ -73,7 +73,7 @@ const char *minor_str[] = {			/* word 81 value: */
   "ATA/ATAPI-6 T13 1410D revision 2",		/* 0x001b	*/
   "ATA/ATAPI-6 T13 1410D revision 1",		/* 0x001c	*/
   "reserved"					/* 0x001d	*/
-  "reserved"					/* 0x001e	*/
+  "ATA/ATAPI-7 T13 1532D revision 0"		/* 0x001e	*/
   "reserved"					/* 0x001f-0xfffe*/
 };
 
@@ -114,7 +114,9 @@ const int actual_ver[] = {
   0,		/* 0x001a	WARNING:	*/
   6,		/* 0x001b	WARNING:	*/
   6,		/* 0x001c	WARNING:	*/
-  0		/* 0x001d-0xfffe    		*/
+  0,		/* 0x001d	WARNING:	*/
+  7,		/* 0x001e	WARNING:	*/
+  0		/* 0x001f-0xfffe    		*/
 };
 
 const char *vendorattributeargs[] = {
