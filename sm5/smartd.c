@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.315 2004/04/12 17:42:19 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.316 2004/04/14 13:27:20 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.315 2004/04/12 17:42:19 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.316 2004/04/14 13:27:20 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -3028,8 +3028,9 @@ void cleanup(FILE **fpp){
 // Parses a configuration file.  Return values are:
 //  N=>0: found N entries
 // -1:    syntax error in config file
-// -2:    could not open config file
-// 
+// -2:    config file does not exist
+// -3:    config file exists but cannot be read
+//
 // In the case where the return value is 0, there are three
 // possiblities:
 // Empty configuration file ==> cfgentries==NULL
@@ -3046,9 +3047,10 @@ int ParseConfigFile(){
     fp=fopen(configfile,"r");
     if (fp==NULL && (errno!=ENOENT || configfile_alt)) {
       // file exists but we can't read it or it should exist due to '-c' option
+      int ret = (errno!=ENOENT ? -3 : -2);
       PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
                strerror(errno),configfile);
-      return -2;
+      return ret;
     }
   }
   else // read from stdin ('-c -' option)
@@ -3496,9 +3498,10 @@ void CanNotRegister(char *name, char *type, int line, int scandirective){
   return;
 }
 
-// returns -1 if config file had syntax errors, else number of entries
-// which may be zero or positive.  If we found no configuration file,
-// or it contained SCANDIRECTIVE, then *scanning is set to 1, else 0.
+// Returns negative value (see ParseConfigFile()) if config file
+// had errors, else number of entries which may be zero or positive. 
+// If we found no configuration file, or it contained SCANDIRECTIVE,
+// then *scanning is set to 1, else 0.
 int ReadOrMakeConfigEntries(int *scanning){
   int entries;
   
@@ -3512,7 +3515,7 @@ int ReadOrMakeConfigEntries(int *scanning){
     RmAllConfigEntries();
     if (entries == -1)
       PrintOut(LOG_CRIT, "Configuration file %s has fatal syntax errors.\n", configfile);
-    return -1;
+    return entries;
   }
 
   // did we find entries or scan?
@@ -3705,7 +3708,7 @@ int main(int argc, char **argv){
       int isok=debugmode?isterm || isquit:isterm;
       
       PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
-	       caughtsigEXIT, strsignal(caughtsigEXIT));
+               caughtsigEXIT, strsignal(caughtsigEXIT));
       
       EXIT(isok?0:EXIT_SIGNAL);
     }
@@ -3724,12 +3727,20 @@ int main(int argc, char **argv){
       // clears cfgentries, (re)reads config file, makes >=0 entries
       entries=ReadOrMakeConfigEntries(&scanning);
 
-      // checks devices, then moves onto ata/scsi list or deallocates.
-      if (entries>=0 || quit==4)
+      if (entries>=0) {
+        // checks devices, then moves onto ata/scsi list or deallocates.
         RegisterDevices(scanning);
-      
-      if (entries<0 && quit==4)
-        EXIT(EXIT_BADCONF);
+      }
+      else if (quit==2 || ((quit==0 || quit==1) && !firstpass)) {
+        // user has asked to continue on error in configuration file
+        if (!firstpass)
+          PrintOut(LOG_INFO,"Reusing previous configuration\n");
+      }
+      else {
+        // exit with configuration file error status
+        int status = (entries==-3 ? EXIT_READCONF : entries==-2 ? EXIT_NOCONF : EXIT_BADCONF);
+        EXIT(status);
+      }
 
       // Log number of devices we are monitoring...
       if (numdevata+numdevscsi || quit==2 || (quit==1 && !firstpass))

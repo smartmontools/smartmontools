@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.60 2004/04/11 17:13:39 chrfranke Exp $
+$Id: smartd.8.in,v 1.61 2004/04/14 13:27:19 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1529,13 +1529,19 @@ Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM (or in debug 
 Commandline did not parse.
 .TP
 .B 2:
-There was a problem opening or parsing \fB/etc/smartd.conf\fP.
+There was a syntax error in the config file.
 .TP
 .B 3:
 Forking the daemon failed.
 .TP
 .B 4:
 Couldn\'t create PID file.
+.TP
+.B 5:
+Config file does not exist (only returned in conjunction with the \'-c\' option).
+.TP
+.B 6:
+Config file exists, but cannot be read.
 .TP
 .B 8:
 \fBsmartd\fP
@@ -1647,4 +1653,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.60 2004/04/11 17:13:39 chrfranke Exp $
+$Id: smartd.8.in,v 1.61 2004/04/14 13:27:19 chrfranke Exp $
