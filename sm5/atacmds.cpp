@@ -1,4 +1,4 @@
-//  $Id: atacmds.cpp,v 1.6 2002/10/15 08:58:40 ballen4705 Exp $
+//  $Id: atacmds.cpp,v 1.7 2002/10/15 11:19:46 ballen4705 Exp $
 /*
  * atacmds.c
  *
@@ -373,10 +373,8 @@ int ataDisableAutoOffline (int device )
 int ataSmartStatus (int device ){	
    unsigned char parms[4] = { WIN_SMART, 0, SMART_STATUS, 0};
 
-   if (ioctl ( device , HDIO_DRIVE_CMD,  &parms) != 0)
-   {
+   if (ioctl ( device , HDIO_DRIVE_CMD,  &parms))
       return -1;
-   }
    return 0;
 }
 
