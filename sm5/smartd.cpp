@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.256 2003/12/02 13:48:37 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.257 2003/12/05 13:14:06 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -183,13 +183,16 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
 
   // entry exists -- free all of its memory  
   cfg->name            = FreeNonZero(cfg->name,           -1,__LINE__,__FILE__);
-  cfg->address         = FreeNonZero(cfg->address,        -1,__LINE__,__FILE__);
-  cfg->emailcmdline    = FreeNonZero(cfg->emailcmdline,   -1,__LINE__,__FILE__);
   cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds),__LINE__,__FILE__);
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
   cfg->testregexp      = FreeNonZero(cfg->testregexp,     -1,__LINE__, __FILE__);
+  if (cfg->mailwarn){
+    cfg->mailwarn->address         = FreeNonZero(cfg->mailwarn->address,        -1,__LINE__,__FILE__);
+    cfg->mailwarn->emailcmdline    = FreeNonZero(cfg->mailwarn->emailcmdline,   -1,__LINE__,__FILE__);
+    cfg->mailwarn                  = FreeNonZero(cfg->mailwarn,   sizeof(maildata),__LINE__,__FILE__);
+  }
   *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile),__LINE__,__FILE__);
 
   return;
@@ -269,12 +272,15 @@ void Goodbye(){
   RemovePidFile();
 
   // useful for debugging -- have we managed memory correctly?
-  if (debugmode || bytes!=0)
+  if (debugmode || bytes)
     PrintOut(LOG_INFO, "Memory still allocated for devices at exit is %lld bytes.\n", bytes);
 
-  // if we are exiting because of a code bug, print CVS info
+  // if we are exiting because of a code bug, tell user
   if (exitstatus==EXIT_BADCODE || bytes)
-    PrintCVS();
+        PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
+
+  if (exitstatus==0 && bytes)
+    exitstatus=EXIT_BADCODE;
 
   // and this should be the final output from smartd before it exits
   PrintOut(exitstatus?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", exitstatus);
@@ -320,26 +326,36 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "FAILEDopendevice"            // 9
   };
   
-  char *address=cfg->address;
-  char *executable=cfg->emailcmdline;
-  mailinfo *mail=cfg->maildata+which;
+  char *address, *executable;
+  mailinfo *mail;
+  maildata* data=cfg->mailwarn;
   
   // See if user wants us to send mail
+  if (!(data=cfg->mailwarn))
+    return;
+  
+  address=data->address;
+  executable=data->emailcmdline;
+  
   if (!address && !executable)
     return;
-
+  
+  // which type of mail are we sending?
+  mail=(data->maillog)+which;
+  
   // checks for sanity
-  if (cfg->emailfreq<1 || cfg->emailfreq>3) {
-    PrintOut(LOG_CRIT,"internal error in MailWarning(): cfg->emailfreq=%d\n",cfg->emailfreq);
+  if (data->emailfreq<1 || data->emailfreq>3) {
+    PrintOut(LOG_CRIT,"internal error in MailWarning(): cfg->mailwarn->emailfreq=%d\n",data->emailfreq);
     return;
   }
-  if (which<0 || which>9) {
-    PrintOut(LOG_CRIT,"internal error in MailWarning(): which=%d\n",which);
+  if (which<0 || which>=SMARTD_NMAIL || sizeof(whichfail)!=SMARTD_NMAIL*sizeof(char *)) {
+    PrintOut(LOG_CRIT,"Contact " PACKAGE_BUGREPORT "; internal error in MailWarning(): which=%d, size=%d\n",
+	     which, sizeof(whichfail));
     return;
   }
   
   // Return if a single warning mail has been sent.
-  if ((cfg->emailfreq==1) && mail->logged)
+  if ((data->emailfreq==1) && mail->logged)
     return;
 
   // Return if this is an email test and one has already been sent.
@@ -350,11 +366,11 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   epoch=time(NULL);
 
   // Return if less than one day has gone by
-  if (cfg->emailfreq==2 && mail->logged && epoch<(mail->lastsent+day))
+  if (data->emailfreq==2 && mail->logged && epoch<(mail->lastsent+day))
     return;
 
   // Return if less than 2^(logged-1) days have gone by
-  if (cfg->emailfreq==3 && mail->logged){
+  if (data->emailfreq==3 && mail->logged){
     days=0x01<<(mail->logged-1);
     days*=day;
     if  (epoch<(mail->lastsent+days))
@@ -391,7 +407,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   if (which) {
     sprintf(further,"You can also use the smartctl utility for further investigation.\n");
 
-    switch (cfg->emailfreq){
+    switch (data->emailfreq){
     case 1:
       sprintf(additional,"No additional email messages about this problem will be sent.\n");
       break;
@@ -403,7 +419,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
               (0x01)<<mail->logged);
       break;
     }
-    if (cfg->emailfreq>1 && mail->logged){
+    if (data->emailfreq>1 && mail->logged){
       dateandtimezoneepoch(dates, mail->firstsent);
       sprintf(original,"The original email about this issue was sent at %s\n", dates);
     }
@@ -876,15 +892,9 @@ int ATADeviceScan(cfgfile *cfg){
   
   // do we need to get SMART data?
   if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog) {
-    cfg->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
-    cfg->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
+    cfg->smartval=(struct ata_smart_values *)Calloc(1,sizeof(struct ata_smart_values));
+    cfg->smartthres=(struct ata_smart_thresholds *)Calloc(1,sizeof(struct ata_smart_thresholds));
     
-    if (cfg->smartval)
-      bytes+=sizeof(struct ata_smart_values);
-    
-    if (cfg->smartthres)
-      bytes+=sizeof(struct ata_smart_thresholds);
-
     if (!cfg->smartval || !cfg->smartthres){
       PrintOut(LOG_CRIT,"Not enough memory to obtain SMART data\n");
       EXIT(EXIT_NOMEM);
@@ -1228,12 +1238,10 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
       return 0;
     
     // we are writing
-    if (!(*datap=calloc(NMONITOR*32, 1))){
+    if (!(*datap=Calloc(NMONITOR*32, 1))){
       PrintOut(LOG_CRIT,"No memory to create monattflags\n");
       EXIT(EXIT_NOMEM);
     }
-
-    bytes+=NMONITOR*32;
   }
   
   // pointer to the 256 bits that we need
@@ -1472,7 +1480,7 @@ int ATACheckDevice(cfgfile *cfg){
   con->escalade=cfg->escalade;
 
   // If user has asked, test the email warning system
-  if (cfg->emailtest)
+  if (cfg->mailwarn && cfg->mailwarn->emailtest)
     MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
   // if we can't open device, fail gracefully rather than hard --
@@ -1646,7 +1654,7 @@ int SCSICheckDevice(cfgfile *cfg)
     const char *cp;
 
     // If the user has asked for it, test the email warning system
-    if (cfg->emailtest)
+    if (cfg->mailwarn && cfg->mailwarn->emailtest)
       MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
     // if we can't open device, fail gracefully rather than hard --
@@ -1889,6 +1897,8 @@ int ParseToken(char *token,cfgfile *cfg){
   int badarg = 0;
   int missingarg = 0;
   char *arg = NULL;
+  int makemail=0;
+  maildata *mdat=NULL, tempmail;
 
   // is the rest of the line a comment
   if (*token=='#')
@@ -1902,8 +1912,24 @@ int ParseToken(char *token,cfgfile *cfg){
     return -1;
   }
   
+  // token we will be parsing:
+  sym=token[1];
+
+  // create temporary maildata structure.  This means we can postpone
+  // allocating space in the data segment until we are sure there are
+  // no errors.
+  if ('m'==sym || 'M'==sym){
+    if (!cfg->mailwarn){
+      memset(&tempmail, 0, sizeof(maildata));
+      mdat=&tempmail;
+      makemail=1;
+    }
+    else
+      mdat=cfg->mailwarn;
+  }
+
   // parse the token and swallow its argument
-  switch (sym=token[1]) {
+  switch (sym) {
     int val;
 
   case 'T':
@@ -2067,7 +2093,7 @@ int ParseToken(char *token,cfgfile *cfg){
       
       // Free the last pattern given if any
       if (cfg->testregexp) {
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s Self-Test pattern %s\n",
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s Test Directive \"%s\"\n",
 		 configfile, lineno, name, cfg->testregexp);
         cfg->testregexp=FreeNonZero(cfg->testregexp, -1,__LINE__,__FILE__);
       }
@@ -2075,36 +2101,48 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->testregexp=CustomStrDup(arg, 1, __LINE__,__FILE__);
     }
     break;
-  case 'M':
-    // email warning option
-    if ((arg = strtok(NULL, delim)) == NULL) {
+  case 'm':
+    // send email to address that follows
+    if (!(arg = strtok(NULL,delim)))
       missingarg = 1;
-    } else if (!strcmp(arg, "once")) {
-      cfg->emailfreq = 1;
-    } else if (!strcmp(arg, "daily")) {
-      cfg->emailfreq = 2;
-    } else if (!strcmp(arg, "diminishing")) {
-      cfg->emailfreq = 3;
-    } else if (!strcmp(arg, "test")) {
-      cfg->emailtest = 1;
-    } else if (!strcmp(arg, "exec")) {
+    else {
+      if (mdat->address) {
+	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -m Address Directive \"%s\"\n",
+		 configfile, lineno, name, mdat->address);
+	mdat->address=FreeNonZero(mdat->address, -1,__LINE__,__FILE__);
+      }
+      mdat->address=CustomStrDup(arg, 1, __LINE__,__FILE__);
+    }
+    break;
+  case 'M':
+    // email warning options
+    if (!(arg = strtok(NULL, delim)))
+      missingarg = 1;
+    else if (!strcmp(arg, "once"))
+      mdat->emailfreq = 1;
+    else if (!strcmp(arg, "daily"))
+      mdat->emailfreq = 2;
+    else if (!strcmp(arg, "diminishing"))
+      mdat->emailfreq = 3;
+    else if (!strcmp(arg, "test"))
+      mdat->emailtest = 1;
+    else if (!strcmp(arg, "exec")) {
       // Get the next argument (the command line)
       if (!(arg = strtok(NULL, delim))) {
-        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
-                 configfile, lineno, name, token);
+	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
+		 configfile, lineno, name, token);
 	return -1;
       }
-      // Free the last cmd line given if any
-      if (cfg->emailcmdline) {
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): found multiple -M exec Directives on line - ignoring all but the last\n",
-		 configfile, lineno, name);
-        cfg->emailcmdline=FreeNonZero(cfg->emailcmdline, -1,__LINE__,__FILE__);
+      // Free the last cmd line given if any, and copy new one
+      if (mdat->emailcmdline) {
+	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -M exec Directive \"%s\"\n",
+		 configfile, lineno, name, mdat->emailcmdline);
+	mdat->emailcmdline=FreeNonZero(mdat->emailcmdline, -1,__LINE__,__FILE__);
       }
-      // Attempt to copy the argument
-      cfg->emailcmdline=CustomStrDup(arg, 1, __LINE__,__FILE__);
-    } else {
+      mdat->emailcmdline=CustomStrDup(arg, 1, __LINE__,__FILE__);
+    } 
+    else
       badarg = 1;
-    }
     break;
   case 'i':
     // ignore failure of usage attribute
@@ -2130,15 +2168,6 @@ int ParseToken(char *token,cfgfile *cfg){
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT, __LINE__);
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAW, __LINE__);
-    break;
-  case 'm':
-    // send email to address that follows
-    if ((arg = strtok(NULL,delim)) == NULL) {
-      PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
-               configfile, lineno, name, token);
-      return -1;
-    }
-    cfg->address=CustomStrDup(arg, 1, __LINE__,__FILE__);
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
@@ -2186,6 +2215,17 @@ int ParseToken(char *token,cfgfile *cfg){
     return -1;
   }
 
+  // If this did something to fill the mail structure, and that didn't
+  // already exist, create it and copy.
+  if (makemail) {
+    if (!(cfg->mailwarn=Calloc(1, sizeof(maildata)))) {
+      PrintOut(LOG_INFO, "File %s line %d (drive %s): no memory to create mail warning entry!\n",
+	       configfile, lineno, name);
+      EXIT(EXIT_NOMEM);
+    }
+    memcpy(cfg->mailwarn, mdat, sizeof(maildata));
+  }
+  
   return 1;
 }
 
@@ -2197,10 +2237,8 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   cfgfile *add;
   
   // allocate memory for new structure
-  if (!(add=(cfgfile *)calloc(1,sizeof(cfgfile))))
+  if (!(add=(cfgfile *)Calloc(1,sizeof(cfgfile))))
     goto badexit;
-
-  bytes+=sizeof(cfgfile);
   
   // if old structure was pointed to, copy it
   if (original)
@@ -2209,36 +2247,36 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   // make private copies of data items ONLY if they are in use (non
   // NULL)
   add->name         = CustomStrDup(add->name,         0, __LINE__,__FILE__);
-  add->emailcmdline = CustomStrDup(add->emailcmdline, 0, __LINE__,__FILE__);
-  add->address      = CustomStrDup(add->address,      0, __LINE__,__FILE__);
   add->testregexp   = CustomStrDup(add->testregexp,   0, __LINE__,__FILE__);
 
-  if (add->attributedefs) {
-    if (!(add->attributedefs=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1)))
+  if (add->mailwarn) {
+    if (!(add->mailwarn=(maildata *)Calloc(1,sizeof(maildata))))
       goto badexit;
-    bytes+=MAX_ATTRIBUTE_NUM;
+    memcpy(add->mailwarn, original->mailwarn, sizeof(maildata));
+    add->mailwarn->address      = CustomStrDup(add->mailwarn->address,      0, __LINE__,__FILE__);
+    add->mailwarn->emailcmdline = CustomStrDup(add->mailwarn->emailcmdline, 0, __LINE__,__FILE__);
+  }
+
+  if (add->attributedefs) {
+    if (!(add->attributedefs=(unsigned char *)Calloc(MAX_ATTRIBUTE_NUM,1)))
+      goto badexit;
     memcpy(add->attributedefs, original->attributedefs, MAX_ATTRIBUTE_NUM);
   }
   
   if (add->monitorattflags) {
-    if (!(add->monitorattflags=(unsigned char *)calloc(NMONITOR*32, 1)))
+    if (!(add->monitorattflags=(unsigned char *)Calloc(NMONITOR*32, 1)))
       goto badexit;
-    bytes+=NMONITOR*32;
     memcpy(add->monitorattflags, original->monitorattflags, NMONITOR*32);
   }
   
   if (add->smartval) {
-    if (!(add->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values))))
+    if (!(add->smartval=(struct ata_smart_values *)Calloc(1,sizeof(struct ata_smart_values))))
       goto badexit;
-    else
-      bytes+=sizeof(struct ata_smart_values);
   }
   
   if (add->smartthres) {
-    if (!(add->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds))))
+    if (!(add->smartthres=(struct ata_smart_thresholds *)Calloc(1,sizeof(struct ata_smart_thresholds))))
       goto badexit;
-    else
-      bytes+=sizeof(struct ata_smart_thresholds);
   }
 
   return add;
@@ -2367,28 +2405,28 @@ int ParseConfigLine(int entry, int lineno,char *line){
   }
   
   // additional sanity check. Has user set -M options without -m?
-  if (!cfg->address && (cfg->emailcmdline || cfg->emailfreq || cfg->emailtest)){
+  if (cfg->mailwarn && !cfg->mailwarn->address && (cfg->mailwarn->emailcmdline || cfg->mailwarn->emailfreq || cfg->mailwarn->emailtest)){
     PrintOut(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
              cfg->name, cfg->lineno, configfile);
     return -2;
   }
   
   // has the user has set <nomailer>?
-  if (cfg->address && !strcmp(cfg->address,"<nomailer>")){
+  if (cfg->mailwarn && cfg->mailwarn->address && !strcmp(cfg->mailwarn->address,"<nomailer>")){
     // check that -M exec is also set
-    if (!cfg->emailcmdline){
+    if (!cfg->mailwarn->emailcmdline){
       PrintOut(LOG_CRIT,"Drive: %s, -m <nomailer> Directive on line %d of file %s needs -M exec Directive\n",
                cfg->name, cfg->lineno, configfile);
       return -2;
     }
     // now free memory.  From here on the sign of <nomailer> is
     // address==NULL and cfg->emailcmdline!=NULL
-    cfg->address=FreeNonZero(cfg->address, -1,__LINE__,__FILE__);
+    cfg->mailwarn->address=FreeNonZero(cfg->mailwarn->address, -1,__LINE__,__FILE__);
   }
 
   // set cfg->emailfreq to 1 (once) if user hasn't set it
-  if (!cfg->emailfreq)
-    cfg->emailfreq = 1;
+  if (cfg->mailwarn && !cfg->mailwarn->emailfreq)
+    cfg->mailwarn->emailfreq = 1;
 
   entry++;
 

@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.20 2003/10/21 01:45:50 arvoreen Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.21 2003/12/05 13:14:07 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -81,6 +81,9 @@ int make_device_names (char ***devlist, const char* name);
 
 
 #define EXIT(x)  { exitstatus = (x); exit((x)); }
+
+// replacement for calloc() that tracks memory usage
+void *Calloc(size_t nmemb, size_t size);
 
 // Utility function to free memory
 void *FreeNonZero(void* address, int size, int whatline, char* file);

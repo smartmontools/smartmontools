@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.28 2003/11/09 20:22:21 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.29 2003/12/05 13:14:07 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -363,6 +363,18 @@ void *CheckFree(void *address, int whatline,char* file){
 	   whatline, file, reportbug);
   EXIT(EXIT_BADCODE);
 }
+
+// A custom version of calloc() that tracks memory use
+void *Calloc(size_t nmemb, size_t size) { 
+  void *ptr=calloc(nmemb, size);
+  
+  if (ptr)
+    bytes+=nmemb*size;
+
+  return ptr;
+}
+
+
 
 
 // A custom version of strdup() that keeps track of how much memory is

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.278 2003/12/02 04:58:42 ballen4705 Exp $
+$Id: CHANGELOG,v 1.279 2003/12/05 13:14:06 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,7 +23,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
-  
+
+  [BA] smartd: reduce per-device memory footprint by making
+       mail-warning info dynamically allocated.  Also remove
+       potential memory leak if use has -m Directive twice and
+       keeps reloading the config file (highly unlikely this would
+       ever be noticed!)  
+
   [DG] smartd: added SCSI scheduled self-tests (Background
        short or extended.
 
