@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.146 2004/03/26 06:07:28 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.147 2004/03/26 14:22:08 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1010,29 +1010,55 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   return data->ata_error_count;  
 }
 
-void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log) {
+void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struct ata_smart_values *sv) {
   int i;
+  char *msg;
 
   // print data structure revision number
   pout("SMART Selective self-test log data structure revision number %d\n",(int)log->logversion);
   if (1 != log->logversion)
     pout("Warning: ATA Specification requires selective self-test log data structure revision number = 1\n");
+  
+  switch((sv->self_test_exec_status)>>4){
+  case  0:msg="Completed";
+    break;
+  case  1:msg="Aborted_by_host";
+    break;
+  case  2:msg="Interrupted";
+    break;
+  case  3:msg="Fatal_error";
+    break;
+  case  4:msg="Completed_unknown_failure";
+    break;
+  case  5:msg="Completed_electrical failure";
+    break;
+  case  6:msg="Completed_servo/seek failure";
+    break;
+  case  7:msg="Completed_read_failure";
+    break;
+  case  8:msg="Completed_handling damage??";
+    break;
+  case 15:msg="Self_test_in_progress";
+    break;
+  default:msg="Unknown_status ";
+    break;
+  }
 
   // print the five test spans
-  pout("Span         STARTING_LBA           ENDING_LBA   CURRENTLY_TESTING\n");
+  pout("Span         STARTING_LBA           ENDING_LBA   CURRENT_TEST_STATUS\n");
   for (i=0; i<5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end=log->span[i].end;
     uint64_t current=log->currentlba;
     uint64_t currentend=current+65535;
-    
+
     if ((i+1)==(int)log->currentspan)
       // this span is currently under test
-      pout("   %d %20"PRIu64" %20"PRIu64"   %"PRIu64"-%"PRIu64"\n",
-	   i+1, start,end,current,currentend);
+      pout("   %d %20"PRIu64" %20"PRIu64"   %"PRIu64"-%"PRIu64" %s\n",
+	   i+1, start,end,current,currentend, msg);
     else
       // this span is not currently under test
-      pout("   %d %20"PRIu64" %20"PRIu64"   No\n", i+1, start, end);
+      pout("   %d %20"PRIu64" %20"PRIu64"   Not_testing\n", i+1, start, end);
   }
 
   /* Print selective self-test flags.  Possible flag combinations are
@@ -1599,7 +1625,7 @@ int ataPrintMain (int fd){
       struct ata_selective_self_test_log log;
       PRINT_ON(con);
       if (!(ataReadSelectiveSelfTestLog(fd, &log)))
-	ataPrintSelectiveSelfTestLog(&log);
+	ataPrintSelectiveSelfTestLog(&log, &smartval);
       PRINT_OFF(con);
       pout("\n");
     }
@@ -1639,7 +1665,7 @@ int ataPrintMain (int fd){
   case SELECTIVE_CAPTIVE_SELF_TEST:
     if (!isSupportSelectiveSelfTest(&smartval)){
       pout("Warning: device does not support Selective Self-Test functions.\n\n");
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
     break;
   default:
@@ -1650,7 +1676,7 @@ int ataPrintMain (int fd){
 
   // Now do the test.  Note ataSmartTest prints its own error/success
   // messages
-  if (ataSmartTest(fd, con->testcase))
+  if (ataSmartTest(fd, con->testcase, &smartval))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   else {  
     // Tell user how long test will take to complete.  This is tricky

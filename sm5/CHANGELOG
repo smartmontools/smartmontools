@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.382 2004/03/25 17:16:13 ballen4705 Exp $
+$Id: CHANGELOG,v 1.383 2004/03/26 14:22:07 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartctl: selective self-test log, print current status
+       in a  more detailed way.  Allow writing of selective self-test
+       log provided that no other self-test is underway.
 
   [BA] Linux: eliminated dependency on kernel tree hdreg.h.
 
