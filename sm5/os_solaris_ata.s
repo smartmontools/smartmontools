@@ -93,7 +93,21 @@
 ! 
 ! 					ksw / SAWADA Keiji
 ! 					<card_captor@users.sourceforge.net>
-	.file	"solaris-ata-in.c"
+	.file	"os_solaris_ata.s"
+        .global os_solaris_ata_s_cvsid
+
+	.section	".rodata"
+        .align 8
+.LLC0:
+	.asciz	"$Id: os_solaris_ata.s,v 1.2 2004/02/13 17:29:09 ballen4705 Exp $"
+
+	.section	".data"
+	.align 4
+	.type	 os_solaris_ata_s_cvsid,#object
+	.size	 os_solaris_ata_s_cvsid,4
+os_solaris_ata_s_cvsid:
+	.uaword	.LLC0
+	
 	.section	".text"
 	.align 4
 	.type	ata_cmd, #function

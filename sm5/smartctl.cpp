@@ -42,8 +42,11 @@
 #include "smartctl.h"
 #include "utility.h"
 
+#ifdef NEED_SOLARIS_ATA_CODE
+extern const char *os_solaris_ata_s_cvsid;
+#endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.114 2004/01/27 15:29:17 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.115 2004/02/13 17:29:09 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -61,7 +64,6 @@ void printslogan(){
   pout("Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }
-
 
 void printcopy(){
   char out[CVSMAXLEN];
@@ -82,6 +84,10 @@ void printcopy(){
   pout("%s",out);
   printone(out,os_XXXX_c_cvsid);
   pout("%s",out);
+#ifdef NEED_SOLARIS_ATA_CODE
+  printone(out, os_solaris_ata_s_cvsid);
+  pout("%s",out);
+#endif
   printone(out,scsicmds_c_cvsid);
   pout("%s",out);
   printone(out,scsiprint_c_cvsid);
