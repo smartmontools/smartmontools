@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.8 2003/10/16 07:23:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.9 2003/10/16 07:59:39 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/10/16 07:23:56 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/10/16 07:59:39 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/16 07:23:56 $"
+\fBRELEASE\fP "$Date: 2003/10/16 07:59:39 $"
 
 .SH DESCRIPTION
 .B smartd
@@ -239,10 +239,6 @@ Prints license, copyright, and CVS version information onto
 STDOUT and then exits. Please include this information if you are
 reporting bugs, or have specific questions about the behavior of
 .B smartd.
-.TP
-.B \-?
-Same as
-.B -h.
 
 .SH EXAMPLES
 
@@ -1333,4 +1329,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.8 2003/10/16 07:23:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.9 2003/10/16 07:59:39 ballen4705 Exp $

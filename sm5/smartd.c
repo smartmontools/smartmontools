@@ -57,7 +57,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.218 2003/10/14 13:09:06 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.219 2003/10/16 07:59:39 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -626,7 +626,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Start smartd in debug mode\n\n");
   PrintOut(LOG_INFO,"  -D, --showdirectives\n");
   PrintOut(LOG_INFO,"        Print the configuration file Directives and exit\n\n");
-  PrintOut(LOG_INFO,"  -h, -?, --help, --usage\n");
+  PrintOut(LOG_INFO,"  -h, --help, --usage\n");
   PrintOut(LOG_INFO,"        Display this help and exit\n\n");
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
@@ -647,7 +647,6 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -q WHEN Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", GetValidArgList('r'));
   PrintOut(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
-  PrintOut(LOG_INFO,"  -?      Same as -h\n");
 #endif
 }
 

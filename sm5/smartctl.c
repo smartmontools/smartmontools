@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.101 2003/10/14 13:09:06 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.102 2003/10/16 07:59:38 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -106,7 +106,7 @@ void Usage (void){
   printf("============================================ SHOW INFORMATION OPTIONS =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-"  -h, -?, --help, --usage\n"
+"  -h, --help, --usage\n"
 "         Display this help and exit\n\n"
 "  -V, --version, --copyright, --license\n"
 "         Print license, copyright, and version information and exit\n\n"
@@ -117,7 +117,7 @@ void Usage (void){
   );
 #else
   printf(
-"  -h, -?    Display this help and exit\n"
+"  -h        Display this help and exit\n"
 "  -V        Print license, copyright, and version information\n"
 "  -i        Show identity information for device\n"
 "  -a        Show all SMART information for device\n\n"
