@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.247 2003/11/20 01:04:54 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.248 2003/11/20 03:08:16 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1006,7 +1006,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     else if (SIMPLE_ERR_NO_MEDIUM == err)
       PrintOut(LOG_INFO, "Device: %s, NO MEDIUM present; skip device\n", device);
     else if (SIMPLE_ERR_BECOMING_READY == err)
-      PrintOut(LOG_INFO, "Device: %s, becoming(but not yet) reading; skip device\n", device);
+      PrintOut(LOG_INFO, "Device: %s, BECOMING (but not yet) READY; skip device\n", device);
     else
       PrintOut(LOG_CRIT, "Device: %s, failed Test Unit Ready [err=%d]\n", device, err);
     CloseDevice(fd, device);
@@ -1019,8 +1019,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   // that various USB devices that malform the response will lock up
   // if asked for a log page (e.g. temperature) so it is best to
   // bail out now.
-  err = scsiFetchIECmpage(fd, &iec, cfg->modese_len);
-  if (0 == err)
+  if (!(err = scsiFetchIECmpage(fd, &iec, cfg->modese_len)))
     cfg->modese_len = iec.modese_len;
   else if (SIMPLE_ERR_BAD_FIELD == err)
     ;  /* continue since it is reasonable not to support IE mpage */
@@ -1031,7 +1030,7 @@ static int SCSIDeviceScan(cfgfile *cfg) {
     CloseDevice(fd, device);
     return 3;
   }
-    
+  
   // N.B. The following is passive (i.e. it doesn't attempt to turn on
   // smart if it is off). This may change to be the same as the ATA side.
   if (!scsi_IsExceptionControlEnabled(&iec)) {
