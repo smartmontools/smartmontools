@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.29 2002/10/29 21:58:25 ballen4705 Exp $
+# $Id: Makefile,v 1.30 2002/10/30 06:02:38 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -29,7 +29,10 @@ CC	= gcc
 # CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
 
 # Normal build
-CFLAGS	= -fsigned-char -Wall -O2 
+# NOTE: I have had reports that with gcc 3.2 this code fails if you use anything but
+# -Os.  I'll remove this comment when this is resolved, or I am reminded of it!
+# If you are getting strange output from gcc 3.2 try changing O2 to Os.
+CFLAGS	= -fsigned-char -Wall -O2
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\

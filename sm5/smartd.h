@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.15 2002/10/29 23:09:29 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.16 2002/10/30 06:02:40 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -100,6 +100,11 @@ typedef struct atadevices_s {
   cfgfile *cfg;
   char *devicename;
 }  atadevices_t;
+
+
+// Declare our own printing function...
+void printout(int priority,char *fmt, ...)
+     __attribute__ ((format (printf, 2, 3)));
 
 
 int ataCheckDevice(atadevices_t *drive);

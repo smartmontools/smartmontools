@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.22 2002/10/29 23:09:28 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.23 2002/10/30 06:02:39 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -347,7 +347,10 @@ int TestTime(struct ata_smart_values data,int testtype);
 void ataPrintSmartAttribName(char *output, unsigned char id);
 
 // like printf() except that we can control it better....
-void pout(char *fmt, ...);
+void pout(char *fmt, ...)  
+     __attribute__ ((format (printf, 1, 2)));
+
+
 
 // utility function for printing out CVS strings
 #define CVSMAXLEN 512

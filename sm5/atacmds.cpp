@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.34 2002/10/30 00:56:19 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.35 2002/10/30 06:02:38 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -515,13 +515,13 @@ int ataSmartStatus2(int device){
   perror("Error SMART Status command failed");
   pout("Please get assistance from %s\n",PROJECTHOME);
   pout("Register values returned from SMART Status command are:\n");
-  pout("CMD=0x%02x\n",parms[0]);
-  pout("FR =0x%02x\n",parms[1]);
-  pout("NS =0x%02x\n",parms[2]);
-  pout("SC =0x%02x\n",parms[3]);
-  pout("CL =0x%02x\n",parms[4]);
-  pout("CH =0x%02x\n",parms[5]);
-  pout("SEL=0x%02x\n",parms[6]);
+  pout("CMD=0x%02x\n",(int)parms[0]);
+  pout("FR =0x%02x\n",(int)parms[1]);
+  pout("NS =0x%02x\n",(int)parms[2]);
+  pout("SC =0x%02x\n",(int)parms[3]);
+  pout("CL =0x%02x\n",(int)parms[4]);
+  pout("CH =0x%02x\n",(int)parms[5]);
+  pout("SEL=0x%02x\n",(int)parms[6]);
   return -1;
 }
 #else

@@ -39,7 +39,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.23 2002/10/29 14:19:11 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.24 2002/10/30 06:02:40 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -48,7 +48,7 @@ atamainctrl *con=NULL;
 
 void printslogan(){
   pout("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",
-       RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+      (int)RELEASE_MAJOR, (int)RELEASE_MINOR, (int)SMARTMONTOOLS_VERSION);
   pout("Home page is %s\n\n",PROJECTHOME);
   return;
 }
@@ -219,7 +219,7 @@ void ParseOpts (int argc, char** argv){
       con->veryquietmode=FALSE;
       printslogan();
       if (optopt){
-	pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
+	pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",(int)optopt);
 	Usage();
 	exit(FAILCMD);
       }
@@ -253,7 +253,14 @@ void ParseOpts (int argc, char** argv){
 }
 
 
-// Printing function (controlled by global con->veryquietmode)
+// Printing function (controlled by global con->veryquietmode) 
+
+// [From GLIBC Manual: Since the prototype doesn't specify types for
+// optional arguments, in a call to a variadic function the default
+// argument promotions are performed on the optional argument
+// values. This means the objects of type char or short int (whether
+// signed or not) are promoted to either int or unsigned int, as
+// appropriate.]
 void pout(char *fmt, ...){
   va_list ap;
 
