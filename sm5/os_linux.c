@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.25 2003/11/12 02:13:34 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.26 2003/11/14 05:28:14 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -466,24 +466,28 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
     memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
     buff_offset = iop->cmnd_len;
     if (report > 0) {
-        int k;
+        int k, j;
         const unsigned char * ucp = iop->cmnd;
         const char * np;
+        char buff[256];
+        const size_t sz = sizeof(buff);
 
         np = scsi_get_opcode_name(ucp[0]);
-        pout(" [%s: ", np ? np : "<unknown opcode>");
+        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < iop->cmnd_len; ++k)
-            pout("%02x ", ucp[k]);
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
         if ((report > 1) && 
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-                 (trunc ? " [only first 256 bytes shown]" : ""));
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+                          "data, len=%d%s:\n", (int)iop->dxfer_len,
+                          (trunc ? " [only first 256 bytes shown]" : ""));
             dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
-            pout("]");
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+        pout(buff);
     }
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
