@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.84 2004/08/26 09:19:18 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.85 2004/08/26 11:40:03 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -646,8 +646,7 @@ static int isLinuxLibAta(unsigned char * buff, int len)
     unsigned char * ip;
 
     if (len < 4) {
-        fprintf(stderr, "Device identification VPD page length too "
-                "short=%d\n", len);
+        /* Device identification VPD page length too short */
         return 0;
     }
     len -= 4;
