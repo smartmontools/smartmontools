@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.111 2004/07/05 07:41:52 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.112 2004/07/15 15:48:03 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -371,8 +371,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // Maxtor 4D080H4
-    "^Maxtor (4D080H4|4G120J6)$",
+  { // Maxtor DiamondMax D540X-4D and Maxtor 4G120J6
+    "^Maxtor (4D0(20H1|40H2|60H3|80H4)|4G120J6)$",
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,
@@ -519,8 +519,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL 
   },
+  { // IBM Travelstar 48GH, 30GN, and 15GN family
+    "^IC25(T048ATDA05|N0(30|20|15|12|10|07|06|05)ATDA04)-.$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // IBM Travelstar 32GH, 30GT, and 20GN family
     "^IBM-DJSA-2(32|30|20|10|05)$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { // IBM Deskstar 37GP and 34GXP family
+    "^IBM-DPTA-3(5(375|300|225|150)|7(342|273|205|136))0$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
@@ -589,8 +599,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // TOSHIBA MK2017GAP
-    "^TOSHIBA MK2017GAP$",
+  { // TOSHIBA MK2016GAP, MK2017GAP, MK2018GAP, MK2018GAS, MK2023GAS
+    "^TOSHIBA MK20(1[678]GAP|(18|23)GAS)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -690,7 +700,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "^WDC WD(64|84|102|136|205|307)AA(-.*)?$",
+    "^WDC WD(64|84|102|136|205|272|307)AA(-.*)?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -766,6 +776,11 @@ const drivesettings knowndrives[] = {
   },
   { // QUANTUM FIREBALL EX6.4A
     "^QUANTUM FIREBALL EX6.4A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALL ST3.2A
+    "^QUANTUM FIREBALL ST3.2A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
