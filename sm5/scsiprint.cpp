@@ -37,7 +37,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.24 2003/03/29 11:01:34 pjwilliams Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.25 2003/03/31 12:48:51 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -57,7 +57,7 @@ void scsiGetSupportPages(int device)
 {
     int i, err;
 
-    if ((err = logsense(device ,SUPPORT_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
+    if ((err = logsense(device, SUPPORT_LOG_PAGES, gBuf, LOG_RESP_LEN))) {
         pout("Log Sense failed, err=%d\n", err); 
         return;
     } 
@@ -295,7 +295,7 @@ void  scsiPrintSelfTest(int device)
     return;
 }
  
-void scsiGetDriveInfo(int device)
+void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
 {
     char manufacturer[9];
     char product[17];
@@ -310,6 +310,8 @@ void scsiGetDriveInfo(int device)
         return;
     }
     len = gBuf[4] + 5;
+    if (peripheral_type)
+	*peripheral_type = gBuf[0] & 0x1f;
 
     if (len >= 36) {
         memset(manufacturer, 0, sizeof(manufacturer));
@@ -336,12 +338,12 @@ void scsiGetDriveInfo(int device)
     pout("Local Time is: %s\n", timedatetz);
    
     if ((err = scsiSmartSupport(device, &smartsupport))) {
-        pout("Device does not support %s\n", (gBuf[0] & 0x1f) ?
+        pout("Device does not support %s\n", (1 == *peripheral_type) ?
                          "TapeAlerts" : "S.M.A.R.T.");
         return;
     }
     pout("Device supports %s and is %s\n%s\n", 
-            (gBuf[0] & 0x1f) ? "TapeAlerts" : "S.M.A.R.T.",
+            (1 == *peripheral_type) ? "TapeAlerts" : "S.M.A.R.T.",
             (smartsupport & DEXCPT_ENABLE) ? "Disable" : "Enabled",
             (smartsupport & EWASC_ENABLE) ? "Temperature Warning Enabled" :
                 "Temperature Warning Disabled or Not Supported");
@@ -391,17 +393,23 @@ void scsiPrintStopStart(int device)
 **/
 }
 
-void scsiPrintMain(char *device, int fd)
+void scsiPrintMain(const char *dev_name, int fd)
 {
     int checkedsupportlogpages = 0;
+    UINT8 peripheral_type = 0;
+    int status;
 
     // See if unit accepts SCSI commmands from us
-    if (testunitready(fd)) {
-        pout("Smartctl: device %s failed Test Unit Ready\n", device);
+    if ((status = testunitready(fd))) {
+	if (1 == status)
+	    pout("Smartctl: device %s Test Unit Ready: NOT ready\n", dev_name);
+	else
+	    pout("Smartctl: device %s Test Unit Ready: err=%d\n", dev_name, 
+		 status);
         return;
     }
     if (con->driveinfo)
-        scsiGetDriveInfo(fd); 
+        scsiGetDriveInfo(fd, &peripheral_type); 
 
     if (con->smartenable) 
         scsiSmartEnable(fd);
@@ -413,13 +421,13 @@ void scsiPrintMain(char *device, int fd)
         scsiGetSupportPages (fd);
         checkedsupportlogpages = 1;
         if(gTapeAlertsPage)
-            scsiGetTapeAlertsData (fd);
+            scsiGetTapeAlertsData(fd);
         else {
             scsiGetSmartData(fd);
             if(gTempPage)
                 scsiPrintTemp(fd);         
             if(gStartStopPage)
-                scsiGetStartStopData (fd);
+                scsiGetStartStopData(fd);
         }
     }   
     if (con->smartselftestlog) {
