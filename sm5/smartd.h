@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.43 2003/08/15 16:58:02 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.44 2003/08/18 12:39:18 dpgilbert Exp $\n"
 #endif
 
 // Configuration file
@@ -182,10 +182,11 @@ typedef struct configfile_s {
   // THE NEXT SET OF ENTRIES TRACK DEVICE STATE AND ARE DYNAMIC
   mailinfo maildata[10];                  // Tracks type/date of email messages sent
   
-  // SCSI ONLY (Doug could you please comment each entry?)
-  unsigned char SmartPageSupported;
-  unsigned char TempPageSupported;
-  unsigned char Temperature;
+  // SCSI ONLY
+  unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
+  unsigned char TempPageSupported;        // has log sense temperature page (0xd)
+  unsigned char Temperature;              // last recorded figure (in Celsius)
+  unsigned char SuppressReport;           // minimize nuisance reports
   
   // ATA ONLY FROM HERE ON TO THE END
   unsigned char selflogcount;             // Total number of self-test errors
