@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.24 2003/04/17 03:09:54 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.25 2003/04/21 10:42:47 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -150,8 +150,8 @@ struct scsiNonMediumError {
 #define SELFTEST_RESULTS_PAGE                   0x10
 #define IE_LOG_PAGE                             0x2f
 
-/* From IBM Documentation */
-/* See more information at http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
+/* See the SSC-2 document at www.t10.org . Earler note: From IBM 
+Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define TAPE_ALERTS_PAGE                         0x2e
 
 /* ANSI SCSI-3 Mode Pages */
