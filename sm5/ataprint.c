@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.158 2004/09/17 04:30:37 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.159 2004/09/17 20:08:45 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -523,6 +523,9 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
   pout("Device is:        %s\n", drivetype<0?
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
+  // Print model family if known
+  if (drivetype>=0 && knowndrives[drivetype].modelfamily)
+    pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
 
   // now get ATA version info
   version=ataVersionInfo(&description,drive, &minorrev);
