@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/03/04 18:50:06 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/03/05 16:13:56 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.136 2004/03/04 18:50:06 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.137 2004/03/05 16:13:56 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -829,9 +829,16 @@ Linux 2.4 and 2.6 kernels, <i>if</i> you use the standard IDE drivers
 in <tt>drivers/ide</tt>. If you use the new <tt>libata</tt> drivers,
 it won't work correctly because <tt>libata</tt> doesn't yet support
 the needed ATA-passthrough ioctl() calls.  Jeff Garzik, the
-<tt>libata</tt> developer, says that this support will be added in the
-future.  When this happens, we'll add support to smartmontools for a
-new SATA/libata device type <tt>'-d sata'</tt>.
+<tt>libata</tt> developer, says that this support will be added to
+libata in the future.  When this happens, we'll add support to
+smartmontools for a new SATA/libata device type <tt>'-d sata'</tt>.
+Typically, to force an SATA disk to run using the standard
+(non-libata) drivers, you must use the BIOS to select "legacy mode"
+for the controller.  If the IDE driver doesn't support your particular
+SATA controller, or the controller doesn't have a legacy interface,
+then only libata can be used.  Unless the hard disk controller on the
+system motherboard is Intel, VIA or nVidia, standard IDE drivers may
+not work
 </p>
 
 <hr size="2" /><a name="differfromsmartsuite"></a><b>How does
@@ -999,8 +1006,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/03/04 18:50:06 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.136 2004/03/04 18:50:06 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/03/05 16:13:56 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.137 2004/03/05 16:13:56 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
