@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.36 2003/08/13 12:33:23 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.37 2003/08/18 07:10:41 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -46,6 +46,8 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.36 2003/08/13 12:33:23
 
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
+
+extern long long bytes;
 
 // These two are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {
@@ -449,6 +451,7 @@ int applypresets(const struct hd_driveid *drive, unsigned char **optsptr,
     pout("Unable to allocate memory in applypresets()");
     exit(1);
   }
+  bytes+=MAX_ATTRIBUTE_NUM;
 
   opts=*optsptr;
 

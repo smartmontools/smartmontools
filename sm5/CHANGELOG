@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.178 2003/08/16 22:44:50 pjwilliams Exp $
+$Id: CHANGELOG,v 1.179 2003/08/18 07:10:41 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Removed as much dynamic memory allocation as possible from
+       configuration file parsing. Reloading config file, even in
+       presence of syntax errors etc. should not cause memory leaks.
 
   [PW] It is no longer permissible for the integer part (if any) of
        arguments to --report and --device to be followed by non-digits.
