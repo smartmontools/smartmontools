@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.56 2004/04/09 00:28:44 ballen4705 Exp $
+$Id: smartd.8.in,v 1.57 2004/04/09 00:42:53 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1110,11 +1110,11 @@ Attributes.
 
 .TP
 .B \-C ID
-Report if the current number of pending sectors is non-zero.  Here
-\fBID\fP is the id number of the Attribute whose raw value is the
-Current Pending Sector count.  The default value of \fBID\fP is 197.
-To turn off this reporting, use ID\ =\ 0.  The allowed range of ID is
-0 to 255 inclusive.
+[ATA only] Report if the current number of pending sectors is
+non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
+value is the Current Pending Sector count.  The default value of
+\fBID\fP is 197.  To turn off this reporting, use ID\ =\ 0.  The
+allowed range of ID is 0 to 255 inclusive.
 
 A pending sector is a disk sector (containing 512 bytes of your data)
 which the device would like to mark as ``bad" and reallocate.
@@ -1637,4 +1637,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.56 2004/04/09 00:28:44 ballen4705 Exp $
+$Id: smartd.8.in,v 1.57 2004/04/09 00:42:53 ballen4705 Exp $
