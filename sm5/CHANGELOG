@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.100 2003/03/10 20:49:04 ballen4705 Exp $
+$Id: CHANGELOG,v 1.101 2003/03/11 04:38:56 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -33,7 +33,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-  [BA  smartd: Now send email if any of the SMART commands fails,
+  [BA] smartd/smartctl: added -v 200,writeerrorcount option/Directive
+       for Fujitsu disks.
+
+  [BA] smartd: Now send email if any of the SMART commands fails,
        or if open()ing the device fails.  This is often noted
        as a common disk failure mode.
 
