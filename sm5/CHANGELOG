@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.358 2004/03/05 23:17:31 pjwilliams Exp $
+$Id: CHANGELOG,v 1.359 2004/03/05 23:36:10 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added QUANTUM FIREBALLlct15 30, QUANTUM FIREBALLlct20 40, and
+       Maxtor 6Y060P0 (DiamondMax Plus 9 60GB) to knowndrives table.
 
   [PW] Added Maxtor DiamondMax 16 family to knowndrives table (thanks to
        Brett Russ for submitting the patch).

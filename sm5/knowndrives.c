@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.93 2004/03/05 23:17:31 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.94 2004/03/05 23:36:10 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -402,7 +402,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { // Maxtor DiamondMax Plus 9 family
-    "^Maxtor 6Y((060|080|120|160)L0|(080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
+    "^Maxtor 6Y((060|080|120|160)L0|(060|080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -602,13 +602,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // QUANTUM FIREBALLlct15 20
-    "^QUANTUM FIREBALLlct15 20$",
+  { // QUANTUM FIREBALLlct15 20 and QUANTUM FIREBALLlct15 30
+    "^QUANTUM FIREBALLlct15 [23]0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // QUANTUM FIREBALLlct20 20
-    "^QUANTUM FIREBALLlct20 20$",
+  { // QUANTUM FIREBALLlct20 20 and QUANTUM FIREBALLlct20 40
+    "^QUANTUM FIREBALLlct20 [24]0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
