@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.33 2003/04/13 16:05:23 pjwilliams Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.34 2003/04/17 19:28:06 guidog Exp $\n"
 #endif
 
 // Configuration file
@@ -58,6 +58,19 @@
 // below.
 #define NMONITOR 4
 
+// Exit codes
+#define EXIT_BADCMD    1   // command line did not parse
+#define EXIT_BADCONF   2   // problem reading/parsing config file
+#define EXIT_STARTUP   3   // problem forking daemon
+#define EXIT_PID       4   // problem creating pid file
+
+#define EXIT_NOMEM     8   // out of memory
+#define EXIT_CCONST    9   // we hit a compile time constant
+
+#define EXIT_BADDEV    16  // we can't monitor this device
+#define EXIT_NODEV     17  // no devices to monitor
+
+#define EXIT_SIGNAL    254 // abort on signal
 
 // If user has requested email warning messages, then this structure
 // stores the information about them.
