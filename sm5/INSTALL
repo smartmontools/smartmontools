@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.21 2003/10/11 22:59:37 arvoreen Exp $
+$Id: INSTALL,v 1.22 2003/10/12 21:16:44 arvoreen Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -72,6 +72,8 @@ following set of installation directories:
 --mandir             = /usr/share/man
 --with-docdir        = /usr/share/doc/smartmontools-VERSION
 --with-initscriptdir = /etc/rc.d/init.d
+--disable-sample
+
 These will overwrite existing "distribution" installations for Red
 Hat, Slackware, and some other Linux distributions.
 
@@ -139,18 +141,20 @@ For a list of options:
 To match the way it will installed when it becomese available as a PORT, use
 the following:
 
-  ./configure --sbindir=/usr/local/sbin                               \
-              --sysconfdir=/usr/local/etc                             \
-              --mandir=/usr/local/man                                 \
-              --with-initscriptdir=/usr/local/etc/rc.d/init.d         \
-              --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+  ./configure --prefix=/usr/local                                     \
+              --with-initscriptdir=/usr/local/etc/rc.d/               \
+              --with-docdir=/usr/local/share/doc/smartmontool	      \
+	      --enable-sample
 
 Also, it is important that you use GNU make (gmake from /usr/ports/devel/gmake)
 to build smartmontools, as the default FreeBSD make doesn't know how to build
 the man pages.
 
-Note: The rc file currently included and installed may not function. Work is
-ongoing to support a more generic RC format.
+NOTE: --enable-sample will cause the smard.conf and smartd RC files to
+be installed with the string '.sample' append to the name, so you will end
+up with the following:
+	/usr/local/etc/smartd.conf.sample
+	/usr/local/etc/rc.d/smartd.sample
 
 
 [6] Comments
@@ -235,6 +239,8 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   Directory for rc.d/init.d/smartd init script
 --with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts       
 --with-docdir	      $(prefix)/usr/share/doc/smartmontools-5.X   Location of the documentation
+--enable-sample	      --disable-sample				  Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
+
 
 
 If you set --prefix and NONE of the other four variables, for example:
@@ -277,6 +283,23 @@ Case 4:
 For Filesystem Hierarchy Standard (FHS) installation locations
 described in http://www.pathname.com/fhs/ please use:
 --prefix=/usr/local
+
+
+Here are the differences with and without --enable-sample, assuming
+no other options specified (see above for details)
+
+Case 1:
+--enable-sample provided
+==> Files installed are:
+	/etc/smartd.conf.sample
+	/etc/rc.d/init.d/smartd.sample
+
+Case 2:
+--disable-sample provided or parameter left out
+==> Files installed are:
+	/etc/smartd.conf
+	/etc/rc.d/init.d/smartd
+
 
 
 Additional information about using configure can be found here:
