@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.460 2004/08/31 07:42:24 ballen4705 Exp $
+$Id: CHANGELOG,v 1.461 2004/09/03 04:44:41 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] Add logic in smartd to detect 3ware, Marvell controllers and SATA
+       disks behind an ATA-SCSI simulator (in Linux). If specific device
+       types are not given and they are picked in a general SCSI device
+       scan then warn and skip.
 
   [GG] insert correct path to smartd into smartd's init script
 
