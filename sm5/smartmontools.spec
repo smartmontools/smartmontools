@@ -1,4 +1,4 @@
-Release:  28
+Release:  29
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Name:		smartmontools
@@ -20,7 +20,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.41 2002/11/04 09:13:37 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.42 2002/11/04 09:30:12 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -94,11 +94,11 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 %files
 %defattr(-,root,root)
-%{_sbindir}/smartd
-%{_sbindir}/smartctl
-/etc/rc.d/init.d/smartd
-%attr(0644,root,root) %{_mandir}/man8/smartctl.8*
-%attr(0644,root,root) %{_mandir}/man8/smartd.8*
+%attr(755,root,root) %{_sbindir}/smartd
+%attr(755,root,root) %{_sbindir}/smartctl
+%attr(755,root,root) /etc/rc.d/init.d/smartd
+%attr(644,root,root) %{_mandir}/man8/smartctl.8*
+%attr(644,root,root) %{_mandir}/man8/smartd.8*
 %doc CHANGELOG COPYING TODO README VERSION smartd.conf
 %config(noreplace) %{_sysconfdir}/smartd.conf
 %config %{_sysconfdir}/smartd.conf.example
