@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.61 2003/11/19 19:38:19 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.62 2003/12/01 21:53:43 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -141,7 +141,6 @@ typedef struct mailinfo {
 // the capabilities that devices already are known to have (as noted
 // within *cfg).
 
-
 typedef struct configfile_s {
   // FIRST SET OF ENTRIES CORRESPOND TO WHAT THE USER PUT IN THE
   // CONFIG FILE.  SOME ENTRIES MAY BE MODIFIED WHEN A DEVICE IS
@@ -167,10 +166,13 @@ typedef struct configfile_s {
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
   unsigned char selflogcount;             // total number of self-test errors
-  unsigned char notused1[3];              // for packing alignment
+  unsigned char notused1[1];              // for packing alignment
+  unsigned short selftesthour;            // 1+hour of year when last scheduled self-test done
   unsigned short selfloghour;             // lifetime hours of last self-test error
   char *emailcmdline;                     // Program for sending mail (or NULL)
   char *address;                          // Email addresses (or NULL)
+  char *testregexp;                       // Pointer to regexps pattern for selftest types/times.  Not stored in 
+                                          // compiled form because POSIX has no 'copy' compiled regex command!
 
   // THE NEXT SET OF ENTRIES TRACK DEVICE STATE AND ARE DYNAMIC
   mailinfo maildata[10];                  // Tracks type/date of email messages sent

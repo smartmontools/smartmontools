@@ -38,7 +38,11 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#include <regex.h>
+
+#if SCSITIMEOUT
 #include <setjmp.h>
+#endif
 
 // see which system files to conditionally include
 #include "config.h"
@@ -65,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.250 2003/11/30 16:41:38 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.251 2003/12/01 21:53:43 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -177,7 +181,7 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   if (!(cfg=*anentry))
     return;
 
-  // entry exists -- free all of its memory
+  // entry exists -- free all of its memory  
   cfg->name            = FreeNonZero(cfg->name,           -1,__LINE__,__FILE__);
   cfg->address         = FreeNonZero(cfg->address,        -1,__LINE__,__FILE__);
   cfg->emailcmdline    = FreeNonZero(cfg->emailcmdline,   -1,__LINE__,__FILE__);
@@ -185,6 +189,7 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
+  cfg->testregexp      = FreeNonZero(cfg->testregexp,     -1,__LINE__, __FILE__);
   *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile),__LINE__,__FILE__);
 
   return;
@@ -632,6 +637,8 @@ return;
    arguments to the option opt or NULL on failure. */
 const char *GetValidArgList(char opt) {
   switch (opt) {
+  case 's':
+    return "valid_regular_expresssion";
   case 'l':
     return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
@@ -1281,6 +1288,119 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
   return;
 }
 
+// returns 1 if time to do test of type testtype, 0 if not time to do
+// test, < 0 if error
+int DoTestNow(cfgfile *cfg, char testtype) {
+  // start by finding out the time:
+  struct tm timenow;
+  time_t epochnow;
+  char matchpattern[64];
+  regex_t compiled;
+  int retval=0;
+  unsigned short hours;
+  
+  if (!cfg->testregexp)
+    return retval;
+  
+  // construct pattern containing the month, day of month, day of
+  // week, and hour
+  time(&epochnow);
+  localtime_r(&epochnow, &timenow);
+  
+  // never do a second test in the same hour as one you've already done
+  hours=1+timenow.tm_hour+24*timenow.tm_yday;
+  if (hours==cfg->selftesthour)
+    return 0;
+  
+  sprintf(matchpattern, "/%c/%02d/%02d/%1d/%02d/", testtype, timenow.tm_mon+1, 
+	  timenow.tm_mday, timenow.tm_wday+1, timenow.tm_hour);
+  
+  // compile regular expression for matching
+  if (regcomp(&compiled, cfg->testregexp, REG_EXTENDED | REG_NOSUB))
+    // compilation of regular expression failed
+    retval=-1;
+  else
+    // see if we got a match
+    retval=!regexec(&compiled, matchpattern, 0, NULL, 0);
+  
+  // free compiled expression and return
+  regfree(&compiled);
+  
+  // if we are going ahead with a test, save the hour counts
+  if (retval>0)
+    cfg->selftesthour=hours;
+
+  return retval;
+}
+
+// Doug, do a short (testtype=='S' or long testtype=='L' self-test.
+// Return zero on success, nonzero on failure.  See corresponding ATA
+// function below for print on success and failure.
+int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
+  return 1;
+}
+
+// Do an offline immediate or self-test.  Return zero on success,
+// nonzero on failure.
+int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
+  
+  struct ata_smart_values data;
+  char *testname=NULL;
+  int retval, dotest=-1;
+  char *name=cfg->name;
+  
+  // Read current smart data and check status/capability
+  if (ataReadSmartValues(fd, &data) || !(data.offline_data_collection_capability)) {
+    PrintOut(LOG_CRIT, "Device: %s, not capable of offline or self testing.\n", name);
+    return 1;
+  }
+  
+  // Check for capability to do the test
+  switch (testtype) {
+  case 'O':
+    testname="Offline Immediate";
+    if (isSupportExecuteOfflineImmediate(&data))
+      dotest=OFFLINE_FULL_SCAN;
+    break;
+  case 'C':
+    testname="Conveyance Self";
+    if (isSupportConveyanceSelfTest(&data))
+      dotest=CONVEYANCE_SELF_TEST;
+    break;
+  case 'S':
+    testname="Short Self";
+    if (isSupportSelfTest(&data))
+      dotest=SHORT_SELF_TEST;
+    break;
+  case 'L':
+    testname="Long Self";
+    if (isSupportSelfTest(&data))
+      dotest=EXTEND_SELF_TEST;
+    break;
+  }
+  
+  // If we can't do the test, exit
+  if (dotest<0) {
+    PrintOut(LOG_CRIT, "Device: %s, not capable of %s Test\n", name, testname);
+    return 1;
+  }
+  
+  // If currently running a self-test, do not interrupt it to start another.
+  if (15==(data.self_test_exec_status >> 4)) {
+    PrintOut(LOG_INFO, "Device: %s, skip scheduled %s Test; %1d0%% remaining of current self-test.\n",
+	     name, testname, (int)(data.self_test_exec_status & 0x0f));
+    return 1;
+  }
+
+  // else execute the test, and return status
+  if ((retval=smartcommandhandler(fd, IMMEDIATE_OFFLINE, dotest, NULL)))
+    PrintOut(LOG_CRIT, "Device: %s, execute %s Test failed.\n", name, testname);
+  else
+    PrintOut(LOG_INFO, "Device: %s, starting scheduled %s Test.\n", name, testname);
+  
+  return retval;
+}
+
 
 int ATACheckDevice(cfgfile *cfg){
   int fd,i;
@@ -1430,6 +1550,22 @@ int ATACheckDevice(cfgfile *cfg){
       cfg->ataerrorcount=new;
   }
   
+  // if the user has asked, carry out scheduled self-tests
+  if (cfg->testregexp) {
+    // long test
+    if (DoTestNow(cfg, 'L')>0)
+      DoATASelfTest(fd, cfg, 'L');    
+    // short test
+    else if (DoTestNow(cfg, 'S')>0)
+      DoATASelfTest(fd, cfg, 'S');
+    // conveyance test
+    else if (DoTestNow(cfg, 'C')>0)
+      DoATASelfTest(fd, cfg, 'C');
+    // offline immediate
+    else if (DoTestNow(cfg, 'O')>0)
+      DoATASelfTest(fd, cfg, 'O');  
+  }
+  
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
   CloseDevice(fd, name);
@@ -1506,6 +1642,16 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->selftest)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
     
+
+    // Doug, here's where you add scheduled self-tests
+    if (cfg->testregexp) {
+      // short test
+      if (DoTestNow(cfg, 'S')>0)
+	DoSCSISelfTest(fd, cfg, 'S');
+      // long test
+      else if (DoTestNow(cfg, 'L')>0)
+	DoSCSISelfTest(fd, cfg, 'L');
+    }
     CloseDevice(fd, name);
     return 0;
 }
@@ -1607,6 +1753,9 @@ void printoutvaliddirectiveargs(int priority, char d) {
   char *s=NULL;
 
   switch (d) {
+  case 's':
+    PrintOut(priority, "valid_regular_expression");
+    break;
   case 'd':
     PrintOut(priority, "ata, scsi, removable, 3ware,N");
     break;
@@ -1839,6 +1988,33 @@ int ParseToken(char *token,cfgfile *cfg){
       badarg = 1;
     }
     break;
+  case 's':
+    if ((arg = strtok(NULL, delim)) == NULL) {
+      missingarg = 1;
+    } else {
+      // check that pattern is valid
+      regex_t compiled;
+      int retval;
+      if ((retval=regcomp(&compiled, arg, REG_EXTENDED | REG_NOSUB))) {
+	char errormsg[512];
+	// not a valid regular expression!
+	regerror(retval, &compiled, errormsg, 512);
+	PrintOut(LOG_CRIT, "File %s line %d (drive %s): the -s argument \"%s\" is NOT a valid extended regular expression. %s.\n",
+		 configfile, lineno, name, arg, errormsg);
+	regfree(&compiled);
+	return -1;
+      }
+      
+      // Free the last pattern given if any
+      if (cfg->testregexp) {
+        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s self-test pattern %s\n",
+		 configfile, lineno, name, cfg->testregexp);
+        cfg->testregexp=FreeNonZero(cfg->testregexp, -1,__LINE__,__FILE__);
+      }
+      // Attempt to copy the argument
+      cfg->testregexp=CustomStrDup(arg, 1, __LINE__,__FILE__);
+    }
+    break;
   case 'M':
     // email warning option
     if ((arg = strtok(NULL, delim)) == NULL) {
@@ -1975,6 +2151,7 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   add->name         = CustomStrDup(add->name,         0, __LINE__,__FILE__);
   add->emailcmdline = CustomStrDup(add->emailcmdline, 0, __LINE__,__FILE__);
   add->address      = CustomStrDup(add->address,      0, __LINE__,__FILE__);
+  add->testregexp   = CustomStrDup(add->testregexp,   0, __LINE__,__FILE__);
 
   if (add->attributedefs) {
     if (!(add->attributedefs=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1)))
