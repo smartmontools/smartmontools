@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.17 2003/04/20 15:38:38 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.18 2003/04/21 20:33:04 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -159,6 +159,20 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,
+    NULL, NULL
+  },
+  { // Maxtor 6Y120P0 (known firmware)
+    "^Maxtor 6Y120P0$",
+    "^YAR41VW0$",
+    NULL,
+    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
+    NULL, NULL
+  },
+  { // Maxtor 6Y120P0 (any other firmware)
+    "^Maxtor 6Y120P0$",
+    ".*",
+    "Contact developers; may need -v 9,minutes enabled.\n",
+    NULL,
     NULL, NULL
   },
   { // HITACHI_DK23BA-20
