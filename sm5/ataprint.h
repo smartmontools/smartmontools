@@ -1,4 +1,4 @@
-//  $Id: ataprint.h,v 1.5 2002/10/15 14:24:27 ballen4705 Exp $
+//  $Id: ataprint.h,v 1.6 2002/10/20 19:22:02 ballen4705 Exp $
 
 /*
  * ataprint.c
@@ -32,11 +32,7 @@
 #include "atacmds.h"
 
 
-/* Print Format of Structures for SMART information */
-
-
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */
-
 void ataPrintDriveInfo (struct hd_driveid);
 
 void ataPrintGeneralSmartValues (struct ata_smart_values);
@@ -52,12 +48,11 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
 
 void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data);
 
-void ataPsuedoCheckSmart (struct ata_smart_values , 
+void ataPseudoCheckSmart (struct ata_smart_values , 
                           struct ata_smart_thresholds );
 
 /* Prints Attribute Name for standard SMART attributes */
 /* prints 20 character string */
-
 void ataPrintSmartAttribName (unsigned char id);
 
 void ataPrintMain ( int fd );

@@ -1,4 +1,4 @@
-//  $Id: smartctl.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $
+//  $Id: smartctl.c,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -58,6 +58,7 @@ unsigned char smartautosaveenable     = FALSE;
 unsigned char smartautosavedisable    = FALSE;
 unsigned char printcopyleft           = FALSE;
 unsigned char smart009minutes         = FALSE;
+int           testcase                = -1;
 
 
 /*  void Usage (void) 
@@ -66,7 +67,7 @@ unsigned char smart009minutes         = FALSE;
 
 
 void Usage ( void){
-  printf( "usage: smartctl -[options] [device]\n");
+  printf( "Usage: smartctl -[options] [device]\n\n");
   printf( "Read Only Options:\n");
   printf( "\t\t%c\t\tShow version, copyright and license information\n", PRINTCOPYLEFT);
   printf( "\t\t%c\t\tShow all S.M.A.R.T. Information (ATA and SCSI)\n",  SMARTVERBOSEALL);
@@ -94,12 +95,12 @@ void Usage ( void){
   printf( "\t\t%c\t\tExecute Short Self Test (Captive Mode) (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
   printf( "\t\t%c\t\tExecute Extended Self Test (ATA Only)\n",                SMARTEXTENDSELFTEST );
   printf( "\t\t%c\t\tExecute Extended Self Test (Captive Mode) (ATA Only)\n", SMARTEXTENDCAPSELFTEST );
-  printf( "\t\t%c\t\tExecute Self Test Abort (ATA Only)\n\n",                 SMARTSELFTESTABORT );
+  printf( "\t\t%c\t\tExecute Self Test Abort (ATA Only)\n",                 SMARTSELFTESTABORT );
   printf( "Examples:\n");
   printf("\tsmartctl -etf /dev/hda   (Enables S.M.A.R.T. on first disk)\n");
   printf("\tsmartctl -a   /dev/hda   (Prints all S.M.A.R.T. information)\n");
-  printf("\tsmartctl -X   /dev/hda   (Executes extended disk self-test)\n");
-  printf("Please see the man pages or the web site for further information.\n");
+  printf("\tsmartctl -X   /dev/hda   (Executes extended disk self-test)\n\n");
+  printf("Please see the man pages or %s for further information.\n",PROJECTHOME);
 
 }
 
@@ -131,7 +132,6 @@ void ParseOpts (int argc, char** argv){
       driveinfo  = TRUE;
       break;		
     case CHECKSMART :
-      driveinfo  = TRUE;
       checksmart = TRUE;		
       break;
     case SMARTVERBOSEALL :
@@ -174,21 +174,27 @@ void ParseOpts (int argc, char** argv){
       break;
     case SMARTEXEOFFIMMEDIATE:
       smartexeoffimmediate = TRUE;
+      testcase=OFFLINE_FULL_SCAN;
       break;
     case SMARTSHORTSELFTEST :
       smartshortselftest = TRUE;
+      testcase=SHORT_SELF_TEST;
       break;
     case SMARTEXTENDSELFTEST :
       smartextendselftest = TRUE;
+      testcase=EXTEND_SELF_TEST;
       break;
     case SMARTSHORTCAPSELFTEST:
       smartshortcapselftest = TRUE;
+      testcase=SHORT_CAPTIVE_SELF_TEST;
       break;
     case SMARTEXTENDCAPSELFTEST:
       smartextendcapselftest = TRUE;
+      testcase=EXTEND_CAPTIVE_SELF_TEST;
       break;
     case SMARTSELFTESTABORT:
       smartselftestabort = TRUE;
+      testcase=ABORT_SELF_TEST;
       break;
     default:
       Usage();
@@ -197,9 +203,9 @@ void ParseOpts (int argc, char** argv){
     
     if ( (smartexeoffimmediate + smartshortselftest +
 	  smartextendselftest + smartshortcapselftest +
-	  smartextendcapselftest ) > 1){
+	  smartextendcapselftest +smartselftestabort ) > 1){
       Usage();
-      printf ("\n ERROR: smartctl can only run a single test at a time \n");
+      printf ("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
       exit(-1);
     }
   }
@@ -212,19 +218,20 @@ int main (int argc, char **argv){
   char *device;
   
   printf("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
-  printf("Home page of smartctl is %s\n\n",PROJECTHOME);
+  printf("Home page of smartctl is %s\n",PROJECTHOME);
   
   // Part input arguments
   ParseOpts (argc,argv);
   
   // Print Copyright/License info if needed
   if (printcopyleft){
-    printf("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
+    printf("\nsmartctl comes with ABSOLUTELY NO WARRANTY. This\n");
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $");
-    exit(0);
+    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $");
+    if (argc==2)
+      exit(0);
  }
 
   // Further argument checking

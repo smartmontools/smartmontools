@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.12 2002/10/15 14:24:26 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.13 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -72,6 +72,12 @@
 #define SMART_WRITE_LOG_SECTOR 0xd6
 #endif
 
+// The following is obsolete -- don't use it!
+#ifndef SMART_WRITE_THRESHOLDS
+#define SMART_WRITE_THRESHOLDS  0xd7
+#endif
+
+
 #ifndef SMART_ENABLE
 #define SMART_ENABLE		0xd8
 #endif
@@ -84,6 +90,7 @@
 #define SMART_STATUS		0xda
 #endif
 
+// The following is also marked obsolete in ATA-5
 #ifndef SMART_AUTO_OFFLINE
 #define SMART_AUTO_OFFLINE	0xdb
 #endif
@@ -91,6 +98,7 @@
 #define OFFLINE_FULL_SCAN		0
 #define SHORT_SELF_TEST			1
 #define EXTEND_SELF_TEST		2
+#define ABORT_SELF_TEST                 127
 #define SHORT_CAPTIVE_SELF_TEST		129
 #define EXTEND_CAPTIVE_SELF_TEST	130
 
@@ -306,22 +314,19 @@ int ataSmartSelfTestAbort (int device);
 int ataVersionInfo (const char **description, struct hd_driveid drive);
 
 
-/*  int ataSmartSupport ( int device, struct hd_driveid drive)
-*   Check if S.M.A.R.T. is supported and enabled in drive 
-*	returns -1:if S.M.A.R.T. capability can not be checked
-*	returns	0: if drive does not support S.M.A.R.T.
-*			1: if drive supports S.M.A.R.T. but not enabled 
-*			2: if drive supports S.M.A.R.T. and enabled 
-*		  255: if drive supports S.M.A.R.T. but does not   
-*			   support ATA-4. 
-*	ATA 3 and lower do not support S.M.A.R.T. enabled bit
-*   Attempt a Read S.M.A.R.T. attributes to check if enabled
-*/ 
+// If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
+int ataDoesSmartWork(int device);
 
+// returns 1 if SMART supported, 0 if not supported or can't tell
 int ataSmartSupport ( struct hd_driveid drive);
 
-/* Check SMART for Threshold failure */
+// Return values:
+//  1: SMART enabled
+//  0: SMART disabled
+// -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
+int ataIsSmartEnabled(struct hd_driveid drive);
 
+/* Check SMART for Threshold failure */
 int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds);
 
 /* int isOfflineTestTime ( struct ata_smart_values data)
@@ -355,6 +360,8 @@ int isSupportOfflineSurfaceScan ( struct ata_smart_values data);
 int isSupportSelfTest (struct ata_smart_values data);
 
 
+int ataSmartTest(int device, int testtype);
 
+int TestTime(struct ata_smart_values data,int testtype);
 
 #endif /* _ATACMDS_H_ */
