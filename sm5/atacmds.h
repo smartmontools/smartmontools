@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.62 2004/02/03 16:48:58 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.63 2004/02/04 14:21:49 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -96,6 +96,7 @@ typedef enum {
 
 // Needed parts of the ATA DRIVE IDENTIFY Structure. Those labeled
 // word* are NOT used.
+#pragma pack(1)
 struct ata_identify_device {
   unsigned short words000_009[10];
   unsigned char  serial_no[20];
@@ -113,6 +114,7 @@ struct ata_identify_device {
   unsigned short csf_default;
   unsigned short words088_255[168];
 };
+#pragma pack()
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 #pragma pack(1)
