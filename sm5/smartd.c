@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.251 2003/12/01 21:53:43 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.252 2003/12/01 22:24:31 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1646,11 +1646,11 @@ int SCSICheckDevice(cfgfile *cfg)
     // Doug, here's where you add scheduled self-tests
     if (cfg->testregexp) {
       // short test
-      if (DoTestNow(cfg, 'S')>0)
-	DoSCSISelfTest(fd, cfg, 'S');
-      // long test
-      else if (DoTestNow(cfg, 'L')>0)
+      if (DoTestNow(cfg, 'L')>0)
 	DoSCSISelfTest(fd, cfg, 'L');
+      // long test
+      else if (DoTestNow(cfg, 'S')>0)
+	DoSCSISelfTest(fd, cfg, 'S');
     }
     CloseDevice(fd, name);
     return 0;
