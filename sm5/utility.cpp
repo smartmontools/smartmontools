@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.51 2004/05/27 16:26:36 card_captor Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.52 2004/07/18 13:52:22 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -496,7 +496,7 @@ char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file){
   tmp=strdup(ptr);
   
   if (!tmp) {
-    PrintOut(LOG_CRIT, "No memory to duplicate string %s\n", ptr);
+    PrintOut(LOG_CRIT, "No memory to duplicate string %s at line %d of file %s\n", ptr, whatline, file);
     EXIT(EXIT_NOMEM);
   }
   
