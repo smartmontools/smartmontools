@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.147 2004/03/26 14:22:08 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.148 2004/03/29 00:26:03 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -941,6 +941,8 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       // Table 57 of T13/1532D Volume 1 Revision 3
       char *msgstate;
       int bits=summary->state & 0x0f;
+      int days = (int)summary->timestamp/24;
+
       switch (bits){
       case 0x00: msgstate="in an unknown state";break;
       case 0x01: msgstate="sleeping"; break;
@@ -956,8 +958,8 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 
       // See table 42 of ATA5 spec
       PRINT_ON(con);
-      pout("Error %d occurred at disk power-on lifetime: %d hours\n",
-             (int)(data->ata_error_count+k-4), (int)summary->timestamp);
+      pout("Error %d occurred at disk power-on lifetime: %d hours (%d days + %d hours)\n",
+             (int)(data->ata_error_count+k-4), (int)summary->timestamp, days, (int)(summary->timestamp-24*days));
       PRINT_OFF(con);
       pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
       pout("  After command completion occurred, registers were:\n"
@@ -980,14 +982,19 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       }
       pout("\n\n");
       pout("  Commands leading to the command that caused the error were:\n"
-           "  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name\n"
-           "  -- -- -- -- -- -- -- --   ---------  --------------------\n");
+           "  CR FR SC SN CL CH DH DC  Power_Up_Time    Command/Feature_Name\n"
+           "  -- -- -- -- -- -- -- --  ---------------  --------------------\n");
       for ( j = 4; j >= 0; j--){
         struct ata_smart_errorlog_command_struct *thiscommand=elog->commands+j;
-        
+
         // Spec says: unused data command structures shall be zero filled
-        if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand)))
-          pout("  %02x %02x %02x %02x %02x %02x %02x %02x %7d.%03d  %s\n",
+        if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand))) {
+	  char timestring[32];
+	  
+	  // Convert integer milliseconds to a text-format string
+	  MsecToText(thiscommand->timestamp, timestring);
+	  
+          pout("  %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
                (int)thiscommand->commandreg,
                (int)thiscommand->featuresreg,
                (int)thiscommand->sector_count,
@@ -996,9 +1003,9 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
                (int)thiscommand->cylinder_high,
                (int)thiscommand->drive_head,
                (int)thiscommand->devicecontrolreg,
-               (unsigned int)(thiscommand->timestamp / 1000U),
-               (unsigned int)(thiscommand->timestamp % 1000U),
+	       timestring,
                look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg));
+	}
       }
       pout("\n");
     }
@@ -1013,6 +1020,8 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struct ata_smart_values *sv) {
   int i;
   char *msg;
+  uint64_t current=log->currentlba;
+  uint64_t currentend=current+65535;
 
   // print data structure revision number
   pout("SMART Selective self-test log data structure revision number %d\n",(int)log->logversion);
@@ -1049,18 +1058,19 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
   for (i=0; i<5; i++) {
     uint64_t start=log->span[i].start;
     uint64_t end=log->span[i].end;
-    uint64_t current=log->currentlba;
-    uint64_t currentend=current+65535;
-
+    
     if ((i+1)==(int)log->currentspan)
       // this span is currently under test
-      pout("   %d %20"PRIu64" %20"PRIu64"   %"PRIu64"-%"PRIu64" %s\n",
-	   i+1, start,end,current,currentend, msg);
+      pout("   %d %20"PRIu64" %20"PRIu64"   %s (%"PRIu64"-%"PRIu64")\n",
+	   i+1, start, end, msg, current, currentend);
     else
       // this span is not currently under test
       pout("   %d %20"PRIu64" %20"PRIu64"   Not_testing\n", i+1, start, end);
-  }
-
+  }  
+  
+  if ((log->flags & SELECTIVE_FLAG_DOSCAN) && (log->flags & SELECTIVE_FLAG_ACTIVE) && log->currentspan>5)
+    pout("%4d %20"PRIu64" %20"PRIu64"   Read_scanning\n", (int)log->currentspan, current, currentend);
+  
   /* Print selective self-test flags.  Possible flag combinations are
      (numbering bits from 0-15):
      Bit-1 Bit-3   Bit-4
@@ -1071,7 +1081,7 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
      1     0       1       Currently scanning       
      1     1       1       Currently scanning
   */
-
+  
   pout("Selective self-test flags (0x%x):\n", (unsigned int)log->flags);
   if (log->flags & SELECTIVE_FLAG_DOSCAN) {
     if (log->flags & SELECTIVE_FLAG_ACTIVE)
@@ -1179,7 +1189,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
         sprintf(firstlba,"%s","-");
       else      
-        sprintf(firstlba,"0x%08x",log->lbafirstfailure);
+        sprintf(firstlba,"%u",log->lbafirstfailure);
 
       // print out a header if needed
       if (noheaderprinted && (allentries || errorfound)){

@@ -40,7 +40,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.45 2004/03/25 15:51:29 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.46 2004/03/29 00:26:03 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -430,3 +430,35 @@ int nonempty(unsigned char *testarea,int n){
       return 1;
   return 0;
 }
+
+
+// This routine converts an integer number of milliseconds into a test
+// string of the form Xd+Yh+Zm+Ts.msec.  The resulting text string is
+// written to the array.
+void MsecToText(unsigned int msec, char *txt){
+  int start=0;
+  unsigned int days, hours, min, sec;
+
+  days       = msec/86400000U;
+  msec      -= days*86400000U;
+
+  hours      = msec/3600000U; 
+  msec      -= hours*3600000U;
+
+  min        = msec/60000U;
+  msec      -= min*60000U;
+
+  sec        = msec/1000U;
+  msec      -= sec*1000U;
+
+  if (days) {
+    txt += sprintf(txt, "%2dd+", (int)days);
+    start=1;
+  }
+
+  sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  
+  return;
+}
+
+
+

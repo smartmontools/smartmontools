@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.31 2004/03/22 04:37:00 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.32 2004/03/29 00:26:03 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -132,6 +132,9 @@ int nonempty(unsigned char *testarea,int n);
 
 // needed to fix glibc bug
 void FixGlibcTimeZoneBug();
+
+// convert time in msec to a text string
+void MsecToText(unsigned int msec, char *txt);
 
 // Exit codes
 #define EXIT_BADCMD    1   // command line did not parse
