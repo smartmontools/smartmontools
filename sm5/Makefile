@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.51 2003/02/12 19:53:34 ballen4705 Exp $
+# $Id: Makefile,v 1.52 2003/02/12 20:07:10 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -115,7 +115,7 @@ install:
 	install -m 644 -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.1/VERSION
 	install -m 644 -D WARNINGS         $(DESTDIR)/usr/share/doc/smartmontools-5.1/WARNINGS
 	install -m 644 -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.1/smartd.conf
-	install -m 755 -D $(es)/README     $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/README
+	install -m 644 -D $(es)/README     $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/README
 	install -m 755 -D $(es)/Example1   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example1
 	install -m 755 -D $(es)/Example2   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example2
 	install -m 755 -D $(es)/Example3   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example3
