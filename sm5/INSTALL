@@ -17,12 +17,12 @@ run it.
 ./configure
 
 With no options, as shown, this defaults to --prefix=/usr
---sysconfdir=/etc --mandir=/usr/share/man --docdir=/usr/share/doc
---exampledir=/usr/share/doc/examplescripts, which are correct for Red
-Hat, Slackware, and probably other Linux distributions.
+--sysconfdir=/etc --mandir=/usr/share/man --docdir=/usr/share/doc, which
+are correct for Red Hat, Slackware, and probably other Linux
+distributions.
 
-Red Hat, Slackware (default):
------------------------------
+Red Hat (default)
+-----------------
 ./configure
 OR
 ./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man  --initscriptdir=/etc/rc.d/init.d
@@ -30,6 +30,30 @@ OR
 File System Hierarchy Standard (FHS), FreeBSD
 ---------------------------------------------
 ./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --datadir=/usr/local/share --mandir=/usr/local/man  --initscriptdir=/usr/local/etc/rc.d/init.d
+
+Slackware
+---------
+./configure
+OR
+./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man
+
+A Slackware init script (we'll call it rc.smartd) is completely
+different, goes in /etc/rc.d, and is usually called from /etc/rc.d/rc.M
+with something like:
+
+if [ -x /etc/rc.d/rc.smartd ]; then
+  . /etc/rc.d/rc.smartd
+fi
+
+It'd be disabled by default with chmod 644 and could be as simple as:
+
+#!/bin/sh
+if [ -x /usr/sbin/smartd ]; then
+ /usr/sbin/smartd
+fi
+
+His contents could also be added directly in /etc/rc.d/rc.M or
+/etc/rc.d/rc.local.
 
 SuSE
 ----
