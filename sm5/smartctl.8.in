@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.70 2004/10/06 23:20:21 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.71 2004/11/11 17:56:08 ydario Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1193,6 +1193,7 @@ The following have made large contributions to smartmontools:
 \fBSergey Svishchev\fP (NetBSD interface)
 \fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
 \fBPhil Williams\fP (User interface and drive database)
+\fBYuri Dario\fP (OS/2, eComStation interface)
 .fi
 Many other individuals have made smaller contributions and corrections.
 
@@ -1243,7 +1244,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.70 2004/10/06 23:20:21 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.71 2004/11/11 17:56:08 ydario Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

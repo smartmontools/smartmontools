@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.56 2004/11/05 18:59:52 chrfranke Exp $
+$Id: INSTALL,v 1.57 2004/11/11 17:56:08 ydario Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -18,8 +18,9 @@ Table of contents:
 [8] Guidelines for Solaris
 [9] Guidelines for Cygwin
 [10] Guidelines for Windows
-[11] Comments
-[12] Detailed description of ./configure options
+[11] Guidelines for OS/2, eComStation
+[12] Comments
+[13] Detailed description of ./configure options
 
 [1] System requirements
 =======================
@@ -161,12 +162,19 @@ Table of contents:
      - switching off auto-save (but why would you want to?)
      - running the short test (that leaves you with only the extended test)
 
-The last set have been filed in Apple's bug tracking system and
-hopefully will be fixed.
+    The last set have been filed in Apple's bug tracking system and
+    hopefully will be fixed.
 
-However, some things do work well.  For ATA devices, all the
-informational output is available, unless you want something that only
-an offline test updates.
+    However, some things do work well.  For ATA devices, all the
+    informational output is available, unless you want something that only
+    an offline test updates.
+
+    H) OS/2, eComStation
+
+    The code was tested on eComStation 1.1, but it should work on all versions
+    of OS/2.
+    Innotek LibC 0.5 runtime is required.
+    Currently only ATA disks are supported, SCSI support will be added.
 
 
 [2] Installing from CVS
@@ -419,7 +427,17 @@ To build the Windows binary distribution, use:
   See smartd man page for usage information about this tool.
 
 
-[11] Comments
+[11] Guidelines for OS/2, eComStation
+=====================================
+
+To compile the OS/2 code, please run
+
+  ./os_os2/configure.os2
+  make
+  make install
+
+
+[12] Comments
 ============
 
 To compile from another directory, you can replace the step
@@ -495,7 +513,7 @@ if groff is available:
 make MAN2HTML='groff -man -Thtml' htmlman
 
 
-[12] Detailed description of arguments to configure command
+[13] Detailed description of arguments to configure command
 ===========================================================
 
 When you type:
