@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.131 2004/02/14 19:47:11 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.132 2004/02/14 19:52:48 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -156,7 +156,6 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   unsigned char CL=data->error_struct.cylinder_low;
   unsigned char CH=data->error_struct.cylinder_high;
   unsigned char DH=data->error_struct.drive_head;
-  unsigned char reg[4]={DH, CH, CL, SN};
   char *s;
   char *error_flag[8];
   int i;
@@ -167,6 +166,13 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
    * below)
    */
   int uses_device_fault = 1;
+  unsigned char reg[4];
+
+  // set up registers needed to compute LBA
+  reg[0]=DH;
+  reg[1]=CH;
+  reg[2]=CL;
+  reg[3]=SN;
 
   /* A value of NULL means that the error flag isn't used */
   for (i = 0; i < 8; i++)
