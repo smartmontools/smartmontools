@@ -1,6 +1,6 @@
 # Makefile for smartmontools
 #
-# $Id: Makefile,v 1.12 2002/10/11 12:48:27 ballen4705 Exp $
+# $Id: Makefile,v 1.13 2002/10/13 13:10:56 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -14,8 +14,8 @@
 # Mass Ave, Cambridge, MA 02139, USA.
 
 CC	= gcc
-# CFLAGS = -fsigned-char -Wall -g 
-CFLAGS	= -fsigned-char -Wall -O2
+CFLAGS = -fsigned-char -Wall -g 
+# CFLAGS	= -fsigned-char -Wall -O2
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
