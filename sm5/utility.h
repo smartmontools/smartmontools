@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.4 2003/02/09 21:12:34 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.5 2003/03/06 07:27:18 ballen4705 Exp $\n"
 #endif
 
 // Utility function prints current date and time and timezone into a

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #define _SMART_PRINT_H_
 
 #ifndef ATAPRINT_H_CVSID
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.16 2003/01/17 21:47:17 ballen4705 Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.17 2003/03/06 07:27:15 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>

@@ -1,8 +1,8 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.97 2003/03/06 06:28:46 ballen4705 Exp $
+$Id: CHANGELOG,v 1.98 2003/03/06 07:27:14 ballen4705 Exp $
 
-Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 Home page of code is: http://smartmontools.sourceforge.net
 

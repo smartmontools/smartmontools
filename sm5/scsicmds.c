@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@
 /* #include <scsi/scsi_ioctl.h> bypass for now */
 #include "scsicmds.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.19 2003/02/17 16:03:38 ballen4705 Exp $" SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.20 2003/03/06 07:27:16 ballen4705 Exp $" SCSICMDS_H_CVSID;
 
 static int send_scsi_cmd(int device, int cmnd_len, void * io_hdr)
 {

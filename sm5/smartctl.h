@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef SMARTCTL_H_CVSID
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.16 2003/01/16 15:28:57 ballen4705 Exp $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.17 2003/03/06 07:27:17 ballen4705 Exp $\n"
 #endif
 
 /* Boolean Values */
