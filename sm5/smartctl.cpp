@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.137 2004/09/15 10:28:30 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.138 2004/10/13 20:18:03 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -64,7 +64,12 @@ extern int exitstatus;
 extern int64_t bytes;
 
 void printslogan(){
-  pout("smartctl version %s [%s] Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION, SMARTMONTOOLS_BUILD_HOST);
+#ifdef HAVE_GET_OS_VERSION_STR
+  const char * ver = get_os_version_str();
+#else
+  const char * ver = SMARTMONTOOLS_BUILD_HOST;
+#endif
+  pout("smartctl version %s [%s] Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION, ver);
   pout("Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }

@@ -39,8 +39,64 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.22 2004/10/13 11:25:08 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.23 2004/10/13 20:18:03 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+
+
+#ifndef HAVE_GET_OS_VERSION_STR
+#error define of HAVE_GET_OS_VERSION_STR missing in config.h
+#endif
+
+// Return build host and OS version as static string
+const char * get_os_version_str()
+{
+	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)+sizeof("-2000-sp2.1")+2]
+		= SMARTMONTOOLS_BUILD_HOST;
+	char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
+	const int vlen = sizeof(vstr)-sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
+
+	OSVERSIONINFOEXA vi;
+	const char * w;
+
+	memset(&vi, 0, sizeof(vi));
+	vi.dwOSVersionInfoSize = sizeof(vi);
+	if (!GetVersionExA((OSVERSIONINFOA *)&vi)) {
+		memset(&vi, 0, sizeof(vi));
+		vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
+		if (!GetVersionExA((OSVERSIONINFOA *)&vi))
+			return vstr;
+	}
+
+	if (vi.dwPlatformId > 0xff || vi.dwMajorVersion > 0xff || vi.dwMinorVersion > 0xff)
+		return vstr;
+
+	switch (vi.dwPlatformId << 16 | vi.dwMajorVersion << 8 | vi.dwMinorVersion) {
+	  case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400| 0:
+		w = (vi.szCSDVersion[1] == 'B' ||
+		     vi.szCSDVersion[1] == 'C'     ? "95-osr2" : "95");    break;
+	  case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400|10:
+		w = (vi.szCSDVersion[1] == 'A'     ? "98se"    : "98");    break;
+	  case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400|90: w = "me";     break;
+	//case VER_PLATFORM_WIN32_NT     <<16|0x0300|51: w = "nt3.51"; break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0400| 0: w = "nt4";    break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 0: w = "2000";   break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 1: w = "xp";     break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 2: w = "2003";   break;
+	  default: w = 0; break;
+	}
+
+	if (!w)
+		snprintf(vptr, vlen, "-%s%lu.%lu",
+			(vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "9x"),
+			vi.dwMajorVersion, vi.dwMinorVersion);
+	else if (vi.wServicePackMinor)
+		snprintf(vptr, vlen, "-%s-sp%u.%u", w, vi.wServicePackMajor, vi.wServicePackMinor);
+	else if (vi.wServicePackMajor)
+		snprintf(vptr, vlen, "-%s-sp%u", w, vi.wServicePackMajor);
+	else
+		snprintf(vptr, vlen, "-%s", w);
+	return vstr;
+}
 
 
 static int ata_open(int drive);
