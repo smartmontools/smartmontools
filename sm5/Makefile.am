@@ -1,11 +1,9 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.52 2004/03/02 18:19:55 shattered Exp $
+# $Id: Makefile.am,v 1.53 2004/03/04 02:44:39 pervalidus Exp $
 #
 
 @SET_MAKE@
-
-AUTOMAKE_OPTIONS = 1.6
 
 AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR=\"$(sysconfdir)\"
 
