@@ -1,25 +1,25 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.474 2004/09/22 14:03:29 likewise Exp $
+$Id: CHANGELOG,v 1.475 2004/09/22 22:14:34 likewise Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsï¿½
+[EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [CD] Caper Dik
 [CF] Christian Franke
-[GF] Guilhem Frï¿½zou
+[GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
-[KM] Kai Mï¿½kisara
+[KM] Kai Mäkisara
 [EM] Eduard Martinescu
-[FM] Frï¿½dï¿½ric L. W. Meunier
+[FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
 [DS] David Snyder
 [SS] Sergey Svishchev
@@ -33,7 +33,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [LW] Make os_linux.c/marvell_command_interface() always return 0 on STATUS.
        Needed for a disk having bad SMART status.
-  
+
   [CF] smartctl: Added drive family printing.
 
   [CF] autogen.sh: Allow automake 1.9, added message if automake
