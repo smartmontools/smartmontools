@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.53 2004/07/16 15:49:57 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.54 2004/08/02 14:31:05 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -415,24 +415,27 @@ match the extended regular expression \fBREGEXP\fP. Here:
 .RS 7
 .IP \fBT\fP 4
 is the type of the test.  The values that \fBsmartd\fP will try to
-match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a \fBS\fPhort
-Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA only), and \'O\'
-for an \fBO\fPffline Immediate Test (ATA only).  As soon as a match is
-found, the test will be started and no additional matches will be
-sought for that device and that polling cycle.
+match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a
+\fBS\fPhort Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA
+only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
+soon as a match is found, the test will be started and no additional
+matches will be sought for that device and that polling cycle.
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
-range is from 01 (January) to 12 (December) inclusive.
+range is from 01 (January) to 12 (December) inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
 .IP \fBDD\fP 4
 is the day of the month, expressed with two decimal digits. The
-range is from 01 to 31 inclusive.
+range is from 01 to 31 inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
 .IP \fBd\fP 4
 is the day of the week, expressed with one decimal digit.  The
 range is from 1 (Monday) to 7 (Sunday) inclusive.
 .IP \fBHH\fP 4
 is the hour of the day, written with two decimal digits, and given in
-hours after midnight.  The range is 00 (midnight to just before 1am) to 23 (11pm
-to just before midnight) inclusive.
+hours after midnight.  The range is 00 (midnight to just before 1am)
+to 23 (11pm to just before midnight) inclusive.  Do \fBnot\fP use a
+single decimal digit or the match will always fail!
 .RE
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
@@ -529,6 +532,11 @@ Note that by default under Solaris, in the previous paragraph,
 \'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
 argument.
 
+On Windows, the \'\fBBlat\fP\' mailer
+(\fBhttp://blat.sourceforge.net/\fP) is used by default.
+This mailer uses a different command line syntax, see
+\'\-M exec\' below.
+
 Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
@@ -542,10 +550,13 @@ you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
 
-Windows: The mail warning facility is not implemented yet.
-By specifying \'\fB-m msgbox\fP\', a warning "email" is displayed
-as a message box on the screen. With \'\fB-m sysmsgbox\fP\', a system
-modal (always on top) message box is used.
+The following extension is available on Windows:
+By specifying \'\fBmsgbox\fP\' as a mail address, a warning
+"email" is displayed as a message box on the screen.
+Using both \'\fBmsgbox\fP\' and regular mail addresses is possible, if
+'\fBmsgbox\fP\' is the first word in the comma separated list.
+With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
+is used.
 
 .TP
 .B \-M TYPE
@@ -713,6 +724,12 @@ that would normally be provided to \'mail\'.  Examples include:
 .B -m root -M exec /Example_1/bash/script/below
 .fi
 
+Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
+used:
+.nf
+- -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
+.fi
+
 If the \'\-m ADD\' Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with
@@ -731,10 +748,6 @@ discarded.
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
-
-Windows: \'-M exec\' is not implemented yet.
-The other \'-M\' directives work in conjunction with the display of
-warning message boxes by \'-m msgbox\' or \'-m sysmsgbox\' (see above).
 
 .TP
 .B \-f
@@ -1177,4 +1190,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.53 2004/07/16 15:49:57 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.54 2004/08/02 14:31:05 ballen4705 Exp $
