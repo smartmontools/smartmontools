@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.27 2002/10/24 15:25:27 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.28 2002/10/24 15:29:05 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -457,12 +457,15 @@ int main (int argc, char **argv){
   }
   
   printhead();
-  
+ 
+
+   // If we are running in background as a daemon, call 
+  // a routines that forks then closes file descriptors. 
   if (!debugmode){
     daemon_init();
   }
-  
-  /* fork into independent process */
+ 
+  // routines that look for devices on ata and scsi bus 
   atadevicescan (atadevicesptr); 
   scsidevicescan (scsidevicesptr);
   
