@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.99 2003/01/22 00:28:19 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.100 2003/01/27 22:49:05 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -197,7 +197,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 	   "%s in domain: %s\n\n"
 	   "The following warning/error was logged by the smartd daemon:\n"
 	   "%s\n"
-	   "For further details see the syslog (/var/log/messages) on host:\n"
+	   "For details see the SYSLOG (default: /var/log/messages) on host:\n"
 	   "%s\n\n"
 	   "%s%s%s"
 	   "ENDMAIL\n",
