@@ -20,6 +20,8 @@
 // Writes to windows event log on NT4/2000/XP
 // (Register syslogevt.exe as event message file)
 // Writes to file "<ident>.log" on 9x/ME.
+// If faility is set to LOG_LOCAL[0-7], log is written to
+// file "<ident>.log", "<ident>[1-7].log".
 
 
 #include <stdio.h>
@@ -28,7 +30,7 @@
 
 #include "syslog.h"
 
-const char *syslog_win32_c_cvsid = "$Id: syslog_win32.c,v 1.1 2004/03/13 22:25:53 chrfranke Exp $"
+const char *syslog_win32_c_cvsid = "$Id: syslog_win32.c,v 1.2 2004/03/24 21:08:44 chrfranke Exp $"
 SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER
@@ -54,17 +56,53 @@ SYSLOG_H_CVSID;
 
 
 static char sl_ident[100];
-static char sl_logpath[sizeof(sl_ident) + sizeof(".log")-1];
+static char sl_logpath[sizeof(sl_ident) + sizeof("0.log")-1];
+static HANDLE sl_hevtsrc;
+
 
 void openlog(const char *ident, int logopt, int facility)
 {
-	// Save ident, assume logopt==LOG_PID, ignore facility
 	strncpy(sl_ident, ident, sizeof(sl_ident)-1);
-	ARGUSED(logopt); ARGUSED(facility);
+
+	if (sl_logpath[0] || sl_hevtsrc)
+		return; // Already open
+
+	if (LOG_LOCAL0 <= facility && facility <= LOG_LOCAL7) {
+		// Use logfile
+		if (facility == LOG_LOCAL0) // "ident.log"
+			strcat(strcpy(sl_logpath, sl_ident), ".log");
+		else // "ident[1-7].log"
+			snprintf(sl_logpath, sizeof(sl_logpath)-1, "%s%d.log",
+				sl_ident, LOG_FAC(facility)-LOG_FAC(LOG_LOCAL0));
+	}
+	else // Assume LOG_DAEMON, use event log if possible
+	if (!(sl_hevtsrc = RegisterEventSourceA(NULL/*localhost*/, sl_ident))) {
+		// Cannot open => Use logfile
+		long err = GetLastError();
+		strcat(strcpy(sl_logpath, sl_ident), ".log");
+		if (GetVersion() & 0x80000000)
+			fprintf(stderr, "%s: No event log on Win9x/ME, writing to %s\n",
+				sl_ident, sl_logpath);
+		else
+			fprintf(stderr, "%s: Cannot register event source (Error=%ld), writing to %s\n",
+				sl_ident, err, sl_logpath);
+	}
+	//assert(sl_logpath[0] || sl_hevtsrc);
+
+	// logopt==LOG_PID assumed
+	ARGUSED(logopt);
 }
+
 
 void closelog()
 {
+#if 0
+	if (sl_hevtsrc) {
+		DeregisterEventSource(sl_hevtsrc); sl_hevtsrc = 0;
+	}
+#else
+	// Leave event message source open to prevent losing messages during shutdown
+#endif
 }
 
 
@@ -91,15 +129,15 @@ static WORD pri2evtype(int priority)
 static const char * pri2text(int priority)
 {
 	switch (priority) {
-		case LOG_EMERG:   return "Emerg  ";
-		case LOG_ALERT:   return "Alert  ";
-		case LOG_CRIT:    return "Crit   ";
+		case LOG_EMERG:   return "EMERG";
+		case LOG_ALERT:   return "ALERT";
+		case LOG_CRIT:    return "CRIT ";
 		default:
-		case LOG_ERR:     return "Error  ";
-		case LOG_WARNING: return "Warning";
-		case LOG_NOTICE:  return "Notice ";
-		case LOG_INFO:    return "Info   ";
-		case LOG_DEBUG:   return "Debug  ";
+		case LOG_ERR:     return "ERROR";
+		case LOG_WARNING: return "Warn ";
+		case LOG_NOTICE:  return "Note ";
+		case LOG_INFO:    return "Info ";
+		case LOG_DEBUG:   return "Debug";
 	}
 }
 
@@ -140,9 +178,12 @@ static int format_msg(char * buffer, int bufsiz, int logfmt,
 	if (n < 0)
 		return -1;
 	len += n;
-	// Remove trailing EOL for event log
-	if (!logfmt && buffer[len-1] == '\n')
+	// Remove trailing EOLs
+	while (buffer[len-1] == '\n')
 		len--;
+	if (logfmt)
+		buffer[len++] = '\n';
+	// TODO: Format multiline messages
 	buffer[len] = 0;
 	return len;
 }
@@ -151,40 +192,28 @@ static int format_msg(char * buffer, int bufsiz, int logfmt,
 void vsyslog(int priority, const char * message, va_list args)
 {
 	char buffer[1000];
-	HANDLE hev;
 
-    // Translation of %m to error text not supported yet
+	// Translation of %m to error text not supported yet
 	if (strstr(message, "%m"))
 		message = "Internal error: \"%%m\" in log message";
 
-	// Open event log if logpath empty
-	hev = 0;
-	if (   !sl_logpath[0] && sl_ident[0]
-		&& !(hev = RegisterEventSourceA(NULL/*localhost*/, sl_ident))) {
-		// Cannot open => Use logfile
-		strcpy(sl_logpath, sl_ident); strcat(sl_logpath, ".log");
-		fprintf(stderr, "%s, writing to %s\n", (GetVersion() & 0x80000000 ?
-			"No event log on Win9x/ME":"Error opening event log"), sl_logpath);
-	}
+	// Format message
+	if (format_msg(buffer, sizeof(buffer), !sl_hevtsrc, priority, message, args) < 0)
+		strcpy(buffer, "Internal Error: buffer overflow\n");
 
-	if (hev) {
+	if (sl_hevtsrc) {
 		// Write to event log
 		const char * msgs[1] = { buffer };
-		if (format_msg(buffer, sizeof(buffer), 0, priority, message, args) < 0)
-			strcpy(buffer, "Internal Error: buffer overflow");
-		ReportEventA(hev,
+		ReportEventA(sl_hevtsrc,
 			pri2evtype(priority), // type
 			0, MSG_SYSLOG,        // category, message id
 			NULL,                 // no security id
 			1   , 0,              // 1 string, ...
 			msgs, NULL);          // ...     , no data
-		DeregisterEventSource(hev);
 	}
 	else {
 		// Append to logfile
 		FILE * f;
-		if (format_msg(buffer, sizeof(buffer), 1, priority, message, args) < 0)
-			strcpy(buffer, "Internal Error: buffer overflow");
 		if (!(f = fopen(sl_logpath, "a")))
 			return;
 		fputs(buffer, f);
@@ -207,8 +236,8 @@ int main(int argc, char* argv[])
 {
 	openlog(argc < 2 ? "test" : argv[1], LOG_PID, LOG_DAEMON);
 	syslog(LOG_INFO,    "Info\n");
-	syslog(LOG_WARNING, "Warning %d\n", 42);
-	syslog(LOG_ERR,     "Error %s\n", "Fatal");
+	syslog(LOG_WARNING, "Warning %d\n\n", 42);
+	syslog(LOG_ERR,     "Error %s", "Fatal");
 	closelog();
 	return 0;
 }

@@ -19,7 +19,7 @@
 #ifndef SYSLOG_H
 #define SYSLOG_H
 
-#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.1 2004/03/13 22:25:53 chrfranke Exp $\n"
+#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.2 2004/03/24 21:08:44 chrfranke Exp $\n"
 
 #include <stdarg.h>
 
@@ -35,9 +35,11 @@
 #define LOG_INFO        6
 #define LOG_DEBUG       7
 
-/* Ignored: */
+/* event log: */
 #define LOG_DAEMON      ( 3<<3)
+/* ident.log: */
 #define LOG_LOCAL0      (16<<3)
+/* ident1-7.log: */
 #define LOG_LOCAL1      (17<<3)
 #define LOG_LOCAL2      (18<<3)
 #define LOG_LOCAL3      (19<<3)
@@ -46,11 +48,14 @@
 #define LOG_LOCAL6      (22<<3)
 #define LOG_LOCAL7      (23<<3)
 
+#define LOG_FACMASK     0x03f8
+#define LOG_FAC(f)      (((f) & LOG_FACMASK) >> 3)
+ 
 #define LOG_PID         0x01
 
 void openlog(const char * ident, int option, int facility);
 
-void closelog();
+void closelog(void);
 
 void vsyslog(int priority, const char * message, va_list args);
 
