@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.154 2004/03/10 20:25:36 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.155 2004/05/04 21:33:28 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -324,6 +324,114 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Tue May 4 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [DG] move SCSI device temperature and start-stop log page output
+       (smartctl) into --attributes section (was in --info section).
+  [GG] change default installation location to /usr/local
+  [CF] Cygwin smartd: Fixed crash on access of SCSI devices after fork().
+  [PW] Added TOSHIBA MK4018GAS and the following Maxtor drive families
+       to knowndrives table: DiamondMax D540X-4G, Fireball 541DX,
+       DiamondMax 3400 Ultra ATA, DiamondMax Plus 6800 Ultra ATA 66.
+  [PW] Added missing Maxtor DiamondMax 16, DiamondMax D540X-4K, and
+       DiamondMax Plus 45 Ulta ATA 100 drives to knowndrives table.
+  [PW] Added ExcelStor J240, Hitachi Travelstar 80GN family, Fujitsu
+       MHTxxxxAT family, and IBM Deskstar 25GP and 22GXP families to
+       knowndrives table.
+  [CF] Cygwin smartd: Added workaround for missing SIGQUIT via keyboard:
+       To exit smartd in debug mode, type CONTROL-C twice.
+  [BA] smartctl: printing of the selective self-test log is now
+       controlled by a new option: -l selective
+  [BA] Added entries for Samsung firmware versions -25 to -39 based
+       on latest info about firmware bug fixes.
+  [PW] Added Seagate U Series X family, Seagate U8 family, and Seagate
+       Medalist 8641 family to knowndrives table.
+  [CF] smartd: Added exit values 5/6 for missing/unreadable config file.
+  [BA] smartd: now monitor the Current Pending Sector count (Attribute 197)
+       and the Offline Pending Sector Count (Attribute 198).  Log a
+       warning (and send an email, if so configured) if the raw count
+       is nonzero.  These are controlled by new Directives: -C and -U.
+       Currently they are enabled by default.
+  [CF] Added option -c FILE, --configfile=FILE to smartd to specify
+       an alternate configuration FILE or '-' for standard input.
+  [KS] configure.in now searches for -lnsl and -lsocket for Solaris.
+  [CF] Win32/native smartd: Added thread to combine several syslog output
+       lines into one single event log entry.
+  [CF] Win32 smartd: Added DEVICESCAN for SCSI/ASPI devices.
+  [GG] Use gethostbyname() the get the DNS domain since getdomainname() 
+       returns the NIS domain when sending mails from smartd.
+  [GG] smartd.init.in: pass smartd_opts to smartd on startup, read distribution
+       specific configuration files if found
+  [SS] smartctl: added NetBSD support for Selective Self-tests.
+  [BA] smartd.conf example configuration file now has all examples
+       commented out except for 'DEVICESCAN'.
+  [CF] Win32/native smartd: Added ability to display warning "emails"
+       as message box by "-m msgbox" directive. With "-m sysmsgbox",
+       a system modal (always on top) message box is shown.
+  [BA] smartctl: printing of self-test log for disks that support
+       Selective self-testing now shows the status of the (optional)
+       read-scan after the selective self test.  Also, changed format
+       in printing self-test log to print failing LBA in base 10 not
+       base 16 (more compatible with kernel error messages).  Also,
+       in printing SMART error log, print timestamps in format
+       days+hours+minutes+seconds.
+  [CF] Win32 smartd: Added ability to log to stdout/stderr
+       (-l local1/2). Toggling debug console still works
+       if stdout is redirected.
+  [BA] smartctl: selective self-test log, print current status
+       in a  more detailed way.  Allow writing of selective self-test
+       log provided that no other self-test is underway.
+  [BA] Linux: eliminated dependency on kernel tree hdreg.h.
+  [BA] smartctl: -l selftest option now prints Selective self-test
+       log in addition to the normal self-test log.
+       Added additional options (-t pending, -t afterselect) to
+       control remaining Selective Self-test capabilities.  Tested
+       with several Maxtor disks. Modified error message printing
+       so that munged option messages print at the end not the
+       start of output.
+  [CF] Added daemon support to Win32 native version of smartd.
+       The daemon can be controlled by commands similar to initd
+       scripts: "smartd status|stop|reload|restart|sigusr1|sigusr2".
+  [CF] Added minor support for option "-l local[0-7]" to Win32 native
+       (not Cygwin) version of smartd. If specified, the log output
+       is written to file "./smartd[1-7]?.log" instead of event log.
+  [BA] Added Selective Self-test to smartctl (-t selective,M-N).
+       Currently only supported under Linux; Solaris, NetBSD, FreeBSD
+       and Windows developers must add WRITE LOG functionality to
+       os_*.c
+  [BA] Added workaround for an annoying glibc bug: if you change
+       timezones, (eg, flying with a laptop from USA to Europe)
+       localtime() does not notice this in a running
+       executable, so time that appears in the system log (syslog!)
+       will be incorrect.  See
+       http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=48184
+       for additional examples of this bug.
+  [DG] Set explicit timeouts for SCSI commands (most default to 6 seconds).
+       Previously a 0 second timeout was meant to be interpreted as a 
+       default timeout but the FreeBSD port had a problem in this area.
+  [CF] Fixed un-thread-safe exit signal handler for Win32
+  [BA] Fixed un-thread-safe exit signal handler pointed out
+       by CF.
+  [BA] Changed configure script to eliminate warnings under
+       Solaris from sys/int_type.h conflicts with int64.h
+       Added header files for umask to smartd.c.
+  [BA] Man page format change from Werner LEMBERG.  " " changed to \&
+  [CF] Added os_win32/syslogevt.* event message file tool for Win32
+       smartd (native+cygwin). May also be useful for other cygwin
+       programs writing to syslog().
+  [CF] Added Win32 version of smartd
+  [CF] Merged RELEASE_5_26_WIN32_BRANCH
+  [BA] Made some changes to man page markup suggested by
+       Richard Verhoeven to work around bugs in man2html.
+       Tested not to break anything under Linux and Solaris.
+  [CF] Moved PrintOut() from utility.c to smart{ctl,d}.c to avoid
+       syslog() output of smartctl.
+  [BA] Grew worried that some time-zone names could be very long (eg,
+       Mitteleuropaische Zeit) and put date string lengths into a
+       single macro in utility.c
+  [EM] Updated os_freebsd.c to handle older versions of FreeBSD in a 
+       more appropriate/obvious fashion.
+  [EM] Modified autogen.sh as FreeBSD installs automake 1.7 as 
+       'automake17' and NOT 'automake-1.7'
 
 * Sat Mar 6 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [PW] Added QUANTUM FIREBALLlct15 30, QUANTUM FIREBALLlct20 40, and
