@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.438 2004/07/29 21:00:36 chrfranke Exp $
+$Id: CHANGELOG,v 1.439 2004/07/31 16:38:00 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax Plus 5120 Ultra ATA 33 series and TOSHIBA
+       MK3017GAP to knowndrives table.
 
   [CF] Added fixes to build smartmontools on old Linux systems
        (libc < 6, Kernel 2.0.x).
