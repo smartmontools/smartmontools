@@ -23,8 +23,9 @@
 #include "ataprint.h"
 #include "knowndrives.h"
 #include "utility.h"
+#include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.41 2003/09/28 15:50:16 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.42 2003/10/03 01:03:10 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -101,7 +102,7 @@ const unsigned char vendoropts_Hitachi_DK23EA[][2] = {
 };
 
 const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
-const char may_need_minus_F_disabled[]="Contact developers; may need -F samsung disabled";
+const char may_need_minus_F_disabled[]="Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung disabled";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -228,7 +229,7 @@ const drivesettings knowndrives[] = {
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "Contact developers; may need -F samsung enabled.\n",
+    "Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung enabled.\n",
     NULL, NULL, NULL
   },
   { // Maxtor 6L080J4 and 4K080H4
@@ -260,7 +261,7 @@ const drivesettings knowndrives[] = {
   { // Maxtor 6Y120P0 (any other firmware)
     "^Maxtor 6Y120P0$",
     ".*",
-    "Contact developers; may need -v 9,minutes enabled.\n",
+    "Contact developers at " PACKAGE_BUGREPORT "; may need -v 9,minutes enabled.\n",
     NULL,
     NULL, NULL
   },
@@ -358,7 +359,7 @@ void showonepreset(const drivesettings *drivetable){
   // Basic error check
   if (!drivetable || !drivetable->modelregexp){
     pout("Null known drive table pointer. Please report\n"
-	 "this error to smartmontools developers.\n");
+	 "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
     return;
   }
   

@@ -34,9 +34,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "utility.h"
+#include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.16 2003/08/27 21:16:20 pjwilliams Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.17 2003/10/03 01:03:11 ballen4705 Exp $" UTILITY_H_CVSID;
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at
@@ -189,7 +190,7 @@ int compileregex(regex_t *compiled, const char *pattern, int cflags)
   if ((errorcode = regcomp(compiled, pattern, cflags))) {
     pout("Internal error: unable to compile regular expression %s", pattern);
     printregexwarning(errorcode, compiled);
-    pout("Please inform smartmontools developers\n");
+    pout("Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n");
     return 1;
   }
   return 0;

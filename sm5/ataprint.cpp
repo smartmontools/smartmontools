@@ -33,8 +33,9 @@
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
+#include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.99 2003/10/01 20:32:39 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.100 2003/10/03 01:03:10 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1227,7 +1228,7 @@ int ataPrintMain (int fd){
 #endif
   default:
     pout("Internal error in smartctl: con->testcase==%d not recognized\n", (int)con->testcase);
-    pout("Please contact smartmontools developers.\n");
+    pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
     exit(returnval|=FAILCMD);
   }
 
