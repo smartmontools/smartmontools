@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.64 2003/12/16 16:10:33 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.65 2003/12/16 19:39:51 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -559,6 +559,8 @@ void showallpresets(void){
     showonepreset(&knowndrives[i]);
     pout("\n");
   }
+  pout("For information about adding a drive to the database see the FAQ on the\n");
+  pout("smartmontools home page: http://smartmontools.sourceforge.net/\n");
   return;
 }
 
