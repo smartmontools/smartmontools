@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2004-05-05</pubdate>
+  <pubdate>2004-05-06</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.2</revnumber>
-       <date>2004-05-05</date>
+       <date>2004-05-06</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              reorganise, details in appendix, version 5.31
@@ -116,7 +116,7 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 <para>
 This document outlines the features found in smartmontools
 version 5.31 that are relevant to SCSI disks and tape drives.
-This document was last altered on 5th May 2004.
+This document was last altered on 6th May 2004.
 </para>
 </sect1>
 
@@ -137,7 +137,7 @@ monitoring service
 <para>
 SCSI disks and tape drives allow self tests of their media, often monitor
 the temperature of the device, maintain error counters and report when
-various failure prediction threshholds are exceeded. To view the information
+various failure prediction thresholds are exceeded. To view the information
 available try a command like: <command>smartctl -a /dev/sda</command>. If
 <acronym>SMART</acronym> reporting has not been turned on for this disk 
 then use this command
@@ -217,12 +217,12 @@ be accessed via their generic name which is of the form
 <para>
 Linux also has an optional Solaris like
 naming scheme for SCSI device (scsidev), devfs (mainly used in the lk 2.4
-series) and udev (its replacament in the lk 2.6 series). In short, device
+series) and udev (its replacement in the lk 2.6 series). In short, device
 naming is a complex area and smartmontools does its best to find
 and identify (i.e. whether ATA or SCSI) a device depending on its name. In 
 some cases smartmontools needs guidance from the user and this can be given
-by the '-d ata|scsi' option in the <command>smartctl</command> utility and in
-<command>smartd</command> daemon's configuration file.
+by the '-d ata|scsi|3ware' option in the <command>smartctl</command> 
+utility and in <command>smartd</command> daemon's configuration file.
 </para>
 </sect1>
 
@@ -236,9 +236,9 @@ system sees the device the situation can be more complicated.
 </para>
 <para>
 The ATA command set is used over native ATA transports which are
-parallel ATA (PATA) up to 133 MB/sec and serial ATA (SATA) up to 1.5 Mbps
+parallel ATA (PATA) up to 133 MB/sec and serial ATA (SATA) up to 1.5 Gbps
 (approximately 150 MB/sec). In the past
-when ATA disks needed to use some other transport (e.g. USB and IEE1394)
+when ATA disks needed to use some other transport (e.g. USB and IEEE1394)
 the SCSI command set was sent over the foreign transport. So in this
 case the operating system sees a device "talking" the SCSI command set
 but the device is really an ATA disk. Many current disk external enclosures
@@ -262,8 +262,8 @@ incoming (from the host) SCSI commands to their ATA equivalents and process
 responses as required. This translation is limited typically to a small
 number of SCSI commands (e.g. READ and WRITE) but <emphasis>not</emphasis>
 those commands needed by smartmontools. The author does not know of any 
-SCSI_over_USB devices that support smatmontools. The 3ware RAID (6000 
-and 7000 series Escalade) controllers are supported
+SCSI_over_USB devices that support Smartmontools. The 3ware RAID (6000, 7000 
+and 8000 series Escalade) controllers are supported
 on several operating systems with special code.
 <footnote><para>
 The 3ware RAID solution tunnels the ATA commands needed for
@@ -342,8 +342,8 @@ do short or long self tests in the foreground. [Has no effect on tape
 drives.]
 </para></listitem>
 <listitem><para><command>-d TYPE | --device=TYPE</command> where TYPE 
-is "ata" or "scsi". Overrides utility's guess about the class of the device
-which is based on the form of the nominated device's name.
+is "ata", "scsi" or "3ware. Overrides utility's guess about the class 
+of the device which is based on the form of the nominated device's name.
 </para></listitem>
 <listitem><para><command>-h | --help</command>: outputs lengthy usage
 message and exits without any other action.
@@ -372,7 +372,7 @@ either "ioctl[,&lt;n&gt;]" or "scsiioctl[,&lt;n&gt;]". Turns on low level
 debugging of issued commands and responses. These commands are issued
 through a system command called an "ioctl" in Unix. The debug can be for
 all issued commands (i.e. "ioctl") or only SCSI commands ("scsiioctl").
-Optionally the TYPE can have a comma and a number postpended to increase
+Optionally the TYPE can have a comma and a number post pended to increase
 the volume of debug. See this <link linkend="ctldebug">section</link> for
 more details.
 </para></listitem>
@@ -454,7 +454,7 @@ Vendor (Seagate) factory information
 <sect1 id="selftest">
       <title>Self Tests</title>
 <para>
-Rather than wait for threshholds to be triggered, an administrator can
+Rather than wait for thresholds to be triggered, an administrator can
 request a self test or program one to happen periodically (e.g. at 3 a.m.
 every night or perhaps weekly) with <command>smartd</command>. All SCSI 
 disks and tape drives should support a <emphasis>default</emphasis> self
@@ -627,8 +627,8 @@ perform some operation even though there are no external commands
 pending.
 </para></footnote>
 They also imply that their firmware is monitoring these error counters
-and if they exceed some threshhold (e.g. in a certain time interval)
-then the firmware will report a threshhold exceeded.
+and if they exceed some threshold (e.g. in a certain time interval)
+then the firmware will report a thresholds exceeded.
 </para>
 </sect1>
 
@@ -661,13 +661,13 @@ device nodes (for linux: <filename>/dev/sda</filename> through to
 <filename>/dev/sdz</filename>) by placing the word "DEVICESCAN" in
 <filename>/etc/smartd.conf</filename> file. Alternatively the
 "DEVICESCAN" word can be removed (or commented out) and SCSI devices
-named explicity:
+named explicitly:
 <programlisting>
 /dev/sda -d scsi
 /dev/sdb -d scsi
 </programlisting>
 The "-d scsi" argument overrides what <command>smartd</command> would
-guess as the device class (i.e. "ata" or "scsi"). 
+guess as the device class (i.e. "ata", "scsi" or "3ware"). 
 </para>
 </sect1>
 
@@ -853,7 +853,7 @@ been sub-divided and three categories of interest are the:
 </itemizedlist>
 The architectural model while interesting says nothing specific about
 Informational Exceptions or related topics. With respect to the transports
-the term <emphasis>SCSI</emphasis> has often been synonomous with one
+the term <emphasis>SCSI</emphasis> has often been synonymous with one
 of the SCSI Parallel Interface transports (e.g. SPI-4 which is often know
 as "Ultra320") however this is unhelpful. For the purpose of smartmontools
 the SCSI command sets are more interesting. The main reference is the
@@ -889,14 +889,14 @@ often support the TapeAlert mechanism and are described in the SMC-2 standard.
 <para>
 So what are Informational Exceptions in the SCSI context? They are a
 set of vendor specific parameters that the device firmware monitors and 
-if a "failure prediction threshhold" is exceeded then an exception is
-reported. A user is also able to set threshholds on error counters and
+if a "failure prediction threshold" is exceeded then an exception is
+reported. A user is also able to set thresholds on error counters and
 have an exception reported if a condition is met. Additionally most
 modern disks monitor their temperature and will issue a warning if
-a temperature threshhold is exceeded.
+a temperature threshold is exceeded.
 </para>
 <para>
-The "failure prediction threshhold" exception reporting and the temperature
+The "failure prediction threshold" exception reporting and the temperature
 warning are separately controlled (in byte 2 of the Informational Exceptions
 Control (IEC) mode page).
 <footnote><para>
@@ -931,12 +931,12 @@ here:
 asc    ascq   message
 -------------------------------------------------------
 0xb    0x1    Warning - specified temperature exceeded
-0x5d   0x0    Failure prediction threshhold exceeded
-0x5d   0x2    Media failure prediction threshhold exceeded
+0x5d   0x0    Failure prediction threshold exceeded
+0x5d   0x2    Media failure prediction threshold exceeded
 0x5d   0x10   Hardware impending failure general hard drive failure
 0x5d   0x11   Hardware impending failure drive error rate too high
 0x5d   0x56   Spindle impending failure start unit times too high
-0x5d   0xff   Failure prediction threshhold exceeded (false)
+0x5d   0xff   Failure prediction threshold exceeded (false)
 </programlisting>
 The last entry in the above table results from setting the TEST bit and
 is for exercising the reporting mechanism rather than the indication
@@ -949,7 +949,7 @@ independently of any command executing. Even if it detects an informational
 exception during a command it needs to be careful sending IE error
 notifications back with a command especially if that command succeeded
 (Linux will not handle this too well in the 2.4 kernel series). 
-There is aynchronous event notification (AEN) in SCSI but it is not
+There is asynchronous event notification (AEN) in SCSI but it is not
 reliably supported across all transports. So smartmontools relies
 on a poll from the <command>smartd</command> daemon (the default
 is every 30 minutes) to detect informational exceptions.
@@ -986,7 +986,7 @@ done by this command: <command>smartctl -r ioctl,3 -s on &lt;device&gt;
 </command> [ignore the extra debugging output that "-r ioctl,3" causes]. A
 special asc/ascq pair is reserved for testing (0x5d,0xff)
 and the standard associates with it this awkward message: "Failure prediction 
-threshhold exceeded (false)". A call to 
+threshold exceeded (false)". A call to 
 <command>smartctl -H &lt;device&gt;</command> or waiting until the next 
 <command>smartd</command> poll should produce that message if the mechanism 
 is working. The IEC mode page TEST bit can be turned off (i.e. back to normal
@@ -1080,7 +1080,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.8 2004/05/05 01:22:22 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.9 2004/05/05 23:00:24 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
