@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.7 2003/04/17 16:45:03 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.8 2003/04/17 16:56:49 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -312,7 +312,12 @@ void showpresets(const struct hd_driveid *drive)
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
   if ((i = lookupdrive(model, firmware)) < 0) {
-    pout("No presets are defined for this drive\n");
+    pout("No presets are defined for this drive.  Its identity strings:\n"
+	 "MODEL:    %s\n"
+	 "FIRMWARE: %s\n"
+	 "do not match any of the known regular expressions.\n"
+	 "Use -P showall to list all known regular expressions.\n",
+	 model, firmware);
     return;
   }
 
