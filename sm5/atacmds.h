@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.50 2003/08/30 13:06:47 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.51 2003/08/30 13:44:41 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -51,16 +51,13 @@ typedef enum {
   PIDENTIFY
 } smart_command_set;
 
-/* These defines SHOULD BE in the kernel
-   if not we define them */
-
 // ATA Specification Command Register Values (Commands)
 #define WIN_IDENTIFY            0xec						  
 #define WIN_PIDENTIFY		0xa1
 #define WIN_SMART		0xb0
 
 // ATA Specification Feature Register Values (SMART Subcommands).
-// Note that some are obsolete.
+// Note that some are obsolete as of ATA-7.
 #define SMART_READ_VALUES	0xd0
 #define SMART_READ_THRESHOLDS	0xd1
 #define SMART_AUTOSAVE		0xd2
@@ -72,7 +69,8 @@ typedef enum {
 #define SMART_ENABLE		0xd8
 #define SMART_DISABLE		0xd9
 #define SMART_STATUS		0xda
-// SFF 8035i Specification Feature Register Value (SMART Subcommand
+// SFF 8035i Revision 2 Specification Feature Register Value (SMART
+// Subcommand)
 #define SMART_AUTO_OFFLINE	0xdb
 
 // Sector Number values for SMART_IMMEDIATE_OFFLINE Subcommand
@@ -88,9 +86,8 @@ typedef enum {
 #define SELECTIVE_CAPTIVE_SELF_TEST     132
 #define CAPTIVE_MASK                    (0x01<<7)
 
+// Maximum allowed number of SMART Attributes
 #define NUMBER_ATA_SMART_ATTRIBUTES 	30
-
-#define ATA_SMART_SEC_SIZE		512
 
 // Needed parts of the ATA DRIVE IDENTIFY Structure. Those labeled
 // word* are NOT used.
@@ -105,7 +102,7 @@ struct ata_identify_device {
   unsigned short minor_rev_num;
   unsigned short command_set_1;
   unsigned short command_set_2;
-  unsigned short word084;
+  unsigned short command_set_extension;
   unsigned short cfs_enable_1;
   unsigned short word086;
   unsigned short csf_default;
@@ -167,26 +164,6 @@ struct ata_smart_attribute {
 
 // Last ten bits are reserved for future use
 
-
-// What follows is the ATA/ATAPI-4 Rev 13 data structure equivalent:
-// Table 23 DEVICE SMART DATA STRUCTURE
-#if 0
-struct ata_smart_values {
-  unsigned short int revnumber;
-  struct ata_smart_attribute vendor_attributes [NUMBER_ATA_SMART_ATTRIBUTES];
-  unsigned char offline_data_collection_status;
-  unsigned char vendor_specific_363;  //IBM # segments for offline collection
-  unsigned short int total_time_to_complete_off_line; // IBM different
-  unsigned char vendor_specific_366; // IBM curent segment pointer
-  unsigned char offline_data_collection_capability;
-  unsigned short int smart_capability;
-  unsigned char reserved_370_385;;
-  unsigned char vendor_specific_386-510;  // IBM: self-test failure checkpoint
-  unsigned char chksum;
-} __attribute__ ((packed));
-#endif
-
-
 /* ata_smart_values is format of the read drive Attribute command */
 /* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */
 struct ata_smart_values {
@@ -207,8 +184,6 @@ struct ata_smart_values {
   unsigned char vendor_specific_386_510[125];
   unsigned char chksum;
 } __attribute__ ((packed));
-
-/* Smart Threshold data structures */
 
 /* Vendor attribute of SMART Threshold (compare to ata_smart_attribute above) */
 struct ata_smart_threshold_entry {
@@ -292,8 +267,6 @@ struct ata_smart_selftestlog {
   unsigned char chksum;
 } __attribute__ ((packed));
 
-
-
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
 struct ata_smart_log_entry {
   unsigned char numsectors;
@@ -304,7 +277,6 @@ struct ata_smart_log_directory {
   unsigned short int logversion;
   struct ata_smart_log_entry entry[255];
 } __attribute__ ((packed));
-
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
 // Revision 3

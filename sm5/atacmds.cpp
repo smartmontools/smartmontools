@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.119 2003/08/30 13:06:47 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.120 2003/08/30 13:44:41 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -799,11 +799,8 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
 int ataSmartSupport(struct ata_identify_device *drive){
-  unsigned short word82,word83;
-
-  // get correct bits of IDENTIFY DEVICE structure
-  word82=drive->command_set_1;
-  word83=drive->command_set_2;
+  unsigned short word82=drive->command_set_1;
+  unsigned short word83=drive->command_set_2;
 
   // Note this does not work for ATA3 < Revision 6, when word82 and word83 were added
   // we should check for ATA3 Rev 0 in minor identity code...  
@@ -812,11 +809,8 @@ int ataSmartSupport(struct ata_identify_device *drive){
 
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
 int ataIsSmartEnabled(struct ata_identify_device *drive){
-    unsigned short word85,word87;
-
-  // Get correct bits of IDENTIFY DRIVE structure
-  word85=drive->cfs_enable_1;
-  word87=drive->csf_default;
+  unsigned short word85=drive->cfs_enable_1;
+  unsigned short word87=drive->csf_default;
   
   if ((word87 & 0x0001<<14) && !(word87 & 0x0001<<15))
     // word85 contains valid information, so
@@ -1057,16 +1051,10 @@ int ataDisableAutoSave(int device){
   return 0;
 }
 
-// Note that in the ATA-5 standard the Enable/Disable AutoOffline
-// command is marked "OBSOLETE".  Curiously, I could not find it
-// documented in ANY of the ATA specifications.  In other words, it's
-// been obsolete forever. However some vendors (eg, IBM) seem to be
-// using this command anyway.  For example see the IBM Travelstar
-// 40GNX hard disk drive specifications page 164 Revision 1.1 22 Apr
-// 2002.  This gives a detailed description of the command, although
-// the drive claims to comply with the ATA/ATAPI-5 Revision 3
-// standard!  The latter document makes no mention of this command at
-// all, other than to say that it is "obsolete".
+// In *ALL* ATA standards the Enable/Disable AutoOffline command is
+// marked "OBSOLETE". It is defined in SFF-8035i Revision 2, and most
+// vendors still support it for backwards compatibility. IBM documents
+// it for some drives.
 int ataEnableAutoOffline (int device ){	
   
   /* timer hard coded to 4 hours */  
@@ -1210,11 +1198,8 @@ int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
 }
 
 int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
-  unsigned short *rawwords=(unsigned short *)identity;
-  unsigned short word84, word87;
-
-  word84=rawwords[84];
-  word87=rawwords[87];
+  unsigned short word84=identity->command_set_extension;
+  unsigned short word87=identity->csf_default;
 
   // If bit 14 of word 84 is set to one and bit 15 of word 84 is
   // cleared to zero, the contents of word 84 contains valid support
