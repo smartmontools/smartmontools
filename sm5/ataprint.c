@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.65 2003/03/31 03:04:06 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.66 2003/04/03 05:07:27 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -337,38 +337,43 @@ void PrintSmartTotalTimeCompleteOffline ( struct ata_smart_values *data){
 
 
 
-void PrintSmartOfflineCollectCap(struct ata_smart_values *data)
-{
-   pout("Offline data collection\n");
-   pout("capabilities: \t\t\t (0x%02x) ",
-            (int)data->offline_data_collection_capability);
+void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
+  pout("Offline data collection\n");
+  pout("capabilities: \t\t\t (0x%02x) ",
+       (int)data->offline_data_collection_capability);
+  
+  if (data->offline_data_collection_capability == 0x00){
+    pout("\tOff-line data collection not supported.\n");
+  } 
+  else {
+    pout( "%s\n", isSupportExecuteOfflineImmediate(data)?
+	  "SMART execute Offline immediate." :
+	  "No SMART execute Offline immediate.");
+    
+    pout( "\t\t\t\t\t%s\n", isSupportAutomaticTimer(data)? 
+	  "Automatic timer ON/OFF support.":
+	  "No Automatic timer ON/OFF support.");
+    
+    pout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)? 
+	  "Abort Offline collection upon new\n\t\t\t\t\tcommand.":
+	  "Suspend Offline collection upon new\n\t\t\t\t\tcommand.");
+    
+    pout( "\t\t\t\t\t%s\n", isSupportOfflineSurfaceScan(data)? 
+	  "Offline surface scan supported.":
+	  "No Offline surface scan supported.");
+    
+    pout( "\t\t\t\t\t%s\n", isSupportSelfTest(data)? 
+	  "Self-test supported.":
+	  "No Self-test supported.");
 
-   if (data->offline_data_collection_capability == 0x00)
-   {
-      pout("\tOff-line data collection not supported.\n");
-   } 
-   else 
-   {
-      pout( "%s\n", isSupportExecuteOfflineImmediate(data)?
-              "SMART execute Offline immediate." :
-              "No SMART execute Offline immediate.");
+    pout( "\t\t\t\t\t%s\n", isSupportConveyanceSelfTest(data)? 
+	  "Conveyance Self-test supported.":
+	  "No Conveyance Self-test supported.");
 
-      pout( "\t\t\t\t\t%s\n", isSupportAutomaticTimer(data)? 
-              "Automatic timer ON/OFF support.":
-              "No Automatic timer ON/OFF support.");
-		
-      pout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)? 
-              "Abort Offline collection upon new\n\t\t\t\t\tcommand.":
-              "Suspend Offline collection upon new\n\t\t\t\t\tcommand.");
-
-      pout( "\t\t\t\t\t%s\n", isSupportOfflineSurfaceScan(data)? 
-              "Offline surface scan supported.":
-              "No Offline surface scan supported.");
-
-      pout( "\t\t\t\t\t%s\n", isSupportSelfTest(data)? 
-              "Self-test supported.":
-              "No Self-test supported.");
-    }
+    pout( "\t\t\t\t\t%s\n", isSupportSelectiveSelfTest(data)? 
+	  "Selective Self-test supported.":
+	  "No Selective Self-test supported.");
+  }
 }
 
 
@@ -416,37 +421,44 @@ void PrintSmartErrorLogCapability ( struct ata_smart_values *data)
 
 
 
-void PrintSmartShortSelfTestPollingTime (struct ata_smart_values *data)
-{
-   if ( isSupportSelfTest(data) )
-   {
-      pout("Short self-test routine \n");
-      pout("recommended polling time: \t (%4d) minutes.\n", 
-               (int)data->short_test_completion_time);
+void PrintSmartShortSelfTestPollingTime(struct ata_smart_values *data){
+  if (isSupportSelfTest(data)){
+    pout("Short self-test routine \n");
+    pout("recommended polling time: \t (%4d) minutes.\n", 
+	 (int)data->short_test_completion_time);
+  }
+  else {
+    pout("Short self-test routine \n");
+    pout("recommended polling time: \t        Not Supported.\n");
+  }
+}
 
-   }
-   else
-   {
-      pout("Short self-test routine \n");
-      pout("recommended polling time: \t        Not Supported.\n");
-   }
+void PrintSmartExtendedSelfTestPollingTime(struct ata_smart_values *data){
+  if (isSupportSelfTest(data)){
+    pout("Extended self-test routine \n");
+    pout("recommended polling time: \t (%4d) minutes.\n", 
+	 (int)data->extend_test_completion_time);
+  }
+  else {
+    pout("Extended self-test routine \n");
+    pout("recommended polling time: \t        Not Supported.\n");
+  }
+}
+
+void PrintSmartConveyanceSelfTestPollingTime(struct ata_smart_values *data){
+  if (isSupportConveyanceSelfTest(data)){
+    pout("Extended self-test routine \n");
+    pout("recommended polling time: \t (%4d) minutes.\n", 
+	 (int)data->conveyance_test_completion_time);
+  }
+  else {
+    pout("Extended self-test routine \n");
+    pout("recommended polling time: \t        Not Supported.\n");
+  }
 }
 
 
-void PrintSmartExtendedSelfTestPollingTime ( struct ata_smart_values *data)
-{
-   if ( isSupportSelfTest(data) )
-   {
-      pout("Extended self-test routine \n");
-      pout("recommended polling time: \t (%4d) minutes.\n", 
-               (int)data->extend_test_completion_time);
-   }
-   else
-   {
-      pout("Extended self-test routine \n");
-      pout("recommended polling time: \t        Not Supported.\n");
-   }
-}
+
 
 
 // onlyfailed=0 : print all attribute values
@@ -544,6 +556,9 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data){
     PrintSmartShortSelfTestPollingTime (data);
     PrintSmartExtendedSelfTestPollingTime (data);
   }
+  if (isSupportConveyanceSelfTest(data))
+    PrintSmartConveyanceSelfTestPollingTime (data);
+  
   pout("\n");
 }
 
@@ -710,6 +725,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       case  5:msgstat="Completed: electrical failure"; errorfound=1; break;
       case  6:msgstat="Completed: servo/seek failure"; errorfound=1; break;
       case  7:msgstat="Completed: read failure      "; errorfound=1; break;
+      case  8:msgstat="Completed: handling damage?? "; errorfound=1; break;
       case 15:msgstat="Test in progress             "; break;
       default:msgstat="Unknown test status          ";
       }

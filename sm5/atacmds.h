@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.38 2003/04/03 01:07:51 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.39 2003/04/03 05:07:27 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -200,8 +200,9 @@ struct ata_smart_values {
   unsigned char vendor_specific_371;  // IBM: self-test failure checkpoint
   unsigned char short_test_completion_time;
   unsigned char extend_test_completion_time;
-  unsigned char reserved_374_385 [12];
-  unsigned char vendor_specific_386_509 [125];
+  unsigned char conveyance_test_completion_time;
+  unsigned char reserved_375_385[11];
+  unsigned char vendor_specific_386_510[125];
   unsigned char chksum;
 } __attribute__ ((packed));
 
@@ -289,6 +290,20 @@ struct ata_smart_selftestlog {
   unsigned char chksum;
 } __attribute__ ((packed));
 
+
+
+// SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
+struct ata_smart_log_entry {
+  unsigned char numsectors;
+  unsigned char reserved;
+} __attribute__ ((packed));
+
+struct ata_smart_log_directory {
+  unsigned short int logversion;
+  struct ata_smart_log_entry entry[255];
+} __attribute__ ((packed));
+
+
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity (int device, struct hd_driveid *buf);
 int ataReadSmartValues (int device,struct ata_smart_values *);
@@ -358,6 +373,10 @@ int isSupportOfflineAbort ( struct ata_smart_values *data);
 int isSupportOfflineSurfaceScan ( struct ata_smart_values *data);
 
 int isSupportSelfTest (struct ata_smart_values *data);
+
+int isSupportConveyanceSelfTest(struct ata_smart_values *data);
+
+int isSupportSelectiveSelfTest(struct ata_smart_values *data);
 
 int ataSmartTest(int device, int testtype);
 

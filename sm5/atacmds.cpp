@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.77 2003/04/03 01:07:51 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.78 2003/04/03 05:07:27 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -780,6 +780,24 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
   return 0;
 }
 
+
+// Reads the Log Directory (log #0)
+int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){	
+  
+  // get data from device
+  if (smartcommandhandler(device, READ_LOG, 0, (char *)data)){
+    syserror("Error SMART Log Directory Read failed");
+    return -1;
+  }
+  
+  // compute its checksum, and issue a warning if needed
+  if (checksum((unsigned char *)data))
+    checksumwarning("SMART ATA Log Directory Structure");
+  
+  return 0;
+}
+
+
 // Reads the Error Log (log #1)
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
   
@@ -796,7 +814,6 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   return 0;
 }
 
-
 int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   
   // get data from device
@@ -811,7 +828,6 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   
   return 0;
 }
-
 
 int ataEnableSmart (int device ){	
   if (smartcommandhandler(device, ENABLE, 0, NULL)){
@@ -1004,7 +1020,7 @@ int TestTime(struct ata_smart_values *data,int testtype){
 int isSmartErrorLogCapable ( struct ata_smart_values *data){
    return data->errorlog_capability & 0x01;
 }
-int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data){
+int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x01;
 }
 
@@ -1013,18 +1029,25 @@ int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data){
 // have found is in IBM drives, where it is well-documented.  See for
 // example page 170, section 13.32.1.18 of the IBM Travelstar 40GNX
 // hard disk drive specifications page 164 Revision 1.1 22 Apr 2002.
-int isSupportAutomaticTimer ( struct ata_smart_values *data){
+int isSupportAutomaticTimer(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x02;
 }
-int isSupportOfflineAbort ( struct ata_smart_values *data){
+int isSupportOfflineAbort(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x04;
 }
-int isSupportOfflineSurfaceScan ( struct ata_smart_values *data){
+int isSupportOfflineSurfaceScan(struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x08;
 }
 int isSupportSelfTest (struct ata_smart_values *data){
    return data->offline_data_collection_capability & 0x10;
 }
+int isSupportConveyanceSelfTest(struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x20;
+}
+int isSupportSelectiveSelfTest(struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x40;
+}
+
 
 
 // Loop over all valid attributes.  If they are prefailure attributes
