@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.68 2003/12/22 04:40:24 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.69 2003/12/23 00:20:11 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -263,7 +263,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
             return SIMPLE_ERR_BAD_RESP;
         pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
         /* some SCSI HBA don't like "odd" length transfers */
-        if (pageLen != ((pageLen / 2) * 2))
+        if (pageLen % 2)
             pageLen += 1;   
         if (pageLen > bufLen)
             pageLen = bufLen;
