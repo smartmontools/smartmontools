@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.35 2003/04/09 12:45:04 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.36 2003/04/13 09:18:58 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -230,7 +230,7 @@ static int linux_do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
     if (-1 == status) {
         if (con->reportscsiioctl)
-            pout("  status=-1, errno=%d\n", errno);
+            pout("  status=-1, errno=%d [%s]\n", errno, strerror(errno));
         return -errno;
     }
     if (0 == status) {
@@ -398,16 +398,13 @@ int scsiModeSelect(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
     UINT8 cdb[6];
     UINT8 sense[32];
     int status, pg_offset, pg_len, hdr_plus_1_pg, res;
-    int sense_len = pBuf[0] + 1;
 
-    if (sense_len < 4)
-        return -EINVAL;
     pg_offset = 4 + pBuf[3];
     if (pg_offset + 2 >= bufLen)
         return -EINVAL;
     pg_len = pBuf[pg_offset + 1] + 2;
     hdr_plus_1_pg = pg_offset + pg_len;
-    if ((hdr_plus_1_pg > bufLen) || (hdr_plus_1_pg > sense_len))
+    if (hdr_plus_1_pg > bufLen)
         return -EINVAL;
     pBuf[0] = 0;    /* Length of returned mode sense data reserved for SELECT */
     pBuf[pg_offset] &= 0x3f;    /* Mask of PS bit from byte 0 of page data */
@@ -482,16 +479,13 @@ int scsiModeSelect10(int device, int pagenum, int sp, UINT8 *pBuf, int bufLen)
     UINT8 cdb[10];
     UINT8 sense[32];
     int status, pg_offset, pg_len, hdr_plus_1_pg, res;
-    int sense_len = (pBuf[0] << 8) + pBuf[1] + 2;
 
-    if (sense_len < 4)
-        return -EINVAL;
     pg_offset = 8 + (pBuf[6] << 8) + pBuf[7];
     if (pg_offset + 2 >= bufLen)
         return -EINVAL;
     pg_len = pBuf[pg_offset + 1] + 2;
     hdr_plus_1_pg = pg_offset + pg_len;
-    if ((hdr_plus_1_pg > bufLen) || (hdr_plus_1_pg > sense_len))
+    if (hdr_plus_1_pg > bufLen)
         return -EINVAL;
     pBuf[0] = 0;    
     pBuf[1] = 0; /* Length of returned mode sense data reserved for SELECT */
@@ -735,141 +729,214 @@ int scsiTestUnitReady(int device)
     return status;
 }
 
-/* ModePage1C Handler */
-#define FETCH_IEC_2BYTE   0x00    
-#define DEXCPT_DISABLE  0xf7
+/* Offset into mode sense (6 or 10 byte) response that actual mode page
+ * starts at (relative to iecp->raw_curr[0]). Returns -1 if problem */
+static int scsiModePageOffset(const struct scsi_iec_mode_page *iecp)
+{
+    int resp_len, bd_len;
+    int offset = -1;
+
+    if (iecp && iecp->gotCurrent) {
+        if (iecp->modese_10) {
+            resp_len = (iecp->raw_curr[0] << 8) + iecp->raw_curr[1] + 2;
+            bd_len = (iecp->raw_curr[6] << 8) + iecp->raw_curr[7];
+            offset = bd_len + 8;
+        } else {
+            resp_len = iecp->raw_curr[0] + 1;
+            bd_len = iecp->raw_curr[3];
+            offset = bd_len + 4;
+        }
+        if ((offset + 2) > sizeof(iecp->raw_curr)) {
+            pout("scsiModePageOffset: raw_curr too small, offset=%d "
+                 "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
+            offset = -1;
+        } else if ((offset + 2) > resp_len) {
+            pout("scsiModePageOffset: bad resp_len=%d offset=%d bd_len=%d\n",
+                 resp_len, offset, bd_len);
+            offset = -1;
+        }
+    }
+    return offset;
+}
+
+/* IEC mode page byte 2 bit masks */
 #define DEXCPT_ENABLE   0x08
 #define EWASC_ENABLE    0x10
+#define DEXCPT_DISABLE  0xf7
 #define EWASC_DISABLE   0xef
-
-/* Mode page 0x1c is the "Imformation Exception Control" (IEC) page */
-static int scsiModePage1CHandler(int device, UINT8 setting, 
-                                 struct scsi_iec_mode_page *iecp)
-{
-    UINT8 tBuf[64];
-    int len, bd_len, err;
-    UINT8 *p; 
-        
-    if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
-                             0, tBuf, sizeof(tBuf))))
-        return err;
-    len = tBuf[0] + 1;
-    bd_len = tBuf[3];
-    p = tBuf + 4 + bd_len;
-    len = len - bd_len - 4;
-    if ((INFORMATIONAL_EXCEPTIONS_CONTROL != (p[0] & 0x3f)) ||
-        ((4 + bd_len + p[1]) > sizeof(tBuf)))  {
-        if (con->reportscsiioctl) {
-            pout("1CHandler: malformed IEC page\n");
-            return 10;
-       }
-    }
-    if (con->reportscsiioctl)
-        pout("1CHandler: IEC mode page [2]=0x%x [3]=0x%x", p[2], p[3]);
-
-    switch (setting) {
-        case DEXCPT_DISABLE:    /* double negative :-) */
-            p[2] &= DEXCPT_DISABLE;
-            p[3] = 0x04;     /* mrie: unconditional generate recovered err */
-#if 0
-            /* >>>> try setting TEST bit */ p[2] |= 0x4;
-            p[3] = 0x06;    /* mrie=='on request' */
-#endif
-            break;
-        case DEXCPT_ENABLE:
-            p[2] |= DEXCPT_ENABLE;
-            /* >>>> turn off TEST p[2] &= (~0x04) & 0xff; */
-            break;
-        case EWASC_ENABLE:
-            p[2] |= EWASC_ENABLE;
-            break;
-        case EWASC_DISABLE:
-            p[2] &= EWASC_DISABLE;
-            break;
-        case FETCH_IEC_2BYTE:
-            if (iecp) {
-                iecp->byte_2 = p[2];
-                iecp->mrie = p[3] & 0xf;
-                iecp->interval_timer = ((p[4] << 24) & 0xff) +
-                                       ((p[5] << 16) & 0xff) +
-                                       ((p[6] << 8) & 0xff) +
-                                       (p[7] & 0xff);
-                iecp->report_count = ((p[8] << 24) & 0xff) +
-                                     ((p[9] << 16) & 0xff) +
-                                     ((p[10] << 8) & 0xff) +
-                                     (p[11] & 0xff);
-            }
-            if (con->reportscsiioctl)
-                pout("\n");
-            return 0;
-        default:
-            if (con->reportscsiioctl)
-                pout("\n");
-            return 1;
-    }
-                        
-    if (con->reportscsiioctl)
-        pout(" -> [2']=0x%x [3']=0x%x\n", p[2], p[3]);
-    if (scsiModeSelect(device, 0x1c, 1, tBuf, sizeof(tBuf)))
-        return 1;
-#if 0
-    // trial to see if TEST bit in mode pg 0x1c + mrie==6 work
-    // They do on my disks
-    {
-        struct scsi_sense_disect sinfo;
-
-        if (0 == scsiRequestSense(device, &sinfo))
-            pout("on request: ecode=%x, key=%x, asc=%x, ascq=%x\n",
-                 sinfo.error_code, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-        if (0 == scsiRequestSense(device, &sinfo))
-            pout("on request: ecode=%x, key=%x, asc=%x, ascq=%x\n",
-                 sinfo.error_code, sinfo.sense_key, sinfo.asc, sinfo.ascq);
-    }
-#endif
-    return 0;
-}
+#define TEST_DISABLE    0xfb
 
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
 {
-    return scsiModePage1CHandler(device, FETCH_IEC_2BYTE, iecp);
+    int err;
+
+    memset(iecp, 0, sizeof(*iecp));
+    iecp->requestedCurrent = 1;
+    if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                             0, iecp->raw_curr, sizeof(iecp->raw_curr)))) {
+        if (2 == err) { /* opcode no good so try 10 byte mode sense */
+            err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                             0, iecp->raw_curr, sizeof(iecp->raw_curr));
+            if (0 == err)
+                iecp->modese_10 = 1;
+            else
+                return err;
+        } else
+            return err;
+    } 
+    iecp->gotCurrent = 1;
+    iecp->requestedChangeable = 1;
+    if (iecp->modese_10) {
+        if (0 == scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                                 1, iecp->raw_chg, sizeof(iecp->raw_chg)))
+            iecp->gotChangeable = 1;
+    } else {
+        if (0 == scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                               1, iecp->raw_chg, sizeof(iecp->raw_chg)))
+            iecp->gotChangeable = 1;
+    }
+    return 0;
 }
 
-int scsiSetExceptionControl(int device, int enabled,
-                            const struct scsi_iec_mode_page *iecp)
+/* Return 0 if ok, -EINVAL if problems */
+int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
+                UINT8 *byte_2p, UINT8 *mrie_p, unsigned int *interval_timer_p,
+                unsigned int *report_count_p)
 {
-    if (iecp) {
-        if (enabled == scsi_IsExceptionControlEnabled(iecp))
-            return 0;   /* already done */
-    }
-    return scsiModePage1CHandler(device, 
-                        (enabled ? DEXCPT_DISABLE : DEXCPT_ENABLE), NULL);
-}
+    int offset, len;
 
-int scsiSetWarning(int device, int enabled,
-                   const struct scsi_iec_mode_page *iecp)
-{
-    if (iecp) {
-        if (enabled == scsi_IsWarningEnabled(iecp))
-            return 0;   /* already done */
-    }
-    return scsiModePage1CHandler(device, 
-                        (enabled ? EWASC_ENABLE : EWASC_DISABLE), NULL);
+    if (iecp && iecp->gotCurrent) {
+        offset = scsiModePageOffset(iecp);
+        if (offset >= 0) {
+            len = iecp->raw_curr[offset + 1] + 2;
+            if (byte_2p)
+                *byte_2p = iecp->raw_curr[offset + 2];
+            if (mrie_p)
+                *mrie_p = iecp->raw_curr[offset + 3] & 0xf;
+            if (interval_timer_p && (len > 7))
+                *interval_timer_p = (iecp->raw_curr[offset + 4] << 24) +
+                                    (iecp->raw_curr[offset + 5] << 16) +
+                                    (iecp->raw_curr[offset + 6] << 8) +
+                                    iecp->raw_curr[offset + 7];
+            else if (interval_timer_p)
+                *interval_timer_p = 0;
+            if (report_count_p && (len > 11))
+                *report_count_p = (iecp->raw_curr[offset + 8] << 24) +
+                                  (iecp->raw_curr[offset + 9] << 16) +
+                                  (iecp->raw_curr[offset + 10] << 8) +
+                                  iecp->raw_curr[offset + 11];
+            else if (report_count_p)
+                *report_count_p = 0;
+            return 0;
+        } else
+            return -EINVAL;
+    } else
+        return -EINVAL;
 }
 
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
 {
-    if (iecp)
-        return (iecp->byte_2 & DEXCPT_ENABLE) ? 0 : 1;
-    else
+    int offset;
+
+    if (iecp && iecp->gotCurrent) {
+        offset = scsiModePageOffset(iecp);
+        if (offset >= 0)
+            return (iecp->raw_curr[offset + 2] & DEXCPT_ENABLE) ? 0 : 1;
+        else
+            return 0;
+    } else
         return 0;
 }
 
 int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 {
-    if (iecp)
-        return (iecp->byte_2 & EWASC_ENABLE) ? 1 : 0;
-    else
+    int offset;
+
+    if (iecp && iecp->gotCurrent) {
+        offset = scsiModePageOffset(iecp);
+        if (offset >= 0)
+            return (iecp->raw_curr[offset + 2] & EWASC_ENABLE) ? 1 : 0;
+        else
+            return 0;
+    } else
         return 0;
+}
+
+/* set EWASC and clear PERF, EBF, DEXCPT TEST and LOGERR */
+#define SCSI_IEC_MP_BYTE2_ENABLED 0x10
+#define SCSI_IEC_MP_BYTE2_TEST_MASK 0x4
+/* exception/warning via an unrequested REQUEST SENSE command */
+#define SCSI_IEC_MP_MRIE 6      
+#define SCSI_IEC_MP_INTERVAL_T 0
+#define SCSI_IEC_MP_REPORT_COUNT 1
+
+/* Try to set (or clear) both Exception Control and Warning in the IE
+ * mode page subject to the "changeable" mask. The object pointed to
+ * by iecp is (possibly) inaccurate after this call, therefore
+ * scsiFetchIECmpage() should be called again if the IEC mode page
+ * is to be re-examined. */
+int scsiSetExceptionControlAndWarning(int device, int enabled,
+                                      const struct scsi_iec_mode_page *iecp)
+{
+    int k, offset, err;
+    UINT8 rout[SCSI_IECMP_RAW_LEN];
+    int sp, eCEnabled, wEnabled;
+
+    if ((! iecp) || (! iecp->gotCurrent))
+        return -EINVAL;
+    offset = scsiModePageOffset(iecp);
+    if (offset < 0)
+        return -EINVAL;
+    memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
+    rout[0] = 0;     /* Mode Data Length reserved in MODE SELECTs */
+    if (iecp->modese_10)
+        rout[1] = 0;
+    sp = (rout[offset] & 0x7f) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
+    rout[offset] &= 0x7f;     /* mask off PS bit */
+    if (enabled) {
+        rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
+        rout[offset + 3] = SCSI_IEC_MP_MRIE;
+        rout[offset + 4] = (SCSI_IEC_MP_INTERVAL_T >> 24) & 0xff;
+        rout[offset + 5] = (SCSI_IEC_MP_INTERVAL_T >> 16) & 0xff;
+        rout[offset + 6] = (SCSI_IEC_MP_INTERVAL_T >> 8) & 0xff;
+        rout[offset + 7] = SCSI_IEC_MP_INTERVAL_T & 0xff;
+        rout[offset + 8] = (SCSI_IEC_MP_REPORT_COUNT >> 24) & 0xff;
+        rout[offset + 9] = (SCSI_IEC_MP_REPORT_COUNT >> 16) & 0xff;
+        rout[offset + 10] = (SCSI_IEC_MP_REPORT_COUNT >> 8) & 0xff;
+        rout[offset + 11] = SCSI_IEC_MP_REPORT_COUNT & 0xff;
+        if (iecp->gotChangeable) {
+            for (k = 2; k < 12; ++k)
+                rout[offset + k] &= iecp->raw_chg[offset + k];
+        }
+        if (0 == memcmp(&rout[offset + 2], &iecp->raw_chg[offset + 2], 10)) {
+            if (con->reportscsiioctl > 0)
+                pout("scsiSetExceptionControlAndWarning: already enabled\n");
+            return 0;
+        }
+    } else { /* disabling Exception Control and (temperature) Warnings */
+        eCEnabled = (rout[offset + 2] & DEXCPT_ENABLE) ? 0 : 1;
+        wEnabled = (rout[offset + 2] & EWASC_ENABLE) ? 1 : 0;
+        if ((! eCEnabled) && (! wEnabled)) {
+            if (con->reportscsiioctl > 0)
+                pout("scsiSetExceptionControlAndWarning: already disabled\n");
+            return 0;   /* nothing to do, leave other setting alone */
+        }
+        if (wEnabled) 
+            rout[offset + 2] &= EWASC_DISABLE;
+        if (eCEnabled) {
+            if (iecp->gotChangeable && 
+                (iecp->raw_chg[offset + 2] & DEXCPT_ENABLE))
+                rout[offset + 2] |= DEXCPT_ENABLE;
+                rout[offset + 2] &= TEST_DISABLE;/* clear TEST bit for spec */
+        }
+    }
+    if (iecp->modese_10)
+        err = scsiModeSelect10(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                               sp, rout, sizeof(rout));
+    else
+        err = scsiModeSelect(device, INFORMATIONAL_EXCEPTIONS_CONTROL, 
+                             sp, rout, sizeof(rout));
+    return err;
 }
 
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)

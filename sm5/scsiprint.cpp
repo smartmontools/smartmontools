@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.30 2003/04/09 12:42:42 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.31 2003/04/13 09:19:57 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -370,20 +370,20 @@ void scsiSmartEnable(int device)
         pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
         return;
     }
-    /* Enable Exception Control */
-    if ((err = scsiSetExceptionControl(device, 1, &iec))) {
-        pout("unable to set Informational Exception (SMART) flag [err=%d]\n",
+    if ((err = scsiSetExceptionControlAndWarning(device, 1, &iec))) {
+        pout("unable to enable Exception control and warning [err=%d]\n",
              err);
         return;
     }
-    pout("Informational Exceptions (SMART) enabled\n");
-    /* Enable Temperature Warning */
-    if ((err = scsiSetWarning(device, 1, &iec))) {
-        pout("unable to set Temperature Warning flag [err=%d]\n",
-             err);
+    /* Need to refetch 'iec' since could be modified by previous call */
+    if ((err = scsiFetchIECmpage(device, &iec))) {
+        pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
         return;
     }
-    pout("Temperature Warning enabled\n");
+    pout("Informational Exceptions (SMART) %s\n",
+         scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
+    pout("Temperature warning %s\n",
+         scsi_IsWarningEnabled(&iec) ? "enabled" : "disabled");
 }
         
 void scsiSmartDisable(int device)
@@ -395,20 +395,20 @@ void scsiSmartDisable(int device)
         pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
         return;
     }
-    /* Disable Exception Control */
-    if ((err = scsiSetExceptionControl(device, 0, &iec))) {
-        pout("unable to clear Informational Exception (SMART) flag [err=%d]\n",
+    if ((err = scsiSetExceptionControlAndWarning(device, 0, &iec))) {
+        pout("unable to disable Exception control and warning [err=%d]\n",
              err);
         return;
     }
-    pout("Informational Exceptions (SMART) disabled\n");
-    /* Disable Temperature Warning */
-    if ((err = scsiSetWarning(device, 0, &iec))) {
-        pout("unable to clear Temperature Warning flag [err=%d]\n",
-             err);
+    /* Need to refetch 'iec' since could be modified by previous call */
+    if ((err = scsiFetchIECmpage(device, &iec))) {
+        pout("unable to fetch IEC (SMART) mode page [err=%d]\n", err);
         return;
     }
-    pout("Temperature Warning disabled\n");
+    pout("Informational Exceptions (SMART) %s\n",
+         scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
+    pout("Temperature warning %s\n",
+         scsi_IsWarningEnabled(&iec) ? "enabled" : "disabled");
 }
 
 void scsiPrintTemp(int device)
