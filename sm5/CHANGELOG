@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.437 2004/07/29 10:47:42 ballen4705 Exp $
+$Id: CHANGELOG,v 1.438 2004/07/29 21:00:36 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Added fixes to build smartmontools on old Linux systems
+       (libc < 6, Kernel 2.0.x).
 
   [BA] Added ATA minor version identity strings for latest ATA specification
        updates: ATA/ATAPI-7 T13 1532D revision 4a and ATA/ATAPI-6 published,
