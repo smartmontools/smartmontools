@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.90 2004/09/23 10:28:24 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.91 2004/11/08 01:31:07 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -60,6 +60,11 @@ static int gSmartLPage = 0;     /* Informational Exceptions log page */
 static int gTempLPage = 0;
 static int gSelfTestLPage = 0;
 static int gStartStopLPage = 0;
+static int gReadECounterLPage = 0;
+static int gWriteECounterLPage = 0;
+static int gVerifyECounterLPage = 0;
+static int gNonMediumELPage = 0;
+static int gLastNErrorLPage = 0;
 static int gTapeAlertsLPage = 0;
 static int gSeagateCacheLPage = 0;
 static int gSeagateFactoryLPage = 0;
@@ -89,6 +94,21 @@ static void scsiGetSupportedLogPages(int device)
     for (i = 4; i < gBuf[3] + LOGPAGEHDRSIZE; i++) {
         switch (gBuf[i])
         {
+            case READ_ERROR_COUNTER_LPAGE:
+                gReadECounterLPage = 1;
+                break;
+            case WRITE_ERROR_COUNTER_LPAGE:
+                gWriteECounterLPage = 1;
+                break;
+            case VERIFY_ERROR_COUNTER_LPAGE:
+                gVerifyECounterLPage = 1;
+                break;
+            case LAST_N_ERROR_LPAGE:
+                gLastNErrorLPage = 1;
+                break;
+            case NON_MEDIUM_ERROR_LPAGE:
+                gNonMediumELPage = 1;
+                break;
             case TEMPERATURE_LPAGE:
                 gTempLPage = 1;
                 break;
@@ -409,18 +429,18 @@ static void scsiPrintErrorCounterLog(int device)
     int k;
     double processed_gb;
 
-    if (0 == scsiLogSense(device, READ_ERROR_COUNTER_LPAGE, gBuf, 
-                          LOG_RESP_LEN, 0)) {
+    if (gReadECounterLPage && (0 == scsiLogSense(device,
+                READ_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
         found[0] = 1;
     }
-    if (0 == scsiLogSense(device, WRITE_ERROR_COUNTER_LPAGE, gBuf, 
-                          LOG_RESP_LEN, 0)) {
+    if (gWriteECounterLPage && (0 == scsiLogSense(device,
+                WRITE_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
         found[1] = 1;
     }
-    if (0 == scsiLogSense(device, VERIFY_ERROR_COUNTER_LPAGE, gBuf, 
-                          LOG_RESP_LEN, 0)) {
+    if (gVerifyECounterLPage && (0 == scsiLogSense(device,
+                VERIFY_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
         ecp = &errCounterArr[2];
         for (k = 0; k < 7; ++k) {
@@ -451,8 +471,8 @@ static void scsiPrintErrorCounterLog(int device)
     }
     else 
         pout("\nError Counter logging not supported\n");
-    if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_LPAGE, gBuf, 
-                          LOG_RESP_LEN, 0)) {
+    if (gNonMediumELPage && (0 == scsiLogSense(device,
+                NON_MEDIUM_ERROR_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8"PRIu64"\n", nme.counterPC0);
@@ -463,8 +483,8 @@ static void scsiPrintErrorCounterLog(int device)
             pout("Positioning error count [Hitachi]: %8"PRIu64"\n",
                  nme.counterPE_H);
     }
-    if (0 == scsiLogSense(device, LAST_N_ERROR_LPAGE, gBuf, 
-                          LOG_RESP_LONG_LEN, 0)) {
+    if (gLastNErrorLPage && (0 == scsiLogSense(device,
+                LAST_N_ERROR_LPAGE, gBuf, LOG_RESP_LONG_LEN, 0))) {
         unsigned char * ucp;
         int num, k, pc, pl;
 
@@ -492,8 +512,7 @@ static void scsiPrintErrorCounterLog(int device)
                 ucp += pl;
             }
         }
-    } else
-        pout("\nError Events logging not supported\n");
+    }
 }
 
 const char * self_test_code[] = {
