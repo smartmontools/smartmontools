@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.220 2003/10/21 01:45:50 arvoreen Exp $
+$Id: CHANGELOG,v 1.221 2003/10/21 09:34:38 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -21,9 +21,16 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
-  [EM] Mirror the FreeBSD devicescan logic for Linux.  Also, make
-       utility memory functions take a line number and file so
-       that we report errors from the correct spot.
+
+  [BA] smartd: DEVICESCAN also looks for block devices in
+       /dev.  Updated documentation.  Now scans for up to
+       20 ATA devices /dev/hda-t rather than previous 12
+       /dev/hda-l.
+
+  [EM] smartd: mirror the FreeBSD DEVICESCAN logic for Linux,
+       so that smartd now scans only devices found in /dev/. Also,
+       make utility memory functions take a line number and file so
+       that we report errors with the correct location.
  
   [GG] add a note about Debian bug #208964 to WARNINGS.
 

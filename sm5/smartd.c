@@ -57,7 +57,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.220 2003/10/21 01:45:50 arvoreen Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.221 2003/10/21 09:34:38 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2427,7 +2427,7 @@ void ParseOpts(int argc, char **argv){
 }
 
 // Function we call if no configuration file was found or if the
-// SCANDIRECTIVE Directive was found.  It makes entries for /dev/hd[a-l]
+// SCANDIRECTIVE Directive was found.  It makes entries for /dev/hd[a-t]
 // and /dev/sd[a-z].
 int MakeConfigEntries(const char *type, int start){
   int i;
