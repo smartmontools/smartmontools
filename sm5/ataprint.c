@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.132 2004/02/14 19:52:48 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.133 2004/02/14 20:05:09 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -822,11 +822,11 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 
     // The error log data structure entries are a circular buffer
     int j, i=(data->error_log_pointer+k)%5;
-    struct ata_smart_errorlog_struct *elog=data->errorlog_struct;
-    struct ata_smart_errorlog_error_struct *summary=&(elog[i].error_struct);
+    struct ata_smart_errorlog_struct *elog=data->errorlog_struct+i;
+    struct ata_smart_errorlog_error_struct *summary=&(elog->error_struct);
 
     // Spec says: unused error log structures shall be zero filled
-    if (nonempty((unsigned char*)(elog+i),sizeof(elog[i]))){
+    if (nonempty((unsigned char*)elog,sizeof(*elog))){
       // Table 57 of T13/1532D Volume 1 Revision 3
       char *msgstate;
       int bits=summary->state & 0x0f;
@@ -862,7 +862,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
            (int)summary->drive_head);
       // Add a description of the contents of the status and error registers
       // if possible
-      st_er_desc = construct_st_er_desc(elog+i);
+      st_er_desc = construct_st_er_desc(elog);
       if (st_er_desc) {
         pout("  %s", st_er_desc);
         free(st_er_desc);
@@ -872,7 +872,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
            "  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name\n"
            "  -- -- -- -- -- -- -- --   ---------  --------------------\n");
       for ( j = 4; j >= 0; j--){
-        struct ata_smart_errorlog_command_struct *thiscommand=&(elog[i].commands[j]);
+        struct ata_smart_errorlog_command_struct *thiscommand=elog->commands+j;
         
         // Spec says: unused data command structures shall be zero filled
         if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand)))
