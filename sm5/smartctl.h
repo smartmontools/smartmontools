@@ -25,7 +25,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.18 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.19 2003/12/01 06:02:08 ballen4705 Exp $\n"
 
 /* Boolean Values */
 #define TRUE 0x01
@@ -66,5 +66,7 @@
 // and (3) S.M.A.R.T. Return Status.  All others are optional.
 #define OPTIONAL_CMD 1
 #define MANDATORY_CMD 2
+
+void print_smartctl_examples();
 
 #endif

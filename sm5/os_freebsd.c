@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.23 2003/11/06 04:27:15 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.24 2003/12/01 06:02:08 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -51,6 +51,34 @@ struct freebsd_dev_channel *devicetable[FREEBSD_MAXDEV];
 
 // forward declaration
 static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *ch);
+
+// print examples for smartctl
+void print_smartctl_examples(){
+  printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
+#ifdef HAVE_GETOPT_LONG
+  printf(
+	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+	 "                                              (Enables SMART on first disk)\n\n"
+	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+	 "                                      (Prints Self-Test & Attribute errors)\n"
+	 "  smartctl -a -device=3ware,2 /dev/sda\n"
+	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+	 );
+#else
+  printf(
+	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
+	 "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+	 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+	 "                                      (Prints Self-Test & Attribute errors)\n"
+	 "  smartctl -a -d 3ware,2 /dev/sda\n"
+	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+	 );
+#endif
+  return;
+}
 
 // Like open().  Return positive integer handle, used by functions below only.  mode=="ATA" or "SCSI".
 int deviceopen (const char* dev, char* mode) {
