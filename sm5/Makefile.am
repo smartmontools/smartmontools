@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.47 2003/12/21 13:53:05 ballen4705 Exp $
+# $Id: Makefile.am,v 1.48 2004/02/04 18:48:12 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -9,8 +9,6 @@ AUTOMAKE_OPTIONS = 1.6
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
-
-AM_CPPFLAGS = -DSYSCONFDIR=\"$(sysconfdir)\"
 
 smartd_SOURCES =  smartd.c       \
                   smartd.h       \
