@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.38 2004/07/09 12:38:04 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.39 2004/08/13 13:57:12 arvoreen Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -84,10 +84,10 @@ typedef struct smartmonctrl_s {
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
-  // If nonzero, escalade_port is 1 plus the disk number behind an escalade
-  // or apache controller and type is 3ware controller type
-  unsigned char escalade_port;
-  unsigned char escalade_type;
+  // 3Ware controller type, but also extensible to other contoller types
+  unsigned char controller_type;
+  // For 3Ware controllers, nonzero value is 1 plus the disk number
+  unsigned char controller_port;
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of

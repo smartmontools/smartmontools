@@ -35,9 +35,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.18 2004/07/09 12:38:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.19 2004/08/13 13:57:12 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.18 2004/07/09 12:38:04 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.19 2004/08/13 13:57:12 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -141,11 +141,11 @@ isatadev(const char *path)
 // tries to guess device type given the name (a path)
 int guess_device_type (const char* dev_name) {
   if (isscsidev(dev_name))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
   else if (isatadev(dev_name))
-    return GUESS_DEVTYPE_ATA;
+    return CONTROLLER_ATA;
   else
-    return GUESS_DEVTYPE_DONT_KNOW;
+    return CONTROLLER_UNKNOW;
 }
 
 struct pathlist {

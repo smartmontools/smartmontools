@@ -70,9 +70,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.68 2004/07/27 15:07:42 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.69 2004/08/13 13:57:12 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.68 2004/07/27 15:07:42 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.69 2004/08/13 13:57:12 arvoreen Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1307,13 +1307,13 @@ int guess_device_type(const char * dev_name) {
   
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
-    return GUESS_DEVTYPE_DONT_KNOW;
+    return CONTROLLER_UNKNOWN;
   
   // Remove the leading /dev/... if it's there
   if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len)
       // if nothing else in the string, unrecognized
-      return GUESS_DEVTYPE_DONT_KNOW;
+      return CONTROLLER_UNKNOWN;
     // else advance pointer to following characters
     dev_name += dev_prefix_len;
   }
@@ -1321,50 +1321,50 @@ int guess_device_type(const char * dev_name) {
   // form /dev/h* or h*
   if (!strncmp(lin_dev_ata_disk_plus, dev_name,
                strlen(lin_dev_ata_disk_plus)))
-    return GUESS_DEVTYPE_ATA;
+    return CONTROLLER_ATA;
   
   // form /dev/ide/* or ide/*
   if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
                strlen(lin_dev_ata_devfs_disk_plus)))
-    return GUESS_DEVTYPE_ATA;
+    return CONTROLLER_ATA;
 
   // form /dev/s* or s*
   if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
                strlen(lin_dev_scsi_disk_plus)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
 
   // form /dev/scsi/* or scsi/*
   if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
                strlen(lin_dev_scsi_devfs_disk_plus)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
   
   // form /dev/ns* or ns*
   if (!strncmp(lin_dev_scsi_tape1, dev_name,
                strlen(lin_dev_scsi_tape1)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
   
   // form /dev/os* or os*
   if (!strncmp(lin_dev_scsi_tape2, dev_name,
                strlen(lin_dev_scsi_tape2)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
   
   // form /dev/nos* or nos*
   if (!strncmp(lin_dev_scsi_tape3, dev_name,
                strlen(lin_dev_scsi_tape3)))
-    return GUESS_DEVTYPE_SCSI;
+    return CONTROLLER_SCSI;
 
   // form /dev/twa*
   if (!strncmp(lin_dev_3ware_9000_char, dev_name,
                strlen(lin_dev_3ware_9000_char)))
-    return GUESS_DEVTYPE_3WARE_9000_CHAR;
+    return THREE_WARE_9000_CHAR;
 
   // form /dev/twe*
   if (!strncmp(lin_dev_3ware_678k_char, dev_name,
                strlen(lin_dev_3ware_678k_char)))
-    return GUESS_DEVTYPE_3WARE_678K_CHAR;
+    return THREE_WARE_678K_CHAR;
 
   // we failed to recognize any of the forms
-  return GUESS_DEVTYPE_DONT_KNOW;
+  return CONTROLLER_UNKNOWN;
 }
 
 

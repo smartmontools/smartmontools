@@ -40,7 +40,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.6 2004/08/07 20:45:41 geoffk1 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.7 2004/08/13 13:57:12 arvoreen Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -72,7 +72,7 @@ void print_smartctl_examples(){
 int guess_device_type (const char* dev_name) {
   // Only ATA is supported right now, so that's what it'd better be.
   dev_name = dev_name;  // suppress unused warning.
-  return GUESS_DEVTYPE_ATA;
+  return CONTROLLER_ATA;
 }
 
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of

@@ -55,7 +55,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.14 2004/07/16 05:55:00 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.15 2004/08/13 13:57:12 arvoreen Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -137,7 +137,7 @@ void print_smartctl_examples(){
 // for return values.
 int guess_device_type (const char* dev_name) {
   unsupported();
-  return GUESS_DEVTYPE_DONT_KNOW;
+  return CONTROLLER_UNKNOWN;
 }
 
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of

@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.15 2004/07/09 12:38:04 ballen4705 Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.16 2004/08/13 13:57:12 arvoreen Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -74,10 +74,10 @@ int guess_device_type (const char * dev_name)
 {
 	dev_name = skipdev(dev_name);
 	if (!strncmp(dev_name, "hd", 2))
-		return GUESS_DEVTYPE_ATA;
+		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "scsi", 4))
-		return GUESS_DEVTYPE_SCSI;
-	return GUESS_DEVTYPE_DONT_KNOW;
+		return CONTROLLER_SCSI;
+	return CONTROLLER_UNKNOWN;
 }
 
 

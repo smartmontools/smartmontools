@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.34 2004/07/09 12:38:04 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.35 2004/08/13 13:57:12 arvoreen Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -77,13 +77,9 @@ int split_report_arg2(char *s, int *i);
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop);
 
+
 // Guess device type (ata or scsi) based on device name 
-#define GUESS_DEVTYPE_ATA             0
-#define GUESS_DEVTYPE_SCSI            1
-#define GUESS_DEVTYPE_3WARE_9000_CHAR 2
-#define GUESS_DEVTYPE_3WARE_678K_CHAR 3
-#define GUESS_DEVTYPE_3WARE_678K      4
-#define GUESS_DEVTYPE_DONT_KNOW       5
+// Guessing will now use Controller Type defines below
 
 int guess_device_type(const char * dev_name);
 
@@ -161,10 +157,21 @@ void MsecToText(unsigned int msec, char *txt);
 #define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=0;}
 #define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=1;}
 
-// possible values for escalade_type in extern.h. Zero indicates no controller!
-#define THREE_WARE_NONE       0
-#define THREE_WARE_9000_CHAR  1
-#define THREE_WARE_678K       2
-#define THREE_WARE_678K_CHAR  3
+// possible values for controller_type in extern.h
+#define CONTROLLER_UNKNOWN	0x00
+#define CONTROLLER_ATA		0x10
+#define CONTROLLER_SCSI		0x20
+#define CONTROLLER_3WARE	0x30
+
+#define CONTROLLER_MASK		0xF0
+#define CONTROLLER_TYPE(x)	(x->controller_type & CONTROLLER_MASK)
+
+// 3Ware controller types
+#define THREE_WARE_9000_CHAR  (CONTROLLER_3WARE & 1)
+#define THREE_WARE_678K       (CONTROLLER_3WARE & 2)
+#define THREE_WARE_678K_CHAR  (CONTROLLER_3WARE & 3)
+#define THREE_WARE_TYPE_MASK	0x0F
+
+#define THREE_WARE_TYPE(x) (x->controller_type & THREE_WARE_TYPE_MASK)
 
 #endif

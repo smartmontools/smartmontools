@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.38 2004/08/13 12:41:40 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.39 2004/08/13 13:57:12 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.38 2004/08/13 12:41:40 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.39 2004/08/13 13:57:12 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -102,13 +102,13 @@ int deviceopen (const char* dev, char* mode) {
   }
 
   parse_ok = parse_ata_chan_dev (dev,fdchan);
-  if (parse_ok == GUESS_DEVTYPE_DONT_KNOW) {
+  if (parse_ok == CONTROLLER_UNKNOWN) {
     free(fdchan);
     errno = ENOTTY;
     return -1; // can't handle what we don't know
   }
 
-  if (parse_ok == GUESS_DEVTYPE_ATA) {
+  if (parse_ok == CONTROLLER_ATA) {
     if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
       int myerror = errno;      //preserve across free call
       free (fdchan);
@@ -117,7 +117,19 @@ int deviceopen (const char* dev, char* mode) {
     }
   }
 
-  if (parse_ok == GUESS_DEVTYPE_SCSI) {
+  if (parse_ok == CONTROLLER_3WARE) {
+    char buf[512];
+    sprintf(buf,"/dev/twe%d",fdchan->device);
+    printf("Using %s, as control device\n", buf);
+    if ((fdchan->atacommand = open(buf,O_RDWR))<0) {
+      int myerror = errno; // preserver across free call
+      free(fdchan);
+      errno=myerror;
+      return -1;
+    }
+  }
+
+  if (parse_ok == CONTROLLER_SCSI) {
     // this is really a NO-OP, as the parse takes care
     // of filling in correct details
   }
@@ -373,7 +385,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   
   
     if (report > 0) {
-        int k;
+        unsigned int k;
         const unsigned char * ucp = iop->cmnd;
         const char * np;
 
@@ -467,11 +479,227 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
+
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data) {
-  printwarning(NO_3WARE,NULL);
-  return -1;
+
+  // to hold true file descriptor
+  struct freebsd_dev_channel* con;
+
+  // return value and buffer for ioctl()
+  int  ioctlreturn, readdata=0;
+
+  // Used by both the SCSI and char interfaces
+  char ioctl_buffer[sizeof(struct twe_usercommand)];
+
+  // check that "file descriptor" is valid
+  if (isnotopen(&fd,&con))
+      return -1;
+
+  memset(ioctl_buffer, 0, sizeof(struct twe_usercommand));
+
+  struct twe_usercommand* cmd = (struct twe_usercommand*)ioctl_buffer;
+  cmd->tu_command.ata.opcode = TWE_OP_ATA_PASSTHROUGH;
+
+  // Same for (almost) all commands - but some reset below
+  cmd->tu_command.ata.request_id    = 0xFF;
+  cmd->tu_command.ata.unit   = disknum;
+  cmd->tu_command.ata.host_id = 0;
+  cmd->tu_command.ata.status        = 0;           
+  cmd->tu_command.ata.flags         = 0x1;
+  cmd->tu_command.ata.drive_head    = 0x0;
+  cmd->tu_command.ata.sector_num    = 0;
+
+  // All SMART commands use this CL/CH signature.  These are magic
+  // values from the ATA specifications.
+  cmd->tu_command.ata.cylinder_lo   = 0x4F;
+  cmd->tu_command.ata.cylinder_hi   = 0xC2;
+  
+  // SMART ATA COMMAND REGISTER value
+  cmd->tu_command.ata.command       = ATA_SMART_CMD;
+  
+  // Is this a command that reads or returns 512 bytes?
+  // passthru->param values are:
+  // 0x0 - non data command without TFR write check,
+  // 0x8 - non data command with TFR write check,
+  // 0xD - data command that returns data to host from device
+  // 0xF - data command that writes data from host to device
+  // passthru->size values are 0x5 for non-data and 0x07 for data
+  if (command == READ_VALUES     ||
+      command == READ_THRESHOLDS ||
+      command == READ_LOG        ||
+      command == IDENTIFY        ||
+      command == WRITE_LOG ) {
+    readdata=1;
+    cmd->tu_size = 512;
+    cmd->tu_data = data;
+    cmd->tu_command.ata.sgl_offset = 0x5;
+    cmd->tu_command.ata.size         = 0x5;
+    cmd->tu_command.ata.param        = 0xD;
+    cmd->tu_command.ata.sector_count = 0x1;
+    // For 64-bit to work correctly, up the size of the command packet
+    // in dwords by 1 to account for the 64-bit single sgl 'address'
+    // field. Note that this doesn't agree with the typedefs but it's
+    // right (agree with kernel driver behavior/typedefs).
+    //if (sizeof(long)==8)
+    //  cmd->tu_command.ata.size++;
+  }
+  else {
+    // Non data command -- but doesn't use large sector 
+    // count register values.  
+    cmd->tu_command.ata.sgl_offset = 0x0;
+    cmd->tu_command.ata.size         = 0x5;
+    cmd->tu_command.ata.param        = 0x8;
+    cmd->tu_command.ata.sector_count = 0x0;
+  }
+  
+  // Now set ATA registers depending upon command
+  switch (command){
+  case CHECK_POWER_MODE:
+    cmd->tu_command.ata.command     = ATA_CHECK_POWER_MODE;
+    cmd->tu_command.ata.features    = 0;
+    cmd->tu_command.ata.cylinder_lo = 0;
+    cmd->tu_command.ata.cylinder_hi = 0;
+    break;
+  case READ_VALUES:
+    cmd->tu_command.ata.features = ATA_SMART_READ_VALUES;
+    break;
+  case READ_THRESHOLDS:
+    cmd->tu_command.ata.features = ATA_SMART_READ_THRESHOLDS;
+    break;
+  case READ_LOG:
+    cmd->tu_command.ata.features = ATA_SMART_READ_LOG_SECTOR;
+    // log number to return
+    cmd->tu_command.ata.sector_num  = select;
+    break;
+  case WRITE_LOG:
+    cmd->tu_data = data;
+    readdata=0;
+    cmd->tu_command.ata.features     = ATA_SMART_WRITE_LOG_SECTOR;
+    cmd->tu_command.ata.sector_count = 1;
+    cmd->tu_command.ata.sector_num   = select;
+    cmd->tu_command.ata.param        = 0xF;  // PIO data write
+    break;
+  case IDENTIFY:
+    // ATA IDENTIFY DEVICE
+    cmd->tu_command.ata.command     = ATA_IDENTIFY_DEVICE;
+    cmd->tu_command.ata.features    = 0;
+    cmd->tu_command.ata.cylinder_lo = 0;
+    cmd->tu_command.ata.cylinder_hi = 0;
+    break;
+  case PIDENTIFY:
+    // 3WARE controller can NOT have packet device internally
+    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
+    errno=ENODEV;
+    return -1;
+  case ENABLE:
+    cmd->tu_command.ata.features = ATA_SMART_ENABLE;
+    break;
+  case DISABLE:
+    cmd->tu_command.ata.features = ATA_SMART_DISABLE;
+    break;
+  case AUTO_OFFLINE:
+    cmd->tu_command.ata.features     = ATA_SMART_AUTO_OFFLINE;
+    // Enable or disable?
+    cmd->tu_command.ata.sector_count = select;
+    break;
+  case AUTOSAVE:
+    cmd->tu_command.ata.features     = ATA_SMART_AUTOSAVE;
+    // Enable or disable?
+    cmd->tu_command.ata.sector_count = select;
+    break;
+  case IMMEDIATE_OFFLINE:
+    cmd->tu_command.ata.features    = ATA_SMART_IMMEDIATE_OFFLINE;
+    // What test type to run?
+    cmd->tu_command.ata.sector_num  = select;
+    break;
+  case STATUS_CHECK:
+    cmd->tu_command.ata.features = ATA_SMART_STATUS;
+    break;
+  case STATUS:
+    // This is JUST to see if SMART is enabled, by giving SMART status
+    // command. But it doesn't say if status was good, or failing.
+    // See below for the difference.
+    cmd->tu_command.ata.features = ATA_SMART_STATUS;
+    break;
+  default:
+    pout("Unrecognized command %d in freebsd_3ware_command_interface(disk %d)\n"
+         "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
+    errno=ENOSYS;
+    return -1;
+  }
+
+  // Now send the command down through an ioctl()
+  ioctlreturn=ioctl(con->atacommand,TWEIO_COMMAND,cmd);
+  
+  // Deal with the different error cases
+  if (ioctlreturn) {
+    if (!errno)
+      errno=EIO;
+    return -1;
+  }
+  
+  // See if the ATA command failed.  Now that we have returned from
+  // the ioctl() call, if passthru is valid, then:
+  // - cmd->tu_command.ata.status contains the 3ware controller STATUS
+  // - cmd->tu_command.ata.command contains the ATA STATUS register
+  // - cmd->tu_command.ata.features contains the ATA ERROR register
+  //
+  // Check bits 0 (error bit) and 5 (device fault) of the ATA STATUS
+  // If bit 0 (error bit) is set, then ATA ERROR register is valid.
+  // While we *might* decode the ATA ERROR register, at the moment it
+  // doesn't make much sense: we don't care in detail why the error
+  // happened.
+  
+  if (cmd->tu_command.ata.status || (cmd->tu_command.ata.command & 0x21)) {
+    pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",cmd->tu_command.ata.status,cmd->tu_command.ata.command,cmd->tu_command.ata.flags);
+    errno=EIO;
+    return -1;
+  }
+  
+  // For STATUS_CHECK, we need to check register values
+  if (command==STATUS_CHECK) {
+    
+    // To find out if the SMART RETURN STATUS is good or failing, we
+    // need to examine the values of the Cylinder Low and Cylinder
+    // High Registers.
+    
+    unsigned short cyl_lo=cmd->tu_command.ata.cylinder_lo;
+    unsigned short cyl_hi=cmd->tu_command.ata.cylinder_hi;
+    
+    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
+    if (cyl_lo==0x4F && cyl_hi==0xC2)
+      return 0;
+    
+    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
+    if (cyl_lo==0xF4 && cyl_hi==0x2C)
+      return 1;
+    
+      errno=EIO;
+      return -1;
+  }
+  
+  // copy sector count register (one byte!) to return data
+  if (command==CHECK_POWER_MODE)
+    *data=*(char *)&(cmd->tu_command.ata.sector_count);
+  
+  // look for nonexistent devices/ports
+  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
+    errno=ENODEV;
+    return -1;
+  }
+  
+  return 0;
 }
 
+static int get_twe_channel_unit (const char* name, int* unit, int* dev) {
+  // at some  point, we need to figure out which TWE controller any
+  // given disk belongs to.....
+  // at this point, I have no clue how to do this...so for now, it is
+  // always going to be controller 0
+  *dev=0;
+  *unit=0; // not really needed for TWE drives, as we handle that seperately
+  return 0;
+}
 
 static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 #ifndef ATAREQUEST
@@ -531,6 +759,7 @@ static const char * fbsd_dev_scsi_disk_plus = "da";
 static const char * fbsd_dev_scsi_tape1 = "sa";
 static const char * fbsd_dev_scsi_tape2 = "nsa";
 static const char * fbsd_dev_scsi_tape3 = "esa";
+static const char * fbsd_dev_twe_disk = "twed";
 
 static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
   int len;
@@ -538,13 +767,13 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
-    return GUESS_DEVTYPE_DONT_KNOW;
+    return CONTROLLER_UNKNOWN;;
   
   // Remove the leading /dev/... if it's there
   if (!strncmp(fbsd_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len) 
       // if nothing else in the string, unrecognized
-      return GUESS_DEVTYPE_DONT_KNOW;
+      return CONTROLLER_UNKNOWN;
     // else advance pointer to following characters
     dev_name += dev_prefix_len;
   }
@@ -553,10 +782,10 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
                strlen(fbsd_dev_ata_disk_prefix))) {
     if (chan != NULL) {
       if (get_ata_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
-        return GUESS_DEVTYPE_DONT_KNOW;
+        return CONTROLLER_UNKNOWN;
       }
     }
-    return GUESS_DEVTYPE_ATA;
+    return CONTROLLER_ATA;
   }
   
   // form /dev/da* or da*
@@ -579,18 +808,28 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
               strlen(fbsd_dev_scsi_tape3)))
     goto handlescsi;
   
+  if (!strncmp(fbsd_dev_twe_disk,dev_name,
+	       strlen(fbsd_dev_twe_disk))) {
+    if (chan != NULL) {
+      if (get_twe_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
+	return CONTROLLER_UNKNOWN;
+      }
+    }
+    return CONTROLLER_3WARE;
+  }
+
   // we failed to recognize any of the forms
-  return GUESS_DEVTYPE_DONT_KNOW;
+  return CONTROLLER_UNKNOWN;
 
  handlescsi:
   if (chan != NULL) {
     if (!(chan->devname = calloc(1,DEV_IDLEN+1)))
-      return GUESS_DEVTYPE_DONT_KNOW;
+      return CONTROLLER_UNKNOWN;
     
     if (cam_get_device(dev_name,chan->devname,DEV_IDLEN,&(chan->unitnum)) == -1)
-      return GUESS_DEVTYPE_DONT_KNOW;
+      return CONTROLLER_UNKNOWN;
   }
-  return GUESS_DEVTYPE_SCSI;
+  return CONTROLLER_SCSI;
   
 }
 
