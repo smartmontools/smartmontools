@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.66 2002/12/04 14:17:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.67 2002/12/07 12:09:12 knan Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -21,8 +21,8 @@ Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 Maintainers/Developers Key:
-[BA} Bruce Allen            <smartmontools-support@lists.sourceforge.net>
-[EB] Erik Inge Bolso        <knan@mo.himolde.no>
+[BA] Bruce Allen            <smartmontools-support@lists.sourceforge.net>
+[EB] Erik Inge Bolsø        <knan@mo.himolde.no>
 [SB] Stanislav Brabec       <sbrabec@suse.cz>
 [PC] Peter Cassidy          <pcassidy@mac.com>
 [FM] Frederic L. W. Meunier <0@pervalidus.net>
