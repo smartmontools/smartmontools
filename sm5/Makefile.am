@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.32 2003/10/14 17:21:28 drkirkby Exp $
+# $Id: Makefile.am,v 1.33 2003/10/15 10:59:02 guidog Exp $
 #
 
 @SET_MAKE@
@@ -137,7 +137,7 @@ uninstall-initdDATA:
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
 
-smart%: $(srcdir)/smart%.in
+smart%: $(srcdir)/smart%.in Makefile
 	sed "s|RELEASE|$(releaseversion)|g" $< | \
 	sed "s|/usr/share/man/|$(mandir)/|g" | \
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
