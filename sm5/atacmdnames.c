@@ -21,14 +21,18 @@
  */
 
 #include "atacmdnames.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.6 2003/07/22 18:44:32 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.7 2003/07/22 20:10:16 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
 const char cmd_reserved_sa[]     = "[RESERVED FOR SERIAL ATA]";
 const char cmd_reserved_cf[]     = "[RESERVED FOR COMPACTFLASH ASSOCIATION]";
 const char cmd_reserved_mcpt[]   = "[RESERVED FOR MEDIA CARD PASS THROUGH]";
+const char cmd_recalibrate_ret4[]= "RECALIBRATE [RET-4]";
+const char cmd_seek_ret4[]       = "SEEK [RET-4]";
 
 const char *command_table[256] = {
 /*-------------------------------------------------- 00h-0Fh -----*/
@@ -50,21 +54,21 @@ const char *command_table[256] = {
   cmd_reserved,
 /*-------------------------------------------------- 10h-1Fh -----*/
   "RECALIBRATE [OBS-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
-  "RECALIBRATE [RET-4]",
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
+  cmd_recalibrate_ret4,
 /*-------------------------------------------------- 20h-2Fh -----*/
   "READ SECTOR(S)",
   "READ SECTOR(S) [OBS-5]",
@@ -152,21 +156,21 @@ const char *command_table[256] = {
   cmd_reserved,
 /*-------------------------------------------------- 70h-7Fh -----*/
   "SEEK [OBS-7]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
-  "SEEK [RET-4]",
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
+  cmd_seek_ret4,
 /*-------------------------------------------------- 80h-8Fh -----*/
   cmd_vendor_specific,
   cmd_vendor_specific,
@@ -314,6 +318,18 @@ const char *command_table[256] = {
    others the value of the feature register specifies a subcommand or
    distinguishes commands. */
 const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
+
+  // check that command table not messed up.  The compiler will issue
+  // warnings if there are too many array elements, but won't issue
+  // warnings if there are not enough of them.
+  if (sizeof(command_table) != sizeof(char *)*256){
+    fprintf(stderr, 
+	    "Problem in atacmdnames.c.  Command Table command_table[] does\n"
+	    "not have 256 entries!  It has %d entries. Please fix it.\n",
+	    (int)(sizeof(command_table)/sizeof(char *)));
+    abort();
+  }
+
   switch (c_code) {
   case 0x00:  /* NOP */
     switch (f_reg) {
@@ -386,7 +402,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "WRITE SAME [Start unspecified] [RET-4]";
     default:
       return "WRITE SAME [Invalid subcommand] [RET-4]";
-    }
+    } 
   case 0xEF:  /* SET FEATURES */
     switch (f_reg) {
     case 0x01:
