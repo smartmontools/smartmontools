@@ -54,7 +54,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.199 2003/08/22 04:43:51 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.200 2003/08/26 09:13:47 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1039,6 +1039,19 @@ static int SCSIDeviceScan(cfgfile *cfg)
     cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values));
     cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds));
 
+    // Check if scsiCheckIE() is going to work
+    {
+        UINT8 asc = 0;
+        UINT8 ascq = 0;
+        UINT8 currenttemp = 0;
+
+        if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
+                        &asc, &ascq, &currenttemp)) {
+            PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART"
+                     " values\n", device);
+            cfg->SuppressReport = 1;
+        }
+    }
     // close file descriptor
     CloseDevice(fd, device);
     return 0;
@@ -1352,9 +1365,9 @@ int SCSICheckDevice(cfgfile *cfg)
     currenttemp = 0;
     asc = 0;
     ascq = 0;
-    if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
-                    &asc, &ascq, &currenttemp)) {
-        if (! cfg->SuppressReport) {
+    if (! cfg->SuppressReport) {
+        if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
+                        &asc, &ascq, &currenttemp)) {
             PrintOut(LOG_INFO, "Device: %s, failed to read SMART values\n",
                       name);
             PrintAndMail(cfg, 6, LOG_CRIT, 
