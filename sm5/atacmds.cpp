@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.81 2003/04/05 05:32:30 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.82 2003/04/05 05:45:17 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -811,21 +811,23 @@ void swap4(char *location){
 
 void fixbuginerrorlog(struct ata_smart_errorlog *data){
   char *start=(char *)data;
-  int i;
+  int i,j;
 
   // Device error count in bytes 452-3
   swap2(start+452);
 
+  // start will pointn to each error log data structure
+  start+=2;
+  
   // step through 5 error log data structures
   for (i=0; i<5; i++){
-    int j;
-    char* elog=start+90*i+2;
     // step through 5 command data structures
     for (j=0; j<5; j++)
       // Command data structure 4-byte millisec timestamp
-      swap4(elog+12*j+8);
+      swap4(start+12*j+8);
     // Error data structure life timestamp
-    swap2(elog+5*12+28);
+    swap2(start+88);
+    start+=90;
   }
 }
     
