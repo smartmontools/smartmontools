@@ -38,7 +38,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.8 2004/03/24 19:53:58 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.9 2004/04/02 10:56:11 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -433,7 +433,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	}
 
 #ifdef _DEBUG
-	pout("DeviceIoControl returns %lu bytes\n", num_out);
+	pout("DeviceIoControl returns %lu (%lu) bytes\n", num_out, buf->DataBufferSize);
 	print_ide_regs(&buf->IdeReg, 1);
 #endif
 
@@ -447,6 +447,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 /////////////////////////////////////////////////////////////////////////////
 
 static HANDLE h_ata_ioctl = 0;
+static int ide_pass_through_broken = 0;
 
 static int ata_open(int drive)
 {
@@ -681,9 +682,19 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	if (smart_ioctl(h_ata_ioctl, fd, &regs, data, (copydata?512:0))) {
 		// Read log only supported on Win9x, retry with pass through command
 		// CAUTION: smart_ioctl() MUST NOT change "regs" Parameter in this case
-		if (errno == ENOSYS && command == READ_LOG) {
+		if (errno == ENOSYS && command == READ_LOG && !ide_pass_through_broken) {
 			errno = 0;
-			return ide_pass_through_ioctl(h_ata_ioctl, &regs, data, 512);
+			memset(data, 0, 512);
+			if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, 512))
+				return -1;
+			if (!nonempty(data, 512)) {
+				// Nothing useful returned => ioctl probably broken
+				pout("IOCTL_IDE_PASS_THROUGH does not work on your OS\n");
+				ide_pass_through_broken = 1; // Do not retry (smartd)
+				errno = ENOSYS;
+				return -1;
+			}
+			return 0;
 		}
 		return -1;
 	}
