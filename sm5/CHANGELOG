@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.217 2003/10/16 14:30:43 ballen4705 Exp $
+$Id: CHANGELOG,v 1.218 2003/10/17 13:21:38 guidog Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -21,6 +21,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+ 
+  [GG] add a note about Debian bug #208964 to WARNINGS.
 
   [BA] smartctl: -T verypermissive option broken.  Use
        -T verpermissive until the next release, please.
