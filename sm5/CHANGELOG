@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.281 2003/12/06 12:59:14 pjwilliams Exp $
+$Id: CHANGELOG,v 1.282 2003/12/06 16:31:57 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Removed warning for SAMSUNG SP0802N with TK100-23 firmware
 
   [PW] Added Seagate Barracuda ATA IV family to knowndrives table.
 
