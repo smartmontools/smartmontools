@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.147 2004/01/02 16:05:25 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.148 2004/02/12 20:33:34 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -306,6 +306,137 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Thu Feb 12 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [KS] Added ATA/IDE support for Solaris/SPARC (ATA/IDE not yet for
+       Solaris/x86).
+  [BA] 3ware controllers: documented that one can monitor any of the
+       physical disks from any of the 3ware /dev/sd? logical devices.
+       Better warnings if querying a disk that does not exist.
+  [PW] Added Hitachi Travelstar DK23DA series, Maxtor DiamondMax Plus 40
+       series, Western Digital Caviar WDxxxAA, WDxxxBA, and WDxxxAB series
+       to knowndrives table
+  [BA] missing 'pragma pack' on ATA IDENIFY DEVICE structure may have
+       caused odd or incorrect results on 64-bit machines.
+  [BA] smartctl/smartd allow inspection of self-test and error logs even
+       if disk firmware claims that these don't exist.  This is needed
+       for some Maxtor disks whose firmware does not indicate log support
+       even though the disk DOES support it.
+  [BA] Improved porting instructions and documentation in os_generic.c
+  [PW] Add Western Digital Caviar WD136AA and SAMSUNG SP40A2H (RR100-07
+       firmware) to knowndrives table.
+  [EM] FreeBSD:	remove extra definition of FreeNonZero
+  [BA] smartctl: the -q silent option was printing output for some
+       error conditions.  Fixed.  Will rename relevant variables to help
+       avoid these errors in the future.
+  [SS] NetBSD port added.
+  [BA] more sensible error messages for devfs and devfs-like systems.
+       Instead of saying that the DIRECTORY does not exist, say that
+       the DEVICE does not exist.
+  [BA] smartd: added -n Directive, to prevent disk spin-up depending
+       upon the power mode (SLEEP, STANDBY, or IDLE).
+  [PW] Added Maxtor DiamondMax 20 VL series, Fujitsu MPF series,
+       Maxtor DiamondMax 36 series, Maxtor DiamondMax 4320 series, and
+       Maxtor DiamondMax 536DX series to knowndrives table.
+  [BA] many warning messages now give the file name AND VERSION
+  [BA] smartd: when the user provides multiple address recipients
+       to the '-m' Directive in a comma-delineated list, the commas
+       are stripped out before passing the list of addresses to the
+       mailer program. (Thanks to Calin A. Culianu for pointing this out
+       and providing a patch.)
+  [BA] smartd: when the '-M exec path' Directive is used, any stdout OR
+       stderr output from the executable "path" is assumed to indicate a
+       problem, and is echoed to SYSLOG.
+  [BA] Added all missing IBM/Hitachi Deskstar 180GXP models to knowndrives
+       table.
+  [PW] Added some missing IBM/Hitachi Deskstar 120GXP models to knowndrives
+       table.
+  [PW] Added IBM Travelstar 14GS to knowndrives table.
+  [PW] Modified knowndrives table to match entire Hitachi Travelstar
+       DK23BA and DK23EA series of drives (thanks to Norikatsu Shigemura
+       for submitting the patch).
+  [PW] Added some missing Fujitsu MPE series drives to knowndrives table.
+  [PW] Added TOSHIBA MK4019GAX, TOSHIBA MK6409MAV, and QUANTUM
+       FIREBALLlct15 20 to knowndrives table.
+  [EM] Fixup example command output for FreeBSD
+  [PW] Added Maxtor DiamondMax 80 family to knowndrives table.
+  [EM] Catch up FreeBSD code to switch PROJECTHOME to PACKAGE_HOMEPAGE
+       macros.
+  [BA] smartd: now watches stdout/stderr when trying to run mail, mailx
+       or mail warning script, and reports any output to SYSLOG.  This
+       gives a clearer error message if something is wrong.
+  [BA] smartd: Solaris init script modified to accomodate grep that
+       lacks '-q' quiet option.  Also check for running process to kill
+       on stop.
+  [PW] Added some missing Seagate Barracuda 7200.7 and 7200.7 Plus drives
+       to knowndrives table.
+  [PW] Added Maxtor DiamondMax Plus 60 family and Seagate U Series 5 20413
+       to knowndrives table.
+  [BA] smartd: under Solaris, made default mailer be 'mailx' not
+       'mail', since Solaris 'mail' does not accept a '-s' argument.
+       A workaround for Solaris users of earlier versions is to
+       have '-M exec /bin/mailx' in their smartd.conf config file.
+  [DG] some SCSI controllers don't like odd length transfers so make
+       sure LOG SENSE transfers are rounded up to an even number when
+       and odd length is reported (i.e. there is a double fetch, the
+       first to find the length, the second gets the data)
+  [BA] smartd man pages: under Solaris, correct section numbers in the
+       'See also' section.
+  [KS/BA] smartd man page: describe how to set Solaris syslog.conf
+       file to catch all messages.  Give correct Solaris SYSLOG default
+       path /var/adm/messages in man pages.
+  [BA] smartd: incorporated Debian startup script submitted by user.
+  [BA] smartctl: modified printing of self-test log entry number.  Seagate
+       firmware can leave 'holes' in the self-test log while a test is
+       actually running.  We now print entry numbers consistently in this
+       case, not assuming that entries are contiguous.
+  [PW] Added QUANTUM FIREBALL CX10.2A and Western Digital Caviar AC23200L
+       to knowndrives table.
+  [PW] Added QUANTUM FIREBALLlct20 20 to knowndrives table.
+  [PW] Added Maxtor DiamondMax Plus D740X family to knowndrives table.
+  [PW] Added IBM Travelstar 32GH, 30GT, and 20GN family to knowndrives
+       table.
+  [BA] Slackware init script modified to search for /etc/slackware-version
+       rather than /etc/slackware-release.
+  [PW] Added Seagate Barracuda ATA II family and TOSHIBA MK4019GAXB to
+       knowndrives table.
+  [GG] explain howto use autoreconf in autogen.sh
+  [KS] Makefile.am/configure.in: changed manual page sections for
+       Solaris.
+  [BA] smartd: reduced number of scheduled self-test messages if
+       test already run in current hour.
+  [PW] Added Maxtor DiamondMax Plus 8 family to knowndrives table.
+  [BA] linux: check for linux/hdreg.h.  If it's there, use it. If
+       not, provide the necessary definitions ourselves.
+  [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives
+       with TXAOA5AA firmware
+  [PW] Added IBM Travelstar 25GS, 18GT, and 12GN family to knowndrives
+       table.
+  [PW] Added IBM/Hitachi Travelstar 60GH & 40GN family to knowndrives
+       table.
+  [BA] smartd: made '-s' Directive more efficient.  Now store
+       compiled regex, and re-use.  If device lacks certain self-test
+       capabilities, track it and don't try again.
+  [BA] smartd: made memory allocation for device lists completely
+       dynamic (eliminating compile-time maximum length constants).
+  [PW] Removed warning for SAMSUNG SP0802N with TK100-23 firmware
+  [PW] Added Seagate Barracuda ATA IV family to knowndrives table.
+  [BA] smartd: reduce per-device memory footprint by making
+       mail-warning info dynamically allocated.  Also remove
+       potential memory leak if use has -m Directive twice and
+       keeps reloading the config file (highly unlikely this would
+       ever be noticed!)  
+  [DG] smartd: added SCSI scheduled self-tests (Background
+       short or extended).
+  [BA] smartd: can now run scheduled offline immediate and
+       self-tests.  See man page and -s Directive for details.
+  [GG] don't include manpages in make-dist-tarball.
+  [BA] smartctl: on-line examples given with -h are now correct
+       for solaris and linux, but wrong for freebsd.  Ed?
+  [BA] smartd: man page now explains device scanning for solaris as
+       well as linux and freebsd.
+  [BA] smartd/smartctl: man pages now report correct CVS tag release
+       date, and executables '-V' options reports more build info.
+
 * Sat Nov 29 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
   [BA] Improved user messages that appear from 'make install'
   [PW] Removed warning for SAMSUNG SP1213N with firmware TL100-23
@@ -320,7 +451,6 @@ fi
   [BA] init script (redhat, mandrake, yellowdog) now uses correct
        strings for translation and is slightly more standard.
   [DG] smartctl: output scsi Seagate vendor pages for disks (not tapes)
-
 * Wed Nov 19 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
   [DG] smartd/smartctl: changed scsiClearControlGLTSD() to
        scsiSetControlGLTSD() with an 'enabled' argument so '-S on'

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.331 2004/02/12 19:12:00 card_captor Exp $
+$Id: CHANGELOG,v 1.332 2004/02/12 20:33:34 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+smartmontools 5.27
 
   [KS] Added ATA/IDE support for Solaris/SPARC (ATA/IDE not yet for
        Solaris/x86).
