@@ -2,7 +2,7 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
-$Id: README,v 1.50 2004/05/03 15:58:33 ballen4705 Exp $
+$Id: README,v 1.50.2.1 2004/08/17 16:13:16 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -103,3 +103,25 @@ Refer to the "INSTALL" file for installation instructions.
 
 See the "WARNINGS" file for reports of hardware where these utilities
 might cause serious problems such as lockups.
+
+== GETTING STARTED ==
+
+To examine SMART data from a disk, try:
+  smartctl -a /dev/hda
+for ATA disks, or
+  smartctl -a /dev/sda
+for SCSI disks.  See the manual page 'man smartctl' for more
+information.
+
+To start automatic monitoring of your disks with the smartd daemon,
+try:
+  smartd -d
+to start the daemon in foreground (debug) mode, or
+  smartd
+to start the daemon in background mode.  This will log messages to
+SYSLOG.  If you would like to get email warning messages, please set
+up the configuration file smartd.conf with the '-m' mail warning
+Directive.  See the manual page 'man smartd' for more information.
+
+
+
