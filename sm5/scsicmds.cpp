@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.52 2003/10/08 01:24:58 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.53 2003/10/11 05:41:02 arvoreen Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -941,6 +941,7 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
     *asc = 0;
     *ascq = 0;
     *currenttemp = 0;
+    memset(tBuf,0,sizeof(tBuf)); // need to clear stack space of junk
     memset(&sense_info, 0, sizeof(sense_info));
     if (hasIELogPage) {
         if ((err = scsiLogSense(device, IE_LOG_PAGE, tBuf, 
@@ -948,7 +949,8 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
             return err;
         }
-        pagesize = (unsigned short) (tBuf[2] << 8) | tBuf[3];
+	// pull out page size from response, don't forget to add 4
+        pagesize = (unsigned short) ((tBuf[2] << 8) | tBuf[3]) + 4; 
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("Log Sense failed, IE page, bad parameter code or length\n");
             return SIMPLE_ERR_BAD_PARAM;
