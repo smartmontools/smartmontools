@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.100 2004/04/16 08:53:29 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.101 2004/04/16 13:23:48 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -297,13 +297,6 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL
   },
-  { // All Samsung drives with '.*-25' firmware
-    "^SAMSUNG.*",
-    ".*-25$",
-    may_need_minus_F2_enabled,
-    vendoropts_9_halfminutes,
-    NULL, NULL
-  },
   { // SAMSUNG SP40A2H with RR100-07 firmware
     "^SAMSUNG SP40A2H$",
     "^RR100-07$",
@@ -311,6 +304,22 @@ const drivesettings knowndrives[] = {
     vendoropts_9_halfminutes,
     specialpurpose_reverse_samsung,
     same_as_minus_F
+  },
+  { // All Samsung drives with '.*-25' firmware
+    "^SAMSUNG.*",
+    ".*-25$",
+    may_need_minus_F2_disabled,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung2,
+    same_as_minus_F2
+  },
+  { // All Samsung drives with '.*-26 or later (currently to -39)' firmware
+    "^SAMSUNG.*",
+    ".*-(2[6789]|3[0-9])$",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    NULL,
+    NULL
   },
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",

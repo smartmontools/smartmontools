@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.398 2004/04/16 08:53:25 pjwilliams Exp $
+$Id: CHANGELOG,v 1.399 2004/04/16 13:23:47 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added entries for Samsung firmware versions -25 to -39 based
+       on latest info about firmware bug fixes.
 
   [PW] Added Seagate U Series X family, Seagate U8 family, and Seagate
        Medalist 8641 family to knowndrives table.
