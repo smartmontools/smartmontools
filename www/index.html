@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/09/23 19:26:54 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/09/24 18:44:09 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.89 2003/09/23 19:26:54 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.90 2003/09/24 18:44:09 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -111,22 +111,7 @@ options ./configure --help
 Skip <tt>./configure</tt> for releases &lt;= 5.1-18
 
 make
-make install (only root can do this)
-
-To compile from another directory, you can replace ./configure by the
-following:
-
-mkdir objdir
-cd objdir
-../configure
-
-And to install to another destination, used mainly by package
-maintainers:
-
-make DESTDIR=/home/myself/smartmontools-package install
-
-Use a full PATH. ~/smartmontools-package may not work. Don't use DESTDIR
-for releases &lt;= 5.1-18.</pre></li>
+make install (only root can do this)</pre></li>
 </ul>
 
 <b>Third Method - Install from the CVS repository</b>
@@ -174,7 +159,7 @@ which are correct for Red Hat, Slackware, and probably other Linux
 distributions.
 
 For FHS compliance, use --prefix=/usr/local , and for a full list of
-options ./configure --help
+options --help
 
 Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
 &lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18). This
@@ -185,6 +170,22 @@ doesn't include HEAD (<tt>cvs co</tt> with no arguments and <tt>cvs up
 make
 make install (only root can do this)
 
+</pre></li>
+
+<li>To update your sources to the 5.1-18 release:
+
+<pre>cd sm5
+cvs up -r RELEASE_5_1_18</pre></li>
+
+<li>To update any tagged release to the latest development code:
+
+<pre>cd sm5
+cvs up -A</pre></li>
+</ul>
+
+<b>Optional notes for source tarball and CVS installs</b>
+<ul>
+<li><pre>
 To compile from another directory, you can replace ./configure by the
 following:
 
@@ -199,16 +200,6 @@ make DESTDIR=/home/myself/smartmontools-package install
 
 Use a full PATH. ~/smartmontools-package may not work. Don't use DESTDIR
 for releases &lt;= 5.1-18.</pre></li>
-
-<li>To update your sources to the 5.1-18 release:
-
-<pre>cd sm5
-cvs up -r RELEASE_5_1_18</pre></li>
-
-<li>To update any tagged release to the latest development code:
-
-<pre>cd sm5
-cvs up -A</pre></li>
 </ul>
 
 <b>Fourth Method - Install the Debian package (for machines using the
@@ -239,19 +230,19 @@ apt-get update &amp;&amp; apt-get install smartmontools
 </li>
 </ul>
 
-<b>After installing smartmontools using Method 1, 2, 3 or 4 above, you can read the man
-pages, and try out the commands:</b>
+<b>After installing it using Method 1, 2, 3 or 4 above, you can read the
+man pages, and try out the commands:</b>
 
 <pre>
-man 5 smartd.conf
-man 8 smartctl
-man 8 smartd
+man smartd.conf
+man smartctl
+man smartd
 /usr/sbin/smartctl -s on -o on -S on /dev/hda (only root can do this)
 /usr/sbin/smartctl -a /dev/hda (only root can do this)</pre>
 
 <p>Note that the default location for the manual pages are
 <tt>/usr/share/man/man5</tt> and <tt>/usr/share/man/man8</tt>.&#160; If
-"<tt>man</tt>" does not find the manual pages, then you may need to add
+"<tt>man</tt>" doesn't find them, then you may need to add
 <tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
 variable.</p>
 
@@ -740,8 +731,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/09/23 19:26:54 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.89 2003/09/23 19:26:54 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2003/09/24 18:44:09 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.90 2003/09/24 18:44:09 pervalidus Exp $</tt>
 
 <hr size="2" />
 
