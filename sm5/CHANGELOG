@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.316 2004/01/05 11:42:32 ballen4705 Exp $
+$Id: CHANGELOG,v 1.317 2004/01/07 16:49:55 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,16 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: when the user provides multiple address recipients
+       to the '-m' Directive in a comma-delineated list, the commas
+       are stripped out before passing the list of addresses to the
+       mailer program. (Thanks to Calin A. Culianu for pointing this out
+       and providing a patch.)
+
+  [BA] smartd: when the '-M exec path' Directive is used, any stdout OR
+       stderr output from the executable "path" is assumed to indicate a
+       problem, and is echoed to SYSLOG.
 
   [BA] Added all missing IBM/Hitachi Deskstar 180GXP models to knowndrives
        table.

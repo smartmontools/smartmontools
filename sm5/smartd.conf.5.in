@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.27 2004/01/02 16:05:25 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.28 2004/01/07 16:49:55 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -583,11 +583,14 @@ it takes, and their significance, are:
 .nf
 .fi
 .B SMARTD_ADDRESS
-is set to the address argument ADD of the \'\-m\' Directive, unless ADD
-is
-.B <nomailer>.
-This is a comma-delineated list of email addresses (example:
-admin@example.com).
+is determined by the address argument ADD of the \'\-m\' Directive.
+If ADD is \fB<nomailer>\fP, then \fBSMARTD_ADDRESS\fP is not set.
+Otherwise, it is set to the comma-separated-list of email addresses
+given by the argument ADD, with the commas replaced by spaces
+(example:admin@example.com root).  If more than one email address is
+given, then this string will contain space characters and is NOT
+quoted, so to use it in a bash script you may want to enclose it in
+double quotes.
 .nf
 .fi
 .B SMARTD_MESSAGE
@@ -640,6 +643,10 @@ command-line arguments, for example:
 .nf
 .B -m <nomailer> -M exec /Example_2/bash/script/below
 .fi
+If the executable produces any STDERR/STDOUT output, then \fBsmartd\fP
+assumes that something is going wrong, and a snippet of that output
+will be copied to SYSLOG.  The remainder of the output is then
+discarded.
 
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
@@ -1053,4 +1060,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.27 2004/01/02 16:05:25 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.28 2004/01/07 16:49:55 ballen4705 Exp $

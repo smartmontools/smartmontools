@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.275 2004/01/02 16:05:25 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.276 2004/01/07 16:49:55 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -359,7 +359,7 @@ void Goodbye(){
 // it must either be a static buffer or allocated off the heap. The
 // string can be freed if the environment variable is redefined or
 // deleted via another call to putenv(). So we keep these on the stack
-// as long as the system() call is underway.
+// as long as the popen() call is underway.
 int exportenv(char* stackspace, const char *name, const char *value){
   snprintf(stackspace,ENVLENGTH, "%s=%s", name, value);
   return putenv(stackspace);
@@ -501,6 +501,14 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     executable = "mail";
 #endif
 
+  // make a private copy of address with commas replaced by spaces
+  // to separate recipients
+  if (address) {
+    char *comma=address=CustomStrDup(data->address, 1, __LINE__, __FILE__);
+    while ((comma=strchr(comma, ',')))
+      *comma=' ';
+  }
+
   // Export information in environment variables that will be useful
   // for user scripts
   exportenv(environ_strings[0], "SMARTD_MAILER", executable);
@@ -544,9 +552,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
              "%s\n\n"
              "%s%s%s"
              "ENDMAIL\n",
-           subject, address, hostname, domainname, message, hostname, further, original, additional);
+	     subject, address, hostname, domainname, message, hostname, further, original, additional);
   else
-    snprintf(command, 2048, "%s", executable);
+    snprintf(command, 2048, "%s 2>&1", executable);
   
   // tell SYSLOG what we are about to do...
   newadd=address?address:"<nomailer>";
@@ -626,6 +634,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   // increment mail sent counter
   mail->logged++;
   
+  // free copy of address (without commas)
+  address=FreeNonZero(address, -1, __LINE__, __FILE__);
+
   return;
 }
 
