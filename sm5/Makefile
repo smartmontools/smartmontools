@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.38 2002/11/15 14:51:31 ballen4705 Exp $
+# $Id: Makefile,v 1.39 2002/12/01 12:14:15 pjwilliams Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -34,8 +34,9 @@ CC	= gcc
 # #8404.  If you are getting strange output from gcc 3.2 try
 # uncommenting LDFLAGS -s below.  Stripping the symbols seems to fix
 # the problem.
-CFLAGS	= -fsigned-char -Wall -O2
-LDFLAGS = # -s
+CFLAGS	 = -fsigned-char -Wall -O2
+CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
+LDFLAGS  = # -s
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
@@ -52,25 +53,25 @@ all: smartd smartctl
 
 smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
           smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h extern.h VERSION Makefile
-	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(LDFLAGS) smartctl.c \
+	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartctl.c \
                                       atacmds.o scsicmds.o ataprint.o scsiprint.o
 
 smartd:  smartd.c atacmds.o ataprint.o scsicmds.o \
          smartd.h atacmds.h ataprint.h scsicmds.h extern.h VERSION Makefile
-	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(LDFLAGS) smartd.c \
+	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartd.c \
                                       scsicmds.o atacmds.o ataprint.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
-	$(CC) $(CFLAGS) -c atacmds.c 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c atacmds.c 
 
 ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h Makefile
-	$(CC) $(CFLAGS) -c ataprint.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c ataprint.c
 
 scsicmds.o: scsicmds.c scsicmds.h Makefile
-	$(CC) $(CFLAGS) -c scsicmds.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c scsicmds.c
 
 scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
-	$(CC) $(CFLAGS) -c scsiprint.c 
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c scsiprint.c 
 
 # This extracts the configuration file directives from smartd.8 and
 # inserts them into smartd.conf.5

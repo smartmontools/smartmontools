@@ -37,7 +37,9 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "smartd.h"
@@ -47,7 +49,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.80 2002/12/01 07:16:16 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.81 2002/12/01 12:14:16 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1316,6 +1318,7 @@ void ParseOpts(int argc, char **argv){
   extern char *optarg;
   extern int  optopt, optind, opterr;
   int optchar;
+#ifdef HAVE_GETOPT_LONG
   struct option long_options[] = {
     { "debugmode", no_argument, 0, 'X'},
     { "version",   no_argument, 0, 'V'},
@@ -1325,11 +1328,16 @@ void ParseOpts(int argc, char **argv){
     { "usage",     no_argument, 0, 'h'},
     { 0,           0,           0, 0  }
   };
+#endif
 
   opterr=optopt=0;
 
   // Parse input options:
+#ifdef HAVE_GETOPT_LONG
   while (-1 != (optchar = getopt_long(argc, argv, "XVh?", long_options, NULL))){
+#else
+  while (-1 != (optchar = getopt(argc, argv, "XVh?"))){
+#endif
     switch(optchar) {
     case 'X':
       debugmode  = TRUE;
@@ -1347,11 +1355,13 @@ void ParseOpts(int argc, char **argv){
 	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %c <======= \n\n",optopt);
 	Usage();
 	exit(-1);
+#ifdef HAVE_GETOPT_LONG
       } else if (optchar == '?' && argv[optind-1][1] == '-') {
 	printhead();
 	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %s <======= \n\n",argv[optind-1]+2);
 	Usage();
 	exit(-1);
+#endif
       }
       printhead();
       Usage();
