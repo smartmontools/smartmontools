@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.6 2003/04/17 16:22:44 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.7 2003/04/17 16:45:03 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -192,7 +192,7 @@ const drivesettings knowndrives[] = {
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
-  {0, 0, 0, 0, 0}
+  {NULL, NULL, NULL, NULL, NULL}
 };
 
 // Searches knowndrives[] for a drive with the given model number and firmware
@@ -236,91 +236,88 @@ int lookupdrive(const char *model, const char *firmware)
   return index;
 }
 
+
 // Shows all presets for drives in knowndrives[].
-void showallpresets(void)
-{
-  int i;
-
-  for (i = 0; knowndrives[i].modelregexp; i++) {
-    const int (* presets)[2] = knowndrives[i].vendoropts;
-    int first_preset = 1;
-    int width = 20;
-
-    // print model and firmware regular expressions
-    pout("%-*s %s\n", width, "MODEL REGEXP:", knowndrives[i].modelregexp);
-    pout("%-*s %s\n", width, "FIRMWARE REGEXP:", knowndrives[i].firmwareregexp ?
-                                           knowndrives[i].firmwareregexp : "");
-
-    // if there are any presets, then show them
-    if (presets) while (1) {
-      char out[64];
-      const int attr = (*presets)[0], val  = (*presets)[1];
-
-      // if we are at the end of the attribute list, break out
-      if (!attr)  
-        break;
-
-      ataPrintSmartAttribName(out, attr, val);
-      // Use leading zeros instead of spaces so that everything lines up.
-      out[0] = (out[0] == ' ') ? '0' : out[0];
-      out[1] = (out[1] == ' ') ? '0' : out[1];
+void showonepreset(const drivesettings *drivetable){
+  
+  const int (* presets)[2] = drivetable->vendoropts;
+  int first_preset = 1;
+  int width = 20;
+  
+  // Basic error check
+  if (!drivetable || !drivetable->modelregexp){
+    pout("Null known drive table pointer\n"
+	 "Please report this error to smartmontools developers\n");
+    return;
+  }
+  
+  // print model and firmware regular expressions
+  pout("%-*s %s\n", width, "MODEL REGEXP:", drivetable->modelregexp);
+  pout("%-*s %s\n", width, "FIRMWARE REGEXP:", drivetable->firmwareregexp ?
+       drivetable->firmwareregexp : "");
+  
+  // if there are any presets, then show them
+  if (presets) while (1) {
+    char out[64];
+    const int attr = (*presets)[0], val  = (*presets)[1];
+    
+    // if we are at the end of the attribute list, break out
+    if (!attr)  
+      break;
+    
+    ataPrintSmartAttribName(out, attr, val);
+    // Use leading zeros instead of spaces so that everything lines up.
+    out[0] = (out[0] == ' ') ? '0' : out[0];
+    out[1] = (out[1] == ' ') ? '0' : out[1];
       pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
       first_preset = 0;
       presets++;
-    }
-
+  }
+  
     // Is a special purpose function defined?  If so, describe it
-    if (knowndrives[i].specialpurpose){
-      pout("%-*s ", width, "OTHER PRESETS:");
-      pout("%s\n", knowndrives[i].functiondesc ?
-	   knowndrives[i].functiondesc : "A special purpose function "
-	   "is defined for this drive"); 
-    }
+  if (drivetable->specialpurpose){
+    pout("%-*s ", width, "OTHER PRESETS:");
+    pout("%s\n", drivetable->functiondesc ?
+	 drivetable->functiondesc : "A special purpose function "
+	 "is defined for this drive"); 
+  }
+  
+  // Print any special warnings
+  if (drivetable->warningmsg){
+    pout("%-*s ", width, "WARNINGS:");
+    pout("%s\n", drivetable->warningmsg);
+  }
+ 
+  return;
+}
 
-    // Print any special warnings
-    if (knowndrives[i].warningmsg){
-      pout("%-*s ", width, "WARNINGS:");
-      pout("%s\n", knowndrives[i].warningmsg);
-    }
+void showallpresets(void){
+  int i;
 
+  for (i=0; knowndrives[i].modelregexp; i++){
+    showonepreset(&knowndrives[i]);
     pout("\n");
   }
+  return;
 }
+
 
 // Shows the presets (if any) that are available for the given drive.
 void showpresets(const struct hd_driveid *drive)
 {
   int i;
-  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1],
-       out[64];
+  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
-  if (   (i = lookupdrive(model, firmware)) < 0
-      || (!knowndrives[i].vendoropts && !knowndrives[i].specialpurpose)
-  )
+  if ((i = lookupdrive(model, firmware)) < 0) {
     pout("No presets are defined for this drive\n");
-  else {
-    const int (* vopts)[2] = knowndrives[i].vendoropts;
-
-    if (vopts)
-      while (1) {
-        const int attr = (*vopts)[0];
-        const int val  = (*vopts)[1];
-
-        if (!attr)
-          break;
-
-        ataPrintSmartAttribName(out, attr, val);
-        pout("%s\n", out);
-        vopts++;
-      }
-    if (knowndrives[i].specialpurpose)
-      pout("%s\n", knowndrives[i].functiondesc ?
-                   knowndrives[i].functiondesc : "A special purpose function "
-                                                 "is defined for this drive");
+    return;
   }
+
+  showonepreset(&knowndrives[i]);
+  return;
 }
 
 // Sets preset vendor attribute options in opts by finding the entry (if any)
