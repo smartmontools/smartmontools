@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.102 2003/06/19 15:16:29 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.103 2003/06/19 19:27:45 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1477,7 +1477,15 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     name="G-Sense_Error_Rate";
     break;
   case 192:
-    name="Power-Off_Retract_Count";
+    switch (val) {
+    case 1:
+      // Fujitsu
+      name="Emergency_Retract_Cycle_Ct";
+      break;
+    default:
+      name="Power-Off_Retract_Count";
+      break;
+    }
     break;
   case 193:
     switch (val){
@@ -1505,7 +1513,15 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     }
     break;
   case 195:
-    name="Hardware_ECC_Recovered";
+    switch (val){
+    case 1:
+      // Fujitsu
+      name="ECC_On_The_Fly_Count";
+      break;
+    default:
+      name="Hardware_ECC_Recovered";
+      break;
+    }
     break;
   case 196:
     name="Reallocated_Event_Count";
@@ -1514,7 +1530,15 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     name="Current_Pending_Sector";
     break;
   case 198:
-    name="Offline_Uncorrectable";
+    switch (val){
+    case 1:
+      // Fujitsu
+      name="Off-line_Scan_UNC_Sector_Ct";
+      break;
+    default:
+      name="Offline_Uncorrectable";
+      break;
+    }
     break;
   case 199:
     name="UDMA_CRC_Error_Count";
@@ -1532,7 +1556,35 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
     }
     break;
   case 201:
-    name="Soft_Read_Error_Rate";
+    switch (val) {
+    case 1:
+      // Fujitsu
+      name="Detected_TA_Count";
+      break;
+    default:
+      name="Soft_Read_Error_Rate";
+      break;
+    }
+    break;
+  case 202:
+    // Fujitsu
+    name="TA_Increase_Count";
+    break;
+  case 203:
+    // Fujitsu
+    name="Run_Out_Cancel";
+    break;
+  case 204:
+    // Fujitsu
+    name="Shock_Count_Wt_Operation";
+    break;
+  case 205:
+    // Fujitsu
+    name="Shock_Rate_Wt_Operation";
+    break;
+  case 206:
+    // Fujitsu
+    name="Flying Height Measurement";
     break;
   case 220:
     switch (val) {
