@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.270 2003/12/29 15:45:06 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.271 2003/12/29 17:54:07 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1379,7 +1379,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // construct pattern containing the month, day of month, day of
   // week, and hour
   time(&epochnow);
-  localtime_r(&epochnow, &timenow);
+  timenow=*(localtime(&epochnow));
   
   // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
   // (Sunday).
