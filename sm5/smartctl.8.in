@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.67 2004/09/18 17:17:31 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.68 2004/09/20 18:33:17 likewise Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -175,8 +175,13 @@ are \fIata\fP, \fIscsi\fP, \fImarvell\fP, and \fI3ware,N\fP. If this option is n
 used then \fBsmartctl\fP will attempt to guess the device type from
 the device name.
 
-Under Linux, to look at SATA disks behind Marvell chip-set controllers
-(using the Marvell rather than libata driver) use \'\-d marvell\'.
+Under Linux, to look at SATA disks behind Marvell SATA controllers
+(using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
+controllers show up as Marvell Technology Group Ltd. SATA I or II controllers
+using lspci, or using lspci -n show a vendor ID 0x11ab and a device ID of
+either 0x5040, 0x5041, 0x5080, 0x5081, 0x6041 or 0x6081. The \'linuxIAL\' driver
+seems not (yet?) available in the Linux kernel source tree, but should be available
+from system vendors (ftp.aslab.com is known to provide a patch with the driver).
 
 To look at ATA disks behind 3ware SCSI RAID controllers, use syntax
 such as:
@@ -1243,7 +1248,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.67 2004/09/18 17:17:31 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.68 2004/09/20 18:33:17 likewise Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
