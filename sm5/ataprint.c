@@ -1,4 +1,4 @@
-//  $Id: ataprint.c,v 1.10 2002/10/15 14:24:26 ballen4705 Exp $
+//  $Id: ataprint.c,v 1.11 2002/10/16 13:21:06 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -936,7 +936,7 @@ void ataPrintMain ( int fd )
      {
          if ( ! isSupportSelfTest(smartval) )
          {
-             printf (" ERROR: device does not support Self-Test function\n");
+             printf ("ERROR: device does not support Self-Test function\n");
              exit(-1);
          }
 		
@@ -959,7 +959,7 @@ void ataPrintMain ( int fd )
      {
         if ( ! isSupportSelfTest(smartval) )
         {
-            printf (" ERROR: device does not support Self-Test function\n");
+            printf ("ERROR: device does not support Self-Test function\n");
             exit(-1);
         }
 		
@@ -983,7 +983,7 @@ void ataPrintMain ( int fd )
      {
         if ( ! isSupportSelfTest(smartval) )
         {
-           printf (" ERROR: device does not support Self-Test function\n");
+           printf ("ERROR: device does not support Self-Test function\n");
            exit(-1);
         }
 
@@ -1006,7 +1006,7 @@ void ataPrintMain ( int fd )
      {
          if ( ! isSupportSelfTest(smartval) )
          {
-            printf (" ERROR: device does not support self test function\n");
+            printf ("ERROR: device does not support self test function\n");
             exit(-1);
          }
 
@@ -1027,7 +1027,7 @@ void ataPrintMain ( int fd )
      {
         if ( ! isSupportSelfTest(smartval) )
         {
-            printf (" ERROR: device does not support Self-Test function\n");
+            printf ("ERROR: device does not support Self-Test function\n");
             exit(-1);
         }
 
