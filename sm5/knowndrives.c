@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.25 2003/06/11 21:14:20 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.26 2003/07/08 09:16:19 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -173,6 +173,14 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_Samsung_SV4012H,
     NULL,NULL
+  },
+  { //SAMSUNG SV0322A with FW JK200-35
+    "^SAMSUNG SV0322A$",
+    ".*",
+    NULL,
+    NULL,
+    NULL,
+    NULL
   },
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
