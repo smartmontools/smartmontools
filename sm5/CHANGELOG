@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.493 2004/12/06 02:12:50 dpgilbert Exp $
+$Id: CHANGELOG,v 1.494 2004/12/11 02:15:43 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] Add explicit timeouts to INQUIRY and REQUEST SENSE (that
+       were missed in an earlier patch). Could have impacted freebsd.
 
   [DG] When linux detects a sata_via_libata disk suggest that user try
        '-d ata' (rather then '-d libata). Anticipate kernel change.
