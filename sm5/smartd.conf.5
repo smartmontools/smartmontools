@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.14 2002/12/03 23:29:21 pjwilliams Exp $
+\# $Id: smartd.conf.5,v 1.15 2002/12/29 01:10:42 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2002/12/03 23:29:21 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2002/12/29 01:10:42 $" "smartmontools-5.0"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -160,7 +160,7 @@ possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', '\-M', and '\-m',
+to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-M', and '\-m',
 the Directives below are ignored for SCSI
 disks.  For SCSI disks, the '\-M' Directive sends a warning email if
 the SMART status indicates a disk failure or problem.
@@ -181,33 +181,6 @@ device names like /dev/hda or /dev/sdb.  If
 .B smartd
 can't guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
-.TP
-.B \-C <N>
-This sets the time in between disk checks to be 
-.B <N>
-seconds apart, where N is a decimal integer.  Note that although you can give this Directive
-multiple times on different lines of the configuration file, only the
-final value that is given is used.  That final value applies to all the disks.
-The default value of 
-.B <N> 
-is 1800 sec, and the minimum allowed value is
-ten seconds.  The maximum value is 2^31-1 seconds.
-
-Note that the superuser can make
-.B smartd
-check the status of the disks at any time by sending it the 
-.B SIGHUP
-signal, for example with the command:
-.nf
-.B kill -SIGUSR1 <pid>
-.fi
-where 
-.B <pid> 
-is the process id number of smartd.  One may also use:
-.nf
-.B killall -USR1 smartd
-.fi
-for the same purpose.
 .TP
 .B \-P
 Permissive: Even if the disk appears to lack SMART capabilities, try
@@ -470,4 +443,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.14 2002/12/03 23:29:21 pjwilliams Exp $
+$Id: smartd.conf.5,v 1.15 2002/12/29 01:10:42 pjwilliams Exp $

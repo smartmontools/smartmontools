@@ -218,7 +218,7 @@ old to new smartd.conf directives:
   -A            -X                      --abort
 
 
- SHOULD BECOME A COMMAND-LINE ARGUMENT (-i N, --interval N) =======>       -C N    Set checktime        NOW CMD LINE: -i N
+ NOW A COMMAND-LINE OPTION (-i N, --interval N) =======>                   -C N    Set checktime        CMD LINE: -i N
                                                                            -f      usage attributes     -f
                                                                            -M ADD  Email addresses     -m ADD
                                                                            -m -3   Email mode          -M diminishing,test
@@ -234,7 +234,7 @@ old to new smartd.conf directives:
                                                                             \      Line continuation    \
   -------------------------------------------------------------------------------------------------------------------
 
-Changes to smartd options (not yet implemented):
+Changes to smartd options (in progress):
 
   ----------------------------------------------------------------------------------------------------------
   5.0 short     5.0 long                                     5.1 short     5.1 long
