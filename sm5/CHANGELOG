@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.357 2004/03/05 23:00:49 ballen4705 Exp $
+$Id: CHANGELOG,v 1.358 2004/03/05 23:17:31 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax 16 family to knowndrives table (thanks to
+       Brett Russ for submitting the patch).
 
   [BA] Added remaining read/write commands to detailed list of
        error log commands that have text descriptions of problem
