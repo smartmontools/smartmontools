@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.238 2003/11/02 18:15:53 ballen4705 Exp $
+$Id: CHANGELOG,v 1.239 2003/11/04 17:23:39 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd: Modified device scan code to use glob(3). Previously it
+       appeared to have trouble when
+       scanning devices on an XFS file system, and used non-public
+       interface to directory entries.
 
   [BA] Clearer error messages when device scanning finds no suitable
        devices.

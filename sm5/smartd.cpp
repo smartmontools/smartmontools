@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.228 2003/11/02 18:15:53 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.229 2003/11/04 17:23:39 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2467,7 +2467,7 @@ int MakeConfigEntries(const char *type, int start){
 
   // make list of devices
   if ((num=make_device_names(&devlist,type))<0){
-    PrintOut(LOG_CRIT,"No memory to create device name scan list\n");
+    PrintOut(LOG_CRIT,"Problem creating device name scan list\n");
     EXIT(EXIT_NOMEM);
   }
   

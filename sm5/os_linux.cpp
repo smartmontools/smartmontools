@@ -51,6 +51,7 @@
 #include <scsi/scsi_ioctl.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <glob.h>
 
 #include "atacmds.h"
 #include "config.h"
@@ -59,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.15 2003/11/02 18:15:53 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.16 2003/11/04 17:23:39 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -89,56 +90,89 @@ int deviceclose(int fd){
 // we are going to take advantage of the fact that Linux's devfs will only
 // have device entries for devices that exist.  So if we get the equivalent of
 // ls /dev/hd[a-t], we have all the ATA devices on the system
-int get_dev_names(char*** names, const char* prefix, int max) {
-  DIR* dir;
-  struct dirent* dirent;
+//
+// If any errors occur, leave errno set as it was returned by the
+// system call, and return <0.
+
+// Return values:
+// -1 out of memory
+// -2 to -5 errors in glob
+
+int get_dev_names(char*** names, const char* pattern, int max) {
   int n = 0;
-  int len;
   char** mp;
-  char buf[20]; // temp holding space to create full /dev/* pathname
-  char linkbuf[1024]; // see what link is pointing to...
-  struct stat statbuf;
-
-  // first, preallocate space for upto max number of ATA devices
-  if (!(mp =  (char **)calloc(max,sizeof(char*))))
-    return -1;
+  int retglob;
+  glob_t globbuf={0};
+  int i;
   
-  bytes += (sizeof(char*)*max);
 
-  dir = opendir("/dev");
-  if (dir == NULL) {
-    int myerr = errno;
-    mp= FreeNonZero(mp,(sizeof (char*) * max),__LINE__,__FILE__);
-    errno = myerr;
+  // in case of non-clean exit
+  *names=NULL;
+  
+  // first, preallocate space for upto max number of ATA devices
+  if (!(mp =  (char **)calloc(max,sizeof(char*)))){
+    pout("Out of memory constructing scan device list\n");
     return -1;
   }
-  
-  // now step through names
-  // NOTE: We look for block special OR links, as Linux DEVFS will
-  // actually have these as softlinks to real device entry
-  while ((dirent = readdir(dir)) && n < max) {
-    if ((dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
-	strstr(dirent->d_name,prefix) &&
-	_D_EXACT_NAMLEN(dirent) == 3) {
-      sprintf(buf,"/dev/%s",dirent->d_name);
-      // if it is a link, then let's check what the link points to
-      if (dirent->d_type == DT_LNK) {
-	memset(linkbuf,0,1024); // fill with nulls
-	sprintf(linkbuf,"/dev/"); // add path prefix
-	len = readlink(buf,linkbuf+5,1018); // append actual link value
-	if (len > -1) {
-	  if (!stat(linkbuf,&statbuf) && S_ISBLK(statbuf.st_mode)) {
-	    // so this is a block device...is it a disc?
-	    char * p = strrchr(linkbuf,'/');
-	    if (p != NULL && !strcmp(p+1,"disc"))
-	      mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
-	  }
-	}
-      } else
-	  mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
+ 
+  // Use glob to look for any directory entries matching the pattern
+  if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))
+      || max < globbuf.gl_pathc) {
+    // glob failed or found too many paths.  Free memory and return
+    mp= FreeNonZero(mp,(sizeof (char*) * max),__LINE__,__FILE__);
+    globfree(&globbuf);
+    
+    // found too many paths
+    if (max<globbuf.gl_pathc){
+      pout("glob(3) found more than %d paths matching pattern %s\n", max, pattern);
+      return -1;
+    }
+
+    // glob failed for some other reason
+    switch (retglob) {
+    case GLOB_NOSPACE:
+      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
+      return -1;
+    case GLOB_ABORTED:
+      pout("glob(3) aborted matching pattern %s\n", pattern);
+      return -1;
+    case GLOB_NOMATCH:
+      pout("glob(3) found no matches for pattern %s\n", pattern);
+      return -1;
+    default:
+      pout("Unexplained error in glob(3) of pattern %s\n", pattern);
+      return -1;
     }
   }
-  closedir(dir);
+
+  // track memory usage
+  bytes += max*sizeof(char*);
+
+  // now step through the list returned by glob.  If not a link, copy
+  // to list.  If it is a link, evaluate it and see if the path ends
+  // in "disk".
+  for (i=0; i<globbuf.gl_pathc; i++){
+    int retlink;
+
+    // prepare a buffer for storing the link
+    char linkbuf[1024];
+
+    // see if path is a link
+    retlink=readlink(globbuf.gl_pathv[i], linkbuf, 1023);
+
+    // if not a link (or a strange link), keep it
+    if (retlink<=0 || retlink>1023)
+      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+    else {
+      // or if it's a link that  points to a disk, keep it
+      char *p;
+      linkbuf[retlink]='\0';
+      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc"))
+	mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+    }
+  }
+
+  globfree(&globbuf);
   mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
   bytes -= (max-n)*(sizeof(char*)); // and correct allocated bytes
   *names=mp;
@@ -157,10 +191,10 @@ int make_device_names (char*** devlist, const char* name) {
 
   if (!strcmp(name,"SCSI"))
     //     /dev/sda-sdz
-    return get_dev_names(devlist,"sd", MAXSCSIDEVICES);
+    return get_dev_names(devlist,"/dev/sd[a-z]", MAXSCSIDEVICES);
   else if (!strcmp(name,"ATA"))
     //     /dev/hda-hdt
-    return get_dev_names(devlist,"hd", MAXATADEVICES);
+    return get_dev_names(devlist,"/dev/hd[a-t]", MAXATADEVICES);
   else
     return 0;
 }
