@@ -25,10 +25,13 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.76 2004/11/01 13:41:55 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.77 2004/11/01 14:30:43 ballen4705 Exp $\n"
 
-// Macro to check expected size of struct at compile time using a dummy typedef.
-// On size mismatch, compiler reports a negative array size
+// Macro to check expected size of struct at compile time using a
+// dummy typedef.  On size mismatch, compiler reports a negative array
+// size.  If you see an error message of this form, it means that the
+// #pragma pack(1) pragma below is not having the desired effect on
+// your compiler.
 #define ASSERT_SIZEOF_STRUCT(s, n) \
   typedef char assert_sizeof_struct_##s[(sizeof(struct s) == (n)) ? 1 : -1]
 
