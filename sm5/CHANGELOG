@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.363 2004/03/10 18:35:01 arvoreen Exp $
+$Id: CHANGELOG,v 1.364 2004/03/11 18:37:11 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Grew worried that some time-zone names could be very long (eg,
+       Mitteleuropaische Zeit) and put date string lengths into a
+       single macro in utility.c
 
   [EM] Updated os_freebsd.c to handle older versions of FreeBSD in a 
        more appropriate/obvious fashion.
