@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.101 2003/06/12 15:47:32 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.102 2003/06/12 15:48:45 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -270,7 +270,7 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
-* Thu June 10 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+* Thu Jun 10 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd: attempt to enable/disable automatic offline testing even
        if the disk appears not to support it.  Now the same logic
        as smartctl.
