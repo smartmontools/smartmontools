@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.504 2005/02/19 23:07:02 pjwilliams Exp $
+$Id: CHANGELOG,v 1.505 2005/03/11 15:09:26 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows smartd: Fixed event handling to allow start of another
+       smartd process when service is already running. Useful for testing
+       service configuration changes in debug mode.
 
   [PW] Added following drives to knowndrives table: Western Digital Raptor
        family, Seagate Barracuda 7200.8 family, Maxtor DiamondMax 2160
