@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.93 2004/12/24 09:38:31 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.94 2005/01/13 05:07:37 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -633,9 +633,10 @@ static int scsiPrintSelfTest(int device)
         if ((~(uint64_t)0 != ull) && (res > 0) && (res < 0xf)) {
             char buff[32];
 
-            snprintf(buff, sizeof(buff), "0x%"PRIx64, ull);
+            // was hex but change to decimal to conform with ATA
+            snprintf(buff, sizeof(buff), "%"PRIu64, ull);
+            // snprintf(buff, sizeof(buff), "0x%"PRIx64, ull);
             pout("%18s", buff);
-            // pout("  0x%16"PRIx64, ull);
         } else
             pout("                 -");
 
