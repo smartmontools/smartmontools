@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.32 2004/01/28 20:38:48 ballen4705 Exp $
+$Id: INSTALL,v 1.33 2004/01/29 20:47:18 shattered Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -54,7 +54,7 @@ Table of contents:
 
 [2] Installing from CVS
 =======================
-    Get the sources from the CVS archive:
+    Get the sources from the CVS repository:
     cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools login
     cvs -d :pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools co sm5
     (when prompted for a password, just press Enter)
@@ -66,7 +66,7 @@ Table of contents:
     Further details of using CVS can be found at the URL above.
 
     The autogen.sh command is ONLY required when installing from
-    CVS. You need GNU Autoconf (version 2.50 or greater) GNU Automake
+    CVS. You need GNU Autoconf (version 2.50 or greater), GNU Automake
     (version 1.6 or greater) and their dependencies installed in order
     to run it.  You can get these here:
     http://www.gnu.org/directory/GNU/autoconf.html
@@ -75,8 +75,8 @@ Table of contents:
 [3] Installing from the source tarball
 ======================================
 
-    If you are NOT installing from CVS, then unpack the tarball: tar
-    zxvf smartmontools-5.VERSION.tar.gz
+    If you are NOT installing from CVS, then unpack the tarball: 
+    tar zxvf smartmontools-5.VERSION.tar.gz
 
     Then:
     ./configure
@@ -99,9 +99,10 @@ Table of contents:
     For different installation locations or distributions, simply add
     arguments to ./configure as shown in [4] below.
 
-    If you wish to alter the default C-compiler flags, set an
+    If you wish to alter the default C compiler flags, set an
     environment variable CFLAGS='your options' before doing
-    ./configure, or else do make CFLAGS='your options',
+    ./configure, or else do:
+    make CFLAGS='your options'
 
 [4] Guidelines for different Linux distributions
 ================================================
@@ -110,13 +111,13 @@ Note: Please send corrections/additions to:
 smartmontools-support@lists.sourceforge.net
 
 Red Hat:
- ./configure
- OR EQUIVALENTLY
- ./configure --sbindir=/usr/sbin                               \
-             --sysconfdir=/etc                                 \
-             --mandir=/usr/share/man                           \
-             --with-initscriptdir=/etc/rc.d/init.d             \
-             --with-docdir=/usr/share/doc/smartmontools-VERSION
+  ./configure
+  OR EQUIVALENTLY
+  ./configure --sbindir=/usr/sbin                               \
+	      --sysconfdir=/etc                                 \
+	      --mandir=/usr/share/man                           \
+	      --with-initscriptdir=/etc/rc.d/init.d             \
+	      --with-docdir=/usr/share/doc/smartmontools-VERSION
 
 Filesystem Hierarchy Standard (FHS):
   ./configure --sbindir=/usr/local/sbin                               \
@@ -172,7 +173,7 @@ Slackware:
 
 [5] Guidelines for FreeBSD
 ================================================
-  To match the way it will installed when it becomese available as a PORT, use
+  To match the way it will installed when it becomes available as a PORT, use
   the following:
 
   ./configure --prefix=/usr/local                                      \
@@ -184,7 +185,7 @@ Slackware:
   to build smartmontools, as the default FreeBSD make doesn't know how to build
   the man pages.
 
-  NOTE: --enable-sample will cause the smard.conf and smartd RC files to
+  NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
   be installed with the string '.sample' append to the name, so you will end
   up with the following:
 	/usr/local/etc/smartd.conf.sample
@@ -195,14 +196,14 @@ Slackware:
 ==========================
 
     smartmontools has been partially but not completely ported to
-    solaris.  It includes complete SCSI support but no ATA or 3ware
+    Solaris.  It includes complete SCSI support but no ATA or 3ware
     support.  It can be compiled with either cc or gcc. To compile
     with gcc:
 
     ./configure [args]
     make
 
-    To compile with Sun cc
+    To compile with Sun cc:
 
     setenv CC cc  [csh syntax], or
     CC=cc         [sh syntax]
@@ -223,7 +224,7 @@ Slackware:
 	    K<knum>smartd in rcS.d, rc0.d, rc1.d, rc2.d
 	    S<snum>smartd in rc3.d
     where <knum> is related to <snum> such that the higher snum is the
-    lower knum must be)
+    lower knum must be.
 
 [7] Comments
 ============
@@ -281,7 +282,7 @@ The following files are installed if ./configure has no options:
 /usr/share/doc/smartmontools-5.X/NEWS		[Significant bugs discovered in old versions]
 /usr/share/doc/smartmontools-5.X/README		[Overview]
 /usr/share/doc/smartmontools-5.X/TODO		[Things that need to be done/fixed]
-/usr/share/doc/smartmontools-5.X/WARNINGS	[Systems where lockups or other serious problems reported]
+/usr/share/doc/smartmontools-5.X/WARNINGS	[Systems where lockups or other serious problems were reported]
 /usr/share/doc/smartmontools-5.X/smartd.conf	[Example configuration file for smartd]
 /usr/share/doc/smartmontools-5.X/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
