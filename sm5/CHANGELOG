@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.123 2003/04/18 23:41:45 ballen4705 Exp $
+$Id: CHANGELOG,v 1.124 2003/04/19 09:53:40 pjwilliams Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Extended the -F option/Directive to potentially fix other firmware
+       bugs in addition to the Samsung byte-order bug.  Long option name is
+       now --firmwarebug and the option/Directive accepts an argument
+       indicating the type of firmware bug to fix.
 
   [BA] Fixed a bug that prevented the enable automatic off-line
        test feature from enabling.  It also prevented the enable Attribute
