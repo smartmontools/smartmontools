@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.59 2003/11/15 02:27:45 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.60 2003/11/15 04:29:52 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1751,7 +1751,7 @@ int scsiFetchControlGLTSD(int device, int modese_len)
             else if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
             else
-                return err;
+                return -EINVAL;
         }
     }
     if (10 == modese_len) {
@@ -1759,7 +1759,7 @@ int scsiFetchControlGLTSD(int device, int modese_len)
                               MODE_PAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
-            return err;
+            return -EINVAL;
     } 
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
     if ((offset >= 0) && (buff[offset + 1] >= 0xa))
