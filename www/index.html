@@ -3,336 +3,387 @@
 <head>
   <title>smartmontools Home Page</title>
                                                                         
-                                                                  
+                                                                        
+             
   <meta http-equiv="content-type"
  content="text/html; charset=ISO-8859-1">
-                                           
+                                                       
   <meta name="author" content="Bruce Allen">
-                                           
+                                                       
   <meta name="description"
  content="SMART S.M.A.R.T. linux disk monitoring">
 </head>
   <body>
-                               
-<div align="center">          
-<h1><font color="#3333ff">smartmontools HOME PAGE &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; 
-    </font>  <a href="http://sourceforge.net"><img
+                                     
+<div align="center">             
+<h1><font color="#3333ff">smartmontools HOME PAGE &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+      </font>  <a href="http://sourceforge.net"><img
  src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5"
  width="210" height="62" border="0" alt="SourceForge.net Logo"
  align="middle">
-          </a> </h1>
-          </div>
-                                       
-<div align="left">This is the home page for smartmontools. &nbsp;The smartmontools
-          package contains two utility programs (<font color="#3333ff"><b>smartctl</b></font>
-                  and <font color="#3333ff"><b>smartd</b></font>) to control 
-   and   monitor     storage systems using the Self-Monitoring, Analysis and
-   Reporting   Technology     System  (S.M.A.R.T.) built into most modern 
-ATA   and SCSI hard  disks.  It   is derived from the smartsuite package, 
-and includes  support   for ATA/ATAPI-5     disks. It should run on any modern 
- linux system.<br>
-                 <br>
-                 For your convenience, this is a single page, so you can
-print    it  easily.<br>
-                                     
-<hr width="100%" size="2">                 
+             </a> </h1>
+             </div>
+                                             
+<div align="left">This is the home page for smartmontools. &nbsp;The smartmontools 
+           package contains two utility programs (<font color="#3333ff"><b>smartctl</b></font> 
+                   and <font color="#3333ff"><b>smartd</b></font>) to control
+     and   monitor     storage systems using the Self-Monitoring, Analysis
+ and    Reporting   Technology     System  (S.M.A.R.T.) built into most modern
+  ATA   and SCSI hard  disks.  It   is derived from the smartsuite package,
+  and includes  support   for ATA/ATAPI-5     disks. It should run on any
+modern   linux system.<br>
+                    <br>
+                    For your convenience, this is a single page, so you can 
+ print    it  easily.<br>
+                                           
+<hr width="100%" size="2">                    
 <ul>
-                   <li><a href="#howtodownload">How to download and install 
- smartmontools</a></li>
-                    <li><a href="#FAQ">Frequently Asked Questions</a></li>
-                   <li><a href="#testinghelp">The code needs to be tested 
-on  SCSI   disks/tapes</a></li>
-                      <li><a href="#differfromsmartsuite">How does smartmontools
-    differ    from  smartsuite?</a></li>
-                           <li><a href="#references">Useful references on 
-S.M.A.R.T.      and   ATA/ATAPI-5,   -6, and -7</a></li>
-                   <li><a href="#sampleoutput">Some sample output from smartmontools</a></li>
-                      <li><a
- href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/">Smartmontools 
-        CVS archive</a> and <a
- href="http://sourceforge.net/projects/smartmontools">SourceForge projects 
-        group page</a></li>
-            <li><a
- href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-       Mailing list and archives</a> for smartmontools support<br>
-            </li>
-                                                
-</ul>
-                <b><br>
-                 </b>                 
-<hr width="100%" size="2"><b><br>
-                 </b><b><a name="howtodownload"></a></b><b> How to download 
- and   install     smartmontools<br>
-                 </b>There are three different ways to get and install smartmontools. 
-      &nbsp;You   can use any one of these three procedures. &nbsp;Just after 
-    "Method  3" below are some instructions for trying out smartmontools once
-    you have completed the installation.<br>
-                                 
-<ol>
-                   <li><b>First Method - Install from the RPM file:</b><br>
-                                                                        
-                
-    <ul>
-                     <li>Download the latest binary RPM file (<tt>*.rpm</tt>) 
-  from            <a
- href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>
-            . &nbsp;Don't get the SRPM file (<tt>*.src.rpm</tt>).</li>
-                     <li>Install it using RPM. &nbsp;<i>You must be root
-to  do this</i>:<br>
-                       <tt>&nbsp; su root</tt> &nbsp;<i>(enter root password)</i><br>
-                       <tt>&nbsp; rpm -ivh smartmontools-5.0-1.i386.rpm<br>
-                 </tt>For most users, this is all that is needed.<br>
+                      <li><a href="#howtodownload">How to download and install
+   smartmontools</a></li>
+                       <li><a href="#FAQ">Frequently Asked Questions</a></li>
+                      <li><a href="#testinghelp">The code needs to be tested
+  on  SCSI   disks/tapes</a></li>
+                         <li><a href="#differfromsmartsuite">How does smartmontools 
+     differ    from  smartsuite?</a></li>
+                              <li><a href="#references">Useful references 
+on  S.M.A.R.T.      and   ATA/ATAPI-5,   -6, and -7</a></li>
+                      <li><a href="#sampleoutput">Some sample output from 
+smartmontools</a></li>
+                         <li><a
+ href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/">Smartmontools
+          CVS archive</a> and <a
+ href="http://sourceforge.net/projects/smartmontools">SourceForge projects
+          group page</a></li>
+               <li><a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
+        Mailing list and archives</a> for smartmontools support<br>
                </li>
-                     <li>If you receive an error message, you have probably 
- previously      installed the <tt>smartsuite</tt> package, or RedHat's <tt>kernel-utils</tt>
-      package,    which provide older versions of the <tt>smartd</tt> and
-        <tt>     smartctl</tt>       utilities. &nbsp;In this case you should
- use the <tt>     --nodeps</tt> or          <tt>  --force</tt>  arguments
-of rpm to replace    these two utilities:<br>
-                       <tt>&nbsp; rpm -ivh --nodeps --force smartmontools-5.0-1.i386.rpm</tt></li>
-               <li>If you want to remove the package (<tt>rpm -e s</tt><tt>martmontools</tt>) 
- and your system does not have <tt>chkconfig</tt> installed, you may need 
- to use: <tt><br>
-   &nbsp; rpm -e</tt> <tt>--noscripts</tt> <tt>s</tt><tt>martmontools</tt><br>
-                     </li>
+                                                      
+</ul>
+                   <b><br>
+                    </b>                    
+<hr width="100%" size="2"><b><br>
+                    </b><b><a name="howtodownload"></a></b><b> How to download
+   and   install     smartmontools<br>
+                    </b>There are three different ways to get and install 
+smartmontools.        &nbsp;You   can use any one of these three procedures. 
+&nbsp;Just after      "Method  3" below are some instructions for trying out
+smartmontools once     you have completed the installation.<br>
+                                       
+<ol>
+                      <li><b>First Method - Install from the RPM file:</b><br>
                                                                         
-                
-    </ul>
-                 </li>
-                   <li><b>Second Method - Install from the source tarball</b>:<br>
-                                                                        
-                      
+                                  
     <ul>
-                      <li>Download the latest source-code tarball from <a
- href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-   Note: you probably want the most recent release.  </li>
-                      <li>Uncompress the tarball:<br>
-                        <tt>&nbsp; tar zxvf smartmontools-5.0-1.tar.gz</tt></li>
-                      <li>The previous step created a directory called smartmontools-5.0-1
-        containing the code. &nbsp;Go to that directory, build, and install:<br>
-                        <tt>&nbsp; cd smartmontools-5.0-1<br>
-                &nbsp; make<br>
-                 &nbsp; make install &nbsp;</tt> &nbsp; &nbsp; &nbsp; &nbsp; 
- &nbsp; &nbsp;    &nbsp;    &nbsp; &nbsp; &nbsp; &nbsp;<i>[only root can do
- this]</i><br>
-                     </li>
-                                                                        
-                                   
-    </ul>
+                        <li>Download the latest binary RPM file (<tt>*.rpm</tt>)
+    from            <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a> 
+             . &nbsp;Don't get the SRPM file (<tt>*.src.rpm</tt>).</li>
+                        <li>Install it using RPM. &nbsp;<i>You must be root 
+ to  do this</i>:<br>
+                          <tt>&nbsp; su root</tt> &nbsp;<i>(enter root password)</i><br>
+                          <tt>&nbsp; rpm -ivh smartmontools-5.0-1.i386.rpm<br>
+                    </tt>For most users, this is all that is needed.<br>
                   </li>
-                   <li><b>Third Method - Download code directly from the
-CVS   archive:</b><br>
-                                                                     
-    <ul>
-                  <li>&nbsp; Download the latest code snapshot from CVS.
-If  prompted  for   a  password,    simply press the Enter key. &nbsp;Note
-that  the two  lines   below  that start   "<tt>cvs</tt>" &nbsp; are long!
-        <br>
-                       <tt>&nbsp; cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools 
-        login</tt> <tt><br>
-                 &nbsp; cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools 
-        co sm5</tt><br>
-                     </li>
-                  <li>The previous step created a subdirectory called <tt>sm5/</tt>
-        containing    the code. Go to that directory, build, and install:<br>
-                       <tt>&nbsp; cd sm5<br>
-                 &nbsp; make<br>
-                 &nbsp; make install &nbsp;</tt> <i>&nbsp;[only root can
-do  this]<br>
-           </i>                  </li>
+                        <li>If you receive an error message, you have probably
+   previously      installed the <tt>smartsuite</tt> package, or RedHat's
+        <tt>kernel-utils</tt>       package,    which provide older versions
+ of the <tt>smartd</tt> and         <tt>     smartctl</tt>       utilities.
+ &nbsp;In this case you should  use the <tt>     --nodeps</tt> or       
+          <tt>  --force</tt>  arguments of rpm to replace    these two utilities:<br>
+                          <tt>&nbsp; rpm -ivh --nodeps --force smartmontools-5.0-1.i386.rpm</tt></li>
+                  <li>If you want to remove the package (<tt>rpm -e s</tt><tt>martmontools</tt>)
+   and your system does not have <tt>chkconfig</tt> installed, you may need
+   to use: <tt><br>
+      &nbsp; rpm -e</tt> <tt>--noscripts</tt> <tt>s</tt><tt>martmontools</tt><br>
+                        </li>
                                                                         
- 
+                                  
     </ul>
-                                    </li>
-                     
-</ol>
-                   <b>After installing using Method 1, 2 or 3 above, you
-can   read   the   man pages, and try out the commands:</b><br>
-                           
-<blockquote>                                          
-  <blockquote><tt>&nbsp; man 8 smartctl</tt><br>
-                  <tt>&nbsp; man 8 smartd</tt><br>
-                  <tt>&nbsp; /usr/sbin/smartctl -etf /dev/hda &nbsp;</tt><i>[only 
- root can   do this]</i><br>
-                  <tt>&nbsp; /usr/sbin/smartctl -a /dev/hda &nbsp; &nbsp;</tt><i>[only
-  root   can do this]</i><br>
-      <br>
+                    </li>
+                      <li><b>Second Method - Install from the source tarball</b>:<br>
+                                                                        
+                                        
+    <ul>
+                         <li>Download the latest source-code tarball from 
+        <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>. 
+    Note: you probably want the most recent release.  </li>
+                         <li>Uncompress the tarball:<br>
+                           <tt>&nbsp; tar zxvf smartmontools-5.0-1.tar.gz</tt></li>
+                         <li>The previous step created a directory called 
+smartmontools-5.0-1          containing the code. &nbsp;Go to that directory, 
+build, and install:<br>
+                           <tt>&nbsp; cd smartmontools-5.0-1<br>
+                   &nbsp; make<br>
+                    &nbsp; make install &nbsp;</tt> &nbsp; &nbsp; &nbsp;
+&nbsp;    &nbsp; &nbsp;    &nbsp;    &nbsp; &nbsp; &nbsp; &nbsp;<i>[only
+root can  do  this]</i><br>
+                        </li>
+                                                                        
+                                                     
+    </ul>
+                     </li>
+                      <li><b>Third Method - Download code directly from the 
+ CVS   archive:</b><br>
+                                                                        
               
-    <p>     Note that the default location for the manual pages is in <tt>/usr/share/man/man8</tt>
-      . &nbsp;If "<tt>man</tt>" does not find the manual pages, then you
-may    need to add <tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment 
-  variable.<br>
-      <a href="#cvshelp"><br>
-      <br>
-      <b>How to use CVS to get any version of smartmontools</b></a><br>
-      </p>
-    </blockquote>
-  </blockquote>
-                 
-<hr width="100%" size="2"><br>
-                 <br>
-                 <a name="FAQ"></a><b>Frequently-asked questions<br>
-                 </b>If your question is not here, please <a
- href="mailto:smartmontools-support@lists.sourceforge.net"> email me</a>.<br>
+    <ul>
+                     <li>&nbsp; Download the latest code snapshot from CVS. 
+ If  prompted  for   a  password,    simply press the Enter key. &nbsp;Note 
+ that  the two  lines   below  that start   "<tt>cvs</tt>" &nbsp; are long! 
+         <br>
+                          <tt>&nbsp; cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+          login</tt> <tt><br>
+                    &nbsp; cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+          co sm5</tt><br>
+                        </li>
+                     <li>The previous step created a subdirectory called
+        <tt>sm5/</tt>          containing    the code. Go to that directory,
+build, and install:<br>
+                          <tt>&nbsp; cd sm5<br>
+                    &nbsp; make<br>
+                    &nbsp; make install &nbsp;</tt> <i>&nbsp;[only root can 
+ do  this]<br>
+              </i>                  </li>
+                                                                        
+                   
+    </ul>
+                                       </li>
+                           
+</ol>
+                      <b>After installing using Method 1, 2 or 3 above, you 
+ can   read   the   man pages, and try out the commands:</b><br>
                                  
-<ul>
-                   <li><b>What do I do if I have problems, or need support? 
- &nbsp;Suppose    I want to become a developer, or suggest some new extensions?</b><br>
-          Please send an email to the <a
- href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-       smartmontools-support mailing list</a>. &nbsp;Note that you won't
-get  the mail sent to the list unless you subscribe to it. &nbsp;Please take 
-a  look through the archives to see if your question has been answered.<br>
-            </li>
-            <li><b>What are the future plans for smartmontools?</b><br>
-                 My plan is that smartmontools-5.x will support ATA/ATAPI-5 
- disks.    &nbsp;Eventually,     we'll do smartmontools-6.x to support ATA/ATAPI-6
-   disks,  smartmontools-7.x     for the ATA/ATAPI-7 standard, and so on.
-&nbsp;The    "x" will denote revision    level, as bugs get found and fixed,
-and as enhancements    get added. &nbsp;    If it's possible to maintain
-backwards compatibility,    that would be nice,    but I don't know if it
-will be possible or practical.</li>
-                   <li><b>Why are you doing this?</b><br>
-                 My research group runs a beowulf cluster with 300 ATA-5
-disks.    &nbsp;We     have more than 20 TB of data stored on the system.
-&nbsp;It's    nice to have    advanced warning when a disk is going to fail.</li>
-                  <li><b>I see some strange output from smartctl. &nbsp;What
-  does   it  mean?</b><br>
-                The raw S.M.A.R.T. attributes (temperature, power-on lifetime,
-   and   so  on)  are stored in vendor-specific structures. &nbsp;Sometime
- these  are  strange.   &nbsp;Hitachi disks (at least some of them) store
-power-on  lifetime  in minutes,   rather than hours. &nbsp;IBM disks (at
-least some  of them) have three temperatures stored in the raw structure,
-not just one.  And so on. &nbsp;If you find strange output, or unknown attributes,
-please  send an email to <a
- href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-       smartmontools-support</a> and we'll help you try and figure it out.</li>
-                  <li><b>What attributes does smartmontools not yet recognize?<br>
-                    </b>From a Hitachi disk: (230)(250)<br>
-                If you can attach names/meanings to these attributes, please
-  send   me  a note to <a
- href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-       smartmontools-support</a>.</li>
-              <li><b>When I run <tt>smartd</tt> , the SYSLOG&nbsp; <tt>/var/log/messages</tt> 
- &nbsp;contains messages like this:</b><br>
-                <tt>&nbsp; smartd: Reading Device /dev/sdv <br>
-   &nbsp; modprobe: modprobe: Can't locate module block-major-65<br>
-                </tt>This is because when <tt>smartd</tt> starts, it looks
- for   all   ATA  and SCSI devices to monitor (matching the pattern <tt>/dev/hd[a-z]</tt>
-        or      <tt>/dev/sd[a-z]</tt>). &nbsp;The log messages appear because
-    your  system  doesn't have most of these devices.<br>
-            The latest release of smartd can use a configuration file <tt>/etc/smartd.conf</tt> 
- to specify    which  devices to include or exclude from start-up search.</li>
-     <li><b><a name="cvshelp"></a>How can I use CVS to get different versions 
-of smartmontools?<br>
-       </b>One of the really cool things about CVS is that you can get <i>any 
-     </i>version of the code you want, from the first release up the the most
- current development version. &nbsp;And it's trivial, because each release 
- is <u>tagged</u>&nbsp; with a name like <tt>RELEASE_5_0_22</tt>. &nbsp;You 
- can see what the different names are by looking at the <a
- href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/">Smartmontools 
-        CVS archive.</a> You'll see the tag names in the little scroll window 
- where it says "Show only the files with Tag". &nbsp;All you need to do is:<br>
-       <tt>&nbsp; cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools 
-        login</tt> <tt><br>
-   &nbsp; cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools 
-        co -r RELEASE_5_0_17</tt><tt> sm5</tt><br>
-   If prompted for a password, just do &lt;ENTER&gt;. This will create a
-subdirectory  called <tt>sm5/</tt>       containing    the code. Go to that
-directory, build, install, and enjoy:<br>
-                       <tt>&nbsp; cd sm5<br>
-   &nbsp; make<br>
-   &nbsp; make install &nbsp;</tt> &nbsp;<i> [only root can do this]</i></li>
-     <li><b>What's the story on IBM S.M.A.R.T. disks?</b><br>
-   Apparently some of the older S.M.A.R.T. firmware on IBM disks can interfere
-with the  regular operation of the disk. &nbsp;If you have this problem,
-here is an&nbsp;      <a href="http://www.geocities.com/dtla_update/">IBM
-DISK FIRMWARE UPGRADE</a>  &nbsp;that fixes the problem. &nbsp;<br>
-     </li>
-                                 
-</ul>
+<blockquote>                                                   
+  <blockquote><tt>&nbsp; man 8 smartctl</tt><br>
+                     <tt>&nbsp; man 8 smartd</tt><br>
+                     <tt>&nbsp; /usr/sbin/smartctl -etf /dev/hda &nbsp;</tt><i>[only
+   root can   do this]</i><br>
+                     <tt>&nbsp; /usr/sbin/smartctl -a /dev/hda &nbsp; &nbsp;</tt><i>[only 
+   root   can do this]</i><br>
+         <br>
+                                
+    <p>     Note that the default location for the manual pages is in <tt>/usr/share/man/man8</tt> 
+       . &nbsp;If "<tt>man</tt>" does not find the manual pages, then you 
+may    need to add <tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
+    variable.<br>
+         <a href="#cvshelp"><br>
+         <br>
+         <b>How to use CVS to get any version of smartmontools</b></a><br>
+         </p>
+       </blockquote>
+     </blockquote>
                        
-<hr width="100%" size="2">&nbsp;You<b><a name="testinghelp"></a>Help needed 
- in testing        smartmontools, especially on SCSI disks/systems<br>
-                 </b>I have access to a number of systems with ATA S.M.A.R.T. 
-  disks,    but   I don't have any access to systems with SCSI S.M.A.R.T. 
-devices.  &nbsp;I'd     be very grateful to find someone who could help me 
-test the  smartmontools     code on SCSI disks. &nbsp;Since it's derived from
-the smartsuite  package,     it should initially work about the same way
-with SCSI devices  as the smartsuite     tools did.<br>
-                 <br>
-                 I'd be especially happy if someone would like to take on 
-the   task,    as  a  developer, of maintaining the SCSI code. &nbsp;Do you 
-have   a beowulf    cluster   with a few hundred SCSI disks? Please volunteer!<br>
-                                 
-<hr width="100%" size="2"><a name="differfromsmartsuite"></a><b>How does smartmontools
-differ from smartsuite?<br>
-      </b>The smartsuite code was originally developed as a Senior Thesis 
-by  Michael Cornwell at the Concurrent Systems Laboratory (now part of the 
-<a href="http://ssrc.soe.ucsc.edu">Storage Systems Research Center</a>), Jack
-  Baskin School of Engineering, University of California, Santa Cruz. <br>
-      <b><br>
-                 </b>Smartmontools was derived directly from smartsuite . 
- It  differs from smartsuite in that it supports the ATA/ATAPI-5 standard.
-   So  for example <tt>smartctl</tt> from smartsuite has no facility  for
-printing   the S.M.A.R.T. self-test logs, and doesn't print timestamp information 
-  in the most  usable  way.   The  <tt>smartctl</tt>  utility in smartmontools 
-  has added functionality for this (<tt>-q,-Q,</tt><tt>-L,-f, -F and -m</tt>
-  options), updated documentation, and also fixes small technical bugs in
-smartsuite.  &nbsp; See the <a
- href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG">CHANGELOG</a> 
-  file in CVS for a summary of what's been done. The <tt>smartd</tt> utility 
- differs from the smartsuite <tt>smartd</tt> in major&nbsp; ways. &nbsp;First, 
- it prints somewhat more informative error messages to the syslog. &nbsp;Second, 
- on startup it looks for a configuration file <tt>/etc/smartd.conf</tt>, and
- if <tt>smartd</tt> finds this file, it monitors the list of devices therein,
- rather than querying all IDE and SCSI devices on your system. &nbsp;[If the
- configuration file does not exist, then it does query all IDE and SCSI devices.]
- &nbsp;Finally, it's a well-behaved daemon and doesn't leave open file descriptors
- and other detrius behind. In addition, the <tt>smartmontools</tt> version
- of <tt>smartd</tt> can be instructed (via Directives in the configuration 
- file) to monitor for changes in a number of different disk properties: the 
- SMART status, failure or prefailure attributes going below threshold, new 
- errors appearing in the ATA Error Log or the SMART Self-Test Log, and so 
-on.<br>
-    <br>
-    The other principle difference is that smartmontools is an open-source
-  development project, meaning that we keep the files in CVS, and   that
- other  developers who wish to contribute can commit changes to the archive.
-&nbsp;If  you would like to contribute, please write to to <a
- href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-       smartmontools-support</a>.<br>
-       <br>
-       But the bottom line is that the code in smartmontools is derived directly 
-   from smartsuite  and is similar.  The smartsuite package can be found <a
- href="http://sourceforge.net/projects/smartsuite/">here</a>. &nbsp;<br>
-                                 
 <hr width="100%" size="2"><br>
-                    <a name="references"></a><big><b>Useful references on 
-S.M.A.R.T.      and   the   ATA/ATAPI standards<br>
-                    </b>If you are having trouble understanding the output
- of  smartctl     or  smartd,  please first read the manual pages:<tt><br>
-                   &nbsp;&nbsp;&nbsp; man 8 smartctl<br>
-                   &nbsp;&nbsp;&nbsp; man 8 smartd</tt><br>
-                    If you'd like to know more about S.M.A.R.T., then the 
-following      references     may be helpful:<br>
-                   </big>                   
+                    <br>
+                    <a name="FAQ"></a><b>Frequently-asked questions<br>
+                    </b>If your question is not here, please <a
+ href="mailto:smartmontools-support@lists.sourceforge.net"> email me</a>.<br>
+                                       
 <ul>
-                     <li>The <a
- href="http://www.t13.org/project/d1321r1c.pdf"> ATAPI/ATA-5       Revision 
-  1 specification</a></li>
-                     <li><a href="http://www.t13.org/#FTP_site">Earlier and 
- later    revisions      of the ATAPI/ATA specifications</a></li>
-                     <li>The S.M.A.R.T. specification is SFF-8035i (rev E). 
- &nbsp;I     can   not   find an on-line reference. It can be obtained from 
- the <a href="http://www.sffcommittee.com/ns/">Small Form Factors  Committee</a>
-             . Here is their <a
- href="ftp://ftp.seagate.com/sff/INF-8035.TXT"> "link"</a>        .</li>
-                                     
+                      <li><b>What do I do if I have problems, or need support?
+   &nbsp;Suppose    I want to become a developer, or suggest some new extensions?</b><br>
+             Please send an email to the <a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
+        smartmontools-support mailing list</a>. &nbsp;Note that you won't 
+get  the mail sent to the list unless you subscribe to it. &nbsp;Please take
+  a  look through the archives to see if your question has been answered.<br>
+               </li>
+               <li><b>What are the future plans for smartmontools?</b><br>
+                    My plan is that smartmontools-5.x will support ATA/ATAPI-5
+   disks.    &nbsp;Eventually,     we'll do smartmontools-6.x to support
+ATA/ATAPI-6     disks,  smartmontools-7.x     for the ATA/ATAPI-7 standard,
+and so on.  &nbsp;The    "x" will denote revision    level, as bugs get found
+and fixed,  and as enhancements    get added. &nbsp;    If it's possible
+to maintain backwards compatibility,    that would be nice,    but I don't
+know if it will be possible or practical.</li>
+                      <li><b>Why are you doing this?</b><br>
+                    My research group runs a beowulf cluster with 300 ATA-5 
+ disks.    &nbsp;We     have more than 20 TB of data stored on the system. 
+ &nbsp;It's    nice to have    advanced warning when a disk is going to fail.</li>
+                     <li><b>I see some strange output from smartctl. &nbsp;What 
+   does   it  mean?</b><br>
+                   The raw S.M.A.R.T. attributes (temperature, power-on lifetime, 
+    and   so  on)  are stored in vendor-specific structures. &nbsp;Sometime 
+  these  are  strange.   &nbsp;Hitachi disks (at least some of them) store 
+ power-on  lifetime  in minutes,   rather than hours. &nbsp;IBM disks (at 
+least some  of them) have three temperatures stored in the raw structure, 
+not just one.  And so on. &nbsp;If you find strange output, or unknown attributes, 
+ please  send an email to <a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
+        smartmontools-support</a> and we'll help you try and figure it out.</li>
+                     <li><b>What attributes does smartmontools not yet recognize?<br>
+                       </b>From a Hitachi disk: (230)(250)<br>
+                   If you can attach names/meanings to these attributes,
+please    send   me  a note to <a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
+        smartmontools-support</a>.</li>
+                 <li><b>When I run <tt>smartd</tt> , the SYSLOG&nbsp; <tt>/var/log/messages</tt>
+   &nbsp;contains messages like this:</b><br>
+                   <tt>&nbsp; smartd: Reading Device /dev/sdv <br>
+      &nbsp; modprobe: modprobe: Can't locate module block-major-65<br>
+                   </tt>This is because when <tt>smartd</tt> starts, it looks 
+  for   all   ATA  and SCSI devices to monitor (matching the pattern <tt>/dev/hd[a-z]</tt> 
+         or      <tt>/dev/sd[a-z]</tt>). &nbsp;The log messages appear because 
+     your  system  doesn't have most of these devices.<br>
+               The latest release of smartd can use a configuration file
+    <tt>/etc/smartd.conf</tt>    to specify    which  devices to include
+or exclude from start-up search.</li>
+        <li><b><a name="cvshelp"></a>How can I use CVS to get different versions
+  of smartmontools?<br>
+          </b>One of the really cool things about CVS is that you can get 
+    <i>any       </i>version of the code you want, from the first release 
+up the the most  current development version. &nbsp;And it's trivial, because 
+each release   is <u>tagged</u>&nbsp; with a name like <tt>RELEASE_5_0_22</tt>. 
+&nbsp;You   can see what the different names are by looking at the <a
+ href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/">Smartmontools
+          CVS archive.</a> You'll see the tag names in the little scroll
+window    where it says "Show only the files with Tag". &nbsp;All you need
+to do is:<br>
+          <tt>&nbsp; cvs -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+          login</tt> <tt><br>
+      &nbsp; cvs -z3 -d:pserver:anonymous@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+          co -r RELEASE_5_0_17</tt><tt> sm5</tt><br>
+      If prompted for a password, just do &lt;ENTER&gt;. This will create 
+a  subdirectory  called <tt>sm5/</tt>       containing    the code. Go to 
+that  directory, build, install, and enjoy:<br>
+                          <tt>&nbsp; cd sm5<br>
+      &nbsp; make<br>
+      &nbsp; make install &nbsp;</tt> &nbsp;<i> [only root can do this]</i></li>
+        <li><b>What's the story on IBM S.M.A.R.T. disks?</b><br>
+      Apparently some of the older S.M.A.R.T. firmware on IBM disks can interfere 
+ with the  regular operation of the disk. &nbsp;If you have this problem, 
+here is an&nbsp;      <a href="http://www.geocities.com/dtla_update/">IBM 
+DISK FIRMWARE UPGRADE</a>  &nbsp;that fixes the problem. &nbsp;<br>
+        </li>
+                                       
 </ul>
-                                   
-<hr width="100%" size="2"><a name="sampleoutput"></a><b>Sample output from 
-        smartmontools</b>     
+                             
+<hr width="100%" size="2">&nbsp;<b><a name="testinghelp"></a>Help needed
+  in testing        smartmontools, especially on SCSI disks/systems<br>
+                    </b>I have access to a number of systems with ATA S.M.A.R.T.
+    disks,    but   I don't have any access to systems with SCSI S.M.A.R.T.
+  devices.  &nbsp;I'd     be very grateful to find someone who could help
+me  test the  smartmontools     code on SCSI disks. &nbsp;Since it's derived
+ from the smartsuite  package,     it should initially work about the same
+ way with SCSI devices  as the smartsuite     tools did.<br>
+                    <br>
+                    I'd be especially happy if someone would like to take 
+on  the   task,    as  a  developer, of maintaining the SCSI code. &nbsp;Do
+ you  have   a beowulf    cluster   with a few hundred SCSI disks? Please
+volunteer!<br>
+                                       
+<hr width="100%" size="2"><a name="differfromsmartsuite"></a><b>How does
+smartmontools differ from smartsuite?<br>
+         </b>The smartsuite code was originally developed as a Senior Thesis
+  by  Michael Cornwell at the Concurrent Systems Laboratory (now part of
+the   <a href="http://ssrc.soe.ucsc.edu">Storage Systems Research Center</a>),
+ Jack   Baskin School of Engineering, University of California, Santa Cruz.
+ <br>
+         <b><br>
+                    </b>Smartmontools was derived directly from smartsuite
+ .   It  differs from smartsuite in that it supports the ATA/ATAPI-5 standard. 
+    So  for example <tt>smartctl</tt> from smartsuite has no facility  for 
+ printing   the S.M.A.R.T. self-test logs, and doesn't print timestamp information
+    in the most  usable  way.   The  <tt>smartctl</tt>  utility in smartmontools
+    has added functionality for this (<tt>-q,-Q,</tt><tt>-L,-f, -F and -m</tt> 
+   options), updated documentation, and also fixes small technical bugs in 
+ smartsuite.  &nbsp; See the <a
+ href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG">CHANGELOG</a>
+    file in CVS for a summary of what's been done. The <tt>smartd</tt> utility
+   differs from the smartsuite <tt>smartd</tt> in major&nbsp; ways. &nbsp;First,
+   it prints somewhat more informative error messages to the syslog. &nbsp;Second,
+   on startup it looks for a configuration file <tt>/etc/smartd.conf</tt>,
+ and  if <tt>smartd</tt> finds this file, it monitors the list of devices
+therein,  rather than querying all IDE and SCSI devices on your system. &nbsp;[If
+the  configuration file does not exist, then it does query all IDE and SCSI
+devices.]  &nbsp;Finally, it's a well-behaved daemon and doesn't leave open
+file descriptors  and other detrius behind. In addition, the <tt>smartmontools</tt>
+version  of <tt>smartd</tt> can be instructed (via Directives in the configuration
+   file) to monitor for changes in a number of different disk properties:
+the   SMART status, failure or prefailure attributes going below threshold,
+new   errors appearing in the ATA Error Log or the SMART Self-Test Log, and
+so  on.<br>
+       <br>
+       The other principle difference is that smartmontools is an open-source 
+   development project, meaning that we keep the files in CVS, and   that 
+ other  developers who wish to contribute can commit changes to the archive. 
+ &nbsp;If  you would like to contribute, please write to to <a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
+        smartmontools-support</a>.<br>
+          <br>
+          But the bottom line is that the code in smartmontools is derived
+ directly     from smartsuite  and is similar.  The smartsuite package can
+ be found <a href="http://sourceforge.net/projects/smartsuite/">here</a>.
+&nbsp;<br>
+                                       
+<hr width="100%" size="2"><br>
+                       <a name="references"></a><big><b>Useful references 
+on  S.M.A.R.T.      and   the   ATA/ATAPI standards<br>
+                       </b>If you are having trouble understanding the output 
+  of  smartctl     or  smartd,  please first read the manual pages:<tt><br>
+                      &nbsp;&nbsp;&nbsp; man 8 smartctl<br>
+                      &nbsp;&nbsp;&nbsp; man 8 smartd</tt><br>
+                       If you'd like to know more about S.M.A.R.T., then
+the   following      references     may be helpful: <br>
+                      </big>                        
+<ul>
+                        <li>The <a
+ href="http://www.t13.org/project/d1321r1c.pdf"> ATAPI/ATA-5       Revision
+    1 specification</a> (start with Section 8.41)<br>
+  </li>
+                        <li><a href="http://www.t13.org/#FTP_site">Earlier
+ and   later    revisions      of the ATAPI/ATA Specs</a></li>
+                        <li>The original S.M.A.R.T. specification is SFF-8035i
+from   the <a href="http://www.sffcommittee.com/ns/">SFF  Committee</a> 
+            . Here is their <a
+ href="ftp://ftp.seagate.com/sff/INF-8035.TXT"> "link"</a>        .</li>
+  <li>The <a href="http://cmrr.ucsd.edu/smart/">UCSD SMART Project</a> has
+some interesting publications:<br>
+    <ul>
+      <li><font face="Arial"><a
+ href="http://cmrr.ucsd.edu/smart/tech_papr/HamerlySmartPaper.pdf">Bayesian 
+          Approaches to Failure Prediction for Disk Drives</a></font></li>
+      <li><font face="Arial"><a
+ href="http://cmrr.ucsd.edu/smart/tech_papr/SmtPapTransReliFinalWeb.pdf">Improved
+Disk-Drive Failure Warnings</a></font><br>
+      </li>
+    </ul>
+  </li>
+   <li><font color="#0000ff"><a
+ href="http://seagate.com/docs/pdf/whitepaper/drive_reliability.pdf"
+ target="_blank">Estimating Drive Reliability in Desktop Computers and Consumer 
+Electronics Systems</a></font> (Seagate)<br>
+   </li>
+   <li><font color="#0000ff"><a
+ href="http://seagate.com/docs/pdf/whitepaper/enhanced_smart.pdf"
+ target="_blank">Enhanced SMART - Get S.M.A.R.T. For Reliability</a></font> 
+(Seagate)<br>
+   </li>
+   <li><font color="#0000ff"><a
+ href="http://www.seagate.com/docs/pdf/whitepaper/smart_u8.pdf"
+ target="_blank">Playing it S.M.A.R.T.</a><font color="#008080" size="2"
+ face="Verdana"> </font></font>(Seagate)<br>
+  </li>
+   <li><font color="#0000ff"><a
+ href="http://www.seagate.com/docs/pdf/whitepaper/Enhanced_DST_Tech_Paper.pdf"
+ target="_blank">Enhanced Drive Self-Test</a><font color="#008080"
+ size="2" face="Verdana"> </font></font>(Seagate)<br>
+  </li>
+   <li><a
+ href="http://www.maxtor.com/products/DiamondMax/software/maxsafe.pdf"
+ target="_blank">Drive reliability and safety system: MaxSafe</a> (Maxtor)<br>
+   </li>
+   <li><u>Specifying Reliability in the Disk Drive Industry: No More MTBF's</u>, 
+Jon G. Elerath (IBM Storage Systems Division) in <i>Proceedings of the IEEE 
+2000 Annual Reliability and Maintainability Symposium, pg 194, 0-7803-5848-1/00/$10.00.</i><br>
+   </li>
+                                           
+</ul>
+                                         
+<hr width="100%" size="2"><a name="sampleoutput"></a><b>Sample output from
+          smartmontools</b>        
 <pre><tt>
 #root smartctl -am /dev/hda
 smartctl version 5.0-11 Copyright (C) 2002 Bruce Allen
@@ -419,11 +470,14 @@ After command completion occurred, registers were:
 ER:40 SC:01 SN:15 CL:be CH:2e D/H:e0 ST:51
 Sequence of commands leading to the command that caused the error were:
 DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp<br> 00   00   01   15   be   2e    e0   c8     831.599<br> 00   00   01   14   be   2e    e0   c8     831.594<br> 00   00   01   13   be   2e    e0   c8     831.594<br> 00   00   01   12   be   2e    e0   c8     831.594<br> 00   00   01   11   be   2e    e0   c8     831.594<br><br>Error 2 occurred at disk power-on lifetime: 458 hours<br>When the command that caused the error occurred, the device was active or idle.<br>After command completion occurred, registers were:<br>ER:40 SC:45 SN:15 CL:be CH:2e D/H:e0 ST:51<br>Sequence of commands leading to the command that caused the error were:<br>DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp<br> 00   00   80   da   bd   2e    e0   c8     829.680<br> 00   00   80   5a   bd   2e    e0   c8     829.677<br> 00   00   80   da   bc   2e    e0   c8     829.673<br> 00   00   80   5a   bc   2e    e0   c8     829.671<br> 00   00   01   58   bc   2e    e0   c8     829.671<br><br>Error 3 occurred at disk power-on lifetime: 458 hours<br>When the command that caused the error occurred, the device was active or idle.<br>After command completion occurred, registers were:<br>ER:40 SC:01 SN:47 CL:bc CH:2e D/H:e0 ST:51<br>Sequence of commands leading to the command that caused the error were:<br>DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp<br> 00   00   01   47   bc   2e    e0   c8     826.962<br> 00   00   01   46   bc   2e    e0   c8     826.961<br> 00   00   01   45   bc   2e    e0   c8     826.961<br> 00   00   01   44   bc   2e    e0   c8     826.961<br> 00   00   01   43   bc   2e    e0   c8     826.961<br><br>Error 4 occurred at disk power-on lifetime: 458 hours<br>When the command that caused the error occurred, the device was active or idle.<br>After command completion occurred, registers were:<br>ER:40 SC:13 SN:47 CL:bc CH:2e D/H:e0 ST:51<br>Sequence of commands leading to the command that caused the error were:<br>DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp<br> 00   00   80   da   bb   2e    e0   c8     825.038<br> 00   00   80   5a   bb   2e    e0   c8     825.033<br> 00   00   80   da   ba   2e    e0   c8     825.030<br> 00   00   80   5a   ba   2e    e0   c8     824.940<br> 00   00   80   da   b9   2e    e0   c8     824.937<br><br>Error 5 occurred at disk power-on lifetime: 458 hours<br>When the command that caused the error occurred, the device was active or idle.<br>After command completion occurred, registers were:<br>ER:40 SC:01 SN:85 CL:19 CH:2c D/H:e0 ST:51<br>Sequence of commands leading to the command that caused the error were:<br>DCR   FR   SC   SN   CL   CH   D/H   CR   Timestamp<br> 00   00   01   85   19   2c    e0   c8     816.487<br> 00   00   01   84   19   2c    e0   c8     816.487<br> 00   00   01   83   19   2c    e0   c8     816.486<br> 00   00   01   82   19   2c    e0   c8     816.486<br> 00   00   01   81   19   2c    e0   c8     816.486<br><br>SMART Self-test log, version number 1<br>Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error<br># 1  Short off-line      Completed                     00%       587         <br># 2  Short off-line      Completed                     00%       583         <br># 3  Short off-line      Completed                     00%       551         <br># 4  Short captive       Interrupted (host reset)      40%       551         <br># 5  Short off-line      Completed                     00%       551         <br># 6  Extended off-line   Completed: read failure       40%       550         0x002c1985<br># 7  Extended off-line   Aborted by host               50%       550         <br># 8  Short off-line      Completed                     00%       550         <br># 9  Short off-line      Completed                     00%       537         <br>#10  Extended off-line   Completed: read failure       40%       536         0x002c1985<br>#11  Short off-line      Completed                     00%       536         <br>#12  Short off-line      Completed                     00%       536         <br>#13  Short off-line      Completed                     00%       533         <br>#14  Short off-line      Completed                     00%       532         <br>#15  Short captive       Completed                     00%       459         <br>#16  Short captive       Completed                     00%       459         <br>#17  Extended off-line   Completed: read failure       40%       455         0x002c1985<br>#18  Extended off-line   Aborted by host               50%       455         <br>#19  Short off-line      Completed                     00%       451         <br>#20  Short off-line      Completed                     00%       451         <br>#21  Extended off-line   Completed: read failure       40%       449         0x002c1985<br></tt></pre>
-              <tt>    </tt>                   
+                 <tt>    </tt>                      
 <hr width="100%" size="2">Page maintained by <a
  href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br>
-                 <big> </big></div>
-                                          <br>
+                    <big> </big></div>
+                                             <br>
+        <br>
+       <br>
+      <br>
      <br>
     <br>
    <br>
