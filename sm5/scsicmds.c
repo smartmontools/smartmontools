@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.78 2004/09/05 13:53:14 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.79 2004/12/11 02:09:04 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -507,6 +507,7 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
     struct scsi_sense_disect sinfo;
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
+    UINT8 sense[32];
     int status;
 
     if ((bufLen < 0) || (bufLen > 255))
@@ -520,6 +521,10 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
     cdb[4] = bufLen;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
         return status;
@@ -581,6 +586,7 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
+    UINT8 sense[32];
     UINT8 buff[18];
     int status, len;
     UINT8 ecode;
@@ -594,6 +600,10 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
     cdb[4] = sizeof(buff);
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if ((0 == status) && (sense_info)) {
         ecode = buff[0] & 0x7f;
@@ -641,8 +651,8 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     io_hdr.cmnd_len = sizeof(cdb);
     io_hdr.sensep = sense;
     io_hdr.max_sense_len = sizeof(sense);
-    io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
     /* worst case is an extended foreground self test on a big disk */
+    io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
     
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
