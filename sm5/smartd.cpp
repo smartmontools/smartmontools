@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.17 2002/10/24 09:54:02 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.18 2002/10/24 09:57:55 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -242,7 +242,8 @@ int ataCheckDevice( atadevices_t *drive){
   // See if any vendor attributes are below minimum, and print them out
   if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1))){
     ataPrintSmartAttribName(attributename,failed);
-    printout(LOG_CRIT,"Device: %s, Failed attribute: %s\n",drive->devicename,attributename);
+    printout(LOG_CRIT,"Device: %s, Failed attribute: %s. Use smartctl -v to investigate.\n",
+	     drive->devicename,attributename);
   }
 
   // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
