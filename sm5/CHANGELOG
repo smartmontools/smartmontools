@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.322 2004/01/26 23:11:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.323 2004/01/29 21:50:53 shattered Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -20,6 +20,7 @@ Maintainers / Developers Key:
 [FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
 [PW] Phil Williams
+[SS] Sergey Svishchev
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
@@ -28,6 +29,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
   [BA] smartctl: the -q silent option was printing output for some
        error conditions.  Fixed.  Will rename relevant variables to help
        avoid these errors in the future.
+
+  [SS] NetBSD port added.
 
   [BA] more sensible error messages for devfs and devfs-like systems.
        Instead of saying that the DIRECTORY does not exist, say that
