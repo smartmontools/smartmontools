@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.69 2003/11/21 01:24:11 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.70 2003/11/24 10:55:33 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -246,16 +246,15 @@ void scsiGetStartStopData(int device)
 
 static void scsiPrintSeagateCacheLPage(int device)
 {
-    int k, j, num, pl, pc, pcb, err, len;
+    int k, j, num, pl, pc, err, len;
     unsigned char * ucp;
     unsigned char * xp;
     unsigned long long ull;
 
-    pout("\nVendor (Seagate) cache information\n");
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
         QUIETON(con);
-        pout("scsiPrintSeagateCacheLPage Failed [%s]\n", scsiErrString(err));
+        pout("Seagate Cache Log Sense Failed: %s\n", scsiErrString(err));
         QUIETOFF(con);
         return;
     }
@@ -270,7 +269,27 @@ static void scsiPrintSeagateCacheLPage(int device)
     ucp = &gBuf[0] + 4;
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
-        pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 0: case 1: case 2: case 3: case 4:
+            break;
+        default: 
+            if (con->reportscsiioctl > 0) {
+                QUIETON(con);
+                pout("\nVendor (Seagate) cache lpage has unexpected parameter"
+                     ", skip\n");
+                QUIETOFF(con);
+            }
+            return;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    pout("\nVendor (Seagate) cache information\n");
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: pout("  Blocks sent to initiator"); break;
@@ -280,7 +299,7 @@ static void scsiPrintSeagateCacheLPage(int device)
                        "<= segment size"); break;
         case 4: pout("  Number of read and write commands whose size "
                        "> segment size"); break;
-        default: pout("  Unknown Seagate parameter code = 0x%x", pc); break;
+        default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
         }
         k = pl - 4;
         xp = ucp + 4;
@@ -302,12 +321,11 @@ static void scsiPrintSeagateCacheLPage(int device)
 
 static void scsiPrintSeagateFactoryLPage(int device)
 {
-    int k, j, num, pl, pc, pcb, len, err;
+    int k, j, num, pl, pc, len, err;
     unsigned char * ucp;
     unsigned char * xp;
     unsigned long long ull;
 
-    pout("Vendor (Seagate) factory information\n");
     if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
         QUIETON(con);
@@ -326,13 +344,33 @@ static void scsiPrintSeagateFactoryLPage(int device)
     ucp = &gBuf[0] + 4;
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
-        pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 0: case 8:
+            break;
+        default: 
+            if (con->reportscsiioctl > 0) {
+                QUIETON(con);
+                pout("\nVendor (Seagate) factory lpage has unexpected "
+                     "parameter, skip\n");
+                QUIETOFF(con);
+            }
+            return;
+        }
+        num -= pl;
+        ucp += pl;
+    }
+    pout("Vendor (Seagate) factory information\n");
+    num = len - 4;
+    ucp = &gBuf[0] + 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: pout("  number of hours powered up"); break;
         case 8: pout("  number of minutes until next internal SMART test");
             break;
-        default: pout("  Unknown Seagate parameter code = 0x%x", pc); break;
+        default: pout("  Unknown Seagate parameter code [0x%x]", pc); break;
         }
         k = pl - 4;
         xp = ucp + 4;
