@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.68 2003/03/31 21:54:13 pjwilliams Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.69 2003/04/01 05:52:32 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -404,21 +404,60 @@ char *create_vendor_attribute_arg_list(void){
 }
 
 
-// We no longer use this function, because the IOCTL appears to return
-// only the drive identity at the time that the system was booted
-// (perhaps from the BIOS.  It doesn't correctly reflect the current
-// state information, and for example the checksum is usually
-// wrong. The replacement function follows afterwards
-#if (0)
-int ataReadHDIdentity (int device, struct hd_driveid *buf){
-  if (ioctl(device, HDIO_GET_IDENTITY, buf)){ 
-    perror ("Error ATA GET HD Identity Failed");
-    return -1;
-  }
-  return 0;
-}
-#endif
+// This is an interface routine meant to isolate the OS dependent
+// parts of the code, and to provide the debugging interface.  I will
+// flesh it out over the next few days. Bruce
+int ioctlhandler(int device, int command, int select, char *data){
+  unsigned char buffer[519];
+  int retval;
 
+  // clear out buffer
+  memset(buffer, 0, 519);
+
+  buffer[2]=command;
+  switch (command){
+  case SMART_READ_VALUES:
+    buffer[3]=1;
+    break;
+  case SMART_ENABLE:
+  case SMART_DISABLE:
+    buffer[1]=1;
+    break;
+  case SMART_READ_THRESHOLDS:
+  case SMART_WRITE_THRESHOLDS:
+    buffer[1]=buffer[3]=1;
+    break;
+  case SMART_STATUS:
+    break;
+  case SMART_AUTO_OFFLINE:
+  case SMART_IMMEDIATE_OFFLINE:
+  case SMART_AUTOSAVE:
+    buffer[1]=select;
+    break;
+  case SMART_READ_LOG_SECTOR:
+    buffer[1]=select;
+    buffer[3]=1;
+    break;
+  default:
+    break;
+  }
+
+  if (command == SMART_STATUS){
+    retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
+    if (retval) {
+      //   print error message
+    }
+    if (data)
+      memcpy(data, buffer+4, 512);
+  }
+  else {
+    retval=ioctl(device, HDIO_DRIVE_CMD, buffer);
+  
+  }
+
+  return retval;
+
+}
 
 // This function computes the checksum of a single disk sector (512
 // bytes).  Returns zero if checksum is OK, nonzero if the checksum is
@@ -655,7 +694,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
 // the checksum correctly before putting the structure back!
 int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
-    {WIN_SMART, 1, 0xD7, 1,};
+    {WIN_SMART, 1, SMART_WRITE_THRESHOLDS, 1,};
   
   memcpy(buf+HDIO_DRIVE_CMD_HDR_SIZE, data, ATA_SMART_SEC_SIZE);
   
@@ -667,7 +706,8 @@ int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){
 }
 
 int ataEnableSmart (int device ){	
-  unsigned char parms[4] = {WIN_SMART, 1, SMART_ENABLE, 0};
+  unsigned char parms[4] =
+    {WIN_SMART, 1, SMART_ENABLE, 0};
   
   if (ioctl (device, HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Enable failed");
@@ -677,7 +717,8 @@ int ataEnableSmart (int device ){
 }
 
 int ataDisableSmart (int device ){	
-  unsigned char parms[4] = {WIN_SMART, 1, SMART_DISABLE, 0};
+  unsigned char parms[4] = 
+    {WIN_SMART, 1, SMART_DISABLE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Disable failed");
@@ -687,7 +728,8 @@ int ataDisableSmart (int device ){
 }
 
 int ataEnableAutoSave(int device){
-  unsigned char parms[4] = {WIN_SMART, 241, SMART_AUTOSAVE, 0};
+  unsigned char parms[4] = 
+    {WIN_SMART, 241, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Enable Auto-save failed");
@@ -697,7 +739,8 @@ int ataEnableAutoSave(int device){
 }
 
 int ataDisableAutoSave(int device){
-  unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTOSAVE, 0};
+  unsigned char parms[4] = 
+    {WIN_SMART, 0, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Disable Auto-save failed");
@@ -719,7 +762,8 @@ int ataDisableAutoSave(int device){
 int ataEnableAutoOffline (int device ){	
   
   /* timer hard coded to 4 hours */
-  unsigned char parms[4] = {WIN_SMART, 248, SMART_AUTO_OFFLINE, 0};
+  unsigned char parms[4] = 
+    {WIN_SMART, 248, SMART_AUTO_OFFLINE, 0};
   
   if (ioctl(device , HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Enable Automatic Offline failed");
@@ -731,7 +775,8 @@ int ataEnableAutoOffline (int device ){
 // Another Obsolete Command.  See comments directly above, associated
 // with the corresponding Enable command.
 int ataDisableAutoOffline (int device ){	
-  unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
+  unsigned char parms[4] = 
+    {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
   
   if (ioctl(device , HDIO_DRIVE_CMD, parms)){
     syserror("Error SMART Disable Automatic Offline failed");
@@ -745,7 +790,8 @@ int ataDisableAutoOffline (int device ){
 // enabled on the device.  See ataSmartStatus2() for one that actually
 // returns SMART status.
 int ataSmartStatus (int device ){	
-   unsigned char parms[4] = {WIN_SMART, 0, SMART_STATUS, 0};
+   unsigned char parms[4] = 
+     {WIN_SMART, 0, SMART_STATUS, 0};
 
    if (ioctl(device, HDIO_DRIVE_CMD, parms)){
      syserror("Error Return SMART Status via HDIO_DRIVE_CMD failed");
@@ -758,7 +804,8 @@ int ataSmartStatus (int device ){
 // guaranteed to return 1, else zero.  Silent inverse of
 // ataSmartStatus()
 int ataDoesSmartWork(int device){	
-   unsigned char parms[4] = {WIN_SMART, 0, SMART_STATUS, 0};
+   unsigned char parms[4] = 
+     {WIN_SMART, 0, SMART_STATUS, 0};
    return !ioctl(device, HDIO_DRIVE_CMD, parms);
 }
 
@@ -822,7 +869,8 @@ int ataSmartStatus2(int device){
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
 int ataSmartTest(int device, int testtype){	
-  unsigned char parms[4] = {WIN_SMART, 0, SMART_IMMEDIATE_OFFLINE};
+  unsigned char parms[4] = 
+    {WIN_SMART, 0, SMART_IMMEDIATE_OFFLINE, 0};
   char cmdmsg[128],*type,*captive;
   int errornum;
 
