@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.72 2003/08/06 22:46:59 ballen4705 Exp $
+# $Id: Makefile,v 1.73 2003/08/07 13:04:55 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -187,3 +187,15 @@ release: smartd.conf.5 clean
 	mv /usr/src/redhat/SRPMS/$(pkgname)*rpm .
 	rm -f /usr/src/redhat/SOURCES/$(pkgname).tar.gz
 	echo `hostname` | grep -q lap && echo $(shell ./add) > VERSION
+
+tarball: smartd.conf clean
+	cat smartmontools.spec | sed '/Release:/d' > temp.spec
+	echo "Release: " $(counter) > temp.version
+	cat temp.version temp.spec > smartmontools.spec
+	rm -f temp.spec temp.version
+	rm -rf $(pkgname2)
+	mkdir $(pkgname2)
+	cp -a $(releasefiles) $(pkgname2)
+	rm -rf $(pkgname2)/examplescripts/CVS
+	tar zcvf $(pkgname2).tar.gz $(pkgname2)
+	rm -rf $(pkgname2)
