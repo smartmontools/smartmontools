@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.139 2003/04/13 16:05:23 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.140 2003/04/15 09:37:23 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -713,80 +713,91 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 
 static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 {
-    int i, fd, err; 
-    char *device=cfg->name;
+    int k, fd, err; 
+    char *device = cfg->name;
     struct scsi_iec_mode_page iec;
     UINT8  tBuf[64];
 
     // should we try to register this as a SCSI device?
-    if (!(cfg->tryscsi))
+    if (! cfg->tryscsi)
         return 1;
-  
     // open the device
-    if ((fd=opendevice(device))<0)
-        return 1; // device open failed
+    if ((fd = opendevice(device)) < 0) {
+        printout(LOG_WARNING, "Device: %s, skip\n", device);
+        return 0; // device open failed
+    }
     printout(LOG_INFO,"Device: %s, opened\n", device);
   
     // check that it's ready for commands. IE stores its stuff on the media.
-    if (scsiTestUnitReady(fd)) {
-        printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
-        close(fd);
-        return 2;
+    if ((err = scsiTestUnitReady(fd))) {
+        if (1 == err) {
+            printout(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
+                     "down); skip\n", device);
+            close(fd);
+            return 0;
+        } else {
+           printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
+                    device, err);
+           close(fd);
+           return 2;
+        }
     }
   
     if ((err = scsiFetchIECmpage(fd, &iec))) {
-        printout(LOG_INFO,"Device: %s, Fetch of IEC (SMART) mode page "
-                 "failed, err=%d\n", device, err);
-        return 3;
+        printout(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
+                 "failed, err=%d, skip device\n", device, err);
+        return 0;
     }
     if (! scsi_IsExceptionControlEnabled(&iec)) {
-        printout(LOG_INFO,"Device: %s, IE (SMART) not enabled\n", device);
+        printout(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
+                 "skip device\n", device);
         close(fd);
-        return 4;
+        return 0;
     }
-    /* >>>>>>>>> cleanup to continue below ... dpg 2003/4/7 */
 
-  // Device exists, and does SMART.  Add to list
-  if (numscsidevices>=MAXSCSIDEVICES){
-    printout(LOG_CRIT,"smartd has found more than MAXSCSIDEVICES=%d SCSI devices.\n"
-             "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n",(int)numscsidevices);
-    exit(1);
-  }
+    // Device exists, and does SMART.  Add to list
+    if (numscsidevices >= MAXSCSIDEVICES) {
+        printout(LOG_ERR, "smartd has found more than MAXSCSIDEVICES=%d "
+                 "SCSI devices.\n" "Recompile code from " PROJECTHOME 
+                 " with larger MAXSCSIDEVICES\n", (int)numscsidevices);
+        return 0;
+    }
 
-  // now we can proceed to register the device
-  printout(LOG_INFO, "Device: %s, is SMART capable. Adding to \"monitor\" list.\n",device);
+    // now we can proceed to register the device
+    printout(LOG_INFO, "Device: %s, is SMART capable. Adding "
+             "to \"monitor\" list.\n",device);
  
-  // since device points to global memory, just keep that address
-  devices->devicename=device;
-  devices->cfg=cfg;
+    // since device points to global memory, just keep that address
+    devices->devicename = device;
+    devices->cfg = cfg;
 
-  // register the supported functionality.  The smartd code does not
-  // seem to make any further use of this information.
-  if (scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
-    for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
-      switch ( tBuf[i]){ 
-      case TEMPERATURE_PAGE:
-        devices->TempPageSupported = 1;
-        break;
-      case IE_LOG_PAGE:
-        devices->SmartPageSupported = 1;
-        break;
-      default:
-        break;
-      }
-    }   
-  }
+    // Flag that certain log pages are supported (information may be
+    // available from other sources.
+    if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf))) {
+        for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
+            switch (tBuf[k]) { 
+                case TEMPERATURE_PAGE:
+                    devices->TempPageSupported = 1;
+                    break;
+                case IE_LOG_PAGE:
+                    devices->SmartPageSupported = 1;
+                    break;
+                default:
+                    break;
+            }
+        }   
+    }
 
-  // record number of device, type of device, increment device count
-  cfg->tryata=0;
-  cfg->tryscsi=1;
-  cfg->scsidevicenum=numscsidevices;
-  cfg->atadevicenum=-1;
-  numscsidevices++;
+    // record number of device, type of device, increment device count
+    cfg->tryata = 0;
+    cfg->tryscsi = 1;
+    cfg->scsidevicenum = numscsidevices;
+    cfg->atadevicenum = -1;
+    ++numscsidevices;
 
-  // close file descriptor
-  closedevice(fd, device);
-  return 0;
+    // close file descriptor
+    closedevice(fd, device);
+    return 0;
 }
 
 // We compare old and new values of the n'th attribute.  Note that n
@@ -1090,12 +1101,14 @@ int scsiCheckDevice(scsidevices_t *drive)
                          name, cp); 
         }
     } else if (debugmode)
-        printout(LOG_INFO,"Device: %s, Acceptable Attribute: %d\n", 
-                 name, (int)asc);  
+        printout(LOG_INFO,"Device: %s, Acceptable asc,ascq: %d,%d\n", 
+                 name, (int)asc, (int)ascq);  
   
     // Seems to completely ignore what capabilities were found on the
     // device when scanned
     if (currenttemp) {
+        if (255 == currenttemp) /* this means temperature unavailable */
+            currenttemp = 0;    /* less likely to worry people */
         if ((currenttemp != drive->Temperature) && (drive->Temperature))
             printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
                      "to %d degrees since last reading\n", name, 
