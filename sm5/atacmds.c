@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.59 2003/03/08 15:46:52 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.60 2003/03/10 05:13:29 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -628,6 +628,7 @@ int ataSmartStatus2(int device){
 
   if (ioctl(device,HDIO_DRIVE_TASK,parms)){
     syserror("Error SMART Status command via HDIO_DRIVE_TASK failed");
+    pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support enabled\n");
     return -1;
   }
   
