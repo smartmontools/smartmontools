@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.16 2003/01/02 16:38:29 pjwilliams Exp $
+\# $Id: smartd.conf.5,v 1.17 2003/01/03 06:38:58 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/01/02 16:38:29 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2003/01/03 06:38:58 $" "smartmontools-5.0"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -219,7 +219,7 @@ Enables or disables Attribute Autosave when
 .B smartd
 starts up and has no further effect.  The valid arguments to this
 Directive are \fIon\fP and \fIoff\fP.  [Please see the
-.B smartctl \-f
+.B smartctl \-S
 command-line option.]
 .TP
 .B \-H
@@ -228,7 +228,7 @@ Attributes are less than or equal to their threshold values, then disk
 failure is predicted in less than 24 hours, and a message at priority
 .B 'CRITICAL'
 will be logged to syslog.  [Please see the
-.B smartctl \-c
+.B smartctl \-H
 command-line option.]
 .TP
 .B \-l TYPE
@@ -398,9 +398,11 @@ for a few minutes with
 to see what SMART functionality your disk(s) support(s).  If you do
 not like voluminous syslog messages, a good choice of
 .B smartd
-configuration file Directives might be 
+configuration file Directives might be:
+.nf
 .B \-H \-l\ selftest \-l\ error \-f.
-If you want more frequent information, use 
+.fi
+If you want more frequent information, use:
 .B -a.
 
 \# ENDINCLUDE
@@ -446,4 +448,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.16 2003/01/02 16:38:29 pjwilliams Exp $
+$Id: smartd.conf.5,v 1.17 2003/01/03 06:38:58 ballen4705 Exp $
