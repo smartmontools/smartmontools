@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.115 2003/04/10 01:56:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.116 2003/04/10 04:13:39 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,7 +36,7 @@ CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-  [BA] Added -F/--fixbug option to smartctl.  This allows us to read
+  [BA] Added -F/--fixbyteorder option to smartctl.  This allows us to read
        SMART data from some disks that have byte-reversed two- and four-
        byte quantities in their SMART data structures.
 

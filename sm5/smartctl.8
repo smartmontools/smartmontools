@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.55 2003/04/10 02:41:58 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.56 2003/04/10 04:13:39 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/10 02:41:58 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/10 04:13:39 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -528,7 +528,7 @@ this form.  The form (for example) '123,raw48' only prints the Raw
 value for Attribute 123 in this form.
 
 .TP
-.B \-F, \-\-fixbug
+.B \-F, \-\-fixbyteorder
 In some Samsung disks (example: model SV4012H Firmware Version:
 RM100-08) some of the two- and four-byte quantities in the SMART data
 structures are byte-swapped (relative to the ATA specification).
@@ -785,4 +785,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.55 2003/04/10 02:41:58 ballen4705 Exp $
+$Id: smartctl.8,v 1.56 2003/04/10 04:13:39 ballen4705 Exp $
