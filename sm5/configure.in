@@ -1,16 +1,20 @@
 #
-# $Id: configure.in,v 1.39 2003/11/23 10:13:26 ballen4705 Exp $
+# $Id: configure.in,v 1.40 2003/11/30 13:53:14 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
-AC_INIT(smartmontools, 5.26, smartmontools-support@lists.sourceforge.net)
+AC_INIT(smartmontools, 5.27, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.39 2003/11/23 10:13:26 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.40 2003/11/30 13:53:14 ballen4705 Exp $'`
+smartmontools_release_date=2003/11/30
+smartmontools_release_time="13:36:20 UTC"
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
+AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE,   "$smartmontools_release_date",   [smartmontools Release Date])
+AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME,   "$smartmontools_release_time",   [smartmontools Release Time])
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID,               "$smartmontools_cvs_tag",        [smartmontools CVS Tag])
 
 AM_CONFIG_HEADER(config.h)
@@ -67,6 +71,8 @@ if test "$prefix" = "NONE"; then
 fi
 
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
+AC_SUBST(smartmontools_release_date)
+AC_SUBST(smartmontools_release_time)
 
 AC_CANONICAL_HOST
 dnl if OS not recognized, then use the os_generic modules
@@ -116,6 +122,8 @@ else
           fi
  esac
 fi
+
+AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
 AC_SUBST(CFLAGS)
 

@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.21 2003/10/15 05:40:14 ballen4705 Exp $
+# $Id: do_release,v 1.22 2003/11/30 13:53:14 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -57,6 +57,11 @@ get_release
 
 # tag CVS version
 setup_cvs
+smartmontools_release_date=`date -u +"%Y/%m/%d"`
+smartmontools_release_time=`date -u +"%T %Z"`
+cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
+rm -f configure.tmp
 cvs commit -m "Release $VERSION $RELEASE"
 cvs tag -d $RELEASE 
 cvs tag $RELEASE

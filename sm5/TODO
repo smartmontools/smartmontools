@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.40 2003/11/28 13:50:27 ballen4705 Exp $
+$Id: TODO,v 1.41 2003/11/30 13:53:14 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -81,13 +81,14 @@ FreeBSD
 -------
 Get interface for 3ware Escalade controllers working (Eduard).
 
-
-
 Packaging
 ---------
-Modify autogen.sh so that it puts the date it is run into
-configure.in/Makefile.am:
-    smartmontools_date=`date -u +"%Y/%m/%d"`
-Then use THIS date to timestamp the manual pages and also as part of
-the output of smartd -V and smartctl -V.
-
+The 'make dist' tarball currently contains these files:
+  examplescripts/Makefile.am
+  Makefile.am
+  smartd.initd
+  smartd.8
+  smartd.conf.5
+  smartctl.8
+that should't be there.  Note: if the .am files are wanted, we should
+also include autogen.sh.

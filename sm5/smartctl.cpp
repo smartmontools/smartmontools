@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.106 2003/11/26 10:37:00 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.107 2003/11/30 13:53:14 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -88,10 +88,11 @@ void printcopy(){
   pout("%s",out);
   printone(out,utility_c_cvsid);
   pout("%s",out);
-  pout("\nsmartctl build configured on " SMARTMONTOOLS_CONFIGURE_DATE "\n");
-  pout("smartctl configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
-
-
+  pout("\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
+  pout("smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
+  pout("smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
+  pout("smartctl compile dated " __DATE__ " at "__TIME__ "\n");
+  pout("smartmontools configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
   return;
 }
 

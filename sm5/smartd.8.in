@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.21 2003/11/27 06:43:48 ballen4705 Exp $
+$Id: smartd.8.in,v 1.22 2003/11/30 13:53:14 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/11/27 06:43:48 $" RELEASE "$Date: 2003/11/27 06:43:48 $"
+.TH SMARTD 8 CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-RELEASE dated "$Date: 2003/11/27 06:43:48 $"
+CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
 
 .SH DESCRIPTION
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
@@ -1350,4 +1350,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.21 2003/11/27 06:43:48 ballen4705 Exp $
+$Id: smartd.8.in,v 1.22 2003/11/30 13:53:14 ballen4705 Exp $

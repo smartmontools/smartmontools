@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.248 2003/11/20 03:08:16 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.249 2003/11/30 13:53:14 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -152,8 +152,11 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"%s",out);
   printone(out,utility_c_cvsid);
   PrintOut(LOG_INFO,"%s",out);
-  PrintOut(LOG_INFO,"\nsmartd build configured on " SMARTMONTOOLS_CONFIGURE_DATE "\n");
-  PrintOut(LOG_INFO,"smartd configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
+  PrintOut(LOG_INFO, "\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
+  PrintOut(LOG_INFO, "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
+  PrintOut(LOG_INFO, "smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
+  PrintOut(LOG_INFO, "smartd compile dated " __DATE__ " at "__TIME__ "\n");
+  PrintOut(LOG_INFO, "smartmontools configure arguments: " SMARTMONTOOLS_CONFIGURE_ARGS "\n");
   return;
 }
 
