@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.39 2002/12/01 12:14:15 pjwilliams Exp $
+# $Id: Makefile,v 1.40 2002/12/05 06:13:20 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -48,7 +48,7 @@ pkgname=smartmontools-5.0
 pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
-	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartd.8\n\tman ./smartctl.8\n"
+	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartctl.8\n\tman ./smartd.8\n\tman ./smartd.conf.5\n"
 	@echo -e "to read the manual pages now.  Unless you do a \"make install\" the manual pages won't be installed.\n"
 
 smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
