@@ -24,10 +24,13 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.14 2003/04/18 10:11:15 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.15 2003/04/18 11:18:01 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
+#define TABLEPRINTWIDTH                             19
+
+
 
 #define PRESET_9_MINUTES                   {   9,  1 }
 #define PRESET_9_SECONDS                   {   9,  3 }
@@ -37,28 +40,28 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.14 2003/04/18 10:11:15
 
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
-const int vendoropts_Fujitsu_MPE3204AT[][2] = {
+const unsigned char vendoropts_Fujitsu_MPE3204AT[][2] = {
   PRESET_9_SECONDS,
   {0,0}
 };
 
-const int vendoropts_Fujitsu_MHS2020AT[][2] = {
+const unsigned char vendoropts_Fujitsu_MHS2020AT[][2] = {
   PRESET_200_WRITEERRORCOUNT,
   {0,0}
 };
 
-const int vendoropts_Samsung_SV4012H[][2] = {
+const unsigned char vendoropts_Samsung_SV4012H[][2] = {
   PRESET_9_HALFMINUTES,
   {0,0}
 };
 
-const int vendoropts_Samsung_SV1204H[][2] = {
+const unsigned char vendoropts_Samsung_SV1204H[][2] = {
   PRESET_9_HALFMINUTES,
   PRESET_194_10XCELSIUS,
   {0,0}
 };
 
-const int vendoropts_Maxtor_4D080H4[][2] = {
+const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
   PRESET_9_MINUTES,
   {0,0}
 };
@@ -143,9 +146,7 @@ const drivesettings knowndrives[] = {
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
-    "Samsung drives may need -F enabled.\n"
-    "Please contact the smartmontools developers\n"
-    "to say if this is (or is not) the case.\n",
+    "Contact developers; may need -F enabled.\n",
     NULL, NULL, NULL
   },
   { // Maxtor 6L080J4 and 4K080H4
@@ -169,12 +170,13 @@ const drivesettings knowndrives[] = {
   },
   { // IBM GXP-180
     "^IC35L120AVV207-0$",
-    NULL, NULL, NULL, NULL, NULL 
+    ".*", 
+    NULL, NULL, NULL, NULL 
   },
   {
     //  IBM Deskstar 120GXP  [Phil -- use for testing]
     "^IC35L060AVVA07-0$",
-    NULL,
+    ".*",
     NULL,
     NULL,
     NULL,
@@ -240,9 +242,8 @@ int lookupdrive(const char *model, const char *firmware)
 // Shows all presets for drives in knowndrives[].
 void showonepreset(const drivesettings *drivetable){
   
-  const int (* presets)[2] = drivetable->vendoropts;
+  const unsigned char (* presets)[2] = drivetable->vendoropts;
   int first_preset = 1;
-  int width = 20;
   
   // Basic error check
   if (!drivetable || !drivetable->modelregexp){
@@ -252,12 +253,12 @@ void showonepreset(const drivesettings *drivetable){
   }
   
   // print model and firmware regular expressions
-  pout("%-*s %s\n", width, "MODEL REGEXP:", drivetable->modelregexp);
-  pout("%-*s %s\n", width, "FIRMWARE REGEXP:", drivetable->firmwareregexp ?
+  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL REGEXP:", drivetable->modelregexp);
+  pout("%-*s %s\n", TABLEPRINTWIDTH, "FIRMWARE REGEXP:", drivetable->firmwareregexp ?
        drivetable->firmwareregexp : "");
   
   // if there are any presets, then show them
-  if (presets) while (1) {
+  if (presets && (*presets)[0]) while (1) {
     char out[64];
     const int attr = (*presets)[0], val  = (*presets)[1];
     
@@ -269,14 +270,17 @@ void showonepreset(const drivesettings *drivetable){
     // Use leading zeros instead of spaces so that everything lines up.
     out[0] = (out[0] == ' ') ? '0' : out[0];
     out[1] = (out[1] == ' ') ? '0' : out[1];
-    pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
+    pout("%-*s %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
     first_preset = 0;
     presets++;
   }
+  else
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
+
   
   // Is a special purpose function defined?  If so, describe it
   if (drivetable->specialpurpose){
-    pout("%-*s ", width, "OTHER PRESETS:");
+    pout("%-*s ", TABLEPRINTWIDTH, "OTHER PRESETS:");
     pout("%s\n", drivetable->functiondesc ?
 	 drivetable->functiondesc : "A special purpose function "
 	 "is defined for this drive"); 
@@ -284,7 +288,7 @@ void showonepreset(const drivesettings *drivetable){
   
   // Print any special warnings
   if (drivetable->warningmsg){
-    pout("%-*s ", width, "WARNINGS:");
+    pout("%-*s ", TABLEPRINTWIDTH, "WARNINGS:");
     pout("%s\n", drivetable->warningmsg);
   }
   
@@ -325,11 +329,11 @@ void showpresets(const struct hd_driveid *drive){
   }
   
   // We found a matching drive.  Print out all information about it.
-  pout("Match found!  Drive identity strings:\n"
-       "MODEL:    %s\n"
-       "FIRMWARE: %s\n"
-       "match drive table entry:\n\n",
-       model, firmware);
+  pout("Drive found in smartmontools Database.  Drive identity strings:\n"
+       "%-*s %s\n"
+       "%-*s %s\n"
+       "match smartmontools Drive Database entry:\n",
+       TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmware);
   showonepreset(&knowndrives[i]);
   return;
 }
@@ -348,7 +352,7 @@ void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
 
   // Look up the drive in knowndrives[] and check vendoropts is non-NULL.
   if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
-    const int (* presets)[2];
+    const unsigned char (* presets)[2];
 
     // For each attribute in list of attribute/val pairs...
     presets = knowndrives[i].vendoropts;
