@@ -39,9 +39,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.30 2004/01/07 17:13:07 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.31 2004/01/31 01:39:55 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.30 2004/01/07 17:13:07 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.31 2004/01/31 01:39:55 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -607,8 +607,6 @@ int guess_device_type (const char* dev_name) {
 
 // global variable holding byte count of allocated memory
 extern long long bytes;
-
-void *FreeNonZero(void* address, int size,int whatline,char* file);
 
 // we are going to take advantage of the fact that FreeBSD's devfs will only
 // have device entries for devices that exist.  So if we get the equivilent of
