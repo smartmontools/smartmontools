@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.57 2002/11/23 17:02:39 pjwilliams Exp $
+$Id: CHANGELOG,v 1.58 2002/11/25 04:31:54 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -20,47 +20,53 @@ at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
+Maintainers/Developers Key:
+[BA} Bruce Allen            <smartmontools-support@lists.sourceforge.net>
+[EB] Erik Inge Bolso        <knan@mo.himolde.no>
+[SB] Stanislav Brabec       <sbrabec@suse.cz>
+[FM] Frederic L. W. Meunier <0@pervalidus.net>
+[PW} Phil Williams          <phil@subbacultcha.demon.co.uk>
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-  Williams: smartd: added support for long options.  All short options are still
+  [PW] smartd: added support for long options.  All short options are still
   supported; see manpage for available long options.
 
-  Allen: smartctl.  When raw Attribute value was 2^31 or larger, did
+  [BA] smartctl.  When raw Attribute value was 2^31 or larger, did
   not print correctly.
 
 smartmontools-5.0.46
 
-  Allen: smartd: added smartd.conf Directives -T and -s.  The -T Directive
+  [BA] smartd: added smartd.conf Directives -T and -s.  The -T Directive
   enables/disables Automatic Offline Testing.  The -s Directive
   enables/disables Attribute Autosave. Documentation and
   example configuration file updated to agree.
 
-  Allen: smartd: user can make smartd check the disks at any time
+  [BA] smartd: user can make smartd check the disks at any time
   (ie, interrupt sleep) by sending signal SIGUSR1 to smartd.  This
   can be done for example with:
   kill -USR1 <pid>
   where <pid> is the process ID number of smartd.
 
-  Bolsø: scsi: don't trust the data we receive from the drive too
+  [EB] scsi: don't trust the data we receive from the drive too
   much. It very well might have errors (like zero response length).
   Seen on Megaraid logical drive, and verified in the driver source.
 
-  Allen: smartd: added Directive -m for sending test email and
+  [BA] smartd: added Directive -m for sending test email and
   for modifying email reminder behavior.  Updated manual, and sample
   configuration file to illustrate & explain this.
 
-  Allen: smartd: increased size of a continued smartd.conf line to
+  [BA] smartd: increased size of a continued smartd.conf line to
   1023 characters.
 
-  Allen: Simplified Directive parsers and improved warning/error
+  [BA] Simplified Directive parsers and improved warning/error
   messages.
 
 smartmontools-5.0.45
 
-  Fixed bug in smartd where testunitready logic inverted
+  [EB] Fixed bug in smartd where testunitready logic inverted
   prevented functioning on scsi devices.
   The bug in question only affects smartd users with scsi devices.
   To see if your version of smartd has the testunitready() bug, do
@@ -72,14 +78,18 @@ smartmontools-5.0.45
   This problem affected releases starting with RELEASE_5_0_16 up to and
   including RELEASE_5_0_43.
 
-  Added testunitnotready to smartctl for symmetry with smartd.
+  [BA] Added testunitnotready to smartctl for symmetry with smartd.
 
-  Brabec: added Czech descriptions to .spec file
-  Brabec: corrected comment in smartd.conf example
+  [SB] added Czech descriptions to .spec file
+  [SB]  corrected comment in smartd.conf example
 
-  Changed way that entries in the ATA error log are printed,
+  [BA] Changed way that entries in the ATA error log are printed,
   to make it clearer which is the most recent error and
   which is the oldest one.
+
+  NOTE: All changes made prior to this point were done by Bruce Allen
+  [BA] although several of them had been suggested by earlier postings
+  by Stanislav Brabec [SB].
 
 smartmontools-5.0.43
 
