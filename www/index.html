@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/11/29 06:02:17 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/12/04 10:02:12 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.107 2003/11/29 06:02:17 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.108 2003/12/04 10:02:12 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -65,8 +65,7 @@ smartmontools.&#160; You can use any of the first three procedures
 (the fourth is for Debian only).&#160; Just after "Method 4" below are
 some instructions for trying out smartmontools once you have completed
 the installation. The 
-<b><a href="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/INSTALL?sortby=date&view=markup">INSTALL</a>
-</b> file contains additional information.
+<b><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/INSTALL?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup">INSTALL</a></b> file contains additional information.
 </p>
 <b>First Method - Install from the RPM file</b>
 <ul>
@@ -527,18 +526,27 @@ moving forward in time):
 </p>
 </li>
 
-<li><b>My ATA drive is not in the smartctl/smartd database.  How do I get it added?</b>
+<li><b>My ATA drive is not in the smartctl/smartd database.  Does this break anything? How do I get it added?</b>
 
 <p>
- First use the command:<br/>
- <tt>smartctl -t short /dev/hd?</tt><br/>
- to run a short self-test on the drive,
- and wait a few minutes for the test to complete.
- The timestamp in the self-test log will help us to determine
- whether Attribute 9 is being used to store the lifetime in hours,
- minutes, or seconds.  Then email the output from:<br/>
- <tt>smartctl -a /dev/hd?</tt><br/> 
-to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support</a>
+ If your drive is not in the database, then the
+ <i>names</i> of the Attributes (displayed in the <b>ID#</b> column of
+ <b>smartctl -A /dev/hd?</b>) and the <i>format</i> of the the raw Attribute
+ values shown in the <b>RAW_VALUE</b> column may be incorrect.  This
+ is mostly cosmetic: the essential drive health monitoring/testing
+ functionality of <b>smartmontools</b> does <i>not</i> depend upon the
+ database.
+</p>
+
+<p>
+ To have your drive added to the database, first use the command:<br/>
+ <tt>smartctl -t short /dev/hd?</tt><br/> to run a short self-test on
+ the drive, and wait a few minutes for the test to complete.  The
+ timestamp in the self-test log will help us to determine whether
+ Attribute 9 is being used to store the lifetime in hours, minutes, or
+ seconds.  Then email the output from:<br/> <tt>smartctl -a
+ /dev/hd?</tt><br/> to <a
+ href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">smartmontools-support</a>
  as an email attachment.  If you need to use any of the
  vendor-specific display options (<b>-v</b> options) with this drive
  or if any of the Attributes are behaving strangely please include
@@ -791,8 +799,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/11/29 06:02:17 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.107 2003/11/29 06:02:17 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2003/12/04 10:02:12 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.108 2003/12/04 10:02:12 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
