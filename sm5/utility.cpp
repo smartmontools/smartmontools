@@ -37,7 +37,41 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.18 2003/10/03 01:15:17 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.19 2003/10/03 03:51:17 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+
+const char * packet_types[] = {
+        "Direct-access (disk)",
+        "Sequential-access (tape)",
+        "Printer",
+        "Processor",
+        "Write-once (optical disk)",
+        "CD/DVD",
+        "Scanner",
+        "Optical memory (optical disk)",
+        "Medium changer",
+        "Communications",
+        "Graphic arts pre-press (10)",
+        "Graphic arts pre-press (11)",
+        "Array controller",
+        "Enclosure services",
+        "Reduced block command (simplified disk)",
+        "Optical card reader/writer"
+};
+
+
+// This value follows the peripheral device type value as defined in
+// SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
+// the ATA standard for packet devices to define the device type.
+const char *packetdevicetype(int type){
+  if (type<0x10)
+    return packet_types[type];
+  
+  if (type<0x20)
+    return "Reserved";
+  
+  return "Unknown";
+}
+
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at

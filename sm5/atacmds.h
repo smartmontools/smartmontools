@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.51 2003/08/30 13:44:41 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.52 2003/10/03 03:51:16 ballen4705 Exp $\n"
 #endif
 
 #include <sys/ioctl.h>
@@ -49,6 +49,10 @@ typedef enum {
   READ_LOG,
   IDENTIFY,
   PIDENTIFY
+#if DEVELOP_SELECTIVE_SELF_TEST
+  // writes 512 bytes of data:
+  , WRITE_LOG
+#endif
 } smart_command_set;
 
 // ATA Specification Command Register Values (Commands)

@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.12 2003/08/27 21:16:20 pjwilliams Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.13 2003/10/03 03:51:17 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -76,6 +76,11 @@ int guess_linux_device_type(const char * dev_name);
 
 // run time, determine byte ordering
 int isbigendian();
+
+// This value follows the peripheral device type value as defined in
+// SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
+// the ATA standard for packet devices to define the device type.
+const char *packetdevicetype(int type);
 
 // These are the major and minor versions for smartd and smartctl
 #define PROJECTHOME "http://smartmontools.sourceforge.net/"

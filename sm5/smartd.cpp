@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.207 2003/10/03 01:41:56 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.208 2003/10/03 03:51:16 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -739,7 +739,7 @@ int SelfTestErrorCount(int fd, char *name){
 
 // scan to see what ata devices there are, and if they support SMART
 int ATADeviceScan(cfgfile *cfg){
-  int fd;
+  int fd, supported=0;
   struct ata_identify_device drive;
   char *name=cfg->name;
   int retainsmartdata=0;
@@ -792,11 +792,26 @@ int ATADeviceScan(cfgfile *cfg){
     debugmode=savedebugmode;
   }
 
-  if (!cfg->permissive && !ataSmartSupport(&drive)){
-    // SMART not supported
-    PrintOut(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",name);
-    close(fd);
-    return 2; 
+  // see if drive supports SMART
+  supported=ataSmartSupport(&drive);
+  if (supported!=1) {
+    if (supported==0)
+      // drive does NOT support SMART
+      PrintOut(LOG_INFO,"Device: %s, lacks SMART capability\n",name);
+    else
+      // can't tell if drive supports SMART
+      PrintOut(LOG_INFO,"Device: %s, ATA IDENTIFY DEVICE words 82-83 don't specify if SMART capable.\n",name);
+  
+    // should we proceed anyway?
+    if (cfg->permissive){
+      cfg->permissive--;
+      PrintOut(LOG_INFO,"Device: %s, proceeding anyway since '-T permissive' Directive(s) present.\n",name);
+    }
+    else {
+      PrintOut(LOG_INFO,"Device: %s, to proceed anyway, increase number of '-T permissive' Directives.\n",name);
+      close(fd);
+      return 2;
+    }
   }
   
   if (ataEnableSmart(fd)){
@@ -1647,10 +1662,10 @@ int ParseToken(char *token,cfgfile *cfg){
       // Normal mode: exit on failure of a mandatory S.M.A.R.T. command, but
       // not on failure of an optional S.M.A.R.T. command.
       // This is the default so we don't need to actually do anything here.
-      ;
+      cfg->permissive=0;
     } else if (!strcmp(arg, "permissive")) {
       // Permissive mode; ignore errors from Mandatory SMART commands
-      cfg->permissive = 1;
+      cfg->permissive++;
     } else {
       badarg = 1;
     }

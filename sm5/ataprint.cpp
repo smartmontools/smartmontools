@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.101 2003/10/03 01:15:17 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.102 2003/10/03 03:51:16 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -816,7 +816,7 @@ void failuretest(int type, int returnvalue){
   // If this is an error in an "optional" SMART command
   if (type==OPTIONAL_CMD){
     if (con->conservative){
-      pout("An optional SMART command has failed: exiting.  To continue, set the tolerance level to something other than 'conservative'\n");
+      pout("An optional SMART command has failed: exiting.  To continue, don't use tolerance option '-T conservative'\n");
       exit(returnvalue);
     }
     return;
@@ -824,9 +824,9 @@ void failuretest(int type, int returnvalue){
 
   // If this is an error in a "mandatory" SMART command
   if (type==MANDATORY_CMD){
-    if (con->permissive)
+    if (con->permissive--)
       return;
-    pout("A mandatory SMART command has failed: exiting. To continue, use the -T option to set the tolerance level to 'permissive'\n");
+    pout("A mandatory SMART command has failed: exiting. To continue, use additional '-T permissive' tolerance options\n");
     exit(returnvalue);
   }
 
@@ -859,12 +859,11 @@ struct ata_smart_selftestlog smartselftest;
 
 int ataPrintMain (int fd){
   int timewait,code;
-  int returnval=0;
-  int needupdate=0;
+  int returnval=0, retid=0, supported=0, needupdate=0;
 
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
-  if (ataReadHDIdentity(fd,&drive)){
-    pout("Smartctl: Hard Drive Read Identity Failed\n\n");
+  if ((retid=ataReadHDIdentity(fd,&drive))<0){
+    pout("Smartctl: Device Read Identity Failed (not an ATA/ATAPI device)\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
 
@@ -881,7 +880,7 @@ int ataPrintMain (int fd){
       applypresets(&drive, &charptr, con);
     else {
       pout("Fatal internal error in ataPrintMain()\n");
-      exit(1);
+      exit(returnval|=FAILCMD);
     }
   }
 
@@ -890,31 +889,63 @@ int ataPrintMain (int fd){
     pout("=== START OF INFORMATION SECTION ===\n");
     ataPrintDriveInfo(&drive);
   }
-  
-  // now check if drive supports SMART; otherwise time to exit
-  if (!ataSmartSupport(&drive)){
-    pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+
+  // Was this a packet device?
+  if (retid>0){
+    pout("SMART support is: Unavailable - Packet Interface Devices [this device: %s] don't support ATA SMART\n", packetdevicetype(retid-1));
     failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-    pout("                  Checking to be sure by trying SMART ENABLE command.\n");
-    if (ataEnableSmart(fd)){
-      pout("                  No SMART functionality found. Sorry.\n");
-      failuretest(MANDATORY_CMD,returnval|=FAILSMART);
+  }
+  
+  // if drive does not supports SMART it's time to exit
+  supported=ataSmartSupport(&drive);
+  if (supported != 1){
+    if (supported==0) {
+      pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      pout("                  Checking to be sure by trying SMART ENABLE command.\n");
     }
-    else
-      pout("                  SMART appears to work.  Continuing.\n"); 
+    else {
+      pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 don't show if SMART supported.\n");
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      pout("                  Checking for SMART support by trying SMART ENABLE command.\n");
+    }
+
+    if (ataEnableSmart(fd)){
+      pout("                  SMART ENABLE failed - this establishes that this device lacks SMART functionality.\n");
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      supported=0;
+    }
+    else {
+      pout("                  SMART ENABLE appeared to work!  Continuing.\n");
+      supported=1;
+    }
     if (!con->driveinfo) pout("\n");
   }
   
   // Now print remaining drive info: is SMART enabled?    
   if (con->driveinfo){
-    pout("SMART support is: Available - device has SMART capability.\n");
-    if (ataDoesSmartWork(fd))
-      pout("SMART support is: Enabled\n");
+    int ison=ataIsSmartEnabled(&drive),isenabled=ison;
+    
+    if (ison==-1) {
+      pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 85-87 don't show if SMART is enabled.\n");
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      // check SMART support by trying a command
+      pout("                  Checking to be sure by trying SMART RETURN STATUS command.\n");
+      isenabled=ataDoesSmartWork(fd);
+    }
     else
-      pout("SMART support is: Disabled\n");
+      pout("SMART support is: Available - device has SMART capability.\n");
+    
+    if (isenabled)
+      pout("SMART support is: Enabled\n");
+    else {
+      if (ison==-1)
+	pout("SMART support is: Unavailable\n");
+      else
+	pout("SMART support is: Disabled\n");
+    }
     pout("\n");
   }
-
   
   // START OF THE ENABLE/DISABLE SECTION OF THE CODE
   if (con->smartenable || con->smartdisable || 

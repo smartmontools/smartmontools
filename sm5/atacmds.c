@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.120 2003/08/30 13:44:41 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.121 2003/10/03 03:51:16 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -509,7 +509,7 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
   const int HDIO_DRIVE_TASK = 0x031e;
   const int HDIO_DRIVE_CMD  = 0x031f;
   const int HDIO_DRIVE_CMD_OFFSET = 4;
-  
+
   // See struct hd_drive_cmd_hdr in hdreg.h
   // buff[0]: ATA COMMAND CODE REGISTER
   // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER
@@ -567,9 +567,9 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
     buff[2]=SMART_IMMEDIATE_OFFLINE;
     buff[1]=select;
     break;
-    // the command uses HDIO_DRIVE_TASK and has different syntax than
-    // the other commands.
   case STATUS_CHECK:
+    // This command uses HDIO_DRIVE_TASK and has different syntax than
+    // the other commands.
     buff[1]=SMART_STATUS;
     break;
   default:
@@ -581,6 +581,17 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK){
+
+    // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You
+    // have to read the IDE driver source code.  Sigh.
+    // buff[0]: ATA COMMAND CODE REGISTER
+    // buff[1]: ATA FEATURES REGISTER
+    // buff[2]: ATA SECTOR_COUNT
+    // buff[3]: ATA SECTOR NUMBER
+    // buff[4]: ATA CYL LO REGISTER
+    // buff[5]: ATA CYL HI REGISTER
+    // buff[6]: ATA DEVICE HEAD
+
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
     buff[4]=normal_lo;
@@ -611,10 +622,40 @@ int linux_ata_command_interface(int device, smart_command_set command, int selec
     return -1;   
   }
   
+#if (1)
+  // Note to people doing ports to other OSes -- don't worry about
+  // this block -- you can ignore it.  I have put it here because
+  // under linux when you do IDENTIFY DEVICE to a packet device, it
+  // generates an ugly kernel syslog error message.  This is harmless
+  // but frightens users.  So this block is an attempt to detect
+  // packet devices and make IDENTIFY DEVICE fail "nicely" without a
+  // syslog error message.
+
+  // This doesn't always work, since ATA-3 did not have a separate
+  // IDENTIFY PACKET DEVICE command.  In fact while ATAPI was
+  // introduced in ATA-3, IDENTIFY PACKET DEVICE only appeared in ATA
+  // 4 revision 2.  Anyway, this doesn't matter, since packet devices
+  // don't support SMART anyway.
+
+  // for IDENTIFY command, check if device is a packet device, and if
+  // it is, then we simulate a 'clean' error without calling the
+  // lower-level ioctl that will generate a kernel error log message.
+  if (command==IDENTIFY){
+    unsigned char junk[512];
+    const int HDIO_GET_IDENTITY=0x030d;
+    if (!ioctl(device, HDIO_GET_IDENTITY, junk) && (junk[1]>>7)) {
+      // device is PACKET device
+      errno = 5;
+      return -1;
+    }
+  }
+#endif
+  
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
-  // 
+
+  // if the command returns data, copy it back
   if (copydata)
     memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, 512);
   
@@ -633,8 +674,8 @@ static char *commandstrings[]={
   [READ_VALUES]=      "SMART READ ATTRIBUTE VALUES",
   [READ_THRESHOLDS]=  "SMART READ ATTRIBUTE THRESHOLDS",
   [READ_LOG]=         "SMART READ LOG",
-  [IDENTIFY]=         "IDENTIFY DEVICE" ,
-  [PIDENTIFY]=        "IDENTIFY PACKET DEVICE" 
+  [IDENTIFY]=         "IDENTIFY DEVICE",
+  [PIDENTIFY]=        "IDENTIFY PACKET DEVICE"
 };
 
 void prettyprint(unsigned char *stuff, char *name){
@@ -649,7 +690,9 @@ void prettyprint(unsigned char *stuff, char *name){
   pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
-// This function provides the pretty-print reporting
+// This function provides the pretty-print reporting for SMART
+// commands: it implements the various -r "reporting" options for ATA
+// ioctls.
 int smartcommandhandler(int device, smart_command_set command, int select, char *data){
   int retval;
 
@@ -680,6 +723,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     return -1;
   }
   
+  // In case the command produces an error, we'll want to know what it is:
+  errno=0;
+  
   // now execute the command
   if (con->escalade)
     retval=linux_3ware_command_interface(device, con->escalade-1, command, select, data);
@@ -688,7 +734,13 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){
-    pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d\n", device, commandstrings[command], retval);
+    if (errno)
+      pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d errno=%d [%s]\n", 
+	   device, commandstrings[command], retval, errno, strerror(errno));
+    else
+      pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d\n",
+	   device, commandstrings[command], retval);
+    
     // if requested, pretty-print the output data structure
     if (con->reportataioctl>1 && getsdata)
       prettyprint((unsigned char *)data, commandstrings[command]);
@@ -710,11 +762,16 @@ unsigned char checksum(unsigned char *buffer){
   return sum;
 }
 
-// Reads current Device Identity info (512 bytes) into buf
+// Reads current Device Identity info (512 bytes) into buf.  Returns 0
+// if all OK.  Returns -1 if no ATA Device identity can be
+// established.  Returns 1 if Device is ATA Packet Device (not SMART
+// capable).
 int ataReadHDIdentity (int device, struct ata_identify_device *buf){
   unsigned short *rawstructure=(unsigned short *)buf;
+  unsigned char *rawbyte=(unsigned char *)buf;
+  int retval=0;
 
-  if (smartcommandhandler(device, IDENTIFY, 0, (char *)buf)){
+  if ((retval=smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
     // See if device responds to packet command...
     if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
       syserror("Error ATA GET HD Identity Failed");
@@ -735,6 +792,18 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
   // If there is a checksum there, validate it
   if ((rawstructure[255] & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
     checksumwarning("Drive Identity Structure");
+  
+  if (retval) {
+    // This is a packet device.  Determine device type using bits
+    // 14-15 and 8-12 of response
+    return 1+(rawbyte[1] & 0x1f);
+  }
+  
+  // IDENTIFY PACKET DEVICE was only introduced in ATA-4 revision
+  // 2.  Before that, a packet device responds to IDENTIFY DEVICE.
+  if (rawbyte[1] & (0x01<<7))
+    // early ATAPI device -- let's guess a CDROM
+    return 6;
   
   return 0;
 }
@@ -797,14 +866,18 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
     return i;;
 }
 
-// returns 1 if SMART supported, 0 if not supported or can't tell
+// returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell
 int ataSmartSupport(struct ata_identify_device *drive){
   unsigned short word82=drive->command_set_1;
   unsigned short word83=drive->command_set_2;
-
-  // Note this does not work for ATA3 < Revision 6, when word82 and word83 were added
-  // we should check for ATA3 Rev 0 in minor identity code...  
-  return (word83 & 0x0001<<14) && !(word83 & 0x0001<<15) && (word82 & 0x0001);
+  
+  // check if words 82/83 contain valid info
+  if ((word83>>14) == 0x01)
+    // return value of SMART support bit 
+    return word82 & 0x0001;
+  
+  // since we can're rely on word 82, we don't know if SMART supported
+  return -1;
 }
 
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
@@ -812,8 +885,9 @@ int ataIsSmartEnabled(struct ata_identify_device *drive){
   unsigned short word85=drive->cfs_enable_1;
   unsigned short word87=drive->csf_default;
   
-  if ((word87 & 0x0001<<14) && !(word87 & 0x0001<<15))
-    // word85 contains valid information, so
+  // check if words 85/86/87 contain valid info
+  if ((word87>>14) == 0x01)
+    // return value of SMART enabled bit
     return word85 & 0x0001;
   
   // Since we can't rely word85, we don't know if SMART is enabled.
@@ -913,6 +987,7 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
   return 0;
 }
 
+
 // Reads the selective self-test log (log #9)
 int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data){	
   
@@ -936,6 +1011,62 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
   }
   return 0;
 }
+
+#if DEVELOP_SELECTIVE_SELF_TEST
+// Writes the selective self-test log (log #9)
+int ataWriteSelectiveSelfTestLog(int device){	
+  int i;
+  struct ata_selective_self_test_log sstlog, *data=&sstlog;
+  unsigned char cksum=0;
+  unsigned char *ptr=(unsigned char *)data;
+
+  // Read log
+  ataReadSelectiveSelfTestLog(device, data);
+
+  // Clear spans
+  for (i=0; i<5; i++)
+    memset(data->span+i, 0, sizeof(struct test_span));
+
+  // Set spans for testing 
+  for (i=0; i<con->smartselectivenumspans; i++){
+    data->span[i].start = con->smartselectivespan[i][0];
+    data->span[i].end   = con->smartselectivespan[i][1];
+  }
+
+  // Do NOT perform off-line scan after selective 
+  data->flags=0;
+  data->undefined=data->checksum=0;
+
+  // Put in correct checksum
+  for (i=0; i<512; i++)
+    cksum+=ptr[i];
+  cksum=~cksum;
+  cksum+=1;
+  data->checksum=cksum;
+
+    // swap endian order if needed
+  if (isbigendian()){
+    int i;
+    swap2((char *)&(data->logversion));
+    for (i=0;i<5;i++){
+      swap8((char *)&(data->span[i].start));
+      swap8((char *)&(data->span[i].end));
+    }
+    swap8((char *)&(data->currentlba));
+    swap2((char *)&(data->currentspan));
+    swap2((char *)&(data->flags));
+    swap2((char *)&(data->pendingtime));
+  }
+
+  // send data to device -- ioctl NOT implemented yet!
+  if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
+    return -1;
+  }
+
+  return 0;
+}
+#endif
+
 
 // This corrects some quantities that are byte reversed in the SMART
 // ATA ERROR LOG
@@ -1102,11 +1233,14 @@ int ataSmartStatus2(int device){
 int ataSmartTest(int device, int testtype){	
   char cmdmsg[128],*type,*captive;
   int errornum;
-  int cap;
+  int cap,select=0;
 
   // Boolean, if set, says test is captive
   cap=testtype & CAPTIVE_MASK;
   
+  // Boolean, if set, then test is selective
+  select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST);
+
   // Set up strings that describe the type of test
   if (cap)
     captive="captive";
@@ -1121,33 +1255,37 @@ int ataSmartTest(int device, int testtype){
     type="Extended self-test";
   else if (testtype==CONVEYANCE_SELF_TEST || testtype==CONVEYANCE_CAPTIVE_SELF_TEST)
     type="Conveyance self-test";
-  else if (testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST)
-    type="Selective self-test";
-  else
-    type="[Unrecognized] self-test";
-
 #if DEVELOP_SELECTIVE_SELF_TEST
-  // There isn't actually any code to write the selective self-test spans to
-  // the log yet (or at least I haven't found it yet if there is :-), so bail
-  // out here.
-  if (type=="Selective self-test") {
+  else if (select){
     int i;
-    pout("There isn't code to run the selective self-tests yet, but if\n");
-    pout("there were then the following spans would be used:\n");
-    for (i = 0; i < con->smartselectivenumspans; i++) {
-      pout("%lld - %lld\n", con->smartselectivespan[i][0],
-                            con->smartselectivespan[i][1]);
-    }
-    return 0;
+    type="Selective self-test";
+    pout("Using test spans:\n");
+    for (i = 0; i < con->smartselectivenumspans; i++)
+      pout("%lld - %lld\n",
+	   con->smartselectivespan[i][0],
+	   con->smartselectivespan[i][1]);
   }
 #endif
-    
+  else
+    type="[Unrecognized] self-test";
+  
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)
     sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
   else
     sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
   pout("Sending command: \"%s\".\n",cmdmsg);
+
+#if DEVELOP_SELECTIVE_SELF_TEST
+  // If doing a selective self-test, issue WRITE_LOG command
+  if (select && ataWriteSelectiveSelfTestLog(device)){
+    char errormsg[256];
+    sprintf(errormsg,"Command \"%s\" failed to WRITE Selective Self-Test Log ",cmdmsg); 
+    syserror(errormsg);
+    pout("\n");
+    return -1;
+  }
+#endif
 
   // Now send the command to test
   errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
@@ -1189,12 +1327,12 @@ int TestTime(struct ata_smart_values *data,int testtype){
 
 // This function tells you both about the ATA error log and the
 // self-test error log capability.  The bit is poorly documented in
-// the ATA/ATAPI standard.
+// the ATA/ATAPI standard.  SMART error logging is also indicated in
+// bit 0 of DEVICE IDENTIFY word 87 (if top two bits of word 87 match
+// pattern 01).  However this was only introduced in ATA-6 (but error
+// logging was in ATA-5).
 int isSmartErrorLogCapable ( struct ata_smart_values *data){
    return data->errorlog_capability & 0x01;
-}
-int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
-   return data->offline_data_collection_capability & 0x01;
 }
 
 int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
@@ -1223,6 +1361,13 @@ int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
 }
 
 
+// SMART self-test capability is also indicated in bit 1 of DEVICE
+// IDENTIFY word 87 (if top two bits of word 87 match pattern 01).
+// However this was only introduced in ATA-6 (but self-test log was in
+// ATA-5).
+int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
+   return data->offline_data_collection_capability & 0x01;
+}
 // Note in the ATA-5 standard, the following bit is listed as "Vendor
 // Specific".  So it may not be reliable. The only use of this that I
 // have found is in IBM drives, where it is well-documented.  See for
