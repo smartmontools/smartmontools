@@ -70,9 +70,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.69 2004/08/13 13:57:12 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.70 2004/08/16 22:44:26 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.69 2004/08/13 13:57:12 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.70 2004/08/16 22:44:26 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -992,18 +992,18 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
 
-  if (escalade_type==THREE_WARE_9000_CHAR) {
+  if (escalade_type==CONTROLLER_3WARE_9000_CHAR) {
     tw_ioctl_apache                               = (TW_Ioctl_Buf_Apache *)ioctl_buffer;
     tw_ioctl_apache->driver_command.control_code  = TW_IOCTL_FIRMWARE_PASS_THROUGH;
     tw_ioctl_apache->driver_command.buffer_length = 512; /* payload size */
     passthru                                      = (TW_Passthru *)&(tw_ioctl_apache->firmware_command.command.oldcommand);
   }
-  else if (escalade_type==THREE_WARE_678K_CHAR) {
+  else if (escalade_type==CONTROLLER_3WARE_678K_CHAR) {
     tw_ioctl_char                                 = (TW_New_Ioctl *)ioctl_buffer;
     tw_ioctl_char->data_buffer_length             = 512;
     passthru                                      = (TW_Passthru *)&(tw_ioctl_char->firmware_command);
   }
-  else if (escalade_type==THREE_WARE_678K) {
+  else if (escalade_type==CONTROLLER_3WARE_678K) {
     tw_ioctl                                      = (TW_Ioctl *)ioctl_buffer;
     tw_ioctl->cdb[0]                              = TW_IOCTL;
     tw_ioctl->opcode                              = TW_ATA_PASSTHRU;
@@ -1058,7 +1058,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     // in dwords by 1 to account for the 64-bit single sgl 'address'
     // field. Note that this doesn't agree with the typedefs but it's
     // right (agree with kernel driver behavior/typedefs).
-    if (escalade_type==THREE_WARE_9000_CHAR && sizeof(long)==8)
+    if (escalade_type==CONTROLLER_3WARE_9000_CHAR && sizeof(long)==8)
       passthru->size++;
   }
   else {
@@ -1090,9 +1090,9 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     passthru->sector_num  = select;
     break;
   case WRITE_LOG:
-    if (escalade_type == THREE_WARE_9000_CHAR)
+    if (escalade_type == CONTROLLER_3WARE_9000_CHAR)
       memcpy((unsigned char *)tw_ioctl_apache->data_buffer, data, 512);
-    else if (escalade_type == THREE_WARE_678K_CHAR)
+    else if (escalade_type == CONTROLLER_3WARE_678K_CHAR)
       memcpy((unsigned char *)tw_ioctl_char->data_buffer,   data, 512);
     else {
       // COMMAND NOT SUPPORTED VIA SCSI IOCTL INTERFACE
@@ -1157,16 +1157,16 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   }
 
   // Now send the command down through an ioctl()
-  if (escalade_type==THREE_WARE_9000_CHAR)
+  if (escalade_type==CONTROLLER_3WARE_9000_CHAR)
     ioctlreturn=ioctl(fd, TW_IOCTL_FIRMWARE_PASS_THROUGH, tw_ioctl_apache);
-  else if (escalade_type==THREE_WARE_678K_CHAR)
+  else if (escalade_type==CONTROLLER_3WARE_678K_CHAR)
     ioctlreturn=ioctl(fd, TW_CMD_PACKET_WITH_DATA, tw_ioctl_char);
   else
     ioctlreturn=ioctl(fd, SCSI_IOCTL_SEND_COMMAND, tw_ioctl);
   
   // Deal with the different error cases
   if (ioctlreturn) {
-    if (THREE_WARE_678K==escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
+    if (CONTROLLER_3WARE_678K==escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
       // error here is probably a kernel driver whose version is too old
       printwarning(command);
       errno=ENOTSUP;
@@ -1181,7 +1181,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   // - we are using the SCSI interface and this is a NON-READ-DATA command
   // For SCSI interface, note that we set passthru to a different
   // value after ioctl().
-  if (THREE_WARE_678K==escalade_type) {
+  if (CONTROLLER_3WARE_678K==escalade_type) {
     if (readdata)
       passthru=NULL;
     else
@@ -1207,9 +1207,9 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   
   // If this is a read data command, copy data to output buffer
   if (readdata) {
-    if (escalade_type==THREE_WARE_9000_CHAR)
+    if (escalade_type==CONTROLLER_3WARE_9000_CHAR)
       memcpy(data, (unsigned char *)tw_ioctl_apache->data_buffer, 512);
-    else if (escalade_type==THREE_WARE_678K_CHAR)
+    else if (escalade_type==CONTROLLER_3WARE_678K_CHAR)
       memcpy(data, (unsigned char *)tw_ioctl_char->data_buffer, 512);
     else
       memcpy(data, tw_output->output_data, 512);
@@ -1234,7 +1234,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       return 1;
     
     // Any other values mean that something has gone wrong with the command
-    if (THREE_WARE_678K==escalade_type) {
+    if (CONTROLLER_3WARE_678K==escalade_type) {
       printwarning(command);
       errno=ENOSYS;
       return 0;
@@ -1356,12 +1356,12 @@ int guess_device_type(const char * dev_name) {
   // form /dev/twa*
   if (!strncmp(lin_dev_3ware_9000_char, dev_name,
                strlen(lin_dev_3ware_9000_char)))
-    return THREE_WARE_9000_CHAR;
+    return CONTROLLER_3WARE_9000_CHAR;
 
   // form /dev/twe*
   if (!strncmp(lin_dev_3ware_678k_char, dev_name,
                strlen(lin_dev_3ware_678k_char)))
-    return THREE_WARE_678K_CHAR;
+    return CONTROLLER_3WARE_678K_CHAR;
 
   // we failed to recognize any of the forms
   return CONTROLLER_UNKNOWN;

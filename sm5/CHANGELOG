@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.446 2004/08/13 14:09:21 arvoreen Exp $
+$Id: CHANGELOG,v 1.447 2004/08/16 22:44:15 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Additional modifications of Ed's controller scheme.  Fixed
+       broken 3ware support under linux, problems with scanning
+       devices in smartd, and other small problems.
 
   [EM] Minor change to FreeBSD inclusion of 'twe' include files.  Add 
        code to check if they exising in /usr/include/sys to use those

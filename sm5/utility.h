@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.36 2004/08/16 00:57:29 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.37 2004/08/16 22:44:28 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -158,20 +158,12 @@ void MsecToText(unsigned int msec, char *txt);
 #define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=1;}
 
 // possible values for controller_type in extern.h
-#define CONTROLLER_UNKNOWN	0x00
-#define CONTROLLER_ATA		0x10
-#define CONTROLLER_SCSI		0x20
-#define CONTROLLER_3WARE	0x30
-
-#define CONTROLLER_MASK		0xF0
-#define CONTROLLER_TYPE(x)	(x->controller_type & CONTROLLER_MASK)
-
-// 3Ware controller types
-#define THREE_WARE_9000_CHAR  (CONTROLLER_3WARE | 1)
-#define THREE_WARE_678K       (CONTROLLER_3WARE | 2)
-#define THREE_WARE_678K_CHAR  (CONTROLLER_3WARE | 3)
-#define THREE_WARE_TYPE_MASK	0x0F
-
-#define THREE_WARE_TYPE(x) (x->controller_type & THREE_WARE_TYPE_MASK)
+#define CONTROLLER_UNKNOWN              0x00
+#define CONTROLLER_ATA                  0x01
+#define CONTROLLER_SCSI                 0x02
+#define CONTROLLER_3WARE                0x03  // set by -d option, but converted to one of three types below
+#define CONTROLLER_3WARE_678K      0x04  // NOT set by guess_device_type()
+#define CONTROLLER_3WARE_9000_CHAR 0x05  // set by guess_device_type()
+#define CONTROLLER_3WARE_678K_CHAR 0x06  // set by guess_device_type()
 
 #endif

@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.39 2004/08/13 13:57:12 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.40 2004/08/16 22:44:26 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.39 2004/08/13 13:57:12 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.40 2004/08/16 22:44:26 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -117,7 +117,7 @@ int deviceopen (const char* dev, char* mode) {
     }
   }
 
-  if (parse_ok == CONTROLLER_3WARE) {
+  if (parse_ok == CONTROLLER_3WARE_678K_CHAR) {
     char buf[512];
     sprintf(buf,"/dev/twe%d",fdchan->device);
     printf("Using %s, as control device\n", buf);
@@ -815,7 +815,7 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
 	return CONTROLLER_UNKNOWN;
       }
     }
-    return CONTROLLER_3WARE;
+    return CONTROLLER_3WARE_678K_CHAR;
   }
 
   // we failed to recognize any of the forms
