@@ -24,13 +24,12 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/stat.h>   // umask
 #ifndef _WIN32
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>  // umask
-#include <sys/stat.h>   // umask
 #endif
+#include <signal.h>
 #include <fcntl.h>
 #include <string.h>
 #include <syslog.h>
@@ -91,7 +90,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.293 2004/03/15 20:45:21 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.294 2004/03/16 11:02:44 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -101,7 +100,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.293 2004/03/15 20:45:21 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.294 2004/03/16 11:02:44 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -391,17 +390,27 @@ static BOOL WINAPI win32_sighandler(DWORD sig)
     case CTRL_CLOSE_EVENT: // User closed console or abort via task manager
     case CTRL_LOGOFF_EVENT:
     case CTRL_SHUTDOWN_EVENT:
-      //TODO: os_win32/syslog_win32.c must be thread-save to do this:
-      //PrintOut(LOG_INFO, "smartd received signal %d\n", (int)sig);
-      EXIT(0);
+      caughtsigEXIT = sig; // This would NOT work for CTRL_C_EVENT (0)
       return TRUE;
   }
   return FALSE; // continue with next handler
 }
 
+static const char * win32_strsignal(sig)
+{
+  switch (sig) {
+    case CTRL_BREAK_EVENT:    return "CTRL_BREAK_EVENT";
+    case CTRL_CLOSE_EVENT:    return "CTRL_CLOSE_EVENT";
+    case CTRL_LOGOFF_EVENT:   return "CTRL_LOGOFF_EVENT";
+    case CTRL_SHUTDOWN_EVENT: return "CTRL_SHUTDOWN_EVENT";
+    default:                  return "*UNKNOWN*";
+  }
+}
+
+
 // Poor man's interruptible sleep()
 void sleep(int seconds){
-  for ( ; seconds > 0 && !caughtsigHUP; seconds--)
+  for ( ; seconds > 0 && !caughtsigHUP && !caughtsigEXIT; seconds--)
     Sleep(1000L); // not interrupted by signals
 }
 
@@ -831,7 +840,7 @@ void DaemonInit(){
   fflush(NULL);
 
 #if 0
-  // Detach this process from console
+  // TODO: Detach this process from console
   FreeConsole();
 #ifdef _DEBUG
   AllocConsole();
@@ -841,7 +850,7 @@ void DaemonInit(){
   // Detaching from console is left out for now,
   // until a reasonable signal()ing is implemented.
   puts("smartd: background processing not implemented yet.\n"
-    "Type CONTROL-C to reread configuration file, CONTROL-Break to stop.");
+    "Type CONTROL-C to reread configuration file, CONTROL-Break to quit.");
 #endif // 0
 
 #endif // _WIN32
@@ -3472,6 +3481,7 @@ int main(int argc, char **argv){
 
     // are we exiting from a signal?
     if (caughtsigEXIT) {
+#ifndef _WIN32
       // are we exiting with SIGTERM?
       int isterm=(caughtsigEXIT==SIGTERM);
       int isquit=(caughtsigEXIT==SIGQUIT);
@@ -3481,6 +3491,13 @@ int main(int argc, char **argv){
 	       caughtsigEXIT, strsignal(caughtsigEXIT));
       
       EXIT(isok?0:EXIT_SIGNAL);
+
+#else // _WIN32
+      // No SIGTERM/QUIT for now, assume OK, print name of actual CTRL_*_EVENT
+      PrintOut(LOG_INFO, "smartd received signal %d: %s\n",
+               caughtsigEXIT, win32_strsignal(caughtsigEXIT));
+      EXIT(0);
+#endif // _WIN32
     }
 
     // Should we (re)read the config file?
@@ -3489,9 +3506,15 @@ int main(int argc, char **argv){
 
       if (!firstpass)
         PrintOut(LOG_INFO,
+#ifndef _WIN32
                  caughtsigHUP==1?
                  "Signal HUP - rereading configuration file %s\n":
                  "\a\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
+#else
+                 !debugmode?
+                 "CONTROL-C - rereading configuration file %s\n":
+                 "\a\nCONTROL-C - rereading configuration file %s (CONTROL-Break quits)\n\n",
+#endif
                  configfile);
       
       // clears cfgentries, (re)reads config file, makes >=0 entries

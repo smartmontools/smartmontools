@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.372 2004/03/15 20:45:21 ballen4705 Exp $
+$Id: CHANGELOG,v 1.373 2004/03/16 11:02:44 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,7 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
- 
+
+  [CF] Fixed un-thread-safe exit signal handler for Win32
+
   [BA] Fixed un-thread-safe exit signal handler pointed out
        by CF.
 
