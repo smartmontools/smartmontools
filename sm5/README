@@ -115,13 +115,14 @@ please post to the smartmontools mailing list.
         Set the quiet mode to one of: errorsonly, silent
 
   -d TYPE, --devicetype=TYPE
-        Set the device type to one of ata, scsi
+        Set the device type to one of: ata, scsi
 
-  -T N, --tolerance=N
+  -T TYPE, --tolerance=TYPE
         Set tolerance level to one of:
-                0 - Exit if any SMART command fails
-                1 - Exit if a mandatory SMART command fails (default)
-                2 - Continue even if a mandatory SMART command fails
+                conservative - Exit if any SMART command fails
+                normal       - Exit if a mandatory SMART command fails [DEFAULT]
+                (Phil, do we really need this DEFAULT option??? Or just other two??)
+                permissive   - Continue even if a mandatory SMART command fails
 
   -k, --checksumfail
         Exit on bad checksum
@@ -129,7 +130,7 @@ please post to the smartmontools mailing list.
   -s VALUE, --smart=VALUE
         Enable/disable SMART.  VALUE is one of: on, off 
 
-  -o VALUE, --offline=VALUE
+  -o VALUE, --offlineauto=VALUE
         Enable/disable automatic offline testing.  VALUE is one of: on, off 
 
   -S VALUE, --autosave=VALUE
@@ -142,10 +143,10 @@ please post to the smartmontools mailing list.
         Show SMART capabilities
 
   -a, --showattributes
-        Show SMART vendor attributes
+        Show SMART vendor-specific attributes and values.
 
   -l TYPE, --showlog=TYPE
-        Show log: type is one of: error, selftest
+        Show device log. Type is one of: error, selftest
 
   -i, --showinfo
         Show drive information
@@ -165,11 +166,11 @@ please post to the smartmontools mailing list.
         attributes.
 
   -t TEST, --test=TEST
-        Perform TEST immediately.  TEST is one of offline, short, long
+        Perform TEST immediately.  TEST is one of: offline, short, long
 
   -C, --captive
         When used with -t, performs test in captive mode.  Has no effect on
-        offline test
+        offline test, or when used without -t option.
 
   -X, --abort
         Abort any non-captive test
@@ -185,13 +186,13 @@ The following table shows the mapping of old options to new options:
   -Q            -q silent               --quietmode=silent
   -n            -d ata                  --devicetype=ata
   -N            -d scsi                 --devicetype=scsi
-  -P            -T 2                    --tolerance=2
-  -U            -T 0                    --tolerance=0
+  -P            -T permissive           --tolerance=permissive
+  -U            -T conservative         --tolerance=conservative
   -W            -k                      --checksumfail
   -e            -s on                   --smart=on
   -d            -s off                  --smart=off
-  -t            -o on                   --offline=on
-  -T            -o off                  --offline=off
+  -t            -o on                   --offlineauto=on
+  -T            -o off                  --offlineauto=off
   -f            -S on                   --autosave=on
   -F            -S off                  --autosave=off
   -c            -h                      --showstatus
@@ -203,9 +204,9 @@ The following table shows the mapping of old options to new options:
   -m            -v 9,minutes            --vendoroptions=9,minutes
   -O            -t offline              --test=offline
   -S            -t short                --test=short
-  -s            -Ct short               --test=short --captive
+  -s            -t short -C             --test=short --captive
   -X            -t long                 --test=long
-  -x            -Ct long                --test=long --captive
+  -x            -t long -C              --test=long --captive
   -A            -X                      --abort
   -----------------------------------------------------------------------
 
