@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.8 2002/10/17 04:10:44 ballen4705 Exp $
+$Id: CHANGELOG,v 1.9 2002/10/20 19:40:23 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -19,6 +19,71 @@ This code was originally developed as a Senior Thesis by Michael Cornwell
 at the Concurrent Systems Laboratory (now part of the Storage Systems
 Research Center), Jack Baskin School of Engineering, University of
 California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+
+
+NOTES FOR NEXT RELEASE:
+
+    Next release: handle extended error and self-test logs gracefully.
+    Parse and print attribute flag meanings
+
+
+smartmontools-5.0-11
+
+
+    smartctl now handles all possible choices of "multiple options"
+    gracefully.  It goes through the following phases of operation,
+    in order: INFORMATION, ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
+    Documentation has bee updated to explain the different phases of
+    operation.  Control flow through ataPrintMain()
+    simplified.
+
+    Modified Makefile to automatically tag CVS archive on issuance of
+    a release
+
+    Modified drive detection so minor device ID code showing ATA-3 rev
+    0 (no SMART) is known to not be SMART capable.
+
+    Now verify the checksum of the device ID data structure, and of the
+    attributes threshold structure.  Before neither of these
+    structures had their checksums verified.
+
+    New behavior vis-a-vis checksums.  If they are wrong, we log
+    warning messages to stdout, stderr, and syslog, but carry on
+    anyway.  All functions now call a checksumwarning routine if the
+    checksum doesn't vanish as it should.
+
+    Changed Read Hard Disk Identity function to get fresh info from
+    the disk on each call rather than to use the values that were read
+    upon boot-up into the BIOS.  This is the biggest change in this
+    release.  The ioctl(device, HDIO_GET_IDENTITY, buf ) call should
+    be avoided in such code.  Note that if people get garbled strings
+    for the model, serial no and firmware versions of their drives,
+    then blame goes here (the BIOS does the byte swapping for you,
+    apparently!)
+    
+    Function ataSmartSupport now looks at correct bits in drive
+    identity structure to verify first that these bits are valid,
+    before using them.
+    
+    Function ataIsSmartEnabled() written which uses the Drive ID state
+    information to tell if SMART is enabled or not.  We'll carry this
+    along for the moment without using it.
+
+    Function ataDoesSmartWork() guaranteed to work if the device
+    supports SMART.
+
+    Replace some numbers by #define MACROS
+
+    Wrote Function TestTime to return test time associated with each
+    different type of test.
+
+    Thinking of the future, have added a new function called
+    ataSmartStatus2().  Eventually when I understand how to use the
+    TASKFILE API and am sure that this works correctly, it will
+    replace ataSmartStatus().  This queries the drive directly to
+    see if the SMART status is OK, rather than comparing thresholds to
+    attribute values ourselves. But I need to get some drives that fail
+    their SMART status to check it.
 
 
 smartmontools-5.0-10
