@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.120 2004/09/17 16:08:11 geoffk1 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.121 2004/09/17 17:03:26 geoffk1 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -588,7 +588,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { // IBM/Hitachi Deskstar GXP-180 family 
-    "^IC35L(030|060|090|120|180)AVV207-[01]$",
+    "^(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]$",
     ".*", 
     NULL, NULL, NULL, NULL 
   },
