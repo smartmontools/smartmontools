@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.cpp,v 1.50 2003/01/03 17:25:12 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.cpp,v 1.51 2003/01/05 23:59:19 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -675,7 +675,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       // This is true in ALL ATA-5 specs
       
       if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
-	sprintf(firstlba,"%s","");
+	sprintf(firstlba,"%s","-");
       else	
 	sprintf(firstlba,"0x%08x",log->lbafirstfailure);
 
