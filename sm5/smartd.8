@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.98 2003/06/12 15:36:38 ballen4705 Exp $
+\# $Id: smartd.8,v 1.98.2.1 2004/08/13 00:04:38 likewise Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/06/12 15:36:38 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2004/08/13 00:04:38 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -424,7 +424,8 @@ Specifies the type of the device.  This Directive may be used multiple times
 for one device, but the arguments \fIata\fP and \fIscsi\fP are
 mutually-exclusive and if they are both used then
 .B smartd
-will use the one that appears last.
+will use the one that appears last. If the device specified as \fImvsata\fP it will
+be treated as device connected to Marvell SATA controller.
 
 If neither \fIata\fP nor \fIscsi\fP are used then
 .B smartd
@@ -446,6 +447,11 @@ from issuing SCSI commands to an ATA device.
 \- the device type is SCSI.  This prevents
 .B smartd
 from issuing ATA commands to a SCSI device.
+
+.I mvsata
+\- the device type is Marvell SATA controller. In this case
+.B smartd
+will issue ATA commands for the device using the vendor-specific command interface.
 
 .I removable
 \- the device or its media is removable.  This indicates to
@@ -662,7 +668,7 @@ is set to the device path (examples: /dev/hda, /dev/sdb).
 .nf
 .fi
 .B SMARTD_DEVICETYPE
-is set to the device type (possible values: ata, scsi).
+is set to the device type (possible values: ata, scsi, mvsata).
 .nf
 .fi
 .B SMARTD_FAILTYPE
@@ -1257,4 +1263,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.98 2003/06/12 15:36:38 ballen4705 Exp $
+$Id: smartd.8,v 1.98.2.1 2004/08/13 00:04:38 likewise Exp $

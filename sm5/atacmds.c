@@ -29,10 +29,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "atacmds.h"
+#include "scsicmds.h"
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.100 2003/06/12 12:18:53 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.100.2.1 2004/08/13 00:04:39 likewise Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -446,7 +447,7 @@ char *create_vendor_attribute_arg_list(void){
 
 int os_specific_handler(int device, smart_command_set command, int select, char *data){
   unsigned char buff[STRANGE_BUFFER_LENGTH];
-  int retval, copydata=0;
+  int retval = 0, copydata = 0;
 
   // See struct hd_drive_cmd_hdr in hdreg.h
   // buff[0]: ATA COMMAND CODE REGISTER
@@ -562,6 +563,151 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
   return 0; 
 }
 
+// PURPOSE
+//   This is an interface routine meant to isolate the OS dependent
+//   parts of the code, and to provide a debugging interface.  Each
+//   different port and OS needs to provide it's own interface.  This
+//   is the linux one.
+// DESCRIPTION
+//   The function sends SCSI vendor-specific command 0xC (6 bytes long)followed
+//   by the data buffer representing ATA registers:
+//      buff[0]: ATA COMMAND CODE REGISTER
+//      buff[1]: ATA SECTOR NUMBER REGISTER
+//      buff[2]: ATA FEATURES REGISTER
+//      buff[3]: ATA SECTOR COUNT REGISTER
+//  (See struct hd_drive_cmd_hdr in hdreg.h)
+//
+// ARGUMENTS
+//   device: is the file descriptor provided by open()
+//   command: defines the different operations.
+//   select: additional input data if needed (which log, which type of
+//           self-test).
+//   data:   location to write output data, if needed (512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES
+//  -1 if the command failed
+//   0 if the command succeeded,
+//   STATUS_CHECK routine: 
+//  -1 if the command failed
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
+
+int mvsata_os_specific_handler(int device, 
+                               smart_command_set command, 
+                               int select, 
+                               char *data)
+{  
+  typedef struct 
+  {  
+    int  inlen;
+    int  outlen;
+    char cmd[540];
+  } mvsata_scsi_cmd;
+
+  int copydata = 0;
+  mvsata_scsi_cmd  smart_command;
+  unsigned char *buff = &smart_command.cmd[6];
+  // See struct hd_drive_cmd_hdr in hdreg.h
+  // buff[0]: ATA COMMAND CODE REGISTER
+  // buff[1]: ATA SECTOR NUMBER REGISTER
+  // buff[2]: ATA FEATURES REGISTER
+  // buff[3]: ATA SECTOR COUNT REGISTER
+  
+  // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
+  memset(&smart_command, 0, sizeof(smart_command));
+  smart_command.inlen = 540;
+  smart_command.outlen = 540;
+  smart_command.cmd[0] = 0xC;  //Vendor-specific code
+  smart_command.cmd[4] = 6;     //command length
+  
+  buff[0] = WIN_SMART;
+  switch (command){
+  case READ_VALUES:
+    buff[2]=SMART_READ_VALUES;
+    copydata=buff[3]=1;
+    break;
+  case READ_THRESHOLDS:
+    buff[2]=SMART_READ_THRESHOLDS;
+    copydata=buff[1]=buff[3]=1;
+    break;
+  case READ_LOG:
+    buff[2]=SMART_READ_LOG_SECTOR;
+    buff[1]=select;
+    copydata=buff[3]=1;
+    break;
+  case IDENTIFY:
+    buff[0]=WIN_IDENTIFY;
+    copydata=buff[3]=1;
+    break;
+  case PIDENTIFY:
+    buff[0]=WIN_PIDENTIFY;
+    copydata=buff[3]=1;
+    break;
+  case ENABLE:
+    buff[2]=SMART_ENABLE;
+    buff[1]=1;
+    break;
+  case DISABLE:
+    buff[2]=SMART_DISABLE;
+    buff[1]=1;
+    break;
+  case STATUS:
+  case STATUS_CHECK:
+    // this command only says if SMART is working.  It could be
+    // replaced with STATUS_CHECK below.
+    buff[2] = SMART_STATUS;
+    break;
+  case AUTO_OFFLINE:
+    buff[2]=SMART_AUTO_OFFLINE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case AUTOSAVE:
+    buff[2]=SMART_AUTOSAVE;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    break;
+  case IMMEDIATE_OFFLINE:
+    buff[2]=SMART_IMMEDIATE_OFFLINE;
+    buff[1]=select;
+    break;
+  default:
+    pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
+    exit(1);
+    break;
+  }  
+  // There are two different types of ioctls().  The HDIO_DRIVE_TASK
+  // one is this:
+  // We are now doing the HDIO_DRIVE_CMD type ioctl.
+  if (ioctl(device, SCSI_IOCTL_SEND_COMMAND, (void *)&smart_command))
+      return -1;
+  //Data returned is starting from 0 offset  
+  if (command == STATUS || command == STATUS_CHECK)
+  {
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (buff[4] == 0x4F && buff[5] == 0xC2)
+      return 0;    
+    // These values mean "Bad SMART status"
+    if (buff[4] == 0xF4 && buff[5] == 0x2C)
+      return 1;    
+    // We haven't gotten output that makes sense; print out some debugging info
+    syserror("Error SMART Status command failed");
+    pout("Please get assistance from %s\n",PROJECTHOME);
+    pout("Register values returned from SMART Status command are:\n");
+    pout("CMD =0x%02x\n",(int)buff[0]);
+    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("NS =0x%02x\n",(int)buff[2]);
+    pout("SC =0x%02x\n",(int)buff[3]);
+    pout("CL =0x%02x\n",(int)buff[4]);
+    pout("CH =0x%02x\n",(int)buff[5]);
+    pout("SEL=0x%02x\n",(int)buff[6]);
+    return -1;   
+  }  
+
+  if (copydata)
+    memcpy(data, buff, 512);
+  return 0; 
+}
+
+
 static char *commandstrings[]={
   [ENABLE]=           "SMART ENABLE",
   [DISABLE]=          "SMART DISABLE",
@@ -621,7 +767,15 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   }
   
   // now execute the command
-  retval=os_specific_handler(device, command, select, data);
+  /*Check for MVSATA controller*/
+  if (con->ismvsata) 
+  {
+    retval = mvsata_os_specific_handler(device, command, select, data);
+  }
+  else
+  {
+    retval = os_specific_handler(device, command, select, data);
+  }
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){

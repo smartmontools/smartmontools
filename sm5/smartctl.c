@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.76 2003/05/01 08:51:46 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.76.2.1 2004/08/13 00:04:38 likewise Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -701,9 +701,18 @@ int main (int argc, char **argv){
 
   // now call appropriate ATA or SCSI routine
   if (tryata)
+  {    
     retval = ataPrintMain(fd);
+  }
   else if (tryscsi)
-    retval = scsiPrintMain(device, fd);
+  {
+    con->ismvsata = 0;
+    retval = scsiPrintMain(device, fd);    
+    if (con->ismvsata)   
+    {
+        retval = ataPrintMain(fd);
+    }
+  }
   else {
     pout("Smartctl: specify if this is an ATA or SCSI device with the -d option.\n");
     Usage();
