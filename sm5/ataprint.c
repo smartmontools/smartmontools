@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.23 2002/10/22 16:49:16 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.24 2002/10/22 20:35:42 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -401,7 +401,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       
       // is this currently failed, or has it ever failed?
       if (failednow)
-	status="FAILED_NOW!";
+	status="FAILING_NOW";
       else if (failedever)
 	status="In_the_past";
       else
@@ -615,29 +615,29 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
 }
 
 
-void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
-  int i,j;
+void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data,int allentries){
+  int i,j,noheaderprinted=1;
 
-  printf("SMART Self-test log, version number %u\n",data.revnumber);
-  if (data.revnumber!=0x01)
+  if (allentries)
+    printf("SMART Self-test log, version number %u\n",data.revnumber);
+  if (data.revnumber!=0x01 && allentries)
     printf("Warning - structure revision number does not match spec!\n");
-  
   if (data.mostrecenttest==0){
-    printf("No self-tests have been logged\n");
+    if (allentries)
+      printf("No self-tests have been logged\n");
     return;
   }
 
   // print log      
-  printf("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
-  for (i=20;i>=0;i--){
-
+  for (i=20;i>=0;i--){    
     struct ata_smart_selftestlog_struct *log;
     // log is a circular buffer
     j=(i+data.mostrecenttest)%21;
-    log=&(data.selftest_struct[j]);
+    log=data.selftest_struct+j;
 
     if (nonempty((unsigned char*)log,sizeof(*log))){
       char *msgtest,*msgstat,percent[64],firstlba[64];
+      int errorfound=0;
 
       // test name
       switch(log->selftestnumber){
@@ -655,11 +655,11 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
       case  0:msgstat="Completed                    "; break;
       case  1:msgstat="Aborted by host              "; break;
       case  2:msgstat="Interrupted (host reset)     "; break;
-      case  3:msgstat="Fatal or unknown error       "; break;
-      case  4:msgstat="Completed: unknown failure   "; break;
-      case  5:msgstat="Completed: electrical failure"; break;
-      case  6:msgstat="Completed: servo/seek failure"; break;
-      case  7:msgstat="Completed: read failure      "; break;
+      case  3:msgstat="Fatal or unknown error       "; errorfound=1; break;
+      case  4:msgstat="Completed: unknown failure   "; errorfound=1; break;
+      case  5:msgstat="Completed: electrical failure"; errorfound=1; break;
+      case  6:msgstat="Completed: servo/seek failure"; errorfound=1; break;
+      case  7:msgstat="Completed: read failure      "; errorfound=1; break;
       case 15:msgstat="Test in progress             "; break;
       default:msgstat="Unknown test status          ";
       }
@@ -669,13 +669,15 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
 	sprintf(firstlba,"%s","");
       else	
 	sprintf(firstlba,"0x%08x",log->lbafirstfailure);
-      printf("#%2d  %s %s %s  %8u         %s\n",
-	     21-i,
-	     msgtest,
-	     msgstat,
-	     percent,
-	     log->timestamp,
-	     firstlba);
+
+      if (noheaderprinted && (allentries || errorfound)){
+	printf("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
+	noheaderprinted=0;
+      }
+      
+      if (allentries || errorfound)
+	printf("#%2d  %s %s %s  %8u         %s\n",21-i,msgtest,msgstat,
+	     percent,log->timestamp,firstlba);
     }
     else
       return;
@@ -827,7 +829,7 @@ int ataPrintMain (int fd){
   if (ataReadHDIdentity(fd,&drive)){
     printf("Smartctl: Hard Drive Read Identity Failed\n\n");
     returnval|=FAILID;
-}
+  }
   
   // Print most drive identity information if requested
   if (driveinfo){
@@ -913,11 +915,11 @@ int ataPrintMain (int fd){
   
   // for everything else read values and thresholds are needed
   if (ataReadSmartValues(fd, &smartval)){
-    printf("Smartctl: SMART Values Read Failed.\n\n");
+    printf("Smartctl: SMART Read Values failed.\n\n");
     returnval|=FAILSMART;
   }
   if (ataReadSmartThresholds(fd, &smartthres)){
-    printf("Smartctl: SMART Thresholds Read Failed.\n\n");
+    printf("Smartctl: SMART Read Thresholds failed.\n\n");
     returnval|=FAILSMART;
   }
 
@@ -953,14 +955,14 @@ int ataPrintMain (int fd){
   if (checksmart){
     if (code) {
       printf("SMART overall-health self-assessment test result: FAILED!\n"
-	     "Drive failure expected in less than 24 hours. SAVE ALL DATA\n");
+	     "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
       if (ataCheckSmart(smartval, smartthres,1)){
 	returnval|=FAILATTR;
-	printf("Failed attributes:\n");
+	printf("Failed Attributes:\n");
 	PrintSmartAttribWithThres(smartval, smartthres,1);
       }
       else {
-	printf("No failing attributes found.\n");
+	printf("No failed Attributes found.\n");
       }      
       printf("\n");
       returnval|=FAILSTATUS;
@@ -986,51 +988,41 @@ int ataPrintMain (int fd){
   
   // Print SMART error log
   if (smarterrorlog){
-    if (!isSmartErrorLogCapable(smartval)){
+    if (!isSmartErrorLogCapable(smartval))
       printf("Device does not support Error Logging\n");
+    if (ataReadErrorLog(fd, &smarterror)){
+      printf("Smartctl: SMART Errorlog Read Failed\n");
       returnval|=FAILSMART;
     }
-    else {
-      if (ataReadErrorLog(fd, &smarterror)){
-	printf("Smartctl: SMART Errorlog Read Failed\n");
-	returnval|=FAILSMART;
-      }
-      else
-	ataPrintSmartErrorlog(smarterror);
-    }
+    else
+      ataPrintSmartErrorlog(smarterror);
   }
   
   // Print SMART self-test log
   if (smartselftestlog){
-    if (!isSmartErrorLogCapable(smartval)){
+    if (!isSmartErrorLogCapable(smartval))
       printf("Device does not support Self Test Logging\n");
-      returnval|=FAILSMART;
-    }
     else {
       if(ataReadSelfTestLog(fd, &smartselftest)){
 	printf("Smartctl: SMART Self Test Log Read Failed\n");
 	returnval|=FAILSMART;
       }
       else
-	ataPrintSmartSelfTestlog(smartselftest); 
+	ataPrintSmartSelfTestlog(smartselftest,1); 
     } 
   }
   
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
   if (testcase==-1)
     return returnval;
-
+  
   printf("\n=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
-
+  
   // if doing a self-test, be sure it's supported by the hardware
-  if (testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval)){
+  if (testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval))
     printf("ERROR: device does not support Execute Off-Line Immediate function.\n\n");
-    return returnval|=FAILSMART;
-  }
-  else if (!isSupportSelfTest(smartval)){
+  else if (!isSupportSelfTest(smartval))
     printf ("ERROR: device does not support Self-Test functions.\n\n");
-    return returnval|=FAILSMART;
-  }
   
   // Now do the test
   if (ataSmartTest(fd, testcase))
