@@ -39,9 +39,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.31 2004/01/31 01:39:55 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.32 2004/02/19 02:35:14 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.31 2004/01/31 01:39:55 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.32 2004/02/19 02:35:14 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -451,7 +451,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   }
 
   if (iop->sensep) {
-    memcpy(&(ccb->csio.sense_data),iop->sensep,sizeof(struct scsi_sense_data));
+    memcpy(iop->sensep,&(ccb->csio.sense_data),sizeof(struct scsi_sense_data));
     iop->resp_sense_len = sizeof(struct scsi_sense_data);
   }
 
