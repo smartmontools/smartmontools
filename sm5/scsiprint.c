@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.64 2003/11/18 13:47:40 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.65 2003/11/18 16:53:00 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -832,7 +832,19 @@ int scsiPrintMain(int fd)
         if (scsiSmartDisable(fd))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
     }
-
+    
+    if (con->smartautosaveenable) {
+      if (scsiClearControlGLTSD(fd, modese_len)) {
+	pout("Enable autosave (clear GLTSD bit) failed\n");
+	failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+      }
+    }
+    
+    if (con->smartautosavedisable) {
+      // Doug, this is where we should have a corresponding disable
+      // GLTSD -- mimic structure just above, please
+    }
+    
     if (con->checksmart) {
         scsiGetSupportedLogPages(fd);
         checkedSupportedLogPages = 1;
