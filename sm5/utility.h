@@ -25,15 +25,19 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.40 2004/10/13 20:18:03 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.41 2004/11/06 17:51:28 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
 
-#if defined(_WIN32) && defined(_MSC_VER)
-#define snprintf  _snprintf
-#define vsnprintf  _vsnprintf
+#ifndef HAVE_WORKING_SNPRINTF
+// Substitute by safe replacement functions
+#include <stdarg.h>
+int safe_snprintf(char *buf, int size, const char *fmt, ...);
+int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
+#define snprintf  safe_snprintf
+#define vsnprintf safe_vsnprintf
 #endif
 
 // Utility function prints current date and time and timezone into a

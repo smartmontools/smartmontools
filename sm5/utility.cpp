@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.55 2004/09/16 08:46:04 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.56 2004/11/06 17:51:28 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -592,4 +592,32 @@ void MsecToText(unsigned int msec, char *txt){
 }
 
 
+#ifndef HAVE_WORKING_SNPRINTF
+// Some versions of (v)snprintf() don't append null char on overflow (MSVCRT.DLL),
+// and/or return -1 on overflow (old Linux).
+// Below are sane replacements substituted by #define in utility.h.
 
+#undef vsnprintf
+#if defined(_WIN32) && defined(_MSC_VER)
+#define vsnprintf _vsnprintf
+#endif
+
+int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap)
+{
+  if (size <= 0)
+    return 0;
+  vsnprintf(buf, size, fmt, ap);
+  buf[size-1] = 0;
+  return strlen(buf); // Note: cannot detect for overflow, not necessary here.
+}
+
+int safe_snprintf(char *buf, int size, const char *fmt, ...)
+{
+  int i; va_list ap;
+  va_start(ap, fmt);
+  i = safe_vsnprintf(buf, size, fmt, ap);
+  va_end(ap);
+  return i;
+}
+
+#endif

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.488 2004/11/06 15:58:53 chrfranke Exp $
+$Id: CHANGELOG,v 1.489 2004/11/06 17:51:28 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Added safe_v?snprintf() for platforms using v?snprintf()
+       with non standard behaviour on overflow (Windows, old Linux)
 
   [CF] smartd: Added message if check power mode spins up disk.
 
