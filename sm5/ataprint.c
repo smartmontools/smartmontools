@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.27 2002/10/23 13:43:42 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.28 2002/10/23 14:29:49 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -966,7 +966,7 @@ int ataPrintMain (int fd){
       pout("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(smartval, smartthres,0)){
 	QUIETON;
-	pout("But please note the following marginal attributes:\n");
+	pout("Please note the following marginal attributes:\n");
 	PrintSmartAttribWithThres(smartval, smartthres,2);
 	returnval|=FAILAGE;
       }
