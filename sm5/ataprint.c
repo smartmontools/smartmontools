@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.60 2003/03/06 07:27:15 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.61 2003/03/08 15:43:28 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -488,7 +488,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	needheader=0;
       }
       
-      // is this currently failed, or has it ever failed?
+      // is this Attribute currently failed, or has it ever failed?
       if (failednow)
 	status="FAILING_NOW";
       else if (failedever)
