@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.112 2003/10/27 20:59:04 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.113 2003/11/09 21:12:26 pjwilliams Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -158,6 +158,7 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[0] = "obs";
     break;
   case 0x30:  /* WRITE SECTOR(S) */
+  case 0xC5:  /* WRITE MULTIPLE */
     error_flag[6] = "WP";
     error_flag[5] = "MC";
     error_flag[4] = "IDNF";
