@@ -23,6 +23,7 @@
  */
 
 #include "config.h"
+#include <errno.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
@@ -47,7 +48,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.122 2004/03/24 11:53:47 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.123 2004/03/25 15:39:25 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -210,7 +211,7 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printf(
 "  -t TEST, --test=TEST\n"
-"        Run test.  TEST is: offline, short, long, conveyance, select,M-N\n\n"
+"        Run test.  TEST is: offline short long conveyance select,M-N pending,N afterselect,on afterselect,off\n\n"
 "  -C, --captive\n"
 "        Do test in captive mode (along with -t)\n\n"
 "  -X, --abort\n"
@@ -218,7 +219,7 @@ void Usage (void){
 );
 #else
   printf(
-"  -t TEST   Run test.  TEST is: offline, short, long, conveyance, select,M-N\n"
+"  -t TEST   Run test.  TEST is: offline short long conveyance select,M-N pending,N afterselect,on afterselect,off\n"
 "  -C        Do test in captive mode (along with -t)\n"
 "  -X        Abort any non-captive test\n\n"
   );
@@ -250,7 +251,7 @@ const char *getvalidarglist(char opt) {
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-    return "offline, short, long, conveyance, select,M-N";
+    return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,on, afterselect,off";
   case 'F':
     return "none, samsung, samsung2";
   case 'v':
@@ -259,7 +260,7 @@ const char *getvalidarglist(char opt) {
   }
 }
 
-/* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
+/* Prints the message "=======> VALID ARGUMENTS ARE: <LIST> \n", where
    <LIST> is the list of valid arguments for option opt. */
 void printvalidarglistmessage(char opt) {
   char *s;
@@ -299,6 +300,7 @@ void ParseOpts (int argc, char** argv){
   unsigned char *charp;
   extern char *optarg;
   extern int optopt, optind, opterr;
+  char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:";
 #ifdef HAVE_GETOPT_LONG
@@ -334,6 +336,7 @@ void ParseOpts (int argc, char** argv){
   };
 #endif
   
+  memset(extraerror, 0, sizeof(extraerror));
   memset(con,0,sizeof(*con));
   con->testcase=-1;
   opterr=optopt=0;
@@ -387,10 +390,10 @@ void ParseOpts (int argc, char** argv){
         } else if (strncmp(s,"3ware,",6)) {
           badarg = TRUE;
         } else if (split_report_arg2(s, &i)) {
-          pout("Option -d 3ware,N requires N to be a non-negative integer\n");
+          sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
           badarg = TRUE;
         } else if (i<0 || i>15) {
-          pout("Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
+          sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
           badarg = TRUE;
         } else {
           // NOTE: escalade = disk number + 1
@@ -581,24 +584,44 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"conveyance")) {
         con->smartconveyanceselftest = TRUE;
         con->testcase            = CONVEYANCE_SELF_TEST;
+      } else if (!strcmp(optarg,"afterselect,on")) {
+	// scan remainder of disk after doing selected segments
+	con->scanafterselect=2;
+      } else if (!strcmp(optarg,"afterselect,off")) {
+	// don't scan remainder of disk after doing selected segments
+	con->scanafterselect=1;
+      } else if (!strncmp(optarg,"pending,",strlen("pending,"))) {
+	// parse number of minutes that test should be pending
+	int i;
+	char *tailptr=NULL;
+	errno=0;
+	i=(int)strtol(optarg+strlen("pending,"), &tailptr, 10);
+	if (errno || *tailptr != '\0') {
+	  sprintf(extraerror, "Option -t pending,N requires N to be a non-negative integer\n");
+	  badarg = TRUE;
+	} else if (i<0 || i>65535) {
+	  sprintf(extraerror, "Option -t pending,N (N=%d) must have 0 <= N <= 65535\n", i);
+	  badarg = TRUE;
+	} else {
+	  con->pendingtime=i+1;
+	}
       } else if (!strncmp(optarg,"select",strlen("select"))) {
-        uint64_t start, stop;
+	// parse range of LBAs to test
+	uint64_t start, stop;
 
         if (split_selective_arg(optarg, &start, &stop)) {
+	  sprintf(extraerror, "Option -t select,M-N must have non-negative integer M and N\n");
           badarg = TRUE;
         } else {
           if (con->smartselectivenumspans >= 5 || start > stop) {
-            con->dont_print=FALSE;
-            printslogan();
             if (start > stop) {
-              pout("ERROR: Start LBA > ending LBA in argument \"%s\"\n",
-                optarg);
+              sprintf(extraerror, "ERROR: Start LBA (%"PRIu64") > ending LBA (%"PRId64") in argument \"%s\"\n",
+                start, stop, optarg);
             } else {
-              pout("ERROR: No more than five selective self-test spans may be"
+              sprintf(extraerror,"ERROR: No more than five selective self-test spans may be"
                 " defined\n");
             }
-            UsageSummary();
-            EXIT(FAILCMD);
+	    badarg = TRUE;
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
           con->smartselectivespan[con->smartselectivenumspans][1] = stop;
@@ -633,10 +656,12 @@ void ParseOpts (int argc, char** argv){
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
         if (optopt && (strchr(shortopts, optopt) != NULL)) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n", arg+2);
+          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s\n", arg+2);
           printvalidarglistmessage(optopt);
         } else
-          pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
+          pout("=======> UNRECOGNIZED OPTION: %s\n",arg+2);
+	if (extraerror[0])
+	  pout("=======> %s", extraerror);
         UsageSummary();
         EXIT(FAILCMD);
       }
@@ -646,10 +671,12 @@ void ParseOpts (int argc, char** argv){
         // missing.  Note (BA) this logic seems to fail using Solaris
         // getopt!
         if (strchr(shortopts, optopt) != NULL) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n", optopt);
+          pout("=======> ARGUMENT REQUIRED FOR OPTION: %c\n", optopt);
           printvalidarglistmessage(optopt);
         } else
-          pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
+          pout("=======> UNRECOGNIZED OPTION: %c\n",optopt);
+	if (extraerror[0])
+	  pout("=======> %s", extraerror);
         UsageSummary();
         EXIT(FAILCMD);
       }
@@ -663,8 +690,10 @@ void ParseOpts (int argc, char** argv){
       // It would be nice to print the actual option name given by the user
       // here, but we just print the short form.  Please fix this if you know
       // a clean way to do it.
-      pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
+      pout("=======> INVALID ARGUMENT TO -%c: %s\n", optchar, optarg);
       printvalidarglistmessage(optchar);
+      if (extraerror[0])
+	pout("=======> %s", extraerror);
       UsageSummary();
       EXIT(FAILCMD);
     }
@@ -677,10 +706,23 @@ void ParseOpts (int argc, char** argv){
 
   // error message if user has asked for more than one test
   if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
-         con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
+         con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort + (con->smartselectivenumspans>0?1:0))){
     con->dont_print=FALSE;
     printslogan();
-    pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");
+    pout("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
+    UsageSummary();
+    EXIT(FAILCMD);
+  }
+
+  // error message if user has set selective self-test options without
+  // asking for a selective self-test
+  if ((con->pendingtime || con->scanafterselect) && !con->smartselectivenumspans){
+    con->dont_print=FALSE;
+    printslogan();
+    if (con->pendingtime)
+      pout("\nERROR: smartctl -t pending,N must be used with -t select,N-M.\n");
+    else
+      pout("\nERROR: smartctl -t afterselect,(on|off) must be used with -t select,N-M.\n");
     UsageSummary();
     EXIT(FAILCMD);
   }

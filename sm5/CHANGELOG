@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.378 2004/03/24 22:37:37 chrfranke Exp $
+$Id: CHANGELOG,v 1.379 2004/03/25 15:39:24 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added additional options (-t pending, -t afterselect) to
+       control remaining Selective Self-test capabilities.  Tested
+       with several Maxtor disks.
 
   [CF] Added daemon support to Win32 native version of smartd.
        The daemon can be controlled by commands similar to initd

@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.143 2004/03/23 13:08:40 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.144 2004/03/25 15:39:25 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1010,6 +1010,62 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   return data->ata_error_count;  
 }
 
+void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log) {
+  int i;
+
+  // print data structure revision number
+  pout("SMART Selective self-test log data structure revision number %d\n",(int)log->logversion);
+  if (1 != log->logversion)
+    pout("Warning: ATA Specification requires selective self-test log data structure revision number = 1\n");
+
+  // print the five test spans
+  pout("Span         STARTING_LBA           ENDING_LBA   CURRENTLY_TESTING\n");
+  for (i=0; i<5; i++) {
+    uint64_t current=log->currentlba;
+    uint64_t currentend=current+65535;
+    uint64_t start=log->span[i].start;
+    uint64_t end=log->span[i].end;
+
+    if ((i+1)==(int)(int)log->currentspan)
+      // this span is currently under test
+      pout("   %d %20"PRIu64" %20"PRIu64"   %"PRIu64"-%"PRIu64"\n",
+	   i+1, start,end,current,currentend);
+    else
+      // this span is not currently under test
+      pout("   %d %20"PRIu64" %20"PRIu64"   No\n", i+1, start, end);
+  }
+
+  /* Print selective self-test flags.  Possible flag combinations are
+     (numbering bits from 0-15):
+     Bit-1 Bit-3   Bit-4
+     Scan  Pending Active
+     0     *       *       Don't scan
+     1     0       0       Will carry out scan after selective test
+     1     1       0       Waiting to carry out scan after powerup
+     1     0       1       Currently scanning       
+     1     1       1       Currently scanning
+  */
+
+  pout("Selective self-test flags (0x%x):\n", (unsigned int)log->flags);
+  if (log->flags & SELECTIVE_FLAG_DOSCAN) {
+    if (log->flags & SELECTIVE_FLAG_ACTIVE)
+      pout("  Currently read-scanning the remainder of the disk.\n");
+    else if (log->flags & SELECTIVE_FLAG_PENDING)
+      pout("  Read-scan of remainder of disk interrupted; will resume %d min after power-up.\n",
+	   (int)log->pendingtime);
+    else
+      pout("  After scanning selected spans, read-scan remainder of disk.\n");
+  }
+  else
+    pout("  After scanning selected spans, do NOT read-scan remainder of disk.\n");
+
+  // print pending time
+  pout("If Selective self-test is pending on power-up, resume after %d minute delay.\n",
+       (int)log->pendingtime);
+
+  return; 
+}
+
 // return value is:
 // bottom 8 bits: number of entries found where self-test showed an error
 // remaining bits: if nonzero, power on hours of last self-test where error was found
@@ -1536,6 +1592,14 @@ int ataPrintMain (int fd){
       PRINT_ON(con);
       if (ataPrintSmartSelfTestlog(&smartselftest,!con->printing_switchable))
 	returnval|=FAILLOG;
+      PRINT_OFF(con);
+      pout("\n");
+    }
+    if (isSupportSelectiveSelfTest(&smartval)){
+      PRINT_ON(con);
+      struct ata_selective_self_test_log log;
+      if (!(ataReadSelectiveSelfTestLog(fd, &log)))
+	ataPrintSelectiveSelfTestLog(&log);
       PRINT_OFF(con);
       pout("\n");
     }

@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.65 2004/03/23 13:08:40 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.66 2004/03/25 15:39:25 ballen4705 Exp $\n"
 
 #include "int64.h"
 
@@ -330,6 +330,10 @@ struct ata_selective_self_test_log {
 };
 #pragma pack()
 
+#define SELECTIVE_FLAG_DOSCAN  (0x0002)
+#define SELECTIVE_FLAG_PENDING (0x0008)
+#define SELECTIVE_FLAG_ACTIVE  (0x0010)
+
 // Get information from drive
 int ataReadHDIdentity(int device, struct ata_identify_device *buf);
 int ataCheckPowerMode(int device);
@@ -339,6 +343,7 @@ int ataReadSmartValues(int device,struct ata_smart_values *);
 int ataReadSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
 int ataReadErrorLog(int device, struct ata_smart_errorlog *);
 int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
+int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data);
 int ataSmartStatus(int device);
 int ataSetSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(int device, struct ata_smart_log_directory *);  

@@ -75,9 +75,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.51 2004/03/24 08:26:39 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.52 2004/03/25 15:39:25 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.51 2004/03/24 08:26:39 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.52 2004/03/25 15:39:25 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -567,7 +567,7 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                           "data, len=%d%s:\n", (int)iop->dxfer_len,
                           (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+            dStrHex((const char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -614,7 +614,7 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+                dStrHex((const char*)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
         return 0;
@@ -630,7 +630,7 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         iop->resp_sense_len = len;
         if (report > 1) {
             pout("  >>> Sense buffer, len=%d:\n", (int)len);
-            dStrHex(wrk.buff, len , 1);
+            dStrHex((const char *)wrk.buff, len , 1);
         }
     }
     if (report) {

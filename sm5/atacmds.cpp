@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.143 2004/03/23 13:08:40 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.144 2004/03/25 15:39:24 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -860,7 +860,7 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
     syserror("Error SMART Read Selective Self-Test Log failed");
     return -1;
   }
-  
+   
   // compute its checksum, and issue a warning if needed
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Selective Self-Test Log Structure");
@@ -904,6 +904,12 @@ int ataWriteSelectiveSelfTestLog(int device){
 	 "Revision number should be 1 but is %d.  To be safe, aborting WRITE LOG\n", data->logversion);
     return -2;
   }
+
+  // Fix logversion if needed
+  if (0<data->currentspan && data->currentspan<6) {
+    pout("Error SMART Selective Self-Test in progress.\n");
+    return -4;
+  }
   
   // Clear spans
   for (i=0; i<5; i++)
@@ -919,11 +925,22 @@ int ataWriteSelectiveSelfTestLog(int device){
   data->currentlba=0;
   data->currentspan=0;
   
-  // Do NOT perform off-line scan after selective test.  Turn off bits
-  // 1, 3 and 4 (bits numbered 0-15)
-  data->flags &= ~(0x001a);
+  // Perform off-line scan after selective test?
+  if (1 == con->scanafterselect)
+    // NO
+    data->flags &= ~SELECTIVE_FLAG_DOSCAN;
+  else if (2 == con->scanafterselect)
+    // YES
+    data->flags |= SELECTIVE_FLAG_DOSCAN;
+  
+  // Must clear active and pending flags before writing
+  data->flags &= ~(SELECTIVE_FLAG_ACTIVE);  
+  data->flags &= ~(SELECTIVE_FLAG_PENDING);
 
- 
+  // modify pending time?
+  if (con->pendingtime)
+    data->pendingtime=(unsigned short)(con->pendingtime-1);
+
   // Set checksum to zero, then compute checksum
   data->checksum=0;
   for (i=0; i<512; i++)
@@ -1126,6 +1143,7 @@ int ataSmartTest(int device, int testtype){
   char cmdmsg[128],*type,*captive;
   int errornum;
   int cap,select=0;
+  int retval;
 
   // Boolean, if set, says test is captive
   cap=testtype & CAPTIVE_MASK;
@@ -1167,9 +1185,13 @@ int ataSmartTest(int device, int testtype){
   pout("Sending command: \"%s\".\n",cmdmsg);
 
   // If doing a selective self-test, issue WRITE_LOG command
-  if (select && ataWriteSelectiveSelfTestLog(device))
+  if (select && (retval=ataWriteSelectiveSelfTestLog(device))) {
+    if (retval==-4) {
+      pout("Can't start selective self-test without aborting current one: use '-X' option to smartctl.\n");
+    }
     return -1;
-  
+  }
+
   // Now send the command to test
   errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
 
