@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd,v 1.7 2003/08/19 09:14:33 ballen4705 Exp $
+# $Id: smartd.initd,v 1.8 2003/10/01 01:36:41 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -24,32 +24,43 @@
 # Research Center), Jack Baskin School of Engineering, University of
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
 #
+
+# Red Hat
+if [ -f /etc/issue ] ; then
+
 # source function library
 . /etc/rc.d/init.d/functions
 
-case "$1" in
-  start)
-	echo -n "Starting smartd: "
-        daemon /usr/sbin/smartd
-	touch /var/lock/subsys/smartd
-	echo
-	;;
-  stop)
-	echo -n "Shutting down smartd: "
-	killproc smartd
-	rm -f /var/lock/subsys/smartd
-	echo
-	;;
-  restart)
-        $0 stop
-        $0 start
-        ;;
-  status)
-        status smartd
-        ;;
-  *)
-	echo "Usage: smartd {start|stop|restart|status}"
-	exit 1
-esac
+    case "$1" in
+	start)
+	    echo -n "Starting smartd: "
+	    daemon /usr/sbin/smartd
+	    touch /var/lock/subsys/smartd
+	    echo
+	    ;;
+	stop)
+	    echo -n "Shutting down smartd: "
+	    killproc smartd
+	    rm -f /var/lock/subsys/smartd
+	    echo
+	    ;;
+	restart)
+	    $0 stop
+	    $0 start
+	    ;;
+	status)
+	    status smartd
+	    ;;
+	*)
+	    echo "Usage: smartd {start|stop|restart|status}"
+	    exit 1
+    esac
+    
+    exit 0
 
-exit 0
+# add scripts for other distributions HERE, using elif...
+
+else
+    echo "This smartd startup script has only been tested on Red Hat"
+    exit 1
+fi
