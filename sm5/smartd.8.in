@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.50 2004/04/07 10:11:34 chrfranke Exp $
+$Id: smartd.8.in,v 1.51 2004/04/07 11:55:48 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -603,16 +603,16 @@ mode. This may cause a disk which is spun\-down to be spun\-up when
 Directive is not given.
 
 .I sleep
-\- do not check the device if it is in SLEEP mode.
+\- check the device unless it is in SLEEP mode.
 
 .I standby
-\- do not check the device if it is in SLEEP or STANDBY mode.  In
+\- check the device unless it is in SLEEP or STANDBY mode.  In
 these modes most disks are not spinning, so if you want to prevent
 a laptop disk from spinning up each time that \fBsmartd\fP polls,
 this is probably what you want.
 
 .I idle
-\- do not check the device if it is in SLEEP, STANDBY or IDLE mode.
+\- check the device unless it is in SLEEP, STANDBY or IDLE mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 
@@ -1519,10 +1519,31 @@ is killed by SIGKILL (signal 9) then the exit status is 137.
 
 .PP
 .SH AUTHOR
-Bruce Allen
-.B smartmontools-support@lists.sourceforge.net
+\fBBruce Allen\fP smartmontools-support@lists.sourceforge.net
 .fi
-University of Wisconsin - Milwaukee Physics Department
+University of Wisconsin \- Milwaukee Physics Department
+
+.PP
+.SH CONTRIBUTORS
+The following have made large contributions to smartmontools:
+.fi
+\fBCasper Dik\fP and \fBKeiji Sawada\fP (Solaris interface)
+.fi
+\fBChristian Franke\fP (Windows interface)
+.fi
+\fBDouglas Gilbert\fP (SCSI subsystem)
+.fi
+\fBGuido Guenther\fP (Autoconf/Automake packaging)
+.fi
+\fBEduard Martinescu\fP (FreeBSD interface)
+.fi
+\fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
+.fi
+\fBSergey Svishchev\fP (NetBSD interface)
+.fi
+\fBPhil Williams\fP (User interface and drive database)
+.fi
+May other individuals have made smaller contributions and corrections.
 
 .PP
 .SH CREDITS
@@ -1573,4 +1594,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.50 2004/04/07 10:11:34 chrfranke Exp $
+$Id: smartd.8.in,v 1.51 2004/04/07 11:55:48 ballen4705 Exp $
