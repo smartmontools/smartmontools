@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.65 2002/12/01 23:24:00 pjwilliams Exp $
+$Id: CHANGELOG,v 1.66 2002/12/04 14:17:51 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -31,6 +31,9 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] smartd/smartctl added attribute 230 Head Amplitude from
+  IBM DPTA-353750.
 
   [PW] Added list of proposed new options for smartctl to README.
 
