@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -10,7 +10,7 @@
 \# You should have received a copy of the GNU General Public License (for
 \# example COPYING); if not, write to the Free Software Foundation, Inc., 675
 \# Mass Ave, Cambridge, MA 02139, USA.
-.TH SMARTCTL 8  "$Date: 2002/10/11 09:20:32 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/12 11:10:01 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -125,6 +125,13 @@ a
 All: Prints all parameters for c,i,g,v,t,l,L (for SCSI c,i).  This prints all
 S.M.A.R.T. information about the disk.
 .TP
+.B Vendor-specific Attribute Display Options:
+.TP
+m
+Minutes: The disk stores Raw Attribute number 9 (power on time) in
+minutes, rather than hours.  Divide by 60 before displaying it as "power
+on hours" when using '\-v' or other options that display Raw values.
+.TP
 .B Enable/Disable Options:
 .TP
 e 
@@ -225,6 +232,12 @@ init files.  You can issue this command on a running system.
 begin an extended self-test of drive /dev/hdc.  The results can be
 seen in the self-test log after the test has completed. You can issue
 this command on a running system.
+.PP
+.nf
+.B smartctl -vm /dev/hda
+.fi
+shows the vendor attributes, when the disk stores its power-on time
+internally in minutes rather than hours.
 
 .PP
 .SH AUTHOR
@@ -296,4 +309,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.6 2002/10/11 09:20:32 ballen4705 Exp $
+$Id: smartctl.8,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $

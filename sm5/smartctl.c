@@ -1,4 +1,4 @@
-//  $Id: smartctl.c,v 1.6 2002/10/11 12:15:50 ballen4705 Exp $
+//  $Id: smartctl.c,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -49,6 +49,7 @@ unsigned char smartautoofflinedisable = FALSE;
 unsigned char smartautosaveenable     = FALSE;
 unsigned char smartautosavedisable    = FALSE;
 unsigned char printcopyleft           = FALSE;
+unsigned char smart009minutes         = FALSE;
 
 
 /*  void Usage (void) 
@@ -59,48 +60,33 @@ unsigned char printcopyleft           = FALSE;
 void Usage ( void){
   printf( "usage: smartctl -[options] [device]\n");
   printf( "Read Only Options:\n");
-  printf( "\t\t%c\t\tPrint Copyright and License information\n", 
-	  PRINTCOPYLEFT);
-  printf( "\t\t%c\t\tShow All S.M.A.R.T. Information (ATA and SCSI)\n", 
-	  SMARTVERBOSEALL);
-  printf( "\t\t%c\t\tShow General S.M.A.R.T. Attributes (ATA Only)\n",
-	  GENERALSMARTVALUES);
-  printf( "\t\t%c\t\tShow Vendor S.M.A.R.T. Attributes (ATA Only)\n", 
-	  SMARTVENDORATTRIB);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Error Log (ATA Only\n", 
-	  SMARTERRORLOG);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Self Test Log (ATA Only)\n", 
-	  SMARTSELFTESTLOG);
-  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Info (ATA and SCSI)\n", DRIVEINFO);
-  printf( "\t\t%c\t\tCheck S.M.A.R.T. Status (ATA and SCSI)\n", CHECKSMART);
+  printf( "\t\t%c\t\tShow version, copyright and license information\n", PRINTCOPYLEFT);
+  printf( "\t\t%c\t\tShow all S.M.A.R.T. Information (ATA and SCSI)\n",  SMARTVERBOSEALL);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Info      (ATA and SCSI)\n",  DRIVEINFO);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. Status          (ATA and SCSI)\n",  CHECKSMART);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. General Attributes  (ATA Only)\n",  GENERALSMARTVALUES);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. Vendor Attributes   (ATA Only)\n",  SMARTVENDORATTRIB);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Error Log     (ATA Only\n",   SMARTERRORLOG);
+  printf( "\t\t%c\t\tShow S.M.A.R.T. Drive Self Test Log (ATA Only)\n",  SMARTSELFTESTLOG);
+  printf( "\n");
+  printf( "Vendor-specific Display Options:\n");
+  printf( "\t\t%c\t\tRaw Attribute 009 is minutes        (ATA Only)\n",  SMART009MINUTES);
   printf( "\n");
   printf( "Enable/Disable Options:\n");
-  printf( "\t\t%c\t\tEnable S.M.A.R.T. data collection (ATA and SCSI)\n", 
-	  SMARTENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T.data collection (ATA and SCSI)\n", 
-	  SMARTDISABLE);
-  printf( "\t\t%c\t\tEnable S.M.A.R.T. Automatic Offline Test (ATA Only)\n", 
-	  SMARTAUTOOFFLINEENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T. Automatic Offline Test (ATA Only)\n", 
-	  SMARTAUTOOFFLINEDISABLE);
-  printf( "\t\t%c\t\tEnable S.M.A.R.T. Attribute Autosave (ATA Only)\n", 
-	  SMARTAUTOSAVEENABLE);
-  printf( "\t\t%c\t\tDisable S.M.A.R.T. Attribute Autosave (ATA Only)\n", 
-	  SMARTAUTOSAVEDISABLE);
+  printf( "\t\t%c\t\tEnable  S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTENABLE);
+  printf( "\t\t%c\t\tDisable S.M.A.R.T. data collection    (ATA and SCSI)\n",SMARTDISABLE);
+  printf( "\t\t%c\t\tEnable  S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEENABLE);
+  printf( "\t\t%c\t\tDisable S.M.A.R.T. Automatic Offline Test (ATA Only)\n",SMARTAUTOOFFLINEDISABLE);
+  printf( "\t\t%c\t\tEnable  S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEENABLE);
+  printf( "\t\t%c\t\tDisable S.M.A.R.T. Attribute Autosave     (ATA Only)\n",SMARTAUTOSAVEDISABLE);
   printf( "\n");
   printf( "Test Options:\n");
-  printf( "\t\t%c\t\tExecute Off-line data collection (ATA Only)\n",
-	  SMARTEXEOFFIMMEDIATE);
-  printf( "\t\t%c\t\tExecute Short Self Test (ATA Only)\n", 
-	  SMARTSHORTSELFTEST );
-  printf( "\t\t%c\t\tExecute Short Self Test (Captive Mode) (ATA Only)\n",
-	  SMARTSHORTCAPSELFTEST );
-  printf( "\t\t%c\t\tExecute Extended Self Test (ATA Only)\n", 
-	  SMARTEXTENDSELFTEST );
-  printf( "\t\t%c\t\tExecute Extended Self Test (Captive Mode) (ATA Only)\n", 
-	  SMARTEXTENDCAPSELFTEST );
-  printf( "\t\t%c\t\tExecute Self Test Abort (ATA Only)\n\n", 
-	  SMARTSELFTESTABORT );
+  printf( "\t\t%c\t\tExecute Off-line data collection (ATA Only)\n",          SMARTEXEOFFIMMEDIATE);
+  printf( "\t\t%c\t\tExecute Short Self Test (ATA Only)\n",                   SMARTSHORTSELFTEST );
+  printf( "\t\t%c\t\tExecute Short Self Test (Captive Mode) (ATA Only)\n",    SMARTSHORTCAPSELFTEST );
+  printf( "\t\t%c\t\tExecute Extended Self Test (ATA Only)\n",                SMARTEXTENDSELFTEST );
+  printf( "\t\t%c\t\tExecute Extended Self Test (Captive Mode) (ATA Only)\n", SMARTEXTENDCAPSELFTEST );
+  printf( "\t\t%c\t\tExecute Self Test Abort (ATA Only)\n\n",                 SMARTSELFTESTABORT );
   printf( "Examples:\n");
   printf("\tsmartctl -etf /dev/hda   (Enables S.M.A.R.T. on first disk)\n");
   printf("\tsmartctl -a   /dev/hda   (Prints all S.M.A.R.T. information)\n");
@@ -115,7 +101,7 @@ const char opts[] = {
   SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
   SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
   SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
-  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,'\0'
+  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,SMART009MINUTES,'\0'
 };
 
 /*      Takes command options and sets features to be run */	
@@ -127,6 +113,9 @@ void ParseOpts (int argc, char** argv){
   opterr=1;
   while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
+    case SMART009MINUTES:
+      smart009minutes=TRUE;
+      break;
     case PRINTCOPYLEFT :
       printcopyleft=TRUE;
       break;
@@ -215,7 +204,7 @@ int main (int argc, char **argv){
   char *device;
   
   printf("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
-  printf("Home page of project is %s\n\n",PROJECTHOME);
+  printf("Home page of smartctl is %s\n\n",PROJECTHOME);
   
   // Part input arguments
   ParseOpts (argc,argv);
@@ -226,7 +215,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.6 2002/10/11 12:15:50 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.c,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $");
     exit(0);
  }
 
