@@ -23,11 +23,14 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.16 2002/10/30 06:02:40 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.17 2002/10/30 19:16:44 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
 #define CONFIGFILE "/etc/smartd.conf"
+
+// Scan directive for configuration file
+#define SCANDIRECTIVE "DEVICESCAN"
 
 // maximum line length in configuration file
 #define MAXLINELEN 128

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.33 2002/10/30 14:26:20 ballen4705 Exp $
+$Id: CHANGELOG,v 1.34 2002/10/30 19:16:40 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -25,16 +25,29 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
+
 smartmontools-5.0.24
 
-  Added new Directive for Configuration file:
+Added a new directive for the configuration file.  If the word
+DEVICESCAN appears before any non-commented material in the
+configuration file, then the confi file will be ignored and the
+devices wil be scanned.
+
+smartmontools-5.0.24
+
+    Note: it has now been confirmed that the code modifications between
+    5.0.23 and 5.0.24 have eliminated the GCC 3.2 problems.  Note that
+    there is a GCC bug howerver, see #848 at
+    http://gcc.gnu.org/cgi-bin/gnatsweb.pl?database=gcc&cmd=query
+
+      Added new Directive for Configuration file:
 -C <N> This sets the time in between disk checks to be <N>
       seconds apart.  Note that  although  you  can  give
-      this Directive multiple times on different lines of
-      the configuration file, only the final  value  that
-      is  given  has  an  effect,  and applies to all the
-      disks.  The default value of <N> is 1800  sec,  and
-      the minimum allowed value is ten seconds.
+       this Directive multiple times on different lines of
+       the configuration file, only the final  value  that
+       is  given  has  an  effect,  and applies to all the
+       disks.  The default value of <N> is 1800  sec,  and
+       the minimum allowed value is ten seconds.
 
     Problem wasn't the print format. F.L.W. Meunier <0@pervalidus.net>
     sent me a gcc 3.2 build and I ran it under a debugger.  The
