@@ -40,7 +40,6 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-
 %files
 %defattr(-,root,root)
 /usr/sbin/smartd
@@ -52,7 +51,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-rm -rf 
+rm -rf %{_builddir}/%{name}-%{version}
 
 # The following are executed only by the binary RPM at install/uninstall
 
