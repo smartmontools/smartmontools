@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.163 2004/09/26 06:56:42 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.164 2004/09/29 15:19:25 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -628,7 +628,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     // if requested, pretty-print the output data structure
     if (con->reportataioctl>1 && getsdata) {
       if (command==CHECK_POWER_MODE)
-	pout("Sector Count Register (BASE-16): %02x\n", *data);
+	pout("Sector Count Register (BASE-16): %02x\n", (unsigned char)(*data));
       else
 	prettyprint((unsigned char *)data, commandstrings[command]);
     }
