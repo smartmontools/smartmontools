@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.33 2002/11/22 09:18:18 ballen4705 Exp $
+\# $Id: smartd.8,v 1.34 2002/11/22 09:29:32 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/22 09:18:18 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/22 09:29:32 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -157,6 +157,8 @@ and disabled using the command:
 .nf
 .B /sbin/chkconfig --del smartd
 
+\# DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
+\# IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
 \# STARTINCLUDE
 
 .SH CONFIGURATION FILE /etc/smartd.conf
@@ -513,6 +515,8 @@ If you want more frequent information, use
 .B -a.
 
 \# ENDINCLUDE
+\# DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
+\# END OF THE INCLUDE SECTION FOR smartd.conf.5
 
 .SH NOTES
 .B smartd
@@ -623,4 +627,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.33 2002/11/22 09:18:18 ballen4705 Exp $
+$Id: smartd.8,v 1.34 2002/11/22 09:29:32 ballen4705 Exp $
