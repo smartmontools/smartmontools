@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.454 2004/08/26 09:21:02 dpgilbert Exp $
+$Id: CHANGELOG,v 1.455 2004/08/29 01:08:36 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -29,6 +29,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Fixed potentially misleading messages of the form:
+       XXX failed: success
 
   [DG] emit warning if SATA disk detected using libata in Linux; then exit
 
