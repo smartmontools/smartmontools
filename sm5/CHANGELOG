@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.407 2004/05/06 14:12:29 chrfranke Exp $
+$Id: CHANGELOG,v 1.408 2004/05/07 06:06:43 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] SCSI smartmontools documentation updated [2004/5/6]. See:
+       http://smartmontools.sourceforge.net/smartmontools_scsi.html
 
   [CF] Windows: Fixed reset of TZ=GMT in glibc timezone bug workaround.
 
