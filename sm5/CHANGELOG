@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.256 2003/11/14 11:57:17 dpgilbert Exp $
+$Id: CHANGELOG,v 1.257 2003/11/15 02:32:49 dpgilbert Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] scsi: add warning (when '-l error' active) if Control mode page
+       GLTSD bit is set (global disable of saving log counters)
 
   [DG] scsi: remember mode sense cmd length. Output trip temperature
        from IE lpage (IBM extension) when unavailable from temp lpage.
