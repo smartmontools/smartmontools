@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.190 2003/09/27 10:02:41 guidog Exp $
+$Id: CHANGELOG,v 1.191 2003/10/01 20:32:39 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -19,6 +19,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] If enable auto offline command given, update auto offline
+       status before printing capabilities.
+
   [GG] Make autotools build the default, remove autotools.diff
 
   [GG] Add auto{conf,make} support, not enabled by default. 

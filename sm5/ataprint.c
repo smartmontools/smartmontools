@@ -34,7 +34,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.98 2003/08/30 13:06:47 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.99 2003/10/01 20:32:39 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -304,8 +304,8 @@ void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
 	  "No SMART execute Offline immediate.");
     
     pout( "\t\t\t\t\t%s\n", isSupportAutomaticTimer(data)? 
-	  "Automatic timer ON/OFF support.":
-	  "No Automatic timer ON/OFF support.");
+	  "Auto offline data collection on/off support.":
+	  "No auto offline data collection support.");
     
     pout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)? 
 	  "Abort Offline collection upon new\n\t\t\t\t\tcommand.":
@@ -859,6 +859,7 @@ struct ata_smart_selftestlog smartselftest;
 int ataPrintMain (int fd){
   int timewait,code;
   int returnval=0;
+  int needupdate=0;
 
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if (ataReadHDIdentity(fd,&drive)){
@@ -985,6 +986,7 @@ int ataPrintMain (int fd){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
+    needupdate=1;
     if (ataEnableAutoOffline(fd)){
       pout( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -997,12 +999,18 @@ int ataPrintMain (int fd){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
+    needupdate=1;
     if (ataDisableAutoOffline(fd)){
       pout("Smartctl: SMART Disable Automatic Offline Failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else
       pout("SMART Automatic Offline Testing Disabled.\n");
+  }
+
+  if (needupdate && ataReadSmartValues(fd, &smartval)){
+    pout("Smartctl: SMART Read Values failed.\n\n");
+    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 
   // all this for a newline!
