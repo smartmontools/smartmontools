@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.93 2003/03/08 15:37:13 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.94 2003/03/13 15:24:33 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,30 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Thu Mar 13 2003  Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
+       kernel support) then try to assess drive health by examining
+       Attribute values/thresholds directly.
+- [BA] smartd/smartctl: added -v 200,writeerrorcount option/Directive
+       for Fujitsu disks.
+- [BA] smartd: Now send email if any of the SMART commands fails,
+       or if open()ing the device fails.  This is often noted
+       as a common disk failure mode.
+- [BA] smartd/smartctl: Added -v N,raw8 -v N,raw16 and -v N,raw48
+       Directives/Options for printing Raw Attributes in different
+       Formats.
+- [BA] smartd: Added -r ID and -R ID for reporting/tracking Raw
+       values of Attributes.
+- [BA] smartd/smartctl: Changed printing of spin-up-time attribute
+       raw value to reflect current/average as per IBM standard.
+- [BA] smartd/smartctl: Added -v 9,seconds option for disks which
+       use Attribute 9 for power-on lifetime in seconds.
+- [BA] smartctl: Added a warning message so that users of some IBM
+       disks are warned to update their firmware.  Note: we may want
+       to add a command-line flag to disable the warning messages.
+       I have done this in a general way, using regexp, so that we
+       can add warnings about any type of disk that we wish..
+
 * Wed Feb 12 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartd: Created a subdirectory examplescripts/ of source
        directory that contains executable scripts for the -M exec PATH

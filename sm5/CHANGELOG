@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.101 2003/03/11 04:38:56 ballen4705 Exp $
+$Id: CHANGELOG,v 1.102 2003/03/13 15:24:32 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,10 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+  
+  [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
+       kernel support, then try to assess drive health by examining
+       Attribute values/thresholds directly.
 
   [BA] smartd/smartctl: added -v 200,writeerrorcount option/Directive
        for Fujitsu disks.
