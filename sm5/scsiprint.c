@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.77 2004/03/23 13:08:40 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.78 2004/04/30 06:17:52 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -115,7 +115,7 @@ static void scsiGetSupportedLogPages(int device)
     }
 }
 
-void scsiGetSmartData(int device)
+void scsiGetSmartData(int device, int attribs)
 {
     UINT8 asc;
     UINT8 ascq;
@@ -140,14 +140,18 @@ void scsiGetSmartData(int device)
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
 
-    if (currenttemp && !gTempLPage) {
-        if (255 != currenttemp)
-            pout("Current Drive Temperature:     %d C\n", currenttemp);
-        else
-            pout("Current Drive Temperature:     <not available>\n");
+    if (attribs && !gTempLPage) {
+        if (currenttemp || triptemp)
+            pout("\n");
+        if (currenttemp) {
+            if (255 != currenttemp)
+                pout("Current Drive Temperature:     %d C\n", currenttemp);
+            else
+                pout("Current Drive Temperature:     <not available>\n");
+        }
+        if (triptemp)
+            pout("Drive Trip Temperature:        %d C\n", triptemp);
     }
-    if (triptemp && !gTempLPage)
-        pout("Drive Trip Temperature:        %d C\n", triptemp);
 }
 
 
@@ -277,7 +281,7 @@ static void scsiPrintSeagateCacheLPage(int device)
         default: 
             if (con->reportscsiioctl > 0) {
                 PRINT_ON(con);
-                pout("\nVendor (Seagate) cache lpage has unexpected parameter"
+                pout("Vendor (Seagate) cache lpage has unexpected parameter"
                      ", skip\n");
                 PRINT_OFF(con);
             }
@@ -286,7 +290,7 @@ static void scsiPrintSeagateCacheLPage(int device)
         num -= pl;
         ucp += pl;
     }
-    pout("\nVendor (Seagate) cache information\n");
+    pout("Vendor (Seagate) cache information\n");
     num = len - 4;
     ucp = &gBuf[0] + 4;
     while (num > 3) {
@@ -908,23 +912,26 @@ int scsiPrintMain(int fd)
             }
             else
                 pout("TapeAlert Not Supported\n");
-            if (gTempLPage)
-                scsiPrintTemp(fd);         
-            if (gStartStopLPage)
-                scsiGetStartStopData(fd);
         } else { /* disk, cd/dvd, enclosure, etc */
-            scsiGetSmartData(fd);
-            if (gTempLPage)
-                scsiPrintTemp(fd);         
-            if (gStartStopLPage)
-                scsiGetStartStopData(fd);
+            scsiGetSmartData(fd, con->smartvendorattrib);
         }
     }   
     if (con->smartvendorattrib) {
-        if (gSeagateCacheLPage && (SCSI_PT_DIRECT_ACCESS == peripheral_type))
-            scsiPrintSeagateCacheLPage(fd);
-        if (gSeagateFactoryLPage && (SCSI_PT_DIRECT_ACCESS == peripheral_type))
-            scsiPrintSeagateFactoryLPage(fd);
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(fd);
+        if (gTempLPage) {
+            if (con->checksmart)
+                pout("\n");
+            scsiPrintTemp(fd);         
+        }
+        if (gStartStopLPage)
+            scsiGetStartStopData(fd);
+        if (SCSI_PT_DIRECT_ACCESS == peripheral_type) {
+            if (gSeagateCacheLPage)
+                scsiPrintSeagateCacheLPage(fd);
+            if (gSeagateFactoryLPage)
+                scsiPrintSeagateFactoryLPage(fd);
+        }
     }
     if (con->smarterrorlog) {
         scsiPrintErrorCounterLog(fd);
