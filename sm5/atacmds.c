@@ -29,8 +29,12 @@
 #include <stdlib.h>
 #include "atacmds.h"
 #include "utility.h"
+#include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.66 2003/03/25 12:17:51 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.67 2003/03/30 11:03:35 pjwilliams Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+
+// for passing global control variables
+extern smartmonctrl *con;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note

@@ -31,9 +31,12 @@
 #include <sys/ioctl.h>
 #include "scsicmds.h"
 #include "utility.h"
+#include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.23 2003/03/28 07:21:35 dpgilbert Exp $" SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.24 2003/03/30 11:03:36 pjwilliams Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
+// for passing global control variables
+extern smartmonctrl *con;
 
 #if 0
 /* useful for watching commands and responses */
@@ -123,8 +126,7 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
 
     memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
     buff_offset = iop->cmnd_len;
-#ifdef SCSI_DEBUG
-    {
+    if (con->reportscsiioctl) {
         int k;
         const unsigned char * ucp = iop->cmnd;
 
@@ -132,7 +134,6 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
         for (k = 0; k < iop->cmnd_len; ++k)
             pout("%02x ", ucp[k]);
     }
-#endif
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
             wrk.inbufsize = 0;
@@ -159,12 +160,12 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     iop->scsi_status = 0;
     iop->resid = 0;
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
-#ifdef SCSI_DEBUG
-    if (-1 == status)
-        pout("] status=-1, errno=%d\n", errno);
-    else
-        pout("] status=0x%x\n", status);
-#endif
+    if (con->reportscsiioctl) {
+      if (-1 == status)
+          pout("] status=-1, errno=%d\n", errno);
+      else
+          pout("] status=0x%x\n", status);
+    }
     if (-1 == status)
         return -errno;
     if (0 == status) {

@@ -209,6 +209,7 @@ old to new smartd.conf directives:
   -P            -T permissive           --tolerance=permissive             -P                           -T permissive
   -U            -T conservative         --tolerance=conservative
   -W            -b                      --badsum=exit
+                -r                      --report=TYPE
   -e            -s on                   --smart=on
   -d            -s off                  --smart=off
   -t            -o on                   --offlineauto=on                   -T 1                         -o on
@@ -258,5 +259,6 @@ Changes to smartd options:
   -X            --debug                                      -d            --debug
                                                              -i N          --interval=N
                                                              -D            --showdirectives
+                                                             -r            --report=TYPE
   ----------------------------------------------------------------------------------------------------------
 
