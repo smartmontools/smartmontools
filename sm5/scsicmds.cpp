@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.74 2004/03/23 13:08:40 ballen4705 Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.75 2004/04/30 06:15:49 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -305,7 +305,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
 /* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
  * 2 if command not supported (then MODE SENSE(10) should be supported),
  * 3 if field in command not supported or returns negated errno. 
- * SPC sections 7.9 and 8.4 */
+ * SPC sections 7.9 and 8.4 [mode subpage==0] */
 int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -395,7 +395,7 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
 /* MODE SENSE (10 byte). Returns 0 if ok, 1 if NOT READY, 2 if command 
  * not supported (then MODE SENSE(6) might be supported), 3 if field in
  * command not supported or returns negated errno.  
- * SPC sections 7.10 and 8.4 */
+ * SPC sections 7.10 and 8.4 [mode subpage==0] */
 int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -1914,8 +1914,11 @@ int scsiFetchTransportProtocol(int device, int modese_len)
             return -EINVAL;
     } 
     offset = scsiModePageOffset(buff, sizeof(buff), modese_len);
-    if ((offset >= 0) && (buff[offset + 1] > 1))
-        return (buff[offset + 2] & 0xf);
+    if ((offset >= 0) && (buff[offset + 1] > 1)) {
+        if ((0 == (buff[offset] & 0x40)) &&       /* SPF==0 */
+            (PROTOCOL_SPECIFIC_PORT_PAGE == (buff[offset] & 0x3f))) 
+                return (buff[offset + 2] & 0xf);
+    }
     return -EINVAL;
 }
 
