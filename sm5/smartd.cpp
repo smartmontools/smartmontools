@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.94 2003/01/04 19:31:38 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.95 2003/01/04 21:23:20 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -315,7 +315,7 @@ void printhead(){
 
 // prints help info for configuration file Directives
 void Directives() {
-  printout(LOG_INFO,"Configuration file Directives (following device name):\n");
+  printout(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
   printout(LOG_INFO,"  -d TYPE Set the device type to one of: ata, scsi\n");
   printout(LOG_INFO,"  -T TYPE set the tolerance to one of: normal, permissive\n");
   printout(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
