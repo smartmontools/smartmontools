@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.48 2004/03/20 08:52:40 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.49 2004/07/09 01:18:27 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -325,6 +325,14 @@ const char * scsiTapeAlertsChangerDevice(unsigned short code);
 const char * scsi_get_opcode_name(UINT8 opcode);
 void dStrHex(const char* str, int len, int no_ascii);
 
+/* SCSI command transmission interface function declaration. Its
+ * definition is target OS specific (see os_<OS>.c file).
+ * Returns 0 if SCSI command successfully launched and response
+ * received. Even when 0 is returned the caller should check
+ * scsi_cmnd_io::scsi_status for SCSI defined errors and warnings
+ * (e.g. CHECK CONDITION). If the SCSI command could not be issued
+ * (e.g. device not present or not a SCSI device) or some other problem
+ * arises (e.g. timeout) then returns a negative errno value. */
 int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
 #endif
