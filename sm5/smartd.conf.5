@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.3 2002/11/11 12:43:53 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.4 2002/11/12 21:16:25 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2002/11/11 12:43:53 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2002/11/12 21:16:25 $" "smartmontools-5.0"
 .SH NAME
 /etc/smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -147,9 +147,7 @@ name on any line of the
 configuration file. Note that
 .B these are NOT command-line options for 
 .B smartd.
-The command-line options for
-.B smartd
-are listed above.  The Directives below may appear in any order,
+The Directives below may appear in any order,
 following the device name.  For the moment, apart from the '\-S'
 Directive, these Directives only apply to ATA disks. 
 .B  For ATA disks, if
@@ -228,6 +226,30 @@ life period."
 [Please see the
 .B smartctl \-v
 command-line option.]
+.TP
+.B \-M <ADD>
+Mail:  Send a warning email to the email address <ADD> if the '\-c', '\-l', '\-L', or '\-f'
+Directives detect a failure or a new error.  This Directive only
+works in conjunction with these other Directives (or with the equivalent '\-a'
+Directive).  To prevent your email in-box from getting filled up
+with warning messages, only a single warning will be sent for each of
+the enabled test types, '\-c', '\-l', '\-L', or '\-f', even if more
+than one failure or error is detected.
+
+The email is sent using the system 
+.B mail
+command.  In order that
+.B smartd
+find the mail command (normally /bin/mail) the
+.B mail
+command must be in the path of the
+shell or environment from which
+.B smartd
+was started.
+
+If you want to send email to more than one user, you can use the form
+.B  user1@add1,user2@add2,...,userN@addN
+with no spaces for <ADD>. 
 .TP
 .B \-p
 Prefail: Report anytime that a Prefail Attribute has changed
@@ -345,4 +367,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.3 2002/11/11 12:43:53 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.4 2002/11/12 21:16:25 ballen4705 Exp $

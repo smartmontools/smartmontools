@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.55 2002/11/11 10:50:08 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.56 2002/11/12 21:16:25 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -87,8 +87,9 @@ void printout(int priority,char *fmt, ...){
   return;
 }
 
-
-void printandmail(mailinfo *mail, int priority, char *fmt, ...){
+// If address is null, this just prints a warning message.  But if
+// address is non-null then send and log a warning email.
+void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
   int pid;
   va_list ap;
   
@@ -99,7 +100,7 @@ void printandmail(mailinfo *mail, int priority, char *fmt, ...){
   va_end(ap);
   
   // See if user wants us to send mail
-  if (mail==NULL)
+  if (!address)
     return;
   
   // Have we already sent a message about this?
@@ -127,7 +128,11 @@ void printandmail(mailinfo *mail, int priority, char *fmt, ...){
   }
   else {
     // We are the child process, send email
-    char command[1024], message[256];
+    char command[1024], message[256], hostname[256];
+
+    if (gethostname(hostname, 256)){
+      sprintf(hostname,"hostname: unknown");
+    }
 
     // print warning string into message
     va_start(ap, fmt);
@@ -135,7 +140,8 @@ void printandmail(mailinfo *mail, int priority, char *fmt, ...){
     va_end(ap);
 
     // now construct a command to send this as EMAIL, and issue it.
-    snprintf(command,1024, "echo '%s' | mail -s 'smartd warning: S.M.A.R.T. errors' %s > /dev/null 2> /dev/null", message, mail->address);
+    snprintf(command,1024, "echo '%s' | mail -s '%s: smartd detected SMART errors' %s > /dev/null 2> /dev/null",
+	     message, hostname, address);
     exit(system(command));
   }
 }
@@ -227,21 +233,22 @@ void printhead(){
 // prints help info for configuration file directives
 void Directives() {
   printout(LOG_INFO,"Configuration file Directives (following device name):\n");
-  printout(LOG_INFO,"  -A    Device is an ATA device\n");
-  printout(LOG_INFO,"  -S    Device is a SCSI device\n");
-  printout(LOG_INFO,"  -C N  Check disks once every N seconds, where N>=10.\n");
-  printout(LOG_INFO,"  -P    Permissive, ignore apparent lack of SMART.\n");
-  printout(LOG_INFO,"  -c    Monitor SMART Health Status, report if failed\n");
-  printout(LOG_INFO,"  -l    Monitor SMART Error Log, report new errors\n");
-  printout(LOG_INFO,"  -L    Monitor SMART Self-Test Log, report new errors\n");
-  printout(LOG_INFO,"  -f    Monitor 'Usage' Attributes, report failures\n");
-  printout(LOG_INFO,"  -p    Report changes in 'Prefailure' Attributes\n");
-  printout(LOG_INFO,"  -u    Report changes in 'Usage' Attributes\n");
-  printout(LOG_INFO,"  -t    Equivalent to -p and -u Directives\n");
-  printout(LOG_INFO,"  -a    Equivalent to -c -l -L -f -t Directives\n");
-  printout(LOG_INFO,"  -i ID Ignore Attribute ID for -f Directive\n");
-  printout(LOG_INFO,"  -I ID Ignore Attribute ID for -p, -u or -t Directive\n");
-  printout(LOG_INFO,"   #    Comment: text after a hash sign is ignored\n");
+  printout(LOG_INFO,"  -A     Device is an ATA device\n");
+  printout(LOG_INFO,"  -S     Device is a SCSI device\n");
+  printout(LOG_INFO,"  -C N   Check disks once every N seconds, where N>=10.\n");
+  printout(LOG_INFO,"  -P     Permissive, ignore apparent lack of SMART.\n");
+  printout(LOG_INFO,"  -c     Monitor SMART Health Status, report if failed\n");
+  printout(LOG_INFO,"  -l     Monitor SMART Error Log, report new errors\n");
+  printout(LOG_INFO,"  -L     Monitor SMART Self-Test Log, report new errors\n");
+  printout(LOG_INFO,"  -f     Monitor 'Usage' Attributes, report failures\n");
+  printout(LOG_INFO,"  -M ADD Send email warning to address ADD\n");
+  printout(LOG_INFO,"  -p     Report changes in 'Prefailure' Attributes\n");
+  printout(LOG_INFO,"  -u     Report changes in 'Usage' Attributes\n");
+  printout(LOG_INFO,"  -t     Equivalent to -p and -u Directives\n");
+  printout(LOG_INFO,"  -a     Equivalent to -c -l -L -f -t Directives\n");
+  printout(LOG_INFO,"  -i ID  Ignore Attribute ID for -f Directive\n");
+  printout(LOG_INFO,"  -I ID  Ignore Attribute ID for -p, -u or -t Directive\n");
+  printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
   printout(LOG_INFO,"All but -S Directive are only implemented for ATA devices\n");
@@ -594,7 +601,7 @@ int ataCheckDevice(atadevices_t *drive){
     if (status==-1)
       printout(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
     else if (status==1)
-      printout(LOG_CRIT,"Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n",name);
+      printandmail(cfg->address, cfg->maildata , LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
@@ -607,7 +614,7 @@ int ataCheckDevice(atadevices_t *drive){
       printout(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
     else {  
       // look for failed usage attributes, or track usage or prefail attributes
-      for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+      for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
 	int att;
 	
 	// This block looks for usage attributes that have failed.
@@ -625,7 +632,7 @@ int ataCheckDevice(atadevices_t *drive){
 	    while (*loc && *loc==' ') loc++;
 	    
 	    // warning message
-	    printout(LOG_CRIT,"Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
+	    printandmail(cfg->address, cfg->maildata+1, LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
 	  }
 	}
 	
@@ -673,7 +680,7 @@ int ataCheckDevice(atadevices_t *drive){
     unsigned char old=cfg->selflogcount;
     int new=selftesterrorcount(fd, name);
     if (new>old){
-      printout(LOG_CRIT,"Device: %s, Self-Test Log error count increased from %d to %d\n",
+      printandmail(cfg->address, cfg->maildata+2, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
 	       name, (int)old, new);
     }
     if (new>=0)
@@ -687,7 +694,7 @@ int ataCheckDevice(atadevices_t *drive){
     int old=cfg->ataerrorcount;
     int new=ataerrorcount(fd, name);
     if (new>old){
-      printout(LOG_CRIT,"Device: %s, ATA error count increased from %d to %d\n",
+      printandmail(cfg->address, cfg->maildata+3, LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
 	       name, old, new);
     }
     // this last line is probably not needed, count always increases
@@ -840,6 +847,22 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->usage=1;
     cfg->selftest=1;
     cfg->errorlog=1;
+    break;
+  case 'M':
+    // send email to address that follows
+    arg=strtok(NULL,delim);
+    if (!arg) {
+      printout(LOG_CRIT,"Drive %s Directive: %s at line %d of file %s needs email address.\n",
+	       name,token,lineno,CONFIGFILE);
+      Directives();
+      exit(1);
+    }
+    if (!(cfg->address=strdup(arg))){
+      printout(LOG_CRIT,"Drive %s Directive: %s at line %d of file %s: no free memory for address %s.\n",
+	       name,token,lineno,CONFIGFILE,arg);
+      Directives();
+      exit(1);
+    }
     break;
   case 'i': // ignore
   case 'I': // ignore

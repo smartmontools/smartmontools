@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.43 2002/11/11 10:55:42 ballen4705 Exp $
+$Id: CHANGELOG,v 1.44 2002/11/12 21:16:25 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -25,7 +25,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
-smartmontools-5.0.37
+  Added a new smartd configuration file Directive: -M ADDRESS.
+  This sends a single warning email to ADDRESS for failures or
+  errors detected with the -c, -L, -l, or -f Directives.
+
+smartmontools-5.0.38
 
   Modified perror() statements in atacmds.c so that printout for SMART
   commands errors is properly suppressed or queued depending upon users
