@@ -10,3 +10,4 @@ upload: smartmontools_scsi.html index.html
 	scp smartmontools_scsi.html ballen4705@smartmontools.sourceforge.net:/home/groups/s/sm/smartmontools/htdocs
 	scp index.html ballen4705@smartmontools.sourceforge.net:/home/groups/s/sm/smartmontools/htdocs
 	scp examples/*.html ballen4705@smartmontools.sourceforge.net:/home/groups/s/sm/smartmontools/htdocs/examples
+	scp examples/*.txt ballen4705@smartmontools.sourceforge.net:/home/groups/s/sm/smartmontools/htdocs/examples
