@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.25 2002/10/26 19:33:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.26 2002/10/29 10:16:13 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -25,7 +25,36 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 CURRENT RELEASE (see VERSION file in this directory):
-smartmontools-5.0-VERSION
+
+smartmontools-5.0-18
+
+    smartctl: smartctl would previously print the LBA of a self-test
+    if it completed, and the LBA was not 0 or 0xff...f However
+    according to the specs this is not correct.  According to the
+    specs, if the self-test completed without error then LBA is
+    undefined.  This version fixes that.  LBA value only printed if
+    self-test encountered an error.
+
+smartmontools-5.0-17
+
+    smartd has changed significantly. This is the first CVS checkin of
+    code that extends the options available for smartd.  The following
+    options can be placed into the /etc/smartd.conf file, and control the
+    behavior of smartd.
+    Configuration file Directives (following device name):
+    -A     Device is an ATA device
+    -S     Device is a SCSI device
+    -c     Monitor SMART Health Status
+    -l     Monitor SMART Error Log for changes
+    -L     Monitor SMART Self-Test Log for new errors
+    -f     Monitor for failure of any 'Usage' Attributes
+    -p     Report changes in 'Prefailure' Attributes
+    -u     Report changes in 'Usage' Attributes
+    -t     Equivalent to -p and -u Directives
+    -i ID  Ignore Attribute ID for -f Directive
+    -I ID  Ignore Attribute ID for -p, -u or -t Directive
+    #      Comment: text after a hash sign is ignored
+    \      Line continuation character
 
     cleaned up functions used for printing CVS IDs.  Now use string
     library, as it should be.
