@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.39 2003/01/05 06:44:41 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.40 2003/01/05 07:13:49 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -80,31 +80,27 @@ void printcopy(){
 /*  void prints help information for command syntax */
 void Usage (void){
   printf("Usage: smartctl [options] [device]\n");
-  printf("\nShow Information Options:\n");
+  printf("\n**************  SHOW INFORMATION OPTIONS  *********************************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
-  -h, --help, --usage\n\
+  -h, -?, --help, --usage\n\
          Display this help and exit\n\
-  -?\n\
-         Same as -h\n\
   -V, --version, --copyright, --license\n\
          Print license, copyright, and version information and exit\n\
-  -i, --info                                                          (ATA/SCSI)\n\
+  -i, --info                                                       \n\
          Show drive information\n\
-  -a, --all                                                           (ATA/SCSI)\n\
+  -a, --all                                                        \n\
          Show all SMART information for device\n\
 ");
 #else
   printf("\
-  -h        Display this help and exit\n\
-  -?        Same as -h\n\
+  -h, -?    Display this help and exit\n\
   -V        Print license, copyright, and version information\n\
-  -i        Show drive information                                    (ATA/SCSI)\n\
-  -a        Show all SMART information for device                     (ATA/SCSI)\n\
+  -i        Show drive information                                  \n\
+  -a        Show all SMART information for device                   \n\
 ");
 #endif
-  printf("\n");
-  printf("Run-time Behavior Options:\n");
+  printf("**************  RUN-TIME BEHAVIOR OPTIONS  ********************************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
   -q TYPE, --quietmode=TYPE                                           (ATA)\n\
@@ -124,11 +120,10 @@ void Usage (void){
   -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n\
 ");
 #endif
-  printf("\n");
-  printf("SMART Feature Enable/Disable Commands:\n");
+  printf("**************  SMART FEATURE ENABLE/DISABLE COMMANDS  ********************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
-  -s VALUE, --smart=VALUE                                             (ATA/SCSI)\n\
+  -s VALUE, --smart=VALUE                                                  \n\
         Enable/disable SMART (on/off)\n\
   -o VALUE, --offlineauto=VALUE                                       (ATA)\n\
         Enable/disable automatic offline testing (on/off)\n\
@@ -137,76 +132,68 @@ void Usage (void){
 ");
 #else
   printf("\
-  -s VALUE  Enable/disable SMART (on/off)                             (ATA/SCSI)\n\
+  -s VALUE  Enable/disable SMART (on/off)                                  \n\
   -o VALUE  Enable/disable automatic offline testing (on/off)         (ATA)\n\
   -S VALUE  Enable/disable attribute autosave (on/off)                (ATA)\n\
 ");
 #endif
-  printf("\n");
-  printf("Read and Display Data Options:\n");
+  printf("**************  READ AND DISPLAY DATA OPTIONS  ****************************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
-  -H, --health                                                        (ATA/SCSI)\n\
+  -H, --health                                                             \n\
         Show SMART health status\n\
   -c, --capabilities                                                  (ATA)\n\
         Show SMART capabilities\n\
   -A, --attributes                                                    (ATA)\n\
         Show SMART vendor-specific attributes and values\n\
-  -l TYPE, --log=TYPE                                                 (ATA/SCSI)\n\
-        Show device log. Type is one of: error [ATA only], selftest\n\
+  -l TYPE, --log=TYPE                                                      \n\
+        Show device log. Type is one of: error (ATA), selftest\n\
   -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n\
         Set vendor specific OPTION for attribute N (see man page)\n\
 ");
 #else
   printf("\
-  -H        Show SMART health status                                  (ATA/SCSI)\n\
+  -H        Show SMART health status                                       \n\
   -c        Show SMART capabilities                                   (ATA)\n\
   -A        Show SMART vendor-specific attributes and values          (ATA)\n\
-  -l TYPE   Show device log. Type is one of: error, selftest          (ATA)\n\
+  -l TYPE   Show device log. Type is one of: error (ATA), selftest         \n\
   -v N,OPT  Set vendor specific OPTion for attribute N (see man page) (ATA)\n\
 ");
 #endif
-  printf("\n");
-  printf("Self-Test Options:\n");
+  printf("**************  SELF-TEST OPTIONS  ****************************************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
-  -t TEST, --test=TEST                                                (ATA/SCSI)\n\
+  -t TEST, --test=TEST                                                \n\
         Test immediately.  TEST is one of: offline, short, long\n\
-  -C, --captive                                                       (ATA/SCSI)\n\
+  -C, --captive                                                       \n\
         With -t, performs test in captive mode (short/long only)\n\
-  -X, --abort                                                         (ATA/SCSI)\n\
+  -X, --abort                                                         \n\
         Abort any non-captive test\n\
 ");
 #else
   printf("\
-  -t TEST   Test immediately.  TEST is one of: offline, short, long   (ATA/SCSI)\n\
-  -C        With -t, performs test in captive mode (short/long only)  (ATA/SCSI)\n\
-  -X        Abort any non-captive test                                (ATA/SCSI)\n\
+  -t TEST   Test immediately.  TEST is one of: offline, short, long   \n\
+  -C        With -t, performs test in captive mode (short/long only)  \n\
+  -X        Abort any non-captive test                                \n\
 ");
 #endif
-  printf("\n");
-  printf("Examples:\n");
+  printf("**************  EXAMPLES  *************************************************\n");
 #ifdef HAVE_GETOPT_LONG
   printf("\
-  smartctl -a /dev/hda\n\
-                                           (Prints all SMART information)\n\
+  smartctl -a /dev/hda                 (Prints all SMART information)\n\
   smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n\
-                                           (Enables SMART on first disk)\n\
-  smartctl -t long /dev/hda\n\
-                                           (Executes extended disk self-test)\n\
+                                       (Enables SMART on first disk)\n\
+  smartctl -t long /dev/hda            (Executes extended disk self-test)\n\
   smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n\
-                                           (Prints Self-Test & Attribute errors)\n\
+                                       (Prints Self-Test & Attribute errors)\n\
 ");
 #else
   printf("\
-  smartctl -a /dev/hda\n\
-                                           (Prints all SMART information)\n\
-  smartctl -s on -o on -S on /dev/hda\n\
-                                           (Enables SMART on first disk)\n\
-  smartctl -t long /dev/hda\n\
-                                           (Executes extended disk self-test)\n\
+  smartctl -a /dev/hda                 (Prints all SMART information)\n\
+  smartctl -s on -o on -S on /dev/hda  (Enables SMART on first disk)\n\
+  smartctl -t long /dev/hda            (Executes extended disk self-test)\n\
   smartctl -A -l selftest -q errorsonly /dev/hda\n\
-                                           (Prints Self-Test & Attribute errors)\n\
+                                       (Prints Self-Test & Attribute errors)\n\
 ");
 #endif
 }
