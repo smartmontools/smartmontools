@@ -24,7 +24,7 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.5 2004/03/02 18:19:55 shattered Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.6 2004/03/30 20:12:11 shattered Exp $\n"
 
 #include <sys/param.h>
 #include <sys/sysctl.h>
@@ -37,6 +37,7 @@
 #include <sys/scsiio.h>
 
 #include <err.h>
+#include <fcntl.h>
 #include <util.h>
 
 #ifndef	WDSM_RD_THRESHOLDS	/* pre-1.6.2 system */
