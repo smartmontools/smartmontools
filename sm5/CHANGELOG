@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.21 2002/10/25 15:13:19 ballen4705 Exp $
+$Id: CHANGELOG,v 1.22 2002/10/25 17:06:17 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,8 +26,8 @@ NOTES FOR NEXT RELEASE:
     Next release: handle extended error and self-test logs gracefully.
     Parse and print attribute flag meanings
 
-smartmontools-5.0-14
-
+CURRENT RELEASE (see VERSION file in this directory):
+smartmontools-5.0-VERSION
     smartd on startup now looks in the configuration file /etc/smartd.conf for
     a list of devices which to include in its monitoring list.  See man page
     (man smartd) for syntax.

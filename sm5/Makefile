@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.22 2002/10/24 09:54:02 ballen4705 Exp $
+# $Id: Makefile,v 1.23 2002/10/25 17:06:17 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -61,22 +61,28 @@ scsiprint.o: scsiprint.h scsiprint.c scsicmds.o smartctl.h extern.h scsicmds.h M
 	${CC} ${CFLAGS} -c scsiprint.c 
 
 clean:
-	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.*
+	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz
 
 install: smartctl smartd smartctl.8 smartd.8 smartd.initd Makefile
+	/bin/gzip -c smartctl.8 > smartctl.8.gz
+	/bin/gzip -c smartd.8 > smartd.8.gz
+	rm -f /usr/share/man/man8/smartctl.8
+	rm -f /usr/share/man/man8/smartd.8
 	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
 	install -m 755 -o root -g root -D smartd $(DESTDIR)/usr/sbin/smartd
-	install -m 644 -o root -g root -D smartctl.8 $(DESTDIR)/usr/share/man/man8/smartctl.8
-	install -m 644 -o root -g root -D smartd.8 $(DESTDIR)/usr/share/man/man8/smartd.8
+	install -m 644 -o root -g root -D smartctl.8.gz $(DESTDIR)/usr/share/man/man8/smartctl.8.gz
+	install -m 644 -o root -g root -D smartd.8.gz $(DESTDIR)/usr/share/man/man8/smartd.8.gz
 	install -m 755 -o root -g root -D smartd.initd $(DESTDIR)/etc/rc.d/init.d/smartd
-	echo "To manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
-	echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
+	@echo -e "\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
+	@echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
+	@echo "Smartd can now use a configuration file /etc/smartd.conf.  Please read man 8 smartd."
+	@echo "Note: you must do a \"make install\" or you won't have the wonderful man pages!"
 
 uninstall: Makefile
 	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8\
            /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
 	/sbin/chkconfig --del smartd
-	/etc/rc.d/init.d/smartd stop
+	if [ -f /var/lock/subsys/smartd ] ; then /etc/rc.d/init.d/smartd stop ; fi
 	rm -f /etc/rc.d/init.d/smartd
 
 # All this mess is to automatically increment the release numbers.
