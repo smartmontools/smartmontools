@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.66 2004/03/25 15:39:25 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.67 2004/03/26 14:22:08 ballen4705 Exp $\n"
 
 #include "int64.h"
 
@@ -417,7 +417,7 @@ int isSupportConveyanceSelfTest(struct ata_smart_values *data);
 
 int isSupportSelectiveSelfTest(struct ata_smart_values *data);
 
-int ataSmartTest(int device, int testtype);
+int ataSmartTest(int device, int testtype, struct ata_smart_values *data);
 
 int TestTime(struct ata_smart_values *data,int testtype);
 

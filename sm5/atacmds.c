@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.145 2004/03/25 15:48:19 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.146 2004/03/26 14:22:08 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -886,7 +886,7 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
 }
 
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(int device){   
+int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv){   
   int i;
   struct ata_selective_self_test_log sstlog, *data=&sstlog;
   unsigned char cksum=0;
@@ -907,8 +907,8 @@ int ataWriteSelectiveSelfTestLog(int device){
 
   // Host is NOT allowed to write selective self-test log if a selective
   // self-test is in progress.
-  if (0<data->currentspan && data->currentspan<6) {
-    pout("Error SMART Selective Self-Test in progress.\n");
+  if (0<data->currentspan && data->currentspan<6 && ((sv->self_test_exec_status)>>4)==15) {
+    pout("Error SMART Selective or other Self-Test in progress.\n");
     return -4;
   }
   
@@ -1140,17 +1140,12 @@ int ataSmartStatus2(int device){
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(int device, int testtype){     
+int ataSmartTest(int device, int testtype, struct ata_smart_values *sv) {     
   char cmdmsg[128],*type,*captive;
-  int errornum;
-  int cap,select=0;
-  int retval;
+  int errornum, cap, retval, select=0;
 
   // Boolean, if set, says test is captive
   cap=testtype & CAPTIVE_MASK;
-
-  // Boolean, if set, then test is selective
-  select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST);
 
   // Set up strings that describe the type of test
   if (cap)
@@ -1166,18 +1161,19 @@ int ataSmartTest(int device, int testtype){
     type="Extended self-test";
   else if (testtype==CONVEYANCE_SELF_TEST || testtype==CONVEYANCE_CAPTIVE_SELF_TEST)
     type="Conveyance self-test";
-  else if (select){
-    int i;
+  else if ((select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST)))
     type="Selective self-test";
-    pout("Using test spans:\n");
-    for (i = 0; i < con->smartselectivenumspans; i++)
-      pout("   %"PRId64" - %"PRId64"\n",
-           con->smartselectivespan[i][0],
-           con->smartselectivespan[i][1]);
-  }
   else
     type="[Unrecognized] self-test";
   
+  // If doing a selective self-test, first use WRITE_LOG to write the
+  // selective self-test log.
+  if (select && (retval=ataWriteSelectiveSelfTestLog(device, sv))) {
+    if (retval==-4)
+      pout("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
+    return retval;
+  }
+
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)
     sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
@@ -1185,17 +1181,18 @@ int ataSmartTest(int device, int testtype){
     sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
   pout("Sending command: \"%s\".\n",cmdmsg);
 
-  // If doing a selective self-test, issue WRITE_LOG command
-  if (select && (retval=ataWriteSelectiveSelfTestLog(device))) {
-    if (retval==-4) {
-      pout("Can't start selective self-test without aborting current one: use '-X' option to smartctl.\n");
-    }
-    return -1;
+  if (select) {
+    int i;
+    pout("SPAN         STARTING_LBA           ENDING_LBA\n");
+    for (i = 0; i < con->smartselectivenumspans; i++)
+      pout("   %d %20"PRId64" %20"PRId64"\n", i,
+           con->smartselectivespan[i][0],
+           con->smartselectivespan[i][1]);
   }
-
+  
   // Now send the command to test
   errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
-
+  
   if (errornum && !(cap && errno==EIO)){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 
