@@ -41,7 +41,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.53 2004/07/29 21:00:36 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.54 2004/08/29 01:08:37 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -316,21 +316,24 @@ void printone(char *block, const char *cvsid){
 
 
 // A replacement for perror() that sends output to our choice of
-// printing.
+// printing. If errno not set then just print message.
 void syserror(const char *message){
-  const char *errormessage;
   
-  // Get the correct system error message:
-  errormessage=strerror(errno);
-
-  // Check that caller has handed a sensible string, and provide
-  // appropriate output. See perrror(3) man page to understand better.
+  if (errno) {
+    // Get the correct system error message:
+    const char *errormessage=strerror(errno);
+    
+    // Check that caller has handed a sensible string, and provide
+    // appropriate output. See perrror(3) man page to understand better.
     if (message && *message)
       pout("%s: %s\n",message, errormessage);
     else
       pout("%s\n",errormessage);
-        
-    return;
+  }
+  else if (message && *message)
+    pout("%s\n",message);
+  
+  return;
 }
 
 // Prints a warning message for a failed regular expression compilation from
