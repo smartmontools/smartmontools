@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.20 2004/01/06 08:33:57 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.21 2004/03/05 14:55:14 ballen4705 Exp $
 #
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -11,13 +11,15 @@
 #
 # For SuSE and cousins
 ### BEGIN INIT INFO
-# Provides: smartd
-# Required-Start: 
-# Required-Stop: 
-# X-UnitedLinux-Should-Start: 
-# Default-Start: 1 2 3 5
-# Default-Stop: 0 6
-# Description: Start the smartd daemon
+# Provides:          smartd
+# Required-Start:    $syslog
+# X-UnitedLinux-Should-Start: $sendmail
+# Required-Stop:     $syslog
+# X-UnitedLinux-Should-Stop:
+# Default-Start:     2 3 5
+# Default-Stop:
+# Short-Description: Monitors disk and tape health via S.M.A.R.T.
+# Description:       Start S.M.A.R.T. disk and tape monitor.
 ### END INIT INFO
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -122,7 +124,10 @@ elif [ -f /etc/SuSE-release ] ; then
     
     SMARTD_BIN=/usr/sbin/smartd
     test -x $SMARTD_BIN || exit 5
-    
+
+    # Existence of config file is optional
+    SMARTD_CONFIG=/etc/smartd.conf
+
    # Shell functions sourced from /etc/rc.status:
    #      rc_check         check and set local and overall rc status
    #      rc_status        check and set local and overall rc status
@@ -151,7 +156,7 @@ elif [ -f /etc/SuSE-release ] ; then
    # considered a success.
     case "$1" in
 	start)
-	    echo -n "Starting smartd: "
+	    echo -n "Starting smartd"
             ## Start daemon with startproc(8). If this fails
             ## the echo return value is set appropriate.
 	    
@@ -163,16 +168,21 @@ elif [ -f /etc/SuSE-release ] ; then
             rc_status -v
 	    ;;
 	stop)
-	    echo -n "Shutting down smartd: "
-            killproc -QUIT $SMARTD_BIN
+	    echo -n "Shutting down smartd"
+            killproc -TERM $SMARTD_BIN
 	    
             # Remember status and be verbose
             rc_status -v
 	    ;;
-	restart)
+	restart | force-reload)
 	    $0 stop
-	    sleep 1
 	    $0 start
+	    ;;
+	reload)
+	## Like force-reload, but if daemon does not support
+	## signaling, do nothing (!)
+	    rc_failed 3
+	    rc_status -v
 	    ;;
         status)
             echo -n "Checking for service smartd: "
@@ -189,9 +199,17 @@ elif [ -f /etc/SuSE-release ] ; then
             checkproc $SMARTD_BIN
             rc_status -v
             ;;
+        probe)
+	    ## Optional: Probe for the necessity of a reload, print out the
+	    ## argument to this init script which is required for a reload.
+	    ## Note: probe is not (yet) part of LSB (as of 1.2)
+
+	    test $SMARTD_CONFIG -nt /var/run/smartd.pid && echo reload
+	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart|status}"
+	    echo "Usage: $0 {start|stop|status|restart|force-reload|reload|probe}"
 	    exit 1
+	    ;;
     esac
     
     rc_exit
