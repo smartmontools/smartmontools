@@ -31,11 +31,13 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.4 2004/08/06 13:08:45 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.5 2004/08/09 14:35:59 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
 /////////////////////////////////////////////////////////////////////////////
+
+#define ARGUSED(x) ((void)(x))
 
 // Prevent spawning of child process if debugging
 #ifdef _DEBUG
@@ -457,17 +459,80 @@ int daemon_detach(const char * ident)
 }
 
 
-// Display a message box
+/////////////////////////////////////////////////////////////////////////////
+// MessageBox
 
-int daemon_messagebox(int system, const char * title, const char * text)
+#ifndef _MT
+//MT runtime not necessary, because mbox_thread uses no unsafe lib functions
+//#error Program must be linked with multithreaded runtime library
+#endif
+
+static LONG mbox_count; // # mbox_thread()s
+static HANDLE mbox_mutex; // Show 1 box at a time (not necessary for service)
+
+typedef struct mbox_args_s {
+	HANDLE taken; const char * title, * text; int mode;
+} mbox_args;
+
+
+// Thread to display one message box
+
+static ULONG WINAPI mbox_thread(LPVOID arg)
 {
-	if (MessageBoxA(NULL, text, title, MB_OK|MB_ICONWARNING
-	                |(svc_mode?MB_SERVICE_NOTIFICATION:0)
-	                |(system?MB_SYSTEMMODAL:MB_APPLMODAL)  ) != IDOK)
-		return -1;
+	// Take args
+	mbox_args * mb = (mbox_args *)arg;
+	char title[100]; char text[1000]; int mode;
+	strncpy(title, mb->title, sizeof(title)-1); title[sizeof(title)-1] = 0;
+	strncpy(text , mb->text , sizeof(text )-1); text [sizeof(text )-1] = 0;
+	mode = mb->mode;
+	SetEvent(mb->taken);
+
+	// Show only one box at a time
+	WaitForSingleObject(mbox_mutex, INFINITE);
+	MessageBoxA(NULL, text, title, mode);
+	ReleaseMutex(mbox_mutex);
+
+	InterlockedDecrement(&mbox_count);
 	return 0;
 }
 
+
+// Display a message box
+int daemon_messagebox(int system, const char * title, const char * text)
+{
+	mbox_args mb;
+	HANDLE ht; DWORD tid;
+
+	// Create mutex during first call
+	if (!mbox_mutex)
+		mbox_mutex = CreateMutex(NULL/*!inherit*/, FALSE/*!owned*/, NULL/*unnamed*/);
+
+	// Allow at most 10 threads
+	if (InterlockedIncrement(&mbox_count) > 10) {
+		InterlockedDecrement(&mbox_count);
+		return -1;
+	}
+
+	// Create thread
+	mb.taken = CreateEvent(NULL/*!inherit*/, FALSE, FALSE/*!signaled*/, NULL/*unnamed*/);
+	mb.mode = MB_OK|MB_ICONWARNING
+	         |(svc_mode?MB_SERVICE_NOTIFICATION:0)
+	         |(system?MB_SYSTEMMODAL:MB_APPLMODAL);
+	mb.title = title; mb.text = text;
+	mb.text = text;
+	if (!(ht = CreateThread(NULL, 0, mbox_thread, &mb, 0, &tid)))
+		return -1;
+
+	// Wait for args taken
+	if (WaitForSingleObject(mb.taken, 10000) != WAIT_OBJECT_0)
+		TerminateThread(ht, 0);
+	CloseHandle(mb.taken);
+	CloseHandle(ht);
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
 
 // Spawn a command and redirect <inpbuf >outbuf
 // return command's exitcode or -1 on error
@@ -756,26 +821,26 @@ static void WINAPI service_control(DWORD ctrlcode)
 	switch (ctrlcode) {
 		case SERVICE_CONTROL_STOP:
 		case SERVICE_CONTROL_SHUTDOWN:
+			service_report_status(SERVICE_STOP_PENDING, 30);
 			svc_paused = 0;
 			sig_event(SIGTERM);
-			service_report_status(SERVICE_STOP_PENDING, 30);
 			break;
 		case SERVICE_CONTROL_PARAMCHANGE: // Win2000/XP
+			service_report_status(svc_status.dwCurrentState, 0);
 			svc_paused = 0;
 			sig_event(SIGHUP); // reload
-			service_report_status(svc_status.dwCurrentState, 0);
 			break;
 		case SERVICE_CONTROL_PAUSE:
-			svc_paused = 1;
 			service_report_status(SERVICE_PAUSED, 0);
+			svc_paused = 1;
 			break;
 		case SERVICE_CONTROL_CONTINUE:
+			service_report_status(SERVICE_RUNNING, 0);
 			{
 				int was_paused = svc_paused;
 				svc_paused = 0;
 				sig_event(was_paused ? SIGHUP : SIGUSR1); // reload:recheck
 			}
-			service_report_status(SERVICE_RUNNING, 0);
 			break;
 		case SERVICE_CONTROL_INTERROGATE:
 		default: // unknown
@@ -815,6 +880,7 @@ static char ** svc_main_argv;
 static void WINAPI service_main(DWORD argc, LPSTR * argv)
 {
 	char path[MAX_PATH], *p;
+	ARGUSED(argc);
 
 	// Register control handler
 	svc_handle = RegisterServiceCtrlHandler(argv[0], service_control);
@@ -1009,7 +1075,7 @@ int daemon_main(const char * ident, const daemon_winsvc_options * svc_opts,
 		svc_main_argc = argc;
 		svc_main_argv = argv;
 		if (!StartServiceCtrlDispatcher(service_table)) {
-			fprintf(stderr, "%s: Cannot dispatch service, Error=%ld\n", ident, GetLastError());
+			fprintf(stderr, "%s: cannot dispatch service, Error=%ld\n", ident, GetLastError());
 #ifdef _DEBUG
 			if (debugging())
 				service_main(argc, argv);
