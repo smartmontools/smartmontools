@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.35 2003/01/05 05:15:55 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.36 2003/01/05 05:47:55 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -88,7 +88,7 @@ void Usage (void){
   -?\n\
          Same as -h\n\
   -V, --version, --copyright, --license\n\
-         Print license, copyright, and version information\n\
+         Print license, copyright, and version information and exit\n\
   -i, --info                                                          (ATA/SCSI)\n\
          Show drive information\n\
   -a, --all                                                           (ATA/SCSI)\n\
@@ -253,7 +253,7 @@ void printbadargmessage(int opt, const char *optarg) {
   pout(" <======= \n\n");
 }
 
-unsigned char printcopyleft=0,tryata=0,tryscsi=0;
+unsigned char tryata=0,tryscsi=0;
 
 /*      Takes command options and sets features to be run */	
 void ParseOpts (int argc, char** argv){
@@ -307,7 +307,8 @@ void ParseOpts (int argc, char** argv){
 		)){
     switch (optchar){
     case 'V':
-      printcopyleft=TRUE;
+      printcopy();
+      exit(0);
       break;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
@@ -478,14 +479,15 @@ void ParseOpts (int argc, char** argv){
       Usage();
       exit(0);	
     } // closes switch statement to process command-line options
-
+    
     // At this point we have processed all command-line options.  Now
     // check to see if any of those options had unrecognized or
     // incorrect arguments.
     if (badarg) {
-        printbadargmessage(optchar, optarg);
-	pout("Use smartctl -h to get a usage summary\n\n");
-	exit(FAILCMD);
+      printslogan();
+      printbadargmessage(optchar, optarg);
+      pout("Use smartctl -h to get a usage summary\n\n");
+      exit(FAILCMD);
     }
   }
   // Do this here, so results are independent of argument order	
@@ -497,8 +499,8 @@ void ParseOpts (int argc, char** argv){
 	 con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
     con->veryquietmode=FALSE;
     printslogan();
-    Usage();
-    printf("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
+    pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");
+    pout("Use smartctl -h to get a usage summary\n\n");
     exit(FAILCMD);
   }
 
@@ -516,28 +518,21 @@ void ParseOpts (int argc, char** argv){
   // From here on, normal operations...
   printslogan();
   
-  // Print Copyright/License info if needed
-  if (printcopyleft){
-    printcopy();
-    if (argc==2)
-      exit(0);
-  }   
-
   // Warn if the user has provided no device name
   if (argc-optind<1){
-    printf("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
+    pout("\nERROR: smartctl requires a device name as the final command-line argument.\n\n");
     exit(FAILCMD);
   }
   
   // Warn if the user has provided more than one device name
   if (argc-optind>1){
     int i;
-    printf("ERROR: smartctl takes ONE device name as the final command-line argument.\n");
-    printf("You have provided %d device names:\n",argc-optind);
+    pout("\nERROR: smartctl takes ONE device name as the final command-line argument.\n");
+    pout("You have provided %d device names:\n",argc-optind);
     for (i=0; i<argc-optind; i++)
-      printf("%s\n",argv[optind+i]);
+      pout("%s\n",argv[optind+i]);
     exit(FAILCMD);
-  }
+  }  
 }
 
 // Printing function (controlled by global con->veryquietmode) 
