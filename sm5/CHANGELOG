@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.335 2004/02/14 19:47:11 ballen4705 Exp $
+$Id: CHANGELOG,v 1.336 2004/02/16 18:46:31 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
+  [PW] Added Toshiba TOS MK3019GAXB SUN30G to knowndrives table
+
+  [PW] Added Western Digital Caviar AC12500, AC24300, AC25100, AC36400,
+       and AC38400 to knowndrives table
+
   [BA] When printing ATA error log, print the LBA at which READ
        or WRITE commands failed.
 
@@ -39,6 +44,7 @@ smartmontools 5.27
   [KS] Added ATA/IDE support for Solaris/SPARC (ATA/IDE not yet for
        Solaris/x86).
 
+>>>>>>> 1.335
   [BA] 3ware controllers: documented that one can monitor any of the
        physical disks from any of the 3ware /dev/sd? logical devices.
        Better warnings if querying a disk that does not exist.
