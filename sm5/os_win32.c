@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.18 2004/09/14 03:34:34 ballen4705 Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.19 2004/09/15 08:36:32 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -658,9 +658,6 @@ static unsigned ata_scan()
 /////////////////////////////////////////////////////////////////////////////
 
 // Interface to ATA devices.  See os_linux.c
-int marvell_command_interface(int fd, smart_command_set command, int select, char * data)
-{ return -1; }
-
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
 	IDEREGS regs;
@@ -783,22 +780,39 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 }
 
 
+// Print not implemeted warning once
+static void pr_not_impl(const char * what, int * warned)
+{
+	if (*warned)
+		return;
+	pout(
+		"#######################################################################\n"
+		"%s\n"
+		"NOT IMPLEMENTED under Win32.\n"
+		"Please contact " PACKAGE_BUGREPORT " if\n"
+		"you want to help in porting smartmontools to Win32.\n"
+		"#######################################################################\n"
+		"\n", what
+	);
+	*warned = 1;
+}
+
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
 {
 	static int warned = 0;
 	ARGUSED(fd); ARGUSED(disknum); ARGUSED(escalade_type); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-	if (!warned) {
-		  pout(
-		"#######################################################################\n"
-		"3ware Escalade Controller command routine escalade_command_interface()\n"
-		"NOT IMPLEMENTED under Win32.\n"
-		"Please contact " PACKAGE_BUGREPORT " if\n"
-		"you want to help in porting smartmontools to Win32.\n"
-		"#######################################################################\n"
-		"\n");
-		warned = 1;
-	}
+	pr_not_impl("3ware Escalade Controller command routine escalade_command_interface()", &warned);
+	errno = ENOSYS;
+	return -1;
+}
+
+// Interface to ATA devices behind Marvell chip-set based controllers.  See os_linux.c
+int marvell_command_interface(int fd, smart_command_set command, int select, char * data)
+{
+	static int warned = 0;
+	ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
+	pr_not_impl("Marvell chip-set command routine marvell_command_interface()", &warned);
 	errno = ENOSYS;
 	return -1;
 }
