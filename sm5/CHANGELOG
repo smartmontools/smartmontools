@@ -1,25 +1,25 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.451 2004/08/19 00:30:10 dpgilbert Exp $
+$Id: CHANGELOG,v 1.452 2004/08/20 23:12:30 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsï¿½
+[EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [CD] Caper Dik
 [CF] Christian Franke
-[GF] Guilhem Frï¿½zou
+[GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
-[KM] Kai Mï¿½kisara
+[KM] Kai Mäkisara
 [EM] Eduard Martinescu
-[FM] Frï¿½dï¿½ric L. W. Meunier
+[FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
 [SS] Sergey Svishchev
 [PW] Phil Williams
