@@ -50,6 +50,7 @@
 #include <unistd.h>
 #include <scsi/scsi_ioctl.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #include "atacmds.h"
 #include "config.h"
@@ -58,7 +59,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.11 2003/10/21 09:34:38 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.12 2003/10/21 12:00:53 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -92,8 +93,11 @@ int get_dev_names(char*** names, const char* prefix, int max) {
   DIR* dir;
   struct dirent* dirent;
   int n = 0;
+  int len;
   char** mp;
-  char buf[20]; // temp holding space
+  char buf[20]; // temp holding space to create full /dev/* pathname
+  char linkbuf[1024]; // see what link is pointing to...
+  struct stat statbuf;
 
   // first, preallocate space for upto max number of ATA devices
   if (!(mp =  (char **)calloc(max,sizeof(char*))))
@@ -113,11 +117,25 @@ int get_dev_names(char*** names, const char* prefix, int max) {
   // NOTE: We look for character special OR links, as Linux DEVFS will
   // actually have these as softlinks to real device entry
   while ((dirent = readdir(dir)) && (n < max)) {
-    if ((dirent->d_type == DT_CHR || dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
+    if ((dirent->d_type == DT_LNK || dirent->d_type == DT_BLK ) &&
 	(strstr(dirent->d_name,prefix) != NULL) &&
 	(_D_EXACT_NAMLEN(dirent) == 3)) {
       sprintf(buf,"/dev/%s",dirent->d_name);
-      mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
+      // if it is a link, then let's check what the link points to
+      if (dirent->d_type == DT_LNK) {
+	memset(linkbuf,0,1024); // fill with nulls
+	sprintf(linkbuf,"/dev/"); // add path prefix
+	len = readlink(buf,linkbuf+5,1018); // append actual link value
+	if (len > -1) {
+	  if (!stat(linkbuf,&statbuf) && S_ISBLK(statbuf.st_mode)) {
+	    // so this is a block device...is it a disc?
+	    char * p = strrchr(linkbuf,'/');
+	    if (p != NULL && !strcmp(p+1,"disc"))
+	      mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
+	  }
+	}
+      } else
+	  mp[n++] = CustomStrDup(buf,1,__LINE__,__FILE__);
     }
   }
   closedir(dir);
