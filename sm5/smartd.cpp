@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.103 2003/01/31 21:50:43 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.104 2003/02/01 08:47:00 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -118,6 +118,7 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   va_list ap;
   const int day=24*3600;
   int days=0;
+  char *whichfail[]={"emailtest","health","usage","selftest","errorcount"};
   char *address=cfg->address;
   char *executable=cfg->emailcmdline;
   mailinfo *mail=cfg->maildata+which;
@@ -126,9 +127,13 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   if (!address && !executable)
     return;
 
-  // check for sanity
+  // checks for sanity
   if (cfg->emailfreq<1 || cfg->emailfreq>3) {
     printout(LOG_INFO,"internal error in printandmail(): cfg->emailfreq=%d\n",cfg->emailfreq);
+    return;
+  }
+  if (which<0 || which>4) {
+    printout(LOG_INFO,"internal error in printandmail(): which=%d\n",which);
     return;
   }
   
@@ -192,25 +197,21 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
       sprintf(original,"The original email about this issue was sent at %s\n",ctime(&(mail->firstsent)));
   }
   
+  snprintf(subject, 256,"SMART error (%s) detected on host: %s", whichfail[which], hostname);
+
   // If the user has set cfg->emailcmdline, use that as mailer, else "mail".
-  if (!executable){
-    printout(LOG_INFO,"No -M exec path given, so using 'mail' to send mail\n");
-    setenv("SMARTD_MAILER", "mail", 1);
-  }
-  else {
-    printout(LOG_INFO,"Running argument %s of -M exec\n", executable);
-    setenv("SMARTD_MAILER", cfg->emailcmdline, 1);
-  }
-
-  snprintf(subject, 256,"SMART errors detected on host: %s", hostname);
-
+  if (!executable)
+    executable="mail";
+    
   // Export information in environment variables that will be useful
   // for user scripts
+  setenv("SMARTD_MAILER", executable, 1);
   setenv("SMARTD_DEVICE", cfg->name, 1);
   setenv("SMARTD_DEVICETYPE", cfg->tryata?"ata":"scsi", 1);
   setenv("SMARTD_MESSAGE", message, 1);
   setenv("SMARTD_SUBJECT", subject, 1);
   setenv("SMARTD_TFIRST", ctime(&(mail->firstsent)), 1);
+  setenv("SMARTD_FAILTYPE", whichfail[which], 1);
   if (address)
     setenv("SMARTD_ADDRESS", address, 1);
 
@@ -224,17 +225,19 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 	     "%s\n\n"
 	     "The following warning/error was logged by the smartd daemon:\n"
 	     "%s\n\n"
-	     "For details see the SYSLOG (default: /var/log/messages) on host:\n"
+	     "For details see the SYSLOG (default: /var/log/messages) for host:\n"
 	     "%s\n\n"
 	     "%s%s%s"
 	     "ENDMAIL\n",
 	   subject, address, hostname, domainname, message, hostname, further, original, additional);
   else
-    snprintf(command, 2048, "%s", cfg->emailcmdline);
+    snprintf(command, 2048, "%s", executable);
   
   // issue the command to send email
+  printout(LOG_INFO,"%s %s to %s ...\n",
+	     which?"Sending warning via ":"Executing test of", executable, address?address:"<nomailer>");
   status=system(command);
-
+  
   // check and report exit status of command
 #ifdef WEXITSTATUS
   status8=WEXITSTATUS(status);
@@ -243,9 +246,11 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 #endif 
   
   if (status8)  
-    printout(LOG_CRIT,"Email warning message to %s failed (32-bit/8-bit exit status: %d/%d)\n",address?address:executable,status,status8);
+    printout(LOG_CRIT,"%s %s to %s failed (32-bit/8-bit exit status: %d/%d)\n", 
+	     which?"Warning via":"Test of", executable, address?address:"<nomailer>", status, status8);
   else
-    printout(LOG_INFO,"Email %s message sent to %s\n",which?"warning":"test", address?address:executable);
+    printout(LOG_INFO,"%s %s to %s successful\n",
+	     which?"Warning via":"Test of", executable, address?address:"<nomailer>");
   
   // increment mail sent counter
   mail->logged++;
@@ -1401,14 +1406,29 @@ int parseconfigline(int entry, int lineno,char *line){
     exit(1);
   }
 
-  // additional sanity check. Has user set -M options without -m or -M exec?
-  if ((!cfg->address && !cfg->emailcmdline) && (cfg->emailfreq || cfg->emailtest)){
-    printout(LOG_CRIT,"Drive: %s, -M Directives on line %d of file %s need email address -m or -M exec path\n",
+  // additional sanity check. Has user set -M options without -m?
+  if (!cfg->address && (cfg->emailcmdline || cfg->emailfreq || cfg->emailtest)){
+    printout(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
 	     cfg->name, cfg->lineno, CONFIGFILE);
     Directives();
     exit(1);
   }
-  
+
+  // has the user has set <nomailer>?
+  if (cfg->address && !strcmp(cfg->address,"<nomailer>")){
+    // check that -M exec is also set
+    if (!cfg->emailcmdline){
+      printout(LOG_CRIT,"Drive: %s, -m <nomailer> Directive on line %d of file %s needs -M exec Directive\n",
+	       cfg->name, cfg->lineno, CONFIGFILE);
+      Directives();
+      exit(1);
+    }
+    // now free memory.  From here on the sign of <nomailer> is
+    // address==NULL and cfg->emailcmdline!=NULL
+    free(cfg->address);
+    cfg->address=NULL;
+  }
+
   // set cfg->emailfreq to 1 (once) if user hasn't set it
   if (!cfg->emailfreq)
     cfg->emailfreq = 1;
