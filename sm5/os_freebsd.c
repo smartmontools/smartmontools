@@ -24,6 +24,7 @@
 #include <sys/ata.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <glob.h>
 
 
@@ -33,9 +34,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.36 2004/07/10 06:32:48 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.37 2004/07/27 22:29:58 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.36 2004/07/10 06:32:48 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.37 2004/07/27 22:29:58 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine

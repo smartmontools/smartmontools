@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.86 2004/07/16 01:41:19 geoffk1 Exp $
+# $Id: configure.in,v 1.87 2004/07/27 22:29:58 arvoreen Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.86 2004/07/16 01:41:19 geoffk1 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.87 2004/07/27 22:29:58 arvoreen Exp $'`
 smartmontools_release_date=2004/07/05
 smartmontools_release_time="08:10:26 UTC"
 
@@ -48,6 +48,7 @@ dnl Checks for header files.
 AC_CHECK_HEADER([getopt.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
 AC_CHECK_HEADERS([sys/int_types.h])
+AC_CHECK_HEADERS([sys/inttypes.h])
 AC_CHECK_HEADERS([netdb.h])
 dnl Checks for typedefs, structures, and compiler characteristics.
 
