@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.46 2003/01/07 19:29:26 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.47 2003/01/07 19:47:24 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -234,6 +234,19 @@ const char *getvalidarglist(char opt) {
   default:
     return NULL;
   }
+}
+
+/* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
+   <LIST> is the list of valid arguments for option opt. */
+void printvalidarglistmessage(char opt) {
+  const char *s;
+
+  pout("=======> VALID ARGUMENTS ARE: ");
+  if (!(s = getvalidarglist(opt)))
+    pout("Error whilst constructing argument list for option %c", opt);
+  else
+    pout((char *)s);
+  pout(" <=======\n");
 }
 
 unsigned char tryata=0,tryscsi=0;
@@ -460,7 +473,7 @@ void ParseOpts (int argc, char** argv){
         // Iff optopt holds a valid option then argument must be missing.
         if (optopt && (strchr(shortopts, optopt) != NULL)) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n", arg+2);
-          pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optopt));
+          printvalidarglistmessage(optopt);
 	} else
 	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
 	pout("\nUse smartctl --help to get a usage summary\n\n");
@@ -471,7 +484,7 @@ void ParseOpts (int argc, char** argv){
         // Iff optopt holds a valid option then argument must be missing.
         if (strchr(shortopts, optopt) != NULL) {
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n", optopt);
-          pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optopt));
+          printvalidarglistmessage(optopt);
         } else
 	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n",optopt);
 	pout("\nUse smartctl -h to get a usage summary\n\n");
@@ -488,7 +501,7 @@ void ParseOpts (int argc, char** argv){
       // here, but we just print the short form.  Please fix this if you know
       // a clean way to do it.
       pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", optchar, optarg);
-      pout("=======> VALID ARGUMENTS ARE: %s <=======\n", getvalidarglist(optchar));
+      printvalidarglistmessage(optchar);
       pout("\nUse smartctl -h to get a usage summary\n\n");
       exit(FAILCMD);
     }
