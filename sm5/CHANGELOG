@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.150 2003/06/11 21:14:20 ballen4705 Exp $
+$Id: CHANGELOG,v 1.151 2003/06/12 12:18:53 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd: attempt to enable/disable automatic offline testing even
+       if the disk appears not to support it.  Now the same logic
+       as smartctl.
+
+  [BA] Added definition of Attribute 201, soft read error rate.
 
   [BA] Added IBM/Hitachi IC35L120AVV207-1 (GXP-180) and corresponding
        8MB Cache GXP-120 to drive database.

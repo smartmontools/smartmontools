@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.99 2003/06/09 19:11:11 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.100 2003/06/12 12:18:53 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1501,6 +1501,9 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char val){
       name="Multi_Zone_Error_Rate";
       break;
     }
+    break;
+  case 201:
+    name="Soft_Read_Error_Rate";
     break;
   case 220:
     switch (val) {

@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.167 2003/06/11 21:07:48 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.168 2003/06/12 12:18:53 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -660,22 +660,30 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     }
   }
 
-  // disable automatic on-line testing
-  if (cfg->autoofflinetest==1){
-    if (devices->smartval && isSupportAutomaticTimer(devices->smartval) && !ataDisableAutoOffline(fd))
-      printout(LOG_INFO,"Device: %s, disabled SMART Automatic Offline Testing .\n",device);
+  // enable/disable automatic on-line testing
+  if (cfg->autoofflinetest){
+    if (devices->smartval) {
+      // if this command appears unsupported, issue a warning...
+      if (!isSupportAutomaticTimer(devices->smartval))
+	printout(LOG_INFO,"Device: %s, SMART Automatic Offline Testing appears unsupported.\n",device);
+      // ... but then try anyway
+      if (cfg->autoofflinetest==1){
+	if (ataDisableAutoOffline(fd))
+	  printout(LOG_INFO,"Device: %s, disable SMART Automatic Offline Testing failed.\n",device);
+	else
+	  printout(LOG_INFO,"Device: %s, disabled SMART Automatic Offline Testing .\n",device);
+      }	
+      else {
+	if (ataEnableAutoOffline(fd))
+	  printout(LOG_INFO,"Device: %s, enable SMART Automatic Offline Testing failed.\n",device);
+	else
+	  printout(LOG_INFO,"Device: %s, enabled SMART Automatic Offline Testing .\n",device);
+      }
+    }
     else
       printout(LOG_INFO,"Device: %s, could not disable SMART Automatic Offline Testing.\n",device);
   }
-
-  // enable automatic on-line testing
-  if (cfg->autoofflinetest==2){
-    if (devices->smartval && isSupportAutomaticTimer(devices->smartval) && !ataEnableAutoOffline(fd))
-      printout(LOG_INFO,"Device: %s, enabled SMART Automatic Offline Testing.\n",device);
-    else
-      printout(LOG_INFO,"Device: %s, could not enable SMART Automatic Offline Testing.\n",device);
-  }
-
+  
   // capability check: self-test-log
   if (cfg->selftest){
     int val;
