@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/08/29 05:45:19 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/08/29 16:12:36 $)</title>
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.80 2003/08/29 05:45:19 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.81 2003/08/29 16:12:36 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -317,23 +317,23 @@ mode.
 </p>
 
 <p>
-<b>2 - </b>
-In Maxtor disks that use the raw value of Attribute 9 as a minutes
-counter, only two bytes (of the six available) are used to store the
-raw value.  So it resets to zero once every 65536=2^16 minutes, or
-about once every 1092 hours. This should get fixed.
+<b>2 - </b> In Maxtor disks that use the raw value of Attribute 9 as a
+minutes counter, only two bytes (of the six available) are used to
+store the raw value.  So it resets to zero once every 65536=2^16
+minutes, or about once every 1092 hours. This is fixed in all Maxtor
+disks manufactured after July 2003, where the raw value was extended
+to four bytes.
 </p>
 
 <p>
-<b>3 - </b>
-In Maxtor disks that use the raw value of Attribute 9 as a minutes
-counter, the hour time-stamps in the self-test and ATA error logs are
-calculated by right shifting 6 bits.  This is equivalent to dividing
-by 64 rather than by 60.  As a result, the hour time stamps in these
-logs advance 7% more slowly than they should.  Thus, if you do
-self-tests once per week at the same time, instead of the time-stamps
-being 168 hours apart, they are 157 hours apart.  This should also get
-fixed.
+<b>3 - </b> In Maxtor disks that use the raw value of Attribute 9 as a
+minutes counter, the hour time-stamps in the self-test and ATA error
+logs are calculated by right shifting 6 bits.  This is equivalent to
+dividing by 64 rather than by 60.  As a result, the hour time stamps
+in these logs advance 7% more slowly than they should.  Thus, if you
+do self-tests once per week at the same time, instead of the
+time-stamps being 168 hours apart, they are 157 hours apart.  This is
+also fixed in all Maxtor disks manufactured after July 2003.
 </p>
 </li>
 
@@ -626,8 +626,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/08/29 05:45:19 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.80 2003/08/29 05:45:19 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2003/08/29 16:12:36 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.81 2003/08/29 16:12:36 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
