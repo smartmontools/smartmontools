@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.135 2003/05/04 13:14:27 dpgilbert Exp $
+$Id: CHANGELOG,v 1.136 2003/05/06 03:24:48 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Added automatic recognition of /dev/i* (example: /dev/ide/...)
+       as an ATA device.
 
   [DG] Add "Device type: [disk | tape | medium changer | ...] line to
        smartctl -i output for SCSI devices.
