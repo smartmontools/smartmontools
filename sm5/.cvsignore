@@ -32,6 +32,7 @@ smartd
 smartd.8
 smartd.conf.5
 smartd.conf.sample
+smartd.initd
 stamp-h
 stamp-h.in
 stamp-h1
