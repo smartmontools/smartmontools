@@ -23,7 +23,7 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.18 2002/11/08 10:51:51 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.19 2002/11/10 21:54:19 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -94,6 +94,8 @@ typedef struct configfile_s {
   char usage;
   char selftest;
   char errorlog;
+  // Should we ignore missing capabilities/SMART errors
+  char permissive;
   // mailing information for each of the previous error types
   mailinfo *mailinfop[6];
   // counts of ata and self-test errors.  Perhaps ought to be in the
