@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.115 2003/08/26 10:15:47 ballen4705 Exp $
+\# $Id: smartd.8,v 1.116 2003/09/05 14:49:35 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/26 10:15:47 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/09/05 14:49:35 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -341,8 +341,9 @@ Section below!
 .nf
 .B ################################################
 .B # This is an example smartd startup config
-.B # file /etc/smartd.conf for monitoring three
-.B # ATA disks and two SCSI disks.
+.B # file /etc/smartd.conf for monitoring three ATA
+.B # disks, three SCSI disks, and three ATA disks
+.B # behind a 3ware controller.
 .B #
 .nf
 .B # First ATA disk on each of two interfaces:
@@ -1327,4 +1328,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.115 2003/08/26 10:15:47 ballen4705 Exp $
+$Id: smartd.8,v 1.116 2003/09/05 14:49:35 ballen4705 Exp $
