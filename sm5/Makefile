@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.79 2003/08/30 21:58:00 pervalidus Exp $
+# $Id: Makefile,v 1.80 2003/09/01 04:43:39 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -177,9 +177,9 @@ release: smartd.conf.5 clean
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)
 	rm -rf $(pkgname)/examplescripts/CVS
-	tar zcvf $(pkgname).tar.gz $(pkgname)
+	tar -zcvf $(pkgname).tar.gz $(pkgname) --exclude=examplescripts/Makefile.am 
 	mv -f $(pkgname) $(pkgname2)
-	tar zcvf $(pkgname2).tar.gz $(pkgname2)
+	tar zcvf $(pkgname2).tar.gz $(pkgname2) --exclude=examplescripts/Makefile.am 
 	rm -rf $(pkgname2)
 	mv -f $(pkgname).tar.gz /usr/src/redhat/SOURCES/
 	rpm -ba smartmontools.spec
@@ -197,5 +197,5 @@ tarball: smartd.conf clean
 	mkdir $(pkgname2)
 	cp -a $(releasefiles) $(pkgname2)
 	rm -rf $(pkgname2)/examplescripts/CVS
-	tar zcvf $(pkgname2).tar.gz $(pkgname2)
+	tar zcvf $(pkgname2).tar.gz $(pkgname2) --exclude=examplescripts/Makefile.am
 	rm -rf $(pkgname2)
