@@ -1,4 +1,4 @@
-Release:  18
+Release:  19
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.29 2002/10/29 10:16:13 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.30 2002/10/29 15:19:30 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,6 +112,58 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Tue Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- smartd: prints warning message when it gets SIGHUP, saying that it is
+  NOT re-reading the config file.
+- smartctl: updated man page to say self-test commands -O,x,X,s,S,A
+  appear to be supported in the code.  [I can't test these,  can anyone
+  report?]
+- smartctl: smartctl would previously print the LBA of a self-test
+  if it completed, and the LBA was not 0 or 0xff...f However
+  according to the specs this is not correct.  According to the
+  specs, if the self-test completed without error then LBA is
+  undefined.  This version fixes that.  LBA value only printed if
+  self-test encountered an error.
+- smartd has changed significantly. This is the first CVS checkin of
+  code that extends the options available for smartd.  The following
+  options can be placed into the /etc/smartd.conf file, and control the
+  behavior of smartd.
+- Configuration file Directives (following device name):
+  -A     Device is an ATA device
+  -S     Device is a SCSI device
+  -c     Monitor SMART Health Status
+  -l     Monitor SMART Error Log for changes
+  -L     Monitor SMART Self-Test Log for new errors
+  -f     Monitor for failure of any 'Usage' Attributes
+  -p     Report changes in 'Prefailure' Attributes
+  -u     Report changes in 'Usage' Attributes
+  -t     Equivalent to -p and -u Directives
+  -a     Equivalent to -c -l -L -f -t Directives
+  -i ID  Ignore Attribute ID for -f Directive
+  -I ID  Ignore Attribute ID for -p, -u or -t Directive
+  #      Comment: text after a hash sign is ignored
+  \      Line continuation character
+- cleaned up functions used for printing CVS IDs.  Now use string
+  library, as it should be.
+- modified length of device name string in smartd internal structure
+  to accomodate max length device name strings
+- removed un-implemented (-e = Email notification) option from
+  command line arg list.  We'll put it back on when implemeneted.
+- smartd now logs serious (fatal) conditions in its operation at
+  loglevel LOG_CRIT rather than LOG_INFO before exiting with error.
+- smartd used to open a file descriptor for each SMART enabled
+- device, and then keep it open the entire time smartd was running.
+  This meant that some commands, like IOREADBLKPART did not work,
+  since the fd to the device was open.  smartd now opens the device
+  when it needs to read values, then closes it.  Also, if one time
+  around it can't open the device, it simply prints a warning
+  message but does not give up.  Have eliminated the .fd field from
+  data structures -- no longer gets used.
+- smartd now opens SCSI devices as well using O_RDONLY rather than
+  O_RDWR.  If someone can no longer monitor a SCSI device that used
+  to be readable, this may well be the reason why.
+- smartd never checked if the number of ata or scsi devices detected
+  was greater than the max number it could monitor.  Now it does.
 * Fri Oct 25 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - changes to the Makefile and spec file so that if there are ungzipped manual
   pages in place these will be removed so that the new gzipped man pages are
