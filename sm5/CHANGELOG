@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.268 2003/11/26 06:38:43 ballen4705 Exp $
+$Id: CHANGELOG,v 1.269 2003/11/26 13:58:00 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,7 +24,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
-  [BA] when compiled on non-supported system (NOT linux, freebsd or solaris)
+  [BA] incorporated SuSE init script from user.
+
+  [DG] if SCSI device is read only, then open it read only.
+
+  [BA] when compiled on non-supported system (NOT linux, freebsd or solaris) then
        the run-time error messages now clearly say 'your system is not supported'
        and give clear directions.
 

@@ -1,15 +1,25 @@
 #! @SHELL@
-# chkconfig: 2345 40 40
+
 # smartmontools init file for smartd
+# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# $Id: smartd.initd.in,v 1.13 2003/11/26 13:58:00 ballen4705 Exp $
 #
+# For RedHat and cousins:
+# chkconfig: 2345 40 40
 # description: Self Monitoring and Reporting Technology (SMART) Daemon
-#
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.12 2003/11/20 14:41:15 ballen4705 Exp $
+# For SuSE and cousins
+### BEGIN INIT INFO
+# Provides: smartd
+# Required-Start: 
+# Required-Stop: 
+# X-UnitedLinux-Should-Start: 
+# Default-Start: 1 2 3 5
+# Default-Stop: 0 6
+# Description: Start the smartd daemon
+### END INIT INFO
 #
-# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation; either version 2, or (at your option) any later
@@ -23,26 +33,25 @@
 # at the Concurrent Systems Laboratory (now part of the Storage Systems
 # Research Center), Jack Baskin School of Engineering, University of
 # California, Santa Cruz. http://ssrc.soe.ucsc.edu/.
-#
 
 report_unsupported () {
     echo "Currently the smartmontools package has no init script for"
     echo "the $1 Linux distribution. If you can provide one or this"
-    echo "one works only removing some ifdefs, please contact"
+    echo "one works after you have removing some ifdefs, please contact"
     echo "smartmontools-support@lists.sourceforge.net."
     exit 1
 }
 
 # Red Hat or Yellow Dog or Mandrake
 if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release ] ; then
-
+    
 # Source function library
     . /etc/rc.d/init.d/functions
-
+    
     RETVAL=0
-
+    
     prog=smartd
-
+    
     case "$1" in
 	start)
 	    echo -n $"Starting $prog: "
@@ -84,7 +93,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 
 # Slackware
 elif [ -f /etc/slackware-release ] ; then
-
+    
     case "$1" in
 	start)
 	    echo -n "Starting smartd: "
@@ -107,22 +116,99 @@ elif [ -f /etc/slackware-release ] ; then
     esac
     
     exit 0
-
-# Add other distributions HERE, using elif...
+    
+# SuSE
+elif [ -f /etc/SuSE-release ] ; then
+    
+    SMARTD_BIN=/usr/sbin/smartd
+    test -x $SMARTD_BIN || exit 5
+    
+   # Shell functions sourced from /etc/rc.status:
+   #      rc_check         check and set local and overall rc status
+   #      rc_status        check and set local and overall rc status
+   #      rc_status -v     ditto but be verbose in local rc status
+   #      rc_status -v -r  ditto and clear the local rc status
+   #      rc_failed        set local and overall rc status to failed
+   #      rc_reset         clear local rc status (overall remains)
+   #      rc_exit          exit appropriate to overall rc status
+    . /etc/rc.status
+    
+   # First reset status of this service
+    rc_reset
+    
+   # Return values acc. to LSB for all commands but status:
+   # 0 - success
+   # 1 - misc error
+   # 2 - invalid or excess args
+   # 3 - unimplemented feature (e.g. reload)
+   # 4 - insufficient privilege
+   # 5 - program not installed
+   # 6 - program not configured
+   #
+   # Note that starting an already running service, stopping
+   # or restarting a not-running service as well as the restart
+   # with force-reload (in case signalling is not supported) are
+   # considered a success.
+    case "$1" in
+	start)
+	    echo -n "Starting smartd: "
+            ## Start daemon with startproc(8). If this fails
+            ## the echo return value is set appropriate.
+	    
+            # startproc should return 0, even if service is
+            # already running to match LSB spec.
+            startproc $SMARTD_BIN
+	    
+            # Remember status and be verbose
+            rc_status -v
+	    ;;
+	stop)
+	    echo -n "Shutting down smartd: "
+            killproc -QUIT $SMARTD_BIN
+	    
+            # Remember status and be verbose
+            rc_status -v
+	    ;;
+	restart)
+	    $0 stop
+	    sleep 1
+	    $0 start
+	    ;;
+        status)
+            echo -n "Checking for service smartd: "
+            ## Check status with checkproc(8), if process is running
+            ## checkproc will return with exit status 0.
+	    
+            # Status has a slightly different for the status command:
+            # 0 - service running
+            # 1 - service dead, but /var/run/  pid  file exists
+            # 2 - service dead, but /var/lock/ lock file exists
+            # 3 - service not running
+	    
+            # NOTE: checkproc returns LSB compliant status values.
+            checkproc $SMARTD_BIN
+            rc_status -v
+            ;;
+	*)
+	    echo "Usage: smartd {start|stop|restart|status}"
+	    exit 1
+    esac
+    
+    rc_exit
+    
+# Add other linux distributions HERE, using elif...
 elif [ -f /etc/environment.corel ] ; then
     report_unsupported "Corel"
 elif [ -f /etc/debian_version ] ; then
     report_unsupported "Debian"
 elif [ -f /etc/gentoo-release ] ; then
     report_unsupported "Gentoo"
-elif [ -f /etc/SuSE-release ] ; then
-    report_unsupported "SuSE"
 elif [ -f /etc/turbolinux-release ] ; then
     report_unsupported "Turbolinux"
 elif uname -a | grep -q FreeBSD ; then
 
     PID_FILE=/var/run/smartd.pid
-
+    
     case "$1" in
 	start)
 	    smartd -p $PID_FILE
@@ -170,3 +256,8 @@ elif uname -a | grep -q SunOS ; then
 else
     report_unsupported "Unknown"
 fi
+
+# One should NEVER arrive here, except for a badly written case above,
+# that fails to exit.  
+echo "SOMETHING IS WRONG WITH THE SMARTD STARTUP SCRIPT"
+exit 1
