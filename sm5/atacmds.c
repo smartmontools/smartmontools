@@ -1,4 +1,4 @@
-//  $Id: atacmds.c,v 1.9 2002/10/20 19:22:02 ballen4705 Exp $
+//  $Id: atacmds.c,v 1.10 2002/10/20 19:40:23 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -126,7 +126,7 @@ void checksumwarning(const char *string){
 // wrong. The replacement function follows afterwards
 #if (0)
 int ataReadHDIdentity ( int device, struct hd_driveid *buf){
-  if (ioctl(device, HDIO_GET_IDENTITY, buf )){ 
+  if (ioctl(device, HDIO_GET_IDENTITY, buf)){ 
     perror ("ATA GET HD Failed");
     return -1; 
   }
@@ -148,17 +148,13 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   // copy data into driveid structure
   memcpy(buf,parms+HDIO_DRIVE_CMD_HDR_SIZE,sizeof(*buf));
   
-  // If driveid structure contains a checksum, then compute it, and
-  // issue a warning message if something is wrong.  I prefer this
-  // rather than simply exiting at this point, though that is another
-  // option.
-
   // Note -- the declaration that appears in
   // /usr/include/linux/hdregs.h: short words160_255[95], is WRONG.
   // It should say: short words160_255[96]. I have written to Andre
   // Hedrick about this on Oct 17 2002.  Please remove this comment
   // once the fix has made it into the stock kernel tree.
   if ((buf->words160_255[95] & 0x00ff) == 0x00a5){
+    // Device identity structure contains a checksum
     unsigned char cksum=0;
     int i;
 
@@ -312,7 +308,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
     {WIN_SMART, 0x01, SMART_READ_LOG_SECTOR, 1,};
   
   // get data from device
-  if (ioctl(device,HDIO_DRIVE_CMD,&buf)) {
+  if (ioctl(device,HDIO_DRIVE_CMD,buf)) {
     perror ("SMART Error Log Read failed");
     return -1;
   }
@@ -375,38 +371,33 @@ int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){
   return 0;
 }
 
-
 int ataEnableSmart (int device ){	
   unsigned char parms[4] = {WIN_SMART, 1, SMART_ENABLE, 0};
   
-  if (ioctl ( device , HDIO_DRIVE_CMD,  &parms )){
+  if (ioctl (device, HDIO_DRIVE_CMD, parms)){
     perror ("SMART Enable failed");
     return -1;
   }
-  
   return 0;
 }
-
 
 int ataDisableSmart (int device ){	
   unsigned char parms[4] = {WIN_SMART, 1, SMART_DISABLE, 0};
   
-  if (ioctl(device , HDIO_DRIVE_CMD, parms )){
+  if (ioctl(device, HDIO_DRIVE_CMD, parms)){
     perror ("SMART Disable failed");
     return -1;
-  }
-  
+  }  
   return 0;
 }
 
 int ataEnableAutoSave(int device){
   unsigned char parms[4] = {WIN_SMART, 241, SMART_AUTOSAVE, 0};
   
-  if (ioctl(device , HDIO_DRIVE_CMD,  parms )){
+  if (ioctl(device, HDIO_DRIVE_CMD, parms)){
     perror ("SMART Enable Auto-save failed");
     return -1;
   }
-  
   return 0;
 }
 
@@ -417,7 +408,6 @@ int ataDisableAutoSave(int device){
     perror ("SMART Disable Auto-save failed");
     return -1;
   }
-  
   return 0;
 }
 
@@ -431,7 +421,6 @@ int ataEnableAutoOffline (int device ){
     perror ("SMART Enable Automatic Offline failed");
     return -1;
   }
-  
   return 0;
 }
 
@@ -443,7 +432,6 @@ int ataDisableAutoOffline (int device ){
     perror ("SMART Disable Automatic Offline failed");
     return -1;
   }
-  
   return 0;
 }
 
@@ -491,7 +479,7 @@ int ataSmartStatus2(int device){
   parms[4]=normal_cyl_lo;
   parms[5]=normal_cyl_hi;
 
-  if (ioctl(device,HDIO_DRIVE_TASK,&parms)){
+  if (ioctl(device,HDIO_DRIVE_TASK,parms)){
     perror ("SMART Status command failed.");
     return -1;
   }
