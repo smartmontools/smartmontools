@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.245 2003/11/19 07:50:39 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.246 2003/11/19 19:38:16 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1600,9 +1600,6 @@ void printoutvaliddirectiveargs(int priority, char d) {
   char *s=NULL;
 
   switch (d) {
-  case 's':
-    PrintOut(priority, "S,n  or  L,n  or  S,n,m-p  or  L,n,m-p  withh n,m,p integers");
-    break;
   case 'd':
     PrintOut(priority, "ata, scsi, removable, 3ware,N");
     break;
@@ -1665,61 +1662,6 @@ int GetInteger(char *arg, char *name, char *token, int lineno, char *configfile,
   // all is well; return value
   return val;
 }
-
-#define SCHEDULE_SELFTESTS 0
-
-#if SCHEDULE_SELFTESTS
-char ParseTestTime(char *arg, int *dt, int *range) {
-  char null='\0';
-  char *endptr1, *endptr2,*endptr3;
-  
-  // check that pointer is not null
-  if (!arg)
-    return null;
-
-  // that first character is L or S
-  if (arg[0]!='L' && arg[0]!='S')
-    return null;
-
-  // that second character is comma
-  if (arg[1]!=',')
-    return null;
-
-  if (!arg[2])
-    return null;
-
-  // that third character is a number  
-  *dt=strtol(arg+2, &endptr1, 10);
-
-  if (!endptr1[0])
-    // we read a number, and nothing follows
-    return arg[0];
-
-  if (endptr1==arg+2 || endptr1[0] != ',')
-    return null;
-
-  if (!endptr1[1])
-    return null;
-
-  range[0]=strtol(endptr1+1,&endptr2, 10);
-
-  if (!endptr2[0])
-    return null;
-
-  if (endptr2==endptr1+1 || endptr2[0] !='-')
-    return null;
-
-  if (!endptr2[1])
-    return null;
-
-  range[1]=strtol(endptr2+1,&endptr3, 10);
-
-  if (*endptr3)
-    return null;
-
-  return arg[0]+32;
-}      
-#endif
 
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
@@ -1890,54 +1832,6 @@ int ParseToken(char *token,cfgfile *cfg){
       badarg = 1;
     }
     break;
-#if SCHEDULE_SELFTESTS
-  case 's':
-    // scheduled self-testing interval, times
-    if ((arg = strtok(NULL, delim)) == NULL) {
-      missingarg = 1;
-    } else {
-      int dt, range[2]={0,24};
-      char type=ParseTestTime(arg, &dt, range);
-
-      if (!type)
-	badarg=1;
-      else {
-	int shortform=type=='L' || type=='S';
-	if (type=='l' || type=='s')
-	  type -=32;
-	
-	if (dt<1 || dt>65535) {
-	  PrintOut(LOG_CRIT,
-		   "File %s line %d (drive %s): Directive %s %c,n%s\n"
-		   "schedules a self-test n hours after the last one, where 1 <= n <= 65535.\n"
-		   "You have: %s %s so n=%d.\n",
-		   configfile, lineno, name, token, type, shortform?"":",m-p", token, arg, dt);
-	  return -1;
-	}
-	
-	if (!shortform && (range[0]<0 || range[1]>24 || range[0]>=range[1])) {
-	  PrintOut(LOG_CRIT, 
-		   "File %s line %d (drive %s): Directive %s %c,n,m-p\n"
-		   "schedules a self-test in the time between m hours after midnight\n"
-		   "and p hours after midnight, where 0 <= m <= 23 and 1 <= p <= 24 and m < p.\n"
-		   "You have: %s %s so m=%d and p=%d.\n",
-		   configfile, lineno, name, token, type, token, arg, range[0], range[1]);
-	  return -1;  
-	}
-	if (type=='S') {
-	  cfg->runshort=dt;
-	  cfg->runshorttime[0]=range[0];
-	  cfg->runshorttime[1]=range[1];
-	}
-	else {
-	  cfg->runlong=dt;
-	  cfg->runlongtime[0]=range[0];
-	  cfg->runlongtime[1]=range[1];
-	}
-      }
-    }
-    break;
-#endif
   case 'M':
     // email warning option
     if ((arg = strtok(NULL, delim)) == NULL) {
