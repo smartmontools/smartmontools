@@ -27,8 +27,11 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.24 2003/04/19 09:53:41 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.25 2003/07/19 10:21:37 ballen4705 Exp $\n"
 #endif
+
+// For development and testing of Selective self-test code
+#define DEVELOP_SELECTIVE_SELF_TEST 0
 
 // Possible values for fixfirmwarebug
 #define FIX_NONE             0
@@ -51,8 +54,16 @@ typedef struct smartmonctrl_s {
   unsigned char smartexeoffimmediate;
   unsigned char smartshortselftest;
   unsigned char smartextendselftest;
+  unsigned char smartconveyanceselftest;
+#if DEVELOP_SELECTIVE_SELF_TEST
+  unsigned char smartselectiveselftest;
+#endif
   unsigned char smartshortcapselftest;
   unsigned char smartextendcapselftest;
+  unsigned char smartconveyancecapselftest;
+#if DEVELOP_SELECTIVE_SELF_TEST
+  unsigned char smartselectivecapselftest;
+#endif
   unsigned char smartselftestabort;
   unsigned char smartautoofflineenable;
   unsigned char smartautoofflinedisable;

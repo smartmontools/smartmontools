@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.91 2003/06/23 04:55:56 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.92 2003/07/19 10:21:37 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -374,44 +374,31 @@ void PrintSmartErrorLogCapability ( struct ata_smart_values *data)
 
 
 void PrintSmartShortSelfTestPollingTime(struct ata_smart_values *data){
-  if (isSupportSelfTest(data)){
-    pout("Short self-test routine \n");
+  pout("Short self-test routine \n");
+  if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
 	 (int)data->short_test_completion_time);
-  }
-  else {
-    pout("Short self-test routine \n");
+  else
     pout("recommended polling time: \t        Not Supported.\n");
-  }
 }
 
 void PrintSmartExtendedSelfTestPollingTime(struct ata_smart_values *data){
-  if (isSupportSelfTest(data)){
-    pout("Extended self-test routine \n");
+  pout("Extended self-test routine\n");
+  if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
 	 (int)data->extend_test_completion_time);
-  }
-  else {
-    pout("Extended self-test routine \n");
+  else
     pout("recommended polling time: \t        Not Supported.\n");
-  }
 }
 
 void PrintSmartConveyanceSelfTestPollingTime(struct ata_smart_values *data){
-  if (isSupportConveyanceSelfTest(data)){
-    pout("Extended self-test routine \n");
+  pout("Conveyance self-test routine\n");
+  if (isSupportConveyanceSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
 	 (int)data->conveyance_test_completion_time);
-  }
-  else {
-    pout("Extended self-test routine \n");
+  else
     pout("recommended polling time: \t        Not Supported.\n");
-  }
 }
-
-
-
-
 
 // onlyfailed=0 : print all attribute values
 // onlyfailed=1:  just ones that are currently failed and have prefailure bit set
@@ -639,15 +626,22 @@ int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
     
     // Spec says: unused error log structures shall be zero filled
     if (nonempty((unsigned char*)&(data->errorlog_struct[i]),sizeof(data->errorlog_struct[i]))){
+      // Table 57 of T13/1532D Volume 1 Revision 3
       char *msgstate;
-      switch (data->errorlog_struct[i].error_struct.state){
+      int bits=data->errorlog_struct[i].error_struct.state & 0x0f;
+      switch (bits){
       case 0x00: msgstate="in an unknown state";break;
       case 0x01: msgstate="sleeping"; break;
       case 0x02: msgstate="in standby mode"; break;
       case 0x03: msgstate="active or idle"; break;
       case 0x04: msgstate="doing SMART off-line or self test"; break;
-      default:   msgstate="in a vendor specific or reserved state";
+      default:   
+	if (bits<0x0b)
+	  msgstate="in a reserved state";
+	else
+	  msgstate="in a vendor specific state";
       }
+
       // See table 42 of ATA5 spec
       QUIETON(con);
       pout("Error %d occurred at disk power-on lifetime: %d hours\n",
@@ -723,15 +717,24 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       case   0: msgtest="Off-line           "; break;
       case   1: msgtest="Short off-line     "; break;
       case   2: msgtest="Extended off-line  "; break;
+      case   3: msgtest="Conveyance off-line"; break;
+      case   4: msgtest="Selective off-line "; break;
       case 127: msgtest="Abort off-line test"; break;
       case 129: msgtest="Short captive      "; break;
       case 130: msgtest="Extended captive   "; break;
-      default:  msgtest="Unknown test       ";
+      case 131: msgtest="Conveyance captive "; break;
+      case 132: msgtest="Selective captive  "; break;
+      default:  
+	if ( log->selftestnumber>=192 ||
+	    (log->selftestnumber>= 64 && log->selftestnumber<=126))
+	  msgtest="Vendor off-line    ";
+	else
+	  msgtest="Reserved off-line  ";
       }
       
       // test status
       switch((log->selfteststatus)>>4){
-      case  0:msgstat="Completed                    "; break;
+      case  0:msgstat="Completed without error      "; break;
       case  1:msgstat="Aborted by host              "; break;
       case  2:msgstat="Interrupted (host reset)     "; break;
       case  3:msgstat="Fatal or unknown error       "; errorfound=1; break;
@@ -740,7 +743,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       case  6:msgstat="Completed: servo/seek failure"; errorfound=1; break;
       case  7:msgstat="Completed: read failure      "; errorfound=1; break;
       case  8:msgstat="Completed: handling damage?? "; errorfound=1; break;
-      case 15:msgstat="Test in progress             "; break;
+      case 15:msgstat="Self-test routine in progress"; break;
       default:msgstat="Unknown/reserved test status ";
       }
 
@@ -1094,11 +1097,12 @@ int ataPrintMain (int fd){
     QUIETOFF(con);
   }
 
-  // Print SMART log Directory.  For the moment this command is hidden
+  // Print SMART log Directory
   if (con->smartlogdirectory){
     struct ata_smart_log_directory smartlogdirectory;
     if (!isGeneralPurposeLoggingCapable(&drive)){
       pout("Warning: device does not support General Purpose Logging\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       QUIETON(con);
@@ -1168,14 +1172,45 @@ int ataPrintMain (int fd){
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
   // if doing a self-test, be sure it's supported by the hardware
-  if (con->testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(&smartval)){
-    pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
-    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+  switch (con->testcase){
+  case OFFLINE_FULL_SCAN:
+    if (!isSupportExecuteOfflineImmediate(&smartval)){
+      pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    break;
+  case ABORT_SELF_TEST:
+  case SHORT_SELF_TEST:
+  case EXTEND_SELF_TEST:
+  case SHORT_CAPTIVE_SELF_TEST:
+  case EXTEND_CAPTIVE_SELF_TEST:
+    if (!isSupportSelfTest(&smartval)){
+      pout("Warning: device does not support Self-Test functions.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    break;
+  case CONVEYANCE_SELF_TEST:
+  case CONVEYANCE_CAPTIVE_SELF_TEST:
+    if (!isSupportConveyanceSelfTest(&smartval)){
+      pout("Warning: device does not support Conveyance Self-Test functions.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    break;
+#if DEVELOP_SELECTIVE_SELF_TEST
+  case SELECTIVE_SELF_TEST:
+  case SELECTIVE_CAPTIVE_SELF_TEST:
+    if (!isSupportSelectiveSelfTest(&smartval)){
+      pout("Warning: device does not support Selective Self-Test functions.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    break;
+#endif
+  default:
+    pout("Internal error in smartctl: con->testcase==%d not recognized\n", (int)con->testcase);
+    pout("Please contact smartmontools developers.\n");
+    exit(returnval|=FAILCMD);
   }
-  else if (!isSupportSelfTest(&smartval)){
-    pout("Warning: device does not support Self-Test functions.\n\n");
-    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-  }
+
   // Now do the test.  Note ataSmartTest prints its own error/success
   // messages
   if (ataSmartTest(fd, con->testcase))
@@ -1200,7 +1235,10 @@ int ataPrintMain (int fd){
     pout("Please wait %d %s for test to complete.\n",
 	 (int)timewait, con->testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
     
-    if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && con->testcase!=EXTEND_CAPTIVE_SELF_TEST)
+    if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
+	con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
+	con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
+	con->testcase!=SELECTIVE_CAPTIVE_SELF_TEST)
       pout("Use smartctl -X to abort test.\n");	
   }    
   return returnval;

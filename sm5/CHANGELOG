@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.160 2003/07/08 13:23:54 ballen4705 Exp $
+$Id: CHANGELOG,v 1.161 2003/07/19 10:21:37 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Added conveyance self-test.  Some code added for selective
+       self-tests, but #ifdefed out.
+
+  [BA] Modified smartd exit status and log levels.  If smartd is
+       "cleanly" terminated, for example with SIGTERM, then its
+       exit messages are now logged at LOG_INFO not LOG_CRIT
 
   [BA] Added Attribute IDs  (Fujitsu) 0xCA - 0xCE.  This is decimal
        202-206. Added -v switches for interpretation of Attributes
