@@ -31,7 +31,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.55 2003/01/16 15:28:57 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.56 2003/01/17 21:47:12 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -506,7 +506,7 @@ int nonempty(unsigned char *testarea,int n){
 }
 
 // returns number of errors
-void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
+int ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
   int i,j,k;
   
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
@@ -514,7 +514,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
   // if no errors logged, return
   if (!data->error_log_pointer){
     pout("No Errors Logged\n\n");
-    return;
+    return 0;
   }
   QUIETON(con);
   // If log pointer out of range, return
@@ -522,7 +522,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
     pout("Invalid Error Log index = %02x (T13/1321D rev 1c"
 	 "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
 	 (int)data->error_log_pointer);
-    return;
+    return 0;
   }
 
   // Some internal consistency checking of the data structures
@@ -609,7 +609,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog *data){
   if (con->quietmode)
     pout("\n");
   QUIETOFF(con);
-  return;  
+  return data->ata_error_count;  
 }
 
 // return value is number of entries found where the self-test showed an error
@@ -972,7 +972,8 @@ int ataPrintMain (int fd){
     }
     else {
       // quiet mode is turned on inside ataPrintSmartErrorLog()
-      ataPrintSmartErrorlog(&smarterror);
+      if (ataPrintSmartErrorlog(&smarterror))
+	returnval|=FAILERR;
       QUIETOFF(con);
     }
   }
