@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.116 2003/04/10 04:13:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.117 2003/04/14 11:03:42 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] Support -l error for SCSI disks (and tapes). Output error counter
+       log pages.
 
   [BA] Added -F/--fixbyteorder option to smartctl.  This allows us to read
        SMART data from some disks that have byte-reversed two- and four-
