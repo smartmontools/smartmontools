@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.63 2004/07/13 14:55:37 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.64 2004/07/13 18:28:51 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.63 2004/07/13 14:55:37 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.64 2004/07/13 18:28:51 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1152,7 +1152,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   
   // Deal with the different error cases
   if (ioctlreturn) {
-    if (THREE_WARE_678K==escalade_type && (command==AUTO_OFFLINE || command==AUTOSAVE) && select){
+    if (THREE_WARE_678K==escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
       printwarning(command);
       errno=ENOTSUP;
     }
