@@ -24,13 +24,13 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.4 2003/04/16 20:08:59 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.5 2003/04/16 23:04:28 pjwilliams Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 
 #define PRESET_9_MINUTES                   {   9,  1 }
-#define PRESET_9_SECONDS                   {   9,  2 }
+#define PRESET_9_SECONDS                   {   9,  3 }
 #define PRESET_9_HALFMINUTES               {   9,  4 }
 #define PRESET_194_10XCELSIUS              { 194,  1 }
 #define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
@@ -84,6 +84,7 @@ const drivesettings knowndrives[] = {
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
     NULL,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -95,6 +96,7 @@ const drivesettings knowndrives[] = {
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/",
     NULL,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -105,6 +107,7 @@ const drivesettings knowndrives[] = {
     ".*",                                  // Tested on ED-03-04
     NULL,
     vendoropts_Fujitsu_MPE3204AT,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -115,6 +118,7 @@ const drivesettings knowndrives[] = {
     ".*",                                      // Tested on 8004
     NULL,
     vendoropts_Fujitsu_MHS2020AT,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -125,7 +129,8 @@ const drivesettings knowndrives[] = {
     "RM100-08",
     NULL,
     vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung
+    specialpurpose_reverse_samsung,
+    "Fixes byte order in some SMART data (same as -F)"
   },
   /*------------------------------------------------------------
    *  Samsung SV4012H (all other firmware)
@@ -135,6 +140,7 @@ const drivesettings knowndrives[] = {
     ".*",
     "Contact developers; may need -F enabled",
     vendoropts_Samsung_SV4012H,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -145,7 +151,8 @@ const drivesettings knowndrives[] = {
     "RK100-13",
     NULL,
     vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung
+    specialpurpose_reverse_samsung,
+    "Fixes byte order in some SMART data (same as -F)"
   },
   /*------------------------------------------------------------
    *  Samsung SV1204H (all other firmware)
@@ -156,6 +163,7 @@ const drivesettings knowndrives[] = {
     "Contact developers; may need -F enabled",
     vendoropts_Samsung_SV1204H,
     NULL,
+    NULL
   },
   /*------------------------------------------------------------
    *  Maxtor 4D080H4
@@ -165,6 +173,7 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,
+    NULL,
     NULL
   },
   /*------------------------------------------------------------
@@ -172,11 +181,12 @@ const drivesettings knowndrives[] = {
    *------------------------------------------------------------ */
 /*
   {
-     "^IC35L060AVVA07-0$",
-     NULL,
-     "Hey, you've got an IBM Deskstar 120GXP!\n",
-     NULL,
-     NULL,
+    "^IC35L060AVVA07-0$",
+    NULL,
+    "Hey, you've got an IBM Deskstar 120GXP!\n",
+    NULL,
+    NULL,
+    NULL,
   },
 */
   /*------------------------------------------------------------
@@ -234,7 +244,7 @@ void showallpresets(void)
   for (i = 0; knowndrives[i].modelregexp; i++) {
     const int (* presets)[2] = knowndrives[i].vendoropts;
     int first_preset = 1;
-    int width = 11;
+    int width = 20;
 
     if (!presets)
       continue;
@@ -254,12 +264,17 @@ void showallpresets(void)
       // Use leading zeros instead of spaces so that everything lines up.
       out[0] = (out[0] == ' ') ? '0' : out[0];
       out[1] = (out[1] == ' ') ? '0' : out[1];
-      pout("%-*s %s\n", width, first_preset ? "PRESETS" : "", out);
+      pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS" : "", out);
       first_preset = 0;
       presets++;
     }
+    pout("%-*s ", width, "OTHER PRESETS");
     if (knowndrives[i].specialpurpose)
-      pout("%-*s There is a special-purpose function defined for this drive\n",           width, "");
+      pout("%s\n", knowndrives[i].functiondesc ?
+                   knowndrives[i].functiondesc : "A special purpose function "
+                                                 "is defined for this drive");
+    else
+      pout("None\n");
     pout("\n");
   }
 }
@@ -268,26 +283,35 @@ void showallpresets(void)
 void showpresets(const struct hd_driveid *drive)
 {
   int i;
-  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1], out[64];
+  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1],
+       out[64];
 
   formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
-  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
-    const int (* presets)[2] = knowndrives[i].vendoropts;
-    while (1) {
-      const int attr = (*presets)[0];
-      const int val  = (*presets)[1];
-
-      if (!attr)  
-        break;
-
-      ataPrintSmartAttribName(out, attr, val);
-      pout("%s\n", out);
-      presets++;
-    }
-  } else {
+  if (   (i = lookupdrive(model, firmware)) < 0
+      || (!knowndrives[i].vendoropts && !knowndrives[i].specialpurpose)
+  )
     pout("No presets are defined for this drive\n");
+  else {
+    const int (* vopts)[2] = knowndrives[i].vendoropts;
+
+    if (vopts)
+      while (1) {
+        const int attr = (*vopts)[0];
+        const int val  = (*vopts)[1];
+
+        if (!attr)
+          break;
+
+        ataPrintSmartAttribName(out, attr, val);
+        pout("%s\n", out);
+        vopts++;
+      }
+    if (knowndrives[i].specialpurpose)
+      pout("%s\n", knowndrives[i].functiondesc ?
+                   knowndrives[i].functiondesc : "A special purpose function "
+                                                 "is defined for this drive");
   }
 }
 
