@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.110 2003/10/27 00:25:26 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.111 2003/10/27 20:48:46 pjwilliams Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -166,6 +166,8 @@ const char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[1] = "NM";
     break;
   case 0xA1:  /* IDENTIFY PACKET DEVICE */
+  case 0xEF:  /* SET FEATURES */
+  case 0x00:  /* NOP */
     error_flag[2] = "ABRT";
     break;
   case 0xB0:  /* SMART */
@@ -175,6 +177,7 @@ const char *construct_st_er_desc(unsigned char CR, unsigned char FR,
       error_flag[2] = "ABRT";
       break;
     case 0xD9:  /* SMART DISABLE OPERATIONS */
+    case 0xDA:  /* SMART RETURN STATUS */
       error_flag[2] = "ABRT";
       break;
     default:
