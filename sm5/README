@@ -234,7 +234,7 @@ old to new smartd.conf directives:
                                                                             \      Line continuation    \
   -------------------------------------------------------------------------------------------------------------------
 
-Changes to smartd options (in progress):
+Changes to smartd options:
 
   ----------------------------------------------------------------------------------------------------------
   5.0 short     5.0 long                                     5.1 short     5.1 long
