@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.179 2003/08/05 11:15:54 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.180 2003/08/05 15:32:32 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1710,7 +1710,7 @@ int parseconfigline(int entry, int lineno,char *line){
   // bit per possible attribute ID.  See isattoff()
 
   // DO NOT USE name AFTER THIS -- IT COMES FROM strtok() AND IS VOLATILE!
-  cfg->name=strdup(name);  
+  cfg->name=strdup(name);
   cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
   cfg->attributedefs=(unsigned char *)calloc(256,1);
 

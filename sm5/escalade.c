@@ -41,15 +41,17 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.6 2003/08/05 10:07:35 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.7 2003/08/05 15:32:32 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
 //   parts of the code, and to provide a debugging interface.  Each
 //   different port and OS needs to provide it's own interface.  This
-//   is the linux one.
+//   is the linux interface to the 3ware 3w-xxxx driver.  It allows ATA
+//   commands to be passed through the SCSI driver.
 // DETAILED DESCRIPTION OF ARGUMENTS
-//   device: is the file descriptor provided by open()
+//   fd: is the file descriptor provided by open()
+//   disknum is the disk number (0 to 15) in the RAID array
 //   command: defines the different operations.
 //   select: additional input data if needed (which log, which type of
 //           self-test).
@@ -62,7 +64,6 @@ const char *escalade_c_cvsid="$Id: escalade.c,v 1.6 2003/08/05 10:07:35 ballen47
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
-
 
 int linux_3ware_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
 
@@ -87,12 +88,13 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   passthru.drive_head    = 0x0;
   passthru.sector_num  = 0;
 
-  // All SMART commands use this CL/CH signature
+  // All SMART commands use this CL/CH signature.  These are magic
+  // values from the ATA specifications.
   passthru.cylinder_lo = 0x4F;
   passthru.cylinder_hi = 0xC2;
   
   // SMART ATA COMMAND REGISTER value
-  passthru.command = 0xB0;
+  passthru.command = WIN_SMART;
   
   // Is this a command that returns 512 bytes?
   if (command == READ_VALUES ||
@@ -112,19 +114,22 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.sector_count = 0x0;
   }
 
+  // Now set ATA registers depending upon command
   switch (command){
   case READ_VALUES:
-    passthru.features = 0xD0;  // SMART READ DATA
+    passthru.features = SMART_READ_VALUES;
     break;
   case READ_THRESHOLDS:
-    passthru.features = 0xD1;  // SMART READ ATTRIBUTE THRESHOLDS
+    passthru.features = SMART_READ_THRESHOLDS;
     break;
   case READ_LOG:
-    passthru.features = 0xD5;      // SMART READ LOG
-    passthru.sector_num  = select; // What log to return?
+    passthru.features = SMART_READ_LOG_SECTOR;
+    // log number to return
+    passthru.sector_num  = select;
     break;
   case IDENTIFY:
-    passthru.command     = 0xEc;   // ATA IDENTIFY DEVICE
+    // ATA IDENTIFY DEVICE
+    passthru.command     = 0xEc;
     passthru.features    = 0;
     passthru.cylinder_lo = 0;
     passthru.cylinder_hi = 0;
@@ -135,16 +140,18 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     errno=ENODEV;
     return -1;
   case ENABLE:
-    passthru.features = 0xD8;  // SMART ENABLE OPERATIONS
+    passthru.features = SMART_ENABLE;
     break;
   case DISABLE:
-    passthru.features = 0xD9;  // SMART DISABLE OPERATIONS
+    passthru.features = SMART_DISABLE;
     break;
   case AUTO_OFFLINE:
-    // NON-DATA COMMAND FROM THE SFF-8035i SPECIFICATIONS. To enable
-    // requires a sector count value of 0xF8.
-    passthru.features = 0xDB;       // SMART AUTO OFFLINE
-    passthru.sector_count = select; // Enable or disable?
+    // NON-DATA COMMAND FROM THE SFF-8035i SPECIFICATIONS. The enable
+    // command requires a sector count value of 0xF8, not supported by
+    // 3ware 3w-xxxx driver.
+    passthru.features = SMART_AUTO_OFFLINE;
+    ; // Enable or disable?
+    passthru.sector_count = select;
     if (select){
       pout("WARNING - SMART AUTO OFFLINE ENABLE NOT IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
       errno=ENOSYS;
@@ -152,10 +159,12 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     }
     break;
   case AUTOSAVE:
-    // NOTE -- this is a NON-DATA COMMAND - same as above. To enable
-    // requires a sector count value of 0xF1.
-    passthru.features = 0xD2;        // SMART AUTOSAVE
-    passthru.sector_count = select; // Enable or disable?
+    // NON-DATA COMMAND FROM THE ATA-* SPECIFICATIONS. The enable
+    // command requires a sector count value of 0xF1, not supported by
+    // 3ware 3w-xxxx driver.
+    passthru.features = SMART_AUTOSAVE;
+    // Enable or disable?
+    passthru.sector_count = select;
     if (select){
       pout("WARNING - SMART AUTOSAVE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
       errno=ENOSYS;
@@ -163,16 +172,18 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     }
     break;
   case IMMEDIATE_OFFLINE:
-    passthru.features = 0xD4;      //SMART EXECUTE OFF-LINE IMMEDIATE
-    passthru.sector_num  = select; // What test type to run?
+    passthru.features = SMART_IMMEDIATE_OFFLINE;
+    // What test type to run?
+    passthru.sector_num  = select;
     break;
   case STATUS_CHECK:
-    passthru.features = 0xDA;      //SMART RETURN STATUS
+    passthru.features = SMART_STATUS;
     break;
   case STATUS:
     // This is JUST to see if SMART is enabled, by giving SMART status
     // command. But it doesn't say if status was good, or failing.
-    passthru.features = 0xDA;      //SMART RETURN STATUS
+    // See below for the difference.
+    passthru.features = SMART_STATUS;
     break;
   default:
     pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n", command, disknum);
@@ -195,6 +206,10 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   }
 
 #if (0)
+  // This is a GUESS as to where the correct registers (Cylinder Low
+  // and Cylinder High) are to be found.  If you know for sure that
+  // they are here, or that they are not here, please email Bruce
+  // Allen at ballen4705@users.sourceforge.net
   pout("Registers are CL=0x%02u CH=0x%02u\n", 
        (unsigned)ioctlbuf.parameter_size_bytes,
        (unsigned)ioctlbuf.input_data[0]);
@@ -209,14 +224,15 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
   if (command!=STATUS_CHECK)
     return 0;
 
-  // STATUS CHECK requires looking at CYL-LO and CYL-HI.  These seem to be in:
+  // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
   if (ioctlbuf.parameter_size_bytes==0x4F && ioctlbuf.input_data[0]==0xC2)
     return 0;
   
+  // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
   if (ioctlbuf.parameter_size_bytes==0xF4 && ioctlbuf.input_data[0]==0x2C)
     return 1;
   
-  // NOT YET IMPLEMENTED -- SHOULD BE SMART RETURN STATUS
+  // Any other values mean that something has gone wrong with the command
   pout("WARNING - SMART CHECK STATUS NOT YET IMPLEMENTED FOR 3WARE CONTROLLER (disk %d)\n", disknum);
   errno=ENOSYS;
   return -1;
