@@ -57,6 +57,9 @@ smartctl is a command line utility designed to perform
 smartd   is a daemon that periodically monitors S.M.A.R.T. status and
          reports errors and changes in S.M.A.R.T. attributes to syslog.
 
+SEE THE FILE "WARNINGS" FOR REPORTS OF HARDWARE WHERE THESE UTILITIES MIGHT
+CAUSE SERIOUS PROBLEMS SUCH AS LOCKUPS.
+
 If you have just downloaded smartmontools from the URL above, then
 you can read about these commands using the man pages.  Within this
 directory the commands:
@@ -79,7 +82,7 @@ To install, use the commands:
 The tools require Linux kernel 2.2.14 or greater in order to run. Any
 recent Linux distribution should support this package.
  
-Eleven files are installed:
+Fourteen files are installed:
 /usr/sbin/smartd                               [Executable daemon]
 /usr/sbin/smartctl                             [Executable command-line utility]
 /etc/rc.d/init.d/smartd                        [Init/Startup script for smartd]
