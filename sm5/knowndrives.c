@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.78 2004/01/03 21:32:16 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.79 2004/01/03 21:52:03 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -388,6 +388,11 @@ const drivesettings knowndrives[] = {
   },
   { // IBM Deskstar 120GXP 40GB
     "^IC35L040AVVN07-0$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // IBM Travelstar 14GS
+    "^IBM-DCYA-214000$",
     ".*",
     NULL, NULL, NULL, NULL
   },

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.312 2004/01/03 21:32:14 pjwilliams Exp $
+$Id: CHANGELOG,v 1.313 2004/01/03 21:52:03 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added IBM Travelstar 14GS to knowndrives table.
 
   [PW] Modified knowndrives table to match entire Hitachi Travelstar
        DK23BA and DK23EA series of drives (thanks to Norikatsu Shigemura
