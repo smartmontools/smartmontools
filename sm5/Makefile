@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.60 2003/04/09 09:02:56 ballen4705 Exp $
+# $Id: Makefile,v 1.61 2003/04/13 16:05:22 pjwilliams Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -56,12 +56,12 @@ all: smartd smartctl
 
 smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o utility.o knowndrives.o\
           smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h \
-          utility.h extern.h VERSION Makefile
+          utility.h extern.h knowndrives.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartctl.c \
                                       atacmds.o ataprint.o knowndrives.o scsicmds.o scsiprint.o utility.o
 
 smartd:  smartd.c atacmds.o ataprint.o scsicmds.o utility.o knowndrives.o \
-         smartd.h atacmds.h ataprint.h scsicmds.h utility.h extern.h VERSION \
+         smartd.h atacmds.h ataprint.h knowndrives.h scsicmds.h utility.h extern.h VERSION \
          Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartd.c \
                                       atacmds.o ataprint.o knowndrives.o scsicmds.o utility.o 
@@ -82,7 +82,7 @@ scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h utility.h Ma
 utility.o: utility.c utility.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c utility.c
 
-knowndrives.o: knowndrives.c knowndrives.h Makefile
+knowndrives.o: knowndrives.c knowndrives.h utility.h atacmds.h Makefile
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c knowndrives.c
 
 

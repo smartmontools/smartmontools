@@ -35,7 +35,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.5 2003/03/06 07:27:18 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.6 2003/04/13 16:05:23 pjwilliams Exp $" UTILITY_H_CVSID;
 
 
 // Utility function prints date and time and timezone into a character
@@ -154,4 +154,33 @@ void syserror(const char *message){
       pout("%s\n",errormessage);
 	
     return;
+}
+
+// Prints a warning message for a failed regular expression compilation from
+// regcomp().
+void printregexwarning(int errcode, regex_t *compiled){
+  size_t length = regerror(errcode, compiled, NULL, 0);
+  char *buffer = malloc(length);
+  if (!buffer){
+    pout("Out of memory in printregexwarning()\n");
+    return;
+  }
+  regerror(errcode, compiled, buffer, length);
+  pout("%s\n", buffer);
+  free(buffer);
+  return;
+}
+
+// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
+int compileregex(regex_t *compiled, const char *pattern, int cflags)
+{ 
+  int errorcode;
+
+  if ((errorcode = regcomp(compiled, pattern, cflags))) {
+    pout("Internal error: unable to compile regular expression %s", pattern);
+    printregexwarning(errorcode, compiled);
+    pout("Please inform smartmontools developers\n");
+    return 1;
+  }
+  return 0;
 }

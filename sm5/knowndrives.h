@@ -20,7 +20,9 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.1 2003/04/08 21:40:01 pjwilliams Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.2 2003/04/13 16:05:23 pjwilliams Exp $\n"
+
+#include <linux/hdreg.h>
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -48,10 +50,25 @@ typedef struct drivesettings_s {
   const char * const firmwareregexp;
   const char * const warningmsg;
   const int (* const vendoropts)[2];
-  const int (* const specialpurpose)();
+  const void (* const specialpurpose)();
 } drivesettings;
 
 /* Table of settings for known drives.  Defined in knowndrives.c. */
 extern const drivesettings knowndrives[];
+
+// Searches knowndrives[] for a drive with the given model number and firmware
+// string.
+int lookupdrive(const char *model, const char *firmware);
+
+// Shows the presets (if any) that are available for the given drive.
+void showpresets(const struct hd_driveid *drive);
+
+// Shows all presets for drives in knowndrives[].
+void showallpresets(void);
+
+// Sets preset vendor attribute options in opts by finding the entry (if any)
+// for the given drive in knowndrives[].  Values that have already been set in
+// opts will not be changed.
+void applypresets(const struct hd_driveid *drive, unsigned char opts[256]);
 
 #endif
