@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.23 2003/06/04 09:24:28 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.24 2003/06/09 19:11:12 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -35,6 +35,7 @@ const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.23 2003/06/04 09:24:28 b
 #define PRESET_9_TEMP                      {   9,  2 }
 #define PRESET_9_SECONDS                   {   9,  3 }
 #define PRESET_9_HALFMINUTES               {   9,  4 }
+#define PRESET_193_LOADUNLOAD              { 193,  1 }
 #define PRESET_194_10XCELSIUS              { 194,  1 }
 #define PRESET_194_UNKNOWN                 { 194,  2 }
 #define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
@@ -74,6 +75,13 @@ const unsigned char vendoropts_Samsung_SV1204H[][2] = {
   PRESET_194_10XCELSIUS,
   {0,0}
 };
+
+const unsigned char vendoropts_Hitachi_DK23EA[][2] = {
+  PRESET_9_MINUTES,
+  PRESET_193_LOADUNLOAD,
+  {0,0}
+};
+
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -210,6 +218,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL,
     vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // HITACHI_DK23EA-30
+    "^HITACHI_DK23EA-30$",
+    ".*",
+    NULL,
+    vendoropts_Hitachi_DK23EA,
     NULL, NULL
   },
   { // IBM GXP-180
