@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.130 2003/04/08 11:22:34 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.131 2003/04/08 13:20:26 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -333,7 +333,7 @@ void remove_pid_file(){
   return;
 }
 
-void goobye(){
+void goodbye(){
   printout(LOG_CRIT,"smartd is exiting\n");
   remove_pid_file();
   return;
@@ -1069,7 +1069,7 @@ int scsiCheckDevice(scsidevices_t *drive)
 }
 
 void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
-  static int forked=0, handlers=0;
+  static int firstpass=1;
   int i;
 
   // Infinite loop, which checks devices
@@ -1089,15 +1089,13 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
       exit(0);
     }
 
-    // If in background as a daemon, fork and close file descriptors
-    if (!debugmode && !forked){
-      daemon_init();
-      write_pid_file();
-      forked=1;
-    }
-
-    if (!handlers){
-      // setup signal handler for shutdown
+    // Initialization setup
+    if (firstpass){
+      
+      // If in background as a daemon, fork and close file descriptors
+      if (!debugmode)
+	daemon_init();
+      
       if (signal(SIGINT, sighandler)==SIG_IGN)
 	signal(SIGINT, SIG_IGN);
       if (signal(SIGTERM, sighandler)==SIG_IGN)
@@ -1110,7 +1108,13 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 	signal(SIGUSR1, SIG_IGN);
       
       // install goobye message
-      atexit(goobye);
+      atexit(goodbye);
+      
+      // write PID file only after installing exit handler
+      if (!debugmode)
+	write_pid_file();
+      
+      firstpass=0;
     }
 
     // Unix Gurus: I know that this can be done better.  Please tell
