@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.16 2002/10/26 09:24:26 ballen4705 Exp $
+$Id: TODO,v 1.17 2002/10/29 13:38:49 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -34,26 +34,11 @@ Produce version for ATA/ATAPI-7
 Modifications
 -------------
 
+smartctl: 
+
 Handle extended error and self-test logs gracefully.  Can someone tell
 me a disk that supports more than log pages 1 and 6?  I need to get a
 disk so I can test this functionality, when I add it.
-
-Change smartd so that it also monitors usage as well as prefail
-attributes for failure or changes.  Make this a command line option
-
-Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
-exists? If something doesn't exit then don't try to open it?
-
-Currently smartd looks at attribute values and thresholds, then prints
-out if there is an error condition.  Make it also look at the smart
-status, if that is enabled and working and do that test as well.
-Perhaps also see if the number of device errors has changed.
-
-Add optional flags to /etc/smartd.conf, so that certain attributes are
-ignored, or so that all usage attributes are ignored.
-
-Change smartd so that it monitors the ATA disk error log, and if the
-number of errors changes, log an entry..
 
 Perhaps modify the -q option (quiet mode) so that it only warns of ATA
 errors if they have (say) taken place in the last 168 hours (week).
@@ -65,10 +50,19 @@ helpful in adding device specific options.
 Parse and print more attribute flag meanings (IBM ones, eg performance
 etc).
 
-Fixes
------
+smartd:
+
+Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
+exists? If something doesn't exit then don't try to open it?  This
+should probably be the default option if there is no configuration
+file.
+
+
+
+General Fixes
+-------------
 
 Fix lots of syntax like if (a != 0)
 
 Pass pointer to big structures like "device" and smartval, not the
-whole 2kB of data!
+whole 2kB of data!  I've started doing this but haven't finished yet.
