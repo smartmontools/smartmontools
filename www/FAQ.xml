@@ -54,7 +54,7 @@ etc.
    <para>
     For an online copy of the license see
     <ulink url="http://www.fsf.org/copyleft/fdl.html">
-    <literal>http://www.fsf.org/copyleft/fdl.html</literal></ulink>.
+    <literal>http://www.fsf.org/copyleft/fdl.html</literal></ulink> .
    </para>
 
   </legalnotice>
@@ -81,13 +81,14 @@ question has been answered.  Instructions are in the following
 paragraph.  If you don't find an answer there, then please send an
 e-mail to the smartmontools-support mailing list.  Instructions are
 available at <ulink url="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-<literal>http://lists.sourceforge.net/mailman/listinfo/smartmontools-support</literal></ulink>.
-The list is moderated but you're not required to subscribe to it in
+<literal>http://lists.sourceforge.net/mailman/listinfo/smartmontools-support</literal></ulink>
+. The list is moderated but you're not required to subscribe to it in
 order to post your question.</para>
 
 <para>To search the archives, first go to <ulink url="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">
-<literal>http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support</literal></ulink>.
-In the top left corner you will see a search box: use <emphasis role="bold">Mailing List</emphasis> as the type of search.  This tool
+<literal>http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support</literal></ulink>
+. In the top left corner you will see a search box: use <emphasis
+role="bold">Mailing List</emphasis> as the type of search.  This tool
 works very well.</para>
 
 <para>Note that from time to time SourceForge has mailing problems and
@@ -245,8 +246,8 @@ apart.  This is also fixed in all Maxtor disks manufactured after July
 utilities?</title>
 
 <para>A good listing of such utilities can be found at <ulink url="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">
-<literal>http://www.benchmarkhq.ru/english.html?/be_hdd2.html</literal></ulink>.
-Unfortunately most of these are for MS operating systems, but most can
+<literal>http://www.benchmarkhq.ru/english.html?/be_hdd2.html</literal></ulink>
+. Unfortunately most of these are for MS operating systems, but most can
 be run from an MS-DOS boot disk.  Note: if you do run one of these
 utilities, and it identifies the meanings of any SMART Attributes that
 are not known to smartmontools, please report them to the mailing
@@ -297,7 +298,8 @@ exclude from start-up search.</para>
 interfere with the regular operation of the disk.   If you have this
 problem, a firmware upgrade that fixes the problem is avaialable at
 <ulink url="http://www.geocities.com/dtla_update/">
-<literal>http://www.geocities.com/dtla_update/</literal></ulink>.</para>
+<literal>http://www.geocities.com/dtla_update/</literal></ulink>
+.</para>
 
 </sect1>
 
@@ -313,7 +315,8 @@ role="tt">smartmontools</emphasis>, the .rpm files and tarball have been
 GPG signed.  (The tarball's fingerprint is given in the SoureForge
 Release Notes.) Please verify these using the GPG Signing Key available
 at <ulink url="http://smartmontools.sourceforge.net/SmartmontoolsSigningKey.txt">
-<literal>http://smartmontools.sourceforge.net/SmartmontoolsSigningKey.txt</literal></ulink>.</para>
+<literal>http://smartmontools.sourceforge.net/SmartmontoolsSigningKey.txt</literal></ulink>
+.</para>
 
 </sect1>
 
@@ -337,12 +340,20 @@ that don't use Linux as the day-to-day Operating System.</para>
 <para>At present I am only aware of three such bootable disks:</para>
 
 <itemizedlist>
-<listitem><para>LNX-BBC Bootable CD - <ulink url="http://www.lnx-bbc.org/">
-<literal>http://www.lnx-bbc.org/</literal></ulink>.</para></listitem>
-<listitem><para>Stresslinux Bootable CD - <ulink url="http://www.stresslinux.org/">
-<literal>http://www.stresslinux.org/</literal></ulink>.</para></listitem>
-<listitem><para>RIP (Recovery Is Possible) Bootable CD/Floppy - <ulink url="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/">
-<literal>http://www.tux.org/pub/people/kent-robotti/looplinux/rip/</literal></ulink>.</para></listitem>
+<listitem>
+<para>LNX-BBC Bootable CD - <ulink url="http://www.lnx-bbc.org/">
+<literal>http://www.lnx-bbc.org/</literal></ulink></para>
+</listitem>
+
+<listitem>
+<para>Stresslinux Bootable CD - <ulink url="http://www.stresslinux.org/">
+<literal>http://www.stresslinux.org/</literal></ulink></para>
+</listitem>
+
+<listitem>
+<para>RIP (Recovery Is Possible) Bootable CD/Floppy - <ulink url="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/">
+<literal>http://www.tux.org/pub/people/kent-robotti/looplinux/rip/</literal></ulink></para>
+</listitem>
 </itemizedlist>
 
 <para> Please let us know if there are others, and we'll add them to
@@ -373,15 +384,22 @@ role="italic">do</emphasis> correctly support <emphasis
 role="italic">all</emphasis> of these commands.  You may:</para>
 
 <itemizedlist>
-<listitem><para>Use version <emphasis role="bold">1.02.00.037</emphasis>
-or greater of the 3w-xxxx driver, or</para></listitem>
-<listitem><para>Patch earlier 3ware 3w-xxxx drivers with <ulink url="http://smartmontools.sourceforge.net/3w-xxxx.txt">
+<listitem>
+<para>Use version <emphasis role="bold">1.02.00.037</emphasis> or
+greater of the 3w-xxxx driver, or</para>
+</listitem>
+
+<listitem>
+<para>Patch earlier 3ware 3w-xxxx drivers with <ulink url="http://smartmontools.sourceforge.net/3w-xxxx.txt">
 <literal>http://smartmontools.sourceforge.net/3w-xxxx.txt</literal></ulink>
-so that these commands reach the disks, or</para></listitem>
-<listitem><para>Use an <emphasis role="bold">unpatched</emphasis>
-earlier 3w-xxxx driver (which won't pass these commands to the disks but
-will instead print harmless warning messages to
-SYSLOG).</para></listitem>
+so that these commands reach the disks, or</para>
+</listitem>
+
+<listitem>
+<para>Use an <emphasis role="bold">unpatched</emphasis> earlier 3w-xxxx
+driver (which won't pass these commands to the disks but will instead
+print harmless warning messages to SYSLOG).</para>
+</listitem>
 </itemizedlist>
 
 <para>Since smartmontools 3ware support is new, please report positive
@@ -394,7 +412,8 @@ and/or big-endian architectures.</para></sect1>
 
 <para>smartmontools for SCSI disks and tapes (including medium changers)
 is discussed at <ulink url="http://smartmontools.sourceforge.net/smartmontools_scsi.html">
-<literal>http://smartmontools.sourceforge.net/smartmontools_scsi.html</literal></ulink>.</para>
+<literal>http://smartmontools.sourceforge.net/smartmontools_scsi.html</literal></ulink>
+.</para>
 
 </sect1>
 
@@ -428,13 +447,22 @@ Storage Systems Research Center - <ulink url="http://ssrc.soe.ucsc.edu/">
 <literal>http://ssrc.soe.ucsc.edu/</literal></ulink>), Jack Baskin
 School of Engineering, University of California, Santa Cruz.  You can
 find some information about the original smartsuite project here:</para>
+
 <itemizedlist>
-<listitem><para>Press Release 1 - <ulink url="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm">
-<literal>http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm</literal></ulink>.</para></listitem>
-<listitem><para>Press Release 2 - <ulink url="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm">
-<literal>http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm</literal></ulink>.</para></listitem>
-<listitem><para>Press Release 3 - <ulink url="http://www.ucsc.edu/currents/99-00/09-27/smart.html">
-<literal>http://www.ucsc.edu/currents/99-00/09-27/smart.html</literal></ulink>.</para></listitem>
+<listitem>
+<para>Press Release 1 - <ulink url="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm">
+<literal>http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm</literal></ulink></para>
+</listitem>
+
+<listitem>
+<para>Press Release 2 - <ulink url="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm">
+<literal>http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm</literal></ulink></para>
+</listitem>
+
+<listitem>
+<para>Press Release 3 - <ulink url="http://www.ucsc.edu/currents/99-00/09-27/smart.html">
+<literal>http://www.ucsc.edu/currents/99-00/09-27/smart.html</literal></ulink></para>
+</listitem>
 </itemizedlist>
 
 <para>smartmontools was derived directly from smartsuite.  It differs
@@ -449,9 +477,8 @@ smartmontools has added functionality for this (<emphasis role="tt">-q,
 documentation, and also fixes small technical bugs in smartsuite.  [One
 example: smartsuite does not actually use the ATA SMART RETURN STATUS
 command to find out the health status of a disk.  It instead tries to
-infer this from the SMART Attribute values.]  See <ulink url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">
-<literal>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain</literal></ulink>
-for a summary of what's been done.</para>
+infer this from the SMART Attribute values.]  See <ulink url="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">
+<literal>http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain</literal></ulink> for a summary of what's been done.</para>
 
 <para>The <emphasis role="tt">smartd</emphasis> utility differs from the
 smartsuite <emphasis role="tt">smartd</emphasis> in major ways.  First,
@@ -482,7 +509,8 @@ mailing-list.</para>
 <para>But the bottom line is that the code in smartmontools is derived
 directly from smartsuite and is similar.  The smartsuite package can be
 found at <ulink url="http://sourceforge.net/projects/smartsuite/">
-<literal>http://sourceforge.net/projects/smartsuite/</literal></ulink>.</para></sect1>
+<literal>http://sourceforge.net/projects/smartsuite/</literal></ulink>
+.</para></sect1>
 
 <sect1 id="r">
 
