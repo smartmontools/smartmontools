@@ -30,8 +30,16 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.20 2003/04/09 12:44:20 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.21 2003/04/13 09:17:15 dpgilbert Exp $\n"
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/ioctl.h>
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -68,14 +76,6 @@
 #define SEND_DIAGNOSTIC  0x1d
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <getopt.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/ioctl.h>
-
 typedef unsigned char UINT8;
 typedef char INT8;
 typedef unsigned int UINT32;
@@ -109,12 +109,15 @@ struct scsi_sense_disect {
 };
 
 /* Useful data from Informational Exception Control mode page (0x1c) */
+#define SCSI_IECMP_RAW_LEN 64
 struct scsi_iec_mode_page {
-    UINT8       byte_2; /* perf[1]:reserved[1]:ebf[1]:ewasc[1]:
-                            dexcpt[1]:test[1]:reserved[1]:logerr[1] */
-    UINT8       mrie;
-    unsigned int interval_timer;
-    unsigned int report_count;
+    UINT8 requestedCurrent;
+    UINT8 gotCurrent;
+    UINT8 requestedChangeable;
+    UINT8 gotChangeable;
+    UINT8 modese_10;
+    UINT8 raw_curr[SCSI_IECMP_RAW_LEN];
+    UINT8 raw_chg[SCSI_IECMP_RAW_LEN];
 };
 
 /* ANSI SCSI-3 Log Sense Return Log Pages from device. */
@@ -241,12 +244,11 @@ int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp);
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
 int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
-
-int scsiSetExceptionControl(int device, int enabled,
+int scsiSetExceptionControlAndWarning(int device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
-int scsiSetWarning(int device, int enabled,
-                   const struct scsi_iec_mode_page *iecp);
-
+int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
+        UINT8 *byte_2p, UINT8 *mrie_p, unsigned int *interval_timer_p,
+        unsigned int *report_count_p);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
