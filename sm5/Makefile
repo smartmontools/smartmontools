@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.70 2003/08/04 13:00:50 ballen4705 Exp $
+# $Id: Makefile,v 1.71 2003/08/04 13:06:10 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -34,7 +34,7 @@ CC	= gcc
 # #8404.  If you are getting strange output from gcc 3.2 try
 # uncommenting LDFLAGS -s below.  Stripping the symbols seems to fix
 # the problem.
-CFLAGS	 = -fsigned-char -Wall -g
+CFLAGS	 = -fsigned-char -Wall -O2
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
 LDFLAGS  = # -s
 
