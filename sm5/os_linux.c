@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.28 2003/11/17 03:10:40 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.29 2003/11/24 08:49:07 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -404,6 +404,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 	deviceid[1]>>7                                    &&     // is Packet device
 	(deviceid[160] || deviceid[161])                  &&     // word 80 valid
 	(deviceid[160]!=0xff || deviceid[161]!=0xff)      &&     // word 80 valid
+	(deviceid[162]!=0x0d || deviceid[163]!=0x00)      &&     // is not ATA-4 revision 6
         ((deviceid[160] & 0xf0) || (deviceid[161] & 0x8f))       // is ATA-4 through 14
       ) {
       // then swap the IDENTIFY and PIDENTIFY commands
