@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.379 2004/03/25 15:39:24 ballen4705 Exp $
+$Id: CHANGELOG,v 1.380 2004/03/25 15:48:19 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -27,7 +27,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
-  [BA] Added additional options (-t pending, -t afterselect) to
+  [BA] smartctl: -l selftest option now prints Selective self-test
+       log in addition to the normal self-test log.
+       Added additional options (-t pending, -t afterselect) to
        control remaining Selective Self-test capabilities.  Tested
        with several Maxtor disks.
 
