@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/05/12 04:39:23 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/05/13 06:39:47 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.151 2004/05/12 04:39:23 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.152 2004/05/13 06:39:47 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -461,6 +461,14 @@ The power-on lifetime in hours is correctly stored in Attribute
 entries, the lifetime in minutes is put into a 16-bit register then
 divided by 60.  The 16-bit register overflows and wraps around every
 1092 hours.
+</p>
+
+<p>For WD drives that exhibit this firmware bug, the relationship between
+Attribute 9's raw value (H) and the time-stamps in the self-test log (h) are given by:<br/>
+Let H = power on hours as shown by Attribute 9 (correct)<br/>
+Let M = 60*H (power on minutes, correct)<br/>
+Let m = M mod 65536 (incorrect value of power on minutes)<br/>
+Let h = m/60 (incorrect value of power on hours)
 </p>
 </li>
 
@@ -983,8 +991,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/05/12 04:39:23 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.151 2004/05/12 04:39:23 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/05/13 06:39:47 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.152 2004/05/13 06:39:47 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
