@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.102 2004/04/16 13:48:45 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.103 2004/04/18 22:54:50 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -159,6 +159,11 @@ const drivesettings knowndrives[] = {
       "Please see http://www.geocities.com/dtla_update/",
     NULL, NULL, NULL
   },
+  { // ExcelStor J240
+    "^ExcelStor Technology J240$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { // Fujitsu MPD and MPE series
     "^FUJITSU MP[DE]....A[HTE]$",
     ".*",
@@ -206,6 +211,13 @@ const drivesettings knowndrives[] = {
     ".*",
     "This drive's firmware has a harmless Drive Identity Structure\n"
       "checksum error bug.",
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MHTxxxxAT family
+    "^FUJITSU MHT20[23468]0AT$",
+    ".*",
+    NULL,
     vendoropts_9_seconds,
     NULL, NULL
   },
@@ -434,6 +446,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL 
   },
+  { // IBM Deskstar 25GP and 22GXP family
+    "^IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // IBM Travelstar 25GS, 18GT, and 12GN family
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
     ".*",
@@ -448,6 +465,11 @@ const drivesettings knowndrives[] = {
     "^IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.$",
     ".*",
     NULL, NULL, NULL, NULL 
+  },
+  { // Hitachi Travelstar 80GN family
+    "^IC25N0[248]0ATMR04$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { // IBM/Hitachi Deskstar 120GXP family
     "^IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",

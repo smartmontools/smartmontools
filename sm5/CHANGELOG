@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.401 2004/04/18 15:02:49 chrfranke Exp $
+$Id: CHANGELOG,v 1.402 2004/04/18 22:54:49 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added ExcelStor J240, Hitachi Travelstar 80GN family, Fujitsu
+       MHTxxxxAT family, and IBM Deskstar 25GP and 22GXP families to
+       knowndrives table.
 
   [CF] Cygwin smartd: Added workaround for missing SIGQUIT via keyboard:
        To exit smartd in debug mode, type CONTROL-C twice.
