@@ -22,10 +22,9 @@
 
 #include "atacmdnames.h"
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.5 2003/07/22 16:22:09 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.6 2003/07/22 18:44:32 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
-const char cmd_retired[]         = "[RETIRED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
 const char cmd_reserved_sa[]     = "[RESERVED FOR SERIAL ATA]";
 const char cmd_reserved_cf[]     = "[RESERVED FOR COMPACTFLASH ASSOCIATION]";
@@ -51,21 +50,21 @@ const char *command_table[256] = {
   cmd_reserved,
 /*-------------------------------------------------- 10h-1Fh -----*/
   "RECALIBRATE [OBS-4]",
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
+  "RECALIBRATE [RET-4]",
 /*-------------------------------------------------- 20h-2Fh -----*/
   "READ SECTOR(S)",
   "READ SECTOR(S) [OBS-5]",
@@ -153,21 +152,21 @@ const char *command_table[256] = {
   cmd_reserved,
 /*-------------------------------------------------- 70h-7Fh -----*/
   "SEEK [OBS-7]",
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
+  "SEEK [RET-4]",
 /*-------------------------------------------------- 80h-8Fh -----*/
   cmd_vendor_specific,
   cmd_vendor_specific,
@@ -265,9 +264,9 @@ const char *command_table[256] = {
   cmd_reserved,
   cmd_reserved,
   "GET MEDIA STATUS",
-  cmd_retired,
-  cmd_retired,
-  cmd_retired,
+  "ACKNOWLEDGE MEDIA CHANGE [RET-4]",
+  "BOOT POST-BOOT [RET-4]",
+  "BOOT PRE-BOOT [RET-4]",
   "MEDIA LOCK",
   "MEDIA UNLOCK",
 /*-------------------------------------------------- E0h-EFh -----*/
@@ -280,7 +279,10 @@ const char *command_table[256] = {
   "SLEEP",
   "FLUSH CACHE",
   "WRITE BUFFER",
-  cmd_retired,
+  "WRITE SAME [RET-4]",  /* Warning!  This command is retired but the value of
+                            f_reg is used in look_up_ata_command().  If this
+                            command code is reclaimed in a future standard then
+                            be sure to update look_up_ata_command(). */
   "FLUSH CACHE EXIT",
   cmd_reserved,
   "IDENTIFY DEVICE",
@@ -375,6 +377,15 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "DEVICE CONFIGURATION SET";
     default:
       return "DEVICE CONFIGURATION [Reserved command]";
+    }
+  case 0xE9:  /* WRITE SAME */
+    switch (f_reg) {
+    case 0x22:
+      return "WRITE SAME [Start specified] [RET-4]";
+    case 0xDD:
+      return "WRITE SAME [Start unspecified] [RET-4]";
+    default:
+      return "WRITE SAME [Invalid subcommand] [RET-4]";
     }
   case 0xEF:  /* SET FEATURES */
     switch (f_reg) {
