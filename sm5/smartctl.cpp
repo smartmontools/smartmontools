@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.36 2003/01/05 05:47:55 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.37 2003/01/05 05:53:28 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -307,6 +307,7 @@ void ParseOpts (int argc, char** argv){
 		)){
     switch (optchar){
     case 'V':
+      printslogan();
       printcopy();
       exit(0);
       break;
