@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.67 2003/04/03 07:50:58 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.68 2003/04/03 17:51:18 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -587,6 +587,7 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *data){
       // Directory log length
       numsect=1;
     
+    // If the log is not empty, what is it's name
     if (numsect){
       switch (i) {
       case 0:
@@ -612,15 +613,16 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *data){
       case 0x23:
 	name="Delayed sector log"; break;
       default:
-	if (0xa0<=i && i<=0xff) 
-	  name="Device vendor specific";
+	if (0xa0<=i && i<=0xbf) 
+	  name="Device vendor specific log";
 	else if (0x80<=i && i<=0x9f)
-	  name="Host vendor specific";
+	  name="Host vendor specific log";
 	else
 	  name="Reserved log";
 	break;
       }
 
+      // print name and length of log
       pout("Log at address 0x%02x has %03d sectors [%s]\n",
 	   i, numsect, name);
     }
