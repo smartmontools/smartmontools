@@ -1,4 +1,4 @@
-//  $Id: ataprint.c,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: ataprint.c,v 1.4 2002/10/11 01:27:39 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -205,7 +205,7 @@ void PrintSmartOfflineCollectCap ( struct ata_smart_values data)
 
 void PrintSmartCapability ( struct ata_smart_values data)
 {
-   printf ("Smart Capabilities:           ");
+   printf ("Smart Capabilities:            ");
    printf ("(0x%04x)\t", data.smart_capability);
    
    if (data.smart_capability == 0x00)
@@ -312,7 +312,7 @@ void PrintSmartAttribWithThres ( struct ata_smart_values data,
 	  if (data.vendor_attributes[i].id!=194 || rawvalue<200)
 	    printf ("%llu\n", rawvalue);
 	  else
-	    printf("%u (Lifetime Low/Max %u/%u)\n",
+	    printf("%u (Lifetime Min/Max %u/%u)\n",
 		   data.vendor_attributes[i].raw[0],		   
 		   data.vendor_attributes[i].raw[2],
 		   data.vendor_attributes[i].raw[4]);
