@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.47 2002/10/30 10:18:37 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.48 2002/10/30 15:01:09 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -77,9 +77,11 @@ void printout(int priority,char *fmt, ...){
   va_start(ap,fmt);
   if (debugmode) 
     vprintf(fmt,ap);
-  else
+  else {
+    openlog("smartd",LOG_PID,LOG_DAEMON);
     vsyslog(priority,fmt,ap);
     closelog();
+  }
   va_end(ap);
   return;
 }
