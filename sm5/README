@@ -2,7 +2,7 @@
 smartmontools - S.M.A.R.T. utility toolset for Linux
 ====================================================
 
-$Id: README,v 1.47 2003/10/02 10:07:44 ballen4705 Exp $
+$Id: README,v 1.48 2003/10/03 14:01:47 ballen4705 Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -97,161 +97,9 @@ http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/ .
 You'll see the tag names in the little scroll window where it says "Show
 only files with tag".
 
+== BUILDING/INSTALLING SMARTMONTOOLS ==
 
 Refer to the "INSTALL" file for installation instructions.
 
 See the "WARNINGS" file for reports of hardware where these utilities
 might cause serious problems such as lockups.
-
-
-Starting with smartmontools 5.1.X, the command line options and the
-smartd.conf directives have been renamed.  What follows is a summary
-table showing the comparison between the old and the new option and
-directive names.
-
-== NEW OPTION NAMES FOR SMARTCTL 5.1 ==
-The following is a synopsis of the new options in smartctl 5.1 -- please
-see the man pages for more information.
-
-  -h, --help, --usage
-        Show usage and syntax help
-
-  -V, --version, --copyright, --license
-        Show version, copyright, and license info then exit
-
-  -q MODE, --quietmode=MODE
-        Set the quiet mode to one of: errorsonly, silent
-
-  -d TYPE, --device=TYPE
-        Set the device type to one of: ata, scsi
-
-  -T TYPE, --tolerance=TYPE
-        Set tolerance level to one of:
-                normal       - Exit if a mandatory SMART command fails [DEFAULT]
-                conservative - Exit if any SMART command fails
-                permissive   - Continue even if a mandatory SMART command fails
-
-  -b TYPE, --badsum=TYPE
-        Action to take on a bad checksum.  TYPE and its meaning are:
-                warn   - Issue a warning, but continue [DEFAULT] 
-                exit   - Exit smartctl
-                ignore - Continue silently without issuing a warning [NEW]
-
-  -s VALUE, --smart=VALUE
-        Enable/disable SMART.  VALUE is one of: on, off 
-
-  -o VALUE, --offlineauto=VALUE
-        Enable/disable automatic offline testing.  VALUE is one of: on, off 
-
-  -S VALUE, --saveauto=VALUE
-        Enable/disable attribute autosave.  VALUE is one of: on, off 
-
-  -H, --health
-        Show SMART health status
-
-  -c, --capabilities
-        Show SMART capabilities
-
-  -A, --attributes
-        Show SMART vendor-specific attributes and values.
-
-  -l TYPE, --log=TYPE
-        Show device log. Type is one of: error, selftest
-
-  -i, --info
-        Show drive information
-
-  -a, --all
-        Show all SMART information.  Equivalent to -HcAi -l error -l selftest
-
-  -v N,OPTION , --vendorattribute=N,OPTION
-        Set vendor specific OPTION for attribute N.  Currently supported are:
-
-                  N     OPTION          Effect
-                -----------------------------------------------------------
-                009     minutes         Display in minutes instead of hours
-
-        Note that in the future this option may be used multiple times
-        with different arguments, to modify options for different
-        attributes.
-
-  -t TEST, --test=TEST
-        Perform TEST immediately.  TEST is one of: offline, short, long
-
-  -C, --captive
-        When used with -t, performs test in captive mode.  Has no effect on
-        offline test, or when used without -t option.
-
-  -X, --abort
-        Abort any non-captive test
-
-The following table shows the mapping of old to new smartctl options and of
-old to new smartd.conf directives:
-
-  -------------------------------------------------------------------------------------------------------------------
-  smartctl      smartctl options        smartctl options                  smartd.conf               smartd.conf
-  options       Versions >= 5.1         Versions >= 5.1                   DIRECTIVES                DIRECTIVES
-  Versons<=5.0  (short options)         (long options)                    Versions <= 5.0           Versions >= 5.1
-  -------------------------------------------------------------------------------------------------------------------
-  -h, -?        -h, -?                  --help
-  -V            -V                      --version, --copyright, --license
-  -i            -i                      --info                                                          CONFLICT
-  -q            -q errorsonly           --quietmode=errorsonly
-  -Q            -q silent               --quietmode=silent
-  -n            -d ata                  --device=ata                       -A				-d ata
-  -N            -d scsi                 --device=scsi                      -S                           -d scsi
-  -P            -T permissive           --tolerance=permissive             -P                           -T permissive
-  -U            -T conservative         --tolerance=conservative
-  -W            -b                      --badsum=exit
-                -r                      --report=TYPE
-  -e            -s on                   --smart=on
-  -d            -s off                  --smart=off
-  -t            -o on                   --offlineauto=on                   -T 1                         -o on
-  -T            -o off                  --offlineauto=off                  -T 0                         -o off
-  -f            -S on                   --saveauto=on                      -s 1                         -S on
-  -F            -S off                  --saveauto=off                     -s 0                         -S off
-  -c            -H                      --health                           -c                           -H
-  -g            -c                      --capabilities
-  -v            -A                      --attributes                       -p, -u, -f, -t               -p, -u, -t
-  -l            -l error                --log=error                        -l                           -l error
-  -L            -l selftest             --log=selftest                     -L                           -l selftest
-  -a            -a                      --all                              -a                           -a
-  -m            -v 9,minutes            --vendorattribute=9,minutes
-  -O            -t offline              --test=offline
-  -S            -t short                --test=short
-  -s            -t short -C             --test=short --captive
-  -X            -t long                 --test=long
-  -x            -t long -C              --test=long --captive
-  -A            -X                      --abort
-
-
- NOW A COMMAND-LINE OPTION (-i N, --interval N) =======>                   -C N    Set checktime        CMD LINE: -i N
-                                                                           -f      usage attributes     -f
-                                                                           -M ADD  Email addresses     -m ADD
-                                                                           -m -3   Email mode          -M diminishing -M test
-                                                                           -m -2   Email mode          -M daily -M test
-                                                                           -m -1   Email mode          -M once -M test
-                            If no -M is given, this is the DEFAULT =====>  -m 0    Email mode          -M once
-                                                                           -m 1    Email mode          -M once
-                                                                           -m 2    Email mode          -M daily
-                                                                           -m 3    Email mode          -M diminishing
-                            New feature (see man page) =====>                                          -M exec SCRIPT
-                                                                           -i N    Ignore              -i N
-                                                                           -I N    Ignore              -I N
-                                                                            #      Comment              #
-                                                                            \      Line continuation    \
-  -------------------------------------------------------------------------------------------------------------------
-
-Changes to smartd options:
-
-  ----------------------------------------------------------------------------------------------------------
-  5.0 short     5.0 long                                     5.1 short     5.1 long
-  option        option                                       option        option
-  ----------------------------------------------------------------------------------------------------------
-  -h, -?        --help                                       -h, -?        --help
-  -V            --version, --copyright, --license            -V            --version, --copyright, --license
-  -X            --debug                                      -d            --debug
-                                                             -i N          --interval=N
-                                                             -D            --showdirectives
-                                                             -r            --report=TYPE
-  ----------------------------------------------------------------------------------------------------------

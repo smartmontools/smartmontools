@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.38 2003/09/24 02:28:34 pervalidus Exp $
+$Id: TODO,v 1.39 2003/10/03 14:01:47 ballen4705 Exp $
 
 Testing
 -------
@@ -10,13 +10,11 @@ doing some of this.
 Extensions
 ----------
 Produce version for ATA/ATAPI-6 (support for extended error logs)
-
 Produce version for ATA/ATAPI-7
 
 
 smartctl: 
 ---------
-
 Handle extended error and self-test logs gracefully.  Can someone tell
 me a disk that supports more than ATA log pages 1 and 6?  I need to
 get a disk so I can test this functionality, when I add it.
@@ -29,7 +27,6 @@ etc).
 
 smartd:
 -------
-
 Perhaps change <nomailer> special argument to -m to have also
 <nomailer_fork> which would actually work with -M exec to run the
 executable/script in the background rather than in the foreground.
@@ -45,16 +42,10 @@ Add ability to monitor "worst" value from attributes (sometimes it
 gets larger!) and to monitor the threshold value (sometimes it
 changes!).
 
-General Fixes
--------------
-
-Fix lots of syntax like if (a != 0).  This is now pretty much confined
-to the SCSI-only parts of the code.
-
-Use consistent error codes in exit() calls
-
 Ports
 -----
-
-Port to other platforms.  One for Windows (Cygwin) is badly needed since
-some people asked for it, but we need volunteers for any.
+Port to other platforms.  One for Windows (Cygwin) is badly needed
+since some people asked for it, but we need volunteers for any such
+work. Bruce has some code fragments for accessing SMART data under
+Windows.  FreeBSD and Solaris ports are underway -- please email the
+support list if you are interested.
