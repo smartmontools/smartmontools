@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.105 2003/02/01 09:39:13 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.106 2003/02/03 19:11:46 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1014,55 +1014,6 @@ void printoutvaliddirectiveargs(int priority, char d) {
   }
 }
 
-// Set start to point to the first token in newstring or NULL if there are no
-// tokens.  The first character after the token is overwritten with '\0'.  If
-// newstring is NULL then gettoken() continues searching the last string it was
-// given from immediately after the end of the last token in much the same way
-// as strtok().  The possible return values are:
-//   0  - success
-//   1  - no newstring has been used to initialise gettoken()
-//   2  - unterminated string token
-int gettoken(char *newstring, char **start) {
-  static char *s = NULL;
-
-  if (newstring)
-    s = newstring;
-  if (!s)
-    return 1;
-
-  // Find the start of the first token (if any) in s.
-  while (*s != '\0' && (*s == ' ' || *s == '\t' || *s == '\n'))
-    s++;
-  if (*s == '\0') {
-    *start = NULL;
-    return 0;
-  }
-  *start = s;
-
-  // Find the end of the token.
-  if (*s == '\"') {
-    // Reading a string token - find terminating double-quote.
-    while (1) {
-      s++;
-      if (*s == '\0')
-        return 2;
-      if (*s == '\"')
-        break;
-    }
-    s++;
-  } else {
-    // Reading a non-string token - find terminating whitespace.
-    while (*s != '\0' && *s != ' ' && *s != '\t' && *s != '\n')
-      s++;
-  }
-
-  // Ensure the next call will start reading from the right position.
-  if (*s != '\0')
-    *s++ = '\0';
-
-  return 0;
-}
-
 char copyleftstring[]=
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
@@ -1105,6 +1056,7 @@ int parsetoken(char *token,cfgfile *cfg){
   char sym;
   char *name=cfg->name;
   int lineno=cfg->lineno;
+  char *delim = " \n\t";
   int badarg = 0;
   int missingarg = 0;
   char *arg = NULL;
@@ -1127,8 +1079,7 @@ int parsetoken(char *token,cfgfile *cfg){
 
   case 'T':
     // Set tolerance level for SMART command failures
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "normal")) {
       // Normal mode: exit on failure of a mandatory S.M.A.R.T. command, but
@@ -1144,8 +1095,7 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'd':
     // specify the device type
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "ata")) {
       cfg->tryata  = 1;
@@ -1180,8 +1130,7 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'l':
     // track changes in SMART logs
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "selftest")) {
       // track changes in self-test log
@@ -1203,8 +1152,7 @@ int parsetoken(char *token,cfgfile *cfg){
     cfg->errorlog=1;
     break;
   case 'o':
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "on")) {
       cfg->autoofflinetest = 2;
@@ -1215,8 +1163,7 @@ int parsetoken(char *token,cfgfile *cfg){
     }
     break;
   case 'S':
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "on")) {
       cfg->autosave = 2;
@@ -1228,8 +1175,7 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'M':
     // email warning option
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "once")) {
       cfg->emailfreq = 1;
@@ -1241,12 +1187,7 @@ int parsetoken(char *token,cfgfile *cfg){
       cfg->emailtest = 1;
     } else if (!strcmp(arg, "exec")) {
       // Get the next argument (the command line)
-      if (gettoken(NULL, &arg) == 2) {
-        printout(LOG_CRIT, "File %s line %d (drive %s): unterminated string\n",
-          CONFIGFILE, lineno, name);
-        exit(1);
-      }
-      if (!arg) {
+      if ((arg = strtok(NULL, delim)) == NULL) {
         printout(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
 		 CONFIGFILE, lineno, name, token);
         Directives();
@@ -1262,31 +1203,23 @@ int parsetoken(char *token,cfgfile *cfg){
           Directives();
           exit(1);
       }
-      // Strip off any double quotes
-      if (*cfg->emailcmdline == '\"') {
-        cfg->emailcmdline++;
-        cfg->emailcmdline[strlen(cfg->emailcmdline)-1] = '\0';
-      }
     } else {
       badarg = 1;
     }
     break;
   case 'i':
     // ignore failure of usage attribute
-    gettoken(NULL, &arg);
-    val=inttoken(arg, name, token, lineno, CONFIGFILE, 1, 255);
+    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->failatt,1);
     break;
   case 'I':
     // ignore attribute for tracking purposes
-    gettoken(NULL, &arg);
-    val=inttoken(arg, name, token, lineno, CONFIGFILE, 1, 255);
+    val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->trackatt,1);
     break;
   case 'm':
     // send email to address that follows
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg = strtok(NULL,delim)) == NULL) {
       printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
 	       CONFIGFILE, lineno, name, token);
       Directives();
@@ -1301,8 +1234,7 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
-    gettoken(NULL, &arg);
-    if (!arg) {
+    if ((arg=strtok(NULL,delim)) == NULL) {
       missingarg = 1;
     } else if (parse_attribute_def(arg, cfg->attributedefs)){	
       badarg = 1;
@@ -1334,6 +1266,7 @@ int parsetoken(char *token,cfgfile *cfg){
 int parseconfigline(int entry, int lineno,char *line){
   char *token,*copy;
   char *name;
+  char *delim = " \n\t";
   int len;
   cfgfile *cfg;
   static int numtokens=0;
@@ -1344,8 +1277,7 @@ int parseconfigline(int entry, int lineno,char *line){
   }
   
   // get first token -- device name
-  gettoken(copy, &name);
-  if (!name || *name=='#'){
+  if (!(name=strtok(copy,delim)) || *name=='#') {
     free(copy);
     return 0;
   }
@@ -1399,7 +1331,7 @@ int parseconfigline(int entry, int lineno,char *line){
     cfg->tryata=0;
 
   // parse tokens one at a time from the file
-  while (!gettoken(NULL, &token) && token && parsetoken(token,cfg)){
+  while ((token=strtok(NULL,delim)) && parsetoken(token,cfg)){
 #if 0
   printout(LOG_INFO,"Parsed token %s\n",token);
 #endif
