@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.93 2003/10/03 03:51:16 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.94 2003/10/03 13:14:13 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -123,7 +123,7 @@ void Usage (void){
 "  -d TYPE, --device=TYPE\n"
 "         Specify device type to one of: ata, scsi, 3ware,N\n\n"
 "  -T TYPE, --tolerance=TYPE                                           (ATA)\n"
-"         Set tolerance to one of: normal, conservative, permissive\n\n"
+"         Tolerance: normal, conservative, permissive, verypermissive\n\n"
 "  -b TYPE, --badsum=TYPE                                              (ATA)\n"
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
@@ -133,7 +133,7 @@ void Usage (void){
   printf(
 "  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
 "  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N\n"
-"  -T TYPE   Set tolerance to one of: normal, conservative, permissive (ATA)\n"
+"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n\n"
   );
@@ -250,7 +250,7 @@ const char *getvalidarglist(char opt) {
   case 'd':
     return "ata, scsi, 3ware,N";
   case 'T':
-    return "normal, conservative, permissive";
+    return "normal, conservative, permissive, verypermissive";
   case 'b':
     return "warn, exit, ignore";
   case 'r':
@@ -422,11 +422,14 @@ void ParseOpts (int argc, char** argv){
     case 'T':
       if (!strcmp(optarg,"normal")) {
         con->conservative = FALSE;
-        con->permissive   = FALSE;
+        con->permissive   = 0;
       } else if (!strcmp(optarg,"conservative")) {
         con->conservative = TRUE;
       } else if (!strcmp(optarg,"permissive")) {
-        con->permissive++;
+        if (con->permissive<0xff)
+	  con->permissive++;
+      } else if (!strcmp(optarg,"verpermissive")) {
+        con->permissive=0xff;
       } else {
         badarg = TRUE;
       }

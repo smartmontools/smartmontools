@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.208 2003/10/03 03:51:16 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.209 2003/10/03 13:14:13 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -804,11 +804,10 @@ int ATADeviceScan(cfgfile *cfg){
   
     // should we proceed anyway?
     if (cfg->permissive){
-      cfg->permissive--;
-      PrintOut(LOG_INFO,"Device: %s, proceeding anyway since '-T permissive' Directive(s) present.\n",name);
+      PrintOut(LOG_INFO,"Device: %s, proceeding since '-T permissive' Directive given.\n",name);
     }
     else {
-      PrintOut(LOG_INFO,"Device: %s, to proceed anyway, increase number of '-T permissive' Directives.\n",name);
+      PrintOut(LOG_INFO,"Device: %s, to proceed anyway, use '-T permissive' Directive.\n",name);
       close(fd);
       return 2;
     }
@@ -1665,7 +1664,7 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->permissive=0;
     } else if (!strcmp(arg, "permissive")) {
       // Permissive mode; ignore errors from Mandatory SMART commands
-      cfg->permissive++;
+      cfg->permissive=1;
     } else {
       badarg = 1;
     }
