@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.18 2002/10/24 08:46:03 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,9 +15,9 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/24 07:50:45 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/24 08:46:03 $" "smartmontools-5.0"
 .SH NAME
-smartctl \- S.M.A.R.T. control utility 
+smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
 .B smartctl \-[ViqQaedtTfFcgvlLm[O|S|s|X|x|A]] device
 
@@ -86,12 +86,14 @@ Says if the device supports S.M.A.R.T., and if so, whether
 S.M.A.R.T. support is currently enabled or disabled.
 .TP
 .B q
-Quiet mode: Only print: For the '\-l' option, errors recorded in the
-SMART error log; For the '\-L' option, errors recorded in the device
-self-test log; For the '\-c' SMART "disk failing" status or device
+Quiet mode: Only print: For the '\-l' option, just the number of
+errors recorded in the SMART error log and the power-on time when they
+occured, if any errors are recorded; For the '\-L' option, errors
+recorded in the device self-test log; For the '\-c' SMART "disk
+failing" status or device attributes (pre-failure or usage) which
+failed either now or in the past; For the '\-v' option device
 attributes (pre-failure or usage) which failed either now or in the
-past; For the '\-v' option device attributes (pre-failure or usage)
-which failed either now or in the past.
+past.
 .TP
 .B Q
 Very Quiet mode: Print no ouput.  The only way to learn about what was
@@ -440,4 +442,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $
+$Id: smartctl.8,v 1.18 2002/10/24 08:46:03 ballen4705 Exp $

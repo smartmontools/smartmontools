@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.31 2002/10/24 07:50:45 ballen4705 Exp $"
+const char *CVSid4="$Id: ataprint.c,v 1.32 2002/10/24 08:46:03 ballen4705 Exp $"
 CVSID2 CVSID3 CVSID6;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -514,7 +514,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   QUIETON;
   // if log pointer out of range, return
   if ( data.error_log_pointer>5 ){
-    pout("Invalid Error log index = %02x (T13/1321D rev 1c"
+    pout("Invalid Error Log index = %02x (T13/1321D rev 1c"
 	 "Section 8.41.6.8.2.2 gives valid range from 1 to 5)\n\n",
 	 data.error_log_pointer);
     return;
@@ -522,11 +522,11 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
   
   // starting printing error log info
   if (data.ata_error_count<=5)
-    pout ( "ATA Error Count:y %u\n", data.ata_error_count);
+    pout ( "ATA Error Count: %u\n", data.ata_error_count);
   else
-    pout ( "ATA Error Count: %u (only the most recent five errors are shown below)\n",
+    pout ( "ATA Error Count: %u (device log contains only the most recent five errors)\n",
 	   data.ata_error_count);
-  
+  QUIETOFF;
   pout("\tDCR = Device Control Register\n");
   pout("\tFR  = Features Register\n");
   pout("\tSC  = Sector Count Register\n");
@@ -557,10 +557,11 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
       case 0x04: msgstate="doing SMART off-line or self test"; break;
       default:   msgstate="in a vendor specific or reserved state";
       }
-      pout("Error Log Structure %i:\n",5-k);
       // See table 42 of ATA5 spec
-      pout("Error occurred at disk power-on lifetime: %u hours\n",
-	     data.errorlog_struct[i].error_struct.timestamp);
+      QUIETON;
+      pout("Error %i occurred at disk power-on lifetime: %u hours\n",
+	     5-k,data.errorlog_struct[i].error_struct.timestamp);
+      QUIETOFF;
       pout("When the command that caused the error occurred, the device was %s.\n",msgstate);
       pout("After command completion occurred, registers were:\n");
       pout("ER:%02x SC:%02x SN:%02x CL:%02x CH:%02x D/H:%02x ST:%02x\n",
@@ -593,6 +594,9 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data){
       pout("\n");
     }
   }
+  QUIETON;
+  if (quietmode)
+    pout("\n");
   QUIETOFF;
   return;  
 }
@@ -666,6 +670,8 @@ int ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data,int allentries){
 	     percent,log->timestamp,firstlba);
     }
   }
+  if (!allentries && retval)
+    pout("\n");
   return retval;
 }
 
@@ -952,15 +958,14 @@ int ataPrintMain (int fd){
 	     "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
       QUIETOFF;
       if (ataCheckSmart(smartval, smartthres,1)){
-	QUIETON;
 	returnval|=FAILATTR;
 	if (smartvendorattrib)
 	  pout("See vendor-specific Attribute list for failed Attributes.\n\n");
-	else
-	  {
-	    pout("Failed Attributes:\n");
-	    PrintSmartAttribWithThres(smartval, smartthres,1);
-	  }
+	else {
+	  QUIETON;
+	  pout("Failed Attributes:\n");
+	  PrintSmartAttribWithThres(smartval, smartthres,1);
+	}
       }
       else
 	pout("No failed Attributes found.\n\n");   
@@ -970,10 +975,10 @@ int ataPrintMain (int fd){
     else {
       pout("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(smartval, smartthres,0)){
-	QUIETON;
 	if (smartvendorattrib)
 	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
 	else {
+	  QUIETON;
 	  pout("Please note the following marginal attributes:\n");
 	  PrintSmartAttribWithThres(smartval, smartthres,2);
 	} 

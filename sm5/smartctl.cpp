@@ -38,7 +38,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.cpp,v 1.17 2002/10/23 20:36:59 ballen4705 Exp $"
+const char* CVSid6="$Id: smartctl.cpp,v 1.18 2002/10/24 08:46:03 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
 
 unsigned char driveinfo               = FALSE;
@@ -211,10 +211,8 @@ void ParseOpts (int argc, char** argv){
     switch (optchar){
     case QUIETMODE:
       quietmode=TRUE;
-      veryquietmode=TRUE;
       break;
     case VERYQUIETMODE:
-      quietmode=FALSE;
       veryquietmode=TRUE;
       break;
     case SMART009MINUTES:
@@ -299,6 +297,10 @@ void ParseOpts (int argc, char** argv){
       exit(FAILCMD);	
     }
   }
+  // Do this here, so results are independent of argument order	
+  if (quietmode)
+    veryquietmode=TRUE;
+  
   // error message if user has asked for more than one test
   if (1<(smartexeoffimmediate+smartshortselftest+smartextendselftest+
 	 smartshortcapselftest+smartextendcapselftest+smartselftestabort)){
