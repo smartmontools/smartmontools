@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.242 2003/11/06 04:27:15 arvoreen Exp $
+$Id: CHANGELOG,v 1.243 2003/11/07 19:07:25 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  
+  [PW] Added Maxtor 4W040H3, Seagate Barracuda 7200.7 Plus,
+       IBM Deskstar 120GXP (40GB), Seagate U Series 20410,
+       Fujitsu MHM2100AT, MHL2300AT, MHM2150AT, and IBM-DARA-212000
+       to knowndrives table.
+
+  [PW] Added remaining Maxtor DiamondMax Plus 9 models to knowndrives
+       table.
 
   [EM] smartd: If no matches found, then return 0, rather than an error
        indication, as it just means no devices of the given type exist.
