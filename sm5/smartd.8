@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.23 2002/11/07 21:51:34 ballen4705 Exp $
+\# $Id: smartd.8,v 1.24 2002/11/10 21:54:19 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/11/07 21:51:34 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/11/10 21:54:19 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -175,6 +175,7 @@ configuration file in
 For security, the configuration file should not be writable by anyone
 but root. The syntax of the file is as follows:
 
+.IP
 There should be one device listed per line, although you may have
 lines that are entirely comments or white space.
 
@@ -184,6 +185,8 @@ taken to be a comment, and ignored.
 Lines may be continued by using a backslash (\(rs) as the last
 non-whitespace or non-comment item on a line.
 
+.PP 0
+.fi
 Here is an example configuration file.  It's for illustrative purposes
 only; please don't copy it onto your system without reading to the end
 of the
@@ -278,6 +281,14 @@ The default value of
 .B <N> 
 is 1800 sec, and the minimum allowed value is
 ten seconds.
+.TP
+.B \-P
+Permissive: Even if the disk appears to lack SMART capabilities, try
+to monitor it anyway.  This may be required for some old disks (prior
+to ATA-3 revision 4) that implemented SMART before the SMART standards
+were incorporated into the ATA/ATAPI Specifications.  [Please see the
+.B smartctl \-P
+command-line option.]
 .TP
 .B \-c
 Check: Will check the SMART status of the disk.  If any Prefailure
@@ -503,4 +514,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.23 2002/11/07 21:51:34 ballen4705 Exp $
+$Id: smartd.8,v 1.24 2002/11/10 21:54:19 ballen4705 Exp $

@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.53 2002/11/08 10:51:51 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.54 2002/11/10 21:54:19 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -331,9 +331,23 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   
   // Get drive identity structure
   // May want to add options to enable autosave, automatic online testing
-  if (ataReadHDIdentity (fd,&drive) || !ataSmartSupport(&drive) || ataEnableSmart(fd)){
-    // device exists, but not able to do SMART
-    printout(LOG_INFO,"Device: %s, not SMART capable, or couldn't enable SMART\n",device);
+  if (ataReadHDIdentity (fd,&drive)){
+    // Unable to read Identity structure
+    printout(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",device);
+    close(fd);
+    return 2; 
+  }
+  
+  if (!cfg->permissive && !ataSmartSupport(&drive)){
+    // SMART not supported
+    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-P' Directive to try anyway.\n",device);
+    close(fd);
+    return 2; 
+  }
+
+ if (ataEnableSmart(fd)){
+    // Enable SMART command has failed
+    printout(LOG_INFO,"Device: %s, could not enable SMART capability\n",device);
     close(fd);
     return 2; 
   }
@@ -774,6 +788,10 @@ int parsetoken(char *token,cfgfile *cfg){
     char *endptr;
     int val;
     
+  case 'P':
+    // Permissive mode; ignore errors from Mandatory SMART commands
+    cfg->permissive=1;
+    break;
   case 'A':
     // ATA device
     cfg->tryata=1;
