@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.83 2003/01/05 20:05:31 pjwilliams Exp $
+$Id: CHANGELOG,v 1.84 2003/01/12 10:23:28 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,8 @@ CURRENT RELEASE (see VERSION file in this directory):
 
 
 smartmontools-5.1.1
+
+  [BA] As requested, local time/date now printed by smartctl -i
 
   [PW] Added "help" argument to -v for smartctl
 

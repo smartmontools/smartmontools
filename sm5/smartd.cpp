@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.95 2003/01/04 21:23:20 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.96 2003/01/12 10:23:29 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1309,11 +1309,8 @@ int parseconfigfile(){
   fp=fopen(CONFIGFILE,"r");
   if (fp==NULL && errno!=ENOENT){
     // file exists but we can't read it
-    if (errno<sys_nerr)
-      printout(LOG_CRIT,"%s: Unable to open configuration file %s\n",
-	       sys_errlist[errno],CONFIGFILE);
-    else
-      printout(LOG_CRIT,"Unable to open configuration file %s\n",CONFIGFILE);
+    printout(LOG_CRIT,"%s: Unable to open configuration file %s\n",
+	     strerror(errno),CONFIGFILE);
     exit(1);
   }
   
