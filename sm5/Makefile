@@ -2,9 +2,9 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.53 2003/02/12 20:36:20 ballen4705 Exp $
+# $Id: Makefile,v 1.54 2003/03/06 07:27:14 ballen4705 Exp $
 #
-# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.14 2003/02/24 15:51:35 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.15 2003/03/06 07:27:15 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.50 2003/01/21 03:17:33 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.51 2003/03/06 07:27:17 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -52,7 +52,7 @@ atamainctrl *con=NULL;
 
 
 void printslogan(){
-  pout("smartctl version %d.%d-%d Copyright (C) 2002 Bruce Allen\n",
+  pout("smartctl version %d.%d-%d Copyright (C) 2002-3 Bruce Allen\n",
       (int)RELEASE_MAJOR, (int)RELEASE_MINOR, (int)SMARTMONTOOLS_VERSION);
   pout("Home page is %s\n\n",PROJECTHOME);
   return;
