@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.56 2003/11/14 05:29:55 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.57 2003/11/14 11:44:26 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -64,6 +64,9 @@ static int gSeagateFactoryLPage = 0;
 
 /* Mode pages supported */
 static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
+
+/* Remember last successful mode sense/select command */
+static int modese_len = 0;
 
 
 static void scsiGetSupportedLogPages(int device)
@@ -113,12 +116,13 @@ void scsiGetSmartData(int device)
     UINT8 asc;
     UINT8 ascq;
     UINT8 currenttemp = 0;
+    UINT8 triptemp = 0;
     const char * cp;
     int err;
 
     QUIETON(con);
-    if ((err = scsiCheckIE(device, gSmartLPage, gTempLPage,
-                           &asc, &ascq, &currenttemp))) {
+    if ((err = scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, 
+                           &ascq, &currenttemp, &triptemp))) {
         /* error message already announced */
         QUIETOFF(con);
         return;
@@ -138,6 +142,8 @@ void scsiGetSmartData(int device)
         else
             pout("Current Drive Temperature:     <not available>\n");
     }
+    if (triptemp && !gTempLPage)
+        pout("Drive Trip Temperature:        %d C\n", triptemp);
 }
 
 
@@ -242,7 +248,7 @@ static void scsiPrintSeagateCacheLPage(int device)
     unsigned char * xp;
     unsigned long long ull;
 
-    pout("Vendor (Seagate) cache information\n");
+    pout("\nVendor (Seagate) cache information\n");
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
         QUIETON(con);
@@ -539,10 +545,11 @@ static int scsiPrintSelfTest(int device)
         pout("No self-tests have been logged\n");
     else
         pout("\n");
-    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec)) &&
-        (durationSec > 0))
+    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec, 
+                        modese_len)) && (durationSec > 0)) {
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
+    }
     return 0;
 }
 
@@ -648,7 +655,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 	return 0;
     }
    
-    if ((err = scsiFetchIECmpage(device, &iec))) {
+    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
 	if (!is_tape) {
             QUIETON(con);
 	    pout("Device does not support SMART");
@@ -667,7 +674,8 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         }
         gIecMPage = 0;
         return 0;
-    }
+    } else
+        modese_len = iec.modese_len;
     if (!is_tape)
         pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
@@ -682,13 +690,15 @@ static int scsiSmartEnable(int device)
     struct scsi_iec_mode_page iec;
     int err;
 
-    if ((err = scsiFetchIECmpage(device, &iec))) {
+    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         QUIETON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
         QUIETOFF(con);
         return 1;
-    }
+    } else
+        modese_len = iec.modese_len;
+
     if ((err = scsiSetExceptionControlAndWarning(device, 1, &iec))) {
         QUIETON(con);
         pout("unable to enable Exception control and warning [%s]\n",
@@ -697,11 +707,13 @@ static int scsiSmartEnable(int device)
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
-    if ((err = scsiFetchIECmpage(device, &iec))) {
+    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
         return 1;
-    }
+    } else
+        modese_len = iec.modese_len;
+
     pout("Informational Exceptions (SMART) %s\n",
          scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
     pout("Temperature warning %s\n",
@@ -714,13 +726,15 @@ static int scsiSmartDisable(int device)
     struct scsi_iec_mode_page iec;
     int err;
 
-    if ((err = scsiFetchIECmpage(device, &iec))) {
+    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         QUIETON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
         QUIETOFF(con);
         return 1;
-    }
+    } else
+        modese_len = iec.modese_len;
+
     if ((err = scsiSetExceptionControlAndWarning(device, 0, &iec))) {
         QUIETON(con);
         pout("unable to disable Exception control and warning [%s]\n",
@@ -729,11 +743,13 @@ static int scsiSmartDisable(int device)
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
-    if ((err = scsiFetchIECmpage(device, &iec))) {
+    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
         return 1;
-    }
+    } else
+        modese_len = iec.modese_len;
+
     pout("Informational Exceptions (SMART) %s\n",
          scsi_IsExceptionControlEnabled(&iec) ? "enabled" : "disabled");
     pout("Temperature warning %s\n",
@@ -882,8 +898,8 @@ int scsiPrintMain(const char *dev_name, int fd)
             return returnval;
         }
         pout("Extended Background Self Test has begun\n");
-        if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec)) &&
-            (durationSec > 0)) {
+        if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec, 
+                        modese_len)) && (durationSec > 0)) {
             time_t t = time(NULL);
 
             t += durationSec;
