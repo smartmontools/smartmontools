@@ -139,12 +139,14 @@ Case 4:
 ===> PREFIX is IGNORED, VARIABLE gets value that is set
 
 
-For Filesystem Hierarchy Standard (FHS) installation locations, please use:
+For Filesystem Hierarchy Standard (FHS) installation locations
+described in http://www.pathname.com/fhs/ please use:
 --sbindir=     /usr/local/sbin
 --sysconfidir= /usr/local/etc
 --datadir=     /usr/local/share
---mandir=      /usr/local/share/man
-In this case, there is no need to set a value for --prefix: if you set a value of --prefix it will be ignored
+--mandir=      /usr/local/man
+In this case, there is no need to set a value for --prefix: if you set
+a value of --prefix it will be ignored
 
 
 
