@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.154 2004/07/09 12:38:04 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.155 2004/07/10 22:16:32 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1558,9 +1558,12 @@ int64_t ataPrintSmartAttribRawValue(char *out,
       out+=sprintf(out, "%"PRIu64, rawvalue);
     else {
       out+=sprintf(out, "%d", word[0]);
-      if (!(rawvalue==word[0]))
+      if (!(rawvalue==word[0])) {
+	int min=word[1]<word[2]?word[1]:word[2];
+	int max=word[1]>word[2]?word[1]:word[2];
         // The other bytes are in use. Try IBM's model
-        out+=sprintf(out, " (Lifetime Min/Max %d/%d)", word[1], word[2]);
+        out+=sprintf(out, " (Lifetime Min/Max %d/%d)", min, max);
+      }
     }
     break;
   default:
