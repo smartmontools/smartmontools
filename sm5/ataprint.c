@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.123 2004/01/27 06:19:37 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.124 2004/01/27 15:29:13 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -728,7 +728,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
     pout("No Errors Logged\n\n");
     return 0;
   }
-  QUIETON(con);
+  PRINT_ON(con);
   // If log pointer out of range, return
   if (data->error_log_pointer>5){
     pout("Invalid Error Log index = 0x%02x (T13/1321D rev 1c "
@@ -749,7 +749,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   else
     pout( "ATA Error Count: %d (device log contains only the most recent five errors)\n",
            (int)data->ata_error_count);
-  QUIETOFF(con);
+  PRINT_OFF(con);
   pout("\tCR = Command Register [HEX]\n"
        "\tFR = Features Register [HEX]\n"
        "\tSC = Sector Count Register [HEX]\n"
@@ -789,10 +789,10 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       }
 
       // See table 42 of ATA5 spec
-      QUIETON(con);
+      PRINT_ON(con);
       pout("Error %d occurred at disk power-on lifetime: %d hours\n",
              (int)(data->ata_error_count+k-4), (int)data->errorlog_struct[i].error_struct.timestamp);
-      QUIETOFF(con);
+      PRINT_OFF(con);
       pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
       pout("  After command completion occurred, registers were:\n"
            "  ER ST SC SN CL CH DH\n"
@@ -842,10 +842,10 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       pout("\n");
     }
   }
-  QUIETON(con);
-  if (con->quietmode)
+  PRINT_ON(con);
+  if (con->printing_switchable)
     pout("\n");
-  QUIETOFF(con);
+  PRINT_OFF(con);
   return data->ata_error_count;  
 }
 
@@ -1239,7 +1239,7 @@ int ataPrintMain (int fd){
         if (con->smartvendorattrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
         else {
-          QUIETON(con);
+          PRINT_ON(con);
           pout("Please note the following marginal Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres,2);
         } 
@@ -1251,16 +1251,16 @@ int ataPrintMain (int fd){
       
     case 1:
       // The case where the disk health is NOT OK
-      QUIETON(con);
+      PRINT_ON(con);
       pout("SMART overall-health self-assessment test result: FAILED!\n"
            "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-      QUIETOFF(con);
+      PRINT_OFF(con);
       if (ataCheckSmart(&smartval, &smartthres,1)){
         returnval|=FAILATTR;
         if (con->smartvendorattrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
-          QUIETON(con);
+          PRINT_ON(con);
           pout("Failed Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres,1);
         }
@@ -1268,23 +1268,23 @@ int ataPrintMain (int fd){
       else
         pout("No failed Attributes found.\n\n");   
       returnval|=FAILSTATUS;
-      QUIETOFF(con);
+      PRINT_OFF(con);
       break;
 
     case -1:
     default:
       // The case where something went wrong with HDIO_DRIVE_TASK ioctl()
       if (ataCheckSmart(&smartval, &smartthres,1)){
-        QUIETON(con);
+        PRINT_ON(con);
         pout("SMART overall-health self-assessment test result: FAILED!\n"
              "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         returnval|=FAILATTR;
         returnval|=FAILSTATUS;
         if (con->smartvendorattrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
-          QUIETON(con);
+          PRINT_ON(con);
           pout("Failed Attributes:\n");
           PrintSmartAttribWithThres(&smartval, &smartthres,1);
         }
@@ -1295,7 +1295,7 @@ int ataPrintMain (int fd){
           if (con->smartvendorattrib)
             pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
           else {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("Please note the following marginal Attributes:\n");
             PrintSmartAttribWithThres(&smartval, &smartthres,2);
           } 
@@ -1304,11 +1304,11 @@ int ataPrintMain (int fd){
         else
           pout("\n");
       } 
-      QUIETOFF(con);
+      PRINT_OFF(con);
       break;
     } // end of switch statement
     
-    QUIETOFF(con);
+    PRINT_OFF(con);
   } // end of checking SMART Status
   
   // Print general SMART values
@@ -1317,9 +1317,9 @@ int ataPrintMain (int fd){
 
   // Print vendor-specific attributes
   if (con->smartvendorattrib){
-    QUIETON(con);
-    PrintSmartAttribWithThres(&smartval, &smartthres,con->quietmode?2:0);
-    QUIETOFF(con);
+    PRINT_ON(con);
+    PrintSmartAttribWithThres(&smartval, &smartthres,con->printing_switchable?2:0);
+    PRINT_OFF(con);
   }
 
   // Print SMART log Directory
@@ -1330,17 +1330,17 @@ int ataPrintMain (int fd){
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
-      QUIETON(con);
+      PRINT_ON(con);
       pout("Log Directory Supported\n");
       if (ataReadLogDirectory(fd, &smartlogdirectory)){
-        QUIETOFF(con);
+        PRINT_OFF(con);
         pout("Read Log Directory failed.\n\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else
         ataPrintLogDirectory( &smartlogdirectory);
     }
-    QUIETOFF(con);
+    PRINT_OFF(con);
   }
   
   // Print SMART error log
@@ -1358,7 +1358,7 @@ int ataPrintMain (int fd){
         // quiet mode is turned on inside ataPrintSmartErrorLog()
         if (ataPrintSmartErrorlog(&smarterror))
           returnval|=FAILERR;
-        QUIETOFF(con);
+        PRINT_OFF(con);
       }
     }
   }
@@ -1382,10 +1382,10 @@ int ataPrintMain (int fd){
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else {
-        QUIETON(con);
-        if (ataPrintSmartSelfTestlog(&smartselftest,!con->quietmode))
+        PRINT_ON(con);
+        if (ataPrintSmartSelfTestlog(&smartselftest,!con->printing_switchable))
           returnval|=FAILLOG;
-        QUIETOFF(con);
+        PRINT_OFF(con);
         pout("\n");
       }
     } 

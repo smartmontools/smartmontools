@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.113 2004/01/26 23:11:23 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.114 2004/01/27 15:29:17 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -357,18 +357,18 @@ void ParseOpts (int argc, char** argv){
                 )){
     switch (optchar){
     case 'V':
-      con->veryquietmode=FALSE;
+      con->dont_print=FALSE;
       printslogan();
       printcopy();
       exit(0);
       break;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
-        con->quietmode     = TRUE;
-        con->veryquietmode = FALSE;
+        con->printing_switchable     = TRUE;
+        con->dont_print = FALSE;
       } else if (!strcmp(optarg,"silent")) {
-        con->quietmode     = FALSE;
-        con->veryquietmode = TRUE;
+        con->printing_switchable     = FALSE;
+        con->dont_print = TRUE;
       } else {
         badarg = TRUE;
       }
@@ -389,7 +389,7 @@ void ParseOpts (int argc, char** argv){
         
         // make a copy of the string to mess with
         if (!(s = strdup(optarg))) {
-          con->veryquietmode = FALSE;
+          con->dont_print = FALSE;
           pout("No memory for argument of -d. Exiting...\n");
           exit(FAILCMD);
         } else if (strncmp(s,"3ware,",6)) {
@@ -446,7 +446,7 @@ void ParseOpts (int argc, char** argv){
         // split_report_arg() may modify its first argument string, so use a
         // copy of optarg in case we want optarg for an error message.
         if (!(s = strdup(optarg))) {
-          con->veryquietmode = FALSE;
+          con->dont_print = FALSE;
           pout("Can't allocate memory to copy argument to -r option"
                " - exiting\n");
           EXIT(FAILCMD);
@@ -544,7 +544,7 @@ void ParseOpts (int argc, char** argv){
       // parse vendor-specific definitions of attributes
       if (!strcmp(optarg,"help")) {
         char *s;
-        con->veryquietmode=FALSE;
+        con->dont_print=FALSE;
         printslogan();
         if (!(s = create_vendor_attribute_arg_list())) {
           pout("Insufficient memory to construct argument list\n");
@@ -597,7 +597,7 @@ void ParseOpts (int argc, char** argv){
           badarg = TRUE;
         } else {
           if (con->smartselectivenumspans >= 5 || start > stop) {
-            con->veryquietmode=FALSE;
+            con->dont_print=FALSE;
             printslogan();
             if (start > stop) {
               pout("ERROR: Start LBA > ending LBA in argument \"%s\"\n",
@@ -627,14 +627,14 @@ void ParseOpts (int argc, char** argv){
       con->testcase           = ABORT_SELF_TEST;
       break;
     case 'h':
-      con->veryquietmode=FALSE;
+      con->dont_print=FALSE;
       printslogan();
       Usage();
       EXIT(0);  
       break;
     case '?':
     default:
-      con->veryquietmode=FALSE;
+      con->dont_print=FALSE;
       printslogan();
 #ifdef HAVE_GETOPT_LONG
       // Point arg to the argument in which this option was found.
@@ -682,13 +682,13 @@ void ParseOpts (int argc, char** argv){
   // At this point we have processed all command-line options.  If the
   // print output is switchable, then start with the print output
   // turned off
-  if (con->quietmode)
-    con->veryquietmode=TRUE;
+  if (con->printing_switchable)
+    con->dont_print=TRUE;
 
   // error message if user has asked for more than one test
   if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
          con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){
-    con->veryquietmode=FALSE;
+    con->dont_print=FALSE;
     printslogan();
     pout("\nERROR: smartctl can only run a single test (or abort) at a time.\n");
     UsageSummary();
@@ -740,7 +740,7 @@ void ParseOpts (int argc, char** argv){
   }  
 }
 
-// Printing function (controlled by global con->veryquietmode) 
+// Printing function (controlled by global con->dont_print) 
 // [From GLIBC Manual: Since the prototype doesn't specify types for
 // optional arguments, in a call to a variadic function the default
 // argument promotions are performed on the optional argument
@@ -752,7 +752,7 @@ void pout(char *fmt, ...){
   
   // initialize variable argument list 
   va_start(ap,fmt);
-  if (con->veryquietmode){
+  if (con->dont_print){
     va_end(ap);
     return;
   }

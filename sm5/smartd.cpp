@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.282 2004/01/27 06:19:38 shattered Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.283 2004/01/27 15:29:18 ballen4705 Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.282 2004/01/27 06:19:38 shattered Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.283 2004/01/27 15:29:18 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -3310,8 +3310,8 @@ int main(int argc, char **argv){
   ParseOpts(argc,argv);
   
   // do we mute printing from ataprint commands?
-  con->quietmode=0;
-  con->veryquietmode=debugmode?0:1;
+  con->printing_switchable=0;
+  con->dont_print=debugmode?0:1;
   
   // don't exit on bad checksums
   con->checksumfail=0;

@@ -25,17 +25,10 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.25 2004/01/27 06:19:38 shattered Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.26 2004/01/27 15:29:16 ballen4705 Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-// MACROS to control printing behavior
-#define QUIETON(control)  {if (control->quietmode) control->veryquietmode=0;}
-#define QUIETOFF(control) {if (control->quietmode && !control->veryquietmode) control->veryquietmode=1;}
-
-
-
 
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */
 void ataPrintDriveInfo(struct ata_identify_device *);

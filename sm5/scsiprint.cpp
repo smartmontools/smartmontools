@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.72 2004/01/02 16:05:25 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.73 2004/01/27 15:29:16 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -123,19 +123,19 @@ void scsiGetSmartData(int device)
     const char * cp;
     int err;
 
-    QUIETON(con);
+    PRINT_ON(con);
     if ((err = scsiCheckIE(device, gSmartLPage, gTempLPage, &asc, 
                            &ascq, &currenttemp, &triptemp))) {
         /* error message already announced */
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
-    QUIETOFF(con);
+    PRINT_OFF(con);
     cp = scsiGetIEString(asc, ascq);
     if (cp) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("SMART Health Status: %s [asc=%x,ascq=%x]\n", cp, asc, ascq); 
-        QUIETOFF(con);
+        PRINT_OFF(con);
     } else if (gIecMPage)
         pout("SMART Health Status: OK\n");
 
@@ -163,16 +163,16 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     const char *ts;
     int failures = 0;
 
-    QUIETON(con);
+    PRINT_ON(con);
     if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, gBuf, 
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return -1;
     }
     if (gBuf[0] != 0x2e) {
         pout("TapeAlerts Log Sense Failed\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return -1;
     }
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
@@ -194,7 +194,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
             }
         }
     }
-    QUIETOFF(con);
+    PRINT_OFF(con);
 
     if (! failures)
         pout("TapeAlert: OK\n");
@@ -211,15 +211,15 @@ void scsiGetStartStopData(int device)
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_LPAGE) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("StartStop Log Sense Failed, page mismatch\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
@@ -253,15 +253,15 @@ static void scsiPrintSeagateCacheLPage(int device)
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Seagate Cache Log Sense Failed: %s\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     if (gBuf[0] != SEAGATE_CACHE_LPAGE) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Seagate Cache Log Sense Failed, page mismatch\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
@@ -275,10 +275,10 @@ static void scsiPrintSeagateCacheLPage(int device)
             break;
         default: 
             if (con->reportscsiioctl > 0) {
-                QUIETON(con);
+                PRINT_ON(con);
                 pout("\nVendor (Seagate) cache lpage has unexpected parameter"
                      ", skip\n");
-                QUIETOFF(con);
+                PRINT_OFF(con);
             }
             return;
         }
@@ -328,15 +328,15 @@ static void scsiPrintSeagateFactoryLPage(int device)
 
     if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("scsiPrintSeagateFactoryLPage Failed [%s]\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     if (gBuf[0] != SEAGATE_FACTORY_LPAGE) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Seagate Factory Log Sense Failed, page mismatch\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return;
     }
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
@@ -350,10 +350,10 @@ static void scsiPrintSeagateFactoryLPage(int device)
             break;
         default: 
             if (con->reportscsiioctl > 0) {
-                QUIETON(con);
+                PRINT_ON(con);
                 pout("\nVendor (Seagate) factory lpage has unexpected "
                      "parameter, skip\n");
-                QUIETOFF(con);
+                PRINT_OFF(con);
             }
             return;
         }
@@ -494,24 +494,24 @@ static int scsiPrintSelfTest(int device)
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, gBuf, 
                             LOG_RESP_SELF_TEST_LEN, 0))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     if (gBuf[0] != SELFTEST_RESULTS_LPAGE) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Self-test Log Sense Failed, page mismatch\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     // loop through the twenty possible entries
@@ -647,9 +647,9 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Standard Inquiry failed [%s]\n", scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     len = gBuf[4] + 5;
@@ -660,9 +660,9 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         return 0;
 
     if (len < 36) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("Short INQUIRY response, skip product id\n");
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     memset(manufacturer, 0, sizeof(manufacturer));
@@ -681,7 +681,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         if (SIMPLE_ERR_BAD_RESP == iec_err) {
             pout(">> Terminate command early due to bad response to IEC "
                  "mode page\n");
-            QUIETOFF(con);
+            PRINT_OFF(con);
             gIecMPage = 0;
             return 1;
         }
@@ -696,12 +696,12 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         pout("Serial number: %s\n", &gBuf[4]);
     }
     else if (con->reportscsiioctl > 0) {
-        QUIETON(con);
+        PRINT_ON(con);
         if (SIMPLE_ERR_BAD_RESP == err)
             pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
         else
             pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
-        QUIETOFF(con);
+        PRINT_OFF(con);
     }
 
     // print SCSI peripheral device type
@@ -726,34 +726,34 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
         if (SIMPLE_ERR_NOT_READY == err) {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("device is NOT READY (e.g. spun down, busy)\n");
-            QUIETOFF(con);
+            PRINT_OFF(con);
          } else if (SIMPLE_ERR_NO_MEDIUM == err) {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("NO MEDIUM present on device\n");
-            QUIETOFF(con);
+            PRINT_OFF(con);
          } else if (SIMPLE_ERR_BECOMING_READY == err) {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("device becoming ready (wait)\n");
-            QUIETOFF(con);
+            PRINT_OFF(con);
         } else {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("device Test Unit Ready  [%s]\n", scsiErrString(err));
-            QUIETOFF(con);
+            PRINT_OFF(con);
         }
         failuretest(MANDATORY_CMD, returnval|=FAILID);
     }
    
     if (iec_err) {
         if (!is_tape) {
-            QUIETON(con);
+            PRINT_ON(con);
             pout("Device does not support SMART");
             if (con->reportscsiioctl > 0)
                 pout(" [%s]\n", scsiErrString(iec_err));
             else
                 pout("\n");
-            QUIETOFF(con);
+            PRINT_OFF(con);
         }
         gIecMPage = 0;
         return 0;
@@ -774,19 +774,19 @@ static int scsiSmartEnable(int device)
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     } else
         modese_len = iec.modese_len;
 
     if ((err = scsiSetExceptionControlAndWarning(device, 1, &iec))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("unable to enable Exception control and warning [%s]\n",
              scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
@@ -810,19 +810,19 @@ static int scsiSmartDisable(int device)
     int err;
 
     if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("unable to fetch IEC (SMART) mode page [%s]\n", 
              scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     } else
         modese_len = iec.modese_len;
 
     if ((err = scsiSetExceptionControlAndWarning(device, 0, &iec))) {
-        QUIETON(con);
+        PRINT_ON(con);
         pout("unable to disable Exception control and warning [%s]\n",
              scsiErrString(err));
-        QUIETOFF(con);
+        PRINT_OFF(con);
         return 1;
     }
     /* Need to refetch 'iec' since could be modified by previous call */
