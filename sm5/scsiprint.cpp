@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.54 2003/11/11 11:05:58 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.55 2003/11/13 07:42:13 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -68,7 +68,7 @@ static void scsiGetSupportedLogPages(int device)
 {
     int i, err;
 
-    if ((err = scsiLogSense(device, SUPPORTED_LOG_PAGES, gBuf, 
+    if ((err = scsiLogSense(device, SUPPORTED_LPAGES, gBuf, 
                             LOG_RESP_LEN, 0))) {
         if (con->reportscsiioctl > 0)
             pout("Log Sense for supported pages failed [%s]\n", 
@@ -79,19 +79,19 @@ static void scsiGetSupportedLogPages(int device)
     for (i = 4; i < gBuf[3] + LOGPAGEHDRSIZE; i++) {
         switch (gBuf[i])
         {
-            case TEMPERATURE_PAGE:
+            case TEMPERATURE_LPAGE:
                 gTempLPage = 1;
                 break;
-            case STARTSTOP_CYCLE_COUNTER_PAGE:
+            case STARTSTOP_CYCLE_COUNTER_LPAGE:
                 gStartStopLPage = 1;
                 break;
-            case SELFTEST_RESULTS_PAGE:
+            case SELFTEST_RESULTS_LPAGE:
                 gSelfTestLPage = 1;
                 break;
-            case IE_LOG_PAGE:
+            case IE_LPAGE:
                 gSmartLPage = 1;
                 break;
-            case TAPE_ALERTS_PAGE:
+            case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = 1;
                 break;
             default:
@@ -147,7 +147,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     int failures = 0;
 
     QUIETON(con);
-    if ((err = scsiLogSense(device, TAPE_ALERTS_PAGE, gBuf, 
+    if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, gBuf, 
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
@@ -192,14 +192,14 @@ void scsiGetStartStopData(int device)
     int err, len, k;
     char str[6];
 
-    if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
+    if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
         QUIETON(con);
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
         return;
     }
-    if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_PAGE) {
+    if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_LPAGE) {
         QUIETON(con);
         pout("StartStop Log Sense Failed, page mismatch\n");
         QUIETOFF(con);
@@ -237,17 +237,17 @@ static void scsiPrintErrorCounterLog(int device)
     int k;
     double processed_gb;
 
-    if (0 == scsiLogSense(device, READ_ERROR_COUNTER_PAGE, gBuf, 
+    if (0 == scsiLogSense(device, READ_ERROR_COUNTER_LPAGE, gBuf, 
                           LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
         found[0] = 1;
     }
-    if (0 == scsiLogSense(device, WRITE_ERROR_COUNTER_PAGE, gBuf, 
+    if (0 == scsiLogSense(device, WRITE_ERROR_COUNTER_LPAGE, gBuf, 
                           LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
         found[1] = 1;
     }
-    if (0 == scsiLogSense(device, VERIFY_ERROR_COUNTER_PAGE, gBuf, 
+    if (0 == scsiLogSense(device, VERIFY_ERROR_COUNTER_LPAGE, gBuf, 
                           LOG_RESP_LEN, 0)) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
         ecp = &errCounterArr[2];
@@ -279,7 +279,7 @@ static void scsiPrintErrorCounterLog(int device)
     }
     else 
         pout("\nDevice does not support Error Counter logging\n");
-    if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_PAGE, gBuf, 
+    if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_LPAGE, gBuf, 
                           LOG_RESP_LEN, 0)) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
@@ -326,14 +326,14 @@ static int scsiPrintSelfTest(int device)
     UINT8 * ucp;
     unsigned long long ull=0;
 
-    if ((err = scsiLogSense(device, SELFTEST_RESULTS_PAGE, gBuf, 
+    if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, gBuf, 
                             LOG_RESP_SELF_TEST_LEN, 0))) {
         QUIETON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
         QUIETOFF(con);
         return 1;
     }
-    if (gBuf[0] != SELFTEST_RESULTS_PAGE) {
+    if (gBuf[0] != SELFTEST_RESULTS_LPAGE) {
         QUIETON(con);
         pout("Self-test Log Sense Failed, page mismatch\n");
         QUIETOFF(con);

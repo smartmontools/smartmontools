@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.234 2003/11/12 04:20:24 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.235 2003/11/13 07:43:22 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1053,13 +1053,13 @@ static int SCSIDeviceScan(cfgfile *cfg)
  
     // Flag that certain log pages are supported (information may be
     // available from other sources).
-    if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf), 0)) {
+    if (0 == scsiLogSense(fd, SUPPORTED_LPAGES, tBuf, sizeof(tBuf), 0)) {
         for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
             switch (tBuf[k]) { 
-                case TEMPERATURE_PAGE:
+                case TEMPERATURE_LPAGE:
                     cfg->TempPageSupported = 1;
                     break;
-                case IE_LOG_PAGE:
+                case IE_LPAGE:
                     cfg->SmartPageSupported = 1;
                     break;
                 default:
@@ -1094,7 +1094,7 @@ static int SCSIDeviceScan(cfgfile *cfg)
 
     // capability check: self-test-log
     if (cfg->selftest){
-      if ((cfg->selflogcount=scsiCountSelfTests(fd, 1))<0) {
+      if ((cfg->selflogcount=scsiCountFailedSelfTests(fd, 1))<0) {
 	PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
 	cfg->selftest=0;
 	cfg->selflogcount=0;
@@ -1467,7 +1467,7 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->selftest){
       // old and new self-test error counts
       int old=cfg->selflogcount;
-      int new=scsiCountSelfTests(fd, 0);
+      int new=scsiCountFailedSelfTests(fd, 0);
       
       if (new<0)
 	// command failed
