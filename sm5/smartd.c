@@ -43,7 +43,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.39 2002/10/29 10:06:20 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.40 2002/10/29 13:38:49 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -76,12 +76,12 @@ void pout(char *fmt, ...){
   return;
 }
 
-void goobye(){
-  printout(LOG_CRIT,"smartd is exiting\n");
+// tell user that we ignore HUP signals
+void huphandler(int sig){
+  printout(LOG_CRIT,"HUP ignored. smartd does NOT re-read /etc/smartd.conf.\n");
   return;
 }
 
-volatile sig_atomic_t fatal = 0;
 // simple signal handler to print goodby message to syslog
 void sighandler(int sig){
     printout(LOG_CRIT,"smartd received signal %d: %s\n",
@@ -89,6 +89,10 @@ void sighandler(int sig){
     exit(1);
 }
 
+void goobye(){
+  printout(LOG_CRIT,"smartd is exiting\n");
+  return;
+}
 
 // Forks new process, closes all file descriptors, redirects stdin,
 // stdout, stderr
@@ -249,6 +253,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   printout(LOG_INFO,"Device: %s, opened\n", device);
   
   // Get drive identity structure
+  // May want to add options to enable autosave, automatic online testing
   if (ataReadHDIdentity (fd,&drive) || !ataSmartSupport(drive) || ataEnableSmart(fd)){
     // device exists, but not able to do SMART
     printout(LOG_INFO,"Device: %s, not SMART capable, or couldn't enable SMART\n",device);
@@ -277,6 +282,10 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
       printout(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",device);
       free(devices->smartval);
       free(devices->smartthres);
+
+      // make it easy to recognize that we've deallocated
+      devices->smartval=NULL;
+      devices->smartthres=NULL;
       cfg->usagefailed=cfg->prefail=cfg->usage=0;
     }
   }
@@ -820,14 +829,15 @@ int parseconfigline(int entry, int lineno,char *line){
 #endif
   }
 
-  // basic sanity check -- are any options turned on?
-  if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail || cfg->usage || cfg->selftest || cfg->errorlog || cfg->tryscsi)){
+  // basic sanity check -- are any directives enabled?
+  if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail || cfg->usage || 
+	cfg->selftest || cfg->errorlog || cfg->tryscsi)){
     printout(LOG_CRIT,"Drive: %s, no monitoring Directives on line %d of file %s\n",
 	     cfg->name, cfg->lineno, CONFIGFILE);
     Directives();
     exit(1);
   }
-
+  
   entry++;
   free(copy);
   return 1;
@@ -1077,6 +1087,7 @@ int main (int argc, char **argv){
   con->quietmode=0;
   con->veryquietmode=debugmode?0:1;
   
+
   // look in configuration file CONFIGFILE (normally /etc/smartd.conf)
   entries=parseconfigfile();
 
@@ -1092,6 +1103,9 @@ int main (int argc, char **argv){
     signal(SIGTERM, SIG_IGN);
   if (signal(SIGQUIT, sighandler)==SIG_IGN)
     signal(SIGQUIT, SIG_IGN);
+  if (signal(SIGHUP, huphandler)==SIG_IGN)
+    signal(SIGHUP, SIG_IGN);
+
   
   // install goobye message
   atexit(goobye);
