@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.19 2004/01/02 16:05:25 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.20 2004/01/29 03:21:06 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -901,9 +901,13 @@ Start a short self-test on the fourth ATA disk connected to the 3ware RAID
 controller card which is the second SCSI device /dev/sdb.
 .PP
 .SH RETURN VALUES
-The return values of smartctl are defined by a bitmask.  For the
-moment this only works on ATA disks.  The different bits in the return
-value are as follows:
+The return values of \fBsmartctl\fP are defined by a bitmask.  If all
+is well with the disk, the return value (exit status) of
+\fBsmartctl\fP is 0 (all bits turned off).  If a problem occurs, or an
+error, potential error, or fault is detected, then a non-zero status
+is returned.  In this case, the eight different bits in the return
+value have the following meanings for ATA disks; some of these values
+may also be returned for SCSI disks.
 .TP
 .B Bit 0:
 Command line did not parse.
@@ -1005,4 +1009,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.19 2004/01/02 16:05:25 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.20 2004/01/29 03:21:06 ballen4705 Exp $

@@ -25,7 +25,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.20 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.21 2004/01/29 03:21:06 ballen4705 Exp $\n"
 
 /* Boolean Values */
 #define TRUE 0x01
@@ -33,14 +33,16 @@
 
 // Return codes (bitmask)
 
-// command line did not parse
+// command line did not parse, or internal error occured in smartctl
 #define FAILCMD   (0x01<<0)
 
-// device open failed or could not get identity info
+// device open failed
 #define FAILDEV   (0x01<<1)
+
+// read device identity (ATA only) failed
 #define FAILID    (0x01<<1)
 
-// smart command failed
+// smart command failed, or ATA identify device structure missing information
 #define FAILSMART (0x01<<2)
 
 // SMART STATUS returned FAILURE
