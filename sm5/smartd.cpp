@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.238 2003/11/14 11:50:01 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.239 2003/11/16 16:53:02 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -221,7 +221,8 @@ void RemovePidFile(){
 
 //  Note if we catch a SIGUSR1
 void USR1handler(int sig){
-  caughtsigUSR1=1;
+  if (SIGUSR1==sig)
+    caughtsigUSR1=1;
   return;
 }
 
@@ -288,7 +289,7 @@ int exportenv(char* stackspace, const char *name, const char *value){
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
-void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...){
+void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   char command[2048], message[256], hostname[256], additional[256];
   char original[256], further[256], domainname[256], subject[256],dates[64];
   char environ_strings[10][ENVLENGTH];
@@ -320,11 +321,11 @@ void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 
   // checks for sanity
   if (cfg->emailfreq<1 || cfg->emailfreq>3) {
-    PrintOut(LOG_CRIT,"internal error in PrintAndMail(): cfg->emailfreq=%d\n",cfg->emailfreq);
+    PrintOut(LOG_CRIT,"internal error in MailWarning(): cfg->emailfreq=%d\n",cfg->emailfreq);
     return;
   }
   if (which<0 || which>9) {
-    PrintOut(LOG_CRIT,"internal error in PrintAndMail(): which=%d\n",which);
+    PrintOut(LOG_CRIT,"internal error in MailWarning(): which=%d\n",which);
     return;
   }
   
@@ -1235,7 +1236,7 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
 
   if (new<0)
     // command failed
-    PrintAndMail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
+    MailWarning(cfg, 8, "Device: %s, Read SMART Self Test Log Failed", name);
   else {      
     // old and new error counts
     int oldc=cfg->selflogcount;
@@ -1249,13 +1250,13 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
       // increase in error count
       PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
 	       name, oldc, newc);
-      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",
+      MailWarning(cfg, 3, "Device: %s, Self-Test Log error count increased from %d to %d",
 		   name, oldc, newc);
     } else if (oldh<newh) {
       // more recent error
       PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
 	       name, newh);
-      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
+      MailWarning(cfg, 3, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
 		   name, newh);
     }
     
@@ -1278,14 +1279,14 @@ int ATACheckDevice(cfgfile *cfg){
 
   // If user has asked, test the email warning system
   if (cfg->emailtest)
-    PrintAndMail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", name);
+    MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
   // given (see linux cdrom driver).
   if ((fd=OpenDevice(name, "ATA"))<0){
-    PrintAndMail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device", name);
+    MailWarning(cfg, 9, "Device: %s, unable to open device", name);
     return 1;
   }
 
@@ -1294,11 +1295,11 @@ int ATACheckDevice(cfgfile *cfg){
     int status=ataSmartStatus2(fd);
     if (status==-1){
       PrintOut(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
-      PrintAndMail(cfg, 5, LOG_CRIT, "Device: %s, not capable of SMART self-check", name);
+      MailWarning(cfg, 5, "Device: %s, not capable of SMART self-check", name);
     }
     else if (status==1){
       PrintOut(LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
-      PrintAndMail(cfg, 1, LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!", name);
+      MailWarning(cfg, 1, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!", name);
     }
   }
   
@@ -1310,7 +1311,7 @@ int ATACheckDevice(cfgfile *cfg){
     // Read current attribute values. *drive contains old values and thresholds
     if (ataReadSmartValues(fd,&curval)){
       PrintOut(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
-      PrintAndMail(cfg, 6, LOG_CRIT, "Device: %s, failed to read SMART Attribute Data", name);
+      MailWarning(cfg, 6, "Device: %s, failed to read SMART Attribute Data", name);
     }
     else {  
       // look for failed usage attributes, or track usage or prefail attributes
@@ -1334,7 +1335,7 @@ int ATACheckDevice(cfgfile *cfg){
             
             // warning message
             PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
-            PrintAndMail(cfg, 2, LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
+            MailWarning(cfg, 2, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
           }
         }
         
@@ -1401,13 +1402,13 @@ int ATACheckDevice(cfgfile *cfg){
 
     // did command fail?
     if (new<0)
-      PrintAndMail(cfg, 7, LOG_CRIT, "Device: %s, Read SMART Error Log Failed", name);
+      MailWarning(cfg, 7, "Device: %s, Read SMART Error Log Failed", name);
   
     // has error count increased?
     if (new>old){
       PrintOut(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
                name, old, new);
-      PrintAndMail(cfg, 4, LOG_CRIT, "Device: %s, ATA error count increased from %d to %d",
+      MailWarning(cfg, 4, "Device: %s, ATA error count increased from %d to %d",
                    name, old, new);
     }
     
@@ -1436,14 +1437,12 @@ int SCSICheckDevice(cfgfile *cfg)
 
     // If the user has asked for it, test the email warning system
     if (cfg->emailtest)
-        PrintAndMail(cfg, 0, LOG_CRIT, 
-                     "TEST EMAIL from smartd for device: %s", name);
+      MailWarning(cfg, 0, "TEST EMAIL from smartd for device: %s", name);
 
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it
     if ((fd=OpenDevice(name, "SCSI"))<0) {
-        PrintAndMail(cfg, 9, LOG_CRIT, "Device: %s, unable to open device",
-                      name);
+        MailWarning(cfg, 9, "Device: %s, unable to open device", name);
         return 1;
     }
     currenttemp = 0;
@@ -1454,8 +1453,7 @@ int SCSICheckDevice(cfgfile *cfg)
                         &asc, &ascq, &currenttemp, &triptemp)) {
             PrintOut(LOG_INFO, "Device: %s, failed to read SMART values\n",
                       name);
-            PrintAndMail(cfg, 6, LOG_CRIT, 
-                         "Device: %s, failed to read SMART values", name);
+            MailWarning(cfg, 6, "Device: %s, failed to read SMART values", name);
             cfg->SuppressReport = 1;
         }
     }
@@ -1463,8 +1461,7 @@ int SCSICheckDevice(cfgfile *cfg)
         cp = scsiGetIEString(asc, ascq);
         if (cp) {
             PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
-            PrintAndMail(cfg, 1, LOG_CRIT, "Device: %s, SMART Failure: %s",
-                         name, cp); 
+            MailWarning(cfg, 1,"Device: %s, SMART Failure: %s", name, cp); 
         }
     } else if (debugmode)
         PrintOut(LOG_INFO,"Device: %s, Acceptable asc,ascq: %d,%d\n", 
