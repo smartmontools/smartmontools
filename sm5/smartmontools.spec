@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.20 2002/10/24 13:08:17 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.21 2002/10/25 14:23:40 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -104,6 +104,14 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Fri Oct 25 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+-   smartd on startup now looks in the configuration file /etc/smartd.conf for
+    a list of devices which to include in its monitoring list.  See man page
+    (man smartd) for syntax. If not found, try all ata and ide devices.
+-   smartd: close file descriptors of SCSI device if not SMART capable
+    Closes ALL file descriptors after forking to daemon.
+-   added new temperature attribute (231, temperature)
+-   smartd: now open ATA disks using O_RDONLY
 * Thu Oct 24 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - smartd now prints the name of a failed or changed attribute into logfile,
   not just ID number
