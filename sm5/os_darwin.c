@@ -16,18 +16,6 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*
-  Geoff, does the nex paragraph still have any relevance or interest?
-  Should I move sm5_Darwin into the CVS Attic/?  Also, should Peter
-  Cassidy's name be added to the Copyright above?  I don't know if you
-  made any use of his code in writing this.
-  -- BA
-
-  Note that for Darwin much of this already exists. See some partially
-  developed but incomplete code at:
-  http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5_Darwin/.
-*/
-
 #include <stdbool.h>
 #include <errno.h>
 #include <mach/mach.h>
@@ -53,7 +41,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.2 2004/07/16 05:55:00 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.3 2004/07/16 06:54:32 geoffk1 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -101,6 +89,7 @@ int make_device_names (char*** devlist, const char* name) {
   int result;
   int index;
   const char * cls;
+  extern long long bytes;
 
   if (strcmp (name, "ATA") == 0)
     cls = kIOATABlockStorageDeviceClass;
@@ -120,6 +109,7 @@ int make_device_names (char*** devlist, const char* name) {
   // Create an array of service names.
   IOIteratorReset (i);
   *devlist = calloc (result, sizeof (char *));
+  bytes += result * sizeof (char *);
   if (*devlist == NULL)
     goto error;
   for (index = 0; (device = IOIteratorNext (i)) != MACH_PORT_NULL; index++)
@@ -129,6 +119,7 @@ int make_device_names (char*** devlist, const char* name) {
       IOObjectRelease (device);
 
       (*devlist)[index] = strdup (devName);
+      bytes += strlen (devName) + 1;
       if ((*devlist)[index] == NULL)
 	goto error;
     }
@@ -142,8 +133,12 @@ int make_device_names (char*** devlist, const char* name) {
     {
       for (index = 0; index < result; index++)
 	if ((*devlist)[index] != NULL)
-	  free ((*devlist)[index]);
+	  {
+	    bytes -= strlen ((*devlist)[index]) + 1;
+	    free ((*devlist)[index]);
+	  }
       free (*devlist);
+      bytes -= result * sizeof (char *);
     }
   return -1;
 }
@@ -306,6 +301,17 @@ int deviceclose(int fd){
 //  -1 if the command failed OR the disk SMART status can't be determined
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
+
+// Things that aren't available in the Darwin interfaces:
+// - Tests other than short and extended (in particular, can't run
+//   an immediate offline test)
+// - Captive-mode tests, aborting tests
+// - ability to switch automatic offline testing on or off
+
+// Note that some versions of Darwin, at least 7H63 and earlier,
+// have a buggy library that treats the boolean value in
+// SMARTEnableDisableOperations, SMARTEnableDisableAutosave, and
+// SMARTExecuteOffLineImmediate as always being true.
 int
 ata_command_interface(int fd, smart_command_set command,
 		      int select, char *data)
@@ -368,16 +374,13 @@ ata_command_interface(int fd, smart_command_set command,
 	    int i;
 	    /* The system has already byte-swapped, undo it.  */
 	    for (i = 0; i < 256; i+=2)
-	      {
-		char d = data[i];
-		data[i] = data[i+1];
-		data[i+1] = d;
-	      }
+	      swap2 (data + i);
 	  }
       }
       break;
     case CHECK_POWER_MODE:
-      ;
+      // The information is right there in the device registry, but how
+      // to get to it portably?
     default:
       errno = ENOTSUP;
       return -1;
