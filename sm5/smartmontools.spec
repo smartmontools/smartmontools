@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.81 2003/01/04 11:33:25 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.82 2003/01/09 03:42:32 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,10 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Thu Jan 9 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [PW] Added 'help' argument to -v for smartctl
+- [PW] Added -D, --showdirectives option to smartd
+
 * Sat Jan 4 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [DG] add '-l selftest' capability for SCSI devices (update smartctl.8)
 - [BA] smartd,smartctl: added additional Attribute modification option
