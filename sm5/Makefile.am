@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.20 2003/10/05 11:48:20 guidog Exp $
+# $Id: Makefile.am,v 1.21 2003/10/05 12:41:45 ballen4705 Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -61,7 +61,8 @@ docs_DATA = AUTHORS   \
             NEWS      \
             README    \
             TODO      \
-            WARNINGS
+            WARNINGS  \
+            smartd.conf
 
 sysconf_DATA = smartd.conf
 

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.195 2003/10/03 14:01:46 ballen4705 Exp $
+$Id: CHANGELOG,v 1.196 2003/10/05 12:41:45 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -19,6 +19,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.20
+
+  [GG] Fixed broken Makefile.am (zero length smartd.conf.5
+       was being created)
+
+  [FM] Improved Slackware init script added to /etc/smartd.initd
 
 smartmontools 5.19 [NOTE CHANGE OF RELEASE NUMBERING]
 
