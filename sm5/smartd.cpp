@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.59 2002/11/12 22:35:43 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.60 2002/11/12 22:39:21 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -122,7 +122,9 @@ void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
   if (WEXITSTATUS(status))
     printout(LOG_CRIT,"Email warning message to %s failed (exit status %d)\n",address,status);
   else
-    return;
+    printout(LOG_INFO,"Email warning message sent to %s\n",address);
+
+  return;
 }
 
 // Printing function for watching ataprint commands, or losing them
