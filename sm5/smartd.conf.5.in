@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.47 2004/04/11 17:13:39 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.48 2004/04/19 03:03:00 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -570,7 +570,7 @@ scripts are included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
 
 The return status of the executable is recorded by \fBsmartd\fP in
-SYSLOG. The executable is not expectected to write to STDOUT or
+SYSLOG. The executable is not expected to write to STDOUT or
 STDERR.  If it does, then this is interpreted as indicating that
 something is going wrong with your executable, and a fragment of this
 output is logged to SYSLOG to help you to understand the problem.
@@ -1152,4 +1152,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.47 2004/04/11 17:13:39 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.48 2004/04/19 03:03:00 ballen4705 Exp $
