@@ -2,7 +2,39 @@
 # November 27, 2003
 #
 # This patch is now against the official 3ware version 1.02.00.036 3w-xxxx.c driver
-# dated Wed Jul 16 20:30:28 2003. Apply it by following the instructions below.
+# dated Wed Jul 16 20:30:28 2003. Instructions for use:
+# 
+# [1] download the 1.02.00.036 3w-xxxx.c driver from 
+#     http://www.3ware.com/support/download.asp
+#
+# [2] Unpack it:
+#       tar zxvf rh7x_8x.tgz (or su7x_8x.tgz for SuSE)
+#
+# [3] Unpack the source code, and move to the right directory:
+#       cd src/2.4
+#       tar zxvf 3w-xxxx.tgz
+#       cd driver
+#
+# [4] Copy THIS FILE (what you are reading!) into that
+#     directory and name it 3w-xxxx.txt
+#
+# [5] Patch the driver:
+#       patch < 3w-xxxx.txt
+#     You should get the response 'patching file 3w-xxxx.c'.
+#
+# [6] Build the driver with the command:
+#       make
+#     This will create the driver: a file named 3w-xxxx.o
+#
+# [7] Load the driver (you must be root to do this):
+#       /sbin/insmod ./3w-xxxx.o
+#     [Note: if '/sbin/lsmod' shows that the driver is loaded already,
+#     then unmount any file systems that use it, then unload the driver
+#     with '/sbin/rmmod 3w-xxxx' first!]
+#
+# [8] Copy the driver into place in the kernel tree:
+#       cp ./3w-xxxx.o /lib/modules/`uname -r`/kernel/drivers/scsi
+#     That's it!
 #
 # August 14, 2003
 #
@@ -20,7 +52,7 @@
 # August 8, 2003
 # PATCH FOR 3WARE 3w-xxxx DRIVER
 # Bruce Allen ballen at gravity.phys.uwm.edu
-# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.4 2003/11/27 10:30:40 ballen4705 Exp $
+# CVS ID of this file: $Id: 3w-xxxx.txt,v 1.5 2003/11/28 17:58:50 ballen4705 Exp $
 # 
 # To apply this patch, save this entire file to 3w-xxxx.txt in a
 # directory containing the original unpatched 3w-xxxx.c file. Then
