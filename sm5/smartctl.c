@@ -51,7 +51,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.134.2.2 2004/08/17 00:06:18 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.134.2.3 2004/08/17 16:17:25 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -872,20 +872,18 @@ int main (int argc, char **argv){
 
   // now call appropriate ATA or SCSI routine
   switch (con->controller_type) {
-  case CONTROLLER_ATA:
-  case CONTROLLER_3WARE_678K:
-  case CONTROLLER_3WARE_9000_CHAR:
-  case CONTROLLER_3WARE_678K_CHAR:
-  case CONTROLLER_MARVELL_SATA:
-    retval = ataPrintMain(fd);
+  case CONTROLLER_UNKNOWN:
+    // we should never fall into this branch!
+    pout("Smartctl: please specify device type with the -d option.\n");
+    UsageSummary();
+    retval = FAILCMD;
     break;
   case CONTROLLER_SCSI:
     retval = scsiPrintMain(fd);
     break;
   default:
-    pout("Smartctl: please specify device type with the -d option.\n");
-    UsageSummary();
-    return FAILCMD;
+    retval = ataPrintMain(fd);
+    break;
   }
   
   return retval;
