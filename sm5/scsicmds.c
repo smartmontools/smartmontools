@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.39 2003/04/17 03:10:34 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.40 2003/04/22 02:08:06 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -921,7 +921,7 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
     rout[0] = 0;     /* Mode Data Length reserved in MODE SELECTs */
     if (iecp->modese_10)
         rout[1] = 0;
-    sp = (rout[offset] & 0x7f) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
+    sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
     rout[offset] &= 0x7f;     /* mask off PS bit */
     if (enabled) {
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
@@ -937,8 +937,14 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
         rout[offset + 10] = (SCSI_IEC_MP_REPORT_COUNT >> 8) & 0xff;
         rout[offset + 11] = SCSI_IEC_MP_REPORT_COUNT & 0xff;
         if (iecp->gotChangeable) {
-            for (k = 2; k < 12; ++k)
-                rout[offset + k] &= iecp->raw_chg[offset + k];
+            UINT8 chg2 = iecp->raw_chg[offset + 2];
+
+            rout[offset + 2] = chg2 ? (rout[offset + 2] & chg2) :
+                                      iecp->raw_curr[offset + 2];
+            for (k = 3; k < 12; ++k) {
+                if (0 == iecp->raw_chg[offset + k])
+                    rout[offset + k] = iecp->raw_curr[offset + k];
+            }
         }
         if (0 == memcmp(&rout[offset + 2], &iecp->raw_chg[offset + 2], 10)) {
             if (con->reportscsiioctl > 0)

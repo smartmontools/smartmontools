@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.37 2003/04/21 10:44:07 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.38 2003/04/22 02:09:05 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -391,6 +391,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     char timedatetz[64];
     struct scsi_iec_mode_page iec;
     int err, len;
+    int is_tape = 0;
         
     memset(gBuf, 0, 36);
     if ((err = scsiStdInquiry(device, gBuf, 36))) {
@@ -434,17 +435,23 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
         return;
     }
    
+    if ((SCSI_PT_SEQUENTIAL_ACCESS == *peripheral_type) ||
+        (SCSI_PT_MEDIUM_CHANGER == *peripheral_type))
+        is_tape = 1;
     if ((err = scsiFetchIECmpage(device, &iec))) {
         pout("Device does not support %s [%s]\n", 
-             ((1 == *peripheral_type) ? "TapeAlerts" : "SMART"), 
+             (is_tape ? "TapeAlerts" : "SMART"), 
              scsiErrString(err));
         return;
     }
-    pout("Device supports %s and is %s\n%s\n", 
-            (1 == *peripheral_type) ? "TapeAlerts" : "SMART",
-            (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled",
-            (scsi_IsWarningEnabled(&iec)) ? "Temperature Warning Enabled" :
-                "Temperature Warning Disabled or Not Supported");
+    if (is_tape)
+        pout("Device supports TapeAlerts\n");
+    else
+        pout("Device supports SMART and is %s\n",
+             (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
+    pout("%s\n", (scsi_IsWarningEnabled(&iec)) ? 
+                  "Temperature Warning Enabled" :
+                  "Temperature Warning Disabled or Not Supported");
 }
 
 void scsiSmartEnable(int device)
@@ -547,7 +554,8 @@ void scsiPrintMain(const char *dev_name, int fd)
     if (con->checksmart) {
         scsiGetSupportedLogPages(fd);
         checkedSupportedLogPages = 1;
-        if (1 == peripheral_type) { /* tape device */
+        if ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
+            (SCSI_PT_MEDIUM_CHANGER == peripheral_type)) { /* tape device */
             if (gTapeAlertsPage)
                 scsiGetTapeAlertsData(fd);
             if (gTempPage)
