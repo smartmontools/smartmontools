@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.9 2003/09/22 15:58:58 ballen4705 Exp $
+# $Id: Makefile.am,v 1.10 2003/09/23 15:22:35 guidog Exp $
 #
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -101,11 +101,14 @@ uninstall-initdDATA:
 uninstall-docsDATA:
 	rm -rf $(docsdir)
 
+# Todo:
+#   documentation: $(docsdir)
+#   initd.script: $(initddir)
 smart%: smart%.in
 	sed "s|/usr/share/man/|$(mandir)/|g" $< | \
 	sed "s|/usr/sbin/|$(sbindir)/|g" | \
-	sed "s|/etc/rc\.d/init\.d/|$(initddir)/|g" | \
-	sed "s|/usr/share/doc/smartmontools-5\.1/|$(docsdir)/|g" | \
-	sed "s|/etc/smartd\.conf|$(sysconfdir)/smartd.conf|g" > $@
+	sed "s|/etc/rc\\.d/init.d/|$(initddir)/|g" | \
+	sed "s|/usr/share/doc/smartmontools-5\\.1/|$(docsdir)/|g" | \
+	sed "s|/etc/smartd\\.conf|$(sysconfdir)/smartd\\.conf|g" > $@
 
 SUBDIRS= . examplescripts
