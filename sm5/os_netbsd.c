@@ -22,7 +22,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.5 2004/03/30 20:12:11 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.6 2004/04/19 03:57:38 shattered Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -209,6 +209,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     copydata = 1;
     break;
   case WRITE_LOG:
+    memcpy(inbuf, data, 512);
     req.flags = ATACMD_WRITE;
     req.features = ATA_SMART_WRITE_LOG_SECTOR;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
