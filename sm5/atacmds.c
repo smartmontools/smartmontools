@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.70 2003/04/01 22:04:59 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.71 2003/04/02 00:35:07 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -406,7 +406,7 @@ char *create_vendor_attribute_arg_list(void){
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
-//   parts of the code, and to provide the debugging interface.  Each
+//   parts of the code, and to provide a debugging interface.  Each
 //   different port and OS needs to provide it's own interface.  This
 //   is the linux one.
 // DETAILED DESCRIPTION OF ARGUMENTS
@@ -424,7 +424,7 @@ char *create_vendor_attribute_arg_list(void){
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
-int ioctlhandler(int device, smart_command_set command, int select, char *data){
+int os_specific_handler(int device, smart_command_set command, int select, char *data){
   unsigned char buffer[516];
   int retval, copydata=0;
 
@@ -484,7 +484,9 @@ int ioctlhandler(int device, smart_command_set command, int select, char *data){
   case STATUS_CHECK:
     buffer[1]=SMART_STATUS;
     break;
-default:
+  default:
+    pout("Unrecognized command %d in os_specific_handler()\n", command);
+    exit(1);
     break;
   }
   
@@ -499,10 +501,8 @@ default:
     // HDIO_DRIVE_TASK IOCTL
     retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
     
-    if (retval){
-      // print error message
+    if (retval)
       return -1;
-    }
     
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buffer[4]==normal_cyl_lo && buffer[5]==normal_cyl_hi)
@@ -528,20 +528,82 @@ default:
   
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   copydata=buffer[3];
-  retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
+  retval=ioctl(device, HDIO_DRIVE_CMD, buffer);
   
-  if (retval) {
-    //   print error message that IOCTL failed
+  if (retval)
     return -1;
-  }
   
-  if (copydata){
-    // check that data not null, then
+  if (copydata)
     memcpy(data, buffer+4, 512);
-  }
   
   return 0; 
 }
+
+static char *commandstrings[]={
+  [ENABLE]="SMART ENABLE",
+  [DISABLE]="SMART DISABLE",
+  [AUTOSAVE]="SMART AUTOMATIC ATTRIBUTE SAVE",
+  [IMMEDIATE_OFFLINE]="SMART IMMEDIATE OFFLINE",
+  [AUTO_OFFLINE]="SMART AUTO OFFLINE",
+  [STATUS]="SMART STATUS",
+  [STATUS_CHECK]="SMART STATUS CHECK",
+  [READ_VALUES]="SMART READ ATTRIBUTE VALUES",
+  [READ_THRESHOLDS]="SMART READ ATTRIBUTE THRESHOLDS",
+  [READ_LOG]="SMART READ LOG",
+  [IDENTIFY]="DRIVE IDENTIFY",
+  [PIDENTIFY]="DRIVE PACKET IDENTIFY"
+};
+
+void prettyprint(unsigned char *stuff, char *name){
+  int i,j;
+  pout("\n===== DATA STRUCTURE [%s] START (512 Bytes) =====\n", name);
+  for (i=0; i<32; i++){
+    pout("%03d-%03d: ", 16*i, 16*(i+1)-1);
+    for (j=0; j<15; j++)
+      pout("0x%02x ",*stuff++);
+    pout("0x%02x\n",*stuff++);
+  }
+  pout("===== DATA STRUCTURE [%s] END (512 Bytes) =====\n\n", name);
+}
+
+// This function provides the pretty-print reporting
+int smartcommandhandler(int device, smart_command_set command, int select, char *data){
+  int retval;
+  int getsdata;
+
+  getsdata=(command==PIDENTIFY || 
+	    command==IDENTIFY || 
+	    command==READ_LOG || 
+	    command==READ_THRESHOLDS || 
+	    command==READ_VALUES);
+  
+  // If reporting is enabled, say what the command will be before it's executed
+  if (con->reportataioctl){
+    pout("\nSMART-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
+    if (command==READ_LOG || command==AUTO_OFFLINE || command==AUTOSAVE || command==IMMEDIATE_OFFLINE)
+      pout(" InputParameter=%d\n", select);
+    else
+      pout("\n");
+  }
+  
+  if (getsdata && data==NULL){
+    pout("SMART-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
+    return -1;
+  }
+  
+  // now execute the command
+  retval=os_specific_handler(device, command, select, data);
+  
+  // If reporting is enabled, say what output was produced by the command
+  if (con->reportataioctl){
+    pout("SMART-IOCTL: DeviceFD=%d Command=%s returned %d.\n", device, commandstrings[command], retval);
+    // if requested, pretty-print the output data structure
+    if (con->reportataioctl>0 && getsdata)
+      prettyprint((unsigned char *)data, commandstrings[command]);
+  }
+  return retval;
+}
+
 
 // This function computes the checksum of a single disk sector (512
 // bytes).  Returns zero if checksum is OK, nonzero if the checksum is
@@ -559,19 +621,14 @@ unsigned char checksum(unsigned char *buffer){
 // Reads current Device Identity info (512 bytes) into buf
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
   unsigned short driveidchecksum;
-  unsigned char parms[HDIO_DRIVE_CMD_HDR_SIZE+sizeof(*buf)]=
-  {WIN_IDENTIFY, 0, 0, 1,};
   
-  if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
+  if (smartcommandhandler(device, IDENTIFY, 0, (char *)buf)){
     // See if device responds to packet command...
-    parms[0]=WIN_PIDENTIFY;
-    if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
+    if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
       syserror("Error ATA GET HD Identity Failed");
       return -1; 
     }
   }
-  // copy data into driveid structure
-  memcpy(buf,parms+HDIO_DRIVE_CMD_HDR_SIZE,sizeof(*buf));
   
 #if 0
   // The following ifdef is a HACK to distinguish different versions
@@ -689,16 +746,11 @@ int ataIsSmartEnabled(struct hd_driveid *drive){
 
 // Reads SMART attributes into *data
 int ataReadSmartValues(int device, struct ata_smart_values *data){	
-  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE]= 
-    {WIN_SMART, 0, SMART_READ_VALUES, 1, };
   
-  if (ioctl(device,HDIO_DRIVE_CMD,buf)){
+  if (smartcommandhandler(device, READ_VALUES, 0, (char *)data)){
     syserror("Error SMART Values Read failed");
     return -1;
   }
-
-  // copy data
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE,ATA_SMART_SEC_SIZE);
 
   // compute checksum
   if (checksum((unsigned char *)data))
@@ -710,17 +762,12 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
 
 // Reads the Self Test Log (log #6)
 int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
-  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
-    {WIN_SMART, 0x06, SMART_READ_LOG_SECTOR, 1,};
   
   // get data from device
-  if (ioctl(device, HDIO_DRIVE_CMD, buf)){
+  if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
     syserror("Error SMART Error Self-Test Log Read failed");
     return -1;
   }
-
-  // copy data back to the user
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE); 
 
   // compute its checksum, and issue a warning if needed
   if (checksum((unsigned char *)data))
@@ -731,17 +778,12 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
 
 // Reads the Error Log (log #1)
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
-  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
-    {WIN_SMART, 0x01, SMART_READ_LOG_SECTOR, 1,};
   
   // get data from device
-  if (ioctl(device,HDIO_DRIVE_CMD,buf)) {
+  if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
     syserror("Error SMART Error Log Read failed");
     return -1;
   }
-  
-  //copy data back to user
-  memcpy(data, buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
   
   // compute its checksum, and issue a warning if needed
   if (checksum((unsigned char *)data))
@@ -752,17 +794,12 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
 
 
 int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
-  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
-    {WIN_SMART, 1, SMART_READ_THRESHOLDS, 1,};
   
   // get data from device
-  if (ioctl(device ,HDIO_DRIVE_CMD, buf)){
+  if (smartcommandhandler(device, READ_THRESHOLDS, 0, (char *)data)){
     syserror("Error SMART Thresholds Read failed");
     return -1;
   }
-
-  // copy data back to user
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
   
   // compute its checksum, and issue a warning if needed
   if (checksum((unsigned char *)data))
@@ -773,10 +810,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
 
 
 int ataEnableSmart (int device ){	
-  unsigned char parms[4] =
-    {WIN_SMART, 1, SMART_ENABLE, 0};
-  
-  if (ioctl (device, HDIO_DRIVE_CMD, parms)){
+  if (smartcommandhandler(device, ENABLE, 0, NULL)){
     syserror("Error SMART Enable failed");
     return -1;
   }
@@ -784,21 +818,16 @@ int ataEnableSmart (int device ){
 }
 
 int ataDisableSmart (int device ){	
-  unsigned char parms[4] = 
-    {WIN_SMART, 1, SMART_DISABLE, 0};
   
-  if (ioctl(device, HDIO_DRIVE_CMD, parms)){
+  if (smartcommandhandler(device, DISABLE, 0, NULL)){
     syserror("Error SMART Disable failed");
     return -1;
   }  
   return 0;
 }
 
-int ataEnableAutoSave(int device){
-  unsigned char parms[4] = 
-    {WIN_SMART, 241, SMART_AUTOSAVE, 0};
-  
-  if (ioctl(device, HDIO_DRIVE_CMD, parms)){
+int ataEnableAutoSave(int device){  
+  if (smartcommandhandler(device, AUTOSAVE, 241, NULL)){
     syserror("Error SMART Enable Auto-save failed");
     return -1;
   }
@@ -806,10 +835,8 @@ int ataEnableAutoSave(int device){
 }
 
 int ataDisableAutoSave(int device){
-  unsigned char parms[4] = 
-    {WIN_SMART, 0, SMART_AUTOSAVE, 0};
   
-  if (ioctl(device, HDIO_DRIVE_CMD, parms)){
+  if (smartcommandhandler(device, AUTOSAVE, 0, NULL)){
     syserror("Error SMART Disable Auto-save failed");
     return -1;
   }
@@ -828,11 +855,8 @@ int ataDisableAutoSave(int device){
 // all, other than to say that it is "obsolete".
 int ataEnableAutoOffline (int device ){	
   
-  /* timer hard coded to 4 hours */
-  unsigned char parms[4] = 
-    {WIN_SMART, 248, SMART_AUTO_OFFLINE, 0};
-  
-  if (ioctl(device , HDIO_DRIVE_CMD, parms)){
+  /* timer hard coded to 4 hours */  
+  if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
     syserror("Error SMART Enable Automatic Offline failed");
     return -1;
   }
@@ -842,10 +866,8 @@ int ataEnableAutoOffline (int device ){
 // Another Obsolete Command.  See comments directly above, associated
 // with the corresponding Enable command.
 int ataDisableAutoOffline (int device ){	
-  unsigned char parms[4] = 
-    {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
   
-  if (ioctl(device , HDIO_DRIVE_CMD, parms)){
+  if (smartcommandhandler(device, AUTO_OFFLINE, 0, NULL)){
     syserror("Error SMART Disable Automatic Offline failed");
     return -1;
   }
@@ -857,66 +879,34 @@ int ataDisableAutoOffline (int device ){
 // enabled on the device.  See ataSmartStatus2() for one that actually
 // returns SMART status.
 int ataSmartStatus (int device ){	
-   unsigned char parms[4] = 
-     {WIN_SMART, 0, SMART_STATUS, 0};
-
-   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-     syserror("Error Return SMART Status via HDIO_DRIVE_CMD failed");
-     return -1;
-   }
-   return 0;
+  
+  if (smartcommandhandler(device, STATUS, 0, NULL)){
+    syserror("Error Return SMART Status via HDIO_DRIVE_CMD failed");
+    return -1;
+  }
+  return 0;
 }
 
 // If SMART is enabled, supported, and working, then this call is
 // guaranteed to return 1, else zero.  Silent inverse of
 // ataSmartStatus()
 int ataDoesSmartWork(int device){	
-   unsigned char parms[4] = 
-     {WIN_SMART, 0, SMART_STATUS, 0};
-   return !ioctl(device, HDIO_DRIVE_CMD, parms);
+  return !smartcommandhandler(device, STATUS, 0, NULL);
 }
-
 
 #ifdef HDIO_DRIVE_TASK
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
 int ataSmartStatus2(int device){
-  unsigned char normal_cyl_lo=0x4f, normal_cyl_hi=0xc2;
-  unsigned char failed_cyl_lo=0xf4, failed_cyl_hi=0x2c;
-  
-  unsigned char parms[HDIO_DRIVE_TASK_HDR_SIZE]=
-    {WIN_SMART, SMART_STATUS, 0, 0, 0, 0, 0};
-  
-  // load CL and CH values
-  parms[4]=normal_cyl_lo;
-  parms[5]=normal_cyl_hi;
 
-  if (ioctl(device,HDIO_DRIVE_TASK,parms)){
+  int returnval=smartcommandhandler(device, STATUS_CHECK, 0, NULL);
+  
+  if (returnval==-1){
     syserror("Error SMART Status command via HDIO_DRIVE_TASK failed");
     pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support enabled\n");
-    return -1;
   }
   
-  // Cyl low and Cyl high unchanged means "Good SMART status"
-  if (parms[4]==normal_cyl_lo && parms[5]==normal_cyl_hi)
-    return 0;
-  
-  // These values mean "Bad SMART status"
-  if (parms[4]==failed_cyl_lo && parms[5]==failed_cyl_hi)
-    return 1;
-
-  // We haven't gotten output that makes sense; print out some debugging info
-  syserror("Error SMART Status command failed");
-  pout("Please get assistance from %s\n",PROJECTHOME);
-  pout("Register values returned from SMART Status command are:\n");
-  pout("CMD=0x%02x\n",(int)parms[0]);
-  pout("FR =0x%02x\n",(int)parms[1]);
-  pout("NS =0x%02x\n",(int)parms[2]);
-  pout("SC =0x%02x\n",(int)parms[3]);
-  pout("CL =0x%02x\n",(int)parms[4]);
-  pout("CH =0x%02x\n",(int)parms[5]);
-  pout("SEL=0x%02x\n",(int)parms[6]);
-  return -1;
+  return returnval;
 }
 #else
 // Just a hack so that the code compiles on 
@@ -936,12 +926,8 @@ int ataSmartStatus2(int device){
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
 int ataSmartTest(int device, int testtype){	
-  unsigned char parms[4] = 
-    {WIN_SMART, 0, SMART_IMMEDIATE_OFFLINE, 0};
   char cmdmsg[128],*type,*captive;
   int errornum;
-
-  parms[1]=testtype;
 
   // Set up strings that describe the type of test
   if (testtype==SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST)
@@ -964,7 +950,8 @@ int ataSmartTest(int device, int testtype){
   pout("Sending command: \"%s\".\n",cmdmsg);
 
   // Now send the command to test
-  errornum=ioctl(device, HDIO_DRIVE_CMD, parms);
+  errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
+
   if (errornum && !((testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST) && errno==EIO)){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 

@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.54 2003/03/31 21:54:14 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.55 2003/04/02 00:35:07 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -603,6 +603,7 @@ void pout(char *fmt, ...){
   // print out
   vprintf(fmt,ap);
   va_end(ap);
+  fflush(stdout);
   return;
 }
 
