@@ -44,7 +44,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.67 2003/04/15 00:22:00 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.68 2003/04/16 01:54:39 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -654,9 +654,11 @@ int main (int argc, char **argv){
   ParseOpts(argc,argv);
 
   // open device - read-write access is needed to use the scsi generic (sg)
-  // device for some commands (e.g. '-s on'). Try and open read-write and 
-  // if that fails with an error suggested writing is not permitted, fall
-  // back to a read-only open.
+  // device for some commands (e.g. '-s on'). Attempt to open read-write and 
+  // if that fails with an error suggesting writing is not permitted, fall
+  // back to a read-only open. [When opened O_RDONLY invoking '-s on' will 
+  // attempt the scsi command MODE SELECT. Sg disallows it since that scsi 
+  // command potentially modifies mode page data.]
   fd = open(device=argv[argc-1], O_RDWR);
   if ((fd < 0) && ((EACCES == errno) || (EROFS == errno)))
     fd = open(device=argv[argc-1], O_RDONLY);  
