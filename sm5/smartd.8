@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.80 2003/04/08 11:22:34 guidog Exp $
+\# $Id: smartd.8,v 1.81 2003/04/09 10:00:57 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/08 11:22:34 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/09 10:00:57 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -202,6 +202,31 @@ Prints usage message to STDOUT and exits.
 .B \-?
 Same as
 .B -h.
+
+
+.TP
+.B \-r TYPE, \-\-report=TYPE
+Intended primarily to help
+.B smartmontools
+developers understand the behavior of
+.B smartmontools
+on non-conforming or poorly conforming hardware.  This option reports
+details of
+.B smartd
+transactions with the device.  The option can be used multiple times.
+When used just once, it shows a record of the ioctl() transactions
+with the device.  Whe used more than once, the detail of these ioctl()
+transactions are reported in greater detail.  The valid arguments to
+this option are:
+
+.I ioctl
+\- report all ioctl() transactions.
+
+.I ataioctl
+\- report only ioctl() transactions with ATA devices.
+
+.I scsiioctl
+\- report only ioctl() transactions with SCSI devices.
 
 .SH EXAMPLES
 
@@ -1120,4 +1145,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.80 2003/04/08 11:22:34 guidog Exp $
+$Id: smartd.8,v 1.81 2003/04/09 10:00:57 ballen4705 Exp $
