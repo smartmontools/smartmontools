@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.16 2003/10/03 00:13:37 ballen4705 Exp $
+# $Id: Makefile.am,v 1.17 2003/10/03 00:15:02 ballen4705 Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -27,7 +27,7 @@ smartd_SOURCES =  smartd.c       \
                   scsiprint.c	\
                   scsiprint.h	\
                   utility.c 	\
-                  utility.h	\
+                  utility.h
 
 smartctl_SOURCES= smartctl.c    \
                   smartctl.h    \
@@ -47,7 +47,7 @@ smartctl_SOURCES= smartctl.c    \
                   scsiprint.c	\
                   scsiprint.h	\
                   utility.c	\
-                  utility.h	\
+                  utility.h
 
 man_MANS =        smartd.conf.5 \
                   smartctl.8    \
