@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.54 2003/10/13 12:43:22 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.55 2003/11/11 11:04:40 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -721,7 +721,7 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
  * value. */
 int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
 {
-    int err;
+    int err, offset;
 
     memset(iecp, 0, sizeof(*iecp));
     iecp->requestedCurrent = 1;
@@ -737,6 +737,10 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
         } else
             return err;
     } 
+    offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
+                                iecp->modese_10);
+    if (offset < 1) /* sanity check */
+        return SIMPLE_ERR_BAD_RESP;
     iecp->gotCurrent = 1;
     iecp->requestedChangeable = 1;
     if (iecp->modese_10) {
@@ -748,45 +752,15 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp)
                                1, iecp->raw_chg, sizeof(iecp->raw_chg)))
             iecp->gotChangeable = 1;
     }
+    if (iecp->gotChangeable) {
+        offset = scsiModePageOffset(iecp->raw_chg, sizeof(iecp->raw_chg),
+                                    iecp->modese_10);
+        if (offset < 1) /* sanity check */
+            return SIMPLE_ERR_BAD_RESP;
+    }
     return 0;
 }
 
-/* Return 0 if ok, -EINVAL if problems */
-int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
-                UINT8 *byte_2p, UINT8 *mrie_p, unsigned int *interval_timer_p,
-                unsigned int *report_count_p)
-{
-    int offset, len;
-
-    if (iecp && iecp->gotCurrent) {
-        offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
-                                    iecp->modese_10);
-        if (offset >= 0) {
-            len = iecp->raw_curr[offset + 1] + 2;
-            if (byte_2p)
-                *byte_2p = iecp->raw_curr[offset + 2];
-            if (mrie_p)
-                *mrie_p = iecp->raw_curr[offset + 3] & 0xf;
-            if (interval_timer_p && (len > 7))
-                *interval_timer_p = (iecp->raw_curr[offset + 4] << 24) +
-                                    (iecp->raw_curr[offset + 5] << 16) +
-                                    (iecp->raw_curr[offset + 6] << 8) +
-                                    iecp->raw_curr[offset + 7];
-            else if (interval_timer_p)
-                *interval_timer_p = 0;
-            if (report_count_p && (len > 11))
-                *report_count_p = (iecp->raw_curr[offset + 8] << 24) +
-                                  (iecp->raw_curr[offset + 9] << 16) +
-                                  (iecp->raw_curr[offset + 10] << 8) +
-                                  iecp->raw_curr[offset + 11];
-            else if (report_count_p)
-                *report_count_p = 0;
-            return 0;
-        } else
-            return -EINVAL;
-    } else
-        return -EINVAL;
-}
 
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
 {
@@ -1669,3 +1643,46 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
 	ucp += pl;
     }
 }
+
+// See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
+// T10/1416-D Rev 10
+int scsiCountSelfTests(int fd, int noisy)
+{
+    int num, k, n, err;
+    UINT8 * ucp;
+    unsigned char resp[LOG_RESP_SELF_TEST_LEN];
+
+    if ((err = scsiLogSense(fd, SELFTEST_RESULTS_PAGE, resp, 
+                            LOG_RESP_SELF_TEST_LEN, 0))) {
+        if (noisy)
+            pout("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
+        return -1;
+    }
+    if (resp[0] != SELFTEST_RESULTS_PAGE) {
+        if (noisy)
+            pout("Self-test Log Sense Failed, page mismatch\n");
+        return -1;
+    }
+    // compute page length
+    num = (resp[2] << 8) + resp[3];
+    // Log sense page length 0x190 bytes
+    if (num != 0x190) {
+        if (noisy)
+            pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n", num);
+        return -1;
+    }
+    // loop through the twenty possible entries
+    for (k = 0, ucp = resp + 4; k < 20; ++k, ucp += 20 ) {
+        int i;
+
+        // timestamp in power-on hours (or zero if test in progress)
+        n = (ucp[6] << 8) | ucp[7];
+
+        // The spec says "all 20 bytes will be zero if no test" but
+        // DG has found otherwise.  So this is a heuristic.
+        if ((0 == n) && (0 == ucp[4]))
+            break;
+    }
+    return k;
+}
+
