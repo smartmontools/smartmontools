@@ -55,7 +55,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.16 2004/08/18 19:27:44 likewise Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.17 2004/08/18 21:27:18 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -187,6 +187,7 @@ int deviceclose(int fd){
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
   unsupported();
   return -1;
+}
 
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
   unsupported();
