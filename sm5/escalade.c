@@ -40,7 +40,7 @@
 #include "escalade.h"
 #include "utility.h"
 
-const char *escalade_c_cvsid="$Id: escalade.c,v 1.1 2003/08/04 12:58:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
+const char *escalade_c_cvsid="$Id: escalade.c,v 1.2 2003/08/04 13:08:04 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID UTILITY_H_CVSID;
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -143,7 +143,7 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.features = 0xDB;       // SMART AUTO OFFLINE
     passthru.sector_count = select; // Enable or disable?
     if (select){
-      pout("WARNING - SMART AUTOSAVE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
+      pout("WARNING - SMART AUTO OFFLINE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
       return 1;
     }
     break;
@@ -154,7 +154,7 @@ int linux_3ware_command_interface(int fd, int disknum, smart_command_set command
     passthru.features = 0xD2;        // SMART AUTOSAVE
     passthru.sector_count = select; // Enable or disable?
     if (select){
-      pout("WARNING - SMART AUTOSAVE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
+      pout("WARNING - SMART AUTOSAVE ENABLE NOT YET IMPLEMENTED FOR 3WARE CONTROLLER\n");
       return 1;
     }
     break;
