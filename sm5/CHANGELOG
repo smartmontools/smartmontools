@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.239 2003/11/04 17:23:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.240 2003/11/05 01:21:41 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  [EM] smartd: To keep as consistent as possible, migrate FreeBSD
+       devicescan code to also use glob(3). Also verified clean 
+       compile on a 4.7 FreeBSD system.
 
   [BA] smartd: Modified device scan code to use glob(3). Previously it
        appeared to have trouble when
