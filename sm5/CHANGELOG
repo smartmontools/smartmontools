@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.343 2004/02/20 16:10:27 ballen4705 Exp $
+$Id: CHANGELOG,v 1.344 2004/02/23 20:32:10 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,6 +25,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+  [BA] smartd: configure script did not set correct directory to search for
+       smartd.conf based on --prefix argument to ./configure.  Thanks to
+       GG for identifying the problem and fix.
+
+  [BA] make clean now removes man pages (generated from *.in) files as well
+       as object files.
 
   [EM] Correct copying of sense data in FreeBSD SCSI implementation. Thanks
        to Sergey Svishchev for noticing the bug.
