@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.107 2003/10/10 05:11:07 arvoreen Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.108 2003/10/13 14:50:44 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -64,7 +64,7 @@ void trim(char *out, const char *in)
   // Find the first non-space character (maybe none).
   first = -1;
   for (i = 0; in[i]; i++)
-    if (!isspace(in[i])) {
+    if (!isspace((int)in[i])) {
       first = i;
       break;
     }
@@ -76,7 +76,7 @@ void trim(char *out, const char *in)
   }
 
   // Find the last non-space character.
-  for (i = strlen(in)-1; i >= first && isspace(in[i]); i--)
+  for (i = strlen(in)-1; i >= first && isspace((int)in[i]); i--)
     ;
   last = i;
 

@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.24 2003/10/10 05:06:41 arvoreen Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.25 2003/10/13 14:50:44 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -109,7 +109,8 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   tmval=localtime(&tval);
   
   // Convert to an ASCII string, put in datebuffer
-  asctime_r(tmval, datebuffer);
+  snprintf(datebuffer, 64, asctime(tmval));
+  //  asctime_r(tmval, datebuffer);
   
   // Remove newline
   datebuffer[strlen(datebuffer)-1]='\0';
@@ -267,7 +268,7 @@ int split_report_arg(char *s, int *i)
     char *tailptr;
 
     *s++ = '\0';
-    if (*s == '0' || !isdigit(*s))  // The integer part must be positive
+    if (*s == '0' || !isdigit((int)*s))  // The integer part must be positive
       return 1;
     errno = 0;
     *i = (int) strtol(s, &tailptr, 10);
@@ -286,7 +287,7 @@ int split_report_arg2(char *s, int *i){
   char *tailptr;
   s+=6;
 
-  if (*s=='\0' || !isdigit(*s)) { 
+  if (*s=='\0' || !isdigit((int)*s)) { 
     // What's left must be integer
     *i=-1;
     return 1;
@@ -313,7 +314,7 @@ int split_selective_arg(char *s, unsigned long long *start,
 
   if (!(s = strchr(s, ',')))
     return 1;
-  if (!isdigit(*++s))
+  if (!isdigit((int)(*++s)))
     return 1;
   errno = 0;
   // Last argument to strtoull (the base) is 0 meaning that decimal is assumed
