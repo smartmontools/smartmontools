@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.30 2002/10/29 23:18:29 ballen4705 Exp $
+$Id: CHANGELOG,v 1.31 2002/10/30 06:02:37 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,8 +26,20 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 
+smartmontools-5.0.23
 
-smartmontools-5.0.21
+    Because of reported problems with GCC 3.2 compile, I have gone
+    thorough the code and explicitly changed all print format
+    parameters to correspond EXACTLY to int unless they have to be
+    promoted to long longs.  To quote from the glibc bible: [From
+    GLIBC Manual: Since the prototype doesn't specify types for
+    optional arguments, in a call to a variadic function the default
+    argument promotions are performed on the optional argument
+    values. This means the objects of type char or short int (whether
+    signed or not) are promoted to either int or unsigned int, as
+    appropriate.]
+
+smartmontools-5.0.22
 
     smartd, smartctl now warn if they find an attribute whose ID
     number does not match between Data and Threshold structures.

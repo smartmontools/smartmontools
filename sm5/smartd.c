@@ -44,7 +44,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.45 2002/10/29 23:09:29 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.46 2002/10/30 06:02:40 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -64,6 +64,13 @@ unsigned char debugmode               = FALSE;
 unsigned char printcopyleft           = FALSE;
 
 // This function prints either to stdout or to the syslog as needed
+
+// [From GLIBC Manual: Since the prototype doesn't specify types for
+// optional arguments, in a call to a variadic function the default
+// argument promotions are performed on the optional argument
+// values. This means the objects of type char or short int (whether
+// signed or not) are promoted to either int or unsigned int, as
+// appropriate.]
 void printout(int priority,char *fmt, ...){
   va_list ap;
   // initialize variable argument list 
@@ -98,7 +105,7 @@ void huphandler(int sig){
 // simple signal handler to print goodby message to syslog
 void sighandler(int sig){
     printout(LOG_CRIT,"smartd received signal %d: %s\n",
-	     sig,strsignal(sig));
+	     sig, strsignal(sig));
     exit(1);
 }
 
@@ -155,7 +162,7 @@ int daemon_init(void){
 // Prints header identifying version of code and home
 void printhead(){
   printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon.\n",
-           RELEASE_MAJOR, RELEASE_MINOR, SMARTMONTOOLS_VERSION);
+           (int)RELEASE_MAJOR, (int)RELEASE_MINOR, (int)SMARTMONTOOLS_VERSION);
   printout(LOG_INFO,"Home page is %s\n\n",PROJECTHOME);
   return;
 }
@@ -188,8 +195,8 @@ return;
 void Usage (void){
   printout(LOG_INFO,"usage: smartd -[opts] \n\n");
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  %c  Start smartd in debug Mode\n",DEBUGMODE);
-  printout(LOG_INFO,"  %c  Print License, Copyright, and version information\n\n",PRINTCOPYLEFT);
+  printout(LOG_INFO,"  %c  Start smartd in debug Mode\n",(int)DEBUGMODE);
+  printout(LOG_INFO,"  %c  Print License, Copyright, and version information\n\n",(int)PRINTCOPYLEFT);
   printout(LOG_INFO,"Optional configuration file: %s\n",CONFIGFILE);
   Directives();
 }
@@ -214,7 +221,7 @@ int closedevice(int fd, char *name){
     if (errno<sys_nerr)
       printout(LOG_INFO,"Device: %s, %s, close(%d) failed\n", name, sys_errlist[errno], fd);
     else
-      printout(LOG_INFO,"Device: %s, close(%d) failed\n",name,fd);
+      printout(LOG_INFO,"Device: %s, close(%d) failed\n",name, fd);
     return 1;
   }
   // device sucessfully closed
@@ -235,7 +242,7 @@ int ataerrorcount(int fd, char *name){
 }
 
 // returns <0 if problem
-char selftesterrorcount(int fd, char *name){
+int selftesterrorcount(int fd, char *name){
   struct ata_smart_selftestlog log;
 
   if (-1==ataReadSelfTestLog(fd,&log)){
@@ -244,7 +251,7 @@ char selftesterrorcount(int fd, char *name){
   }
   
   // return current number of self-test errors
-  return (char)ataPrintSmartSelfTestlog(log,0);
+  return ataPrintSmartSelfTestlog(log,0);
 }
 
 
@@ -305,7 +312,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   
   // capability check: self-test-log
   if (cfg->selftest){
-    char val=selftesterrorcount(fd, device);
+    int val=selftesterrorcount(fd, device);
     if (val>=0)
       cfg->selflogcount=val;
     else
@@ -331,7 +338,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
   // Do we still have entries available?
   if (numatadevices>=MAXATADEVICES){
     printout(LOG_CRIT,"smartd has found more than MAXATADEVICES=%d ATA devices.\n"
-	     "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",numatadevices);
+	     "Recompile code from " PROJECTHOME " with larger MAXATADEVICES\n",(int)numatadevices);
     exit(1);
   }
   
@@ -387,7 +394,7 @@ int scsidevicescan(scsidevices_t *devices, char *device){
   // Device exists, and does SMART.  Add to list
   if (numscsidevices>=MAXSCSIDEVICES){
     printout(LOG_CRIT,"smartd has found more than MAXSCSIDEVICES=%d SCSI devices.\n"
-	     "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n",numscsidevices);
+	     "Recompile code from " PROJECTHOME " with larger MAXSCSIDEVICES\n",(int)numscsidevices);
     exit(1);
   }
 
@@ -452,8 +459,8 @@ int  ataCompareSmartValues2(struct ata_smart_values *new,
   
   // issue warning if they don't have the same ID in all structures:
   if ( (now->id != was->id) || (now->id != thre->id) ){
-    printout(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %hhu = %hhu = %hhu\n",
-	     name, now->id, was->id, thre->id);
+    printout(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %d = %d = %d\n",
+	     name, (int)now->id, (int)was->id, (int)thre->id);
     return 0;
   }
 
@@ -568,13 +575,13 @@ int ataCheckDevice(atadevices_t *drive){
 	    
 	    // prefailure attribute
 	    if (cfg->prefail && prefail)
-	      printout(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %i to %i\n",
-		       name, loc, oldval, newval);
+	      printout(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d to %d\n",
+		       name, loc, (int)oldval, (int)newval);
 
 	    // usage attribute
 	    if (cfg->usage && !prefail)
-	      printout(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %i to %i\n",
-		       name, loc, oldval, newval);
+	      printout(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d to %d\n",
+		       name, loc, (int)oldval, (int)newval);
 	  }
 	} // endof block tracking usage or prefailure
       } // end of loop over attributes
@@ -586,11 +593,11 @@ int ataCheckDevice(atadevices_t *drive){
   
   // check if number of selftest errors has increased (note: may also DECREASE)
   if (cfg->selftest){
-    char old=cfg->selflogcount;
-    char new=selftesterrorcount(fd, name);
+    unsigned char old=cfg->selflogcount;
+    int new=selftesterrorcount(fd, name);
     if (new>old){
       printout(LOG_CRIT,"Device: %s, Self-Test Log error count increased from %d to %d\n",
-	       name,old,new);
+	       name, (int)old, new);
     }
     if (new>=0)
       // Needed suince self-test error count may  DECREASE
@@ -604,7 +611,7 @@ int ataCheckDevice(atadevices_t *drive){
     int new=ataerrorcount(fd, name);
     if (new>old){
       printout(LOG_CRIT,"Device: %s, ATA error count increased from %d to %d\n",
-	       name,old,new);
+	       name, old, new);
     }
     // this last line is probably not needed, count always increases
     if (new>=0)
@@ -633,17 +640,17 @@ int scsiCheckDevice( scsidevices_t *drive){
     printout(LOG_INFO, "Device: %s, failed to read SMART values\n", drive->devicename);
   
   if (returnvalue)
-    printout(LOG_CRIT, "Device: %s, SMART Failure: (%02x) %s\n", drive->devicename, 
-	     returnvalue, scsiSmartGetSenseCode( returnvalue) );
+    printout(LOG_CRIT, "Device: %s, SMART Failure: (%d) %s\n", drive->devicename, 
+	     (int)returnvalue, scsiSmartGetSenseCode(returnvalue));
   else
-    printout(LOG_INFO,"Device: %s, Acceptable attribute: %d\n", drive->devicename, returnvalue);  
+    printout(LOG_INFO,"Device: %s, Acceptable attribute: %d\n", drive->devicename, (int)returnvalue);  
   
   // Seems to completely ignore what capabilities were found on the
   // device when scanned
   if (currenttemp){
     if ((currenttemp != drive->Temperature) && (drive->Temperature))
       printout(LOG_INFO, "Device: %s, Temperature changed %d degrees to %d degrees since last reading\n", 
-	       drive->devicename, (int) (currenttemp - drive->Temperature), (unsigned int) currenttemp );
+	       drive->devicename, (int) (currenttemp - drive->Temperature), (int)currenttemp );
     drive->Temperature = currenttemp;
   }
   closedevice(fd, drive->devicename);
@@ -927,7 +934,7 @@ int parseconfigfile(){
       else
 	warn="";
       printout(LOG_CRIT,"Error: line %d of file %s %sis more than %d characters.\n",
-	       contlineno,CONFIGFILE,warn,MAXLINELEN);
+	       (int)contlineno,CONFIGFILE,warn,(int)MAXLINELEN);
       exit(1); 
     }
 
@@ -940,7 +947,7 @@ int parseconfigfile(){
     // is the total line (made of all continuation lines) too long?
     if (cont+len>MAXCONTLINE){
       printout(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than %d characters.\n",
-	       lineno,contlineno,CONFIGFILE,MAXCONTLINE);
+	       lineno, (int)contlineno, CONFIGFILE, (int)MAXCONTLINE);
       exit(1);
     }
     
@@ -1030,7 +1037,7 @@ int makeconfigentries(int num, char *name, int isata, int start){
   int i;
   
   if (MAXENTRIES<(start+num)){
-    printout(LOG_CRIT,"Error: simulated config file can have no more than %d entries\n",MAXENTRIES);
+    printout(LOG_CRIT,"Error: simulated config file can have no more than %d entries\n",(int)MAXENTRIES);
     exit(1);
   }
   

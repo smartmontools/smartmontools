@@ -1,4 +1,4 @@
-Release:  22
+Release:  23
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.33 2002/10/29 23:18:30 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.34 2002/10/30 06:02:40 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -112,6 +112,17 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- Because of reported problems with GCC 3.2 compile, I have gone
+  thorough the code and explicitly changed all print format
+  parameters to correspond EXACTLY to int unless they have to be
+  promoted to long longs.  To quote from the glibc bible: [From
+  GLIBC Manual: Since the prototype doesn't specify types for
+  optional arguments, in a call to a variadic function the default
+  argument promotions are performed on the optional argument
+  values. This means the objects of type char or short int (whether
+  signed or not) are promoted to either int or unsigned int, as
+  required.
 * Wed Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
 - smartd, smartctl now warn if they find an attribute whose ID
   number does not match between Data and Threshold structures.
