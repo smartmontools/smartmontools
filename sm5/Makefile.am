@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.22 2003/10/07 21:35:27 guidog Exp $
+# $Id: Makefile.am,v 1.23 2003/10/07 21:43:15 guidog Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -32,7 +32,9 @@ smartd_SOURCES =  smartd.c       \
 smartd_LDADD = @os_deps@
 smartd_DEPENDENCIES = @os_deps@
 EXTRA_smartd_SOURCES = os_linux.c \
-                       os_linux.h
+                       os_linux.h \
+		       os_freebsd.c \
+		       os_freebsd.h
 
 smartctl_SOURCES= smartctl.c    \
                   smartctl.h    \
