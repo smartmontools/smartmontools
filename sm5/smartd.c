@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.113 2003/03/10 20:49:07 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.114 2003/03/24 10:44:11 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -649,14 +649,14 @@ int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
   
   // check that it's ready for commands.  Is this really needed?  It's
   // not part of smartctl at all.
-  if (testunitnotready(fd)){
+  if (testunitready(fd)){
     printout(LOG_INFO,"Device: %s, Failed Test Unit Ready\n", device);
     close(fd);
     return 2;
   }
   
   // make sure that we can read mode page
-  if (modesense(fd, 0x1c, (UINT8 *) &tBuf)){
+  if (modesense(fd, 0x1c, tBuf, 254)){
     printout(LOG_INFO,"Device: %s, Failed read of ModePage 0x1c\n", device);
     close(fd);
     return 3;
@@ -686,7 +686,7 @@ int scsidevicescan(scsidevices_t *devices, cfgfile *cfg){
 
   // register the supported functionality.  The smartd code does not
   // seem to make any further use of this information.
-  if (logsense(fd, SUPPORT_LOG_PAGES, (UINT8 *) &tBuf) == 0){
+  if (logsense(fd, SUPPORT_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
     for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
       switch ( tBuf[i]){ 
       case TEMPERATURE_PAGE:
