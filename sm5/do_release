@@ -60,7 +60,7 @@ cd ..
 cp build/smartmontools-$VERSION.tar.gz $SOURCES
 
 # build rpm
-rpm -ba smartmontools.spec
+rpm -ba --sign smartmontools.spec
 
 # remove source tarball
 rm -f $SOURCES/smartmontools-$VERSION.tar.gz
