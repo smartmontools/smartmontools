@@ -25,9 +25,14 @@
 #ifndef SMARTD_H_
 #define SMARTD_H_
 
+// Needed since some structure definitions below require POSIX
+// extended regular expressions.
+#include <sys/types.h>
+#include <regex.h>
+
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.64 2003/12/07 19:59:08 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.65 2003/12/08 17:25:59 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -77,6 +82,22 @@ typedef struct maildata_s {
   unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
   unsigned char emailtest;                // Send test email?
 } maildata;
+
+// If user has requested automatic testing, then this structure stores
+// their regular expression pattern, the compiled form of that regex,
+// and information about the disk capabilities and when the last text
+// took place
+
+typedef struct testinfo_s {
+  char *regex;                    // text form of regex
+  regex_t cregex;                 // compiled form of regex
+  unsigned short hour;            // 1+hour of year when last scheduled self-test done
+  signed char not_cap_offline;    // 0==unknown OR capable of offline, 1==not capable 
+  signed char not_cap_conveyance;
+  signed char not_cap_short;
+  signed char not_cap_long;
+} testinfo;
+
 
 // cfgfile is the main data structure of smartd. It is used in two
 // ways.  First, to store a list of devices/options given in the
@@ -163,11 +184,8 @@ typedef struct configfile_s {
   char showpresets;                       // Show database entry for this device
   char removable;                         // Device may disappear (not be present)
   unsigned char selflogcount;             // total number of self-test errors
-  unsigned char notused1[2];              // for packing alignment
-  unsigned short selftesthour;            // 1+hour of year when last scheduled self-test done
   unsigned short selfloghour;             // lifetime hours of last self-test error
-  char *testregexp;                       // Pointer to regexps pattern for selftest types/times.  Not stored in 
-                                          // compiled form because POSIX has no 'copy' compiled regex command!
+  testinfo *testdata;                     // Pointer to data on scheduled testing
   
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script

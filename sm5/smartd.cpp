@@ -69,7 +69,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.259 2003/12/07 19:59:08 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.260 2003/12/08 17:25:58 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -131,6 +131,29 @@ volatile int caughtsigHUP=0;
 jmp_buf registerscsienv;
 #endif
 
+// free all memory associated with selftest part of configfile entry.  Return NULL
+testinfo* FreeTestData(testinfo *data){
+  
+  // make sure we have something to do.
+  if (!data)
+    return NULL;
+  
+  // free space for text pattern
+  data->regex=FreeNonZero(data->regex, -1, __LINE__, __FILE__);
+  
+  // free compiled expression
+  regfree(&(data->cregex));
+
+  // make sure that no sign of the compiled expression is left behind
+  // (just in case, to help detect bugs if we ever try and refer to
+  // that again).
+  memset(&(data->cregex), '0', sizeof(regex_t));
+
+  // free remaining memory space
+  data=FreeNonZero(data, sizeof(testinfo), __LINE__, __FILE__);
+
+  return NULL;
+}
 
 cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, char *listname){
   // for now keep BLOCKSIZE small to help detect coding problems.
@@ -217,12 +240,12 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values),__LINE__,__FILE__);
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32,__LINE__,__FILE__);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM,__LINE__,__FILE__);
-  cfg->testregexp      = FreeNonZero(cfg->testregexp,     -1,__LINE__, __FILE__);
   if (cfg->mailwarn){
     cfg->mailwarn->address         = FreeNonZero(cfg->mailwarn->address,        -1,__LINE__,__FILE__);
     cfg->mailwarn->emailcmdline    = FreeNonZero(cfg->mailwarn->emailcmdline,   -1,__LINE__,__FILE__);
     cfg->mailwarn                  = FreeNonZero(cfg->mailwarn,   sizeof(maildata),__LINE__,__FILE__);
   }
+  cfg->testdata        = FreeTestData(cfg->testdata);
   *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile),__LINE__,__FILE__);
 
   return;
@@ -1270,7 +1293,7 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
       return 0;
     
     // we are writing
-    if (!(*datap=Calloc(NMONITOR*32, 1))){
+    if (!(*datap=(unsigned char *)Calloc(NMONITOR*32, 1))){
       PrintOut(LOG_CRIT,"No memory to create monattflags\n");
       EXIT(EXIT_NOMEM);
     }
@@ -1338,13 +1361,13 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   struct tm timenow;
   time_t epochnow;
   char matchpattern[16];
-  regex_t compiled;
   int retval=0;
-  unsigned short hours;
   regmatch_t substring;
   int weekday;
+  testinfo *dat=cfg->testdata;
 
-  if (!cfg->testregexp)
+  // check that self-testing has been requested
+  if (!dat)
     return retval;
   
   // construct pattern containing the month, day of month, day of
@@ -1352,28 +1375,15 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   time(&epochnow);
   localtime_r(&epochnow, &timenow);
   
-  // never do a second test in the same hour as one you've already done
-  hours=1+timenow.tm_hour+24*timenow.tm_yday;
-  if (hours==cfg->selftesthour)
-    return 0;
-  
   // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
   // (Sunday).
   weekday=timenow.tm_wday?timenow.tm_wday:7;
   sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow.tm_mon+1, 
 	  timenow.tm_mday, weekday, timenow.tm_hour);
   
-  // compile regular expression for matching
-  if (regcomp(&compiled, cfg->testregexp, REG_EXTENDED))
-    // compilation of regular expression failed
-    retval=-1;
-  else
-    // see if we got a match
-    retval=!regexec(&compiled, matchpattern, 1, &substring, 0);
+  // see if we got a match
+  retval=!regexec(&(dat->cregex), matchpattern, 1, &substring, 0);
   
-  // free compiled expression
-  regfree(&compiled);
-
 #if 0
   // debugging: see how many characters of the type/date/time string
   // match
@@ -1381,15 +1391,21 @@ int DoTestNow(cfgfile *cfg, char testtype) {
 #endif
   
   if (retval>0) {
-    // must match unless the ENTIRE type/date/time string
+    unsigned short hours=1+timenow.tm_hour+24*timenow.tm_yday;
     int length=strlen(matchpattern);
     if (substring.rm_so!=0 || substring.rm_eo!=length)
+      // must match unless the ENTIRE type/date/time string
       retval=0;
+    else if (hours==dat->hour) {
+      // never do a second test in the same hour as one you've already done
+      PrintOut(LOG_INFO, "Device: %s, alread did test in current hour, skipping test of type %c\n",
+	       cfg->name, testtype);
+      retval=0;
+    }
     else
       // save time of the current test
-      cfg->selftesthour=hours;
+      dat->hour=hours;
   }
-
   return retval;
 }
 
@@ -1402,9 +1418,11 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
   int inProgress;
 
   if (scsiSelfTestInProgress(fd, &inProgress)) {
-    PrintOut(LOG_CRIT, "Device: %s, seems not to support Self-Tests\n", name);
+    PrintOut(LOG_CRIT, "Device: %s, does not support Self-Tests\n", name);
+    cfg->testdata->not_cap_short=cfg->testdata->not_cap_long=1;
     return 1;
   }
+
   if (1 == inProgress) {
     PrintOut(LOG_INFO, "Device: %s, skip since Self-Test already in "
              "progress.\n", name);
@@ -1462,21 +1480,29 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
     testname="Offline Immediate ";
     if (isSupportExecuteOfflineImmediate(&data))
       dotest=OFFLINE_FULL_SCAN;
+    else
+      cfg->testdata->not_cap_offline=1;
     break;
   case 'C':
     testname="Conveyance Self-";
     if (isSupportConveyanceSelfTest(&data))
       dotest=CONVEYANCE_SELF_TEST;
+    else
+      cfg->testdata->not_cap_conveyance=1;
     break;
   case 'S':
     testname="Short Self-";
     if (isSupportSelfTest(&data))
       dotest=SHORT_SELF_TEST;
+    else
+      cfg->testdata->not_cap_short=1;
     break;
   case 'L':
     testname="Long Self-";
     if (isSupportSelfTest(&data))
       dotest=EXTEND_SELF_TEST;
+    else
+      cfg->testdata->not_cap_long=1;
     break;
   }
   
@@ -1651,19 +1677,20 @@ int ATACheckDevice(cfgfile *cfg){
       cfg->ataerrorcount=new;
   }
   
-  // if the user has asked, carry out scheduled self-tests
-  if (cfg->testregexp) {
+  // if the user has asked, and device is capable (or we're not yet
+  // sure) carry out scheduled self-tests.
+  if (cfg->testdata) {
     // long test
-    if (DoTestNow(cfg, 'L')>0)
+    if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L')>0)
       DoATASelfTest(fd, cfg, 'L');    
     // short test
-    else if (DoTestNow(cfg, 'S')>0)
+    else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S')>0)
       DoATASelfTest(fd, cfg, 'S');
     // conveyance test
-    else if (DoTestNow(cfg, 'C')>0)
+    else if (!cfg->testdata->not_cap_conveyance && DoTestNow(cfg, 'C')>0)
       DoATASelfTest(fd, cfg, 'C');
     // offline immediate
-    else if (DoTestNow(cfg, 'O')>0)
+    else if (!cfg->testdata->not_cap_offline && DoTestNow(cfg, 'O')>0)
       DoATASelfTest(fd, cfg, 'O');  
   }
   
@@ -1743,12 +1770,12 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->selftest)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
     
-    if (cfg->testregexp) {
+    if (cfg->testdata) {
       // long (extended) background test
-      if (DoTestNow(cfg, 'L')>0)
+      if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L')>0)
 	DoSCSISelfTest(fd, cfg, 'L');
       // short background test
-      else if (DoTestNow(cfg, 'S')>0)
+      else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S')>0)
 	DoSCSISelfTest(fd, cfg, 'S');
     }
     CloseDevice(fd, name);
@@ -2106,31 +2133,31 @@ int ParseToken(char *token,cfgfile *cfg){
     }
     break;
   case 's':
-    if ((arg = strtok(NULL, delim)) == NULL) {
-      missingarg = 1;
+    // warn user, and delete any previously given -s REGEXP Directives
+    if (cfg->testdata){
+      PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Test Directive -s %s\n",
+	       configfile, lineno, name, cfg->testdata->regex);
+      cfg->testdata=FreeTestData(cfg->testdata);
     }
-    else {
-      // check that pattern is valid
-      regex_t compiled;
-      int retval;
-      if ((retval=regcomp(&compiled, arg, REG_EXTENDED | REG_NOSUB))) {
-	char errormsg[512];
-	// not a valid regular expression!
-	regerror(retval, &compiled, errormsg, 512);
-	PrintOut(LOG_CRIT, "File %s line %d (drive %s): the -s argument \"%s\" is NOT a valid extended regular expression. %s.\n",
-		 configfile, lineno, name, arg, errormsg);
-	regfree(&compiled);
-	return -1;
-      }
-      
-      // Free the last pattern given if any
-      if (cfg->testregexp) {
-        PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -s Test Directive \"%s\"\n",
-		 configfile, lineno, name, cfg->testregexp);
-        cfg->testregexp=FreeNonZero(cfg->testregexp, -1,__LINE__,__FILE__);
-      }
-      // Attempt to copy the argument
-      cfg->testregexp=CustomStrDup(arg, 1, __LINE__,__FILE__);
+    
+    // check for missing argument
+    if (!(arg = strtok(NULL, delim))) {
+      missingarg = 1;
+    } 
+    // allocate space for structure and string
+    else if (!(cfg->testdata=(testinfo *)Calloc(1, sizeof(testinfo))) || !(cfg->testdata->regex=CustomStrDup(arg, 1, __LINE__,__FILE__))) {
+      PrintOut(LOG_INFO, "File %s line %d (drive %s): no memory to create Test Directive -s %s!\n",
+	       configfile, lineno, name, arg);
+      EXIT(EXIT_NOMEM);
+    }
+    else if ((val=regcomp(&(cfg->testdata->cregex), arg, REG_EXTENDED))) {
+      char errormsg[512];
+      // not a valid regular expression!
+      regerror(val, &(cfg->testdata->cregex), errormsg, 512);
+      PrintOut(LOG_CRIT, "File %s line %d (drive %s): -s argument \"%s\" is INVALID extended regular expression. %s.\n",
+	       configfile, lineno, name, arg, errormsg);
+      cfg->testdata=FreeTestData(cfg->testdata);
+      return -1;
     }
     break;
   case 'm':
@@ -2139,7 +2166,7 @@ int ParseToken(char *token,cfgfile *cfg){
       missingarg = 1;
     else {
       if (mdat->address) {
-	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -m Address Directive \"%s\"\n",
+	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Address Directive -m %s\n",
 		 configfile, lineno, name, mdat->address);
 	mdat->address=FreeNonZero(mdat->address, -1,__LINE__,__FILE__);
       }
@@ -2167,7 +2194,7 @@ int ParseToken(char *token,cfgfile *cfg){
       }
       // Free the last cmd line given if any, and copy new one
       if (mdat->emailcmdline) {
-	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous -M exec Directive \"%s\"\n",
+	PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous mail Directive -M exec %s\n",
 		 configfile, lineno, name, mdat->emailcmdline);
 	mdat->emailcmdline=FreeNonZero(mdat->emailcmdline, -1,__LINE__,__FILE__);
       }
@@ -2250,7 +2277,7 @@ int ParseToken(char *token,cfgfile *cfg){
   // If this did something to fill the mail structure, and that didn't
   // already exist, create it and copy.
   if (makemail) {
-    if (!(cfg->mailwarn=Calloc(1, sizeof(maildata)))) {
+    if (!(cfg->mailwarn=(maildata *)Calloc(1, sizeof(maildata)))) {
       PrintOut(LOG_INFO, "File %s line %d (drive %s): no memory to create mail warning entry!\n",
 	       configfile, lineno, name);
       EXIT(EXIT_NOMEM);
@@ -2279,8 +2306,24 @@ cfgfile *CreateConfigEntry(cfgfile *original){
   // make private copies of data items ONLY if they are in use (non
   // NULL)
   add->name         = CustomStrDup(add->name,         0, __LINE__,__FILE__);
-  add->testregexp   = CustomStrDup(add->testregexp,   0, __LINE__,__FILE__);
 
+  if (add->testdata) {
+    int val;
+    if (!(add->testdata=(testinfo *)Calloc(1,sizeof(testinfo))))
+      goto badexit;
+    memcpy(add->testdata, original->testdata, sizeof(testinfo));
+    add->testdata->regex = CustomStrDup(add->testdata->regex,   1, __LINE__,__FILE__);
+    // only POSIX-portable way to make fresh copy of compiled regex is
+    // to recompile it completely.  There is no POSIX
+    // compiled-regex-copy command.
+    if ((val=regcomp(&(add->testdata->cregex), add->testdata->regex, REG_EXTENDED))) {
+      char errormsg[512];
+      regerror(val, &(add->testdata->cregex), errormsg, 512);
+      PrintOut(LOG_CRIT, "unable to recompile regular expression %s. %s\n", add->testdata->regex, errormsg);
+      goto badexit;
+    }
+  }
+  
   if (add->mailwarn) {
     if (!(add->mailwarn=(maildata *)Calloc(1,sizeof(maildata))))
       goto badexit;

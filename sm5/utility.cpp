@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.29 2003/12/05 13:14:07 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.30 2003/12/08 17:25:59 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -346,7 +346,7 @@ void *FreeNonZero(void *address, int size, int line, char* file){
       bytes-=1+strlen(address);
     else
       bytes-=size;
-    return CheckFree(address, line,file);
+    return CheckFree(address, line, file);
   }
   return NULL;
 }
