@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.33 2003/10/15 10:59:02 guidog Exp $
+# $Id: Makefile.am,v 1.34 2003/10/15 14:06:02 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -112,7 +112,7 @@ DISTCLEANFILES = smartd.conf.5 \
 	         smartctl.8    \
 		 smartd.initd
 
-smartd.conf.5.in: smartd.8.in
+smartd.conf.5.in: smartd.8.in Makefile
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
 	sed '/STARTINCLUDE/,$$D'  < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.head
 	sed '1,/ENDINCLUDE/D'   < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.tail

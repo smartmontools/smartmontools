@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.48 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.49 2003/10/15 14:06:02 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -213,6 +213,9 @@ typedef struct changedattribute_s {
 
 // Declare our own printing functions. Doing this provides error
 // messages if the argument number/types don't match the format.
+#ifndef __GNUC__
+#define __attribute__(x)      /* nothing */
+#endif
 void PrintOut(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
 void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   

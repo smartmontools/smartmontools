@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.54 2003/10/12 09:10:02 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.55 2003/10/15 14:06:02 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -112,15 +112,18 @@ struct ata_identify_device {
 };
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
+#pragma pack(1)
 struct ata_smart_attribute {
   unsigned char id;
   // meaning of flag bits: see MACROS just below
+  // WARNING: MISALIGNED!
   unsigned short flags; 
   unsigned char current;
   unsigned char worst;
   unsigned char raw[6];
   unsigned char reserv;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // MACROS to interpret the flags bits in the previous structure.
 // These have not been implemented using bitflags and a union, to make
@@ -168,6 +171,7 @@ struct ata_smart_attribute {
 
 /* ata_smart_values is format of the read drive Attribute command */
 /* see Table 34 of T13/1321D Rev 1 spec (Device SMART data structure) for *some* info */
+#pragma pack(1)
 struct ata_smart_values {
   unsigned short int revnumber;
   struct ata_smart_attribute vendor_attributes [NUMBER_ATA_SMART_ATTRIBUTES];
@@ -185,27 +189,32 @@ struct ata_smart_values {
   unsigned char reserved_375_385[11];
   unsigned char vendor_specific_386_510[125];
   unsigned char chksum;
-} __attribute__ ((packed));
+}; 
+#pragma pack()
 
 /* Vendor attribute of SMART Threshold (compare to ata_smart_attribute above) */
+#pragma pack(1)
 struct ata_smart_threshold_entry {
   unsigned char id;
   unsigned char threshold;
   unsigned char reserved[10];
-} __attribute__ ((packed));
-
+};
+#pragma pack()
 
 /* Format of Read SMART THreshold Command */
 /* Compare to ata_smart_values above */
+#pragma pack(1)
 struct ata_smart_thresholds {
   unsigned short int revnumber;
   struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
   unsigned char chksum;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 
 // Table 42 of T13/1321D Rev 1 spec (Error Data Structure)
+#pragma pack(1)
 struct ata_smart_errorlog_error_struct {
   unsigned char reserved;
   unsigned char error_register;
@@ -218,9 +227,12 @@ struct ata_smart_errorlog_error_struct {
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-} __attribute__ ((packed));
+};
+#pragma pack()
+
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
+#pragma pack(1)
 struct ata_smart_errorlog_command_struct {
   unsigned char devicecontrolreg;
   unsigned char featuresreg;
@@ -231,15 +243,19 @@ struct ata_smart_errorlog_command_struct {
   unsigned char drive_head;
   unsigned char commandreg;
   unsigned int timestamp;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
+#pragma pack(1)
 struct ata_smart_errorlog_struct {
   struct ata_smart_errorlog_command_struct commands[5];
   struct ata_smart_errorlog_error_struct error_struct;
-}  __attribute__ ((packed));
+};
+#pragma pack()
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
+#pragma pack(1)
 struct ata_smart_errorlog {
   unsigned char revnumber;
   unsigned char error_log_pointer;
@@ -247,9 +263,11 @@ struct ata_smart_errorlog {
   unsigned short int ata_error_count;
   unsigned char reserved[57];
   unsigned char checksum;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
+#pragma pack(1)
 struct ata_smart_selftestlog_struct {
   unsigned char selftestnumber; // Sector number register
   unsigned char selfteststatus;
@@ -257,9 +275,11 @@ struct ata_smart_selftestlog_struct {
   unsigned char selftestfailurecheckpoint;
   unsigned int lbafirstfailure;
   unsigned char vendorspecific[15];
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // Table 44 of T13/1321D Rev 1 spec (Self-test log data structure)
+#pragma pack(1)
 struct ata_smart_selftestlog {
   unsigned short int revnumber;
   struct ata_smart_selftestlog_struct selftest_struct[21];
@@ -267,26 +287,34 @@ struct ata_smart_selftestlog {
   unsigned char mostrecenttest;
   unsigned char reserved[2];
   unsigned char chksum;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
+#pragma pack(1)
 struct ata_smart_log_entry {
   unsigned char numsectors;
   unsigned char reserved;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
+#pragma pack(1)
 struct ata_smart_log_directory {
   unsigned short int logversion;
   struct ata_smart_log_entry entry[255];
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
 // Revision 3
+#pragma pack(1)
 struct test_span {
   unsigned long long start;
   unsigned long long end;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
+#pragma pack(1)
 struct ata_selective_self_test_log {
   unsigned short     logversion;
   struct test_span   span[5];
@@ -299,7 +327,8 @@ struct ata_selective_self_test_log {
   unsigned short     pendingtime;
   unsigned char      undefined;  // Error in specs!
   unsigned char      checksum;
-} __attribute__ ((packed));
+};
+#pragma pack()
 
 /* Read S.M.A.R.T information from drive */
 int ataReadHDIdentity(int device, struct ata_identify_device *buf);
