@@ -1,4 +1,4 @@
-//  $Id: ataprint.c,v 1.12 2002/10/17 04:03:33 ballen4705 Exp $
+//  $Id: ataprint.c,v 1.13 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * ataprint.c
  *
@@ -23,15 +23,56 @@
  *
  */
 
+#include <ctype.h>
+#include <stdio.h>
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
+
+// Function for printing ASCII byte-swapped strings, skipping white
+// space. This is needed on little-endian architectures, eg Intel,
+// Alpha. If someone wants to run this on SPARC they'll need to test
+// for the Endian-ness and skip the byte swapping if it's big-endian.
+void printswap(char *in, unsigned int n){
+  unsigned int i;
+  char out[64];
+
+  // swap bytes
+  for (i=0;i<n;i+=2){
+    unsigned int j=i+1;
+    out[i]=in[j];
+    out[j]=in[i];
+  }
+
+  // find the end of the white space
+  for (i=0;i<n && isspace(out[i]);i++);
+
+  // and do the printing starting from first non-white space
+  if (n-i)
+    printf("%.*s\n",n-i,out+i);
+  else
+    printf("[No Information Found]\n");
+
+  return;
+}
+
 
 void ataPrintDriveInfo (struct hd_driveid drive){
   int version;
   const char *description;
   char unknown[64];
 
+  // print out model, serial # and firmware versions  (byte-swap ASCI strings)
+  printf("Device Model:     ");
+  printswap(drive.model,40);
+
+  printf("Serial Number:    ");
+  printswap(drive.serial_no,20);
+
+  printf("Firmware Version: ");
+  printswap(drive.fw_rev,8);
+
+  // now get ATA version info
   version=ataVersionInfo(&description,drive);
 
   // unrecognized minor revision code
@@ -40,17 +81,20 @@ void ataPrintDriveInfo (struct hd_driveid drive){
     description=unknown;
   }
   
-  // print out information for user
-  printf("Device Model:     %.40s\n",drive.model);
-  printf("Serial Number:    %.20s\n",drive.serial_no);
-  printf("Firmware Version: %.8s\n",drive.fw_rev);
-  printf("ATA Version is:   %i\n",version);
+  
+  // SMART Support was first added into the ATA/ATAPI-3 Standard with
+  // Revision 3 of the document, July 25, 1995.  Look at the "Document
+  // Status" revision commands at the beginning of
+  // http://www.t13.org/project/d2008r6.pdf to see this.  So it's not
+  // enough to check if we are ATA-3.  Version=-3 indicates ATA-3
+  // BEFORE Revision 3.
+  printf("ATA Version is:   %i\n",version>0?version:-1*version);
   printf("ATA Standard is:  %s\n",description);
-
+  
   if (version>=3)
     return;
-
-  printf("SMART is only supported in ATA version 3 or greater\n");
+  
+  printf("SMART is only available in ATA Version 3 Revision 3 or greater.\n\n");
   exit (0);
 }
 
@@ -62,55 +106,61 @@ void PrintSmartOfflineStatus ( struct ata_smart_values data)
 {
    printf ("Off-line data collection status: ");	
    
-   switch (data.offline_data_collection_status)
-   {
-      case 0x0: case 0x80:
-          printf ("(0x%02x)\tOffline data collection activity was\n\t\t\t\t\t",
-                  data.offline_data_collection_status);
-          printf("never started.\n");
-          break;
-      case 0x01: case 0x81:
-          printf ("(0x%02x)\tReserved.\n",
-                  data.offline_data_collection_status);
-          break;
-      case 0x02: case 0x82:
-          printf ("(0x%02x)\tOffline data collection activity \n\t\t\t\t\t",
-                  data.offline_data_collection_status);
-          printf ("completed without error.\n");
-          break;
-      case 0x03: case 0x83:
-          printf ("(0x%02x)\tReserved.\n",
-                  data.offline_data_collection_status);
-          break;
-      case 0x04: case 0x84:
-          printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-                  data.offline_data_collection_status);
-          printf ("suspended by an interrupting command.\n");
-          break;
-      case 0x05: case 0x85:
-          printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-                  data.offline_data_collection_status);
-          printf ("aborted by an interrupting command.\n");
-          break;
-      case 0x06: case 0x86:
-          printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-                  data.offline_data_collection_status);
-          printf ("aborted by the device with a fatal error.\n");
-          break;
-      default:
-          if ( ((data.offline_data_collection_status >= 0x07) &&
-                (data.offline_data_collection_status <= 0x3f)) ||
-                ((data.offline_data_collection_status >= 0xc0) &&
-                (data.offline_data_collection_status <= 0xff)) )
-          {
-              printf ("(0x%02x)\tVendor Specific.\n",
-                      data.offline_data_collection_status);
-          } 
-          else 
-          {
-              printf ("(0x%02x)\tReserved.\n",
-                      data.offline_data_collection_status);
-          }
+   switch (data.offline_data_collection_status){
+   case 0x00:
+   case 0x80:
+     printf ("(0x%02x)\tOffline data collection activity was\n\t\t\t\t\t",
+	     data.offline_data_collection_status);
+     printf("never started.\n");
+     break;
+   case 0x01:
+   case 0x81:
+     printf ("(0x%02x)\tReserved.\n",
+	     data.offline_data_collection_status);
+     break;
+   case 0x02:
+   case 0x82:
+     printf ("(0x%02x)\tOffline data collection activity \n\t\t\t\t\t",
+	     data.offline_data_collection_status);
+     printf ("completed without error.\n");
+     break;
+   case 0x03:
+   case 0x83:
+     printf ("(0x%02x)\tReserved.\n",
+	     data.offline_data_collection_status);
+     break;
+   case 0x04:
+   case 0x84:
+     printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	     data.offline_data_collection_status);
+     printf ("suspended by an interrupting command from host.\n");
+     break;
+   case 0x05:
+   case 0x85:
+     printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	     data.offline_data_collection_status);
+     printf ("aborted by an interrupting command from host.\n");
+     break;
+   case 0x06:
+   case 0x86:
+     printf ("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
+	     data.offline_data_collection_status);
+     printf ("aborted by the device with a fatal error.\n");
+     break;
+   default:
+     if ( ((data.offline_data_collection_status >= 0x07) &&
+	   (data.offline_data_collection_status <= 0x3f)) ||
+	  ((data.offline_data_collection_status >= 0xc0) &&
+	   (data.offline_data_collection_status <= 0xff)) )
+       {
+	 printf ("(0x%02x)\tVendor Specific.\n",
+		 data.offline_data_collection_status);
+       } 
+     else 
+       {
+	 printf ("(0x%02x)\tReserved.\n",
+		 data.offline_data_collection_status);
+       }
    }
 }
 
@@ -236,8 +286,7 @@ void PrintSmartCapability ( struct ata_smart_values data)
    
    if (data.smart_capability == 0x00)
    {
-       printf ("automatic saving of SMART data"); 
-       printf ("\t\t\t\t\tis not implemented.\n");
+       printf ("Automatic saving of SMART data\t\t\t\t\tis not implemented.\n");
    } 
    else 
    {
@@ -451,9 +500,9 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
   
   // starting printing error log info
   if (data.ata_error_count<=5)
-      printf ( "ATA Error Count: %u\n\n", data.ata_error_count);
+      printf ( "ATA Error Count: %u\n", data.ata_error_count);
   else
-      printf ( "ATA Error Count: %u (only the most recent five errors are shown below)\n\n",
+      printf ( "ATA Error Count: %u (only the most recent five errors are shown below)\n",
 	       data.ata_error_count);
 
   printf(  "Acronyms used below:\n");
@@ -530,7 +579,7 @@ void ataPrintSmartErrorlog (struct ata_smart_errorlog data)
 void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
   int i,j;
 
-  printf("\nSMART Self-test log, version number %u\n",data.revnumber);
+  printf("SMART Self-test log, version number %u\n",data.revnumber);
   if (data.revnumber!=0x01)
     printf("Warning - structure revision number does not match spec!\n");
   
@@ -540,7 +589,7 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
   }
 
   // print log      
-  printf("\nNum  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
+  printf("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
   for (i=20;i>=0;i--){
 
     struct ata_smart_selftestlog_struct *log;
@@ -595,25 +644,24 @@ void ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data){
   return;
 }
 
-void ataPsuedoCheckSmart ( struct ata_smart_values data, 
+void ataPseudoCheckSmart ( struct ata_smart_values data, 
                            struct ata_smart_thresholds thresholds) {
-   int i;
-   int failed = 0;
-   for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++ ) {
-     if (data.vendor_attributes[i].id &&   
-	  thresholds.thres_entries[i].id &&
-	  data.vendor_attributes[i].status.flag.prefailure &&
-	  (data.vendor_attributes[i].current < thresholds.thres_entries[i].threshold) &&
-	  (thresholds.thres_entries[i].threshold != 0xFE)){
-       printf("Attribute ID %i Failed\n", 
-	      data.vendor_attributes[i].id);
-       failed = 1;
-     } 
-   }   
-   printf("%s\n", ( failed )?
-	  "SMART overall-health self-assessment test result: FAILED!\n"
-	  "Drive failure expected in less than 24 hours. SAVE ALL DATA\n":
-	  "SMART overall-health self-assessment test result: PASSED\n");
+  int i;
+  int failed = 0;
+  for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
+    if (data.vendor_attributes[i].id &&   
+	thresholds.thres_entries[i].id &&
+	data.vendor_attributes[i].status.flag.prefailure &&
+	(data.vendor_attributes[i].current < thresholds.thres_entries[i].threshold) &&
+	(thresholds.thres_entries[i].threshold != 0xFE)){
+      printf("Attribute ID %i Failed\n",data.vendor_attributes[i].id);
+      failed = 1;
+    } 
+  }   
+  printf("%s\n", ( failed )?
+	 "SMART overall-health self-assessment test result: FAILED!\n"
+	 "Drive failure expected in less than 24 hours. SAVE ALL DATA":
+	 "SMART overall-health self-assessment test result: PASSED");
 }
 
 void ataPrintSmartAttribName ( unsigned char id ){
@@ -722,322 +770,195 @@ void ataPrintSmartAttribName ( unsigned char id ){
  Called by smartctl to access ataprint  
 **/
 
-void ataPrintMain ( int fd )
-{
-   struct hd_driveid drive;
-   struct ata_smart_values smartval;
-   struct ata_smart_thresholds smartthres;
-   struct ata_smart_errorlog smarterror;
-   struct ata_smart_selftestlog smartselftest;
+void ataPrintMain (int fd){
+  struct hd_driveid drive;
+  struct ata_smart_values smartval;
+  struct ata_smart_thresholds smartthres;
+  struct ata_smart_errorlog smarterror;
+  struct ata_smart_selftestlog smartselftest;
+  int timewait;
+  
+  // Start by getting Drive ID information.  We need this, to know if SMART is supported.
+  if (ataReadHDIdentity(fd,&drive)){
+    printf("Smartctl: Hard Drive Read Identity Failed\n\n");
+    exit(-1);	
+  }
+  
+  // Print most drive identity information if requested
+  if (driveinfo){
+    printf("\n=== START OF INFORMATION SECTION ===\n");
+    ataPrintDriveInfo(drive);
+  }
+  
+  // now check if drive supports SMART; otherwise time to exit
+  if (!ataSmartSupport(drive)){
+    printf("SMART support is: Unavailable - device lacks SMART capability.\n");
+    exit (0);
+  }
+  
+  // Now print remaining drive info: is SMART enabled?    
+  if (driveinfo){
+    printf("SMART support is: Available - device has SMART capability.\n");
+    if (ataDoesSmartWork(fd))
+      printf("SMART support is: Enabled\n");
+    else
+      printf("SMART support is: Disabled\n");
+  }
+  
+  // START OF THE ENABLE/DISABLE SECTION OF THE CODE
+  if (smartenable || smartdisable || 
+      smartautosaveenable || smartautosavedisable || 
+      smartautoofflineenable || smartautoofflinedisable)
+    printf("\n=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
 
-   if ( driveinfo )
-   {
-      if (  ataReadHDIdentity ( fd, &drive) != 0 )
-      {
-         printf("Smartctl: Hard Drive Identity Failed\n");
-         exit(0);	
-      } 
-		
-      ataPrintDriveInfo(drive); 
-		
-
-      if (ataSmartSupport(drive))
-      {
-          printf ("SMART support is: ");
-	  
-          if ( ataSmartStatus(fd) != 0) 
-          {
-              printf( "Disabled\n");
-              printf( "Use option -%c to enable\n\n", SMARTENABLE );
-              exit(0);
-          }
-          else { 
-              printf( "Enabled\n\n");
-          } 
-      }
-      else {
-           printf("SMART support is: Unavailable. Device lacks SMART capability.\n\n");
-	   exit (0);
-      }
+  // Enable/Disable SMART commands
+  if (smartenable){
+    if (ataEnableSmart(fd)) {
+      printf("Smartctl: SMART Enable Failed.\n\n");
+      exit(-1);
+    }
+    else
+      printf("SMART Enabled.\n");
+  }
+  
+  // From here on, every command requires that SMART be enabled...
+  if (!ataDoesSmartWork(fd)) {
+    printf("SMART Disabled. Use option -%c to enable it.\n", SMARTENABLE );
+    exit(0);
+  }
+  
+  // Turn off SMART on device
+  if (smartdisable){    
+    if (ataDisableSmart(fd)) {
+      printf( "Smartctl: SMART Disable Failed.\n\n");
+      exit(-1);
+    }
+    printf("SMART Disabled. Use option -%c to enable it.\n",SMARTENABLE);
+    exit (0);		
+  }
+  
+  // Enable/Disable Auto-save attributes
+  if (smartautosaveenable){
+    if (ataEnableAutoSave(fd)){
+      printf( "Smartctl: SMART Enable Attribute Autosave Failed.\n\n");
+      exit(-1);
+    } 
+    printf("SMART Attribute Autosave Enabled\n");
+  }
+  if (smartautosavedisable){
+    if (ataDisableAutoSave(fd)){
+      printf( "Smartctl: SMART Disable Attribute Autosave Failed.\n\n");
+      exit(-1);
+    }     
+    printf("SMART Attribute Autosave Disabled\n");
+  }
+  
+  // for everything else read values and thresholds are needed
+  if (ataReadSmartValues(fd, &smartval)){
+    printf("Smartctl: SMART Values Read Failed.\n\n");
+    exit (-1);
+  }
+  if (ataReadSmartThresholds(fd, &smartthres)){
+    printf("Smartctl: SMART Thresholds Read Failed.\n\n");
+    exit (-1); 
   }
 
-  if ( smartdisable )
-  {
-		
-     if ( ataDisableSmart(fd) != 0) 
-     {
-	printf( "Smartctl: SMART Enable Failed\n");
-	exit(-1);
-     }
-    
-     printf("SMART Disabled\n");
-     exit (0);
-		
-   }
-
-   if ( smartenable )
-   {
-      if ( ataEnableSmart(fd) != 0) 
-	{
-          printf( "Smartctl: SMART Enable Failed\n");
-          exit(-1);
-	}
-
-      if (ataSmartStatus(fd)==0)
-	printf("SMART Enabled\n");
-      else
-	printf( "Smartctl: SMART Enable Failed for unknown reasons\n");
-   }
-   
-   
-   if ( smartautosavedisable ){
-     if (ataDisableAutoSave(fd) != 0)
-       {
-	 printf( "Smartctl: SMART Disable Attribute Autosave Failed\n");
-	 exit(-1);
-       }     
-     printf("SMART Attribute Autosave Disabled\n");
-   }
-	
-   if ( smartautosaveenable ){
-     if (ataEnableAutoSave(fd) != 0)
-       {
-	 printf( "Smartctl: SMART Enable Attribute Autosave Failed\n");
-	 exit(-1);
-       } 
-     printf("SMART Attribute Autosave Enabled\n");
-   }
-
-   /* for everything else read values and thresholds 
-   are needed */	
-
-   if ( ataReadSmartValues ( fd, &smartval) != 0 )
-   {
-      printf("Smartctl: SMART Values Read Failed\n");
-      exit (-1);
-   }
-
-   if ( ataReadSmartThresholds ( fd, &smartthres) != 0 )
-   {
-      printf("Smartctl: SMART Thresholds Read Failed\n");
-      exit (-1); 
-   }
-	
-   if ( checksmart )
-   {
-	/* pseudo is used because linux does not support access to
-	   Task File registers */
-	// I am very confused by this comment.  Does anyone get it?  Bruce
-      ataPsuedoCheckSmart ( smartval , smartthres);
-
-   }
-	
-   if (  generalsmartvalues )
-   {
-      ataPrintGeneralSmartValues( smartval ); 
-   }
-
-   if ( smartvendorattrib )
-   {
-      PrintSmartAttribWithThres( smartval, smartthres);
-   }
-	
-   if ( smarterrorlog )
-   {
-      if ( isSmartErrorLogCapable(smartval) == 0)
-      {
-          printf("Device does not support Error Logging\n");
-      } 
-      else
-      {
-         if ( ataReadErrorLog ( fd, &smarterror) != 0 )
-	 {
-             printf("Smartctl: SMART Errorlog Read Failed\n");
-         }
-         else
-         {
-             ataPrintSmartErrorlog ( smarterror); 
-         }
-      }
+  // Enable/Disable Off-line testing
+  if (smartautoofflineenable){
+    if (!isSupportAutomaticTimer (smartval)){
+      printf("Device does not support SMART Automatic Timers.\n\n");
+      exit(-1);
     }
-	
-
-   if ( smartselftestlog )
-   {
-       if ( isSmartErrorLogCapable(smartval) == 0)
-       {
-           printf("Device does not support Self Test Logging\n");
-       }
-       else
-       {
-	    if (  ataReadSelfTestLog( fd, &smartselftest) != 0 )
-            {
-                printf("Smartctl: SMART Self Test Log Read Failed\n");
-            }
-            else
-            {
-                 ataPrintSmartSelfTestlog (smartselftest); 
-            }
-        } 
-    }
-
-    if (  smartautoofflineenable  )
-    {
-        if ( !isSupportAutomaticTimer (smartval))
-        {
-            printf("Device does not support SMART Automatic Timers\n");
-            exit(-1);
-        }
-
-        if ( ataEnableAutoOffline (fd) != 0) 
-        {
-            printf( "Smartctl: SMART Enable Automatic Offline Failed\n");
-            exit(-1);
-        }
-        
-        printf ("SMART Automatic Offline Testing Enabled every four hours\n");
-    }
-
-    if (  smartautoofflinedisable  )
-    {
-        if ( !isSupportAutomaticTimer (smartval))
-        {
-            printf("Device does not support SMART Automatic Timers\n");
-            exit(-1);
-        }
-			
-        if ( ataDisableAutoOffline (fd) != 0) 
-        {
-            printf( "Smartctl: SMART Disable Automatic Offline Failed\n");
-            exit(-1);
-        }
-         
-        printf ("SMART Automatic Offline Testing Disabled\n");
-
-     }
-
-
-     if ( smartexeoffimmediate )
-     {
-        if ( ataSmartOfflineTest (fd) != 0) 
-	{
-            printf( "Smartctl: SMART Offline Failed\n");
-            exit(-1);
-        }
-
-        printf ("Drive Command Successful offline test has begun\n");
-        printf ("Please wait %d seconds for test to complete\n", 
-                 isOfflineTestTime(smartval) );
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
-	exit (0);
-     }
-
-     if ( smartshortcapselftest )
-     {
-         if ( ! isSupportSelfTest(smartval) )
-         {
-             printf ("ERROR: device does not support Self-Test function\n");
-             exit(-1);
-         }
-		
-         if ( ataSmartShortCapSelfTest (fd) != 0) 
-         {
-              printf( "Smartctl: SMART Short Self Test Failed\n");
-              exit(-1);
-         }
-     
-         printf ("Drive Command Successful offline test has begun\n");
-         printf ("Please wait %d minutes for test to complete\n", 
-                  isShortSelfTestTime (smartval) );
-	 printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
-	
-         /* Make sure Offline testing is last thing done */
-        exit (0);
-     }
-
-     if ( smartshortselftest )
-     {
-        if ( ! isSupportSelfTest(smartval) )
-        {
-            printf ("ERROR: device does not support Self-Test function\n");
-            exit(-1);
-        }
-		
-        if ( ataSmartShortSelfTest (fd) != 0) 
-        {
-            printf( "Smartctl: SMART Short Self Test Failed\n");
-            exit(-1);
-        }
-
-        printf ("Drive Command Successful offline test has begun\n");
-        printf ("Please wait %d minutes for test to complete\n", 
-                 isShortSelfTestTime (smartval) );
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
-		
-	/* Make sure Offline testing is last thing done */
-	exit (0);
-     }
- 
-	
-     if ( smartextendselftest )
-     {
-        if ( ! isSupportSelfTest(smartval) )
-        {
-           printf ("ERROR: device does not support Self-Test function\n");
-           exit(-1);
-        }
-
-        if ( ataSmartExtendSelfTest (fd) != 0) 
-        {
-           printf( "SMART Extended Self Test Failed\n");
-           exit(-1);
-        }
-		
-        printf ("Drive Command Successful self test has begun\n");
-        printf ("Please wait %d minutes for test to complete\n", 
-                 isExtendedSelfTestTime(smartval) );
-        printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
-	
-        exit (0);
-     }
-
-	
-     if ( smartextendcapselftest )
-     {
-         if ( ! isSupportSelfTest(smartval) )
-         {
-            printf ("ERROR: device does not support self test function\n");
-            exit(-1);
-         }
-
-         if ( ataSmartExtendCapSelfTest (fd) != 0) 
-         {
-            printf( "SMART Extended Self Test Failed\n");
-            exit(-1);
-         }
-		
-            printf ("Drive Command Successful captive extended self test has begun\n");
-            printf ("Please wait %d minutes for test to complete\n", 
-                    isExtendedSelfTestTime(smartval) );
-            printf ("Use smartctl -%c to abort test\n", SMARTSELFTESTABORT);	
-            exit (0);
-     }
-
-     if ( smartselftestabort )
-     {
-        if ( ! isSupportSelfTest(smartval) )
-        {
-            printf ("ERROR: device does not support Self-Test function\n");
-            exit(-1);
-        }
-
-        if ( ataSmartSelfTestAbort (fd) != 0) 
-        {
-            printf( "SMART Self Test Abort Failed\n");
-            exit(-1);
-        }
-		
-        printf ("Drive Command Successful self test aborted\n");
+    if (ataEnableAutoOffline (fd)){
+      printf( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
+      exit(-1);
+    }    
+    printf ("SMART Automatic Offline Testing Enabled every four hours.\n");
+  }
+  if (smartautoofflinedisable){
+    if (!isSupportAutomaticTimer (smartval)){
+      printf("Device does not support SMART Automatic Timers.\n\n");
+      exit(-1);
     }		
+    if ( ataDisableAutoOffline (fd)){
+      printf( "Smartctl: SMART Disable Automatic Offline Failed.\n\n");
+      exit(-1);
+    }
+    printf ("SMART Automatic Offline Testing Disabled.\n");
+  }
+
+  // START OF READ-ONLY OPTIONS APART FROM -p and -i
+  if (checksmart || generalsmartvalues || smartvendorattrib || smarterrorlog || smartselftestlog)
+    printf("\n=== START OF READ SMART DATA SECTION ===\n");
+
+  // Check SMART status
+  if (checksmart)
+    // Eventually when working use the ataSmartStatus2 function here.
+    // This will then not require read values & thresholds above, and
+    // shouldl be moved in the code to just before the read values &
+    // thresholds statements.
+    ataPseudoCheckSmart(smartval, smartthres);
+  
+  // Print general SMART values
+  if (generalsmartvalues)
+    ataPrintGeneralSmartValues(smartval); 
+  
+  // Print vendor-specific attributes
+  if (smartvendorattrib)
+    PrintSmartAttribWithThres(smartval, smartthres);
 	
+  // Print SMART error log
+  if (smarterrorlog){
+    if (!isSmartErrorLogCapable(smartval))
+      printf("Device does not support Error Logging\n");
+    else {
+      if (ataReadErrorLog(fd, &smarterror))
+	printf("Smartctl: SMART Errorlog Read Failed\n");
+      else
+	ataPrintSmartErrorlog(smarterror);
+    }
+  }
+
+  // Print SMART self-test log
+  if (smartselftestlog){
+    if (!isSmartErrorLogCapable(smartval))
+      printf("Device does not support Self Test Logging\n");
+    else {
+      if(ataReadSelfTestLog(fd, &smartselftest))
+	printf("Smartctl: SMART Self Test Log Read Failed\n");
+      else
+	ataPrintSmartSelfTestlog(smartselftest); 
+    } 
+  }
+  
+  // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
+  if (testcase==-1)
+    return;
+
+  printf("\n=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
+
+  
+  // if doing a self-test, be sure it's supported by the hardware
+  if (testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval)){
+    printf("ERROR: device does not support Execute Off-Line Immediate function.\n\n");
+    exit(-1);
+  }
+  else if (!isSupportSelfTest(smartval)){
+    printf ("ERROR: device does not support Self-Test functions.\n\n");
+    exit(-1);
+  }
+  
+  // Now do the test
+  if (ataSmartTest(fd, testcase))
+    exit(-1);
+  
+  // Tell user how long test will take to complete  
+  if ((timewait=TestTime(smartval,testcase))){ 
+    printf ("Please wait %d %s for test to complete.\n",
+	    timewait, testcase==OFFLINE_FULL_SCAN?"seconds":"minutes");
+    
+    if (testcase!=SHORT_CAPTIVE_SELF_TEST && testcase!=EXTEND_CAPTIVE_SELF_TEST)
+      printf ("Use smartctl -%c to abort test.\n", SMARTSELFTESTABORT);	
+  }    
+  return;
 }

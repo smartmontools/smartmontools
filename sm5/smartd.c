@@ -1,4 +1,4 @@
-//  $Id: smartd.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $
+//  $Id: smartd.c,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -117,6 +117,10 @@ void atadevicescan ( atadevices_t *devices){
     
     printout(LOG_INFO,"%s Found and is SMART capable\n",device);
     
+    // This makes NO sense.  We may want to know if the drive supports
+    // Offline Surface Scan, for example.  But checking if it supports
+    // self-tests seems useless. In any case, smartd NEVER uses this
+    // field anywhere...
     devices[numatadevices].selftest = 
       isSupportSelfTest(devices[numatadevices].smartval);
 
@@ -213,6 +217,8 @@ int ataCheckDevice( atadevices_t *drive){
   if ((failed=ataCheckSmart(tempsmartval,tempsmartthres)))
     printout(LOG_CRIT,"Device: %s, Failed attribute: %i\n",drive->devicename,failed);
   
+  // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
+
   // see if any values have changed.  Second argument is new values
   ataCompareSmartValues (drive , tempsmartval);
   
@@ -272,7 +278,7 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.c,v 1.9 2002/10/15 14:24:27 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.c,v 1.10 2002/10/20 19:22:02 ballen4705 Exp $\n";
 
 const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 
