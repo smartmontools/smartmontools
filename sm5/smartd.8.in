@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.17 2003/11/19 07:50:39 ballen4705 Exp $
+$Id: smartd.8.in,v 1.18 2003/11/19 16:58:26 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/11/19 07:50:39 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/11/19 16:58:26 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/11/19 07:50:39 $"
+\fBRELEASE\fP "$Date: 2003/11/19 16:58:26 $"
 
 .SH DESCRIPTION
 \fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
@@ -148,17 +148,17 @@ command-line argument \'\-l local3\'.  This tells \fBsmartd\fP to log its
 messages to facility \fBlocal3\fP.
 .IP \fB[2]\fP 4
 Modify the \fBsyslogd\fP configuration file (typically
-\fB/etc/syslog.conf\fP) to contain a line of the form:
+\fB/etc/syslog.conf\fP) by adding a line of the form:
 .nf
 \fBlocal3.* /var/log/smartd.log\fP
 .fi
-which tells \fBsyslogd\fP to log all the messages from facility \fBlocal3\fP to
-the designated file: smartd.log.
+This tells \fBsyslogd\fP to log all the messages from facility \fBlocal3\fP to
+the designated file: /var/log/smartd.log.
 .IP \fB[3]\fP 4
 Tell \fBsyslogd\fP to re-read its configuration file, typically by
 sending the \fBsyslogd\fP process a \fBSIGHUP\fP hang-up signal.
 .IP \fB[4]\fP 4
-restart \fBsmartd\fP.
+Start (or restart) the \fBsmartd\fP daemon.
 .RE
 .RS 6
 
@@ -1349,4 +1349,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.17 2003/11/19 07:50:39 ballen4705 Exp $
+$Id: smartd.8.in,v 1.18 2003/11/19 16:58:26 ballen4705 Exp $
