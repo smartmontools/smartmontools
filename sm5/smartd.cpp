@@ -54,7 +54,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.202 2003/09/27 09:54:47 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.203 2003/10/01 18:08:36 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -75,6 +75,9 @@ static int checktime=CHECKTIME;
 
 // command-line: name of PID file (NULL for no pid file)
 static char* pid_file=NULL;
+
+// configuration file name
+static char* configfile=NULL;
 
 // command-line: when should we exit?
 static int quit=0;
@@ -592,7 +595,7 @@ void PrintHead(){
 
 // prints help info for configuration file Directives
 void Directives() {
-  PrintOut(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
+  PrintOut(LOG_INFO,"Configuration file (%s) Directives (after device name):\n", configfile);
   PrintOut(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n");
   PrintOut(LOG_INFO,"  -T TYPE Set the tolerance to one of: normal, permissive\n");
   PrintOut(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
@@ -1608,7 +1611,7 @@ int ParseToken(char *token,cfgfile *cfg){
   // is the token not recognized?
   if (*token!='-' || strlen(token)!=2) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
-             CONFIGFILE, lineno, name, token);
+             configfile, lineno, name, token);
     Directives();
     return -1;
   }
@@ -1661,11 +1664,11 @@ int ParseToken(char *token,cfgfile *cfg){
 	badarg=1;
       } else if (split_report_arg2(s, &i)){
 	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
-		 CONFIGFILE, lineno, name);
+		 configfile, lineno, name);
 	badarg=1;
       } else if ( i<0 || i>15) {
 	PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
-		 CONFIGFILE, lineno, name, i);
+		 configfile, lineno, name, i);
 	badarg=1;
       } else {
 	// NOTE: escalade = disk number + 1
@@ -1770,13 +1773,13 @@ int ParseToken(char *token,cfgfile *cfg){
       // Get the next argument (the command line)
       if (!(arg = strtok(NULL, delim))) {
         PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive %s 'exec' argument must be followed by executable path.\n",
-                 CONFIGFILE, lineno, name, token);
+                 configfile, lineno, name, token);
 	return -1;
       }
       // Free the last cmd line given if any
       if (cfg->emailcmdline) {
         PrintOut(LOG_INFO, "File %s line %d (drive %s): found multiple -M exec Directives on line - ignoring all but the last\n",
-		 CONFIGFILE, lineno, name);
+		 configfile, lineno, name);
         cfg->emailcmdline=FreeNonZero(cfg->emailcmdline, -1);
       }
       // Attempt to copy the argument
@@ -1787,25 +1790,25 @@ int ParseToken(char *token,cfgfile *cfg){
     break;
   case 'i':
     // ignore failure of usage attribute
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255))<0)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_FAILUSE, __LINE__);
     break;
   case 'I':
     // ignore attribute for tracking purposes
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255))<0)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_IGNORE, __LINE__);
     break;
   case 'r':
     // print raw value when tracking
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255))<0)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT, __LINE__);
     break;
   case 'R':
     // track changes in raw value (forces printing of raw value)
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255))<0)
+    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT, __LINE__);
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAW, __LINE__);
@@ -1814,7 +1817,7 @@ int ParseToken(char *token,cfgfile *cfg){
     // send email to address that follows
     if ((arg = strtok(NULL,delim)) == NULL) {
       PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs email address(es)\n",
-               CONFIGFILE, lineno, name, token);
+               configfile, lineno, name, token);
       return -1;
     }
     cfg->address=CustomStrDup(arg, 1, __LINE__);
@@ -1846,17 +1849,17 @@ int ParseToken(char *token,cfgfile *cfg){
   default:
     // Directive not recognized
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): unknown Directive: %s\n",
-             CONFIGFILE, lineno, name, token);
+             configfile, lineno, name, token);
     Directives();
     return -1;
   }
   if (missingarg) {
     PrintOut(LOG_CRIT, "File %s line %d (drive %s): Missing argument to %s Directive\n",
-	     CONFIGFILE, lineno, name, token);
+	     configfile, lineno, name, token);
   }
   if (badarg) {
     PrintOut(LOG_CRIT, "File %s line %d (drive %s): Invalid argument to %s Directive: %s\n",
-	     CONFIGFILE, lineno, name, token, arg);
+	     configfile, lineno, name, token, arg);
   }
   if (missingarg || badarg) {
     PrintOut(LOG_CRIT, "Valid arguments to %s Directive are: ", token);
@@ -1955,7 +1958,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   if (!strcmp(SCANDIRECTIVE,name)){
     devscan=1;
     if (entry) {
-      PrintOut(LOG_INFO,"Scan Directive %s (line %d) must be the first entry in %s\n",name, lineno, CONFIGFILE);
+      PrintOut(LOG_INFO,"Scan Directive %s (line %d) must be the first entry in %s\n",name, lineno, configfile);
       return -2;
     }
   }
@@ -1963,7 +1966,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   // Is there space for another entry?
   if (entry>=MAXENTRIES){
     PrintOut(LOG_CRIT,"Error: configuration file %s can have no more than MAXENTRIES=%d entries\n",
-             CONFIGFILE,MAXENTRIES);
+             configfile,MAXENTRIES);
     return -2;
   }
   
@@ -2013,12 +2016,12 @@ int ParseConfigLine(int entry, int lineno,char *line){
     
     if (devscan){
       PrintOut(LOG_CRIT, "smartd: can not scan for 3ware devices (line %d of file %s)\n",
-	       lineno, CONFIGFILE);
+	       lineno, configfile);
       return -2;
     }
     
     if (!(newname=(char *)calloc(len,1))) {
-      PrintOut(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
+      PrintOut(LOG_INFO,"No memory to parse file: %s line %d, %s\n", configfile, lineno, strerror(errno));
       exit(EXIT_NOMEM);
     }
     
@@ -2034,7 +2037,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
                        cfg->usage || cfg->selftest || cfg->errorlog)){
     
     PrintOut(LOG_INFO,"Drive: %s, implied '-a' Directive on line %d of file %s\n",
-             cfg->name, cfg->lineno, CONFIGFILE);
+             cfg->name, cfg->lineno, configfile);
     
     cfg->smartcheck=1;
     cfg->usagefailed=1;
@@ -2047,7 +2050,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   // additional sanity check. Has user set -M options without -m?
   if (!cfg->address && (cfg->emailcmdline || cfg->emailfreq || cfg->emailtest)){
     PrintOut(LOG_CRIT,"Drive: %s, -M Directive(s) on line %d of file %s need -m ADDRESS Directive\n",
-             cfg->name, cfg->lineno, CONFIGFILE);
+             cfg->name, cfg->lineno, configfile);
     return -2;
   }
   
@@ -2056,7 +2059,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
     // check that -M exec is also set
     if (!cfg->emailcmdline){
       PrintOut(LOG_CRIT,"Drive: %s, -m <nomailer> Directive on line %d of file %s needs -M exec Directive\n",
-               cfg->name, cfg->lineno, CONFIGFILE);
+               cfg->name, cfg->lineno, configfile);
       return -2;
     }
     // now free memory.  From here on the sign of <nomailer> is
@@ -2103,11 +2106,11 @@ int ParseConfigFile(){
   char fullline[MAXCONTLINE+1];
 
   // Open config file, if it exists
-  fp=fopen(CONFIGFILE,"r");
+  fp=fopen(configfile,"r");
   if (fp==NULL && errno!=ENOENT){
     // file exists but we can't read it
     PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
-             strerror(errno),CONFIGFILE);
+             strerror(errno),configfile);
     return -1;
   }
   
@@ -2129,7 +2132,7 @@ int ParseConfigFile(){
   }
     
   // configuration file exists
-  PrintOut(LOG_INFO,"Opened configuration file %s\n",CONFIGFILE);
+  PrintOut(LOG_INFO,"Opened configuration file %s\n",configfile);
 
   // parse config file line by line
   while (1) {
@@ -2177,7 +2180,7 @@ int ParseConfigFile(){
       else
         warn="";
       PrintOut(LOG_CRIT,"Error: line %d of file %s %sis more than %d characters.\n",
-               (int)contlineno,CONFIGFILE,warn,(int)MAXLINELEN);
+               (int)contlineno,configfile,warn,(int)MAXLINELEN);
       cleanup(&fp);
       return -1;
     }
@@ -2191,7 +2194,7 @@ int ParseConfigFile(){
     // is the total line (made of all continuation lines) too long?
     if (cont+len>MAXCONTLINE){
       PrintOut(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than %d characters.\n",
-               lineno, (int)contlineno, CONFIGFILE, (int)MAXCONTLINE);
+               lineno, (int)contlineno, configfile, (int)MAXCONTLINE);
       cleanup(&fp);
       return -1;
     }
@@ -2478,7 +2481,7 @@ void CanNotRegister(char *name, char *type, int line, int scandirective){
   if (line)
     PrintOut(scandirective?LOG_INFO:LOG_CRIT,
              "Unable to register %s device %s at line %d of file %s\n",
-             type, name, line, CONFIGFILE);
+             type, name, line, configfile);
   else
     PrintOut(LOG_INFO,"Unable to register %s device %s\n",
              type, name);
@@ -2494,12 +2497,12 @@ int ReadOrMakeConfigEntries(int *scanning){
   // deallocate any cfgfile data structures in memory
   RmAllConfigEntries();
   
-  // parse configuration file CONFIGFILE (normally /etc/smartd.conf)  
+  // parse configuration file configfile (normally /etc/smartd.conf)  
   if ((entries=ParseConfigFile())<0) {
  
     // There was an error reading the configuration file.
     RmAllConfigEntries();
-    PrintOut(LOG_CRIT, "Configuration file %s has fatal syntax errors.\n", CONFIGFILE);
+    PrintOut(LOG_CRIT, "Configuration file %s has fatal syntax errors.\n", configfile);
     return -1;
   }
 
@@ -2509,7 +2512,7 @@ int ReadOrMakeConfigEntries(int *scanning){
   // no error parsing config file.
   if (entries) {
     // we did not find a SCANDIRECTIVE and did find valid entries
-    PrintOut(LOG_CRIT, "Configuration file %s parsed.\n", CONFIGFILE);
+    PrintOut(LOG_CRIT, "Configuration file %s parsed.\n", configfile);
   }
   else if (cfgentries[0]) {
     // we found a SCANDIRECTIVE or there was no configuration file so
@@ -2522,9 +2525,9 @@ int ReadOrMakeConfigEntries(int *scanning){
     *scanning=1;
     
     if (first->lineno)
-      PrintOut(LOG_INFO,"Configuration file %s was parsed, found %s, scanning devices\n", CONFIGFILE, SCANDIRECTIVE);
+      PrintOut(LOG_INFO,"Configuration file %s was parsed, found %s, scanning devices\n", configfile, SCANDIRECTIVE);
     else
-      PrintOut(LOG_INFO,"No configuration file %s found, scanning devices\n", CONFIGFILE);
+      PrintOut(LOG_INFO,"No configuration file %s found, scanning devices\n", configfile);
     
     // make config list of ATA devices to search for
     if (doata)
@@ -2534,7 +2537,7 @@ int ReadOrMakeConfigEntries(int *scanning){
       entries+=MakeConfigEntries(MAXSCSIDEVICES,"/dev/sda", entries);
   } 
   else
-    PrintOut(LOG_CRIT,"Configuration file %s parsed but has no entries (like /dev/hda)\n",CONFIGFILE);
+    PrintOut(LOG_CRIT,"Configuration file %s parsed but has no entries (like /dev/hda)\n",configfile);
   
   return entries;
 }
@@ -2596,6 +2599,22 @@ void RegisterDevices(int scanning){
 }
 
 
+// create string with configuration file name
+void MakeConfigFileName(){
+  if (!(configfile=(char *)calloc(strlen(SYSCONFDIR)+strlen(CONFIGFILENAME)+2,1))){
+    PrintOut(LOG_CRIT,"Out of memory allocating space for filename %s/%s\n",
+	     SYSCONFDIR, CONFIGFILENAME);
+    exit(EXIT_NOMEM);
+  }
+  
+  strcat(configfile, SYSCONFDIR);
+  strcat(configfile,"/");
+  strcat(configfile, CONFIGFILENAME);
+  
+  return;
+}
+
+
 int main(int argc, char **argv){
 
   // external control variables for ATA disks
@@ -2617,6 +2636,9 @@ int main(int argc, char **argv){
   // parse input and print header and usage info if needed
   ParseOpts(argc,argv);
   
+  // make name of configuration file
+  MakeConfigFileName();
+
   // do we mute printing from ataprint commands?
   con->quietmode=0;
   con->veryquietmode=debugmode?0:1;
@@ -2636,7 +2658,7 @@ int main(int argc, char **argv){
 		 caughtsigHUP==1?
 		 "Signal HUP - rereading configuration file %s\n":
 		 "\a\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
-		 CONFIGFILE);
+		 configfile);
       
       // clears cfgentries, (re)reads config file, makes >=0 entries
       entries=ReadOrMakeConfigEntries(&scanning);

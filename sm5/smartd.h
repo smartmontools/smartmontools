@@ -23,11 +23,11 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.45 2003/08/19 09:14:33 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.46 2003/10/01 18:08:36 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
-#define CONFIGFILE "/etc/smartd.conf"
+#define CONFIGFILENAME "smartd.conf"
 
 // Scan directive for configuration file
 #define SCANDIRECTIVE "DEVICESCAN"
