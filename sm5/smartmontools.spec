@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.119 2003/09/23 17:25:32 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.120 2003/09/24 06:21:37 pervalidus Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -295,16 +295,16 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 
-# Maintainers/Developers Key:
-# [BA] Bruce Allen            <smartmontools-support@lists.sourceforge.net>
-# [EB] Erik Inge Bolsø        <knan@mo.himolde.no>
-# [SB] Stanislav Brabec       <sbrabec@suse.cz>
-# [PC] Peter Cassidy          <pcassidy@mac.com>
-# [FM] Frederic L. W. Meunier <0@pervalidus.net>
-# [PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
-# [DG] Douglas Gilbert        <dougg@torque.net>
-# [GG] Guido Guenther         <agx@sigxcpu.org>
-# [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
+# Maintainers / Developers Key:
+# [BA] Bruce Allen
+# [EB] Erik Inge Bolsø
+# [SB] Stanislav Brabec
+# [PC] Peter Cassidy
+# [FM] Frédéric L. W. Meunier
+# [PW] Phil Williams
+# [DG] Douglas Gilbert
+# [GG] Guido Guenther
+# [KM] Kai Mäkisarai
 
 %changelog
 * Fri Aug 22 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
