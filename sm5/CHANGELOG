@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.248 2003/11/10 19:13:02 ballen4705 Exp $
+$Id: CHANGELOG,v 1.249 2003/11/10 21:17:11 pjwilliams Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added Western Digital Caviar family and Caviar SE family to
+       knowndrives table.
 
   [BA] smartd: added -l daemon (which is the default value if -l
        is not used).

@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.55 2003/11/09 21:09:10 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.56 2003/11/10 21:17:11 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -362,6 +362,22 @@ const drivesettings knowndrives[] = {
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted. */
     "^WDC WD400EB-00CPF0$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Western Digital Caviar family
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD(2|3|4|6|8|10|12|16|18|20|25)00BB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL,
+  },
+  { // Western Digital Caviar SE family
+  /* Western Digital drives with this comment all appear to use Attribute 9 in
+   * a  non-standard manner.  These entries may need to be updated when it
+   * is understood exactly how Attribute 9 should be interpreted. */
+    "^WDC WD(4|6|8|10|12|16|18|20|25)00JB-.*$",
     ".*",
     NULL, NULL, NULL, NULL,
   },
