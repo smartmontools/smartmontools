@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.232 2003/11/10 19:13:04 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.233 2003/11/11 17:40:08 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -726,7 +726,8 @@ int ATAErrorCount(int fd, char *name){
   return log.error_log_pointer?log.ata_error_count:0;
 }
 
-// returns <0 if problem
+// returns <0 if problem.  Otherwise, bottom 8 bits are the self test
+// error count, and top bits are the power-on hours of the last error.
 int SelfTestErrorCount(int fd, char *name){
   struct ata_smart_selftestlog log;
 
@@ -1339,8 +1340,12 @@ int ATACheckDevice(cfgfile *cfg){
     if (new<0)
       PrintAndMail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
     
-    // hsa self-test error count increased?
-    if (new>old){
+    // has the self-test error count increased, or has the power-on
+    // time of the most recent error increased?
+    if (
+	((new & 0xff) > (old & 0xff)) ||
+	(new >> 8) > (old >> 8)
+	){
       PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
                name, (int)old, new);
       PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",

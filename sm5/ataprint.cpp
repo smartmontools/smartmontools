@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.113 2003/11/09 21:12:26 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.114 2003/11/11 17:40:08 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -831,10 +831,13 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   return data->ata_error_count;  
 }
 
-// return value is number of entries found where the self-test showed an error
+// return value is:
+// bottom 8 bits: number of entries found where self-test showed an error
+// remaining bits: if nonzero, power on hours of last self-test where error was found
 int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
   int i,j,noheaderprinted=1;
-  int retval=0;
+  int retval=0, hours=0;
+
 
   if (allentries)
     pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
@@ -912,19 +915,27 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       else	
 	sprintf(firstlba,"0x%08x",log->lbafirstfailure);
 
+      // print out a header if needed
       if (noheaderprinted && (allentries || errorfound)){
 	pout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
 	noheaderprinted=0;
       }
       
+      // print out an entry, either if we are printing all entries OR
+      // if an error was found
       if (allentries || errorfound)
-	pout("#%2d  %s %s %s  %8d         %s\n",21-i,msgtest,msgstat,
-	     percent,(int)log->timestamp,firstlba);
+	pout("#%2d  %s %s %s  %8d         %s\n",21-i,msgtest,msgstat, percent,(int)log->timestamp,firstlba);
+
+      // keep track of time of most recent error
+      if (errorfound && !hours)
+	hours=log->timestamp;
     }
   }
   if (!allentries && retval)
     pout("\n");
-  return retval;
+
+  hours = hours << 8;
+  return (retval | hours);
 }
 
 void ataPseudoCheckSmart ( struct ata_smart_values *data, 
