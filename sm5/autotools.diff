@@ -101,7 +101,7 @@ diff -u -p -r1.117 smartmontools.spec
 +rm -rf %{buildroot}
 +
 +%makeinstall
-+#rm -f examplescripts/Makefile*
++rm -f examplescripts/Makefile*
 +
 +%clean
 +rm -rf %{buildroot}
