@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.37 2003/11/14 11:40:59 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.38 2003/11/15 02:26:26 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -184,7 +184,7 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define CACHING_PARAMETERS                       0x08
 #define PERIPHERAL_DEVICE                        0x09
 #define XOR_CONTROL_MODE_PARAMETERS              0x10
-#define CONTROL_MODE_PAGE_PARAMETERS             0x0a
+#define CONTROL_MODE_PAGE                        0x0a
 #define MEDIUM_TYPES_SUPPORTED                   0x0b
 #define NOTCH_PARAMETERS                         0x0c
 #define POWER_CONDITION_PARAMETERS               0x0d
@@ -298,8 +298,10 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
                                 struct scsiNonMediumError *nmep);
-int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len);
+int scsiFetchExtendedSelfTestTime(int device, int * durationSec, 
+                                  int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
+int scsiFetchControlGLTSD(int device, int modese_len);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
