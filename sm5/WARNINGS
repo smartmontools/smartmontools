@@ -1,12 +1,24 @@
-$Id: WARNINGS,v 1.12 2003/10/02 10:07:44 ballen4705 Exp $
+$Id: WARNINGS,v 1.13 2003/10/14 13:48:40 ballen4705 Exp $
 
 The following are controllers/drives where there have been reports of
 serious problems (eg system lockup):
+
+
+SYSTEM:   Intel 875WP1-E motherboard with SATA drives on motherboard's SATA ports
+PROBLEM:  smartd makes NTP time drift
+REPORTER: nohez@cmie.com
+LINK:     http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=Pine.LNX.4.33.0310111545530.1047-100000%40venus.cmie.ernet.in.lucky.linux.kernel
+NOTE:     When using SATA disks, linux kernel k_smp-2.4.21-108 (SMP because
+          of hyper-threading) and xntp-4.1.1-177, the server time went
+          out of sync with system time.  Problem goes away when SATA
+          disks removed.
+
 
 SYSTEM:   Dell servers using AACRAID (SCSI)
 PROBLEM:  Locked up, needed to be rebooted
 REPORTER: drew@eastvan.bc.ca
 LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1311313&forum_id=12495
+
 
 SYSTEM:   Box with Promise 20265 IDE-controller (pdc202xx-driver) and > 2.4.18 kernel with ide-taskfile support
 PROBLEM:  Smartctl locks system solid when used on /dev/hd[ef].
