@@ -13,7 +13,7 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/24 10:56:10 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/25 14:15:05 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -33,7 +33,11 @@ REFERENCES below)
 .B smartd  
 will notify users of S.M.A.R.T. errors and changes of
 S.M.A.R.T. attributes via the SYSLOG interface.  These notifications
-and warnings normally appear in /var/log/messages.
+and warnings normally appear in 
+.B /var/log/messages.
+It can be configured at start-up
+using the file
+.B /etc/smartd.conf.
 
 .PP
 .SH SYNTAX
@@ -44,7 +48,9 @@ takes either no arguments, or a single argument.  The optional
 argument begins with a '\-' followed by a letter or letters. Multiple
 options must begin with a single '\-'.
 
-The 
+In the absense of the configuration file
+.B /etc/smartd.conf
+the 
 .B
 smartd
 daemon scans for all devices that support S.M.A.R.T., using
@@ -52,10 +58,11 @@ daemon scans for all devices that support S.M.A.R.T., using
 polls these devices every 30 minutes checking for S.M.A.R.T. errors.
 [Note that on start-up, when
 .B
-smartd
-scans for devices, a warning message may appear in
-/var/log/messages, about missing block-major-xx devices.  These
-messages are harmless.]
+smartd scans for devices, a warning message may appear in
+.B /var/log/messages,
+about missing block-major-xx devices.  These
+messages are usually harmless. Alternatively, the configuration file can be
+used to list devices to search for at start up.]
 .P
 .SH 
 OPTIONS
@@ -102,6 +109,36 @@ by using the command:
 and disabled using the command:
 .nf
 .B '/sbin/chkconfig --del smartd'
+
+.SH CONFIGURATION FILE
+In the absence of a configuration file,
+.B smartd 
+will try to open the 12 ATA devices /dev/hd[a-l] and the 26
+SCSI devices /dev/sd[a-z].  This can be annoying if you have an ATA or
+SCSI device that hangs or misbehaves when receiving SMART commands.
+Even if this causes no problems, you may be annoyed by the string of
+error log messages about block-major devices that can't be found, and
+SCSI devices that can't be opened.
+
+A simple solution is to create a configuration file
+.B /etc/smartd.conf
+which should contain a list of devices to monitor, with one device per line.
+For security, this file should not be writable by anyone but root.
+Spaces and tabs in the file are ignored, as are lines starting with a hash sign (#).
+Here is a sample configuration file:
+
+.nf
+.B # This is an example smartd startup config file
+.B # /etc/smartd.conf
+.B # for monitoring two IDE disks and one SCSI disk
+
+.B # first IDE disk on each of two interfaces
+.B /dev/hda
+.B /dev/hdc
+
+.B # SCSI disk
+.B /dev/sda
+.fi
 
 .SH NOTES
 .B smartd
@@ -198,4 +235,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.10 2002/10/24 10:56:10 ballen4705 Exp $
+$Id: smartd.8,v 1.11 2002/10/25 14:15:05 ballen4705 Exp $

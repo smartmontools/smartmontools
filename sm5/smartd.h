@@ -23,8 +23,13 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.7 2002/10/24 07:50:45 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.8 2002/10/25 14:15:05 ballen4705 Exp $\n"
 #endif
+
+// Configuration file
+#define CONFIGFILE "/etc/smartd.conf"
+#define MAXLINELEN 126
+#define MAXENTRIES 64
 
 /* Defines for command line options */ 
 #define DEBUGMODE 		'X'
@@ -67,3 +72,10 @@ typedef struct scsidevices_s {
 	unsigned char TempPageSupported;
 	unsigned char Temperature;
 } scsidevices_t;
+
+typedef struct configfile_s {
+  char name[MAXLINELEN+2];
+  int tryata;
+  int tryscsi;
+  int lineno;
+} cfgfile;
