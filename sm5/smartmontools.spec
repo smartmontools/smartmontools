@@ -1,11 +1,11 @@
 Release:  19
-Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
-Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
-Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
-Summary(es):	SMARTmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
-Summary(fr):	SMARTmontools - pour le suivi des disques et instruments S.M.A.R.T.
-Summary(pt):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
-Summary(it):	SMARTmontools - per monitare dischi e dispositivi S.M.A.R.T.
+Summary:	smartmontools - for monitoring S.M.A.R.T. disks and devices
+Summary(cs):	smartmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
+Summary(de):	smartmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
+Summary(es):	smartmontools - para el seguimiento de discos y dispositivos S.M.A.R.T.
+Summary(fr):	smartmontools - pour le suivi des disques et instruments S.M.A.R.T.
+Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
+Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
 Version:	5.1
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.120 2003/09/24 06:21:37 pervalidus Exp $
+# $Id: smartmontools.spec,v 1.121 2003/09/24 16:08:49 pervalidus Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -51,7 +51,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 
 %description
-SMARTmontools controls and monitors storage devices using the
+smartmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology System (S.M.A.R.T.)
 built into ATA and SCSI Hard Drives.  This is used to check the
 reliability of the hard drive and to predict drive failures.  The suite
@@ -70,7 +70,7 @@ additional information can be found at the URL:
 http://smartmontools.sourceforge.net/
 
 %description -l cs
-SMARTmontools øídí a monitorují zaøízení pro ukládání dat za pou¾ití
+smartmontools øídí a monitorují zaøízení pro ukládání dat za pou¾ití
 technologie automatického monitorování, analýzy a hlá¹ení
 (Self-Monitoring, Analysis and Reporting Technology System -
 S.M.A.R.T.) vestavìného do pevných diskù ATA a SCSI. Pou¾ívá se ke
@@ -88,7 +88,7 @@ a mìl by fungovat na v¹ech moderních distribucích Linuxu. Aktuální
 verzi najdete na URL http://smartmontools.sourceforge.net/
 
 %description -l de
-Die SMARTmontools steuern und überwachen Speichergeräte mittels des
+Die smartmontools steuern und überwachen Speichergeräte mittels des
 S.M.A.R.T.-Systems (Self-Monitoring, Analysis and Reporting Technology,
 Technologie zur Selbst-Überwachung, Analyse und Berichterstellung), das
 in ATA- und SCSI-Festplatten eingesetzt wird.  Sie werden benutzt, um
@@ -109,7 +109,7 @@ und zusätzliche Informationen sind zu finden unter der URL:
 http://smartmontools.sourceforge.net/
 
 %description -l es
-SMARTmontools controla y hace el seguimiento de dispositivos de
+smartmontools controla y hace el seguimiento de dispositivos de
 almacenamiento usando el Self-Monitoring, Analysis and Reporting
 Technology System (S.M.A.R.T.) incorporado en discos duros ATA y SCSI. 
 Es usado para asegurar la fiabilidad de discos duros y predecir averias. 
@@ -129,7 +129,7 @@ La version mas reciente de estos programas ademas de informacion
 adicional pueden encontrarse en: http://smartmontools.sourceforge.net/
 
 %description -l fr
-SMARTmontools contrôle et fait le suivi de périphériques de stockage
+smartmontools contrôle et fait le suivi de périphériques de stockage
 utilisant le système Self-Monitoring, Analysis and Reporting
 Technology (S.M.A.R.T) intégré dans les disques durs ATA et SCSI.  Ce
 système est utilisé pour vérifier la fiabilité du disque dur et prédire
@@ -151,7 +151,7 @@ peuvent être trouvées à l'adresse URL:
 http://smartmontools.sourceforge.net/
 
 %description -l pt
-SMARTmontools controla e monitora dispositivos de armazenamento
+smartmontools controla e monitora dispositivos de armazenamento
 utilizando o recurso Self-Monitoring, Analysis and Reporting Technology
 System (S.M.A.R.T.) integrado nos discos rígidos ATA e SCSI, cuja
 finalidade é verificar a confiabilidade do disco rígido e prever falhas
@@ -170,7 +170,7 @@ Linux.  As mais recentes versões deste pacote e informações adicionais
 podem ser encontradas em http://smartmontools.sourceforge.net/
 
 %description -l it
-SMARTmontools controlla e monitora dischi che usano il "Self-Monitoring,
+smartmontools controlla e monitora dischi che usano il "Self-Monitoring,
 Analysis and Reporting Technology System" (S.M.A.R.T.), in hard drive
 ATA e SCSI. Esso è usato per controllare l'affidabilità dei drive e
 predire i guasti. La suite è derivata dal package smartsuite e contiene
