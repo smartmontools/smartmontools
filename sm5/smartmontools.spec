@@ -1,4 +1,4 @@
-Release:  29
+Release:  30
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(pt_BR):	SMARTmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Name:		smartmontools
@@ -20,7 +20,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.43 2002/11/04 13:32:09 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.44 2002/11/04 13:33:05 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
