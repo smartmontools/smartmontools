@@ -1,9 +1,0 @@
-#! /bin/sh
-CFLAGS="-s -Zomf -O3 -march=pentium -mcpu=pentium3" \
-CXXFLAGS="-s -Zomf -O3 -march=pentium -mcpu=pentium3" \
-LDFLAGS="-s -Zmap -Zhigh-mem -Zomf -Zexe -Zstack 0x100" \
-LIBS=" -lsyslog -lsocket" \
-LN_CP_F="cp.exe" \
-RANLIB="echo" \
-AR="emxomfar" \
-./configure --prefix=/usr/local/smartmontools
