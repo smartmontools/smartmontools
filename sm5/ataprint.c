@@ -30,7 +30,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.47 2002/11/29 10:41:58 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.48 2002/12/11 23:15:43 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -742,12 +742,19 @@ void failuretest(int type, int returnvalue){
   exit(returnvalue|FAILCMD);
 }
 
-// Used to warn users about invalid checksums.  However we will not
-// abort on invalid checksums.
+// Used to warn users about invalid checksums.  Action to be taken may be
+// altered by the user.
 void checksumwarning(const char *string){
+  // user has asked us to ignore checksum errors
+  if (con->checksumignore)
+        return;
+
   pout("Warning! %s error: invalid SMART checksum.\n",string);
+
+  // user has asked us to fail on checksum errors
   if (con->checksumfail)
     exit(FAILSMART);
+
   return;
 }
 
