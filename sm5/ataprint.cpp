@@ -25,13 +25,15 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <syslog.h>
+#include <regex.h>
+#include <string.h>
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 #include "utility.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.56 2003/01/17 21:47:12 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.57 2003/02/21 22:58:41 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -41,10 +43,10 @@ extern atamainctrl *con;
 // space. This is needed on little-endian architectures, eg Intel,
 // Alpha. If someone wants to run this on SPARC they'll need to test
 // for the Endian-ness and skip the byte swapping if it's big-endian.
-void printswap(char *in, unsigned int n){
+void printswap(char *output, char *in, unsigned int n){
   unsigned int i;
   char out[64];
-
+  
   // swap bytes
   for (i=0;i<n;i+=2){
     unsigned int j=i+1;
@@ -52,33 +54,117 @@ void printswap(char *in, unsigned int n){
     out[j]=in[i];
   }
 
+  // add terminating null byte
+  out[n]='\0';
+
   // find the end of the white space
   for (i=0;i<n && isspace(out[i]);i++);
 
   // and do the printing starting from first non-white space
   if (n-i)
-    pout("%.*s\n",(int)(n-i),out+i);
+    snprintf(output, 64, "%.*s\n", (int)(n-i), out+i);
   else
-    pout("[No Information Found]\n");
-
+    snprintf(output, 64, "[No Information Found]\n");
+  
+  pout("%s",output);
+  
   return;
 }
+
+/*
+The following table contains warnings about drives, in the form of
+regular expression, warning message pairs.
+
+The first Regexp matches this set of drives:
+http://www.geocities.com/dtla_update/index.html#rel
+IBM Deskstar 60GXP series
+IC35L0[12346]0AVER07
+
+The second regexp matches this set of drives:
+http://www.geocities.com/dtla_update/:
+IBM Deskstar 40GV & 75GXP series
+IBM-DTLA-30[57]0[123467][05]
+
+Additional Regular Expression/Warning pairs may be added, as long as
+the {NULL,NULL} terminator is left in place.
+*/
+
+char *drivewarnings[][2]={
+  //  {"TOSHIBA MK","Bruce's test"}, 
+  {"IC35L0[12346]0AVER07",
+   "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
+   "Please see http://www.geocities.com/dtla_update/index.html#rel"},
+  {"IBM-DTLA-30[57]0[123467][05]|DTLA-30[57]0[123467][05]",
+   "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
+   "Please see http://www.geocities.com/dtla_update/"},
+  // INSERT ADDITIONAL PAIRS ABOVE THIS LINE.
+  {NULL,NULL}
+};
+
+void printregexwarning(int errcode, regex_t *compiled){
+  size_t length = regerror(errcode, compiled, NULL, 0);
+  char *buffer = malloc(length);
+  if (!buffer){
+    pout("Out of memory in printregexwarning()\n");
+    return;
+  }
+  regerror(errcode, compiled, buffer, length);
+  pout("%s\n", buffer);
+  free(buffer);
+  return;
+}
+
+void drivewarning(char *model){
+  regex_t preg;
+  regmatch_t pmatch;
+  int i,errorcode;
+
+  // For testing
+  // strcpy(model,"IC35L040AVER07-0\n");
+  // strcpy(model,"IBM-DTLA-305040\n");
+  // strcpy(model,"DTLA-305040\n");
+  
+
+  for (i=0; drivewarnings[i][0]; i++){
+    // compile regular expression
+    if ((errorcode=regcomp(&preg, drivewarnings[i][0], REG_EXTENDED))){
+      pout("Smartctl internal error: unable to match regular expression %s",
+	   drivewarnings[i][0]);
+      printregexwarning(errorcode, &preg);
+      pout("Please inform smartmontools developers\n");
+      return;
+    }
+
+    // search to see if model matches regular expression
+    if (!regexec(&preg, model, 1, &pmatch, 0))
+      // model matched regular expression, so print warning
+      pout("\n==> WARNING: %s\n\n", drivewarnings[i][1]);
+    
+    // free compiled regular expression
+    regfree(&preg);
+    
+  }
+  return;
+}
+
 
 void ataPrintDriveInfo (struct hd_driveid *drive){
   int version;
   const char *description;
   char unknown[64], timedatetz[64];
   unsigned short minorrev;
+  char model[64], serial[64], firm[64];
+  
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
-  printswap(drive->model,40);
+  printswap(model, drive->model,40);
 
   pout("Serial Number:    ");
-  printswap(drive->serial_no,20);
+  printswap(serial, drive->serial_no,20);
 
   pout("Firmware Version: ");
-  printswap(drive->fw_rev,8);
+  printswap(firm, drive->fw_rev,8);
 
   // now get ATA version info
   version=ataVersionInfo(&description,drive, &minorrev);
@@ -102,6 +188,8 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   // print current time and date and timezone
   dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);
+
+  drivewarning(model);
 
   if (version>=3)
     return;

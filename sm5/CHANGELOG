@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.94 2003/02/18 21:23:22 ballen4705 Exp $
+$Id: CHANGELOG,v 1.95 2003/02/21 22:58:40 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,12 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] smartctl: Added a warning message so that users of some IBM
+       disks are warned to update their firmware.  Note: we may want
+       to add a command-line flag to disable the warning messages.
+       I have done this in a general way, using regexp, so that we
+       can add warnings about any type of disk that we wish...
 
 smartmontools-5.1-7
 
