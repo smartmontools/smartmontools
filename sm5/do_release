@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.19 2003/10/14 14:22:44 ballen4705 Exp $
+# $Id: do_release,v 1.20 2003/10/15 05:37:52 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 
@@ -45,7 +45,7 @@ inc_release()
 
 # run automake/autoconf
 if [ -f Makefile ] ; then
-  make distcheck && exit 1
+  make distcheck || exit 1
   make clean
   make distclean
   rm -f Makefile

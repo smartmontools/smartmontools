@@ -1,26 +1,28 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.214 2003/10/14 17:34:29 drkirkby Exp $
+$Id: CHANGELOG,v 1.215 2003/10/15 05:35:51 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
-[FM] Frédéric L. W. Meunier
-[EM] Eduard Martinescu
-[PW] Phil Williams
+[GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
-[KM] Kai Mäkisara
-[GF] Guilhem Frézou
 [DK] Dr. David Kirkby
+[KM] Kai Mäkisara
+[EM] Eduard Martinescu
+[FM] Frédéric L. W. Meunier
+[PW] Phil Williams
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+smartmontools 5.21
 
   [DK] Changed configure.in so -Wall is only included if gcc
        is used (this is a gcc specific flag) and -fsignedchar

@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.132 2003/10/14 14:05:29 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.133 2003/10/15 05:35:51 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -304,13 +304,54 @@ fi
 # [EB] Erik Inge Bolsø
 # [SB] Stanislav Brabec
 # [PC] Peter Cassidy
-# [FM] Frédéric L. W. Meunier
-# [PW] Phil Williams
+# [DK] David Kirkby
 # [DG] Douglas Gilbert
 # [GG] Guido Guenther
 # [KM] Kai Mäkisarai
+# [FM] Frédéric L. W. Meunier
+# [PW] Phil Williams
 
 %changelog
+* Wed Oct 15 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+  [DK] Changed configure.in so -Wall is only included if gcc
+       is used (this is a gcc specific flag) and -fsignedchar
+       is not used at all (this is a gcc specific compiler 
+       flag).
+  [BA] Modifications so that code now compiles under solaris. Now
+       all that's needed (:-) is to fill in os_solaris.[hc].  Added
+       os_generic.[hc] as guide to future ports.  Fixed -D option
+       of smartd (no file name).  Modified -h opt of smartd/smartctl
+       to work properly with solaris getopt().
+  [EM] Update MAN pages with notes that 3ware drives are NOT supported
+	under FreeBSD. Cleanup FreeBSD warning message handling.
+  [EM] FreeBSD only: Fix first user found bug....I guess I was making
+       the wrong assumption on how to convert ATA devnames to
+       channel/unit numbers.
+  [EM] Allow for option --enable-sample to append '.sample' to installed
+	smartd.conf and rc script files. Also, let rc script shell setting
+	be determined by configure
+  [EM] Minor autoconf update to include -lcam for FreeBSD
+  [EM] Add conditional logic to allow FreeBSD to compile pre-ATAng.
+	-- note, not tested
+	Add some documentation to INSTALL for FreeBSD.
+  [EM] Implement SCSI CAM support for FreeBSD.  NOTE: I am not an expert
+	in the use of CAM.  It seems to work for me, but I may be doing
+	something horribly wrong, so please exercise caution.
+  [EM] Switch over to using 'atexit' rather than 'on_exit' routine. This also
+  	meant we needed to save the exit status elsewhere so our 'Goodbye'
+	routine could examine it.
+  [EM] Move the DEVICESCAN code to os specific files. Also moved some of the
+	smartd Memory functions to utility.c to make available to smartctl.
+  [EM] Code janitor work on os_freebsd.c.
+  [EM] Added os_freebsd.[hc] code.  Additional code janitor
+       work.
+  [BA] Code janitor working, moving OS dependent code into
+       os_linux.[hc].
+  [GG] conditionally compile os_{freebsd,linux}.o depending on
+       host architecture
+  [PW] Print estimated completion time for tests
+  [BA] Added -F samsung2 flag to correct firmware byte swap.
+       All samsung drives with *-23 firmware revision string.
 
 * Sun Oct 05 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [GG] Fixed broken Makefile.am (zero length smartd.conf.5
