@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.54 2004/07/13 14:55:38 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.55 2004/07/15 21:31:34 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -169,15 +169,9 @@ the device name.
 
 To look at ATA disks behind 3ware SCSI RAID controllers, use syntax
 such as:
-.fi
+.nf
 \fBsmartctl \-a \-d 3ware,2 /dev/sda\fP
-.fi
-or
-.fi
 \fBsmartctl \-a \-d 3ware,0 /dev/twe0\fP
-.fi
-or
-.fi
 \fBsmartctl \-a \-d 3ware,1 /dev/twa0\fP
 .fi
 where in the argument \fI3ware,N\fP, the integer N is the disk number
@@ -1231,7 +1225,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.54 2004/07/13 14:55:38 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.55 2004/07/15 21:31:34 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
