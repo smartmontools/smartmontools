@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.75 2004/09/16 08:46:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.76 2004/09/22 00:19:31 likewise Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.75 2004/09/16 08:46:04 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.76 2004/09/22 00:19:31 likewise Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1362,8 +1362,12 @@ int marvell_command_interface(int device,
     return 0;
   }
 
+  // Always succeed on a SMART status, as a disk that failed returned  
+  // buff[4]=0xF4, buff[5]=0x2C, i.e. "Bad SMART status" (see below).
+  if (command == STATUS)
+    return 0;
   //Data returned is starting from 0 offset  
-  if (command == STATUS || command == STATUS_CHECK)
+  if (command == STATUS_CHECK)
   {
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buff[4] == 0x4F && buff[5] == 0xC2)
