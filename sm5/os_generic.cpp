@@ -63,7 +63,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.9 2004/01/02 16:05:25 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.10 2004/02/01 00:38:05 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -111,7 +111,9 @@ static void unsupported(){
 // End of the 'unsupported()' block that you should eliminate.
 
 
-// print examples for smartctl
+// print examples for smartctl.  You should modify this function so
+// that the device paths are sensible for your OS, and to eliminate
+// unsupported commands (eg, 3ware controllers).
 void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
@@ -148,35 +150,57 @@ int guess_device_type (const char* dev_name) {
 
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of
 // smartd.  Returns number N of devices, or -1 if out of
-// memory. Allocates N+1 arrays: one of N pointers (devlist), the
-// others each contain null-terminated character strings.
+// memory. Allocates N+1 arrays: one of N pointers (devlist); the
+// other N arrays each contain null-terminated character strings.  In
+// the case N==0, no arrays are allocated because the array of 0
+// pointers has zero length, equivalent to calling malloc(0).
 int make_device_names (char*** devlist, const char* name) {
   unsupported();
   return 0;
 }
 
-// Like open().  Return positive integer handle, only used by
-// functions below.  type="ATA" or "SCSI".  If you need to store extra
-// information about your devices, create a private internal array
-// within this file (see os_freebsd.c for an example).
+// Like open().  Return non-negative integer handle, only used by the
+// functions below.  type=="ATA" or "SCSI".  If you need to store
+// extra information about your devices, create a private internal
+// array within this file (see os_freebsd.c for an example).  If you
+// can not open the device (permission denied, does not exist, etc)
+// set errno as open() does and return <0.
 int deviceopen(const char *pathname, char *type){
   unsupported();
   return -1;
 }
 
-// Like close().  Acts only on handles returned by above function.
+// Like close().  Acts only on integer handles returned by
+// deviceopen() above.
 int deviceclose(int fd){
   unsupported();
   return 0;
 }
 
-// Interface to ATA devices.  See os_linux.c
+// Interface to ATA devices.  See os_linux.c for the cannonical example.
+// DETAILED DESCRIPTION OF ARGUMENTS
+//   device: is the integer handle provided by deviceopen()
+//   command: defines the different operations, see atacmds.h
+//   select: additional input data IF NEEDED (which log, which type of
+//           self-test).
+//   data:   location to write output data, IF NEEDED (1 or 512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES (for all commands BUT command==STATUS_CHECK)
+//  -1 if the command failed
+//   0 if the command succeeded,
+// RETURN VALUES if command==STATUS_CHECK
+//  -1 if the command failed OR the disk SMART status can't be determined
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){
   unsupported();
   return -1;
 }
 
-// Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
+// Interface to ATA devices behind 3ware escalade RAID controller
+// cards.  Same description as ata_command_interface() above except
+// that 0 <= disknum <= 15 specifies the ATA disk attached to the
+// controller.
 int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
   unsupported();
   return -1;
