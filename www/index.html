@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/26 00:18:08 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/26 00:53:17 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.127 2004/02/26 00:18:08 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.128 2004/02/26 00:53:17 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -548,11 +548,69 @@ Please not that the required changes to make it compile with the above
 switch (acting like <a href="http://www.mingw.org/">MinGW</a>) or MSVC
 haven't yet been merged.</p>
 
+<p>Below are parts of an e-mail Christian sent to the smartmontool-devel
+mailing-list. I, Frédéric, also tested smartd.exe on Cygwin, but only
+have access to Windows XP Professional SP1 and a single hard drive.</p>
+
+<pre>
+Win32 port - file organization, features and problems
+2004-02-02 19:42
+
+The current state of the code:
+
++ smartctl.exe has been tested on Win98SE, NT4, 2K, XP, see
+"Compatibility"-Matrix below.
+
+- TODO: Solve Problems with READ LOG on W2K
+
+Compatibility:
+
+Disk Devices                     Windows Version
+                    95 OSR2  98SE     ME      NT4    2000     XP
+
+Standard ATA 0-3      +      ++       +     ++(2)   ++(1)   ++(1)
+
+Other ATA/SATA        -       -       -      ?      ++?      ?
+
+SCSI via ASPI         +      ++       +     ++       +       +
+
+SCSI via IOCTL        -       -       -      -(3)    -(3)    -(3)
+
+-   Not supported
++   Supported but not tested
+++  Supported and tested
+?   supported (except READ LOG) if custom driver implements SMART IOCTL.
+
+Notes:
+(1) CAUTION: The IOCTL call SMART_RCV_DRIVE_DATA does not support 
+SMART_READ_LOG on NT4/XP/2K. The Win32 smartctl implementation uses the 
+undocumented and possibly buggy IOCTL_IDE_PASS_THROUGH for this purpose. 
+This IOCTL is not implemented under NT4, problems are reported for W2K. 
+It seems to work on XP. Using the smartctl.exe options -l or -a may
+affect system stability.
+
+(2) READ_LOG is not supported.
+
+(3) TODO: implement IOCTL_SCSI_PASS_THROUGH (NT4/2K/XP)
+
+
+Device Name parameters for smartctl.exe:
+
+Win9x/ME:
+hd[a-d]: Standard ATA drives
+
+NT4/2K/XP:
+hd[a-j]: Device "\\.\PhysicalDisk[0-9]" (ATA only)
+
+Win9x/ME/NT4/2K/XP:
+scsi[0-9][0-f]: SCSI disk on ASPI adapter 0-9, ID 0-15.
+</pre>
+
 <p>Alternatively, you can also run it from a bootable CD - see
 above.</p>
 
 <p>Some code showing how to access SMART data under Windows 98, NT 4,
-Windows 2000, and Windows XP can be found <a
+2000, and XP can be found <a
 href="ftp://ftp.heise.de/pub/ct/listings/0207-218.zip">here</a>.
 Additional information from Microsoft can be found <a
 href="http://support.microsoft.com/default.aspx?scid=kb;en-us;Q208048">here</a>.
@@ -906,8 +964,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/26 00:18:08 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.127 2004/02/26 00:18:08 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/02/26 00:53:17 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.128 2004/02/26 00:53:17 pervalidus Exp $</tt>
 
 <hr size="2" />
 
