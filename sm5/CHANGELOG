@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.356 2004/03/05 16:24:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.357 2004/03/05 23:00:49 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added remaining read/write commands to detailed list of
+       error log commands that have text descriptions of problem
+       printed.  For commands that support it, print number of failed
+       sectors at problem LBA.
 
   [BA] Made SuSE section of smartd init script more SuSE 9 compatible.
        Thanks to Hans-Peter Jansen.
