@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.43 2003/10/03 01:15:17 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.44 2003/10/06 00:37:04 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -102,12 +102,19 @@ const unsigned char vendoropts_Hitachi_DK23EA[][2] = {
 };
 
 const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
+const char same_as_minus_F2[]="Fixes byte order in some SMART data (same as -F samsung2)";
+
 const char may_need_minus_F_disabled[]="Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung disabled";
+const char may_need_minus_F2_disabled[]="Contact developers at " PACKAGE_BUGREPORT "; may need -F samsung2 disabled";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
 {
   con->fixfirmwarebug = FIX_SAMSUNG;
+}
+void specialpurpose_reverse_samsung2(smartmonctrl *con)
+{
+  con->fixfirmwarebug = FIX_SAMSUNG2;
 }
 
 /* Table of settings for known drives terminated by an element containing all

@@ -53,7 +53,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.209 2003/10/03 13:14:13 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.210 2003/10/06 00:37:04 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -616,7 +616,7 @@ void Directives() {
   PrintOut(LOG_INFO,"  -v N,ST Modifies labeling of Attribute N (see man page)  \n");
   PrintOut(LOG_INFO,"  -P TYPE Drive-specific presets: use, ignore, show, showall\n");
   PrintOut(LOG_INFO,"  -a      Default: equivalent to -H -f -t -l error -l selftest\n");
-  PrintOut(LOG_INFO,"  -F TYPE Use firmware bug workaround. Type is one of: none, samsung\n");
+  PrintOut(LOG_INFO,"  -F TYPE Firmware bug workaround: none, samsung, samsung2\n");
   PrintOut(LOG_INFO,"   #      Comment: text after a hash sign is ignored\n");
   PrintOut(LOG_INFO,"   \\      Line continuation character\n");
   PrintOut(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
@@ -1559,7 +1559,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "use, ignore, show, showall");
     break;
   case 'F':
-    PrintOut(priority, "none, samsung");
+    PrintOut(priority, "none, samsung, samsung2");
     break;
   }
 }
@@ -1720,6 +1720,8 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->fixfirmwarebug = FIX_NONE;
     } else if (!strcmp(arg, "samsung")) {
       cfg->fixfirmwarebug = FIX_SAMSUNG;
+    } else if (!strcmp(arg, "samsung2")) {
+      cfg->fixfirmwarebug = FIX_SAMSUNG2;
     } else {
       badarg = 1;
     }

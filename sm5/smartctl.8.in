@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8.in,v 1.5 2003/10/03 21:11:13 ballen4705 Exp $
+\# $Id: smartctl.8.in,v 1.6 2003/10/06 00:37:04 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/10/03 21:11:13 $" RELEASE
+.TH SMARTCTL 8  "$Date: 2003/10/06 00:37:04 $" RELEASE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
@@ -27,7 +27,7 @@
 .B /usr/sbin/smartctl
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/03 21:11:13 $"
+\fBRELEASE\fP "$Date: 2003/10/06 00:37:04 $"
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self-Monitoring, Analysis and Reporting
@@ -655,6 +655,11 @@ are (1) no self-test log printed, even though you have run self-tests;
 (2) very large numbers of ATA errors reported in the ATA error log;
 (3) strange and impossible values for the ATA error log timestamps.
 
+.I samsung2
+In more recent Samsung disks (firmware revisions ending in "\-23") the
+number of ATA errors reported is byte swapped.  Enabling this option
+tells \fBsmartctl\fP to evaluate this quantity in byte-reversed order.
+
 .TP
 .B \-P TYPE, \-\-presets=TYPE
 Specifies whether \fBsmartctl\fP should use any preset options that
@@ -962,4 +967,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.5 2003/10/03 21:11:13 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.6 2003/10/06 00:37:04 ballen4705 Exp $
