@@ -57,7 +57,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.11 2004/03/13 02:32:52 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.12 2004/07/09 12:38:04 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -195,7 +195,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 // cards.  Same description as ata_command_interface() above except
 // that 0 <= disknum <= 15 specifies the ATA disk attached to the
 // controller.
-int escalade_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
+int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
   unsupported();
   return -1;
 }

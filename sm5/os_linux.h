@@ -34,15 +34,21 @@
  * 
  */
 
+
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.12 2004/03/25 17:16:13 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.13 2004/07/09 12:38:04 ballen4705 Exp $\n"
+
+#define u32 unsigned int
 
 /* Misc defines */
 #define TW_IOCTL            0x80
 #define TW_ATA_PASSTHRU     0x1e  /* Needed for the driver */
-#define TW_MAX_SGL_LENGTH   62
+
+// ADAM -- this was 62 / 61
+#define TW_MAX_SGL_LENGTH   61
+#define TW_IOCTL_FIRMWARE_PASS_THROUGH        0x108
 
 /* Scatter gather list entry */
 typedef struct TAG_TW_SG_Entry
@@ -52,7 +58,7 @@ typedef struct TAG_TW_SG_Entry
 } TW_SG_Entry;
 
 /* Command header for ATA pass-thru */
-// Total size of structure is 528 bytes
+// Total size of structure is 528 bytes (now 520 bytes!)
 typedef struct TAG_TW_Passthru {
   struct {
     unsigned char opcode:5;
@@ -98,12 +104,119 @@ typedef struct TAG_TW_Ioctl {
   unsigned char output_data[512];
 } TW_Ioctl;
 
+typedef struct TAG_TW_Ioctl_Driver_Command {
+	unsigned int control_code;
+	unsigned int status;
+	unsigned int unique_id;
+	unsigned int sequence_id;
+	unsigned int os_specific;
+	unsigned int buffer_length;
+} TW_Ioctl_Driver_Command;
+
+/* Command Packet */
+typedef struct TW_Command {
+	/* First DWORD */
+	struct {
+		unsigned char opcode:5;
+		unsigned char sgl_offset:3;
+	} byte0;
+	unsigned char size;
+	unsigned char request_id;
+	struct {
+		unsigned char unit:4;
+		unsigned char host_id:4;
+	} byte3;
+	/* Second DWORD */
+	unsigned char status;
+	unsigned char flags;
+	union {
+		unsigned short block_count;
+		unsigned short parameter_count;
+		unsigned short message_credits;
+	} byte6;
+	union {
+		struct {
+			u32 lba;
+			TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
+			u32 padding;	/* pad to 512 bytes */
+		} io;
+		struct {
+			TW_SG_Entry sgl[TW_MAX_SGL_LENGTH];
+			u32 padding[2];
+		} param;
+		struct {
+			u32 response_queue_pointer;
+			u32 padding[125];
+		} init_connection;
+		struct {
+			char version[504];
+		} ioctl_miniport_version;
+	} byte8;
+} TW_Command;
+
+/* Scatter gather element for 9000+ controllers */
+typedef struct TAG_TW_SG_Apache {
+	u32 address;
+	u32 length;
+} TW_SG_Apache;
+
+/* Command Packet for 9000+ controllers */
+typedef struct TAG_TW_Command_Apache {
+	struct {
+		unsigned char opcode:5;
+		unsigned char reserved:3;
+	} command;
+	unsigned char unit;
+	unsigned short request_id;
+	unsigned char sense_length;
+	unsigned char sgl_offset;
+	unsigned short sgl_entries;
+	unsigned char cdb[16];
+	TW_SG_Apache sg_list[TW_MAX_SGL_LENGTH];
+} TW_Command_Apache;
+
+/* New command packet header */
+typedef struct TAG_TW_Command_Apache_Header {
+	unsigned char sense_data[18];
+	struct {
+		char reserved[4];
+		unsigned short error;
+		unsigned char status;
+		struct {
+			unsigned char severity:3;
+			unsigned char reserved:5;
+		} substatus_block;
+	} status_block;
+	unsigned char err_specific_desc[102];
+} TW_Command_Apache_Header;
+
+/* This struct is a union of the 2 command packets */
+typedef struct TAG_TW_Command_Full {
+	TW_Command_Apache_Header header;
+	union {
+		TW_Command oldcommand;
+		TW_Command_Apache newcommand;
+	} command;
+	unsigned char padding[384]; /* Pad to 1024 bytes */
+} TW_Command_Full;
+
+typedef struct TAG_TW_Ioctl_Apache {
+	TW_Ioctl_Driver_Command driver_command;
+	char padding[488];
+	TW_Command_Full firmware_command;
+	char data_buffer[1];
+} TW_Ioctl_Buf_Apache;
+
+
 /* Ioctl buffer output */
 typedef struct TAG_TW_Output {
   // CHECKME - is padding right on machines with 8-byte INTEGERS??
   int padding[2];
   char output_data[512];
 } TW_Output; 
+
+
+#define MAX(x,y) ( (x)>(y)?(x):(y) )
 
 
 // The following definitions are from hdreg.h in the kernel source
@@ -170,8 +283,5 @@ typedef struct ide_task_request_s {
 #define HDIO_DRIVE_TASK      0x031e
 #define HDIO_DRIVE_TASKFILE  0x031d
 #define HDIO_GET_IDENTITY    0x030d
-
-
-
 
 #endif /* OS_LINUX_H_ */
