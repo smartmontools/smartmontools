@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.4 2004/07/27 22:29:58 arvoreen Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.5 2004/07/29 21:05:25 chrfranke Exp $\n"
 
 #ifndef CONFIG_H_CVSID
 // need HAVE_STDINT_H, HAVE_INTTYPES_H
@@ -50,6 +50,7 @@ typedef unsigned long long uint64_t;
 #endif // HAVE_SYS_INTTYPES_H
 #endif // HAVE_STDINT_H
 #endif // HAVE_SYS_INT_TYPES_H
+
 // 64 bit integer format strings
 
 #ifdef HAVE_INTTYPES_H
@@ -71,9 +72,8 @@ typedef unsigned long long uint64_t;
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
-// for MSVC 6.0, implemented in os_win32/int64_vc6.c
-__int64 strtoull(char * s, char ** end, int base);
-// "unsigned __int64 -> double" conversion not implemented
+// for MSVC 6.0: "unsigned __int64 -> double" conversion not implemented
+// replacement function implemented in os_win32/int64_vc6.c
 double uint64_to_double(unsigned __int64 ull);
 #else
 #define uint64_to_double(ull) ((double)(ull))

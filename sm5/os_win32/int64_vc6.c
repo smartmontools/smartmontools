@@ -21,25 +21,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-const char *int64_vc6_c_cvsid = "$Id: int64_vc6.c,v 1.2 2004/03/12 23:29:06 chrfranke Exp $" \
+const char *int64_vc6_c_cvsid = "$Id: int64_vc6.c,v 1.3 2004/07/29 21:05:26 chrfranke Exp $" \
 INT64_H_CVSID;
-
-
-// strtoull() is missing in MSVC 6.0
-// Used by utility:split_selective_arg()
-
-__int64 strtoull(char * s, char ** end, int base)
-{
-	__int64 val; int n = -1;
-	if (sscanf(s, "%I64i%n", &val, &n) != 1 && n <= 0) {
-		if (end)
-			*end = s;
-		errno = EINVAL; return -1;
-	}
-	if (end)
-		*end = s + n;
-	return val;
-}
 
 
 // Missing (why?-) "unsigned __int64 -> double" conversion
