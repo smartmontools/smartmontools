@@ -39,7 +39,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.29 2004/01/02 16:05:25 ballen4705 Exp $" \
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.30 2004/01/07 17:13:07 ballen4705 Exp $";
+
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.30 2004/01/07 17:13:07 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -686,7 +688,7 @@ int get_dev_names(char*** names, const char* prefix) {
     // the pattern itself will be added to path list..
     // so ignore any paths that have the ']' from pattern
     if (strchr(globbuf.gl_pathv[i],']') == NULL)
-      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
   }
 
   globfree(&globbuf);

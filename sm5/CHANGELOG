@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.317 2004/01/07 16:49:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.318 2004/01/07 17:13:07 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] many warning messages now give the file name AND VERSION
 
   [BA] smartd: when the user provides multiple address recipients
        to the '-m' Directive in a comma-delineated list, the commas
