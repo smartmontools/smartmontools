@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.96 2003/10/08 01:24:58 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.97 2003/10/08 01:56:51 arvoreen Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -786,7 +786,7 @@ int main (int argc, char **argv){
 
   if (!tryata && !tryscsi) {
     // user has not specified device type, so guess
-    dev_type = guess_linux_device_type(device);
+    dev_type = guess_device_type(device);
     if (GUESS_DEVTYPE_SCSI == dev_type) {
       tryscsi = 1;
     } else if (GUESS_DEVTYPE_ATA == dev_type)

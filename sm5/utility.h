@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.14 2003/10/08 01:25:03 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.15 2003/10/08 01:56:51 arvoreen Exp $\n"
 #endif
 
 #include <time.h>
@@ -68,11 +68,11 @@ int split_report_arg2(char *s, int *i);
 int split_selective_arg(char *s, unsigned long long *start,
                         unsigned long long *stop);
 
-// Guess device type (ata or scsi) based on device name (Linux specific)
+// Guess device type (ata or scsi) based on device name 
 #define GUESS_DEVTYPE_ATA       0
 #define GUESS_DEVTYPE_SCSI      1
 #define GUESS_DEVTYPE_DONT_KNOW 2
-int guess_linux_device_type(const char * dev_name);
+int guess_device_type(const char * dev_name);
 
 // run time, determine byte ordering
 int isbigendian();
