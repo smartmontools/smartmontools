@@ -1,5 +1,0 @@
-{
-  Description     = "SMART disk monitoring";
-  Provides        = ("SMART");
-  Requires        = ("System Log");
-}
