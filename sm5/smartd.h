@@ -1,4 +1,4 @@
-//  $Id: smartd.h,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: smartd.h,v 1.2 2002/10/10 13:21:18 ballen4705 Exp $
 /*
  * smartd.h
  *
@@ -14,10 +14,6 @@
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-/* smartctl version number */
-#define VERSION_MAJOR 5
-#define VERSION_MINOR 0
 
 /* Defines for command line options */ 
 #define DEBUGMODE 		'X'

@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.2 2002/10/10 13:21:15 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -17,6 +17,11 @@
 
 #ifndef _ATACMDS_H_
 #define _ATACMDS_H_
+
+// These are the major and minor versions for smartd and smartctl
+#define PROJECTHOME "http://smartmontools.sourceforge.net/"
+#define VERSION_MAJOR 5
+#define VERSION_MINOR 0
 
 #include <sys/ioctl.h>
 #include <linux/hdreg.h>

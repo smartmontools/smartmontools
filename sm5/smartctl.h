@@ -1,4 +1,4 @@
-//  $Id: smartctl.h,v 1.1 2002/10/09 17:56:58 ballen4705 Exp $
+//  $Id: smartctl.h,v 1.2 2002/10/10 13:21:17 ballen4705 Exp $
 /*
  * smartctl.h
  *
@@ -17,11 +17,6 @@
 
 #ifndef __SMARTCTL_H_
 #define __SMARTCTL_H_
-
-/* smartctl version number */
-#define VERSION_MAJOR 5
-#define VERSION_MINOR 0
-
 
 /* Defines for command line options */ 
 #define DRIVEINFO		'i'
