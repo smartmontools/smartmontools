@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.69 2003/04/01 05:52:32 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.70 2003/04/01 22:04:59 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -404,59 +404,143 @@ char *create_vendor_attribute_arg_list(void){
 }
 
 
-// This is an interface routine meant to isolate the OS dependent
-// parts of the code, and to provide the debugging interface.  I will
-// flesh it out over the next few days. Bruce
-int ioctlhandler(int device, int command, int select, char *data){
-  unsigned char buffer[519];
-  int retval;
+// PURPOSE
+//   This is an interface routine meant to isolate the OS dependent
+//   parts of the code, and to provide the debugging interface.  Each
+//   different port and OS needs to provide it's own interface.  This
+//   is the linux one.
+// DETAILED DESCRIPTION OF ARGUMENTS
+//   device: is the file descriptor provided by open()
+//   command: defines the different operations.
+//   select: additional input data if needed (which log, which type of
+//           self-test).
+//   data:   location to write output data, if needed (512 bytes).
+//   Note: not all commands use all arguments.
+// RETURN VALUES
+//  -1 if the command failed
+//   0 if the command succeeded,
+//   SMART_STATUS routine: 
+//  -1 if the command failed
+//   0 if the command succeeded and disk SMART status is "OK"
+//   1 if the command succeeded and disk SMART status is "FAILING"
 
-  // clear out buffer
-  memset(buffer, 0, 519);
+int ioctlhandler(int device, smart_command_set command, int select, char *data){
+  unsigned char buffer[516];
+  int retval, copydata=0;
 
-  buffer[2]=command;
+  // clear out buffer.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
+  memset(buffer, 0, 516);
+
+  buffer[0]=WIN_SMART;
   switch (command){
-  case SMART_READ_VALUES:
+  case READ_VALUES:
+    buffer[2]=SMART_READ_VALUES;
     buffer[3]=1;
     break;
-  case SMART_ENABLE:
-  case SMART_DISABLE:
-    buffer[1]=1;
-    break;
-  case SMART_READ_THRESHOLDS:
-  case SMART_WRITE_THRESHOLDS:
+  case READ_THRESHOLDS:
+    buffer[2]=SMART_READ_THRESHOLDS;
     buffer[1]=buffer[3]=1;
     break;
-  case SMART_STATUS:
-    break;
-  case SMART_AUTO_OFFLINE:
-  case SMART_IMMEDIATE_OFFLINE:
-  case SMART_AUTOSAVE:
-    buffer[1]=select;
-    break;
-  case SMART_READ_LOG_SECTOR:
+  case READ_LOG:
+    buffer[2]=SMART_READ_LOG_SECTOR;
     buffer[1]=select;
     buffer[3]=1;
     break;
-  default:
+  case IDENTIFY:
+    buffer[0]=WIN_IDENTIFY;
+    buffer[3]=1;
+    break;
+  case PIDENTIFY:
+    buffer[0]=WIN_PIDENTIFY;
+    buffer[3]=1;
+    break;
+  case ENABLE:
+    buffer[2]=SMART_ENABLE;
+    buffer[1]=1;
+    break;
+  case DISABLE:
+    buffer[2]=SMART_DISABLE;
+    buffer[1]=1;
+    break;
+  case STATUS:
+    // warning -- this command only says if SMART is working.  It
+    // could be replaced with STATUS_CHECK below.
+    buffer[2]=SMART_STATUS;
+    break;
+  case AUTO_OFFLINE:
+    buffer[2]=SMART_AUTO_OFFLINE;
+    buffer[1]=select;
+    break;
+  case AUTOSAVE:
+    buffer[2]=SMART_AUTOSAVE;
+    buffer[1]=select;
+    break;
+  case IMMEDIATE_OFFLINE:
+    buffer[2]=SMART_IMMEDIATE_OFFLINE;
+    buffer[1]=select;
+    break;
+    // the following cases uses HDIO_DRIVE_TASK and has different
+    // syntax than the other commands.
+  case STATUS_CHECK:
+    buffer[1]=SMART_STATUS;
+    break;
+default:
     break;
   }
-
-  if (command == SMART_STATUS){
-    retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
-    if (retval) {
-      //   print error message
-    }
-    if (data)
-      memcpy(data, buffer+4, 512);
-  }
-  else {
-    retval=ioctl(device, HDIO_DRIVE_CMD, buffer);
   
+  // There are two different types of ioctls().  The HDIO_DRIVE_TASK
+  // one is this:
+  if (command==STATUS_CHECK){
+    unsigned const char normal_cyl_lo=0x4f, normal_cyl_hi=0xc2;
+    unsigned const char failed_cyl_lo=0xf4, failed_cyl_hi=0x2c;
+    buffer[4]=normal_cyl_lo;
+    buffer[5]=normal_cyl_hi;
+    
+    // HDIO_DRIVE_TASK IOCTL
+    retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
+    
+    if (retval){
+      // print error message
+      return -1;
+    }
+    
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (buffer[4]==normal_cyl_lo && buffer[5]==normal_cyl_hi)
+      return 0;
+    
+    // These values mean "Bad SMART status"
+    if (buffer[4]==failed_cyl_lo && buffer[5]==failed_cyl_hi)
+      return 1;
+    
+    // We haven't gotten output that makes sense; print out some debugging info
+    syserror("Error SMART Status command failed");
+    pout("Please get assistance from %s\n",PROJECTHOME);
+    pout("Register values returned from SMART Status command are:\n");
+    pout("CMD=0x%02x\n",(int)buffer[0]);
+    pout("FR =0x%02x\n",(int)buffer[1]);
+    pout("NS =0x%02x\n",(int)buffer[2]);
+    pout("SC =0x%02x\n",(int)buffer[3]);
+    pout("CL =0x%02x\n",(int)buffer[4]);
+    pout("CH =0x%02x\n",(int)buffer[5]);
+    pout("SEL=0x%02x\n",(int)buffer[6]);
+    return -1;   
   }
-
-  return retval;
-
+  
+  // We are now doing the HDIO_DRIVE_CMD type ioctl.
+  copydata=buffer[3];
+  retval=ioctl(device, HDIO_DRIVE_TASK, buffer);
+  
+  if (retval) {
+    //   print error message that IOCTL failed
+    return -1;
+  }
+  
+  if (copydata){
+    // check that data not null, then
+    memcpy(data, buffer+4, 512);
+  }
+  
+  return 0; 
 }
 
 // This function computes the checksum of a single disk sector (512
@@ -687,23 +771,6 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   return 0;
 }
 
-
-// This routine is not currently in use, and it's been marked as
-// "Obsolete" in the ANSI ATA-5 spec.  So it should probably be left
-// alone and unused.  If you do modify the thresholds, be sure to set
-// the checksum correctly before putting the structure back!
-int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){	
-  unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
-    {WIN_SMART, 1, SMART_WRITE_THRESHOLDS, 1,};
-  
-  memcpy(buf+HDIO_DRIVE_CMD_HDR_SIZE, data, ATA_SMART_SEC_SIZE);
-  
-  if (ioctl(device, HDIO_DRIVE_CMD, buf)){
-    syserror("Error SMART Thresholds Write failed");
-    return -1;
-  }
-  return 0;
-}
 
 int ataEnableSmart (int device ){	
   unsigned char parms[4] =
