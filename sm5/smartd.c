@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.122 2003/04/07 03:32:39 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.123 2003/04/07 04:04:52 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -1033,12 +1033,6 @@ int scsiCheckDevice(scsidevices_t *drive)
 
 void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
   int i;
-  
-  // If there are no devices to monitor, then exit
-  if (!numatadevices && !numscsidevices){
-    printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
-    exit(1);
-  }
 
   // Infinite loop, which checks devices
   printout(LOG_INFO,"Started monitoring %d ATA and %d SCSI devices\n",numatadevices,numscsidevices);
@@ -1864,7 +1858,7 @@ void cantregister(char *name, char *type, int line, int scandirective){
 int main (int argc, char **argv){
   atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
   scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
-  int i, entries, scandirective=0;
+  int i, entries, scandirective=0, scanning=0;
   smartmonctrl control;
   
   // initialize global communications variables
@@ -1906,6 +1900,8 @@ int main (int argc, char **argv){
   if (entries<=0){
     int doscsi, doata;
 
+    scanning=1;
+
     // Was SCANDEVICE Directive given?
     scandirective=entries;
     if (scandirective){
@@ -1936,15 +1932,37 @@ int main (int argc, char **argv){
 
   // Register entries
   for (i=0;i<entries;i++){
+    int notregistered=1;
+    
     // register ATA devices
-    if (config[i].tryata && atadevicescan2(atadevicesptr+numatadevices, config+i))
-      cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
+    if (config[i].tryata){
+      if (atadevicescan2(atadevicesptr+numatadevices, config+i))
+	cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
+      else
+	notregistered=0;
+    }
     
     // then register SCSI devices
-    if (config[i].tryscsi && scsidevicescan(scsidevicesptr+numscsidevices, config+i))
-      cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
-  }
+    if (config[i].tryscsi){
+      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i))
+	cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
+      else
+	notregistered=0;
+    }
+    
+    // if device explictly listed and we can't register it, then exit
+    if (notregistered && !scanning){
+      printout(LOG_CRIT, "Unable to register device %s.  Exiting.\n", config[i].name);
+      exit(1);
+    }
+  } // done registering entries
 
+  // If there are no devices to monitor, then exit
+  if (!numatadevices && !numscsidevices){
+    printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices.\n");
+    exit(1);
+  }
+  
   // Now start an infinite loop that checks all devices
   CheckDevices(atadevicesptr, scsidevicesptr); 
   return 0;
