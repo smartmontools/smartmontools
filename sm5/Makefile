@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.27 2002/10/29 16:59:02 ballen4705 Exp $
+# $Id: Makefile,v 1.28 2002/10/29 17:50:58 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -94,7 +94,7 @@ uninstall: Makefile
 
 # All this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
-release: $(releasefiles)
+release: $(releasefiles) clean
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
 	cp -a $(releasefiles) $(pkgname)
