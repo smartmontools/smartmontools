@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.57 2004/11/11 17:56:08 ydario Exp $
+$Id: INSTALL,v 1.58 2004/11/12 20:46:11 geoffk1 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -152,7 +152,7 @@ Table of contents:
      - running immediate offline, conveyance, or selective tests
      - running any test in captive mode
      - aborting tests
-     - switching on automatic offline testing
+     - switching automatic offline testing on or off
      - support for SCSI
      - checking the power mode [-n Directive of smartd] (this is not
        completely impossible, but not by using a documented API)
@@ -163,7 +163,7 @@ Table of contents:
      - running the short test (that leaves you with only the extended test)
 
     The last set have been filed in Apple's bug tracking system and
-    hopefully will be fixed.
+    hopefully will be fixed in the next major version of Mac OS.
 
     However, some things do work well.  For ATA devices, all the
     informational output is available, unless you want something that only
