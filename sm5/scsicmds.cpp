@@ -43,12 +43,11 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.29 2003/04/01 06:24:27 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.30 2003/04/03 11:34:10 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
 
-#if 1
 /* output binary in hex and optionally ascii */
 static void dStrHex(const char* str, int len, int no_ascii)
 {
@@ -136,7 +135,6 @@ const char * scsi_get_opcode_name(UINT8 opcode)
     }
     return NULL;
 }
-#endif
 
 #if 1   
 /* Linux specific code, FreeBSD could conditionally compile in CAM stuff 
@@ -171,16 +169,25 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
 
     memcpy(wrk.buff, iop->cmnd, iop->cmnd_len);
     buff_offset = iop->cmnd_len;
-    if (con->reportscsiioctl) {
+    if (con->reportscsiioctl > 0) {
         int k;
         const unsigned char * ucp = iop->cmnd;
         const char * np;
 
-        pout(" [");
+        np = scsi_get_opcode_name(ucp[0]);
+        pout(" [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < iop->cmnd_len; ++k)
             pout("%02x ", ucp[k]);
-        np = scsi_get_opcode_name(ucp[0]);
-        pout(" %s", np ? np : "<unknown opcode>");
+        if ((con->reportscsiioctl > 1) && 
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            pout("]\n  Outgoing data, len=%d%s:\n", iop->dxfer_len,
+                 (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            pout("]");
     }
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
@@ -212,14 +219,22 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
     if (-1 == status) {
         if (con->reportscsiioctl)
-            pout("] status=-1, errno=%d\n", errno);
+            pout("  status=-1, errno=%d\n", errno);
         return -errno;
     }
     if (0 == status) {
-        if (DXFER_FROM_DEVICE == iop->dxfer_dir)
+        if (con->reportscsiioctl > 0)
+            pout("  status=0\n");
+        if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
             memcpy(iop->dxferp, wrk.buff, iop->dxfer_len);
-        if (con->reportscsiioctl)
-            pout("] status=0\n");
+            if (con->reportscsiioctl > 1) {
+                int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+                pout("  Incoming data, len=%d%s:\n", iop->dxfer_len,
+                     (trunc ? " [only first 256 bytes shown]" : ""));
+                dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+            }
+        }
         return 0;
     }
     iop->scsi_status = status & 0x7e; /* bits 0 and 7 used to be for vendors */
@@ -231,14 +246,18 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
 	iop->sensep && (len > 0)) {
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
+        if (con->reportscsiioctl > 1) {
+            pout("  >>> Sense buffer, len=%d:\n", len);
+            dStrHex(wrk.buff, len , 1);
+        }
     }
     if (con->reportscsiioctl) {
         if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-            pout("] status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
+            pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
                  wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
         }
         else
-            pout("] status=0x%x\n", status);
+            pout("  status=0x%x\n", status);
     }
     if (iop->scsi_status > 0)
         return 0;
@@ -758,8 +777,10 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
         case DEXCPT_DISABLE:
             tBuf[14] &= (~0x08) & 0xff;
             tBuf[15] = 0x04;
+#if 0
             /* >>>> try setting TEST bit */ tBuf[14] |= 0x4;
             tBuf[15] = 0x06;    /* mrie=='on request' */
+#endif
             break;
         case DEXCPT_ENABLE:
             tBuf[14] |= 0x08;
@@ -789,6 +810,9 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
         pout(" -> [2']=0x%x [3']=0x%x\n", tBuf[14], tBuf[15]);
     if (modeselect(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
+#if 0
+    // trial to see if TEST bit in mode pg 0x1c + mrie==6 work
+    // They do on my disks
     {
         struct scsi_sense_disect sinfo;
 
@@ -799,6 +823,7 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
             pout("on request: ecode=%x, key=%x, asc=%x, ascq=%x\n",
                  sinfo.error_code, sinfo.sense_key, sinfo.asc, sinfo.ascq);
     }
+#endif
     return 0;
 }
 
