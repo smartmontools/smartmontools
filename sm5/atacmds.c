@@ -1,4 +1,4 @@
-//  $Id: atacmds.c,v 1.11 2002/10/21 08:49:23 ballen4705 Exp $
+//  $Id: atacmds.c,v 1.12 2002/10/21 15:07:48 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <syslog.h>
+#include <errno.h>
 #include "atacmds.h"
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
@@ -140,7 +141,8 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   unsigned char parms[HDIO_DRIVE_CMD_HDR_SIZE+sizeof(*buf)]=
   {WIN_IDENTIFY, 0, 0, 1,};
   
-  if (ioctl(device ,HDIO_DRIVE_CMD,parms)){ 
+  if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
+    // See if device responds to packet command...
     parms[0]=WIN_PIDENTIFY;
     if (ioctl(device ,HDIO_DRIVE_CMD,parms)){
       perror ("ATA GET HD Identity Failed");
@@ -176,7 +178,7 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 // the version number.  See notes above.
 int ataVersionInfo (const char** description, struct hd_driveid drive){
   unsigned short major,minor;
-  int i,atavalue=0;
+  int i;
   
   // get major and minor ATA revision numbers
 #ifdef __NEW_HD_DRIVE_ID
@@ -205,11 +207,15 @@ int ataVersionInfo (const char** description, struct hd_driveid drive){
   // HDPARM has a very complicated algorithm from here on. Since SMART only
   // exists on ATA-3 and later standards, let's punt on this.  If you don't
   // like it, please fix it.  The code's in CVS.
-  for (i=1; i<16;i++ )
+  for (i=15; i>0; i--)
     if (major & (0x1<<i))
-      atavalue = i;
-  *description=NULL;
-  return atavalue;
+      break;
+  
+  *description=NULL; 
+  if (i==0)
+    return 1;
+  else
+    return i;;
 }
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
@@ -512,6 +518,7 @@ int ataSmartStatus2(int device){
 int ataSmartTest(int device, int testtype){	
   unsigned char parms[4] = {WIN_SMART, 0, SMART_IMMEDIATE_OFFLINE};
   char cmdmsg[128],*type,*captive;
+  int errornum;
 
   parms[1]=testtype;
 
@@ -536,10 +543,11 @@ int ataSmartTest(int device, int testtype){
   printf("Sending command: \"%s\".\n",cmdmsg);
 
   // Now send the command to test
-  if (ioctl(device , HDIO_DRIVE_CMD, parms)){
+  if ((errornum=ioctl(device , HDIO_DRIVE_CMD, parms)) && errornum!=EIO){
     char errormsg[128];
-    sprintf(errormsg,"Command \"%s\" failed.\n\n",cmdmsg); 
+    sprintf(errormsg,"Command \"%s\" failed.",cmdmsg); 
     perror (errormsg);
+    fprintf(stderr,"\n");
     return -1;
   }
   

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.10 2002/10/21 08:49:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.11 2002/10/21 15:07:47 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -29,8 +29,15 @@ NOTES FOR NEXT RELEASE:
 
 smartmontools-5.0-11
 
+    when starting self-tests in captive mode ioctl returns EIO because
+    the drive has been busied out.  Detect this and don't return an eror
+    in this case.  Check this this is correct (or how to fix it?)
+ 
+    fixed possible error in how to determine ATA standard support
+    for devices with no ATA minor revision number.
+
     device opened only in read-only not read-write mode.  Don't need R/W 
-    access to get smart data.
+    access to get smart data. Check this with Andre.
 
     smartctl now handles all possible choices of "multiple options"
     gracefully.  It goes through the following phases of operation,
