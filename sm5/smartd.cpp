@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.223 2003/10/26 02:20:40 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.224 2003/10/27 09:26:20 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -731,7 +731,8 @@ int ATADeviceScan(cfgfile *cfg){
   struct ata_identify_device drive;
   char *name=cfg->name;
   int retainsmartdata=0;
-  
+  int retid;
+
   // should we try to register this as an ATA device?
   if (!(cfg->tryata))
     return 1;
@@ -747,11 +748,17 @@ int ATADeviceScan(cfgfile *cfg){
   con->fixfirmwarebug = cfg->fixfirmwarebug;
 
   // Get drive identity structure
-  if (ataReadHDIdentity (fd,&drive)){
+  if ((retid=ataReadHDIdentity (fd,&drive))<0){
     // Unable to read Identity structure
     PrintOut(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",name);
     deviceclose(fd);
     return 2; 
+  }
+
+  if (retid){
+    PrintOut(LOG_INFO,"Device: %s, packet devices [this device %s] not SMART capable\n",
+	     name, packetdevicetype(retid-1));
+    return 2;
   }
 
   // Show if device in database, and use preset vendor attribute

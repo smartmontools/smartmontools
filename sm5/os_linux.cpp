@@ -59,7 +59,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.13 2003/10/21 16:22:23 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.14 2003/10/27 09:26:20 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -328,13 +328,36 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // for IDENTIFY command, check if device is a packet device, and if
   // it is, then we simulate a 'clean' error without calling the
   // lower-level ioctl that will generate a kernel error log message.
-  if (command==IDENTIFY){
-    unsigned char junk[512];
+  //
+  // To add some extra complexity, note that IDENTIFY PACKET DEVICE
+  // was only introduced in ATA-4 revision 1.  Before that, a packet
+  // device responds to IDENTIFY DEVICE.
+  //
+  // Byte 160: low order bits of IDENTIFY DEVICE word 80
+  if (command==IDENTIFY || command==PIDENTIFY){
+    unsigned char deviceid[512];
     const int HDIO_GET_IDENTITY=0x030d;
-    if (!ioctl(device, HDIO_GET_IDENTITY, junk) && (junk[1]>>7)) {
-      // device is PACKET device
-      errno = 5;
-      return -1;
+
+    // we first get the device identity, as seen when the system was
+    // booted or the device was FIRST registered.  This will not be
+    // current if the user has subsequently changed some of the
+    // parameters.
+    int getid=ioctl(device, HDIO_GET_IDENTITY, deviceid);
+
+    // If the IOCTL succeeded, and the device is ATAPI and not ATAPI 1-3...
+    if (
+	!getid                                            &&     // ioctl succeeded
+	deviceid[1]>>7                                    &&     // is Packet device
+	(deviceid[160] || deviceid[161])                  &&     // word 80 valid
+	(deviceid[160]!=0xff || deviceid[161]!=0xff)      &&     // word 80 valid
+        ((deviceid[160] & 0xf0) || (deviceid[161] & 0x8f))       // is ATA-4 through 14
+      ) {
+      // then swap the IDENTIFY and PIDENTIFY commands
+      if (command==IDENTIFY)
+	buff[0]=WIN_PIDENTIFY;
+      
+      if (command==PIDENTIFY)
+	buff[0]=WIN_IDENTIFY;      
     }
   }
 #endif

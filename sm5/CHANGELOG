@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.227 2003/10/27 00:30:08 pjwilliams Exp $
+$Id: CHANGELOG,v 1.228 2003/10/27 09:26:20 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Improved algorithm to recognize ATA packet devices. Should
+       no longer generate SYSLOG kernel noise when user tries either
+       smartd or smartctl on packet device (CD-ROM or DVD).  Clearer
+       warning messages from smartd when scanning ATA packet device.
 
   [PW] Added TOSHIBA MK4025GAS to knowndrives table.
 
