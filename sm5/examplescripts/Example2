@@ -8,13 +8,13 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example2,v 1.2 2003/02/12 20:01:45 ballen4705 Exp $
+# $Id: Example2,v 1.3 2003/08/05 11:15:54 ballen4705 Exp $
 
 # Save the email message (STDIN) to a file:
 cat > /root/msg
 
 # Append the output of smartctl -a to the message:
-/usr/sbin/smartctl -a $SMARTD_DEVICE >> /root/msg
+/usr/sbin/smartctl -a -d $SMARTD_DEVICETYPE $SMARTD_DEVICE >> /root/msg
 
 # Now email the message to the user at address ADD:
 /bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg

@@ -8,7 +8,7 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example1,v 1.2 2003/02/12 20:01:45 ballen4705 Exp $
+# $Id: Example1,v 1.3 2003/08/05 11:15:54 ballen4705 Exp $
 
 # Save standard input into a temp file
 cat > /root/tempfile
@@ -22,17 +22,18 @@ echo "Command line argument 3:" >> /root/tempfile
 echo $3 >> /root/tempfile
 
 # Echo environment variables into a temp file
-echo "Variables are":      >> /root/tempfile
-echo "$SMARTD_DEVICE"      >> /root/tempfile
-echo "$SMARTD_DEVICETYPE"  >> /root/tempfile
-echo "$SMARTD_MESSAGE"     >> /root/tempfile
-echo "$SMARTD_ADDRESS"     >> /root/tempfile
-echo "$SMARTD_SUBJECT"     >> /root/tempfile
-echo "$SMARTD_TFIRST"      >> /root/tempfile
-echo "$SMARTD_TFIRSTEPOCH" >> /root/tempfile
+echo "Variables are":       >> /root/tempfile
+echo "$SMARTD_DEVICE"       >> /root/tempfile
+echo "$SMARTD DEVICESTRING" >> /root/tempfile
+echo "$SMARTD_DEVICETYPE"   >> /root/tempfile
+echo "$SMARTD_MESSAGE"      >> /root/tempfile
+echo "$SMARTD_ADDRESS"      >> /root/tempfile
+echo "$SMARTD_SUBJECT"      >> /root/tempfile
+echo "$SMARTD_TFIRST"       >> /root/tempfile
+echo "$SMARTD_TFIRSTEPOCH"  >> /root/tempfile
 
 # Run smartctl -a and save output in temp file
-/usr/sbin/smartctl -a $SMARTD_DEVICE >> /root/tempfile
+/usr/sbin/smartctl -a -d $SMARTD_DEVICETYPE $SMARTD_DEVICE >> /root/tempfile
 
 # Email the contents of the temp file
 /bin/mail -s "SMART errors detected on host: `hostname`" $SMARTD_ADDRESS < /root/tempfile > /dev/null 2> /dev/null

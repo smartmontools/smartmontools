@@ -8,10 +8,10 @@
 # Please see man 8 smartd or man 5 smartd.conf for further
 # information.
 #
-# $Id: Example3,v 1.2 2003/02/12 20:01:45 ballen4705 Exp $
+# $Id: Example3,v 1.3 2003/08/05 11:15:54 ballen4705 Exp $
 
 # Warn all users of a problem     
-wall 'Problem detected with disk: ' $SMARTD_DEVICE      
+wall 'Problem detected with disk: ' "$SMARTD_DEVICESTRING"    
 wall 'Warning message from smartd is: ' "$SMARTD_MESSAGE"      
 wall 'Shutting down machine in 30 seconds... '
 

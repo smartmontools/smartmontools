@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.53 2003/08/05 10:07:35 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.54 2003/08/05 11:15:54 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/08/05 10:07:35 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/08/05 11:15:54 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -442,7 +442,17 @@ is set to the device path (examples: /dev/hda, /dev/sdb).
 .nf
 .fi
 .B SMARTD_DEVICETYPE
-is set to the device type (possible values: ata, scsi).
+is set to the device type (possible values: ata, scsi, 3ware,N). Here
+N=0,...,15 denotes the ATA disk behind a 3ware RAID controller.
+.nf
+.fi
+.B SMARTD_DEVICESTRING
+is set to the device description.  For SMARTD_DEVICETYPE of ata or
+scsi, this is the same as SMARTD_DEVICE.  For 3ware RAID controllers,
+the form used is \'/dev/sdc [3ware_disk_01]\'. In this case the device
+string contains a space and is NOT quoted.  So to use
+$SMARTD_DEVICESTRING in a bash script you should probably enclose it
+in double quotes.
 .nf
 .fi
 .B SMARTD_FAILTYPE
@@ -857,9 +867,9 @@ to the output of the smartd email warning message and sends it to ADDRESS.
 
 .B # Save the email message (STDIN) to a file:
 .B cat > /root/msg
- 
+ \(dq
 .B # Append the output of smartctl -a to the message:
-.B /usr/sbin/smartctl -a $SMARTD_DEVICE >> /root/msg
+.B /usr/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
  
 .B # Now email the message to the user at address ADD:
 .B /bin/mail -s \(dq$SMARTD_SUBJECT\(dq $SMARTD_ADDRESS < /root/msg
@@ -873,7 +883,7 @@ then powers down the machine.
 .B #! /bin/bash
 
 .B # Warn all users of a problem
-.B wall 'Problem detected with disk: ' $SMARTD_DEVICE
+.B wall 'Problem detected with disk: ' \(dq$SMARTD_DEVICESTRING\(dq
 .B wall 'Warning message from smartd is: ' \(dq$SMARTD_MESSAGE\(dq
 .B wall 'Shutting down machine in 30 seconds... '
  
@@ -935,4 +945,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.53 2003/08/05 10:07:35 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.54 2003/08/05 11:15:54 ballen4705 Exp $
