@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.162 2003/05/06 03:41:04 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.163 2003/05/06 07:57:05 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -764,8 +764,12 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
         return 1;
     // open the device
     if ((fd = opendevice(device, O_RDWR | O_NONBLOCK)) < 0) {
+#ifdef SCSIDEVELOPMENT
+        printout(LOG_WARNING, "Device: %s, skip\n", device);
+        return 0;
+#else
         return 1;
-        /* printout(LOG_WARNING, "Device: %s, skip\n", device); */
+#endif
     }
     printout(LOG_INFO,"Device: %s, opened\n", device);
   
@@ -778,7 +782,11 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 	printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
 		 device, err);
       close(fd);
+#ifdef SCSIDEVELOPMENT
+      return 0;
+#else
       return 2; 
+#endif
     }
   
     if ((err = scsiFetchIECmpage(fd, &iec))) {
