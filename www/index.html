@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/26 20:05:21 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/26 21:31:59 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.132 2004/02/26 20:05:21 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.133 2004/02/26 21:31:59 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -336,18 +336,14 @@ If you are using a 3ware RAID controller, please see below for information
 about the correct <tt>3w-xxxx</tt> module/driver version.</p>
 </li>
 
-<li><b>What attributes does smartmontools not yet recognize?</b>
+<li><b>What Attributes does smartmontools not yet recognize?</b>
 
-<p>From Maxtor disks (99), (100), and (101).
+<p>From Maxtor disks (99), (100), and (101).  These are not used by
+Maxtor in SMART revision 5.  They will be used in SMART revision 6,
+but the engineering group has not yet decided what to monitor with
+these Attributes.
 </p>
-
-<p>If you can attach names/meanings to these attributes, please send a
-note to <a
-href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
-smartmontools-support</a>.  If you have access to other
-SMART utilities (especially manufacturer-specific ones, see
-below) and can send us comparison output from smartctl and the other
-utility, that's especially useful.</p></li>
+</li>
 
 <li><b>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet smartctl reports its age (Attribute 9) as thousands of hours!</b>
 
@@ -369,13 +365,12 @@ option to correctly display hours, minutes and seconds.</p>
 </p>
 
 <p>
-<b>1 - </b>
-On some disks from 2001/2002, the raw value of Attribute 9 (Power On
-Time) is <i>supposed</i> to be minutes. But it advances at an
-unpredictable rate, always more slowly than one count per minute.  One
-(unconfirmed) theory is that when the disk is in idle mode, the
-counter stops advancing.  This is only supposed to happen in standby
-mode.
+<b>1 - </b> On some Maxtor disks, the raw value of Attribute 9 (Power
+On Time) is <i>supposed</i> to be minutes. But it advances at an
+unpredictable rate, always more slowly than one count per minute.
+This is because when the disk is in idle mode, the counter stops
+advancing.  This is only supposed to happen in standby mode.  This
+will be corrected in Maxtor product lines released after October 2004.
 </p>
 
 <p>
@@ -396,6 +391,19 @@ in these logs advance 7% more slowly than they should.  Thus, if you
 do self-tests once per week at the same time, instead of the
 time-stamps being 168 hours apart, they are 157 hours apart.  This is
 also fixed in all Maxtor disks manufactured after July 2003.
+</p>
+</li>
+
+<li><b>The time stamps in the self-test log of my Western Digital disk
+don't correspond to the power-on time when the test was run</b>
+
+<p>
+The self-test log timestamps in some WD disks roll back to zero every
+1092 hours.  Since this is 2^16 = 65536 minutes, this problem is
+probably due to a firmware bug where the power-on hours lifetime for
+the self-test log is calculated by putting the lifetime in minutes
+into a two-byte register, then dividing by 60.  The two-byte register
+wraps around once every 1092 hours.
 </p>
 </li>
 
@@ -981,8 +989,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/26 20:05:21 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.132 2004/02/26 20:05:21 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/02/26 21:31:59 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.133 2004/02/26 21:31:59 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
