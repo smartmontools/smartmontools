@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.72 2004/07/16 15:49:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.73 2004/07/31 20:15:29 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -862,6 +862,11 @@ Note that by default under Solaris, in the previous paragraph,
 \'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
 argument.
 
+On Windows, the \'\fBBlat\fP\' mailer
+(\fBhttp://blat.sourceforge.net/\fP) is used by default.
+This mailer uses a different command line syntax, see
+\'\-M exec\' below.
+
 Note also that there is a special argument
 .B <nomailer>
 which can be given to the \'\-m\' Directive in conjunction with the \'\-M
@@ -875,10 +880,13 @@ you have mail problems, we recommend running \fBsmartd\fP in debug
 mode with the \'-d\' flag, using the \'-M test\' Directive described
 below.
 
-Windows: The mail warning facility is not implemented yet.
-By specifying \'\fB-m msgbox\fP\', a warning "email" is displayed
-as a message box on the screen. With \'\fB-m sysmsgbox\fP\', a system
-modal (always on top) message box is used.
+The following extension is available on Windows:
+By specifying \'\fBmsgbox\fP\' as a mail address, a warning
+"email" is displayed as a message box on the screen.
+Using both \'\fBmsgbox\fP\' and regular mail addresses is possible, if
+'\fBmsgbox\fP\' is the first word in the comma separated list.
+With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
+is used.
 
 .TP
 .B \-M TYPE
@@ -1046,6 +1054,12 @@ that would normally be provided to \'mail\'.  Examples include:
 .B -m root -M exec /Example_1/bash/script/below
 .fi
 
+Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
+used:
+.nf
+- -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
+.fi
+
 If the \'\-m ADD\' Directive is given with the special address argument
 .B <nomailer>
 then the executable pointed to by PATH is run in a shell with
@@ -1064,10 +1078,6 @@ discarded.
 Some EXAMPLES of scripts that can be used with the \'\-M exec\'
 Directive are given below. Some sample scripts are also included in
 /usr/share/doc/smartmontools-5.1/examplescripts/.
-
-Windows: \'-M exec\' is not implemented yet.
-The other \'-M\' directives work in conjunction with the display of
-warning message boxes by \'-m msgbox\' or \'-m sysmsgbox\' (see above).
 
 .TP
 .B \-f
@@ -1703,4 +1713,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.72 2004/07/16 15:49:56 ballen4705 Exp $
+$Id: smartd.8.in,v 1.73 2004/07/31 20:15:29 chrfranke Exp $
