@@ -25,15 +25,17 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.33 2004/01/27 15:29:16 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.34 2004/03/04 13:23:05 ballen4705 Exp $\n"
 
 // For development and testing of Selective self-test code
 #define DEVELOP_SELECTIVE_SELF_TEST 0
 
-// Possible values for fixfirmwarebug
-#define FIX_NONE             0
-#define FIX_SAMSUNG          1
-#define FIX_SAMSUNG2         2
+// Possible values for fixfirmwarebug.  If use has NOT specified -F at
+// all, then value is 0.
+#define FIX_NOTSPECIFIED     0
+#define FIX_NONE             1
+#define FIX_SAMSUNG          2
+#define FIX_SAMSUNG2         3
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to

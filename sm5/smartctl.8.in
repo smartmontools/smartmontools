@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.31 2004/03/04 05:40:48 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.32 2004/03/04 13:23:05 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -738,7 +738,8 @@ option are:
 
 .I none
 Assume that the device firmware obeys the ATA specifications.  This is
-the default.
+the default, unless the device has presets for \'\-F\' in the device
+database (see note below).
 
 .I samsung
 In some Samsung disks (example: model SV4012H Firmware Version:
@@ -754,6 +755,10 @@ are (1) no self-test log printed, even though you have run self-tests;
 In more recent Samsung disks (firmware revisions ending in "\-23") the
 number of ATA errors reported is byte swapped.  Enabling this option
 tells \fBsmartctl\fP to evaluate this quantity in byte-reversed order.
+
+Note that an explicit \'\-F\' option on the command line will
+over-ride any preset values for \'\-F\' (see the \'\-P\' option
+below).
 
 .TP
 .B \-P TYPE, \-\-presets=TYPE
@@ -787,7 +792,8 @@ The valid arguments to this option are:
 .I use
 \- if a drive is recognized, then use the stored presets for it.  This
 is the default. Note that presets will NOT over-ride additional
-Attribute interpretation (\'-v N,something\') command-line options.
+Attribute interpretation (\'-v N,something\') command-line options or
+explicit \'\-F\' command-line options..
 
 .I ignore
 \- do not use presets.
@@ -1067,4 +1073,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.31 2004/03/04 05:40:48 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.32 2004/03/04 13:23:05 ballen4705 Exp $

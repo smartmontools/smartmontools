@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.91 2004/03/03 23:29:00 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.92 2004/03/04 13:23:05 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -769,7 +769,7 @@ void showpresets(const struct ata_identify_device *drive){
 // already been set in opts will not be changed.  Returns <0 if drive
 // not recognized else index >=0 into drive database.
 int applypresets(const struct ata_identify_device *drive, unsigned char **optsptr,
-                  smartmonctrl *con) {
+		 smartmonctrl *con) {
   int i;
   unsigned char *opts;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
@@ -784,32 +784,39 @@ int applypresets(const struct ata_identify_device *drive, unsigned char **optspt
   }
   
   opts=*optsptr;
-
+  
   // get the drive's model/firmware strings
   formatdriveidstring(model, (char *)drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, (char *)drive->fw_rev, FIRMWARE_STRING_LENGTH);
-
-  // Look up the drive in knowndrives[] and check vendoropts is non-NULL.
-  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {
-    const unsigned char (* presets)[2];
-
-    // For each attribute in list of attribute/val pairs...
-    presets = knowndrives[i].vendoropts;
-    while (1) {
-      const int attr = (*presets)[0];
-      const int val  = (*presets)[1];
-
-      if (!attr)  
-        break;
-
-      // ... set attribute if user hasn't already done so.
-      if (!opts[attr])
-        opts[attr] = val;
-      presets++;
+  
+  // Look up the drive in knowndrives[].
+  if ((i = lookupdrive(model, firmware)) >= 0) {
+    
+    // if vendoropts is non-NULL then Attribute interpretation presets
+    if (knowndrives[i].vendoropts) {
+      const unsigned char (* presets)[2];
+      
+      // For each attribute in list of attribute/val pairs...
+      presets = knowndrives[i].vendoropts;
+      while (1) {
+	const int attr = (*presets)[0];
+	const int val  = (*presets)[1];
+	
+	if (!attr)  
+	  break;
+	
+	// ... set attribute if user hasn't already done so.
+	if (!opts[attr])
+	  opts[attr] = val;
+	presets++;
+      }
     }
-
-    // If a function is defined for this drive then call it.
-    if (knowndrives[i].specialpurpose)
+    
+    // If a special-purpose function is defined for this drive then
+    // call it.  We might call a special purpose function even if now
+    // Attribute interpretation presets are set.  We ONLY call this
+    // function if the user has NOT already specified a '-F' option.
+    if (knowndrives[i].specialpurpose && con->fixfirmwarebug==FIX_NOTSPECIFIED)
       (*knowndrives[i].specialpurpose)(con);
   }
   
