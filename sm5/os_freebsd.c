@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.42 2004/09/04 15:56:09 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.43 2004/09/04 22:11:55 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.42 2004/09/04 15:56:09 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.43 2004/09/04 22:11:55 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -484,20 +484,20 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data) {
-
-  if (disknum < 0) {
-    printwarning(NO_DISK_3WARE,NULL);
-    return -1;
-  }
-
   // to hold true file descriptor
   struct freebsd_dev_channel* con;
 
   // return value and buffer for ioctl()
   int  ioctlreturn, readdata=0;
+  struct twe_usercommand* cmd = NULL;
 
   // Used by both the SCSI and char interfaces
   char ioctl_buffer[sizeof(struct twe_usercommand)];
+
+  if (disknum < 0) {
+    printwarning(NO_DISK_3WARE,NULL);
+    return -1;
+  }
 
   // check that "file descriptor" is valid
   if (isnotopen(&fd,&con))
@@ -505,7 +505,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 
   memset(ioctl_buffer, 0, sizeof(struct twe_usercommand));
 
-  struct twe_usercommand* cmd = (struct twe_usercommand*)ioctl_buffer;
+  cmd = (struct twe_usercommand*)ioctl_buffer;
   cmd->tu_command.ata.opcode = TWE_OP_ATA_PASSTHROUGH;
 
   // Same for (almost) all commands - but some reset below
