@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.315 2004/01/05 11:38:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.316 2004/01/05 11:42:32 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -25,7 +25,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
-  [BA] Added all missing IBM/Hitachi Deskstart 180GXP models to knowndrives
+  [BA] Added all missing IBM/Hitachi Deskstar 180GXP models to knowndrives
        table.
 
   [PW] Added some missing IBM/Hitachi Deskstar 120GXP models to knowndrives
