@@ -90,7 +90,7 @@ typedef int pid_t;
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.296 2004/03/22 04:36:59 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.297 2004/03/24 21:13:51 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -100,7 +100,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.296 2004/03/22 04:36:59 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.297 2004/03/24 21:13:51 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -542,7 +542,6 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   mail->lastsent=epoch;
   
   // get system host & domain names (not null terminated if length=MAX) 
-
   if (gethostname(hostname, 256))
     sprintf(hostname,"Unknown host");
   else
@@ -697,6 +696,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     else {
       // mail process apparently succeeded. Check and report exit status
       int status8;
+
       if (WIFEXITED(status)) {
 	// exited 'normally' (but perhaps with nonzero status)
 	status8=WEXITSTATUS(status);
@@ -966,10 +966,16 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Display this help and exit\n\n");
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
-#if !(defined(_WIN32) || defined(__CYGWIN__)) // facility ignored
   PrintOut(LOG_INFO,"  -l local[0-7], --logfacility=local[0-7]\n");
+#if !(defined(_WIN32) || defined(__CYGWIN__))
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 or daemon [default]\n\n");
+#else
+#ifdef _WIN32
+  PrintOut(LOG_INFO,"        Log to file \"./smartd.log\", \"./smartd[1-7].log\" [default is event log]\n\n");
+#else
+  PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 (ignored on Cygwin)\n\n");
 #endif
+#endif // __WIN32 || __CYGWIN__
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
@@ -983,9 +989,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
   PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
   PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
-#if !(defined(_WIN32) || defined(__CYGWIN__))
   PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7, or daemon\n");
-#endif
   PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));

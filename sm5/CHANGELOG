@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.376 2004/03/23 13:08:40 ballen4705 Exp $
+$Id: CHANGELOG,v 1.377 2004/03/24 21:13:51 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,7 +26,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
-  
+
+  [CF] Added minor support for option "-l local[0-7]" to Win32 native
+       (not Cygwin) version of smartd. If specified, the log output
+       is written to file "./smartd[1-7]?.log" instead of event log.
+
   [BA] Added Selective Self-test to smartctl (-t selective,M-N).
        Currently only supported under Linux; Solaris, NetBSD, FreeBSD
        and Windows developers must add WRITE LOG functionality to
