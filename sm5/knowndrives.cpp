@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.11 2003/04/17 19:21:49 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.12 2003/04/17 20:59:00 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -76,7 +76,7 @@ void specialpurpose_reverse_samsung(smartmonctrl *con)
  * for distinct entries that could match the same drive. */
 const drivesettings knowndrives[] = {
   /*------------------------------------------------------------
-   *  IBM Deskstar 60GXP series   
+   *  IBM Deskstar 60GXP series
    *------------------------------------------------------------ */
   {
     "IC35L0[12346]0AVER07$", // Phil -- please confirm $ and remove comment
@@ -122,7 +122,18 @@ const drivesettings knowndrives[] = {
     NULL
   },
   /*------------------------------------------------------------
-   *  Samsung SV4012H (all firmware)
+   *  Samsung SV4012H (known firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV4012H$",
+    "^RM100-08",
+    NULL,
+    vendoropts_Samsung_SV4012H,
+    specialpurpose_reverse_samsung,
+    "Fixes byte order in some SMART data (same as -F)"
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV4012H (all other firmware)
    *------------------------------------------------------------ */
   {
     "^SAMSUNG SV4012H$",
@@ -133,7 +144,18 @@ const drivesettings knowndrives[] = {
     "Fixes byte order in some SMART data (same as -F)"
   },
   /*------------------------------------------------------------
-   *  Samsung SV1204H (all firmware)
+   *  Samsung SV1204H (known firmware)
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG SV1204H$",
+    "^RK100-1[3-5]$",
+    NULL,
+    vendoropts_Samsung_SV1204H,
+    specialpurpose_reverse_samsung,
+    "Fixes byte order in some SMART data (same as -F)"
+  },
+  /*------------------------------------------------------------
+   *  Samsung SV1204H (all other firmware)
    *------------------------------------------------------------ */
   {
     "^SAMSUNG SV1204H$",
@@ -151,7 +173,7 @@ const drivesettings knowndrives[] = {
     ".*",
     "Samsung drives may need -F enabled.\n"
     "Please contact the smartmontools developers\n"
-    "to say if this is or is not the case.\n",
+    "to say if this is (or is not) the case.\n",
     NULL,
     NULL,
     NULL
@@ -190,19 +212,30 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL
   },
+#if (1)
   /*------------------------------------------------------------
    *  Phil's IBM Deskstar 120GXP (FOR TESTING)
    *------------------------------------------------------------ */
-/*
   {
     "^IC35L060AVVA07-0$",
     NULL,
-    "Hey, you've got an IBM Deskstar 120GXP!\n",
+    NULL,
     NULL,
     NULL,
     NULL,
   },
-*/
+#endif
+#if (1)
+  // Bruce's laptop TOSHIBA MK6021GAS for testing
+  {
+    "^TOSHIBA MK6021GAS$",
+    ".*",
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+  },
+#endif
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
@@ -260,8 +293,8 @@ void showonepreset(const drivesettings *drivetable){
   
   // Basic error check
   if (!drivetable || !drivetable->modelregexp){
-    pout("Null known drive table pointer\n"
-	 "Please report this error to smartmontools developers\n");
+    pout("Null known drive table pointer. Please report\n"
+	 "this error to smartmontools developers.\n");
     return;
   }
   
@@ -283,12 +316,12 @@ void showonepreset(const drivesettings *drivetable){
     // Use leading zeros instead of spaces so that everything lines up.
     out[0] = (out[0] == ' ') ? '0' : out[0];
     out[1] = (out[1] == ' ') ? '0' : out[1];
-      pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
-      first_preset = 0;
-      presets++;
+    pout("%-*s %s\n", width, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
+    first_preset = 0;
+    presets++;
   }
   
-    // Is a special purpose function defined?  If so, describe it
+  // Is a special purpose function defined?  If so, describe it
   if (drivetable->specialpurpose){
     pout("%-*s ", width, "OTHER PRESETS:");
     pout("%s\n", drivetable->functiondesc ?
@@ -301,13 +334,15 @@ void showonepreset(const drivesettings *drivetable){
     pout("%-*s ", width, "WARNINGS:");
     pout("%s\n", drivetable->warningmsg);
   }
- 
+  
   return;
 }
 
 void showallpresets(void){
   int i;
 
+  // loop over all entries in the knowndrives[] table, printing them
+  // out in a nice format
   for (i=0; knowndrives[i].modelregexp; i++){
     showonepreset(&knowndrives[i]);
     pout("\n");
@@ -315,17 +350,18 @@ void showallpresets(void){
   return;
 }
 
-
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const struct hd_driveid *drive)
-{
+void showpresets(const struct hd_driveid *drive){
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
+  // get the drive's model/firmware strings
   formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
-
+  
+  // and search to see if they match values in the table
   if ((i = lookupdrive(model, firmware)) < 0) {
+    // no matches found
     pout("No presets are defined for this drive.  Its identity strings:\n"
 	 "MODEL:    %s\n"
 	 "FIRMWARE: %s\n"
@@ -334,12 +370,13 @@ void showpresets(const struct hd_driveid *drive)
 	 model, firmware);
     return;
   }
-    
+  
+  // We found a matching drive.  Print out all information about it.
   pout("Match found!  Drive identity strings:\n"
-	 "MODEL:    %s\n"
-	 "FIRMWARE: %s\n"
-	 "match drive table entry:\n\n",
-	 model, firmware);
+       "MODEL:    %s\n"
+       "FIRMWARE: %s\n"
+       "match drive table entry:\n\n",
+       model, firmware);
   showonepreset(&knowndrives[i]);
   return;
 }
@@ -348,11 +385,11 @@ void showpresets(const struct hd_driveid *drive)
 // for the given drive in knowndrives[].  Values that have already been set in
 // opts will not be changed.
 void applypresets(const struct hd_driveid *drive, unsigned char opts[256],
-                  smartmonctrl *con)
-{
+                  smartmonctrl *con) {
   int i;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-
+  
+  // get the drive's model/firmware strings
   formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
   formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
 

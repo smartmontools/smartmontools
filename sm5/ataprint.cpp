@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.78 2003/04/17 14:56:48 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.79 2003/04/17 20:58:59 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -102,23 +102,8 @@ void printswap(char *output, char *in, unsigned int n){
     pout("[No Information Found]\n");
 }
 
-// Issues a warning, if appropriate, about the drive with the given model.
-void drivewarning(const char *model, const char *firmware) {
-  int i;
-
-  // For testing
-  //strcpy(model,"IC35L040AVER07-0");
-  //strcpy(model,"IBM-DTLA-305040");
-  //strcpy(model,"DTLA-305040");
-
-  if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].warningmsg)
-    // model and firmware matched regular expressions in knowndrives[i] and
-    // there is a warning so print it.
-    pout("\n==> WARNING: %s\n\n", knowndrives[i].warningmsg);
-}
-
 void ataPrintDriveInfo (struct hd_driveid *drive){
-  int version;
+  int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[64];
   unsigned short minorrev;
@@ -157,11 +142,19 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
   pout("ATA Version is:   %d\n",(int)abs(version));
   pout("ATA Standard is:  %s\n",description);
   
+  // See if drive is recognized
+  drivetype=lookupdrive(model, firm);
+  pout("Drive Model is:   %s\n", drivetype<0?
+       "Not listed in smartmontools database":
+       "Recognized in smartmontools database");
+
   // print current time and date and timezone
   dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);
 
-  drivewarning(model, firm);
+  // Print warning message, if there is one
+  if (drivetype>=0 && knowndrives[drivetype].warningmsg)
+    pout("\n==> WARNING: %s\n\n", knowndrives[drivetype].warningmsg);
 
   if (version>=3)
     return;
