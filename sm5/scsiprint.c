@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.35 2003/04/17 07:41:41 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.36 2003/04/18 00:12:09 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -156,7 +156,8 @@ void scsiGetStartStopData(int device)
 {
     UINT32 currentStartStop;
     UINT32 recommendedStartStop; 
-    int err;
+    int err, len, k;
+    char str[6];
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_PAGE, gBuf,
                             LOG_RESP_LEN))) {
@@ -167,13 +168,26 @@ void scsiGetStartStopData(int device)
          pout("StartStop Log Sense Failed\n");
          return;
     }
-    recommendedStartStop= gBuf[28]<< 24 | gBuf[29] << 16 |
-                                       gBuf[30] << 8 | gBuf[31];
-    currentStartStop= gBuf[36]<< 24 | gBuf[37] << 16 |
-                                       gBuf[38] << 8 | gBuf[39];
-
-    pout("Current start stop count:      %u times\n", currentStartStop);
-    pout("Recommended start stop count:  %u times\n", recommendedStartStop);
+    len = ((gBuf[2] << 8) | gBuf[3]) + 4;
+    if (len > 13) {
+        for (k = 0; k < 2; ++k)
+            str[k] = gBuf[12 + k];
+        str[k] = '\0';
+        pout("Manufactured in week %s of year ", str);
+        for (k = 0; k < 4; ++k)
+            str[k] = gBuf[8 + k];
+        str[k] = '\0';
+        pout("%s\n", str);
+    }
+    if (len > 39) {
+        recommendedStartStop = (gBuf[28] << 24) | (gBuf[29] << 16) |
+                               (gBuf[30] << 8) | gBuf[31];
+        currentStartStop = (gBuf[36] << 24) | (gBuf[37] << 16) |
+                           (gBuf[38] << 8) | gBuf[39];
+        pout("Current start stop count:      %u times\n", currentStartStop);
+        pout("Recommended start stop count:  %u times\n", 
+             recommendedStartStop);
+    }
 } 
 
 static void scsiPrintErrorCounterLog(int device)
