@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.127 2004/09/26 23:30:11 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.128 2004/10/03 20:49:17 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -190,7 +190,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Fujitsu MPG series",
-    "^FUJITSU MPG3(102A(H|T  E)|204A(H|[HT]  E)|307A(H  E|T)|409A[HT]  E)$",
+    "^FUJITSU MPG3(102A(H|T  E)|153AH|204A(H|[HT]  E)|307A(H  E|T)|409A[HT]  E)$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -358,6 +358,13 @@ const drivesettings knowndrives[] = {
     vendoropts_Maxtor_4D080H4,
     NULL, NULL
   },
+  { "Maxtor Fireball 3 family",
+    "^Maxtor 2F0[234]0[JL]0$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { "Maxtor DiamondMax 3400 Ultra ATA family",
     "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8|1010E6|0840E5|0640E4)$",
     ".*",
@@ -402,7 +409,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor DiamondMax 16 family",
-    "^Maxtor 4(R0[68]0[JL]|R1[26]0L|A160J)0$",
+    "^Maxtor 4(R0[68]0[JL]0|R1[26]0L0|A160J0|R120L4)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -522,6 +529,13 @@ const drivesettings knowndrives[] = {
   },
   { "HITACHI Travelstar DK23XX/DK23XXB series",
     "^HITACHI_DK23..-..B?$",
+    ".*",
+    NULL,
+    vendoropts_Hitachi_DK23XX,
+    NULL, NULL
+  },
+  { "Hitachi Endurastar J4K20/N4K20 (formerly DK23FA-20J)",
+    "^(HITACHI_DK23FA-20J|HTA422020F9AT[JN]0)$",
     ".*",
     NULL,
     vendoropts_Hitachi_DK23XX,
@@ -647,6 +661,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate Momentus family",
+    "^ST9(20|28|40|48)11A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate Medalist 8641 family",
     "^ST3(2110|3221|4312|6531|8641)A$",
     ".*",
@@ -688,7 +707,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda ATA IV family",
-    "^ST3(20011|40016|60021|80021)A$",
+    "^ST3(20011|30011|40016|60021|80021)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -743,7 +762,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "^WDC WD(64|84|102|136|205|272|307)AA(-.*)?$",
+    "^WDC WD...?AA(-.*)?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -753,7 +772,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "^WDC WD(102|136|153|205)BA$",
+    "^WDC WD...BA$",
     ".*",
     NULL, NULL, NULL, NULL
   },
