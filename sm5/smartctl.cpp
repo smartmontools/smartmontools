@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.87 2003/08/18 07:10:41 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.88 2003/08/27 21:16:20 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -186,7 +186,7 @@ void Usage (void){
   printf(
 "  -t TEST, --test=TEST\n"
 #if DEVELOP_SELECTIVE_SELF_TEST
-"        Run test.  TEST is: offline, short, long, conveyance, selective\n\n"
+"        Run test.  TEST is: offline, short, long, conveyance, selective,M-N\n\n"
 #else
 "        Run test.  TEST is: offline, short, long, conveyance\n\n"
 #endif
@@ -204,7 +204,7 @@ void Usage (void){
 #else
   printf(
 #if DEVELOP_SELECTIVE_SELF_TEST
-"  -t TEST   Run test.  TEST is: offline, short, long, conveyance, selective\n"
+"  -t TEST   Run test.  TEST is: offline, short, long, conveyance, selective,M-N\n"
 "  -C        With -t, do test in captive mode (short/long/conveyance/selective)\n"
 #else
 "  -t TEST   Run test.  TEST is: offline, short, long, conveyance\n"
@@ -262,7 +262,7 @@ const char *getvalidarglist(char opt) {
     return "use, ignore, show, showall";
   case 't':
 #if DEVELOP_SELECTIVE_SELF_TEST
-    return "offline, short, long, conveyance, selective";
+    return "offline, short, long, conveyance, selective,M-N";
 #else
     return "offline, short, long, conveyance";
 #endif
@@ -594,9 +594,30 @@ void ParseOpts (int argc, char** argv){
         con->smartconveyanceselftest = TRUE;
         con->testcase            = CONVEYANCE_SELF_TEST;
 #if DEVELOP_SELECTIVE_SELF_TEST
-      } else if (!strcmp(optarg,"selective")) {
-        con->smartselectiveselftest = TRUE;
-        con->testcase            = SELECTIVE_SELF_TEST;
+      } else if (!strncmp(optarg,"selective",strlen("selective"))) {
+        unsigned long long start, stop;
+
+        if (split_selective_arg(optarg, &start, &stop)) {
+          badarg = TRUE;
+        } else {
+          if (con->smartselectivenumspans >= 5 || start > stop) {
+            con->veryquietmode=FALSE;
+            printslogan();
+            if (start > stop) {
+              pout("ERROR: Start LBA > ending LBA in argument \"%s\"\n",
+                optarg);
+            } else {
+              pout("ERROR: No more than five selective self-test spans may be"
+                " defined\n");
+            }
+            pout("\nUse smartctl -h to get a usage summary\n\n");
+            exit(FAILCMD);
+          }
+          con->smartselectivespan[con->smartselectivenumspans][0] = start;
+          con->smartselectivespan[con->smartselectivenumspans][1] = stop;
+          con->smartselectivenumspans++;
+          con->testcase            = SELECTIVE_SELF_TEST;
+        }
 #endif
       } else {
         badarg = TRUE;

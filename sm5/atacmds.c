@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.115 2003/08/13 12:33:22 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.116 2003/08/27 21:16:19 pjwilliams Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1185,6 +1185,22 @@ int ataSmartTest(int device, int testtype){
     type="Selective self-test";
   else
     type="[Unrecognized] self-test";
+
+#if DEVELOP_SELECTIVE_SELF_TEST
+  // There isn't actually any code to write the selective self-test spans to
+  // the log yet (or at least I haven't found it yet if there is :-), so bail
+  // out here.
+  if (type=="Selective self-test") {
+    int i;
+    pout("There isn't code to run the selective self-tests yet, but if\n");
+    pout("there were then the following spans would be used:\n");
+    for (i = 0; i < con->smartselectivenumspans; i++) {
+      pout("%lld - %lld\n", con->smartselectivespan[i][0],
+                            con->smartselectivespan[i][1]);
+    }
+    return 0;
+  }
+#endif
     
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)

@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.11 2003/08/04 12:58:40 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.12 2003/08/27 21:16:20 pjwilliams Exp $\n"
 #endif
 
 #include <time.h>
@@ -64,6 +64,9 @@ int compileregex(regex_t *compiled, const char *pattern, int cflags);
 int split_report_arg(char *s, int *i);
 // Function for processing -c option in smartctl and smartd
 int split_report_arg2(char *s, int *i);
+// Function for processing -t selective... option in smartctl
+int split_selective_arg(char *s, unsigned long long *start,
+                        unsigned long long *stop);
 
 // Guess device type (ata or scsi) based on device name (Linux specific)
 #define GUESS_DEVTYPE_ATA       0

@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.15 2003/08/16 22:44:50 pjwilliams Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.16 2003/08/27 21:16:20 pjwilliams Exp $" UTILITY_H_CVSID;
 
 // Returns 1 if machine is big endian, else zero.  This is a run-time
 // rather than a compile-time function.  We could do it at
@@ -240,6 +240,32 @@ int split_report_arg2(char *s, int *i){
     return 1;
   }
 
+  return 0;
+}
+
+// Splits an argument to the -t option that is assumed to be of the form
+// "selective,%lld-%lld" (prefixes of "0" (for octal) and "0x"/"0X" (for hex)
+// are allowed).  The first long long int is assigned to *start and the second
+// to *stop.  Returns zero if successful and non-zero otherwise.
+int split_selective_arg(char *s, unsigned long long *start,
+                        unsigned long long *stop)
+{
+  char *tailptr;
+
+  if (!(s = strchr(s, ',')))
+    return 1;
+  if (!isdigit(*++s))
+    return 1;
+  errno = 0;
+  // Last argument to strtoull (the base) is 0 meaning that decimal is assumed
+  // unless prefixes of "0" (for octal) or "0x"/"0X" (for hex) are used.
+  *start = strtoull(s, &tailptr, 0);
+  s = tailptr;
+  if (errno || *s++ != '-')
+    return 1;
+  *stop = strtoull(s, &tailptr, 0);
+  if (errno || *tailptr != '\0')
+    return 1;
   return 0;
 }
 
