@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.22 2003/11/05 01:21:41 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.23 2003/11/06 04:27:15 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -594,7 +594,7 @@ void *FreeNonZero(void* address, int size,int whatline,char* file);
 int get_dev_names(char*** names, const char* prefix) {
   int n = 0;
   char** mp;
-  int retglob;
+  int retglob,lim;
   glob_t globbuf={0};
   int i;
   char pattern1[128],pattern2[128];
@@ -602,54 +602,54 @@ int get_dev_names(char*** names, const char* prefix) {
   // in case of non-clean exit
   *names=NULL;
 
-  // first, preallocate space for upto max number of ATA devices
-  if (!(mp =  (char **)calloc(MAX_NUM_DEV,sizeof(char*))))
-    return -1;
-  
-  bytes += (sizeof(char*)*MAX_NUM_DEV);
-
   // handle 0-99 possible devices, will still be limited by MAX_NUM_DEV
   sprintf(pattern1,"/dev/%s[0-9]",prefix);
   sprintf(pattern2,"/dev/%s[0-9][0-9]",prefix);
   
   // Use glob to look for any directory entries matching the patterns
   // first call inits with first pattern match, second call appends
+  // to first list. Turn on NOCHECK for second call. This results in no
+  // error if no more matches found, however it does append the actual
+  // pattern to the list of paths....
   if ((retglob=glob(pattern1, GLOB_ERR, NULL, &globbuf)) ||
-      (retglob=glob(pattern2, GLOB_ERR|GLOB_APPEND|GLOB_NOCHECK,NULL,&globbuf)) ||
-      MAX_NUM_DEV < globbuf.gl_pathc) {
-    // glob failed or found too many paths.  Free memory and return
-    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
-    globfree(&globbuf);
-    
-    // found too many paths
-    if (MAX_NUM_DEV<globbuf.gl_pathc){
-      pout("glob(3) found more than %d paths matching patterns (%s),(%s)\n", MAX_NUM_DEV, pattern1,pattern2);
-      return -1;
-    }
-
-    // glob failed for some other reason
-    switch (retglob) {
-    case GLOB_NOSPACE:
+      (retglob=glob(pattern2, GLOB_ERR|GLOB_APPEND|GLOB_NOCHECK,NULL,&globbuf))) {
+     int retval = -1;
+    // glob failed
+    if (retglob==GLOB_NOSPACE)
       pout("glob(3) ran out of memory matching patterns (%s),(%s)\n",
 	   pattern1, pattern2);
-      return -1;
-    case GLOB_ABORTED:
+    else if (retglob==GLOB_ABORTED)
       pout("glob(3) aborted matching patterns (%s),(%s)\n",
 	   pattern1, pattern2);
-      return -1;
-    case GLOB_NOMATCH:
-      // this is only a problem if NO paths are found at all
-      if (globbuf.gl_pathc == 0) {
-	pout("glob(3) found no matches for patterns (%s),(%s)\n",
-	     pattern1, pattern2);
-	return -1;
-      }
-    default:
+    else if (retglob==GLOB_NOMATCH) {
+      pout("glob(3) found no matches for patterns (%s),(%s)\n",
+	   pattern1, pattern2);
+      retval = 0;
+    }
+    else if (retglob)
       pout("Unexplained error in glob(3) of patterns (%s),(%s)\n",
 	   pattern1, pattern2);
-      return -1;
-    }
+    
+    //  Free memory and return
+    globfree(&globbuf);
+
+    return retval;
   }
+
+  // did we find too many paths?
+  // did we find too many paths?
+  lim = globbuf.gl_pathc < MAX_NUM_DEV ? globbuf.gl_pathc : MAX_NUM_DEV;
+  if (lim < globbuf.gl_pathc)
+    pout("glob(3) found %d > MAX=%d devices matching patterns (%s),(%s): ignoring %d paths\n", 
+	 globbuf.gl_pathc, MAX_NUM_DEV, pattern1,pattern2,
+	 globbuf.gl_pathc-MAX_NUM_DEV);
+  
+  // allocate space for up to lim number of ATA devices
+  if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
+    pout("Out of memory constructing scan device list\n");
+    return -1;
+  }
+
   // now step through the list returned by glob.  No link checking needed
   // in FreeBSD
   for (i=0; i<globbuf.gl_pathc; i++){
@@ -662,7 +662,7 @@ int get_dev_names(char*** names, const char* prefix) {
 
   globfree(&globbuf);
   mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
-  bytes -= (MAX_NUM_DEV-n)*(sizeof(char*)); // and correct allocated bytes
+  bytes += (n)*(sizeof(char*)); // and set allocated byte count
   *names=mp;
   return n;
 }

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.241 2003/11/05 11:16:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.242 2003/11/06 04:27:15 arvoreen Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,7 +22,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
-  
+
+  [EM] smartd: If no matches found, then return 0, rather than an error
+       indication, as it just means no devices of the given type exist.
+       Adjust FreeBSD scan code to mirror Linux version.
+
   [BA] smartd: made device scan code simpler and more robust. If
        too many devices detected, warn user but scan as many
        as possible.  If error in scanning, warn user but don't
