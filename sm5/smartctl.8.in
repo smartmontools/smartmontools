@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.49 2004/05/03 03:45:24 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.50 2004/05/22 10:50:41 shattered Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -575,7 +575,7 @@ implemented by the device or requests with invalid parameters or
 invalid addresses."\fP The definitions of these terms are:
 .br
 \fBUNC\fP (\fBUNC\fPorrectable): data is uncorrectable.  This refers
-to data which as been read from the disk, but for which the Error
+to data which has been read from the disk, but for which the Error
 Checking and Correction (ECC) codes are inconsistent.  In effect, this
 means that the data can not be read.
 .br
@@ -1188,7 +1188,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.49 2004/05/03 03:45:24 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.50 2004/05/22 10:50:41 shattered Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
