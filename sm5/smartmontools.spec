@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.108 2003/07/23 22:30:55 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.109 2003/07/23 23:13:19 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -240,12 +240,19 @@ if [ -f /usr/share/man/man8/smartd.8 ] ; then
 	echo "You MUST delete (by hand) the outdated file /usr/share/man/man8/smartd.8 to read the new manual page for smartd."	
 fi
 
+if [ ! -f /etc/smartd.conf ]; then
+	echo "Note that you can use a configuration file /etc/smartd.conf to control the"
+	echo "startup behavior of the smartd daemon.  See man 8 smartd for details."
+fi
+
 # run after installation.  Passed "1" the first time package installed, else a larger number
 %post
+# if smartd is already running, restart it with the new daemon
 if [ -f /var/lock/subsys/smartd ]; then
         /etc/rc.d/init.d/smartd restart 1>&2
 	echo "Restarted smartd services"
 else
+# else tell the user how to start it
         echo "Run \"/etc/rc.d/init.d/smartd start\" to start smartd service now."
 fi
 
@@ -255,10 +262,8 @@ printmessage=$?
 
 if [ $printmessage -ne 0 ] ; then
 	echo "Run \"/sbin/chkconfig --add smartd\", to start smartd service on system boot"
-	echo "Note that you can now use a configuration file /etc/smartd.conf to control the"
-	echo "startup behavior of the smartd daemon.  See man 8 smartd for details."
 else
-	echo "smartd is currently configured to start up on system boot"
+	echo "smartd will continue to start up on system boot"
 fi
 
 
@@ -272,18 +277,18 @@ if [ "$1" = "0" ]; then
     echo "Stopping smartd services"
   fi
 
-  # see if any links remain, and kill them if they do
+# see if any links remain, and kill them if they do
   /sbin/chkconfig --list smartd > /dev/null 2> /dev/null
   notlinked=$?
 	
   if [ $notlinked -eq 0 ]; then
     /sbin/chkconfig --del smartd
-    echo "Removing links to smartd boot-time startup scripts"
+    echo "Removing chkconfig links to smartd boot-time startup scripts"
   fi
 fi
 
 # run after uninstallation. Passed zero when the last version uninstalled, else larger
-#%postun
+# %postun
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 
