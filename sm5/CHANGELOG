@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.52 2002/11/21 16:49:43 knan Exp $
+$Id: CHANGELOG,v 1.53 2002/11/21 17:45:59 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,12 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Allen: smartd: user can make smartd check the disks at any time
+  (ie, interrupt sleep) by sending signal SIGUSR1 to smartd.  This
+  can be done for example with:
+  kill -USR1 <pid>
+  where <pid> is the process ID number of smartd.
 
   Bolsø: scsi: don't trust the data we receive from the drive too
   much. It very well might have errors (like zero response length).
