@@ -130,18 +130,18 @@ cvs up -A</pre></li>
 </ul>
 
 <b>Fourth Method - Install the Debian package (for machines using the Debian linux distribution)</b>
-<UL>
-<LI>
-The latest version of the smartmontools package in <I>.deb</I> format is
-available at the  <a HREF="http://packages.debian.org/unstable/utils/smartmontools.html">Debian smartmontools
+<ul>
+<li>
+The latest version of the smartmontools package in <i>.deb</i> format is
+available at the  <a href="http://packages.debian.org/unstable/utils/smartmontools.html">Debian smartmontools
 package page</a>.
-This package is for the (unreleased) <a HREF="http://www.debian.org/releases/">unstable</a>
-distribution.</LI>
-<LI>If you're running Debian <a
-HREF="http://www.debian.org/releases/stable/">stable</a> please download the
+This package is for the (unreleased) <a href="http://www.debian.org/releases/">unstable</a>
+distribution.</li>
+<li>If you're running Debian <a
+href="http://www.debian.org/releases/stable/">stable</a> please download the
 package from <a
-HREF="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">here</a>.</LI>
-<LI>
+href="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">here</a>.</li>
+<li>
 You can then install the package using:
 <pre>
 dpkg -i smartmontools_5.1.4-2.agx0_i386.deb
@@ -153,8 +153,8 @@ But the preferred method is to add the following line to your
 and type <pre>
 apt-get update &amp;&amp; apt-get install smartmontools
 </pre> this will automatically download and install the package.
-</LI>
-</UL>
+</li>
+</ul>
 
 <b>After installing smartmontools using Method 1, 2, 3 or 4 above, you can read the man
 pages, and try out the commands:</b>
@@ -201,9 +201,15 @@ be possible or practical.</p></li>
 
 <li><b>Why are you doing this?</b>
 
-<p>My research group runs a beowulf cluster with 300 ATA-5 disks.&#160; We
-have more than 20 TB of data stored on the system.&#160; It's nice to
-have advanced warning when a disk is going to fail.</p></li>
+<p>My research group at U. Wisconsin - Milwaukee runs a <a
+href="http:www.lsc-group.phys.uwm.edu/beowulf/medusa">beowulf
+cluster</a> with 600 ATA-5 and -6 disks (300 IBM and 300
+Maxtor).&#160; We have more than 50 TB of data stored on the
+system.&#160; I also help out with a <a
+href="http://pandora.aei.mpg.de/merlin/"> cluster</a> at the Albert
+Einstein Institute that has another 300 IBM ATA-6 disks (36 TB
+total). It's nice to have advanced warning when a disk is going to
+fail.</p></li>
 
 <li><b>I see some strange output from smartctl.  What does it mean?</b>
 
@@ -222,19 +228,22 @@ out.</p></li>
 <p>On some recent disks, Maxtor has started to use Attribute 9 to
 store the lifetime in minutes rather than hours.  In this case, use
 the -m option (smartctl versions 5.0.X) or the
---vendorattribute=009,minutes (smartctl 5.1.X) option to correctly
+--vendorattribute=9,minutes (smartctl 5.1.X) option to correctly
 display hours and minutes.
 </p></li>
 
 <li><b>What attributes does smartmontools not yet recognize?</b>
 
-<p>From a Hitachi disk: (230), (250).  From a Toshiba disk (240).  From
-Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208), (209)
+<p>From a Hitachi disk: (250). From
+Maxtor disks (99), (100), (101), (201), (202), (203), (204), (205), (207), (208), (209).
 </p>
 
-<p>If you can attach names/meanings to these attributes, please send me
-a note to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"> 
-smartmontools-support</a>.</p></li>
+<p>If you can attach names/meanings to these attributes, please send
+a note to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support">
+smartmontools-support</a>.  If you have access to other
+S.M.A.R.T. utilities (especially vendor-specific ones) and can send us
+comparison output from smartctl and the other utility, that's
+especially useful.</p></li>
 
 <li><b>When I run <tt>smartd</tt>, the SYSLOG <tt>/var/log/messages</tt>
 contains messages like this:</b>
@@ -246,7 +255,7 @@ SCSI devices to monitor (matching the pattern <tt>/dev/hd[a-z]</tt> or
 <tt>/dev/sd[a-z]</tt>).&#160; The log messages appear because your
 system doesn't have most of these devices.</p>
 
-<p>The latest release of smartd can use a configuration file
+<p>Recent releases of smartd can use a configuration file
 <tt>/etc/smartd.conf</tt> to specify which devices to include or exclude
 from start-up search.</p></li>
 
@@ -255,7 +264,8 @@ from start-up search.</p></li>
 <p>Apparently some of the older S.M.A.R.T. firmware on IBM disks can 
 interfere with the regular operation of the disk.&#160; If you have this
 problem, here is an <a href="http://www.geocities.com/dtla_update/">IBM
-DISK FIRMWARE UPGRADE</a> that fixes the problem.</p></li>
+DISK FIRMWARE UPGRADE</a> that fixes the problem.
+</p></li>
 </ul>
 
 <hr size="2" /><a name="testinghelp"></a><b>Help needed in testing
@@ -314,7 +324,9 @@ detrius behind.&#160; In addition, the <tt>smartmontools</tt> version of
 file) to monitor for changes in a number of different disk properties:
 the SMART status, failure or prefailure attributes going below
 threshold, new errors appearing in the ATA Error Log or the SMART
-Self-Test Log, and so on.</p>
+Self-Test Log, and so on. <tt>smartd</tt> can also send an email warning or run a
+user-specified executable if it detects a problem with the disk.
+</p>
 
 <p>The other principle difference is that smartmontools is an OpenSource
 development project, meaning that we keep the files in CVS, and that 
@@ -391,12 +403,12 @@ from smartmontools smartctl utility:</b>
  <li><a href="examples/MAXTOR-4.txt">MAXTOR 6L080J4</a> 80 GB 7200 RPM</li>
  <li><a href="examples/Maxtor-5.txt">Maxtor 98196H8</a> 80 GB 5400 RPM</li>
  <li><a href="examples/MAXTOR-6.txt">Maxtor 4R080J0</a> Note: Attribute 9 (lifetime) stored in minutes!</li>
- <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
- <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM</li>
- <li><a href="examples/IC35L120AVV207-0.txt">IBM IC35L120AVV207 (GXP 180 series)</a> 120 GB 7200 RPM</li>
+ <li><a href="examples/IC35L120AVVA07-0-0.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
+ <li><a href="examples/IC35L120AVVA07-0-1.txt">IBM IC35L120AVVA07 (GXP 120 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
+ <li><a href="examples/IC35L120AVV207-0.txt">IBM IC35L120AVV207 (GXP 180 series)</a> 120 GB 7200 RPM (note 3 temperatures)</li>
  <li><a href="examples/HITACHI_DK23BA-20-0.txt">HITACHI_DK23BA-20</a> Hitachi 20 GB Laptop Disk</li>
  <li><a href="examples/TOSHIBA-0.txt">TOSHIBA MK2018GAS</a> Toshiba 20 GB Laptop Disk</li>
- <li><a href="examples/TOSHIBA-MK6021GAS.txt">TOSHIBA MK6021GAS</a> Toshiba 60 GB Laptop Disk (note 3 temperatures!)</li>
+ <li><a href="examples/TOSHIBA-MK6021GAS.txt">TOSHIBA MK6021GAS</a> Toshiba 60 GB Laptop Disk (note 3 temperatures)</li>
 </ul>
 
 <hr size="2" />
