@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.10 2003/05/06 03:24:48 ballen4705 Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.11 2003/05/06 22:58:00 guidog Exp $" UTILITY_H_CVSID;
 
 
 // Utility function prints date and time and timezone into a character
@@ -216,8 +216,9 @@ int split_report_arg(char *s, int *i)
 // osst, nosst and sg.
 static const char * lin_dev_prefix = "/dev/";
 static const char * lin_dev_ata_disk_plus = "h";
+static const char * lin_dev_ata_devfs_disk_plus = "ide/";
+static const char * lin_dev_scsi_devfs_disk_plus = "scsi/";
 static const char * lin_dev_scsi_disk_plus = "s";
-static const char * lin_dev_ide_plus = "i"; 
 static const char * lin_dev_scsi_tape1 = "ns";
 static const char * lin_dev_scsi_tape2 = "os";
 static const char * lin_dev_scsi_tape3 = "nos";
@@ -244,14 +245,19 @@ int guess_linux_device_type(const char * dev_name) {
 	       strlen(lin_dev_ata_disk_plus)))
     return GUESS_DEVTYPE_ATA;
   
-  // form /dev/i* or i*
-  if (!strncmp(lin_dev_ide_plus, dev_name,
-	       strlen(lin_dev_ide_plus)))
+  // form /dev/ide/* or ide/*
+  if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
+	       strlen(lin_dev_ata_devfs_disk_plus)))
     return GUESS_DEVTYPE_ATA;
-  
+
   // form /dev/s* or s*
   if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
 	       strlen(lin_dev_scsi_disk_plus)))
+    return GUESS_DEVTYPE_SCSI;
+
+  // form /dev/scsi/* or scsi/*
+  if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
+	       strlen(lin_dev_scsi_devfs_disk_plus)))
     return GUESS_DEVTYPE_SCSI;
   
   // form /dev/ns* or ns*
