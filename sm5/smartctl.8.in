@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.39 2004/03/24 11:53:46 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.40 2004/03/25 15:39:25 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -868,36 +868,66 @@ order of minutes to complete.  Note that this command can be given
 during normal system operation (unless run in captive mode \- see the
 \'\-C\' option below).
 
-.I select,N-M
+.I select,N\-M
 \- [ATA ONLY] runs a SMART Selective Self Test, to test a \fBrange\fP
 of disk Logical Block Addresses (LBAs), rather than the entire disk.
 Each range of LBAs that is checked is called a "span" and is specified
 by a starting LBA (N) and an ending LBA (M) with N less than or equal
-to M.  The option can be given up to five times, to test up to five
-spans. For example the command:
+to M.  For example the command:
 .nf
-  smartctl -t select,10-20 /dev/hda
+  smartctl \-t select,10\-20 /dev/hda
 .fi
 runs a self test on one span consisting of LBAs ten to twenty
-(inclusive). The command:
+(inclusive). The \'\-t\' option can be given up to five times, to test
+up to five spans.  For example the command:
 .nf
-  smartctl -t select,0-100 -t select,1000-2000 /dev/hda
+  smartctl \-t select,0\-100 \-t select,1000\-2000 /dev/hda
 .fi
 runs a self test on two spans.  The first span consists of 101 LBAs
 and the second span consists of 1001 LBAs.  Note that the spans can
-overlap partially or completely, as in:
+overlap partially or completely, for example:
 .nf
-  smartctl -t select,0-10 -t select 5-15 -t select,10-20 /dev/hda
+  smartctl \-t select,0\-10 \-t select,5\-15 \-t select,10\-20 /dev/hda
 .fi
-Note that this command can be given during normal system operation
-(unless run in captive mode \- see the \'\-C\' option below).
+The results of the selective self-test can be obtained (both during
+and after the test) by printing the SMART self-test log, using the
+\'\-l selftest\' option to smartctl.
 
 Selective self tests are particulary useful as disk capacities
-increase.  An extended self test (smartctl -t long) can take several
-hours.  Selective self-tests are helpful if you suspect that the disk
-is having problems at a particular range of addresses, based on SYSLOG
-error messages, previous failed self tests, or SMART error log
-entries.
+increase: an extended self test (smartctl \-t long) can take several
+hours.  Selective self-tests are helpful if (based on SYSLOG error
+messages, previous failed self-tests, or SMART error log entries) you
+suspect that a disk is having problems at a particular range of
+Logical Block Addresses (LBAs).
+
+Selective self-tests can be run during normal system operation (unless
+done in captive mode \- see the \'\-C\' option below).
+
+.I afterselect,on
+\- [ATA ONLY] perform an offline read scan after a Selective Self-test
+has completed. This option must be used together with one or more of
+the \fIselect,N-M\fP options above. If the LBAs that have been
+specified in the Selective self-test pass the test with no errors
+found, then read scan the \fBremainder\fP of the disk.  If the device
+is powered-cycled while this read scan is in progress, the read scan
+will be automatically resumed after a time specified by the pending
+timer (see below).  The value of this option is preserved between
+selective self-tests.
+
+.I afterselect,off
+\- [ATA ONLY] do not read scan the remainder of the disk after a
+Selective self-test has completed.  This option must be use together
+with one or more of the \fIselect,N-M\fP options above.  The value of this
+option is preserved between selective self-tests.
+
+.I pending,N 
+\- [ATA ONLY] set the pending offline read scan timer to N minutes.
+Here N is an integer in the range from 0 to 65535 inclusive.  If the
+device is powered off during a read scan after a Selective self-test,
+then resume the test automatically N minutes after power-up.  This
+option must be use together with one or more of the \fIselect,N-M\fP
+options above. The value of this option is preserved between selective
+self-tests.
 
 .TP
 .B \-C, \-\-captive
@@ -984,6 +1014,13 @@ RAID controller card.
 .fi
 Start a short self-test on the fourth ATA disk connected to the 3ware RAID
 controller card which is the second SCSI device /dev/sdb.
+.nf
+.B smartctl \-t select,10-100 \-t select,30-300 \-t afterselect,on \-t pending,45 /dev/hda
+.fi
+Run a selective self-test on LBAs 10 to 100 and 30 to 300.  After the
+these LBAs have been tested, read-scan the remainder of the disk.  If the disk is
+power-cycled during the read-scan, resume the scan 45 minutes after power to the
+device is restored.
 .PP
 .SH RETURN VALUES
 The return values of \fBsmartctl\fP are defined by a bitmask.  If all
@@ -1094,4 +1131,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.39 2004/03/24 11:53:46 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.40 2004/03/25 15:39:25 ballen4705 Exp $

@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.35 2004/03/23 13:08:40 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.36 2004/03/25 15:39:25 ballen4705 Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -38,54 +38,54 @@
 // global variables, this should be the only place that you need to
 // add them.
 typedef struct smartmonctrl_s {
+  // spans for selective self-test
+  uint64_t smartselectivespan[5][2];
+  // number of spans
+  int smartselectivenumspans;
+  int           testcase;
+  // one plus time in minutes to wait after powerup before restarting
+  // interrupted offline scan after selective self-test.
+  int  pendingtime;
+  // run offline scan after selective self-test.  0: don't change, 1:
+  // turn off scan after selective self-test, 2: turn on scan after
+  // selective self-test.
+  unsigned char scanafterselect;
   unsigned char driveinfo;
   unsigned char checksmart;
   unsigned char smartvendorattrib;
   unsigned char generalsmartvalues;
-
   unsigned char smartlogdirectory;
   unsigned char smartselftestlog;
   unsigned char smarterrorlog;
   unsigned char smartdisable;
-
   unsigned char smartenable; 
   unsigned char smartstatus;
   unsigned char smartexeoffimmediate;
   unsigned char smartshortselftest;
-
   unsigned char smartextendselftest;
   unsigned char smartconveyanceselftest;
   unsigned char smartselectiveselftest;
   unsigned char smartshortcapselftest;
   unsigned char smartextendcapselftest;
-
   unsigned char smartconveyancecapselftest;
   unsigned char smartselectivecapselftest;
   unsigned char smartselftestabort;
   unsigned char smartautoofflineenable;
   unsigned char smartautoofflinedisable;
-
   unsigned char smartautosaveenable;
   unsigned char smartautosavedisable;
-  uint64_t smartselectivespan[5][2];
-  int smartselectivenumspans;
   unsigned char printing_switchable;
   unsigned char dont_print;
-
-  int           testcase;
-
   unsigned char permissive;
   unsigned char conservative;
   unsigned char checksumfail;
   unsigned char checksumignore;
-
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
   // If nonzero, escalade is 1 plus the disk number behind an escalade
   // controller
   unsigned char escalade;
-
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
@@ -94,10 +94,6 @@ typedef struct smartmonctrl_s {
   // attributedefs[i] is nonzero, it means that the i'th attribute has
   // a non-default meaning.  See the ataPrintSmartAttribName and
   // and parse_attribute_def functions.
-
-  char notused1;    // make structure pack cleanly without holes
-  char notused2;
-
   unsigned char attributedefs[256];
 } smartmonctrl;
 
