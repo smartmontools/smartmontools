@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.50 2004/05/22 10:50:41 shattered Exp $
+ $Id: smartctl.8.in,v 1.51 2004/05/27 09:48:35 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1166,6 +1166,11 @@ SEE ALSO:
 .SH
 REFERENCES FOR SMART
 .fi
+An introductory article about smartmontools is \fIMonitoring Hard
+Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
+pages 74-77. This is http://www.linuxjournal.com/article.php?sid=6983
+online.
+
 If you would like to understand better how SMART works, and what it
 does, a good place to start is Section 8.41 of the "AT Attachment with
 Packet Interface\-5" (ATA/ATAPI\-5) specification.  This documents the
@@ -1188,7 +1193,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.50 2004/05/22 10:50:41 shattered Exp $
+$Id: smartctl.8.in,v 1.51 2004/05/27 09:48:35 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
