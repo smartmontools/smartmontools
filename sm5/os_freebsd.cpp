@@ -35,10 +35,10 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.43 2004/09/04 22:11:55 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.44 2004/09/14 02:42:16 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.43 2004/09/04 22:11:55 arvoreen Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.44 2004/09/14 02:42:16 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;

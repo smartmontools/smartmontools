@@ -40,8 +40,8 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.8 2004/08/18 19:27:44 likewise Exp $" \
-ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.9 2004/09/14 02:42:16 ballen4705 Exp $" \
+ATACMDS_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
 // Print examples for smartctl.
