@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.57 2003/12/09 21:19:13 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.58 2003/12/10 11:30:31 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -54,7 +54,7 @@ typedef enum {
 } smart_command_set;
 
 // ATA Specification Command Register Values (Commands)
-#define ATA_IDENTIFY_DEVICE             0xec						  
+#define ATA_IDENTIFY_DEVICE             0xec                                              
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
 #define ATA_SMART_CMD                   0xb0
 
@@ -76,29 +76,29 @@ typedef enum {
 #define ATA_SMART_AUTO_OFFLINE          0xdb
 
 // Sector Number values for ATA_SMART_IMMEDIATE_OFFLINE Subcommand
-#define OFFLINE_FULL_SCAN		0
-#define SHORT_SELF_TEST			1
-#define EXTEND_SELF_TEST		2
+#define OFFLINE_FULL_SCAN               0
+#define SHORT_SELF_TEST                 1
+#define EXTEND_SELF_TEST                2
 #define CONVEYANCE_SELF_TEST            3
 #define SELECTIVE_SELF_TEST             4
 #define ABORT_SELF_TEST                 127
-#define SHORT_CAPTIVE_SELF_TEST		129
-#define EXTEND_CAPTIVE_SELF_TEST	130
+#define SHORT_CAPTIVE_SELF_TEST         129
+#define EXTEND_CAPTIVE_SELF_TEST        130
 #define CONVEYANCE_CAPTIVE_SELF_TEST    131
 #define SELECTIVE_CAPTIVE_SELF_TEST     132
 #define CAPTIVE_MASK                    (0x01<<7)
 
 // Maximum allowed number of SMART Attributes
-#define NUMBER_ATA_SMART_ATTRIBUTES 	30
+#define NUMBER_ATA_SMART_ATTRIBUTES     30
 
 // Needed parts of the ATA DRIVE IDENTIFY Structure. Those labeled
 // word* are NOT used.
 struct ata_identify_device {
   unsigned short words000_009[10];
-  unsigned char	 serial_no[20];
+  unsigned char  serial_no[20];
   unsigned short words020_022[3];
-  unsigned char	 fw_rev[8];
-  unsigned char	 model[40];
+  unsigned char  fw_rev[8];
+  unsigned char  model[40];
   unsigned short words047_079[33];
   unsigned short major_rev_num;
   unsigned short minor_rev_num;
@@ -338,7 +338,7 @@ int ataReadErrorLog(int device, struct ata_smart_errorlog *);
 int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
 int ataSmartStatus(int device);
 int ataSetSmartThresholds(int device, struct ata_smart_thresholds *);
-int ataReadLogDirectory(int device, struct ata_smart_log_directory *);	
+int ataReadLogDirectory(int device, struct ata_smart_log_directory *);  
 
 /* Enable/Disable SMART on device */
 int ataEnableSmart ( int device );
@@ -414,8 +414,8 @@ int TestTime(struct ata_smart_values *data,int testtype);
 // Prints the raw value (with appropriate formatting) into the
 // character string out.
 long long ataPrintSmartAttribRawValue(char *out, 
-				      struct ata_smart_attribute *attribute,
-				      unsigned char *defs);
+                                      struct ata_smart_attribute *attribute,
+                                      unsigned char *defs);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
@@ -428,8 +428,8 @@ void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defi
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
 int ataCheckAttribute(struct ata_smart_values *data,
-		      struct ata_smart_thresholds *thresholds,
-		      int n);
+                      struct ata_smart_thresholds *thresholds,
+                      int n);
 
 // External handler function, for when a checksum is not correct.  Can
 // simply return if no action is desired, or can print error messages

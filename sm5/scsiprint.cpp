@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.70 2003/11/24 10:55:33 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.71 2003/12/10 11:30:31 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -178,21 +178,21 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     pagelength = (unsigned short) gBuf[2] << 8 | gBuf[3];
 
     for (s=severities; *s; s++) {
-	for (i = 4; i < pagelength; i += 5) {
-	    parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
+        for (i = 4; i < pagelength; i += 5) {
+            parametercode = (unsigned short) gBuf[i] << 8 | gBuf[i+1];
 
-	    if (gBuf[i + 4]) {
-		ts = SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
-		    scsiTapeAlertsChangerDevice(parametercode) :
-		    scsiTapeAlertsTapeDevice(parametercode);
-		if (*ts == *s) {
-		    if (!failures)
-			pout("TapeAlert Errors (C=Critical, W=Warning, I=Informational):\n");
-		    pout("[0x%02x] %s\n", parametercode, ts);
-		    failures += 1; 
-		}
-	    }
-	}
+            if (gBuf[i + 4]) {
+                ts = SCSI_PT_MEDIUM_CHANGER == peripheral_type ?
+                    scsiTapeAlertsChangerDevice(parametercode) :
+                    scsiTapeAlertsTapeDevice(parametercode);
+                if (*ts == *s) {
+                    if (!failures)
+                        pout("TapeAlert Errors (C=Critical, W=Warning, I=Informational):\n");
+                    pout("[0x%02x] %s\n", parametercode, ts);
+                    failures += 1; 
+                }
+            }
+        }
     }
     QUIETOFF(con);
 
@@ -657,7 +657,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if (peripheral_type)
         *peripheral_type = peri_dt;
     if (! all)
-	return 0;
+        return 0;
 
     if (len < 36) {
         QUIETON(con);
@@ -746,13 +746,13 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     }
    
     if (iec_err) {
-	if (!is_tape) {
+        if (!is_tape) {
             QUIETON(con);
-	    pout("Device does not support SMART");
+            pout("Device does not support SMART");
             if (con->reportscsiioctl > 0)
-	        pout(" [%s]\n", scsiErrString(iec_err));
+                pout(" [%s]\n", scsiErrString(iec_err));
             else
-	        pout("\n");
+                pout("\n");
             QUIETOFF(con);
         }
         gIecMPage = 0;
@@ -882,15 +882,15 @@ int scsiPrintMain(int fd)
     
     if (con->smartautosaveenable) {
       if (scsiSetControlGLTSD(fd, 0, modese_len)) {
-	pout("Enable autosave (clear GLTSD bit) failed\n");
-	failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+        pout("Enable autosave (clear GLTSD bit) failed\n");
+        failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
     }
     
     if (con->smartautosavedisable) {
       if (scsiSetControlGLTSD(fd, 1, modese_len)) {
-	pout("Disable autosave (set GLTSD bit) failed\n");
-	failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
+        pout("Disable autosave (set GLTSD bit) failed\n");
+        failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
     }
     
@@ -900,13 +900,13 @@ int scsiPrintMain(int fd)
         if ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
             (SCSI_PT_MEDIUM_CHANGER == peripheral_type)) { /* tape device */
             if (gTapeAlertsLPage) {
-		if (con->driveinfo)
-		    pout("TapeAlert Supported\n");
+                if (con->driveinfo)
+                    pout("TapeAlert Supported\n");
                 if (-1 == scsiGetTapeAlertsData(fd, peripheral_type))
                     failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
-	    }
-	    else
-		pout("TapeAlert Not Supported\n");
+            }
+            else
+                pout("TapeAlert Not Supported\n");
             if (gTempLPage)
                 scsiPrintTemp(fd);         
             if (gStartStopLPage)

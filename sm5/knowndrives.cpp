@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.62 2003/12/09 22:40:13 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.63 2003/12/10 11:30:31 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -488,7 +488,7 @@ void showonepreset(const drivesettings *drivetable){
   // Basic error check
   if (!drivetable || !drivetable->modelregexp){
     pout("Null known drive table pointer. Please report\n"
-	 "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
+         "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
     return;
   }
   
@@ -527,8 +527,8 @@ void showonepreset(const drivesettings *drivetable){
   if (drivetable->specialpurpose){
     pout("%-*s ", TABLEPRINTWIDTH, "OTHER PRESETS:");
     pout("%s\n", drivetable->functiondesc ?
-	 drivetable->functiondesc : "A special purpose function "
-	 "is defined for this drive"); 
+         drivetable->functiondesc : "A special purpose function "
+         "is defined for this drive"); 
   }
   
   // Print any special warnings
@@ -565,11 +565,11 @@ void showpresets(const struct ata_identify_device *drive){
   if ((i = lookupdrive(model, firmware)) < 0) {
     // no matches found
     pout("No presets are defined for this drive.  Its identity strings:\n"
-	 "MODEL:    %s\n"
-	 "FIRMWARE: %s\n"
-	 "do not match any of the known regular expressions.\n"
-	 "Use -P showall to list all known regular expressions.\n",
-	 model, firmware);
+         "MODEL:    %s\n"
+         "FIRMWARE: %s\n"
+         "do not match any of the known regular expressions.\n"
+         "Use -P showall to list all known regular expressions.\n",
+         model, firmware);
     return;
   }
   

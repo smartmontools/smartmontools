@@ -10,13 +10,13 @@
  *
  *  Written By: Adam Radford <linux@3ware.com>
  *  Modifications By: Joel Jacobson <linux@3ware.com>
- *  		     Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ *                   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *                    Brad Strand <linux@3ware.com>
  *
  *  Copyright (C) 1999-2003 3ware Inc.
  *
- *  Kernel compatablity By:	Andre Hedrick <andre@suse.com>
- *  Non-Copyright (C) 2000	Andre Hedrick <andre@suse.com>
+ *  Kernel compatablity By:     Andre Hedrick <andre@suse.com>
+ *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  * Other ars of this file are derived from code that was
  * 
@@ -69,7 +69,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.38 2003/12/09 21:19:13 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.39 2003/12/10 11:30:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -104,25 +104,25 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
-	 "                                              (Enables SMART on first disk)\n\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -device=3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "                                              (Enables SMART on first disk)\n\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -device=3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #else
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-	 "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-	 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -d 3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
+         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -d 3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #endif
   return;
 }
@@ -169,7 +169,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
   lim = ((int)globbuf.gl_pathc < max) ? (int)globbuf.gl_pathc : max;
   if (lim < (int)globbuf.gl_pathc)
     pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n", 
-	 (int)globbuf.gl_pathc, max, pattern, (int)(globbuf.gl_pathc-max));
+         (int)globbuf.gl_pathc, max, pattern, (int)(globbuf.gl_pathc-max));
   
   // allocate space for up to lim number of ATA devices
   if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
@@ -197,22 +197,22 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
       char *p;
       linkbuf[retlink]='\0';
       if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc"))
-	// This is the branch of the code that gets followed if we are
-	// using devfs WITH traditional compatibility links. In this
-	// case, we add the traditional device name to the list that
-	// is returned.
-	mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+        // This is the branch of the code that gets followed if we are
+        // using devfs WITH traditional compatibility links. In this
+        // case, we add the traditional device name to the list that
+        // is returned.
+        mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
       else {
-	// This is the branch of the code that gets followed if we are
-	// using devfs WITHOUT traditional compatibility links.  In
-	// this case, we check that the link to the directory is of
-	// the correct type, and then append "disc" to it.
-	char tmpname[1024]={0};
-	char *type=strcmp(name,"ATA")?"scsi":"ide";
-	if (strstr(linkbuf, type)){
-	  snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
-	  mp[n++] = CustomStrDup(tmpname, 1, __LINE__, __FILE__);
-	}
+        // This is the branch of the code that gets followed if we are
+        // using devfs WITHOUT traditional compatibility links.  In
+        // this case, we check that the link to the directory is of
+        // the correct type, and then append "disc" to it.
+        char tmpname[1024]={0};
+        char *type=strcmp(name,"ATA")?"scsi":"ide";
+        if (strstr(linkbuf, type)){
+          snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
+          mp[n++] = CustomStrDup(tmpname, 1, __LINE__, __FILE__);
+        }
       }
     }
   }
@@ -352,7 +352,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     break;
   default:
     pout("Unrecognized command %d in linux_ata_command_interface()\n"
-	 "Please contact " PACKAGE_BUGREPORT "\n", command);
+         "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
   }
@@ -715,7 +715,7 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
     break;
   default:
     pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
-	 "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
+         "Please contact " PACKAGE_BUGREPORT "\n", command, disknum);
     errno=ENOSYS;
     return -1;
   }
@@ -831,37 +831,37 @@ int guess_device_type(const char * dev_name) {
   
   // form /dev/h* or h*
   if (!strncmp(lin_dev_ata_disk_plus, dev_name,
-	       strlen(lin_dev_ata_disk_plus)))
+               strlen(lin_dev_ata_disk_plus)))
     return GUESS_DEVTYPE_ATA;
   
   // form /dev/ide/* or ide/*
   if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
-	       strlen(lin_dev_ata_devfs_disk_plus)))
+               strlen(lin_dev_ata_devfs_disk_plus)))
     return GUESS_DEVTYPE_ATA;
 
   // form /dev/s* or s*
   if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
-	       strlen(lin_dev_scsi_disk_plus)))
+               strlen(lin_dev_scsi_disk_plus)))
     return GUESS_DEVTYPE_SCSI;
 
   // form /dev/scsi/* or scsi/*
   if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
-	       strlen(lin_dev_scsi_devfs_disk_plus)))
+               strlen(lin_dev_scsi_devfs_disk_plus)))
     return GUESS_DEVTYPE_SCSI;
   
   // form /dev/ns* or ns*
   if (!strncmp(lin_dev_scsi_tape1, dev_name,
-	       strlen(lin_dev_scsi_tape1)))
+               strlen(lin_dev_scsi_tape1)))
     return GUESS_DEVTYPE_SCSI;
   
   // form /dev/os* or os*
   if (!strncmp(lin_dev_scsi_tape2, dev_name,
-	       strlen(lin_dev_scsi_tape2)))
+               strlen(lin_dev_scsi_tape2)))
     return GUESS_DEVTYPE_SCSI;
   
   // form /dev/nos* or nos*
   if (!strncmp(lin_dev_scsi_tape3, dev_name,
-	       strlen(lin_dev_scsi_tape3)))
+               strlen(lin_dev_scsi_tape3)))
     return GUESS_DEVTYPE_SCSI;
   
   // we failed to recognize any of the forms

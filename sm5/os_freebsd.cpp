@@ -39,7 +39,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.25 2003/12/09 21:19:13 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.26 2003/12/10 11:30:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -57,25 +57,25 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
-	 "                                              (Enables SMART on first disk)\n\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -device=3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "                                              (Enables SMART on first disk)\n\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -device=3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #else
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-	 "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-	 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -d 3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
+         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -d 3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #endif
   return;
 }
@@ -112,7 +112,7 @@ int deviceopen (const char* dev, char* mode) {
 
   if (parse_ok == GUESS_DEVTYPE_ATA) {
     if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
-      int myerror = errno;	//preserve across free call
+      int myerror = errno;      //preserve across free call
       free (fdchan);
       errno = myerror;
       return -1;
@@ -199,7 +199,7 @@ void printwarning(int msgNo, const char* extra) {
       printed[msgNo] = 1;
       pout("%s", message[msgNo]);
       if (extra)
-	pout("%s",extra);
+        pout("%s",extra);
     }
   }
   return;
@@ -316,7 +316,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     break;
   default:
     pout("Unrecognized command %d in ata_command_interface()\n"
-	 "Please contact " PACKAGE_BUGREPORT "\n", command);
+         "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
   }
@@ -347,13 +347,13 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     // We haven't gotten output that makes sense; print out some debugging info
     char buf[512];
     sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
-	    (int)iocmd.u.request.u.ata.command,
-	    (int)iocmd.u.request.u.ata.feature,
-	    (int)iocmd.u.request.u.ata.count,
-	    (int)((iocmd.u.request.u.ata.lba) & 0xff),
-	    (int)((iocmd.u.request.u.ata.lba>>8) & 0xff),
-	    (int)((iocmd.u.request.u.ata.lba>>16) & 0xff),
-	    (int)iocmd.u.request.error);
+            (int)iocmd.u.request.u.ata.command,
+            (int)iocmd.u.request.u.ata.feature,
+            (int)iocmd.u.request.u.ata.count,
+            (int)((iocmd.u.request.u.ata.lba) & 0xff),
+            (int)((iocmd.u.request.u.ata.lba>>8) & 0xff),
+            (int)((iocmd.u.request.u.ata.lba>>16) & 0xff),
+            (int)iocmd.u.request.error);
     printwarning(BAD_SMART,buf);
     return 0;   
   }
@@ -417,18 +417,18 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   // clear out structure, except for header that was filled in for us
   bzero(&(&ccb->ccb_h)[1],
-	sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
+        sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
   cam_fill_csio(&ccb->csio,
-		/*retrires*/ 1,
-		/*cbfcnp*/ NULL,
-		/* flags */ (iop->dxfer_dir == DXFER_NONE ? CAM_DIR_NONE :(iop->dxfer_dir == DXFER_FROM_DEVICE ? CAM_DIR_IN : CAM_DIR_OUT)),
-		/* tagaction */ MSG_SIMPLE_Q_TAG,
-		/* dataptr */ iop->dxferp,
-		/* datalen */ iop->dxfer_len,
-		/* senselen */ iop->max_sense_len,
-		/* cdblen */ iop->cmnd_len,
-		/* timout */ iop->timeout);
+                /*retrires*/ 1,
+                /*cbfcnp*/ NULL,
+                /* flags */ (iop->dxfer_dir == DXFER_NONE ? CAM_DIR_NONE :(iop->dxfer_dir == DXFER_FROM_DEVICE ? CAM_DIR_IN : CAM_DIR_OUT)),
+                /* tagaction */ MSG_SIMPLE_Q_TAG,
+                /* dataptr */ iop->dxferp,
+                /* datalen */ iop->dxfer_len,
+                /* senselen */ iop->max_sense_len,
+                /* cdblen */ iop->cmnd_len,
+                /* timout */ iop->timeout);
   memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
 
   if (cam_send_ccb(cam_dev,ccb) < 0) {
@@ -467,7 +467,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     trunc = (iop->dxfer_len > 256) ? 1 : 0;
     
     pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-	 (trunc ? " [only first 256 bytes shown]" : ""));
+         (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
   return 0;
@@ -482,7 +482,7 @@ int escalade_command_interface(int fd, int disknum, smart_command_set command, i
 
 static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 #ifndef ATAREQUEST
-	return -1;
+        return -1;
 #else
   // there is no direct correlation between name 'ad0, ad1, ...' and
   // channel/unit number.  So we need to iterate through the possible
@@ -555,10 +555,10 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   }
   // form /dev/ad* or ad*
   if (!strncmp(fbsd_dev_ata_disk_prefix, dev_name,
-	       strlen(fbsd_dev_ata_disk_prefix))) {
+               strlen(fbsd_dev_ata_disk_prefix))) {
     if (chan != NULL) {
       if (get_ata_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
-	return GUESS_DEVTYPE_DONT_KNOW;
+        return GUESS_DEVTYPE_DONT_KNOW;
       }
     }
     return GUESS_DEVTYPE_ATA;
@@ -566,22 +566,22 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
   
   // form /dev/da* or da*
   if (!strncmp(fbsd_dev_scsi_disk_plus, dev_name,
-	       strlen(fbsd_dev_scsi_disk_plus)))
+               strlen(fbsd_dev_scsi_disk_plus)))
     goto handlescsi;
 
   // form /dev/sa* or sa*
   if (!strncmp(fbsd_dev_scsi_tape1, dev_name,
-	      strlen(fbsd_dev_scsi_tape1)))
+              strlen(fbsd_dev_scsi_tape1)))
     goto handlescsi;
 
   // form /dev/nsa* or nsa*
   if (!strncmp(fbsd_dev_scsi_tape2, dev_name,
-	      strlen(fbsd_dev_scsi_tape2)))
+              strlen(fbsd_dev_scsi_tape2)))
     goto handlescsi;
 
   // form /dev/esa* or esa*
   if (!strncmp(fbsd_dev_scsi_tape3, dev_name,
-	      strlen(fbsd_dev_scsi_tape3)))
+              strlen(fbsd_dev_scsi_tape3)))
     goto handlescsi;
   
   // we failed to recognize any of the forms
@@ -645,18 +645,18 @@ int get_dev_names(char*** names, const char* prefix) {
     // glob failed
     if (retglob==GLOB_NOSPACE)
       pout("glob(3) ran out of memory matching patterns (%s),(%s)\n",
-	   pattern1, pattern2);
+           pattern1, pattern2);
     else if (retglob==GLOB_ABORTED)
       pout("glob(3) aborted matching patterns (%s),(%s)\n",
-	   pattern1, pattern2);
+           pattern1, pattern2);
     else if (retglob==GLOB_NOMATCH) {
       pout("glob(3) found no matches for patterns (%s),(%s)\n",
-	   pattern1, pattern2);
+           pattern1, pattern2);
       retval = 0;
     }
     else if (retglob)
       pout("Unexplained error in glob(3) of patterns (%s),(%s)\n",
-	   pattern1, pattern2);
+           pattern1, pattern2);
     
     //  Free memory and return
     globfree(&globbuf);
@@ -669,8 +669,8 @@ int get_dev_names(char*** names, const char* prefix) {
   lim = globbuf.gl_pathc < MAX_NUM_DEV ? globbuf.gl_pathc : MAX_NUM_DEV;
   if (lim < globbuf.gl_pathc)
     pout("glob(3) found %d > MAX=%d devices matching patterns (%s),(%s): ignoring %d paths\n", 
-	 globbuf.gl_pathc, MAX_NUM_DEV, pattern1,pattern2,
-	 globbuf.gl_pathc-MAX_NUM_DEV);
+         globbuf.gl_pathc, MAX_NUM_DEV, pattern1,pattern2,
+         globbuf.gl_pathc-MAX_NUM_DEV);
   
   // allocate space for up to lim number of ATA devices
   if (!(mp =  (char **)calloc(lim, sizeof(char*)))){

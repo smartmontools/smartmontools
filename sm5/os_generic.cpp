@@ -62,7 +62,7 @@
 #include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.7 2003/12/01 06:02:08 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.8 2003/12/10 11:30:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -96,11 +96,11 @@ static void unsupported(){
 
     debugmode=1;
     pout("\n"
-	 "############################################################################\n"
-	 "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-	 "Please see the files os_generic.c and os_generic.h for porting instructions.\n"
-	 "############################################################################\n\n",
-	 osname);
+         "############################################################################\n"
+         "WARNING: smartmontools has not been ported to the %s Operating System.\n"
+         "Please see the files os_generic.c and os_generic.h for porting instructions.\n"
+         "############################################################################\n\n",
+         osname);
     debugmode=savedebugmode;
     warninggiven=1;
   }
@@ -115,25 +115,25 @@ void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-	 "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
-	 "                                              (Enables SMART on first disk)\n\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
-	 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -device=3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
+         "                                              (Enables SMART on first disk)\n\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -device=3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #else
   printf(
-	 "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-	 "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-	 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-	 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-	 "                                      (Prints Self-Test & Attribute errors)\n"
-	 "  smartctl -a -d 3ware,2 /dev/sda\n"
-	 "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-	 );
+         "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
+         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
+         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
+         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
+         "                                      (Prints Self-Test & Attribute errors)\n"
+         "  smartctl -a -d 3ware,2 /dev/sda\n"
+         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         );
 #endif
   return;
 }

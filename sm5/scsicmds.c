@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.66 2003/12/02 03:24:17 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.67 2003/12/10 11:30:31 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -955,7 +955,7 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
             return err;
         }
-	// pull out page size from response, don't forget to add 4
+        // pull out page size from response, don't forget to add 4
         pagesize = (unsigned short) ((tBuf[2] << 8) | tBuf[3]) + 4; 
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
             pout("Log Sense failed, IE page, bad parameter code or length\n");
@@ -1614,9 +1614,9 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
     num = (resp[2] << 8) | resp[3];
     ucp = &resp[0] + 4;
     while (num > 3) {
-    	pc = (ucp[0] << 8) | ucp[1];
-	pl = ucp[3] + 4;
-	switch (pc) {
+        pc = (ucp[0] << 8) | ucp[1];
+        pl = ucp[3] + 4;
+        switch (pc) {
             case 0: 
             case 1: 
             case 2: 
@@ -1627,25 +1627,25 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
                 ecp->gotPC[pc] = 1;
                 ullp = &ecp->counter[pc];
                 break;
-	default: 
+        default: 
                 ecp->gotExtraPC = 1;
                 ullp = &ecp->counter[7];
                 break;
-	}
-	k = pl - 4;
-	xp = ucp + 4;
-	if (k > (int)sizeof(*ullp)) {
-	    xp += (k - sizeof(*ullp));
-	    k = sizeof(*ullp);
-	}
-	*ullp = 0;
-	for (j = 0; j < k; ++j) {
-	    if (j > 0)
-	    	*ullp <<= 8;
-	    *ullp |= xp[j];
-	}
-	num -= pl;
-	ucp += pl;
+        }
+        k = pl - 4;
+        xp = ucp + 4;
+        if (k > (int)sizeof(*ullp)) {
+            xp += (k - sizeof(*ullp));
+            k = sizeof(*ullp);
+        }
+        *ullp = 0;
+        for (j = 0; j < k; ++j) {
+            if (j > 0)
+                *ullp <<= 8;
+            *ullp |= xp[j];
+        }
+        num -= pl;
+        ucp += pl;
     }
 }
 
@@ -1661,9 +1661,9 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
     ucp = &resp[0] + 4;
     szof = sizeof(nmep->counterPC0);
     while (num > 3) {
-    	pc = (ucp[0] << 8) | ucp[1];
-	pl = ucp[3] + 4;
-	switch (pc) {
+        pc = (ucp[0] << 8) | ucp[1];
+        pl = ucp[3] + 4;
+        switch (pc) {
             case 0: 
                 nmep->gotPC0 = 1;
                 k = pl - 4;
@@ -1679,12 +1679,12 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
                     nmep->counterPC0 |= xp[j];
                 }
                 break;
-	default: 
+        default: 
                 nmep->gotExtraPC = 1;
                 break;
-	}
-	num -= pl;
-	ucp += pl;
+        }
+        num -= pl;
+        ucp += pl;
     }
 }
 

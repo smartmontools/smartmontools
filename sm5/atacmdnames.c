@@ -26,7 +26,7 @@
 
 #define COMMAND_TABLE_SIZE 256
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.9 2003/08/13 12:33:22 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.c,v 1.10 2003/12/10 11:30:31 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -326,9 +326,9 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
   // warnings if there are not enough of them.
   if (sizeof(command_table) != sizeof(char *)*COMMAND_TABLE_SIZE){
     fprintf(stderr, 
-	    "Problem in atacmdnames.c.  Command Table command_table[] does\n"
-	    "not have %d entries!  It has %d entries. Please fix it.\n",
-	    COMMAND_TABLE_SIZE, (int)(sizeof(command_table)/sizeof(char *)));
+            "Problem in atacmdnames.c.  Command Table command_table[] does\n"
+            "not have %d entries!  It has %d entries. Please fix it.\n",
+            COMMAND_TABLE_SIZE, (int)(sizeof(command_table)/sizeof(char *)));
     abort();
   }
 
