@@ -36,8 +36,8 @@
 #include "smartd.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.14 2002/10/23 12:24:24 ballen4705 Exp $\n" 
-"\t" CVSID1 "\t" CVSID4 "\t" CVSID7 ;
+const char *CVSid3="$Id: smartd.cpp,v 1.15 2002/10/23 20:36:59 ballen4705 Exp $" 
+CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
   pid_t pid;
@@ -288,6 +288,73 @@ void CheckDevices (  atadevices_t *atadevices, scsidevices_t *scsidevices)
 	}
 }
 
+
+int massagecvs(char *out,const char *in){
+  char filename[128], version[128], date[128];
+  int i=0;
+  const char *savein=in;
+
+  // skip to I of $Id:
+  while (*in !='\0' && *in!='I')
+    in++;
+  
+  // skip to start of filename
+  if (!*in)
+    return 0;
+  in+=4;
+
+  // copy filename
+  i=0;
+  while (i<100 && *in!=',' && *in)
+    filename[i++]=*in++;
+  filename[i]='\0';
+  if (!*in)
+    return 0;
+
+  // skip ,v and space
+  in+=3;
+
+  i=0;
+  // copy version number
+  while (i<100 && *in!=' ' && *in)
+    version[i++]=*in++;
+  version[i]='\0';
+  if (!*in)
+    return 0;
+
+  // skip space
+  in++;
+  // copy date
+  i=0;
+  while (i<100 && *in!=' ' && *in)
+    date[i++]=*in++;
+  date[i]='\0';
+
+  sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
+  return in-savein;
+}
+
+// prints a single set of CVS ids
+void printone(const char *cvsid){
+  char strings[512];
+  const char *here;
+  int len,line=1;
+  here=cvsid;
+  while ((len=massagecvs(strings,here))){
+    switch (line++){
+    case 1:
+      printout(LOG_INFO,"Module:");
+      break;
+    default:
+      printout(LOG_INFO,"  uses:");
+    } 
+    printout(LOG_INFO," %s\n",strings);
+    here+=len;
+  }
+  return;
+}
+
+
 char copyleftstring[]=
 "Home page of smartd is " PROJECTHOME "\n\n"
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
@@ -336,7 +403,10 @@ int main (int argc, char **argv){
     printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
 		RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
     printout(LOG_INFO,copyleftstring);
-    printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n%s%s%s",CVSid1,CVSid2,CVSid3);
+    printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
+    printone(CVSid3);
+    printone(CVSid1);
+    printone(CVSid2);
     exit(0);
   }
   

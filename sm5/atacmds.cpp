@@ -23,14 +23,13 @@
  * 
  */
 
-
 #include <stdio.h>
 #include <string.h>
 #include <syslog.h>
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.20 2002/10/23 13:43:42 ballen4705 Exp $\n" "\t" CVSID1 ;
+const char *CVSid1="$Id: atacmds.cpp,v 1.21 2002/10/23 20:36:59 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -49,9 +48,9 @@ const char *minor_str[] = {			/* word 81 value: */
   "ATA-1 X3T9.2 781D revision 4",		/* 0x0003	*/
   "ATA-2 published, ANSI X3.279-1996",		/* 0x0004	*/
   "ATA-2 X3T10 948D prior to revision 2k",	/* 0x0005	*/
-  "ATA-3 X3T10 2008D revision 1",		/* 0x0006	*/
+  "ATA-3 X3T10 2008D revision 1",		/* 0x0006	*/ /* SMART NOT INCLUDED */
   "ATA-2 X3T10 948D revision 2k",		/* 0x0007	*/
-  "ATA-3 X3T10 2008D revision 0",		/* 0x0008	*/ /* SMART NOT INCLUDED */
+  "ATA-3 X3T10 2008D revision 0",		/* 0x0008	*/ 
   "ATA-2 X3T10 948D revision 3",		/* 0x0009	*/
   "ATA-3 published, ANSI X3.298-199x",		/* 0x000a	*/
   "ATA-3 X3T10 2008D revision 6",		/* 0x000b	*/ /* 1st VERSION WITH SMART */
@@ -82,7 +81,7 @@ const char *minor_str[] = {			/* word 81 value: */
 // disk that is ATA/ATAPI-4 or above can not be trusted to show the
 // vendor values in sensible format.
 
-
+// Negative values below are because it doesn't support SMART
 const int actual_ver[] = { 
   /* word 81 value: */
   0,		/* 0x0000	WARNING: 	*/
@@ -91,7 +90,7 @@ const int actual_ver[] = {
   1,		/* 0x0003	WARNING: 	*/
   2,		/* 0x0004	WARNING:   This array 		*/
   2,		/* 0x0005	WARNING:   corresponds 		*/
-  3,		/* 0x0006	WARNING:   *exactly*		*/
+  -3,		/* 0x0006	WARNING:   *exactly*		*/
   2,		/* 0x0007	WARNING:   to the ATA/		*/
   -3, /*<== */	/* 0x0008	WARNING:   ATAPI version	*/
   2,		/* 0x0009	WARNING:   listed in	 	*/
@@ -117,13 +116,12 @@ const int actual_ver[] = {
   0		/* 0x001d-0xfffe    		*/
 };
 
-
 // Used to warn users about invalid checksums.  However we will not
 // abort on invalid checksums.
 void checksumwarning(const char *string){
-  pout("Warning! %s error: invalid checksum.\n",string);
-  fprintf(stderr,"Warning! %s error: invalid checksum.\n",string);
-  syslog(LOG_INFO,"Warning! %s error: invalid checksum.\n",string);
+  pout("Warning! %s error: invalid SMART checksum.\n",string);
+  fprintf(stderr,"Warning! %s error: invalid SMART checksum.\n",string);
+  syslog(LOG_INFO,"Warning! %s error: invalid SMART checksum.\n",string);
   return;
 }
 
@@ -141,7 +139,6 @@ int ataReadHDIdentity ( int device, struct hd_driveid *buf){
   return 0;
 }
 #endif
-
 
 // Reads current Device Identity info (512 bytes) into buf
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
@@ -349,12 +346,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
 }
 
 
-// This routine is marked as "Obsolete" in the ATA-5 spec, but it's
-// very important for us.  Together with the SMART READ DATA command
-// above, it's the only way for us to find out if the SMART status is
-// good or not.  Hopefully this will get fixed -- I will find a way to
-// get SMART Status directly.
-int ataReadSmartThresholds ( int device, struct ata_smart_thresholds *data){
+int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
   int i;
   unsigned char chksum=0;	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
@@ -380,7 +372,8 @@ int ataReadSmartThresholds ( int device, struct ata_smart_thresholds *data){
 
 // This routine is not currently in use, and it's been marked as
 // "Obsolete" in the ANSI ATA-5 spec.  So it should probably be left
-// alone and unused.
+// alone and unused.  If you do modify the thresholds, be sure to set
+// the checksum correctly before putting the structure back!
 int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
     {WIN_SMART, 1, 0xD7, 1,};
@@ -391,7 +384,6 @@ int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *data){
     perror ("SMART Thresholds Read failed");
     return -1;
   }
-  
   return 0;
 }
 
@@ -460,13 +452,14 @@ int ataDisableAutoOffline (int device ){
 }
 
 
-// Not being used correctly.  Must examine the CL and CH registers to
-// see what the smart status was.  Look at ataSmartStatus2()
+// This function does NOTHING except tell us if SMART is working &
+// enabled on the device.  See ataSmartStatus2() for one that actually
+// returns SMART status.
 int ataSmartStatus (int device ){	
    unsigned char parms[4] = {WIN_SMART, 0, SMART_STATUS, 0};
 
    if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-     perror("Return SMART Status failed");
+     perror("Return SMART Status via HDIO_DRIVE_CMD failed");
      return -1;
    }
    return 0;
@@ -481,37 +474,28 @@ int ataDoesSmartWork(int device){
 }
 
 
-// This function needs to be properly tested and debugged.  I am not
-// yet sure if this is right; have asked Andre for help.  May need to
-// use IDE_DRIVE_TASK.  Does CONFIG_IDE_TASKFILE_IO need to be
-// configured into the kernel?
+// This function uses a different interface (DRIVE_TASK) than the
+// other commands in this file.
 int ataSmartStatus2(int device){
   unsigned char normal_cyl_lo=0x4f, normal_cyl_hi=0xc2;
   unsigned char failed_cyl_lo=0xf4, failed_cyl_hi=0x2c;
-
+  
   unsigned char parms[HDIO_DRIVE_TASK_HDR_SIZE]=
-    {WIN_SMART,    // CMD
-     SMART_STATUS, // FR
-     0,            // NS
-     0,            // SC
-     0,            // CL
-     0,            // CH
-     0             // SEL -- Andre, is this right?? Or should it be 1?
-    };
-
+    {WIN_SMART, SMART_STATUS, 0, 0, 0, 0, 0};
+  
   // load CL and CH values
   parms[4]=normal_cyl_lo;
   parms[5]=normal_cyl_hi;
 
   if (ioctl(device,HDIO_DRIVE_TASK,parms)){
-    perror("SMART Status command failed");
+    perror("SMART Status command via HDIO_DRIVE_TASK failed");
     return -1;
   }
   
   // Cyl low and Cyl high unchanged means "Good SMART status"
   if (parms[4]==normal_cyl_lo && parms[5]==normal_cyl_hi)
     return 0;
-
+  
   // These values mean "Bad SMART status"
   if (parms[4]==failed_cyl_lo && parms[5]==failed_cyl_hi)
     return 1;
@@ -576,7 +560,6 @@ int ataSmartTest(int device, int testtype){
     pout("Drive command \"%s\" successful.\nTesting has begun.\n",cmdmsg);
   return 0;
 }
-
 
 /* Test Time Functions */
 int TestTime(struct ata_smart_values data,int testtype){

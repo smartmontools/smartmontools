@@ -28,8 +28,8 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.29 2002/10/23 15:15:43 ballen4705 Exp $\n"
-	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
+const char *CVSid4="$Id: ataprint.c,v 1.30 2002/10/23 20:36:59 ballen4705 Exp $"
+CVSID2 CVSID3 CVSID6;
 
 // Function for printing ASCII byte-swapped strings, skipping white
 // space. This is needed on little-endian architectures, eg Intel,

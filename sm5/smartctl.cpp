@@ -38,8 +38,8 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.cpp,v 1.16 2002/10/23 14:29:49 ballen4705 Exp $\n"
-"\t" CVSID1 "\t" CVSID2 "\t" CVSID4 "\t" CVSID5 "\t" CVSID6 ;
+const char* CVSid6="$Id: smartctl.cpp,v 1.17 2002/10/23 20:36:59 ballen4705 Exp $"
+CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
 
 unsigned char driveinfo               = FALSE;
 unsigned char checksmart              = FALSE;
