@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.104 2004/04/24 16:43:49 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.105 2004/04/26 08:39:12 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -327,7 +327,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { // Maxtor DiamondMax 3400 Ultra ATA family
-    "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8)|1010E6|0840E5|0640E4)$",
+    "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8|1010E6|0840E5|0640E4)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
