@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.76 2004/09/22 00:19:31 likewise Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.77 2005/01/14 00:27:51 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.76 2004/09/22 00:19:31 likewise Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.77 2005/01/14 00:27:51 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -752,10 +752,10 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         if (0 != masked_driver_status) {
             if (LSCSI_DRIVER_TIMEOUT == masked_driver_status)
                 return -ETIMEDOUT;
-	    else
-		return -EIO;	/* catch all */
+	    else if (LSCSI_DRIVER_SENSE != masked_driver_status)
+		return -EIO;
 	}
-        if (LSCSI_DRIVER_SENSE == (io_hdr.driver_status & 0xf))
+        if (LSCSI_DRIVER_SENSE == masked_driver_status)
             iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
         iop->resp_sense_len = io_hdr.sb_len_wr;
         if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
