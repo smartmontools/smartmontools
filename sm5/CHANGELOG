@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.106 2003/03/25 13:13:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.107 2003/03/28 07:25:26 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,10 @@ CURRENT RELEASE (see VERSION file in this directory):
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
 smartmontools-5.1-9
+  [DG] more scsi cleanup. Output scsi device serial number (VPD page
+       0x80) if available as part of '-i'. Implement '-t offline' as
+       default self test (only self test older disks support).
+
   [BA] Changed crit to info in loglevel of smartd complaint to syslog
        if DEVICESCAN enabled and device not found.
 
