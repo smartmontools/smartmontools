@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.42 2003/01/04 10:28:35 ballen4705 Exp $
+# $Id: Makefile,v 1.43 2003/01/04 10:38:44 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -45,7 +45,7 @@ releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
 pkgname=smartmontools-5.1
-pkgname2=$(pkgname).$(counter)
+pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\n\n\tman ./smartctl.8\n\tman ./smartd.8\n\tman ./smartd.conf.5\n"
@@ -135,7 +135,7 @@ release: smartd.conf.5
 	echo "Release: " $(counter) > temp.version
 	cat temp.version temp.spec > smartmontools.spec
 	rm -f temp.spec temp.version
-	. cvs-script && cvs commit -m "release $(counter)"
+	. cvs-script && cvs commit -m "Release 5.1.$(counter)"
 	. cvs-script && cvs tag -d "RELEASE_5_1_$(counter)" && cvs tag "RELEASE_5_1_$(counter)"
 	rm -rf $(pkgname)
 	mkdir $(pkgname)
