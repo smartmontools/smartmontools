@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.67 2003/04/21 13:50:41 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.68 2003/04/21 22:43:04 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/21 13:50:41 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/21 22:43:04 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
@@ -529,6 +529,11 @@ digits, for example \'06' or \'31' or '00'.
 Celsius.  This is used by some Samsung disks (example: model SV1204H
 with RK100-13 firmware).
 
+.I 194,unknown
+\- Raw Attribute number 194 is NOT the disk temperature, and its
+interpretation is unknown. This is primarily useful for the -P
+(presets) option.
+
 .I 200,writeerrorcount
 \- Raw Attribute number 200 is the Write Error Count.
 
@@ -882,4 +887,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.67 2003/04/21 13:50:41 ballen4705 Exp $
+$Id: smartctl.8,v 1.68 2003/04/21 22:43:04 ballen4705 Exp $

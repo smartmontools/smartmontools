@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.45 2003/04/20 18:04:00 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.46 2003/04/21 22:43:04 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/04/20 18:04:00 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/04/21 22:43:04 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- SMART Disk Monitoring Daemon Configuration File
 
@@ -641,6 +641,11 @@ digits, for example \'06' or \'31' or '00'.
 Celsius.  This is used by some Samsung disks (example: model SV1204H
 with RK100-13 firmware).
 
+.I 194,unknown
+\- Raw Attribute number 194 is NOT the disk temperature, and its
+interpretation is unknown. This is primarily useful for the -P
+(presets) Directive.
+
 .I 200,writeerrorcount
 \- Raw Attribute number 200 is the Write Error Count.
 
@@ -864,4 +869,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.45 2003/04/20 18:04:00 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.46 2003/04/21 22:43:04 ballen4705 Exp $
