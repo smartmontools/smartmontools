@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.227 2003/10/31 20:37:49 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.228 2003/11/02 18:15:53 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -2471,10 +2471,6 @@ int MakeConfigEntries(const char *type, int start){
     EXIT(EXIT_NOMEM);
   }
   
-  // if nothing on list, we are finished!
-  if (!num)
-    return num;
-
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
     PrintOut(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
@@ -2505,8 +2501,11 @@ int MakeConfigEntries(const char *type, int start){
   }
   
   // If needed, free memory used for devlist: pointers now in
-  // cfgentries[]->names
-  devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
+  // cfgentries[]->names.  We don't call this if num==0 since for that
+  // case, if we realloc()d the array length, this was ALREADY
+  // equivalent to calling free().
+  if (num)
+    devlist = FreeNonZero(devlist,(sizeof (char*) * num),__LINE__,__FILE__);
   
   return num;
 }
@@ -2569,6 +2568,13 @@ int ReadOrMakeConfigEntries(int *scanning){
     // make config list of SCSI devices to search for
     if (doscsi)
       entries+=MakeConfigEntries("SCSI", entries);
+
+    // warn user if scan table found no devices
+    if (!entries) {
+      PrintOut(LOG_CRIT,"In the system's table of devices NO devices found to scan\n");
+      // get rid of fake entry with SCANDIRECTIVE as name
+      RmConfigEntry(cfgentries, __LINE__);
+    }
   } 
   else
     PrintOut(LOG_CRIT,"Configuration file %s parsed but has no entries (like /dev/hda)\n",configfile);
