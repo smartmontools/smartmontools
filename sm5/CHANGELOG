@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.118 2003/04/15 09:39:13 dpgilbert Exp $
+$Id: CHANGELOG,v 1.119 2003/04/17 19:30:18 guidog Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [GG] Introduce different exit codes indicating the type of problem
+       encountered for smartd.
 
   [DG] Add non-medium error count to '-l error' and extended self test
        duration to '-l selftest'. Get scsi IEs and temperature changes
