@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.84 2003/04/09 08:55:07 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.85 2003/04/09 11:17:07 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -763,35 +763,6 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
   return 0;
 }
 
-
-// Reads the Self Test Log (log #6)
-int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
-  
-  // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
-    syserror("Error SMART Error Self-Test Log Read failed");
-    return -1;
-  }
-
-  // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
-    checksumwarning("SMART Self-Test Log Structure");
-  
-  return 0;
-}
-
-
-// Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
-int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){	
-  
-  // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
-    return -1;
-  }  
-  return 0;
-}
-
-
 // swap two bytes.  Point to low address
 void swap2(char *location){
   char tmp=*location;
@@ -809,6 +780,39 @@ void swap4(char *location){
   return;
 }
 
+
+// Reads the Self Test Log (log #6)
+int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
+  
+  // get data from device
+  if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
+    syserror("Error SMART Error Self-Test Log Read failed");
+    return -1;
+  }
+
+  // compute its checksum, and issue a warning if needed
+  if (checksum((unsigned char *)data))
+    checksumwarning("SMART Self-Test Log Structure");
+  
+  // another firmware bug -- count in the first byte of "reserved"
+  if (con->fixbuginerrorlog)
+    swap2((char *)&(data->mostrecenttest));
+
+  return 0;
+}
+
+
+// Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
+int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){	
+  
+  // get data from device
+  if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
+    return -1;
+  }  
+  return 0;
+}
+
+
 void fixbuginerrorlog(struct ata_smart_errorlog *data){
   int i,j;
   
@@ -825,7 +829,7 @@ void fixbuginerrorlog(struct ata_smart_errorlog *data){
     swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
   }
 }
-    
+
 // Reads the Error Log (log #1)
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
   
