@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8.in,v 1.3 2003/10/02 13:36:05 ballen4705 Exp $
+\# $Id: smartctl.8.in,v 1.4 2003/10/03 13:14:13 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,13 +16,13 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/10/02 13:36:05 $" RELEASE
+.TH SMARTCTL 8  "$Date: 2003/10/03 13:14:13 $" RELEASE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks \- \fBRELEASE\fP
 .SH SYNOPSIS
 .B smartctl [options] device
 .SH PACKAGE VERSION
-RELEASE "$Date: 2003/10/02 13:36:05 $"
+RELEASE "$Date: 2003/10/03 13:14:13 $"
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self-Monitoring, Analysis and Reporting
@@ -151,32 +151,44 @@ can be fixed by upgrading to version 1.02.00.037 or later of the
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
-Specifies how tolerant \fBsmartctl\fP should be of SMART command
-failures.  The valid arguments to this option are:
+Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART command
+failures. 
+
+The behavior of \fBsmartctl\P depends upon whether the command is
+"\fBoptional\fP" or "\fBmandatory\fP". Here "\fBmandatory\fP" means
+"required by the ATA/ATAPI-5 Specification if the device implements
+the SMART command set" and "\fBoptional\fP" means "not required by the
+ATA/ATAPI-5 Specification even if the device implements the SMART
+command set."  The "\fBmandatory\fP" ATA and SMART commands are: (1)
+ATA IDENTIFY DEVICE, (2) SMART ENABLE/DISABLE ATTRIBUTE AUTOSAVE, (3)
+SMART ENABLE/DISABLE, and (4) SMART RETURN STATUS.
+
+The valid arguments to this option are:
 
 .I normal
-\- exit on failure of a mandatory SMART command, and ignore failures
-of optional SMART commands.  This is the default. It can lead to
-messages like "Feature X not implemented", followed shortly by "Error:
-unable to enable Feature X".  On some devices, giving unimplemented
-optional SMART commands doesn\'t even cause an error.  This can result
-in misleading \fBsmartctl\fP messages such as "Feature X not
-implemented", followed shortly by "Feature X: enabled".  In most such
-cases, contrary to the final message, the Feature is \fBnot\fP
-enabled.
+\- exit on failure of any \fBmandatory\fP SMART command, and ignore
+all failures of \fBoptional\fP SMART commands.  This is the default.
+Note that on some devices, issuing unimplemented optional SMART
+commands doesn\'t cause an error.  This can result in misleading
+\fBsmartctl\fP messages such as "Feature X not implemented", followed
+shortly by "Feature X: enabled".  In most such cases, contrary to the
+final message, Feature X is \fBnot\fP enabled.
 
 .I conservative
-\- exit on failure of any SMART command.
+\- exit on failure of any \fBoptional\fP SMART command.
 
 .I permissive
-\- ignore failures of any SMART commands.
+\- ignore failure(s) of \fBmandatory\fP SMART commands.  This option
+may be given more than once.  Each additional use of this option will
+cause one more additional failure to be ignored.  Note that the use of
+this option can lead to messages like "Feature X not implemented",
+followed shortly by "Error: unable to enable Feature X".  In a few
+such cases, contrary to the final message, Feature X \fBis\fP enabled.
 
-Here "mandatory" means "required by the ATA/ATAPI-5 Specification if the
-device implements the SMART command set" and "optional" means "not
-required by the ATA/ATAPI-5 Specification even if the device implements
-the SMART command set."  The "mandatory" SMART commands are: (1)
-Enable/Disable Attribute Autosave, (2) Enable/Disable SMART, and (3)
-SMART Return Status.
+.I verypermissive
+\- equivalent to giving a large number of \'\-T permissive\' options:
+ignore failures of \fBany number\fP of \fBmandatory\fP SMART commands.
+Please see the note above.
 
 .TP
 .B \-b TYPE, \-\-badsum=TYPE
@@ -945,4 +957,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.3 2003/10/02 13:36:05 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.4 2003/10/03 13:14:13 ballen4705 Exp $

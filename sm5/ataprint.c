@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.102 2003/10/03 03:51:16 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.103 2003/10/03 13:14:13 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -816,7 +816,7 @@ void failuretest(int type, int returnvalue){
   // If this is an error in an "optional" SMART command
   if (type==OPTIONAL_CMD){
     if (con->conservative){
-      pout("An optional SMART command has failed: exiting.  To continue, don't use tolerance option '-T conservative'\n");
+      pout("An optional SMART command failed: exiting.  Remove '-T conservative' option to continue.\n");
       exit(returnvalue);
     }
     return;
@@ -826,11 +826,11 @@ void failuretest(int type, int returnvalue){
   if (type==MANDATORY_CMD){
     if (con->permissive--)
       return;
-    pout("A mandatory SMART command has failed: exiting. To continue, use additional '-T permissive' tolerance options\n");
+    pout("A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.\n");
     exit(returnvalue);
   }
 
-  pout("Smartctl internal error in failuretest(type=%d). Please contact %s\n",type,PROJECTHOME);
+  pout("Smartctl internal error in failuretest(type=%d). Please contact developers at %s\n",type,PROJECTHOME);
   exit(returnvalue|FAILCMD);
 }
 
