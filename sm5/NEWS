@@ -1,13 +1,18 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.6 2003/10/13 05:24:29 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.7 2003/10/13 14:31:34 arvoreen Exp $
 
 Refer to the CHANGELOG file for a complete change log.
 
 See http://sourceforge.net/news/?group_id=64297 for the most recent news.
 
-Eduard, in preparation for the upcoming release, please add a
-preliminary entry here (a few lines) describing the FreeBSD support.
+Date: ????
+Summary: smartmontools release 5.21
+-----------------------------------
+
+Preliminary support for FreeBSD.  ATA support requires a 5.1-CURRENT kernel
+while SCSI support should work across multiple versions (any that support CAM)
+
 
 Date: 2003-10-04
 Summary: smartmontools release 5.20

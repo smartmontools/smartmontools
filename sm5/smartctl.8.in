@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8.in,v 1.7 2003/10/06 08:15:04 ballen4705 Exp $
+\# $Id: smartctl.8.in,v 1.8 2003/10/13 14:31:34 arvoreen Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/10/06 08:15:04 $" RELEASE
+.TH SMARTCTL 8  "$Date: 2003/10/13 14:31:34 $" RELEASE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
@@ -27,7 +27,7 @@
 .B /usr/sbin/smartctl
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/06 08:15:04 $"
+\fBRELEASE\fP "$Date: 2003/10/13 14:31:34 $"
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self-Monitoring, Analysis and Reporting
@@ -153,6 +153,8 @@ instead: "\fB3w-xxxx: tw_ioctl(): Passthru size (123392) too big\fP". This
 can be fixed by upgrading to version 1.02.00.037 or later of the
 3w-xxxx driver, or by applying a patch to older versions. See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
+
+.B 3ware controllers are NOT supported under FreeBSD yet.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -967,4 +969,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.7 2003/10/06 08:15:04 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.8 2003/10/13 14:31:34 arvoreen Exp $
