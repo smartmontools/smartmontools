@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.30 2002/10/23 20:36:59 ballen4705 Exp $"
+const char *CVSid4="$Id: ataprint.cpp,v 1.31 2002/10/24 07:50:45 ballen4705 Exp $"
 CVSID2 CVSID3 CVSID6;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -940,7 +940,7 @@ int ataPrintMain (int fd){
       smartautoofflineenable || smartautoofflinedisable)
     pout("\n");
 
-  // START OF READ-ONLY OPTIONS APART FROM -p and -i
+  // START OF READ-ONLY OPTIONS APART FROM -V and -i
   if (checksmart || generalsmartvalues || smartvendorattrib || smarterrorlog || smartselftestlog)
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
@@ -954,8 +954,13 @@ int ataPrintMain (int fd){
       if (ataCheckSmart(smartval, smartthres,1)){
 	QUIETON;
 	returnval|=FAILATTR;
-	pout("Failed Attributes:\n");
-	PrintSmartAttribWithThres(smartval, smartthres,1);
+	if (smartvendorattrib)
+	  pout("See vendor-specific Attribute list for failed Attributes.\n\n");
+	else
+	  {
+	    pout("Failed Attributes:\n");
+	    PrintSmartAttribWithThres(smartval, smartthres,1);
+	  }
       }
       else
 	pout("No failed Attributes found.\n\n");   
@@ -966,8 +971,12 @@ int ataPrintMain (int fd){
       pout("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(smartval, smartthres,0)){
 	QUIETON;
-	pout("Please note the following marginal attributes:\n");
-	PrintSmartAttribWithThres(smartval, smartthres,2);
+	if (smartvendorattrib)
+	  pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
+	else {
+	  pout("Please note the following marginal attributes:\n");
+	  PrintSmartAttribWithThres(smartval, smartthres,2);
+	} 
 	returnval|=FAILAGE;
       }
       else

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.16 2002/10/23 15:15:43 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -15,11 +15,11 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTCTL 8  "$Date: 2002/10/23 15:15:43 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2002/10/24 07:50:45 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
-.B smartctl \-[piqQaedtTfFcgvlLm[O|S|s|X|x|A]] device
+.B smartctl \-[ViqQaedtTfFcgvlLm[O|S|s|X|x|A]] device
 
 .SH DESCRIPTION
 .B smartctl
@@ -72,11 +72,11 @@ DATA, RUN/ABORT TESTS.
 .TP
 .B SHOW INFORMATION:
 .TP
-.B p
-Print: Prints version, Copyright, License, home page and CVS-id
+.B V
+Version: Prints version, Copyright, License, home page and CVS-id
 information for your copy of
 .B smartctl.
-Please include the CVS and version information if you are reporting
+Please include this information if you are reporting
 bugs or problems.
 .TP
 .B i
@@ -86,12 +86,11 @@ Says if the device supports S.M.A.R.T., and if so, whether
 S.M.A.R.T. support is currently enabled or disabled.
 .TP
 .B q
-Quiet mode: Only print: For the '\-l' option,
-errors recorded in the SMART error log; For the '\-L' option,
-errors recorded in the device self-test log; For the '\-c'
-SMART "disk failing" status or device attributes
-(pre-failure or usage) which failed either now or
-in the past; For the '\-v' option device attributes (pre-failure or usage)
+Quiet mode: Only print: For the '\-l' option, errors recorded in the
+SMART error log; For the '\-L' option, errors recorded in the device
+self-test log; For the '\-c' SMART "disk failing" status or device
+attributes (pre-failure or usage) which failed either now or in the
+past; For the '\-v' option device attributes (pre-failure or usage)
 which failed either now or in the past.
 .TP
 .B Q
@@ -441,4 +440,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.16 2002/10/23 15:15:43 ballen4705 Exp $
+$Id: smartctl.8,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $

@@ -13,12 +13,12 @@
 \# at the Concurrent Systems Laboratory (now part of the Storage Systems
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
-.TH SMARTD 8  "$Date: 2002/10/14 15:26:30 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/10/24 07:50:45 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
 .B smartd  
-[\-pX\]
+[\-VX\]
 
 .SH DESCRIPTION
 .B smartd
@@ -61,11 +61,11 @@ messages are harmless.]
 OPTIONS
 .TP
 p
-Prints license, copyright, and version information onto STDOUT or into the SYSLOG
-log (normally /var/log/messages) and then exits.
+Version: Prints license, copyright, and CVS version information onto STDOUT or into the SYSLOG
+log (normally /var/log/messages) and then exits. Please include this information if you are reporting bugs.
 .TP
 X
-Runs smartd in "debug" mode. In this mode, it does not fork and
+eXamine: Runs smartd in "debug" mode. In this mode, it does not fork and
 displays status information to STDOUT.
 
 
@@ -178,4 +178,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.7 2002/10/14 15:26:30 ballen4705 Exp $
+$Id: smartd.8,v 1.8 2002/10/24 07:50:45 ballen4705 Exp $

@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.9 2002/10/23 12:24:24 ballen4705 Exp $\n"
+#define CVSID6 "$Id: smartctl.h,v 1.10 2002/10/24 07:50:45 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
@@ -49,7 +49,7 @@
 #define SMARTAUTOOFFLINEDISABLE 'T'
 #define SMARTAUTOSAVEENABLE     'f'
 #define SMARTAUTOSAVEDISABLE    'F'
-#define PRINTCOPYLEFT           'p'
+#define PRINTCOPYLEFT           'V'
 #define SMART009MINUTES         'm'
 #define QUIETMODE               'q'
 #define VERYQUIETMODE           'Q'

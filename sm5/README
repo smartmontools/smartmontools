@@ -100,7 +100,7 @@ to run smartctl, use the syntax
 See the man page for full details.  A summary of the options is:
 
 Read only:
-p       Print License/Copyright information.
+V       Print License/Copyright information.
 i       Checks if the device supports S.M.A.R.T, and prints drive model
         information.
 c       Checks if device has any S.M.A.R.T. Warranty Failures.  This means
@@ -150,14 +150,17 @@ for SCSI the devices are usually
 Examples:
   smartctl -e /dev/hda     - enables SMART on hard drive
   smartctl -c /dev/sda     - checks status of hard drive.
-  smartd                   - starts background daemon to
-                             monitor hard drive status
+
 
 smartd will scan for all devices that support SMART and poll them very
 thirty minutes for errors or for changes in attribute values. When an
 error or attribute value change occurs, it sends log information to
 the SYSLOG facility.  Typically these messages and warnings appear in
 /var/log/messages.
+
+smartd                   - starts background daemon to
+                             monitor hard drive status
+You can read about the options using man smartd.
 
 
 == REFERENCES ==
@@ -185,4 +188,4 @@ Fax: (408) 867-2115
 E-Mail: 250-1752@mcimail.com.
 
 
-$Id: README,v 1.8 2002/10/23 12:24:23 ballen4705 Exp $
+$Id: README,v 1.9 2002/10/24 07:50:45 ballen4705 Exp $

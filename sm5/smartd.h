@@ -23,13 +23,13 @@
  */
 
 #ifndef CVSID7
-#define CVSID7 "$Id: smartd.h,v 1.6 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#define CVSID7 "$Id: smartd.h,v 1.7 2002/10/24 07:50:45 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
 #define DEBUGMODE 		'X'
 #define EMAILNOTIFICATION	'e'
-#define PRINTCOPYLEFT           'p'
+#define PRINTCOPYLEFT           'V'
 
 /* Boolean Values */
 #define TRUE 0x01

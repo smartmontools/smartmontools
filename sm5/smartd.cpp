@@ -36,7 +36,7 @@
 #include "smartd.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.15 2002/10/23 20:36:59 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.16 2002/10/24 07:50:45 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -86,14 +86,19 @@ void pout(char *fmt, ...){
 }
 
 
-/* prints help information for command syntax */
-void Usage ( void){
-  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon\n", 
+void printhead(){
+  printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon\n"
+	   "Home page is http://smartmontools.sourceforge.net\n\n",
            RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION);
-  printout(LOG_INFO,"usage: smartd -[opts] \n");
-  printout(LOG_INFO,"Read Only Commands:\n");
-  printout(LOG_INFO,"\t\t%c\t\tStart smartd in debug Mode\n",DEBUGMODE);
-  printout(LOG_INFO,"\t\t%c\t\tPrint License and Copyright information\n",PRINTCOPYLEFT);
+}
+
+/* prints help information for command syntax */
+void Usage (void){
+  printhead();
+  printout(LOG_INFO,"usage: smartd -[opts] \n\n");
+  printout(LOG_INFO,"Read Only Options:\n");
+  printout(LOG_INFO,"   %c  Start smartd in debug Mode\n",DEBUGMODE);
+  printout(LOG_INFO,"   %c  Print License, Copyright, and version information\n",PRINTCOPYLEFT);
 }
 	
 // scan to see what ata devices there are, and if they support SMART
@@ -354,9 +359,7 @@ void printone(const char *cvsid){
   return;
 }
 
-
 char copyleftstring[]=
-"Home page of smartd is " PROJECTHOME "\n\n"
 "smartd comes with ABSOLUTELY NO WARRANTY. This\n"
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
@@ -393,6 +396,7 @@ int main (int argc, char **argv){
     case '?':
     default:
       debugmode=1;
+      printout(LOG_INFO,"\n");
       Usage();
       exit(-1);	
     }
@@ -400,8 +404,7 @@ int main (int argc, char **argv){
   
   if (printcopyleft){
     debugmode=1;
-    printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
-		RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+    printhead();
     printout(LOG_INFO,copyleftstring);
     printout(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
     printone(CVSid3);
@@ -410,8 +413,7 @@ int main (int argc, char **argv){
     exit(0);
   }
   
-  printout(LOG_INFO,"smartd version %d.%d-%d Copyright (C) Bruce Allen 2002\n",
-		  RELEASE_MAJOR,RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+  printhead();
   
   if (!debugmode){
     daemon_init();

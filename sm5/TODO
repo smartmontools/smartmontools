@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.10 2002/10/23 15:19:55 ballen4705 Exp $
+$Id: TODO,v 1.11 2002/10/24 07:50:45 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -33,6 +33,10 @@ Produce version for ATA/ATAPI-7
 
 Modifications
 -------------
+
+Change input command line from using current command line format
+(getopt) to getopt_long() for long input options.  This will be
+helpful in adding device specific options.
 
 Command line option to specify devices to look for in smartd startup
 

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.16 2002/10/23 14:35:42 ballen4705 Exp $
+$Id: CHANGELOG,v 1.17 2002/10/24 07:50:45 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,6 +28,8 @@ NOTES FOR NEXT RELEASE:
 
 
 smartmontools-5.0-11
+
+    Changed name of -p (print version) option to -V
 
     Minor change in philosophy: if a SMART command fails or the device
     appears incapable of a SMART command that the user has asked for,
