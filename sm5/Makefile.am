@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.67 2004/09/06 16:54:21 chrfranke Exp $
+# $Id: Makefile.am,v 1.68 2004/09/06 17:52:47 card_captor Exp $
 #
 
 @SET_MAKE@
@@ -269,7 +269,7 @@ else
 initd_DATA = smartd.initd
 
 smartd.initd: $(srcdir)/smartd.initd.in Makefile
-	sed "s|/usr/local/sbin/|$(sbindir)/|g" $< > $@
+	sed "s|/usr/local/sbin/|$(sbindir)/|g" $(srcdir)/smartd.initd.in > $@
 
 initd_install_name = smartd$(smartd_suffix)
 
