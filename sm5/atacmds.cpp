@@ -33,7 +33,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.112 2003/08/04 12:58:40 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.113 2003/08/04 19:17:14 ballen4705 Exp $" ATACMDS_H_CVSID ESCALADE_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1075,21 +1075,6 @@ int ataDisableAutoOffline (int device ){
   }
   return 0;
 }
-
-
-// This function does NOTHING except tell us if SMART is working &
-// enabled on the device.  See ataSmartStatus2() for one that actually
-// returns SMART status.
-#if 0
-int ataSmartStatus (int device ){	
-  
-  if (smartcommandhandler(device, STATUS, 0, NULL)){
-    syserror("Error Return SMART Status via HDIO_DRIVE_CMD failed");
-    return -1;
-  }
-  return 0;
-}
-#endif
 
 // If SMART is enabled, supported, and working, then this call is
 // guaranteed to return 1, else zero.  Silent inverse of
