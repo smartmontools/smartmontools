@@ -1,6 +1,4 @@
 /*
- * smartd.c
- *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -38,7 +36,8 @@
 #include "smartd.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.11 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID1 CVSID4 CVSID7 ;
+const char *CVSid3="$Id: smartd.cpp,v 1.12 2002/10/22 09:50:54 ballen4705 Exp $\n" 
+"\t" CVSID1 "\t" CVSID4 "\t" CVSID7 ;
 
 int daemon_init(void){
   pid_t pid;

@@ -33,7 +33,7 @@
 #include <scsi/scsi.h>
 #include "scsicmds.h"
 
-const char *CVSid2="$Id: scsicmds.cpp,v 1.9 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID4 ;
+const char *CVSid2="$Id: scsicmds.cpp,v 1.10 2002/10/22 09:50:54 ballen4705 Exp $\n" "\t" CVSID4 ;
 
 
 UINT8 logsense (int device, UINT8 pagenum, UINT8 *pBuf)

@@ -36,7 +36,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* CVSid5="$Id: scsiprint.c,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID3 CVSID4 CVSID5 CVSID6 ;
+const char* CVSid5="$Id: scsiprint.c,v 1.8 2002/10/22 09:50:54 ballen4705 Exp $\n" "\t" CVSID3 "\t"  CVSID4 "\t" CVSID5 "\t" CVSID6 ;
 
 UINT8 gBuf[GBUF_SIZE];
 

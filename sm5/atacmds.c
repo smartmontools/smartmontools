@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.16 2002/10/22 09:44:55 ballen4705 Exp $\n" CVSID1 ;
+const char *CVSid1="$Id: atacmds.c,v 1.17 2002/10/22 09:50:53 ballen4705 Exp $\n" "\t" CVSID1 ;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
