@@ -49,7 +49,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.135 2003/04/08 21:47:26 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.136 2003/04/09 12:54:25 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -735,7 +735,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 
   // register the supported functionality.  The smartd code does not
   // seem to make any further use of this information.
-  if (logsense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
+  if (scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf)) == 0){
     for ( i = 4; i < tBuf[3] + LOGPAGEHDRSIZE ; i++){
       switch ( tBuf[i]){ 
       case TEMPERATURE_PAGE:
