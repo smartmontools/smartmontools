@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.40 2004/04/07 11:55:48 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.41 2004/04/07 16:53:46 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1071,21 +1071,15 @@ University of Wisconsin \- Milwaukee Physics Department
 .PP
 .SH CONTRIBUTORS
 The following have made large contributions to smartmontools:
-.fi
-\fBCasper Dik\fP and \fBKeiji Sawada\fP (Solaris interface)
-.fi
+.nf
+\fBCasper Dik\fP (Solaris SCSI interface)
 \fBChristian Franke\fP (Windows interface)
-.fi
 \fBDouglas Gilbert\fP (SCSI subsystem)
-.fi
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
-.fi
 \fBEduard Martinescu\fP (FreeBSD interface)
-.fi
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
-.fi
+\fBKeiji Sawada\fP (Solaris ATA interface)
 \fBSergey Svishchev\fP (NetBSD interface)
-.fi
 \fBPhil Williams\fP (User interface and drive database)
 .fi
 May other individuals have made smaller contributions and corrections.
@@ -1118,4 +1112,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.40 2004/04/07 11:55:48 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.41 2004/04/07 16:53:46 ballen4705 Exp $
