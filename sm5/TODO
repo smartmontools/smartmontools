@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.37 2003/09/24 00:53:37 pervalidus Exp $
+$Id: TODO,v 1.38 2003/09/24 02:28:34 pervalidus Exp $
 
 Testing
 -------
@@ -57,4 +57,4 @@ Ports
 -----
 
 Port to other platforms.  One for Windows (Cygwin) is badly needed since
-some people asked for it, but we need need volunteers for any.
+some people asked for it, but we need volunteers for any.
