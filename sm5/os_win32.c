@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.16 2004/08/13 13:57:12 arvoreen Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.16.2.1 2004/08/16 23:57:19 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -658,6 +658,9 @@ static unsigned ata_scan()
 /////////////////////////////////////////////////////////////////////////////
 
 // Interface to ATA devices.  See os_linux.c
+int marvell_command_interface(int fd, smart_command_set command, int select, char * data)
+{ return -1; }
+
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
 	IDEREGS regs;

@@ -51,7 +51,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.134 2004/08/16 22:44:27 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.134.2.1 2004/08/16 23:57:20 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -369,6 +369,9 @@ void ParseOpts (int argc, char** argv){
         con->controller_port = 0;
       } else if (!strcmp(optarg,"scsi")) {
 	con->controller_type = CONTROLLER_SCSI;
+        con->controller_port = 0;
+      } else if (!strcmp(optarg,"marvell")) {
+	con->controller_type = CONTROLLER_MARVELL_SATA;
         con->controller_port = 0;
       } else {
         // look for RAID-type device
@@ -841,18 +844,17 @@ int main (int argc, char **argv){
   case CONTROLLER_SCSI:
     mode="SCSI";
     break;
-  case CONTROLLER_ATA:
-  case CONTROLLER_3WARE_678K:
-    mode="ATA";
-    break;
   case CONTROLLER_3WARE_9000_CHAR:
     mode="ATA_3WARE_9000";
     break;
   case CONTROLLER_3WARE_678K_CHAR:
     mode="ATA_3WARE_678K";
     break;
+  default:
+    mode="ATA";
+    break;
   }
-
+  
   // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
   // scsi generic device can be used (needs write permission for MODE 
   // SELECT command) plus O_NONBLOCK to stop open hanging if media not
@@ -874,13 +876,14 @@ int main (int argc, char **argv){
   case CONTROLLER_3WARE_678K:
   case CONTROLLER_3WARE_9000_CHAR:
   case CONTROLLER_3WARE_678K_CHAR:
+  case CONTROLLER_MARVELL_SATA:
     retval = ataPrintMain(fd);
     break;
   case CONTROLLER_SCSI:
     retval = scsiPrintMain(fd);
     break;
   default:
-    pout("Smartctl: specify if this is an ATA or SCSI device with the -d option.\n");
+    pout("Smartctl: please specify device type with the -d option.\n");
     UsageSummary();
     return FAILCMD;
   }
