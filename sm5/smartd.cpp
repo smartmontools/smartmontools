@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.54 2002/11/10 21:54:19 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.55 2002/11/11 10:50:08 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -230,6 +230,7 @@ void Directives() {
   printout(LOG_INFO,"  -A    Device is an ATA device\n");
   printout(LOG_INFO,"  -S    Device is a SCSI device\n");
   printout(LOG_INFO,"  -C N  Check disks once every N seconds, where N>=10.\n");
+  printout(LOG_INFO,"  -P    Permissive, ignore apparent lack of SMART.\n");
   printout(LOG_INFO,"  -c    Monitor SMART Health Status, report if failed\n");
   printout(LOG_INFO,"  -l    Monitor SMART Error Log, report new errors\n");
   printout(LOG_INFO,"  -L    Monitor SMART Self-Test Log, report new errors\n");

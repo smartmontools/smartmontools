@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.41 2002/11/10 21:54:19 ballen4705 Exp $
+$Id: CHANGELOG,v 1.42 2002/11/11 10:50:08 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,6 +24,12 @@ California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  Modified perror() statements in atacmds.c so that printout for SMART
+  commands errors is properly suppressed or queued depending upon users
+  choices for error reporting modes.
+
+  Added Italian descriptions to smartmontools.spec file.
 
   Started impementing send-mail-on-error for smartd; not yet enabled.
 
