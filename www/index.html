@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/03/02 19:42:36 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/03/04 18:50:06 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.135 2004/03/02 19:42:36 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.136 2004/03/04 18:50:06 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -240,13 +240,16 @@ me</a>.</p>
 <ul>
 <li><b>Is the smartmontools File Download/Mail List/Mail Archive/CVS server broken?</b>
 
-<p> SourceForge is a free service, which supports a very large number
-of users and projects. Please check the <a
+<p>SourceForge is a free service, which supports a very large number of
+users and projects. Please check the <a
 href="http://sourceforge.net/docman/display_doc.php?docid=2352&amp;group_id=1">
-<b>SourceForge Site Status Page</b></a> to see the maintenance
-schedule and to learn if SourceForge is experiencing unscheduled
-system outages or other problems.
-</p>
+SourceForge Site Status Page</a> to see the maintenance schedule and to
+learn if SourceForge is experiencing unscheduled system outages or other
+problems.</p>
+
+<p>Alternative mailing-list <a
+href="http://gmane.org/find.php?list=smartmontools">archives</a> are
+provided by <a href="http://www.gmane.org/">Gmane</a>.</p>
 
 </li>
 
@@ -538,8 +541,8 @@ driver/firmware/utility package version 7.7.0.
 
 <p>As of 20040225, <a
 href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
-merged in changes from his <i>RELEASE_5_26_WIN32_BRANCH</i> CVS branch
-, allowing current CVS to compile and run on <a
+merged in changes from his <i>RELEASE_5_26_WIN32_BRANCH</i> CVS branch,
+allowing current CVS to compile and run on <a
 href="http://www.cygwin.com/">Cygwin</a>.</p>
 
 <p>A Cygwin package (requires Cygwin <b>1.5.7 or greater</b>) is
@@ -566,12 +569,12 @@ installed in <i>/usr/sbin</i>. My <i>/etc/smartd.conf</i> configuration
 file has a single line with <i>/dev/hda -a -d ata -I 194</i>.</p>
 
 <p>A smartctl binary that doesn't depend on Cygwin (compiled with
-Cygwin's <i>-mno-cygwin</i>) is available <a
+Cygwin's <i>-mno-cygwin</i>) is available from <a
 href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 It's the <i>.zip</i> with <i>exe (32-bit Windows)</i> as
 <i>Type</i>.</p>
 
-<p>Please not that the required changes to make it compile with the
+<p>Please note that the required changes to make it compile with the
 above switch (acting like <a href="http://www.mingw.org/">MinGW</a>) or
 MSVC haven't yet been merged.</p>
 
@@ -595,13 +598,13 @@ Compatibility:
 Disk Devices                     Windows Version
                     95 OSR2  98SE     ME      NT4    2000     XP
 
-Standard ATA 0-3      +      ++       +     ++(2)   ++(1)   ++(1)
+Standard ATA 0-3    +        ++       +       ++(2)  ++(1)    ++(1)
 
-Other ATA/SATA        -       -       -      ?      ++?      ?
+Other ATA/SATA      -        -        -       ?      ++?      ?
 
-SCSI via ASPI         +      ++       +     ++       +       +
+SCSI via ASPI       +        ++       +       ++     +        +
 
-SCSI via IOCTL        -       -       -      -(3)    -(3)    -(3)
+SCSI via IOCTL      -        -        -       -(3)   -(3)     -(3)
 
 -   Not supported
 +   Supported but not tested
@@ -996,8 +999,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/03/02 19:42:36 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.135 2004/03/02 19:42:36 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2004/03/04 18:50:06 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.136 2004/03/04 18:50:06 pervalidus Exp $</tt>
 
 <hr size="2" />
 
