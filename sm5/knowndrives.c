@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.105 2004/04/26 08:39:12 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.106 2004/04/27 17:42:21 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -493,7 +493,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL 
   },
   { // Hitachi Travelstar 80GN family
-    "^IC25N0[248]0ATMR04$",
+    "^IC25N0[248]0ATMR04-.$",
     ".*",
     NULL, NULL, NULL, NULL
   },
