@@ -1,9 +1,10 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.14 2003/12/10 21:59:42 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.15 2003/12/29 18:55:10 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
+
 
 Date: 
 Summary: smartmontools release 5.27
@@ -11,10 +12,18 @@ Summary: smartmontools release 5.27
 A new Directive (-s) for smartd.conf now enables flexible automatic
 scheduled self-testing for both ATA and SCSI devices.
 
+
 Date: 2003-11-29
 Summary: smartmontools release 5.26
 -----------------------------------
-This is a stable smartmontools release, with no known problems.
+This is a stable smartmontools release.  The only known problem is
+that under Solaris, the email features of smartd do not work 'out of
+the box'.  Three workarounds are:
+  [1] use '-M exec mailx' in /etc/smartd.conf
+  [2] in the start script for smartd, put /usr/ucb into PATH before
+      /bin
+  [3] upgrade to release 5.27 or later, or the latest CVS snapshot
+
 
 Date: 2003-11-19
 Summary: smartmontools release 5.25
@@ -29,12 +38,14 @@ From this time on, even numbered releases will be 'stable' ones and
 odd numbered releases (like 5.25) will be unstable/testing/development
 releases.
 
+
 Date: 2003-10-30
 Summary: smartmontools release 5.23
 -----------------------------------
 This release has one known problem: DEVICESCAN device scanning does
 not work correctly if the disk with the /dev directory also has XFS
 or JFS file systems on it.
+
 
 Date: 2003-10-28
 Summary: smartmontools release 5.22
