@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.26 2002/10/24 15:03:15 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.27 2002/10/24 15:25:27 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -137,21 +137,27 @@ void atadevicescan ( atadevices_t *devices){
       printout(LOG_INFO,"Device: %s, Found but not SMART capable, or couldn't enable SMART\n",device);
       continue;
     }
-     
+
+    // Does device support read values and read thresholds?  We should
+    // modify this next block for devices that do support SMART status
+    // but don't support read values and read thresholds.
+    if (ataReadSmartValues (fd,&devices[numatadevices].smartval)){
+      close(fd);
+      printout(LOG_INFO,"Device: %s, Read SMART Values Failed\n",device);
+      continue;
+    }
+    else if (ataReadSmartThresholds (fd,&devices[numatadevices].smartthres)){
+      close(fd);
+      printout(LOG_INFO,"Device: %s, Read SMART Thresholds Failed\n",device);
+      continue;
+    }
+
     // device exists, and does SMART.  Add to list
+    printout(LOG_INFO,"%s Found and is SMART capable\n",device);
     devices[numatadevices].fd = fd;
     strcpy(devices[numatadevices].devicename, device);
     devices[numatadevices].drive = drive;
-    if (ataReadSmartValues (fd,&devices[numatadevices].smartval)){
-      printout(LOG_INFO,"Device: %s, Read SMART Values Failed\n",device);
-    }
-    
-    if (ataReadSmartThresholds (fd,&devices[numatadevices].smartthres)){
-      printout(LOG_INFO,"Device: %s, Read SMART Thresholds Failed\n",device);
-    }
-    
-    printout(LOG_INFO,"%s Found and is SMART capable\n",device);
-    
+        
     // This makes NO sense.  We may want to know if the drive supports
     // Offline Surface Scan, for example.  But checking if it supports
     // self-tests seems useless. In any case, smartd NEVER uses this
@@ -163,9 +169,11 @@ void atadevicescan ( atadevices_t *devices){
   }
 }
 
-// This function is hard to read and ought to be rewritten
-// A couple of obvious questions -- why isn't fd always closed if not used?
-// Why in the world is the four-byte integer cast to a pointer to an eight-byte object??
+
+
+// This function is hard to read and ought to be rewritten. Why in the
+// world is the four-byte integer cast to a pointer to an eight-byte
+// object??
 void scsidevicescan ( scsidevices_t *devices){
   int i, fd, smartsupport;
   unsigned char  tBuf[4096];
