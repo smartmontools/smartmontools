@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.415 2004/06/03 03:47:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.416 2004/06/22 15:41:20 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] modified smartd init script to work on whitebox (thanks to
+       Michael Falzon)
 
   [BA] removed (reverted) additional Attribute definitions from
        http://smart.friko.pl/attributes.php.  All (or most?) of these

@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.24 2004/04/30 20:03:23 chrfranke Exp $
+# $Id: smartd.initd.in,v 1.25 2004/06/22 15:41:20 ballen4705 Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -48,7 +48,7 @@ report_unsupported () {
 }
 
 # Red Hat or Yellow Dog or Mandrake
-if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release ] ; then
+if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-release -o -f /etc/whitebox-release ] ; then
     
 # Source function library
     . /etc/rc.d/init.d/functions
