@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.241 2003/11/17 11:50:44 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.242 2003/11/18 13:49:43 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1015,14 +1015,18 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   // that various USB devices that malform the response will lock up
   // if asked for a log page (e.g. temperature) so it is best to
   // bail out now.
-  if ((err = scsiFetchIECmpage(fd, &iec, cfg->modese_len))) {
+  err = scsiFetchIECmpage(fd, &iec, cfg->modese_len);
+  if (0 == err)
+    cfg->modese_len = iec.modese_len;
+  else if (SIMPLE_ERR_BAD_FIELD == err)
+    ;  /* continue since it is reasonable not to support IE mpage */
+  else { /* any other error (including malformed response) unreasonable */
     PrintOut(LOG_INFO, 
-	     "Device: %s, Fetch of IEC (SMART) mode page failed, err=%d, skip device\n", device, err);
+	     "Device: %s, Bad IEC (SMART) mode page, err=%d, skip device\n", 
+             device, err);
     CloseDevice(fd, device);
     return 3;
   }
-  else
-    cfg->modese_len = iec.modese_len;
     
   // N.B. The following is passive (i.e. it doesn't attempt to turn on
   // smart if it is off). This may change to be the same as the ATA side.
