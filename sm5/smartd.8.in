@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.89 2004/09/14 16:57:49 ballen4705 Exp $
+$Id: smartd.8.in,v 1.90 2004/10/06 23:20:22 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1345,7 +1345,7 @@ interpretation is unknown. This is primarily useful for the -P
 
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
-http://coredump.free.fr/linux/hddtemp.db
+\fBhttp://coredump.free.fr/linux/hddtemp.db\fP
 
 .I N,raw8
 \- Print the Raw value of Attribute N as six 8-bit unsigned base-10
@@ -1762,10 +1762,7 @@ Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
 HOME PAGE FOR SMARTMONTOOLS: 
 .fi
 Please see the following web site for updates, further documentation, bug
-reports and patches:
-.nf
-.B
-http://smartmontools.sourceforge.net/
+reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
 
 .SH SEE ALSO:
 \fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
@@ -1776,28 +1773,26 @@ REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77. This is http://www.linuxjournal.com/article.php?sid=6983
+pages 74-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
 online.
 
-If you would like to understand better how SMART works, and what
-it does, a good place to start is  Section 8.41 of the \'AT
-Attachment with Packet Interface-5\' (ATA/ATAPI-5) specification.  This
-documents the SMART functionality which the smartmontools
-utilities provide access to.  You can find Revision 1 of this document
-at \fBhttp://www.t13.org/project/d1321r1c.pdf\fP .
-
-.fi
-Future versions of the specifications (ATA/ATAPI-6 and ATA/ATAPI-7),
-and later revisions (2, 3) of the ATA/ATAPI-5 specification are
-available from \fBhttp://www.t13.org/#FTP_site\fP .
+If you would like to understand better how SMART works, and what it
+does, a good place to start is with Sections 4.8 and 6.54 of the first
+volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
+specification.  This documents the SMART functionality which the
+\fBsmartmontools\fP utilities provide access to.  You can find
+Revision 4b of this document at
+\fBhttp://www.t13.org/docs2004/d1532v1r4b%20ATA-ATAPI-7.pdf\fP .
+Earlier and later versions of this Specification are available from
+the T13 web site \fBhttp://www.t13.org/\fP .
 
 .fi
 The functioning of SMART was originally defined by the SFF-8035i
 revision 2 and the SFF-8055i revision 1.4 specifications.  These are
 publications of the Small Form Factors (SFF) Committee.  Links to
 these documents may be found in the References section of the
-smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
+smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.89 2004/09/14 16:57:49 ballen4705 Exp $
+$Id: smartd.8.in,v 1.90 2004/10/06 23:20:22 ballen4705 Exp $
