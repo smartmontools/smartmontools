@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.75 2003/08/30 18:47:01 pervalidus Exp $
+# $Id: Makefile,v 1.76 2003/08/30 18:55:15 pervalidus Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -27,8 +27,8 @@ CC	= gcc
 
 # Build against kernel header files.  Comment out the line and change
 # 'linux' to the correct path for your system
-#KHEADERS = -I/usr/src/linux/include
-CFLAGS	 = -fsigned-char -Wall -O2 $(KHEADERS)
+#KERNEL_HEADERS = -I/usr/src/linux/include
+CFLAGS	 = -fsigned-char -Wall -O2 $(KERNEL_HEADERS)
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
 LDFLAGS  = # -Wl,-s
 
