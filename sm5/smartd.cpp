@@ -47,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.74 2002/11/23 17:09:59 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.75 2002/11/25 04:48:01 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -328,13 +328,12 @@ return;
 
 /* prints help information for command syntax */
 void Usage (void){
-  printout(LOG_INFO,"Usage: smartd [OPTION]...\n\n");
+  printout(LOG_INFO,"Usage: smartd [-XVh] [--debugmode] [--version] [--help]\n\n");
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -X, --debugmode              Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -X, --debugmode\n  Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
-  printout(LOG_INFO,"                               Print License, Copyright, and version information\n");
-  printout(LOG_INFO,"  -h, --help, --usage          Display this help and exit\n");
-  printout(LOG_INFO,"  -?                           Same as -h\n");
+  printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
+  printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
   printout(LOG_INFO,"\n");
   printout(LOG_INFO,"Optional configuration file: %s\n",CONFIGFILE);
   Directives();
