@@ -1,4 +1,6 @@
 The following are controllers/drives where there have been reports of
 serious problems (eg system lockup):
 
-Dell servers using AACRAID (SCSI): drew@eastvan.bc.ca
+SYSTEM:   Dell servers using AACRAID (SCSI)
+REPORTER: drew@eastvan.bc.ca
+LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1311313&forum_id=12495
