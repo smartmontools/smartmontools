@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.55 2004/09/05 21:04:56 ballen4705 Exp $
+$Id: INSTALL,v 1.56 2004/11/05 18:59:52 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -118,8 +118,9 @@ Table of contents:
     the device driver implements the SMART IOCTL.
 
     The IDE/ATA read log command (smartctl -l, --log, -a, --all) is
-    not supported on NT4. On 2000/XP, the undocumented and possibly buggy
-    IOCTL_IDE_PASS_THROUGH is used for this purpose (see WARNINGS file).
+    not supported by the SMART IOCTL of NT4/2000/XP. Undocumented
+    and possibly buggy system calls are used for this purpose,
+    see WARNINGS file for details.
 
     SCSI devices are supported on all versions of Windows. An installed
     ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
