@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.5 2004/07/29 21:05:25 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.6 2004/08/30 05:44:50 ballen4705 Exp $\n"
 
 #ifndef CONFIG_H_CVSID
 // need HAVE_STDINT_H, HAVE_INTTYPES_H
@@ -63,6 +63,7 @@ typedef unsigned long long uint64_t;
 #define PRIx64 "I64x"
 #endif // _WIN32 && _MSC_VER
 #endif // HAVE_INTTYPES_H
+
 #ifndef PRId64		// not defined in inttypes.h....fix here
 // default is GCC style
 #define PRId64 "lld"

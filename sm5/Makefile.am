@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.61 2004/08/29 07:10:44 snyderx Exp $
+# $Id: Makefile.am,v 1.62 2004/08/30 05:44:50 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -39,6 +39,8 @@ EXTRA_smartd_SOURCES = os_darwin.c \
 		       os_freebsd.h \
 		       os_netbsd.c \
 		       os_netbsd.h \
+		       os_openbsd.c \
+		       os_openbsd.h \
 		       os_solaris.c \
 		       os_solaris.h \
 		       os_solaris_ata.s \
