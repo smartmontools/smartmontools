@@ -12,4 +12,5 @@ REPORTER: Georg Acher <acher@in.tum.de>
 LINK:     http://sourceforge.net/mailarchive/forum.php?thread_id=1457979&forum_id=12495
 NOTE:     Lockup doesn't happen with 2.4.18 kernel, and doesn't affect /dev/hd[a-d]
           This appears to be a problem with the pdc202xx-driver and has been reported
-          to the pcdx maintainers.
+          to the pcdx maintainers.  If you enable the the Promise-BIOS (ATA100-BIOS) then
+          everything will work fine.  But if you disable it, then the machine will hang.
