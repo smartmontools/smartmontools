@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.45 2004/04/09 03:30:06 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.46 2004/04/09 04:16:06 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -634,7 +634,7 @@ one or more disk sectors could not be read.
 \fIFailedReadSmartErrorLog\fP: the command to read the SMART error log failed.
 .nf
 .fi
-\fIFailedReadSmartSeflTestLog\fP: the command to read the SMART self-test log failed.
+\fIFailedReadSmartSelfTestLog\fP: the command to read the SMART self-test log failed.
 .nf
 .fi
 \fIFailedOpenDevice\fP: the open() command to the device failed.
@@ -1152,4 +1152,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.45 2004/04/09 03:30:06 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.46 2004/04/09 04:16:06 ballen4705 Exp $
