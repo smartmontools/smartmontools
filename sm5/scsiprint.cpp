@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.80 2004/08/19 00:26:42 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.81 2004/08/21 13:15:25 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -680,10 +680,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     strncpy(revision, (char *)&gBuf[32], 4);
     pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
-    if (0 == strncmp(manufacturer, "3ware", 8)) {
+    if (0 == strncmp(manufacturer, "3ware", 5)) {
         pout("please try '-d 3ware,N'\n");
 	return 2;
-    } else if (0 == strncmp(manufacturer, "MVSATA", 8)) {
+    } else if (0 == strncmp(manufacturer, "MVSATA", 6)) {
         pout("please try '-d marvell'\n");
 	return 2;
     }
