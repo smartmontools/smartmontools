@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.489 2004/11/06 17:51:28 chrfranke Exp $
+$Id: CHANGELOG,v 1.490 2004/11/08 01:32:14 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] After report of Hitachi IC35L073UCDY10 disks locking up
+       on log page 0x7 (last n error events), check log page (and some
+       others) is supported (via log page 0x0) before probing.
 
   [CF] Added safe_v?snprintf() for platforms using v?snprintf()
        with non standard behaviour on overflow (Windows, old Linux)
