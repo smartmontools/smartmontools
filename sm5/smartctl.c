@@ -38,7 +38,7 @@
 #include "scsiprint.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid4, *CVSid5; 
-const char* CVSid6="$Id: smartctl.c,v 1.20 2002/10/25 08:50:21 ballen4705 Exp $"
+const char* CVSid6="$Id: smartctl.c,v 1.21 2002/10/26 19:33:40 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID4 CVSID5 CVSID6;
 
 unsigned char driveinfo               = FALSE;
@@ -74,83 +74,23 @@ void printslogan(){
 }
 
 
-
-int massagecvs(char *out,const char *in){
-  char filename[128], version[128], date[128];
-  int i=0;
-  const char *savein=in;
-
-  // skip to I of $Id:
-  while (*in !='\0' && *in!='I')
-    in++;
-  
-  // skip to start of filename
-  if (!*in)
-    return 0;
-  in+=4;
-
-  // copy filename
-  i=0;
-  while (i<100 && *in!=',' && *in)
-    filename[i++]=*in++;
-  filename[i]='\0';
-  if (!*in)
-    return 0;
-
-  // skip ,v and space
-  in+=3;
-
-  i=0;
-  // copy version number
-  while (i<100 && *in!=' ' && *in)
-    version[i++]=*in++;
-  version[i]='\0';
-  if (!*in)
-    return 0;
-
-  // skip space
-  in++;
-  // copy date
-  i=0;
-  while (i<100 && *in!=' ' && *in)
-    date[i++]=*in++;
-  date[i]='\0';
-
-  sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
-  return in-savein;
-}
-
-// prints a single set of CVS ids
-void printone(const char *cvsid){
-  char strings[512];
-  const char *here;
-  int len,line=1;
-  here=cvsid;
-  while ((len=massagecvs(strings,here))){
-    switch (line++){
-    case 1:
-      pout("Module:");
-      break;
-    default:
-      pout("  uses:");
-    } 
-    pout(" %s\n",strings);
-    here+=len;
-  }
-  return;
-}
-
 void printcopy(){
+  char out[CVSMAXLEN];
   pout("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
   pout("is free software, and you are welcome to redistribute it\n");
   pout("under the terms of the GNU General Public License Version 2.\n");
   pout("See http://www.gnu.org for further details.\n\n");
   pout("CVS version IDs of files used to build this code are:\n");
-  printone(CVSid6);
-  printone(CVSid1);
-  printone(CVSid2);
-  printone(CVSid4);
-  printone(CVSid5);
+  printone(out,CVSid6);
+  pout("%s",out);
+  printone(out,CVSid1);
+  pout("%s",out);
+  printone(out,CVSid2);
+  pout("%s",out);
+  printone(out,CVSid4);
+  pout("%s",out);
+  printone(out,CVSid5);
+  pout("%s",out);
   return;
 }
 

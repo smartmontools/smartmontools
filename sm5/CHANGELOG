@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.24 2002/10/26 09:38:26 ballen4705 Exp $
+$Id: CHANGELOG,v 1.25 2002/10/26 19:33:39 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -26,6 +26,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
 smartmontools-5.0-VERSION
+
+    cleaned up functions used for printing CVS IDs.  Now use string
+    library, as it should be.
 
     modified length of device name string in smartd internal structure
     to accomodate max length device name strings
