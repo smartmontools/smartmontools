@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.44 2003/10/06 00:37:04 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.45 2003/10/08 13:30:20 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -377,7 +377,7 @@ void showonepreset(const drivesettings *drivetable){
   
   // if there are any presets, then show them
   if (presets && (*presets)[0]) while (1) {
-    char out[64];
+    char out[256];
     const int attr = (*presets)[0], val  = (*presets)[1];
     unsigned char fakearray[MAX_ATTRIBUTE_NUM];
 
@@ -471,12 +471,15 @@ int applypresets(const struct ata_identify_device *drive, unsigned char **optspt
   unsigned char *opts;
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
   
+  if (*optsptr==NULL)
+    bytes+=MAX_ATTRIBUTE_NUM;
+  
   if (*optsptr==NULL && !(*optsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1))){
     pout("Unable to allocate memory in applypresets()");
+    bytes-=MAX_ATTRIBUTE_NUM;
     exit(1);
   }
-  bytes+=MAX_ATTRIBUTE_NUM;
-
+  
   opts=*optsptr;
 
   // get the drive's model/firmware strings
