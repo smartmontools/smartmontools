@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.503 2005/02/17 22:46:15 pjwilliams Exp $
+$Id: CHANGELOG,v 1.504 2005/02/19 23:07:02 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,16 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added following drives to knowndrives table: Western Digital Raptor
+       family, Seagate Barracuda 7200.8 family, Maxtor DiamondMax 2160
+       Ultra ATA and DiamondMax 10 families, Hitachi Travelstar E7K60
+       family, Seagate Medalist 17240, 13030, 10231, 8420, and 4310,
+       TOSHIBA MK4018GAP and MK6022GAX, ExcelStor Technology J360, and
+       Western Digital Caviar AC14300.
+
+  [PW] Added missing Fujitsu MHTxxxxAT and Seagate Barracuda 7200.7 drives
+       to knowndrives table.
 
   [PW] Added QUANTUM FIREBALLP LM10.2 to knowndrives table.  Thanks to
        Mike Fleetwood for submitting the patch.
