@@ -60,7 +60,7 @@
 #include "smartd.h"
 #include "utility.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.22 2003/11/10 19:13:03 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.23 2003/11/11 08:57:42 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -151,16 +151,20 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
       mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
     else {
       // or if it's a link that  points to a disc, keep it
-      char *p, *type;
+      char *p;
       
       linkbuf[retlink]='\0';
-      if (!strcmp(name,"ATA"))
-	type="ide";
-      else
-	type="scsi";
       
-      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc") && strstr(linkbuf, type))
+      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc"))
 	mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, __FILE__);
+      else {
+	char tmpname[1024]={0};
+	char *type=strcmp(name,"ATA")?"scsi":"ide";
+	if (strstr(linkbuf, type)){
+	  snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
+	  mp[n++] = CustomStrDup(tmpname, 1, __LINE__, __FILE__);
+	}
+      }
     }
   }
   
