@@ -25,7 +25,12 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.75 2004/10/13 11:25:08 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.76 2004/11/01 13:41:55 chrfranke Exp $\n"
+
+// Macro to check expected size of struct at compile time using a dummy typedef.
+// On size mismatch, compiler reports a negative array size
+#define ASSERT_SIZEOF_STRUCT(s, n) \
+  typedef char assert_sizeof_struct_##s[(sizeof(struct s) == (n)) ? 1 : -1]
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -108,6 +113,7 @@ struct ata_identify_device {
   unsigned short words088_255[168];
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_identify_device, 512);
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 #pragma pack(1)
@@ -122,6 +128,7 @@ struct ata_smart_attribute {
   unsigned char reserv;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_attribute, 12);
 
 // MACROS to interpret the flags bits in the previous structure.
 // These have not been implemented using bitflags and a union, to make
@@ -189,6 +196,7 @@ struct ata_smart_values {
   unsigned char chksum;
 }; 
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_values, 512);
 
 /* Maxtor, IBM: self-test failure checkpoint byte meaning:
  00 - write test
@@ -207,6 +215,7 @@ struct ata_smart_threshold_entry {
   unsigned char reserved[10];
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_threshold_entry, 12);
 
 /* Format of Read SMART THreshold Command */
 /* Compare to ata_smart_values above */
@@ -218,6 +227,7 @@ struct ata_smart_thresholds_pvt {
   unsigned char chksum;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_thresholds_pvt, 512);
 
 
 // Table 42 of T13/1321D Rev 1 spec (Error Data Structure)
@@ -236,6 +246,7 @@ struct ata_smart_errorlog_error_struct {
   unsigned short timestamp;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_error_struct, 30);
 
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
@@ -252,6 +263,7 @@ struct ata_smart_errorlog_command_struct {
   unsigned int timestamp;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_command_struct, 12);
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
 #pragma pack(1)
@@ -260,6 +272,7 @@ struct ata_smart_errorlog_struct {
   struct ata_smart_errorlog_error_struct error_struct;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_errorlog_struct, 90);
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
 #pragma pack(1)
@@ -272,6 +285,7 @@ struct ata_smart_errorlog {
   unsigned char checksum;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_errorlog, 512);
 
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
 #pragma pack(1)
@@ -284,6 +298,7 @@ struct ata_smart_selftestlog_struct {
   unsigned char vendorspecific[15];
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog_struct, 24);
 
 // Table 44 of T13/1321D Rev 1 spec (Self-test log data structure)
 #pragma pack(1)
@@ -296,6 +311,7 @@ struct ata_smart_selftestlog {
   unsigned char chksum;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog, 512);
 
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
 #pragma pack(1)
@@ -304,6 +320,7 @@ struct ata_smart_log_entry {
   unsigned char reserved;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_log_entry, 2);
 
 #pragma pack(1)
 struct ata_smart_log_directory {
@@ -311,6 +328,7 @@ struct ata_smart_log_directory {
   struct ata_smart_log_entry entry[255];
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_log_directory, 512);
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
 // Revision 3
@@ -320,6 +338,7 @@ struct test_span {
   uint64_t end;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(test_span, 16);
 
 #pragma pack(1)
 struct ata_selective_self_test_log {
@@ -336,6 +355,7 @@ struct ata_selective_self_test_log {
   unsigned char      checksum;
 };
 #pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 
 #define SELECTIVE_FLAG_DOSCAN  (0x0002)
 #define SELECTIVE_FLAG_PENDING (0x0008)
