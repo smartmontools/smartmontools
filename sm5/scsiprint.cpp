@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.52 2003/10/15 14:06:02 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.53 2003/10/19 08:05:55 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -223,7 +223,7 @@ void scsiGetStartStopData(int device)
         currentStartStop = (gBuf[36] << 24) | (gBuf[37] << 16) |
                            (gBuf[38] << 8) | gBuf[39];
         pout("Current start stop count:      %u times\n", currentStartStop);
-        pout("Recommended start stop count:  %u times\n", 
+        pout("Recommended maximum start stop count:  %u times\n", 
              recommendedStartStop);
     }
 } 
