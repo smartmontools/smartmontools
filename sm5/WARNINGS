@@ -1,8 +1,11 @@
-$Id: WARNINGS,v 1.17 2003/10/27 20:59:04 ballen4705 Exp $
+$Id: WARNINGS,v 1.18 2003/11/20 06:24:33 ballen4705 Exp $
+
+The most recent version of this file can be found here:
+http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
 
 The following are reports of serious problems (eg system lockup) which
-were due to smartmontools.  There is a "LINUX" and a "FREEBSD" section
-below.
+were due to smartmontools.  There is a "LINUX" and a "FREEBSD" and a
+"SOLARIS" section below.
 
 LINUX
 -----
@@ -21,6 +24,8 @@ NOTE:     USB storage devices are handled as SCSI devices by the kernel. But man
           In particular, the use of smartd DEVICESCAN in /etc/smartd.conf can cause
           these devices (typically represented by /dev/sda or /dev/sdb) to hang, and
           the kernel to lock up.
+FIXED:    This problem should be fixed in smartmontools-5.25 and greater.
+
 
 SYSTEM:   Intel 875WP1-E motherboard with SATA drives on motherboard's SATA ports
 PROBLEM:  smartd makes NTP time drift
@@ -66,6 +71,12 @@ NOTE:     Problem seems to affect kernel 2.4.21 only.
 
 
 FREEBSD
+-------
+
+[No reports yet.]
+
+
+SOLARIS
 -------
 
 [No reports yet.]
