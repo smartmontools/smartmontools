@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.435 2004/07/27 22:29:58 arvoreen Exp $
+$Id: CHANGELOG,v 1.436 2004/07/28 23:56:29 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Hitachi Travelstar 5K80 family and Fujitsu MHTxxxxAH family to
+       knowndrives table.
 
   [EM] Fix up compilation under FreeBSD < 5.x
 
