@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.61 2004/07/11 10:21:20 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.62 2004/07/11 11:01:58 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.61 2004/07/11 10:21:20 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.62 2004/07/11 11:01:58 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1040,6 +1040,11 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     passthru->size         = 0x7;
     passthru->param        = 0xD;
     passthru->sector_count = 0x1;
+    // For 64-bit to work correctly, up the size of the command packet
+    // in dwords by 1 to account for the 64-bit single sgl 'address'
+    // field.
+    if (escalade_type==THREE_WARE_9000_CHAR && sizeof(long)==8)
+      passthru->size++;
   }
   else {
     // Non data command -- but doesn't use large sector 
@@ -1050,14 +1055,6 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     passthru->sector_count = 0x0;
   }
   
-  if (escalade_type==THREE_WARE_9000_CHAR) {
-    /* For 64-bit to work correctly, up the size of the command
-       packet in dwords by 1 to account for the 64-bit single sgl
-       'address' field.  */
-    if (sizeof(long) == 8)
-      passthru->size += 1;
-  }
-
   // Now set ATA registers depending upon command
   switch (command){
   case CHECK_POWER_MODE:
