@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.403 2004/04/24 16:43:48 pjwilliams Exp $
+$Id: CHANGELOG,v 1.404 2004/04/26 18:12:47 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Cygwin smartd: Fixed crash on access of SCSI devices after fork().
 
   [PW] Added TOSHIBA MK4018GAS and the following Maxtor drive families
        to knowndrives table: DiamondMax D540X-4G, Fireball 541DX,

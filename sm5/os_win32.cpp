@@ -38,7 +38,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.10 2004/04/07 10:11:34 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.11 2004/04/26 18:12:47 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -800,7 +800,7 @@ typedef struct {
 	ASPI_SRB_HEAD h;               // 00: Header
 	unsigned char target_id;       // 08: Target ID
 	unsigned char lun;             // 09: LUN
-	unsigned char devtype;         // 10: LUN
+	unsigned char devtype;         // 10: Device type
 	unsigned char reserved;        // 11: Reserved
 } ASPI_SRB_DEVTYPE;
 
@@ -877,6 +877,14 @@ static HINSTANCE h_aspi_dll; // DLL handle
 static UINT (* aspi_entry)(ASPI_SRB * srb); // ASPI entrypoint
 static unsigned num_aspi_adapters;
 
+#ifdef __CYGWIN__
+// h_aspi_dll+aspi_entry is not inherited by Cygwin's fork()
+static DWORD aspi_dll_pid; // PID of DLL owner to detect fork()
+#define aspi_entry_valid() (aspi_entry && (aspi_dll_pid == GetCurrentProcessId()))
+#else
+#define aspi_entry_valid() (!!aspi_entry)
+#endif
+
 
 static int aspi_call(ASPI_SRB * srb)
 {
@@ -903,6 +911,7 @@ static int aspi_call(ASPI_SRB * srb)
 static int aspi_open_dll(int verbose)
 {
 	ASPI_SRB srb;
+	assert(!aspi_entry_valid());
 
 	// Check structure layout
 	assert(sizeof(srb.h) == 8);
@@ -923,7 +932,7 @@ static int aspi_open_dll(int verbose)
 	}
 
 	// Get ASPI entrypoint from winaspi.dll
-	if (!h_aspi_dll && !(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
+	if (!(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
 		if (verbose)
 			pout("Cannot load WNASPI32.DLL, Error=%ld\n", GetLastError());
 		h_aspi_dll = INVALID_HANDLE_VALUE;
@@ -960,6 +969,12 @@ static int aspi_open_dll(int verbose)
 #ifdef _DEBUG
 	pout("%u ASPI adapters on manager \"%.16s\"\n", num_aspi_adapters, srb.q.manager_id);
 #endif
+
+#ifdef __CYGWIN__
+	// save PID to detect fork() in aspi_entry_valid()
+	aspi_dll_pid = GetCurrentProcessId();
+#endif
+	assert(aspi_entry_valid());
 	return 0;
 }
 
@@ -1004,7 +1019,7 @@ static int aspi_open(unsigned adapter, unsigned id)
 		return -1;
 	}
 
-	if (!aspi_entry) {
+	if (!aspi_entry_valid()) {
 		if (aspi_open_dll(1/*verbose*/))
 			return -1;
 	}
@@ -1024,6 +1039,7 @@ static int aspi_open(unsigned adapter, unsigned id)
 
 static void aspi_close(int fd)
 {
+	// No FreeLibrary(h_aspi_dll) to prevent problems with ASPI threads
 	ARGUSED(fd);
 }
 
@@ -1035,7 +1051,7 @@ static unsigned long aspi_scan()
 	unsigned long drives = 0;
 	unsigned ad, nad;
 
-	if (!aspi_entry) {
+	if (!aspi_entry_valid()) {
 		if (aspi_open_dll(0/*quiet*/))
 			return 0;
 	}
@@ -1087,7 +1103,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
 	ASPI_SRB srb;
 
-	if (!aspi_entry)
+	if (!aspi_entry_valid())
 		return -EBADF;
 	if (!((fd & ~0xff) == 0x100))
 		return -EBADF;
