@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.24 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.25 2004/01/27 06:19:38 shattered Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +42,7 @@ void ataPrintDriveInfo(struct ata_identify_device *);
 
 void ataPrintGeneralSmartValues(struct ata_smart_values *, struct ata_identify_device *);
 
-void ataPrintSmartThresholds(struct ata_smart_thresholds *);
+void ataPrintSmartThresholds(struct ata_smart_thresholds_pvt *);
 
 // returns number of errors in Errorlog
 int  ataPrintSmartErrorlog(struct ata_smart_errorlog *);
@@ -52,13 +52,13 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *);
 void PrintSmartAttributes(struct ata_smart_values *);
 
 void PrintSmartAttribWithThres(struct ata_smart_values *,
-                                struct ata_smart_thresholds *,
+                                struct ata_smart_thresholds_pvt *,
                                 int onlyfailed);
 
 // returns number of entries that had logged errors
 int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *, int allentries);
 
-void ataPseudoCheckSmart(struct ata_smart_values *, struct ata_smart_thresholds *);
+void ataPseudoCheckSmart(struct ata_smart_values *, struct ata_smart_thresholds_pvt *);
 
 // Convenience function for formatting strings from ata_identify_device.
 void formatdriveidstring(char *out, const char *in, int n);

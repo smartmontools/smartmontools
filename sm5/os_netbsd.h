@@ -24,14 +24,12 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.1 2004/01/27 05:58:49 shattered Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.2 2004/01/27 06:19:38 shattered Exp $\n"
 
 #include <sys/param.h>
 #include <sys/sysctl.h>
-/*
 #include <dev/ata/atareg.h>
 #include <dev/ata/atavar.h>
-*/
 #include <dev/ic/wdcreg.h>
 #include <sys/ataio.h>
 #include <util.h>
