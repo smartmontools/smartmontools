@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.69 2003/08/04 12:58:40 ballen4705 Exp $
+# $Id: Makefile,v 1.70 2003/08/04 13:00:50 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -68,7 +68,7 @@ smartctl: smartctl.c atacmdnames.o atacmds.o ataprint.o escalade.o scsicmds.o sc
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartctl.c \
                                       atacmdnames.o atacmds.o ataprint.o escalade.o knowndrives.o scsicmds.o scsiprint.o utility.o
 
-smartd:  smartd.c atacmdnames.o atacmds.o ataprint.o scsicmds.o utility.o knowndrives.o \
+smartd:  smartd.c atacmdnames.o atacmds.o ataprint.o escalade.o scsicmds.o utility.o knowndrives.o \
          smartd.h atacmds.h ataprint.h knowndrives.h scsicmds.h \
          utility.h extern.h VERSION Makefile
 	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) smartd.c \
