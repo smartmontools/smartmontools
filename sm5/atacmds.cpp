@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.157 2004/07/29 09:08:16 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.158 2004/07/29 10:47:42 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -53,7 +53,7 @@ extern smartmonctrl *con;
 #define NOVAL_0                 0x0000
 #define NOVAL_1                 0xffff
 /* word 81: minor version number */
-#define MINOR_MAX 0x1e
+#define MINOR_MAX 0x22
 const char *minor_str[] = {                     /* word 81 value: */
   "Device does not report version",             /* 0x0000       */
   "ATA-1 X3T9.2 781D prior to revision 4",      /* 0x0001       */
@@ -85,7 +85,11 @@ const char *minor_str[] = {                     /* word 81 value: */
   "ATA/ATAPI-6 T13 1410D revision 2",           /* 0x001b       */
   "ATA/ATAPI-6 T13 1410D revision 1",           /* 0x001c       */
   "reserved",                                   /* 0x001d       */
-  "ATA/ATAPI-7 T13 1532D revision 0"            /* 0x001e       */
+  "ATA/ATAPI-7 T13 1532D revision 0",           /* 0x001e       */
+  "reserved",                                   /* 0x001f       */
+  "reserved",                                   /* 0x0020       */
+  "ATA/ATAPI-7 T13 1532D revision 4a",          /* 0x0021       */
+  "ATA/ATAPI-6 published, ANSI INCITS 361-2002" /* 0x0022       */
 };
 
 // NOTE ATA/ATAPI-4 REV 4 was the LAST revision where the device
@@ -126,7 +130,11 @@ const int actual_ver[] = {
   6,            /* 0x001b       WARNING:        */
   6,            /* 0x001c       WARNING:        */
   0,            /* 0x001d       WARNING:        */
-  7             /* 0x001e       WARNING:        */
+  7,            /* 0x001e       WARNING:        */
+  0,            /* 0x001f       WARNING:        */
+  0,            /* 0x0020       WARNING:        */
+  7,            /* 0x0021       WARNING:        */
+  6             /* 0x0022       WARNING:        */
 };
 
 // When you add additional items to this list, you should then:

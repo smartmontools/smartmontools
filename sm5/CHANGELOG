@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.436 2004/07/28 23:56:29 pjwilliams Exp $
+$Id: CHANGELOG,v 1.437 2004/07/29 10:47:42 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added ATA minor version identity strings for latest ATA specification
+       updates: ATA/ATAPI-7 T13 1532D revision 4a and ATA/ATAPI-6 published,
+       ANSI INCITS 361-2002
 
   [PW] Added Hitachi Travelstar 5K80 family and Fujitsu MHTxxxxAH family to
        knowndrives table.
