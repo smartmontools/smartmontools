@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.21 2003/04/11 18:17:15 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.22 2003/04/11 18:19:43 pjwilliams Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -68,8 +68,8 @@ typedef struct smartmonctrl_s {
   // the i'th SMART attribute.  The default definitions of the
   // Attributes are obtained by having the array be all zeros.  If
   // attributedefs[i] is nonzero, it means that the i'th attribute has
-  // a non-default meaning.  See the ataPrintSmartAttribName function,
-  // and list below.
+  // a non-default meaning.  See the ataPrintSmartAttribName and
+  // and parse_attribute_def functions.
   unsigned char attributedefs[256];
 } smartmonctrl;
 
