@@ -27,13 +27,15 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.2 2004/01/29 19:50:22 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.3 2004/02/18 22:53:49 shattered Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
 extern long long bytes;
 
-enum warnings {BAD_SMART, NO_3WARE, MAX_MSG};
+enum warnings {
+  BAD_SMART, NO_3WARE, MAX_MSG
+};
 
 /* Utility function for printing warnings */
 void
@@ -56,12 +58,12 @@ printwarning(int msgNo, const char *extra)
   return;
 }
 
-/* Guess device type(ata or scsi) based on device name */
 static const char *net_dev_prefix = "/dev/";
 static const char *net_dev_ata_disk = "wd";
 static const char *net_dev_scsi_disk = "sd";
 static const char *net_dev_scsi_tape = "enrst";
 
+/* Guess device type(ata or scsi) based on device name */
 int
 guess_device_type(const char *dev_name)
 {
@@ -295,6 +297,8 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
   }
 
   if (command == STATUS_CHECK) {
+    char buf[512];
+
     unsigned const short normal = WDSMART_CYL, failed = 0x2cf4;
 
     if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
@@ -309,8 +313,8 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     if (le16toh(req.cylinder) == failed)
       return 1;
 
-    /* We haven't gotten output that makes sense; print out some debugging info */
-    char buf[512];
+    /* We haven't gotten output that makes sense; 
+     * print out some debugging info */
     snprintf(buf, sizeof(buf),
       "CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
       (int) req.command, (int) req.features, (int) req.sec_count, (int) req.sec_num,
@@ -319,12 +323,10 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     printwarning(BAD_SMART, buf);
     return 0;
   }
-
   if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
     perror("Failed command");
     return -1;
   }
-
   if (command == CHECK_POWER_MODE)
     data[0] = req.sec_count;
 
@@ -344,34 +346,89 @@ escalade_command_interface(int fd, int disknum, smart_command_set command, int s
 int
 do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
-  return -ENOSYS;
+  struct scsireq sc;
+
+  if (report > 0) {
+    size_t k;
+
+    const unsigned char *ucp = iop->cmnd;
+    const char *np;
+
+    np = scsi_get_opcode_name(ucp[0]);
+    pout(" [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < iop->cmnd_len; ++k)
+      pout("%02x ", ucp[k]);
+    if ((report > 1) &&
+      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+      pout("]\n  Outgoing data, len=%d%s:\n", (int) iop->dxfer_len,
+	(trunc ? " [only first 256 bytes shown]" : ""));
+      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
+    } else
+      pout("]");
+  }
+  memset(&sc, 0, sizeof(sc));
+  memcpy(sc.cmd, iop->cmnd, iop->cmnd_len);
+  sc.cmdlen = iop->cmnd_len;
+  sc.databuf = iop->dxferp;
+  sc.datalen = iop->dxfer_len;
+  sc.senselen = iop->max_sense_len;
+  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
+  sc.flags =
+    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :	/* XXX */
+    (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
+
+  if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
+    warn("error sending SCSI ccb");
+    return -1;
+  }
+  iop->resid = sc.datalen - sc.datalen_used;
+  iop->scsi_status = sc.status;
+  if (iop->sensep) {
+    memcpy(iop->sensep, sc.sense, sc.senselen_used);
+    iop->resp_sense_len = sc.senselen_used;
+  }
+  if (report > 0) {
+    int trunc;
+
+    pout("  status=0\n");
+    trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+    pout("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
+      (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
+  }
+  return 0;
 }
 
-// print examples for smartctl
-void print_smartctl_examples(){
+/* print examples for smartctl */
+void 
+print_smartctl_examples()
+{
   char p;
 
   p = 'a' + getrawpartition();
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
-         "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
-         "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
-         "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long /dev/wd0%c             (Executes extended disk self-test)\n\n"
-         "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/wd0%c\n"
-         "                                      (Prints Self-Test & Attribute errors)\n",
-	 p, p, p, p
-         );
+    "  smartctl -a /dev/wd0%c                      (Prints all SMART information)\n\n"
+    "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/wd0%c\n"
+    "                                              (Enables SMART on first disk)\n\n"
+    "  smartctl -t long /dev/wd0%c             (Executes extended disk self-test)\n\n"
+    "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/wd0%c\n"
+    "                                      (Prints Self-Test & Attribute errors)\n",
+    p, p, p, p
+    );
 #else
   printf(
-         "  smartctl -a /dev/wd0%c                     (Prints all SMART information)\n"
-         "  smartctl -s on -o on -S on /dev/wd0%c        (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/wd0%c            (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/wd0%c"
-         "                                      (Prints Self-Test & Attribute errors)\n",
-	 p, p, p, p
-         );
+    "  smartctl -a /dev/wd0%c                     (Prints all SMART information)\n"
+    "  smartctl -s on -o on -S on /dev/wd0%c        (Enables SMART on first disk)\n"
+    "  smartctl -t long /dev/wd0%c            (Executes extended disk self-test)\n"
+    "  smartctl -A -l selftest -q errorsonly /dev/wd0%c"
+    "                                      (Prints Self-Test & Attribute errors)\n",
+    p, p, p, p
+    );
 #endif
   return;
 }
