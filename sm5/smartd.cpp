@@ -1,4 +1,4 @@
-//  $Id: smartd.cpp,v 1.4 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: smartd.cpp,v 1.5 2002/10/11 03:46:17 ballen4705 Exp $
 /*
  * smartd.c
  *
@@ -264,8 +264,9 @@ char copyleftstring[]=
 "is free software, and you are welcome to redistribute it\n"
 "under the terms of the GNU General Public License Version 2.\n"
 "See http://www.gnu.org for further details.\n\n"
-"CVS Version ID $Id: smartd.cpp,v 1.4 2002/10/11 00:38:22 ballen4705 Exp $\n";
+"CVS Version ID $Id: smartd.cpp,v 1.5 2002/10/11 03:46:17 ballen4705 Exp $\n";
 
+const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
 
 /* Main Program */
 int main (int argc, char **argv){
@@ -274,15 +275,15 @@ int main (int argc, char **argv){
   scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr;
   int optchar;
   extern char *optarg;
-  extern int  optopt, optind;
-  const char opts[] = { DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'\0' };
-   
+  extern int  optopt, optind, opterr;
+  
   numatadevices=0;
   numscsidevices=0;
   scsidevicesptr = scsidevices;
   atadevicesptr = atadevices;
+  opterr=1;
 
-  while(EOF != (optchar = getopt(argc, argv, opts))){
+  while (-1 != (optchar = getopt(argc, argv, opts))){
     switch(optchar) {
     case PRINTCOPYLEFT:
       printcopyleft=TRUE;

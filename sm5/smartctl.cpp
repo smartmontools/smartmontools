@@ -1,4 +1,4 @@
-//  $Id: smartctl.cpp,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: smartctl.cpp,v 1.4 2002/10/11 03:46:17 ballen4705 Exp $
 /*
  * smartctl.c
  *
@@ -113,25 +113,23 @@ void Usage ( void){
 
 }
 
+const char opts[] = { 
+  DRIVEINFO, CHECKSMART, SMARTVERBOSEALL, SMARTVENDORATTRIB,
+  GENERALSMARTVALUES, SMARTERRORLOG, SMARTSELFTESTLOG, SMARTDISABLE,
+  SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
+  SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
+  SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
+  SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,'\0'
+};
 
-/*  void ParseOpts ( chars *opts) 
-    Takes command options and sets features to be run */	
-
+/*      Takes command options and sets features to be run */	
 void ParseOpts (int argc, char** argv){
-  int                 optchar;
-  extern char         *optarg;
-  extern int          optopt, optind;
-  const char          opts[] = { 
-    DRIVEINFO, CHECKSMART, SMARTVERBOSEALL, SMARTVENDORATTRIB,
-    GENERALSMARTVALUES, SMARTERRORLOG, SMARTSELFTESTLOG, SMARTDISABLE,
-    SMARTENABLE, SMARTAUTOOFFLINEENABLE, SMARTAUTOOFFLINEDISABLE,
-    SMARTEXEOFFIMMEDIATE, SMARTSHORTSELFTEST, SMARTEXTENDSELFTEST, 
-    SMARTSHORTCAPSELFTEST, SMARTEXTENDCAPSELFTEST, SMARTSELFTESTABORT,
-    SMARTAUTOSAVEENABLE,SMARTAUTOSAVEDISABLE,PRINTCOPYLEFT,'\0'
-  };
+  int optchar;
+  extern char *optarg;
+  extern int optopt, optind, opterr;
   
-  
-  while(EOF != (optchar = getopt(argc, argv, opts))) {
+  opterr=1;
+  while (-1 != (optchar = getopt(argc, argv, opts))) {
     switch (optchar){
     case PRINTCOPYLEFT :
       printcopyleft=TRUE;
@@ -231,7 +229,7 @@ int main (int argc, char **argv){
     printf("is free software, and you are welcome to redistribute it\n");
     printf("under the terms of the GNU General Public License Version 2.\n");
     printf("See http://www.gnu.org for further details.\n\n");
-    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $");
+    printf("CVS version ID %s\n","$Id: smartctl.cpp,v 1.4 2002/10/11 03:46:17 ballen4705 Exp $");
     exit(0);
  }
 
