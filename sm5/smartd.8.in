@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.75 2004/08/04 05:24:50 ballen4705 Exp $
+$Id: smartd.8.in,v 1.76 2004/08/04 05:32:44 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1356,9 +1356,13 @@ to report failures of Usage (rather than Prefail) Attributes,
 .B \'\-t\' 
 to track changes in both Prefailure and Usage Attributes,
 .B \'\-l\ selftest\' 
-to report increases in the number of Self-Test Log errors, and
+to report increases in the number of Self-Test Log errors,
 .B \'\-l\ error\' 
-to report increases in the number of ATA errors.
+to report increases in the number of ATA errors,
+.B \'\-C 197\'
+to report nonzero values of the current pending sector count, and
+.B \'\-U 198\'
+to report nonzero values of the offline pending sector count.
 
 Note that \-a is the default for ATA devices.  If none of these other
 Directives is given, then \-a is assumed.
@@ -1721,4 +1725,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.75 2004/08/04 05:24:50 ballen4705 Exp $
+$Id: smartd.8.in,v 1.76 2004/08/04 05:32:44 ballen4705 Exp $
