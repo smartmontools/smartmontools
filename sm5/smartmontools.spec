@@ -1,4 +1,4 @@
-Release:  16
+Release:  17
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.27 2002/10/25 17:19:26 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.28 2002/10/26 20:53:08 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -78,7 +78,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 /etc/rc.d/init.d/smartd
 %doc %attr(644,root,root) /usr/share/man/man8/smartctl.8.gz
 %doc %attr(644,root,root) /usr/share/man/man8/smartd.8.gz
-%doc CHANGELOG COPYING TODO README VERSION
+%doc CHANGELOG COPYING TODO README VERSION smartd.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT

@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.23 2002/10/25 17:06:17 ballen4705 Exp $
+# $Id: Makefile,v 1.24 2002/10/26 20:53:08 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -33,7 +33,7 @@ CFLAGS	= -fsigned-char -Wall -O2
 
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
-  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION
+  smartd.8 smartd.c smartd.h smartd.initd TODO VERSION smartd.conf
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
@@ -68,11 +68,18 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd Makefile
 	/bin/gzip -c smartd.8 > smartd.8.gz
 	rm -f /usr/share/man/man8/smartctl.8
 	rm -f /usr/share/man/man8/smartd.8
-	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
-	install -m 755 -o root -g root -D smartd $(DESTDIR)/usr/sbin/smartd
+	install -m 755 -o root -g root -D smartctl      $(DESTDIR)/usr/sbin/smartctl
+	install -m 755 -o root -g root -D smartd        $(DESTDIR)/usr/sbin/smartd
+	install -m 755 -o root -g root -D smartd.initd  $(DESTDIR)/etc/rc.d/init.d/smartd
 	install -m 644 -o root -g root -D smartctl.8.gz $(DESTDIR)/usr/share/man/man8/smartctl.8.gz
-	install -m 644 -o root -g root -D smartd.8.gz $(DESTDIR)/usr/share/man/man8/smartd.8.gz
-	install -m 755 -o root -g root -D smartd.initd $(DESTDIR)/etc/rc.d/init.d/smartd
+	install -m 644 -o root -g root -D smartd.8.gz   $(DESTDIR)/usr/share/man/man8/smartd.8.gz
+	install -m 644 -o root -g root -D CHANGELOG     $(DESTDIR)/usr/share/doc/smartmontools-5.0/CHANGELOG
+	install -m 644 -o root -g root -D COPYING       $(DESTDIR)/usr/share/doc/smartmontools-5.0/COPYING
+	install -m 644 -o root -g root -D README        $(DESTDIR)/usr/share/doc/smartmontools-5.0/README
+	install -m 644 -o root -g root -D TODO          $(DESTDIR)/usr/share/doc/smartmontools-5.0/TODO
+	install -m 644 -o root -g root -D VERSION       $(DESTDIR)/usr/share/doc/smartmontools-5.0/VERSION
+	install -m 644 -o root -g root -D smartd.conf   $(DESTDIR)/usr/share/doc/smartmontools-5.0/smartd.conf
+
 	@echo -e "\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo "Smartd can now use a configuration file /etc/smartd.conf.  Please read man 8 smartd."
