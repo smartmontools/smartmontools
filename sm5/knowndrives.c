@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.114 2004/07/20 20:40:31 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.115 2004/07/25 20:45:03 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -727,7 +727,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "^WDC WD(4|6|8|10|12|16|18|20|25)00JB-.*$",
+    "^WDC WD((4|6|8|10|12|16|18|20|25)00JB|(12|20|25)00PB)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -783,6 +783,11 @@ const drivesettings knowndrives[] = {
   },
   { // QUANTUM FIREBALL ST3.2A
     "^QUANTUM FIREBALL ST3.2A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // QUANTUM FIREBALL EX3.2A
+    "^QUANTUM FIREBALL EX3.2A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
