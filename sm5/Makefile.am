@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.58 2004/07/31 19:18:54 chrfranke Exp $
+# $Id: Makefile.am,v 1.59 2004/08/07 21:59:19 geoffk1 Exp $
 #
 
 @SET_MAKE@
@@ -31,7 +31,9 @@ smartd_SOURCES =  smartd.c       \
 
 smartd_LDADD = @os_deps@ @os_libs@
 smartd_DEPENDENCIES = @os_deps@
-EXTRA_smartd_SOURCES = os_linux.c \
+EXTRA_smartd_SOURCES = os_darwin.c \
+		       os_darwin.h \
+		       os_linux.c \
                        os_linux.h \
 		       os_freebsd.c \
 		       os_freebsd.h \
@@ -185,8 +187,6 @@ smartd.conf$(smartd_suffix): smartd.conf
 	cp smartd.conf smartd.conf$(smartd_suffix)
 endif
 
-initd_DATA = smartd.initd
-
 EXTRA_DIST = \
                 smartmontools.spec	\
                 smartd.initd.in		\
@@ -203,7 +203,8 @@ CLEANFILES = smartd.conf.5 \
                  smartd.1m     \
 	         smartctl.8    \
 	         smartctl.1m   \
-		 smartd.initd
+		 smartd.initd  \
+		 SMART
 
 smartd.conf.5.in: smartd.8.in
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
@@ -216,7 +217,48 @@ smartd.conf.5.in: smartd.8.in
 	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5.in
 	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
 
-install-initdDATA: $(initd_DATA)
+if OS_DARWIN
+initd_DATA = SMART \
+	os_darwin/StartupParameters.plist \
+	os_darwin/English_Localizable.strings
+
+initd_install_name = SMART
+
+initd_DATA_install = install-initdDATA-darwin
+
+SMART : os_darwin/SMART.in
+	sed "s|/usr/sbin/|$(sbindir)/|" $< > $@
+
+install-initdDATA-darwin: $(initd_DATA)
+	$(mkinstalldirs) $(DESTDIR)$(initddir)
+	$(mkinstalldirs) $(DESTDIR)$(initddir)/SMART
+	$(mkinstalldirs) $(DESTDIR)$(initddir)/SMART/Resources
+	$(INSTALL_SCRIPT) $(top_builddir)/SMART $(DESTDIR)$(initddir)/SMART
+	$(INSTALL_DATA) $(srcdir)/os_darwin/StartupParameters.plist \
+	    $(DESTDIR)$(initddir)/SMART/StartupParameters.plist
+	for i in English ; do \
+	  RDIR=$(DESTDIR)$(initddir)/SMART/Resources/$${i}.lproj ; \
+	  $(mkinstalldirs) $$RDIR ;\
+	  $(INSTALL_DATA) $(srcdir)/os_darwin/$${i}_Localizable.strings \
+	    $$RDIR/Localizable.strings ; \
+	done
+	@echo -e "\n\n####################################################################\n#"
+	@echo -e "#                       PLEASE READ THIS BOX!\n#"
+	@echo -e "#   To manually start the smartd daemon, run:\n#   ${initddir}/SMART/SMART start\n#"
+	@echo -e "#   To automatically start smartd on bootup, add the line:\n#   SMARTd=-YES-\n#   to /etc/hostconfig\n#"
+	@echo -e "#   smartd can now use a configuration file ${sysconfdir}/smartd.conf. Do:\n#   man smartd"
+	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
+	@echo -e "####################################################################\n\n"
+
+else
+
+initd_DATA = smartd.initd
+
+initd_install_name = smartd$(smartd_suffix)
+
+initd_DATA_install = install-initdDATA-generic
+
+install-initdDATA-generic: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
 	$(INSTALL_SCRIPT) $(top_builddir)/smartd.initd $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
 	@echo -e "\n\n####################################################################\n#"
@@ -227,8 +269,12 @@ install-initdDATA: $(initd_DATA)
 	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
 	@echo -e "####################################################################\n\n"
 
+endif
+
+install-initdDATA : $(initd_DATA_install)
+
 uninstall-initdDATA:
-	rm -rf $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
+	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
 
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)

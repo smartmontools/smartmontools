@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.51 2004/07/19 04:45:03 ballen4705 Exp $
+$Id: INSTALL,v 1.52 2004/08/07 21:59:19 geoffk1 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -143,28 +143,26 @@ Table of contents:
     status of a drive is also not currently supported.
 
     To summarize this, from another point of view, the things that
-    are not supported fall into three categories:
-                                                                                                                 
-   * Could be implemented, but hasn't been done yet:
-     - Listing available devices
-     - checking the power mode (I think) [-n Directive of smartd]
-     - support for SCSI (I think)
-     - support for 3ware controllers (maybe)
+    are not supported fall into two categories:
 
-   * Can't be implemented easily without more OS support:
+   * Can't be implemented easily without more kernel-level support,
+     so far as I know:
      - running immediate offline, conveyance, or selective tests
      - running any test in capture mode
      - aborting tests
      - switching on automatic offline testing
-                                                                                                          
+     - support for SCSI
+     - checking the power mode [-n Directive of smartd] (this is not
+       completely impossible, but not by using a documented API)
+
    * Are implemented, but don't work due to OS bugs:
      - switching off SMART (switching *on* works fine)
      - switching off auto-save (but why would you want to?)
      - running the short test (that leaves you with only the extended test)
-                                                                                                                 
-The last set have been filed in Apple's bug tracking system and so
+
+The last set have been filed in Apple's bug tracking system and
 hopefully will be fixed.
-                                                                                                                 
+
 However, some things do work well.  For ATA devices, all the
 informational output is available, unless you want something that only
 an offline test updates.
@@ -305,12 +303,7 @@ SuSE:
 
 [6] Guidelines for Darwin
 =========================
-   Geoff, you should fill this in, along the lines of what is above and below.
-   Basically you should give the recommended ./configure options, and also
-   explain what's needed to install the init script for smartd.
-
-   Note: the init script should probably be modified so that it recognizes Darwin.
-   This file is smartd.initd.in
+  ./configure --with-initscriptdir=/Library/StartupItems
 
 
 [7] Guidelines for NetBSD

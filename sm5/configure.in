@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.89 2004/07/31 19:18:54 chrfranke Exp $
+# $Id: configure.in,v 1.90 2004/08/07 21:59:19 geoffk1 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.33, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.89 2004/07/31 19:18:54 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.90 2004/08/07 21:59:19 geoffk1 Exp $'`
 smartmontools_release_date=2004/07/05
 smartmontools_release_time="08:10:26 UTC"
 
@@ -127,6 +127,7 @@ case "${host}" in
 esac
 
 dnl Define platform-specific symbol.
+AM_CONDITIONAL(OS_DARWIN, [echo $host_os | grep '^darwin' > /dev/null])
 AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
 
