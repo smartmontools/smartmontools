@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.132 2003/04/08 13:24:08 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.133 2003/04/08 18:46:32 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -315,7 +315,7 @@ void huphandler(int sig){
   return;
 }
 
-// simple signal handler to print goodbye message to syslog
+// signal handler that tells users about signals that were caught
 void sighandler(int sig){
     printout(LOG_CRIT,"smartd received signal %d: %s\n",
              sig, strsignal(sig));
@@ -333,6 +333,7 @@ void remove_pid_file(){
   return;
 }
 
+// signal handler that prints goodbye message and removes pidfile
 void goodbye(){
   printout(LOG_CRIT,"smartd is exiting\n");
   remove_pid_file();
@@ -1096,6 +1097,13 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
       if (!debugmode)
 	daemon_init();
       
+      // install goobye message and remove pidfile handler
+      atexit(goodbye);
+      
+      // write PID file only after installing exit handler
+      if (!debugmode)
+	write_pid_file();
+      
       // install signal handlers
       if (signal(SIGINT, sighandler)==SIG_IGN)
 	signal(SIGINT, SIG_IGN);
@@ -1107,14 +1115,7 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 	signal(SIGHUP, SIG_IGN);
       if (signal(SIGUSR1, sleephandler)==SIG_IGN)
 	signal(SIGUSR1, SIG_IGN);
-      
-      // install goobye message
-      atexit(goodbye);
-      
-      // write PID file only after installing exit handler
-      if (!debugmode)
-	write_pid_file();
-      
+            
       // done with initialization setup
       firstpass=0;
     }
