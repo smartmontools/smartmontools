@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.243 2003/11/18 16:53:00 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.244 2003/11/19 06:12:40 dpgilbert Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -1107,12 +1107,15 @@ static int SCSIDeviceScan(cfgfile *cfg) {
   
   // disable autosave (set GLTSD bit)
   if (cfg->autosave==1){
-    // Doug, fill in by following the pattern immediately below
+    if (scsiSetControlGLTSD(fd, 1, cfg->modese_len))
+      PrintOut(LOG_INFO,"Device: %s, could not disable autosave (set GLTSD bit).\n",device);
+    else
+      PrintOut(LOG_INFO,"Device: %s, disabled autosave (set GLTSD bit).\n",device);
   }
 
   // or enable autosave (clear GLTSD bit)
   if (cfg->autosave==2){
-    if (scsiClearControlGLTSD(fd, cfg->modese_len))
+    if (scsiSetControlGLTSD(fd, 0, cfg->modese_len))
       PrintOut(LOG_INFO,"Device: %s, could not enable autosave (clear GLTSD bit).\n",device);
     else
       PrintOut(LOG_INFO,"Device: %s, enabled autosave (clear GLTSD bit).\n",device);

@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.41 2003/11/18 13:46:05 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.42 2003/11/19 06:08:46 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -200,8 +200,10 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define ALL_MODE_PAGES                           0x3f
 
 /* Mode page control field */
-#define MODE_PAGE_CONTROL_CURRENT               0
-#define MODE_PAGE_CONTROL_CHANGEABLE            1
+#define MPAGE_CONTROL_CURRENT               0
+#define MPAGE_CONTROL_CHANGEABLE            1
+#define MPAGE_CONTROL_DEFAULT               2
+#define MPAGE_CONTROL_SAVED                 3
 
 /* defines for useful SCSI Status codes */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
@@ -290,8 +292,8 @@ void scsiDecodeNonMediumErrPage(unsigned char * resp,
 int scsiFetchExtendedSelfTestTime(int device, int * durationSec, 
                                   int modese_len);
 int scsiCountFailedSelfTests(int fd, int noisy);
-int scsiFetchControlGLTSD(int device, int modese_len);
-int scsiClearControlGLTSD(int device, int modese_len);
+int scsiFetchControlGLTSD(int device, int modese_len, int current);
+int scsiSetControlGLTSD(int device, int enabled, int modese_len);
 int scsiFetchTransportProtocol(int device, int modese_len);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
