@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.15 2003/10/17 13:21:38 guidog Exp $
+$Id: WARNINGS,v 1.16 2003/10/17 13:51:20 ballen4705 Exp $
 
 The following are reports of serious problems (eg system lockup) which
 were due to smartmontools.  There is a "LINUX" and a "FREEBSD" section
@@ -46,6 +46,7 @@ NOTE:     Similar to previous report: Promise Ultra66 2-port card (20262) which,
           linux 2.4.20, suffers from the lockups reported above.  But it was
           impossible to enable the Promiste BIOS.  A kernel patch is referenced
           to fix the problem.
+
 
 SYSTEM:   Promise 20265
 PROBLEM:  Smartctl locks system solid when used on CDROM/DVD device
