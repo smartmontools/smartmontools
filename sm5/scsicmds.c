@@ -40,13 +40,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
 #include "scsicmds.h"
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.65 2003/11/20 01:02:27 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.65.2.1 2004/02/23 15:33:04 chrfranke Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1608,7 +1606,7 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
     int k, j, num, pl, pc;
     unsigned char * ucp;
     unsigned char * xp;
-    unsigned long long * ullp;
+    uint64_t * ullp;
 
     memset(ecp, 0, sizeof(*ecp));
     num = (resp[2] << 8) | resp[3];
