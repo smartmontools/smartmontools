@@ -69,9 +69,9 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.284 2004/02/03 16:48:58 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.285 2004/02/04 18:48:12 ballen4705 Exp $";
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.284 2004/02/03 16:48:58 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.285 2004/02/04 18:48:12 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -92,7 +92,7 @@ static int checktime=CHECKTIME;
 static char* pid_file=NULL;
 
 // configuration file name
-static char* configfile=SYSCONFDIR "/" CONFIGFILENAME ;
+static char* configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
 
 // command-line: when should we exit?
 static int quit=0;
