@@ -1,0 +1,730 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" >
+
+<!--
+This is DocBook XML that can be rendered into a single HTML page with a
+command like 'xmlto html-nochunks <this_file_name>'. It can
+also be rendered into multi-page HTML (drop the "-nochunks") or pdf,
+ps, txt, etc.
+-->
+
+<article id="index">
+ <articleinfo>
+   <title>Smartmontools for SCSI devices</title>
+   <author>
+    <firstname>Douglas</firstname>
+    <surname>Gilbert</surname>
+    <affiliation>
+     <address>
+      <email>dgilbert@interlog.com</email>
+     </address>
+    </affiliation>
+   </author>
+  <authorinitials>dpg</authorinitials>
+  <pubdate>2003-05-23</pubdate>
+
+  <revhistory>
+     <revision>
+       <revnumber>1.0</revnumber>
+       <date>2003-05-23</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             first cut
+       </revremark>
+     </revision>
+  </revhistory>
+
+  <copyright>
+   <year>2003</year>
+   <holder>Douglas Gilbert</holder>
+  </copyright>
+
+  <legalnotice>
+   <para>
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.1
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, with no Front-Cover Texts, and with
+      no Back-Cover Texts.
+   </para>
+   <para>
+    For an online copy of the license see
+    <ulink url="http://www.fsf.org/copyleft/fdl.html">
+    <literal>www.fsf.org/copyleft/fdl.html</literal></ulink>.
+   </para>
+
+  </legalnotice>
+
+  <abstract>
+  <para>
+    This article describes how smartmontools interacts with SCSI 
+    storage devices. Smartmontools is a SMART utility toolset for the
+    Linux operating system and may soon be ported to other OSes.
+    <acronym>SMART</acronym> is an acronym for Self-Monitoring, Analysis
+     and Reporting Technology.
+  </para>
+  </abstract>
+ </articleinfo>
+
+<!--
+<toc></toc>
+-->
+
+  <sect1 id="intro">
+      <title>Introduction</title>
+<para>
+Smartmontools controls and monitors storage devices using the
+Self-Monitoring, Analysis and Reporting Technology System 
+(<acronym>SMART</acronym>). Currently it is a toolset for Linux but
+it is hoped that it will soon be ported to other Operating Systems.
+This article describes how smartmontools interacts with SCSI devices.
+Passing reference is also made to devices that use the SCSI command
+set such as USB mass storage devices and IEEE1394 devices that use
+the "sbp2" protocol.
+</para>
+<para>
+The primary web site for smartmontools is at
+<ulink url="http://smartmontools.sourceforge.net">
+<literal>smartmontools.sourceforge.net</literal></ulink> from which the
+latest versions (both source and binaries) can be obtained. Smartmontools
+grew out of the now dormant <emphasis>smartsuite</emphasis> project which
+is now archived on the sourceforge site. The smartmontools site
+concentrates on ATA devices (whose draft standards can be found at
+<ulink url="http://www.t13.org"><literal>www.t13.org</literal></ulink>).
+This article attempts to supply some SCSI specific information for
+those users of smartmontool that wish to monitor SCSI storage devices.
+</para>
+<para>
+This document was last altered on 23rd May 2003.
+</para>
+</sect1>
+
+ <sect1 id="doco">
+      <title>Documentation</title>
+<para>
+One of the first surprises working with SCSI devices and smartmontools
+is that the SCSI standards (found at <ulink url="http://www.t10.org">
+<literal>www.t10.org</literal></ulink>)
+do <emphasis>not</emphasis> use
+the term <acronym>SMART</acronym>. Instead the awkward term "Informational
+Exceptions" (IE) is used. <acronym>SMART</acronym> never attained the status
+of "standard" and its original documents have been withdrawn. Its catchy
+name lives on, especially on vendors' web sites and obviously in the
+name of this toolset. Luckily the good ideas in <acronym>SMART</acronym>
+have been incorporated into the ATA and SCSI standards albeit in
+slightly different forms.
+</para>
+<para>
+The SCSI standards themselves have been sub-divided and three categories
+are of interest:
+<itemizedlist>
+<listitem><para>architectural model [SAM-3]</para></listitem>
+<listitem><para>command sets [SPC-3, SBC-2, SSC-2, SMC-2, etc]
+</para></listitem>
+<listitem><para>transports [SPI-4, SBP-2, FCP-3, etc]</para></listitem>
+</itemizedlist>
+The architectural model while interesting says nothing specific about
+Informational Exceptions or related topics. With respect to the transports
+the term <emphasis>SCSI</emphasis> has often been synonomous with one
+of the SCSI Parallel Interface transports (e.g. SPI-4 which is often know
+as "Ultra320") however this is unhelpful. For the purpose of smartmontools
+the SCSI command sets are more interesting. The main reference is the
+SCSI Primary Commands (SPC-3) document, specifically these sections:
+<itemizedlist>
+<listitem><para>self test operations; SEND DIAGNOSTIC command (which is
+the mechanism for requesting self tests)
+</para></listitem>
+<listitem><para>MODE SENSE and MODE SELECT commands (both 6 and 10 byte
+variants); Mode parameters [these mode pages:
+Informational Exceptions Control (IEC) and the Control]
+</para></listitem>
+<listitem><para>LOG SENSE and LOG SELECT commands;
+Log parameters [these log pages: Informational exceptions,
+read/write/verify error counters, non medium error count, temperature, 
+start-stop cycle counter and the self test results]
+</para></listitem>
+</itemizedlist>
+The SCSI Block Commands (SBC-2) document covers random access storage
+devices such as disks (but excluding CD/DVD readers and writers which are
+covered by MMC-3) while the SCSI Streaming Commands (SSC-2) document covers 
+tape systems.  The SBC-2 standard does not contain any additional 
+information (over SPC-3) about Informational Exceptions. 
+The SSC-2 standard covers TapeAlert (section 4.2.15), some extra facilities in
+the IEC mode page (see the mode parameters section) and some additional
+log pages. Medium changers which are often the "robots" in jukebox
+tape systems often support the TapeAlert mechanism and are described in
+the SMC-2 standard. 
+</para>
+<para>
+Initially <acronym>SMART</acronym> began on SCSI disks as vendor
+specific extensions. Gradually the <acronym>SMART</acronym> functionality has
+moved into the standard (often by other names) and vendors are improving
+their standards' compliance. [In the vendors' defence some of the
+"standards" such as SPC-3 are drafts and are yet to be ratified.]
+Some SCSI disk vendors have product manuals (available on the net)
+that cover the parts of the command set, defined in SPC-3 and SBC-2,
+that their disk supports. Some of these manuals fill in details that are
+left deliberately vague in the the standards. In some cases vendor specific
+mode and log pages are also outlined. 
+<footnote><para>
+Seagate's "Cheetah 15K.3 Product Manual, Rev F" contains sections on SMART,
+thermal monitor, and drive self test (section 5.2.7 to 5.2.9). It also
+lists the supported mode pages, the default and changeable values.
+</para></footnote>
+</para>
+</sect1>
+
+<sect1 id="infoexc">
+      <title>Informational Exceptions</title>
+<para>
+So what are Informational Exceptions in the SCSI context? They are a
+set of vendor specific parameters that the device monitors and if a
+"failure prediction threshhold" is exceeded then an exception is
+reported. A user is also able to set threshholds on error counters and
+have an exception reported if a condition is met. Additionally most
+modern disks monitor their temperature and will issue a warning if
+a temperature threshhold is exceeded.
+</para>
+<para>
+The "failure prediction threshhold" exception reporting and the temperature
+warning are separately controlled (in byte 2 of the Informational Exceptions
+Control (IEC) mode page).
+<footnote><para>
+Henceforth the term <emphasis>Informational Exceptions</emphasis>
+(or IE) will include both Informational Exceptions and the
+temperature (or "enclosure degraded") warnings.
+</para></footnote>
+In smartmontools the
+<command>smartctl -s on &lt;device&gt;</command> command turns on IE.
+There are various reasons why this may not (fully) work (e.g. IEC mode
+page not available or not changeable) so this command queries the device
+again after it has attempted the change and reports the state.
+The <command>smartctl -s off &lt;device&gt;</command> command turns off
+IE reporting.
+<footnote><para>
+IE have a (minor) performance impact on a disk. There are various other
+settings in the IEC mode page (e.g. PERF, EBF and LOGERR) that address
+this. The standard gives a lot of latitude to the vendor in implementing
+these additional flags. This finer level of control may be added to 
+smartmontools if the need arises.
+</para></footnote>
+</para>
+<sect2 id="iereport">
+      <title>IE reporting</title>
+<para>
+Informational Exceptions are reported via the standard SCSI mechanism of 
+an additional sense code (asc) and an additional sense code qualifier (ascq)
+pair. A selection of these pairs and the associated message (full list in
+SPC-3 document) is listed here:
+<programlisting>
+asc    ascq   message
+-------------------------------------------------------
+0xb    0x1    Warning - specified temperature exceeded
+0x5d   0x0    Failure prediction threshold exceeded
+0x5d   0x2    Media failure prediction threshold exceeded
+0x5d   0x10   Hardware impending failure general hard drive failure
+0x5d   0x11   Hardware impending failure drive error rate too high
+0x5d   0x56   Spindle impending failure start unit times too high
+0x5d   0xff   Failure prediction threshold exceeded (false)
+</programlisting>
+The last entry in the above table results from setting the TEST bit and
+is for exercising the reporting mechanism rather than the indication
+of an actual error.
+See this <link linkend="testbit">footnote</link> for more information.
+</para>
+<para>
+The difficult part is that the device may detect these conditions
+independently of any command executing. Even if it detects an informational
+exception during a command it needs to be careful sending IE error
+notifications back with a command especially if that command succeeded
+(Linux will not handle this too well in the 2.4 kernel series). 
+There is aynchronous event notification (AEN) in SCSI but it is not
+reliably supported across all transports. So smartmontools relies
+on a poll from the <command>smartd</command> daemon (the default
+is every 30 minutes) to detect informational exceptions.
+</para>
+<para>
+The additional sense code and its qualifier are part of what is termed as
+the <emphasis>sense buffer</emphasis> which is the response to a 
+REQUEST SENSE command. The sense key is also found in the sense buffer.
+Synchronous SCSI commands that fail return a single byte status code of
+CHECK CONDITION. An OS kernel would see this error/warning status and
+then check the sense buffer (by doing a REQUEST SENSE or by other means)
+and decide how to continue. From smartmontools' point of view, its
+<command>smartd</command> daemon would like to process Informational 
+Exceptions without interference from the OS. This is done by setting up
+the IEC mode page's MRIE field set to 6. This instructs the SCSI 
+device to hold a pending exception until an unsolicited REQUEST SENSE is 
+sent. If an exception is pending then the sense key will be "NO SENSE"
+and the asc, ascq pair will be set accordingly. In the case of no pending
+exception the asc,ascq pair will both be zero. The pending exception is 
+also visible in the IE log page, if that is supported. So 
+<command>smartd</command> can check the device during its normal polling 
+cycle. By default this polling cycle is set to 30 minutes.
+</para>
+<para>
+Pending informational exceptions can also be checked by running
+<command>smartctl -H &lt;device&gt;</command>. A message of
+"SMART Health Status: OK" indicates that there is no pending IE.
+<footnote><para>
+<anchor id="testbit"/>
+One might worry whether the <command>smartd</command> daemon is properly set
+up or if the device really will issue IE when the need arises. The mechanism
+can be tested by setting the TEST bit in the IEC mode page. That is
+done by this command: <command>smartctl -r ioctl,3 -s on &lt;device&gt;
+</command> [ignore the extra debugging output that "-r ioctl,3" causes]. A
+special asc/ascq pair is reserved for testing (0x5d,0xff)
+and the standard associates with it this awkward message: "Failure prediction 
+threshold exceeded (false)". A call to 
+<command>smartctl -H &lt;device&gt;</command> or waiting until the next 
+<command>smartd</command> poll should produce that message if the mechanism 
+is working. The IEC mode page TEST bit can be turned off (i.e. back to normal
+IE) with <command>smartctl -s on &lt;device&gt;</command>. The output
+after the TEST bit has been activated is shown in the 
+Examples section for the Fujitsu MAM3184 disk.
+</para></footnote>
+</para>
+</sect2>
+</sect1>
+
+<sect1 id="selftest">
+      <title>Self Tests</title>
+<para>
+Rather than wait for IE tresholds to be triggered, an administrator can
+request a self test or program one to happen periodically (e.g. at 3 a.m.
+every night or perhaps weekly). All SCSI disks should support a
+<emphasis>default</emphasis> self test since it is mandatory. This can
+be invoked with the <command>smartctl -t offline &lt;device&gt;</command>
+command. Despite the term "offline" this is actually a foreground test
+of less than 2 minutes. On completion the default self test yields any 
+errors detected and makes no entry into the self test log.
+</para>
+<para>
+The other self test that are optional supported by the device are list here
+with the <command>smartctl</command> invocation in brackets:
+<itemizedlist>
+<listitem><para>
+background short [<command>smartctl -t short &lt;device&gt;</command>]
+</para></listitem>
+<listitem><para>
+background extended [<command>smartctl -t long &lt;device&gt;</command>]
+</para></listitem>
+<listitem><para>
+foreground short [<command>smartctl -C -t short &lt;device&gt;</command>]
+</para></listitem>
+<listitem><para>
+foreground extended [<command>smartctl -C -t long &lt;device&gt;</command>]
+</para></listitem>
+</itemizedlist>
+Short self tests should take less than two minutes to complete. The extended
+self tests have been known to take more than one hour for disks that are over 
+100 GBytes in size. Care should be taken with foreground tests on disks
+with mounted file systems as the OS may not take kindly to an hour delay
+on a simple READ command.
+<footnote><para>
+Linux has an additional problem with the foreground extended self tests:
+it will attempt to time out the command after 10 seconds. This will appear
+in the self test log page as an aborted self test. A patch has been
+submitted to extend this period to 2 hours but will take some time before
+it appears in Linux distributions. Use the background extended test instead.
+Also some disks silently ignored foreground self tests (e.g. Seagate
+Cheetah 15K.1).
+</para></footnote>
+</para>
+<para>
+Background self tests can be aborted with the <command>smartctl -X 
+&lt;device&gt; </command> command. The self test log will note that an
+abort was requested.
+</para>
+<para>
+Self tests other than the default self test cause an entry to be placed
+in the self test results log page. The 20 most recent self tests are
+listed there. The table can be listed with the
+<command>smartctl -l selftest &lt;device&gt;</command> command. All tests
+output the accumulated power on hours when the test was performed and
+the success or otherwise (e.g. the self test was aborted by the user's
+request) of the test. Unsuccesful self tests output a self test segment 
+number (vendor specific), the logical block address of the first failure
+(if appropriate) and a sense_key,asc,ascq triple. Following the self test 
+result table is the expected duration of an uninterrupted extended self test
+if that figure is provided by the device. See <xref linkend="examples"/>. 
+</para>
+</sect1>
+
+<sect1 id="errorlog">
+      <title>Error Logs</title>
+<para>
+The <command>smartctl -l error &lt;device&gt;</command> command displays
+the error counters maintained in the device's log pages. The displayed
+log pages (if available) are:
+<itemizedlist>
+<listitem><para>
+write error counters
+</para></listitem>
+<listitem><para>
+read error counters
+</para></listitem>
+<listitem><para>
+verify error counters (only displayed if non-zero)
+</para></listitem>
+<listitem><para>
+non-medium error counter (only a single number displayed)
+</para></listitem>
+</itemizedlist>
+Each of the write, read and verify error counter pages has various
+parameters codes. They are itemized below with the smartctl column
+name followed, in brackets, with SPC-3's description:
+<itemizedlist>
+<listitem><para>
+Error Corrected delay: minor [Errors corrected without substantial delay]
+</para></listitem>
+<listitem><para>
+Error Corrected delay: major [Errors corrected with possible delays]
+</para></listitem>
+<listitem><para>
+Total rereads/rewrites [Total (e.g. rewrites and rereads)]
+</para></listitem>
+<listitem><para>
+Total errors corrected [Total errors corrected]
+</para></listitem>
+<listitem><para>
+Correction algorithm invocations [Total times correction algorithm processed]
+</para></listitem>
+<listitem><para>
+Gigabytes processed {10^9} [Total bytes processed]
+</para></listitem>
+<listitem><para>
+Total uncorrected errors [Total uncorrected errors]
+</para></listitem>
+</itemizedlist>
+</para>
+<para>
+The SPC-3 draft standard then goes on to caution that the
+<emphasis>exact</emphasis> definitions of the error counters is not
+part of the standard (i.e. they are vendor specific). Unfortunately
+the current batch of SCSI disk manufacturers' product manuals has
+little or no additional information concerning log pages.
+The disk product manuals do imply that the disk firmware collects
+these counter values and periodically commits them to persistent
+storage (disk or non-volatile RAM).
+<footnote><para>
+This is why some models spring to life after minutes of inactivity and
+perform some operation even though there are no external commands
+pending.
+</para></footnote>
+They also imply that their firmware is monitoring these error counters
+and if they exceed some threshhold (e.g. in a certain time interval)
+then the firmware will report an Informational Exception.
+</para>
+</sect1>
+
+<sect1 id="smartctl">
+      <title>smartctl command line utility</title>
+<para>
+<command>smartctl</command> is a command line utility supplied
+by the smartmontools package. It has a man page (in section 8, the system
+administration tools). It has many options, only some of which apply
+to SCSI devices. Those options that don't apply to SCSI devices have "[ATA]"
+next to them. The <command>smartctl</command> command has both traditional
+single letter options (e.g. "-h") and the corresponding "--" variants
+(e.g. "--help"). Command line options that <command>smartctl</command>
+cannot interpret cause a short help message. Calling 
+<command>smartctl --help</command> will cause a voluminous usage message 
+to appear.
+</para>
+<para>
+In Linux the appropriate SCSI devices that <command>smartctl</command> can
+operate on are /dev/sd&lt;letter&gt; for disks (partition number are not
+required) and any of the various device names for a tape (e.g. /dev/st0,
+/dev/nst0a, or /dev/osst2l). It is possible that cd/dvd devices support SMART
+but the author is not aware of an examples. SCSI generic (sg) devices in 
+linux may also be used.
+</para>
+<para>
+Debug information is output when the '-r ioctl' or the '-r scsiioctl' option
+is used. More debug is output when the '-r ioctl,&lt;n&gt;' form is used
+(where "n" is a number greater or equal to 1). Both '-r ioctl' and
+'r scsiioctl,1' select the same amount of SCSI debug informations. The debug
+level currently defined are:
+<itemizedlist>
+<listitem><para>
+1 - output SCSI commands sent to the device and the status received from
+the device
+</para></listitem>
+<listitem><para>
+2 - additionally, output the first 64 bytes of data sent to or received from
+the device
+</para></listitem>
+<listitem><para>
+3 - additionally, set the IEC mode page TEST bit if accompanying the '-s on'
+option
+</para></listitem>
+</itemizedlist>
+See this <link linkend="testbit">footnote</link> for more information about the
+use of the IEC mode page TEST bit.
+</para>
+</sect1>
+
+<sect1 id="smartd">
+      <title>smartd daemon</title>
+<para>
+Smartd is a daemon for monitoring disks (both ATA and SCSI). It is
+recommended that tape drives and medium changers are monitored in
+a more manual fashion with the <command>smartctl</command> command
+as discussed in <xref linkend="tapes"/>.
+</para>
+<para>
+The configuration file for <command>smartd</command>
+is called <filename>/etc/smartd.conf</filename> and has a man page (as does
+the <command>smartd</command> command). The controlling daemon script
+is placed in the normal place for a distribution, typically
+<filename>/etc/rc.d/init.d/smartd</filename>.
+</para>
+<para>
+<command>smartd</command> polls the devices it has recognized when it
+was started. By default it polls every 30 minutes. It reports any adverse
+finding and noteworthy occurrences (e.g. disk drive temperature changes)
+to a log file (<filename>/var/log/messages</filename>). <command>smartd
+</command> can be configured to take other actions, for example send
+email to a system administrator.
+</para>
+<para>
+SCSI disks can be discovered by <command>smartd</command> via a scan of 
+device nodes <filename>/dev/sda</filename> through to 
+<filename>/dev/sdz</filename> by placing the word "DEVICESCAN" in
+<filename>/etc/smartd.conf</filename> file. Alternatively the
+"DEVICESCAN" word can be removed (or commented out) and SCSI devices
+named explicity:
+<programlisting>
+/dev/sda -d scsi
+/dev/sdb -d scsi
+</programlisting>
+The "-d scsi" argument tells <command>smartd</command> that it is a
+SCSI device which it would guess with these names but not names
+generated by devfs or other coherent naming tools for SCSI devices.
+</para>
+</sect1>
+
+<sect1 id="tapes">
+      <title>TapeAlert</title>
+<para>
+TapeAlert (or "tape alerts") is closely related to Informational Exceptions.
+TapeAlert is specialized for tape and medium changer devices.
+An example of a TapeAlert is an indication that the heads need to be cleaned.
+</para>
+<para>
+TapeAlert uses the Informational Exception mechanism in a special
+way. The pending TapeAlert errors are be always read from the
+TapeAlert log page. The Informational Exceptions can be used to tell
+the system that one of more of the TapeAlert flags has been set but
+the flags can be polled even when Informational Exceptions are
+disabled. In fact, the most natural way to use TapeAlert is to poll
+the flags (with smartctl) at certain points when using the tape, for
+example:
+<itemizedlist>
+<listitem><para>
+when starting a new job using the tape drive
+</para></listitem>
+<listitem><para>
+after an unrecoverable error
+</para></listitem>
+<listitem><para>
+at the end of using each tape (before it is unloaded)
+</para></listitem>
+</itemizedlist>
+</para>
+<para>
+The TapeAlert information is divided into three severity classes:
+Critical, Warning, and Information. The critical messages require
+urgent user intervention. Both critical and warning errors may lead to
+loss of data. Some of the errors are related to the medium and others
+to the hardware. This is why the TapeAlert information should be
+checked according to the tape use and not polled using fixed time
+interval.
+</para>
+<para>
+Different set of flags are defined for tape drives and media
+changers. Most of the flags are optional and the set of flags
+supported depends on the device. TapeAlert is being included into the
+SCSI-3 standards. Many SCSI-2 drives support TapeAlert but the
+implementation may not fully conform to the SCSI-3 draft definition
+used by smartctl.
+</para>
+<para>
+It is important that only one application
+(or OS driver) is monitoring tape alerts since reading the TapeAlert log 
+page deactivates all flags after they are read. 
+<footnote><para>
+In a multi initiator environment (e.g. several computers sharing the same
+tape jukebox) there can be one application monitoring tape alerts
+per initiator.
+</para></footnote>
+Currently the Linux SCSI tape drivers (st and osst) do not check the 
+TapeAlert log page. [The osst driver is specifically designed for OnStream
+drives that use the SCSI command set.]
+</para>
+<para>
+In Linux, a medium changer device (i.e. the robot in a tape jukebox) is
+accessed via a SCSI generic (sg) device name. These device names have the
+form <filename>/dev/sg&lt;n&gt;</filename> where "&lt;n&gt;" is a number
+starting at zero. To find the mapping of the device names to sg numbers
+see the output of this command: <command>cat /proc/scsi/sg/device_strs
+</command>. The first row corresponds to <filename>/dev/sg0</filename>,
+the second row to <filename>/dev/sg1</filename>, etc.
+</para>
+<para>
+Code and information on the TapeAlert mechanism have been provided by 
+Kai M&auml;kisara <email>Kai.Makisara@kolumbus.fi</email>.
+</para>
+</sect1>
+
+<sect1 id="usb1394">
+      <title>USB and IEEE1394 Disks</title>
+<para>
+USB mass storage devices and IEEE1394 devices that use the sbp2 protocol
+(which is an official SCSI transport) appear to the OS as SCSI
+devices. However in almost all cases the "device" is actually an
+ATA disk (or an ATAPI CD/DVD reader/writer) that goes through a bridge
+in the external enclosure. The first generation of these bridges had
+very poor SCSI semantics and supported virtually none of the commands
+required by smartmontools. Evidently a second generation of those
+bridges are now appearing in external enclosures. Please test your devices
+in this category (preferably with no file systems mounted); the author would
+like to be proved wrong.
+</para>
+</sect1>
+
+<sect1 id="raid">
+      <title>RAID</title>
+<para>
+It is unlikely that a hardware RAID controller will directly support 
+smartmontools. A SCSI RAID controller is a virtual target device that 
+essentially remaps the SCSI commands it receives to the physical disks on its 
+internal buses. The physical disks in a "SCSI" RAID could be ATA or sATA
+disks, in this case a SCSI bus is used between the host computer and an
+external RAID controller since LVD SCSI buses (SPI-2,3 and 4) can run 
+up to 25 metres (plus other protocol related issues).
+</para>
+<para>
+Some SCSI RAIDs equipped internally with SCSI disks allow access to the 
+physical disks via logical unit numbers (LUNs) greater than 0. The SCSI RAID
+controller itself takes LUN equal to 0. In this case smartmontools could
+be applied to the LUNs greater than 0 that refer to physical disks.
+</para>
+<para>
+Some SCSI RAIDs equipped internally ATA disks have a mechanism that allows
+ATA commands to be tunnelled to the ATA disks. The 3ware 6000 and 7000 
+series Escalade controllers are examples. In this case, special
+provision may be made in smartmontools to tunnel the ATA command
+required through to the physical disks.
+</para>
+</sect1>
+
+<sect1 id="examples">
+      <title>Examples</title>
+<para>
+Here is some output from the <command>smartctl</command>
+command. Mostly it is for the '--all' option.
+<itemizedlist>
+<listitem><para>
+StorageTek LT20 tape 'jukebox': the
+<ulink url="bnch_DLT1.html">
+<literal>tape reading mechanism</literal></ulink>
+and the
+<ulink url="bnch_robot.html">
+<literal>medium changer</literal></ulink> (robot).
+Note the TapeAlert warnings in the medium changer output.
+</para></listitem>
+<listitem><para>
+HP DDS-4 
+<ulink url="hp_c5713a_smt_a.html">
+<literal>tape</literal></ulink>
+drive.
+</para></listitem>
+<listitem><para>
+Generic ATAPI CD-RW
+<ulink url="atapi_cdrw_smt_a.html">
+<literal>cd writer</literal></ulink> is an example of a device that
+does not support SMART.
+</para></listitem>
+<listitem><para>
+IBM DDRS 39130
+<ulink url="ddrs_39130_smt_a.html">
+<literal>disk</literal></ulink>
+ manufactured in 1998. 
+</para></listitem>
+<listitem><para>
+Fujitsu MAM3184MP 18 GigaByte 
+<ulink url="mam3184_smt_a.html">
+<literal>disk</literal></ulink> when all is well. Here is the output from
+the <command>smartctl -H</command> command after the IEC Test bit has been 
+set (with the <command>smartctl -s on -r ioctl,3</command> command) on the
+same Fujitsu <ulink url="mam3184_smt_health.html">
+<literal>disk</literal></ulink> .
+</para></listitem>
+<listitem><para>
+Fujitsu MAP3735NP 73 GigaByte 
+<ulink url="map3735_smt_a.html">
+<literal>disk</literal></ulink>
+</para></listitem>
+<listitem><para>
+Quantum ATLAS IV 36 WLS, 36 GigaByte 
+<ulink url="ativ_36_smt_a.html">
+<literal>disk</literal></ulink>
+</para></listitem>
+<listitem><para>
+Seagate Cheetah ST318451LW 18 GigaByte 
+<ulink url="st318451_smt_a.html">
+<literal>disk</literal></ulink>. It would seem that the total count of bytes
+written is reset every time the disk is power cycled. However the total
+count of bytes read seems to accumulate over power cycles.
+</para></listitem>
+</itemizedlist>
+
+</para>
+</sect1>
+
+<sect1 id="links">
+      <title>Links</title>
+<para>
+Here are some links to related projects and packages:
+<itemizedlist>
+<listitem><para>
+<anchor id="t10"/>
+primary reference site for SCSI architecture, command sets and transports
+<ulink url="http://www.t10.org">
+<literal>www.t10.org</literal></ulink>.
+<footnote><para>
+The documents found on the t10 site are actually <emphasis>draft</emphasis>
+standards. Once they are ratified they become available from ANSI for
+a fee. The t10 site maintains the last draft prior to ratification and
+the most recent draft of yet to be ratified standards.
+</para></footnote>
+</para></listitem>
+<listitem><para>
+<anchor id="scsirastools"/>
+SCSI raid monitoring tools plus a firmware update utility and other low level
+tools <ulink url="http://scsirastools.sourceforge.net">
+<literal>scsirastools.sourceforge.net</literal></ulink> .
+</para></listitem>
+<listitem><para>
+<anchor id="sg3utils"/>
+A package of SCSI low level tools for Linux called sg3_utils can be found
+on this page <ulink url="http://www.torque.net/sg">
+<literal>www.torque.net/sg</literal></ulink> (the most recent version
+is sg3_utils-1.04). Allows command level access to SCSI devices.
+</para></listitem>
+<listitem><para>
+<anchor id="howto"/>
+There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
+<ulink url="http://www.tldp.org/HOWTO/SCSI-2.4-HOWTO">
+<literal>www.tldp.org/HOWTO/SCSI-2.4-HOWTO</literal></ulink>.
+</para></listitem>
+
+</itemizedlist>
+</para>
+</sect1>
+
+</article>
+
