@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.127 2004/02/04 22:30:25 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.128 2004/02/04 23:09:46 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -173,10 +173,10 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
      * be repeated in the error description string if more than one of those
      * bits is set.
      */
-    error_flag[7] = "Sense key",
-    error_flag[6] = "Sense key",
-    error_flag[5] = "Sense key",
-    error_flag[4] = "Sense key",
+    error_flag[7] = "Sense key (bit 3)",
+    error_flag[6] = "Sense key (bit 2)",
+    error_flag[5] = "Sense key (bit 1)",
+    error_flag[4] = "Sense key (bit 0)",
     error_flag[2] = "ABRT";
     error_flag[1] = "EOM";
     error_flag[0] = "ILI";
