@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.105 2003/10/06 21:23:08 pjwilliams Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.106 2003/10/06 21:43:07 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -173,7 +173,7 @@ void PrintSmartOfflineStatus(struct ata_smart_values *data){
   // the final 7 bits
   unsigned char stat=data->offline_data_collection_status & 0x7f;
   
-  pout("Off-line data collection status: (0x%02x)\t",
+  pout("Offline data collection status:  (0x%02x)\t",
        (int)data->offline_data_collection_status);
     
   switch(stat){
@@ -208,9 +208,9 @@ void PrintSmartOfflineStatus(struct ata_smart_values *data){
   // Report on Automatic Data Collection Status.  Only IBM documents
   // this bit.  See SFF 8035i Revision 2 for details.
   if (data->offline_data_collection_status & 0x80)
-    pout("\t\t\t\t\tAuto Off-line Data Collection: Enabled.\n");
+    pout("\t\t\t\t\tAuto Offline Data Collection: Enabled.\n");
   else
-    pout("\t\t\t\t\tAuto Off-line Data Collection: Disabled.\n");
+    pout("\t\t\t\t\tAuto Offline Data Collection: Disabled.\n");
   
   return;
 }
@@ -284,7 +284,7 @@ void PrintSmartSelfExecStatus(struct ata_smart_values *data)
 
 
 void PrintSmartTotalTimeCompleteOffline ( struct ata_smart_values *data){
-  pout("Total time to complete off-line \n");
+  pout("Total time to complete Offline \n");
   pout("data collection: \t\t (%4d) seconds.\n", 
        (int)data->total_time_to_complete_off_line);
 }
@@ -297,7 +297,7 @@ void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
        (int)data->offline_data_collection_capability);
   
   if (data->offline_data_collection_capability == 0x00){
-    pout("\tOff-line data collection not supported.\n");
+    pout("\tOffline data collection not supported.\n");
   } 
   else {
     pout( "%s\n", isSupportExecuteOfflineImmediate(data)?
@@ -305,8 +305,8 @@ void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
 	  "No SMART execute Offline immediate.");
     
     pout( "\t\t\t\t\t%s\n", isSupportAutomaticTimer(data)? 
-	  "Auto offline data collection on/off support.":
-	  "No auto offline data collection support.");
+	  "Auto Offline data collection on/off support.":
+	  "No Auto Offline data collection support.");
     
     pout( "\t\t\t\t\t%s\n", isSupportOfflineAbort(data)? 
 	  "Abort Offline collection upon new\n\t\t\t\t\tcommand.":
@@ -595,7 +595,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   }
 
   // Some internal consistency checking of the data structures
-  if ((data->ata_error_count-data->error_log_pointer)%5) {
+  if ((data->ata_error_count-data->error_log_pointer)%5 && con->fixfirmwarebug != FIX_SAMSUNG2) {
     pout("Warning: ATA error count %d inconsistent with error log pointer %d\n\n",
 	 data->ata_error_count,data->error_log_pointer);
   }
@@ -636,7 +636,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       case 0x01: msgstate="sleeping"; break;
       case 0x02: msgstate="in standby mode"; break;
       case 0x03: msgstate="active or idle"; break;
-      case 0x04: msgstate="doing SMART off-line or self test"; break;
+      case 0x04: msgstate="doing SMART Offline or Self-test"; break;
       default:   
 	if (bits<0x0b)
 	  msgstate="in a reserved state";
@@ -720,12 +720,12 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
 
       // test name
       switch(log->selftestnumber){
-      case   0: msgtest="Off-line           "; break;
-      case   1: msgtest="Short off-line     "; break;
-      case   2: msgtest="Extended off-line  "; break;
-      case   3: msgtest="Conveyance off-line"; break;
-      case   4: msgtest="Selective off-line "; break;
-      case 127: msgtest="Abort off-line test"; break;
+      case   0: msgtest="Offline            "; break;
+      case   1: msgtest="Short offline      "; break;
+      case   2: msgtest="Extended offline   "; break;
+      case   3: msgtest="Conveyance offline "; break;
+      case   4: msgtest="Selective offline  "; break;
+      case 127: msgtest="Abort offline test "; break;
       case 129: msgtest="Short captive      "; break;
       case 130: msgtest="Extended captive   "; break;
       case 131: msgtest="Conveyance captive "; break;
@@ -733,9 +733,9 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       default:  
 	if ( log->selftestnumber>=192 ||
 	    (log->selftestnumber>= 64 && log->selftestnumber<=126))
-	  msgtest="Vendor off-line    ";
+	  msgtest="Vendor offline     ";
 	else
-	  msgtest="Reserved off-line  ";
+	  msgtest="Reserved offline   ";
       }
       
       // test status
@@ -1227,7 +1227,7 @@ int ataPrintMain (int fd){
   switch (con->testcase){
   case OFFLINE_FULL_SCAN:
     if (!isSupportExecuteOfflineImmediate(&smartval)){
-      pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
+      pout("Warning: device does not support Execute Offline Immediate function.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     break;
@@ -1284,15 +1284,16 @@ int ataPrintMain (int fd){
   
   // Now say how long the test will take to complete
   if ((timewait=TestTime(&smartval,con->testcase))){ 
-    if (con->testcase==OFFLINE_FULL_SCAN)
+    time_t t=time(NULL);
+    if (con->testcase==OFFLINE_FULL_SCAN) {
+      t+=timewait;
       pout("Please wait %d seconds for test to complete.\n", (int)timewait);
-    else {
-      time_t t=time(NULL);
+    } else {
       t+=timewait*60;
       pout("Please wait %d minutes for test to complete.\n", (int)timewait);
-      pout("Estimated completion time: %s\n", ctime(&t));
     }
-
+    pout("Test will complete after %s\n", ctime(&t));
+    
     if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
 	con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
 	con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
