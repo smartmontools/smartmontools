@@ -26,7 +26,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.48 2003/10/15 05:35:51 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.49 2003/10/15 14:06:02 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -448,8 +448,8 @@ void showpresets(const struct ata_identify_device *drive){
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   // get the drive's model/firmware strings
-  formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
-  formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
+  formatdriveidstring(model, (char *)drive->model, MODEL_STRING_LENGTH);
+  formatdriveidstring(firmware, (char *)drive->fw_rev, FIRMWARE_STRING_LENGTH);
   
   // and search to see if they match values in the table
   if ((i = lookupdrive(model, firmware)) < 0) {
@@ -495,8 +495,8 @@ int applypresets(const struct ata_identify_device *drive, unsigned char **optspt
   opts=*optsptr;
 
   // get the drive's model/firmware strings
-  formatdriveidstring(model, drive->model, MODEL_STRING_LENGTH);
-  formatdriveidstring(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
+  formatdriveidstring(model, (char *)drive->model, MODEL_STRING_LENGTH);
+  formatdriveidstring(firmware, (char *)drive->fw_rev, FIRMWARE_STRING_LENGTH);
 
   // Look up the drive in knowndrives[] and check vendoropts is non-NULL.
   if ((i = lookupdrive(model, firmware)) >= 0 && knowndrives[i].vendoropts) {

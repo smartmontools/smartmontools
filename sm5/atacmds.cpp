@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.125 2003/10/13 14:50:44 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.126 2003/10/15 14:06:02 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -476,18 +476,18 @@ void swap8(char *location){
 }
 
 static char *commandstrings[]={
-  [ENABLE]=           "SMART ENABLE",
-  [DISABLE]=          "SMART DISABLE",
-  [AUTOSAVE]=         "SMART AUTOMATIC ATTRIBUTE SAVE",
-  [IMMEDIATE_OFFLINE]="SMART IMMEDIATE OFFLINE",
-  [AUTO_OFFLINE]=     "SMART AUTO OFFLINE",
-  [STATUS]=           "SMART STATUS",
-  [STATUS_CHECK]=     "SMART STATUS CHECK",
-  [READ_VALUES]=      "SMART READ ATTRIBUTE VALUES",
-  [READ_THRESHOLDS]=  "SMART READ ATTRIBUTE THRESHOLDS",
-  [READ_LOG]=         "SMART READ LOG",
-  [IDENTIFY]=         "IDENTIFY DEVICE",
-  [PIDENTIFY]=        "IDENTIFY PACKET DEVICE"
+  "SMART ENABLE",
+  "SMART DISABLE",
+  "SMART AUTOMATIC ATTRIBUTE SAVE",
+  "SMART IMMEDIATE OFFLINE",
+  "SMART AUTO OFFLINE",
+  "SMART STATUS",
+  "SMART STATUS CHECK",
+  "SMART READ ATTRIBUTE VALUES",
+  "SMART READ ATTRIBUTE THRESHOLDS",
+  "SMART READ LOG",
+  "IDENTIFY DEVICE",
+  "IDENTIFY PACKET DEVICE"
 };
 
 void prettyprint(unsigned char *stuff, char *name){

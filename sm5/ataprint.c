@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.108 2003/10/13 14:50:44 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.109 2003/10/15 14:06:02 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -116,13 +116,13 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   pout("Device Model:     ");
-  printswap(model, drive->model,40);
+  printswap(model, (char *)drive->model,40);
 
   pout("Serial Number:    ");
-  printswap(serial, drive->serial_no,20);
+  printswap(serial, (char *)drive->serial_no,20);
 
   pout("Firmware Version: ");
-  printswap(firm, drive->fw_rev,8);
+  printswap(firm, (char *)drive->fw_rev,8);
 
   // See if drive is recognized
   drivetype=lookupdrive(model, firm);

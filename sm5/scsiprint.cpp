@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.51 2003/10/10 05:08:12 arvoreen Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.52 2003/10/15 14:06:02 ballen4705 Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -475,13 +475,13 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 
     if (len >= 36) {
         memset(manufacturer, 0, sizeof(manufacturer));
-        strncpy(manufacturer, &gBuf[8], 8);
+        strncpy(manufacturer, (char *)&gBuf[8], 8);
      
         memset(product, 0, sizeof(product));
-        strncpy(product, &gBuf[16], 16);
+        strncpy(product, (char *)&gBuf[16], 16);
             
         memset(revision, 0, sizeof(revision));
-        strncpy(revision, &gBuf[32], 4);
+        strncpy(revision, (char *)&gBuf[32], 4);
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
         if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
             /* should use VPD page 0x83 and fall back to this page (0x80)

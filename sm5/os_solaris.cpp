@@ -37,7 +37,7 @@
 // This is to include whatever prototypes you define in os_solaris.h
 #include "os_solaris.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.5 2003/10/14 13:09:06 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.6 2003/10/15 14:06:02 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -45,9 +45,9 @@ int printedout[5];
 char *unimplemented[5]={
   "guess_device_type()",
   "make_device_names()",
-  "ATA command routine ata_command_interface",
-  "3ware Escalade Controller command routine escalade_command_interface",
-  "SCSI command interface do_scsi_cmnd_io"
+  "ATA command routine ata_command_interface()",
+  "3ware Escalade Controller command routine escalade_command_interface()",
+  "SCSI command interface do_scsi_cmnd_io()"
 };
 
 int printwarning(int which){
@@ -71,6 +71,21 @@ int printwarning(int which){
   return 1;
 }
 
+// tries to guess device type given the name (a path)
+int guess_device_type (const char* dev_name) {
+  if (printwarning(0))
+    return GUESS_DEVTYPE_DONT_KNOW;
+  return GUESS_DEVTYPE_DONT_KNOW;
+}
+
+// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
+// smartd.  Returns number of devices, or -1 if out of memory.
+int make_device_names (char*** devlist, const char* name) {
+  if (printwarning(1))
+    return 0;
+  return 0;
+}
+
 // Like open().  Return integer handle, used by functions below only.
 // type="ATA" or "SCSI".
 int deviceopen(const char *pathname, char *type){
@@ -87,20 +102,6 @@ int deviceclose(int fd){
     return close(fd);
 }
 
-// tries to guess device type given the name (a path)
-int guess_device_type (const char* dev_name) {
-  if (printwarning(0))
-    return GUESS_DEVTYPE_DONT_KNOW;
-  return GUESS_DEVTYPE_DONT_KNOW;
-}
-
-// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
-// smartd.  Returns number of devices, or -1 if out of memory.
-int make_device_names (char*** devlist, const char* name) {
-  if (printwarning(1))
-    return 0;
-  return 0;
-}
 
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char *data){

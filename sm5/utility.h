@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.18 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.19 2003/10/15 14:06:02 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -42,9 +42,12 @@ void dateandtimezoneepoch(char *buffer, time_t tval);
 void printone(char *block, const char *cvsid);
 
 // like printf() except that we can control it better. Note --
-// although the prototype is given here, in utility.h, the function
+// although the prototype is given here in utility.h, the function
 // itself is defined differently in smartctl and smartd.  So the
-// function definition is in smartd.c and in smartctl.c.
+// function definition(s) are in smartd.c and in smartctl.c.
+#ifndef __GNUC__
+#define __attribute__(x)      /* nothing */
+#endif
 void pout(char *fmt, ...)  
      __attribute__ ((format (printf, 1, 2)));
 
