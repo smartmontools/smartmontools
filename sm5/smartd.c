@@ -25,6 +25,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -49,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.82 2002/12/05 05:24:32 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.83 2002/12/05 05:52:07 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
