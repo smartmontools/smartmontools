@@ -2,9 +2,9 @@ Any recent Linux distribution should support this package.  Note that
 smartmontools requires Linux kernel 2.2.14 or greater in order to run at
 all.  But to give the ATA RETURN SMART STATUS command, the kernel needs
 to support the HDIO_DRIVE_TASK ioctl().  Any 2.4 series kernel should
-provide this support.  I am told that some of the 2.2.20 and later
-kernels also provide this support if they are properly
-patched/configured.
+provide this support.  I'm told that some of the 2.2.20 and later
+kernels also provide this support if they're properly patched /
+configured.
 
 To install from sources, use the commands:
 
@@ -17,12 +17,12 @@ run it.
 ./configure
 
 This defaults to --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man
---docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts ,
+--docdir=/usr/share/doc --exampledir=/usr/share/doc/examplescripts,
 which are correct for Red Hat, Slackware, and probably other Linux
 distributions.
 
-For FHS compliance, use --prefix=/usr/local , and for a full list of
-options --help
+For FHS compliance, use --prefix=/usr/local, and for a full list of
+options --help.
 
 make
 make install (only root can do this)
@@ -53,8 +53,8 @@ man smartd
 
 Note that the default location for the manual pages are
 /usr/share/man/man5 and /usr/share/man/man8.  If "man" doesn't find
-them, then you may need to add /usr/share/man to your MANPATH
-environment variable.
+them, you may need to add /usr/share/man to your MANPATH environment
+variable.
 
 Source and binary RPM packages are available at
 http://sourceforge.net/project/showfiles.php?group_id=64297
@@ -62,26 +62,26 @@ http://sourceforge.net/project/showfiles.php?group_id=64297
 Refer to http://smartmontools.sourceforge.net/index.html#howtodownload
 for any additional installation instructions.
 
-Seventeen files are installed:
+The following files are installed:
 /usr/sbin/smartctl				[Executable command-line utility]
 /usr/sbin/smartd				[Executable daemon]
 /etc/rc.d/init.d/smartd				[Init/Startup script for smartd]
 /usr/share/man/man5/smartd.conf.5.gz		[Manual page]
 /usr/share/man/man8/smartctl.8.gz		[Manual page]
 /usr/share/man/man8/smartd.8.gz			[Manual page]
-/usr/share/doc/smartmontools-5.1/AUTHORS	[Names and e-mail addresses of the authors and developers]
-/usr/share/doc/smartmontools-5.1/COPYING	[GNU General Public License Version 2] 
+/usr/share/doc/smartmontools-5.1/AUTHORS	[Information about the authors and developers]
+/usr/share/doc/smartmontools-5.1/COPYING	[GNU General Public License Version 2]
 /usr/share/doc/smartmontools-5.1/INSTALL	[What you're reading!]
 /usr/share/doc/smartmontools-5.1/NEWS		[A log of changes. Also see CVS]
 /usr/share/doc/smartmontools-5.1/README		[Overview]
 /usr/share/doc/smartmontools-5.1/TODO		[Things that need to be done/fixed]
 /usr/share/doc/smartmontools-5.1/VERSION	[Version number]
 /usr/share/doc/smartmontools-5.1/WARNINGS	[Systems where lockups or other serious problems reported]
-/usr/share/doc/smartmontools-5.1/smartd.conf	[Example Configuration file for /etc/]
+/usr/share/doc/smartmontools-5.1/smartd.conf	[Example configuration file for smartd]
 /usr/share/doc/smartmontools-5.1/examplescripts	[Executable scripts for -M exec of smartd.conf (4 files)]
 
 
-What follows is the standard INSTALL file from GNU Automake.
+Follows the standard INSTALL file from GNU Automake.
 
 
 Copyright (C) 1994, 1995, 1996, 1999, 2000, 2001, 2002 Free Software
