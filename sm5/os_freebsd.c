@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.18 2003/10/14 14:22:44 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.19 2003/10/21 01:45:50 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -565,7 +565,7 @@ int guess_device_type (const char* dev_name) {
 // global variable holding byte count of allocated memory
 extern long long bytes;
 
-void *FreeNonZero(void* address, int size);
+void *FreeNonZero(void* address, int size,int whatline,char* file);
 
 // we are going to take advantage of the fact that FreeBSD's devfs will only
 // have device entries for devices that exist.  So if we get the equivilent of
@@ -585,7 +585,7 @@ int get_dev_names(char*** names, const char* prefix) {
   dir = opendir("/dev");
   if (dir == NULL) {
     int myerr = errno;
-    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV));
+    mp= FreeNonZero(mp,(sizeof (char*) * MAX_NUM_DEV),__LINE__,__FILE__);
     errno = myerr;
     return -1;
   }
@@ -595,7 +595,7 @@ int get_dev_names(char*** names, const char* prefix) {
     if (dirent->d_type == DT_CHR &&
 	(strstr(dirent->d_name,prefix) != NULL) &&
 	(dirent->d_namlen == 3)) {
-      mp[n++] = CustomStrDup(dirent->d_name,1,__LINE__);
+      mp[n++] = CustomStrDup(dirent->d_name,1,__LINE__,__FILE__);
     }
   }
   closedir(dir);

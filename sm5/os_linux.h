@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.4 2003/10/12 09:10:03 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.5 2003/10/21 01:45:50 arvoreen Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -105,5 +105,6 @@ typedef struct TAG_TW_Output {
   char output_data[512];
 } TW_Output; 
 
+#define MAX_NUM_DEV 26
 
 #endif /* OS_LINUX_H_ */
