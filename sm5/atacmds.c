@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.90 2003/04/18 13:48:32 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.91 2003/04/18 23:41:46 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -424,35 +424,42 @@ char *create_vendor_attribute_arg_list(void){
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
+
+// huge value of buffer size needed because HDIO_DRIVE_CMD assumes
+// that buff[3] is the data size.  Since the SMART_AUTOSAVE and
+// SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
+// Otherwise a 4+512 byte buffer would be enough.
+#define STRANGE_BUFFER_LENGTH (4+512*0xf8)
+
 int os_specific_handler(int device, smart_command_set command, int select, char *data){
-  unsigned char buff[516];
+  unsigned char buff[STRANGE_BUFFER_LENGTH];
   int retval, copydata=0;
 
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
-  memset(buff, 0, 516);
+  memset(buff, 0, STRANGE_BUFFER_LENGTH);
 
   buff[0]=WIN_SMART;
   switch (command){
   case READ_VALUES:
     buff[2]=SMART_READ_VALUES;
-    buff[3]=1;
+    copydata=buff[3]=1;
     break;
   case READ_THRESHOLDS:
     buff[2]=SMART_READ_THRESHOLDS;
-    buff[1]=buff[3]=1;
+    copydata=buff[1]=buff[3]=1;
     break;
   case READ_LOG:
     buff[2]=SMART_READ_LOG_SECTOR;
     buff[1]=select;
-    buff[3]=1;
+    copydata=buff[3]=1;
     break;
   case IDENTIFY:
     buff[0]=WIN_IDENTIFY;
-    buff[3]=1;
+    copydata=buff[3]=1;
     break;
   case PIDENTIFY:
     buff[0]=WIN_PIDENTIFY;
-    buff[3]=1;
+    copydata=buff[3]=1;
     break;
   case ENABLE:
     buff[2]=SMART_ENABLE;
@@ -469,11 +476,11 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
     break;
   case AUTO_OFFLINE:
     buff[2]=SMART_AUTO_OFFLINE;
-    buff[1]=select;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
     break;
   case AUTOSAVE:
     buff[2]=SMART_AUTOSAVE;
-    buff[1]=select;
+    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
     break;
   case IMMEDIATE_OFFLINE:
     buff[2]=SMART_IMMEDIATE_OFFLINE;
@@ -527,7 +534,6 @@ int os_specific_handler(int device, smart_command_set command, int select, char 
   }
   
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
-  copydata=buff[3];
   if ((retval=ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
   
