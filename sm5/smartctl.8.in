@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.47 2004/04/19 02:42:33 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.48 2004/04/19 02:57:21 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -579,7 +579,7 @@ not be found. For READ LOG type commands, \fBIDNF\fP can also indicate
 that a device data log structure checksum was incorrect.
 
 If the command that caused the error was a READ or WRITE command, then
-the Logical Block Address (LBA) at which the error occured will be
+the Logical Block Address (LBA) at which the error occurred will be
 printed in base 10 and base 16.  The LBA is a linear address, which
 counts 512\-byte sectors on the disk, starting from zero.  (Because of
 the limitations of the SMART error log, if the LBA is greater than
@@ -924,7 +924,7 @@ The results of the selective self\-test can be obtained (both during
 and after the test) by printing the SMART self\-test log, using the
 \'\-l selftest\' option to smartctl.
 
-Selective self tests are particulary useful as disk capacities
+Selective self tests are particularly useful as disk capacities
 increase: an extended self test (smartctl \-t long) can take several
 hours.  Selective self\-tests are helpful if (based on SYSLOG error
 messages, previous failed self\-tests, or SMART error log entries) you
@@ -1183,7 +1183,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.47 2004/04/19 02:42:33 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.48 2004/04/19 02:57:21 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
