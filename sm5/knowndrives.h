@@ -20,7 +20,7 @@
 #ifndef __KNOWNDRIVES_H_
 #define __KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.4 2003/04/16 23:04:28 pjwilliams Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.5 2003/04/18 11:18:02 ballen4705 Exp $\n"
 
 #include <linux/hdreg.h>
 #include "extern.h"
@@ -53,7 +53,7 @@ typedef struct drivesettings_s {
   const char * const modelregexp;
   const char * const firmwareregexp;
   const char * const warningmsg;
-  const int (* const vendoropts)[2];
+  const unsigned char (* const vendoropts)[2];
   void (* const specialpurpose)(smartmonctrl *);
   const char * const functiondesc;
 } drivesettings;
