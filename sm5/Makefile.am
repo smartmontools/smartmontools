@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.51 2004/02/25 14:13:57 chrfranke Exp $
+# $Id: Makefile.am,v 1.52 2004/03/02 18:19:55 shattered Exp $
 #
 
 @SET_MAKE@
@@ -36,6 +36,8 @@ EXTRA_smartd_SOURCES = os_linux.c \
                        os_linux.h \
 		       os_freebsd.c \
 		       os_freebsd.h \
+		       os_netbsd.c \
+		       os_netbsd.h \
 		       os_solaris.c \
 		       os_solaris.h \
 		       os_solaris_ata.s \
@@ -68,6 +70,8 @@ EXTRA_smartctl_SOURCES = os_linux.c \
                        os_linux.h   \
 		       os_freebsd.c \
 		       os_freebsd.h \
+		       os_netbsd.c \
+		       os_netbsd.h \
 		       os_solaris.c \
 		       os_solaris.h \
 		       os_win32.c \

@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.36 2004/02/28 20:03:49 pervalidus Exp $
+$Id: INSTALL,v 1.37 2004/03/02 18:19:55 shattered Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -59,7 +59,7 @@ Table of contents:
 
     The code was tested on a 1.6ZG (i.e., 1.6-current) system. It should
     also function under 1.6.1 and later releases (unverified).  Currently
-    it only supports ATA devices.
+    it doesn't support ATA devices on 3ware RAID controllers.
 
 [2] Installing from CVS
 =======================
