@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.60 2002/11/27 13:58:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.61 2002/11/28 09:02:55 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -24,8 +24,9 @@ Maintainers/Developers Key:
 [BA} Bruce Allen            <smartmontools-support@lists.sourceforge.net>
 [EB] Erik Inge Bolso        <knan@mo.himolde.no>
 [SB] Stanislav Brabec       <sbrabec@suse.cz>
+[PC] Peter Cassidy          <pcassidy@mac.com>
 [FM] Frederic L. W. Meunier <0@pervalidus.net>
-[PW} Phil Williams          <phil@subbacultcha.demon.co.uk>
+[PW] Phil Williams          <phil@subbacultcha.demon.co.uk>
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
@@ -38,6 +39,8 @@ CURRENT RELEASE (see VERSION file in this directory):
   updated to explain how to track the Immediate offline test as it
   progresses, and to further emphasize the differences between the
   off-line immediate test and the self-tests.
+
+  [BA] smartd/smartctl: Added new attribute (200) Multi_Zone_Error_Rate
 
   [BA] smartctl: modified so that arguments could have either a single -
   as in -ea or multiple ones as in -e -a.  Improved warning message for
