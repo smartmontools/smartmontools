@@ -3,7 +3,7 @@
 // Eduard could you please add the boilerplace GPL2 copyright
 // boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.7 2003/10/08 13:26:18 ballen4705 Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.8 2003/10/08 13:31:54 ballen4705 Exp $" OS_XXXX_H_CVSID;
 
 // Private table of open devices: guaranteed zero on startup since
 // part of static data.
@@ -297,69 +297,4 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) 
 
 int guess_device_type (const char* dev_name) {
   return parse_ata_chan_dev(dev_name,NULL);
-}
-
-// Like open().  Return positive integer handle, used by functions below only.  type="ATA" or "SCSI".
-int deviceopen (const char* dev, char* mode) {
-  struct freebsd_dev_channel *fdchan;
-  int parse_ok, i;
-
-  // Search table for a free entry
-  for (i=0; i<FREEBSD_MAXDEV; i++)
-    if (!devicetable[i])
-      break;
-  
-  // If no free entry found, return error.  We have max allowed number
-  // of "file descriptors" already allocated.
-  if (i==FREEBSD_MAXDEV) {
-    errno=EMFILE;
-    return -1;
-  }
-
-  fdchan = malloc(sizeof(struct freebsd_dev_channel));
-  if (fdchan == NULL) {
-    // errno already set by call to malloc()
-    return -1;
-  }
-
-  parse_ok = parse_ata_chan_dev (dev,fdchan);
-  if (parse_ok != GUESS_DEVTYPE_ATA) {
-    free(fdchan);
-    errno = ENOTTY;
-    return -1; // can't handle non ATA for now
-  }
-
-  if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
-    int myerror = errno;	//preserve across free call
-    free (fdchan);
-    errno = myerror;
-    return -1;
-  }
-  
-  // return pointer to "file descriptor" table entry, properly offset.
-  devicetable[i]=fdchan;
-  return i+FREEBSD_FDOFFSET;
-}
-
-// Like close().  Acts on handles returned by above function.
-int deviceclose (int fd) {
-  struct freebsd_dev_channel *fdchan;
-  int failed;
-
-  // check for valid file descriptor
-  if (isnotopen(&fd))
-    return -1;
-  
-  // close device
-  failed=close(fdchan->atacommand);
-  
-  // if close succeeded, then remove from device list
-  // Eduard, should we also remove it from list if close() fails?  I'm
-  // not sure. Here I only remove it from list if close() worked.
-  if (!failed) {
-    free(fdchan);
-    devicetable[fd]=NULL;
-  }
-  
-  return failed;
 }
