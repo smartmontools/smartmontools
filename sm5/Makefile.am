@@ -64,17 +64,24 @@ initd_DATA = smartd.initd
 EXTRA_DIST = $(man_MANS)		\
                 smartmontools.spec	\
                 smartd.initd		\
+		smartd.8.in		\
+		smartctl.8.in		\
+		smartd.conf.5.in	\
                 $(docs_DATA)
 
-smartd.conf.5: smartd.8
-	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8 > $(top_builddir)/tmp.directives
-	sed '/STARTINCLUDE/,$$D'  < $(srcdir)/smartd.conf.5 > $(top_builddir)/tmp.head
-	sed '1,/ENDINCLUDE/D'   < $(srcdir)/smartd.conf.5 > $(top_builddir)/tmp.tail
-	cat $(top_builddir)/tmp.head > $(srcdir)/smartd.conf.5
-	echo "\# STARTINCLUDE" >> $(srcdir)/smartd.conf.5
-	cat $(top_builddir)/tmp.directives >> $(srcdir)/smartd.conf.5
-	echo "\# ENDINCLUDE"   >> $(srcdir)/smartd.conf.5
-	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5
+DISTCLEANFILES = smartd.conf.5 \
+                 smartd.8      \
+	         smartctl.8
+
+smartd.conf.5.in: smartd.8.in
+	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
+	sed '/STARTINCLUDE/,$$D'  < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.head
+	sed '1,/ENDINCLUDE/D'   < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.tail
+	cat $(top_builddir)/tmp.head > $(srcdir)/smartd.conf.5.in
+	echo "\# STARTINCLUDE" >> $(srcdir)/smartd.conf.5.in
+	cat $(top_builddir)/tmp.directives >> $(srcdir)/smartd.conf.5.in
+	echo "\# ENDINCLUDE"   >> $(srcdir)/smartd.conf.5.in
+	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5.in
 	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
 
 install-initdDATA: $(initd_DATA)
@@ -90,5 +97,8 @@ uninstall-initdDATA:
 
 uninstall-docsDATA:
 	rm -rf $(docsdir)
+
+smart%: smart%.in
+	sed "s|/usr/share/man|$(mandir)|g" $< > $@
 
 SUBDIRS= . examplescripts
