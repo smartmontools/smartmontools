@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.15 2003/03/31 12:49:38 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.16 2003/04/01 06:23:39 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -176,6 +176,7 @@ struct scsi_sense_disect {
 /* defines for useful Additional Sense Codes (ASCs) */
 #define SCSI_ASC_UNKNOWN_OPCODE		0x20
 #define SCSI_ASC_UNKNOWN_FIELD		0x24
+#define SCSI_ASC_UNKNOWN_PARAM		0x26
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -200,7 +201,7 @@ int testunitready(int device);
 
 int stdinquiry(int device, UINT8 *pBuf, int bufLen);
 
-int inquiry(int device, int pagenum, UINT8 *pBuf, int bufLen);
+int inquiry_vpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
 
 int logsense(int device, int pagenum, UINT8 *pBuf, int bufLen);
 
