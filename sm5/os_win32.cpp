@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.23 2004/10/13 20:18:03 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.24 2004/10/14 19:17:36 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -50,13 +50,17 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTI
 // Return build host and OS version as static string
 const char * get_os_version_str()
 {
-	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)+sizeof("-2000-sp2.1")+2]
-		= SMARTMONTOOLS_BUILD_HOST;
-	char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
-	const int vlen = sizeof(vstr)-sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
+	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2000-sp2.1")+2];
+	char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1;
+	const int vlen = sizeof(vstr)-(sizeof(SMARTMONTOOLS_BUILD_HOST)-3);
 
 	OSVERSIONINFOEXA vi;
 	const char * w;
+
+	// remove "-pc" to avoid long lines
+	assert(!strncmp(SMARTMONTOOLS_BUILD_HOST+5, "pc-", 3));
+	strcpy(vstr, "i686-"); strcpy(vstr+5, SMARTMONTOOLS_BUILD_HOST+5+3);
+	assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
 
 	memset(&vi, 0, sizeof(vi));
 	vi.dwOSVersionInfoSize = sizeof(vi);
@@ -376,7 +380,9 @@ static void print_ide_regs(const IDEREGS * r, int out)
 static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 {
 	pout("    Input : "); print_ide_regs(ri, 0);
-	pout("    Output: "); print_ide_regs(ro, 1);
+	if (ro) {
+		pout("    Output: "); print_ide_regs(ro, 1);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -390,6 +396,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	const SENDCMDOUTPARAMS * outpar;
 	DWORD code, num_out;
 	unsigned int size_out;
+	const char * name;
 
 	assert(SMART_SEND_DRIVE_COMMAND == 0x07c084);
 	assert(SMART_RCV_DRIVE_DATA == 0x07c088);
@@ -404,33 +411,28 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
 	assert(datasize == 0 || datasize == 512);
 	if (datasize) {
+		code = SMART_RCV_DRIVE_DATA; name = "SMART_RCV_DRIVE_DATA";
 		inpar.cBufferSize = size_out = 512;
-		code = SMART_RCV_DRIVE_DATA;
-	}
-	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
-		size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
-		// Note: cBufferSize must be 0 on Win9x
-		code = SMART_SEND_DRIVE_COMMAND;
 	}
 	else {
-		size_out = 0;
-		code = SMART_SEND_DRIVE_COMMAND;
+		code = SMART_SEND_DRIVE_COMMAND; name = "SMART_SEND_DRIVE_COMMAND";
+		if (regs->bFeaturesReg == ATA_SMART_STATUS)
+			size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
+			// Note: cBufferSize must be 0 on Win9x
+		else
+			size_out = 0;
 	}
 
 	memset(&outbuf, 0, sizeof(outbuf));
 
-#ifdef _DEBUG
-	pout("DeviceIoControl(.,0x%lx,.,%lu,.,%lu,.,NULL)\n",
-		code, sizeof(SENDCMDINPARAMS)-1, sizeof(SENDCMDOUTPARAMS)-1 + size_out);
-	print_ide_regs(&inpar.irDriveRegs, 0);
-#endif
 	if (!DeviceIoControl(hdevice, code, &inpar, sizeof(SENDCMDINPARAMS)-1,
 		outbuf, sizeof(SENDCMDOUTPARAMS)-1 + size_out, &num_out, NULL)) {
 		// CAUTION: DO NOT change "regs" Parameter in this case, see ata_command_interface()
 		long err = GetLastError();
-		if (con->reportataioctl && (err != ERROR_INVALID_PARAMETER || con->reportataioctl > 1))
-			pout("  SMART_%s failed, Error=%ld\n",
-				(code==SMART_RCV_DRIVE_DATA?"RCV_DRIVE_DATA":"SEND_DRIVE_COMMAND"), err);
+		if (con->reportataioctl && (err != ERROR_INVALID_PARAMETER || con->reportataioctl > 1)) {
+			pout("  %s failed, Error=%ld\n", name, err);
+			print_ide_regs_io(regs, NULL);
+		}
 		errno = (   err == ERROR_INVALID_FUNCTION /*9x*/
 		         || err == ERROR_INVALID_PARAMETER/*NT/2K/XP*/ ? ENOSYS : EIO);
 		return -1;
@@ -438,27 +440,28 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	// NOTE: On Win9x, inpar.irDriveRegs now contains the returned regs
 
 	outpar = (const SENDCMDOUTPARAMS *)outbuf;
-#ifdef _DEBUG
-	pout("DeviceIoControl returns %lu (%lu) bytes\n", num_out, outpar->cBufferSize);
-#endif
 
 	if (outpar->DriverStatus.bDriverError) {
-		if (con->reportataioctl)
-			pout("  SMART_%s failed, DriverError=0x%02x, IDEError=0x%02x\n",
-				(code==SMART_RCV_DRIVE_DATA?"RCV_DRIVE_DATA":"SEND_DRIVE_COMMAND"),
+		if (con->reportataioctl) {
+			pout("  %s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
 				outpar->DriverStatus.bDriverError, outpar->DriverStatus.bIDEError);
+			print_ide_regs_io(regs, NULL);
+		}
 		errno = EIO;
 		return -1;
 	}
 
+	if (con->reportataioctl > 1) {
+		pout("  %s suceeded, bytes returned: %lu (buffer %lu)\n", name,
+			num_out, outpar->cBufferSize);
+		print_ide_regs_io(regs, (regs->bFeaturesReg == ATA_SMART_STATUS ?
+			(const IDEREGS *)(outpar->bBuffer) : NULL));
+	}
+
 	if (datasize)
 		memcpy(data, outpar->bBuffer, 512);
-	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
+	else if (regs->bFeaturesReg == ATA_SMART_STATUS)
 		*regs = *(const IDEREGS *)(outpar->bBuffer);
-#ifdef _DEBUG
-		print_ide_regs(regs, 1);
-#endif
-	}
 
 	return 0;
 }
