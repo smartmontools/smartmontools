@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.19 2003/01/04 11:01:24 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.20 2003/01/04 13:45:41 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2003/01/04 11:01:24 $" "smartmontools-5.1"
+.TH SMARTD.CONF 5  "$Date: 2003/01/04 13:45:41 $" "smartmontools-5.1"
 .SH NAME
 smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
@@ -384,6 +384,10 @@ are:
 
 .I 220,temp
 \- Raw attribute number 220 is the disk temperature in Celsius.
+
+A table of hard drive models, listing which Attribute corresponds to
+temperature, can be found at: http://coredump.free.fr/linux/hddtemp.db
+
 .TP
 .B \-a
 Equivalent to turning on all of the following Directives: 
@@ -462,4 +466,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.19 2003/01/04 11:01:24 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.20 2003/01/04 13:45:41 ballen4705 Exp $
