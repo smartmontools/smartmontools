@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.148 2004/04/17 10:44:47 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.149 2004/05/10 15:33:20 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1643,6 +1643,72 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
   case 13:
     name="Read_Soft_Error_Rate";
     break;
+  case 102:
+    name="Seek_Timeout";
+    break;
+  case 103:
+    name="Write_Fault_Error";
+    break;
+  case 104:
+    name="Drive_Not_Ready";
+    break;
+  case 106:
+    name="Track_Zero_Error";
+    break;
+  case 107:
+    name="Check_Sum_Error";
+    break;
+  case 108:
+    name="Seek_Not_Complete";
+    break;
+  case 112:
+    name="IRQ_Timeout";
+    break;
+  case 115:
+    name="ICRC_Error";
+    break;
+  case 116:
+    name="IDNF_Error";
+    break;
+  case 117:
+    name="Uncorrectable_ECC_Error";
+    break;
+  case 118:
+    name="Data_Address_Mark_Error";
+    break;
+  case 121:
+    name="Servo_Error";
+    break;
+  case 132:
+    name="Command_Error";
+    break;
+  case 133:
+    name="Illegal_ID";
+    break;
+  case 134:
+    name="Busy_Timeout";
+    break;
+  case 135:
+    name="DRQ_Timeout";
+    break;
+  case 136:
+    name="Bad_Sector";
+    break;
+  case 137:
+    name="Relocated Sector";
+    break;
+  case 138:
+    name="Still_Busy_Timeout";
+    break;
+  case 148:
+    name="Drive_Not_Selected";
+    break;
+  case 159:
+    name="SMART_Error";
+    break;
+  case 163:
+    name="Unknown_Error";
+    break;
   case 191:
     name="G-Sense_Error_Rate";
     break;
@@ -1757,6 +1823,36 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
   case 209:
     // Maxtor
     name="Offline_Seek_Performnce";
+    break;
+  case 210:
+    name="Self-Test_Incomplete";
+    break;
+  case 211:
+    name="2-9_Uncorrectable_ECC";
+    break;
+  case 212:
+    name="10+_Uncorrectable_ECC";
+    break;
+  case 213:
+    name="2-9_DAM_Errors";
+    break;
+  case 214:
+    name="10+_DAM_Errors";
+    break;
+  case 215:
+    name="2-9_IDNF_Errors";
+    break;
+  case 216:
+    name="10+_IDNR_Errors";
+    break;
+  case 217:
+    name="2-9_Servo_Errors";
+    break;
+  case 218:
+    name="10+_Servo_Errors";
+    break;
+  case 219:
+    name="Drive_Cable_Errors";
     break;
   case 220:
     switch (val) {
