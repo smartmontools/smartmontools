@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.131 2003/11/26 05:57:46 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.132 2003/11/28 23:21:58 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -879,15 +879,16 @@ int ataWriteSelectiveSelfTestLog(int device){
 }
 #endif
 
-
 // This corrects some quantities that are byte reversed in the SMART
-// ATA ERROR LOG
+// ATA ERROR LOG.
 void fixsamsungerrorlog(struct ata_smart_errorlog *data){
   int i,j;
   
+  // FIXED IN SAMSUNG -25 FIRMWARE???
   // Device error count in bytes 452-3
   swap2((char *)&(data->ata_error_count));
   
+  // FIXED IN SAMSUNG -22a FIRMWARE
   // step through 5 error log data structures
   for (i=0; i<5; i++){
     // step through 5 command data structures
@@ -900,6 +901,7 @@ void fixsamsungerrorlog(struct ata_smart_errorlog *data){
   return;
 }
 
+// NEEDED ONLY FOR SAMSUNG -22 (some) -23 AND -24?? FIRMWARE
 void fixsamsungerrorlog2(struct ata_smart_errorlog *data){
   // Device error count in bytes 452-3
   swap2((char *)&(data->ata_error_count));
