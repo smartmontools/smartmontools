@@ -69,23 +69,23 @@ RCS file: /cvsroot/smartmontools/sm5/smartmontools.spec,v
 retrieving revision 1.117
 diff -u -p -r1.117 smartmontools.spec
 --- smartmontools.spec	30 Aug 2003 13:06:48 -0000	1.117
-+++ smartmontools.spec	31 Aug 2003 13:38:01 -0000
++++ smartmontools.spec	1 Sep 2003 10:48:32 -0000
 @@ -1,4 +1,4 @@
 -Release:  19
 +Release:  1
  Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
- Summary(cs):	SMARTmontools - pro monitorovï¿½nï¿½ S.M.A.R.T. diskï¿½ a zaï¿½ï¿½zenï¿½
- Summary(de):	SMARTmontools - zur ï¿½berwachung von S.M.A.R.T.-Platten und-Gerï¿½ten
+ Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
+ Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
 @@ -8,7 +8,7 @@ Summary(pt):	SMARTmontools - para monito
  Summary(it):	SMARTmontools - per monitare dischi e dispositivi S.M.A.R.T.
- Summary(pl):	Monitorowanie i kontrola dyskï¿½w uï¿½ywajï¿½ï¿½ S.M.A.R.T.
+ Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
  Name:		smartmontools
 -Version:	5.1
 +Version:	5.19
  License:	GPL
  Group:		Applications/System
  Group(de):	Applikationen/System
-@@ -198,11 +198,13 @@ pochodzi od oprogramowania smartsuite i 
+@@ -198,11 +198,14 @@ pochodzi od oprogramowania smartsuite i 
  %setup -q
  
  %build
@@ -97,10 +97,11 @@ diff -u -p -r1.117 smartmontools.spec
  rm -rf $RPM_BUILD_ROOT
 -make DESTDIR=$RPM_BUILD_ROOT install
 +make install
++rm -f examplescripts/Makefile*
  
  # Red Hat 6.x: move manuals (man directory) from %datadir to %prefix
  if [ -f /etc/redhat-release ]; then
-@@ -219,7 +221,7 @@ fi
+@@ -219,7 +222,7 @@ fi
  %attr(644,root,root) %{_mandir}/man8/smartctl.8*
  %attr(644,root,root) %{_mandir}/man8/smartd.8*
  %attr(644,root,root) %{_mandir}/man5/smartd.conf.5*
@@ -109,3 +110,4 @@ diff -u -p -r1.117 smartmontools.spec
  %config(noreplace) %{_sysconfdir}/smartd.conf
  
  %clean
+
