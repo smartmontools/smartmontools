@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.84 2002/12/05 23:10:10 pjwilliams Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.85 2002/12/08 12:56:52 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -336,9 +336,9 @@ return;
 /* prints help information for command syntax */
 void Usage (void){
 #ifdef HAVE_GETOPT_LONG
-  printout(LOG_INFO,"Usage: smartd [-XVh] [--debugmode] [--version] [--help]\n\n");
+  printout(LOG_INFO,"Usage: smartd [-XVh] [--debug] [--version] [--help]\n\n");
   printout(LOG_INFO,"Command Line Options:\n");
-  printout(LOG_INFO,"  -X, --debugmode\n  Start smartd in debug mode\n\n");
+  printout(LOG_INFO,"  -X, --debug\n  Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
@@ -1330,7 +1330,7 @@ void ParseOpts(int argc, char **argv){
   int optchar;
 #ifdef HAVE_GETOPT_LONG
   struct option long_options[] = {
-    { "debugmode", no_argument, 0, 'X'},
+    { "debug",     no_argument, 0, 'X'},
     { "version",   no_argument, 0, 'V'},
     { "license",   no_argument, 0, 'V'},
     { "copyright", no_argument, 0, 'V'},
