@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.3 2002/10/11 00:38:22 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.4 2002/10/11 04:35:12 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -289,7 +289,7 @@ int ataSmartSelfTestAbort (int device);
 
 
 /* int ataVersionInfo ( struct hd_driveid drive) 
-*  Returns the latest compability of ATA/ATAPI Version  
+*  Returns the latest compatibility of ATA/ATAPI Version  
 *  the device supports								
 * Returns -1 if Version command is not supported
 */
