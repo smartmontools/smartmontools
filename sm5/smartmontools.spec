@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.95 2003/04/13 16:10:15 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.96 2003/04/21 13:50:41 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -252,6 +252,66 @@ fi
 
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
+* Mon Apr 21 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [PW] Extended the -F option/Directive to potentially fix other firmware
+       bugs in addition to the Samsung byte-order bug.  Long option name is
+       now --firmwarebug and the option/Directive accepts an argument
+       indicating the type of firmware bug to fix.
+- [BA] Fixed a bug that prevented the enable automatic off-line
+       test feature from enabling.  It also prevented the enable Attribute
+       autosave from working.  See CVS entry for additional details.
+- [PW] Modified the -r/--report option (smartctl and smartd) to allow the
+       user to specify the debug level as a positive integer.
+- [BA] Added --log directory option to smartctl.  If the disk
+       supports the general-purpose logging feature set (ATA-6/7)
+       then this option enables the Log Directory to be printed.
+       This Log Directory shows which device logs are available, and
+       their lengths in sectors.
+- [PW] Added -P/--presets option to smartctl and -P Directive to smartd.
+- [GG] Introduce different exit codes indicating the type of problem
+       encountered for smartd.
+- [DG] Add non-medium error count to '-l error' and extended self test
+       duration to '-l selftest'. Get scsi IEs and temperature changes
+       working in smartd. Step over various scsi disk problems rather
+       than abort smartd startup.
+- [DG] Support -l error for SCSI disks (and tapes). Output error counter
+       log pages.
+- [BA] Added -F/--fixbyteorder option to smartctl.  This allows us to read
+       SMART data from some disks that have byte-reversed two- and four-
+       byte quantities in their SMART data structures.
+- [BA] Fixed serious bug: the -v options in smartd.conf were all put
+       together and used together, not drive-by-drive.
+- [PW] Added knowndrives.h and knowndrives.c.  The knowndrives array
+       supersedes the drivewarnings array.
+- [GG] add {-p,--pidfile} option to smartd to write a PID file on
+       startup. Update the manpage accordingly.
+- [DG] Fix scsi smartd problem detecting SMART support. More cleaning
+       and fix (and rename) scsiTestUnitReady(). More scsi renaming.
+- [BA] Fixed smartd so that if a disk that is explictily listed is not
+       found, then smartd will exit with nonzero status BEFORE forking.
+       If a disk can't be registered, this will also be detected before
+       forking, so that init scripts can react correctly.
+- [BA] Replaced all linux-specific ioctl() calls in atacmds.c with
+       a generic handler smartcommandhandler().  Now the only routine
+       that needs to be implemented for a given OS is os_specific_handler().
+       Also implemented the --report ataioctl. This provides 
+       two levels of reporting.  Using the option once gives a summary
+       report of device IOCTL transactions.  Using the option twice give
+       additional info (a printout of ALL device raw 512 byte SMART
+       data structures).  This is useful for debugging.
+- [DG] more scsi cleanup. Output scsi device serial number (VPD page
+       0x80) if available as part of '-i'. Implement '-t offline' as
+       default self test (only self test older disks support).
+- [BA] Changed crit to info in loglevel of smartd complaint to syslog
+       if DEVICESCAN enabled and device not found.
+- [BA] Added -v 194,10xCelsius option/Directive. Raw Attribute number
+       194 is ten times the disk temperature in Celsius.
+- [DG] scsicmds.[hc] + scsiprint.c: clean up indentation, remove tabs.
+       Introduce new intermediate interface based on "struct scsi_cmnd_io"
+       to isolate SCSI generic commands + responses from Linux details;
+       should help port to FreeBSD of SCSI part of smartmontools.
+       Make SCSI command builders more parametric.
+
 * Thu Mar 13 2003  Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
        kernel support) then try to assess drive health by examining
