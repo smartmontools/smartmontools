@@ -41,7 +41,6 @@
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
-#include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataprint.h"
 #include "extern.h"
@@ -51,8 +50,8 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.173 2003/07/19 14:36:20 pjwilliams Exp $" 
-ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.174 2003/07/20 20:46:42 ballen4705 Exp $" 
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
 const char *getvalidarglist(char opt);

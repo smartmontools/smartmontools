@@ -26,16 +26,16 @@
 #include <stdio.h>
 #include <syslog.h>
 #include <string.h>
-#include "atacmds.h"
 #include "atacmdnames.h"
+#include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.93 2003/07/20 20:09:38 ballen4705 Exp $"
-ATACMDS_H_CVSID ATACMDNAMES_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.94 2003/07/20 20:46:42 ballen4705 Exp $"
+ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
