@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.216 2003/10/15 14:22:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.217 2003/10/16 14:30:43 ballen4705 Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -21,6 +21,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartctl: -T verypermissive option broken.  Use
+       -T verpermissive until the next release, please.
 
   [BA] Syntax mods so that code also compiles on Solaris using
        Sun Workshop compiler.  Need -xmemalign 1i -xCC flags
