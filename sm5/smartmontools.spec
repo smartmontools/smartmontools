@@ -26,11 +26,16 @@ Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
 Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
+%define redhat      %(test ! -f /etc/redhat-release ; echo $?)
+%define redhat      %(test ! -f /etc/fedora-release ; echo $?)
+%define mandrake    %(test ! -f /etc/mandrake-release ; echo $?)
+%define suse        %(test ! -f /etc/SuSE-release ; echo $?)
+
 # Source code can be found at:
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.151 2004/02/24 15:53:40 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.152 2004/03/05 14:09:53 ballen4705 Exp $
 
 # Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -206,11 +211,19 @@ pochodzi od oprogramowania smartsuite i wspiera dyski ATA/ATAPI-5.
   rm -rf %{_buildroot}
   %makeinstall
   rm -f examplescripts/Makefile*
+  %if %{suse}
+    mkdir -p $RPM_BUILD_ROOT%{_defaultdocdir}
+    mv $RPM_BUILD_ROOT/usr/share/doc/%{name}-%{version} $RPM_BUILD_ROOT%{_defaultdocdir}/%{name}
+    ln -s ../../etc/rc.d/init.d/smartd $RPM_BUILD_ROOT%{_sbindir}/rcsmartd
+  %endif
 
 %files
   %defattr(-,root,root)
   %attr(755,root,root) %{_sbindir}/smartd
   %attr(755,root,root) %{_sbindir}/smartctl
+  %if %{suse}
+    %attr(755,root,root) %{_sbindir}/rcsmartd
+  %endif
   %attr(755,root,root) /etc/rc.d/init.d/smartd
   %attr(644,root,root) %{_mandir}/man8/smartctl.8*
   %attr(644,root,root) %{_mandir}/man8/smartd.8*
