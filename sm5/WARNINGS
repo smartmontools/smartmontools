@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.18 2003/11/20 06:24:33 ballen4705 Exp $
+$Id: WARNINGS,v 1.19 2004/03/11 09:37:30 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -63,12 +63,20 @@ NOTE:     Similar to previous report: Promise Ultra66 2-port card (20262) which,
           to fix the problem.
 
 
-SYSTEM:   Promise 20265
+SYSTEM:   Promise 20265 IDE-controller
 PROBLEM:  Smartctl locks system solid when used on CDROM/DVD device
 LINK:     http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=208964
 REPORTER: see above link
 NOTE:     Problem seems to affect kernel 2.4.21 only.
 
+
+SYSTEM:   Promise 20268 IDE-controller
+PROBLEM:  System freezes under heavy load, perhaps when running SMART commands
+LINK:     http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=1wUXW-2FA-9%40gated-at.bofh.it
+REPORTER: Mario 'BitKoenig' Holbe Mario.Holbe@RZ.TU-Ilmenau.DE
+NOTE:     Before freezing, SYSLOG shows the following message(s)
+          kernel: hdf: dma timer expiry: dma status == 0x61
+          It's not clear if smartmontools plays a role in provoking this problem.
 
 FREEBSD
 -------
@@ -80,3 +88,4 @@ SOLARIS
 -------
 
 [No reports yet.]
+9
