@@ -1,9 +1,9 @@
-#!/bin/bash -e
+#!/bin/bash -ev
 #
 # do a smartmontools release
 # (c) 2003 Guido Guenther <agx@sigxcpu.org>
 
-if [ -f /etc/redhat_release ]; then
+if [ -f /etc/redhat-release ]; then
   RPM_BASE=/usr/src/redhat/
 else
   RPM_BASE=/usr/src/rpm/
@@ -12,9 +12,10 @@ SRPMS=$RPM_BASE/SOURCES/
 
 setup_cvs()
 {
-  unset CVS_SERVER
-  export CVS_RSH=ssh
-  export CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
+  CVS_SERVER=helloworld
+  unset CVS_SERVER || echo "can't unset CVS_SERVER=$CVS_SERVER"
+  CVS_RSH=ssh
+  CVSROOT=:ext:ballen4705@cvs.smartmontools.sourceforge.net:/cvsroot/smartmontools
 }
 
 get_release()
@@ -61,8 +62,8 @@ rpm -ba smartmontools.spec
 
 # increase release number:
 inc_release
-perl -p -i.bak -e "s/$VERSION/$NEW_VERSION/" configure.in
-perl -p -i.bak -e "s/$VERSION/$NEW_VERSION/" smartmontools.spec
+perl -p -i.bak -e "s/5\.$VERSION/5\.$NEW_VERSION/" configure.in
+perl -p -i.bak -e "s/Version:\t5\.$VERSION/Version:\t5\.$NEW_VERSION/" smartmontools.spec
 
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
