@@ -39,7 +39,7 @@
 #include "config.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.36 2004/03/11 10:34:38 ballen4705 Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.37 2004/03/12 20:24:15 chrfranke Exp $" CONFIG_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -67,10 +67,6 @@ const char *reportbug="Please report this bug to the Smartmontools developers at
 // hang on to exit code, so we can make use of more generic 'atexit()'
 // functionality and still check our exit code
 int exitstatus = 0;
-
-// facility used by syslog(3).  smartctl should NEVER use this, and
-// smartd can reset it with a command-line argument
-int facility=LOG_DAEMON;
 
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
@@ -374,9 +370,6 @@ void *Calloc(size_t nmemb, size_t size) {
   return ptr;
 }
 
-
-
-
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
@@ -406,30 +399,6 @@ char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file){
   bytes+=1+strlen(ptr);
   
   return tmp;
-}
-
-// This function prints either to stdout or to the syslog as needed
-
-// [From GLIBC Manual: Since the prototype doesn't specify types for
-// optional arguments, in a call to a variadic function the default
-// argument promotions are performed on the optional argument
-// values. This means the objects of type char or short int (whether
-// signed or not) are promoted to either int or unsigned int, as
-// appropriate.]
-extern int facility;
-void PrintOut(int priority,char *fmt, ...){
-  va_list ap;
-  // initialize variable argument list 
-  va_start(ap,fmt);
-  if (debugmode) 
-    vprintf(fmt,ap);
-  else {
-    openlog("smartd",LOG_PID, facility);
-    vsyslog(priority,fmt,ap);
-    closelog();
-  }
-  va_end(ap);
-  return;
 }
 
 // Returns nonzero if region of memory contains non-zero entries

@@ -69,11 +69,11 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.288 2004/03/11 10:34:37 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.289 2004/03/12 20:24:15 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.288 2004/03/11 10:34:37 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.289 2004/03/12 20:24:15 chrfranke Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -100,8 +100,7 @@ static char* configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
 static int quit=0;
 
 // command-line; this is the default syslog(3) log facility to use.
-// It is initialzed to LOG_DAEMON
-extern int facility;
+static int facility=LOG_DAEMON;
 
 // used for control of printing, passing arguments to atacmds.c
 smartmonctrl *con=NULL;
@@ -649,6 +648,12 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 }
 
 // Printing function for watching ataprint commands, or losing them
+// [From GLIBC Manual: Since the prototype doesn't specify types for
+// optional arguments, in a call to a variadic function the default
+// argument promotions are performed on the optional argument
+// values. This means the objects of type char or short int (whether
+// signed or not) are promoted to either int or unsigned int, as
+// appropriate.]
 void pout(char *fmt, ...){
   va_list ap;
   // initialize variable argument list 
@@ -664,6 +669,23 @@ void pout(char *fmt, ...){
   }
   va_end(ap);
   fflush(NULL);
+  return;
+}
+
+// This function prints either to stdout or to the syslog as needed.
+// This function is also used by utility.c to report LOG_CRIT errors.
+void PrintOut(int priority,char *fmt, ...){
+  va_list ap;
+  // initialize variable argument list 
+  va_start(ap,fmt);
+  if (debugmode) 
+    vprintf(fmt,ap);
+  else {
+    openlog("smartd", LOG_PID, facility);
+    vsyslog(priority,fmt,ap);
+    closelog();
+  }
+  va_end(ap);
   return;
 }
 

@@ -46,7 +46,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.115 2004/02/13 17:29:09 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.116 2004/03/12 20:24:14 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -767,6 +767,16 @@ void pout(char *fmt, ...){
   vprintf(fmt,ap);
   va_end(ap);
   fflush(stdout);
+  return;
+}
+
+// This function is used by utility.c to report LOG_CRIT errors.
+// The smartctl version prints to stdout instead of syslog().
+void PrintOut(int priority,char *fmt, ...) {
+  va_list ap;
+  va_start(ap,fmt);
+  vprintf(fmt,ap);
+  va_end(ap);
   return;
 }
 
