@@ -1,15 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2004/02/26 04:37:58 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2004/02/26 20:05:21 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
- <meta name="keywords" content="S.M.A.R.T., SMART, Linux, disk, monitoring, monitor" />
+ <meta name="keywords" content="S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.131 2004/02/26 04:37:58 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.132 2004/02/26 20:05:21 pervalidus Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -466,7 +466,7 @@ self-tests.  This is also useful if you want to run Captive Self-Tests
 (the <b><tt>-<font size="+2">C</font></tt></b> option of
 <b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted,
 such as those hosting the Operating System files. Or you can use
-this to run <tt>smartctl</tt> on computers that don't use linux as the
+this to run <tt>smartctl</tt> on computers that don't use Linux as the
 day-to-day operating system.</p>
 
 <p>Here is a list of such bootable CDs:</p>
@@ -492,7 +492,7 @@ the 3ware controller, use the smartmontools <b>-d 3ware,N</b> option
 or Directive.
 </p>
 <p>
-3ware linux device drivers (<tt>3w-xxxx</tt>) versions <b>1.02.00.036</b>
+3ware Linux device drivers (<tt>3w-xxxx</tt>) versions <b>1.02.00.036</b>
 and earlier do not return the SMART HEALTH STATUS (smartmontools
 <b>-H</b>) of the disks. In addition, the ENABLE AUTOMATIC OFFLINE and
 ENABLE ATTRIBUTE AUTOSAVE commands (smartmontools <b>-o on</b> and
@@ -535,7 +535,8 @@ href="http://www.cygwin.com/">Cygwin</a>.</p>
 <p>A Cygwin package (requires Cygwin <b>1.5.7 or greater</b>) is
 available from <a
 href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-It's the <i>.tar.bz2</i> with <i>.exe (32-bit Windows)</i> as Type.</p>
+It's the <i>.tar.bz2</i> with <i>.exe (32-bit Windows)</i> as
+<i>Type</i>.</p>
 
 <p>To install it, use Cygwin's <a
 href="http://www.cygwin.com/setup.exe">setup.exe</a>. Add
@@ -557,15 +558,16 @@ file has a single line with <i>/dev/hda -a -d ata -I 194</i>.</p>
 <p>A smartctl binary that doesn't depend on Cygwin (compiled with
 Cygwin's <i>-mno-cygwin</i>) is available <a
 href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-It's the <i>.zip</i> with <i>exe (32-bit Windows)</i> as Type.</p>
+It's the <i>.zip</i> with <i>exe (32-bit Windows)</i> as
+<i>Type</i>.</p>
 
 <p>Please not that the required changes to make it compile with the
 above switch (acting like <a href="http://www.mingw.org/">MinGW</a>) or
 MSVC haven't yet been merged.</p>
 
 <p>Below are parts of an e-mail Christian sent to the smartmontool-devel
-mailing-list. I also tested smartd.exe on Cygwin, but only have access
-to Windows XP Professional SP1 and a single hard drive.</p>
+mailing-list. I also tested <b>smartd.exe</b> on Cygwin, but only have
+access to Windows XP Professional SP1 and a single hard drive.</p>
 
 <pre>
 Win32 port - file organization, features and problems
@@ -805,7 +807,7 @@ needed for device operation (i.e. SMART support is an unsupported
 extra).<br />
 </p>
 <p>Smartmontools should work correctly with SATA drives under both
-linux 2.4 and 2.6 kernels, <i>if</i> you use the standard IDE drivers
+Linux 2.4 and 2.6 kernels, <i>if</i> you use the standard IDE drivers
 in <tt>drivers/ide</tt>. If you use the new <tt>libata</tt> drivers,
 it won't work correctly because <tt>libata</tt> doesn't yet support
 the needed ATA-passthrough ioctl() calls.  Jeff Garzik, the
@@ -979,8 +981,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2004/02/26 04:37:58 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.131 2004/02/26 04:37:58 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2004/02/26 20:05:21 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.132 2004/02/26 20:05:21 pervalidus Exp $</tt>
 
 <hr size="2" />
 
