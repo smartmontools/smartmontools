@@ -53,21 +53,17 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.193 2003/08/15 16:58:02 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.194 2003/08/15 21:05:30 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 const char *reportbug="Please report this bug to the Smartmontools developers, so that they can fix it.\n";
-
-// Forward declarations
-const char *getvalidarglist(char opt);
-void sighandler(int sig);
 
 // SET BY COMMAND-LINE ARGUMENTS TO smartd:
 
 // are we running in debug mode?.
 static unsigned char debugmode = FALSE;
 
-// How long to sleep between checks.  Can be set by user on startup
+// how long to sleep between checks.  Can be set by user on startup
 static int checktime=CHECKTIME;
 
 // name of PID file (== NULL if no pid_file is used)
@@ -76,10 +72,13 @@ static char* pid_file=NULL;
 // when should we exit?
 static int quit=0;
 
-// END OF COMMAND-LINE ARGUMENTS
+// OTHER GLOBAL VARIABLES
 
-// global variable used for control of printing, passing arguments, etc.
+// used for control of printing, passing arguments to atacmds.c
 smartmonctrl *con=NULL;
+
+// pointers to (real or simulated) entries in configuration file
+cfgfile *cfgentries[MAXENTRIES];
 
 // used to recover from config file parsing errors at low level
 static jmp_buf jumpenv;
@@ -91,8 +90,57 @@ int numatadevices=0,numscsidevices=0;
 volatile int caughtsigUSR1=0;
 
 // set to one if we catch a HUP (reload config file). In debug mode,
-// set to two if we catch INT
+// also can be set to two, if we catch INT
 volatile int caughtsigHUP=0;
+
+// To help with memory checking
+void *checkfree(void *address){
+  if (address){
+    free(address);
+    return NULL;
+  }
+  
+  printout(LOG_CRIT, "Internal error: trying to free memory at NULL address\n%s", reportbug);
+  exit(EXIT_BADCODE);
+}
+
+// Not needed -- free(NULL) is OK -- but helps debugging
+void *freenonzero(void *address){
+  if (address)
+    return checkfree(address);
+  return NULL;
+}
+
+// Removes config file entry, freeing all memory
+cfgfile *rmconfigentry(cfgfile *original){
+  
+  if (!original){
+    printout(LOG_CRIT,"Error - rmconfigentry() called with NULL pointer argument\n%s", reportbug);    
+    exit(EXIT_BADCODE);
+  }
+  
+  original->smartthres      = freenonzero(original->smartthres);
+  original->smartval        = freenonzero(original->smartval);
+  original->address         = freenonzero(original->address);
+  original->emailcmdline    = freenonzero(original->emailcmdline);
+  original->name            = freenonzero(original->name);
+  original->monitorattflags = freenonzero(original->monitorattflags);
+  original->attributedefs   = freenonzero(original->attributedefs);
+  freenonzero(original);
+  
+  return NULL;
+}
+
+// remove the PID file
+void remove_pid_file(){
+  if (pid_file) {
+    if ( -1==unlink(pid_file) )
+      printout(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
+	       pid_file, strerror(errno));
+    pid_file=checkfree(pid_file);
+  }
+  return;
+}
 
 //  Note if we catch a SIGUSR1
 void USR1handler(int sig){
@@ -108,6 +156,31 @@ void HUPhandler(int sig){
     caughtsigHUP=2;
   return;
 }
+
+// signal handler for TERM, QUIT , and INT (if not in debug mode)
+void sighandler(int sig){
+
+  // are we exiting with SIGTERM?
+  int i,isterm=(sig==SIGTERM);
+  
+  printout(isterm?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
+	   sig, strsignal(sig));
+  
+  // clean up memory -- useful for debugging purposes
+  for (i=0; i<MAXENTRIES; i++)
+    if (cfgentries[i])
+      rmconfigentry(cfgentries[i]);
+  
+  exit(isterm?0:EXIT_SIGNAL);
+}
+
+// signal handler that prints goodbye message and removes pidfile
+void goodbye(int exitstatus, void *notused){  
+  printout(exitstatus?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", exitstatus);
+  remove_pid_file();
+  return;
+}
+
 
 // This function prints either to stdout or to the syslog as needed
 
@@ -143,16 +216,16 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   const int day=24*3600;
   int days=0;
   char *whichfail[]={
-    "emailtest", // 0
-    "health",    // 1
-    "usage",     // 2
-    "selftest",  // 3
-    "errorcount",// 4
-    "FAILEDhealthcheck",         //5
-    "FAILEDreadsmartdata",       //6
-    "FAILEDreadsmarterrorlog",   //7
-    "FAILEDreadsmartsefltestlog",//8
-    "FAILEDopendevice"           //9
+    "emailtest",                  // 0
+    "health",                     // 1
+    "usage",                      // 2
+    "selftest",                   // 3
+    "errorcount",                 // 4
+    "FAILEDhealthcheck",          // 5
+    "FAILEDreadsmartdata",        // 6
+    "FAILEDreadsmarterrorlog",    // 7
+    "FAILEDreadsmartsefltestlog", // 8
+    "FAILEDopendevice"            // 9
   };
   
   char *address=cfg->address;
@@ -359,37 +432,8 @@ void pout(char *fmt, ...){
   return;
 }
 
-// To help with memory checking
-void *checkfree(void *address){
-  if (address){
-    free(address);
-    return NULL;
-  }
-  
-  printout(LOG_CRIT, "Internal error: trying to free memory at NULL address\n%s", reportbug);
-  exit(EXIT_BADCODE);
-}
-
-// remove the PID file
-void remove_pid_file(){
-  if (pid_file) {
-    if ( -1==unlink(pid_file) )
-      printout(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
-	       pid_file, strerror(errno));
-    pid_file=checkfree(pid_file);
-  }
-  return;
-}
-
-// signal handler that prints goodbye message and removes pidfile
-void goodbye(int exitstatus, void *notused){  
-  printout(exitstatus?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", exitstatus);
-  remove_pid_file();
-  return;
-}
-
 // Forks new process, closes all file descriptors, redirects stdin,
-// stdout, stderr
+// stdout, and stderr
 void daemon_init(){
   pid_t pid;
   int i;  
@@ -504,12 +548,27 @@ void Directives() {
 return;
 }
 
+/* Returns a pointer to a static string containing a formatted list of the valid
+   arguments to the option opt or NULL on failure. */
+const char *getvalidarglist(char opt) {
+  switch (opt) {
+  case 'q':
+    return "nodev, errors, nodevstartup, never, onecheck";
+  case 'r':
+    return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
+  case 'p':
+    return "<FILE_NAME>";
+  case 'i':
+    return "<INTEGER_SECONDS>";
+  default:
+    return NULL;
+  }
+}
+
 /* prints help information for command syntax */
 void Usage (void){
   printout(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
-  printout(LOG_INFO,"  -q, --quit\n");
-  printout(LOG_INFO,"        When to quit/exit (see man page)\n");
   printout(LOG_INFO,"  -d, --debug\n");
   printout(LOG_INFO,"        Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -D, --showdirectives\n");
@@ -520,17 +579,19 @@ void Usage (void){
   printout(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   printout(LOG_INFO,"        Write PID file NAME\n\n");
+  printout(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
+  printout(LOG_INFO,"        Quit on one of: %s\n\n", getvalidarglist('q'));
   printout(LOG_INFO,"  -r, --report=TYPE\n");
   printout(LOG_INFO,"        Report transactions for one of: %s\n\n", getvalidarglist('r'));
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
-  printout(LOG_INFO,"  -q      When to quit/exit (see man page)");
   printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
   printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -h      Display this help and exit\n");
   printout(LOG_INFO,"  -i N    Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -p NAME Write PID file NAME\n");
+  printout(LOG_INFO,"  -q WHEN Quit on one of: %s\n", getvalidarglist('q'));
   printout(LOG_INFO,"  -r TYPE Report transactions for one of: %s\n", getvalidarglist('r'));
   printout(LOG_INFO,"  -V      Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -?      Same as -h\n");
@@ -538,11 +599,10 @@ void Usage (void){
 }
 
 // returns negative if problem, else fd>=0
-static int opendevice(char *device, int flags)
-{
+static int opendevice(char *device, int flags) {
   int fd;
   char *s=device;
- 
+  
   // If there is an ASCII "space" character in the device name,
   // terminate string there
   if ((s=strchr(device,' ')))
@@ -630,21 +690,20 @@ int atadevicescan(cfgfile *cfg){
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
-  if (!cfg->ignorepresets){
-
+  if (cfg->ignorepresets)
+    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
+  else {
     // do whatever applypresets decides to do. Will allocate memory if
-    // cfg->attributedefs if needed.
+    // cfg->attributedefs is needed.
     if (applypresets(&drive, &cfg->attributedefs, con)<0)
       printout(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
       printout(LOG_INFO, "Device: %s, found in smartd database.\n", name);
-
+    
     // then save the correct state of the flag (applypresets may have changed it)
     cfg->fixfirmwarebug = con->fixfirmwarebug;
   }
-  else
-    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
-
+  
   // If requested, show which presets would be used for this drive
   if (cfg->showpresets) {
     int savedebugmode=debugmode;
@@ -794,13 +853,6 @@ int atadevicescan(cfgfile *cfg){
   // close file descriptor
   closedevice(fd, name);
   return 0;
-}
-
-// Not needed -- free(NULL) is OK -- but helps debugging
-void *freenonzero(void *address){
-  if (address)
-    return checkfree(address);
-  return NULL;
 }
 
 static int scsidevicescan(cfgfile *cfg)
@@ -1746,47 +1798,6 @@ cfgfile *createcfgentry(cfgfile *original){
   exit(EXIT_NOMEM);
 }
 
-// Removes config file entry, freeing all memory
-cfgfile *rmconfigentry(cfgfile *original){
-  
-  if (!original){
-    printout(LOG_CRIT,"Error - rmconfigentry() called with NULL pointer argument\n%s", reportbug);    
-    exit(EXIT_BADCODE);
-  }
-  
-  original->smartthres      = freenonzero(original->smartthres);
-  original->smartval        = freenonzero(original->smartval);
-  original->address         = freenonzero(original->address);
-  original->emailcmdline    = freenonzero(original->emailcmdline);
-  original->name            = freenonzero(original->name);
-  original->monitorattflags = freenonzero(original->monitorattflags);
-  original->attributedefs   = freenonzero(original->attributedefs);
-  freenonzero(original);
-  
-  return NULL;
-}
-
-// Pointers to (real or simulated) entries in configuration file /etc/smartd.conf
-cfgfile *cfgentries[MAXENTRIES];
-
-// signal handler that tells users about signals that were caught
-// currently called for INT, TERM, and QUIT
-void sighandler(int sig){
-
-  // are we exiting with SIGTERM?
-  int i,isterm=(sig==SIGTERM);
-  
-  printout(isterm?LOG_INFO:LOG_CRIT, 
-	   "smartd received signal %d: %s\n",
-	   sig, strsignal(sig));
-  
-  // clean up memory -- useful for debugging purposes
-  for (i=0; i<MAXENTRIES; i++)
-    if (cfgentries[i])
-      rmconfigentry(cfgentries[i]);
-  
-  exit(isterm?0:EXIT_SIGNAL);
-}
 
 // number of tokens parsed going through config file
 int numtokens;
@@ -2102,23 +2113,6 @@ void PrintCopyleft(void){
   printone(out,utility_c_cvsid);
   printout(LOG_INFO,"%s",out);
 
-}
-
-/* Returns a pointer to a static string containing a formatted list of the valid
-   arguments to the option opt or NULL on failure. */
-const char *getvalidarglist(char opt) {
-  switch (opt) {
-  case 'q':
-    return "errors, nodev (default), nodevstartup, never, oncecheck";
-  case 'r':
-    return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
-  case 'p':
-    return "<FILE_NAME>";
-  case 'i':
-    return "<INTEGER_SECONDS>";
-  default:
-    return NULL;
-  }
 }
 
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
@@ -2529,7 +2523,7 @@ int main(int argc, char **argv){
 	if (caughtsigHUP==1)
 	  printout(LOG_INFO,"Signal HUP - rereading configuration file %s\n", CONFIGFILE);
 	else
-	  printout(LOG_INFO,"\nSignal INT - rereading configuration file %s (use CONTROL-\\ to quit)\n\n",
+	  printout(LOG_INFO,"\nSignal INT - rereading configuration file %s (CONTROL-\\ quits)\n\n",
 		   CONFIGFILE);
       }
 
