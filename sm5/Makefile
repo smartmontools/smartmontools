@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.21 2002/10/24 07:50:45 ballen4705 Exp $
+# $Id: Makefile,v 1.22 2002/10/24 09:54:02 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -42,28 +42,28 @@ pkgname2=$(pkgname)-$(counter)
 
 all: smartd smartctl
 
-smartctl: atacmds.o scsicmds.o smartctl.c smartctl.h ataprint.o scsiprint.o atacmds.h ataprint.h scsicmds.h scsiprint.h VERSION
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} atacmds.o scsicmds.o ataprint.o smartctl.c scsiprint.o
+smartctl: atacmds.o scsicmds.o smartctl.c smartctl.h ataprint.o scsiprint.o atacmds.h ataprint.h scsicmds.h scsiprint.h VERSION Makefile
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} smartctl.c atacmds.o scsicmds.o ataprint.o scsiprint.o
 
-smartd:  atacmds.o scsicmds.o smartd.c smartd.h atacmds.h scsicmds.h VERSION
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} scsicmds.o atacmds.o smartd.c
+smartd:  atacmds.o scsicmds.o smartd.c smartd.h atacmds.h scsicmds.h VERSION Makefile
+	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} smartd.c scsicmds.o atacmds.o
 
-ataprint.o: atacmds.o ataprint.h ataprint.c smartctl.h extern.h
-	${CC} ${CFLAGS} -c ataprint.c
-
-scsiprint.o: scsiprint.h scsiprint.c scsicmds.o smartctl.h extern.h scsicmds.h
-	${CC} ${CFLAGS} -c scsiprint.c 
-
-atacmds.o: atacmds.h atacmds.c
+atacmds.o: atacmds.h atacmds.c Makefile
 	${CC} ${CFLAGS} -c atacmds.c 
 
-scsicmds.o: scsicmds.h scsicmds.c 
+ataprint.o: atacmds.o ataprint.h ataprint.c smartctl.h extern.h Makefile
+	${CC} ${CFLAGS} -c ataprint.c
+
+scsicmds.o: scsicmds.h scsicmds.c Makefile
 	${CC} ${CFLAGS} -c scsicmds.c
+
+scsiprint.o: scsiprint.h scsiprint.c scsicmds.o smartctl.h extern.h scsicmds.h Makefile
+	${CC} ${CFLAGS} -c scsiprint.c 
 
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.*
 
-install: smartctl smartd smartctl.8 smartd.8 smartd.initd
+install: smartctl smartd smartctl.8 smartd.8 smartd.initd Makefile
 	install -m 755 -o root -g root -D smartctl $(DESTDIR)/usr/sbin/smartctl
 	install -m 755 -o root -g root -D smartd $(DESTDIR)/usr/sbin/smartd
 	install -m 644 -o root -g root -D smartctl.8 $(DESTDIR)/usr/share/man/man8/smartctl.8
@@ -72,7 +72,7 @@ install: smartctl smartd smartctl.8 smartd.8 smartd.initd
 	echo "To manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	echo "To Automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 
-uninstall:
+uninstall: Makefile
 	rm -f /usr/sbin/smartctl /usr/sbin/smartd /usr/share/man/man8/smartctl.8 /usr/share/man/man8/smartd.8\
            /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz
 	/sbin/chkconfig --del smartd
