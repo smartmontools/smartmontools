@@ -36,7 +36,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.7 2003/04/18 22:09:14 pjwilliams Exp $" UTILITY_H_CVSID;
+const char* utility_c_cvsid="$Id: utility.c,v 1.8 2003/04/22 04:24:03 dpgilbert Exp $" UTILITY_H_CVSID;
 
 
 // Utility function prints date and time and timezone into a character
@@ -209,4 +209,46 @@ int split_report_arg(char *s, int *i)
   }
 
   return 0;
+}
+
+// Guess device type (ata or scsi) based on device name (Linux specific)
+// SCSI device name in linux can be sd, sr, scd, st, nst, osst, nosst and sg.
+// #define GUESS_DEVTYPE_ATA       0
+// #define GUESS_DEVTYPE_SCSI      1
+// #define GUESS_DEVTYPE_DONT_KNOW 2
+static const char * lin_dev_prefix = "/dev/";
+static const char * lin_dev_ata_disk_plus = "h";
+static const char * lin_dev_scsi_disk_plus = "s";
+static const char * lin_dev_scsi_tape1 = "ns";
+static const char * lin_dev_scsi_tape2 = "os";
+static const char * lin_dev_scsi_tape3 = "nos";
+
+int guess_linux_device_type(const char * dev_name)
+{
+    int len;
+    int dev_prefix_len = strlen(lin_dev_prefix);
+
+    if (dev_name && ((len = strlen(dev_name)) > 0)) {
+        if (0 == strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
+            if (len <= dev_prefix_len)
+                return 2;
+            dev_name += dev_prefix_len;
+        }
+        if (0 == strncmp(lin_dev_ata_disk_plus, dev_name,
+                         strlen(lin_dev_ata_disk_plus)))
+            return 0;
+        else if (0 == strncmp(lin_dev_scsi_disk_plus, dev_name,
+                         strlen(lin_dev_scsi_disk_plus)))
+            return 1;
+        else if (0 == strncmp(lin_dev_scsi_tape1, dev_name,
+                         strlen(lin_dev_scsi_tape1)))
+            return 1;
+        else if (0 == strncmp(lin_dev_scsi_tape2, dev_name,
+                         strlen(lin_dev_scsi_tape2)))
+            return 1;
+        else if (0 == strncmp(lin_dev_scsi_tape3, dev_name,
+                         strlen(lin_dev_scsi_tape3)))
+            return 1;
+    }
+    return 2;
 }
