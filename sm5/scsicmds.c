@@ -33,13 +33,13 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.26 2003/03/30 12:23:21 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.27 2003/03/31 00:19:34 dpgilbert Exp $" SCSICMDS_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
 
-#if 0
-/* useful for watching commands and responses */
+#if 1
+/* output binary in hex and optionally ascii */
 static void dStrHex(const char* str, int len, int no_ascii)
 {
     const char* p = str;
@@ -91,6 +91,41 @@ static void dStrHex(const char* str, int len, int no_ascii)
         pout("%s\n", buff);
     }
 }
+
+struct scsi_opcode_name {
+    UINT8 opcode;
+    const char * name;
+};
+
+static struct scsi_opcode_name opcode_name_arr[] = {
+    /* in ascending opcode order */
+    {TEST_UNIT_READY, "test unit ready"},       /* 0x00 */
+    {REQUEST_SENSE, "request sense"},           /* 0x03 */
+    {INQUIRY, "inquiry"},                       /* 0x12 */
+    {MODE_SELECT, "mode select"},               /* 0x15 */
+    {MODE_SENSE, "mode sense"},                 /* 0x1a */
+    {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
+    {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
+    {LOG_SENSE, "log sense"},                   /* 0x4d */
+    {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
+    {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
+};
+
+const char * scsi_get_opcode_name(UINT8 opcode)
+{
+    int k;
+    int len = sizeof(opcode_name_arr) / sizeof(opcode_name_arr[0]);
+    struct scsi_opcode_name * onp;
+
+    for (k = 0; k < len; ++k) {
+        onp = &opcode_name_arr[k];
+        if (opcode == onp->opcode)
+            return onp->name;
+        else if (opcode < onp->opcode)
+            return NULL;
+    }
+    return NULL;
+}
 #endif
 
 #if 1   
@@ -129,10 +164,13 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     if (con->reportscsiioctl) {
         int k;
         const unsigned char * ucp = iop->cmnd;
+        const char * np;
 
-        pout("cmnd: [");
+        pout(" [");
         for (k = 0; k < iop->cmnd_len; ++k)
             pout("%02x ", ucp[k]);
+        np = scsi_get_opcode_name(ucp[0]);
+        pout(" %s", np ? np : "<unknown opcode>");
     }
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
@@ -162,17 +200,16 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     /* The SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't 
      * support: CDB length (guesses it from opcode), resid and timeout */
     status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
-    if (con->reportscsiioctl) {
-      if (-1 == status)
-          pout("] status=-1, errno=%d\n", errno);
-      else
-          pout("] status=0x%x\n", status);
-    }
-    if (-1 == status)
+    if (-1 == status) {
+        if (con->reportscsiioctl)
+            pout("] status=-1, errno=%d\n", errno);
         return -errno;
+    }
     if (0 == status) {
         if (DXFER_FROM_DEVICE == iop->dxfer_dir)
             memcpy(iop->dxferp, wrk.buff, iop->dxfer_len);
+        if (con->reportscsiioctl)
+            pout("] status=0\n");
         return 0;
     }
     iop->scsi_status = status & 0xff;
@@ -183,6 +220,14 @@ static int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop)
     if ((iop->scsi_status & 0x2) && iop->sensep && (len > 0)) {
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
+    }
+    if (con->reportscsiioctl) {
+        if (iop->scsi_status & 2) {
+            pout("] status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
+                 wrk.buff[2] & 0xf, wrk.buff[12], wrk.buff[13]);
+        }
+        else
+            pout("] status=0x%x\n", status);
     }
     if (iop->scsi_status > 0)
         return 0;
@@ -414,15 +459,14 @@ int requestsense(int device, struct scsi_sense_disect * sense_info)
         ecode = buff[0] & 0x7f;
         sense_info->error_code = ecode;
         sense_info->sense_key = buff[2] & 0xf;
-        if ((0x70 != ecode) && (0x71 != ecode)) {
-            sense_info->asc = 0;
-            sense_info->ascq = 0;
-            return status;
-        }
-        len = buff[4] + 8;
-        if (len > 13) {
-            sense_info->asc = buff[12];
-            sense_info->ascq = buff[13];
+        sense_info->asc = 0;
+        sense_info->ascq = 0;
+        if ((0x70 == ecode) || (0x71 == ecode)) {
+            len = buff[7] + 8;
+            if (len > 13) {
+                sense_info->asc = buff[12];
+                sense_info->ascq = buff[13];
+            }
         }
     }
     return status;
@@ -510,34 +554,54 @@ int scsiSmartModePage1CHandler(int device, UINT8 setting, UINT8 *retval)
     if (modesense(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
         
-#if 0
-    pout("1C_handle: setting=%d, [2]=0x%x [3]=0x%x\n", setting, tBuf[14],
-         tBuf[15]);
-#endif
+    if (con->reportscsiioctl)
+        pout("1C_handle: setting=%d, [2]=0x%x [3]=0x%x", setting, tBuf[14],
+             tBuf[15]);
     switch (setting) {
         case DEXCPT_DISABLE:
-            tBuf[14] &= 0xf7;
+            tBuf[14] &= (~0x08) & 0xff;
             tBuf[15] = 0x04;
+            /* >>>> try setting TEST bit */ tBuf[14] |= 0x4;
+            tBuf[15] = 0x06;    /* mrie=='on request' */
             break;
         case DEXCPT_ENABLE:
             tBuf[14] |= 0x08;
+            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
             break;
         case EWASC_ENABLE:
             tBuf[14] |= 0x10;
+            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
             break;
         case EWASC_DISABLE:
             tBuf[14] &= 0xef;
+            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
             break;
         case SMART_SUPPORT:
             *retval = tBuf[14] & 0x18;
+            /* >>>> turn off TEST */ tBuf[14] &= (~0x04) & 0xff;
+            if (con->reportscsiioctl)
+                pout("\n");
             return 0;
         default:
+            if (con->reportscsiioctl)
+                pout("\n");
             return 1;
     }
                         
+    if (con->reportscsiioctl)
+        pout(" -> [2']=0x%x [3']=0x%x\n", tBuf[14], tBuf[15]);
     if (modeselect(device, 0x1c, tBuf, sizeof(tBuf)))
         return 1;
-        
+    {
+        struct scsi_sense_disect sinfo;
+
+        if (0 == requestsense(device, &sinfo))
+            pout("on request: ecode=%x, key=%x, asc=%x, ascq=%x\n",
+                 sinfo.error_code, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+        if (0 == requestsense(device, &sinfo))
+            pout("on request: ecode=%x, key=%x, asc=%x, ascq=%x\n",
+                 sinfo.error_code, sinfo.sense_key, sinfo.asc, sinfo.ascq);
+    }
     return 0;
 }
 
