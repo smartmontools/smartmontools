@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.19 2002/10/23 12:24:24 ballen4705 Exp $\n" "\t" CVSID1 ;
+const char *CVSid1="$Id: atacmds.c,v 1.20 2002/10/23 13:43:42 ballen4705 Exp $\n" "\t" CVSID1 ;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -561,7 +561,7 @@ int ataSmartTest(int device, int testtype){
 
   // Now send the command to test
   errornum=ioctl(device, HDIO_DRIVE_CMD, parms);
-  if (!(errornum && errno==EIO && (testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST))){
+  if (errornum && !((testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST) && errno==EIO)){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 
     perror(errormsg);

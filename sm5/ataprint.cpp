@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.cpp,v 1.26 2002/10/23 12:37:11 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.cpp,v 1.27 2002/10/23 13:43:42 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -665,12 +665,7 @@ int ataPrintSmartSelfTestlog (struct ata_smart_selftestlog data,int allentries){
 	pout("#%2d  %s %s %s  %8u         %s\n",21-i,msgtest,msgstat,
 	     percent,log->timestamp,firstlba);
     }
-    else {
-      pout("\n");
-      return retval;
-    }
   }
-  pout("\n");
   return retval;
 }
 
@@ -1021,6 +1016,7 @@ int ataPrintMain (int fd){
 	if (ataPrintSmartSelfTestlog(smartselftest,!quietmode))
 	  returnval|=FAILLOG;
 	QUIETOFF;
+	pout("\n");
       }
     } 
   }
@@ -1030,7 +1026,6 @@ int ataPrintMain (int fd){
     return returnval;
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
-  
   // if doing a self-test, be sure it's supported by the hardware
   if (testcase==OFFLINE_FULL_SCAN &&  !isSupportExecuteOfflineImmediate(smartval))
     pout("Warning: device does not support Execute Off-Line Immediate function.\n\n");
