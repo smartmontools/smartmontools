@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.45 2002/12/12 13:42:59 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.46 2002/12/12 13:55:54 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -120,12 +120,9 @@ const int actual_ver[] = {
 // printing.
 void syserror(const char *message){
   const char *errormessage;
-
+  
   // Get the correct system error message:
-  if (errno<sys_nerr)
-    errormessage=sys_errlist[errno];
-  else
-    errormessage="unrecognized system error";
+  errormessage=strerror(errno);
 
   // Check that caller has handed a sensible string, and provide
   // appropriate output. See perrror(3) man page to understand better.
