@@ -46,7 +46,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.71 2002/11/22 13:30:55 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.72 2002/11/22 14:45:00 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -59,9 +59,16 @@ int numscsidevices=0;
 // How long to sleep between checks.  Handy as global variable for
 // debugging
 int checktime=CHECKTIME;
+
+// Needed to interrupt sleep when catching SIGUSR1.  Unix Gurus: I
+// know that this can be done better.  Please tell me how -- use email
+// address at the top of this file.  Search for "sleeptime" to see
+// what I am doing.
 volatile int sleeptime=CHECKTIME;
 
-// Interrupt sleep if we get a SIGUSR1
+// Interrupt sleep if we get a SIGUSR1.  Unix Gurus: I know that this
+// can be done better.  Please tell me how -- use email address at the
+// top of this file. Search for "sleeptime" to see what I am doing.
 void sleephandler(int sig){
   int oldsleeptime=sleeptime;
   sleeptime=0;
@@ -884,6 +891,14 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
     for (i=0; i<numscsidevices; i++)
       scsiCheckDevice(scsidevices+i);
 
+    // Unix Gurus: I know that this can be done better.  Please tell
+    // me how -- use email address at the top of this file. Search for
+    // "sleeptime" to see what I am doing.  I think that when done
+    // "right" I should not have to call sleep once per second, but
+    // just set an alarm for checktime in the future, and then have an
+    // additional alarm sent if the user does SIGUSR1, which arrives
+    // first to cause another device check.  Please help me out.
+    
     // Sleep until next check. Note that since sleeptime can be set to
     // zero by an EXTERNAL signal SIGUSR1, it's possible for sleeptime
     // to be negative.  Don't use while (sleeptime)!
