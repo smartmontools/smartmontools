@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.64 2003/04/22 23:00:32 guidog Exp $
+# $Id: Makefile,v 1.65 2003/04/23 13:19:40 guidog Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -141,7 +141,7 @@ install:
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
 	@echo "To automatically start smartd on bootup, run /sbin/chkconfig --add smartd"
 	@echo -e "\n\nSmartd can now use a configuration file /etc/smartd.conf. Do:\nman 8 smartd\n."
-	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.1 and /etc/smartd.conf.example/\n\n"
+	@echo -e "A sample configuration file may be found in ${docdir}.\n\n"
 
 # perhaps for consistency I should also have $(DESTDIR) for the uninstall...
 uninstall:
