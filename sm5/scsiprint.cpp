@@ -40,11 +40,14 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.50 2003/10/07 11:53:54 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.51 2003/10/10 05:08:12 arvoreen Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
 extern smartmonctrl *con;
+
+// to hold onto exit code for atexit routine
+extern int exitstatus;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
@@ -648,7 +651,7 @@ static void failuretest(int type, int returnvalue)
             pout("An optional SMART command has failed: exiting.\n"
                  "To continue, set the tolerance level to something other "
                  "than 'conservative'\n");
-            exit(returnvalue);
+            EXIT(returnvalue);
         }
         return;
     }
