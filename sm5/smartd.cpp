@@ -50,46 +50,64 @@
 #include "smartd.h"
 #include "utility.h"
 
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.192 2003/08/14 23:35:50 ballen4705 Exp $" 
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
+  *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
+
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.193 2003/08/15 16:58:02 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
+
+const char *reportbug="Please report this bug to the Smartmontools developers, so that they can fix it.\n";
 
 // Forward declarations
 const char *getvalidarglist(char opt);
 void sighandler(int sig);
 
+// SET BY COMMAND-LINE ARGUMENTS TO smartd:
+
+// are we running in debug mode?.
+static unsigned char debugmode = FALSE;
+
+// How long to sleep between checks.  Can be set by user on startup
+static int checktime=CHECKTIME;
+
+// name of PID file (== NULL if no pid_file is used)
+static char* pid_file=NULL;
+
+// when should we exit?
+static int quit=0;
+
+// END OF COMMAND-LINE ARGUMENTS
 
 // global variable used for control of printing, passing arguments, etc.
 smartmonctrl *con=NULL;
 
-// Two other globals -- number of ATA and SCSI devices being monitored
-int numatadevices=0;
-int numscsidevices=0;
-
-// How long to sleep between checks.  Can be set by user on startup
-int checktime=CHECKTIME;
-
-// name of PID file (== NULL if no pid_file is used)
-char* pid_file=NULL;
-
-// If set, we should exit after checking all disks once
-int checkonce=0;
-
 // used to recover from config file parsing errors at low level
-jmp_buf jumpenv;
+static jmp_buf jumpenv;
 
-// Flag: user sent SIGUSR1 to wake smartd and check devices now
-volatile int caughtsigusr1=0;
+// number of ATA and SCSI devices being monitored
+int numatadevices=0,numscsidevices=0;
 
-// Interrupt sleep if we get a SIGUSR1
-void sleephandler(int sig){
-  caughtsigusr1=1;
+// set to one if we catch a USR1 (check devices now)
+volatile int caughtsigUSR1=0;
+
+// set to one if we catch a HUP (reload config file). In debug mode,
+// set to two if we catch INT
+volatile int caughtsigHUP=0;
+
+//  Note if we catch a SIGUSR1
+void USR1handler(int sig){
+  caughtsigUSR1=1;
   return;
 }
 
-// Global Variables for command line options. These should go into a
-// structure at some point.
-unsigned char debugmode               = FALSE;
+// Note if we catch a HUP (or INT in debug mode)
+void HUPhandler(int sig){
+  if (sig==SIGHUP)
+    caughtsigHUP=1;
+  else
+    caughtsigHUP=2;
+  return;
+}
 
 // This function prints either to stdout or to the syslog as needed
 
@@ -341,16 +359,6 @@ void pout(char *fmt, ...){
   return;
 }
 
-// set to one if catch a HUP (reload config file)
-volatile int caughtsighup=1;
-
-// tell user that we ignore HUP signals
-void huphandler(int sig){
-  caughtsighup=1;
-  printout(LOG_INFO,"Signal HUP - rereading configuration file %s\n", CONFIGFILE);
-  return;
-}
-
 // To help with memory checking
 void *checkfree(void *address){
   if (address){
@@ -358,7 +366,7 @@ void *checkfree(void *address){
     return NULL;
   }
   
-  printout(LOG_CRIT, "Internal error: trying to free memory at NULL address\n");
+  printout(LOG_CRIT, "Internal error: trying to free memory at NULL address\n%s", reportbug);
   exit(EXIT_BADCODE);
 }
 
@@ -465,7 +473,6 @@ void printhead(){
   return;
 }
 
-
 // prints help info for configuration file Directives
 void Directives() {
   printout(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
@@ -501,8 +508,8 @@ return;
 void Usage (void){
   printout(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
-  printout(LOG_INFO,"  -c, --checkonce\n");
-  printout(LOG_INFO,"        Check all devices once, then exit\n\n");
+  printout(LOG_INFO,"  -q, --quit\n");
+  printout(LOG_INFO,"        When to quit/exit (see man page)\n");
   printout(LOG_INFO,"  -d, --debug\n");
   printout(LOG_INFO,"        Start smartd in debug mode\n\n");
   printout(LOG_INFO,"  -D, --showdirectives\n");
@@ -518,7 +525,7 @@ void Usage (void){
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
-  printout(LOG_INFO,"  -c      Check all devices once, then exit\n");
+  printout(LOG_INFO,"  -q      When to quit/exit (see man page)");
   printout(LOG_INFO,"  -d      Start smartd in debug mode\n");
   printout(LOG_INFO,"  -D      Print the configuration file Directives and exit\n");
   printout(LOG_INFO,"  -h      Display this help and exit\n");
@@ -592,8 +599,6 @@ int selftesterrorcount(int fd, char *name){
   // return current number of self-test errors
   return ataPrintSmartSelfTestlog(&log,0);
 }
-
-
 
 // scan to see what ata devices there are, and if they support SMART
 int atadevicescan(cfgfile *cfg){
@@ -791,7 +796,7 @@ int atadevicescan(cfgfile *cfg){
   return 0;
 }
 
-// Not needed -- free(NULL is OK -- but helps debugging
+// Not needed -- free(NULL) is OK -- but helps debugging
 void *freenonzero(void *address){
   if (address)
     return checkfree(address);
@@ -976,7 +981,7 @@ int isattoff(unsigned char attr, unsigned char **datap, int set, int which){
   unsigned char mask=0x01<<bit;
 
   if (which>=NMONITOR){
-    printout(LOG_CRIT, "Internal error in isattoff().  which == %d\n", which);
+    printout(LOG_CRIT, "Internal error in isattoff().  which == %d\n%s", which, reportbug);
     exit(EXIT_BADCODE);
   }
 
@@ -992,6 +997,7 @@ int isattoff(unsigned char attr, unsigned char **datap, int set, int which){
     }
   }
   
+  // pointer to the 256 bits that we need
   data=*datap+which*32;
 
   // attribute zero is always OFF
@@ -1002,7 +1008,8 @@ int isattoff(unsigned char attr, unsigned char **datap, int set, int which){
     return (data[loc] & mask);
   
   data[loc]|=mask;
-  // return value when setting makes no sense!
+
+  // return value when setting has no sense
   return 0;
 }
 
@@ -1056,7 +1063,6 @@ int ataCheckDevice(cfgfile *cfg){
       for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
         int att;
         changedattribute_t delta;
-
 
         // This block looks for usage attributes that have failed.
         // Prefail attributes that have failed are returned with a
@@ -1276,22 +1282,24 @@ void initialize(time_t *wakeuptime){
   // normal and abnormal exit
   if (signal(SIGTERM, sighandler)==SIG_IGN)
     signal(SIGTERM, SIG_IGN);
-  if (signal(SIGINT,  sighandler)==SIG_IGN)
-    signal(SIGINT,  SIG_IGN);
   if (signal(SIGQUIT, sighandler)==SIG_IGN)
     signal(SIGQUIT, SIG_IGN);
   
+  // in debug mode, catch <CONTROL-C>
+  if (signal(SIGINT, debugmode?HUPhandler:sighandler)==SIG_IGN)
+    signal(SIGINT, SIG_IGN);
+  
   // don't exit
-  if (signal(SIGHUP, huphandler)==SIG_IGN)
+  if (signal(SIGHUP, HUPhandler)==SIG_IGN)
     signal(SIGHUP, SIG_IGN);
-  if (signal(SIGUSR1, sleephandler)==SIG_IGN)
+  if (signal(SIGUSR1, USR1handler)==SIG_IGN)
     signal(SIGUSR1, SIG_IGN);
-  
-  // initialize wakeup time
-  *wakeuptime=time(NULL)+checktime;
-  
-}
 
+  // initialize wakeup time to CURRENT time
+  *wakeuptime=time(NULL);
+  
+  return;
+}
 
 time_t dosleep(time_t wakeuptime){
   time_t timenow=0;
@@ -1304,7 +1312,7 @@ time_t dosleep(time_t wakeuptime){
   }
   
   // sleep until we catch SIGUSR1 or have completed sleeping
-  while (timenow<wakeuptime && !caughtsigusr1 && !caughtsighup){
+  while (timenow<wakeuptime && !caughtsigUSR1 && !caughtsigHUP){
     
     // protect user again system clock being adjusted backwards
     if (wakeuptime>timenow+checktime){
@@ -1319,10 +1327,10 @@ time_t dosleep(time_t wakeuptime){
   }
   
   // if we caught a SIGUSR1 then print message and clear signal
-  if (caughtsigusr1){
+  if (caughtsigUSR1){
     printout(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
 	     wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
-    caughtsigusr1=0;
+    caughtsigUSR1=0;
   }
   
   // return adjusted wakeuptime
@@ -1742,7 +1750,7 @@ cfgfile *createcfgentry(cfgfile *original){
 cfgfile *rmconfigentry(cfgfile *original){
   
   if (!original){
-    printout(LOG_CRIT,"Error - rmconfigentry() called with NULL pointer argument\n");
+    printout(LOG_CRIT,"Error - rmconfigentry() called with NULL pointer argument\n%s", reportbug);    
     exit(EXIT_BADCODE);
   }
   
@@ -1965,7 +1973,7 @@ int parseconfigfile(){
 	(len-1) != snprintf(fakeconfig, len, "%s -a", SCANDIRECTIVE) ||
 	-1 != parseconfigline(entry, 0, fakeconfig)
 	) {
-      printout(LOG_CRIT,"Internal error in processing non-existent configuration file\n");
+      printout(LOG_CRIT,"Internal error in processing non-existent configuration file\n%s", reportbug);
       exit(EXIT_BADCODE);
     }
     fakeconfig=checkfree(fakeconfig);
@@ -2100,6 +2108,8 @@ void PrintCopyleft(void){
    arguments to the option opt or NULL on failure. */
 const char *getvalidarglist(char opt) {
   switch (opt) {
+  case 'q':
+    return "errors, nodev (default), nodevstartup, never, oncecheck";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
   case 'p':
@@ -2134,12 +2144,12 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "cdDi:p:r:Vh?";
+  const char *shortopts = "q:dDi:p:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
-    { "checkonce",      no_argument,       0, 'c' },
+    { "quit",           required_argument, 0, 'q' },
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
@@ -2168,9 +2178,21 @@ void ParseOpts(int argc, char **argv){
 		)) {
     
     switch(optchar) {
-    case 'c':
-      checkonce = TRUE;
-      debugmode = TRUE;
+    case 'q':
+      if (!(strcmp(optarg,"nodev"))) {
+	quit=0;
+      } else if (!(strcmp(optarg,"nodevstartup"))) {
+	quit=1;
+      } else if (!(strcmp(optarg,"never"))) {
+	quit=2;
+      } else if (!(strcmp(optarg,"onecheck"))) {
+	quit=3;
+	debugmode=1;
+      } else if (!(strcmp(optarg,"errors"))) {
+	quit=4;
+      } else {
+	badarg = TRUE;
+      }
       break;
     case 'd':
       debugmode = TRUE;
@@ -2353,7 +2375,7 @@ int checkconsistency(){
 }
 
 // returns 1 if config file had syntax errors, else zero
-int constructconfiglist(cfgfile **atadevices, cfgfile **scsidevices){
+int ReadConfigFileAndRegister(cfgfile **atadevices, cfgfile **scsidevices){
   int entries, i, scanning=0;
   
   // clear list used in parsing config file entries
@@ -2440,7 +2462,7 @@ int constructconfiglist(cfgfile **atadevices, cfgfile **scsidevices){
     // if device is explictly listed and we can't register it, then
     // exit unless the user has specified that the device is removable
     if (notregistered && !scanning){
-      if (ent->removable)
+      if (ent->removable || quit==2)
 	printout(LOG_INFO, "Device %s not available\n", ent->name);
       else {
 	printout(LOG_CRIT, "Unable to register device %s (use -d removable Directive?) Exiting.\n", ent->name);
@@ -2457,8 +2479,8 @@ int constructconfiglist(cfgfile **atadevices, cfgfile **scsidevices){
   // do internal consistency check before returning
   if (checkconsistency()){
     int total=checkconsistency()+numatadevices+numscsidevices;
-    printout(LOG_CRIT,"Internal inconsistency in smartd data structures: total %d != ata %d + scsi %d\n",
-	     total, numatadevices, numscsidevices);
+    printout(LOG_CRIT,"Internal inconsistency in smartd data structures: total %d != ata %d + scsi %d\n%s",
+	     total, numatadevices, numscsidevices, reportbug);
     exit(EXIT_BADCODE);
   }
   
@@ -2500,33 +2522,41 @@ int main(int argc, char **argv){
   // the main loop of the code
   while (1){
 
-    // did we catch a signal to re-read the config file?
-    if (caughtsighup){
+    // Should we (re)read the config file?
+    if (firstpass || caughtsigHUP){
       
-      // (re)read config file, and (re)register devices
-      int badfile=constructconfiglist(atadevices, scsidevices);
+      if (!firstpass) {
+	if (caughtsigHUP==1)
+	  printout(LOG_INFO,"Signal HUP - rereading configuration file %s\n", CONFIGFILE);
+	else
+	  printout(LOG_INFO,"\nSignal INT - rereading configuration file %s (use CONTROL-\\ to quit)\n\n",
+		   CONFIGFILE);
+      }
 
+      // (re)read config file, and (re)register devices
+      if (ReadConfigFileAndRegister(atadevices, scsidevices) && quit==4)
+	exit(EXIT_BADCONF);
+      
       // Log number of devices we are monitoring...
-      if (numatadevices+numscsidevices)
-	printout(LOG_INFO,"%sonitoring %d ATA and %d SCSI devices\n", badfile?"Still m":"M",
+      if (numatadevices+numscsidevices || quit==2 || (quit==1 && !firstpass))
+	printout(LOG_INFO,"Monitoring %d ATA and %d SCSI devices\n",
 		 numatadevices,numscsidevices);
       else {
-	// This exit point can be turned off with a smartd option, to monitor no devices
 	printout(LOG_INFO,"Unable to monitor any SMART enabled ATA or SCSI devices. Exiting...\n");
 	exit(EXIT_NODEV);
-      }
+      }	  
       
       // reset signal
-      caughtsighup=0;
+      caughtsigHUP=0;
     }
 
     // check all devices once
     CheckDevicesOnce(atadevices, scsidevices); 
     
     // user has asked us to exit after first check
-    if (checkonce) {
-      printout(LOG_INFO,"Started with '-c' option. All devices sucessfully checked once.\n"
-	                "smartd is exiting (exit status 0)\n");
+    if (quit==3) {
+      printout(LOG_INFO,"Started with '-q checkonce' option. All devices sucessfully checked once.\n"
+	       "smartd is exiting (exit status 0)\n");
       exit(0);
     }
     

@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.106 2003/08/14 13:34:51 ballen4705 Exp $
+\# $Id: smartd.8,v 1.107 2003/08/15 16:58:02 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/08/14 13:34:51 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/08/15 16:58:02 $" "smartmontools-5.1"
 .SH NAME
 smartd \- SMART Disk Monitoring Daemon
 .SH SYNOPSIS
@@ -70,6 +70,11 @@ this file, it will print an error message and then continue, ignoring
 the contents of the (faulty) configuration file, as if the \fBHUP\fP
 signal had never been received.
 
+When \fBsmartd\fP is running in debug mode, the \fBQUIT\fP signal
+(normally generated from a shell with CONTROL\-C) is treated in the
+same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
+configuration file. To kill \fBsmartd\fP use CONTROL-\\.
+
 On startup, in the absence of the configuration file
 .B /etc/smartd.conf,
 the 
@@ -107,7 +112,9 @@ Runs
 in \(dqdebug\(dq mode. In this mode, it displays status information to
 STDOUT rather than logging it in SYSLOG and does not \fBfork(2)\fP.
 It also prints more verbose information about what it is doing than
-when operating in \(dqdaemon\(dq mode.
+when operating in \(dqdaemon\(dq mode. In this mode, the \fBQUIT\fP
+signal (normally generated from a terminal with CONTROL\-C) makes
+\fBsmartd\fP reload its configuration file.  Use CONTROL-\\ to quit.
 .TP
 .B \-D, \-\-showdirectives
 Prints a list (to STDOUT) of all the possible Directives which may
@@ -157,36 +164,49 @@ If
 is killed with a maskable signal then the pidfile is removed.
 
 .TP
-.B \-c, \-\-checkonce
-Start
-.B smartd
-in debug mode, then register devices, then check device's SMART status
-once, and then exit with zero exit status if 
-all of these steps worked correctly.
+.B \-q, \-\-quit
+Specifies when (if ever) \fBsmartd\fP should exit.  The valid
+arguments are to this option are:
 
-This option is intended for 'distribution-writers' who
-want to create automated scripts to determine whether or not to
-automatically start up
-.B smartd
-after installing smartmontools.  After starting
-.B smartd
-with this command-line option, the distribution's install scripts should
-wait a reasonable length of time (say ten seconds).  If
-.B smartd
-has not exited with zero status by that time, the script should send
-.B smartd
-a SIGTERM or SIGKILL and assume that
-.B smartd
-will not operate correctly on the host.  Conversely, if
-.B smartd
-exits with zero status, then it is safe to run
-.B smartd
-in normal daemon mode.
+.I nodev \fP[default]
+\- Exit if there are no devices to monitor, or if any errors are found
+at startup in the configuration file.
 
-Note that if
-.B smartd
-is unable to monitor any devices or encounters other problems then it
-will return with non-zero exit status.
+.I errors
+\- Exit if there are no devices to monitor, or if any errors are found
+in the configuration file /etc/smartd.conf at startup or when it is
+reloaded.
+
+.I nodevstartup
+\- Exit if there are no devices to monitor at startup.  If already
+running, then continue to run if the configuration file is reloaded
+but no devices are found.
+
+.I never
+\- Only exit if a fatal error occurs, such as no remaining system
+memory or invalid command line arguments. In this mode, even if there
+are no devices to monitor at startup or later, or the configuration
+file \fB/etc/smartd.conf\fP has errors on startup or reload,
+\fBsmartd\fP will continue to run, waiting to load a configuration
+file listing valid devices.
+
+.I onecheck
+\- Start \fBsmartd\fP in debug mode, then register devices, then check
+device's SMART status once, and then exit with zero exit status if all
+of these steps worked correctly.
+
+This last option is intended for \'distribution-writers\' who want to
+create automated scripts to determine whether or not to automatically
+start up \fBsmartd\fP after installing smartmontools.  After starting
+\fBsmartd\fP with this command-line option, the distribution's install
+scripts should wait a reasonable length of time (say ten seconds).  If
+\fBsmartd\fP has not exited with zero status by that time, the script
+should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
+\fBsmartd\fP will not operate correctly on the host.  Conversely, if
+\fBsmartd\fP exits with zero status, then it is safe to run
+\fBsmartd\fP in normal daemon mode. If \fBsmartd\fP is unable to
+monitor any devices or encounters other problems then it will return
+with non-zero exit status.
 
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
@@ -1243,6 +1263,12 @@ A compile time constant of\fB smartd\fP was too small.  This can be caused by an
 excessive number of disks, or by lines in \fB /etc/smartd.conf\fP that are too long.
 Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
 .TP
+.B 10
+An inconsistency was found in \fBsmartd\fP's internal data
+structures. This should never happen.  It must be due to either a
+coding or compiler bug.  \fIPlease\fP report such failures to
+smartmontools-support@lists.sourceforge.net.
+.TP
 .B 16:
 A device explicitly listed in
 .B /etc/smartd.conf
@@ -1321,4 +1347,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.106 2003/08/14 13:34:51 ballen4705 Exp $
+$Id: smartd.8,v 1.107 2003/08/15 16:58:02 ballen4705 Exp $
