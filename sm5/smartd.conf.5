@@ -1,0 +1,333 @@
+\# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+\# 
+\# $Id: smartd.conf.5,v 1.1 2002/11/08 12:00:05 ballen4705 Exp $
+\#
+\# This program is free software; you can redistribute it and/or modify it
+\# under the terms of the GNU General Public License as published by the Free
+\# Software Foundation; either version 2, or (at your option) any later
+\# version.
+\# 
+\# You should have received a copy of the GNU General Public License (for
+\# example COPYING); if not, write to the Free Software Foundation, Inc., 675
+\# Mass Ave, Cambridge, MA 02139, USA.
+\# 
+\# This code was originally developed as a Senior Thesis by Michael Cornwell
+\# at the Concurrent Systems Laboratory (now part of the Storage Systems
+\# Research Center), Jack Baskin School of Engineering, University of
+\# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+\#
+.TH SMARTD.CONF 5  "$Date: 2002/11/08 12:00:05 $" "smartmontools-5.0"
+.SH NAME
+/etc/smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
+
+.SH DESCRIPTION
+This is the configuration file for the
+.B smartd
+daemon, which 
+monitors the Self-Monitoring, Analysis and Reporting
+Technology (S.M.A.R.T.) system built into many ATA-3 and later ATA,
+IDE and SCSI-3 hard drives.
+
+Note that
+.B smartd
+only reads the configuration file at start-up: changes to the
+configuration file take effect only after the
+.B smartd
+daemon is restarted.  If you send a HUP signal to
+.B smartd
+it will log a polite message saying that it ignores this signal and
+that it has
+.I not
+re-read the configuration file.
+
+.SH CONFIGURATION FILE /etc/smartd.conf
+In the absence of a configuration file,
+.B smartd 
+will try to open the 12 ATA devices 
+.B /dev/hd[a-l] 
+and the 26 SCSI
+devices 
+.B /dev/sd[a-z]. 
+This can be annoying if you have an ATA or SCSI device that hangs or
+misbehaves when receiving SMART commands.  Even if this causes no
+problems, you may be annoyed by the string of error log messages about
+block-major devices that can't be found, and SCSI devices that can't
+be opened.
+
+One can avoid this problem, and gain more control over the types of
+events monitored by
+.B smartd,
+by using the configuration file
+.B /etc/smartd.conf.
+This file contains a list of devices to monitor, with one device per
+line.  An example file is included with the
+.B smartmontools
+distribution, and is normally placed in 
+.B /etc/smartd.conf.example.
+If
+.B smartmontools
+was properly installed on your system, you will also find this sample
+configuration file in
+.B /usr/share/doc/smartmontools-5.0/.
+For security, the configuration file should not be writable by anyone
+but root. The syntax of the file is as follows:
+
+There should be one device listed per line, although you may have
+lines that are entirely comments or white space.
+
+Any text following a hash sign (#) and up to the end of the line is
+taken to be a comment, and ignored.
+
+Lines may be continued by using a backslash (\(rs) as the last
+non-whitespace or non-comment item on a line.
+
+Here is an example configuration file.  It's for illustrative purposes
+only; please don't copy it onto your system without reading to the end
+of the
+.B DIRECTIVES
+Section below!
+
+.nf
+.B ################################################
+.B # This is an example smartd startup config
+.B # file /etc/smartd.conf for monitoring three
+.B # ATA disks and two SCSI disks.
+.B #
+.nf
+.B # First ATA disk on each of two interfaces:
+.B #
+.B \ \ /dev/hda -a  
+.B \ \ /dev/hdc -a -I 194 -I 5 -i 12
+.B #
+.nf
+.B # SCSI disk:
+.B #
+.B \ \ /dev/sda
+.B #
+.nf
+.B # Strange device.  It's SCSI:
+.B #
+.B \ \ /dev/weird -S
+.B #
+.nf
+.B # The following line enables monitoring of the 
+.B # ATA Error Log and the Self-Test Error Log.  
+.B # It also tracks changes in both Prefailure
+.B # and Usage Attributes, apart from Attributes
+.B # 9, 194, and 231, and shows  continued lines:
+.B #
+.B \ \ /dev/hdd\ -L\ -l\ -t\ \ \(rs\ \ # Attributes not tracked:
+.B\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \(rs\ \ # temperature
+.B\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \(rs\ \ # also temperature
+.B\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -I 9\ \ \ \ \ \ # power-on hours
+.B #
+.B ################################################
+.fi
+
+
+.PP 
+.SH CONFIGURATION FILE DIRECTIVES
+.PP
+
+If the first non-comment entry in the configuration file is the text
+string
+.B DEVICESCAN
+in capital letters, then
+.B smartd
+will ignore the configuration file, and will scan for devices.
+.sp 2
+The following are the Directives that may appear following the device
+name on any line of the
+.B /etc/smartd.conf
+configuration file. Note that
+.B these are NOT command-line options for 
+.B smartd.
+The command-line options for
+.B smartd
+are listed above.  The Directives below may appear in any order,
+following the device name.  For the moment, apart from the '\-S'
+Directive, these Directives only apply to ATA disks. 
+.B  For ATA disks, if
+.B no Directives appear, the disk will not be monitored.
+The '\-a' Directive will try to monitor everything possible.
+.TP
+.B \-A
+ATA: The device is an ATA device.  Don't try issuing SCSI commands to it.
+.TP
+.B \-S
+SCSI: The device is a SCSI device.  Don't try issuing IDE/ATA
+commands to it.  
+
+In the absence of either of these Directives,
+.B smartd
+will attempt to guess the device type by looking at whether the fifth
+character in the device name is an 's' or an 'h'.  If it can't guess
+from this fifth character, then it will simply try to access the
+device using first ATA and then SCSI ioctl()s.
+.TP
+.B \-C <N>
+This sets the time in between disk checks to be 
+.B <N>
+seconds apart, where N is a decimal integer.  Note that although you can give this Directive
+multiple times on different lines of the configuration file, only the
+final value that is given is used.  That final value applies to all the disks.
+The default value of 
+.B <N> 
+is 1800 sec, and the minimum allowed value is
+ten seconds.
+.TP
+.B \-c
+Check: Will check the SMART status of the disk.  If any Prefailure
+Attributes are less than or equal to their threshold values, then disk
+failure is predicted in less than 24 hours, and a message at priority
+.B 'CRITICAL'
+will be logged to syslog. [Please see the
+.B smartctl \-c
+command-line option.]
+.TP
+.B \-l
+Log: Report if that the number of ATA errors reported in the ATA
+Error Log has increased since the last check.
+[Please see the
+.B smartctl \-l
+command-line option.]
+.TP
+.B \-L
+Log: Report if that the number of errors reported in the SMART
+Self-Test Log has increased since the last check.  Note that such
+errors will
+.I only 
+be logged if you run self-tests on the disk (and it fails the 
+tests!). [Self-Tests can be run by using the 
+.B '\-SXsx' 
+options of
+.B smartctl,
+and the results of the testing can be observed using the 
+.B smartctl \-L
+command line option.]
+.TP
+.B \-f
+Fail: Check for 'failure' of any Usage Attributes.  If these
+Attributes are less than or equal to the threshold, it does NOT
+indicate imminent disk failure.  It "indicates an advisory condition
+where the usage or age of the device has exceeded its intended design
+life period."
+[Please see the
+.B smartctl \-v
+command-line option.]
+.TP
+.B \-p
+Prefail: Report anytime that a Prefail Attribute has changed
+its value since the last check, 30 minutes ago. [Please see the
+.B smartctl \-v
+command-line option.]
+.TP
+.B \-u
+Usage: Report anytime that a Usage Attribute has changed its value
+since the last check, N seconds ago. [Please see the
+.B smartctl \-v
+command-line option.]
+.TP
+.B \-t
+Track: Equivalent to turning on the two previous flags '\-t' and '\-u'.
+Tracks changes in
+.I all
+device Attributes. [Please see the
+.B smartctl \-v
+command-line option.]
+.TP
+.B \-i <ID>
+Ignore: This Directive modifies the behavior of the '\-f' Directive
+and has no effect without it.  
+.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
+It means to ignore device Attribute number <ID>, when checking for
+failure of Usage Attributes.  This is useful, for example, if you have
+a very old disk and don't want to keep getting messages about the
+hours-on-lifetime Attribute (usually Attribute 9) failing.  This
+Directive may appear multiple times for a single device, if you want
+to ignore multiple Attributes.
+.TP
+.B \-I <ID>
+Ignore: This Directive modifies the
+behavior of the '\-p', '\-u', and '\-t' Directives
+and has no effect without one of them.  
+.I This Directive requires a decimal integer argument <ID> in the range from 1 to 255.
+It means to ignore device Attribute <ID>, when tracking changes in the
+Attribute values.  This is useful, for example, if one of the device
+Attributes is the disk temperature (usually Attribute 194 or
+231). It's annoying to get reports each time the temperature changes.
+This Directive may appear multiple times for a single device, if you
+want to ignore multiple Attributes.
+.TP
+.B \-a
+All: equivalent to turning on the following Directives: 
+.B '\-c' 
+to check the SMART status,
+.B '\-f' 
+to report failures of Usage (rather than Prefail) Attributes,
+.B '\-t' 
+to track changes in both Prefailure and Usage Attributes,
+.B '\-L' 
+to report increases in the number of Self-Test Log errors, and
+.B '\-l' 
+to report increases in the number of ATA errors.
+.TP
+.B #
+Comment: ignore the remainder of the line.
+.TP
+.B \(rs
+Continuation character: if this is the last non-white or non-comment
+character on a line, then the following line is a continuation of the current
+one.
+.PP
+If you are not sure which Directives to use, I suggest experimenting
+for a few minutes with
+.B smartctl
+to see what SMART functionality your disk(s) support(s).  If you do
+not like voluminous syslog messages, a good choice of
+.B smartd
+configuration file Directives might be 
+.B \-c \-L \-l \-f.
+If you want more frequent information, use 
+.B -a.
+
+.PP
+.SH AUTHOR
+Bruce Allen
+.B smartmontools-support@lists.sourceforge.net
+.fi
+University of Wisconsin - Milwaukee Physics Department
+
+.PP
+.SH CREDITS
+.fi
+This code was derived from the smartsuite package, written by Michael
+Cornwell, and from the previous ucsc smartsuite package. It extends
+these to cover ATA-5 disks. This code was originally developed as a
+Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
+(now part of the Storage Systems Research Center), Jack Baskin School
+of Engineering, University of California, Santa
+Cruz. http://ssrc.soe.ucsc.edu/.
+.SH
+HOME PAGE FOR SMARTMONTOOLS: 
+.fi
+Please see the following web site for updates, further documentation, bug
+reports and patches:
+.nf
+.B
+http://smartmontools.sourceforge.net/
+
+.SH
+SEE ALSO:
+.B smartd
+(8),
+.B smartctl
+(8),
+.B syslogd
+(8)
+
+
+
+.SH
+CVS ID OF THIS PAGE:
+$Id: smartd.conf.5,v 1.1 2002/11/08 12:00:05 ballen4705 Exp $
