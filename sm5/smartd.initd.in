@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.6 2003/10/30 12:56:39 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.7 2003/10/31 10:02:02 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -52,6 +52,20 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    rm -f /var/lock/subsys/smartd
 	    echo
 	    ;;
+	reload)
+            echo -n $"Reloading smartd.conf: "
+	    killproc /usr/sbin/smartd -HUP
+	    RETVAL=$?
+	    echo
+	    exit $RETVAL
+	    ;;
+	report)
+	    echo -n $"Checking devices now: "
+	    killproc /usr/sbin/smartd -USR1
+	    RETVAL=$?
+	    echo
+	    exit $RETVAL
+            ;;
 	restart)
 	    $0 stop
 	    $0 start
@@ -64,7 +78,7 @@ if [ -f /etc/redhat-release -o -f /etc/yellowdog-release -o -f /etc/mandrake-rel
 	    status smartd
 	    ;;
 	*)
-	    echo "Usage: smartd {start|stop|restart|reload|status}"
+	    echo "Usage: smartd {start|stop|reload|report|restart|status}"
 	    exit 1
     esac
     
