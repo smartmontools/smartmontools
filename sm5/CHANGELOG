@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.103 2003/03/13 15:34:37 ballen4705 Exp $
+$Id: CHANGELOG,v 1.104 2003/03/25 12:17:51 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -36,6 +36,9 @@ CURRENT RELEASE (see VERSION file in this directory):
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
 smartmontools-5.1-9
+
+  [BA] Added -v 194,10xCelsius option/Directive. Raw Attribute number
+       194 is ten times the disk temperature in Celsius.
   
   [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
        kernel support, then try to assess drive health by examining
