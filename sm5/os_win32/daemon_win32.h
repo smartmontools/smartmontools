@@ -19,7 +19,7 @@
 #ifndef DAEMON_WIN32_H
 #define DAEMON_WIN32_H
 
-#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.3 2004/07/31 16:56:20 chrfranke Exp $\n"
+#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.4 2004/08/06 13:08:45 chrfranke Exp $\n"
 
 #include <signal.h>
 
@@ -28,8 +28,23 @@
 #define SIGUSR1 (NSIG+2)
 #define SIGUSR2 (NSIG+3)
 
+
+// Options for Windows service
+typedef struct daemon_winsvc_options_s {
+	const char * cmd_opt;  // argv[1] option for services
+	// For service "install" command only:
+	const char * svcname;  // Service name
+	const char * dispname; // Service display name
+	const char * descript; // Service description
+} daemon_winsvc_options;
+
+
 // This function must be called from main()
-int daemon_main(const char * ident, int argc, char **argv);
+int daemon_main(const char * ident, const daemon_winsvc_options * svc_opts,
+                int (*main_func)(int, char **), int argc, char **argv      );
+
+// exit(code) returned by a service
+extern int daemon_winsvc_exitcode;
 
 // Simulate signal()
 void (*daemon_signal(int sig, void (*func)(int)))(int);
