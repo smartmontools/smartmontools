@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.25 2004/06/01 15:52:20 ballen4705 Exp $
+$Id: WARNINGS,v 1.26 2004/06/10 15:48:16 ballen4705 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -71,16 +71,18 @@ LINK:     http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=208964
 NOTE:     Problem seems to affect kernel 2.4.21 only.
 
 
-SYSTEM:   Promise 20268 IDE-controller
+SYSTEM:   Promise IDE-controllers and perhaps others also
 PROBLEM:  System freezes under heavy load, perhaps when running SMART commands
 REPORTER: Mario 'BitKoenig' Holbe Mario.Holbe@RZ.TU-Ilmenau.DE
 LINK:     http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&selm=1wUXW-2FA-9%40gated-at.bofh.it
 NOTE:     Before freezing, SYSLOG shows the following message(s)
-          kernel: hdf: dma timer expiry: dma status == 0x61
-          It's not clear if smartmontools plays a role in provoking this problem.
-          FINAL NOTE: Problem was COMPLETELY resolved by replacing the
-          power supply.  See URL above, entry on May 29, 2004 by Holbe.
-    
+          kernel: hdf: dma timer expiry: dma status == 0xXX
+       	  where XX is two hexidecimal digits. This may be a kernel bug
+	  or an underlying hardware problem.  It's not clear if
+	  smartmontools plays a role in provoking this problem.  FINAL
+	  NOTE: Problem was COMPLETELY resolved by replacing the power
+	  supply.  See URL above, entry on May 29, 2004 by Holbe.  Other
+	  things to try are exchanging cables, and cleaning PCI slots.
 
 FREEBSD
 -------
