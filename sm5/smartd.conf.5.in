@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.68 2004/10/06 23:20:22 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.69 2004/10/15 15:02:55 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -306,7 +306,7 @@ behavior) if the device does not appear to be present when
 with the other \'\-d\' Directives.
 
 .TP
-.B \-n POWERMODE
+.B \-n POWERMODE[,q]
 This \'nocheck\' Directive is used to prevent a disk from being
 spun-up when it is periodically polled by \fBsmartd\fP.
 
@@ -351,6 +351,10 @@ this is probably what you want.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 
+When a periodic test is skipped, \fBsmartd\fP normally writes an
+informal log message. The message can be suppressed by appending
+the option \',q\' to POWERMODE (like \'\-n standby,q\').
+This prevents a laptop disk from spinning up due to this message.
 
 .TP
 .B \-T TYPE
@@ -1237,4 +1241,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.68 2004/10/06 23:20:22 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.69 2004/10/15 15:02:55 chrfranke Exp $

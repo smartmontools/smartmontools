@@ -108,14 +108,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.345 2004/10/15 07:57:22 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.346 2004/10/15 15:02:54 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.345 2004/10/15 07:57:22 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.346 2004/10/15 15:02:54 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2125,7 +2125,8 @@ int ATACheckDevice(cfgfile *cfg){
     // if we are going to skip a check, return now
     if (dontcheck){
       CloseDevice(fd, name);
-      PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
+      if (!cfg->powerquiet) // to avoid waking up system disk
+        PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
       return 0;
     }    
   }
@@ -2798,16 +2799,17 @@ int ParseToken(char *token,cfgfile *cfg){
     // skip disk check if in idle or standby mode
     if (!(arg = strtok(NULL, delim)))
       missingarg = 1;
-    else if (!strcmp(arg, "never"))
+    else if (!strcmp(arg, "never")   || !strcmp(arg, "never,q"))
       cfg->powermode = 0;
-    else if (!strcmp(arg, "sleep"))
+    else if (!strcmp(arg, "sleep")   || !strcmp(arg, "sleep,q"))
       cfg->powermode = 1;
-    else if (!strcmp(arg, "standby"))
+    else if (!strcmp(arg, "standby") || !strcmp(arg, "standby,q"))
       cfg->powermode = 2;
-    else if (!strcmp(arg, "idle"))
+    else if (!strcmp(arg, "idle")    || !strcmp(arg, "idle,q"))
       cfg->powermode = 3;
     else
       badarg = 1;
+    cfg->powerquiet = !!strchr(arg,',');
     break;
   case 'S':
     // automatic attribute autosave enable/disable
