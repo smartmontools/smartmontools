@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.158 2003/04/26 11:20:22 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.159 2003/05/01 08:53:01 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -748,8 +748,7 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
 }
 
 
-static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg,
-                          int scandirective)
+static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
 {
     int k, fd, err; 
     char *device = cfg->name;
@@ -761,10 +760,8 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg,
         return 1;
     // open the device
     if ((fd = opendevice(device, O_RDWR | O_NONBLOCK)) < 0) {
-        if (scandirective)
-            return 1;
-        printout(LOG_WARNING, "Device: %s, skip\n", device);
-        return 0; // device open failed
+        return 1;
+        /* printout(LOG_WARNING, "Device: %s, skip\n", device); */
     }
     printout(LOG_INFO,"Device: %s, opened\n", device);
   
@@ -774,7 +771,7 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg,
             printout(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
                      "down); skip\n", device);
             close(fd);
-            return scandirective ? 1 : 0;
+            return 2;
         } else {
            printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
                     device, err);
@@ -2153,8 +2150,7 @@ int main (int argc, char **argv){
     
     // then register SCSI devices
     if (config[i].tryscsi){
-      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i, 
-                         scandirective))
+      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i))
 	cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
       else
 	notregistered=0;
