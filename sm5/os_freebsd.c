@@ -36,7 +36,7 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.17 2003/10/13 14:31:34 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.18 2003/10/14 14:22:44 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -284,9 +284,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 #endif
     break;
   default:
-    pout("Unrecognized command %d in ata_command_interface()\n", command);
-    EXIT(1);
-    break;
+    pout("Unrecognized command %d in ata_command_interface()\n"
+	 "Please contact " PACKAGE_BUGREPORT "\n", command);
+    errno=ENOSYS;
+    return -1;
   }
   
   if (command==STATUS_CHECK){
