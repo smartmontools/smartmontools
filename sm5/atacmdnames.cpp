@@ -22,7 +22,7 @@
 
 #include "atacmdnames.h"
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.4 2003/07/21 20:00:03 pjwilliams Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.5 2003/07/22 16:22:09 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_retired[]         = "[RETIRED]";
@@ -348,7 +348,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xD6:
       return "SMART WRITE LOG";
     case 0xD7:
-      return "SMART WRITE THRESHOLDS [OBS-4]";
+      return "SMART WRITE ATTRIBUTE THRESHOLDS [VS]";
     case 0xD8:
       return "SMART ENABLE OPERATIONS";
     case 0xD9:
@@ -356,7 +356,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xDA:
       return "SMART RETURN STATUS";
     case 0xDB:
-      return "SMART AUTO OFFLINE [OBS-SFF_8035i]";
+      return "SMART EN/DISABLE AUTO OFFLINE: SFF-8035i";
     default:
         if (f_reg >= 0xE0)
           return "[Vendor specific SMART command]";
