@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.15 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.16 2002/10/22 14:57:43 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -330,7 +330,9 @@ int ataSmartSupport ( struct hd_driveid drive);
 int ataIsSmartEnabled(struct hd_driveid drive);
 
 /* Check SMART for Threshold failure */
-int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds);
+// onlyfailed=0 : are or were any age or prefailure attributes <= threshold
+// onlyfailed=1:  are any prefailure attributes <= threshold now
+int ataCheckSmart ( struct ata_smart_values data, struct ata_smart_thresholds thresholds, int onlyfailed);
 
 int ataSmartStatus2(int device);
 

@@ -28,7 +28,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid4="$Id: ataprint.c,v 1.20 2002/10/22 12:09:14 ballen4705 Exp $\n"
+const char *CVSid4="$Id: ataprint.c,v 1.21 2002/10/22 14:57:43 ballen4705 Exp $\n"
 	           "\t" CVSID2 "\t" CVSID3 "\t" CVSID6 ;
 
 // Function for printing ASCII byte-swapped strings, skipping white
@@ -96,8 +96,9 @@ void ataPrintDriveInfo (struct hd_driveid drive){
   if (version>=3)
     return;
   
-  printf("SMART is only available in ATA Version 3 Revision 3 or greater.\n\n");
-  exit (0);
+  printf("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
+  printf("We will try to proceed in spite of this.\n");
+  return;
 }
 
 
@@ -357,8 +358,7 @@ void PrintSmartExtendedSelfTestPollingTime ( struct ata_smart_values data)
 }
 
 
-// onlyfailing is a bitflag
-// onlyfailing=0 : all values
+// onlyfailing=0 : print all attribute values
 // onlyfailing=1:  just ones that are currently failed and have prefailure bit set
 // onlyfailing=2:  ones that are failed, or have failed with or without prefailure bit set
 void PrintSmartAttribWithThres (struct ata_smart_values data, 
@@ -384,10 +384,10 @@ void PrintSmartAttribWithThres (struct ata_smart_values data,
       
       // These break out of the loop if we are only printing certain entries...
       if (onlyfailed==1 && (!disk->status.flag.prefailure || !failednow))
-	break;
+	continue;
       
       if (onlyfailed==2 && !failedever)
-	break;
+	continue;
       
       // print header only if needed
       if (needheader){
@@ -486,7 +486,7 @@ void ataPrintGeneralSmartValues  ( struct ata_smart_values data)
 
 }
 
-
+// Is not (currently) used in ANY code
 void ataPrintSmartThresholds (struct ata_smart_thresholds data)
 {
    int i;
@@ -807,18 +807,20 @@ void ataPrintSmartAttribName ( unsigned char id ){
  Called by smartctl to access ataprint  
 **/
 
+
+// Initialize to zero just in case some SMART routines don't work
+struct hd_driveid drive;
+struct ata_smart_values smartval;
+struct ata_smart_thresholds smartthres;
+struct ata_smart_errorlog smarterror;
+struct ata_smart_selftestlog smartselftest;
+
 void ataPrintMain (int fd){
-  struct hd_driveid drive;
-  struct ata_smart_values smartval;
-  struct ata_smart_thresholds smartthres;
-  struct ata_smart_errorlog smarterror;
-  struct ata_smart_selftestlog smartselftest;
-  int timewait;
+  int timewait,code;
   
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if (ataReadHDIdentity(fd,&drive)){
     printf("Smartctl: Hard Drive Read Identity Failed\n\n");
-    exit(-1);	
   }
   
   // Print most drive identity information if requested
@@ -830,7 +832,13 @@ void ataPrintMain (int fd){
   // now check if drive supports SMART; otherwise time to exit
   if (!ataSmartSupport(drive)){
     printf("SMART support is: Unavailable - device lacks SMART capability.\n");
-    exit (0);
+    printf("                  Checking to be sure by trying SMART ENABLE command.\n");
+    if (ataEnableSmart(fd)){
+      printf("                  No SMART functionality found. Sorry.\n");
+      exit(0);
+    }
+    else
+      printf("                  SMART appears to work.  Continuing.\n"); 
   }
   
   // Now print remaining drive info: is SMART enabled?    
@@ -847,12 +855,11 @@ void ataPrintMain (int fd){
       smartautosaveenable || smartautosavedisable || 
       smartautoofflineenable || smartautoofflinedisable)
     printf("\n=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
-
+  
   // Enable/Disable SMART commands
   if (smartenable){
     if (ataEnableSmart(fd)) {
       printf("Smartctl: SMART Enable Failed.\n\n");
-      exit(-1);
     }
     else
       printf("SMART Enabled.\n");
@@ -868,73 +875,79 @@ void ataPrintMain (int fd){
   if (smartdisable){    
     if (ataDisableSmart(fd)) {
       printf( "Smartctl: SMART Disable Failed.\n\n");
-      exit(-1);
     }
     printf("SMART Disabled. Use option -%c to enable it.\n",SMARTENABLE);
     exit (0);		
   }
   
+  // Let's ALWAYS issue this command to get the SMART status
+  code=ataSmartStatus2(fd);
+
   // Enable/Disable Auto-save attributes
   if (smartautosaveenable){
-    if (ataEnableAutoSave(fd)){
+    if (ataEnableAutoSave(fd))
       printf( "Smartctl: SMART Enable Attribute Autosave Failed.\n\n");
-      exit(-1);
-    } 
-    printf("SMART Attribute Autosave Enabled\n");
+    else
+      printf("SMART Attribute Autosave Enabled.\n");
   }
   if (smartautosavedisable){
-    if (ataDisableAutoSave(fd)){
+    if (ataDisableAutoSave(fd))
       printf( "Smartctl: SMART Disable Attribute Autosave Failed.\n\n");
-      exit(-1);
-    }     
-    printf("SMART Attribute Autosave Disabled\n");
+    else
+      printf("SMART Attribute Autosave Disabled.\n");
   }
   
   // for everything else read values and thresholds are needed
-  if (ataReadSmartValues(fd, &smartval)){
+  if (ataReadSmartValues(fd, &smartval))
     printf("Smartctl: SMART Values Read Failed.\n\n");
-    exit (-1);
-  }
-  if (ataReadSmartThresholds(fd, &smartthres)){
+  if (ataReadSmartThresholds(fd, &smartthres))
     printf("Smartctl: SMART Thresholds Read Failed.\n\n");
-    exit (-1); 
-  }
-
+  
   // Enable/Disable Off-line testing
   if (smartautoofflineenable){
     if (!isSupportAutomaticTimer (smartval)){
       printf("Device does not support SMART Automatic Timers.\n\n");
-      exit(-1);
     }
-    if (ataEnableAutoOffline (fd)){
+    if (ataEnableAutoOffline (fd))
       printf( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
-      exit(-1);
-    }    
-    printf ("SMART Automatic Offline Testing Enabled every four hours.\n");
+    else
+      printf ("SMART Automatic Offline Testing Enabled every four hours.\n");
   }
   if (smartautoofflinedisable){
-    if (!isSupportAutomaticTimer (smartval)){
-      printf("Device does not support SMART Automatic Timers.\n\n");
-      exit(-1);
-    }		
-    if ( ataDisableAutoOffline (fd)){
-      printf( "Smartctl: SMART Disable Automatic Offline Failed.\n\n");
-      exit(-1);
-    }
-    printf ("SMART Automatic Offline Testing Disabled.\n");
+    if (!isSupportAutomaticTimer (smartval))
+      printf("Device does not support SMART Automatic Timers.\n\n");		
+    if (ataDisableAutoOffline (fd))
+      printf("Smartctl: SMART Disable Automatic Offline Failed.\n\n");
+    else
+      printf("SMART Automatic Offline Testing Disabled.\n");
   }
 
   // START OF READ-ONLY OPTIONS APART FROM -p and -i
   if (checksmart || generalsmartvalues || smartvendorattrib || smarterrorlog || smartselftestlog)
     printf("\n=== START OF READ SMART DATA SECTION ===\n");
-
-  // Check SMART status
-  if (checksmart)
-    // Eventually when working use the ataSmartStatus2 function here.
-    // This will then not require read values & thresholds above, and
-    // shouldl be moved in the code to just before the read values &
-    // thresholds statements.
-    ataPseudoCheckSmart(smartval, smartthres);
+  
+  // Check SMART status (use previously returned value)
+  if (checksmart){
+    if (code) {
+      printf("SMART overall-health self-assessment test result: FAILED!\n"
+	     "Drive failure expected in less than 24 hours. SAVE ALL DATA\n");
+      if (ataCheckSmart(smartval, smartthres,1)){
+	printf("Here is a list of failing attributes.  Use -%c option to investigate.\n",
+	       SMARTVENDORATTRIB);
+	PrintSmartAttribWithThres(smartval, smartthres,1);
+      }
+      else
+	printf("Unable to confirm any failing attributes.\n");
+    }
+    else {
+      printf("SMART overall-health self-assessment test result: PASSED\n");
+      if (ataCheckSmart(smartval, smartthres,0)){
+	printf("Note: SMART attributes shown below are or were below threshold. "
+	       "Use -%c option to investigate\n",SMARTVENDORATTRIB);
+	PrintSmartAttribWithThres(smartval, smartthres,2);
+      }
+    }
+  }
   
   // Print general SMART values
   if (generalsmartvalues)
