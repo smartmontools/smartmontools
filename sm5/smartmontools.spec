@@ -1,4 +1,4 @@
-Release:  20
+Release:  21
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Name:		smartmontools
 Version:	5.0
@@ -18,7 +18,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://telia.dl.sourceforge.net/sourceforge/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.31 2002/10/29 16:59:02 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.32 2002/10/29 17:50:59 ballen4705 Exp $
 
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net
@@ -113,6 +113,10 @@ fi
 %define date	%(echo `LC_ALL="C" date +"%a %b %d %Y"`)
 %changelog
 * Tue Oct 29 2002 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+- Eliminated some global variables out of header files and other
+  minor cleanup of smartd.
+- Did some revision of the man page for smartd and made the usage
+  messages for Directives consistent.
 - smartd: prints warning message when it gets SIGHUP, saying that it is
   NOT re-reading the config file.
 - smartctl: updated man page to say self-test commands -O,x,X,s,S,A

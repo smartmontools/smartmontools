@@ -41,13 +41,27 @@
 #include "ataprint.h"
 #include "extern.h"
 
+
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.43 2002/10/29 16:59:02 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.44 2002/10/29 17:50:58 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
 atamainctrl *con=NULL;
+
+// Two other globals -- number of ATA and SCSI devices being monitored
+int numatadevices;
+int numscsidevices;
+
+// How long to sleep between checks.  Handy as global variable for
+// debugging
+int checktime=CHECKTIME;
+
+// Global Variables for command line options. These should go into a
+// structure at some point.
+unsigned char debugmode               = FALSE;
+unsigned char printcopyleft           = FALSE;
 
 // This function prints either to stdout or to the syslog as needed
 void printout(int priority,char *fmt, ...){
@@ -63,8 +77,7 @@ void printout(int priority,char *fmt, ...){
   return;
 }
 
-// Printing function for debugging atacmds.
-// in #if statement
+// Printing function for watching ataprint commands, or losing them
 void pout(char *fmt, ...){
   va_list ap;
   // initialize variable argument list 
@@ -112,7 +125,6 @@ int daemon_init(void){
   // from here on, we are the child process.
   setsid();
 
-
   // Fork one more time to avoid any possibility of having terminals
   if ((pid=fork()) < 0) {
     // unable to fork!
@@ -137,7 +149,7 @@ int daemon_init(void){
   dup(i);
   umask(0);
   chdir("/");
-  return(0);
+  return 0;
 }
 
 // Prints header identifying version of code and home
@@ -947,9 +959,7 @@ int parseconfigfile(){
   exit(1);
 }
 
-// const char opts[] = {DEBUGMODE, EMAILNOTIFICATION, PRINTCOPYLEFT,'h','?','\0' };
 const char opts[] = {DEBUGMODE, PRINTCOPYLEFT,'h','?','\0' };
-
 
 // Parses input line, prints usage message and
 // version/license/copyright messages
@@ -968,9 +978,6 @@ void ParseOpts(int argc, char **argv){
       break;
     case DEBUGMODE :
       debugmode  = TRUE;
-      break;
-    case EMAILNOTIFICATION:
-      emailnotification = TRUE;
       break;
     case '?':
     case 'h':
