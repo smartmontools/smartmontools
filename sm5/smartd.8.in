@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.11 2003/10/21 09:34:38 ballen4705 Exp $
+$Id: smartd.8.in,v 1.12 2003/10/21 12:00:53 arvoreen Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ Cornwell at the Concurrent Systems Laboratory (now part of the Storage
 Systems Research Center), Jack Baskin School of Engineering,
 University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 ..
-.TH SMARTD 8  "$Date: 2003/10/21 09:34:38 $" RELEASE
+.TH SMARTD 8  "$Date: 2003/10/21 12:00:53 $" RELEASE
 .SH NAME
 \fBsmartd\fP \- SMART Disk Monitoring Daemon
 
@@ -28,7 +28,7 @@ University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 .B /usr/sbin/smartd
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/21 09:34:38 $"
+\fBRELEASE\fP "$Date: 2003/10/21 12:00:53 $"
 
 .SH DESCRIPTION
 .B smartd
@@ -86,7 +86,9 @@ configuration file. To kill \fBsmartd\fP use CONTROL-\\.
 On startup, in the absence of the configuration file
 \fB/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
 devices that support SMART, using \fB"/dev/hd[a-t]"\fP for IDE/ATA
-devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices. It then monitors
+devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices under Linux. Under
+FreeBSD, it will exmaine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
+devices and \fB"/dev/da[0-9]+"\fP SCSI devices. It then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
 Directive in the configuration file; see \fBCONFIGURATION FILE\fP
 below). Note that when there is no configuration file, and
@@ -298,7 +300,13 @@ In the absence of a configuration file,
 will try to open the 20 ATA devices 
 .B /dev/hd[a-t] 
 and the 26 SCSI devices
-.B /dev/sd[a-z]. 
+.B /dev/sd[a-z]
+under Linux. Under FreeBSD, 
+.B smartd
+will try to open all existing ATA devices (with entries in /dev)
+.B /dev/ad[0-9]+
+and all existing SCSI devices
+.B /dev/da[0-9]+.
 This can be annoying if you have an ATA or SCSI device that hangs or
 misbehaves when receiving SMART commands.  Even if this causes no
 problems, you may be annoyed by the string of error log messages about
@@ -1329,4 +1337,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.11 2003/10/21 09:34:38 ballen4705 Exp $
+$Id: smartd.8.in,v 1.12 2003/10/21 12:00:53 arvoreen Exp $
