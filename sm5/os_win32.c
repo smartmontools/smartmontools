@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.26 2004/12/14 20:16:11 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.27 2004/12/22 11:35:45 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -695,27 +695,41 @@ static int smartvsd_error()
 	unsigned len;
 	if (!(5 <= (len = GetSystemDirectoryA(path, MAX_PATH)) && len < MAX_PATH/2))
 		return ENOENT;
+	// SMARTVSD.VXD present?
 	strcpy(path+len, "\\IOSUBSYS\\SMARTVSD.VXD");
 	if (!access(path, 0)) {
-#ifdef _DEBUG
-		pout("Driver \"%s\" not loaded,\n"
-		     " possibly no IDE/ATA devices present.\n", path);
-#endif
-		return ENOENT;
+		// Yes, standard IDE driver used?
+		HANDLE h;
+		if (   (h = CreateFileA("\\\\.\\ESDI_506",
+		             GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
+		             NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE
+		    && GetLastError() == ERROR_FILE_NOT_FOUND                             ) {
+			pout("Standard IDE driver ESDI_506.PDR not used, or no IDE/ATA drives present.\n");
+			return ENOENT;
+		}
+		else {
+			if (h != INVALID_HANDLE_VALUE) // should not happen
+				CloseHandle(h);
+			pout("SMART driver SMARTVSD.VXD is installed, but not loaded.\n");
+			return ENOSYS;
+		}
 	}
-	// Some Windows versions install SMARTVSD.VXD in SYSTEM directory
-	// http://support.microsoft.com/default.aspx?scid=kb;en-us;265854
-	strcpy(path+len, "\\SMARTVSD.VXD");
-	if (!access(path, 0)) {
-		path[len] = 0;
-		pout("SMART driver is not properly installed,\n"
-		     " move SMARTVSD.VXD from \"%s\" to \"%s\\IOSUBSYS\"\n"
-		     " and reboot Windows.\n", path, path);
+	else {
+		// Some Windows versions install SMARTVSD.VXD in SYSTEM directory
+		// http://support.microsoft.com/default.aspx?scid=kb;en-us;265854
+		strcpy(path+len, "\\SMARTVSD.VXD");
+		if (!access(path, 0)) {
+			path[len] = 0;
+			pout("SMART driver is not properly installed,\n"
+				 " move SMARTVSD.VXD from \"%s\" to \"%s\\IOSUBSYS\"\n"
+				 " and reboot Windows.\n", path, path);
+		}
+		else {
+			path[len] = 0;
+			pout("SMARTVSD.VXD is missing in folder \"%s\\IOSUBSYS\".\n", path);
+		}
 		return ENOSYS;
 	}
-	path[len] = 0;
-	pout("SMARTVSD.VXD is missing in folder \"%s\\IOSUBSYS\".\n", path);
-	return ENOENT;
 }
 
 
@@ -753,10 +767,15 @@ static int ata_open(int drive)
 		NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
 		long err = GetLastError();	
 		pout("Cannot open device %s, Error=%ld\n", devpath, err);
-		if (win9x && err == ERROR_FILE_NOT_FOUND)
-			errno = smartvsd_error();
+		if (err == ERROR_FILE_NOT_FOUND)
+			errno = (win9x ? smartvsd_error() : ENOENT);
+		else if (err == ERROR_ACCESS_DENIED) {
+			if (!win9x)
+				pout("Administrator rights are necessary to access physical drives.\n");
+			errno = EACCES;
+		}
 		else
-			errno = (err == ERROR_FILE_NOT_FOUND ? ENOENT : EPERM);
+			errno = EIO;
 		h_ata_ioctl = 0;
 		return -1;
 	}
@@ -775,10 +794,11 @@ static int ata_open(int drive)
 		}
 	}
 
-#ifdef _DEBUG
-	pout("SMART_GET_VERSION (%ld bytes): Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-		num_out, vers.bVersion, vers.bRevision, vers.fCapabilities, vers.bIDEDeviceMap);
-#endif
+	if (con->reportataioctl > 1)
+		pout("%s: SMART_GET_VERSION (%ld bytes):\n"
+		     " Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
+			devpath, num_out, vers.bVersion, vers.bRevision,
+			vers.fCapabilities, vers.bIDEDeviceMap);
 
 	// TODO: Check vers.fCapabilities here?
 
