@@ -40,7 +40,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.44 2004/03/25 15:39:25 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.45 2004/03/25 15:51:29 ballen4705 Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -342,7 +342,8 @@ int split_selective_arg(char *s, uint64_t *start,
   errno = 0;
   // Last argument to strtoull (the base) is 0 meaning that decimal is assumed
   // unless prefixes of "0" (for octal) or "0x"/"0X" (for hex) are used.
-  *start = strtoll(s, &tailptr, 0);
+  *start = strtoull(s, &tailptr, 0);
+
   s = tailptr;
   if (errno || *s++ != '-')
     return 1;
