@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.37 2003/04/14 11:01:47 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.38 2003/04/15 09:33:25 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -730,23 +730,23 @@ int scsiTestUnitReady(int device)
 }
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
- * starts at (relative to iecp->raw_curr[0]). Returns -1 if problem */
-static int scsiModePageOffset(const struct scsi_iec_mode_page *iecp)
+ * starts at (relative to resp[0]). Returns -1 if problem */
+static int scsiModePageOffset(const UINT8 * resp, int len, int modese_10)
 {
     int resp_len, bd_len;
     int offset = -1;
 
-    if (iecp && iecp->gotCurrent) {
-        if (iecp->modese_10) {
-            resp_len = (iecp->raw_curr[0] << 8) + iecp->raw_curr[1] + 2;
-            bd_len = (iecp->raw_curr[6] << 8) + iecp->raw_curr[7];
+    if (resp) {
+        if (modese_10) {
+            resp_len = (resp[0] << 8) + resp[1] + 2;
+            bd_len = (resp[6] << 8) + resp[7];
             offset = bd_len + 8;
         } else {
-            resp_len = iecp->raw_curr[0] + 1;
-            bd_len = iecp->raw_curr[3];
+            resp_len = resp[0] + 1;
+            bd_len = resp[3];
             offset = bd_len + 4;
         }
-        if ((offset + 2) > sizeof(iecp->raw_curr)) {
+        if ((offset + 2) > len) {
             pout("scsiModePageOffset: raw_curr too small, offset=%d "
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
@@ -806,7 +806,8 @@ int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
     int offset, len;
 
     if (iecp && iecp->gotCurrent) {
-        offset = scsiModePageOffset(iecp);
+        offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
+                                    iecp->modese_10);
         if (offset >= 0) {
             len = iecp->raw_curr[offset + 1] + 2;
             if (byte_2p)
@@ -839,7 +840,8 @@ int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp)
     int offset;
 
     if (iecp && iecp->gotCurrent) {
-        offset = scsiModePageOffset(iecp);
+        offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
+                                    iecp->modese_10);
         if (offset >= 0)
             return (iecp->raw_curr[offset + 2] & DEXCPT_ENABLE) ? 0 : 1;
         else
@@ -853,7 +855,8 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
     int offset;
 
     if (iecp && iecp->gotCurrent) {
-        offset = scsiModePageOffset(iecp);
+        offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
+                                    iecp->modese_10);
         if (offset >= 0)
             return (iecp->raw_curr[offset + 2] & EWASC_ENABLE) ? 1 : 0;
         else
@@ -863,7 +866,7 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
 }
 
 /* set EWASC and clear PERF, EBF, DEXCPT TEST and LOGERR */
-#define SCSI_IEC_MP_BYTE2_ENABLED 0x10
+#define SCSI_IEC_MP_BYTE2_ENABLED 0x10 
 #define SCSI_IEC_MP_BYTE2_TEST_MASK 0x4
 /* exception/warning via an unrequested REQUEST SENSE command */
 #define SCSI_IEC_MP_MRIE 6      
@@ -874,7 +877,9 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
  * mode page subject to the "changeable" mask. The object pointed to
  * by iecp is (possibly) inaccurate after this call, therefore
  * scsiFetchIECmpage() should be called again if the IEC mode page
- * is to be re-examined. */
+ * is to be re-examined.
+ * When -r ioctl is invoked 3 or more time on 'smartctl -s on ...'
+ * then set the TEST bit (causes asc,ascq pair of 0x5d,0xff). */
 int scsiSetExceptionControlAndWarning(int device, int enabled,
                                       const struct scsi_iec_mode_page *iecp)
 {
@@ -884,7 +889,8 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
 
     if ((! iecp) || (! iecp->gotCurrent))
         return -EINVAL;
-    offset = scsiModePageOffset(iecp);
+    offset = scsiModePageOffset(iecp->raw_curr, sizeof(iecp->raw_curr),
+                                iecp->modese_10);
     if (offset < 0)
         return -EINVAL;
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
@@ -895,6 +901,8 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
     rout[offset] &= 0x7f;     /* mask off PS bit */
     if (enabled) {
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
+        if (con->reportscsiioctl > 2)
+            rout[offset + 2] |= SCSI_IEC_MP_BYTE2_TEST_MASK;
         rout[offset + 3] = SCSI_IEC_MP_MRIE;
         rout[offset + 4] = (SCSI_IEC_MP_INTERVAL_T >> 24) & 0xff;
         rout[offset + 5] = (SCSI_IEC_MP_INTERVAL_T >> 16) & 0xff;
@@ -955,14 +963,19 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     return 0;
 }
 
-/* Read informational exception log page or Request Sense response */
+/* Read informational exception log page or Request Sense response.
+ * Fetching asc/ascq code potentially flagging an exception or warning.
+ * Returns 0 if ok, else error number. A current temperature of 255
+ * (Centigrade) if for temperature not available. */
 int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
                 UINT8 *currenttemp)
 {
     UINT8 tBuf[1024];
     struct scsi_sense_disect sense_info;
     int err;
+    int temperatureSet = 0;
     unsigned short pagesize;
+    UINT8 currTemp, tripTemp;
  
     *asc = 0;
     *ascq = 0;
@@ -981,10 +994,14 @@ int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
         if (tBuf[7] > 1) {
             sense_info.asc = tBuf[8]; 
             sense_info.ascq = tBuf[9];
-            if (tBuf[7] > 2) 
+            if (tBuf[7] > 2) { 
                 *currenttemp = tBuf[10];
+                temperatureSet = 1;
+            }
         } 
-    } else {
+    }
+    if (0 == sense_info.asc) {    
+        /* ties in with MRIE field of 6 in IEC mode page (0x1c) */
         if ((err = scsiRequestSense(device, &sense_info))) {
             pout("Request Sense failed, err=%d\n", err);
             return 1;
@@ -992,6 +1009,10 @@ int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
     }
     *asc = sense_info.asc;
     *ascq = sense_info.ascq;
+    if (! temperatureSet) {
+        if (0 == scsiGetTemp(device, &currTemp, &tripTemp))
+            *currenttemp = currTemp;
+    }
     return 0;
 }
 
@@ -1360,6 +1381,37 @@ int scsiSmartSelfTestAbort(int device)
     return scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, NULL, 0);
 }
 
+int scsiFetchExtendedSelfTestTime(int device, int * durationSec)
+{
+    int err, offset, res;
+    UINT8 buff[64];
+    int modese_10 = 0;
+
+    memset(buff, 0, sizeof(buff));
+    if ((err = scsiModeSense(device, CONTROL_MODE_PAGE_PARAMETERS, 
+                             0, buff, sizeof(buff)))) {
+        if (2 == err) { /* opcode no good so try 10 byte mode sense */
+            err = scsiModeSense10(device, CONTROL_MODE_PAGE_PARAMETERS, 
+                             0, buff, sizeof(buff));
+            if (0 == err)
+                modese_10 = 1;
+            else
+                return err;
+        } else
+            return err;
+    } 
+    offset = scsiModePageOffset(buff, sizeof(buff), modese_10);
+    if (offset < 0)
+        return -EINVAL;
+    if (buff[offset + 1] >= 0xa) {
+        res = (buff[offset + 10] << 8) | buff[offset + 11];
+        *durationSec = res;
+        return 0;
+    }
+    else
+        return -EINVAL;
+}
+
 void scsiDecodeErrCounterPage(unsigned char * resp, 
                               struct scsiErrorCounter *ecp)
 {
@@ -1401,6 +1453,45 @@ void scsiDecodeErrCounterPage(unsigned char * resp,
 	    if (j > 0)
 	    	*ullp <<= 8;
 	    *ullp |= xp[j];
+	}
+	num -= pl;
+	ucp += pl;
+    }
+}
+
+void scsiDecodeNonMediumErrPage(unsigned char *resp, 
+                                struct scsiNonMediumError *nmep)
+{
+    int k, j, num, pl, pc, szof;
+    unsigned char * ucp;
+    unsigned char * xp;
+
+    memset(nmep, 0, sizeof(*nmep));
+    num = (resp[2] << 8) | resp[3];
+    ucp = &resp[0] + 4;
+    szof = sizeof(nmep->counterPC0);
+    while (num > 3) {
+    	pc = (ucp[0] << 8) | ucp[1];
+	pl = ucp[3] + 4;
+	switch (pc) {
+            case 0: 
+                nmep->gotPC0 = 1;
+                k = pl - 4;
+                xp = ucp + 4;
+                if (k > szof) {
+                    xp += (k - szof);
+                    k = szof;
+                }
+                nmep->counterPC0 = 0;
+                for (j = 0; j < k; ++j) {
+                    if (j > 0)
+                        nmep->counterPC0 <<= 8;
+                    nmep->counterPC0 |= xp[j];
+                }
+                break;
+	default: 
+                nmep->gotExtraPC = 1;
+                break;
 	}
 	num -= pl;
 	ucp += pl;
