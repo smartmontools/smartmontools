@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.87 2003/04/13 16:05:22 pjwilliams Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.88 2003/04/17 18:29:21 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -780,6 +780,21 @@ void swap4(char *location){
   return;
 }
 
+// This corrects some quantities that are byte reversed in the SMART
+// SELF TEST LOG
+void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
+  int i;
+  
+  // swap with one byte of reserved
+  swap2((char *)&(data->mostrecenttest));
+
+  // LBA low register (here called 'selftestnumber") is byte swapped
+  // with Self-test execution status byte.
+  for (i=0; i<21; i++)
+    swap2((char *)&(data->selftest_struct[i].selftestnumber));
+
+  return;
+}
 
 // Reads the Self Test Log (log #6)
 int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
@@ -794,9 +809,9 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Self-Test Log Structure");
   
-  // another firmware bug -- count in the first byte of "reserved"
+  // fix firmware bugs in self-test log
   if (con->reversesamsung)
-    swap2((char *)&(data->mostrecenttest));
+    fixsamsungselftestlog(data);
 
   return 0;
 }
@@ -812,8 +827,9 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
   return 0;
 }
 
-
-void reversesamsung(struct ata_smart_errorlog *data){
+// This corrects some quantities that are byte reversed in the SMART
+// ATA ERROR LOG
+void fixsamsungerrorlog(struct ata_smart_errorlog *data){
   int i,j;
   
   // Device error count in bytes 452-3
@@ -846,7 +862,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   // Some disks have the byte order reversed in some SMART Summary
   // Error log entries
   if (con->reversesamsung)
-    reversesamsung(data);
+    fixsamsungerrorlog(data);
 
   return 0;
 }
