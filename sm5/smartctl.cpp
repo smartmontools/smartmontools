@@ -43,7 +43,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.117 2004/03/12 23:45:44 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.118 2004/03/13 03:05:18 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -769,8 +769,13 @@ void pout(char *fmt, ...){
 
 // This function is used by utility.c to report LOG_CRIT errors.
 // The smartctl version prints to stdout instead of syslog().
-void PrintOut(int priority,char *fmt, ...) {
+void PrintOut(int priority, char *fmt, ...) {
   va_list ap;
+
+  // avoid warning message about unused variable from gcc -W: just
+  // change value of local copy.
+  priority=0;
+
   va_start(ap,fmt);
   vprintf(fmt,ap);
   va_end(ap);
