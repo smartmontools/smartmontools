@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.12 2003/04/17 20:59:00 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.13 2003/04/17 21:53:00 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -74,57 +74,41 @@ void specialpurpose_reverse_samsung(smartmonctrl *con)
  * that lookupdrive() will search knowndrives[] from the start to end or
  * until it finds the first match, so the order in knowndrives[] is important
  * for distinct entries that could match the same drive. */
+
+// Note that the table just below uses EXTENDED REGULAR EXPRESSIONS.
+// A good on-line reference for these is:
+// http://www.zeus.com/extra/docsystem/docroot/apps/web/docs/modules/access/regex.html
+
 const drivesettings knowndrives[] = {
-  /*------------------------------------------------------------
-   *  IBM Deskstar 60GXP series
-   *------------------------------------------------------------ */
-  {
-    "IC35L0[12346]0AVER07$", // Phil -- please confirm $ and remove comment
+  { // IBM Deskstar 60GXP series
+    "IC35L0[12346]0AVER07$",
     ".*",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/index.html#rel",
-    NULL,
-    NULL,
-    NULL
+    NULL, NULL, NULL
   },
-  /*------------------------------------------------------------
-   *  IBM Deskstar 40GV & 75GXP series
-   *------------------------------------------------------------ */
-  {
-    "(IBM-)?DTLA-30[57]0[123467][05]$", // Phil -- please confirm $ and remove comment
+  { // IBM Deskstar 40GV & 75GXP series
+    "(IBM-)?DTLA-30[57]0[123467][05]$",
     ".*",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
       "Please see http://www.geocities.com/dtla_update/",
-    NULL,
-    NULL,
-    NULL
+    NULL, NULL, NULL
   },
-  /*------------------------------------------------------------
-   *  Fujitsu MPE3204AT
-   *------------------------------------------------------------ */
-  {
+  { // Fujitsu MPE3204AT
     "^FUJITSU MPE3204AT$",
-    ".*",                                  // Tested on ED-03-04
+    ".*",    // Tested on ED-03-04
     NULL,
     vendoropts_Fujitsu_MPE3204AT,
-    NULL,
-    NULL
+    NULL, NULL
   },
-  /*------------------------------------------------------------
-   *  Fujitsu MHS2020AT
-   *------------------------------------------------------------ */
-  {
+  { // Fujitsu MHS2020AT
     "^FUJITSU MHS2020AT$",
-    ".*",                                      // Tested on 8004
+    ".*",    // Tested on 8004
     NULL,
     vendoropts_Fujitsu_MHS2020AT,
-    NULL,
-    NULL
+    NULL, NULL
   },
-  /*------------------------------------------------------------
-   *  Samsung SV4012H (known firmware)
-   *------------------------------------------------------------ */
-  {
+  { // Samsung SV4012H (known firmware)
     "^SAMSUNG SV4012H$",
     "^RM100-08",
     NULL,
@@ -132,10 +116,7 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
   },
-  /*------------------------------------------------------------
-   *  Samsung SV4012H (all other firmware)
-   *------------------------------------------------------------ */
-  {
+  { // Samsung SV4012H (all other firmware)
     "^SAMSUNG SV4012H$",
     ".*",
     "Contact developers; may need -F disabled",
@@ -143,10 +124,7 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
   },
-  /*------------------------------------------------------------
-   *  Samsung SV1204H (known firmware)
-   *------------------------------------------------------------ */
-  {
+  { // Samsung SV1204H (known firmware)
     "^SAMSUNG SV1204H$",
     "^RK100-1[3-5]$",
     NULL,
@@ -154,10 +132,7 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
   },
-  /*------------------------------------------------------------
-   *  Samsung SV1204H (all other firmware)
-   *------------------------------------------------------------ */
-  {
+  { //Samsung SV1204H (all other firmware)
     "^SAMSUNG SV1204H$",
     ".*",
     "Contact developers; may need -F disabled",
@@ -165,58 +140,39 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
   },
-  /*------------------------------------------------------------
-   *  Samsung ALL DRIVES
-   *------------------------------------------------------------ */
-  {
+  { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
     "Samsung drives may need -F enabled.\n"
     "Please contact the smartmontools developers\n"
     "to say if this is (or is not) the case.\n",
-    NULL,
-    NULL,
-    NULL
+    NULL, NULL, NULL
   },
- /*------------------------------------------------------------
-   *  Maxtor 4D080H4
-   *------------------------------------------------------------ */
-  {
-    "^Maxtor 4D080H4$",
+  { // Maxtor 6L080J4 and 4K080H4
+    "^MAXTOR (6L080J4|4K080H4)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Maxtor 4D080H4 and 4R080J0
+    "^Maxtor (4D080H4|4R080J0)$",
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,
-    NULL,
-    NULL
+    NULL, NULL
   },
-  /*------------------------------------------------------------
-   *  Maxtor 4R080J0
-   *------------------------------------------------------------ */
-  {
-    "^Maxtor 4R080J0$",
-    ".*",
-    NULL,
-    vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
-    NULL,
-    NULL
-  },
-
-  /*------------------------------------------------------------
-   *  HITACHI_DK23BA-20
-   *------------------------------------------------------------ */
-  {
+  { // HITACHI_DK23BA-20
     "^HITACHI_DK23BA-20$",
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,  // not a typo, just need minutes
-    NULL,
-    NULL
+    NULL, NULL
   },
-#if (1)
-  /*------------------------------------------------------------
-   *  Phil's IBM Deskstar 120GXP (FOR TESTING)
-   *------------------------------------------------------------ */
+  { // IBM GXP-180
+    "^IC35L120AVV207-0$",
+    NULL, NULL, NULL, NULL, NULL 
+  },
   {
+    //  IBM Deskstar 120GXP  [Phil -- use for testing]
     "^IC35L060AVVA07-0$",
     NULL,
     NULL,
@@ -224,10 +180,8 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL,
   },
-#endif
-#if (1)
-  // Bruce's laptop TOSHIBA MK6021GAS for testing
   {
+    // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
     "^TOSHIBA MK6021GAS$",
     ".*",
     NULL,
@@ -235,7 +189,6 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL,
   },
-#endif
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
