@@ -57,6 +57,7 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
+#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -69,8 +70,8 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.18 2004/09/14 02:42:16 ballen4705 Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.19 2004/09/14 03:34:34 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
 // This is here to prevent compiler warnings for unused arguments of

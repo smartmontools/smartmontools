@@ -25,13 +25,11 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.38 2004/08/18 19:27:36 likewise Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.39 2004/09/14 03:34:35 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
-
-#include "int64.h"
 
 #if defined(_WIN32) && defined(_MSC_VER)
 #define snprintf  _snprintf

@@ -25,9 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.73 2004/08/18 19:27:44 likewise Exp $\n"
-
-#include "int64.h"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.74 2004/09/14 03:34:34 ballen4705 Exp $\n"
 
 typedef enum {
   // returns no data, just succeeds or fails

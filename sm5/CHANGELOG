@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.468 2004/09/10 04:13:41 ballen4705 Exp $
+$Id: CHANGELOG,v 1.469 2004/09/14 03:34:34 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] clean-up of #include structure so that -V options to smartd
+       and smartctl work correctly.  Please, don't #include header
+       files into other header files.
 
 smartmontools 5.33 Experimental Release
 

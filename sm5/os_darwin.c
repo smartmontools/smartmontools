@@ -33,6 +33,8 @@
   // No, I don't know why there isn't a header for this.
 #define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 
+#include "config.h"
+#include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -40,9 +42,8 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.9 2004/09/14 02:42:16 ballen4705 Exp $" \
-ATACMDS_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
+const char *os_XXXX_c_cvsid="$Id: os_darwin.c,v 1.10 2004/09/14 03:34:34 ballen4705 Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID INT_64_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
 void print_smartctl_examples(){
