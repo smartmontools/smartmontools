@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.252 2003/11/12 04:20:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.253 2003/11/13 07:45:26 dpgilbert Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -22,6 +22,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] smartd: add scsiCountFailedSelfTests() function.
+
+  [DG] Do more sanity checking of scsi log page responses.
 
   [BA] smartd: now warns user if number of self-test errors has
        increased for SCSI devices.
