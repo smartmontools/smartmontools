@@ -47,7 +47,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.75 2002/11/25 04:48:01 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.76 2002/11/25 11:45:28 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -198,7 +198,11 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 
   // issue the command to send email
   status=system(command);
+#ifdef WEXITSTATUS
   if (WEXITSTATUS(status))
+#else
+  if (status)
+#endif
     printout(LOG_CRIT,"Email warning message to %s failed (32-bit exit status: %d)\n",address,status);
   else {
     if (which)
