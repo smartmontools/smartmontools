@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.130 2003/04/26 11:20:21 ballen4705 Exp $
+$Id: CHANGELOG,v 1.131 2003/04/28 15:46:08 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,17 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+  [BA] Stupid bug in atacmds.c minor_str[] affected ataVersionInfo().
+       Two missing commas meant that minor_str[] had two few elements,
+       leading to output like this:
+       Device Model:     Maxtor 6Y120L0
+       Serial Number:    Y40BF74E
+       Firmware Version: YAR41VW0
+       Device is:        Not in smartctl database [for details use: -P showall]
+       ATA Version is:   7
+       ATA Standard is:  9,minutes
+                         ^^^^^^^^^
+       Missing commas inserted.
 
   [BA] Fixed smartd bug.  On device registration, if ATA device did
        not support SMART error or self-test logs but user had asked to
