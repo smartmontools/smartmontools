@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.42 2003/04/29 16:01:09 makisara Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.43 2003/05/01 11:06:27 makisara Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1046,156 +1046,229 @@ int scsiCheckIE(int device, int method, int hasTempLogPage,
     return 0;
 }
 
+// The first character (W, C, I) tells the severity
 static const char * TapeAlertsMessageTable[]= {  
     " ",
-   "The tape drive is having problems reading data. No data has been lost, "
-       "but there has been a reduction in the performance of the tape.",
-   "The tape drive is having problems writing data. No data has been lost, "
-       "but there has been a reduction in the performance of the tape.",
-   "The operation has stopped because an error has occurred while reading "
-       "or writing data which the drive cannot correct.",
-   "Your data is at risk:\n1. Copy any data you require from this tape. \n"
-       "2. Do not use this tape again.\n"
-       "3. Restart the operation with a different tape.",
-   "The tape is damaged or the drive is faulty. Call the tape drive "
-       "supplier helpline.",
-   "The tape is from a faulty batch or the tape drive is faulty:\n"
-       "1. Use a good tape to test the drive.\n"
-       "2. If problem persists, call the tape drive supplier helpline.",
-   "The tape cartridge has reached the end of its calculated useful life: \n"
-       "1. Copy data you need to another tape.\n"
-       "2. Discard the old tape.",
-   "The tape cartridge is not data-grade. Any data you back up to the tape "
-       "is at risk. Replace the cartridge with a data-grade tape.",
-   "You are trying to write to a write-protected cartridge. Remove the "
-       "write-protection or use another tape.",
-   "You cannot eject the cartridge because the tape drive is in use. Wait "
-       "until the operation is complete before ejecting the cartridge.",
-   "The tape in the drive is a cleaning cartridge.",
-   "You have tried to load a cartridge of a type which is not supported "
-       "by this drive.",
-   "The operation has failed because the tape in the drive has snapped:\n"
-       "1. Discard the old tape.\n"
-       "2. Restart the operation with a different tape.",
-   "The operation has failed because the tape in the drive has snapped:\n"
-       "1. Do not attempt to extract the tape cartridge\n"
-       "2. Call the tape drive supplier helpline.",
-   "The memory in the tape cartridge has failed, which reduces performance. "
-       "Do not use the cartridge for further backup operations.",
-   "The operation has failed because the tape cartridge was manually "
-       "ejected while the tape drive was actively writing or reading.",
-   "You have loaded of a type that is read-only in this drive. The "
-       "cartridge will appear as write-protected.",
-   "The directory on the tape cartridge has been corrupted. File search "
-       "performance will be degraded. The tape directory can be rebuilt "
-       "by reading all the data on the cartridge.",
-   "The tape cartridge is nearing the end of its calculated life. It is "
-       "recommended that you:\n"
-       "1. Use another tape cartridge for your next backup.\n"
-       "2. Store this tape in a safe place in case you need to restore "
-       "data from it.",
-   "The tape drive needs cleaning:\n"
-       "1. If the operation has stopped, eject the tape and clean the drive.\n"
-       "2. If the operation has not stopped, wait for it to finish and then "
-       "clean the drive. Check the tape drive users manual for device "
-       "specific cleaning instructions.",
-   "The tape drive is due for routine cleaning:\n"
-       "1. Wait for the current operation to finish.\n"
-       "2. The use a cleaning cartridge. Check the tape drive users manual "
-       "for device specific cleaning instructions.",
-   "The last cleaning cartridge used in the tape drive has worn out:\n"
-       "1. Discard the worn out cleaning cartridge.\n"
-       "2. Wait for the current operation to finish.\n"
-       "3. Then use a new cleaning cartridge.",
-   "The last cleaning cartridge used in the tape drive was an invalid type:\n"
-       "1. Do not use this cleaning cartridge in this drive.\n"
-       "2. Wait for the current operation to finish.\n"
-       "3. Then use a new cleaning cartridge.",
-   "The tape drive has requested a retention operation",
-   "A redundant interface port on the tape drive has failed",
-   "A tape drive cooling fan has failed",
-   "A redundant power supply has failed inside the tape drive enclosure. "
-       "Check the enclosure users manual for instructions on replacing the "
-       "failed power supply.",
-   "The tape drive power consumption is outside the specified range.",
-   "Preventive maintenance of the tape drive is required. Check the tape "
-       "drive users manual for device specific preventive maintenance "
-       "tasks or call the tape drive supplier helpline.",
-   "The tape drive has a hardware fault:\n"
-       "1. Eject the tape or magazine.\n"
-       "2. Reset the drive.\n"
-       "3. Restart the operation.",
-   "The tape drive has a hardware fault:\n"
-       "1. Turn the tape drive off and then on again.\n"
-       "2. Restart the operation.\n"
-       "3. If the problem persists, call the tape drive supplier helpline.\n"
-       " Check the tape drive users manual for device specific instructions "
-       "on turning the device power in and off.",
-   "The tape drive has a problem with the host interface:\n"
-       "1. Check the cables and cable connections.\n"
-       "2. Restart the operation.",
-   "The operation has failed:\n"
-       "1. Eject the tape or magazine.\n"
-       "2. Insert the tape or magazine again.\n"
-       "3. Restart the operation.",
-   "The firmware download has failed because you have tried to use the "
-       "incorrect firmware for this tape drive. Obtain the correct "
-       "firmware and try again.",
-   "Environmental conditions inside the tape drive are outside the "
-       "specified humidity range.",
-   "Environmental conditions inside the tape drive are outside the "
-       "specified temperature range.",
-   "The voltage supply to the tape drive is outside the specified range.",
-   "A hardware failure of the tape drive is predicted. Call the tape "
-       "drive supplier helpline.",
-   "The tape drive may have a fault. Check for availability of diagnostic "
-       "information and run extended diagnostics if applicable. Check the "
-       "tape drive users manual for instruction on running extended "
-       "diagnostic tests and retrieving diagnostic data",
-   "The changer mechanism is having difficulty communicating with the tape "
-       "drive:\n"
-       "1. Turn the autoloader off then on.\n"
-       "2. Restart the operation.\n"
-       "3. If problem persists, call the tape drive supplier helpline.",
-   "A tape has been left in the autoloader by a previous hardware fault:\n"
-       "1. Insert an empty magazine to clear the fault.\n"
-       "2. If the fault does not clear, turn the autoloader off and then "
-       "on again.\n"
-       "3. If the problem persists, call the tape drive supplier helpline.",
-   "There is a problem with the autoloader mechanism.",
-   "The operation has failed because the autoloader door is open:\n"
-       "1. Clear any obstructions from the autoloader door.\n"
-       "2. Eject the magazine and then insert it again.\n"
-       "3. If the fault does not clear, turn the autoloader off and then "
-       "on again.\n"
-       "4. If the problem persists, call the tape drive supplier helpline.",
-   "The autoloader has a hardware fault:\n"
-       "1. Turn the autoloader off and then on again.\n"
-       "2. Restart the operation.\n"
-       "3. If the problem persists, call the tape drive supplier helpline.\n"
-       " Check the autoloader users manual for device specific instructions "
-       "on turning the device power on and off.",
-   "The autoloader cannot operate without the magazine,\n"
-       "1. Insert the magazine into the autoloader.\n"
-       "2. Restart the operation.",
-   "A hardware failure of the changer mechanism is predicted. Call the "
-       "tape drive supplier helpline.",
-   " ",
-   " ",
-   " ",
-   "Media statistics have been lost at some time in the past",
-   "The tape directory on the tape cartridge just unloaded has been "
-       "corrupted. File search performance will be degraded. The tape "
-       "directory can be rebuilt by reading all the data.",
-   "The tape just unloaded could not write its system area successfully:\n"
-       "1. Copy data to another tape cartridge.\n"
-       "2. Discard the old cartridge.",
-   "The tape system are could not be read successfully at load time:\n"
-       "1. Copy data to another tape cartridge.\n"
-       "2. Discard the old cartridge.",
-   "The start or data could not be found on the tape:\n"
-       "1. Check you are using the correct format tape.\n"
-       "2. Discard the tape or return the tape to you supplier",
+    /* 0x01 */
+   "W: The tape drive is having problems reading data. No data has been lost,\n"
+       "  but there has been a reduction in the performance of the tape.",
+    /* 0x02 */
+   "W: The tape drive is having problems writing data. No data has been lost,\n"
+       "  but there has been a reduction in the capacity of the tape.",
+    /* 0x03 */
+   "W: The operation has stopped because an error has occurred while reading\n"
+       "  or writing data that the drive cannot correct.",
+    /* 0x04 */
+   "C: Your data is at risk:\n"
+       "  1. Copy any data you require from this tape. \n"
+       "  2. Do not use this tape again.\n"
+       "  3. Restart the operation with a different tape.",
+    /* 0x05 */
+   "C: The tape is damaged or the drive is faulty. Call the tape drive\n"
+       "  supplier helpline.",
+    /* 0x06 */
+   "C: The tape is from a faulty batch or the tape drive is faulty:\n"
+       "  1. Use a good tape to test the drive.\n"
+       "  2. If problem persists, call the tape drive supplier helpline.",
+    /* 0x07 */
+   "W: The tape cartridge has reached the end of its calculated useful life:\n"
+       "  1. Copy data you need to another tape.\n"
+       "  2. Discard the old tape.",
+    /* 0x08 */
+   "W: The tape cartridge is not data-grade. Any data you back up to the tape\n"
+       "  is at risk. Replace the cartridge with a data-grade tape.",
+    /* 0x09 */
+   "C: You are trying to write to a write-protected cartridge. Remove the\n"
+       "  write-protection or use another tape.",
+    /* 0x0a */
+   "I: You cannot eject the cartridge because the tape drive is in use. Wait\n"
+       "  until the operation is complete before ejecting the cartridge.",
+    /* 0x0b */
+   "I: The tape in the drive is a cleaning cartridge.",
+    /* 0x0c */
+   "I: You have tried to load a cartridge of a type which is not supported\n"
+       "  by this drive.",
+    /* 0x0d */
+   "C: The operation has failed because the tape in the drive has experienced\n"
+       "  a mechanical failure:\n"
+       "  1. Discard the old tape.\n"
+       "  2. Restart the operation with a different tape.",
+    /* 0x0e */
+   "C: The operation has failed because the tape in the drive has experienced\n"
+       "  a mechanical failure:\n"
+       "  1. Do not attempt to extract the tape cartridge\n"
+       "  2. Call the tape drive supplier helpline.",
+    /* 0x0f */
+   "W: The memory in the tape cartridge has failed, which reduces\n"
+       "  performance. Do not use the cartridge for further write operations.",
+    /* 0x10 */
+   "C: The operation has failed because the tape cartridge was manually\n"
+       "  de-mounted while the tape drive was actively writing or reading.",
+    /* 0x11 */
+   "W: You have loaded a cartridge of a type that is read-only in this drive.\n"
+       "  The cartridge will appear as write-protected.",
+    /* 0x12 */
+   "W: The tape directory on the tape cartridge has been corrupted. File\n"
+       "  search performance will be degraded. The tape directory can be rebuilt\n"
+       "  by reading all the data on the cartridge.",
+    /* 0x13 */
+   "I: The tape cartridge is nearing the end of its calculated life. It is\n"
+       "  recommended that you:\n"
+       "  1. Use another tape cartridge for your next backup.\n"
+       "  2. Store this tape in a safe place in case you need to restore "
+       "  data from it.",
+    /* 0x14 */
+   "C: The tape drive needs cleaning:\n"
+       "  1. If the operation has stopped, eject the tape and clean the drive.\n"
+       "  2. If the operation has not stopped, wait for it to finish and then\n"
+       "  clean the drive.\n"
+       "  Check the tape drive users manual for device specific cleaning instructions.",
+    /* 0x15 */
+   "W: The tape drive is due for routine cleaning:\n"
+       "  1. Wait for the current operation to finish.\n"
+       "  2. The use a cleaning cartridge.\n"
+       "  Check the tape drive users manual for device specific cleaning instructions.",
+    /* 0x16 */
+   "C: The last cleaning cartridge used in the tape drive has worn out:\n"
+       "  1. Discard the worn out cleaning cartridge.\n"
+       "  2. Wait for the current operation to finish.\n"
+       "  3. Then use a new cleaning cartridge.",
+    /* 0x17 */
+   "C: The last cleaning cartridge used in the tape drive was an invalid\n"
+       "  type:\n"
+       "  1. Do not use this cleaning cartridge in this drive.\n"
+       "  2. Wait for the current operation to finish.\n"
+       "  3. Then use a new cleaning cartridge.",
+    /* 0x18 */
+   "W: The tape drive has requested a retention operation",
+    /* 0x19 */
+   "W: A redundant interface port on the tape drive has failed",
+    /* 0x1a */
+   "W: A tape drive cooling fan has failed",
+    /* 0x1b */
+   "W: A redundant power supply has failed inside the tape drive enclosure.\n"
+       "  Check the enclosure users manual for instructions on replacing the\n"
+       "  failed power supply.",
+    /* 0x1c */
+   "W: The tape drive power consumption is outside the specified range.",
+    /* 0x1d */
+   "W: Preventive maintenance of the tape drive is required. Check the tape\n"
+       "  drive users manual for device specific preventive maintenance\n"
+       "  tasks or call the tape drive supplier helpline.",
+    /* 0x1e */
+   "C: The tape drive has a hardware fault:\n"
+       "  1. Eject the tape or magazine.\n"
+       "  2. Reset the drive.\n"
+       "  3. Restart the operation.",
+    /* 0x1f */
+   "C: The tape drive has a hardware fault:\n"
+       "  1. Turn the tape drive off and then on again.\n"
+       "  2. Restart the operation.\n"
+    "  3. If the problem persists, call the tape drive supplier helpline.",
+    /* 0x20 */
+   "W: The tape drive has a problem with the application client interface:\n"
+       "  1. Check the cables and cable connections.\n"
+       "  2. Restart the operation.",
+    /* 0x21 */
+   "C: The operation has failed:\n"
+       "  1. Eject the tape or magazine.\n"
+       "  2. Insert the tape or magazine again.\n"
+       "  3. Restart the operation.",
+    /* 0x22 */
+   "W: The firmware download has failed because you have tried to use the\n"
+       "  incorrect firmware for this tape drive. Obtain the correct\n"
+       "  firmware and try again.",
+    /* 0x23 */
+   "W: Environmental conditions inside the tape drive are outside the\n"
+       "  specified humidity range.",
+    /* 0x24 */
+   "W: Environmental conditions inside the tape drive are outside the\n"
+       "  specified temperature range.",
+    /* 0x25 */
+   "W: The voltage supply to the tape drive is outside the specified range.",
+    /* 0x26 */
+   "C: A hardware failure of the tape drive is predicted. Call the tape\n"
+       "  drive supplier helpline.",
+    /* 0x27 */
+   "W: The tape drive may have a hardware fault. Run extended diagnostics to\n"
+       "  verify and diagnose the problem. Check the tape drive users manual for\n"
+       "  device specific instructions on running extended diagnostic tests.",
+    /* 0x28 */
+   "C: The changer mechanism is having difficulty communicating with the tape\n"
+       "  drive:\n"
+       "  1. Turn the autoloader off then on.\n"
+       "  2. Restart the operation.\n"
+       "  3. If problem persists, call the tape drive supplier helpline.",
+    /* 0x29 */
+   "C: A tape has been left in the autoloader by a previous hardware fault:\n"
+       "  1. Insert an empty magazine to clear the fault.\n"
+       "  2. If the fault does not clear, turn the autoloader off and then\n"
+       "  on again.\n"
+       "  3. If the problem persists, call the tape drive supplier helpline.",
+    /* 0x2a */
+   "W: There is a problem with the autoloader mechanism.",
+    /* 0x2b */
+   "C: The operation has failed because the autoloader door is open:\n"
+       "  1. Clear any obstructions from the autoloader door.\n"
+       "  2. Eject the magazine and then insert it again.\n"
+       "  3. If the fault does not clear, turn the autoloader off and then\n"
+       "  on again.\n"
+       "  4. If the problem persists, call the tape drive supplier helpline.",
+    /* 0x2c */
+   "C: The autoloader has a hardware fault:\n"
+       "  1. Turn the autoloader off and then on again.\n"
+       "  2. Restart the operation.\n"
+       "  3. If the problem persists, call the tape drive supplier helpline.\n"
+       "  Check the autoloader users manual for device specific instructions\n"
+       "  on turning the device power on and off.",
+    /* 0x2d */
+   "C: The autoloader cannot operate without the magazine,\n"
+       "  1. Insert the magazine into the autoloader.\n"
+       "  2. Restart the operation.",
+    /* 0x2e */
+   "W: A hardware failure of the changer mechanism is predicted. Call the\n"
+       "  tape drive supplier helpline.",
+    /* 0x2f */
+   "I: Reserved.",
+    /* 0x30 */
+   "I: Reserved.",
+    /* 0x31 */
+   "I: Reserved.",
+    /* 0x32 */
+   "W: Media statistics have been lost at some time in the past",
+    /* 0x33 */
+   "W: The tape directory on the tape cartridge just unloaded has been\n"
+       "  corrupted. File search performance will be degraded. The tape\n"
+       "  directory can be rebuilt by reading all the data.",
+    /* 0x34 */
+   "C: The tape just unloaded could not write its system area successfully:\n"
+       "  1. Copy data to another tape cartridge.\n"
+       "  2. Discard the old cartridge.",
+    /* 0x35 */
+   "C: The tape system are could not be read successfully at load time:\n"
+    "  1. Copy data to another tape cartridge.\n",
+    /* 0x36 */
+   "C: The start or data could not be found on the tape:\n"
+       "  1. Check you are using the correct format tape.\n"
+       "  2. Discard the tape or return the tape to your supplier",
+    /* 0x37 */
+    "C: The operation has failed because the media cannot be loaded\n"
+        "  and threaded.\n"
+        "  1. Remove the cartridge, inspect it as specified in the product\n"
+        "  manual, and retry the operation.\n"
+        "  2. If the problem persists, call the tape drive supplier help line.",
+    /* 0x38 */
+    "C: The operation has failed because the medium cannot be unloaded:\n"
+        "  1. Do not attempt to extract the tape cartridge.\n"
+        "  2. Call the tape driver supplier help line.",
+    /* 0x39 */
+    "C: The tape drive has a problem with the automation interface:\n"
+        "  1. Check the power to the automation system.\n"
+        "  2. Check the cables and cable connections.\n"
+        "  3. Call the supplier help line if problem persists.",
+    /* 0x3a */
+    "W: The tape drive has reset itself due to a detected firmware\n"
+        "  fault. If problem persists, call the supplier help line.",
     };
 
 const char * scsiTapeAlertsTapeDevice(unsigned short code)
@@ -1206,97 +1279,131 @@ const char * scsiTapeAlertsTapeDevice(unsigned short code)
     return (code < num) ?  TapeAlertsMessageTable[code] : "Unknown Alert"; 
 }
 
+// The first character (W, C, I) tells the severity
 static const char * ChangerTapeAlertsMessageTable[]= {  
     " ",
-    "The library mechanism is having difficulty communicating with the drive:\n"
-        "1. Turn the library off then on.\n"
-        "2. Restart the operation.\n"
-        "3. If the problem persists, call the library supplier help line.",
-    "There is a problem with the library mechanism. If problem persists,\n"
-        "call the library supplier help line.",
-    "The library has a hardware fault:\n"
-        "1. Reset the library.\n"
-        "2. Restart the operation.\n"
-        "Check the library users manual for device specific instructions on resetting\n"
-        "the device.",
-    "The library has a hardware fault:\n"
-        "1. Turn the library off then on again.\n"
-        "2. Restart the operation.\n"
-        "3. If the problem persists, call the library supplier help line.\n"
-        "Check the library users manual for device specific instructions on turning the\n"
-        "device power on and off.",
-    "The library mechanism may have a hardware fault.\n"
-        "Run extended diagnostics to verify and diagnose the problem. Check the library\n"
-        "users manual for device specific instructions on running extended diagnostic\n"
-        "tests.",
-    "The library has a problem with the host interface:\n"
-        "1. Check the cables and connections.\n"
-        "2. Restart the operation.",
-    "A hardware failure of the library is predicted. Call the library\n"
-        "supplier help line.",
-    "Preventive maintenance of the library is required.\n"
-        "Check the library users manual for device specific preventative maintenance\n"
-        "tasks, or call your library supplier help line.",
-    "General environmental conditions inside the library are outside the\n"
-        "specified humidity range.",
-    "General environmental conditions inside the library are outside the\n"
-        "specified temperature range.",
-    "The voltage supply to the library is outside the specified range.\n"
-        "There is a potential problem with the power supply or failure of\n"
-        "a redundant power supply.",
-    "A cartridge has been left inside the library by a previous hardware\n"
-        "fault:\n"
-        "1. Insert an empty magazine to clear the fault.\n"
-        "2. If the fault does not clear, turn the library off and then on again.\n"
-        "3. If the problem persists, call the library supplier help line.",
-    "There is a potential problem with the drive ejecting cartridges or with\n"
-        "the library mechanism picking a cartridge from a slot.\n"
-        "1. No action needs to be taken at this time.\n"
-        "2. If the problem persists, call the library supplier help line.",
-    "There is a potential problem with the library mechanism placing a cartridge\n"
-        "into a slot.\n"
-        "1. No action needs to be taken at this time.\n"
-        "2. If the problem persists, call the library supplier help line.",
-    "There is a potential problem with the drive or the library mechanism\n"
-        "loading cartridges, or an incompatible cartridge.",
-    "The library has failed because the door is open:\n"
-        "1. Clear any obstructions from the library door.\n"
-        "2. Close the library door.\n"
-        "3. If the problem persists, call the library supplier help line.",
-    "There is a mechanical problem with the library media import/export\n"
-        "mailslot.",
-    "The library cannot operate without the magazine.\n"
-        "1. Insert the magazine into the library.\n"
-        "2. Restart the operation.",
-    "Library security has been compromised.",
-    "The library security mode has been changed.\n"
-        "The library has either been put into secure mode, or the library has exited\n"
-        "the secure mode.\n"
-        "This is for information purposes only. No action is required.",
-    "The library has been manually turned offline and is unavailable for use.",
-    "A drive inside the library has been taken offline.\n"
-        "This is for information purposes only. No action is required.",
-    "There is a potential problem with the bar code label or the scanner\n"
-        "hardware in the library mechanism.\n"
-        "1. No action needs to be taken at this time.\n"
-        "2. If the problem persists, call the library supplier help line.",
-    "The library has detected an inconsistency in its inventory.\n"
-        "1. Redo the library inventory to correct inconsistency.\n"
-        "2. Restart the operation.\n"
-        "Check the applications users manual or the hardware users manual for\n"
-        "specific instructions on redoing the library inventory.",
-    "A library operation has been attempted that is invalid at this time.",
-    "A redundant interface port on the library has failed.",
-    "A library cooling fan has failed.",
-    "A redundant power supply has failed inside the library. Check the\n"
-        "library users manual for instructions on replacing the failed power supply.",
-    "The library power consumption is outside the specified range.",
-    "A failure has occurred in the cartridge pass-through mechanism between\n"
-        "two library modules.",
-    "A cartridge has been left in the pass-through mechanism from a previous\n"
-        "hardware fault. Check the library users guide for instructions on clearing\n"
-        "this fault.",
-    "The library was unable to read the bar code on a cartridge.",
+    /* 0x01 */
+    "C: The library mechanism is having difficulty communicating with the\n"
+        "  drive:\n"
+        "  1. Turn the library off then on.\n"
+        "  2. Restart the operation.\n"
+        "  3. If the problem persists, call the library supplier help line.",
+    /* 0x02 */
+    "W: There is a problem with the library mechanism. If problem persists,\n"
+        "  call the library supplier help line.",
+    /* 0x03 */
+    "C: The library has a hardware fault:\n"
+        "  1. Reset the library.\n"
+        "  2. Restart the operation.\n"
+        "  Check the library users manual for device specific instructions on resetting\n"
+        "  the device.",
+    /* 0x04 */
+    "C: The library has a hardware fault:\n"
+        "  1. Turn the library off then on again.\n"
+        "  2. Restart the operation.\n"
+        "  3. If the problem persists, call the library supplier help line.\n"
+        "  Check the library users manual for device specific instructions on turning the\n"
+        "  device power on and off.",
+    /* 0x05 */
+    "W: The library mechanism may have a hardware fault.\n"
+        "  Run extended diagnostics to verify and diagnose the problem. Check the library\n"
+        "  users manual for device specific instructions on running extended diagnostic\n"
+        "  tests.",
+    /* 0x06 */
+    "C: The library has a problem with the host interface:\n"
+        "  1. Check the cables and connections.\n"
+        "  2. Restart the operation.",
+    /* 0x07 */
+    "W: A hardware failure of the library is predicted. Call the library\n"
+        "  supplier help line.",
+    /* 0x08 */
+    "W: Preventive maintenance of the library is required.\n"
+        "  Check the library users manual for device specific preventative maintenance\n"
+        "  tasks, or call your library supplier help line.",
+    /* 0x09 */
+    "C: General environmental conditions inside the library are outside the\n"
+        "  specified humidity range.",
+    /* 0x0a */
+    "C: General environmental conditions inside the library are outside the\n"
+        "  specified temperature range.",
+    /* 0x0b */
+    "C: The voltage supply to the library is outside the specified range.\n"
+        "  There is a potential problem with the power supply or failure of\n"
+        "  a redundant power supply.",
+    /* 0x0c */
+    "C: A cartridge has been left inside the library by a previous hardware\n"
+        "  fault:\n"
+        "  1. Insert an empty magazine to clear the fault.\n"
+        "  2. If the fault does not clear, turn the library off and then on again.\n"
+        "  3. If the problem persists, call the library supplier help line.",
+    /* 0x0d */
+    "W: There is a potential problem with the drive ejecting cartridges or\n"
+        "  with the library mechanism picking a cartridge from a slot.\n"
+        "  1. No action needs to be taken at this time.\n"
+        "  2. If the problem persists, call the library supplier help line.",
+    /* 0x0e */
+    "W: There is a potential problem with the library mechanism placing a\n"
+        "  cartridge into a slot.\n"
+        "  1. No action needs to be taken at this time.\n"
+        "  2. If the problem persists, call the library supplier help line.",
+    /* 0x0f */
+    "W: There is a potential problem with the drive or the library mechanism\n"
+        "  loading cartridges, or an incompatible cartridge.",
+    /* 0x10 */
+    "C: The library has failed because the door is open:\n"
+        "  1. Clear any obstructions from the library door.\n"
+        "  2. Close the library door.\n"
+        "  3. If the problem persists, call the library supplier help line.",
+    /* 0x11 */
+    "C: There is a mechanical problem with the library media import/export\n"
+        "  mailslot.",
+    /* 0x12 */
+    "C: The library cannot operate without the magazine.\n"
+        "  1. Insert the magazine into the library.\n"
+        "  2. Restart the operation.",
+    /* 0x13 */
+    "W: Library security has been compromised.",
+    /* 0x14 */
+    "I: The library security mode has been changed.\n"
+        "  The library has either been put into secure mode, or the library has exited\n"
+        "  the secure mode.\n"
+        "  This is for information purposes only. No action is required.",
+    /* 0x15 */
+    "I: The library has been manually turned offline and is unavailable for use.",
+    /* 0x16 */
+    "I: A drive inside the library has been taken offline.\n"
+        "  This is for information purposes only. No action is required.",
+    /* 0x17 */
+    "W: There is a potential problem with the bar code label or the scanner\n"
+        "  hardware in the library mechanism.\n"
+        "  1. No action needs to be taken at this time.\n"
+        "  2. If the problem persists, call the library supplier help line.",
+    /* 0x18 */
+    "C: The library has detected an inconsistency in its inventory.\n"
+        "  1. Redo the library inventory to correct inconsistency.\n"
+        "  2. Restart the operation.\n"
+        "  Check the applications users manual or the hardware users manual for\n"
+        "  specific instructions on redoing the library inventory.",
+    /* 0x19 */
+    "W: A library operation has been attempted that is invalid at this time.",
+    /* 0x1a */
+    "W: A redundant interface port on the library has failed.",
+    /* 0x1b */
+    "W: A library cooling fan has failed.",
+    /* 0x1c */
+    "W: A redundant power supply has failed inside the library. Check the\n"
+        "  library users manual for instructions on replacing the failed power supply.",
+    /* 0x1d */
+    "W: The library power consumption is outside the specified range.",
+    /* 0x1e */
+    "C: A failure has occurred in the cartridge pass-through mechanism between\n"
+        "  two library modules.",
+    /* 0x1f */
+    "C: A cartridge has been left in the pass-through mechanism from a\n"
+        "  previous hardware fault. Check the library users guide for instructions on\n"
+        "  clearing this fault.",
+    /* 0x20 */
+    "I: The library was unable to read the bar code on a cartridge.",
 };
 
 const char * scsiTapeAlertsChangerDevice(unsigned short code)
