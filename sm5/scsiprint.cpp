@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.92 2004/12/06 02:08:48 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.93 2004/12/24 09:38:31 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -620,9 +620,9 @@ static int scsiPrintSelfTest(int device)
         // print time that the self-test was completed
         if (n==0 && res==0xf)
         // self-test in progress
-            pout("   NOW");
+            pout("     NOW");
         else   
-            pout(" %5d", n);
+            pout("   %5d", n);
           
         // construct 8-byte integer address of first failure
         for (i = 0; i < 8; i++) {
@@ -630,10 +630,14 @@ static int scsiPrintSelfTest(int device)
             ull |= ucp[i+8];
         }
         // print Address of First Failure, if sensible
-        if ((~(uint64_t)0 != ull) && (res > 0) && (res < 0xf))
-            pout("  0x%16"PRIx64, ull);
-        else
-            pout("                   -");
+        if ((~(uint64_t)0 != ull) && (res > 0) && (res < 0xf)) {
+            char buff[32];
+
+            snprintf(buff, sizeof(buff), "0x%"PRIx64, ull);
+            pout("%18s", buff);
+            // pout("  0x%16"PRIx64, ull);
+        } else
+            pout("                 -");
 
         // if sense key nonzero, then print it, along with
         // additional sense code and additional sense code qualifier
