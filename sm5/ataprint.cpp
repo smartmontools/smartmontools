@@ -32,9 +32,10 @@
 #include "smartctl.h"
 #include "extern.h"
 #include "utility.h"
+#include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.68 2003/04/03 17:51:18 ballen4705 Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.69 2003/04/08 21:40:01 pjwilliams Exp $"
+ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -71,36 +72,6 @@ void printswap(char *output, char *in, unsigned int n){
   return;
 }
 
-/*
-The following table contains warnings about drives, in the form of
-regular expression, warning message pairs.
-
-The first Regexp matches this set of drives:
-http://www.geocities.com/dtla_update/index.html#rel
-IBM Deskstar 60GXP series
-IC35L0[12346]0AVER07
-
-The second regexp matches this set of drives:
-http://www.geocities.com/dtla_update/:
-IBM Deskstar 40GV & 75GXP series
-IBM-DTLA-30[57]0[123467][05]
-
-Additional Regular Expression/Warning pairs may be added, as long as
-the {NULL,NULL} terminator is left in place.
-*/
-
-char *drivewarnings[][2]={
-  //  {"TOSHIBA MK","Bruce's test"}, 
-  {"IC35L0[12346]0AVER07",
-   "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
-   "Please see http://www.geocities.com/dtla_update/index.html#rel"},
-  {"IBM-DTLA-30[57]0[123467][05]|DTLA-30[57]0[123467][05]",
-   "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
-   "Please see http://www.geocities.com/dtla_update/"},
-  // INSERT ADDITIONAL PAIRS ABOVE THIS LINE.
-  {NULL,NULL}
-};
-
 void printregexwarning(int errcode, regex_t *compiled){
   size_t length = regerror(errcode, compiled, NULL, 0);
   char *buffer = malloc(length);
@@ -114,39 +85,50 @@ void printregexwarning(int errcode, regex_t *compiled){
   return;
 }
 
-void drivewarning(char *model){
+// Searches knowndrives[] for a drive with the given model number and firmware
+// string.  The firmware string may be NULL in which case it will match on
+// model only.  Returns the index of the first match in knowndrives[], -1 if
+// no match if found, or -2 if knowndrives[] contains an invalid regular
+// expression.
+int lookupdrive(const char *model, const char *firmware) {
   regex_t preg;
   regmatch_t pmatch;
-  int i,errorcode;
+  int i, errorcode, index;
 
-  // For testing
-  // strcpy(model,"IC35L040AVER07-0\n");
-  // strcpy(model,"IBM-DTLA-305040\n");
-  // strcpy(model,"DTLA-305040\n");
-  
-
-  for (i=0; drivewarnings[i][0]; i++){
-    // compile regular expression
-    if ((errorcode=regcomp(&preg, drivewarnings[i][0], REG_EXTENDED))){
-      pout("Smartctl internal error: unable to match regular expression %s",
-	   drivewarnings[i][0]);
+  for (i = 0, index = -1; index == -1 && knowndrives[i].modelregexp; i++) {
+    // Compile regular expression.
+    if ((errorcode = regcomp(&preg, knowndrives[i].modelregexp, REG_EXTENDED))){
+      pout("Internal error: unable to compile regular expression %s",
+	   knowndrives[i].modelregexp);
       printregexwarning(errorcode, &preg);
       pout("Please inform smartmontools developers\n");
-      return;
+      return -2;
     }
 
-    // search to see if model matches regular expression
+    // Check to see if model matches regular expression.
     if (!regexec(&preg, model, 1, &pmatch, 0))
-      // model matched regular expression, so print warning
-      pout("\n==> WARNING: %s\n\n", drivewarnings[i][1]);
-    
-    // free compiled regular expression
+      index = i;
+
+    // Free compiled regular expression.
     regfree(&preg);
-    
   }
-  return;
+
+  return index;
 }
 
+// Issues a warning, if appropriate, about the drive with the given model.
+void drivewarning(const char *model) {
+  int i;
+
+  // For testing
+  //strcpy(model,"IC35L040AVER07-0\n");
+  //strcpy(model,"IBM-DTLA-305040\n");
+  //strcpy(model,"DTLA-305040\n");
+
+  if ((i = lookupdrive(model, NULL)) >= 0 && knowndrives[i].warningmsg)
+    // model matched regular expression and there is a warning so print it.
+    pout("\n==> WARNING: %s\n\n", knowndrives[i].warningmsg);
+}
 
 void ataPrintDriveInfo (struct hd_driveid *drive){
   int version;
@@ -902,7 +884,7 @@ int ataPrintMain (int fd){
     pout("Smartctl: Hard Drive Read Identity Failed\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
-  
+
   // Print most drive identity information if requested
   if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");

@@ -41,9 +41,10 @@
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
+#include "knowndrives.h"
 
-extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.59 2003/04/05 11:32:59 dpgilbert Exp $"
+extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.60 2003/04/08 21:40:01 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -69,6 +70,8 @@ void printcopy(){
   printone(out,atacmds_c_cvsid);
   pout("%s",out);
   printone(out,ataprint_c_cvsid);
+  pout("%s",out);
+  printone(out,knowndrives_c_cvsid);
   pout("%s",out);
   printone(out,scsicmds_c_cvsid);
   pout("%s",out);

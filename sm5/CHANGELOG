@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.112 2003/04/07 15:08:29 guidog Exp $
+$Id: CHANGELOG,v 1.113 2003/04/08 21:39:59 pjwilliams Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [PW] Added knowndrives.h and knowndrives.c.  The knowndrives array
+       supersedes the drivewarnings array.
 
   [GG] add {-p,--pidfile} option to smartd to write a PID file on
        startup. Update the manpage accordingly.
