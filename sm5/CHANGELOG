@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.500 2005/01/14 00:34:32 dpgilbert Exp $
+$Id: CHANGELOG,v 1.501 2005/01/17 17:22:24 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Linux: smartd init script now recognizes 'trustix' distro.
 
   [DG] [SCSI] Medium and hardware errors were slipping through
        unreported. Fix linux SCSI sense reporting via SG_IO ioctl.
