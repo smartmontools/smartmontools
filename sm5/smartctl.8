@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.65 2003/04/19 19:36:25 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.66 2003/04/19 19:46:03 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,9 +16,9 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/19 19:36:25 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/19 19:46:03 $" "smartmontools-5.1"
 .SH NAME
-smartctl \- S.M.A.R.T. control and monitor utility 
+smartctl \- Control and Monitor Utility for SMART Disks
 .SH SYNOPSIS
 .B smartctl [options] device
 
@@ -28,7 +28,7 @@ controls the Self-Monitoring, Analysis and Reporting Technology
 (SMART) system built into many ATA-3 and later ATA, IDE and
 SCSI-3 hard drives. The purpose of SMART is to monitor the
 reliability of the hard drive and predict drive failures, and to carry
-out different types of drive self-tests.  This version of smartctl is
+out different types of drive self-tests.  This version of \fB smartctl\fP is
 compatible with ATA/ATAPI-5 and earlier standards (see REFERENCES
 below)
 
@@ -62,8 +62,7 @@ displays most numerical values in base 10 (decimal), but some values
 are displayed in base 16 (hexidecimal).  To distinguish them, the base
 16 values are always displayed with a leading
 .B "0x"
-for example: "0xff". This convention is also followed in this man
-page.
+for example: "0xff". This man page follows the same convention.
 
 .PP
 .SH OPTIONS
@@ -883,4 +882,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.65 2003/04/19 19:36:25 ballen4705 Exp $
+$Id: smartctl.8,v 1.66 2003/04/19 19:46:03 ballen4705 Exp $
