@@ -26,7 +26,7 @@
 #define __UTILITY_H_
 
 #ifndef UTILITY_H_CVSID
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.16 2003/10/10 04:56:39 arvoreen Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.17 2003/10/10 08:25:21 ballen4705 Exp $\n"
 #endif
 
 #include <time.h>
@@ -76,7 +76,7 @@ int guess_device_type(const char * dev_name);
 
 // Create and return the list of devices to probe automatically
 // if the DEVICESCAN option is in the smartd config file
-void make_device_names (int *n, char ***devlist, const char* name);
+int make_device_names (char ***devlist, const char* name);
 
 
 #define EXIT(x)  { exitstatus = (x); exit((x)); }

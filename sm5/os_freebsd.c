@@ -5,7 +5,7 @@
 // Eduard could you please add the boilerplace GPL2 copyright
 // boilerplate here -- just take from another file, and add your name.
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.11 2003/10/10 05:11:07 arvoreen Exp $" OS_XXXX_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.12 2003/10/10 08:25:21 ballen4705 Exp $" OS_XXXX_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
@@ -350,11 +350,11 @@ int get_dev_names(char*** names, const char* prefix) {
   return n;
 }
 
-void make_device_names (int *n, char*** devlist, const char* name) {
+int make_device_names (char*** devlist, const char* name) {
   if (!strcmp(name,"SCSI"))
-    *n = get_dev_names(devlist,"da");
+    return get_dev_names(devlist,"da");
   else if (!strcmp(name,"ATA"))
-    *n = get_dev_names(devlist,"ad");
+    return get_dev_names(devlist,"ad");
   else
-    *n = 0;
+    return 0;
 }
