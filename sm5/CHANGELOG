@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.15 2002/10/23 12:24:23 ballen4705 Exp $
+$Id: CHANGELOG,v 1.16 2002/10/23 14:35:42 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -67,7 +67,11 @@ smartmontools-5.0-11
     (ATA4 <=Rev 4) says that it is a SMART failure if the value of an
     attribute is LESS THAN OR EQUAL to the threshold and the
     prefailure bit is set.  This is now fixed in both smartctl and
-    smartd.
+    smartd.  Note that this is a troubled subject -- the original
+    SFF 8035i specification defining SMART was inconsistent about
+    this.  One section says that Attribute==Threshold is pass,
+    and another section says it is fail.  However the ATA specs are
+    consistent and say Attribute==Threshold is a fail.
 
     smartd did not print the correct value of any failing SMART attribute.  It
     printed the index in the attribute table, not the attribute
