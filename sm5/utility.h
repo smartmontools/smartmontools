@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.30 2004/03/13 22:31:10 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.31 2004/03/22 04:37:00 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -129,6 +129,9 @@ int deviceclose(int fd);
 
 // returns 1 if any of the n bytes are nonzero, else zero.
 int nonempty(unsigned char *testarea,int n);
+
+// needed to fix glibc bug
+void FixGlibcTimeZoneBug();
 
 // Exit codes
 #define EXIT_BADCMD    1   // command line did not parse
