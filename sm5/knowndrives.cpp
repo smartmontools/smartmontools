@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.10 2003/04/17 18:36:05 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.11 2003/04/17 19:21:49 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -144,6 +144,19 @@ const drivesettings knowndrives[] = {
     "Fixes byte order in some SMART data (same as -F)"
   },
   /*------------------------------------------------------------
+   *  Samsung ALL DRIVES
+   *------------------------------------------------------------ */
+  {
+    "^SAMSUNG.*",
+    ".*",
+    "Samsung drives may need -F enabled.\n"
+    "Please contact the smartmontools developers\n"
+    "to say if this is or is not the case.\n",
+    NULL,
+    NULL,
+    NULL
+  },
+ /*------------------------------------------------------------
    *  Maxtor 4D080H4
    *------------------------------------------------------------ */
   {
