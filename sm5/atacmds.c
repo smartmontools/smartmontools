@@ -27,11 +27,12 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "atacmds.h"
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.67 2003/03/30 11:03:35 pjwilliams Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.68 2003/03/31 21:54:13 pjwilliams Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -245,24 +246,142 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   return 1;
 }
 
-// Function to return a string containing a list of the arguments in 
-// vendorattributeargs[] separated by commas.  The strings themselves
-// contain commas, so surrounding double quotes are added for clarity.
-// This function allocates the required memory for the string and the
-// caller must use free() to free it.  Returns NULL if the required
-// memory can't be allocated.
+// Structure used in sorting the array vendorattributeargs[].
+typedef struct vaa_pair_s {
+  const char *vaa;
+  const char *padded_vaa;
+} vaa_pair;
+
+// Returns a copy of s with all numbers of less than three digits padded with
+// leading zeros.  Returns NULL if there isn't enough memory available.  The
+// memory for the string is dynamically allocated and should be freed by the
+// caller.
+char *pad_numbers(const char *s)
+{
+  char c, *t, *u;
+  const char *r;
+  int i, len, ndigits = 0;
+
+  // Allocate the maximum possible amount of memory needed.
+  if (!(t = (char *)malloc(strlen(s)*2+2)))
+    return NULL;
+
+  // Copy the string s to t, padding any numbers of less than three digits
+  // with leading zeros.  The string is copied backwards to simplify the code.
+  r = s + strlen(s);
+  u = t;
+  while (( r-- >= s)) {
+    if (isdigit(*r))
+      ndigits++;
+    else if (ndigits > 0) {
+      while (ndigits++ < 3)
+        *u++ = '0';
+      ndigits = 0;
+    }
+    *u++ = *r;
+  }
+  *u = '\0';
+
+  // Reverse the string in t.
+  len = strlen(t);
+  for (i = 0; i < len/2; i++) {
+    c          = t[i];
+    t[i]       = t[len-1-i];
+    t[len-1-i] = c;
+  }
+
+  return t;
+}
+
+// Comparison function for qsort().  Used by sort_vendorattributeargs().
+int compare_vaa_pairs(const void *a, const void *b)
+{
+  vaa_pair *p = (vaa_pair *)a;
+  vaa_pair *q = (vaa_pair *)b;
+
+  return strcmp(p->padded_vaa, q->padded_vaa);
+}
+
+// Returns a sorted list of vendorattributeargs or NULL if there is not enough
+// memory available.  The memory for the list is allocated dynamically and
+// should be freed by the caller.
+// To perform the sort, any numbers in the strings are padded out to three
+// digits by adding leading zeros.  For example,
+//
+//    "9,minutes"  becomes  "009,minutes"
+//    "N,raw16"    becomes  "N,raw016"
+//
+// and the original strings are paired with the padded strings.  The list of
+// pairs is then sorted by comparing the padded strings (using strcmp) and the
+// result is then the list of unpadded strings.
+//
+const char **sort_vendorattributeargs(void) {
+  const char **ps, **sorted_list = NULL;
+  vaa_pair *pairs, *pp;
+  int count, i;
+
+  // Figure out how many strings are in vendorattributeargs[] (not including
+  // the terminating NULL).
+  count = (sizeof vendorattributeargs) / sizeof(char *) - 1;
+
+  // Construct a list of pairs of strings from vendorattributeargs[] and their
+  // padded equivalents.
+  if (!(pairs = (vaa_pair *)malloc(sizeof(vaa_pair) * count)))
+    goto END;
+  for (ps = vendorattributeargs, pp = pairs; *ps; ps++, pp++) {
+    pp->vaa = *ps;
+    if (!(pp->padded_vaa = pad_numbers(*ps)))
+      goto END;
+  }
+
+  // Sort the array of vaa_pair structures by comparing the padded strings
+  // using strcmp().
+  qsort(pairs, count, sizeof(vaa_pair), compare_vaa_pairs);
+
+  // Construct the sorted list of strings.
+  if (!(sorted_list = (const char **)malloc(sizeof vendorattributeargs)))
+    goto END;
+  for (ps = sorted_list, pp = pairs, i = 0; i < count; ps++, pp++, i++)
+    *ps = pp->vaa;
+  *ps = NULL;
+
+END:
+  if (pairs) {
+    for (i = 0; i < count; i++)
+      if (pairs[i].padded_vaa)
+        free((void *)pairs[i].padded_vaa);
+    free((void *)pairs);
+  }
+
+  // If there was a problem creating the list then sorted_list should now
+  // contain NULL.
+  return sorted_list;
+}
+
+// Function to return a multiline string containing a list of the arguments in 
+// vendorattributeargs[].  The strings are preceeded by tabs and followed
+// (except for the last) by newlines.
+// This function allocates the required memory for the string and the caller
+// must use free() to free it.  It returns NULL if the required memory can't
+// be allocated.
 char *create_vendor_attribute_arg_list(void){
-  const char **ps;
+  const char **ps, **sorted;
   char *s;
   int len;
 
+  // Get a sorted list of vendor attribute arguments.  If the sort fails
+  // (which should only happen if the system is really low on memory) then just
+  // use the unordered list.
+  if (!(sorted = (const char **) sort_vendorattributeargs()))
+    sorted = vendorattributeargs;
+
   // Calculate the required number of characters
   len = 1;                // At least one char ('\0')
-  for (ps = vendorattributeargs; *ps != NULL; ps++) {
+  for (ps = sorted; *ps != NULL; ps++) {
+    len += 1;             // For the tab
     len += strlen(*ps);   // For the actual argument string
-    len += 2;             // For the surrounding double quotes
     if (*(ps+1))
-      len += 2;           // For the ", " delimiter if required
+      len++;              // For the newline if required
   }
 
   // Attempt to allocate memory for the string
@@ -271,13 +390,14 @@ char *create_vendor_attribute_arg_list(void){
 
   // Construct the string
   *s = '\0';
-  for (ps = vendorattributeargs; *ps != NULL; ps++) {
-    strcat(s, "\"");
+  for (ps = sorted; *ps != NULL; ps++) {
+    strcat(s, "\t");
     strcat(s, *ps);
-    strcat(s, "\"");
     if (*(ps+1))
-      strcat(s, ", ");
+      strcat(s, "\n");
   }
+
+  free(sorted);
 
   // Return a pointer to the string
   return s;
