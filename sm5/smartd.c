@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.19 2002/10/24 10:12:11 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.20 2002/10/24 10:13:53 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -221,7 +221,7 @@ void ataCompareSmartValues (atadevices_t *device, struct ata_smart_values new ){
 	  while (*loc && *loc==' ')
 	    loc++;
 	  printout(LOG_INFO, "Device: %s, SMART Attribute %s Changed from %i to %i\n",
-		   device->devicename,attributename,oldval,newval);
+		   device->devicename,loc,oldval,newval);
 	}
       }
     }
@@ -251,7 +251,7 @@ int ataCheckDevice( atadevices_t *drive){
     while (*loc && *loc==' ')
       loc++;
     printout(LOG_CRIT,"Device: %s, Failed attribute %s. Investigate with smartctl -v.\n",
-	     drive->devicename,attributename);
+	     drive->devicename,loc);
   }
 
   // WHEN IT WORKS, we should here add a call to ataSmartStatus2()
