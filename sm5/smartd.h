@@ -27,7 +27,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.50 2003/10/21 09:34:39 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.51 2003/10/25 13:03:26 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -231,5 +231,9 @@ export NJAMD_DUMP_LEAKS_ON_EXIT=3;
 export NJAMD_TRACE_LIBS=1
 
 */
+
+// Number of seconds to allow for registering a SCSI device. If this
+// time expires without sucess or failure, then treat it as failure.
+#define SCSITIMEOUT 7
 
 #endif
