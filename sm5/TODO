@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.48 2004/03/23 13:08:40 ballen4705 Exp $
+$Id: TODO,v 1.49 2004/04/01 21:02:11 chrfranke Exp $
 
 SATA devices
 ------------
@@ -80,6 +80,20 @@ FreeBSD
 -------
 Get interface for 3ware Escalade controllers working (Eduard).
 Modify smartctl -h examples
+
+Windows
+-------
+Add warning Mail feature to Windows/Native smartd, probably using
+the Blat mailer as a default (http://www.blat.net/).
+
+Add DEVICESCAN for SCSI devices.
+
+Add IDE/ATA selective self test and check power mode.
+
+Add ability to run smartd as a windows service.
+
+Access SCSI devices via IOCTL_SCSI_PASS_THROUGH on 2000/XP
+to support systems with missing ASPI driver.
 
 Packaging
 ---------

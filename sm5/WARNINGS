@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.21 2004/03/30 20:20:16 ballen4705 Exp $
+$Id: WARNINGS,v 1.22 2004/04/01 21:02:11 chrfranke Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -88,4 +88,21 @@ SOLARIS
 -------
 
 [No reports yet.]
+
+
+WINDOWS
+-------
+
+SYSTEM:   Any Windows 2000 or XP system.
+PROBLEM:  Use of an undocumented system call for IDE/ATA read log
+          (smartctl -l, --log, -a, --all) may affect system stability.
+REPORTER: Christian Franke <smartmontools-support@lists.sourceforge.net>
+NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support 
+          ATA_SMART_READ_LOG_SECTOR on NT4/2000/XP. The Win32 
+          implementation of smartctl/smartd uses the undocumented
+          and possibly buggy IOCTL_IDE_PASS_THROUGH for this purpose.
+          This IOCTL is not implemented under NT4.
+          Invalid log output has been reported for at least one
+          W2K system.
+
 
