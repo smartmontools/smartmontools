@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.33 2003/08/01 11:40:04 guidog Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.34 2003/08/01 13:18:21 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -268,7 +268,7 @@ const drivesettings knowndrives[] = {
   /*------------------------------------------------------------
    *  End of table.  Do not add entries below this marker.
    *------------------------------------------------------------ */
-  {NULL, NULL, NULL, NULL, NULL}
+  {NULL, NULL, NULL, NULL, NULL, NULL}
 };
 
 // Searches knowndrives[] for a drive with the given model number and firmware
