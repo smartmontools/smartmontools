@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.116 2004/07/28 23:56:30 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.117 2004/07/31 16:38:00 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -373,6 +373,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { // Maxtor DiamondMax Plus 5120 Ultra ATA 33 family
+    "^Maxtor 9(0512D2|0680D3|0750D3|0913D4|1024D4|1360D6|1536D6|1792D7|2048D8)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { // Maxtor DiamondMax Plus 6800 Ultra ATA 66 family
     "^Maxtor 9(2732U8|2390U7|2049U6|1707U5|1366U4|1024U3|0845U3|0683U2)$",
     ".*",
@@ -620,6 +627,11 @@ const drivesettings knowndrives[] = {
   },
   { // TOSHIBA MK4018GAS
     "^TOSHIBA MK4018GAS$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // TOSHIBA MK3017GAP
+    "^TOSHIBA MK3017GAP$",
     ".*",
     NULL, NULL, NULL, NULL
   },
