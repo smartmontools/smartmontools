@@ -50,11 +50,11 @@ checking your code into the smartmontools CVS archive.
 #include "scsicmds.h"
 #include "utility.h"
 
-// This is to include whatever prototypes you define in os_solaris.h
-#include "os_solaris.h"
+// This is to include whatever prototypes you define in os_generic.h
+#include "os_generic.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.2 2003/10/14 13:40:09 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.c,v 1.3 2003/10/17 05:14:33 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // tries to guess device type given the name (a path).  See utility.h

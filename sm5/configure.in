@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.28 2003/10/15 08:26:44 ballen4705 Exp $
+# $Id: configure.in,v 1.29 2003/10/17 05:14:33 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.22, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.28 2003/10/15 08:26:44 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.29 2003/10/17 05:14:33 ballen4705 Exp $'`
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",            [smartmontools Configure Arguments])
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_DATE, "$smartmontools_configure_date", [smartmontools Configure Date])
@@ -76,6 +76,7 @@ fi
 AC_SUBST(releaseversion,['${PACKAGE}-${VERSION}'])
 
 AC_CANONICAL_HOST
+dnl if OS not recognized, then use the os_generic modules
 case "${host}" in
 	*-*-linux-gnu*) 
 		AC_SUBST([os_deps], ['os_linux.o']) 
@@ -85,6 +86,9 @@ case "${host}" in
 		AC_SUBST([os_libs], ['-lcam']);;
 	*-*-solaris*) 
 		AC_SUBST([os_deps], ['os_solaris.o']) 
+		AC_SUBST([os_libs], ['']) ;;
+	*)
+		AC_SUBST([os_deps], ['os_generic.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 esac
 
