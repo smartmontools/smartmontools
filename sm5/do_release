@@ -3,7 +3,9 @@
 # do a smartmontools release
 # (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.26 2004/02/12 23:29:48 ballen4705 Exp $
+# $Id: do_release,v 1.27 2004/03/05 23:00:50 ballen4705 Exp $
+
+USECVS=0
 
 KEYID=0x9BB19A22
 
@@ -51,21 +53,25 @@ if [ -f Makefile ] ; then
   rm -f Makefile configure
 fi
 
-smartmontools_release_date=`date -u +"%Y/%m/%d"`
-smartmontools_release_time=`date -u +"%T %Z"`
-cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
-cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
-rm -f configure.tmp
+if [ $USECVS -ne 0 ] ; then
+    smartmontools_release_date=`date -u +"%Y/%m/%d"`
+    smartmontools_release_time=`date -u +"%T %Z"`
+    cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+    cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
+    rm -f configure.tmp
+fi
 
 ./autogen.sh
 
 get_release
 
 # tag CVS version
-setup_cvs
-cvs commit -m "Release $VERSION $RELEASE"
-cvs tag -d $RELEASE 
-cvs tag $RELEASE
+if [ $USECVS -ne 0 ] ; then
+    setup_cvs
+    cvs commit -m "Release $VERSION $RELEASE"
+    cvs tag -d $RELEASE 
+    cvs tag $RELEASE
+fi
 
 # build .tar.gz
 rm -rf build
@@ -84,8 +90,10 @@ rm -f $SOURCES/smartmontools-$VERSION.tar.gz
 
 # increase release number:
 inc_release
-perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
-perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spec
+if [ $USECVS -ne 0 ] ; then
+    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
+    perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spec
+fi
 
 mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
 mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .

@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.138 2004/03/04 05:40:48 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.139 2004/03/05 23:00:50 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -127,12 +127,13 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   unsigned char ER=data->error_struct.error_register;
   char *s;
   const char *error_flag[8];
-  int i, print_lba=0;
+  int i, print_lba=0, print_sector=0;
 
   // Set of character strings corresponding to different error codes.
   // Please keep in alphabetic order if you add more.
   const char  *abrt  = "ABRT";  // ABORTED
  const char   *amnf  = "AMNF";  // ADDRESS MARK NOT FOUND
+ const char   *ccto  = "CCTO";  // COMMAND COMPLETTION TIMED OUT
  const char   *eom   = "EOM";   // END OF MEDIA
  const char   *icrc  = "ICRC";  // INTERFACE CRC ERROR
  const char   *idnf  = "IDNF";  // ID NOT FOUND
@@ -161,8 +162,10 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[1] = tk0nf;
     break;
   case 0x20:  /* READ SECTOR(S) */
-  case 0x21:
+  case 0x21:  // READ SECTOR(S)
+  case 0x24:  // READ SECTOR(S) EXT
   case 0xC4:  /* READ MULTIPLE */
+  case 0x29:  // READ MULTIPLE EXT
     error_flag[6] = unc;
     error_flag[5] = mc;
     error_flag[4] = idnf;
@@ -179,7 +182,37 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[0] = amnf;
     print_lba=1;
     break;
+  case 0x2a:  // READ STREAM DMA
+  case 0x2b:  // READ STREAM PIO
+    if (CR==0x2a)
+      error_flag[7] = icrc;
+    error_flag[6] = unc;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
+    error_flag[0] = ccto;
+    print_lba=1;
+    print_sector=(int)data->error_struct.sector_count;
+    break;
+  case 0x3A:  // WRITE STREAM DMA
+  case 0x3B:  // WRITE STREAM PIO
+    if (CR==0x3A)
+      error_flag[7] = icrc;
+    error_flag[6] = wp;
+    error_flag[5] = mc;
+    error_flag[4] = idnf;
+    error_flag[3] = mcr;
+    error_flag[2] = abrt;
+    error_flag[1] = nm;
+    error_flag[0] = ccto;
+    print_lba=1;
+    print_sector=(int)data->error_struct.sector_count;
+    break;
   case 0x25:  /* READ DMA EXT */
+  case 0x26:  // READ DMA QUEUED EXT
+  case 0xC7:  // READ DMA QUEUED
   case 0xC8:  /* READ DMA */
   case 0xC9:
     error_flag[7] = icrc;
@@ -191,10 +224,15 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[1] = nm;
     error_flag[0] = amnf;
     print_lba=1;
+    if (CR==0x25 || CR==0xC8)
+      print_sector=(int)data->error_struct.sector_count;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0x31:
+  case 0x34:  // WRITE SECTOR(S) EXT
   case 0xC5:  /* WRITE MULTIPLE */
+  case 0x39:  // WRITE MULTIPLE EXT
+  case 0xCE:  // WRITE MULTIPLE FUA EXT
     error_flag[6] = wp;
     error_flag[5] = mc;
     error_flag[4] = idnf;
@@ -218,9 +256,13 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     break;
   case 0x40: // READ VERIFY SECTOR(S) with retries
   case 0x41: // READ VERIFY SECTOR(S) without retries
+  case 0x42: // READ VERIFY SECTOR(S) EXT
     error_flag[6] = unc;
+    error_flag[5] = mc;
     error_flag[4] = idnf;
+    error_flag[3] = mcr;
     error_flag[2] = abrt;
+    error_flag[1] = nm;
     error_flag[0] = amnf;
     print_lba=1;
     break;
@@ -247,12 +289,14 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   case 0xB0:  /* SMART */
     switch(FR) {
     case 0xD5:  /* SMART READ LOG */
+    case 0x2F:  // READ LOG EXT
       error_flag[6] = unc;
       error_flag[4] = idnf;
       error_flag[2] = abrt;
       error_flag[0] = obs;
       break;
     case 0xD6:  /* SMART WRITE LOG */
+    case 0x3F:  // WRITE LOG EXT
       error_flag[4] = idnf;
       error_flag[2] = abrt;
       error_flag[0] = obs;
@@ -278,6 +322,11 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     break;
   case 0xCA:  /* WRITE DMA */
   case 0xCB:
+  case 0x35:  // WRITE DMA EXT
+  case 0x3D:  // WRITE DMA FUA EXT
+  case 0xCC:  // WRITE DMA QUEUED
+  case 0x36:  // WRITE DMA QUEUED EXT
+  case 0x3E:  // WRITE DMA QUEUED FUA EXT
     error_flag[7] = icrc;
     error_flag[6] = wp;
     error_flag[5] = mc;
@@ -287,6 +336,8 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[1] = nm;
     error_flag[0] = amnf;
     print_lba=1;
+    if (CR==0x35)
+      print_sector=(int)data->error_struct.sector_count;
     break;
   case 0xE4: // READ BUFFER
   case 0xE8: // WRITE BUFFER
@@ -338,6 +389,12 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     lba <<= 8;
     // bits 0-7:   SN
     lba  |= data->error_struct.sector_number;
+
+    // print number of sectors, if known, and append to print string
+    if (print_sector) {
+      snprintf(tmp, 128, " %d sectors", print_sector);
+      strcat(s, tmp);
+    }
 
     // print LBA, and append to print string
     snprintf(tmp, 128, " at LBA = 0x%08x = %d", lba, lba);
