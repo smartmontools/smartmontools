@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.76 2004/07/11 15:16:31 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.77 2004/09/03 04:33:09 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1940,3 +1940,38 @@ int scsiFetchTransportProtocol(int device, int modese_len)
     return -EINVAL;
 }
 
+
+/* This is Linux specific code to look for the libata ATA-SCSI
+   simulator in the vendor device identification page.
+   Returns 1 if found else 0. */
+int isLinuxLibAta(unsigned char * vpd_di_buff, int len)
+{
+    int k, id_len, c_set, assoc, id_type, i_len;
+    unsigned char * ucp;
+    unsigned char * ip;
+
+    if (len < 4) {
+        /* Device identification VPD page length too short */
+        return 0;
+    }
+    len -= 4;
+    ucp = vpd_di_buff + 4;
+    for (k = 0; k < len; k += id_len, ucp += id_len) {
+        i_len = ucp[3];
+        id_len = i_len + 4;
+        if ((k + id_len) > len) {
+            /* short descriptor, badly formed */
+            return 0;
+        }
+        ip = ucp + 4;
+        c_set = (ucp[0] & 0xf);
+        assoc = ((ucp[1] >> 4) & 0x3);
+        id_type = (ucp[1] & 0xf);
+        if ((0 == id_type) && (2 == c_set) && (0 == assoc) &&
+            (0 == strncmp((const char *)ip,
+                          "Linux ATA-SCSI simulator", i_len))) {
+            return 1;
+        }
+    }
+    return 0;
+}

@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.50 2004/07/11 15:16:09 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.51 2004/09/03 04:32:33 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -335,6 +335,10 @@ void dStrHex(const char* str, int len, int no_ascii);
  * (e.g. device not present or not a SCSI device) or some other problem
  * arises (e.g. timeout) then returns a negative errno value. */
 int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+
+
+/* This is Linux specific and will be generalized later. */
+int isLinuxLibAta(unsigned char * vpd_di_buff, int len);
 
 #endif
 
