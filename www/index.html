@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2003/08/30 00:13:16 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2003/09/03 08:37:10 $)</title>
  <link rev="made" href="mailto:smartmontools-support@sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.82 2003/08/30 00:13:16 pervalidus Exp $ -->
+<!-- $Id: index.html,v 1.83 2003/09/03 08:37:10 ballen4705 Exp $ -->
 <div align="center"><h1><font color="#3333ff">smartmontools Home Page</font></h1></div>
 
 <p>Welcome! This is the home page for the smartmontools package.</p> 
@@ -382,23 +382,29 @@ problem, here is an <a href="http://www.geocities.com/dtla_update/">IBM
 DISK FIRMWARE UPGRADE</a> that fixes the problem.
 </p></li>
 
-<li><b>Is there a bootable standalone CD that contains smartmontools?</b>
+<li><b>Is there a bootable standalone CD or floppy that contains smartmontools?</b>
 
 <p>If you have a system that is showing signs of disk trouble (for
 example, it's unbootable and the console is full of disk error
 messages) it can be handy to have a version of smartmontools that can
-be run off of a bootable CD to examine the disk's SMART data and run
+be run off of a bootable CD or floppy to examine the disk's SMART data and run
 self-tests.  This is also useful if you want to run Captive Self-Tests
 (the <b><tt>-<font size="+2">C</font></tt></b> option of
-<b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted, such as those hosting
-the Operating System files.</p>
+<b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted,
+such as those hosting the Operating System files. Or you can use
+this to run <tt>smartctl</tt> on computers that don't use linux as the
+day-to-day operating system.</p>
 
-  <p>At present I am only aware of two such bootable CDs:<br />
-  <a href="http://www.lnx-bbc.org/">LNX-BBC Bootable CD</a> <br />
-  <a href="http://www.stresslinux.org/">Stresslinux Bootable CD</a><br />
-  Please let me know if there are others, and I will add them to this
-  list.
-  </p>
+<p>At present I am only aware of three such bootable disks:</p>
+<ul>
+<li><a href="http://www.lnx-bbc.org/">LNX-BBC Bootable CD</a> </li>
+<li><a href="http://www.stresslinux.org/">Stresslinux Bootable CD</a></li>
+<li><a href="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/">RIP (Recovery Is Possible) Bootable CD/Floppy</a></li>
+</ul>
+<p>
+Please let me know if there are others, and I will add them to this
+list.
+</p>
 </li>
 
 <li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
@@ -411,7 +417,9 @@ or Directive.
 </p>
 
 <p>
-In release 5.1-16, the ENABLE AUTOMATIC OFFLINE and ENABLE ATTRIBUTE
+In smartmontools release 5.1-16, the SMART HEALTH STATUS
+(smartmontools <b>-H</b>) is not returned correctly for 3ware devices.
+In this release, the ENABLE AUTOMATIC OFFLINE and ENABLE ATTRIBUTE
 AUTOSAVE commands (smartmontools <b>-o on</b> and <b>-S on</b>) are
 <i>disabled</i> for 3ware devices, because at the time 5.1-16 was
 released, the 3w-xxxx driver could not pass these commands through to
@@ -420,7 +428,7 @@ the ATA disks.
 
 <p>
 Later smartmontools CVS code and releases
-<i>do</i> support these commands.  You may:
+<i>do</i> correctly support <i>all</i> of these commands.  You may:
 </p>
 <ul>
 <li>use version <b>1.02.00.037</b> or greater of the 3w-xxxx driver, or</li>
@@ -626,8 +634,8 @@ from smartmontools smartctl utility:</b>
 <hr size="2" />
 
 Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Bruce Allen</a><br />
-Last updated: <tt>$Date: 2003/08/30 00:13:16 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.82 2003/08/30 00:13:16 pervalidus Exp $</tt>
+Last updated: <tt>$Date: 2003/09/03 08:37:10 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.83 2003/09/03 08:37:10 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
