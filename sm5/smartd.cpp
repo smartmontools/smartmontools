@@ -51,7 +51,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.190 2003/08/14 13:34:51 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.191 2003/08/14 17:46:21 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declarations
@@ -1252,7 +1252,8 @@ int scsiCheckDevice(cfgfile *cfg)
 void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
   static int firstpass=1;
   int i;
-  time_t timenow=0, wakeuptime=0;
+  time_t timenow=0;
+  static time_t wakeuptime=0;
   
   for (i=0; i<numatadevices; i++) 
     ataCheckDevice(atadevices[i]);
