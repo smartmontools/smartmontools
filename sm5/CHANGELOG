@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.285 2003/12/08 20:26:19 pjwilliams Exp $
+$Id: CHANGELOG,v 1.286 2003/12/09 19:57:55 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -23,6 +23,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] linux: check for linux/hdreg.h.  If it's there, use it. If
+       not, provide the necessary definitions ourselves.
 
   [PW] Removed warning for IBM Deskstar 40GV & 75GXP series drives
        with TXAOA5AA firmware
