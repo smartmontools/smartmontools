@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.68 2004/09/06 17:52:47 card_captor Exp $
+# $Id: Makefile.am,v 1.69 2004/10/12 18:54:54 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -51,19 +51,22 @@ EXTRA_smartd_SOURCES = os_darwin.c      \
 
 if OS_WIN32_MINGW
 
-EXTRA_smartd_SOURCES +=                   \
+smartd_SOURCES +=                         \
                 posix/regex.h             \
                 posix/regex.c             \
-                posix/regcomp.c           \
-                posix/regexec.c           \
-                posix/regex_internal.c    \
-                posix/regex_internal.h    \
                 os_win32/daemon_win32.h   \
                 os_win32/daemon_win32.c   \
                 os_win32/hostname_win32.h \
                 os_win32/hostname_win32.c \
                 os_win32/syslog.h         \
                 os_win32/syslog_win32.c
+
+# Included by regex.c:
+EXTRA_smartd_SOURCES +=                   \
+                posix/regcomp.c           \
+                posix/regexec.c           \
+                posix/regex_internal.c    \
+                posix/regex_internal.h
 
 endif
 
@@ -104,14 +107,17 @@ EXTRA_smartctl_SOURCES = os_linux.c \
 
 if OS_WIN32_MINGW
 
-EXTRA_smartctl_SOURCES +=              \
+smartctl_SOURCES +=                    \
                 posix/regex.h          \
                 posix/regex.c          \
+                os_win32/syslog.h
+
+# Included by regex.c:
+EXTRA_smartctl_SOURCES +=              \
                 posix/regcomp.c        \
                 posix/regexec.c        \
                 posix/regex_internal.c \
-                posix/regex_internal.h \
-                os_win32/syslog.h
+                posix/regex_internal.h
 
 endif
 
