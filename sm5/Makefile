@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.31 2002/11/01 19:41:39 pervalidus Exp $
+# $Id: Makefile,v 1.32 2002/11/03 05:45:56 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -28,10 +28,12 @@ CC	= gcc
 # Build against kernel header files.  Change linux-2.4 to correct path for your system
 # CFLAGS	= -fsigned-char -Wall -O2 -I./usr/src/linux-2.4/include
 
-# Normal build
-# NOTE: I have had reports that with gcc 3.2 this code fails if you use anything but
-# -Os.  I'll remove this comment when this is resolved, or I am reminded of it!
-# If you are getting strange output from gcc 3.2 try changing O2 to Os.
+# Normal build NOTE: I have had reports that with gcc 3.2 this code
+# fails if you use anything but -Os.  I'll remove this comment when
+# this is resolved, or I am reminded of it! GCC GNATS bug report
+# #8404.  If you are getting strange output from gcc 3.2 try
+# uncommenting LDFLAGS -s below.  Stripping the symbols seems to fix
+# the problem.
 CFLAGS	= -fsigned-char -Wall -O2
 LDFLAGS = # -s
 
@@ -50,25 +52,25 @@ all: smartd smartctl
 
 smartctl: smartctl.c atacmds.o ataprint.o scsicmds.o scsiprint.o \
           smartctl.h atacmds.h ataprint.h scsicmds.h scsiprint.h extern.h VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl ${CFLAGS} ${LDFLAGS} smartctl.c \
+	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartctl $(CFLAGS) $(LDFLAGS) smartctl.c \
                                       atacmds.o scsicmds.o ataprint.o scsiprint.o
 
 smartd:  smartd.c atacmds.o ataprint.o scsicmds.o \
          smartd.h atacmds.h ataprint.h scsicmds.h extern.h VERSION Makefile
-	${CC} -DSMARTMONTOOLS_VERSION=$(counter) -o smartd ${CFLAGS} ${LDFLAGS} smartd.c \
+	$(CC) -DSMARTMONTOOLS_VERSION=$(counter) -o smartd $(CFLAGS) $(LDFLAGS) smartd.c \
                                       scsicmds.o atacmds.o ataprint.o
 
 atacmds.o: atacmds.h atacmds.c Makefile
-	${CC} ${CFLAGS} -c atacmds.c 
+	$(CC) $(CFLAGS) -c atacmds.c 
 
 ataprint.o: ataprint.c atacmds.h ataprint.h smartctl.h extern.h Makefile
-	${CC} ${CFLAGS} -c ataprint.c
+	$(CC) $(CFLAGS) -c ataprint.c
 
 scsicmds.o: scsicmds.c scsicmds.h Makefile
-	${CC} ${CFLAGS} -c scsicmds.c
+	$(CC) $(CFLAGS) -c scsicmds.c
 
 scsiprint.o: scsiprint.c extern.h scsicmds.h scsiprint.h smartctl.h Makefile
-	${CC} ${CFLAGS} -c scsiprint.c 
+	$(CC) $(CFLAGS) -c scsiprint.c 
 
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* smart*.8.gz
@@ -77,8 +79,8 @@ install:
 	if [ ! -f smartd -o ! -f smartctl ] ; then echo -e "\n\nYOU MUST FIRST DO \"make\"\n" ; exit 1 ; fi
 	/bin/gzip -c smartctl.8 > smartctl.8.gz
 	/bin/gzip -c smartd.8   > smartd.8.gz
-	rm -f /usr/share/man/man8/smartctl.8
-	rm -f /usr/share/man/man8/smartd.8
+	rm -f $(DESTDIR)/usr/share/man/man8/smartctl.8
+	rm -f $(DESTDIR)/usr/share/man/man8/smartd.8
 	install -m 755 -o root -g root -D smartctl      $(DESTDIR)/usr/sbin/smartctl
 	install -m 755 -o root -g root -D smartd        $(DESTDIR)/usr/sbin/smartd
 	install -m 755 -o root -g root -D smartd.initd  $(DESTDIR)/etc/rc.d/init.d/smartd
@@ -96,6 +98,7 @@ install:
 	@echo -e "A sample configuration file may be found in /usr/share/doc/smartmontools-5.0/\n\n"
 
 
+# perhaps for consistency I should also have $(DESTDIR) here too...
 uninstall:
 	rm -f /usr/share/man/man8/smartctl.8    /usr/share/man/man8/smartd.8    /usr/sbin/smartctl \
               /usr/share/man/man8/smartctl.8.gz /usr/share/man/man8/smartd.8.gz /usr/sbin/smartd 
