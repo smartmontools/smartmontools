@@ -27,7 +27,6 @@
 
 
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -40,7 +39,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.70 2003/11/24 10:55:33 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.70.2.1 2004/02/23 15:38:51 chrfranke Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -249,7 +248,7 @@ static void scsiPrintSeagateCacheLPage(int device)
     int k, j, num, pl, pc, err, len;
     unsigned char * ucp;
     unsigned char * xp;
-    unsigned long long ull;
+    uint64_t ull;
 
     if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
@@ -313,7 +312,7 @@ static void scsiPrintSeagateCacheLPage(int device)
                 ull <<= 8;
             ull |= xp[j];
         }
-        pout(" = %llu\n", ull);
+        pout(" = %"PRIu64"\n", ull);
         num -= pl;
         ucp += pl;
     }
@@ -324,7 +323,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
     int k, j, num, pl, pc, len, err;
     unsigned char * ucp;
     unsigned char * xp;
-    unsigned long long ull;
+    uint64_t ull;
 
     if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
@@ -385,9 +384,9 @@ static void scsiPrintSeagateFactoryLPage(int device)
             ull |= xp[j];
         }
         if (0 == pc)
-            pout(" = %.2f\n", ((double)ull) / 60.0 );
+            pout(" = %.2f\n", uint64_to_double(ull) / 60.0 );
         else
-            pout(" = %llu\n", ull);
+            pout(" = %"PRIu64"\n", ull);
         num -= pl;
         ucp += pl;
     }
@@ -436,11 +435,11 @@ static void scsiPrintErrorCounterLog(int device)
             if (! found[k])
                 continue;
             ecp = &errCounterArr[k];
-            pout("%s%8llu %8llu  %8llu  %8llu   %8llu", 
+            pout("%s%8"PRIu64" %8"PRIu64"  %8"PRIu64"  %8"PRIu64"   %8"PRIu64, 
                  pageNames[k], ecp->counter[0], ecp->counter[1], 
                  ecp->counter[2], ecp->counter[3], ecp->counter[4]);
-            processed_gb = ecp->counter[5] / 1000000000.0;
-            pout("   %12.3f    %8llu\n", processed_gb, ecp->counter[6]);
+            processed_gb = uint64_to_double(ecp->counter[5]) / 1000000000.0;
+            pout("   %12.3f    %8"PRIu64"\n", processed_gb, ecp->counter[6]);
         }
     }
     else 
@@ -449,7 +448,7 @@ static void scsiPrintErrorCounterLog(int device)
                           LOG_RESP_LEN, 0)) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
-            pout("\nNon-medium error count: %8llu\n", nme.counterPC0);
+            pout("\nNon-medium error count: %8"PRIu64"\n", nme.counterPC0);
     }
 }
 
@@ -490,7 +489,7 @@ static int scsiPrintSelfTest(int device)
     int num, k, n, res, err, durationSec;
     int noheader = 1;
     UINT8 * ucp;
-    unsigned long long ull=0;
+    uint64_t ull=0;
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, gBuf, 
                             LOG_RESP_SELF_TEST_LEN, 0))) {
@@ -568,8 +567,8 @@ static int scsiPrintSelfTest(int device)
             ull |= ucp[i+8];
         }
         // print Address of First Failure, if sensible
-        if ((0xffffffffffffffffULL != ull) && (res > 0) && ( res < 0xf))
-            pout("  0x%16llx", ull);
+        if ((~(uint64_t)0 != ull) && (res > 0) && (res < 0xf))
+            pout("  0x%16"PRIx64, ull);
         else
             pout("                   -");
 
