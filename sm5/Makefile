@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.73 2003/08/07 13:04:55 ballen4705 Exp $
+# $Id: Makefile,v 1.74 2003/08/27 10:43:38 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -114,7 +114,7 @@ smartd.conf.5: smartd.8
 	rm -f tmp.head tmp.tail tmp.directives
 clean:
 	rm -f *.o smartctl smartd *~ \#*\# smartmontools*.tar.gz smartmontools*.rpm temp.* \
-              smart*.8.gz smart*.5.gz examplescripts/*~
+              smart*.8.gz smart*.5.gz examplescripts/*~ .\#*
 
 install:
 	if [ ! -f smartd -o ! -f smartctl ] ; then echo -e "\n\nYOU MUST FIRST DO \"make\"\n" ; exit 1 ; fi
