@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.18 2003/04/07 03:36:20 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.19 2003/04/07 10:57:47 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -102,10 +102,19 @@ struct scsi_cmnd_io
 };
 
 struct scsi_sense_disect {
-        UINT8 error_code;
-        UINT8 sense_key;
-        UINT8 asc; 
-        UINT8 ascq;
+    UINT8 error_code;
+    UINT8 sense_key;
+    UINT8 asc; 
+    UINT8 ascq;
+};
+
+/* Useful data from Informational Exception Control mode page (0x1c) */
+struct scsi_iec_mode_page {
+    UINT8       byte_2; /* perf[1]:reserved[1]:ebf[1]:ewasc[1]:
+                            dexcpt[1]:test[1]:reserved[1]:logerr[1] */
+    UINT8       mrie;
+    unsigned int interval_timer;
+    unsigned int report_count;
 };
 
 /* ANSI SCSI-3 Log Sense Return Log Pages from device. */
@@ -199,7 +208,7 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
                           struct scsi_sense_disect * out);
 
 /* STANDARD SCSI Commands  */
-int testunitready(int device);
+int scsiTestUnitReady(int device);
 
 int stdinquiry(int device, UINT8 *pBuf, int bufLen);
 
@@ -223,31 +232,25 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
 /* SMART specific commands */
 
-/*scsSmartSupport return value  can be masked with the following */
-/* Parsing response of ModePage 1c */
-#define DEXCPT_DISABLE  0xf7
-#define DEXCPT_ENABLE   0x08
-#define EWASC_ENABLE    0x10
-#define EWASC_DISABLE   0xef
-
 #define CHECK_SMART_BY_LGPG_2F  0x01
 #define CHECK_SMART_BY_REQSENSE 0x00
 
 int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
                 UINT8 *currenttemp);
 
-int scsiSmartSupport(int device, UINT8 *iec_2p);
+int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp);
+int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
+int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
 
-int scsiSmartEWASCEnable(int device);
-int scsiSmartEWASCDisable(int device);
+int scsiSetExceptionControl(int device, int enabled,
+                            const struct scsi_iec_mode_page *iecp);
+int scsiSetWarning(int device, int enabled,
+                   const struct scsi_iec_mode_page *iecp);
 
-int scsiSmartDEXCPTEnable(int device);
-int scsiSmartDEXCPTDisable(int device);
 
+/* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
-/* T10 Standard SMART Sense Code assignment taken from t10.org */
-
-const char* scsiSmartGetIEString(UINT8 asc, UINT8 ascq);
+const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
 int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp);
 
 
