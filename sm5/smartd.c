@@ -54,7 +54,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.198 2003/08/19 09:14:33 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.199 2003/08/22 04:43:51 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -62,18 +62,18 @@ const char *smartd_c_cvsid="$Id: smartd.c,v 1.198 2003/08/19 09:14:33 ballen4705
 const char *reportbug="Please report this bug to the Smartmontools developers.\n";
 
 // GNU copyleft statement.  Needed for GPL purposes.
-const char *copyleftstring="smartd comes with ABSOLUTELY NO WARRANTY. This\n"
-                           "is free software, and you are welcome to redistribute it\n"
-                           "under the terms of the GNU General Public License Version 2.\n"
-                           "See http://www.gnu.org for further details.\n\n";
+const char *copyleftstring="smartd comes with ABSOLUTELY NO WARRANTY. This is\n"
+                           "free software, and you are welcome to redistribute it\n"
+                           "under the terms of the GNU General Public License\n"
+                           "Version 2. See http://www.gnu.org for further details.\n\n";
 
 // command-line argument: are we running in debug mode?.
 static unsigned char debugmode = 0;
 
-// Command-line: how long to sleep between checks
+// command-line: how long to sleep between checks
 static int checktime=CHECKTIME;
 
-// command-line: name of PID file (== NULL for no pid file)
+// command-line: name of PID file (NULL for no pid file)
 static char* pid_file=NULL;
 
 // command-line: when should we exit?
@@ -98,9 +98,10 @@ long long bytes=0;
 volatile int caughtsigUSR1=0;
 
 // set to one if we catch a HUP (reload config file). In debug mode,
-// also can be set to two, if we catch INT
+// set to two, if we catch INT (also reload config file).
 volatile int caughtsigHUP=0;
 
+// prints CVS identity information for the executable
 void PrintCVS(void){
   char out[CVSMAXLEN];
   
@@ -157,12 +158,18 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   
   cfgfile *cfg;
 
-  if (!anentry || !(cfg=*anentry)){
+  // pointer should never be null!
+  if (!anentry){
     PrintOut(LOG_CRIT,"Internal error in RmConfigEntry() at line %d of file %s\n%s",
 	     whatline, __FILE__, reportbug);    
     exit(EXIT_BADCODE);
   }
   
+  // only remove entries that exist!
+  if (!(cfg=*anentry))
+    return;
+
+  // entry exists -- free all of its memory
   cfg->name            = FreeNonZero(cfg->name,           -1);
   cfg->address         = FreeNonZero(cfg->address,        -1);
   cfg->emailcmdline    = FreeNonZero(cfg->emailcmdline,   -1);
@@ -170,7 +177,7 @@ void RmConfigEntry(cfgfile **anentry, int whatline){
   cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values));
   cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32);
   cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM);
-  *anentry             = FreeNonZero(cfg, sizeof(cfgfile));
+  *anentry             = FreeNonZero(cfg,                  sizeof(cfgfile));
 
   return;
 }
@@ -180,8 +187,7 @@ void RmAllConfigEntries(){
   int i;
 
   for (i=0; i<MAXENTRIES; i++)
-    if (cfgentries[i])
-      RmConfigEntry(cfgentries+i, __LINE__);
+    RmConfigEntry(cfgentries+i, __LINE__);
   return;
 }
 
@@ -190,12 +196,10 @@ void RmAllDevEntries(){
   int i;
   
   for (i=0; i<MAXATADEVICES; i++)
-    if (atadevlist[i])
-      RmConfigEntry(atadevlist+i, __LINE__);
+    RmConfigEntry(atadevlist+i, __LINE__);
   
   for (i=0; i<MAXSCSIDEVICES; i++)
-    if (scsidevlist[i])
-      RmConfigEntry(scsidevlist+i, __LINE__);
+    RmConfigEntry(scsidevlist+i, __LINE__);
   
   return;
 }
@@ -226,7 +230,7 @@ void HUPhandler(int sig){
   return;
 }
 
-// signal handler for TERM, QUIT , and INT (if not in debug mode)
+// signal handler for TERM, QUIT, and INT (if not in debug mode)
 void sighandler(int sig){
 
   // are we exiting with SIGTERM?
@@ -674,7 +678,7 @@ static int OpenDevice(char *device, int flags) {
   char *s=device;
   
   // If there is an ASCII "space" character in the device name,
-  // terminate string there
+  // terminate string there.  This is for 3ware devices only.
   if ((s=strchr(device,' ')))
     *s='\0';
 
@@ -1031,9 +1035,9 @@ static int SCSIDeviceScan(cfgfile *cfg)
 
     // get rid of allocated memory only needed for ATA devices
     cfg->monitorattflags = FreeNonZero(cfg->monitorattflags, NMONITOR*32);
-    cfg->attributedefs   = FreeNonZero(cfg->attributedefs, MAX_ATTRIBUTE_NUM);
-    cfg->smartval        = FreeNonZero(cfg->smartval, sizeof(struct ata_smart_values));
-    cfg->smartthres      = FreeNonZero(cfg->smartthres, sizeof(struct ata_smart_thresholds));
+    cfg->attributedefs   = FreeNonZero(cfg->attributedefs,   MAX_ATTRIBUTE_NUM);
+    cfg->smartval        = FreeNonZero(cfg->smartval,        sizeof(struct ata_smart_values));
+    cfg->smartthres      = FreeNonZero(cfg->smartthres,      sizeof(struct ata_smart_thresholds));
 
     // close file descriptor
     CloseDevice(fd, device);
@@ -1110,16 +1114,16 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
   int bit=attr & 0x07;
   unsigned char mask=0x01<<bit;
 
-  if (which>=NMONITOR){
+  if (which>=NMONITOR || which < 0){
     PrintOut(LOG_CRIT, "Internal error in IsAttributeOff() at line %d of file %s (which=%d)\n%s",
 	     whatline, __FILE__, which, reportbug);
     exit(EXIT_BADCODE);
   }
 
   if (*datap == NULL){
-    // null data implies Attributes are off...
+    // NULL data implies Attributes are ON...
     if (!set)
-      return 1;
+      return 0;
     
     // we are writing
     if (!(*datap=calloc(NMONITOR*32, 1))){
@@ -1291,7 +1295,6 @@ int ATACheckDevice(cfgfile *cfg){
       cfg->selflogcount=new;
   }
 
-  
   // check if number of ATA errors has increased
   if (cfg->errorlog){
 
@@ -2574,8 +2577,7 @@ void RegisterDevices(int scanning){
     }
     
     // free up memory if device could not be registered
-    if (cfgentries[i])
-      RmConfigEntry(cfgentries+i, __LINE__);
+    RmConfigEntry(cfgentries+i, __LINE__);
   }
   
   return;
