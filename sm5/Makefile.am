@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.56 2004/03/24 22:37:38 chrfranke Exp $
+# $Id: Makefile.am,v 1.57 2004/07/28 19:22:51 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -50,6 +50,10 @@ if OS_WIN32_MINGW
 EXTRA_smartd_SOURCES += \
                 posix/regex.h \
                 posix/regex.c \
+                posix/regcomp.c \
+                posix/regexec.c \
+                posix/regex_internal.c \
+                posix/regex_internal.h \
                 os_win32/daemon_win32.h \
                 os_win32/daemon_win32.c \
                 os_win32/syslog.h \
@@ -95,6 +99,10 @@ if OS_WIN32_MINGW
 EXTRA_smartctl_SOURCES += \
                 posix/regex.h \
                 posix/regex.c \
+                posix/regcomp.c \
+                posix/regexec.c \
+                posix/regex_internal.c \
+                posix/regex_internal.h \
                 os_win32/syslog.h
 
 endif
