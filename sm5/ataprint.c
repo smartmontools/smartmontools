@@ -31,7 +31,7 @@
 #include "smartctl.h"
 #include "extern.h"
 
-const char *CVSid2="$Id: ataprint.c,v 1.53 2003/01/12 10:30:53 ballen4705 Exp $"
+const char *CVSid2="$Id: ataprint.c,v 1.54 2003/01/14 20:04:07 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID6;
 
 // for passing global control variables
@@ -442,7 +442,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
 	  // minutes
 	  long long tmp1=rawvalue/60;
 	  long long tmp2=rawvalue%60;
-	  pout("%llu h + %2llu m\n", tmp1, tmp2);
+	  pout("%lluh+%02llum\n", tmp1, tmp2);
 	}
 	else
 	  // hours

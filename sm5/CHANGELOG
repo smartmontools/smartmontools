@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.85 2003/01/13 12:49:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.86 2003/01/14 20:04:03 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -32,6 +32,9 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [BA] Modified printing format for 9,minutes to read
+       Xh+Ym not X h + Y m, so that fields are fixed width.
 
   [BA] Added Attribute 240 "head flying hours"
 

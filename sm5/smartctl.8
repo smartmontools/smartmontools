@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.43 2003/01/06 00:54:16 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.44 2003/01/14 20:04:05 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/06 00:54:16 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/01/14 20:04:05 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -419,8 +419,10 @@ arguments to this option are:
 then exits.
 
 .I 9,minutes
-\- Raw Attribute number 9 is power-on time in minutes.  It will be
-displayed in the form 'X h + Y m', where X is hours and Y is minutes.
+\- Raw Attribute number 9 is power-on time in minutes.  Its raw value
+will be displayed in the form 'Xh+Ym'.  Here X is hours, and Y is
+minutes in the range 0-59 inclusive.  Y is always printed with two
+digits, for example \'06' or \'31' or '00'.
 
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
@@ -676,4 +678,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.43 2003/01/06 00:54:16 ballen4705 Exp $
+$Id: smartctl.8,v 1.44 2003/01/14 20:04:05 ballen4705 Exp $
