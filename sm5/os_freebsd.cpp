@@ -35,9 +35,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.41 2004/08/18 19:27:44 likewise Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.42 2004/09/04 15:56:09 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.41 2004/08/18 19:27:44 likewise Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.42 2004/09/04 15:56:09 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -120,7 +120,6 @@ int deviceopen (const char* dev, char* mode) {
   if (parse_ok == CONTROLLER_3WARE_678K_CHAR) {
     char buf[512];
     sprintf(buf,"/dev/twe%d",fdchan->device);
-    printf("Using %s, as control device\n", buf);
     if ((fdchan->atacommand = open(buf,O_RDWR))<0) {
       int myerror = errno; // preserver across free call
       free(fdchan);
@@ -187,7 +186,7 @@ int deviceclose (int fd) {
 
 #define NO_RETURN 0
 #define BAD_SMART 1
-#define NO_3WARE 2
+#define NO_DISK_3WARE 2
 #define BAD_KERNEL 3
 #define MAX_MSG 3
 
@@ -199,7 +198,7 @@ void printwarning(int msgNo, const char* extra) {
     
     "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
     
-    PACKAGE_STRING " does not currentlly support TWE devices (3ware Escalade)\n",
+    "You must specify a DISK # for 3ware drives with -d 3ware,<n> where <n> begins with 1 for first disk drive\n",
     
     "ATA support is not provided for this kernel version. Please ugrade to a recent 5-CURRENT kernel (post 09/01/2003 or so)\n"
   };
@@ -485,6 +484,11 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data) {
+
+  if (disknum < 0) {
+    printwarning(NO_DISK_3WARE,NULL);
+    return -1;
+  }
 
   // to hold true file descriptor
   struct freebsd_dev_channel* con;
