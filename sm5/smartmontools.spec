@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.107 2003/07/23 22:23:10 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.108 2003/07/23 22:30:55 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -265,11 +265,12 @@ fi
 # run before uninstallation.  Passed zero when the last version uninstalled, else larger
 %preun
 
-# if uninstalling the final copy, remove any links	
+# if uninstalling the final copy, stop and remove any links	
 if [ "$1" = "0" ]; then
   if [ -f /var/lock/subsys/smartd ]; then
-  /etc/rc.d/init.d/smartd stop 1>&2
-  echo "Stopping smartd services"
+    /etc/rc.d/init.d/smartd stop 1>&2
+    echo "Stopping smartd services"
+  fi
 
   # see if any links remain, and kill them if they do
   /sbin/chkconfig --list smartd > /dev/null 2> /dev/null
@@ -277,6 +278,7 @@ if [ "$1" = "0" ]; then
 	
   if [ $notlinked -eq 0 ]; then
     /sbin/chkconfig --del smartd
+    echo "Removing links to smartd boot-time startup scripts"
   fi
 fi
 
