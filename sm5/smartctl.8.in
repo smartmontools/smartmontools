@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.11 2003/10/27 10:11:21 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.12 2003/11/06 10:46:39 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -18,7 +18,7 @@
  California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 
 ..
-.TH SMARTCTL 8  "$Date: 2003/10/27 10:11:21 $" RELEASE
+.TH SMARTCTL 8  "$Date: 2003/11/06 10:46:39 $" RELEASE
 .SH NAME
 \fBsmartctl\fP \- Control and Monitor Utility for SMART Disks
 
@@ -29,7 +29,7 @@
 .B /usr/sbin/smartctl
 
 .SH PACKAGE VERSION
-\fBRELEASE\fP "$Date: 2003/10/27 10:11:21 $"
+\fBRELEASE\fP "$Date: 2003/11/06 10:46:39 $"
 
 .SH DESCRIPTION
 \fBsmartctl\fP controls the Self-Monitoring, Analysis and Reporting
@@ -281,33 +281,35 @@ Travelstar 40GNX Hard Disk Drive Specifications (Revision 1.1, 22
 April 2002, Publication # 1541, Document S07N-7715-02) page 164. You
 can also read the SFF-8035i Specification -- see REFERENCES below.]
 You can tell if automatic offline testing is supported by seeing if
-this command enables and disables it, as indicated by the SMART
-capabilities (displayed with \'\-c\').
+this command enables and disables it, as indicated by the \'Auto
+Offline Data Collection\' part of the SMART capabilities report
+(displayed with \'\-c\').
 
-SMART provides
-.B three basic categories of testing.
-The 
-.B first category,
-called "online" testing, has no effect on the performance of
-the device.  It is turned on by the \'\-s on\' option.
+SMART provides \fBthree\fP basic categories of testing.  The
+\fBfirst\fP category, called "online" testing, has no effect on the
+performance of the device.  It is turned on by the \'\-s on\' option.
 
-The 
-.B second category of testing
-is called "offline" testing. This type
-of test can, in principle, degrade the device performance.  The \'\-o on\'
-option causes this offline testing to be carried out, automatically,
-on a regular scheduled basis.  Normally, the disk will suspend
-offline testing while disk accesses are taking place, and then
+The \fBsecond\fP category of testing is called "offline" testing. This
+type of test can, in principle, degrade the device performance.  The
+\'\-o on\' option causes this offline testing to be carried out,
+automatically, on a regular scheduled basis.  Normally, the disk will
+suspend offline testing while disk accesses are taking place, and then
 automatically resume it when the disk would otherwise be idle, so in
 practice it has little effect.  Note that a one-time offline test can
 also be carried out immediately upon receipt of a user command.  See
-the \'\-t offline\' option below, which causes a one-time offline test to be
-carried out immediately.
+the \'\-t offline\' option below, which causes a one-time offline test
+to be carried out immediately.
 
-Any errors detected in automatic or immediate offline testing are
-reflected in the values of the SMART Attributes; some types of
-errors may also appear in the SMART error log. These are visible
-with the \'\-A\' and \'\-l error\' options respectively.
+The choice (made by the SFF-8035i and ATA specification authors) of
+the word \fItesting\fP for these first two categories is unfortunate,
+and often leads to confusion.  In fact these first two categories of
+online and offline testing could have been more accurately described
+as online and offline \fBdata collection\fP.
+
+Any errors detected in automatic or immediate offline testing (data
+collection) are reflected in the values of the SMART Attributes; some
+types of errors may also appear in the SMART error log. These are
+visible with the \'\-A\' and \'\-l error\' options respectively.
 
 Some SMART attribute values are updated only during off-line data
 collection activities; the rest are updated during normal operation of
@@ -316,12 +318,12 @@ Attribute value table produced by the \'\-A\' option indicates this in
 the UPDATED column.  Attributes of the first type are labeled
 "Offline" and Attributes of the second type are labeled "Always".
 
-The 
-.B third category of testing
-is the "self" testing.  This third type of
-test is only performed (immediately) when a command to run it is
-issued.  The \'\-t\' and \'\-X\' options can be used to carry out and abort such
-self-tests; please see below for further details.
+The \fBthird\fP category of testing (and the \fIonly\fP category for
+which the word \'testing\' is really an appropriate choice) is "self"
+testing.  This third type of test is only performed (immediately) when
+a command to run it is issued.  The \'\-t\' and \'\-X\' options can be
+used to carry out and abort such self-tests; please see below for
+further details.
 
 Any errors detected in the self testing will be shown in the
 SMART self-test log, which can be examined using the \'\-l selftest\'
@@ -982,4 +984,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.11 2003/10/27 10:11:21 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.12 2003/11/06 10:46:39 ballen4705 Exp $
