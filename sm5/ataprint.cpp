@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.130 2004/02/14 15:38:33 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.131 2004/02/14 19:47:11 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -106,6 +106,33 @@ void printswap(char *output, char *in, unsigned int n){
     pout("[No Information Found]\n");
 }
 
+/*
+ This routine computes Logical Block Address (LBA) making use of the fact that a 28-bit LBA
+has:
+  bits 0-7:   SN
+  bits 8-15:  CL
+  bits 16-23: CH
+  bits 24-27: bits 0-3 of DH
+
+  reg[0] = DH 
+  reg[1] = CH
+  reg[2] = CL
+  reg[3] = SN
+*/
+int compute_lba(unsigned char *reg){
+  int i;
+  int lba = (reg[0] & 0xf);
+
+  for (i=1; i<4; i++) {
+    // left shift 8 bits
+    lba <<= 8;
+    // then mask in lower 8 bits
+    lba |= reg[i];
+  }
+
+  return lba;
+}
+
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
  * Register (ST) and Error Register (ER).  The string is dynamically allocated
@@ -120,12 +147,21 @@ void printswap(char *output, char *in, unsigned int n){
  * to produce errors).  If many more are to be added then this function
  * should probably be redesigned.
  */
-char *construct_st_er_desc(unsigned char CR, unsigned char FR,
-                                 unsigned char ST, unsigned char ER)
-{
+char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
+  unsigned char CR=data->commands[4].commandreg;
+  unsigned char FR=data->commands[4].featuresreg;
+  unsigned char ST=data->error_struct.status;
+  unsigned char ER=data->error_struct.error_register;
+  unsigned char SN=data->error_struct.sector_number;
+  unsigned char CL=data->error_struct.cylinder_low;
+  unsigned char CH=data->error_struct.cylinder_high;
+  unsigned char DH=data->error_struct.drive_head;
+  unsigned char reg[4]={DH, CH, CL, SN};
   char *s;
   char *error_flag[8];
   int i;
+  int lba=-1;
+
   /* If for any command the Device Fault flag of the status register is
    * not used then used_device_fault should be set to 0 (in the CR switch
    * below)
@@ -146,6 +182,7 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
+    lba=compute_lba(reg);
     break;
   case 0x25:  /* READ DMA EXT */
   case 0xC8:  /* READ DMA */
@@ -157,6 +194,7 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
+    lba=compute_lba(reg);
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0xC5:  /* WRITE MULTIPLE */
@@ -166,6 +204,7 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
+    lba=compute_lba(reg);
     break;
   case 0xA0:  /* PACKET */
     /* Bits 4-7 are all used for sense key (a 'command packet set specific error
@@ -228,13 +267,14 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
     error_flag[0] = "obs";
+    lba=compute_lba(reg);
     break;
   default:
     return NULL;
   }
 
-  /* 100 bytes -- that'll be plenty (OK, this is lazy!) */
-  if (!(s = (char *)malloc(100)))
+  /* 256 bytes -- that'll be plenty (OK, this is lazy!) */
+  if (!(s = (char *)malloc(256)))
     return s;
 
   s[0] = '\0';
@@ -256,6 +296,11 @@ char *construct_st_er_desc(unsigned char CR, unsigned char FR,
           strcat(s, ", ");
         strcat(s, error_flag[i]);
       }
+  }
+  if (lba>=0) {
+    char tmp[128];
+    snprintf(tmp, 128, " at LBA = 0x%08x = %d", lba, lba);
+    strcat(s, tmp);
   }
 
   return s;
@@ -721,8 +766,8 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *data){
 
 // returns number of errors
 int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
-  int i,j,k;
-  
+  int k;
+
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
   
   // if no errors logged, return
@@ -770,13 +815,15 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
     char *st_er_desc;
 
     // The error log data structure entries are a circular buffer
-    i=(data->error_log_pointer+k)%5;
-    
+    int j, i=(data->error_log_pointer+k)%5;
+    struct ata_smart_errorlog_struct *elog=data->errorlog_struct;
+    struct ata_smart_errorlog_error_struct *summary=&(elog[i].error_struct);
+
     // Spec says: unused error log structures shall be zero filled
-    if (nonempty((unsigned char*)&(data->errorlog_struct[i]),sizeof(data->errorlog_struct[i]))){
+    if (nonempty((unsigned char*)(elog+i),sizeof(elog[i]))){
       // Table 57 of T13/1532D Volume 1 Revision 3
       char *msgstate;
-      int bits=data->errorlog_struct[i].error_struct.state & 0x0f;
+      int bits=summary->state & 0x0f;
       switch (bits){
       case 0x00: msgstate="in an unknown state";break;
       case 0x01: msgstate="sleeping"; break;
@@ -793,28 +840,23 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
       // See table 42 of ATA5 spec
       PRINT_ON(con);
       pout("Error %d occurred at disk power-on lifetime: %d hours\n",
-             (int)(data->ata_error_count+k-4), (int)data->errorlog_struct[i].error_struct.timestamp);
+             (int)(data->ata_error_count+k-4), (int)summary->timestamp);
       PRINT_OFF(con);
       pout("  When the command that caused the error occurred, the device was %s.\n\n",msgstate);
       pout("  After command completion occurred, registers were:\n"
            "  ER ST SC SN CL CH DH\n"
            "  -- -- -- -- -- -- --\n"
            "  %02x %02x %02x %02x %02x %02x %02x",
-           (int)data->errorlog_struct[i].error_struct.error_register,
-           (int)data->errorlog_struct[i].error_struct.status,
-           (int)data->errorlog_struct[i].error_struct.sector_count,
-           (int)data->errorlog_struct[i].error_struct.sector_number,
-           (int)data->errorlog_struct[i].error_struct.cylinder_low,
-           (int)data->errorlog_struct[i].error_struct.cylinder_high,
-           (int)data->errorlog_struct[i].error_struct.drive_head);
+           (int)summary->error_register,
+           (int)summary->status,
+           (int)summary->sector_count,
+           (int)summary->sector_number,
+           (int)summary->cylinder_low,
+           (int)summary->cylinder_high,
+           (int)summary->drive_head);
       // Add a description of the contents of the status and error registers
       // if possible
-      st_er_desc = construct_st_er_desc(
-        data->errorlog_struct[i].commands[4].commandreg,
-        data->errorlog_struct[i].commands[4].featuresreg,
-        data->errorlog_struct[i].error_struct.status,
-        data->errorlog_struct[i].error_struct.error_register
-      );
+      st_er_desc = construct_st_er_desc(elog+i);
       if (st_er_desc) {
         pout("  %s", st_er_desc);
         free(st_er_desc);
@@ -824,7 +866,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
            "  CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name\n"
            "  -- -- -- -- -- -- -- --   ---------  --------------------\n");
       for ( j = 4; j >= 0; j--){
-        struct ata_smart_errorlog_command_struct *thiscommand=&(data->errorlog_struct[i].commands[j]);
+        struct ata_smart_errorlog_command_struct *thiscommand=&(elog[i].commands[j]);
         
         // Spec says: unused data command structures shall be zero filled
         if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand)))
