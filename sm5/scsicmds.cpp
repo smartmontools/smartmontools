@@ -47,7 +47,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.44 2003/05/11 22:47:46 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.45 2003/05/12 14:32:30 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -996,7 +996,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
- * (Centigrade) implies that the temperature not available. */
+ * (Celsius) implies that the temperature not available. */
 int scsiCheckIE(int device, int method, int hasTempLogPage,
                 UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp)
 {
