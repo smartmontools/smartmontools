@@ -27,13 +27,13 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.15 2003/03/06 07:27:15 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.16 2003/03/29 11:01:34 pjwilliams Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
 // add them.
-typedef struct ataprintmain_s {
+typedef struct smartmonctrl_s {
   unsigned char driveinfo;
   unsigned char checksmart;
   unsigned char smartvendorattrib;
@@ -67,7 +67,7 @@ typedef struct ataprintmain_s {
   // a non-default meaning.  See the ataPrintSmartAttribName function,
   // and list below.
   unsigned char attributedefs[256];
-} atamainctrl;
+} smartmonctrl;
 
 #endif
 

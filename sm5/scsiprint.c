@@ -37,11 +37,11 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.23 2003/03/28 07:19:39 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.24 2003/03/29 11:01:34 pjwilliams Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
-extern atamainctrl *con;
+extern smartmonctrl *con;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 1024

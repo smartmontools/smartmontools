@@ -50,11 +50,11 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.115 2003/03/25 13:13:07 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.116 2003/03/29 11:01:36 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
-atamainctrl *con=NULL;
+smartmonctrl *con=NULL;
 
 // Two other globals -- number of ATA and SCSI devices being monitored
 int numatadevices=0;
@@ -1790,7 +1790,7 @@ int main (int argc, char **argv){
   atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
   scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
   int i, entries, scandirective=0;
-  atamainctrl control;
+  smartmonctrl control;
   
   // initialize global communications variables
   con=&control;
