@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.54 2004/08/06 13:11:35 chrfranke Exp $
+$Id: TODO,v 1.55 2004/08/31 18:20:40 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -10,6 +10,13 @@ correctly because libata doesn't yet support the needed
 ATA-passthrough ioctl() calls. Jeff Garzik, the libata developer, says
 that this support will be added in the future. When this happens, add
 support to smartmontools for a new SATA/libata device type '-d sata'.
+
+Note: a unofficial (not supported by Jeff Garzik) patch is now
+available to libata that provides the HDIO_DRIVE_TASK and
+HDIO_DRIVE_CMD ioctl()s that are needed by smartmontools. Please
+search the Linux Kernel Mailing list to find this patch, or look at the
+thread:
+http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&threadm=2yYBY-4HB-55%40gated-at.bofh.it&rnum=3&prev=/groups%3Fq%3Dsmartmontools%26hl%3Den%26lr%3D%26ie%3DUTF-8%26scoring%3Dd%26selm%3D2yYBY-4HB-55%2540gated-at.bofh.it%26rnum%3D3
 
 USB devices
 -----------
@@ -87,8 +94,6 @@ that can be monitored.
 
 FreeBSD
 -------
-Get interface for 3ware Escalade controllers working (Eduard).
-Modify smartctl -h examples
 
 Cygwin and Windows
 ------------------
