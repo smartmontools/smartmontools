@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.373 2004/03/16 11:02:44 chrfranke Exp $
+$Id: CHANGELOG,v 1.374 2004/03/20 08:55:21 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [DG] Set explicit timeouts for SCSI commands (most default to 6 seconds).
+       Previously a 0 second timeout was meant to be interpreted as a 
+       default timeout but the FreeBSD port had a problem in this area.
 
   [CF] Fixed un-thread-safe exit signal handler for Win32
 
