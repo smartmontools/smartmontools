@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.63 2003/03/18 05:02:37 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.64 2003/03/18 17:02:56 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -119,23 +119,32 @@ const int actual_ver[] = {
   0		/* 0x001f-0xfffe    		*/
 };
 
+// When you add additional items to this list, you should then:
+// 1 -- modify the following function parse_attribute_def()
+// 2 -- modify ataPrintSmartAttribRawValue()
+// 3 -  modify ataPrintSmartAttribName()
+// 4 -- update smartctl.8
+// 5 -- update smartd.8
+// 6 -- do "make smartd.conf.5" to update smartd.conf.5 
 const char *vendorattributeargs[] = {
-  // 0
+  // 0  defs[9]=1
   "9,minutes",
-  // 1
+  // 1  defs[9]=3
   "9,seconds",
-  // 2
+  // 2  defs[9]=2
   "9,temp",
-  // 3
+  // 3  defs[220]=1
   "220,temp",
-  // 4
+  // 4  defs[*]=253
   "N,raw8",
-  // 5
+  // 5  defs[*]=254
   "N,raw16",
-  // 6
+  // 6  defs[*]=255
   "N,raw48",
-  // 7
+  // 7  defs[200]=1
   "200,writeerrorcount",
+  // 8  defs[9]=4
+  "9,halfminutes",
   // NULL should always terminate the array
   NULL
 };
@@ -185,6 +194,11 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   case 7:
     // attribute 200 is write error count
     defs[200]=1;
+    return 0;
+  case 8:
+    // attribute 9 increments once every 30 seconds (power on time
+    // measure)
+    defs[9]=4;
     return 0;
   default:
     // pair not found
@@ -924,6 +938,12 @@ long long ataPrintSmartAttribRawValue(char *out,
       long long seconds=rawvalue%60;
       out+=sprintf(out, "%lluh+%02llum+%02llus", hours, minutes, seconds);
     }
+    else if (defs[9]==4){
+      // 30-second counter
+      long long tmp1=rawvalue/120;
+      long long tmp2=(rawvalue-120*tmp1)/2;
+      out+=sprintf(out, "%lluh+%02llum", tmp1, tmp2);
+    }
     else
       // hours
       out+=sprintf(out, "%llu", rawvalue);  //stored in hours
@@ -986,6 +1006,9 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
       break;
     case 3:
       name="Power_On_Seconds";
+      break;
+    case 4:
+      name="Power_On_Half_Minutes";
       break;
     default:
       name="Power_On_Hours";
