@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.41 2004/04/02 05:57:40 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.42 2004/04/07 11:55:48 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1080,10 +1080,31 @@ condition.
 
 .PP
 .SH AUTHOR
-Bruce Allen
-.B smartmontools-support@lists.sourceforge.net
+\fBBruce Allen\fP smartmontools-support@lists.sourceforge.net
 .fi
 University of Wisconsin \- Milwaukee Physics Department
+ 
+.PP
+.SH CONTRIBUTORS
+The following have made large contributions to smartmontools:
+.fi
+\fBCasper Dik\fP and \fBKeiji Sawada\fP (Solaris interface)
+.fi
+\fBChristian Franke\fP (Windows interface)
+.fi
+\fBDouglas Gilbert\fP (SCSI subsystem)
+.fi
+\fBGuido Guenther\fP (Autoconf/Automake packaging)
+.fi
+\fBEduard Martinescu\fP (FreeBSD interface)
+.fi
+\fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
+.fi
+\fBSergey Svishchev\fP (NetBSD interface)
+.fi
+\fBPhil Williams\fP (User interface and drive database)
+.fi
+May other individuals have made smaller contributions and corrections.
 
 .PP
 .SH CREDITS
@@ -1132,7 +1153,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.41 2004/04/02 05:57:40 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.42 2004/04/07 11:55:48 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
