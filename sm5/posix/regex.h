@@ -30,9 +30,9 @@ extern "C" {
 /* POSIX says that <sys/types.h> must be included (by the caller) before
    <regex.h>.  */
 
-#if !defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE && defined VMS
+#if !defined _POSIX_C_SOURCE && !defined _POSIX_SOURCE && (defined VMS || defined _MSC_VER)
 /* VMS doesn't have `size_t' in <sys/types.h>, even though POSIX says it
-   should be there.  */
+   should be there. Same for Microsoft Visual C++ 6.0 */
 # include <stddef.h>
 #endif
 
