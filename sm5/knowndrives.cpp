@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.31 2003/07/29 11:47:59 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.32 2003/08/01 11:09:37 knan Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -121,16 +121,9 @@ const drivesettings knowndrives[] = {
       "Please see http://www.geocities.com/dtla_update/",
     NULL, NULL, NULL
   },
-  { // Fujitsu MPE3204AT
-    "^FUJITSU MPE3204AT$",
-    ".*",    // Tested on ED-03-04
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { // Fujitsu MPD3130AT
-    "^FUJITSU MPD3130AT$",
-    ".*",    // Tested on DD-04-47
+  { // Fujitsu MPD and MPE series
+    "^FUJITSU MP[DE]....A[HT]$",
+    ".*",
     NULL,
     vendoropts_9_seconds,
     NULL, NULL
