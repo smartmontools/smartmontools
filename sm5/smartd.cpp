@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.104 2003/02/01 08:47:00 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.105 2003/02/01 09:39:13 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -113,7 +113,7 @@ void printout(int priority,char *fmt, ...){
 void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   char command[2048], message[256], hostname[256], additional[256];
   char original[256], further[256], domainname[256], subject[256];
-  int status,status8;
+  int status;
   time_t epoch;
   va_list ap;
   const int day=24*3600;
@@ -233,28 +233,36 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
   else
     snprintf(command, 2048, "%s", executable);
   
-  // issue the command to send email
+  // tell SYSLOG what we are about to do...
   printout(LOG_INFO,"%s %s to %s ...\n",
-	     which?"Sending warning via ":"Executing test of", executable, address?address:"<nomailer>");
+	   which?"Sending warning via ":"Executing test of", executable, address?address:"<nomailer>");
+
+  // issue the command to send mail or to run the user's executable
   status=system(command);
   
-  // check and report exit status of command
-#ifdef WEXITSTATUS
-  status8=WEXITSTATUS(status);
-#else
-  status8=status & 0xff;
-#endif 
-  
-  if (status8)  
-    printout(LOG_CRIT,"%s %s to %s failed (32-bit/8-bit exit status: %d/%d)\n", 
-	     which?"Warning via":"Test of", executable, address?address:"<nomailer>", status, status8);
-  else
-    printout(LOG_INFO,"%s %s to %s successful\n",
+  // now tell SYSLOG what happened.
+  if (status==-1){
+    printout(LOG_CRIT,"%s %s to %s failed (unable to fork new process)\n", 
 	     which?"Warning via":"Test of", executable, address?address:"<nomailer>");
-  
+  }
+  else {
+    int status8;
+    // check and report exit status of command
+#ifdef WEXITSTATUS
+    status8=WEXITSTATUS(status);
+#else
+    status8=(status>>8) & 0xff;
+#endif 
+    if (status8)  
+      printout(LOG_CRIT,"%s %s to %s failed (32-bit/8-bit exit status: %d/%d)\n", 
+	       which?"Warning via":"Test of", executable, address?address:"<nomailer>", status, status8);
+    else
+      printout(LOG_INFO,"%s %s to %s successful\n",
+	       which?"Warning via":"Test of", executable, address?address:"<nomailer>");
+  } 
   // increment mail sent counter
   mail->logged++;
- 
+  
   return;
 }
 
