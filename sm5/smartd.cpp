@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.106 2003/02/03 19:11:46 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.107 2003/02/03 19:20:36 pjwilliams Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // global variable used for control of printing, passing arguments, etc.
@@ -1194,8 +1194,10 @@ int parsetoken(char *token,cfgfile *cfg){
         exit(1);
       }
       // Free the last cmd line given if any
-      if (cfg->emailcmdline)
+      if (cfg->emailcmdline) {
+        printout(LOG_INFO, "File %s line %d (drive %s): found multiple -M exec Directives on line - ignoring all but the last\n", CONFIGFILE, lineno, name);
         free(cfg->emailcmdline);
+      }
       // Attempt to copy the argument
       if (!(cfg->emailcmdline = strdup(arg))) {
         printout(LOG_CRIT, "File %s line %d (drive %s): no free memory for command line argument to exec: %s\n",
