@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.47 2004/03/12 22:10:17 ballen4705 Exp $
+$Id: smartd.8.in,v 1.48 2004/03/15 17:26:35 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -180,7 +180,7 @@ Start (or restart) the \fBsmartd\fP daemon.
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
-.B " "
+.B \&
 For more detailed information, please refer to the man pages for
 \fBsyslog.conf\fP, \fBsyslogd\fP, and \fBsyslog\fP.  You may also want
 to modify the log rotation configuration files; see the man pages for
@@ -690,7 +690,7 @@ to just before midnight) inclusive.
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
-.B " "
+.B \&
 Some examples follow.  In reading these, keep in mind that in extended
 regular expressions a dot \fB\'.\'\fP matches any single character, and
 a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one of the three possibilities \fBA\fP,
@@ -934,7 +934,7 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
-.B " "
+.B \&
 The shell which is used to run PATH is system-dependent. For vanilla
 Linux/glibc it\'s bash. For other systems, the man page for
 \fBpopen\fP(3) should say what shell is used.
@@ -1512,4 +1512,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.47 2004/03/12 22:10:17 ballen4705 Exp $
+$Id: smartd.8.in,v 1.48 2004/03/15 17:26:35 ballen4705 Exp $

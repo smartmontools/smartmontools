@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.37 2004/03/12 22:10:17 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.38 2004/03/15 17:26:35 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -89,7 +89,7 @@ non-whitespace or non-comment item on a line.
 .IP \(bu 4
 Note: a line whose first character is a hash sign \'#\' is treated as
 a white-space blank line, \fBnot\fP as a non-existent line, and will
-end a continuation line.
+\fBend\fP a continuation line.
 .PP 0
 .fi
 Here is an example configuration file.  It\'s for illustrative purposes
@@ -412,7 +412,7 @@ to just before midnight) inclusive.
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
-.B " "
+.B \&
 Some examples follow.  In reading these, keep in mind that in extended
 regular expressions a dot \fB\'.\'\fP matches any single character, and
 a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one of the three possibilities \fBA\fP,
@@ -656,7 +656,7 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 .\"  The following two lines are a workaround for a man2html bug.  Please leave them.
 .\" They define a non-existent option; useful because man2html can't correctly reset the margins.
 .TP
-.B " "
+.B \&
 The shell which is used to run PATH is system-dependent. For vanilla
 Linux/glibc it\'s bash. For other systems, the man page for
 \fBpopen\fP(3) should say what shell is used.
@@ -1088,4 +1088,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.37 2004/03/12 22:10:17 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.38 2004/03/15 17:26:35 ballen4705 Exp $
