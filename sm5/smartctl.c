@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.c,v 1.34 2003/01/04 17:34:16 pjwilliams Exp $"
+const char* CVSid5="$Id: smartctl.c,v 1.35 2003/01/05 05:15:55 ballen4705 Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -296,11 +296,15 @@ void ParseOpts (int argc, char** argv){
   con->testcase=-1;
   opterr=optopt=0;
   badarg = captive = FALSE;
+  
+  // This miserable construction is needed to get emacs to do proper indenting. Sorry!
+  while (-1 != (optchar = 
 #ifdef HAVE_GETOPT_LONG
-  while (-1 != (optchar = getopt_long(argc, argv, shortopts, longopts, NULL))) {
+		getopt_long(argc, argv, shortopts, longopts, NULL)
 #else
-  while (-1 != (optchar = getopt(argc, argv, shortopts))) {
+		getopt(argc, argv, shortopts)
 #endif
+		)){
     switch (optchar){
     case 'V':
       printcopyleft=TRUE;
@@ -454,31 +458,33 @@ void ParseOpts (int argc, char** argv){
       // Check whether the option is a long option that doesn't map to -h.
       if (arg[1] == '-' && optchar != 'h') {
         // Iff optopt holds a valid option then argument must be missing.
-        if (optopt && (strchr(shortopts, optopt) != NULL)) {
-          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n\n",arg+2);
-        } else {
-          pout("=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
-        }
-        Usage();
-        exit(FAILCMD);
+        if (optopt && (strchr(shortopts, optopt) != NULL))
+          pout("=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n",arg+2);
+	else
+	  pout("=======> UNRECOGNIZED OPTION: %s <=======\n",arg+2);
+	pout("Use smartctl --help to get a usage summary\n\n");
+	exit(FAILCMD);
       }
 #endif
       if (optopt) {
         // Iff optopt holds a valid option then argument must be missing.
-        if (strchr(shortopts, optopt) != NULL){
+        if (strchr(shortopts, optopt) != NULL)
           pout("=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n\n",optopt);
-        } else {
+        else
 	  pout("=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
-        }
-	Usage();
+	pout("Use smartctl -h to get a usage summary\n\n");
 	exit(FAILCMD);
       }
       Usage();
       exit(0);	
-    }
+    } // closes switch statement to process command-line options
+
+    // At this point we have processed all command-line options.  Now
+    // check to see if any of those options had unrecognized or
+    // incorrect arguments.
     if (badarg) {
         printbadargmessage(optchar, optarg);
-        Usage();
+	pout("Use smartctl -h to get a usage summary\n\n");
 	exit(FAILCMD);
     }
   }
@@ -492,7 +498,7 @@ void ParseOpts (int argc, char** argv){
     con->veryquietmode=FALSE;
     printslogan();
     Usage();
-    printf ("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
+    printf("\nERROR: smartctl can only run a single test (or abort) at a time.\n\n");
     exit(FAILCMD);
   }
 
@@ -516,11 +522,25 @@ void ParseOpts (int argc, char** argv){
     if (argc==2)
       exit(0);
   }   
+
+  // Warn if the user has provided no device name
+  if (argc-optind<1){
+    printf("ERROR: smartctl requires a device name as the final command-line argument.\n\n");
+    exit(FAILCMD);
+  }
+  
+  // Warn if the user has provided more than one device name
+  if (argc-optind>1){
+    int i;
+    printf("ERROR: smartctl takes ONE device name as the final command-line argument.\n");
+    printf("You have provided %d device names:\n",argc-optind);
+    for (i=0; i<argc-optind; i++)
+      printf("%s\n",argv[optind+i]);
+    exit(FAILCMD);
+  }
 }
 
-
 // Printing function (controlled by global con->veryquietmode) 
-
 // [From GLIBC Manual: Since the prototype doesn't specify types for
 // optional arguments, in a call to a variadic function the default
 // argument promotions are performed on the optional argument
@@ -529,7 +549,7 @@ void ParseOpts (int argc, char** argv){
 // appropriate.]
 void pout(char *fmt, ...){
   va_list ap;
-
+  
   // initialize variable argument list 
   va_start(ap,fmt);
   if (con->veryquietmode){
