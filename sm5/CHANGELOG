@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.441 2004/08/02 09:16:22 chrfranke Exp $
+$Id: CHANGELOG,v 1.442 2004/08/04 04:42:21 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -28,6 +28,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: warn user if -s regexp regular expression contains
+       characters other than 0123456789.*()|+?[-]{}:=SLCO since such
+       characters are 'suspicous' and may indicate a poorly formed
+       regexp.  Extended regular expression gurus: can this list be
+       reduced somewhat?
 
   [CF] Fixed bug in Windows smartd: Missing close of config file when
        configuration is reloaded by smartd daemon.
