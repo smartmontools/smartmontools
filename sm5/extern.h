@@ -27,7 +27,7 @@
 
 
 #ifndef CVSID3
-#define CVSID3 "$Id: extern.h,v 1.7 2002/10/22 09:44:55 ballen4705 Exp $\n"
+#define CVSID3 "$Id: extern.h,v 1.8 2002/10/23 12:24:24 ballen4705 Exp $\n"
 #endif
 
 extern unsigned char driveinfo;
@@ -51,4 +51,6 @@ extern unsigned char smartautosaveenable;
 extern unsigned char smartautosavedisable;
 extern unsigned char smart009minutes;
 extern int           testcase;
+extern unsigned char quietmode;
+extern unsigned char veryquietmode;
 #endif

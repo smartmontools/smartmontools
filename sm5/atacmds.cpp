@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.18 2002/10/22 14:57:43 ballen4705 Exp $\n" "\t" CVSID1 ;
+const char *CVSid1="$Id: atacmds.cpp,v 1.19 2002/10/23 12:24:24 ballen4705 Exp $\n" "\t" CVSID1 ;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -121,7 +121,7 @@ const int actual_ver[] = {
 // Used to warn users about invalid checksums.  However we will not
 // abort on invalid checksums.
 void checksumwarning(const char *string){
-  printf("Warning! %s error: invalid checksum.\n",string);
+  pout("Warning! %s error: invalid checksum.\n",string);
   fprintf(stderr,"Warning! %s error: invalid checksum.\n",string);
   syslog(LOG_INFO,"Warning! %s error: invalid checksum.\n",string);
   return;
@@ -419,7 +419,7 @@ int ataEnableAutoSave(int device){
   unsigned char parms[4] = {WIN_SMART, 241, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Enable Auto-save failed");
+    perror("SMART Enable Auto-save failed");
     return -1;
   }
   return 0;
@@ -429,7 +429,7 @@ int ataDisableAutoSave(int device){
   unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTOSAVE, 0};
   
   if (ioctl(device, HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Disable Auto-save failed");
+    perror("SMART Disable Auto-save failed");
     return -1;
   }
   return 0;
@@ -453,7 +453,7 @@ int ataDisableAutoOffline (int device ){
   unsigned char parms[4] = {WIN_SMART, 0, SMART_AUTO_OFFLINE, 0};
   
   if (ioctl(device , HDIO_DRIVE_CMD, parms)){
-    perror ("SMART Disable Automatic Offline failed");
+    perror("SMART Disable Automatic Offline failed");
     return -1;
   }
   return 0;
@@ -504,7 +504,7 @@ int ataSmartStatus2(int device){
   parms[5]=normal_cyl_hi;
 
   if (ioctl(device,HDIO_DRIVE_TASK,parms)){
-    perror ("SMART Status command failed.");
+    perror("SMART Status command failed");
     return -1;
   }
   
@@ -517,16 +517,16 @@ int ataSmartStatus2(int device){
     return 1;
 
   // We haven't gotten output that makes sense; print out some debugging info
-  perror("SMART Status command failed:");
-  printf("Please get assistance from %s\n",PROJECTHOME);
-  printf("Register values returned from SMART Status command are:\n");
-  printf("CMD=0x%02x\n",parms[0]);
-  printf("FR =0x%02x\n",parms[1]);
-  printf("NS =0x%02x\n",parms[2]);
-  printf("SC =0x%02x\n",parms[3]);
-  printf("CL =0x%02x\n",parms[4]);
-  printf("CH =0x%02x\n",parms[5]);
-  printf("SEL=0x%02x\n",parms[6]);
+  perror("SMART Status command failed");
+  pout("Please get assistance from %s\n",PROJECTHOME);
+  pout("Register values returned from SMART Status command are:\n");
+  pout("CMD=0x%02x\n",parms[0]);
+  pout("FR =0x%02x\n",parms[1]);
+  pout("NS =0x%02x\n",parms[2]);
+  pout("SC =0x%02x\n",parms[3]);
+  pout("CL =0x%02x\n",parms[4]);
+  pout("CH =0x%02x\n",parms[5]);
+  pout("SEL=0x%02x\n",parms[6]);
   return -1;
 }
 
@@ -557,23 +557,23 @@ int ataSmartTest(int device, int testtype){
     sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
   else
     sprintf(cmdmsg,"Execute SMART %s routine immediately in %s mode",type,captive);
-  printf("Sending command: \"%s\".\n",cmdmsg);
+  pout("Sending command: \"%s\".\n",cmdmsg);
 
   // Now send the command to test
   errornum=ioctl(device, HDIO_DRIVE_CMD, parms);
   if (!(errornum && errno==EIO && (testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST))){
     char errormsg[128];
-    sprintf(errormsg,"Command \"%s\" failed.",cmdmsg); 
-    perror (errormsg);
+    sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 
+    perror(errormsg);
     fprintf(stderr,"\n");
     return -1;
   }
   
   // Since the command succeeded, tell user
   if (testtype==ABORT_SELF_TEST)
-    printf("Self-testing aborted!\n");
+    pout("Self-testing aborted!\n");
   else
-    printf("Drive command \"%s\" successful.\nTesting has begun.\n",cmdmsg);
+    pout("Drive command \"%s\" successful.\nTesting has begun.\n",cmdmsg);
   return 0;
 }
 

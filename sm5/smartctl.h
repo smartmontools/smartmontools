@@ -26,7 +26,7 @@
 #define __SMARTCTL_H_
 
 #ifndef CVSID6
-#define CVSID6 "$Id: smartctl.h,v 1.8 2002/10/22 16:49:16 ballen4705 Exp $\n"
+#define CVSID6 "$Id: smartctl.h,v 1.9 2002/10/23 12:24:24 ballen4705 Exp $\n"
 #endif
 
 /* Defines for command line options */ 
@@ -51,6 +51,8 @@
 #define SMARTAUTOSAVEDISABLE    'F'
 #define PRINTCOPYLEFT           'p'
 #define SMART009MINUTES         'm'
+#define QUIETMODE               'q'
+#define VERYQUIETMODE           'Q'
 
 
 /* Boolean Values */
@@ -62,9 +64,10 @@
 // command line did not parse
 #define FAILCMD   (0x01<<0)
 
-// device open failed
+// device open failed or could not get identity info
 #define FAILDEV   (0x01<<1)
-        
+#define FAILID    (0x01<<1)
+
 // smart command failed
 #define FAILSMART (0x01<<2)
 
@@ -78,7 +81,10 @@
 // attributes have failed in the past
 #define FAILAGE (0x01<<5)
 
-// Device ID failed
-#define FAILID (0x01<<6)
+// Device had Errors in the error log
+#define FAILERR (0x01<<6)
+
+// Device had Errors in the self-test log
+#define FAILLOG (0x01<<7)
 
 #endif

@@ -110,6 +110,8 @@ v	Prints only the vendor specific S.M.A.R.T. attributes & thresholds
 l	Prints only the S.M.A.R.T. error log
 L       Prints only the S.M.A.R.T. self-test log
 a	Prints all parameters for i,c,g,v,t,l,L
+q       Quiet operation; only show errors in error log, or self-test log, or smart status
+Q       Very quiet operation: only output is via the returned status
 
 Modify Display for Vendor-specific S.M.A.R.T. Raw Attribute Data:
 m       Converts Raw Attribute-009 from minutes to hours (Hitachi)
@@ -183,4 +185,4 @@ Fax: (408) 867-2115
 E-Mail: 250-1752@mcimail.com.
 
 
-$Id: README,v 1.7 2002/10/16 18:54:06 ballen4705 Exp $
+$Id: README,v 1.8 2002/10/23 12:24:23 ballen4705 Exp $

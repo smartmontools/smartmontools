@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.14 2002/10/22 16:49:15 ballen4705 Exp $
+$Id: CHANGELOG,v 1.15 2002/10/23 12:24:23 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -29,9 +29,25 @@ NOTES FOR NEXT RELEASE:
 
 smartmontools-5.0-11
 
+    Minor change in philosophy: if a SMART command fails or the device
+    appears incapable of a SMART command that the user has asked for,
+    complain by printing an error message, but go ahead and try
+    anyway.  Since unimplemented SMART commands should just return an
+    error but not cause disk problems, this should't cause any
+    difficulty.
+
+    Added two new flags: q and Q.  q is quiet mode - only print: For
+    the -l option, errors recorded in the SMART error log; For the -L
+    option, errors recorded in the device self-test log; For the -c
+    SMART "disk failing" status or device attributes (pre-failure or
+    usage) which failed either now or in the past; For the -v option
+    device attributes (pre-failure or usage) which failed either now
+    or in the past.  Q is Very Quiet mode: Print no ouput.  The only
+    way to learn about what was found is to use the exit status of
+    smartctl.
+
     smartctl now returns sensible values (bitmask).  See smartctl.h
-    for the values.  I may add some additional values as time goes on,
-    so this is prelimiary.
+    for the values, and the man page for documentation.
 
     The SMART status check now uses the correct ATA call.  If failure
     is detected we search through attributes to list the failed ones.
@@ -43,7 +59,7 @@ smartmontools-5.0-11
     attribute has currently failed or has ever failed.
 
     -p option now prints out license info and CVS strings for all
-    modules in the code.
+    modules in the code, nicely formatted.
 
     Previous versions of this code (and Smartsuite) only generate
     SMART failure errors if the value of an attribute is below the

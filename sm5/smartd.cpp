@@ -36,7 +36,7 @@
 #include "smartd.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.13 2002/10/22 14:57:43 ballen4705 Exp $\n" 
+const char *CVSid3="$Id: smartd.cpp,v 1.14 2002/10/23 12:24:24 ballen4705 Exp $\n" 
 "\t" CVSID1 "\t" CVSID4 "\t" CVSID7 ;
 
 int daemon_init(void){
@@ -69,6 +69,22 @@ void printout(int priority,char *fmt, ...){
   va_end(ap);
   return;
 }
+
+// Printing function for atacmds
+void pout(char *fmt, ...){
+  va_list ap;
+  // initialize variable argument list 
+  va_start(ap,fmt);
+  va_end(ap);
+  return;
+#if (0)
+  // print out
+  vprintf(fmt,ap);
+  va_end(ap);
+  return;
+#endif
+}
+
 
 /* prints help information for command syntax */
 void Usage ( void){
