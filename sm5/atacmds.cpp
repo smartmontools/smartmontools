@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.162 2004/09/14 03:34:34 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.163 2004/09/26 06:56:42 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1173,10 +1173,16 @@ int ataDisableAutoOffline (int device ){
 }
 
 // If SMART is enabled, supported, and working, then this call is
-// guaranteed to return 1, else zero.  Silent inverse of
-// ataSmartStatus()
-int ataDoesSmartWork(int device){       
-  return !smartcommandhandler(device, STATUS, 0, NULL);
+// guaranteed to return 1, else zero.  Note that it should return 1
+// regardless of whether the disk's SMART status is 'healthy' or
+// 'failing'.
+int ataDoesSmartWork(int device){
+  int retval=smartcommandhandler(device, STATUS, 0, NULL);
+
+  if (-1 == retval)
+    return 0;
+
+  return 1;
 }
 
 // This function uses a different interface (DRIVE_TASK) than the
