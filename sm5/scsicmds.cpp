@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.65 2003/11/20 01:02:27 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.66 2003/12/02 03:24:17 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1741,6 +1741,31 @@ int scsiCountFailedSelfTests(int fd, int noisy)
         }
     }
     return (fail_hour << 8) + fails;
+}
+
+/* Returns 0 if able to read self test log page; then outputs 1 into
+   *inProgress if self test still in progress, else outputs 0. */
+int scsiSelfTestInProgress(int fd, int * inProgress)
+{
+    int num;
+    UINT8 * ucp;
+    unsigned char resp[LOG_RESP_SELF_TEST_LEN];
+
+    if (scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, resp, 
+                     LOG_RESP_SELF_TEST_LEN, 0))
+        return -1;
+    if (resp[0] != SELFTEST_RESULTS_LPAGE)
+        return -1;
+    // compute page length
+    num = (resp[2] << 8) + resp[3];
+    // Log sense page length 0x190 bytes
+    if (num != 0x190) {
+        return -1;
+    }
+    ucp = resp + 4;
+    if (inProgress)
+        *inProgress = (0xf == (ucp[4] & 0xf)) ? 1 : 0;
+    return 0;
 }
 
 /* Returns a negative value if failed to fetch Contol mode page or it was
