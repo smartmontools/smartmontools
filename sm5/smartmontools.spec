@@ -1,4 +1,4 @@
-Release:  15
+Release:  16
 Summary:	SMARTmontools - for monitoring S.M.A.R.T. disks and devices
 Summary(cs):	SMARTmontools - pro monitorování S.M.A.R.T. diskù a zaøízení
 Summary(de):	SMARTmontools - zur Überwachung von S.M.A.R.T.-Platten und-Geräten
@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.110 2003/07/23 23:15:29 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.111 2003/08/06 08:42:08 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -304,6 +304,32 @@ fi
 # [KM] Kai Mäkisarai          <kai.makisara@kolumbus.fi>
 
 %changelog
+* Wed Aug 06 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+- [BA] smartd - can now monitor ATA drives behind 3ware controllers.
+- [BA] smartd - changed some FATAL out of memory error messages from
+       syslog level LOG_INFO to LOG_CRIT.
+- [BA] smartctl - added code to look at ATA drives behind 3ware RAID
+       controllers using the 3w-xxxx driver.  Note that for technical
+       reasons related to the 3w-xxxx driver, the "Enable Autosave",
+       "Enable Automatic Offline" commands are not implemented.
+       I will add this to smartd shortly.
+- [BA] smartd - modified sleep loop, so that smartd no longer comes
+       on the run queue every second.  Instead, unless interrupted,
+       it sleeps until the next polling time, when it wakes up. Now
+       smartd also tries to wake up at exactly the right
+       intervals (nominally 30 min) even if the user has been sending
+       signals to it.
+- [GG] add Fujitsu MHN2300AT to vendoropts_9_seconds.
+- [EB] Fujitsu change in knowndrives ... match the whole MPD and
+       MPE series for vendoropts_9_seconds.
+- [BA] smartd bug, might cause segv if a device can not be opened. Was
+       due to missing comma in char* list.  Consequence is that email
+       failure messages might have had the wrong Subject: heading for
+       errorcount, FAILEDhealthcheck, FAILEDreadsmartdata, FAILEDreadsmarterrorlog,
+       FAILEDreadsmartsefltestlog, FAILEDopendevice were all displaced by
+       one.  And FAILEDopendevice might have caused a segv if -m was being
+       used as a smartd Directive.
+
 * Wed Jul 23 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 - [BA] Cleaned up smartmontools.spec so that upgrading, removing
        and other such operations correctly preserve running behavior
