@@ -69,11 +69,11 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.286 2004/02/13 17:29:09 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.287 2004/02/24 15:53:39 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.286 2004/02/13 17:29:09 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.287 2004/02/24 15:53:39 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -3160,7 +3160,7 @@ int ReadOrMakeConfigEntries(int *scanning){
   // no error parsing config file.
   if (entries) {
     // we did not find a SCANDIRECTIVE and did find valid entries
-    PrintOut(LOG_CRIT, "Configuration file %s parsed.\n", configfile);
+    PrintOut(LOG_INFO, "Configuration file %s parsed.\n", configfile);
   }
   else if (cfgentries[0]) {
     // we found a SCANDIRECTIVE or there was no configuration file so
