@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.176 2003/08/14 13:34:51 ballen4705 Exp $
+$Id: CHANGELOG,v 1.177 2003/08/15 16:58:02 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] smartd: added -q/--quit command line option to specify
+       under what circumstances smartd should exit.  The old
+       -c/--checkonce option is now obsoleted by this more
+       general-purpose option.
 
   [BA] smartd now responds to a HUP signal by re-reading its
        configuration file /etc/smartd.conf.  If there are
