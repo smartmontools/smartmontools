@@ -30,7 +30,7 @@
 #include "atacmds.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.53 2003/01/17 12:20:24 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.54 2003/02/24 15:51:31 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -117,14 +117,15 @@ const int actual_ver[] = {
   0		/* 0x001d-0xfffe    		*/
 };
 
-
 const char *vendorattributeargs[] = {
   // 0
   "9,minutes",
   // 1
-  "220,temp",
+  "9,seconds",
   // 2
   "9,temp",
+  // 3
+  "220,temp",
   // NULL should always terminate the array
   NULL
 };
@@ -140,16 +141,20 @@ int parse_attribute_def(char *pair, unsigned char *defs){
 
   switch (i) {
   case 0:
-    // power on time stored in minutes
+    // attribute 9 is power on time in minutes
     defs[9]=1;
     return 0;
   case 1:
-    // attribute 220 is temperature in celsius
-    defs[220]=1;
+    // attribute 9 is power-on-time in seconds
+    defs[9]=3;
     return 0;
   case 2:
     // attribute 9 is temperature in celsius
     defs[9]=2;
+    return 0;
+  case 3:
+    // attribute 220 is temperature in celsius
+    defs[220]=1;
     return 0;
   default:
     // pair not found
@@ -816,6 +821,9 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
       break;
     case 2:
       name="Temperature_Celsius";
+      break;
+    case 3:
+      name="Power_On_Seconds";
       break;
     default:
       name="Power_On_Hours";

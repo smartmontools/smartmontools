@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.65 2003/02/16 16:05:41 ballen4705 Exp $
+\# $Id: smartd.8,v 1.66 2003/02/24 15:51:38 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/02/16 16:05:41 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/02/24 15:51:38 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -725,6 +725,9 @@ are:
 .I 9,minutes
 \- Raw Attribute number 9 is power-on time in minutes (not hours).
 
+.I 9,seconds
+\- Raw Attribute number 9 is power-on time in seconds (not hours).
+
 .I 9,temp
 \- Raw Attribute number 9 is the disk temperature in Celsius.
 
@@ -972,4 +975,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.65 2003/02/16 16:05:41 ballen4705 Exp $
+$Id: smartd.8,v 1.66 2003/02/24 15:51:38 ballen4705 Exp $

@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.13 2003/01/16 15:28:57 ballen4705 Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.14 2003/02/24 15:51:35 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -76,6 +76,7 @@ typedef struct ataprintmain_s {
 attributedefs[9]:
   1 -- time in minutes
   2 -- temperature in Celsius
+  3 -- time in seconds
 attributedefs[220]:
   1 -- temperature in Celsius
 
