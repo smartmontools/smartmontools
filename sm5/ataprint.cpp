@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.159 2004/09/17 20:08:45 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.160 2004/09/18 17:17:30 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -100,16 +100,13 @@ void formatdriveidstring(char *out, const char *in, int n)
   trim(out, tmp);
 }
 
-// Function for printing ASCII byte-swapped strings, skipping white
-// space. Please note that this is needed on both big- and
-// little-endian hardware.
-void printswap(char *output, char *in, unsigned int n){
-  formatdriveidstring(output, in, n);
+void infofound(char *output) {
   if (*output)
     pout("%s\n", output);
   else
     pout("[No Information Found]\n");
 }
+
 
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
@@ -504,28 +501,32 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
   unsigned short minorrev;
   char model[64], serial[64], firm[64], capacity[64];
 
+  // format drive information (with byte swapping as needed)
+  formatdriveidstring(model, (char *)drive->model,40);
+  formatdriveidstring(serial, (char *)drive->serial_no,20);
+  formatdriveidstring(firm, (char *)drive->fw_rev,8);
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
+  drivetype=lookupdrive(model, firm);
+
+  // Print model family if known
+  if (drivetype>=0 && knowndrives[drivetype].modelfamily)
+    pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
+
   pout("Device Model:     ");
-  printswap(model, (char *)drive->model,40);
-
+  infofound(model);
   pout("Serial Number:    ");
-  printswap(serial, (char *)drive->serial_no,20);
-
+  infofound(serial);
   pout("Firmware Version: ");
-  printswap(firm, (char *)drive->fw_rev,8);
+  infofound(firm);
 
   if (determine_capacity(drive, capacity))
     pout("User Capacity:    %s bytes\n", capacity);
   
   // See if drive is recognized
-  drivetype=lookupdrive(model, firm);
   pout("Device is:        %s\n", drivetype<0?
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
-  // Print model family if known
-  if (drivetype>=0 && knowndrives[drivetype].modelfamily)
-    pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
 
   // now get ATA version info
   version=ataVersionInfo(&description,drive, &minorrev);

@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.123 2004/09/17 20:13:52 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.124 2004/09/18 17:17:31 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -612,7 +612,7 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
+  { "Toshiba 2.5\" HDD series", // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
     "^TOSHIBA MK6021GAS$",
     ".*",
     NULL, NULL, NULL, NULL
