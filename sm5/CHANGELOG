@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.154 2003/06/16 16:32:00 ballen4705 Exp $
+$Id: CHANGELOG,v 1.155 2003/06/17 06:10:54 dpgilbert Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -37,6 +37,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DG] Check that certain SCSI command responses are well formed. If
+       IEC mode page response is not well formed exit smartctl. This
+       is to protect aacraid. smartd should ignore a aacraid device.
 
 smartmontools-5.1-14
 
@@ -79,7 +83,7 @@ smartmontools-5.1-12
 
   [DG] Refine SCSI log sense command to do a double fetch in most cases
        (but not for the TapeAlert log page). Fix TapeAlert and Self Test
-       log pgae response truncation.
+       log page response truncation.
 
   [PW] Added 'removable' argument to -d Directive for smartd.  This indicates
        that smartd should continue (rather than exit) if the device does not 
