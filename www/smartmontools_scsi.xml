@@ -616,8 +616,12 @@ be applied to the LUNs greater than 0 that refer to physical disks.
 Some SCSI RAIDs equipped internally ATA disks have a mechanism that allows
 ATA commands to be tunnelled to the ATA disks. The 3ware 6000 and 7000 
 series Escalade controllers are examples. In this case, special
-provision may be made in smartmontools to tunnel the ATA command
-required through to the physical disks.
+provision has been made in smartmontools (starting with release 5.1-16) to
+tunnel the ATA command required through to the physical disks.  This is done
+by using the smartctl/smartd -d 3ware,N option/Directive.  When this is done, all the
+smartmontools ATA commands options/Directives apart from Enable Autosave (-S on)
+and Enable Auto Offline (-o on) may be used.  Please see the smartctl and smartd man
+pages for details.
 </para>
 </sect1>
 
