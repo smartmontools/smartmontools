@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.77 2003/08/30 19:06:50 pervalidus Exp $
+# $Id: Makefile,v 1.78 2003/08/30 19:17:08 pervalidus Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -25,12 +25,15 @@ CC	 = gcc
 # Comment out to build debuggable binaries
 # DEBUG	 = -g
 
-# Build against kernel header files.  Comment out the line and change
-# 'linux' to the correct path for your system
+# Comment out to strip all symbol information from the binaries
+# LDFLAGS  = -Wl,-s
+
+# Comment out to build against kernel header files. Change 'linux' to the
+# correct path for your system
 # KERNEL_HEADERS = -I/usr/src/linux/include
+
 CFLAGS	 = -fsigned-char -Wall -O2 $(DEBUG) $(KERNEL_HEADERS)
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
-LDFLAGS  = # -Wl,-s
 
 GZIP=/bin/gzip
 INSTALL = install
