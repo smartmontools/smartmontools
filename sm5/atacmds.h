@@ -1,4 +1,4 @@
-//  $Id: atacmds.h,v 1.10 2002/10/13 13:10:56 ballen4705 Exp $
+//  $Id: atacmds.h,v 1.11 2002/10/14 15:26:08 ballen4705 Exp $
 /*
  * atacmds.h
  *
@@ -13,6 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * (for example COPYING); if not, write to the Free
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * This code was originally developed as a Senior Thesis by Michael Cornwell
+ * at the Concurrent Systems Laboratory (now part of the Storage Systems
+ * Research Center), Jack Baskin School of Engineering, University of
+ * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+ *
  */
 
 #ifndef _ATACMDS_H_

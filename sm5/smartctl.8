@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.8 2002/10/14 15:26:25 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -10,7 +10,12 @@
 \# You should have received a copy of the GNU General Public License (for
 \# example COPYING); if not, write to the Free Software Foundation, Inc., 675
 \# Mass Ave, Cambridge, MA 02139, USA.
-.TH SMARTCTL 8  "$Date: 2002/10/12 11:10:01 $" "smartmontools-5.0"
+\#
+\# This code was originally developed as a Senior Thesis by Michael Cornwell
+\# at the Concurrent Systems Laboratory (now part of the Storage Systems
+\# Research Center), Jack Baskin School of Engineering, University of
+\# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+.TH SMARTCTL 8  "$Date: 2002/10/14 15:26:25 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control utility 
 .SH SYNOPSIS
@@ -180,7 +185,8 @@ Offline: Runs S.M.A.R.T. Immediate offline Test.  This immediately
 starts the test describe above.  This command can be given during
 normal system operation.
 .TP
-S Selftest: Runs S.M.A.R.T. Short Self Test (usually under ten
+S 
+Selftest: Runs S.M.A.R.T. Short Self Test (usually under ten
 minutes).  This is a test in a different category than the automatic
 offline tests.  The 'Self' tests check the electrical and mechanical
 performance as well as the read performance of the disk.  Their
@@ -249,9 +255,13 @@ University of Wisconsin - Milwaukee Physics Department
 .PP
 .SH CREDITS
 .fi
-This code was derived from the smartsuite package, written by
-Michael Cornwell, and from the previous ucsc smartsuite package.  It
-extends these to cover ATA-5 disks.
+This code was derived from the smartsuite package, written by Michael
+Cornwell, and from the previous ucsc smartsuite package.  It extends
+these to cover ATA-5 disks.  This code was originally developed as a
+Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
+(now part of the Storage Systems Research Center), Jack Baskin School
+of Engineering, University of California, Santa
+Cruz. http://ssrc.soe.ucsc.edu/.
 .SH
 HOME PAGE FOR SMARTMONTOOLS: 
 .fi
@@ -309,4 +319,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.7 2002/10/12 11:10:01 ballen4705 Exp $
+$Id: smartctl.8,v 1.8 2002/10/14 15:26:25 ballen4705 Exp $
