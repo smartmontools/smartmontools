@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.154 2004/06/04 20:59:16 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.155 2004/07/13 14:48:06 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -423,12 +423,72 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   return s;
 }
 
+// This returns the capacity of a disk drive and also prints this into
+// a string, using comma separators to make it easier to read.  If the
+// drive doesn't support LBA addressing or has no user writable
+// sectors (eg, CDROM or DVD) then routine returns zero.
+uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
+
+  unsigned short command_set_2  = drive->command_set_2;
+  unsigned short capabilities_0 = drive->words047_079[49-47];
+  unsigned short sects_16       = drive->words047_079[60-47];
+  unsigned short sects_32       = drive->words047_079[61-47];
+  unsigned short lba_16         = drive->words088_255[100-88];
+  unsigned short lba_32         = drive->words088_255[101-88];
+  unsigned short lba_48         = drive->words088_255[102-88];
+  unsigned short lba_64         = drive->words088_255[103-88];
+  uint64_t capacity_short=0, capacity=0, threedigits, power_of_ten;
+  int started=0,k=1000000000;
+  
+  // if drive supports LBA addressing, determine 32-bit LBA capacity
+  if (capabilities_0 & 0x0200) {
+    capacity_short = (unsigned int)sects_32 << 16 | 
+                     (unsigned int)sects_16 << 0  ;
+    
+    // if drive supports 48-bit addressing, determine THAT capacity
+    if ((command_set_2 & 0xc000) == 0x4000 && (command_set_2 & 0x0400))
+      capacity = (uint64_t)lba_64 << 48 | 
+	         (uint64_t)lba_48 << 32 |
+	         (uint64_t)lba_32 << 16 | 
+	         (uint64_t)lba_16 << 0  ;
+    
+    // choose the larger of the two possible capacities
+    if (capacity_short>capacity)
+      capacity=capacity_short;
+  }
+
+  // turn sectors into bytes
+  capacity_short = (capacity *= 512);
+  
+  // print with comma separators.  I know this is anglo-centric:
+  // tell me what to change to use LOCALE if you want.
+  power_of_ten =  k;
+  power_of_ten *= k;
+  
+  for (k=0; k<7; k++) {
+    threedigits = capacity/power_of_ten;
+    capacity   -= threedigits*power_of_ten;
+    if (started)
+      // we have already printed some digits
+      pstring += sprintf(pstring, ",%03"PRIu64, threedigits);
+    else if (threedigits || k==6) {
+      // these are the first digits that we are printing
+      pstring += sprintf(pstring, "%"PRIu64, threedigits);
+      started = 1;
+    }
+    if (k!=6)
+      power_of_ten /= 1000;
+  }
+  
+  return capacity_short;
+}
+
 void ataPrintDriveInfo (struct ata_identify_device *drive){
   int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[DATEANDEPOCHLEN];
   unsigned short minorrev;
-  char model[64], serial[64], firm[64];
+  char model[64], serial[64], firm[64], capacity[64];
   
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
@@ -441,6 +501,9 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
   pout("Firmware Version: ");
   printswap(firm, (char *)drive->fw_rev,8);
 
+  if (determine_capacity(drive, capacity))
+    pout("User Capacity:    %s bytes\n", capacity);
+  
   // See if drive is recognized
   drivetype=lookupdrive(model, firm);
   pout("Device is:        %s\n", drivetype<0?

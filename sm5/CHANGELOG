@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.426 2004/07/12 21:32:25 zybert Exp $
+$Id: CHANGELOG,v 1.427 2004/07/13 14:48:06 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -27,6 +27,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+  
+  [BA] For ATA devices that support LBA mode, print capacity as part
+       of smartctl --info
 
   [RZ] Made DEVICESCAN quiet about non-existing devices unless debug
        is on.
