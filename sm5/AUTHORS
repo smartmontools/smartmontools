@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.12 2004/07/12 20:21:09 zybert Exp $
+$Id: AUTHORS,v 1.13 2004/07/16 01:41:19 geoffk1 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -19,6 +19,7 @@ Christian Franke	<franke@computer.org>
 Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
+Geoff Keating		<geoffk@geoffk.org>
 Dr. David Kirkby	<drkirkby@ntlworld.com>
 Kai Mäkisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu	<martines@rochester.rr.com>

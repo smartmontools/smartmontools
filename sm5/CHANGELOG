@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.431 2004/07/15 15:48:03 pjwilliams Exp $
+$Id: CHANGELOG,v 1.432 2004/07/16 01:41:19 geoffk1 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -15,6 +15,7 @@ Maintainers / Developers Key:
 [GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
+[GK] Geoff Keating
 [DK] Dr. David Kirkby
 [KM] Kai Mäkisara
 [EM] Eduard Martinescu
@@ -27,6 +28,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [GK] Added os_darwin.[ch]
 
   [PW] Added the following drives to the knowndrives table: IBM Travelstar
        48GH, 30GN, and 15GN family; IBM Deskstar 37GP and 34GXP family;
