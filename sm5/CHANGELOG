@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.318 2004/01/07 17:13:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.319 2004/01/12 20:27:37 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -24,6 +24,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Maxtor DiamondMax 20 VL series, Fujitsu MPF series,
+       Maxtor DiamondMax 36 series, Maxtor DiamondMax 4320 series, and
+       Maxtor DiamondMax 536DX series to knowndrives table.
 
   [BA] many warning messages now give the file name AND VERSION
 

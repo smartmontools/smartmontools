@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.81 2004/01/05 11:38:07 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.82 2004/01/12 20:27:37 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -56,9 +56,13 @@ extern long long bytes;
 // to hold onto exit code for atexit routine
 extern int exitstatus;
 
-// These two are common to several models.
+// These three are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {
   PRESET_9_MINUTES,
+  {0,0}
+};
+const unsigned char vendoropts_9_halfminutes[][2] = {
+  PRESET_9_HALFMINUTES,
   {0,0}
 };
 const unsigned char vendoropts_9_seconds[][2] = {
@@ -154,6 +158,13 @@ const drivesettings knowndrives[] = {
   },
   { // Fujitsu MPD and MPE series
     "^FUJITSU MP[DE]....A[HTE]$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { // Fujitsu MPF series
+    "^FUJITSU MPF3(102A[HT]|153A[HT]|204A[HT])$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -275,6 +286,13 @@ const drivesettings knowndrives[] = {
     NULL,
     NULL
   },
+  { // All Samsung drives with '.*-25' firmware
+    "^SAMSUNG.*",
+    ".*-25$",
+    "May need -F samsung2 enabled; see manual page for description of -F.\n",
+    vendoropts_9_halfminutes,
+    NULL, NULL
+  },
   { // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
     ".*",
@@ -305,8 +323,15 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { // Maxtor 4W040H3
-    "^Maxtor 4W040H3$",
+  { // Maxtor DiamondMax 4320 family
+    "^Maxtor (91728D8|91512D7|91303D6|91080D5|90845D4|90645D3|90648D4|90432D2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax 20 VL family
+    "^Maxtor (94091U8|93071U6|92561U5|92041U4|91731U4|91531U3|91361U3|91021U2|90841U2|90651U2)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -314,6 +339,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor DiamondMax VL 30 family
     "^Maxtor (33073U4|32049U3|31536U2|30768U1)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax 36 family
+    "^Maxtor (93652U8|92739U6|91826U4|91369U3|90913U2|90845U2|90435U1)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -328,6 +360,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor DiamondMax 80 family
     "^Maxtor (98196H8|96147H6)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax 536DX family
+    "^Maxtor 4W(100H6|080H6|060H4|040H3|030H2)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
