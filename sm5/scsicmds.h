@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.17 2003/04/06 03:53:50 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.18 2003/04/07 03:36:20 dpgilbert Exp $\n"
 #endif
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
@@ -166,19 +166,19 @@ struct scsi_sense_disect {
 #define ALL_PARAMETERS                           0x3f
 
 /* defines for useful SCSI Status codes */
-#define SCSI_STATUS_CHECK_CONDITION	0x2
+#define SCSI_STATUS_CHECK_CONDITION     0x2
 
 /* defines for useful Sense Key codes */
-#define SCSI_SK_NOT_READY		0x2
-#define SCSI_SK_ILLEGAL_REQUEST		0x5
-#define SCSI_SK_UNIT_ATTENTION		0x6
+#define SCSI_SK_NOT_READY               0x2
+#define SCSI_SK_ILLEGAL_REQUEST         0x5
+#define SCSI_SK_UNIT_ATTENTION          0x6
 
 /* defines for useful Additional Sense Codes (ASCs) */
-#define SCSI_ASC_UNKNOWN_OPCODE		0x20
-#define SCSI_ASC_UNKNOWN_FIELD		0x24
-#define SCSI_ASC_UNKNOWN_PARAM		0x26
-#define SCSI_ASC_WARNING		0xb
-#define SCSI_ASC_IMPENDING_FAILURE	0x5d
+#define SCSI_ASC_UNKNOWN_OPCODE         0x20
+#define SCSI_ASC_UNKNOWN_FIELD          0x24
+#define SCSI_ASC_UNKNOWN_PARAM          0x26
+#define SCSI_ASC_WARNING                0xb
+#define SCSI_ASC_IMPENDING_FAILURE      0x5d
 
 
 /* defines for functioncode parameter in SENDDIAGNOSTIC function */
@@ -221,7 +221,7 @@ int senddiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
 
 int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
-/* S.M.A.R.T. specific commands */
+/* SMART specific commands */
 
 /*scsSmartSupport return value  can be masked with the following */
 /* Parsing response of ModePage 1c */
@@ -236,7 +236,7 @@ int receivediagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
 int scsiCheckIE(int device, UINT8 method, UINT8 *asc, UINT8 *ascq,
                 UINT8 *currenttemp);
 
-int scsiSmartSupport(int device, UINT8 *retval);
+int scsiSmartSupport(int device, UINT8 *iec_2p);
 
 int scsiSmartEWASCEnable(int device);
 int scsiSmartEWASCDisable(int device);
