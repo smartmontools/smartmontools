@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.37 2004/03/02 18:19:55 shattered Exp $
+$Id: INSTALL,v 1.38 2004/03/13 22:46:47 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -60,6 +60,14 @@ Table of contents:
     The code was tested on a 1.6ZG (i.e., 1.6-current) system. It should
     also function under 1.6.1 and later releases (unverified).  Currently
     it doesn't support ATA devices on 3ware RAID controllers.
+
+    E) Windows
+
+    The Code was tested on Windows 98SE, NT4, 2000 and XP. It should also
+    work on Windows 95(OSR2) and ME. For SCSI support, an installed
+    ASPI interface (WNASPI32.DLL) is required. The read log command
+    (-l, --log) is not supported for ATA/IDE devices on NT4.
+
 
 [2] Installing from CVS
 =======================
@@ -235,8 +243,12 @@ SuSE:
 [8] Guidelines for Windows
 ==========================
 Cygwin:
-  ./configure --mandir=/usr/share/man				\
-	      --with-docdir=/usr/share/doc/smartmontools-VERSION
+  ./configure --mandir=/usr/share/man                            \
+              --with-docdir=/usr/share/doc/smartmontools-VERSION
+
+MinGW:
+  ./configure --disable-dependency-tracking --build mingw32
+
 
 [9] Comments
 ============

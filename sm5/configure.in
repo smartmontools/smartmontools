@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.65 2004/03/10 20:25:36 ballen4705 Exp $
+# $Id: configure.in,v 1.66 2004/03/13 22:46:47 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.31, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.65 2004/03/10 20:25:36 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.66 2004/03/13 22:46:47 chrfranke Exp $'`
 smartmontools_release_date=2004/03/07
 smartmontools_release_time="20:57:36 UTC"
 
@@ -104,13 +104,22 @@ case "${host}" in
 	*-*-cygwin*)
 		AC_SUBST([os_deps], ['os_win32.o'])
 		AC_SUBST([os_libs], ['']) ;;
+	*-*-mingw*)
+		# No CYGWIN1.DLL
+		CPPFLAGS="$CPPFLAGS -mno-cygwin"
+		LDFLAGS="$LDFLAGS -mno-cygwin"
+		# Include path setting is OK for now but should be done before first AC_CHECK_HEADER:
+		CPPFLAGS="$CPPFLAGS -idirafter posix -idirafter os_win32"
+		AC_SUBST([os_deps], ['os_win32.o regex.o syslog_win32.o'])
+		AC_SUBST([os_libs], ['']) ;;
 	*)
 		AC_SUBST([os_deps], ['os_generic.o']) 
 		AC_SUBST([os_libs], ['']) ;;
 esac
 
 dnl Define platform-specific symbol.
-AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris*' > /dev/null])
+AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
+AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
 
 dnl Add -Wall and -W if using gcc and its not already specified.
 if test "x$GCC" = "xyes"; then
@@ -121,6 +130,11 @@ if test "x$GCC" = "xyes"; then
   if test -z "`echo "$CFLAGS " | grep "\-W " 2> /dev/null`" ; then
       CFLAGS="$CFLAGS -W"
   fi
+  case "${host}" in
+    *-*-mingw*)
+      # MinGW uses MSVCRT.DLL which uses printf format "%I64d" and not "%lld" for int64_t
+      CFLAGS="$CFLAGS -Wno-format";;
+  esac
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
  case "${host}" in
