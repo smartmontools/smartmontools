@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.80 2005/01/14 00:28:32 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.81 2005/04/02 12:02:59 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -120,6 +120,7 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {MODE_SENSE, "mode sense"},                 /* 0x1a */
     {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
     {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
+    {READ_DEFECT_10, "read defect list(10)"},   /* 0x37 */
     {LOG_SENSE, "log sense"},                   /* 0x4d */
     {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
     {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
@@ -172,7 +173,7 @@ static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
             return SIMPLE_ERR_NOT_READY;
     case SCSI_SK_MEDIUM_ERROR:
     case SCSI_SK_HARDWARE_ERROR:
-	return SIMPLE_ERR_MEDIUM_HARDWARE;
+        return SIMPLE_ERR_MEDIUM_HARDWARE;
     case SCSI_SK_ILLEGAL_REQUEST:
         if (SCSI_ASC_UNKNOWN_OPCODE == sinfo->asc)
             return SIMPLE_ERR_BAD_OPCODE;
@@ -221,8 +222,8 @@ const char * scsiErrString(int scsiErr)
 
 /* Sends LOG SENSE command. Returns 0 if ok, 1 if device NOT READY, 2 if
    command not supported, 3 if field (within command) not supported or
-   returns negated errno.  SPC sections 7.6 and 8.2 N.B. Sets PC==1
-   to fetch "current cumulative" log pages.
+   returns negated errno.  SPC-3 sections 6.6 and 7.2 (rec 22a).
+   N.B. Sets PC==1 to fetch "current cumulative" log pages.
    If known_resp_len > 0 then a single fetch is done for this response
    length. If known_resp_len == 0 then twin fetches are performed, the
    first to deduce the response length, then send the same command again
@@ -318,7 +319,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
 /* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
  * 2 if command not supported (then MODE SENSE(10) should be supported),
  * 3 if field in command not supported or returns negated errno. 
- * SPC sections 7.9 and 8.4 [mode subpage==0] */
+ * SPC-3 sections 6.9 and 7.4 (rev 22a) [mode subpage==0] */
 int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -345,13 +346,13 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
-	return status;
+        return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
     status = scsiSimpleSenseFilter(&sinfo);
     if (SIMPLE_ERR_TRY_AGAIN == status) {
         status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
         if (0 != status)
-	    return status;
+            return status;
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
     }
@@ -373,7 +374,7 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
  * (normally 1) and then 1 mode page. Returns 0 if ok, 1 if NOT READY,
  * 2 if command not supported (then MODE SELECT(10) may be supported), 
  * 3 if field in command not supported, 4 if bad parameter to command
- * or returns negated errno. SPC sections 7.7 and 8.4 */
+ * or returns negated errno. SPC-3 sections 6.7 and 7.4 (rev 22a) */
 int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -415,7 +416,7 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
 /* MODE SENSE (10 byte). Returns 0 if ok, 1 if NOT READY, 2 if command 
  * not supported (then MODE SENSE(6) might be supported), 3 if field in
  * command not supported or returns negated errno.  
- * SPC sections 7.10 and 8.4 [mode subpage==0] */
+ * SPC-3 sections 6.10 and 7.4 (rev 22a) [mode subpage==0] */
 int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -441,13 +442,13 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
     if (0 != status)
-	return status;
+        return status;
     scsi_do_sense_disect(&io_hdr, &sinfo);
     status = scsiSimpleSenseFilter(&sinfo);
     if (SIMPLE_ERR_TRY_AGAIN == status) {
         status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
         if (0 != status)
-	    return status;
+            return status;
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
     }
@@ -469,7 +470,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
  * (normally 1) and then 1 mode page. Returns 0 if ok, 1 NOT REAFY, 2 if 
  * command not supported (then MODE SELECT(6) may be supported), 3 if field
  * in command not supported, 4 if bad parameter to command or returns
- * negated errno. SAM sections 7.8 and 8.4 */
+ * negated errno. SPC-3 sections 6.8 and 7.4 (rev 22a) */
 int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -511,7 +512,7 @@ int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
 
 /* Standard INQUIRY returns 0 for ok, anything else is a major problem.
  * bufLen should be 36 for unsafe devices (like USB mass storage stuff)
- * otherwise they can lock up! SPC sections 7.4 and 8.6 */
+ * otherwise they can lock up! SPC-3 sections 6.4 and 7.6 (rev 22a) */
 int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
 {
     struct scsi_sense_disect sinfo;
@@ -545,7 +546,7 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
 /* INQUIRY to fetch Vital Page Data.  Returns 0 if ok, 1 if NOT READY
  * (unlikely), 2 if command not supported, 3 if field in command not 
  * supported, 5 if response indicates that EVPD bit ignored or returns
- * negated errno. SPC section 7.4 and 8.6 */
+ * negated errno. SPC-3 section 6.4 and 7.6 (rev 22a) */
 int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -591,7 +592,7 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 }
 
 /* REQUEST SENSE command. Returns 0 if ok, anything else major problem.
- * SPC section 7.24 */
+ * SPC-3 section 6.27 (rev 22a) */
 int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
 {
     struct scsi_cmnd_io io_hdr;
@@ -634,7 +635,7 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
 
 /* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if NOT READY, 2 if command
  * not supported, 3 if field in command not supported or returns negated
- * errno. SPC section 7.25 */
+ * errno. SPC-3 section 6.28 (rev 22a) */
 int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -673,7 +674,7 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
 
 /* RECEIVE DIAGNOSTIC command. Returns 0 if ok, 1 if NOT READY, 2 if
  * command not supported, 3 if field in command not supported or returns
- * negated errno. SPC section 7.17 */
+ * negated errno. SPC-3 section 6.18 (rev 22a) */
 int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf, 
                       int bufLen)
 {
@@ -706,7 +707,7 @@ int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     return scsiSimpleSenseFilter(&sinfo);
 }
 
-/* TEST UNIT READY command. SPC section 7.28 (probably in SBC as well) */
+/* TEST UNIT READY command. SPC-3 section 6.33 (rev 22a) */
 static int _testunitready(int device, struct scsi_sense_disect * sinfo)
 {
     struct scsi_cmnd_io io_hdr;
@@ -752,6 +753,41 @@ int scsiTestUnitReady(int device)
         status = scsiSimpleSenseFilter(&sinfo);
     }
     return status;
+}
+
+/* READ DEFECT (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
+ * command not supported, 3 if field in command not supported or returns
+ * negated errno. SBC-2 section 5.12 (rev 16) */
+int scsiReadDefect10(int device, int req_plist, int req_glist, int dl_format,
+                     UINT8 *pBuf, int bufLen)
+{
+    struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
+    UINT8 cdb[10];
+    UINT8 sense[32];
+    int status;
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = READ_DEFECT_10;
+    cdb[2] = (unsigned char)(((req_plist << 4) & 0x10) |
+               ((req_glist << 3) & 0x8) | (dl_format & 0x7));
+    cdb[7] = (bufLen >> 8) & 0xff;
+    cdb[8] = bufLen & 0xff;
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+    if (0 != status)
+        return status;
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* Offset into mode sense (6 or 10 byte) response that actual mode page
@@ -1811,7 +1847,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
    are the poweron hour of the most recent failure. Note: aborted self
    tests (typically by the user) and self tests in progress are not 
    considered failures. See Working Draft SCSI Primary Commands - 3 
-   (SPC-3) section 7.2.10 T10/1416-D Rev 15 */
+   (SPC-3) section 7.2.10 T10/1416-D (rev 22a) */
 int scsiCountFailedSelfTests(int fd, int noisy)
 {
     int num, k, n, err, res, fails, fail_hour;
