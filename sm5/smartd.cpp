@@ -65,7 +65,7 @@
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.235 2003/11/13 07:43:22 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.236 2003/11/14 07:41:39 ballen4705 Exp $" 
                             ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID
                             SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
@@ -901,18 +901,24 @@ int ATADeviceScan(cfgfile *cfg){
   }
   
   // capability check: self-test-log
-  if (cfg->selftest){    
+  if (cfg->selftest){
+    int retval;
     // see if device supports Self-test logging.  Note that the
     // following is not a typo: Device supports self-test log if and
     // only if it also supports error log.
     if (
 	!cfg->smartval                                       ||
 	!isSmartErrorLogCapable(cfg->smartval)               ||
-	(cfg->selflogcount=SelfTestErrorCount(fd, name))<0
+	(retval=SelfTestErrorCount(fd, name))<0
 	) {
       PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", name);
       cfg->selftest=0;
       cfg->selflogcount=0;
+      cfg->selfloghour=0;
+    }
+    else {
+      cfg->selflogcount=SELFTEST_ERRORCOUNT(retval);
+      cfg->selfloghour =SELFTEST_ERRORHOURS(retval);
     }
   }
   
@@ -1094,10 +1100,16 @@ static int SCSIDeviceScan(cfgfile *cfg)
 
     // capability check: self-test-log
     if (cfg->selftest){
-      if ((cfg->selflogcount=scsiCountFailedSelfTests(fd, 1))<0) {
+      int retval=scsiCountFailedSelfTests(fd, 1);
+      if (retval<0) {
 	PrintOut(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
 	cfg->selftest=0;
 	cfg->selflogcount=0;
+	cfg->selfloghour=0;
+      }
+      else {
+	cfg->selflogcount=SELFTEST_ERRORCOUNT(retval);
+	cfg->selfloghour =SELFTEST_ERRORHOURS(retval);
       }
     }
 
@@ -1210,6 +1222,45 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
 
   // return value when setting has no sense
   return 0;
+}
+
+// If the self-test log has got more self-test errors (or more recent
+// self-test errors) recorded, then notify user.
+void CheckSelfTestLogs(cfgfile *cfg, int new){
+  char *name=cfg->name;
+
+  if (new<0)
+    // command failed
+    PrintAndMail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
+  else {      
+    // old and new error counts
+    int oldc=cfg->selflogcount;
+    int newc=SELFTEST_ERRORCOUNT(new);
+    
+    // old and new error timestamps in hours
+    int oldh=cfg->selfloghour;
+    int newh=SELFTEST_ERRORHOURS(new);
+    
+    if (oldc<newc) {
+      // increase in error count
+      PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
+	       name, oldc, newc);
+      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",
+		   name, oldc, newc);
+    } else if (oldh<newh) {
+      // more recent error
+      PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
+	       name, newh);
+      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
+		   name, newh);
+    }
+    
+    // Needed since self-test error count may DECREASE.  Hour should
+    // never decrease but this does no harm.
+    cfg->selflogcount= newc;
+    cfg->selfloghour = newh;
+  }
+  return;
 }
 
 
@@ -1333,39 +1384,8 @@ int ATACheckDevice(cfgfile *cfg){
   }
   
   // check if number of selftest errors has increased (note: may also DECREASE)
-  if (cfg->selftest){
-    int old=cfg->selflogcount;
-    int new=SelfTestErrorCount(fd, name);
-
-    // old and new error counts
-    int oldc=old & 0xff;
-    int newc=new & 0xff;
-
-    // old and new error timestamps in hours
-    int oldh=old>>8;
-    int newh=new>>8;
-    
-    if (new<0)
-      // command failed
-      PrintAndMail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
-    else if (oldc<newc) {
-      // increase in error count
-      PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
-	       name, oldc, newc);
-      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",
-		   name, oldc, newc);
-    } else if (oldh<newh) {
-      // more recent error
-      PrintOut(LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
-	       name, newh);
-      PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
-		   name, newh);
-    }
-    
-    // Needed since self-test error count may  DECREASE
-    if (new>=0)
-      cfg->selflogcount=new;
-  }
+  if (cfg->selftest)
+    CheckSelfTestLogs(cfg, SelfTestErrorCount(fd, name));
   
   // check if number of ATA errors has increased
   if (cfg->errorlog){
@@ -1464,26 +1484,9 @@ int SCSICheckDevice(cfgfile *cfg)
     }
     
     // check if number of selftest errors has increased (note: may also DECREASE)
-    if (cfg->selftest){
-      // old and new self-test error counts
-      int old=cfg->selflogcount;
-      int new=scsiCountFailedSelfTests(fd, 0);
-      
-      if (new<0)
-	// command failed
-	PrintAndMail(cfg, 8, LOG_CRIT, "Device: %s, Read SMART Self Test Log Failed", name);
-      else if (old<new){
-	PrintOut(LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d\n",
-		 name, old, new);
-	PrintAndMail(cfg, 3, LOG_CRIT, "Device: %s, Self-Test Log error count increased from %d to %d",
-		     name, old, new);
-      }
-      
-      // Needed since self-test error count may  DECREASE
-      if (new>=0)
-	cfg->selflogcount=new;
-    }
-
+    if (cfg->selftest)
+      CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
+    
     CloseDevice(fd, name);
     return 0;
 }
