@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.91 2004/10/15 15:02:54 chrfranke Exp $
+$Id: smartd.8.in,v 1.92 2004/11/23 16:48:18 ydario Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -109,6 +109,8 @@ and \fB"/dev/scsi[0-3][0-7]"\fP (ASPI adapter 0-3, ID 0-7) for SCSI
 devices on all versions of Windows.
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS" above.
+.IP \fBOS/2,eComStation\fP: 9
+Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
 .PP
 \fBsmartd\fP then monitors
 for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
@@ -1799,4 +1801,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.91 2004/10/15 15:02:54 chrfranke Exp $
+$Id: smartd.8.in,v 1.92 2004/11/23 16:48:18 ydario Exp $

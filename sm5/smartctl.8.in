@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.71 2004/11/11 17:56:08 ydario Exp $
+ $Id: smartctl.8.in,v 1.72 2004/11/23 16:48:18 ydario Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -85,6 +85,8 @@ and \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices on ASPI adapter 0\-9, ID 0\-1
 The prefix \fB"/dev/"\fP is optional.
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS" above.
+.IP \fBOS/2,eComStation\fP: 9
+Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
 .PP
 Based on the device path, \fBsmartctl\fP will guess the device type
 (ATA or SCSI).  If necessary, the \'\-d\' option can be used to over\-ride
@@ -1244,7 +1246,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.71 2004/11/11 17:56:08 ydario Exp $
+$Id: smartctl.8.in,v 1.72 2004/11/23 16:48:18 ydario Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
