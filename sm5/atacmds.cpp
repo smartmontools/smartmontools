@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.76 2003/04/02 18:37:16 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.77 2003/04/03 01:07:51 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -932,20 +932,30 @@ int ataSmartStatus2(int device){
 int ataSmartTest(int device, int testtype){	
   char cmdmsg[128],*type,*captive;
   int errornum;
+  int cap;
 
+  // Boolean, if set, says test is captive
+  cap=testtype & CAPTIVE_MASK;
+  
   // Set up strings that describe the type of test
-  if (testtype==SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST)
+  if (cap)
     captive="captive";
   else
     captive="off-line";
-
+  
   if (testtype==OFFLINE_FULL_SCAN)
     type="off-line";
   else  if (testtype==SHORT_SELF_TEST || testtype==SHORT_CAPTIVE_SELF_TEST)
     type="Short self-test";
-  else 
+  else if (testtype==EXTEND_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST)
     type="Extended self-test";
-
+  else if (testtype==CONVEYANCE_SELF_TEST || testtype==CONVEYANCE_CAPTIVE_SELF_TEST)
+    type="Conveyance self-test";
+  else if (testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST)
+    type="Selective self-test";
+  else
+    type="[Unrecognized] self-test";
+    
   //  Print ouf message that we are sending the command to test
   if (testtype==ABORT_SELF_TEST)
     sprintf(cmdmsg,"Abort SMART off-line mode self-test routine");
@@ -956,7 +966,7 @@ int ataSmartTest(int device, int testtype){
   // Now send the command to test
   errornum=smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL);
 
-  if (errornum && !((testtype=SHORT_CAPTIVE_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST) && errno==EIO)){
+  if (errornum && !(cap && errno==EIO)){
     char errormsg[128];
     sprintf(errormsg,"Command \"%s\" failed",cmdmsg); 
     syserror(errormsg);

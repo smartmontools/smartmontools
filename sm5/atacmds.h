@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.37 2003/04/02 00:35:07 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.38 2003/04/03 01:07:51 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -118,9 +118,14 @@ typedef enum {
 #define OFFLINE_FULL_SCAN		0
 #define SHORT_SELF_TEST			1
 #define EXTEND_SELF_TEST		2
+#define CONVEYANCE_SELF_TEST            3
+#define SELECTIVE_SELF_TEST             4
 #define ABORT_SELF_TEST                 127
 #define SHORT_CAPTIVE_SELF_TEST		129
 #define EXTEND_CAPTIVE_SELF_TEST	130
+#define CONVEYANCE_CAPTIVE_SELF_TEST    131
+#define SELECTIVE_CAPTIVE_SELF_TEST     132
+#define CAPTIVE_MASK                    (0x01<<7)
 
 #define NUMBER_ATA_SMART_ATTRIBUTES 	30
 
