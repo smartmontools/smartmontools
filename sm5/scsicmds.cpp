@@ -46,7 +46,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.55 2003/11/11 11:04:40 dpgilbert Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.56 2003/11/12 01:46:28 ballen4705 Exp $" EXTERN_H_CVSID SCSICMDS_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1673,7 +1673,6 @@ int scsiCountSelfTests(int fd, int noisy)
     }
     // loop through the twenty possible entries
     for (k = 0, ucp = resp + 4; k < 20; ++k, ucp += 20 ) {
-        int i;
 
         // timestamp in power-on hours (or zero if test in progress)
         n = (ucp[6] << 8) | ucp[7];
