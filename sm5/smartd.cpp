@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.177 2003/08/04 12:58:40 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.178 2003/08/05 10:07:35 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -141,11 +141,11 @@ void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...){
 
   // checks for sanity
   if (cfg->emailfreq<1 || cfg->emailfreq>3) {
-    printout(LOG_INFO,"internal error in printandmail(): cfg->emailfreq=%d\n",cfg->emailfreq);
+    printout(LOG_CRIT,"internal error in printandmail(): cfg->emailfreq=%d\n",cfg->emailfreq);
     return;
   }
   if (which<0 || which>9) {
-    printout(LOG_INFO,"internal error in printandmail(): which=%d\n",which);
+    printout(LOG_CRIT,"internal error in printandmail(): which=%d\n",which);
     return;
   }
   
@@ -330,7 +330,7 @@ void sighandler(int sig){
 void remove_pid_file(){
   if (pid_file) {
     if ( -1==unlink(pid_file) )
-      printout(LOG_INFO,"Can't unlink PID file %s (%s).\n", 
+      printout(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
 	       pid_file, strerror(errno));
     free(pid_file);
   }
@@ -433,7 +433,7 @@ void printhead(){
 // prints help info for configuration file Directives
 void Directives() {
   printout(LOG_INFO,"Configuration file (/etc/smartd.conf) Directives (after device name):\n");
-  printout(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable\n");
+  printout(LOG_INFO,"  -d TYPE Set the device type: ata, scsi, removable, 3ware,N\n");
   printout(LOG_INFO,"  -T TYPE Set the tolerance to one of: normal, permissive\n");
   printout(LOG_INFO,"  -o VAL  Enable/disable automatic offline tests (on/off)\n");
   printout(LOG_INFO,"  -S VAL  Enable/disable attribute autosave (on/off)\n");
@@ -498,8 +498,21 @@ void Usage (void){
 static int opendevice(char *device, int flags)
 {
   int fd;
+  char *s=device;
  
+  // If there is an ASCII "space" character in the device name,
+  // terminate string there
+  if ((s=strchr(device,' ')))
+    *s='\0';
+
+  // open the device
   fd = open(device, flags);
+
+  // if we removed a space, put it back in please
+  if (s)
+    *s=' ';
+
+  // if we failed to open the device, complain!
   if (fd < 0) {
     printout(LOG_INFO,"Device: %s, %s, open() failed\n",
              device, strerror(errno));
@@ -547,7 +560,7 @@ int selftesterrorcount(int fd, char *name){
 
 
 // scan to see what ata devices there are, and if they support SMART
-int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
+int atadevicescan(atadevices_t *devices, cfgfile *cfg){
   int fd;
   struct hd_driveid drive;
   char *device=cfg->name;
@@ -562,6 +575,9 @@ int atadevicescan2(atadevices_t *devices, cfgfile *cfg){
     return 1;
   printout(LOG_INFO,"Device: %s, opened\n", device);
   
+  // pass user settings on to low-level ATA commands
+  con->escalade=cfg->escalade;
+
   // Get drive identity structure
   if (ataReadHDIdentity (fd,&drive)){
     // Unable to read Identity structure
@@ -950,6 +966,7 @@ int ataCheckDevice(atadevices_t *drive){
   
   // fix firmware bug if requested
   con->fixfirmwarebug=cfg->fixfirmwarebug;
+  con->escalade=cfg->escalade;
 
   // If user has asked, test the email warning system
   if (cfg->emailtest)
@@ -1276,7 +1293,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 
   switch (d) {
   case 'd':
-    printout(priority, "ata, scsi, removable");
+    printout(priority, "ata, scsi, removable, 3ware,N");
     break;
   case 'T':
     printout(priority, "normal, permissive");
@@ -1393,13 +1410,45 @@ int parsetoken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "ata")) {
       cfg->tryata  = 1;
       cfg->tryscsi = 0;
+      cfg->escalade =0;
     } else if (!strcmp(arg, "scsi")) {
       cfg->tryscsi = 1;
       cfg->tryata  = 0;
+      cfg->escalade =0;
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
     } else {
-      badarg = 1;
+      // look for RAID-type device
+      int i;
+      char *s;
+      // make a copy of the string to mess with
+      if (!(s = strdup(arg))) {
+	printout(LOG_CRIT,
+		 "No memory to copy argument to -d option"
+		 " - exiting\n");
+	exit(EXIT_NOMEM);
+      }
+      if (split_report_arg2(s, &i)) {
+	badarg = 1;
+      } else if (!strcmp(s,"3ware")) {
+	if (i>15){
+	  printout(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
+		   CONFIGFILE, lineno, name, i);
+	  exit(EXIT_BADCONF);
+	}
+	if (i<0){
+	  printout(LOG_CRIT, "File %s line %d (drive %s): Directive -d %s must be -d 3ware,N with 0 <= N <= 15\n",
+		   CONFIGFILE, lineno, name, arg);
+	  exit(EXIT_BADCONF);
+	}
+	// NOTE: escalade = disk number + 1
+	cfg->escalade = i+1;
+	cfg->tryata  = TRUE;
+	cfg->tryscsi = FALSE;
+      } else {
+	badarg=1;
+      }
+      free(s); 
     }
     break;
   case 'F':
@@ -1645,7 +1694,9 @@ int parseconfigline(int entry, int lineno,char *line){
 
   // Save info to process memory for after forking 32 bytes contains 1
   // bit per possible attribute ID.  See isattoff()
-  cfg->name=strdup(name);
+
+  // DO NOT USE name AFTER THIS -- IT COMES FROM strtok() AND IS VOLATILE!
+  cfg->name=strdup(name);  
   cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
   cfg->attributedefs=(unsigned char *)calloc(256,1);
 
@@ -1662,9 +1713,9 @@ int parseconfigline(int entry, int lineno,char *line){
   
   // Try and recognize if a IDE or SCSI device.  These can be
   // overwritten by configuration file directives.
-  if (GUESS_DEVTYPE_ATA == guess_linux_device_type(name))
+  if (GUESS_DEVTYPE_ATA == guess_linux_device_type(cfg->name))
     cfg->tryscsi=0;
-  else if (GUESS_DEVTYPE_SCSI == guess_linux_device_type(name))
+  else if (GUESS_DEVTYPE_SCSI == guess_linux_device_type(cfg->name))
     cfg->tryata=0;
   /* in "don't know" case leave both tryata and tryscsi set */
   
@@ -1674,6 +1725,31 @@ int parseconfigline(int entry, int lineno,char *line){
 #if 0
     printout(LOG_INFO,"Parsed token %s\n",token);
 #endif
+  }
+
+  // If we found 3ware controller, then modify device name by adding a SPACE
+  if (cfg->escalade){
+    char *newname=(char *)malloc(32+strlen(cfg->name));
+    if (!newname) {
+      printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
+      exit(EXIT_NOMEM);
+    }
+    // Make new device name by adding a space then RAID disk number
+    sprintf(newname,"%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
+    free(cfg->name);
+    name=cfg->name=newname;
+  }
+
+  // Escalade 3ware controller does not implement autosave or auto offline test
+  if (cfg->escalade && cfg->autosave==2){
+    printout(LOG_CRIT, "Drive: %s on line %d of file %s. Autosave (-S on) unavailable for 3ware devices\n",
+             cfg->name, cfg->lineno, CONFIGFILE);
+    exit(EXIT_BADCONF);
+  }
+  if (cfg->escalade && cfg->autoofflinetest==2){
+    printout(LOG_CRIT, "Drive: %s on line %d of file %s. Auto offline test (-o on) unavailable for 3ware devices\n",
+             cfg->name, cfg->lineno, CONFIGFILE);
+    exit(EXIT_BADCONF);
   }
 
   // If no ATA monitoring directives are set, then set all of them.
@@ -2104,7 +2180,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
       cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
       cfg->attributedefs=(unsigned char *)calloc(256,1);
       if (!cfg->monitorattflags || !cfg->attributedefs) {
-	printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
+	printout(LOG_CRIT,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
 	exit(EXIT_NOMEM);
       }
     }
@@ -2116,7 +2192,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     // put in the device name
     cfg->name=strdup(name);
     if (!cfg->name) {
-      printout(LOG_INFO,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
+      printout(LOG_CRIT,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
       exit(EXIT_NOMEM);
     }
     
@@ -2201,7 +2277,7 @@ int main (int argc, char **argv){
     
     // register ATA devices
     if (config[i].tryata){
-      if (atadevicescan2(atadevicesptr+numatadevices, config+i))
+      if (atadevicescan(atadevicesptr+numatadevices, config+i))
 	cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
       else
 	notregistered=0;

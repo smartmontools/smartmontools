@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.81 2003/08/05 03:56:59 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.82 2003/08/05 10:07:35 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -220,6 +220,8 @@ void Usage (void){
 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
 "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
 "                                      (Prints Self-Test & Attribute errors)\n"
+"  smartctl -a -device=3ware,2 /dev/sda\n"
+"          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
   );
 #else
   printf(
@@ -228,6 +230,8 @@ void Usage (void){
 "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
 "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
 "                                      (Prints Self-Test & Attribute errors)\n"
+"  smartctl -a -d 3ware,2 /dev/sda\n"
+"          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
   );
 #endif
 }
@@ -378,9 +382,11 @@ void ParseOpts (int argc, char** argv){
       if (!strcmp(optarg,"ata")) {
 	tryata  = TRUE;
 	tryscsi = FALSE;
+	con->escalade = 0;
       } else if (!strcmp(optarg,"scsi")) {
 	tryata  = FALSE;
 	tryscsi = TRUE;
+	con->escalade = 0;
       } else {
 	// look for RAID-type device
 	int i;
@@ -653,7 +659,17 @@ void ParseOpts (int argc, char** argv){
   // Do this here, so results are independent of argument order	
   if (con->quietmode)
     con->veryquietmode=TRUE;
-  
+
+  // error message if user has specified 3ware controller and auto offline or autosave
+  if (con->escalade && con->smartautosaveenable){
+    pout("\nERROR: smartctl can not enable automatic Attribute save (-S on) for 3ware devices.\n");
+    exit(FAILCMD);
+  }
+  if (con->escalade && con->smartautoofflineenable){
+    pout("\nERROR: smartctl can not enable automatic offline testing (-o on) for 3ware devices.\n");
+    exit(FAILCMD);
+  }
+
   // error message if user has asked for more than one test
   if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
 	 con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort)){

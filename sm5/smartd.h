@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.37 2003/08/01 13:09:10 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.38 2003/08/05 10:07:35 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -138,6 +138,9 @@ typedef struct configfile_s {
   unsigned char *attributedefs;
   // enables equivalent of -F option for smartctl
   unsigned char fixfirmwarebug;
+  // is device a 3ware RAID controller (SCSI interface + ATA drives).
+  // If so, this is 1+drive number.
+  unsigned char escalade;
   // Don't use the preset vendor options from knowndrives[] for this device.
   char ignorepresets;
   // Show the preset vendor options from knowndrives[] for this device.
