@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.19 2003/10/04 16:01:32 guidog Exp $
+# $Id: Makefile.am,v 1.20 2003/10/05 11:48:20 guidog Exp $
 #
 
 sbin_PROGRAMS = smartd 	\
@@ -100,10 +100,10 @@ install-initdDATA: $(initd_DATA)
 	@echo -e "A sample configuration file may be found in ${docdir}.\n\n"
 
 uninstall-initdDATA:
-	rm -rf $(initddir)/smartd
+	rm -rf $(DESTDIR)$(initddir)/smartd
 
 uninstall-docsDATA:
-	rm -rf $(docsdir)
+	rm -rf $(DESTDIR)$(docsdir)
 
 # Todo:
 #   documentation: $(docsdir)
