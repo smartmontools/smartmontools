@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.61 2003/11/17 03:10:40 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.62 2003/11/17 11:54:32 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -68,6 +68,33 @@ static int gIecMPage = 1;     /* N.B. assume it until we know otherwise */
 /* Remember last successful mode sense/select command */
 static int modese_len = 0;
 
+
+// Compares failure type to policy in effect, and either exits or
+// simply returns to the calling routine.
+static void failuretest(int type, int returnvalue)
+{
+    // If this is an error in an "optional" SMART command
+    if (type == OPTIONAL_CMD) {
+        if (con->conservative) {
+            pout("An optional SMART command has failed: exiting.\n"
+                 "To continue, set the tolerance level to something other "
+                 "than 'conservative'\n");
+            EXIT(returnvalue);
+        }
+        return;
+    }
+    // If this is an error in a "mandatory" SMART command
+    if (type==MANDATORY_CMD) {
+        if (con->permissive)
+            return;
+        pout("A mandatory SMART command has failed: exiting. To continue, "
+             "use the -T option to set the tolerance level to 'permissive'\n");
+        exit(returnvalue);
+    }
+    pout("Smartctl internal error in failuretest(type=%d). Please contact "
+         "%s\n",type,PROJECTHOME);
+    exit(returnvalue|FAILCMD);
+}
 
 static void scsiGetSupportedLogPages(int device)
 {
@@ -571,6 +598,25 @@ static const char * peripheral_dt_arr[] = {
         "simplified disk",
         "optical card reader"
 };
+
+static const char * transport_proto_arr[] = {
+        "Fibre channel (FCP-2)",
+        "Parallel SCSI (SPI-4)",
+        "SSA",
+        "IEEE 1394 (SBP-2)",
+        "RDMA (SRP)",
+        "iSCSI",
+        "SAS",
+        "ADT",
+        "0x8",
+        "0x9",
+        "0xa",
+        "0xb",
+        "0xc",
+        "0xd",
+        "0xe",
+        "0xf"
+};
  
 /* Returns 0 on success */
 static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
@@ -580,7 +626,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     char revision[5];
     char timedatetz[64];
     struct scsi_iec_mode_page iec;
-    int err, len;
+    int err, iec_err, len, val;
     int is_tape = 0;
     int peri_dt = 0;
         
@@ -598,58 +644,62 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if (! all)
 	return 0;
 
-    if (len >= 36) {
-        memset(manufacturer, 0, sizeof(manufacturer));
-        strncpy(manufacturer, (char *)&gBuf[8], 8);
-     
-        memset(product, 0, sizeof(product));
-        strncpy(product, (char *)&gBuf[16], 16);
-            
-        memset(revision, 0, sizeof(revision));
-        strncpy(revision, (char *)&gBuf[32], 4);
-        pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-
-	/* 
-	   Doug: for a bad USB device, the code hangs in the following
-	   line within scsiInquiryVpd():
-
-	   status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-	   
-	   and within do_scsi_cmnd_io() it hangs in the line:
-
-	   status = ioctl(dev_fd, SCSI_IOCTL_SEND_COMMAND , &wrk);
-
-	   which never returns.  Would it be possible to put in a
-	   sanity check to detect such devices and exit with an error
-	   message, before calling scsiInquiryVpd()?
-
-	*/
-        if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
-            /* should use VPD page 0x83 and fall back to this page (0x80)
-             * if 0x83 not supported. NAA requires a lot of decoding code */
-            len = gBuf[3];
-            gBuf[4 + len] = '\0';
-            pout("Serial number: %s\n", &gBuf[4]);
-        }
-        else if (con->reportscsiioctl > 0) {
-            QUIETON(con);
-            if (SIMPLE_ERR_BAD_RESP == err)
-                pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
-            else
-                pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
-            QUIETOFF(con);
-        }
-    } else {
+    if (len < 36) {
         QUIETON(con);
         pout("Short INQUIRY response, skip product id\n");
         QUIETOFF(con);
+        return 1;
     }
+    memset(manufacturer, 0, sizeof(manufacturer));
+    strncpy(manufacturer, (char *)&gBuf[8], 8);
+ 
+    memset(product, 0, sizeof(product));
+    strncpy(product, (char *)&gBuf[16], 16);
+        
+    memset(revision, 0, sizeof(revision));
+    strncpy(revision, (char *)&gBuf[32], 4);
+    pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+
+    /* Do this here to try and detect badly conforming devices (some USB
+       keys) that will lock up on a InquiryVpd or log sense or ... */
+    if ((iec_err = scsiFetchIECmpage(device, &iec, modese_len))) {
+        if (SIMPLE_ERR_BAD_RESP == iec_err) {
+            pout(">> Terminate command early due to bad response to IEC "
+                 "mode page\n");
+            QUIETOFF(con);
+            gIecMPage = 0;
+            return 1;
+        }
+    } else
+        modese_len = iec.modese_len;
+
+    if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
+        /* should use VPD page 0x83 and fall back to this page (0x80)
+         * if 0x83 not supported. NAA requires a lot of decoding code */
+        len = gBuf[3];
+        gBuf[4 + len] = '\0';
+        pout("Serial number: %s\n", &gBuf[4]);
+    }
+    else if (con->reportscsiioctl > 0) {
+        QUIETON(con);
+        if (SIMPLE_ERR_BAD_RESP == err)
+            pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
+        else
+            pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
+        QUIETOFF(con);
+    }
+
     // print SCSI peripheral device type
     if (peri_dt < (int)(sizeof(peripheral_dt_arr) / 
                         sizeof(peripheral_dt_arr[0])))
         pout("Device type: %s\n", peripheral_dt_arr[peri_dt]);
     else
         pout("Device type: <%d>\n", peri_dt);
+
+    // See if transport protocol is known
+    val = scsiFetchTransportProtocol(device, modese_len);
+    if ((val >= 0) && (val <= 0xf))
+        pout("Transport protocol: %s\n", transport_proto_arr[val]);
 
     // print current time and date and timezone
     dateandtimezone(timedatetz);
@@ -672,27 +722,20 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 	return 0;
     }
    
-    if ((err = scsiFetchIECmpage(device, &iec, modese_len))) {
+    if (iec_err) {
 	if (!is_tape) {
             QUIETON(con);
 	    pout("Device does not support SMART");
             if (con->reportscsiioctl > 0)
-	        pout(" [%s]\n", scsiErrString(err));
+	        pout(" [%s]\n", scsiErrString(iec_err));
             else
 	        pout("\n");
-            if (SIMPLE_ERR_BAD_RESP == err) {
-                pout(">> Terminate command early due to bad response to IEC "
-                     "mode page\n");
-                QUIETOFF(con);
-                gIecMPage = 0;
-                return 1;
-            }
             QUIETOFF(con);
         }
         gIecMPage = 0;
         return 0;
-    } else
-        modese_len = iec.modese_len;
+    }
+
     if (!is_tape)
         pout("Device supports SMART and is %s\n",
              (scsi_IsExceptionControlEnabled(&iec)) ? "Enabled" : "Disabled");
@@ -790,33 +833,6 @@ void scsiPrintTemp(int device)
     }
     if (trip)
         pout("Drive Trip Temperature:        %d C\n", trip);
-}
-
-// Compares failure type to policy in effect, and either exits or
-// simply returns to the calling routine.
-static void failuretest(int type, int returnvalue)
-{
-    // If this is an error in an "optional" SMART command
-    if (type == OPTIONAL_CMD) {
-        if (con->conservative) {
-            pout("An optional SMART command has failed: exiting.\n"
-                 "To continue, set the tolerance level to something other "
-                 "than 'conservative'\n");
-            EXIT(returnvalue);
-        }
-        return;
-    }
-    // If this is an error in a "mandatory" SMART command
-    if (type==MANDATORY_CMD) {
-        if (con->permissive)
-            return;
-        pout("A mandatory SMART command has failed: exiting. To continue, "
-             "use the -T option to set the tolerance level to 'permissive'\n");
-        exit(returnvalue);
-    }
-    pout("Smartctl internal error in failuretest(type=%d). Please contact "
-         "%s\n",type,PROJECTHOME);
-    exit(returnvalue|FAILCMD);
 }
 
 /* Main entry point used by smartctl command. Return 0 for success */
