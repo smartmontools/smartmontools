@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.cpp,v 1.92 2003/01/03 17:25:12 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.cpp,v 1.93 2003/01/04 17:34:16 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -934,6 +934,8 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 
 // Print out a list of valid arguments for the Directive d
 void printoutvaliddirectiveargs(int priority, char d) {
+  char *s;
+
   switch (d) {
   case 'd':
     printout(priority, "ata, scsi");
@@ -950,6 +952,14 @@ void printoutvaliddirectiveargs(int priority, char d) {
     break;
   case 'M':
     printout(priority, "\"once\", \"daily\", \"diminishing\", \"once,test\", \"daily,test\", \"diminishing,test\"");
+    break;
+  case 'v':
+    if (!(s = create_vendor_attribute_arg_list())) {
+      printout(LOG_CRIT,"Insufficient memory to construct argument list\n");
+      break;
+    }
+    printout(priority, "%s", s);
+    free(s);
     break;
   }
 }
@@ -1161,20 +1171,10 @@ int parsetoken(char *token,cfgfile *cfg){
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
-    arg=strtok(NULL,delim);
-    if (!arg) {
-      // user forgot argument!
-      printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s needs attribute #,action pair\n",
-	       CONFIGFILE, lineno, name, token);
-      Directives();
-      exit(1);
-    }
-    if (parse_attribute_def(arg, cfg->attributedefs)){	
-      // user argument not recognized
-      printout(LOG_CRIT,"File %s line %d (drive %s): Directive: %s argument %s not recognized\n",
-	       CONFIGFILE, lineno, name, token, arg);
-      Directives();
-      exit(1);
+    if ((arg=strtok(NULL,delim)) == NULL) {
+      missingarg = 1;
+    } else if (parse_attribute_def(arg, cfg->attributedefs)){	
+      badarg = 1;
     }
     break;
   default:

@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.48 2003/01/03 17:25:12 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.c,v 1.49 2003/01/04 17:34:16 pjwilliams Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -156,6 +156,43 @@ int parse_attribute_def(char *pair, unsigned char *defs){
   }
 }
 
+// Function to return a string containing a list of the arguments in 
+// vendorattributeargs[] separated by commas.  The strings themselves
+// contain commas, so surrounding double quotes are added for clarity.
+// This function allocates the required memory for the string and the
+// caller must use free() to free it.  Returns NULL if the required
+// memory can't be allocated.
+char *create_vendor_attribute_arg_list(void){
+  const char **ps;
+  char *s;
+  int len;
+
+  // Calculate the required number of characters
+  len = 1;                // At least one char ('\0')
+  for (ps = vendorattributeargs; *ps != NULL; ps++) {
+    len += strlen(*ps);   // For the actual argument string
+    len += 2;             // For the surrounding double quotes
+    if (*(ps+1))
+      len += 2;           // For the ", " delimiter if required
+  }
+
+  // Attempt to allocate memory for the string
+  if (!(s = (char *)malloc(len)))
+    return NULL;
+
+  // Construct the string
+  *s = '\0';
+  for (ps = vendorattributeargs; *ps != NULL; ps++) {
+    strcat(s, "\"");
+    strcat(s, *ps);
+    strcat(s, "\"");
+    if (*(ps+1))
+      strcat(s, ", ");
+  }
+
+  // Return a pointer to the string
+  return s;
+}
 
 // A replacement for perror() that sends output to our choice of
 // printing.

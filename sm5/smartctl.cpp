@@ -42,7 +42,7 @@
 #include "extern.h"
 
 extern const char *CVSid1, *CVSid2, *CVSid3, *CVSid4; 
-const char* CVSid5="$Id: smartctl.cpp,v 1.33 2003/01/04 08:26:10 ballen4705 Exp $"
+const char* CVSid5="$Id: smartctl.cpp,v 1.34 2003/01/04 17:34:16 pjwilliams Exp $"
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID5 CVSID6;
 
 // This is a block containing all the "control variables".  We declare
@@ -213,9 +213,9 @@ void Usage (void){
 
 /* Print an appropriate error message for option opt when given an invalid argument, optarg */
 void printbadargmessage(int opt, const char *optarg) {
-  const char **ps;
+  char *s;
 
-  pout("=======> INVALID ARGUMENT OF -%c: %s <======= \n", opt, optarg);
+  pout("=======> INVALID ARGUMENT TO -%c: %s <======= \n", opt, optarg);
   pout("=======> VALID ARGUMENTS ARE: ");
   switch (opt) {
   case 'q':
@@ -239,11 +239,12 @@ void printbadargmessage(int opt, const char *optarg) {
      pout("error, selftest");
      break;
   case 'v':
-     // Print all strings in vendorattributeargs separated by commas.  The
-     // strings themselves contain commas, so surrounding double quotes are used
-     // for clarity.
-     for (ps = vendorattributeargs; *ps != NULL; ps++)
-       pout("\"%s\"%s", *ps, *(ps+1) ? ", " : "");
+     if (!(s = create_vendor_attribute_arg_list())) {
+       pout("\nInsufficient memory to construct argument list\n");
+       break;
+     }
+     pout("%s", s);
+     free(s);
      break;
   case 't':
      pout("offline, short, long");

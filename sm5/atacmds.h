@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef CVSID1
-#define CVSID1 "$Id: atacmds.h,v 1.29 2003/01/03 17:25:12 ballen4705 Exp $\n"
+#define CVSID1 "$Id: atacmds.h,v 1.30 2003/01/04 17:34:16 pjwilliams Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -382,5 +382,10 @@ extern const char *vendorattributeargs[];
 // extern.h for definition of defs[].  Returns 0 if pair recognized,
 // else 1 if there is a problem.
 int parse_attribute_def(char *pair, unsigned char *defs);
+
+// Function to return a string containing a list of the arguments in
+// vendorattributeargs[].  Returns NULL if the required memory can't
+// be allocated.
+char *create_vendor_attribute_arg_list(void);
 
 #endif /* _ATACMDS_H_ */
