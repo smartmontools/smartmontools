@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.79 2003/04/17 20:58:59 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.80 2003/04/18 12:37:14 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -500,7 +500,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
   if (!needheader) pout("\n");
 }
 
-void ataPrintGeneralSmartValues(struct ata_smart_values *data){
+void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct hd_driveid *drive){
   pout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
@@ -514,6 +514,11 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data){
   PrintSmartCapability(data);
   
   PrintSmartErrorLogCapability(data);
+
+  pout( "\t\t\t\t\t%s\n", isGeneralPurposeLoggingCapable(drive)?
+	"General Purpose Logging supported.":
+	"No General Purpose Logging support.");
+
   if (isSupportSelfTest(data)){
     PrintSmartShortSelfTestPollingTime (data);
     PrintSmartExtendedSelfTestPollingTime (data);
@@ -542,12 +547,8 @@ int ataPrintLogDirectory(struct ata_smart_log_directory *data){
   for (i=0; i<=255; i++){
     int numsect;
     
-    if (i)
-      // Non Directory log length
-      numsect=data->entry[i-1].numsectors;
-    else
-      // Directory log length
-      numsect=1;
+    // Directory log length
+    numsect = i? data->entry[i-1].numsectors : 1;
     
     // If the log is not empty, what is it's name
     if (numsect){
@@ -1092,8 +1093,8 @@ int ataPrintMain (int fd){
   
   // Print general SMART values
   if (con->generalsmartvalues)
-    ataPrintGeneralSmartValues(&smartval); 
-  
+    ataPrintGeneralSmartValues(&smartval, &drive); 
+
   // Print vendor-specific attributes
   if (con->smartvendorattrib){
     QUIETON(con);
@@ -1104,12 +1105,19 @@ int ataPrintMain (int fd){
   // Print SMART log Directory.  For the moment this command is hidden
   if (con->smartlogdirectory){
     struct ata_smart_log_directory smartlogdirectory;
-    QUIETON(con);
-    if (ataReadLogDirectory(fd, &smartlogdirectory))
-      pout("Device does not support Log Directory\n\n");
+    if (!isGeneralPurposeLoggingCapable(&drive)){
+      pout("Warning: device does not support General Purpose Logging\n");
+    }
     else {
+      QUIETON(con);
       pout("Log Directory Supported\n");
-      ataPrintLogDirectory( &smartlogdirectory);
+      if (ataReadLogDirectory(fd, &smartlogdirectory)){
+	QUIETOFF(con);
+	pout("Read Log Directory failed.\n\n");
+	failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      }
+      else
+	ataPrintLogDirectory( &smartlogdirectory);
     }
     QUIETOFF(con);
   }

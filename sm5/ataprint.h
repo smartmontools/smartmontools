@@ -26,7 +26,7 @@
 #define _SMART_PRINT_H_
 
 #ifndef ATAPRINT_H_CVSID
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.19 2003/04/14 18:48:34 pjwilliams Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.20 2003/04/18 12:37:14 ballen4705 Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -42,7 +42,7 @@
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */
 void ataPrintDriveInfo(struct hd_driveid *);
 
-void ataPrintGeneralSmartValues(struct ata_smart_values *);
+void ataPrintGeneralSmartValues(struct ata_smart_values *, struct hd_driveid *);
 
 void ataPrintSmartThresholds(struct ata_smart_thresholds *);
 

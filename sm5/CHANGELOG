@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.120 2003/04/18 08:15:14 pjwilliams Exp $
+$Id: CHANGELOG,v 1.121 2003/04/18 12:37:14 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [BA] Added --log directory option to smartctl.  If the disk
+       supports the general-purpose logging feature set (ATA-6/7)
+       then this option enables the Log Directory to be printed.
+       This Log Directory shows which device logs are available, and
+       their lengths in sectors.
 
   [PW] Added -P/--presets option to smartctl and -P Directive to smartd.
 
