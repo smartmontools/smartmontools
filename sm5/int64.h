@@ -25,7 +25,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.1.2.1 2004/02/23 15:12:13 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.1.2.2 2004/02/25 12:54:21 chrfranke Exp $\n"
 
 #ifndef CONFIG_H_CVSID
 // need HAVE_STDINT_H, HAVE_INTTYPES_H
@@ -37,7 +37,7 @@
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #else
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_MSC_VER)
 // for MSVC 6.0
 typedef          __int64    int64_t;
 typedef unsigned __int64   uint64_t;
@@ -45,7 +45,7 @@ typedef unsigned __int64   uint64_t;
 // default is GCC style
 typedef          long long  int64_t;
 typedef unsigned long long uint64_t;
-#endif // _WIN32
+#endif // _WIN32 && _MSC_VER
 #endif // HAVE_STDINT_H
 
 // 64 bit integer format strings
@@ -53,7 +53,7 @@ typedef unsigned long long uint64_t;
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #else
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_MSC_VER)
 // for MSVC 6.0
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
@@ -63,17 +63,19 @@ typedef unsigned long long uint64_t;
 #define PRId64 "lld"
 #define PRIu64 "llu"
 #define PRIx64 "llx"
-#endif // _WIN32
+#endif // _WIN32 && _MSC_VER
 #endif // HAVE_INTTYPES_H
 
-// MSVC 6.0 does not implement "unsigned __int64 -> double" conversion
-// missing strtoull() is in os_win32.c
-#ifdef _WIN32
+
+#if defined(_WIN32) && defined(_MSC_VER)
+// for MSVC 6.0
+// "unsigned __int64 -> double" conversion not implemented
 #define uint64_to_double(ull) ((double)(int64_t)(ull))
+// missing strtoull() is in os_win32/int64_vc6.c
 __int64 strtoull(char * s, char ** end, int base);
 #else
 #define uint64_to_double(ull) ((double)(ull))
-#endif
+#endif // _WIN32 && _MSC_VER
 
 
 #endif // INT64_H
