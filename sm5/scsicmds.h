@@ -30,7 +30,7 @@
 #define SCSICMDS_H_
 
 #ifndef SCSICMDS_H_CVSID
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.22 2003/04/14 11:01:06 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.23 2003/04/15 09:32:08 dpgilbert Exp $\n"
 #endif
 
 #include <stdio.h>
@@ -127,7 +127,14 @@ struct scsiErrorCounter {
     unsigned long long counter[8];
 };
 
-/* ANSI SCSI-3 Log Sense Return Log Pages from device. */
+/* Carrier for Non-medium error log page */
+struct scsiNonMediumError {
+    UINT8 gotPC0;
+    UINT8 gotExtraPC;
+    unsigned long long counterPC0;
+};
+
+/* ANSI SCSI-3 Log Pages retrieved by LOG SENSE. */
 #define SUPPORTED_LOG_PAGES                     0x00
 #define BUFFER_OVERRUN_PAGE                     0x01
 #define WRITE_ERROR_COUNTER_PAGE                0x02
@@ -258,6 +265,9 @@ int scsiDecodeIEModePage(const struct scsi_iec_mode_page *iecp,
         unsigned int *report_count_p);
 void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp);
+void scsiDecodeNonMediumErrPage(unsigned char * resp,
+                                struct scsiNonMediumError *nmep);
+int scsiFetchExtendedSelfTestTime(int device, int * durationSec);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 

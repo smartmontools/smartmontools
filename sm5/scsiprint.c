@@ -40,7 +40,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.32 2003/04/14 11:00:26 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.33 2003/04/15 09:34:32 dpgilbert Exp $"
 EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -172,6 +172,7 @@ static void scsiPrintErrorCounterLog(int device)
 {
     struct scsiErrorCounter errCounterArr[3];
     struct scsiErrorCounter * ecp;
+    struct scsiNonMediumError nme;
     int found[3] = {0, 0, 0};
     const char * pageNames[3] = {"read:   ", "write:  ", "verify: "};
     int k;
@@ -219,6 +220,12 @@ static void scsiPrintErrorCounterLog(int device)
     }
     else 
         pout("\nNo Error counter log to report\n");
+    if (0 == scsiLogSense(device, NON_MEDIUM_ERROR_PAGE, gBuf, 
+                          LOG_RESP_LEN)) {
+        scsiDecodeNonMediumErrPage(gBuf, &nme);
+        if (nme.gotPC0)
+            pout("\nNon-medium error count: %8llu\n", nme.counterPC0);
+    }
 }
 
 const char * self_test_code[] = {
@@ -255,7 +262,7 @@ const char * self_test_result[] = {
 // T10/1416-D Rev 10
 void  scsiPrintSelfTest(int device)
 {
-    int num, k, n, res, err;
+    int num, k, n, res, err, durationSec;
     int noheader = 1;
     UINT8 * ucp;
     unsigned long long ull=0;
@@ -345,10 +352,13 @@ void  scsiPrintSelfTest(int device)
 
     // if header never printed, then there was no output
     if (noheader)
-        pout("No self-tests have been logged\n\n");
+        pout("No self-tests have been logged\n");
     else
         pout("\n");
-    return;
+    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec)) &&
+        (durationSec > 0))
+        pout("Long (extended) Self Test duration: %d seconds "
+             "[%.1f minutes]\n", durationSec, durationSec / 60.0);
 }
  
 void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
@@ -396,7 +406,7 @@ void scsiGetDriveInfo(int device, UINT8 * peripheral_type)
     // See if unit accepts SCSI commmands from us
     if ((err = scsiTestUnitReady(device))) {
         if (1 == err)
-            pout("device is NOT READY (start it?)\n");
+            pout("device is NOT READY (media absent, spun down, etc)\n");
         else
             pout("device Test Unit Ready: err=%d\n", err);
         return;
