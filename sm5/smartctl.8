@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.35 2003/01/04 01:37:48 dpgilbert Exp $
+\# $Id: smartctl.8,v 1.36 2003/01/04 08:20:26 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/01/04 01:37:48 $" "smartmontools-5.0"
+.TH SMARTCTL 8  "$Date: 2003/01/04 08:20:26 $" "smartmontools-5.0"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -124,8 +124,8 @@ to this option are:
 of errors recorded in the SMART error log and the power-on time when
 they occurred; For the '\-l selftest' option, errors recorded in the device
 self-test log; For the '\-H' option, SMART "disk failing" status or device
-attributes (pre-failure or usage) which failed either now or in the
-past; For the '\-A' option, device attributes (pre-failure or usage)
+Attributes (pre-failure or usage) which failed either now or in the
+past; For the '\-A' option, device Attributes (pre-failure or usage)
 which failed either now or in the past.
 
 .I silent
@@ -240,17 +240,18 @@ The
 is called 'offline' testing. This type
 of test can, in principle, degrade the device performance.  The '\-o on'
 option causes this offline testing to be carried out, automatically,
-on a regular scheduled basis.  Normally, the disk will suspend any
-offline testing while disk accesses are taking place, then
-automatically resume them when the disk would otherwise be idle, so in
+on a regular scheduled basis.  Normally, the disk will suspend
+offline testing while disk accesses are taking place, and then
+automatically resume it when the disk would otherwise be idle, so in
 practice it has little effect.  Note that a one-time offline test can
 also be carried out immediately upon receipt of a user command.  See
 the '\-t offline' option below, which causes a one-time offline test to be
 carried out immediately.
 
-Any errors detected in automatic or immediate offline testing will be
-shown in the S.M.A.R.T. error log, and will be reflected in the values
-of the S.M.A.R.T. attributes.  These are visible with the '\-l error' and '\-A' options.
+Any errors detected in automatic or immediate offline testing are
+reflected in the values of the S.M.A.R.T. Attributes; some types of
+errors may also appear in the S.M.A.R.T. error log. These are visible
+with the '\-A' and '\-l error' options respectively.
 
 The 
 .B third category of testing
@@ -273,7 +274,7 @@ are used in connection with the third category.
 .TP
 .B \-S VALUE, \-\-saveauto=VALUE
 Enables or disables S.M.A.R.T. autosave of device vendor-specific
-attributes. The valid arguments to this option are
+Attributes. The valid arguments to this option are
 .I on
 and
 .I off.
@@ -286,7 +287,7 @@ need to issue it once.
 Check: Ask the device to report its S.M.A.R.T. health status.  It does
 this using information that it has gathered from online and offline
 tests, which were used to determine/update its
-S.M.A.R.T. vendor-specific attribute values.
+S.M.A.R.T. vendor-specific Attribute values.
 
 If the device reports failing health status, this means
 .B either
@@ -314,16 +315,16 @@ for further information about the the flags and capabilities described
 by this option.
 .TP
 .B \-A, \-\-attributes
-Prints only the vendor specific S.M.A.R.T. attributes.  The
-attributes are numbered from 1 to 253 and have specific names. For
-example attribute 12 is 'power cycle count': how many times has the
+Prints only the vendor specific S.M.A.R.T. Attributes.  The
+Attributes are numbered from 1 to 253 and have specific names. For
+example Attribute 12 is 'power cycle count': how many times has the
 disk been powered up.
 
-Each attribute has a 'Raw' value, printed under the heading 'RAW_VALUE',
+Each Attribute has a 'Raw' value, printed under the heading 'RAW_VALUE',
 and a 'Normalized' value printed under the heading 'VALUE'.  [Note:
 .B smartctl
 prints these values in base-10.]
-In the example just given, the 'Raw Value' for attribute 12 would be the actual
+In the example just given, the 'Raw Value' for Attribute 12 would be the actual
 number of times that the disk has been power-cycled, for example 365 if the disk
 has been turned on once per day for exactly one year.
 Each vendor uses their own magic to convert this Raw
@@ -333,44 +334,44 @@ Note that the conversion from 'Raw' value to a quantity with physical
 units is not specified by the S.M.A.R.T. standard. In most cases, the
 values printed by
 .B smartctl
-are sensible.  For example the temperature attribute generally has its
+are sensible.  For example the temperature Attribute generally has its
 raw value equal to the temperature in Celsius.  However in some cases
 vendors use unusual conventions.  For example the Hitachi disk on my
 laptop reports its power-on hours in minutes, not hours. Some IBM
 disks track three temperatures rather than one, in their raw values.
 And so on.
 
-Each attribute also has a Threshold value (whose range is 0 to 255)
+Each Attribute also has a Threshold value (whose range is 0 to 255)
 which is printed under the heading 'THRESH'.  If the Normalized value
 is
 .B less than or equal to
 the Threshold value, then disk failure
 is imminent.
 
-Each attribute also has a 'Worst' value shown under the heading 'WORST'.
+Each Attribute also has a 'Worst' value shown under the heading 'WORST'.
 This is the smallest (closest to failure) value that the
 disk has recorded at any time during its lifetime when S.M.A.R.T.  was
 enabled.  [Note however that some vendors will have firmware which will
 .B increase
-the 'Worst' value for some "rate-type" attributes.]
+the 'Worst' value for some "rate-type" Attributes.]
 
-The attribute table printed out by 
+The Attribute table printed out by 
 .B smartctl
-also shows the 'Type' of the attribute.  Pre-failure attributes are
+also shows the 'Type' of the Attribute.  Pre-failure Attributes are
 ones which, if less than or equal to their threshold values, indicate
-pending disk failure.  Old age, or usage attributes, are ones which
+pending disk failure.  Old age, or usage Attributes, are ones which
 indicate end-of-product life from old-age or normal aging and wearout,
-if the attribute value is less than or equal to the threshold.
+if the Attribute value is less than or equal to the threshold.
 
-If the attribute's current Normalized value is <= threshold, then the 'Ever
+If the Attribute's current Normalized value is <= threshold, then the 'Ever
 failed' column will display 'FAILED NOW!'.  If not, but the worst
 recorded value is <= threshold, then this column will display 'In the
 past'.
 
 Note that starting with ATA/ATAPI-4, revision 4, the meaning of these
-attribute fields has been made entirely vendor-specific.  However most
+Attribute fields has been made entirely vendor-specific.  However most
 ATA/ATAPI-5 disks seem to respect their meaning, so we have retained
-the option of printing the attribute values.
+the option of printing the Attribute values.
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the S.M.A.R.T. error log or the S.M.A.R.T. self-test log.  The
@@ -422,10 +423,10 @@ arguments to this option are:
 displayed in the form 'X h + Y m', where X is hours and Y is minutes.
 
 .I 9,temp
-\- Raw attribute number 9 is the disk temperature in Celsius.
+\- Raw Attribute number 9 is the disk temperature in Celsius.
 
 .I 220,temp
-\- Raw attribute number 220 is the disk temperature in Celsius.
+\- Raw Attribute number 220 is the disk temperature in Celsius.
 
 .TP
 .B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
@@ -442,7 +443,7 @@ The valid arguments to this option are:
 \- runs S.M.A.R.T. Immediate Offline Test.  This immediately
 starts the test described above.  This command can be given during
 normal system operation.  The effects of this test are visible only in
-that it updates the S.M.A.R.T. attribute values, and if errors are
+that it updates the S.M.A.R.T. Attribute values, and if errors are
 found they will appear in the S.M.A.R.T. error log, visible with the '\-l error'
 option.  
 
@@ -505,7 +506,7 @@ Disable S.M.A.R.T. on drive /dev/hdd (Secondary Slave).
 .fi
 Enable S.M.A.R.T. on drive /dev/hda, enable automatic offline
 testing every four hours, and enable autosaving of
-S.M.A.R.T. attributes.  This is a good start-up line for your system's
+S.M.A.R.T. Attributes.  This is a good start-up line for your system's
 init files.  You can issue this command on a running system.
 .PP
 .nf
@@ -520,14 +521,14 @@ log visible with the '\-l selftest' option after it has completed.
 .fi
 Enable S.M.A.R.T. on the disk, and begin an immediate offline test of
 drive /dev/hda.  You can issue this command on a running system.  The
-results are only used to update the S.M.A.R.T. attributes, visible
+results are only used to update the S.M.A.R.T. Attributes, visible
 with the '\-A' option.  If any device errors occur, they are logged to
 the S.M.A.R.T. error log, which can be seen with the '\-l error' option.
 .PP
 .nf
 .B smartctl \-A \-v 9,minutes /dev/hda
 .fi
-Shows the vendor attributes, when the disk stores its power-on time
+Shows the vendor Attributes, when the disk stores its power-on time
 internally in minutes rather than hours.
 .PP
 .nf
@@ -542,7 +543,7 @@ or if some of the logged self-tests ended with errors.
 Examine all S.M.A.R.T. data for device /dev/hda, but produce no
 printed output.  You must use the exit status (the
 .B $?
-shell variable) to learn if any attributes are out of bound, if the
+shell variable) to learn if any Attributes are out of bound, if the
 S.M.A.R.T. status is failing, if there are errors recorded in the
 self-test log, or if there are errors recorded in the disk error log.
 
@@ -552,7 +553,7 @@ The return values of smartctl are defined by a bitmask.  For the
 moment this only works on ATA disks.  The different bits in the return
 value are as follows:
 .TP
-.B Bit 0: 
+.B Bit 0:
 Command line did not parse.
 .TP
 .B Bit 1:
@@ -566,11 +567,11 @@ in a SMART data structure (see '\-b' option above).
 SMART status check returned "DISK FAILING".
 .TP
 .B Bit 4:
-SMART status check returned "DISK OK" but we found prefail attributes <= threshold.
+SMART status check returned "DISK OK" but we found prefail Attributes <= threshold.
 .TP
 .B Bit 5:
 SMART status check returned "DISK OK" but we found that some (usage
-or prefail) attributes have been <= threshold at some time in the
+or prefail) Attributes have been <= threshold at some time in the
 past. 
 .TP
 .B Bit 6:
@@ -665,4 +666,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.35 2003/01/04 01:37:48 dpgilbert Exp $
+$Id: smartctl.8,v 1.36 2003/01/04 08:20:26 ballen4705 Exp $
