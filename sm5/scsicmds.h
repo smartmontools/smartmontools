@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-4 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.45 2003/12/16 20:09:16 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.46 2004/01/02 16:05:25 ballen4705 Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>

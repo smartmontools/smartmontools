@@ -3,7 +3,7 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -32,7 +32,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.134 2003/12/10 11:30:31 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.135 2004/01/02 16:05:24 ballen4705 Exp $" ATACMDS_H_CVSID EXTERN_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;

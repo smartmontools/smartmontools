@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.58 2003/12/10 11:30:31 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.59 2004/01/02 16:05:25 ballen4705 Exp $\n"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>

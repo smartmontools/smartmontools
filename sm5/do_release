@@ -1,9 +1,9 @@
 #!/bin/bash -ev
 #
 # do a smartmontools release
-# (C) 2003 Bruce Allen <ballen4705@users.sourceforge.net>, 
+# (C) 2003-4 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.22 2003/11/30 13:53:14 ballen4705 Exp $
+# $Id: do_release,v 1.23 2004/01/02 16:05:25 ballen4705 Exp $
 
 KEYID=0x9BB19A22
 

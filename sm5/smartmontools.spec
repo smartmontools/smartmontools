@@ -30,9 +30,9 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.146 2003/11/30 13:53:14 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.147 2004/01/02 16:05:25 ballen4705 Exp $
 
-# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
 #
 # This program is free software; you can redistribute it and/or modify it

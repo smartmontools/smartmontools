@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003 Casper Dik <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-4 Casper Dik <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #ifndef OS_SOLARIS_H_
 #define OS_SOLARIS_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_solaris.h,v 1.6 2003/10/26 02:20:40 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_solaris.h,v 1.7 2004/01/02 16:05:25 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

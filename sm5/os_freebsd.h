@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-4 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.8 2003/12/10 11:30:31 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_freebsd.h,v 1.9 2004/01/02 16:05:25 ballen4705 Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
