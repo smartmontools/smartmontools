@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.45 2004/05/04 21:23:40 ballen4705 Exp $
+$Id: INSTALL,v 1.46 2004/05/11 09:57:35 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -294,7 +294,10 @@ SuSE:
 =========================
 
 Same as Red Hat:
-  ./configure
+  ./configure --prefix=/usr                 \
+              --sysconfdir=/etc             \
+              --mandir='${prefix}/share/man'
+
   OR EQUIVALENTLY
   ./configure --sbindir=/usr/sbin                               \
               --sysconfdir=/etc                                 \
