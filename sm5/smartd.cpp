@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.21 2002/10/24 10:18:27 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.cpp,v 1.22 2002/10/24 10:23:29 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -89,8 +89,8 @@ void pout(char *fmt, ...){
 
 void printhead(){
   printout(LOG_INFO,"smartd version %d.%d-%d - S.M.A.R.T. Daemon\n"
-	   "Home page is http://smartmontools.sourceforge.net\n\n",
-           RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION);
+	   "Home page is %s\n\n",
+           RELEASE_MAJOR, RELEASE_MINOR,SMARTMONTOOLS_VERSION,PROJECTHOME);
 }
 
 /* prints help information for command syntax */
