@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.86 2003/06/12 21:16:39 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.87 2003/06/13 12:41:51 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -167,71 +167,53 @@ void ataPrintDriveInfo (struct hd_driveid *drive){
 
 /*  prints verbose value Off-line data collection status byte */
 void PrintSmartOfflineStatus(struct ata_smart_values *data){
-
-  pout("Off-line data collection status: ");	
+  unsigned char stat=data->offline_data_collection_status;
+  char *message=NULL;
   
-  switch(data->offline_data_collection_status){
+  pout("Off-line data collection status: (0x%02x)\t", (int)stat);
+    
+  switch(stat){
   case 0x00:
   case 0x80:
-    pout("(0x%02x)\tOffline data collection activity was\n\t\t\t\t\t",
-	 (int)data->offline_data_collection_status);
-    pout("never started.\n");
-    break;
-  case 0x01:
-  case 0x81:
-    pout("(0x%02x)\tReserved.\n",
-	 (int)data->offline_data_collection_status);
+    message="never started";
     break;
   case 0x02:
   case 0x82:
-    pout("(0x%02x)\tOffline data collection activity \n\t\t\t\t\t",
-	 (int)data->offline_data_collection_status);
-    pout("completed without error.\n");
-    break;
-  case 0x03:
-  case 0x83:
-    pout("(0x%02x)\tReserved.\n",
-	 (int)data->offline_data_collection_status);
+    message="completed without error";
     break;
   case 0x04:
   case 0x84:
-    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	 (int)data->offline_data_collection_status);
-    pout("suspended by an interrupting command from host.\n");
+    message="suspended by an interrupting command from host";
     break;
   case 0x05:
   case 0x85:
-    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	 (int)data->offline_data_collection_status);
-    pout("aborted by an interrupting command from host.\n");
+    message="aborted by an interrupting command from host";
     break;
   case 0x06:
   case 0x86:
-    pout("(0x%02x)\tOffline data collection activity was \n\t\t\t\t\t",
-	 (int)data->offline_data_collection_status);
-    pout("aborted by the device with a fatal error.\n");
+    message="aborted by the device with a fatal error";
     break;
   default:
-    if ( ((data->offline_data_collection_status >= 0x07) &&
-	  (data->offline_data_collection_status <= 0x3f)) ||
-	 ((data->offline_data_collection_status >= 0xc0) &&
-	  (data->offline_data_collection_status <= 0xff)) )
-      pout("(0x%02x)\tVendor Specific.\n",(int)data->offline_data_collection_status);
+    if (((stat >= 0x07) && (stat <= 0x3f)) ||
+	((stat >= 0xc0) && (stat <= 0xff)) )
+      pout("Vendor Specific.\n");
     else
-      pout("(0x%02x)\tReserved.\n",(int)data->offline_data_collection_status);
+      pout("Reserved.\n");
   }
 
+  if (message)
+    pout("Offline data collection activity was\n"
+	 "\t\t\t\t\t%s.\n", message);
+
   // report on Automatic Data Collection Status.  Only IBM documents
-  // this bit.
-  if (data->offline_data_collection_status & 0x80)
+  // this bit.  See SFF 8035i Revision 2 for details.
+  if (stat & 0x80)
     pout("\t\t\t\t\tAuto Off-line Data Collection: Enabled.\n");
   else
     pout("\t\t\t\t\tAuto Off-line Data Collection: Disabled.\n");
   
   return;
 }
-
-
 
 void PrintSmartSelfExecStatus(struct ata_smart_values *data)
 {
