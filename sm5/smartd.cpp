@@ -50,8 +50,7 @@
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
-
-#ifdef HAVE_GETHOSTBYNAME
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
 
@@ -89,13 +88,17 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
+#if defined (__SVR4) && defined (__sun)
+int getdomainname(char *, int); /* no declaration in header files! */
+#endif
+
 #define ARGUSED(x) ((void)(x))
 
 // These are CVS identification information for *.c and *.h files
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.303 2004/04/07 14:34:24 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.304 2004/04/07 16:41:43 card_captor Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -106,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.303 2004/04/07 14:34:24 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.304 2004/04/07 16:41:43 card_captor Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -446,6 +449,8 @@ char* dnsdomain(const char* hostname) {
     if ((p = strchr(hp->h_name, '.')))
       p++; // skip "."
   }
+#else
+  ARGUSED(hostname);
 #endif
   return p;
 }
