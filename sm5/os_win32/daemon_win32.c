@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.5 2004/08/09 14:35:59 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.6 2004/10/01 10:17:50 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -789,6 +789,7 @@ static void service_report_status(int state, int seconds)
 {
 	// TODO: Avoid race
 	static DWORD checkpoint = 1;
+	static DWORD accept_more = SERVICE_ACCEPT_PARAMCHANGE; // Win2000/XP
 	svc_status.dwCurrentState = state;
 	svc_status.dwWaitHint = seconds*1000;
 	switch (state) {
@@ -807,10 +808,17 @@ static void service_report_status(int state, int seconds)
 		default:
 			svc_status.dwControlsAccepted =
 				SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN|
-				SERVICE_ACCEPT_PAUSE_CONTINUE|SERVICE_ACCEPT_PARAMCHANGE;
+				SERVICE_ACCEPT_PAUSE_CONTINUE|accept_more;
 			break;
 	}
-	SetServiceStatus(svc_handle, &svc_status);
+	if (!SetServiceStatus(svc_handle, &svc_status)) {
+		if (svc_status.dwControlsAccepted & accept_more) {
+			// Retry without SERVICE_ACCEPT_PARAMCHANGE (WinNT4)
+			svc_status.dwControlsAccepted &= ~accept_more;
+			accept_more = 0;
+			SetServiceStatus(svc_handle, &svc_status);
+		}
+	}
 }
 
 
@@ -891,7 +899,7 @@ static void WINAPI service_main(DWORD argc, LPSTR * argv)
 
 	// Service started in \windows\system32, change to .exe directory
 	if (GetModuleFileNameA(NULL, path, sizeof(path)) && (p = strrchr(path, '\\'))) {
-		*p = 0;	SetCurrentDirectoryA(path);
+		*p = 0; SetCurrentDirectoryA(path);
 	}
 	
 	// Install exit handler
