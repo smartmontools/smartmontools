@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.9 2002/10/21 16:00:46 ballen4705 Exp $
+$Id: TODO,v 1.10 2002/10/23 15:19:55 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -34,23 +34,12 @@ Produce version for ATA/ATAPI-7
 Modifications
 -------------
 
-Add option to show if the WORST recorded value is ever <= threshold
-and if this is true with for an non-prefailure or prefailure attribute.
-
 Command line option to specify devices to look for in smartd startup
 
 Print flags meanings in Vendor Attribute list -- not hex value --
-especially for prefailure flag.
-
-When actual attribute(s) less than threshold, print these clearly (highlighted)
-
-Also, have test to see if vendor attributes are under threshold even if
-prefailure bit NOT set (old age, for example).
 
 Fixes
 -----
-int ataSmartStatus (int device ) is broken -- see comments in code.
-
 SCSI code in smartd leaves file descriptors open if SMART not supported..
 
 Fix lots of syntax like if (a != 0)
