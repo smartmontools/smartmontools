@@ -26,7 +26,7 @@
 #include "utility.h" // includes <regex.h>
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.117 2004/07/31 16:38:00 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.118 2004/08/21 15:20:39 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -215,6 +215,13 @@ const drivesettings knowndrives[] = {
     ".*",    // Tested on 40BA
     NULL,
     vendoropts_Fujitsu_MHR2040AT,
+    NULL, NULL
+  },
+  { // Fujitsu MHR2020AT
+    "^FUJITSU MHR2020AT$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
     NULL, NULL
   },
   { // Fujitsu MHSxxxxAT family
@@ -570,6 +577,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL 
   },
+  { // Hitachi Travelstar 7K60
+    "^HTS726060M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { // IBM/Hitachi Deskstar 120GXP family
     "^IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
     ".*",
@@ -657,6 +669,11 @@ const drivesettings knowndrives[] = {
   },
   { // Seagate U8 family
     "^ST3(8410|4313|17221|13021)A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { // Seagate U10 family
+    "^ST3(20423|15323|10212)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -795,8 +812,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // QUANTUM FIREBALLP AS10.2 and AS40.0
-    "^QUANTUM FIREBALLP AS(10.2|40.0)$",
+  { // QUANTUM FIREBALLP AS10.2, AS20.5, and AS40.0
+    "^QUANTUM FIREBALLP AS(10.2|20.5|40.0)$",
     ".*",
     NULL, NULL, NULL, NULL
   },

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.452 2004/08/20 23:12:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.453 2004/08/21 15:20:39 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -29,6 +29,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [PW] Added Seagate U10 family, Hitachi Travelstar 7K60, Fujitsu MHR2020AT,
+       and QUANTUM FIREBALLP AS20.5 to knowndrives table.
 
   [DG] Detect 3ware and Marvell controllers from SCSI INQUIRY vendor string
        and suggest usage of appropriate '-d' argument in smartctl.
