@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.25 2003/10/26 03:00:06 ballen4705 Exp $
+$Id: INSTALL,v 1.26 2003/10/27 13:52:32 ballen4705 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -51,7 +51,10 @@ Further details of using CVS can be found at the URL above.
 
 The autogen.sh command is ONLY required when installing from CVS. You
 need GNU Autoconf (version 2.50 or greater) GNU Automake (version 1.6
-or greater) and their dependencies installed in order to run it.
+or greater) and their dependencies installed in order to run it.  You
+can get these here:
+  http://www.gnu.org/directory/GNU/autoconf.html
+  http://www.gnu.org/directory/GNU/automake.html
 
 [3] Installing from the source tarball
 ======================================
@@ -167,19 +170,30 @@ smartmontools has been partially but not completely ported to solaris.
 It includes complete SCSI support but no ATA or 3ware support.  It can
 be compiled with either cc or gcc. To compile with gcc:
 
-./configure
+./configure [args]
 make
 
 To compile with Sun cc
 
 export CC=cc   [Note: bash syntax]
-./configure
+./configure [args]
 make
 
+The correct arguments [args] to configure are:
+ --sbindir            = /usr/sbin       \
+ --sysconfdir         = /etc            \
+ --mandir             = /usr/share/man  \
+ --with-docdir        = /usr/share/doc/smartmontools-VERSION \
+ --with-initscriptdir = /etc/init.d
 
-If someone could send me the correct ./configure arguments, I would be
-glad to include them here.  Likewise, we could use a suitable init
-script.  Please write to: smartmontools-support@lists.souceforge.net
+To start the script automatically on bootup, create hardlinks that
+indicate when to start/stop in:
+                /etc/rc[S0123].d/
+pointing to /etc/rc.d/smartd. Create:
+        K<knum>smartd in rcS.d, rc0.d, rc1.d, rc2.d
+        S<snum>smartd in rc3.d
+where <knum> is related to <snum> such that the higher snum is the
+lower knum must be)
 
 [7] Comments
 ============

@@ -6,7 +6,7 @@
 #
 # processname: smartd 
 #
-# $Id: smartd.initd.in,v 1.4 2003/10/16 09:03:33 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.5 2003/10/27 13:52:32 ballen4705 Exp $
 #
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -107,7 +107,7 @@ elif [ -f /etc/turbolinux-release ] ; then
     report_unsupported "Turbolinux"
 elif uname -a | grep -q FreeBSD ; then
 
-PID_FILE=/var/run/smartd.pid
+    PID_FILE=/var/run/smartd.pid
 
     case "$1" in
 	start)
@@ -129,7 +129,30 @@ PID_FILE=/var/run/smartd.pid
     esac
     
     exit 0
-
+elif uname -a | grep -q SunOS ; then
+    
+    PID_FILE=/var/run/smartd.pid
+    
+    case "$1" in
+	start)
+	    smartd -p $PID_FILE
+	    echo -n "smartd "
+	    ;;
+	stop)
+	    kill `cat $PID_FILE`
+	    echo -n "smartd "
+	    ;;
+	restart)
+	    $0 stop
+	    sleep 1
+	    $0 start
+	    ;;
+	*)
+	    echo "Usage: smartd {start|stop|restart}"
+	    exit 1
+    esac
+    
+    exit 0
 else
     report_unsupported "Unknown"
 fi
