@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.78 2003/04/03 05:07:27 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.79 2003/04/03 07:50:58 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -781,19 +781,13 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
 }
 
 
-// Reads the Log Directory (log #0)
+// Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
 int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){	
   
   // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0, (char *)data)){
-    syserror("Error SMART Log Directory Read failed");
+  if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
     return -1;
-  }
-  
-  // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
-    checksumwarning("SMART ATA Log Directory Structure");
-  
+  }  
   return 0;
 }
 

@@ -27,7 +27,7 @@
 
 
 #ifndef EXTERN_H_CVSID
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.17 2003/03/30 11:03:36 pjwilliams Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.18 2003/04/03 07:50:59 ballen4705 Exp $\n"
 #endif
 
 // Block used for global control/communications.  If you need more
@@ -38,6 +38,7 @@ typedef struct smartmonctrl_s {
   unsigned char checksmart;
   unsigned char smartvendorattrib;
   unsigned char generalsmartvalues;
+  unsigned char smartlogdirectory;
   unsigned char smartselftestlog;
   unsigned char smarterrorlog;
   unsigned char smartdisable;

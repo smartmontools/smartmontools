@@ -26,7 +26,7 @@
 #define _ATACMDS_H_
 
 #ifndef ATACMDS_H_CVSID
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.39 2003/04/03 05:07:27 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.40 2003/04/03 07:50:58 ballen4705 Exp $\n"
 #endif
 
 // These are the major and minor versions for smartd and smartctl
@@ -305,13 +305,14 @@ struct ata_smart_log_directory {
 
 
 /* Read S.M.A.R.T information from drive */
-int ataReadHDIdentity (int device, struct hd_driveid *buf);
-int ataReadSmartValues (int device,struct ata_smart_values *);
-int ataReadSmartThresholds (int device, struct ata_smart_thresholds *);
-int ataReadErrorLog ( int device, struct ata_smart_errorlog *);
-int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *);
-int ataSmartStatus ( int device);
-int ataSetSmartThresholds ( int device, struct ata_smart_thresholds *);
+int ataReadHDIdentity(int device, struct hd_driveid *buf);
+int ataReadSmartValues(int device,struct ata_smart_values *);
+int ataReadSmartThresholds(int device, struct ata_smart_thresholds *);
+int ataReadErrorLog(int device, struct ata_smart_errorlog *);
+int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
+int ataSmartStatus(int device);
+int ataSetSmartThresholds(int device, struct ata_smart_thresholds *);
+int ataReadLogDirectory(int device, struct ata_smart_log_directory *);	
 
 /* Enable/Disable SMART on device */
 int ataEnableSmart ( int device );

@@ -43,7 +43,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid; 
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.56 2003/04/02 18:14:28 pjwilliams Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.57 2003/04/03 07:50:59 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -435,6 +435,8 @@ void ParseOpts (int argc, char** argv){
         con->smarterrorlog = TRUE;
       } else if (!strcmp(optarg,"selftest")) {
         con->smartselftestlog = TRUE;
+      } else if (!strcmp(optarg,"directory")) {
+        con->smartlogdirectory = TRUE;
       } else {
         badarg = TRUE;
       }
