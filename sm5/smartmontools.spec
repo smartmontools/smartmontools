@@ -30,7 +30,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.144 2003/11/20 06:24:33 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.145 2003/11/28 23:42:04 ballen4705 Exp $
 
 # Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -306,6 +306,21 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Sat Nov 29 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+  [BA] Improved user messages that appear from 'make install'
+  [PW] Removed warning for SAMSUNG SP1213N with firmware TL100-23
+  [BA] incorporated SuSE init script from user.
+  [DG] if SCSI device is read only, then open it read only.
+  [BA] when compiled on non-supported system (NOT linux, freebsd or solaris) then
+       the run-time error messages now clearly say 'your system is not supported'
+       and give clear directions.
+  [BA] ./configure script now works correctly on SuSE linux boxes
+  [BA] minor improvements to man pages
+  [BA] simplified detection of packet (ATAPI, CD) devices.
+  [BA] init script (redhat, mandrake, yellowdog) now uses correct
+       strings for translation and is slightly more standard.
+  [DG] smartctl: output scsi Seagate vendor pages for disks (not tapes)
+
 * Wed Nov 19 2003 Bruce Allen <smartmontools-support@lists.sourceforge.net>
   [DG] smartd/smartctl: changed scsiClearControlGLTSD() to
        scsiSetControlGLTSD() with an 'enabled' argument so '-S on'
