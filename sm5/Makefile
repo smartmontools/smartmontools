@@ -2,7 +2,7 @@
 #
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: Makefile,v 1.50 2003/02/06 12:01:13 ballen4705 Exp $
+# $Id: Makefile,v 1.51 2003/02/12 19:53:34 ballen4705 Exp $
 #
 # Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -38,10 +38,12 @@ CFLAGS	 = -fsigned-char -Wall -O2
 CPPFLAGS = -DHAVE_GETOPT_H -DHAVE_GETOPT_LONG
 LDFLAGS  = # -s
 
+es=examplescripts
+
 releasefiles=atacmds.c atacmds.h ataprint.c ataprint.h CHANGELOG COPYING extern.h Makefile\
   README scsicmds.c scsicmds.h scsiprint.c scsiprint.h smartctl.8 smartctl.c smartctl.h\
   smartd.8 smartd.c smartd.h smartd.initd TODO WARNINGS VERSION smartd.conf smartd.conf.5\
-  utility.c utility.h
+  utility.c utility.h examplescripts/
 
 counter=$(shell cat VERSION)
 newcounter=$(shell ./add )
@@ -113,6 +115,10 @@ install:
 	install -m 644 -D VERSION          $(DESTDIR)/usr/share/doc/smartmontools-5.1/VERSION
 	install -m 644 -D WARNINGS         $(DESTDIR)/usr/share/doc/smartmontools-5.1/WARNINGS
 	install -m 644 -D smartd.conf      $(DESTDIR)/usr/share/doc/smartmontools-5.1/smartd.conf
+	install -m 755 -D $(es)/README     $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/README
+	install -m 755 -D $(es)/Example1   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example1
+	install -m 755 -D $(es)/Example2   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example2
+	install -m 755 -D $(es)/Example3   $(DESTDIR)/usr/share/doc/smartmontools-5.1/$(es)/Example3
 	install -m 644 -D smartd.conf      $(DESTDIR)/etc/smartd.conf.example
 	if [ ! -f $(DESTDIR)/etc/smartd.conf ] ; then install -m 644 -D smartd.conf $(DESTDIR)/etc/smartd.conf ; fi
 	@echo -e "\n\nTo manually start smartd on bootup, run /etc/rc.d/init.d/smartd start"
@@ -133,7 +139,7 @@ uninstall:
 	if [ -f /etc/smartd.conf ] ; then echo -e "\n\nWe have NOT REMOVED /etc/smartd.conf\n\n" ; fi
 
 
-# All this mess is to automatically increment the release numbers.
+# Some of this mess is to automatically increment the release numbers.
 # The number of the next release is kept in the file "VERSION"
 release: smartd.conf.5
 	cat smartmontools.spec | sed '/Release:/d' > temp.spec

@@ -4,7 +4,7 @@ Home page of code is: http://smartmontools.sourceforge.net
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: TODO,v 1.31 2003/01/12 10:23:28 ballen4705 Exp $
+$Id: TODO,v 1.32 2003/02/12 19:53:35 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -48,6 +48,13 @@ etc).
 
 smartd:
 -------
+
+Perhaps change <nomailer> special argument to -m to have also
+<nomailer_fork> which would actually work with -M exec to run the
+executable/script in the background rather than in the foreground.
+But let's wait for someone to request this. At that point we should
+probably use fork/exec rather than system().
+
 Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
 exists? If something doesn't exit then don't try to open it?  This
 should probably be the default option if there is no configuration
