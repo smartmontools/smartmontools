@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.481 2004/10/03 20:49:16 pjwilliams Exp $
+$Id: CHANGELOG,v 1.482 2004/10/12 18:54:54 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -30,6 +30,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added fix to prevent linkage of smartd specific win32 modules
+       to smartctl.
 
   [PW] Added Fujitsu MPG3153AH, Hitachi Endurastar J4K20/N4K20 (formerly
        DK23FA-20J), Seagate Momentus family, and Maxtor Fireball 3 family
