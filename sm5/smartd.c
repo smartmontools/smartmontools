@@ -98,7 +98,7 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.312 2004/04/09 04:12:41 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.313 2004/04/09 13:36:22 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
@@ -109,7 +109,7 @@ extern const char *syslog_win32_c_cvsid;
 extern const char *int64_vc6_c_cvsid;
 #endif
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.312 2004/04/09 04:12:41 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.313 2004/04/09 13:36:22 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID
 KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
 #ifdef SYSLOG_H_CVSID
@@ -1982,14 +1982,14 @@ int ATACheckDevice(cfgfile *cfg){
 	
 	if (currentpending && (rawval=ATAReturnAttributeRawValue(currentpending, &curval))>0) {
 	  // Unreadable pending sectors!!
-	  PrintOut(LOG_CRIT,   "Device: %s, %"PRIu64" Currently unreadable (pending) sectors\n", name, rawval);
-	  MailWarning(cfg, 10, "Device: %s, %"PRIu64" Currently unreadable (pending) sectors", name, rawval);
+	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Currently unreadable (pending) sectors\n", name, rawval);
+	  MailWarning(cfg, 10, "Device: %s, %"PRId64" Currently unreadable (pending) sectors", name, rawval);
 	}
 	
 	if (offlinepending && (rawval=ATAReturnAttributeRawValue(offlinepending, &curval))>0) {
 	  // Unreadable offline sectors!!
-	  PrintOut(LOG_CRIT,   "Device: %s, %"PRIu64" Offline uncorrectable sectors\n", name, rawval);
-	  MailWarning(cfg, 11, "Device: %s, %"PRIu64" Offline uncorrectable sectors", name, rawval);
+	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Offline uncorrectable sectors\n", name, rawval);
+	  MailWarning(cfg, 11, "Device: %s, %"PRId64" Offline uncorrectable sectors", name, rawval);
 	}
       }
 
