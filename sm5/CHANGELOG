@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.82 2003/01/04 19:34:29 pjwilliams Exp $
+$Id: CHANGELOG,v 1.83 2003/01/05 20:05:31 pjwilliams Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,6 +35,8 @@ CURRENT RELEASE (see VERSION file in this directory):
 
 
 smartmontools-5.1.1
+
+  [PW] Added "help" argument to -v for smartctl
 
   [PW] Added -D, --showdirectives option to smartd
 
