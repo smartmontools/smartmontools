@@ -45,7 +45,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.58 2002/11/12 22:34:06 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.59 2002/11/12 22:35:43 ballen4705 Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -120,7 +120,7 @@ void printandmail(char *address, mailinfo *mail, int priority, char *fmt, ...){
   status=system(command);
 
   if (WEXITSTATUS(status))
-    printout(LOG_CRIT,"Email warning message to %s failed\n",address);
+    printout(LOG_CRIT,"Email warning message to %s failed (exit status %d)\n",address,status);
   else
     return;
 }
