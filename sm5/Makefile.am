@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.53 2004/03/04 02:44:39 pervalidus Exp $
+# $Id: Makefile.am,v 1.54 2004/03/13 22:46:47 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -44,6 +44,16 @@ EXTRA_smartd_SOURCES = os_linux.c \
 	               os_generic.h
 
 
+if OS_WIN32_MINGW
+
+EXTRA_smartd_SOURCES += \
+                posix/regex.h \
+                posix/regex.c \
+                os_win32/syslog.h \
+                os_win32/syslog_win32.c
+
+endif
+
 smartctl_SOURCES= smartctl.c    \
                   smartctl.h    \
                   atacmdnames.c	\
@@ -76,7 +86,14 @@ EXTRA_smartctl_SOURCES = os_linux.c \
 		       os_generic.c \
 		       os_generic.h
 
+if OS_WIN32_MINGW
 
+EXTRA_smartctl_SOURCES += \
+                posix/regex.h \
+                posix/regex.c \
+                os_win32/syslog.h
+
+endif
 
 if OS_SOLARIS
 # This block is required because Solaris uses manual page section 1m
