@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.161 2003/05/03 17:00:20 pjwilliams Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.162 2003/05/06 03:41:04 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -771,39 +771,50 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
   
     // check that it's ready for commands. IE stores its stuff on the media.
     if ((err = scsiTestUnitReady(fd))) {
-        if (1 == err) {
-            printout(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
-                     "down); skip\n", device);
-            close(fd);
-            return 2;
-        } else {
-           printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
-                    device, err);
-           close(fd);
-           return 2;
-        }
+      if (1 == err)
+	printout(LOG_WARNING, "Device: %s, NOT READY (media absent, spun "
+		 "down); skip\n", device);
+      else
+	printout(LOG_ERR, "Device: %s, failed Test Unit Ready [err=%d]\n", 
+		 device, err);
+      close(fd);
+      return 2; 
     }
   
     if ((err = scsiFetchIECmpage(fd, &iec))) {
-        printout(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
-                 "failed, err=%d, skip device\n", device, err);
-        return 0;
+      printout(LOG_WARNING, "Device: %s, Fetch of IEC (SMART) mode page "
+	       "failed, err=%d, skip device\n", device, err);
+      close(fd);
+#ifdef SCSIDEVELOPMENT
+      return 0;
+#else
+      return 3;
+#endif
     }
     if (! scsi_IsExceptionControlEnabled(&iec)) {
-        printout(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
-                 "skip device\n", device);
-        close(fd);
-        return 0;
+      printout(LOG_WARNING, "Device: %s, IE (SMART) not enabled, "
+	       "skip device\n", device);
+      close(fd);
+#ifdef SCSIDEVELOPMENT
+      return 0;
+#else
+      return 3;
+#endif
     }
-
+    
     // Device exists, and does SMART.  Add to list
     if (numscsidevices >= MAXSCSIDEVICES) {
-        printout(LOG_ERR, "smartd has found more than MAXSCSIDEVICES=%d "
-                 "SCSI devices.\n" "Recompile code from " PROJECTHOME 
-                 " with larger MAXSCSIDEVICES\n", (int)numscsidevices);
-        return 0;
+      printout(LOG_ERR, "smartd has found more than MAXSCSIDEVICES=%d "
+	       "SCSI devices.\n" "Recompile code from " PROJECTHOME 
+	       " with larger MAXSCSIDEVICES\n", (int)numscsidevices);
+#ifdef SCSIDEVELOPMENT
+      close(fd);
+      return 0;
+#else
+      exit(EXIT_CCONST);
+#endif
     }
-
+    
     // now we can proceed to register the device
     printout(LOG_INFO, "Device: %s, is SMART capable. Adding "
              "to \"monitor\" list.\n",device);
