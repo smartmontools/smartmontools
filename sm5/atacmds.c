@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.51 2003/01/16 15:28:57 ballen4705 Exp $" ATACMDS_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.52 2003/01/16 15:51:09 ballen4705 Exp $" ATACMDS_H_CVSID;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -930,62 +930,5 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *defs){
     break;
   }
   sprintf(out,"%3hhu %s",id,name);
-  return;
-}
-
-
-// These are two utility functions for printing CVS IDs. They don't
-// really belong here.  But it's the only common source file included
-// in both smartd and smartctl.  returns distance that it has moved
-// ahead in the input string
-int massagecvs(char *out, const char *cvsid){
-  char *copy,*filename,*date,*version;
-  const char delimiters[] = " ,$";
-
-  // make a copy on stack, go to first token,
-  if (!(copy=strdup(cvsid)) || !(filename=strtok(copy, delimiters))) 
-    return 0;
-
-  // move to first instance of "Id:"
-  while (strcmp(filename,"Id:"))
-    if (!(filename=strtok(NULL, delimiters)))
-      return 0;
-
-  // get filename, skip "v", get version and date
-  if (!(  filename=strtok(NULL, delimiters)  ) ||
-      !(           strtok(NULL, delimiters)  ) ||
-      !(   version=strtok(NULL, delimiters)  ) ||
-      !(      date=strtok(NULL, delimiters)  ) )
-    return 0;
-
-   sprintf(out,"%-13s revision: %-6s date: %-15s", filename, version, date);
-   free(copy);
-   return  (date-copy)+strlen(date);
-}
-
-// prints a single set of CVS ids
-void printone(char *block, const char *cvsid){
-  char strings[CVSMAXLEN];
-  const char *here=cvsid;
-  int line=1,len=strlen(cvsid)+1;
-
-  // check that the size of the output block is sufficient
-  if (len>=CVSMAXLEN) {
-    fprintf(stderr,"CVSMAXLEN=%d must be at least %d\n",CVSMAXLEN,len+1);
-    exit(1);
-  }
-
-  // loop through the different strings
-  while ((len=massagecvs(strings,here))){
-    switch (line++){
-    case 1:
-      block+=snprintf(block,CVSMAXLEN,"Module:");
-      break;
-    default:
-      block+=snprintf(block,CVSMAXLEN,"  uses:");
-    } 
-    block+=snprintf(block,CVSMAXLEN," %s\n",strings);
-    here+=len;
-  }
   return;
 }
