@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.213 2003/10/14 13:09:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.214 2003/10/14 17:34:29 drkirkby Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -14,12 +14,18 @@ Maintainers / Developers Key:
 [GG] Guido Guenther
 [KM] Kai Mäkisara
 [GF] Guilhem Frézou
+[DK] Dr. David Kirkby
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT DEVELOPMENT VERSION (see VERSION file in this directory):
 
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
+
+  [DK] Changed configure.in so -Wall is only included if gcc
+       is used (this is a gcc specific flag) and -fsignedchar
+       is not used at all (this is a gcc specific compiler 
+       flag).
 
   [BA] Modifications so that code now compiles under solaris. Now
        all that's needed (:-) is to fill in os_solaris.[hc].  Added
