@@ -108,6 +108,9 @@ The following is a list of proposed options to replace the existing options in
 smartctl.  If you have any comments or would like to suggest improvements then
 please post to the smartmontools mailing list.
 
+  -h, --help, --usage
+        Show usage and syntax help
+
   -V, --version, --copyright, --license
         Show version, copyright, and license info then exit
 
