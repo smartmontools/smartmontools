@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.conf.5,v 1.5 2002/11/13 10:14:40 ballen4705 Exp $
+\# $Id: smartd.conf.5,v 1.6 2002/11/13 10:49:13 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,12 +16,13 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD.CONF 5  "$Date: 2002/11/13 10:14:40 $" "smartmontools-5.0"
+.TH SMARTD.CONF 5  "$Date: 2002/11/13 10:49:13 $" "smartmontools-5.0"
 .SH NAME
-/etc/smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
+smartd.conf \- S.M.A.R.T. Monitoring Daemon Configuration File
 
 .SH DESCRIPTION
-This is the configuration file for the
+.B /etc/smartd.conf
+is the configuration file for the
 .B smartd
 daemon, which 
 monitors the Self-Monitoring, Analysis and Reporting
@@ -105,9 +106,10 @@ Section below!
 .B \ \ /dev/hdc -a -I 194 -I 5 -i 12
 .B #
 .nf
-.B # SCSI disk:
+.B # SCSI disks:
 .B #
 .B \ \ /dev/sda
+.B \ \ /dev/sdc -M admin@yoyodyne.com
 .B #
 .nf
 .B # Strange device.  It's SCSI:
@@ -129,7 +131,6 @@ Section below!
 .B ################################################
 .fi
 
-
 .PP 
 .SH CONFIGURATION FILE DIRECTIVES
 .PP
@@ -148,13 +149,19 @@ configuration file. Note that
 .B these are NOT command-line options for 
 .B smartd.
 The Directives below may appear in any order, following the device
-name.  For the moment, apart from the '\-S', '\-C', and '\-M'
-Directives, these Directives only apply to ATA disks. For SCSI disks,
-the '\-M' Directive sends a warning email if the SMART status
-indicates a disk failure or problem.
+name. 
+
 .B  For ATA disks, if
 .B no Directives appear, the disk will not be monitored.
 The '\-a' Directive will try to monitor everything possible.
+
+.B If a SCSI disk is listed,
+it will be monitored at the only implemented level: roughly equivalent
+to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', and '\-M',
+the Directives below are ignored for SCSI
+disks.  For SCSI disks, the '\-M' Directive sends a warning email if
+the SMART status indicates a disk failure or problem.
+
 .TP
 .B \-A
 ATA: The device is an ATA device.  Don't try issuing SCSI commands to it.
@@ -369,4 +376,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5,v 1.5 2002/11/13 10:14:40 ballen4705 Exp $
+$Id: smartd.conf.5,v 1.6 2002/11/13 10:49:13 ballen4705 Exp $
