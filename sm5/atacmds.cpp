@@ -32,7 +32,7 @@
 #include "utility.h"
 #include "extern.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.74 2003/04/02 04:41:19 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.75 2003/04/02 18:24:40 ballen4705 Exp $" ATACMDS_H_CVSID UTILITY_H_CVSID EXTERN_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -581,7 +581,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 			 command==AUTOSAVE || 
 			 command==IMMEDIATE_OFFLINE);
 		  
-    pout("\nSMART-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
+    pout("\nREPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
     if (usesparam)
       pout(" InputParameter=%d\n", select);
     else
@@ -589,7 +589,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   }
   
   if (getsdata && data==NULL){
-    pout("SMART-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
+    pout("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
     return -1;
   }
   
@@ -598,9 +598,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){
-    pout("SMART-IOCTL: DeviceFD=%d Command=%s returned %d\n", device, commandstrings[command], retval);
+    pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d\n", device, commandstrings[command], retval);
     // if requested, pretty-print the output data structure
-    if (con->reportataioctl>0 && getsdata)
+    if (con->reportataioctl>1 && getsdata)
       prettyprint((unsigned char *)data, commandstrings[command]);
   }
   return retval;
