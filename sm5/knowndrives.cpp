@@ -24,7 +24,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.9 2003/04/17 17:16:37 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.10 2003/04/17 18:36:05 ballen4705 Exp $" ATACMDS_H_CVSID ATAPRINT_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -122,48 +122,26 @@ const drivesettings knowndrives[] = {
     NULL
   },
   /*------------------------------------------------------------
-   *  Samsung SV4012H (RM100-08 firmware)
+   *  Samsung SV4012H (all firmware)
    *------------------------------------------------------------ */
   {
     "^SAMSUNG SV4012H$",
-    "RM100-08",
-    NULL,
+    ".*",
+    "Contact developers; may need -F disabled",
     vendoropts_Samsung_SV4012H,
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
   },
   /*------------------------------------------------------------
-   *  Samsung SV4012H (all other firmware)
-   *------------------------------------------------------------ */
-  {
-    "^SAMSUNG SV4012H$",
-    ".*",
-    "Contact developers; may need -F enabled",
-    vendoropts_Samsung_SV4012H,
-    NULL,
-    NULL
-  },
-  /*------------------------------------------------------------
-   *  Samsung SV1204H (RK100-13 firmware)
+   *  Samsung SV1204H (all firmware)
    *------------------------------------------------------------ */
   {
     "^SAMSUNG SV1204H$",
-    "RK100-13",
-    NULL,
+    ".*",
+    "Contact developers; may need -F disabled",
     vendoropts_Samsung_SV1204H,
     specialpurpose_reverse_samsung,
     "Fixes byte order in some SMART data (same as -F)"
-  },
-  /*------------------------------------------------------------
-   *  Samsung SV1204H (all other firmware)
-   *------------------------------------------------------------ */
-  {
-    "^SAMSUNG SV1204H$",
-    ".*",
-    "Contact developers; may need -F enabled",
-    vendoropts_Samsung_SV1204H,
-    NULL,
-    NULL
   },
   /*------------------------------------------------------------
    *  Maxtor 4D080H4
