@@ -65,9 +65,9 @@
 #endif
 typedef unsigned long long u8;
 
-static const char *filenameandversion="$Id: os_linux.c,v 1.65 2004/07/13 22:33:31 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.c,v 1.66 2004/07/14 20:32:18 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.65 2004/07/13 22:33:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.c,v 1.66 2004/07/14 20:32:18 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -958,6 +958,7 @@ void printwarning(smart_command_set command);
 
 
 /* 512 is the max payload size: increase if needed */
+
 #define BUFFER_LEN_678K      ( sizeof(TW_Ioctl)                  ) // 1044 unpacked, 1041 packed
 #define BUFFER_LEN_678K_CHAR ( sizeof(TW_New_Ioctl)+512-1        ) // 1539 unpacked, 1536 packed
 #define BUFFER_LEN_9000      ( sizeof(TW_Ioctl_Buf_Apache)+512-1 ) // 2051 unpacked, 2048 packed
@@ -1159,6 +1160,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   // Deal with the different error cases
   if (ioctlreturn) {
     if (THREE_WARE_678K==escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
+      // error here is probably a kernel driver whose version is too old
       printwarning(command);
       errno=ENOTSUP;
     }
@@ -1167,17 +1169,35 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     return -1;
   }
   
-  // note that we set passthru to a different value after ioctl()
-  if (escalade_type==THREE_WARE_678K)
-    passthru=(TW_Passthru *)&(tw_output->output_data);
+  // The passthru structure is valid after return from an ioctl if:
+  // - we are using the character interface OR 
+  // - we are using the SCSI interface and this is a NON-READ-DATA command
+  // For SCSI interface, note that we set passthru to a different
+  // value after ioctl().
+  if (THREE_WARE_678K==escalade_type) {
+    if (readdata)
+      passthru=NULL;
+    else
+      passthru=(TW_Passthru *)&(tw_output->output_data);
+  }
+
+  // See if the ATA command failed.  Now that we have returned from
+  // the ioctl() call, if passthru is valid, then:
+  // - passthru->status contains the 3ware controller STATUS
+  // - passthru->command contains the ATA STATUS register
+  // - passthru->features contains the ATA ERROR register
+  //
+  // Check bits 0 (error bit) and 5 (device fault) of the ATA STATUS
+  // If bit 0 (error bit) is set, then ATA ERROR register is valid.
+  // While we *might* decode the ATA ERROR register, at the moment it
+  // doesn't make much sense: we don't care in detail why the error
+  // happened.
   
-  // see if the ATA command failed
-  if ((escalade_type!=THREE_WARE_678K || (escalade_type==THREE_WARE_678K && !readdata))
-      && (passthru->status & 0x01)) {
+  if (passthru && (passthru->status || (passthru->command & 0x21))) {
     errno=EIO;
     return -1;
   }
-
+  
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (escalade_type==THREE_WARE_9000_CHAR)
@@ -1187,7 +1207,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     else
       memcpy(data, tw_output->output_data, 512);
   }
-  
+
   // For STATUS_CHECK, we need to check register values
   if (command==STATUS_CHECK) {
     

@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.19 2004/07/13 14:55:38 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.20 2004/07/14 20:32:18 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -80,16 +80,16 @@ typedef struct TAG_TW_Passthru {
     unsigned char aport:4;
     unsigned char host_id:4;
   } byte3;
-  unsigned char status;
+  unsigned char status;  // On return, contains 3ware STATUS register
   unsigned char flags;
   unsigned short param;
-  unsigned short features;
+  unsigned short features;  // On return, contains ATA ERROR register
   unsigned short sector_count;
   unsigned short sector_num;
   unsigned short cylinder_lo;
   unsigned short cylinder_hi;
   unsigned char drive_head;
-  unsigned char command;
+  unsigned char command; // On return, contains ATA STATUS register
   TW_SG_Entry sg_list[TW_ATA_PASS_SGL_MAX];
   unsigned char padding[12];
 } TW_Passthru;
