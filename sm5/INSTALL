@@ -1,4 +1,4 @@
-$Id: INSTALL,v 1.14 2003/10/02 10:07:44 ballen4705 Exp $
+$Id: INSTALL,v 1.15 2003/10/02 14:57:47 guidog Exp $
 
 Any recent Linux distribution should support this package.  Note that
 smartmontools requires Linux kernel 2.2.14 or greater in order to run at
@@ -28,17 +28,17 @@ Red Hat (default)
 -----------------
 ./configure
 OR
-./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man  --with-initscriptdir=/etc/rc.d/init.d --with-docdir=/usr/share/doc/smartmontools-${VERSION}
+./configure --sbindir=/usr/sbin --sysconfdir=/etc --mandir=/usr/share/man  --with-initscriptdir=/etc/rc.d/init.d --with-docdir=/usr/share/doc/smartmontools-${VERSION}
 
 File System Hierarchy Standard (FHS), FreeBSD
 ---------------------------------------------
-./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --datadir=/usr/local/share --mandir=/usr/local/man  --with-initscriptdir=/usr/local/etc/rc.d/init.d
+./configure --sbindir=/usr/local/sbin --sysconfdir=/usr/local/etc --mandir=/usr/local/man  --with-initscriptdir=/usr/local/etc/rc.d/init.d
 
 Slackware
 ---------
 ./configure
 OR
-./configure --sbindir=/usr/sbin --sysconfdir=/etc --datadir=/usr/share --mandir=/usr/share/man
+./configure --sbindir=/usr/sbin --sysconfdir=/etc --with-docdir=/usr/share/doc/smartmontools --mandir=/usr/share/man
 
 A Slackware init script (we'll call it rc.smartd) is completely
 different, goes in /etc/rc.d, and is usually called from /etc/rc.d/rc.M
@@ -147,8 +147,6 @@ OPTIONS        DEFAULT             AFFECTS
                                    contents of smartd executable;
                                    contents of smartd/smartd.conf man pages;
                                    directory for rc.d/init.d/smartd init script
---datadir      [/usr/share]        directory for doc/ directory; 
-                                   contents of smartd/smartd.conf man pages
 --mandir       [/usr/share/man]    directory for smartctl/smartd/smartd.conf man pages
 --prefix       [no default value]  See below, please
 --with-initscriptdir=dir           Location of init scripts
@@ -163,8 +161,8 @@ example, if you set --prefix=/home/joe and none of the other four
 variables then the different directories that are used will be:
 --sbindir      [/home/joe/usr/sbin]
 --sysconfdir   [/home/joe/etc]
---datadir      [/home/joe/usr/share]
 --mandir       [/home/joe/usr/man]
+--with-docdir  [/home/joe/usr/share/smartmontools-${VERSION}]
 This is useful for test installs in a harmless subdirectory somewhere.
 
 Here are the four possible cases for the four variables above:
