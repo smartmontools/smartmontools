@@ -36,7 +36,7 @@
 #include "smartd.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.cpp,v 1.12 2002/10/22 09:50:54 ballen4705 Exp $\n" 
+const char *CVSid3="$Id: smartd.cpp,v 1.13 2002/10/22 14:57:43 ballen4705 Exp $\n" 
 "\t" CVSID1 "\t" CVSID4 "\t" CVSID7 ;
 
 int daemon_init(void){
@@ -214,7 +214,7 @@ int ataCheckDevice( atadevices_t *drive){
     printout(LOG_INFO, "%s:Failed to read smart thresholds\n",drive->devicename);
   
   // See if any vendor attributes are below minimum, and print them out
-  if ((failed=ataCheckSmart(tempsmartval,tempsmartthres)))
+  if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1)))
     printout(LOG_CRIT,"Device: %s, Failed attribute: %i\n",drive->devicename,failed);
   
   // WHEN IT WORKS, we should here add a call to ataSmartStatus2()

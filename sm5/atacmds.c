@@ -30,7 +30,7 @@
 #include <errno.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.c,v 1.17 2002/10/22 09:50:53 ballen4705 Exp $\n" "\t" CVSID1 ;
+const char *CVSid1="$Id: atacmds.c,v 1.18 2002/10/22 14:57:43 ballen4705 Exp $\n" "\t" CVSID1 ;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -517,7 +517,9 @@ int ataSmartStatus2(int device){
     return 1;
 
   // We haven't gotten output that makes sense; print out some debugging info
-  perror("SMART Status returned register values that don't make sense:\n");
+  perror("SMART Status command failed:");
+  printf("Please get assistance from %s\n",PROJECTHOME);
+  printf("Register values returned from SMART Status command are:\n");
   printf("CMD=0x%02x\n",parms[0]);
   printf("FR =0x%02x\n",parms[1]);
   printf("NS =0x%02x\n",parms[2]);
@@ -525,7 +527,6 @@ int ataSmartStatus2(int device){
   printf("CL =0x%02x\n",parms[4]);
   printf("CH =0x%02x\n",parms[5]);
   printf("SEL=0x%02x\n",parms[6]);
-
   return -1;
 }
 
@@ -626,16 +627,34 @@ int isSupportSelfTest (struct ata_smart_values data){
 // to its corresponding attribute threshold indicates a pre-failure
 // condition where imminent loss of data is being predicted."
 
-int ataCheckSmart (struct ata_smart_values data, struct ata_smart_thresholds thresholds){
+
+// onlyfailing=0 : are or were any age or prefailure attributes <= threshold
+// onlyfailing=1:  are any prefailure attributes <= threshold now
+int ataCheckSmart (struct ata_smart_values data,
+		   struct ata_smart_thresholds thresholds,
+		   int onlyfailed){
   int i;
   
-  for (i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++){
-    if (data.vendor_attributes[i].id &&   
-	thresholds.thres_entries[i].id &&
-	data.vendor_attributes[i].status.flag.prefailure &&
-	(data.vendor_attributes[i].current <= thresholds.thres_entries[i].threshold) &&
-	(thresholds.thres_entries[i].threshold != 0xFE))
-      return data.vendor_attributes[i].id;
+  // loop over all attributes
+  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+
+    // pointers to disk's values and vendor's thresholds
+    struct ata_smart_attribute *disk=data.vendor_attributes+i;
+    struct ata_smart_threshold_entry *thre=thresholds.thres_entries+i;
+ 
+    // consider only valid attributes
+    if (disk->id && thre->id){
+      int failednow,failedever;
+      
+      failednow =disk->current <= thre->threshold;
+      failedever=disk->worst   <= thre->threshold;
+      
+      if (!onlyfailed && failedever)
+	return disk->id;
+      
+      if (onlyfailed && failednow && disk->status.flag.prefailure)
+	return disk->id;      
+    }
   }
   return 0;
 }
