@@ -1,6 +1,6 @@
 \# Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.41 2002/12/08 12:56:52 pjwilliams Exp $
+\# $Id: smartd.8,v 1.42 2002/12/29 01:10:42 pjwilliams Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,11 +16,11 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2002/12/08 12:56:52 $" "smartmontools-5.0"
+.TH SMARTD 8  "$Date: 2002/12/29 01:10:42 $" "smartmontools-5.0"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
-.B smartd [-XVh] [--debug] [--version] [--help]
+.B smartd [options]
 
 .SH DESCRIPTION
 .B smartd
@@ -65,8 +65,8 @@ signal to
 .B smartd
 it will immediately check the status of the disks, and then return to
 polling the disks every 30 minutes. See the
-.B '\-C'
-Directive below for additional details.
+.B '\-i'
+option below for additional details.
 
 On startup, in the absence of the configuration file
 .B /etc/smartd.conf,
@@ -104,6 +104,34 @@ in "debug" mode. In this mode, it does not
 .B fork
 (2) and displays status information to STDOUT.  It also prints more
 verbose information about what it is doing.
+.TP
+.B \-i N, \-\-interval=N
+Sets the interval between disk checks to
+.I N
+seconds, where
+.I N
+is a decimal integer.  The minimum allowed value is ten and the maximum is the
+largest positive integer that can be represented on your system (often 2^31-1).
+The default is 1800 seconds.
+
+Note that the superuser can make
+.B smartd
+check the status of the disks at any time by sending it the 
+.B SIGHUP
+signal, for example with the command:
+.nf
+.B kill -SIGUSR1 <pid>
+.fi
+where 
+.B <pid> 
+is the process id number of
+.B smartd.
+One may also use:
+.nf
+.B killall -USR1 smartd
+.fi
+for the same purpose.
+
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
 Prints license, copyright, and CVS version information onto
@@ -276,7 +304,7 @@ possible.
 
 .B If a SCSI disk is listed,
 it will be monitored at the only implemented level: roughly equivalent
-to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-C', '\-M', and '\-m',
+to using the '\-c' option for an ATA disk.  So with the exception of '\-S', '\-M', and '\-m',
 the Directives below are ignored for SCSI
 disks.  For SCSI disks, the '\-M' Directive sends a warning email if
 the SMART status indicates a disk failure or problem.
@@ -297,33 +325,6 @@ device names like /dev/hda or /dev/sdb.  If
 .B smartd
 can't guess from this sixth character, then it will simply try to
 access the device using first ATA and then SCSI ioctl()s.
-.TP
-.B \-C <N>
-This sets the time in between disk checks to be 
-.B <N>
-seconds apart, where N is a decimal integer.  Note that although you can give this Directive
-multiple times on different lines of the configuration file, only the
-final value that is given is used.  That final value applies to all the disks.
-The default value of 
-.B <N> 
-is 1800 sec, and the minimum allowed value is
-ten seconds.  The maximum value is 2^31-1 seconds.
-
-Note that the superuser can make
-.B smartd
-check the status of the disks at any time by sending it the 
-.B SIGHUP
-signal, for example with the command:
-.nf
-.B kill -SIGUSR1 <pid>
-.fi
-where 
-.B <pid> 
-is the process id number of smartd.  One may also use:
-.nf
-.B killall -USR1 smartd
-.fi
-for the same purpose.
 .TP
 .B \-P
 Permissive: Even if the disk appears to lack SMART capabilities, try
@@ -656,4 +657,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.41 2002/12/08 12:56:52 pjwilliams Exp $
+$Id: smartd.8,v 1.42 2002/12/29 01:10:42 pjwilliams Exp $

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.71 2002/12/28 16:16:52 pjwilliams Exp $
+$Id: CHANGELOG,v 1.72 2002/12/29 01:10:41 pjwilliams Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -31,6 +31,8 @@ Maintainers/Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 CURRENT RELEASE (see VERSION file in this directory):
+
+  [PW] Replaced smartd.conf directive -C with smartd option -i
 
   [PW] Changed options for smartctl -- see man page.
 

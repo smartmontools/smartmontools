@@ -50,7 +50,7 @@
 
 // CVS ID strings
 extern const char *CVSid1, *CVSid2;
-const char *CVSid6="$Id: smartd.c,v 1.88 2002/12/16 12:27:00 ballen4705 Exp $" 
+const char *CVSid6="$Id: smartd.c,v 1.89 2002/12/29 01:10:42 pjwilliams Exp $" 
 CVSID1 CVSID2 CVSID3 CVSID4 CVSID7;
 
 // global variable used for control of printing, passing arguments, etc.
@@ -318,7 +318,6 @@ void Directives() {
   printout(LOG_INFO,"Configuration file Directives (following device name):\n");
   printout(LOG_INFO,"  -A     Device is an ATA device\n");
   printout(LOG_INFO,"  -S     Device is a SCSI device\n");
-  printout(LOG_INFO,"  -C N   Check disks once every N seconds, where N>=10.\n");
   printout(LOG_INFO,"  -P     Permissive, ignore apparent lack of SMART.\n");
   printout(LOG_INFO,"  -T N   Automatic offline tests. N=0: Disable, 1: Enable.\n");
   printout(LOG_INFO,"  -s N   Attribute Autosave. N=0: Disable, 1: Enable.\n");
@@ -337,24 +336,26 @@ void Directives() {
   printout(LOG_INFO,"   #     Comment: text after a hash sign is ignored\n");
   printout(LOG_INFO,"   \\    Line continuation character\n");
   printout(LOG_INFO,"Attribute ID is a decimal integer 1 <= ID <= 255\n");
-  printout(LOG_INFO,"SCSI devices: only -S, -C, -M, and -m Directives allowed.\n");
+  printout(LOG_INFO,"SCSI devices: only -S, -M, and -m Directives allowed.\n");
   printout(LOG_INFO,"Example: /dev/hda -a\n");
 return;
 }
 
 /* prints help information for command syntax */
 void Usage (void){
+  printout(LOG_INFO,"Usage: smartd [options]\n\n");
 #ifdef HAVE_GETOPT_LONG
-  printout(LOG_INFO,"Usage: smartd [-XVh] [--debug] [--version] [--help]\n\n");
   printout(LOG_INFO,"Command Line Options:\n");
   printout(LOG_INFO,"  -X, --debug\n  Start smartd in debug mode\n\n");
+  printout(LOG_INFO,"  -i N, --interval=N\n");
+  printout(LOG_INFO,"  Set interval between disk checks to N seconds, where N >= 10\n\n");
   printout(LOG_INFO,"  -V, --version, --license, --copyright\n");
   printout(LOG_INFO,"  Print License, Copyright, and version information\n\n");
   printout(LOG_INFO,"  -h, -?, --help, --usage\n  Display this help and exit\n\n");
 #else
-  printout(LOG_INFO,"Usage: smartd [-XVh]\n\n");
   printout(LOG_INFO,"Command Line Options:\n");
   printout(LOG_INFO,"  -X     Start smartd in debug mode\n");
+  printout(LOG_INFO,"  -i N   Set interval between disk checks to N seconds, where N >= 10\n");
   printout(LOG_INFO,"  -V     Print License, Copyright, and version information\n");
   printout(LOG_INFO,"  -h     Display this help and exit\n");
   printout(LOG_INFO,"  -?     Same as -h\n");
@@ -1067,10 +1068,6 @@ int parsetoken(char *token,cfgfile *cfg){
     val=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 1, 255);
     isattoff(val,cfg->trackatt,1);
     break;
-  case 'C': 
-    // period (time interval) for checking
-    checktime=inttoken(arg=strtok(NULL,delim), name, token, lineno, CONFIGFILE, 10, INT_MAX);
-    break;
   case 'M':
     // send email to address that follows
     arg=strtok(NULL,delim);
@@ -1325,15 +1322,20 @@ void ParseOpts(int argc, char **argv){
   extern char *optarg;
   extern int  optopt, optind, opterr;
   int optchar;
+  char *tailptr;
+  long lchecktime;
+  const char *shortopts = "Xi:Vh?";
 #ifdef HAVE_GETOPT_LONG
-  struct option long_options[] = {
-    { "debug",     no_argument, 0, 'X'},
-    { "version",   no_argument, 0, 'V'},
-    { "license",   no_argument, 0, 'V'},
-    { "copyright", no_argument, 0, 'V'},
-    { "help",      no_argument, 0, 'h'},
-    { "usage",     no_argument, 0, 'h'},
-    { 0,           0,           0, 0  }
+  char *arg;
+  struct option longopts[] = {
+    { "debug",     no_argument,       0, 'X' },
+    { "interval",  required_argument, 0, 'i' },
+    { "version",   no_argument,       0, 'V' },
+    { "license",   no_argument,       0, 'V' },
+    { "copyright", no_argument,       0, 'V' },
+    { "help",      no_argument,       0, 'h' },
+    { "usage",     no_argument,       0, 'h' },
+    { 0,           0,                 0, 0   }
   };
 #endif
 
@@ -1341,13 +1343,28 @@ void ParseOpts(int argc, char **argv){
 
   // Parse input options:
 #ifdef HAVE_GETOPT_LONG
-  while (-1 != (optchar = getopt_long(argc, argv, "XVh?", long_options, NULL))){
+  while (-1 != (optchar = getopt_long(argc, argv, shortopts, longopts, NULL))){
 #else
-  while (-1 != (optchar = getopt(argc, argv, "XVh?"))){
+  while (-1 != (optchar = getopt(argc, argv, shortopts))){
 #endif
     switch(optchar) {
     case 'X':
       debugmode  = TRUE;
+      break;
+    case 'i':
+      // Period (time interval) for checking
+      // strtol will set errno in the event of overflow, so we'll check it.
+      errno = 0;
+      lchecktime = strtol(optarg, &tailptr, 10);
+      if (*tailptr != '\0' || lchecktime < 10 || lchecktime > INT_MAX || errno) {
+        debugmode=1;
+        printhead();
+        printout(LOG_CRIT, "======> INVALID INTERVAL: %s <=======\n", optarg);
+        printout(LOG_CRIT, "======> INTERVAL MUST BE INTEGER BETWEEN %d AND %d <=======\n", 10, INT_MAX);
+        Usage();
+        exit(-1);
+      }
+      checktime = (int)lchecktime;
       break;
     case 'V':
       PrintCopyleft();
@@ -1357,25 +1374,36 @@ void ParseOpts(int argc, char **argv){
     case 'h':
     default:
       debugmode=1;
-      if (optopt) {
-	printhead();
-	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %c <======= \n\n",optopt);
-	Usage();
-	exit(-1);
-#ifdef HAVE_GETOPT_LONG
-      } else if (optchar == '?' && argv[optind-1][1] == '-') {
-	printhead();
-	printout(LOG_CRIT,"=======> UNRECOGNIZED OPTION: %s <======= \n\n",argv[optind-1]+2);
-	Usage();
-	exit(-1);
-#endif
-      }
       printhead();
+#ifdef HAVE_GETOPT_LONG
+      // Point arg to the argument in which this option was found.
+      arg = argv[optind-1];
+      // Check whether the option is a long option that doesn't map to -h.
+      if (arg[1] == '-' && optchar != 'h') {
+        // Iff optopt holds a valid option then argument must be missing.
+        if (optopt && (strchr(shortopts, optopt) != NULL)) {
+          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %s <=======\n\n",arg+2);
+        } else {
+          printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %s <=======\n\n",arg+2);
+        }
+        Usage();
+        exit(-1);
+      }
+#endif
+      if (optopt) {
+        // Iff optopt holds a valid option then argument must be missing.
+        if (strchr(shortopts, optopt) != NULL){
+          printout(LOG_CRIT, "=======> ARGUMENT REQUIRED FOR OPTION: %c <=======\n\n",optopt);
+        } else {
+          printout(LOG_CRIT, "=======> UNRECOGNIZED OPTION: %c <=======\n\n",optopt);
+        }
+        Usage();
+        exit(-1);
+      }
       Usage();
       exit(0);
     }
   }
-
   // print header
   printhead();
   return;
