@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.24 2004/10/14 19:17:36 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.25 2004/11/05 18:59:52 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -513,7 +513,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	if (datasize)
 		buf->DataBuffer[0] = magic;
 
-	if (!DeviceIoControl(hdevice, IOCTL_IDE_PASS_THROUGH, 
+	if (!DeviceIoControl(hdevice, IOCTL_IDE_PASS_THROUGH,
 		buf, size, buf, size, &num_out, NULL)) {
 		long err = GetLastError();
 		if (con->reportataioctl)
@@ -558,6 +558,126 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	*regs = buf->IdeReg;
 
 	VirtualFree(buf, size, MEM_RELEASE);
+	return 0;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// ATA PASS THROUGH via SCSI PASS THROUGH for NT4 only
+// Only used for SMART commands not supported by SMART_* IOCTLs
+
+// Declarations from:
+// http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ntddscsi.h?rev=1.2
+
+#define IOCTL_SCSI_PASS_THROUGH \
+	CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+#define SCSI_IOCTL_DATA_OUT          0
+#define SCSI_IOCTL_DATA_IN           1
+#define SCSI_IOCTL_DATA_UNSPECIFIED  2
+// undocumented SCSI opcode to for ATA passthrough
+#define SCSIOP_ATA_PASSTHROUGH    0xCC
+
+typedef struct _SCSI_PASS_THROUGH {
+	USHORT  Length;
+	UCHAR  ScsiStatus;
+	UCHAR  PathId;
+	UCHAR  TargetId;
+	UCHAR  Lun;
+	UCHAR  CdbLength;
+	UCHAR  SenseInfoLength;
+	UCHAR  DataIn;
+	ULONG  DataTransferLength;
+	ULONG  TimeOutValue;
+	ULONG/*_PTR*/ DataBufferOffset;
+	ULONG  SenseInfoOffset;
+	UCHAR  Cdb[16];
+} SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize)
+{
+	typedef struct {
+		SCSI_PASS_THROUGH spt;
+		ULONG Filler;
+		UCHAR ucSenseBuf[32];
+		UCHAR ucDataBuf[512];
+	} SCSI_PASS_THROUGH_WITH_BUFFERS;
+
+	SCSI_PASS_THROUGH_WITH_BUFFERS sb;
+	IDEREGS * cdbregs;
+	unsigned int size;
+	DWORD num_out;
+	const unsigned char magic = 0xcf;
+
+	assert(sizeof(SCSI_PASS_THROUGH) == 44);
+	assert(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
+
+	memset(&sb, 0, sizeof(sb));
+	sb.spt.Length = sizeof(SCSI_PASS_THROUGH);
+	//sb.spt.PathId = 0;
+	sb.spt.TargetId = 1;
+	//sb.spt.Lun = 0;
+	sb.spt.CdbLength = 10; sb.spt.SenseInfoLength = 24;
+	sb.spt.TimeOutValue = 10;
+	sb.spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucSenseBuf);
+	size = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucDataBuf);
+	sb.spt.DataBufferOffset = size;
+ 
+	if (datasize) {
+		if (datasize > sizeof(sb.ucDataBuf)) {
+			errno = EINVAL;
+			return -1;
+		}
+		sb.spt.DataIn = SCSI_IOCTL_DATA_IN;
+		sb.spt.DataTransferLength = datasize;
+		size += datasize;
+		sb.ucDataBuf[0] = magic;
+	}
+	else {
+		sb.spt.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED;
+		//sb.spt.DataTransferLength = 0;
+	}
+
+	// Use pseudo SCSI command followed by registers
+	sb.spt.Cdb[0] = SCSIOP_ATA_PASSTHROUGH;
+	cdbregs = (IDEREGS *)(sb.spt.Cdb+2);
+	*cdbregs = *regs;
+
+	if (!DeviceIoControl(hdevice, IOCTL_SCSI_PASS_THROUGH,
+		&sb, size, &sb, size, &num_out, NULL)) {
+		long err = GetLastError();
+		if (con->reportataioctl)
+			pout("  ATA via IOCTL_SCSI_PASS_THROUGH failed, Error=%ld\n", err);
+		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		return -1;
+	}
+
+	// Cannot check ATA status, because command does not return IDEREGS
+
+	// Check and copy data
+	if (datasize) {
+		if (   num_out != size
+		    || (sb.ucDataBuf[0] == magic && !nonempty(sb.ucDataBuf+1, datasize-1))) {
+			if (con->reportataioctl) {
+				pout("  ATA via IOCTL_SCSI_PASS_THROUGH output data missing (%lu)\n", num_out);
+				print_ide_regs_io(regs, NULL);
+			}
+			errno = EIO;
+			return -1;
+		}
+		memcpy(data, sb.ucDataBuf, datasize);
+	}
+
+	if (con->reportataioctl > 1) {
+		pout("  ATA via IOCTL_SCSI_PASS_THROUGH suceeded, bytes returned: %lu\n",
+			num_out);
+		print_ide_regs_io(regs, NULL);
+	}
 	return 0;
 }
 
@@ -854,8 +974,19 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 	if (try_ioctl & 0x02) {
 		errno = 0;
-		if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
-			return -1;
+		if ((GetVersion() & 0x8000ffff) == 0x00000004) {
+			// Special case WinNT4
+			if (command == CHECK_POWER_MODE) { // SCSI_PASS_THROUGH does not return regs!
+				errno = ENOSYS;
+				return -1;
+			}
+			if (ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
+				return -1;
+		}
+		else {
+			if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
+				return -1;
+		}
 		try_ioctl = 0;
 	}
 	assert(!try_ioctl);

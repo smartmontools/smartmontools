@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.30 2004/07/17 23:19:00 geoffk1 Exp $
+$Id: WARNINGS,v 1.31 2004/11/05 18:59:52 chrfranke Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -99,25 +99,26 @@ SOLARIS
 CYGWIN and WINDOWS
 ------------------
 
-SYSTEM:   Any Windows 2000 or XP system.
-PROBLEM:  Use of an undocumented system call for IDE/ATA read log
+SYSTEM:   Any Windows NT4, 2000 or XP system.
+PROBLEM:  Use of undocumented system calls for IDE/ATA read log
           (smartctl -l, --log, -a, --all) may affect system stability.
 REPORTER: Christian Franke <smartmontools-support@lists.sourceforge.net>
 NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support 
           ATA_SMART_READ_LOG_SECTOR on NT4/2000/XP. The Win32 
-          implementation of smartctl/smartd uses the undocumented
-          and possibly buggy IOCTL_IDE_PASS_THROUGH for this purpose.
-          This IOCTL is not implemented under NT4.
-          Invalid log output has been reported for at least one
-          W2K system.
+          implementation of smartctl/smartd uses undocumented
+          and possibly buggy system calls for this purpose:
+          NT4: IOCTL_SCSI_PASS_THROUGH.with undocumented pseudo SCSI
+          command SCSIOP_ATA_PASSTHROUGH (0xCC).
+          2000/XP: Undocumented IOCTL_IDE_PASS_THROUGH.
+
 
 DARWIN
 ------
 
 SYSTEM:   Any system up to at least 7H63
 PROBLEM:  Can't switch off SMART, can't switch off auto-save, can't run
-	  short tests.
+          short tests.
 REPORTER: Geoff Keating <geoffk@geoffk.org>
-NOTE:	  There's a bug in the system library: when you ask it to
-	  do any of these things, it does the inverse (switches on,
- 	  runs extended tests).  Radar 3727283.
+NOTE:     There's a bug in the system library: when you ask it to
+          do any of these things, it does the inverse (switches on,
+          runs extended tests).  Radar 3727283.
