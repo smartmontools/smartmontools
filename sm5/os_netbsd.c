@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.1 2004/01/27 05:58:49 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.c,v 1.2 2004/01/29 19:50:22 shattered Exp $" \
 ATACMDS_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -287,7 +287,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READREG;
     req.command = WDCC_CHECK_PWR;
     req.timeout = 1000;
-    req.sec_count = 0x42;
     break;
   default:
     pout("Unrecognized command %d in ata_command_interface()\n", command);
