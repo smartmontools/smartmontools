@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.47 2004/02/23 20:32:12 ballen4705 Exp $
+$Id: TODO,v 1.48 2004/03/23 13:08:40 ballen4705 Exp $
 
 SATA devices
 ------------
@@ -37,11 +37,7 @@ and the -t offline command only tests a small part of the disk (a
 
 ATA-6/7
 -------
-Support selective self-tests (requires an HDIO_DRIVE_TASKFILE ioctl()
-interface).
-
 Support extended error logs
-
 Support extended self-test logs
 
 smartctl/smartd

@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.9 2004/02/06 03:52:02 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.10 2004/03/23 13:08:40 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -104,5 +104,67 @@ typedef struct TAG_TW_Output {
   int padding[2];
   char output_data[512];
 } TW_Output; 
+
+
+
+// The following definitions are needed to use the HDIO_DRIVE_TASKFILE
+// ioctl() call.  This is needed to send SMART WRITE LOG commands to
+// the drive.
+typedef unsigned char task_ioreg_t;
+
+typedef struct hd_drive_task_hdr {
+	task_ioreg_t data;
+	task_ioreg_t feature;
+	task_ioreg_t sector_count;
+	task_ioreg_t sector_number;
+	task_ioreg_t low_cylinder;
+	task_ioreg_t high_cylinder;
+	task_ioreg_t device_head;
+	task_ioreg_t command;
+} task_struct_t;
+
+typedef union ide_reg_valid_s {
+	unsigned all				: 16;
+	struct {
+		unsigned data			: 1;
+		unsigned error_feature		: 1;
+		unsigned sector			: 1;
+		unsigned nsector		: 1;
+		unsigned lcyl			: 1;
+		unsigned hcyl			: 1;
+		unsigned select			: 1;
+		unsigned status_command		: 1;
+
+		unsigned data_hob		: 1;
+		unsigned error_feature_hob	: 1;
+		unsigned sector_hob		: 1;
+		unsigned nsector_hob		: 1;
+		unsigned lcyl_hob		: 1;
+		unsigned hcyl_hob		: 1;
+		unsigned select_hob		: 1;
+		unsigned control_hob		: 1;
+	} b;
+} ide_reg_valid_t;
+
+typedef struct ide_task_request_s {
+	task_ioreg_t	io_ports[8];
+	task_ioreg_t	hob_ports[8];
+	ide_reg_valid_t	out_flags;
+	ide_reg_valid_t	in_flags;
+	int		data_phase;
+	int		req_cmd;
+	unsigned long	out_size;
+	unsigned long	in_size;
+} ide_task_request_t;
+
+#define TASKFILE_NO_DATA		0x0000
+#define TASKFILE_IN			0x0001
+#define TASKFILE_OUT			0x0004
+
+#define HDIO_DRIVE_TASK_HDR_SIZE	8*sizeof(task_ioreg_t)
+
+#define IDE_DRIVE_TASK_NO_DATA		0
+#define IDE_DRIVE_TASK_IN		2
+#define IDE_DRIVE_TASK_OUT		3
 
 #endif /* OS_LINUX_H_ */

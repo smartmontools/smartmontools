@@ -42,12 +42,12 @@
 #include <string.h>
 
 #include "config.h"
-#include "extern.h"
 #include "int64.h"
+#include "extern.h"
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.73 2004/03/20 08:53:41 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.74 2004/03/23 13:08:40 ballen4705 Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
