@@ -1,4 +1,4 @@
-//  $Id: atacmds.c,v 1.12 2002/10/21 15:07:48 ballen4705 Exp $
+//  $Id: atacmds.c,v 1.13 2002/10/21 16:00:47 ballen4705 Exp $
 /*
  * atacmds.c
  * 
@@ -75,6 +75,12 @@ const char *minor_str[] = {			/* word 81 value: */
   "reserved"					/* 0x001e	*/
   "reserved"					/* 0x001f-0xfffe*/
 };
+
+// NOTE ATA/ATAPI-4 REV 4 was the LAST revision where the device
+// attribute structures were NOT completely vendor specific.  So any
+// disk that is ATA/ATAPI-4 or above can not be trusted to show the
+// vendor values in sensible format.
+
 
 const int actual_ver[] = { 
   /* word 81 value: */
@@ -598,9 +604,17 @@ int isSupportSelfTest (struct ata_smart_values data){
 
 
 // Loop over all valid attributes.  If they are prefailure attributes
-// and are below the threshold value, then return the index of the
-// lowest failing attribute.  Return 0 if all prefailure attributes
-// are in bounds.
+// and are at or below the threshold value, then return the ID of the
+// first failing attribute found.  Return 0 if all prefailure
+// attributes are in bounds.  The spec says "Bit 0
+// -Pre-failure/advisory - If the value of this bit equals zero, an
+// attribute value less than or equal to its corresponding attribute
+// threshold indicates an advisory condition where the usage or age of
+// the device has exceeded its intended design life period. If the
+// value of this bit equals one, an atribute value less than or equal
+// to its corresponding attribute threshold indicates a pre-failure
+// condition where imminent loss of data is being predicted."
+
 int ataCheckSmart (struct ata_smart_values data, struct ata_smart_thresholds thresholds){
   int i;
   
@@ -608,9 +622,9 @@ int ataCheckSmart (struct ata_smart_values data, struct ata_smart_thresholds thr
     if (data.vendor_attributes[i].id &&   
 	thresholds.thres_entries[i].id &&
 	data.vendor_attributes[i].status.flag.prefailure &&
-	(data.vendor_attributes[i].current < thresholds.thres_entries[i].threshold) &&
+	(data.vendor_attributes[i].current <= thresholds.thres_entries[i].threshold) &&
 	(thresholds.thres_entries[i].threshold != 0xFE))
-      return i;
+      return data.vendor_attributes[i].id;
   }
   return 0;
 }

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.11 2002/10/21 15:07:47 ballen4705 Exp $
+$Id: CHANGELOG,v 1.12 2002/10/21 16:00:46 ballen4705 Exp $
 
 Copyright (C) 2002 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -28,6 +28,18 @@ NOTES FOR NEXT RELEASE:
 
 
 smartmontools-5.0-11
+
+    Previous versions of this code (and Smartsuite) only generate
+    SMART failure errors if the value of an attribute is below the
+    threshold and the prefailure bit is set.  However the ATA Spec
+    (ATA4 <=Rev 4) says that it is a SMART failure if the value of an
+    attribute is LESS THAN OR EQUAL to the threshold and the
+    prefailure bit is set.  This is now fixed in both smartctl and
+    smartd.
+
+    smartd did not print the correct value of any failing SMART attribute.  It
+    printed the index in the attribute table, not the attribute
+    ID. This is fixed.
 
     when starting self-tests in captive mode ioctl returns EIO because
     the drive has been busied out.  Detect this and don't return an eror
