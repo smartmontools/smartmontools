@@ -37,7 +37,7 @@
 #include "ataprint.h"
 
 extern const char *CVSid1, *CVSid2;
-const char *CVSid3="$Id: smartd.c,v 1.18 2002/10/24 09:57:55 ballen4705 Exp $" 
+const char *CVSid3="$Id: smartd.c,v 1.19 2002/10/24 10:12:11 ballen4705 Exp $" 
 CVSID1 CVSID4 CVSID7;
 
 int daemon_init(void){
@@ -214,9 +214,13 @@ void ataCompareSmartValues (atadevices_t *device, struct ata_smart_values new ){
 	oldval=device->smartval.vendor_attributes[i].current;
 	if (oldval!=newval){
 	  // values have changed; print them
-	  char attributename[64];
+	  char *loc,attributename[64];
+	  loc=attributename;
 	  ataPrintSmartAttribName(attributename,idnew);
-	  printout(LOG_INFO, "Device: %s, S.M.A.R.T. Attribute: %s Changed from %i to %i\n",
+	  // skip blank space in name
+	  while (*loc && *loc==' ')
+	    loc++;
+	  printout(LOG_INFO, "Device: %s, SMART Attribute %s Changed from %i to %i\n",
 		   device->devicename,attributename,oldval,newval);
 	}
       }
@@ -228,7 +232,7 @@ int ataCheckDevice( atadevices_t *drive){
   struct ata_smart_values tempsmartval;
   struct ata_smart_thresholds tempsmartthres;
   int failed;
-  char attributename[64];
+  char *loc,attributename[64];
 
   // Coming into this function, *drive contains the last values measured,
   // and we read the NEW values into tempsmartval
@@ -242,7 +246,11 @@ int ataCheckDevice( atadevices_t *drive){
   // See if any vendor attributes are below minimum, and print them out
   if ((failed=ataCheckSmart(tempsmartval,tempsmartthres,1))){
     ataPrintSmartAttribName(attributename,failed);
-    printout(LOG_CRIT,"Device: %s, Failed attribute: %s. Use smartctl -v to investigate.\n",
+    // skip blank space in name
+    loc=attributename;
+    while (*loc && *loc==' ')
+      loc++;
+    printout(LOG_CRIT,"Device: %s, Failed attribute %s. Investigate with smartctl -v.\n",
 	     drive->devicename,attributename);
   }
 
