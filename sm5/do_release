@@ -65,6 +65,10 @@ inc_release
 perl -p -i.bak -e "s/5\.$VERSION/5\.$NEW_VERSION/" configure.in
 perl -p -i.bak -e "s/Version:\t5\.$VERSION/Version:\t5\.$NEW_VERSION/" smartmontools.spec
 
+mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
+mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
+cp -f build/smartmontools-$VERSION.tar.gz .
+
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
        depcomp mkinstalldirs install-sh configure aclocal.m4 missing *.bak
