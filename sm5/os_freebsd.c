@@ -33,9 +33,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.35 2004/07/09 12:38:04 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.36 2004/07/10 06:32:48 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.35 2004/07/09 12:38:04 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.36 2004/07/10 06:32:48 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -59,7 +59,7 @@ void print_smartctl_examples(){
          "  smartctl -t long /dev/ad0              (Executes extended disk self-test)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/ad0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-//         "  smartctl -a -device=3ware,2 /dev/sda\n"
+//         "  smartctl -a --device=3ware,2 /dev/sda\n"
 //         "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
          );
 #else
