@@ -23,7 +23,7 @@
  */
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.38 2003/08/05 10:07:35 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.39 2003/08/10 05:51:17 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -83,90 +83,68 @@ typedef struct mailinfo {
   time_t firstsent;
 } mailinfo;
 
-// Used to store a list of devices and options that were in the
-// configuration file.
+// Used two ways.  First, to store a list of devices/options given in
+// the configuration smartd.conf or constructed with DEVICESCAN.  Also
+// contains all persistent storage needed to track device, if
+// registered (either as SCSI or ATA).  After parsing the config file,
+// the devices are checked to see if they can be monitored.  If so,
+// then we keep a list of pointers to the entries in this table, and
+// scan those once per polling interval.
+
 typedef struct configfile_s {
-  // Shich line was entry in file; what device type and name?
-  int lineno;
-  // Indicates corresponding entry number in the list of ata or scsi
-  // devices to monitor
-  int scsidevicenum;
-  int atadevicenum;
-  // Initially, tryata and tryscsi indicate which device to try.
-  // Ultimately, one is set and the other not set, depending upon
-  // which type of device was detected.
-  char tryata;
-  char tryscsi;
-  char *name;
-  // which tests have been enabled?
-  char smartcheck;
-  char usagefailed;
-  char prefail;
-  char usage;
-  char selftest;
-  char errorlog;
-  // Should we ignore missing capabilities/SMART errors
-  char permissive;
-  // Disable (1) or Enable (2) device attribute autosave
-  char autosave;
-  // Disable (1) or Enable (2) automatic offline testing
-  char autoofflinetest;
-  // mailing information for four of the previous error types plus mailtest
-  mailinfo maildata[10];
-  // Frequency with which to send emails: 1 - once, 2 - daily, 3 - diminishing
-  unsigned char emailfreq;
-  // Should we send a test email
-  unsigned char emailtest;
-  // Execute this command line and include output in emails
-  char *emailcmdline;
-  // address to send email to
-  char *address;
-  // counts of ata and self-test errors.  Perhaps ought to be in the
-  // atadevices_t structure.
-  unsigned char selflogcount;
-  int  ataerrorcount;
+  // FIRST SET OF ENTRIES CORRESPOND TO WHAT THE USER PUT IN THE CONFIG FILE
+  int lineno;                             // Line number of entry in file
+  char tryata;                            // Disk is ATA 
+  char tryscsi;                           // Disk is SCSI
+  unsigned char escalade;                 // ATA disk in 3ware controller
+  char *name;                             // Device name (+ optional [3ware_disk_XX])
+
+  char smartcheck;                        // Check SMART status
+  char usagefailed;                       // Check for failed Usage Attributes
+  char prefail;                           // Track changes in Prefail Attributes
+  char usage;                             // Track changes in Usage Attributes
+  char selftest;                          // Monitor number of selftest errors
+  char errorlog;                          // Monitor number of ATA errors
+
+  char permissive;                        // Ignore failed SMART commands
+  char autosave;                          // 1=disable, 2=enable Autosave Attributes
+  char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
+  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
+  unsigned char emailtest;                // Send test email?
+  char *emailcmdline;                     // Execute this program for sending mail
+  char *address;                          // Email addresses
+
   // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags 
   // valid attribute numbers are from 1 <= x <= 255
-  // monitorattflags+0  set means ignore failure if it's a usage attribute
-  // monitorattflats+32 set means don't track attribute
-  // monitorattflags+64 set means print raw value when tracking
-  // monitorattflags+96 set means track changes in raw value
+  // monitorattflags+0  set: ignore failure for a usage attribute
+  // monitorattflats+32 set: don't track attribute
+  // monitorattflags+64 set: print raw value when tracking
+  // monitorattflags+96 set: track changes in raw value
   unsigned char *monitorattflags;
-  // See the end of extern.h for a definition of the array of 256
-  // bytes that this points to.
-  unsigned char *attributedefs;
-  // enables equivalent of -F option for smartctl
-  unsigned char fixfirmwarebug;
-  // is device a 3ware RAID controller (SCSI interface + ATA drives).
-  // If so, this is 1+drive number.
-  unsigned char escalade;
-  // Don't use the preset vendor options from knowndrives[] for this device.
-  char ignorepresets;
-  // Show the preset vendor options from knowndrives[] for this device.
-  char showpresets;
-  // Indicates that device may not always be present.
-  char removable;
-} cfgfile;
+  unsigned char *attributedefs;            // -v options, see end of extern.h for def
+  unsigned char fixfirmwarebug;            // Fix firmware bug
+  char ignorepresets;                      // Ignore database of -v options
+  char showpresets;                        // Show database entry for this device
+  char removable;                          // Device may disappear (not be present)
 
 
-// Used to store list of ATA devices to monitor.
-typedef struct atadevices_s {
-  struct ata_smart_values *smartval;
-  struct ata_smart_thresholds *smartthres;
-  cfgfile *cfg;
-  char *devicename;
-}  atadevices_t;
+  // NEXT SET OF ENTRIES ARE DYNAMIC DATA THAT WE TRACK IF DEVICE IS
+  // REGISTERED AND THEN MONITORED.
 
-// used to store a list of SCSI devices to monitor.  Devicename points
-// to a malloced name string.
-typedef struct scsidevices_s {
+  mailinfo maildata[10];                   // Tracks type/date of email messages sent
+  
+  // ATA ONLY:
+  unsigned char selflogcount;              // Total number of self-test errors
+  int  ataerrorcount;                      // Total number of ATA errors
+  struct ata_smart_values *smartval;       // Pointer to SMART data
+  struct ata_smart_thresholds *smartthres; // Pointer to SMART thresholds
+
+  // SCSI ONLY:
   unsigned char SmartPageSupported;
   unsigned char TempPageSupported;
   unsigned char Temperature;
-  char *devicename;
-  cfgfile *cfg;
-} scsidevices_t;
+} cfgfile;
 
 
 typedef struct changedattribute_s {
@@ -181,4 +159,4 @@ typedef struct changedattribute_s {
 void printout(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 void printandmail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 
-int ataCheckDevice(atadevices_t *drive);
+int ataCheckDevice(cfgfile *cfg);

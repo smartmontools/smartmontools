@@ -50,7 +50,7 @@
 #include "utility.h"
 
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, *knowndrives_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.184 2003/08/09 08:21:44 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.185 2003/08/10 05:51:17 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID UTILITY_H_CVSID; 
 
 // Forward declaration
@@ -347,6 +347,7 @@ void remove_pid_file(){
       printout(LOG_CRIT,"Can't unlink PID file %s (%s).\n", 
 	       pid_file, strerror(errno));
     free(pid_file);
+    pid_file=NULL;
   }
   return;
 }
@@ -574,34 +575,32 @@ int selftesterrorcount(int fd, char *name){
 
 
 // scan to see what ata devices there are, and if they support SMART
-int atadevicescan(atadevices_t *devices, cfgfile *cfg){
+int atadevicescan(cfgfile *cfg){
   int fd;
   struct hd_driveid drive;
-  char *device=cfg->name;
+  char *name=cfg->name;
   
   // should we try to register this as an ATA device?
   if (!(cfg->tryata))
     return 1;
   
   // open the device
-  if ((fd=opendevice(device, O_RDONLY | O_NONBLOCK))<0)
+  if ((fd=opendevice(name, O_RDONLY | O_NONBLOCK))<0)
     // device open failed
     return 1;
-  printout(LOG_INFO,"Device: %s, opened\n", device);
+  printout(LOG_INFO,"Device: %s, opened\n", name);
   
   // pass user settings on to low-level ATA commands
   con->escalade=cfg->escalade;
+  con->fixfirmwarebug = cfg->fixfirmwarebug;
 
   // Get drive identity structure
   if (ataReadHDIdentity (fd,&drive)){
     // Unable to read Identity structure
-    printout(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",device);
+    printout(LOG_INFO,"Device: %s, unable to read Device Identity Structure\n",name);
     close(fd);
     return 2; 
   }
-  
-  // pass user setings on to low-level ATA commands
-  con->fixfirmwarebug = cfg->fixfirmwarebug;
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
@@ -609,20 +608,20 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
 
     // do whatever applypresets decides to do
     if (applypresets(&drive, cfg->attributedefs, con)<0)
-      printout(LOG_INFO, "Device: %s, not found in smartd database.\n", device);
+      printout(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
-      printout(LOG_INFO, "Device: %s, found in smartd database.\n", device);
+      printout(LOG_INFO, "Device: %s, found in smartd database.\n", name);
 
     // then save the correct state of the flag (applypresets may have changed it)
     cfg->fixfirmwarebug = con->fixfirmwarebug;
   }
   else
-    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", device);
+    printout(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
 
   // If requested, show which presets would be used for this drive
   if (cfg->showpresets) {
     int savedebugmode=debugmode;
-    printout(LOG_INFO, "Device %s: presets are:\n", device);
+    printout(LOG_INFO, "Device %s: presets are:\n", name);
     if (!debugmode)
       debugmode=2;
     showpresets(&drive);
@@ -631,14 +630,14 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
 
   if (!cfg->permissive && !ataSmartSupport(&drive)){
     // SMART not supported
-    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",device);
+    printout(LOG_INFO,"Device: %s, appears to lack SMART, use '-T permissive' Directive to try anyway.\n",name);
     close(fd);
     return 2; 
   }
   
   if (ataEnableSmart(fd)){
     // Enable SMART command has failed
-    printout(LOG_INFO,"Device: %s, could not enable SMART capability\n",device);
+    printout(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
     close(fd);
     return 2; 
   }
@@ -646,44 +645,44 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
   // disable device attribute autosave...
   if (cfg->autosave==1){
     if (ataDisableAutoSave(fd))
-      printout(LOG_INFO,"Device: %s, could not disable SMART Attribute Autosave.\n",device);
+      printout(LOG_INFO,"Device: %s, could not disable SMART Attribute Autosave.\n",name);
     else
-      printout(LOG_INFO,"Device: %s, disabled SMART Attribute Autosave.\n",device);
+      printout(LOG_INFO,"Device: %s, disabled SMART Attribute Autosave.\n",name);
   }
 
   // or enable device attribute autosave
   if (cfg->autosave==2){
     if (ataEnableAutoSave(fd))
-      printout(LOG_INFO,"Device: %s, could not enable SMART Attribute Autosave.\n",device);
+      printout(LOG_INFO,"Device: %s, could not enable SMART Attribute Autosave.\n",name);
     else
-      printout(LOG_INFO,"Device: %s, enabled SMART Attribute Autosave.\n",device);
+      printout(LOG_INFO,"Device: %s, enabled SMART Attribute Autosave.\n",name);
   }
 
   // capability check: SMART status
   if (cfg->smartcheck && ataSmartStatus2(fd)==-1){
-    printout(LOG_INFO,"Device: %s, not capable of SMART Health Status check\n",device);
+    printout(LOG_INFO,"Device: %s, not capable of SMART Health Status check\n",name);
     cfg->smartcheck=0;
   }
   
   // capability check: Read smart values and thresholds
   if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->autoofflinetest) {
-    devices->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
-    devices->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
+    cfg->smartval=(struct ata_smart_values *)calloc(1,sizeof(struct ata_smart_values));
+    cfg->smartthres=(struct ata_smart_thresholds *)calloc(1,sizeof(struct ata_smart_thresholds));
     
-    if (!devices->smartval || !devices->smartthres){
+    if (!cfg->smartval || !cfg->smartthres){
       printout(LOG_CRIT,"Not enough memory to obtain SMART data\n");
       exit(EXIT_NOMEM);
     }
     
-    if (ataReadSmartValues(fd,devices->smartval) ||
-        ataReadSmartThresholds (fd,devices->smartthres)){
-      printout(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",device);
-      free(devices->smartval);
-      free(devices->smartthres);
+    if (ataReadSmartValues(fd,cfg->smartval) ||
+        ataReadSmartThresholds (fd,cfg->smartthres)){
+      printout(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
+      free(cfg->smartval);
+      free(cfg->smartthres);
 
       // make it easy to recognize that we've deallocated
-      devices->smartval=NULL;
-      devices->smartthres=NULL;
+      cfg->smartval=NULL;
+      cfg->smartthres=NULL;
       cfg->usagefailed=cfg->prefail=cfg->usage=0;
     }
   }
@@ -692,17 +691,17 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
   if (cfg->autoofflinetest){
     // is this an enable or disable request?
     char *what=(cfg->autoofflinetest==1)?"disable":"enable";
-    if (!devices->smartval)
-      printout(LOG_INFO,"Device: %s, could not %s SMART Automatic Offline Testing.\n",device, what);
+    if (!cfg->smartval)
+      printout(LOG_INFO,"Device: %s, could not %s SMART Automatic Offline Testing.\n",name, what);
     else {
       // if command appears unsupported, issue a warning...
-      if (!isSupportAutomaticTimer(devices->smartval))
-	printout(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",device);
+      if (!isSupportAutomaticTimer(cfg->smartval))
+	printout(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",name);
       // ... but then try anyway
       if ((cfg->autoofflinetest==1)?ataDisableAutoOffline(fd):ataEnableAutoOffline(fd))
-	printout(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", device, what);
+	printout(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", name, what);
       else
-	printout(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", device, what);
+	printout(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
     }
   }
   
@@ -713,14 +712,14 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
     // see if device supports Self-test logging.  Note that the
     // following line is not a typo: Device supports self-test log if
     // and only if it also supports error log.
-    if (!isSmartErrorLogCapable(devices->smartval)){
-      printout(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", device);
+    if (!isSmartErrorLogCapable(cfg->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Self-test Log.\n", name);
       cfg->selftest=0;
       cfg->selflogcount=0;
     }
     else {
       // get number of Self-test errors logged
-      val=selftesterrorcount(fd, device);
+      val=selftesterrorcount(fd, name);
       if (val>=0)
 	cfg->selflogcount=val;
       else
@@ -733,14 +732,14 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
     int val;
 
     // see if device supports error logging
-    if (!isSmartErrorLogCapable(devices->smartval)){
-      printout(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", device);
+    if (!isSmartErrorLogCapable(cfg->smartval)){
+      printout(LOG_INFO, "Device: %s, does not support SMART Error Log.\n", name);
       cfg->errorlog=0;
       cfg->ataerrorcount=0;
     }
     else {
       // get number of ATA errors logged
-      val=ataerrorcount(fd, device);
+      val=ataerrorcount(fd, name);
       if (val>=0)
 	cfg->ataerrorcount=val;
       else
@@ -763,26 +762,19 @@ int atadevicescan(atadevices_t *devices, cfgfile *cfg){
   }
   
   // register device
-  printout(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",device);
+  printout(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",name);
   
-  // we were called from a routine that has global storage for the name.  Keep pointer.
-  devices->devicename=device;
-  devices->cfg=cfg;
-  
-  // record number of device, type of device, increment device count
+    // record number of device, type of device, increment device count
   cfg->tryscsi=0;
   cfg->tryata=1;
-  cfg->atadevicenum=numatadevices;
-  cfg->scsidevicenum=-1;
-  numatadevices++;
 
   // close file descriptor
-  closedevice(fd, device);
+  closedevice(fd, name);
   return 0;
 }
 
 
-static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
+static int scsidevicescan(cfgfile *cfg)
 {
     int k, fd, err; 
     char *device = cfg->name;
@@ -857,20 +849,16 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     printout(LOG_INFO, "Device: %s, is SMART capable. Adding "
              "to \"monitor\" list.\n",device);
  
-    // since device points to global memory, just keep that address
-    devices->devicename = device;
-    devices->cfg = cfg;
-
     // Flag that certain log pages are supported (information may be
     // available from other sources).
     if (0 == scsiLogSense(fd, SUPPORTED_LOG_PAGES, tBuf, sizeof(tBuf), 0)) {
         for (k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
             switch (tBuf[k]) { 
                 case TEMPERATURE_PAGE:
-                    devices->TempPageSupported = 1;
+                    cfg->TempPageSupported = 1;
                     break;
                 case IE_LOG_PAGE:
-                    devices->SmartPageSupported = 1;
+                    cfg->SmartPageSupported = 1;
                     break;
                 default:
                     break;
@@ -881,9 +869,6 @@ static int scsidevicescan(scsidevices_t *devices, cfgfile *cfg)
     // record number of device, type of device, increment device count
     cfg->tryata = 0;
     cfg->tryscsi = 1;
-    cfg->scsidevicenum = numscsidevices;
-    cfg->atadevicenum = -1;
-    ++numscsidevices;
 
     // close file descriptor
     closedevice(fd, device);
@@ -973,10 +958,9 @@ int isattoff(unsigned char attr,unsigned char *data, int set){
 }
 
 
-int ataCheckDevice(atadevices_t *drive){
+int ataCheckDevice(cfgfile *cfg){
   int fd,i;
-  char *name=drive->devicename;
-  cfgfile *cfg=drive->cfg;
+  char *name=cfg->name;
   
   // fix firmware bug if requested
   con->fixfirmwarebug=cfg->fixfirmwarebug;
@@ -984,7 +968,7 @@ int ataCheckDevice(atadevices_t *drive){
 
   // If user has asked, test the email warning system
   if (cfg->emailtest)
-    printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", drive->devicename);
+    printandmail(cfg, 0, LOG_CRIT, "TEST EMAIL from smartd for device: %s", name);
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI
@@ -1011,7 +995,7 @@ int ataCheckDevice(atadevices_t *drive){
   // Check everything that depends upon SMART Data (eg, Attribute values)
   if (cfg->usagefailed || cfg->prefail || cfg->usage){
     struct ata_smart_values     curval;
-    struct ata_smart_thresholds *thresh=drive->smartthres;
+    struct ata_smart_thresholds *thresh=cfg->smartthres;
     
     // Read current attribute values. *drive contains old values and thresholds
     if (ataReadSmartValues(fd,&curval)){
@@ -1048,7 +1032,7 @@ int ataCheckDevice(atadevices_t *drive){
         // This block tracks usage or prefailure attributes to see if
         // they are changing.  It also looks for changes in RAW values
         // if this has been requested by user.
-        if ((cfg->usage || cfg->prefail) && ataCompareSmartValues(&delta, &curval, drive->smartval, thresh, i, name)){
+        if ((cfg->usage || cfg->prefail) && ataCompareSmartValues(&delta, &curval, cfg->smartval, thresh, i, name)){
           unsigned char id=delta.id;
 
           // if the only change is the raw value, and we're not
@@ -1070,7 +1054,7 @@ int ataCheckDevice(atadevices_t *drive){
               char rawstring[64];
               ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg->attributedefs);
               sprintf(newrawstring, " [Raw %s]", rawstring);
-              ataPrintSmartAttribRawValue(rawstring, drive->smartval->vendor_attributes+i, cfg->attributedefs);
+              ataPrintSmartAttribRawValue(rawstring, cfg->smartval->vendor_attributes+i, cfg->attributedefs);
               sprintf(oldrawstring, " [Raw %s]", rawstring);
             }
             else
@@ -1090,7 +1074,7 @@ int ataCheckDevice(atadevices_t *drive){
       } // end of loop over attributes
      
       // Save the new values into *drive for the next time around
-      *drive->smartval=curval;
+      *(cfg->smartval)=curval;
     } 
   }
   
@@ -1152,13 +1136,12 @@ int ataCheckDevice(atadevices_t *drive){
 }
 
 
-int scsiCheckDevice(scsidevices_t *drive)
+int scsiCheckDevice(cfgfile *cfg)
 {
     UINT8 asc, ascq;
     UINT8 currenttemp;
     int fd;
-    cfgfile *cfg=drive->cfg;
-    char *name=drive->devicename;
+    char *name=cfg->name;
     const char *cp;
 
     // If the user has asked for it, test the email warning system
@@ -1176,7 +1159,7 @@ int scsiCheckDevice(scsidevices_t *drive)
     currenttemp = 0;
     asc = 0;
     ascq = 0;
-    if (scsiCheckIE(fd, drive->SmartPageSupported, drive->TempPageSupported,
+    if (scsiCheckIE(fd, cfg->SmartPageSupported, cfg->TempPageSupported,
                     &asc, &ascq, &currenttemp)) {
         printout(LOG_INFO, "Device: %s, failed to read SMART values\n", name);
         printandmail(cfg, 6, LOG_CRIT, 
@@ -1196,26 +1179,26 @@ int scsiCheckDevice(scsidevices_t *drive)
     if (255 == currenttemp) /* this means temperature unavailable */
         currenttemp = 0;    /* less likely to worry people */
     if (currenttemp) {
-        if (drive->Temperature) {
-            if (currenttemp != drive->Temperature)
+        if (cfg->Temperature) {
+            if (currenttemp != cfg->Temperature)
                 printout(LOG_INFO, "Device: %s, Temperature changed %d degrees "
                          "to %d degrees since last reading\n", name, 
-                         (int)(currenttemp - drive->Temperature), 
+                         (int)(currenttemp - cfg->Temperature), 
                          (int)currenttemp);
         }
         else 
             printout(LOG_INFO, "Device: %s, initial Temperature is %d "
                      "degrees\n", name, (int)currenttemp);
-        drive->Temperature = currenttemp;
+        cfg->Temperature = currenttemp;
     }
     else
-        drive->Temperature = 0;
+        cfg->Temperature = 0;
 
     closedevice(fd, name);
     return 0;
 }
 
-void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
+void CheckDevices(cfgfile **atadevices, cfgfile **scsidevices){
   static int firstpass=1;
   int i;
   time_t timenow=0, wakeuptime=0;
@@ -1225,10 +1208,10 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
   while (1){
 
     for (i=0; i<numatadevices; i++) 
-      ataCheckDevice(atadevices+i);
+      ataCheckDevice(atadevices[i]);
     
     for (i=0; i<numscsidevices; i++)
-      scsiCheckDevice(scsidevices+i);
+      scsiCheckDevice(scsidevices[i]);
 
     // This option is primarily for distribution developers who want
     // an automated procedure for seeing if smartd works correctly.
@@ -1309,7 +1292,7 @@ void CheckDevices(atadevices_t *atadevices, scsidevices_t *scsidevices){
 
 // Print out a list of valid arguments for the Directive d
 void printoutvaliddirectiveargs(int priority, char d) {
-  char *s;
+  char *s=NULL;
 
   switch (d) {
   case 'd':
@@ -1331,10 +1314,11 @@ void printoutvaliddirectiveargs(int priority, char d) {
   case 'v':
     if (!(s = create_vendor_attribute_arg_list())) {
       printout(LOG_CRIT,"Insufficient memory to construct argument list\n");
-      break;
+      exit(EXIT_NOMEM);
     }
     printout(priority, "\n%s\n", s);
     free(s);
+    s=NULL;
     break;
   case 'P':
     printout(priority, "use, ignore, show, showall");
@@ -1469,6 +1453,7 @@ int parsetoken(char *token,cfgfile *cfg){
 	badarg=1;
       }
       free(s); 
+      s=NULL;
     }
     break;
   case 'F':
@@ -1573,6 +1558,7 @@ int parsetoken(char *token,cfgfile *cfg){
       if (cfg->emailcmdline) {
         printout(LOG_INFO, "File %s line %d (drive %s): found multiple -M exec Directives on line - ignoring all but the last\n", CONFIGFILE, lineno, name);
         free(cfg->emailcmdline);
+	cfg->emailcmdline=NULL;
       }
       // Attempt to copy the argument
       if (!(cfg->emailcmdline = strdup(arg))) {
@@ -1671,10 +1657,10 @@ int parsetoken(char *token,cfgfile *cfg){
 }
 
 int parseconfigline(int entry, int lineno,char *line){
-  char *token,*copy;
-  char *name;
+  char *token=NULL,*copy=NULL;
+  char *name=NULL;
   char *delim = " \n\t";
-  cfgfile *cfg;
+  cfgfile *cfg=NULL;
   static int numtokens=0;
   int devscan=0;
 
@@ -1686,6 +1672,7 @@ int parseconfigline(int entry, int lineno,char *line){
   // get first token -- device name
   if (!(name=strtok(copy,delim)) || *name=='#') {
     free(copy);
+    copy=NULL;
     return 0;
   }
 
@@ -1749,15 +1736,16 @@ int parseconfigline(int entry, int lineno,char *line){
 
   // If we found 3ware controller, then modify device name by adding a SPACE
   if (cfg->escalade){
-    char *newname=(char *)malloc(32+strlen(cfg->name));
+    int len=19+strlen(cfg->name);
+    char *newname=(char *)calloc(len ,1);
     if (!newname) {
       printout(LOG_INFO,"No memory to parse file: %s line %d, %s\n", CONFIGFILE, lineno, strerror(errno));
       exit(EXIT_NOMEM);
     }
     // Make new device name by adding a space then RAID disk number
-    sprintf(newname,"%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
+    snprintf(newname, len, "%s [3ware_disk_%02d]", cfg->name, cfg->escalade-1);
     free(cfg->name);
-    name=cfg->name=newname;
+    cfg->name=newname;
   }
 
   // If no ATA monitoring directives are set, then set all of them.
@@ -2152,7 +2140,7 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
   
   // check that we still have space for entries
   if (MAXENTRIES<(start+num)){
-    printout(LOG_CRIT,"Error: simulated config file can have no more than %d entries\n",(int)MAXENTRIES);
+    printout(LOG_CRIT,"Error: simulated config file can have no more than MAXENTRIES=%d entries\n",(int)MAXENTRIES);
     exit(EXIT_CCONST);
   }
   
@@ -2165,9 +2153,8 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     // for isattoff() get their reference addresses copied.  Other
     // allocated memory blocks, like those for the name, get
     // rewritten.
-    if (scandirective){
+    if (scandirective)
       memcpy(cfg, config, sizeof(*cfg));
-    }
     else {
       // no config file was used: all structure entries need to be set
       memset(cfg,0,sizeof(*cfg));
@@ -2183,14 +2170,6 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
       // lineno==0 is our clue that the device was not found in a
       // config file!
       cfg->lineno=0;
-      
-      // Allocate memory (won't be used!) for checking things to ignore
-      cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
-      cfg->attributedefs=(unsigned char *)calloc(256,1);
-      if (!cfg->monitorattflags || !cfg->attributedefs) {
-	printout(LOG_CRIT,"No memory for %d'th device after %s, %s\n", i, name, strerror(errno));
-	exit(EXIT_NOMEM);
-      }
     }
     
     // select if it's a SCSI or ATA device
@@ -2206,6 +2185,23 @@ int makeconfigentries(int num, char *name, int isata, int start, int scandirecti
     
     // increment final character of the name
     cfg->name[strlen(name)-1]+=i;
+    
+    // put in a private copy of attributedefs, and monitorattflags
+    if (!scandirective || cfg!=config ){
+      cfg->monitorattflags=(unsigned char *)calloc(NMONITOR*32,1);
+      cfg->attributedefs=(unsigned char *)calloc(256,1);
+      if (!cfg->monitorattflags || !cfg->attributedefs) {
+	printout(LOG_CRIT,"No memory for device %s, %s\n", cfg->name, strerror(errno));
+	exit(EXIT_NOMEM);
+      }
+    }
+    if (scandirective && cfg!=config ){
+      // Make a private copy.  Not needed for monitorattflags, but
+      // userful for attributedefs which might vary from drive to
+      // drive if they are recognized as distince in the database
+      memcpy(cfg->attributedefs,   config->attributedefs,   256);
+      memcpy(cfg->monitorattflags, config->monitorattflags, NMONITOR*32);
+    }
   }
   return i;
 }
@@ -2224,16 +2220,16 @@ void cantregister(char *name, char *type, int line, int scandirective){
  
 /* Main Program */
 int main (int argc, char **argv){
-  atadevices_t atadevices[MAXATADEVICES], *atadevicesptr=atadevices;
-  scsidevices_t scsidevices[MAXSCSIDEVICES], *scsidevicesptr=scsidevices;
+  cfgfile *atadevices[MAXATADEVICES],*scsidevices[MAXSCSIDEVICES];
   int i, entries, scandirective=0, scanning=0;
   smartmonctrl control;
   
-  // initialize global communications variables and lists
+  // For simplicity, null all global communications variables/lists
   con=&control;
   memset(con,0,sizeof(control));
-  memset(atadevicesptr,0,sizeof(atadevices_t)*MAXATADEVICES);
-  memset(scsidevicesptr,0,sizeof(scsidevices_t)*MAXSCSIDEVICES);
+  memset(atadevices, 0,sizeof(cfgfile *)*MAXATADEVICES);
+  memset(scsidevices,0,sizeof(cfgfile *)*MAXSCSIDEVICES);
+  memset(config,     0,sizeof(cfgfile)  *MAXENTRIES);
 
   // Parse input and print header and usage info if needed
   ParseOpts(argc,argv);
@@ -2263,7 +2259,7 @@ int main (int argc, char **argv){
     }
     else {
       // No config file given, so scan for both ATA and SCSI devices
-      printout(LOG_INFO,"smartd: file %s not found. Searching for ATA & SCSI devices.\n",CONFIGFILE);
+      printout(LOG_INFO,"smartd: file %s not found. Scanning for ATA & SCSI devices.\n",CONFIGFILE);
       config->tryata=1;
       config->tryscsi=1;
     }
@@ -2287,18 +2283,22 @@ int main (int argc, char **argv){
     
     // register ATA devices
     if (config[i].tryata){
-      if (atadevicescan(atadevicesptr+numatadevices, config+i))
+      if (atadevicescan(config+i))
 	cantregister(config[i].name, "ATA", config[i].lineno, scandirective);
-      else
+      else {
 	notregistered=0;
+	atadevices[numatadevices++]=config+i;
+      }
     }
     
     // then register SCSI devices
     if (config[i].tryscsi){
-      if (scsidevicescan(scsidevicesptr+numscsidevices, config+i))
+      if (scsidevicescan(config+i))
 	cantregister(config[i].name, "SCSI", config[i].lineno, scandirective);
-      else
+      else {
 	notregistered=0;
+	scsidevices[numscsidevices++]=config+i;
+      }
     }
     
     // if device is explictly listed and we can't register it, then exit unless
@@ -2311,6 +2311,22 @@ int main (int argc, char **argv){
         exit(EXIT_BADDEV);
       }
     }
+
+    // free up memory if not needed
+    if (notregistered || config[i].tryscsi){
+      free(config[i].monitorattflags); config[i].monitorattflags=NULL;
+      free(config[i].attributedefs);   config[i].attributedefs=NULL;
+    }
+    if (notregistered){
+      free(config[i].name);            config[i].name=NULL;
+      free(config[i].emailcmdline);    config[i].emailcmdline=NULL;
+      free(config[i].address);         config[i].address=NULL;
+
+      // clear out structure so we'll see obvious problems if we try
+      // and access it.
+      memset(config+i, 0, sizeof(cfgfile));
+    }
+
   } // done registering entries
 
   // If there are no devices to monitor, then exit
@@ -2320,7 +2336,7 @@ int main (int argc, char **argv){
   }
 
   // Now start an infinite loop that checks all devices
-  CheckDevices(atadevicesptr, scsidevicesptr); 
+  CheckDevices(atadevices, scsidevices); 
   return 0;
 }
 
