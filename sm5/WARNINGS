@@ -1,7 +1,15 @@
-$Id: WARNINGS,v 1.13 2003/10/14 13:48:40 ballen4705 Exp $
+$Id: WARNINGS,v 1.14 2003/10/16 11:45:42 ballen4705 Exp $
 
-The following are controllers/drives where there have been reports of
-serious problems (eg system lockup):
+The following are reports of serious problems (eg system lockup) which
+were due to smartmontools.  There is a "LINUX" and a "FREEBSD" section
+below.
+
+LINUX
+-----
+
+You may also wish to search the linux.kernel mailing list for problem
+reports concerning smartmontools.  Here is the URL:
+http://groups.google.com/groups?as_q=smartmontools&safe=images&ie=UTF-8&oe=UTF-8&as_ugroup=linux.kernel&lr=&num=100&hl=en
 
 
 SYSTEM:   Intel 875WP1-E motherboard with SATA drives on motherboard's SATA ports
@@ -40,4 +48,7 @@ NOTE:     Similar to previous report: Promise Ultra66 2-port card (20262) which,
           to fix the problem.
 
 
+FREEBSD
+-------
 
+[No reports yet.]
