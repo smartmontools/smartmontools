@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.23 2004/01/31 10:45:52 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.24 2004/02/06 03:52:02 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -148,13 +148,31 @@ used then \fBsmartctl\fP will attempt to guess the device type from
 the device name.
 
 To look at ATA disks behind 3ware SCSI RAID controllers, use syntax
-such as:
-.fi
-\fBsmartctl -a -d 3ware,2 /dev/sda\fP
-.fi
-where in the argument \fI3ware,N\fP, the integer N is the disk number
-within the 3ware ATA RAID controller.  The allowed values of N are
-from 0 to 15 inclusive.
+such as: .fi \fBsmartctl -a -d 3ware,2 /dev/sda\fP .fi where in the
+argument \fI3ware,N\fP, the integer N is the disk number (3ware
+\'port\') within the 3ware ATA RAID controller.  The allowed values of
+N are from 0 to 15 inclusive.  Please note that \fBany\fP of the
+physical disks can be queried or examined using \fBany\fP of the
+3ware's SCSI logical device /dev/sd? entries.  Thus, if logical device
+/dev/sda is made up of two physical disks (3ware ports zero and one)
+and logical device /dev/sdb is made up of two other physical disks
+(3ware ports two and three) then you can examine the SMART data on
+\fBany\fP of the four physical disks using \fBeither\fP SCSI device
+/dev/sda \fBor\fP /dev/sdb.  If you need to know which logical SCSI
+device a particular physical disk (3ware port) is associated with, use
+the dmesg or SYSLOG output to show which SCSI ID corresponds to a
+particular 3ware unit, and then use the 3ware CLI or 3dm tool to
+determine which ports (physical disks) correspond to particular 3ware
+units.
+
+Please note: if the value of N corresponds to a port that does
+\fBnot\fP exist on the controller, or to a port that does not
+physically have a disk attached to it, the behavior of \fBsmartctl\fP
+is slightly unpredictable: it depends upon the specific controller
+model, controller firmware, kernel and platform.  In some cases you
+will get a warning message that the device does not exist. In other
+cases you will be presented with \'void\' data for a non-existent
+device.
 
 Note that older 3w-xxxx drivers do not pass the "Enable Autosave"
 (\'\fB-S on\fP\') and "Enable Automatic Offline" (\'\fB-o on\fP\') commands
@@ -164,7 +182,7 @@ can be fixed by upgrading to version 1.02.00.037 or later of the
 3w-xxxx driver, or by applying a patch to older versions. See
 \fBhttp://smartmontools.sourceforge.net/\fP for instructions.
 
-.B 3ware controllers are NOT supported under FreeBSD yet.
+.B 3ware controllers are currently ONLY supported under Linux.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -1014,4 +1032,4 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.23 2004/01/31 10:45:52 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.24 2004/02/06 03:52:02 ballen4705 Exp $

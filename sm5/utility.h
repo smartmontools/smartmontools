@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.26 2004/01/27 15:29:28 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.27 2004/02/06 03:52:02 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <regex.h>
@@ -116,7 +116,11 @@ int isbigendian();
 const char *packetdevicetype(int type);
 
 int deviceopen(const char *pathname, char *type);
+
 int deviceclose(int fd);
+
+// returns 1 if any of the n bytes are nonzero, else zero.
+int nonempty(unsigned char *testarea,int n);
 
 // Exit codes
 #define EXIT_BADCMD    1   // command line did not parse

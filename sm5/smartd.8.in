@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.38 2004/02/03 16:48:58 ballen4705 Exp $
+$Id: smartd.8.in,v 1.39 2004/02/06 03:52:02 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -396,7 +396,7 @@ Section below!
 .B # startup.
 .B #
 .B \ \ /dev/sda
-.B \ \ /dev/sdc -m admin@example.com -M test
+.B \ \ /dev/sdb -m admin@example.com -M test
 .B #
 .nf
 .B # Strange device.  It\'s SCSI. Do a scheduled
@@ -404,11 +404,12 @@ Section below!
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Three ATA disks connected to a 3ware controller.
-.B # Do short self-tests daily at midnight, 1 and 2 am
-.B \ \ /dev/sdb -d 3ware,0 -a -s S/../.././00
-.B \ \ /dev/sdb -d 3ware,1 -a -s S/../.././01
-.B \ \ /dev/sdb -d 3ware,2 -a -s S/../.././02
+.B # Four ATA disks connected to a 3ware controller.
+.B # Do short self-tests daily at midnight, 1, 2, and 3 am
+.B \ \ /dev/sdc -d 3ware,0 -a -s S/../.././00
+.B \ \ /dev/sdc -d 3ware,1 -a -s S/../.././01
+.B \ \ /dev/sdd -d 3ware,2 -a -s S/../.././02
+.B \ \ /dev/sdd -d 3ware,3 -a -s S/../.././03
 .B #
 .nf
 .B # The following line enables monitoring of the 
@@ -514,7 +515,12 @@ controller is a SCSI device (such as /dev/sda) and should be listed as
 such in the the configuration file.  However when the \'\-d 3ware,N\'
 Directive is used, then the corresponding disk is addressed using
 native ATA commands which are \'passed through\' the SCSI driver. All
-ATA Directives listed in this man page may be used.
+ATA Directives listed in this man page may be used.  Note that while
+you may use \fBany\fP of the 3ware SCSI logical devices /dev/sd? to
+address \fBany\fP of the physical disks (3ware ports), error and log
+messages will make the most sense if you always list the 3ware SCSI
+logical device corresponding to the particular physical disks.  Please
+see the \fBsmartctl\fP man page for further details.
 
 Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
 (\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
@@ -940,7 +946,7 @@ is an integer, which is the unix epoch (number of seconds since Jan 1,
 .B SMARTD_TFIRST.
 
 The shell which is used to run PATH is system-dependent. For vanilla
-linux/glibc it\'s bash. For other systems, the man page for
+Linux/glibc it\'s bash. For other systems, the man page for
 \fBpopen\fP(3) should say what shell is used.
 
 If the \'\-m ADD\' Directive is given with a normal address argument,
@@ -1530,4 +1536,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.38 2004/02/03 16:48:58 ballen4705 Exp $
+$Id: smartd.8.in,v 1.39 2004/02/06 03:52:02 ballen4705 Exp $

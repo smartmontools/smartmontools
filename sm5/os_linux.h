@@ -37,7 +37,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.8 2004/01/02 16:05:25 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_linux.h,v 1.9 2004/02/06 03:52:02 ballen4705 Exp $\n"
 
 /* Misc defines */
 #define TW_IOCTL            0x80
@@ -47,8 +47,8 @@
 /* Scatter gather list entry */
 typedef struct TAG_TW_SG_Entry
 {
-  unsigned long address;
-  unsigned long length;
+  unsigned int address;
+  unsigned int length;
 } TW_SG_Entry;
 
 /* Command header for ATA pass-thru */
