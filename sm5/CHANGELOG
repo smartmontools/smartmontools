@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.351 2004/03/03 23:29:00 pjwilliams Exp $
+$Id: CHANGELOG,v 1.352 2004/03/04 04:57:05 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -26,6 +26,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [BA] Added error decoding for a few more READ and WRITE commands.
 
   [PW] Added Maxtor MaXLine Plus II, Western Digital Caviar SE (Serial ATA)
        series, Hitachi Deskstar 7K250 series, and Ultra ATA 66 models of

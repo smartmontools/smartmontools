@@ -35,7 +35,7 @@
 #include "knowndrives.h"
 #include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.136 2004/03/04 03:25:11 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.137 2004/03/04 04:57:05 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -140,6 +140,10 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[i] = NULL;
 
   switch (CR) {
+  case 0x10:  // RECALIBRATE
+    error_flag[2] = "ABRT";
+    error_flag[1] = "TK0NF";
+    break;
   case 0x20:  /* READ SECTOR(S) */
   case 0x21:
   case 0xC4:  /* READ MULTIPLE */
@@ -149,7 +153,14 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
-    error_flag[0] = "obs";
+    error_flag[0] = "AMNF";
+    print_lba=1;
+    break;
+  case 0x22:  // READ LONG (with retries)
+  case 0x23:  // READ LONG (without retries)
+    error_flag[4] = "IDNF";
+    error_flag[2] = "ABRT";
+    error_flag[0] = "AMNF";
     print_lba=1;
     break;
   case 0x25:  /* READ DMA EXT */
@@ -162,7 +173,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
-    error_flag[0] = "obs";
+    error_flag[0] = "AMNF";
     print_lba=1;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
@@ -174,6 +185,27 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
+    print_lba=1;
+    break;
+  case 0x32:  // WRITE LONG (with retries)
+  case 0x33:  // WRITE LONG (without retries)
+    error_flag[4] = "IDNF";
+    error_flag[2] = "ABRT";
+    print_lba=1;
+    break;
+  case 0x3C:  // WRITE VERIFY
+    error_flag[6] = "UNC";
+    error_flag[4] = "IDNF";
+    error_flag[2] = "ABRT";
+    error_flag[0] = "AMNF";
+    print_lba=1;
+    break;
+  case 0x40: // READ VERIFY SECTOR(S) with retries
+  case 0x41: // READ VERIFY SECTOR(S) without retries
+    error_flag[6] = "UNC";
+    error_flag[4] = "IDNF";
+    error_flag[2] = "ABRT";
+    error_flag[0] = "AMNF";
     print_lba=1;
     break;
   case 0xA0:  /* PACKET */
@@ -237,8 +269,12 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
     error_flag[3] = "MCR";
     error_flag[2] = "ABRT";
     error_flag[1] = "NM";
-    error_flag[0] = "obs";
+    error_flag[0] = "AMNF";
     print_lba=1;
+    break;
+  case 0xE4: // READ BUFFER
+  case 0xE8: // WRITE BUFFER
+    error_flag[2] = "ABRT";
     break;
   default:
     return NULL;
