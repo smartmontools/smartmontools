@@ -33,7 +33,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.77 2003/04/17 14:45:35 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.78 2003/04/17 14:56:48 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -755,7 +755,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       case  7:msgstat="Completed: read failure      "; errorfound=1; break;
       case  8:msgstat="Completed: handling damage?? "; errorfound=1; break;
       case 15:msgstat="Test in progress             "; break;
-      default:msgstat="Unknown/reserved test status ";         ";
+      default:msgstat="Unknown/reserved test status ";
       }
 
       retval+=errorfound;
