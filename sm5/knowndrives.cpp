@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.61 2003/12/08 20:26:19 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.62 2003/12/09 22:40:13 pjwilliams Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -309,6 +309,13 @@ const drivesettings knowndrives[] = {
   },
   { // Maxtor DiamondMax VL 30 family
     "^Maxtor (33073U4|32049U3|31536U2|30768U1)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { // Maxtor DiamondMax Plus 8 family
+    "^Maxtor 6E0[234]0L0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
