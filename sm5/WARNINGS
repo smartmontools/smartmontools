@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.23 2004/04/09 23:18:39 ballen4705 Exp $
+$Id: WARNINGS,v 1.24 2004/04/11 17:13:39 chrfranke Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -91,8 +91,8 @@ SOLARIS
 [No problem reports yet.]
 
 
-WINDOWS
--------
+CYGWIN and WINDOWS
+------------------
 
 SYSTEM:   Any Windows 2000 or XP system.
 PROBLEM:  Use of an undocumented system call for IDE/ATA read log
@@ -105,5 +105,4 @@ NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support
           This IOCTL is not implemented under NT4.
           Invalid log output has been reported for at least one
           W2K system.
-
 
