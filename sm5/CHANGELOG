@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.108 2003/04/02 00:35:07 ballen4705 Exp $
+$Id: CHANGELOG,v 1.109 2003/04/02 18:31:32 ballen4705 Exp $
 
 Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
@@ -35,12 +35,14 @@ CURRENT RELEASE (see VERSION file in this directory):
  
   <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED HERE, PLEASE>
 
-smartmontools-5.1-9
   [BA] Replaced all linux-specific ioctl() calls in atacmds.c with
        a generic handler smartcommandhandler().  Now the only routine
        that needs to be implemented for a given OS is os_specific_handler().
-       Also implemented the --report ataioctl.  Note, I currently assume
-       that this will be set for two levels of reporting.
+       Also implemented the --report ataioctl. This provides 
+       two levels of reporting.  Using the option once gives a summary
+       report of device IOCTL transactions.  Using the option twice give
+       additional info (a printout of ALL device raw 512 byte SMART
+       data structures).  This is useful for debugging.
 
   [DG] more scsi cleanup. Output scsi device serial number (VPD page
        0x80) if available as part of '-i'. Implement '-t offline' as
@@ -57,6 +59,8 @@ smartmontools-5.1-9
        to isolate SCSI generic commands + responses from Linux details;
        should help port to FreeBSD of SCSI part of smartmontools.
        Make SCSI command builders more parametric.
+
+smartmontools-5.1-9
   
   [BA] smartctl: if HDIO_DRIVE_TASK ioctl() is not implemented (no
        kernel support, then try to assess drive health by examining
