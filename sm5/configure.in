@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.83 2004/07/05 08:10:43 ballen4705 Exp $
+# $Id: configure.in,v 1.84 2004/07/06 16:42:21 card_captor Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.32, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.83 2004/07/05 08:10:43 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.84 2004/07/06 16:42:21 card_captor Exp $'`
 smartmontools_release_date=2004/07/05
 smartmontools_release_time="08:10:26 UTC"
 
@@ -103,7 +103,7 @@ case "${host}" in
 		AC_DEFINE_UNQUOTED(NEED_SOLARIS_ATA_CODE, "os_solaris_ata.s", [need assembly code os_solaris_ata.s])
 		AC_SUBST([os_deps], ['os_solaris.o os_solaris_ata.o']) 
 		AC_SUBST([os_libs], ['']) ;;
-	pc-*-solaris*) 
+	*-pc-solaris*) 
 		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer]) 
 		AC_SUBST([os_deps], ['os_solaris.o']) 
 		AC_SUBST([os_libs], ['']) ;;
