@@ -27,7 +27,7 @@
 #include "utility.h"
 #include "config.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.80 2004/01/04 23:36:45 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.81 2004/01/05 11:38:07 ballen4705 Exp $"
                                 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -381,8 +381,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { // IBM GXP-180
-    "^IC35L120AVV207-[01]$",
+  { // IBM/Hitachi Deskstar GXP-180 family 
+    "^IC35L(030|060|090|120|180)AVV207-[01]$",
     ".*", 
     NULL, NULL, NULL, NULL 
   },
