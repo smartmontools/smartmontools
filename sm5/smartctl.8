@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \#
-\# $Id: smartctl.8,v 1.64 2003/04/19 12:25:40 ballen4705 Exp $
+\# $Id: smartctl.8,v 1.65 2003/04/19 19:36:25 ballen4705 Exp $
 \# 
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTCTL 8  "$Date: 2003/04/19 12:25:40 $" "smartmontools-5.1"
+.TH SMARTCTL 8  "$Date: 2003/04/19 19:36:25 $" "smartmontools-5.1"
 .SH NAME
 smartctl \- S.M.A.R.T. control and monitor utility 
 .SH SYNOPSIS
@@ -25,21 +25,21 @@ smartctl \- S.M.A.R.T. control and monitor utility
 .SH DESCRIPTION
 .B smartctl
 controls the Self-Monitoring, Analysis and Reporting Technology
-(S.M.A.R.T.) system built into many ATA-3 and later ATA, IDE and
-SCSI-3 hard drives. The purpose of S.M.A.R.T. is to monitor the
+(SMART) system built into many ATA-3 and later ATA, IDE and
+SCSI-3 hard drives. The purpose of SMART is to monitor the
 reliability of the hard drive and predict drive failures, and to carry
 out different types of drive self-tests.  This version of smartctl is
 compatible with ATA/ATAPI-5 and earlier standards (see REFERENCES
 below)
 
 .B smartctl
-is a command line utility designed to perform S.M.A.R.T. tasks such as
-printing the S.M.A.R.T. self-test and error logs, and enabling and
-disabling S.M.A.R.T. automatic testing. Note: if the user issues a
-S.M.A.R.T. command that is (apparently) not implemented by the device,
+is a command line utility designed to perform SMART tasks such as
+printing the SMART self-test and error logs, and enabling and
+disabling SMART automatic testing. Note: if the user issues a
+SMART command that is (apparently) not implemented by the device,
 .B smartctl
 will print a warning message but issue the command anyway.  This should
-not cause problems: unimplemented S.M.A.R.T. commands issued to a
+not cause problems: unimplemented SMART commands issued to a
 drive are ignored and return an error.
 
 .B smartctl
@@ -105,11 +105,11 @@ reporting bugs or problems.
 .TP
 .B \-i, \-\-info
 Prints the disk model number, serial number, firmware version, and ATA Standard
-version/revision information.  Says if the device supports S.M.A.R.T., and if
-so, whether S.M.A.R.T. support is currently enabled or disabled.
+version/revision information.  Says if the device supports SMART, and if
+so, whether SMART support is currently enabled or disabled.
 .TP
 .B \-a, \-\-all
-Prints all S.M.A.R.T. information about the disk.  This is equivalent to '\-H
+Prints all SMART information about the disk.  This is equivalent to '\-H
 \-i \-c \-A \-l error \-l selftest' (for SCSI, '\-H \-i \-l error
 \-l selftest').
 .TP
@@ -145,33 +145,33 @@ will attempt to guess the device type from the device name.
 .B \-T TYPE, \-\-tolerance=TYPE
 Specifies how tolerant
 .B smartctl
-should be of S.M.A.R.T. command failures.  The valid arguments to this option
+should be of SMART command failures.  The valid arguments to this option
 are:
 
 .I normal
-\- exit on failure of a mandatory S.M.A.R.T. command, but not on failure of an
-optional S.M.A.R.T. command.  This is the default.  
+\- exit on failure of a mandatory SMART command, but not on failure of an
+optional SMART command.  This is the default.  
 
 .I conservative
-\- exit on failure of any S.M.A.R.T. command.
+\- exit on failure of any SMART command.
 
 .I permissive
-\- ignore failure of any S.M.A.R.T. command.
+\- ignore failure of any SMART command.
 
 Here "mandatory" means "required by the ATA/ATAPI-5 Specification if the
-device implements the S.M.A.R.T. command set" and "optional" means "not
+device implements the SMART command set" and "optional" means "not
 required by the ATA/ATAPI-5 Specification even if the device implements
-the S.M.A.R.T. command set."  The 'mandatory' S.M.A.R.T. commands are: (1)
-Enable/Disable Attribute Autosave, (2) Enable/Disable S.M.A.R.T., and (3)
-S.M.A.R.T. Return Status.
+the SMART command set."  The 'mandatory' SMART commands are: (1)
+Enable/Disable Attribute Autosave, (2) Enable/Disable SMART, and (3)
+SMART Return Status.
 
 .TP
 .B \-b TYPE, \-\-badsum=TYPE
 Specifies the action 
 .B smartctl
 should take if a checksum error is detected in the: (1) Device
-Identity Structure, (2) S.M.A.R.T. Self-Test Log Structure, (3)
-S.M.A.R.T. Attribute Value Structure, (4) S.M.A.R.T. Attribute
+Identity Structure, (2) SMART Self-Test Log Structure, (3)
+SMART Attribute Value Structure, (4) SMART Attribute
 Threshold Structure, or (5) ATA Error Log Structure.
 
 The valid arguments to this option are:
@@ -222,7 +222,7 @@ The default
 level is 1, so '\-r ataioctl,1' and '\-r ataioctl' are equivalent.
 
 .TP
-.B S.M.A.R.T. FEATURE ENABLE/DISABLE COMMANDS:
+.B SMART FEATURE ENABLE/DISABLE COMMANDS:
 .IP
 .B Note: 
 if multiple options are used to both enable and disable a
@@ -234,28 +234,31 @@ will always be issued
 the corresponding disable command.
 .TP
 .B \-s VALUE, \-\-smart=VALUE 
-Enables or disables S.M.A.R.T. on device.  The valid arguments to
+Enables or disables SMART on device.  The valid arguments to
 this option are \fIon\fP and \fIoff\fP.  Note that the command '\-s on'
 (perhaps used with with the '\-o on' and '\-S on' options) should be placed
 in a start-up script for your machine, for example in rc.local or rc.sysinit.
-In principle the S.M.A.R.T. feature settings are preserved over
+In principle the SMART feature settings are preserved over
 power-cycling, but it doesn't hurt to be sure.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
-Enables or disables S.M.A.R.T. automatic offline test, which scans the drive
+Enables or disables SMART automatic offline test, which scans the drive
 every four hours for disk defects. This command can be given during normal
 system operation.  The valid arguments to this option are \fIon\fP
 and \fIoff\fP.
 
-Note that the S.M.A.R.T. automatic offline test command is listed as 'Obsolete'
+Note that the SMART automatic offline test command is listed as 'Obsolete'
 in every version of the ATA and ATA/ATAPI Specifications
 that I can find.  However it is implemented and used by some
 vendors. [Good documentation can be found in IBM's Official
 Published Disk Specifications.  For example the IBM Travelstar 40GNX
 Hard Disk Drive Specifications (Revision 1.1, 22 April 2002,
 Publication # 1541, Document S07N-7715-02) page 164.]
+You can tell if automatic offline testing is supported by seeing if
+this command enables and disables it, as indicated by the SMART
+capabilities (displayed with '\-c').
 
-S.M.A.R.T. provides
+SMART provides
 .B three basic categories of testing.
 The 
 .B first category,
@@ -276,8 +279,8 @@ the '\-t offline' option below, which causes a one-time offline test to be
 carried out immediately.
 
 Any errors detected in automatic or immediate offline testing are
-reflected in the values of the S.M.A.R.T. Attributes; some types of
-errors may also appear in the S.M.A.R.T. error log. These are visible
+reflected in the values of the SMART Attributes; some types of
+errors may also appear in the SMART error log. These are visible
 with the '\-A' and '\-l error' options respectively.
 
 The 
@@ -288,7 +291,7 @@ issued.  The '\-t' and '\-X' options can be used to carry out and abort such
 self-tests; please see below for further details.
 
 Any errors detected in the self testing will be shown in the
-S.M.A.R.T. self-test log, which can be examined using the '\-l selftest'
+SMART self-test log, which can be examined using the '\-l selftest'
 option.
 
 .B Note:
@@ -300,18 +303,18 @@ just described, e.g. for the 'offline' testing.  The words
 are used in connection with the third category.
 .TP
 .B \-S VALUE, \-\-saveauto=VALUE
-Enables or disables S.M.A.R.T. autosave of device vendor-specific
+Enables or disables SMART autosave of device vendor-specific
 Attributes. The valid arguments to this option are \fIon\fP
 and \fIoff\fP.  Note that this feature is preserved across disk power
 cycles, so you should only need to issue it once.
 .TP
-.B S.M.A.R.T. READ AND DISPLAY DATA OPTIONS:
+.B SMART READ AND DISPLAY DATA OPTIONS:
 .TP
 .B \-H, \-\-health
-Check: Ask the device to report its S.M.A.R.T. health status.  It does
+Check: Ask the device to report its SMART health status.  It does
 this using information that it has gathered from online and offline
 tests, which were used to determine/update its
-S.M.A.R.T. vendor-specific Attribute values.
+SMART vendor-specific Attribute values.
 
 If the device reports failing health status, this means
 .B either
@@ -322,9 +325,9 @@ this happens, use the '\-a' option to get more information, and
 .B get your data off the disk and someplace safe as soon as you can.
 .TP
 .B \-c, \-\-capabilities
-Prints only the generic S.M.A.R.T. capabilities.  These show
-what S.M.A.R.T. features are implemented and how the device will
-respond to some of the different S.M.A.R.T. commands.  For example it
+Prints only the generic SMART capabilities.  These show
+what SMART features are implemented and how the device will
+respond to some of the different SMART commands.  For example it
 shows if the device logs errors, if it supports offline surface
 scanning, and so on.  If the device can carry out self-tests, this
 option also shows the estimated time required to run those tests.
@@ -339,7 +342,7 @@ for further information about the the flags and capabilities described
 by this option.
 .TP
 .B \-A, \-\-attributes
-Prints only the vendor specific S.M.A.R.T. Attributes.  The
+Prints only the vendor specific SMART Attributes.  The
 Attributes are numbered from 1 to 253 and have specific names. For
 example Attribute 12 is 'power cycle count': how many times has the
 disk been powered up.
@@ -359,7 +362,7 @@ only reports the different Attribute values and thresholds.  It does
 carry out the conversion between 'Raw' and 'Normalized' values.
 
 Note that the conversion from 'Raw' value to a quantity with physical
-units is not specified by the S.M.A.R.T. standard. In most cases, the
+units is not specified by the SMART standard. In most cases, the
 values printed by
 .B smartctl
 are sensible.  For example the temperature Attribute generally has its
@@ -379,7 +382,7 @@ imminent.
 
 Each Attribute also has a 'Worst' value shown under the heading 'WORST'.
 This is the smallest (closest to failure) value that the
-disk has recorded at any time during its lifetime when S.M.A.R.T.  was
+disk has recorded at any time during its lifetime when SMART  was
 enabled.  [Note however that some vendors will have firmware which will
 .B increase
 the 'Worst' value for some "rate-type" Attributes.]
@@ -408,7 +411,7 @@ indicate that the disk is going to fail, or that it has exceeded its
 design age or aging limit.
 .B smartctl
 does not calculate any of these values, it merely reports them from
-the S.M.A.R.T. data on the disk.
+the SMART data on the disk.
 
 Note that starting with ATA/ATAPI-4, revision 4, the meaning of these
 Attribute fields has been made entirely vendor-specific.  However most
@@ -416,11 +419,11 @@ ATA/ATAPI-5 disks seem to respect their meaning, so we have retained
 the option of printing the Attribute values.
 .TP
 .B \-l TYPE, \-\-log=TYPE
-Prints either the S.M.A.R.T. error log or the S.M.A.R.T. self-test log.  The
+Prints either the SMART error log or the SMART self-test log.  The
 valid arguments to this option are:
 
 .I error
-\- prints only the S.M.A.R.T. error log.  S.M.A.R.T. disks maintain a
+\- prints only the SMART error log.  SMART disks maintain a
 log of the most recent five non-trivial errors. For each of these
 errors, the disk power-on lifetime at which the error occurred is
 recorded, as is the device status (idle, standby, etc) at the time of
@@ -444,7 +447,7 @@ invalid addresses."
 The verify row is only output if it has an element other than zero.
 
 .I selftest
-\- prints only the S.M.A.R.T. self-test log.  The disk maintains a log
+\- prints only the SMART self-test log.  The disk maintains a log
 showing the results of the self tests, which can be run using the
 \'\-t' option described below.  For each of the most recent twenty-one
 self-tests, the log shows the type of test (short or extended,
@@ -635,7 +638,7 @@ presets, then exit.
 then exit.
 
 .TP
-.B S.M.A.R.T. RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
+.B SMART RUN/ABORT OFFLINE TEST AND SELF-TEST OPTIONS:
 .TP
 .B \-t TEST, \-\-test=TEST
 Executes TEST immediately.  The '\-C' option can be used in
@@ -647,11 +650,11 @@ once per command line.
 The valid arguments to this option are:  
 
 .I offline
-\- runs S.M.A.R.T. Immediate Offline Test.  This immediately
+\- runs SMART Immediate Offline Test.  This immediately
 starts the test described above.  This command can be given during
 normal system operation.  The effects of this test are visible only in
-that it updates the S.M.A.R.T. Attribute values, and if errors are
-found they will appear in the S.M.A.R.T. error log, visible with the '\-l error'
+that it updates the SMART Attribute values, and if errors are
+found they will appear in the SMART error log, visible with the '\-l error'
 option. [In the case of SCSI devices runs the default self test in
 foreground. No entry is placed in the self test log.]
 
@@ -667,7 +670,7 @@ the Immediate Offline Test, so you should not try to track the
 progress of the test with '\-c', as it will abort the test.
 
 .I short
-\- runs S.M.A.R.T. Short Self Test (usually under ten minutes).
+\- runs SMART Short Self Test (usually under ten minutes).
 [Note: in the case of SCSI devices,
 this command option runs the 'Background short' self-test.]
 This command can be given during normal system operation (unless run in
@@ -681,7 +684,7 @@ self-test can be monitored by watching this log during the self-test; with other
 use the '\-c' option to monitor progress.
 
 .I long
-\- runs S.M.A.R.T. Extended Self Test (tens of minutes).
+\- runs SMART Extended Self Test (tens of minutes).
 [Note: in the case of SCSI devices,
 this command option runs the 'Background long' self-test.]
 This is a
@@ -700,7 +703,7 @@ of SCSI devices, this command option runs the self-test in 'Foreground' mode.]
 
 .TP
 .B \-X, \-\-abort
-Aborts non-captive S.M.A.R.T. Self Tests.  Note that this
+Aborts non-captive SMART Self Tests.  Note that this
 command will abort the Offline Immediate Test routine only if your
 disk has the "Abort Offline collection upon new command" capability.
 .PP
@@ -708,19 +711,19 @@ disk has the "Abort Offline collection upon new command" capability.
 .nf
 .B smartctl \-a /dev/hda
 .fi
-Print all S.M.A.R.T. information for drive /dev/hda (Primary Master).
+Print all SMART information for drive /dev/hda (Primary Master).
 .PP
 .nf
 .B smartctl \-s off /dev/hdd
 .fi
-Disable S.M.A.R.T. on drive /dev/hdd (Secondary Slave).
+Disable SMART on drive /dev/hdd (Secondary Slave).
 .PP
 .nf
 .B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/hda
 .fi
-Enable S.M.A.R.T. on drive /dev/hda, enable automatic offline
+Enable SMART on drive /dev/hda, enable automatic offline
 testing every four hours, and enable autosaving of
-S.M.A.R.T. Attributes.  This is a good start-up line for your system's
+SMART Attributes.  This is a good start-up line for your system's
 init files.  You can issue this command on a running system.
 .PP
 .nf
@@ -733,11 +736,11 @@ log visible with the '\-l selftest' option after it has completed.
 .nf
 .B smartctl \-s on \-t offline /dev/hda
 .fi
-Enable S.M.A.R.T. on the disk, and begin an immediate offline test of
+Enable SMART on the disk, and begin an immediate offline test of
 drive /dev/hda.  You can issue this command on a running system.  The
-results are only used to update the S.M.A.R.T. Attributes, visible
+results are only used to update the SMART Attributes, visible
 with the '\-A' option.  If any device errors occur, they are logged to
-the S.M.A.R.T. error log, which can be seen with the '\-l error' option.
+the SMART error log, which can be seen with the '\-l error' option.
 .PP
 .nf
 .B smartctl \-A \-v 9,minutes /dev/hda
@@ -748,17 +751,17 @@ internally in minutes rather than hours.
 .nf
 .B smartctl \-q errorsonly \-H \-l selftest /dev/hda
 .fi
-Produces output only if the device returns failing S.M.A.R.T. status,
+Produces output only if the device returns failing SMART status,
 or if some of the logged self-tests ended with errors.
 .PP
 .nf
 .B smartctl \-q silent \-a /dev/hda
 .fi
-Examine all S.M.A.R.T. data for device /dev/hda, but produce no
+Examine all SMART data for device /dev/hda, but produce no
 printed output.  You must use the exit status (the
 .B $?
 shell variable) to learn if any Attributes are out of bound, if the
-S.M.A.R.T. status is failing, if there are errors recorded in the
+SMART status is failing, if there are errors recorded in the
 self-test log, or if there are errors recorded in the disk error log.
 
 .PP
@@ -837,12 +840,12 @@ SEE ALSO:
 .B
 smartd (8)
 .SH
-REFERENCES FOR S.M.A.R.T.
+REFERENCES FOR SMART
 .fi
-If you would like to understand better how S.M.A.R.T. works, and what
+If you would like to understand better how SMART works, and what
 it does, a good place to start is  Section 8.41 of the 'AT
 Attachment with Packet Interface-5' (ATA/ATAPI-5) specification.  This
-documents the S.M.A.R.T. functionality which the smartmontools
+documents the SMART functionality which the smartmontools
 utilities provide access to.  You can find Revision 1 of this document
 at:
 .nf
@@ -857,7 +860,7 @@ available from:
 http://www.t13.org/#FTP_site
 
 .fi
-The functioning of S.M.A.R.T. is also described by the SFF-8035i
+The functioning of SMART is also described by the SFF-8035i
 revision 2 specification.  This is a publication of the Small Form
 Factors (SFF) Committee, and can be obtained from:
 .TP
@@ -880,4 +883,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8,v 1.64 2003/04/19 12:25:40 ballen4705 Exp $
+$Id: smartctl.8,v 1.65 2003/04/19 19:36:25 ballen4705 Exp $

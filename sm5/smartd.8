@@ -1,6 +1,6 @@
 \# Copyright (C) 2002-3 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 \# 
-\# $Id: smartd.8,v 1.89 2003/04/19 12:25:40 ballen4705 Exp $
+\# $Id: smartd.8,v 1.90 2003/04/19 19:36:26 ballen4705 Exp $
 \#
 \# This program is free software; you can redistribute it and/or modify it
 \# under the terms of the GNU General Public License as published by the Free
@@ -16,7 +16,7 @@
 \# Research Center), Jack Baskin School of Engineering, University of
 \# California, Santa Cruz. http://ssrc.soe.ucsc.edu/
 \#
-.TH SMARTD 8  "$Date: 2003/04/19 12:25:40 $" "smartmontools-5.1"
+.TH SMARTD 8  "$Date: 2003/04/19 19:36:26 $" "smartmontools-5.1"
 .SH NAME
 smartd \- S.M.A.R.T. Daemon
 .SH SYNOPSIS
@@ -25,8 +25,8 @@ smartd \- S.M.A.R.T. Daemon
 .SH DESCRIPTION
 .B smartd
 is a daemon that monitors the Self-Monitoring, Analysis and Reporting
-Technology (S.M.A.R.T.) system built into many ATA-3 and later ATA,
-IDE and SCSI-3 hard drives. The purpose of S.M.A.R.T. is to monitor
+Technology (SMART) system built into many ATA-3 and later ATA,
+IDE and SCSI-3 hard drives. The purpose of SMART is to monitor
 the reliability of the hard drive and predict drive failures, and to
 carry out different types of drive self-tests.  This version of
 .B smartd
@@ -35,11 +35,11 @@ is compatible with ATA/ATAPI-5 and earlier standards (see
 below)
 
 .B smartd
-will attempt to enable S.M.A.R.T. monitoring on ATA devices (equivalent to
+will attempt to enable SMART monitoring on ATA devices (equivalent to
 .B smartctl -s on
 ) and polls
 these and SCSI devices every 30 minutes (configurable), logging
-S.M.A.R.T. errors and changes of S.M.A.R.T. Attributes via the SYSLOG
+SMART errors and changes of SMART Attributes via the SYSLOG
 interface.  The default location for these SYSLOG notifications and
 warnings is
 .B /var/log/messages. 
@@ -75,13 +75,13 @@ On startup, in the absence of the configuration file
 .B /etc/smartd.conf,
 the 
 .B smartd
-daemon first scans for all devices that support S.M.A.R.T., using
+daemon first scans for all devices that support SMART, using
 .B "/dev/hd[a-l]"
 for IDE/ATA devices, and 
 .B "/dev/sd[a-z]"
 for SCSI devices. It then monitors for
 .I all 
-possible S.M.A.R.T. errors (corresponding to the 
+possible SMART errors (corresponding to the 
 .B '\-a' 
 Directive in the configuration file; see
 .B CONFIGURATION FILE
@@ -1201,12 +1201,12 @@ SEE ALSO:
 .B syslogd
 (8)
 .SH
-REFERENCES FOR S.M.A.R.T.
+REFERENCES FOR SMART
 .fi
-If you would like to understand better how S.M.A.R.T. works, and what
+If you would like to understand better how SMART works, and what
 it does, a good place to start is  Section 8.41 of the 'AT
 Attachment with Packet Interface-5' (ATA/ATAPI-5) specification.  This
-documents the S.M.A.R.T. functionality which the 
+documents the SMART functionality which the 
 .B smartmontools
 utilities provide access to.  You can find Revision 1 of this document
 at:
@@ -1222,7 +1222,7 @@ available from:
 http://www.t13.org/#FTP_site
 
 .fi
-The functioning of S.M.A.R.T. is also described by the SFF-8035i
+The functioning of SMART is also described by the SFF-8035i
 revision 2 specification.  This is a publication of the Small Form
 Factors (SFF) Committee, and can be obtained from:
 .TP
@@ -1245,4 +1245,4 @@ Please let us know if there is an on\-line source for this document.
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8,v 1.89 2003/04/19 12:25:40 ballen4705 Exp $
+$Id: smartd.8,v 1.90 2003/04/19 19:36:26 ballen4705 Exp $
