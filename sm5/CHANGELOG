@@ -1,13 +1,13 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.187 2003/09/24 00:09:33 pervalidus Exp $
+$Id: CHANGELOG,v 1.188 2003/09/24 00:35:17 pervalidus Exp $
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
-[FM] Frederic L. W. Meunier
+[FM] Frédéric L. W. Meunier
 [PW] Phil Williams
 [DG] Douglas Gilbert
 [GG] Guido Guenther
