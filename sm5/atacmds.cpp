@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "atacmds.h"
 
-const char *CVSid1="$Id: atacmds.cpp,v 1.44 2002/12/04 14:17:51 ballen4705 Exp $" CVSID1;
+const char *CVSid1="$Id: atacmds.cpp,v 1.45 2002/12/12 13:42:59 ballen4705 Exp $" CVSID1;
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -152,6 +152,20 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
 }
 #endif
 
+
+// This function computes the checksum of a single disk sector (512
+// bytes).  Returns zero if checksum is OK, nonzero if the checksum is
+// incorrect.  The size (512) is correct for all SMART structures.
+unsigned char checksum(unsigned char *buffer){
+  unsigned char sum=0;
+  int i;
+  
+  for (i=0; i<512; i++)
+    sum+=buffer[i];
+
+  return sum;
+}
+
 // Reads current Device Identity info (512 bytes) into buf
 int ataReadHDIdentity (int device, struct hd_driveid *buf){
   unsigned short driveidchecksum;
@@ -191,19 +205,10 @@ int ataReadHDIdentity (int device, struct hd_driveid *buf){
   }
 #endif
   
-  if ((driveidchecksum & 0x00ff) == 0x00a5){
-    // Device identity structure contains a checksum
-    unsigned char cksum=0;
-    int i;
-    
-    for (i=0;i<sizeof(*buf);i++)
-      cksum+=parms[i+HDIO_DRIVE_CMD_HDR_SIZE];
-    
-    if (cksum)
-      checksumwarning("Drive Identity Structure");
-  }
- 
- return 0;
+  if ((driveidchecksum & 0x00ff) == 0x00a5 && checksum((unsigned char *)buf))
+    checksumwarning("Drive Identity Structure");
+  
+  return 0;
 }
 
 // Returns ATA version as an integer, and a pointer to a string
@@ -294,8 +299,6 @@ int ataIsSmartEnabled(struct hd_driveid *drive){
 
 // Reads SMART attributes into *data
 int ataReadSmartValues(int device, struct ata_smart_values *data){	
-  int i;
-  unsigned char chksum=0;
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE]= 
     {WIN_SMART, 0, SMART_READ_VALUES, 1, };
   
@@ -303,25 +306,20 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
     syserror("Error SMART Values Read failed");
     return -1;
   }
-  
+
+  // copy data
+  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE,ATA_SMART_SEC_SIZE);
+
   // compute checksum
-  for (i=0;i<ATA_SMART_SEC_SIZE;i++)
-    chksum+=buf[i+HDIO_DRIVE_CMD_HDR_SIZE];
-  
-  // verify that checksum vanishes
-  if (chksum)
+  if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Data Structure");
   
-  // copy data and return
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE,ATA_SMART_SEC_SIZE);
   return 0;
 }
 
 
 // Reads the Self Test Log (log #6)
 int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){	
-  int i;
-  unsigned char chksum=0;	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
     {WIN_SMART, 0x06, SMART_READ_LOG_SECTOR, 1,};
   
@@ -330,22 +328,19 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
     syserror("Error SMART Error Self-Test Log Read failed");
     return -1;
   }
-  
+
+  // copy data back to the user
+  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE); 
+
   // compute its checksum, and issue a warning if needed
-  for (i=0;i<ATA_SMART_SEC_SIZE;i++)
-    chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
-  if (chksum)
+  if (checksum((unsigned char *)data))
     checksumwarning("SMART Self-Test Log Structure");
   
-  // copy data back to the user and return
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE); 
   return 0;
 }
 
 // Reads the Error Log (log #1)
 int ataReadErrorLog (int device, struct ata_smart_errorlog *data){	
-  int i;
-  unsigned char chksum=0;	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
     {WIN_SMART, 0x01, SMART_READ_LOG_SECTOR, 1,};
   
@@ -355,21 +350,18 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
     return -1;
   }
   
-  // compute checksum and issue warning if needed
-  for (i=0;i<ATA_SMART_SEC_SIZE;i++)
-    chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
-  if (chksum)
+  //copy data back to user
+  memcpy(data, buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
+  
+  // compute its checksum, and issue a warning if needed
+  if (checksum((unsigned char *)data))
     checksumwarning("SMART ATA Error Log Structure");
   
-  //copy data back to user and return
-  memcpy(data, buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
   return 0;
 }
 
 
 int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
-  int i;
-  unsigned char chksum=0;	
   unsigned char buf[HDIO_DRIVE_CMD_HDR_SIZE+ATA_SMART_SEC_SIZE] = 
     {WIN_SMART, 1, SMART_READ_THRESHOLDS, 1,};
   
@@ -378,15 +370,14 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds *data){
     syserror("Error SMART Thresholds Read failed");
     return -1;
   }
+
+  // copy data back to user
+  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
   
-  // compute checksum and issue warning if needed
-  for (i=0;i<ATA_SMART_SEC_SIZE;i++)
-    chksum+=buf[HDIO_DRIVE_CMD_HDR_SIZE+i];
-  if (chksum)
+  // compute its checksum, and issue a warning if needed
+  if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Thresholds Structure");
   
-  // copy data back to user and return
-  memcpy(data,buf+HDIO_DRIVE_CMD_HDR_SIZE, ATA_SMART_SEC_SIZE);
   return 0;
 }
 
