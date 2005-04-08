@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.507 2005/04/06 18:18:39 chrfranke Exp $
+$Id: CHANGELOG,v 1.508 2005/04/08 15:29:06 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+
+  [CF] Windows smartd: Added ability to run .bat files via '-M exec'
+       directive.
 
   [CF] Cygwin smartd: Added FreeConsole() after fork() to avoid hang
        of terminated shell console window.
