@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.8 2005/03/11 15:09:28 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.9 2005/04/08 15:28:31 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -459,6 +459,7 @@ int daemon_detach(const char * ident)
 	else {
 		// Signal end of initialization to service control manager
 		service_report_status(SERVICE_RUNNING, 0);
+		reopen_stdin = reopen_stdout = reopen_stderr = 1;
 	}
 
 	return 0;
@@ -548,37 +549,71 @@ int daemon_spawn(const char * cmd,
                  char *       outbuf, int outsize )
 {
 	HANDLE pipe_inp_r, pipe_inp_w, pipe_out_r, pipe_out_w, pipe_err_w, h;
-	DWORD num_io, exitcode; int i;
+	char temp_path[MAX_PATH];
+	DWORD flags, num_io, exitcode;
+	int use_file, state, i;
 	SECURITY_ATTRIBUTES sa;
 	STARTUPINFO si; PROCESS_INFORMATION pi;
 	HANDLE self = GetCurrentProcess();
 
+	if (GetVersion() & 0x80000000L) {
+		// Win9x/ME: A calling process never receives EOF if output of COMMAND.COM or
+		// any other DOS program is redirected via a pipe. Using a temp file instead.
+		use_file = 1; flags = DETACHED_PROCESS;
+	}
+	else {
+		// NT4/2000/XP: If DETACHED_PROCESS is used, CMD.EXE opens a new console window
+		// for each external command in a redirected .BAT file.
+		// Even (DETACHED_PROCESS|CREATE_NO_WINDOW) does not work.
+		use_file = 0; flags = CREATE_NO_WINDOW;
+	}
+
 	// Create stdin pipe with inheritable read side
 	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
-	if (!CreatePipe(&pipe_inp_r, &h, &sa, inpsize*2+13))
+	if (!CreatePipe(&pipe_inp_r, &h, &sa/*inherit*/, inpsize*2+13))
 		return -1;
 	if (!DuplicateHandle(self, h, self, &pipe_inp_w,
-		0, FALSE/*!inherit*/, DUPLICATE_SAME_ACCESS)) {
-		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		0, FALSE/*!inherit*/, DUPLICATE_SAME_ACCESS|DUPLICATE_CLOSE_SOURCE)) {
+		CloseHandle(pipe_inp_r);
 		return -1;
 	}
-	CloseHandle(h);
 
-	// Create stdout pipe with inheritable write side
 	memset(&sa, 0, sizeof(sa)); sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
-	if (!CreatePipe(&h, &pipe_out_w, &sa, outsize)) {
-		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
-		return -1;
+	if (!use_file) {
+		// Create stdout pipe with inheritable write side
+		if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize)) {
+			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+			return -1;
+		}
 	}
+	else {
+		// Create temp file with inheritable write handle
+		char temp_dir[MAX_PATH];
+		if (!GetTempPathA(sizeof(temp_dir), temp_dir))
+			strcpy(temp_dir, ".");
+		if (!GetTempFileNameA(temp_dir, "out"/*prefix*/, 0/*create unique*/, temp_path)) {
+			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+			return -1;
+		}
+		if ((h = CreateFileA(temp_path, GENERIC_READ|GENERIC_WRITE,
+			0/*no sharing*/, &sa/*inherit*/, OPEN_EXISTING, 0, NULL)) == INVALID_HANDLE_VALUE) {
+			CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+			return -1;
+		}
+		if (!DuplicateHandle(self, h, self, &pipe_out_w,
+			GENERIC_WRITE, TRUE/*inherit*/, 0)) {
+			CloseHandle(h); CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+			return -1;
+		}
+	}
+
 	if (!DuplicateHandle(self, h, self, &pipe_out_r,
-		0, FALSE/*!inherit*/, DUPLICATE_SAME_ACCESS)) {
-		CloseHandle(h);          CloseHandle(pipe_out_w);
-		CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
+		GENERIC_READ, FALSE/*!inherit*/, DUPLICATE_CLOSE_SOURCE)) {
+		CloseHandle(pipe_out_w); CloseHandle(pipe_inp_r); CloseHandle(pipe_inp_w);
 		return -1;
 	}
-	CloseHandle(h);
 
 	// Create stderr handle as dup of stdout write side
 	if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
@@ -588,7 +623,7 @@ int daemon_spawn(const char * cmd,
 		return -1;
 	}
 
-	// Create process with pipes as stdio
+	// Create process with pipes/file as stdio
 	memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
 	si.hStdInput  = pipe_inp_r;
 	si.hStdOutput = pipe_out_w;
@@ -597,7 +632,7 @@ int daemon_spawn(const char * cmd,
 	if (!CreateProcessA(
 		NULL, (char*)cmd,
 		NULL, NULL, TRUE/*inherit*/,
-		DETACHED_PROCESS/*no new console*/,
+		flags/*DETACHED_PROCESS or CREATE_NO_WINDOW*/,
 		NULL, NULL, &si, &pi)) {
 		CloseHandle(pipe_err_w);
 		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
@@ -626,26 +661,37 @@ int daemon_spawn(const char * cmd,
 	}
 	CloseHandle(pipe_inp_w);
 
-	// Copy stdout to output buffer until full, rest to /dev/null
-	// convert \r\n => \n
-	for (i = 0; ; ) {
-		char buf[256];
-		int j;
-		if (!ReadFile(pipe_out_r, buf, sizeof(buf), &num_io, NULL) || num_io == 0)
-			break;
-		for (j = 0; i < outsize-1 && j < (int)num_io; j++) {
-			if (buf[j] != '\r')
-				outbuf[i++] = buf[j];
-		}	
-	}
-	outbuf[i] = 0;
-	CloseHandle(pipe_out_r);
-
-	// Wait for process exitcode
-	WaitForSingleObject(pi.hProcess, INFINITE);
 	exitcode = 42;
-	GetExitCodeProcess(pi.hProcess, &exitcode);
-	CloseHandle(pi.hProcess);
+	for (state = 0; state < 2; state++) {
+		// stdout pipe: read pipe first
+		// stdout file: wait for process first
+		if (state == use_file) {
+			// Copy stdout to output buffer until full, rest to /dev/null
+			// convert \r\n => \n
+			if (use_file)
+				SetFilePointer(pipe_out_r, 0, NULL, FILE_BEGIN);
+			for (i = 0; ; ) {
+				char buf[256];
+				int j;
+				if (!ReadFile(pipe_out_r, buf, sizeof(buf), &num_io, NULL) || num_io == 0)
+					break;
+				for (j = 0; i < outsize-1 && j < (int)num_io; j++) {
+					if (buf[j] != '\r')
+						outbuf[i++] = buf[j];
+				}
+			}
+			outbuf[i] = 0;
+			CloseHandle(pipe_out_r);
+			if (use_file)
+				DeleteFileA(temp_path);
+		}
+		else {
+			// Wait for process exitcode
+			WaitForSingleObject(pi.hProcess, INFINITE);
+			GetExitCodeProcess(pi.hProcess, &exitcode);
+			CloseHandle(pi.hProcess);
+		}
+	}
 	return exitcode;
 }
 
@@ -1018,7 +1064,7 @@ static int svcadm_main(const char * ident, const daemon_winsvc_options * svc_opt
 	}
 	else {
 		// Open
-		if (!(hs = OpenService(hm, ident, SERVICE_ALL_ACCESS))) {
+		if (!(hs = OpenService(hm, svc_opts->svcname, SERVICE_ALL_ACCESS))) {
 			puts(" not found");
 			CloseServiceHandle(hm);
 			return 1;
@@ -1104,7 +1150,12 @@ int daemon_main(const char * ident, const daemon_winsvc_options * svc_opts,
 		svc_main_argc = argc;
 		svc_main_argv = argv;
 		if (!StartServiceCtrlDispatcher(service_table)) {
-			fprintf(stderr, "%s: cannot dispatch service, Error=%ld\n", ident, GetLastError());
+			printf("%s: cannot dispatch service, Error=%ld\n"
+				"Option \"%s\" cannot be used to start %s as a service from console.\n"
+				"Use \"%s install ...\" to install the service\n"
+				"and \"net start %s\" to start it.\n",
+				ident, GetLastError(), svc_opts->cmd_opt, ident, ident, ident);
+
 #ifdef _DEBUG
 			if (debugging())
 				service_main(argc, argv);
@@ -1140,6 +1191,7 @@ int test_main(int argc, char **argv)
 {
 	int i;
 	int debug = 0;
+	char * cmd = 0;
 
 	printf("PID=%ld\n", GetCurrentProcessId());
 	for (i = 0; i < argc; i++) {
@@ -1147,11 +1199,14 @@ int test_main(int argc, char **argv)
 		if (!strcmp(argv[i],"-d"))
 			debug = 1;
 	}
+	if (argc > 1 && argv[argc-1][0] != '-')
+		cmd = argv[argc-1];
 
 	daemon_signal(SIGINT, sig_handler);
 	daemon_signal(SIGBREAK, sig_handler);
 	daemon_signal(SIGTERM, sig_handler);
 	daemon_signal(SIGHUP, sig_handler);
+	daemon_signal(SIGUSR1, sig_handler);
 	daemon_signal(SIGUSR2, sig_handler);
 
 	atexit(test_exit);
@@ -1173,6 +1228,20 @@ int test_main(int argc, char **argv)
 					daemon_enable_console("Daemon[Debug]");
 				else
 					daemon_disable_console();
+			}
+			else if (caughtsig == SIGUSR1 && cmd) {
+				char inpbuf[200], outbuf[1000]; int rc;
+				strcpy(inpbuf, "Hello\nWorld!\n");
+				rc = daemon_spawn(cmd, inpbuf, strlen(inpbuf), outbuf, sizeof(outbuf));
+				if (!debug)
+					daemon_enable_console("Command output");
+				printf("\"%s\" returns %d\n", cmd, rc);
+				if (rc >= 0)
+					printf("output:\n%s.\n", outbuf);
+				fflush(stdout);
+				if (!debug) {
+					Sleep(10000); daemon_disable_console();
+				}
 			}
 			printf("[PID=%ld: Signal=%d]", GetCurrentProcessId(), caughtsig); fflush(stdout);
 			if (caughtsig == SIGTERM || caughtsig == SIGBREAK)
