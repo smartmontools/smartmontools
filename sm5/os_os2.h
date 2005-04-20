@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Yuri Dario <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Yuri Dario <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h,v 1.2 2004/11/06 17:11:30 ballen4705 Exp $\n"
+#define OS_XXXX_H_CVSID "$Id: os_os2.h,v 1.3 2005/04/20 03:29:59 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *
  */
 
-static char rcsid[] = "$Id: syslogevt.c,v 1.2 2004/04/07 11:17:08 chrfranke Exp $";
+static char rcsid[] = "$Id: syslogevt.c,v 1.3 2005/04/20 03:30:20 ballen4705 Exp $";
 
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +33,7 @@ static char rcsid[] = "$Id: syslogevt.c,v 1.2 2004/04/07 11:17:08 chrfranke Exp 
 static int usage()
 {
 	puts(
-		"syslogevt $Revision: 1.2 $ Copyright (C) 2004 Christian Franke\n"
+		"syslogevt $Revision: 1.3 $ Copyright (C) 2004-5 Christian Franke\n"
 		"Home page is http://smartmontools.sourceforge.net/\n"
 		"\n"
 		"Usage: syslogevt [-ru] name [ident ...]\n"

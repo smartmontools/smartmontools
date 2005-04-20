@@ -3,7 +3,7 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  *
  * Derived from code that was
  *
@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.22 2004/09/14 02:42:16 ballen4705 Exp $\n"
+#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.23 2005/04/20 03:29:59 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three

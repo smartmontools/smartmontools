@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
 
-const char *syslog_win32_c_cvsid = "$Id: syslog_win32.c,v 1.4 2004/04/07 11:17:08 chrfranke Exp $"
+const char *syslog_win32_c_cvsid = "$Id: syslog_win32.c,v 1.5 2005/04/20 03:30:20 ballen4705 Exp $"
 SYSLOG_H_CVSID;
 
 #ifdef _MSC_VER

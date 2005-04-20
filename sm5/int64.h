@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2004 Christian Franke
+ * Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.11 2004/12/01 15:10:43 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.12 2005/04/20 03:29:58 ballen4705 Exp $\n"
 
 // 64 bit integer typedefs
 

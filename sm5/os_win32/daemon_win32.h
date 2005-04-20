@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef DAEMON_WIN32_H
 #define DAEMON_WIN32_H
 
-#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.4 2004/08/06 13:08:45 chrfranke Exp $\n"
+#define DAEMON_WIN32_H_CVSID "$Id: daemon_win32.h,v 1.5 2005/04/20 03:30:19 ballen4705 Exp $\n"
 
 #include <signal.h>
 

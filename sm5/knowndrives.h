@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-4 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-5 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.13 2004/09/20 07:41:04 chrfranke Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.14 2005/04/20 03:29:58 ballen4705 Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
