@@ -310,7 +310,38 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # 1  Extended offline    Completed without error       00%       692         -
 # 2  Extended offline    Completed: read failure       80%       682         0x021d9f44
 
-This document is version $Id: BadBlockHowTo.txt,v 1.4 2004/03/21 20:38:32 ballen4705 Exp $
+[USEFUL HINTS ADDED BY OTHERS]
+
+---------------------------------------------------------------------------
+
+From: Kay Diederichs
+                                                                                                                              
+I read your badblocks-howto at
+http://smartmontools.sourceforge.net/BadBlockHowTo.txt and greatly
+benefitted from it. One thing that's (maybe) missing is that often the
+"smartctl -t long" scan finds a bad sector which is _not_ assigned to
+any file. In that case it does not help to run debugfs, or rather
+debugfs reports the fact that no file owns that sector. Furthermore,
+it is somewhat laborious to come up with the correct numbers for
+debugfs, and debugfs is slow ...
+                                                                                                                              
+So what I suggest in the case of presence of
+Current_Pending_Sector/Offline_Uncorrectable errors is to create a
+huge file on that filesystem.
+  dd if=/dev/zero of=/some/mount/point bs=4k
+creates the file. Leave it running until the partition/filesystem is
+full. This will make the disk reallocate those sectors which do not
+belong to a file. Check the "smartctl -a" output after that and make
+sure that the sectors are reallocated. If any remain, use the debugfs
+method.  Of course the usual caveats apply - back it up first, and so
+on.
+                                                                                                                              
+---------------------------------------------------------------------------
+
+
+
+
+This document is version $Id: BadBlockHowTo.txt,v 1.5 2005/04/20 05:17:21 ballen4705 Exp $
 It is Copyright Bruce Allen (2004) and distributed under GPL2.
 
 
