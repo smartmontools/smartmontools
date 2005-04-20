@@ -1,4 +1,4 @@
-$Id: WARNINGS,v 1.31 2004/11/05 18:59:52 chrfranke Exp $
+$Id: WARNINGS,v 1.32 2005/04/20 19:17:33 geoffk1 Exp $
 
 The most recent version of this file can be found here:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?view=markup
@@ -115,10 +115,18 @@ NOTE:     The IOCTL call SMART_RCV_DRIVE_DATA does not support
 DARWIN
 ------
 
-SYSTEM:   Any system up to at least 7H63
+SYSTEM:   Any system before Tiger
 PROBLEM:  Can't switch off SMART, can't switch off auto-save, can't run
           short tests.
 REPORTER: Geoff Keating <geoffk@geoffk.org>
 NOTE:     There's a bug in the system library: when you ask it to
           do any of these things, it does the inverse (switches on,
           runs extended tests).  Radar 3727283.
+
+SYSTEM:	  All known systems
+PROBLEM:  When drive is asleep, SMART commands fail
+REPORTER: Geoff Keating <geoffk@geoffk.org>
+NOTE:	  You can prevent the drive from sleeping by saying
+	  pmset -a disksleep 0
+	  or by unchecking the 'Put the hard disk(s) to sleep when possible'
+	  checkbox in the Energy Saver preferences.  Radar 4094403.
