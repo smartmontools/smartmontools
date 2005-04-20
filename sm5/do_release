@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-5 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.33 2005/04/20 03:29:58 ballen4705 Exp $
+# $Id: do_release,v 1.34 2005/04/20 07:38:44 ballen4705 Exp $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -13,7 +13,7 @@
 
 USECVS=1
 
-KEYID=0x9BB19A22
+KEYID=0x841ABAE8
 
 if [ -f /etc/redhat-release ]; then
   RPM_BASE=/usr/src/redhat/
