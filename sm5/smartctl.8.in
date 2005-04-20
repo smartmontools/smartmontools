@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.74 2005/04/20 03:29:59 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.75 2005/04/20 07:38:44 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -201,8 +201,11 @@ where in the argument \fI3ware,N\fP, the integer N is the disk number
 values of N are from 0 to 15 inclusive.  The first two forms, which
 refer to devices /dev/sda-z and /dev/twe0-15, may be used with 3ware
 series 6000, 7000, and 8000 series controllers that use the 3x-xxxx
-driver.  The final form, which refers to devices /dev/twa0-15, must be
-used with 3ware 9000 series controllers, which use the 3w-9xxx driver.
+driver.  \fBNote that the /dev/sda-z form is deprecated\fP starting
+with the Linux 2.6 kernel series and may not be supported by the Linux
+kernel in the near future. The final form, which refers to devices
+/dev/twa0-15, must be used with 3ware 9000 series controllers, which
+use the 3w-9xxx driver.
 
 Note that if the special character device nodes /dev/twa? and
 /dev/twe? do not exist, or exist with the incorrect major or minor
@@ -1111,6 +1114,18 @@ Examine all SMART data for the first ATA disk connected to a 3ware
 RAID controller card.
 .PP
 .nf
+.B smartctl \-a \-d 3ware,0 /dev/twe0
+.fi
+Examine all SMART data for the first ATA disk connected to a 3ware
+RAID 6000/7000/8000 controller card.
+.PP
+.nf
+.B smartctl \-a \-d 3ware,0 /dev/twa0
+.fi
+Examine all SMART data for the first ATA disk connected to a 3ware
+RAID 9000 controller card.
+.PP
+.nf
 .B smartctl \-t short \-d 3ware,3 /dev/sdb
 .fi
 Start a short self\-test on the fourth ATA disk connected to the 3ware RAID
@@ -1250,7 +1265,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.74 2005/04/20 03:29:59 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.75 2005/04/20 07:38:44 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

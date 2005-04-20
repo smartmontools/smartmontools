@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.164 2005/04/20 03:30:17 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.165 2005/04/20 07:38:44 ballen4705 Exp $
 
 # Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -324,6 +324,99 @@ fi
 # [PW] Phil Williams
 
 %changelog
+* Tue Apr 20 2005 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [CF] Cygwin & Windows smartd: Increased SCSI DEVICESCAN range
+       from ASPI adapter 0-3 to 0-9. Added diagnostic messages.
+  [CF] Windows smartd: Added ability to run .bat files via '-M exec'
+       directive.
+  [CF] Cygwin smartd: Added FreeConsole() after fork() to avoid hang
+       of terminated shell console window.
+  [DG] [SCSI] Add code so 'smartctl -A' outputs the number of elements
+       in the grown defect list. When this number is increasing a
+       disk has problems. N.B. Similar logic should be added to smartd.
+  [CF] Windows smartd: Fixed event handling to allow start of another
+       smartd process when service is already running. Useful for testing
+       service configuration changes in debug mode.
+  [PW] Added following drives to knowndrives table: Western Digital Raptor
+       family, Seagate Barracuda 7200.8 family, Maxtor DiamondMax 2160
+       Ultra ATA and DiamondMax 10 families, Hitachi Travelstar E7K60
+       family, Seagate Medalist 17240, 13030, 10231, 8420, and 4310,
+       TOSHIBA MK4018GAP and MK6022GAX, ExcelStor Technology J360, and
+       Western Digital Caviar AC14300.
+  [PW] Added missing Fujitsu MHTxxxxAT and Seagate Barracuda 7200.7 drives
+       to knowndrives table.
+  [PW] Added QUANTUM FIREBALLP LM10.2 to knowndrives table.  Thanks to
+       Mike Fleetwood for submitting the patch.
+  [KS] Solaris/SPARC: fixed not to disable automatic offline test and
+       automatic save attributes incorrectly.  Thanks to Roy Badami.
+  [BA] Linux: smartd init script now recognizes 'trustix' distro.
+  [DG] [SCSI] Medium and hardware errors were slipping through
+       unreported. Fix linux SCSI sense reporting via SG_IO ioctl.
+  [DG] [SCSI] Change lba of first failure in selftest output to
+       decimal (was hex) to conform with ATA output.
+  [GK] smartd: Detect most self-test failures even if the hour counter
+       has wrapped.
+  [BA] smartctl: list 'marvell' as option if user give invalid
+       -d argument
+  [CF] Windows: fixed SCSI timeout handling to allow long timeouts
+       for selftests.
+  [CF] Fixed buffer overflow issues in printone() and safe_vsnprintf()
+       which results in crash on -V option (at least on Windows).
+  [DG] [SCSI] Add explicit timeouts to INQUIRY and REQUEST SENSE (that
+       were missed in an earlier patch). Could have impacted freebsd.
+  [DG] When linux detects a sata_via_libata disk suggest that user try
+       '-d ata' (rather then '-d libata). Anticipate kernel change.
+  [YD] Added OS/2 and eComStation platform support.
+  [PW] Added Seagate U4 family, Fujitsu MHJ and MHK families, Seagate
+       Barracuda 5400.1, QUANTUM FIREBALLP KX27.3, QUANTUM FIREBALLP KA10.1,
+       and ExcelStor J340 to knowndrives table.
+  [DG] [SCSI] After report of Hitachi IC35L073UCDY10 disks locking up
+       on log page 0x7 (last n error events), check log page (and some
+       others) is supported (via log page 0x0) before probing.
+  [CF] Added safe_v?snprintf() for platforms using v?snprintf()
+       with non standard behaviour on overflow (Windows, old Linux)
+  [CF] smartd: Added message if check power mode spins up disk.
+  [CF] Windows: Added support for READ_LOG on WinNT4 using undocumented
+       pseudo SCSI command via IOCTL_SCSI_PASS_THROUGH.
+  [CF] smartd: Added ',q' option for '-n' directive to suppress 'skipping
+       checks' log message. This prevents a laptop disk from spinning up
+       due to this message. Thanks to Rob MacLachlan and Manfred Schwarb
+       for pointing out problem & solution.
+  [CF] Windows: Added function get_os_version_str() to show OS flavor in
+       copyright message.
+  [CF] Windows: Added function ata_identify_is_cached() to check for outdated
+       SMART enabled bit in identify data.
+  [CF] Windows: Added fix to prevent linkage of smartd specific win32 modules
+       to smartctl.
+  [PW] Added Fujitsu MPG3153AH, Hitachi Endurastar J4K20/N4K20 (formerly
+       DK23FA-20J), Seagate Momentus family, and Maxtor Fireball 3 family
+       to knowndrives table.
+  [PW] Added missing Maxtor DiamondMax 16, Seagate Barracuda ATA IV, and
+       Western Digital Caviar WDxxxAA/WDxxxBA drives to knowndrives table.
+  [CF] Windows: Added ATA check power mode for smartd -n directive.
+  [CF] Windows: Fixed use of new service status flag which causes hang
+       of smartd service on WinNT4.
+  [CF] Windows: Fixed error checking of IOCTL_IDE_PASS_THROUGH (used
+       for READ_LOG on 2000/XP). Added some diagnostic messages on
+       -r ataioctl[,2]. Thanks to Manfred Schwarb for bug report and testing.
+  [BA] Fixed code bug that made it impossible to enable SMART on
+       disks with failing health status.  This would happen if the
+       os_*.c author made STATUS and STATUS_CHECK work the same way.
+       I have corrected this at a higher level; we now handle the
+       case where STATUS and STATUS_CHECK are identical without
+       issues. 
+  [LW] Make os_linux.c/marvell_command_interface() always return 0 on STATUS.
+       Needed for a disk having bad SMART status.
+  [CF] smartctl: Added drive family printing.
+  [CF] autogen.sh: Allow automake 1.9, added message if automake
+       version is unknown.
+  [BA] smartctl: use locale-specific separators for printing disk
+       capacity.  Also use AC_CHECK_HEADERS not AC_CHECK_HEADER in
+       configure.in.
+  [BA] clean-up of #include structure so that -V options to smartd
+       and smartctl work correctly.  Please, don't #include header
+       files into other header files.
+
 * Fri Sep 10 2004 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [BA] smartctl: ATA disks, if SMART ATTRIBUTE THRESHOLDS page has ID
        errors with some Attributes having NULL IDs, print Attribute

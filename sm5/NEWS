@@ -1,15 +1,19 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.27 2004/11/06 18:04:03 chrfranke Exp $
+CVS ID: $Id: NEWS,v 1.28 2005/04/20 07:38:44 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
 
 
-Date <Not released yet>
+Date 2005-04-19
 Summary: smartmontools release 5.34 (STABLE)
 -----------------------------------------------------------
+This is a stable smartmontools release.  It includes:
+- OS/2 and eComStation support
 All Platforms:
+ - Printing of drive family info
+ - SCSI disks: output size of grown defect list
  - Added info about drive family to 'smartctl -i' output.
  - Added option ',q' for smartd '-n' directive to suppress
    'skipping checks' message which may spin up laptop disk.
@@ -22,6 +26,7 @@ Cygwin and Windows:
  - Fixed use of cached smart enabled state in 'smartctl -i' output. 
 Windows:
  - Fixed bug that prevents running smartd as service on WinNT4.
+
 
 Date 2004-9-5
 Summary: smartmontools release 5.33 (UNSTABLE/EXPERIMENTAL)
