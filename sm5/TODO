@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.57 2004/10/01 15:16:25 chrfranke Exp $
+$Id: TODO,v 1.58 2005/04/20 05:33:34 ballen4705 Exp $
 
 SATA devices under Linux
 ------------------------
@@ -17,6 +17,11 @@ HDIO_DRIVE_CMD ioctl()s that are needed by smartmontools. Please
 search the Linux Kernel Mailing list to find this patch, or look at the
 thread:
 http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&threadm=2yYBY-4HB-55%40gated-at.bofh.it&rnum=3&prev=/groups%3Fq%3Dsmartmontools%26hl%3Den%26lr%3D%26ie%3DUTF-8%26scoring%3Dd%26selm%3D2yYBY-4HB-55%2540gated-at.bofh.it%26rnum%3D3
+To use this, just use (for example) 'smartctl -a -d ata /dev/sda'.
+
+Since this looks like this patch will become standard, we need to add something
+to smartmontools to automatically recognize the libata, and add the '-d ata'
+automatically.
 
 USB devices under Linux
 -----------------------
