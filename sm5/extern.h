@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.39 2004/08/13 13:57:12 arvoreen Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.40 2005/04/20 03:29:58 ballen4705 Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.

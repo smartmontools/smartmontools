@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-4 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-5 Doug Gilbert <dougg@torque.net>
  *
  *  Parts of this file are derived from code that was
  *
@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.77 2005/01/14 00:27:51 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.78 2005/04/20 03:29:59 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.77 2005/01/14 00:27:51 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.78 2005/04/20 03:29:59 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine

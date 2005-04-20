@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.41 2004/11/06 17:51:28 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.42 2005/04/20 03:30:17 ballen4705 Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)

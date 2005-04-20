@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-4 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-5 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.132 2005/02/19 23:07:02 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.133 2005/04/20 03:29:58 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-4 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-4 Casper Dik <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-5 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-5 Casper Dik <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.24 2004/09/14 14:20:38 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.25 2005/04/20 03:29:59 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.24 2004/09/14 14:20:38 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.25 2005/04/20 03:29:59 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions

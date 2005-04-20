@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef SYSLOG_H
 #define SYSLOG_H
 
-#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.2 2004/03/24 21:08:44 chrfranke Exp $\n"
+#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.3 2005/04/20 03:30:20 ballen4705 Exp $\n"
 
 #include <stdarg.h>
 

@@ -114,14 +114,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.351 2005/04/06 18:17:52 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.352 2005/04/20 03:29:59 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.351 2005/04/06 18:17:52 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.352 2005/04/20 03:29:59 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1054,7 +1054,7 @@ void PrintHead(){
 #else
   const char * ver = SMARTMONTOOLS_BUILD_HOST;
 #endif
-  PrintOut(LOG_INFO,"smartd version %s [%s] Copyright (C) 2002-4 Bruce Allen\n", PACKAGE_VERSION, ver);
+  PrintOut(LOG_INFO,"smartd version %s [%s] Copyright (C) 2002-5 Bruce Allen\n", PACKAGE_VERSION, ver);
   PrintOut(LOG_INFO,"Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }
