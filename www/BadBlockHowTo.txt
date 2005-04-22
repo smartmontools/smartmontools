@@ -10,7 +10,13 @@ for explaining this to me. I would like to add text showing how to do
 this for other file systems, in particular ReiserFS, XFS, and JFS:
 please email me if you can provide this information.
 
-
+NOTE: Starting with GNU coreutils release 5.3.0, ddd on Linux includes
+options 'iflag=direct' and 'oflag=direct'.  Using these with the dd commands
+below should be helpful, because adding these flags should avoid any interaction
+with the block buffering IO layer in Linux and permit direct reads/writes
+from the raw device.  Use 'dd --help' to see if your version of dd supports
+these options. If not, build the latest code from
+fttp://alpha.gnu.org/gnu/coreutils.
 
 In this example, the disk is failing self-tests at Logical Block
 Address LBA = 0x016561e9 = 23421417.  The LBA counts sectors in units
@@ -341,7 +347,7 @@ on.
 
 
 
-This document is version $Id: BadBlockHowTo.txt,v 1.5 2005/04/20 05:17:21 ballen4705 Exp $
+This document is version $Id: BadBlockHowTo.txt,v 1.6 2005/04/22 05:26:11 ballen4705 Exp $
 It is Copyright Bruce Allen (2004) and distributed under GPL2.
 
 
