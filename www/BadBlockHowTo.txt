@@ -10,7 +10,7 @@ for explaining this to me. I would like to add text showing how to do
 this for other file systems, in particular ReiserFS, XFS, and JFS:
 please email me if you can provide this information.
 
-NOTE: Starting with GNU coreutils release 5.3.0, ddd on Linux includes
+NOTE: Starting with GNU coreutils release 5.3.0, dd on Linux includes
 options 'iflag=direct' and 'oflag=direct'.  Using these with the dd commands
 below should be helpful, because adding these flags should avoid any interaction
 with the block buffering IO layer in Linux and permit direct reads/writes
@@ -347,7 +347,7 @@ on.
 
 
 
-This document is version $Id: BadBlockHowTo.txt,v 1.6 2005/04/22 05:26:11 ballen4705 Exp $
+This document is version $Id: BadBlockHowTo.txt,v 1.7 2005/04/26 16:56:19 ballen4705 Exp $
 It is Copyright Bruce Allen (2004) and distributed under GPL2.
 
 
