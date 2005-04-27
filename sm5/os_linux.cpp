@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.78 2005/04/20 03:29:59 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.79 2005/04/27 01:24:51 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.78 2005/04/20 03:29:59 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.79 2005/04/27 01:24:51 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -643,7 +643,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 #define SG_IO_PRESENT_YES 1
 #define SG_IO_PRESENT_NO 2
 
-static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
+			 int unknown);
 static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
 static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
@@ -652,7 +653,8 @@ static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
  * function uses the SG_IO ioctl. Return 0 if command issued successfully
  * (various status values should still be checked). If the SCSI command
  * cannot be issued then a negative errno value is returned. */
-static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
+static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
+			 int unknown)
 {
 #ifndef SG_IO
     ARGUSED(dev_fd); ARGUSED(iop); ARGUSED(report);
@@ -714,7 +716,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
     iop->scsi_status = 0;
     iop->resid = 0;
     if (ioctl(dev_fd, SG_IO, &io_hdr) < 0) {
-        if (report)
+        if (report && (! unknown))
             pout("  SG_IO ioctl failed, errno=%d [%s]\n", errno,
 		 strerror(errno));
         return -errno;
@@ -923,7 +925,7 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
     switch (sg_io_state) {
     case SG_IO_PRESENT_UNKNOWN:
         /* ignore report argument */
-	if (0 == (res = sg_io_cmnd_io(dev_fd, iop, 0))) {
+	if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, 1))) {
 	    sg_io_state = SG_IO_PRESENT_YES;
 	    return 0;
 	} else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
@@ -933,7 +935,7 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
     case SG_IO_PRESENT_NO:
 	return sisc_cmnd_io(dev_fd, iop, report);
     case SG_IO_PRESENT_YES:
-	return sg_io_cmnd_io(dev_fd, iop, report);
+	return sg_io_cmnd_io(dev_fd, iop, report, 0);
     default:
 	pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state); 
 	sg_io_state = SG_IO_PRESENT_UNKNOWN;
