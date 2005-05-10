@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.79 2005/04/20 03:29:58 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.80 2005/05/10 19:15:47 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -122,7 +122,7 @@ struct ata_identify_device {
   unsigned short word086;
   unsigned short csf_default;
   unsigned short words088_255[168];
-};
+} ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_identify_device, 512);
 
