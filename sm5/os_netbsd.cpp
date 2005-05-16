@@ -23,7 +23,7 @@
 #include "utility.h"
 #include "os_netbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.12 2005/04/20 03:29:59 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.13 2005/05/16 20:24:13 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -386,7 +386,7 @@ do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   sc.databuf = iop->dxferp;
   sc.datalen = iop->dxfer_len;
   sc.senselen = iop->max_sense_len;
-  sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
+  sc.timeout = iop->timeout == 0 ? 60000 : (1000 * iop->timeout);
   sc.flags =
     (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :	/* XXX */
     (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
