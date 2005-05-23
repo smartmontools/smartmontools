@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2005/04/20 06:19:56 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2005/05/23 10:41:03 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.189 2005/04/20 06:19:56 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.190 2005/05/23 10:41:03 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -537,10 +537,14 @@ utilities?</b>
 <p>A good listing of such utilities can be found <a
 href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">here</a>.
 Unfortunately most of these are for MS operating systems, but most can
-be run from an MS-DOS boot disk. Note: if you do run one of these
-utilities, and it identifies the meanings of any SMART Attributes that
-are not known to smartmontools, please report them to the mailing list
-above.</p>
+be run from an MS-DOS boot disk or from the UBCD (Ultimate Boot CD,
+see <a href="#bootable">below</a>).
+</p>
+
+<p>Note: if you do run one of these utilities, and it identifies the
+meanings of any SMART Attributes that are not known to smartmontools,
+please report them to the mailing list above.
+</p>
 
 <p>These utilities have an important role to fill.  If your disk has
 bad sectors (for example, as revealed by running self-tests with
@@ -616,7 +620,11 @@ day-to-day operating system.</p>
 <li><a href="http://www.knopper.net/knoppix/index-en.html">Knoppix Bootable CD</a>
 (Version 3.6 contains smartmontools 5.32, older versions contain
 <a href="#differfromsmartsuite">smartsuite</a>)</li>
-<li><a href="http://smartlinux.sourceforge.net/">S.M.A.R.T. Linux (a bootable FLOPPY containing smartmontools!)</a></li>
+<li><a href="http://www.grml.org/">Grml Bootable CD</a>
+(Knoppix and Debian based CD without KDE and OpenOffice but about 800
+<a href="http://www.grml.org/features/list.html">packages</a> added)</li>
+<li><a href="http://smartlinux.sourceforge.net/">S.M.A.R.T. Linux</a>
+(a bootable FLOPPY containing smartmontools!)</li>
 <li><a href="http://ubcd.sourceforge.net/">Ultimate Boot CD</a>
 (The "Full" version of UBCD 3.0 contains
 <a href="http://www.inside-security.de/insert_en.html">INSERT</a> with smartmontools 5.32
@@ -1154,8 +1162,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-4 Bruce Allen<br />
-Last updated: <tt>$Date: 2005/04/20 06:19:56 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.189 2005/04/20 06:19:56 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2005/05/23 10:41:03 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.190 2005/05/23 10:41:03 chrfranke Exp $</tt>
 
 <hr size="2" />
 
