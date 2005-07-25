@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.30 2005/04/08 19:17:53 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.31 2005/07/25 19:02:06 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -665,8 +665,7 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 	}
 
 	if (con->reportataioctl > 1) {
-		pout("  ATA via IOCTL_SCSI_PASS_THROUGH suceeded, bytes returned: %lu\n",
-			num_out);
+		pout("  ATA via IOCTL_SCSI_PASS_THROUGH suceeded, bytes returned: %lu\n", num_out);
 		print_ide_regs_io(regs, NULL);
 	}
 	return 0;
@@ -976,6 +975,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	  case IMMEDIATE_OFFLINE:
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
+		if (select == ABORT_SELF_TEST) // Abort only supported on Win9x, try
+			try_ioctl = 0x03; // SMART_RCV_DRIVE_DATA, then IOCTL_IDE_PASS_THROUGH
 		break;
 	  default:
 		pout("Unrecognized command %d in win32_ata_command_interface()\n"
