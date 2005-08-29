@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.72 2004/12/13 21:53:19 chrfranke Exp $
+# $Id: Makefile.am,v 1.73 2005/08/29 19:17:56 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -403,7 +403,8 @@ syslogevt.check:
 
 $(exedir_win32)/%.exe: %.exe
 	cp -p $< $@
-	strip -p -s $@
+	strip -s $@
+	touch -r $< $@
 
 $(docdir_win32)/%: %
 	$(UNIX2DOS) < $< > $@
