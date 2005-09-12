@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.133 2005/04/20 03:29:58 ballen4705 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.134 2005/09/12 22:50:58 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -384,6 +384,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { "Maxtor DiamondMax 2880 Ultra ATA family",
+    "^Maxtor 9(0510D4|0576D4|0648D5|0720D5|0840D6|0845D6|0864D6|1008D7|1080D8|1152D8)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { "Maxtor DiamondMax 3400 Ultra ATA family",
     "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8|1010E6|0840E5|0640E4)$",
     ".*",
@@ -436,6 +443,13 @@ const drivesettings knowndrives[] = {
   },
   { "Maxtor DiamondMax 4320 family",
     "^Maxtor (91728D8|91512D7|91303D6|91080D5|90845D4|90645D3|90648D4|90432D2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { "Maxtor DiamondMax 17 VL family",
+    "^Maxtor 9(0431U1|0641U2|0871U2|1301U3|1741U4)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -540,7 +554,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor MaXLine II family",
-    "^Maxtor [45]A(25|32)0[JN]0$",
+    "^Maxtor [45]A(25|30|32)0[JN]0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -647,8 +661,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Deskstar 7K80 series",
+    "^(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Hitachi Deskstar 7K250 series",
     "^(Hitachi )?HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Hitachi Deskstar 7K400 series",
+    "^(Hitachi )?HDS724040KL(AT|SA)80)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
