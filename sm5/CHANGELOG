@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.512 2005/09/12 22:50:58 pjwilliams Exp $
+$Id: CHANGELOG,v 1.513 2005/09/13 22:10:45 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -34,10 +34,15 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 smartmontools 5.34 Stable Release
 
-  [PW] Additions to knowndrives table: added missing drive from MaxLine II
-       series, added Maxtor DiamondMax 2880 Ultra ATA series, added Maxtor
-       DiamondMax 17 VL series, added Hitachi Deskstar 7K80 series, and
-       added Hitachi Deskstar 7K400 series.
+  [PW] Additions to knowndrives table: added Fujitsu MHU2100AT, added
+       Fujitsu M1623TAU, added missing drives from Seagate Barracuda
+       7200.8 series, added Seagate Momentus 5400.2 series, and added
+       QUANTUM FIREBALL CR8.4A.
+
+  [PW] Additions to knowndrives table: added missing drive from Maxtor
+       MaxLine II series, added Maxtor DiamondMax 2880 Ultra ATA series,
+       added Maxtor DiamondMax 17 VL series, added Hitachi Deskstar 7K80
+       series, and added Hitachi Deskstar 7K400 series.
 
   [CF] Windows: Fixed unsupported 'smartctl -X' on Win2000/XP by using
        IOCTL_IDE_PASS_THROUGH instead.
