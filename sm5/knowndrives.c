@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.134 2005/09/12 22:50:58 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.135 2005/09/13 22:10:46 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -173,6 +173,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { NULL, // Fujitsu M1623TAU
+    "^FUJITSU M1623TAU$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
   { "Fujitsu MHJ and MHK series",
     "^FUJITSU MH[JK]....ATU?$",
     ".*",
@@ -251,8 +258,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHTxxxxAT family",
-    "^FUJITSU MHT20[23468]0AT( PL)?$",
+  { "Fujitsu MHT2xxxAT/MHU2100AT series",
+    "^FUJITSU MH(T20[23468]0AT( PL)?|U2100AT)$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -731,6 +738,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate Momentus 5400.2 series",
+    "^ST9(100823|808211|60822|408114|308110)A$", 
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate Medalist 8641 family",
     "^ST3(2110|3221|4312|6531|8641)A$",
     ".*",
@@ -797,7 +809,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.8 family",
-    "^ST3400832AS?$",
+    "^ST3(400832|300831|250823|200826)AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -907,8 +919,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // QUANTUM FIREBALL CR4.3A
-    "^QUANTUM FIREBALL CR4.3A$",
+  { "Quantum Fireball CR series",
+    "^QUANTUM FIREBALL CR(4.3|8.4)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
