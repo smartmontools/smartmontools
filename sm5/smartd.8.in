@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.94 2005/04/08 19:17:53 chrfranke Exp $
+$Id: smartd.8.in,v 1.95 2005/09/14 19:11:55 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1351,7 +1351,7 @@ interpretation is unknown. This is primarily useful for the -P
 
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
-\fBhttp://coredump.free.fr/linux/hddtemp.db\fP
+\fBhttp://www.guzu.net/linux/hddtemp.db\fP
 
 .I N,raw8
 \- Print the Raw value of Attribute N as six 8-bit unsigned base-10
@@ -1788,7 +1788,7 @@ volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
 specification.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.  You can find
 Revision 4b of this document at
-\fBhttp://www.t13.org/docs2004/d1532v1r4b%20ATA-ATAPI-7.pdf\fP .
+\fBhttp://www.t13.org/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf\fP .
 Earlier and later versions of this Specification are available from
 the T13 web site \fBhttp://www.t13.org/\fP .
 
@@ -1801,4 +1801,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.94 2005/04/08 19:17:53 chrfranke Exp $
+$Id: smartd.8.in,v 1.95 2005/09/14 19:11:55 chrfranke Exp $
