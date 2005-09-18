@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.135 2005/09/13 22:10:46 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.136 2005/09/18 23:54:48 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -168,13 +168,20 @@ const drivesettings knowndrives[] = {
     "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
     NULL, NULL, NULL
   },
-  { NULL, // ExcelStor J240, J340, and J360
-    "^ExcelStor Technology J(24|34|36)0$",
+  { NULL, // ExcelStor J240, J340, J360, J680, and J880
+    "^ExcelStor Technology J(24|34|36|68|88)0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { NULL, // Fujitsu M1623TAU
     "^FUJITSU M1623TAU$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MHG and MHH series",
+    "^FUJITSU MH(G2102|H20(64|48|32))AT$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -540,7 +547,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor DiamondMax 10 family",
-    "^Maxtor 6B(30|25|20|16|12|08)0[MPRS]0$",
+    "^Maxtor 6(B(30|25|20|16|12|08)0[MPRS]|L(100P|120[MP]|160M|200[MPRS]|250[RS]|300[RS]))0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -635,6 +642,11 @@ const drivesettings knowndrives[] = {
   },
   { "Hitachi Travelstar 5K80 family",
     "^HTS5480[8642]0M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { "Hitachi Travelstar 5K100 series",
+    "^HTS5410[1864]0G9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
@@ -735,6 +747,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate Momentus family",
     "^ST9(20|28|40|48)11A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Momentus 4200.2 Series",
+    "^ST9(100822|808210|60821|50212|402113|30219)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -885,7 +902,7 @@ const drivesettings knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "^WDC WD((4|6|8|10|12|16|18|20|25)00JB|(12|20|25)00PB)-.*$",
+    "^WDC WD((4|6|8|10|12|16|18|20|25|30|32)00JB|(12|20|25)00PB)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -894,8 +911,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Western Digital Caviar RE Serial ATA series",
+    "^WDC WD((12|16|25|32)00SD|4000YR)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Western Digital Raptor family",
     "^WDC WD(360|740)GD",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { NULL,  // QUANTUM BIGFOOT TS10.0A
+    "^QUANTUM BIGFOOT TS10.0A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -914,8 +941,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // QUANTUM FIREBALLP LM10.2, LM15 and LM30
-    "^QUANTUM FIREBALLP LM(10.2|15|30)$",
+  { "Quantum Fireball Plus LM series",
+    "^QUANTUM FIREBALLP LM(10.2|15|20.5|30)$",
     ".*",
     NULL, NULL, NULL, NULL
   },

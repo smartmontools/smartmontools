@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.513 2005/09/13 22:10:45 pjwilliams Exp $
+$Id: CHANGELOG,v 1.514 2005/09/18 23:54:48 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [PW] Additions to knowndrives table: added missing drive from Quantum
+       Fireball Plus LM series, added QUANTUM BIGFOOT TS10.0A, added
+       ExcelStor J680 and J880, added Western Digital Caviar RE Serial ATA
+       series, added missing drives from Western Digital Caviar SE series,
+       added Seagate Momentus 4200.2 series, added missing drives from
+       Maxtor DiamondMax 10 series, added Fujitsu MHG and MHH series, and
+       added Hitachi Travelstar 5K100 series.
 
   [PW] Additions to knowndrives table: added Fujitsu MHU2100AT, added
        Fujitsu M1623TAU, added missing drives from Seagate Barracuda
