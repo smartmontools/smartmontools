@@ -114,14 +114,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.352 2005/04/20 03:29:59 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.353 2005/09/19 01:02:45 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.352 2005/04/20 03:29:59 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.353 2005/09/19 01:02:45 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1538,11 +1538,11 @@ static int SCSIFilterKnown(int fd, char * device)
 
   memset(req_buff, 0, 96);
   req_len = 36;
-  if (scsiStdInquiry(fd, req_buff, req_len)) {
+  if (scsiStdInquiry(fd, (unsigned char *)req_buff, req_len)) {
     /* Marvell controllers fail on a 36 bytes StdInquiry, but 64 suffices */
     /* watch this spot ... other devices could lock up here */
     req_len = 64;
-    if (scsiStdInquiry(fd, req_buff, req_len)) {
+    if (scsiStdInquiry(fd, (unsigned char *)req_buff, req_len)) {
       PrintOut(LOG_INFO, "Device: %s, failed on INQUIRY; skip device\n", device);
       // device doesn't like INQUIRY commands
       return 1;
@@ -1563,12 +1563,12 @@ static int SCSIFilterKnown(int fd, char * device)
               later when the t10.org SAT project matures. >>>> */
       req_len = 96;
       memset(di_buff, 0, req_len);
-      if (scsiInquiryVpd(fd, 0x83, di_buff, req_len)) {
+      if (scsiInquiryVpd(fd, 0x83, (unsigned char *)di_buff, req_len)) {
         return 0;    // guess it is normal device
       }
       avail_len = ((di_buff[2] << 8) + di_buff[3]) + 4;
       len = (avail_len < req_len) ? avail_len : req_len;
-      if (isLinuxLibAta(di_buff, len)) {
+      if (isLinuxLibAta((unsigned char *)di_buff, len)) {
         PrintOut(LOG_INFO, "Device %s: SATA disks accessed via libata are "
                  "not currently supported\n"
                  "by smartmontools. By the time you read this, support "
