@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.79 2005/04/27 01:24:51 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.80 2005/09/19 01:04:08 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.79 2005/04/27 01:24:51 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.80 2005/09/19 01:04:08 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1280,7 +1280,7 @@ int marvell_command_interface(int device,
   
   int copydata = 0;
   mvsata_scsi_cmd  smart_command;
-  unsigned char *buff = &smart_command.cmd[6];
+  unsigned char *buff = (unsigned char *)&smart_command.cmd[6];
   // See struct hd_drive_cmd_hdr in hdreg.h
   // buff[0]: ATA COMMAND CODE REGISTER
   // buff[1]: ATA SECTOR NUMBER REGISTER
