@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.111 2005/04/20 07:38:44 ballen4705 Exp $
+# $Id: configure.in,v 1.112 2005/09/26 22:33:36 arvoreen Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.34, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.111 2005/04/20 07:38:44 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.112 2005/09/26 22:33:36 arvoreen Exp $'`
 smartmontools_release_date=2005/04/20
 smartmontools_release_time="04:56:06 UTC"
 
@@ -57,6 +57,8 @@ AC_CHECK_HEADERS([sys/int_types.h])	dnl pre-UNIX98, solaris 2.6+
 dnl Check for FreeBSD twe include files...currently missing on 5.2, but should be there
 AC_CHECK_HEADERS([sys/tweio.h])
 AC_CHECK_HEADERS([sys/twereg.h])
+dnl Check for FreeBSD twa include files...
+AC_CHECK_HEADERS([sys/tw_osl_ioctl.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.515 2005/09/19 01:07:33 dpgilbert Exp $
+$Id: CHANGELOG,v 1.516 2005/09/26 22:33:36 arvoreen Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [EM] Incorporate various patches to provide TWE support and support for 
+       multiple 3Ware cards, Power Check Support, and FreeBSD 6.x support.
+       Thanks to Rudolf Cejka, Frank Behrens, and Jung-uk Kim.
 
   [DG] Silence gcc 4.0.1 compile warning concerning the difference in
        "signedness" in pointer assignments. Changes to SCSI code
