@@ -35,13 +35,16 @@
 #include <syslog.h>
 #include <stdarg.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <mbstring.h> // _mbsinc()
+#endif
 
 #include "config.h"
 #include "int64.h"
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.c,v 1.58 2005/04/20 03:30:17 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.c,v 1.59 2005/10/17 19:14:16 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -174,6 +177,30 @@ void FixGlibcTimeZoneBug(){
   return;
 }
 
+#ifdef _WIN32
+// Fix strings in tzname[] to avoid long names with non-ascii characters.
+// If TZ is not set, tzset() in the MSVC runtime sets tzname[] to the
+// national language timezone names returned by GetTimezoneInformation().
+static char * fixtzname(char * dest, int destsize, const char * src)
+{
+  int i = 0, j = 0;
+  while (src[i] && j < destsize-1) {
+    int i2 = (const char *)_mbsinc((const unsigned char *)src+i) - src;
+    if (i2 > i+1)
+      i = i2; // Ignore multibyte chars
+    else {
+      if ('A' <= src[i] && src[i] <= 'Z')
+        dest[j++] = src[i]; // "Pacific Standard Time" => "PST"
+      i++;
+    }
+  }
+  if (j < 2)
+    j = 0;
+  dest[j] = 0;
+  return dest;
+}
+#endif // _WIN32
+
 // This value follows the peripheral device type value as defined in
 // SCSI Primary Commands, ANSI INCITS 301:1997.  It is also used in
 // the ATA standard for packet devices to define the device type.
@@ -206,6 +233,9 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   char *timezonename;
   char datebuffer[DATEANDEPOCHLEN];
   int lenm1;
+#ifdef _WIN32
+  char tzfixbuf[6+1];
+#endif
 
   FixGlibcTimeZoneBug();
   
@@ -232,6 +262,12 @@ void dateandtimezoneepoch(char *buffer, time_t tval){
   else
     // unable to determine if daylight savings in effect
     timezonename="";
+
+#ifdef _WIN32
+  // Fix long non-ascii timezone names
+  if (!getenv("TZ"))
+    timezonename=fixtzname(tzfixbuf, sizeof(tzfixbuf), timezonename);
+#endif
   
   // Finally put the information into the buffer as needed.
   snprintf(buffer, DATEANDEPOCHLEN, "%s %s", datebuffer, timezonename);
