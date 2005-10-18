@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.95 2005/09/14 19:11:55 chrfranke Exp $
+$Id: smartd.8.in,v 1.96 2005/10/18 20:35:46 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -222,12 +222,12 @@ For more detailed information, please refer to the man pages for
 to modify the log rotation configuration files; see the man pages for
 \fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
 
-Cygwin: The current release of Cygwin writes \fBsyslog\fP(3)
-messages to Windows event log or to file \fBC:/CYGWIN_SYSLOG.TXT\fP
-if the event log is not available.
-The FACILITY parameter is always ignored by Cygwin.
+Cygwin: Support for \fBsyslogd\fP as described above is available starting with Cygwin 1.5.15.
+On older releases or if no local \fBsyslogd\fP is running, the \'\-l\' option has no effect.
+In this case, all \fBsyslog\fP messages are written to Windows event log
+or to file \fBC:/CYGWIN_SYSLOG.TXT\fP if the event log is not available.
 
-Windows: Some \fBsyslog\fP(3) functionality is implemented
+Windows: Some \fBsyslog\fP functionality is implemented
 internally in \fBsmartd\fP as follows: If no \'\-l\' option
 (or \'\-l daemon\') is specified, messages are written to Windows
 event log or to file \fB./smartd.log\fP if event log is not available
@@ -1801,4 +1801,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.95 2005/09/14 19:11:55 chrfranke Exp $
+$Id: smartd.8.in,v 1.96 2005/10/18 20:35:46 chrfranke Exp $
