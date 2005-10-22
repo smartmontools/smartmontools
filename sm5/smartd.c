@@ -114,14 +114,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.354 2005/10/22 17:11:39 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.355 2005/10/22 17:46:24 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.354 2005/10/22 17:11:39 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.355 2005/10/22 17:46:24 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2888,7 +2888,7 @@ int ParseToken(char *token,cfgfile *cfg){
     // Do a bit of sanity checking and warn user if we think that
     // their regexp is "strange". User probably confused about shell
     // glob(3) syntax versus regular expression syntax regexp(7).
-    if ((int)strlen(arg) != (val=strspn(arg,"0123456789/.+*|()?^$[]SLCO")))
+    if ((int)strlen(arg) != (val=strspn(arg,"0123456789/.-+*|()?^$[]SLCO")))
       PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
                configfile, lineno, name, val+1, arg[val], arg);
     break;
