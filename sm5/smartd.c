@@ -114,14 +114,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.353 2005/09/19 01:02:45 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.354 2005/10/22 17:11:39 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.353 2005/09/19 01:02:45 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.354 2005/10/22 17:11:39 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -168,6 +168,11 @@ static int quit=0;
 
 // command-line; this is the default syslog(3) log facility to use.
 static int facility=LOG_DAEMON;
+
+#ifdef __CYGWIN__
+// command-line: running as service, so don't fork()
+static int is_service=0;
+#endif
 
 // used for control of printing, passing arguments to atacmds.c
 smartmonctrl *con=NULL;
@@ -1134,25 +1139,31 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -i N, --interval=N\n");
   PrintOut(LOG_INFO,"        Set interval between disk checks to N seconds, where N >= 10\n\n");
   PrintOut(LOG_INFO,"  -l local[0-7], --logfacility=local[0-7]\n");
-#if !(defined(_WIN32) || defined(__CYGWIN__))
+#ifndef _WIN32
   PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 or daemon [default]\n\n");
 #else
-#ifdef _WIN32
   PrintOut(LOG_INFO,"        Log to \"./smartd.log\", stdout, stderr [default is event log]\n\n");
-#else
-  PrintOut(LOG_INFO,"        Use syslog facility local0 - local7 (ignored on Cygwin)\n\n");
 #endif
-#endif // _WIN32 || __CYGWIN__
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
   PrintOut(LOG_INFO,"        Quit on one of: %s\n\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   PrintOut(LOG_INFO,"  --service\n");
-  PrintOut(LOG_INFO,"        Running as windows service (must be first arg, do not use from console)\n\n");
-#endif // _WIN32
+  PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
+#ifdef _WIN32
+  PrintOut(LOG_INFO,"          smartd install [options]\n");
+  PrintOut(LOG_INFO,"        Remove service with:\n");
+  PrintOut(LOG_INFO,"          smartd remove\n\n");
+#else
+  PrintOut(LOG_INFO,"          cygrunsrv -I smartd -d \"CYGWIN smartd\" -y syslogd \\\n");
+  PrintOut(LOG_INFO,"           -p /SBINDIR/smartd -a \"--service [options]\"\n");
+  PrintOut(LOG_INFO,"        Remove service with:\n");
+  PrintOut(LOG_INFO,"          cygrunsrv -R smartd\n\n");
+#endif
+#endif // _WIN32 || __CYGWIN__
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else
@@ -3435,7 +3446,7 @@ void ParseOpts(int argc, char **argv){
     { "interval",       required_argument, 0, 'i' },
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     { "service",        no_argument,       0, 'S' },
 #endif
     { "version",        no_argument,       0, 'V' },
@@ -3569,11 +3580,14 @@ void ParseOpts(int argc, char **argv){
       // output file with PID number
       pid_file=CustomStrDup(optarg, 1, __LINE__,filenameandversion);
       break;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     case 'S':
-      // running as service, option already handled by deamon_main(), so ignore it
-      break;
+      // running as service
+#ifdef __CYGWIN__ // On Windows, option is already handled by daemon_main(), so ignore it
+      is_service = 1;
 #endif
+      break;
+#endif // _WIN32 || __CYGWIN__
     case 'V':
       // print version and CVS info
       PrintCopyleft();
@@ -4003,9 +4017,13 @@ static int smartd_main(int argc, char **argv)
     }
     
     // fork into background if needed
-    if (firstpass && !debugmode)
+    if (firstpass && !debugmode) {
+#ifdef __CYGWIN__
+     if (!is_service) // don't fork() if running as service via cygrunsrv
+#endif
       DaemonInit();
-    
+    }
+
     // set exit and signal handlers, write PID file, set wake-up time
     if (firstpass){
       Initialize(&wakeuptime);
