@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.96 2005/10/18 20:35:46 chrfranke Exp $
+$Id: smartd.8.in,v 1.97 2005/10/22 17:11:39 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -327,8 +327,14 @@ equivalent.
 
 .TP
 .B \-\-service
-Windows only: Enables \fBsmartd\fP to run as a Windows service.
-It must be specified in the service command line as the first argument.
+Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
+
+On Cygwin, this option simply prevents fork'ing into background mode to
+allow running \fBsmartd\fP as service via cygrunsrv, see NOTES below.
+
+On Windows, this option enables the buildin service support.
+The option must be specified in the service command line as the first
+argument. It should not be used from console.
 See NOTES below for details.
 
 .TP
@@ -1622,6 +1628,18 @@ On Windows, the following built-in commands can be used to control
 
 On WinNT4/2000/XP, \fBsmartd\fP can also be run as a Windows service:
 
+
+The Cygwin Version of \fBsmartd\fP can be run as a service via the
+cygrunsrv tool. Use the following command to install the service:
+
+\'\fBcygrunsrv -I smartd -d "CYGWIN smartd" -y syslogd -p
+/usr/local/sbin/smartd -a "--service [options]"\fP\'
+
+and \'\fBcygrunsrv -R smartd\fP\' to remove it.
+
+
+The Windows Version of \fBsmartd\fP has buildin support for services:
+
 \'\fBsmartd install [options]\fP\' installs a service
 named "smartd" (display name "SmartD Service") using the command line
 \'/installpath/smartd.exe --service [options]\'.
@@ -1801,4 +1819,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.96 2005/10/18 20:35:46 chrfranke Exp $
+$Id: smartd.8.in,v 1.97 2005/10/22 17:11:39 chrfranke Exp $

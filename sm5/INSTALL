@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.61 2005/02/20 21:19:23 snyderx Exp $
+$Id: INSTALL,v 1.62 2005/10/22 17:11:39 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -102,8 +102,11 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.5.7 and 1.5.11. It should also work on
-    other recent releases.
+    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18. It should also
+    work on other recent releases.
+
+    Release 1.5.15 or later is recommended for Cygwin smartd. Older versions
+    do not provide syslogd support.
 
     Both Cygwin and Windows versions of smartmontools share the same code
     to access the IDE/ATA or SCSI devices. The information in the "Windows"
