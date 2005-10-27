@@ -68,6 +68,7 @@ typedef int pid_t;
 // From <windows.h>:
 // BOOL WINAPI FreeConsole(void);
 int __stdcall FreeConsole(void);
+#include <io.h> // setmode()
 #endif // __CYGWIN__
 
 // locally included files
@@ -114,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.355 2005/10/22 17:46:24 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.356 2005/10/27 19:08:19 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.355 2005/10/22 17:46:24 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.356 2005/10/27 19:08:19 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3298,7 +3299,11 @@ int ParseConfigFile(){
     fakeconfig=CheckFree(fakeconfig, __LINE__,filenameandversion);
     return 0;
   }
-    
+
+#ifdef __CYGWIN__
+  setmode(fileno(fp), O_TEXT); // Allow files with \r\n
+#endif
+
   // configuration file exists
   PrintOut(LOG_INFO,"Opened configuration file %s\n",configfile);
 
