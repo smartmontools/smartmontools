@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.518 2005/10/22 17:11:39 chrfranke Exp $
+$Id: CHANGELOG,v 1.519 2005/10/27 19:08:19 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [CF] Cygwin smartd: Open smartd.conf in textmode to allow use of
+       Windows editors.
 
   [CF] Cygwin smartd: Added option '--service' to allow smartd running
        as windows service via cygrunsrv. Useful in conjunction with new
