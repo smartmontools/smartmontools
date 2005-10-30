@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.165 2005/04/20 03:29:58 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.166 2005/10/30 12:53:59 shattered Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -689,7 +689,9 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
     }
   }
 
+#ifndef __NetBSD__
   // if machine is big-endian, swap byte order as needed
+  // (the NetBSD kernel does deliver the results in host byte order)
   if (isbigendian()){
     int i;
     
@@ -703,6 +705,7 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
     for (i=0; i<168; i++)
       swap2((char *)(buf->words088_255+i));
   }
+#endif
   
   // If there is a checksum there, validate it
   if ((rawshort[255] & 0x00ff) == 0x00a5 && checksum(rawbyte))

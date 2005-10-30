@@ -22,8 +22,9 @@
 #include "scsicmds.h"
 #include "utility.h"
 #include "os_netbsd.h"
+#include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.13 2005/05/16 20:24:13 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.14 2005/10/30 12:54:00 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -185,9 +186,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = WDSM_RD_DATA;
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     copydata = 1;
     break;
@@ -195,9 +196,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = WDSM_RD_THRESHOLDS;
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     copydata = 1;
     break;
@@ -205,9 +206,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_READ_LOG_SECTOR;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -218,9 +219,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_WRITE;
     req.features = ATA_SMART_WRITE_LOG_SECTOR;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -245,14 +246,14 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = WDSM_ENABLE_OPS;
     req.command = WDCC_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case DISABLE:
     req.flags = ATACMD_READ;
     req.features = WDSM_DISABLE_OPS;
     req.command = WDCC_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case AUTO_OFFLINE:
@@ -260,9 +261,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_AUTO_OFFLINE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -271,7 +272,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_AUTOSAVE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_count = 0xf1;
     /* to enable autosave */
     req.timeout = 1000;
@@ -281,9 +282,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = ATA_SMART_IMMEDIATE_OFFLINE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
     req.timeout = 1000;
@@ -294,7 +295,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READ;
     req.features = WDSM_STATUS;
     req.command = WDCC_SMART;
-    req.cylinder = htole16(WDSMART_CYL);
+    req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case CHECK_POWER_MODE:
@@ -318,11 +319,11 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
       return -1;
     }
     /* Cyl low and Cyl high unchanged means "Good SMART status" */
-    if (le16toh(req.cylinder) == normal)
+    if (req.cylinder == normal)
       return 0;
 
     /* These values mean "Bad SMART status" */
-    if (le16toh(req.cylinder) == failed)
+    if (req.cylinder == failed)
       return 1;
 
     /* We haven't gotten output that makes sense; 

@@ -40,7 +40,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.162 2005/04/20 03:29:58 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.163 2005/10/30 12:54:00 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -95,7 +95,11 @@ void formatdriveidstring(char *out, const char *in, int n)
   char tmp[65];
 
   n = n > 64 ? 64 : n;
+#ifndef __NetBSD__
   swapbytes(tmp, in, n);
+#else
+  strncpy(tmp, in, n);	/* NetBSD delivers host byte order strings */  
+#endif
   tmp[n] = '\0';
   trim(out, tmp);
 }
