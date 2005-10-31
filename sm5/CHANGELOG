@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.519 2005/10/27 19:08:19 chrfranke Exp $
+$Id: CHANGELOG,v 1.520 2005/10/31 18:36:39 shattered Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -10,7 +10,7 @@ Maintainers / Developers Key:
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
-[CD] Caper Dik
+[CD] Casper Dik
 [CF] Christian Franke
 [GF] Guilhem Frézou
 [DG] Douglas Gilbert
