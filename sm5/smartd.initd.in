@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.30 2005/04/20 03:30:17 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.31 2005/11/05 19:00:48 chrfranke Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -357,7 +357,21 @@ elif uname -a | grep SunOS > /dev/null 2>&1 ; then
     esac
     
     exit 0
+
+# Cygwin
 elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
+
+# The following settings may be changed by the configuration file below
+    # Service Name (must be unique)
+    smartd_svcname=smartd
+    # Service display name
+    smartd_svcdisp="CYGWIN smartd"
+    # Service description
+    smartd_svcdesc="\
+Controls and monitors storage devices using the Self-Monitoring \
+Analysis and Reporting Technology System (S.M.A.R.T.) \
+built into ATA and SCSI Hard Drives. \
+http://smartmontools.sourceforge.net/"
 
 # Source configuration file.  This should define the shell variable smartd_opts.
 # Email smartmontools-support@lists.sourceforge.net if there is a better choice
@@ -368,25 +382,35 @@ elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
     PID_FILE=/var/run/smartd.pid
     RETVAL=0
 
+    # Note: "[ -r $PID_FILE ]" is not used here. On Cygwin, this command may
+    # return success even if the file is present but cannot be read by current user.
+    # If smartd is running as service, smartd.pid is owned by local system account
+    # which is different from any user ever executing this script.
+
     case "$1" in
         start)
-            echo -n "Starting smartd: "
-            $SMARTD_BIN -p $PID_FILE $smartd_opts
+            if cygrunsrv -L 2>/dev/null | grep "^${smartd_svcname}$" >/dev/null 2>&1; then
+                echo -n "Starting service $smartd_svcname: "
+                cygrunsrv -S "$smartd_svcname"
+            else
+                echo -n "Starting smartd as daemon: "
+                $SMARTD_BIN -p $PID_FILE $smartd_opts
+            fi
             RETVAL=$?
             ;;
         stop)
             echo -n "Shutting down smartd: "
-            [ -r $PID_FILE ] && kill `cat $PID_FILE`
+            pid="`cat $PID_FILE 2>/dev/null`" && kill "$pid"
             RETVAL=$?
             ;;
         reload)
             echo -n "Reloading smartd configuration: "
-            [ -r $PID_FILE ] && kill -HUP `cat $PID_FILE`
+            pid="`cat $PID_FILE 2>/dev/null`" && kill -HUP "$pid"
             RETVAL=$?
             ;;
         report)
             echo -n "Checking SMART devices now: "
-            [ -r $PID_FILE ] && kill -USR1 `cat $PID_FILE`
+            pid="`cat $PID_FILE 2>/dev/null`" && kill -USR1 "$pid"
             RETVAL=$?
             ;;
         restart)
@@ -395,8 +419,47 @@ elif uname | grep -i CYGWIN > /dev/null 2>&1 ; then
             $0 start
             exit $?
             ;;
+        install)
+            shift
+            [ $# -eq 0 ] || smartd_opts="$*"
+            dep=
+            if cygrunsrv -L 2>/dev/null | grep "^syslogd$" >/dev/null 2>&1; then
+                dep="-y syslogd"
+            else
+                echo "Warning: syslogd service not installed, smartd will write to windows event log.";
+            fi
+            echo "Installing service ${smartd_svcname}${smartd_opts+ with options '$smartd_opts'}:"
+            cygrunsrv -I "$smartd_svcname" -d "$smartd_svcdisp"  -f "$smartd_svcdesc" $dep \
+              -e CYGWIN="$CYGWIN" -p $SMARTD_BIN -a "--service -p ${PID_FILE}${smartd_opts+ }$smartd_opts"
+            RETVAL=$?
+            ;;
+        remove)
+            echo "Removing service $smartd_svcname:"
+            cygrunsrv -R "$smartd_svcname"
+            RETVAL=$?
+            ;;
+        status)
+            echo -n "Checking smartd status: "
+            if cygrunsrv -L 2>/dev/null | grep "^${smartd_svcname}$" >/dev/null 2>&1; then
+                if cygrunsrv -Q "$smartd_svcname" 2>/dev/null | grep "State *: Running" >/dev/null 2>&1; then
+                    echo "running as service '$smartd_svcname'."
+                elif ps -e 2>/dev/null | grep " ${SMARTD_BIN}$" >/dev/null 2>&1; then
+                    echo "installed as service '$smartd_svcname' but running as daemon."
+                else
+                    echo "installed as service '$smartd_svcname' but not running."
+                    RETVAL=1
+                fi
+            elif ps -e 2>/dev/null | grep " ${SMARTD_BIN}$" >/dev/null 2>&1; then
+                echo "running as daemon."
+            else
+                echo "not running."
+                RETVAL=1
+            fi
+            exit $RETVAL
+            ;;
         *)
-            echo "Usage: $0 {start|stop|restart|reload|report}"
+            echo "Usage: $0 {start|stop|restart|reload|report|status}"
+            echo "       $0 {install [options]|remove}"
             exit 1
     esac
 
