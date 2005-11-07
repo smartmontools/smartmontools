@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.31 2005/07/25 19:02:06 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.32 2005/11/07 16:02:23 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -509,7 +509,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 		long err = GetLastError();
 		if (con->reportataioctl)
 			pout("  IOCTL_IDE_PASS_THROUGH failed, Error=%ld\n", err);
-		VirtualFree(buf, size, MEM_RELEASE);
+		VirtualFree(buf, 0, MEM_RELEASE);
 		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
 		return -1;
 	}
@@ -520,7 +520,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 			pout("  IOCTL_IDE_PASS_THROUGH command failed:\n");
 			print_ide_regs_io(regs, &buf->IdeReg);
 		}
-		VirtualFree(buf, size, MEM_RELEASE);
+		VirtualFree(buf, 0, MEM_RELEASE);
 		errno = EIO;
 		return -1;
 	}
@@ -534,7 +534,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 					num_out, buf->DataBufferSize);
 				print_ide_regs_io(regs, &buf->IdeReg);
 			}
-			VirtualFree(buf, size, MEM_RELEASE);
+			VirtualFree(buf, 0, MEM_RELEASE);
 			errno = EIO;
 			return -1;
 		}
@@ -548,7 +548,8 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	}
 	*regs = buf->IdeReg;
 
-	VirtualFree(buf, size, MEM_RELEASE);
+	// Caution: VirtualFree() fails if parameter "dwSize" is nonzero
+	VirtualFree(buf, 0, MEM_RELEASE);
 	return 0;
 }
 
@@ -976,7 +977,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
 		if (select == ABORT_SELF_TEST) // Abort only supported on Win9x, try
-			try_ioctl = 0x03; // SMART_RCV_DRIVE_DATA, then IOCTL_IDE_PASS_THROUGH
+			try_ioctl = 0x03; // SMART_SEND_DRIVE_COMMAND, then IOCTL_IDE_PASS_THROUGH
 		break;
 	  default:
 		pout("Unrecognized command %d in win32_ata_command_interface()\n"

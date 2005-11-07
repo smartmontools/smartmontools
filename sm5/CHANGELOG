@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.522 2005/11/05 19:00:50 chrfranke Exp $
+$Id: CHANGELOG,v 1.523 2005/11/07 16:02:23 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [CF] Cygwin & Windows: Fixed memory leak in function calling
+       IOCTL_IDE_PASS_THROUGH. Thanks to Fred Schmidt for the problem
+       report.
 
   [CF] Cygwin: added cygrunsrv support and commands "install", "remove"
        and "status" to smartd.initd.
