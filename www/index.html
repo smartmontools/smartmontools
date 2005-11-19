@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2005/10/31 03:12:38 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2005/11/19 16:12:43 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.197 2005/10/31 03:12:38 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.198 2005/11/19 16:12:43 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -239,28 +239,27 @@ apt-get update &amp;&amp; apt-get install smartmontools
 </li>
 </ul>
 
-
 <b><a name="CygwinInstall"></a>
 Fifth Method (Windows with <a href="http://www.cygwin.com/">Cygwin</a>
 installed) - Install the Cygwin package
 </b>
 <ul>
-<li>To install it, use Cygwin's
-<a href="http://www.cygwin.com/setup.exe">setup.exe</a>.
-Add smartmontools download directory from any sourceforge mirror
-(<b>http://<i>{belnet,easynews,heanet,switch,...}</i>.dl.sourceforge.net/sourceforge/smartmontools/</b>)
-in <i>Choose Download Site(s)</i>
-and follow as usual (requires Cygwin <b>1.5.7 or greater</b>).
+<li>Starting with CVS snapshot 2005-11-15, smartmontools is part of
+the <a href="http://cygwin.com/packages/">Cygwin distribution</a>.
+A list of available smartmontools packages and their contents is
+<a href="http://cygwin.com/packages/smartmontools/">here</a>.
 </li>
-<li><p>If you want to manually install it (not recommended
-because, among others, you lose the ability to update and uninstall it),
-download the latest Cygwin package (<tt>*.cygwin.tar.bz2</tt>) from
-<a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>,
-and type:</p>
-<pre>
-tar jxf smartmontools-5.32-1.cygwin.tar.bz2 -C /
-</pre>
-from a Cygwin shell.
+<li><p>To update your installation, click on the "Install Cygwin now"
+link on the <a href="http://cygwin.com/">Cygwin web page</a>.
+This downloads <tt>setup.exe</tt> to your system.
+Then, run setup and answer all of the questions.
+Select smartmontools package in the "Utils" category.</p>
+</li>
+<li><p>The optional source package (<tt>smartmontools-*-src.tar.bz2</tt>)
+can be used to build both the Cygwin and the Windows binary packages
+on Cygwin.
+Refer to the file <tt>/usr/share/doc/Cygwin/smartmontools-*.README</tt>
+for details.</p>
 </li>
 </ul>
 
@@ -1074,8 +1073,10 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10">LinuxUser 2004/10</a></l
 <a href="http://en.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">English</a>,
 <a href="http://de.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Deutsch</a>,
 <a href="http://es.wikipedia.org/wiki/SMART">Espa&#241;ol</a>,
+<a href="http://ja.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Japanese</a>,
 <a href="http://nl.wikipedia.org/wiki/S.M.A.R.T.">Nederlands</a>,
 <a href="http://pl.wikipedia.org/wiki/S.M.A.R.T._%28informatyka%29">Polski</a>,
+<a href="http://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F_SMART">Russian</a>,
 <a href="http://sk.wikipedia.org/wiki/S.M.A.R.T">Sloven&#269;ina</a>
 </li>
  <li>The <a href="http://www.t13.org/project/d1321r3-ATA-ATAPI-5.pdf"> ATAPI/ATA-5
@@ -1178,8 +1179,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2005/10/31 03:12:38 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.197 2005/10/31 03:12:38 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2005/11/19 16:12:43 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.198 2005/11/19 16:12:43 chrfranke Exp $</tt>
 
 <hr size="2" />
 
