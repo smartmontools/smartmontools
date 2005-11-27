@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.136 2005/09/18 23:54:48 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.137 2005/11/27 20:22:03 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -691,7 +691,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Hitachi Deskstar 7K400 series",
-    "^(Hitachi )?HDS724040KL(AT|SA)80)$",
+    "^(Hitachi )?HDS724040KL(AT|SA)80$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1092,8 +1092,12 @@ void showonepreset(const drivesettings *drivetable){
   return;
 }
 
-void showallpresets(void){
+// Shows all presets for drives in knowndrives[].
+// Returns <0 on syntax error in regular expressions.
+int showallpresets(void){
   int i;
+  int rc = 0;
+  regex_t regex;
 
   // loop over all entries in the knowndrives[] table, printing them
   // out in a nice format
@@ -1101,9 +1105,19 @@ void showallpresets(void){
     showonepreset(&knowndrives[i]);
     pout("\n");
   }
+
+  // Check all regular expressions
+  for (i=0; knowndrives[i].modelregexp; i++){
+    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+      rc = -1;
+    if (knowndrives[i].firmwareregexp) {
+      if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+        rc = -1;
+    }
+  }
   pout("For information about adding a drive to the database see the FAQ on the\n");
   pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
-  return;
+  return rc;
 }
 
 // Shows the presets (if any) that are available for the given drive.

@@ -20,7 +20,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.14 2005/04/20 03:29:58 ballen4705 Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.15 2005/11/27 20:22:03 chrfranke Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -70,7 +70,8 @@ int lookupdrive(const char *model, const char *firmware);
 void showpresets(const struct ata_identify_device *drive);
 
 // Shows all presets for drives in knowndrives[].
-void showallpresets(void);
+// Returns <0 on syntax error in regular expressions.
+int showallpresets(void);
 
 // Sets preset vendor attribute options in opts by finding the entry
 // (if any) for the given drive in knowndrives[].  Values that have

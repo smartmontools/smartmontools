@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.523 2005/11/07 16:02:23 chrfranke Exp $
+$Id: CHANGELOG,v 1.524 2005/11/27 20:22:03 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [CF] Fixed a regexp in knowndrives table, added regexp syntax check
+       via 'smartctl -P showall'.
 
   [CF] Cygwin & Windows: Fixed memory leak in function calling
        IOCTL_IDE_PASS_THROUGH. Thanks to Fred Schmidt for the problem

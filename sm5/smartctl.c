@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.140 2005/04/20 03:29:59 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.c,v 1.141 2005/11/27 20:22:03 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -564,7 +564,8 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg, "show")) {
         con->showpresets = TRUE;
       } else if (!strcmp(optarg, "showall")) {
-        showallpresets();
+        if (showallpresets())
+          EXIT(FAILCMD); // report regexp syntax error
         EXIT(0);
       } else {
         badarg = TRUE;

@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.59 2005/10/17 19:14:16 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.60 2005/11/27 20:22:03 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -376,14 +376,40 @@ void printregexwarning(int errcode, regex_t *compiled){
   return;
 }
 
+// POSIX extended regular expressions interpret unmatched ')' ordinary:
+// "The close-parenthesis shall be considered special in this context
+//  only if matched with a preceding open-parenthesis."
+//
+// Actual '(...)' nesting errors remain undetected on strict POSIX
+// implementations (glibc) but an error is reported on others (Cygwin).
+// 
+// The check below is rather incomplete because it does not handle
+// e.g. '\)' '[)]'.
+// But it should work for the regex subset used in drive database.
+static int check_regex_nesting(const char * pattern)
+{
+  int level = 0, i;
+  for (i = 0; pattern[i] && level >= 0; i++) {
+    switch (pattern[i]) {
+      case '(': level++; break;
+      case ')': level--; break;
+    }
+  }
+  return level;
+}
+
 // A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
 int compileregex(regex_t *compiled, const char *pattern, int cflags)
 { 
   int errorcode;
 
-  if ((errorcode = regcomp(compiled, pattern, cflags))) {
-    pout("Internal error: unable to compile regular expression %s", pattern);
-    printregexwarning(errorcode, compiled);
+  if (   (errorcode = regcomp(compiled, pattern, cflags))
+      || check_regex_nesting(pattern) < 0                ) {
+    pout("Internal error: unable to compile regular expression \"%s\" ", pattern);
+    if (errorcode)
+      printregexwarning(errorcode, compiled);
+    else
+      pout("Unmatched ')'\n");
     pout("Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n");
     return 1;
   }
