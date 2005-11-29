@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.73 2005/08/29 19:17:56 chrfranke Exp $
+# $Id: Makefile.am,v 1.74 2005/11/29 18:22:51 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -194,7 +194,7 @@ sysconf_DATA = smartd.conf$(smartd_suffix)
 
 if SMARTD_SUFFIX
 smartd.conf$(smartd_suffix): smartd.conf
-	cp smartd.conf smartd.conf$(smartd_suffix)
+	cp ${srcdir}/smartd.conf smartd.conf$(smartd_suffix)
 endif
 
 EXTRA_DIST = smartmontools.spec                    \
@@ -224,6 +224,9 @@ CLEANFILES = smartd.conf.5      \
              smartd.initd 	\
              SMART
 
+if SMARTD_SUFFIX
+CLEANFILES += smartd.conf$(smartd_suffix)
+endif
 
 
 smartd.conf.5.in: smartd.8.in
