@@ -38,9 +38,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.47 2005/09/26 22:33:36 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.48 2005/12/03 19:02:21 arvoreen Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.47 2005/09/26 22:33:36 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.48 2005/12/03 19:02:21 arvoreen Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -802,10 +802,12 @@ static int get_tw_channel_unit (const char* name, int* unit, int* dev) {
   if (strlen(name) > 4 && *(name + 3) == '0')
     return -1;
 
-  *dev=atoi(name + 3);
+  if (dev != NULL)
+    *dev=atoi(name + 3);
 
   /* no need for unit number */
-  *unit=0;
+  if (unit != NULL)
+    *unit=0;
   return 0;
 }
 
@@ -928,6 +930,9 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
 	return CONTROLLER_UNKNOWN;
       }
     }
+    else if (get_tw_channel_unit(dev_name,NULL,NULL)<0) {
+	return CONTROLLER_UNKNOWN;
+    }
     return CONTROLLER_3WARE_9000_CHAR;
   }
 
@@ -938,6 +943,10 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
 	return CONTROLLER_UNKNOWN;
       }
     }
+    else if (get_tw_channel_unit(dev_name,NULL,NULL)<0) {
+	return CONTROLLER_UNKNOWN;
+    }
+    return CONTROLLER_3WARE_678K_CHAR;
   }
 
   // we failed to recognize any of the forms
