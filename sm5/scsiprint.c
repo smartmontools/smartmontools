@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.99 2005/09/19 01:03:27 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.100 2005/12/07 02:53:52 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1106,6 +1106,8 @@ int scsiPrintMain(int fd)
         }
     }
     if (con->smarterrorlog) {
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(fd);
         scsiPrintErrorCounterLog(fd);
         if (1 == scsiFetchControlGLTSD(fd, modese_len, 1))
             pout("\n[GLTSD (Global Logging Target Save Disable) set. "
