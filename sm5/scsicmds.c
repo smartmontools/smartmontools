@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.82 2005/04/20 03:29:59 ballen4705 Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.83 2005/12/07 02:50:20 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -391,7 +391,7 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
     if (hdr_plus_1_pg > bufLen)
         return -EINVAL;
     pBuf[0] = 0;    /* Length of returned mode sense data reserved for SELECT */
-    pBuf[pg_offset] &= 0x3f;    /* Mask of PS bit from byte 0 of page data */
+    pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
@@ -488,7 +488,7 @@ int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
         return -EINVAL;
     pBuf[0] = 0;    
     pBuf[1] = 0; /* Length of returned mode sense data reserved for SELECT */
-    pBuf[pg_offset] &= 0x3f;    /* Mask of PS bit from byte 0 of page data */
+    pBuf[pg_offset] &= 0x7f;    /* Mask out PS bit from byte 0 of page data */
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
     io_hdr.dxfer_dir = DXFER_TO_DEVICE;
@@ -938,14 +938,13 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
         return -EINVAL;
     memcpy(rout, iecp->raw_curr, SCSI_IECMP_RAW_LEN);
     if (10 == iecp->modese_len) {
-            resp_len = (rout[0] << 8) + rout[1] + 2;
-            memset(rout, 0, 2); /* mode data length==0 for mode select */
+        resp_len = (rout[0] << 8) + rout[1] + 2;
+        rout[3] &= 0xef;    /* for disks mask out DPOFUA bit */
     } else {
-            resp_len = rout[0] + 1;
-            memset(rout, 0, 1); /* mode data length==0 for mode select */
+        resp_len = rout[0] + 1;
+        rout[2] &= 0xef;    /* for disks mask out DPOFUA bit */
     }
     sp = (rout[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
-    rout[offset] &= 0x7f;     /* mask off PS bit */
     if (enabled) {
         rout[offset + 2] = SCSI_IEC_MP_BYTE2_ENABLED;
         if (con->reportscsiioctl > 2)
@@ -2005,14 +2004,13 @@ int scsiSetControlGLTSD(int device, int enabled, int modese_len)
         return SIMPLE_ERR_BAD_PARAM;  /* GLTSD bit not chageable */
     
     if (10 == modese_len) {
-            resp_len = (buff[0] << 8) + buff[1] + 2;
-            memset(buff, 0, 2);
+        resp_len = (buff[0] << 8) + buff[1] + 2;
+        buff[3] &= 0xef;    /* for disks mask out DPOFUA bit */
     } else {
-            resp_len = buff[0] + 1;
-            memset(buff, 0, 1);
+        resp_len = buff[0] + 1;
+        buff[2] &= 0xef;    /* for disks mask out DPOFUA bit */
     }
     sp = (buff[offset] & 0x80) ? 1 : 0; /* PS bit becomes 'SELECT's SP bit */
-    buff[offset] &= 0x7f;     /* mask off PS bit */
     if (enabled)
         buff[offset + 2] |= 0x2;    /* set GLTSD bit */
     else
