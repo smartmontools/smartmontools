@@ -1,27 +1,49 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.58 2005/04/20 05:33:34 ballen4705 Exp $
+$Id: TODO,v 1.59 2005/12/11 18:40:35 ballen4705 Exp $
 
 SATA devices under Linux
 ------------------------
-Currently work OK if you use the standard IDE drivers in
-drivers/ide. If you use the new libata drivers, it won't work
-correctly because libata doesn't yet support the needed
-ATA-passthrough ioctl() calls. Jeff Garzik, the libata developer, says
-that this support will be added in the future. When this happens, add
-support to smartmontools for a new SATA/libata device type '-d sata'.
+These work OK if you use the standard IDe drivers in drivers/ide.
 
-Note: a unofficial (not supported by Jeff Garzik) patch is now
-available to libata that provides the HDIO_DRIVE_TASK and
-HDIO_DRIVE_CMD ioctl()s that are needed by smartmontools. Please
-search the Linux Kernel Mailing list to find this patch, or look at the
-thread:
+The situation is more complicated if you use libata.
+
+Prior to Linux kernel version 2.6.15-rc1, libata does not support the
+HDIO_DRIVE_TASK, HDIO_DRIVE_CMD, and HDIO_DRIVE_TASKFILE ioctl()s that
+are needed by smartmontools.  Support for HDIO_DRIVE_TASK and
+HDIO_DRIVE_CMD was added into libata by Jeff Garzik starting with
+Linux kernel version 2.6.15-rc1.  Starting with this version, you can
+use all the smartmontools commands apart from initiating selective
+self-tests (which also requires HDIO_DRIVE_TASKFILE).  A typical
+command line might look like this:
+  smartctl -a -d ata /dev/sda
+The '-d ata' is required, since otherwise smartmontools will assume
+that the device is SCSI, not ATA/SATA.  Similar syntax will work with
+smartd.
+
+You may be able to patch earlier versions of libata. Please search the
+Linux Kernel Mailing list to find this patch, or look at the thread:
 http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&threadm=2yYBY-4HB-55%40gated-at.bofh.it&rnum=3&prev=/groups%3Fq%3Dsmartmontools%26hl%3Den%26lr%3D%26ie%3DUTF-8%26scoring%3Dd%26selm%3D2yYBY-4HB-55%2540gated-at.bofh.it%26rnum%3D3
 To use this, just use (for example) 'smartctl -a -d ata /dev/sda'.
 
 Since this looks like this patch will become standard, we need to add something
 to smartmontools to automatically recognize the libata, and add the '-d ata'
 automatically.
+
+SATA devices
+------------
+The ATA PASS THROUGH SCSI command (12 and 16 byte cdb) as defined in
+SAT: http://www.t10.org/ftp/t10/drafts/sat/sat-r07.pdf (section 12.2)
+provides a general way to pass ATA SMART commands through to SATA
+devices.
+
+Doug Gilbert will in the future add a '-d sat' type (note, this is not
+a typo, we do not mean '-d sata') which will instruct the generic
+smartmontools code to assume an ATA device but use those ATA PASS
+THROUGH commands.
+
+This should provide additional support for SATA devices under most or
+all operating systems.
 
 USB devices under Linux
 -----------------------

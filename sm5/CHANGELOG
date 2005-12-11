@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.526 2005/12/07 02:58:34 dpgilbert Exp $
+$Id: CHANGELOG,v 1.527 2005/12/11 18:40:35 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [BA] Updated docs and error message to reflect Linux libata
+       support for smartmontools starting with the 2.6.15 kernel
+       series. Also init script support for the 'tinysofa' release.
 
   [DG] [SCSI] Mask dpofua bit when changing mode pages. Fix failure
        of 'smartctl -l error'.
