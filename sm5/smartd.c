@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.357 2005/11/05 19:00:49 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.358 2005/12/11 18:40:35 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.357 2005/11/05 19:00:49 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.358 2005/12/11 18:40:35 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1586,11 +1586,8 @@ static int SCSIFilterKnown(int fd, char * device)
       len = (avail_len < req_len) ? avail_len : req_len;
       if (isLinuxLibAta((unsigned char *)di_buff, len)) {
         PrintOut(LOG_INFO, "Device %s: SATA disks accessed via libata are "
-                 "not currently supported\n"
-                 "by smartmontools. By the time you read this, support "
-                 "may have been added\n"
-                 "in recent kernels. Try a '-d ata' device type"
-                 "argument.\n", device);
+                 "supported by Linux kernel versions 2.6.15-rc1 and above.\n"
+                 "Try adding '-d ata' to the smartd.conf config file line.\n", device);
         return 1;
       }
     }
