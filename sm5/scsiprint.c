@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.100 2005/12/07 02:53:52 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.101 2006/01/10 22:07:18 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1079,7 +1079,7 @@ int scsiPrintMain(int fd)
             else
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
-            if (res == scsiGetSmartData(fd, con->smartvendorattrib)) {
+            if (res = scsiGetSmartData(fd, con->smartvendorattrib)) {
                 if (-2 == res)
                     returnval |= FAILSTATUS;
                 else
