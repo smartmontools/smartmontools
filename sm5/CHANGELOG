@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.527 2005/12/11 18:40:35 ballen4705 Exp $
+$Id: CHANGELOG,v 1.528 2006/01/10 22:09:53 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [DG] [SCSI] Fix process return value when scsiGetSmartData() fails
+       in smartctl [Leandro Santi]
 
   [BA] Updated docs and error message to reflect Linux libata
        support for smartmontools starting with the 2.6.15 kernel
