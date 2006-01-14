@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.101 2006/01/10 22:07:18 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.102 2006/01/14 23:43:11 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -598,12 +598,15 @@ static const char * self_test_result[] = {
         "Self test in progress ..."
 };
 
-// See Working Draft SCSI Primary Commands - 3 (SPC-3) pages 231-233
-// T10/1416-D Rev 10. Returns 0 if ok else 1.
+// See SCSI Primary Commands - 3 (SPC-3) rev 23 (draft) section 7.2.10 .
+// Returns 0 if ok else FAIL* bitmask. Note that if any of the most recent
+// 20 self tests fail (result code 3 to 7 inclusive) then FAILLOG and/or
+// FAILSMART is returned.
 static int scsiPrintSelfTest(int device)
 {
     int num, k, n, res, err, durationSec;
     int noheader = 1;
+    int retval = 0;
     UINT8 * ucp;
     uint64_t ull=0;
 
@@ -612,13 +615,13 @@ static int scsiPrintSelfTest(int device)
         PRINT_ON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));
         PRINT_OFF(con);
-        return 1;
+        return FAILSMART;
     }
     if (gBuf[0] != SELFTEST_RESULTS_LPAGE) {
         PRINT_ON(con);
         pout("Self-test Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
-        return 1;
+        return FAILSMART;
     }
     // compute page length
     num = (gBuf[2] << 8) + gBuf[3];
@@ -627,7 +630,7 @@ static int scsiPrintSelfTest(int device)
         PRINT_ON(con);
         pout("Self-test Log Sense length is 0x%x not 0x190 bytes\n",num);
         PRINT_OFF(con);
-        return 1;
+        return FAILSMART;
     }
     // loop through the twenty possible entries
     for (k = 0, ucp = gBuf + 4; k < 20; ++k, ucp += 20 ) {
@@ -655,8 +658,38 @@ static int scsiPrintSelfTest(int device)
         pout("#%2d  %s", (ucp[0] << 8) | ucp[1], 
             self_test_code[(ucp[4] >> 5) & 0x7]);
 
-        // self-test result
-        res = ucp[4] & 0xf;
+        // check the self-test result nibble, using the self-test results
+        // field table from T10/1416-D (SPC-3) Rev. 23, section 7.2.10:
+        switch ((res = ucp[4] & 0xf)) {
+        case 0x3:
+            // an unknown error occurred while the device server
+            // was processing the self-test and the device server
+            // was unable to complete the self-test
+            retval|=FAILSMART;
+            break;
+        case 0x4:
+            // the self-test completed with a failure in a test
+            // segment, and the test segment that failed is not
+            // known
+            retval|=FAILLOG;
+            break;
+        case 0x5:
+            // the first segment of the self-test failed
+            retval|=FAILLOG;
+            break;
+        case 0x6:
+            // the second segment of the self-test failed
+            retval|=FAILLOG;
+            break;
+        case 0x7:
+            // another segment of the self-test failed and which
+            // test is indicated by the contents of the SELF-TEST
+            // NUMBER field
+            retval|=FAILLOG;
+            break;
+        default:
+            break;
+        }
         pout("  %s", self_test_result[res]);
 
         // self-test number identifies test that failed and consists
@@ -711,7 +744,7 @@ static int scsiPrintSelfTest(int device)
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
     }
-    return 0;
+    return retval;
 }
 
 static const char * peripheral_dt_arr[] = {
@@ -1079,7 +1112,7 @@ int scsiPrintMain(int fd)
             else
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
-            if (res = scsiGetSmartData(fd, con->smartvendorattrib)) {
+            if ((res = scsiGetSmartData(fd, con->smartvendorattrib))) {
                 if (-2 == res)
                     returnval |= FAILSTATUS;
                 else
@@ -1124,7 +1157,7 @@ int scsiPrintMain(int fd)
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
-            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            failuretest(OPTIONAL_CMD, returnval|=res);
     }
     if (con->smartexeoffimmediate) {
         if (scsiSmartDefaultSelfTest(fd))
