@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.83 2005/12/07 02:50:20 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.84 2006/01/16 07:34:35 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -812,8 +812,10 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_len)
                  "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
         } else if ((offset + 2) > resp_len) {
-            pout("scsiModePageOffset: response length too short, resp_len=%d"
-                 " offset=%d bd_len=%d\n", resp_len, offset, bd_len);
+             if ((resp_len > 2) || con->reportscsiioctl)
+                pout("scsiModePageOffset: response length too short, "
+                     "resp_len=%d offset=%d bd_len=%d\n", resp_len,
+                     offset, bd_len);
             offset = -1;
         }
     }
