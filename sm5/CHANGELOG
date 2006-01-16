@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.529 2006/01/14 23:46:53 dpgilbert Exp $
+$Id: CHANGELOG,v 1.530 2006/01/16 07:39:33 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [DG] [SCSI] suppress various outputs when data fails sanity checks.
+       Correct 'last n error events' log page indexing.
 
   [DG] [SCSI] changed smartctl exit status to reflect any problems in
        the most recent 20 self test logs [Leandro Santi]
