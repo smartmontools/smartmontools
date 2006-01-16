@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.102 2006/01/14 23:43:11 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.103 2006/01/16 07:36:57 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -269,8 +269,9 @@ static void scsiGetStartStopData(int device)
         currentStartStop = (gBuf[36] << 24) | (gBuf[37] << 16) |
                            (gBuf[38] << 8) | gBuf[39];
         pout("Current start stop count:      %u times\n", currentStartStop);
-        pout("Recommended maximum start stop count:  %u times\n", 
-             recommendedStartStop);
+	if (0xffffffff != recommendedStartStop)
+            pout("Recommended maximum start stop count:  %u times\n", 
+                 recommendedStartStop);
     }
 } 
 
@@ -541,13 +542,14 @@ static void scsiPrintErrorCounterLog(int device)
         unsigned char * ucp;
         int num, k, pc, pl;
 
-        num = (gBuf[2] << 8) + gBuf[3];
+        num = (gBuf[2] << 8) + gBuf[3] + 4;
         num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
         ucp = gBuf + 4;
+        num -= 4;
         if (num < 4)
             pout("\nNo error events logged\n");
         else {
-            pout("Last n error events log page\n");
+            pout("\nLast n error events log page\n");
             for (k = num; k > 0; k -= pl, ucp += pl) {
                 if (k < 3) {
                     pout("  <<short Last n error events log page>>\n");
@@ -555,14 +557,22 @@ static void scsiPrintErrorCounterLog(int device)
                 }
                 pl = ucp[3] + 4;
                 pc = (ucp[0] << 8) + ucp[1];
-                pout("  Error event %d:\n", pc);
-                if (ucp[2] & 0x2) {
-                    pout("    [binary]:\n");
-                    dStrHex((const char *)ucp + 4, pl - 4, 1);
-                } else
-                    pout("    %.*s\n", pl - 4, (const char *)(ucp + 4));
-                num -= pl;
-                ucp += pl;
+                if (pl > 4) {
+                    if ((ucp[2] & 0x1) && (ucp[2] & 0x2)) {
+                        pout("  Error event %d:\n", pc);
+                        pout("    [binary]:\n");
+                        dStrHex((const char *)ucp + 4, pl - 4, 1);
+                    } else if (ucp[2] & 0x1) {
+                        pout("  Error event %d:\n", pc);
+                        pout("    %.*s\n", pl - 4, (const char *)(ucp + 4));
+                    } else {
+                        if (con->reportscsiioctl > 0) {
+                            pout("  Error event %d:\n", pc);
+                            pout("    [data counter??]:\n");
+                            dStrHex((const char *)ucp + 4, pl - 4, 1);
+			}
+                    }
+                }
             }
         }
     }
