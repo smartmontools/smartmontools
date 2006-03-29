@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.137 2005/11/27 20:22:03 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.c,v 1.138 2006/03/29 22:03:04 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -415,7 +415,9 @@ const drivesettings knowndrives[] = {
   { "Maxtor DiamondMax D540X-4G family",
     "^Maxtor 4G(120J6|160J[68])$",
     ".*",
-    NULL, NULL, NULL, NULL
+    NULL,
+    vendoropts_Maxtor_4D080H4,
+    NULL, NULL
   },
   { "Maxtor DiamondMax D540X-4K family",
     "^MAXTOR 4K(020H1|040H2|060H3|080H4)$",
@@ -441,8 +443,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "Maxtor DiamondMax D540X-4D and Maxtor 4G120J6",
-    "^Maxtor (4D0(20H1|40H2|60H3|80H4)|4G120J6)$",
+  { "Maxtor DiamondMax D540X-4D",
+    "^Maxtor 4D0(20H1|40H2|60H3|80H4)$",
     ".*",
     NULL,
     vendoropts_Maxtor_4D080H4,
