@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.530 2006/01/16 07:39:33 dpgilbert Exp $
+$Id: CHANGELOG,v 1.531 2006/03/29 22:03:04 pjwilliams Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [PW] Automatically set -v 9,minutes and -v 194,unknown for Maxtor
+       DiamondMax D540X-4G drives.
 
   [DG] [SCSI] suppress various outputs when data fails sanity checks.
        Correct 'last n error events' log page indexing.
