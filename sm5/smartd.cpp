@@ -1,7 +1,7 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.358 2005/12/11 18:40:35 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.359 2006/04/05 20:57:12 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.358 2005/12/11 18:40:35 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.359 2006/04/05 20:57:12 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1118,7 +1118,7 @@ const char *GetValidArgList(char opt) {
   case 'l':
     return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
-    return "nodev, errors, nodevstartup, never, onecheck";
+    return "nodev, errors, nodevstartup, never, onecheck, showtests";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
   case 'p':
@@ -1905,7 +1905,7 @@ void CheckSelfTestLogs(cfgfile *cfg, int new){
 
 // returns 1 if time to do test of type testtype, 0 if not time to do
 // test, < 0 if error
-int DoTestNow(cfgfile *cfg, char testtype) {
+int DoTestNow(cfgfile *cfg, char testtype, time_t testtime) {
   // start by finding out the time:
   struct tm *timenow;
   time_t epochnow;
@@ -1921,11 +1921,12 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   
   // since we are about to call localtime(), be sure glibc is informed
   // of any timezone changes we make.
-  FixGlibcTimeZoneBug();
+  if (!testtime)
+    FixGlibcTimeZoneBug();
   
   // construct pattern containing the month, day of month, day of
   // week, and hour
-  time(&epochnow);
+  epochnow = (!testtime ? time(NULL) : testtime);
   timenow=localtime(&epochnow);
   
   // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
@@ -1948,7 +1949,7 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   // an unsigned short)
   hours=1+timenow->tm_hour+24*(timenow->tm_yday+366*(timenow->tm_year % 7));
   if (hours==dat->hour) {
-    if (testtype!=dat->testtype)
+    if (!testtime && testtype!=dat->testtype)
       PrintOut(LOG_INFO, "Device: %s, did test of type %c in current hour, skipping test of type %c\n",
 	       cfg->name, dat->testtype, testtype);
     return 0;
@@ -1958,6 +1959,59 @@ int DoTestNow(cfgfile *cfg, char testtype) {
   dat->hour=hours;
   dat->testtype=testtype;
   return 1;
+}
+
+// Print a list of future tests.
+void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
+  int i, t;
+  cfgfile * cfg;
+  char datenow[DATEANDEPOCHLEN], date[DATEANDEPOCHLEN];
+  time_t now; long seconds;
+  int numdev = numdevata+numdevscsi;
+  typedef int cnt_t[4];
+  cnt_t * testcnts; // testcnts[numdev][4]
+  if (numdev <= 0)
+    return;
+  testcnts = calloc(numdev, sizeof(testcnts[0]));
+  if (!testcnts)
+    return;
+
+  PrintOut(LOG_INFO, "\nNext scheduled self tests (at most 5 of each type per device):\n");
+
+  // FixGlibcTimeZoneBug(); // done in PrintOut()
+  now=time(NULL);
+  dateandtimezoneepoch(datenow, now);
+  for (seconds=0; seconds<3600L*24*90; seconds+=checktime) {
+    // Check for each device whether a test will be run
+    time_t testtime = now + seconds;
+    for (i=0; i<numdev; i++) {
+      cfg = (i<numdevata? atadevices[i] : scsidevices[i-numdevata]);
+      for (t=0; t<(i<numdevata?4:2); t++) {
+        char testtype = "LSCO"[t];
+        if (DoTestNow(cfg, testtype, testtime)) {
+          // Report at most 5 tests of each type
+          if (++testcnts[i][t] <= 5) {
+            dateandtimezoneepoch(date, testtime);
+            PrintOut(LOG_INFO, "Device: %s, will do test %d of type %c at %s\n", cfg->name,
+              testcnts[i][t], testtype, date);
+          }
+        }
+      }
+    }
+  }
+
+  // Report totals
+  dateandtimezoneepoch(date, now+seconds);
+  PrintOut(LOG_INFO, "\nTotals [%s - %s]:\n", datenow, date);
+  for (i=0; i<numdev; i++) {
+    cfg = (i<numdevata? atadevices[i] : scsidevices[i-numdevata]);
+    for (t=0; t<(i<numdevata?4:2); t++) {
+      PrintOut(LOG_INFO, "Device: %s, will do %3d test%s of type %c\n", cfg->name, testcnts[i][t],
+        (testcnts[i][t]==1?"":"s"), "LSCO"[t]);
+    }
+  }
+
+  free(testcnts);
 }
 
 // Return zero on success, nonzero on failure. Perform offline (background)
@@ -2324,16 +2378,16 @@ int ATACheckDevice(cfgfile *cfg){
   // sure) carry out scheduled self-tests.
   if (cfg->testdata) {
     // long test
-    if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L')>0)
+    if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
       DoATASelfTest(fd, cfg, 'L');    
     // short test
-    else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S')>0)
+    else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S', 0)>0)
       DoATASelfTest(fd, cfg, 'S');
     // conveyance test
-    else if (!cfg->testdata->not_cap_conveyance && DoTestNow(cfg, 'C')>0)
+    else if (!cfg->testdata->not_cap_conveyance && DoTestNow(cfg, 'C', 0)>0)
       DoATASelfTest(fd, cfg, 'C');
     // offline immediate
-    else if (!cfg->testdata->not_cap_offline && DoTestNow(cfg, 'O')>0)
+    else if (!cfg->testdata->not_cap_offline && DoTestNow(cfg, 'O', 0)>0)
       DoATASelfTest(fd, cfg, 'O');  
   }
   
@@ -2416,10 +2470,10 @@ int SCSICheckDevice(cfgfile *cfg)
     
     if (cfg->testdata) {
       // long (extended) background test
-      if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L')>0)
+      if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
         DoSCSISelfTest(fd, cfg, 'L');
       // short background test
-      else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S')>0)
+      else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S', 0)>0)
         DoSCSISelfTest(fd, cfg, 'S');
     }
     CloseDevice(fd, name);
@@ -3489,8 +3543,11 @@ void ParseOpts(int argc, char **argv){
       } else if (!(strcmp(optarg,"onecheck"))) {
         quit=3;
         debugmode=1;
-      } else if (!(strcmp(optarg,"errors"))) {
+      } else if (!(strcmp(optarg,"showtests"))) {
         quit=4;
+        debugmode=1;
+      } else if (!(strcmp(optarg,"errors"))) {
+        quit=5;
       } else {
         badarg = TRUE;
       }
@@ -4006,7 +4063,13 @@ static int smartd_main(int argc, char **argv)
       else {
         PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Try debug (-d) option. Exiting...\n");
         EXIT(EXIT_NODEV);
-      }   
+      }
+
+      if (quit==4) {
+        // user has asked to print test schedule
+        PrintTestSchedule(atadevlist, scsidevlist);
+        EXIT(0);
+      }
       
       // reset signal
       caughtsigHUP=0;

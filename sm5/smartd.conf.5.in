@@ -1,7 +1,7 @@
 .ig
-Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.71 2005/09/14 19:11:55 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.72 2006/04/05 20:57:12 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -508,11 +508,11 @@ interrupted to begin another test.
 test was already started or run in the same hour.
 
 Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
-You can use these to verify that you constructed \fBREGEXP\fP
-correctly.  The matching order (\fBL\fP before \fBS\fP before \fBC\fP
-before \fBO\fP) ensures that if multiple test types are all scheduled
-for the same hour, the longer test type has precedence.  This is
-usually the desired behavior.
+You can use these or the '-q showtests' command-line option to verify
+that you constructed \fBREGEXP\fP correctly.  The matching order
+(\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
+if multiple test types are all scheduled for the same hour, the
+longer test type has precedence.  This is usually the desired behavior.
 
 Unix users: please beware that the rules for extended regular
 expressions [regex(7)] are \fBnot\fP the same as the rules for
@@ -1202,7 +1202,7 @@ University of Wisconsin \- Milwaukee Physics Department
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface)
+\fBChristian Franke\fP (Windows interface and Cygwin package)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
@@ -1241,4 +1241,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.71 2005/09/14 19:11:55 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.72 2006/04/05 20:57:12 chrfranke Exp $
