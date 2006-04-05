@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.532 2006/04/05 19:50:07 chrfranke Exp $
+$Id: CHANGELOG,v 1.533 2006/04/05 20:57:12 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [CF] Added command 'smartd -q showtests' to list test schedules.
 
   [CF] Added command 'smartctl -P showall MODEL [FIRMWARE]' to list
        database entries for specific drives and firmware.

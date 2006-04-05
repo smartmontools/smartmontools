@@ -1,7 +1,7 @@
 .ig
-Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.98 2005/11/05 19:00:50 chrfranke Exp $
+$Id: smartd.8.in,v 1.99 2006/04/05 20:57:12 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -295,6 +295,17 @@ should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
 \fBsmartd\fP in normal daemon mode. If \fBsmartd\fP is unable to
 monitor any devices or encounters other problems then it will return
 with non-zero exit status.
+
+.I showtests
+\- Start \fBsmartd\fP in debug mode, then register devices, then write
+a list of future scheduled self tests to stdout, and then exit with zero
+exit status if all of these steps worked correctly.
+Device's SMART status is not checked.
+
+This option is intended to test whether the '-s REGEX' directives in
+smartd.conf will have the desired effect. The output lists the next test
+schedules, limited to 5 tests per type and device. This is followed by a
+summary of all tests of each device within the next 90 days.
 .TP
 .B \-r TYPE, \-\-report=TYPE
 Intended primarily to help
@@ -858,11 +869,11 @@ interrupted to begin another test.
 test was already started or run in the same hour.
 
 Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
-You can use these to verify that you constructed \fBREGEXP\fP
-correctly.  The matching order (\fBL\fP before \fBS\fP before \fBC\fP
-before \fBO\fP) ensures that if multiple test types are all scheduled
-for the same hour, the longer test type has precedence.  This is
-usually the desired behavior.
+You can use these or the '-q showtests' command-line option to verify
+that you constructed \fBREGEXP\fP correctly.  The matching order
+(\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
+if multiple test types are all scheduled for the same hour, the
+longer test type has precedence.  This is usually the desired behavior.
 
 Unix users: please beware that the rules for extended regular
 expressions [regex(7)] are \fBnot\fP the same as the rules for
@@ -1761,7 +1772,7 @@ University of Wisconsin \- Milwaukee Physics Department
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface)
+\fBChristian Franke\fP (Windows interface and Cygwin package)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
@@ -1821,4 +1832,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.98 2005/11/05 19:00:50 chrfranke Exp $
+$Id: smartd.8.in,v 1.99 2006/04/05 20:57:12 chrfranke Exp $
