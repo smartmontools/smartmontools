@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-5 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-6 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.15 2005/11/27 20:22:03 chrfranke Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.16 2006/04/05 19:50:07 chrfranke Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -72,6 +72,10 @@ void showpresets(const struct ata_identify_device *drive);
 // Shows all presets for drives in knowndrives[].
 // Returns <0 on syntax error in regular expressions.
 int showallpresets(void);
+
+// Shows all matching presets for a drive in knowndrives[].
+// Returns # matching entries.
+int showmatchingpresets(const char *model, const char *firmware);
 
 // Sets preset vendor attribute options in opts by finding the entry
 // (if any) for the given drive in knowndrives[].  Values that have
