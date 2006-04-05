@@ -1,7 +1,7 @@
 .ig
- Copyright (C) 2002-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.76 2005/09/14 19:11:55 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.77 2006/04/05 19:50:07 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -901,6 +901,21 @@ presets, then exit.
 \- list all recognized drives, and the presets that are set for them,
 then exit.
 
+The \'\-P showall\' option takes up to two optional arguments to
+match a specific drive type and firmware version. The command:
+.nf
+  smartctl \-P showall
+.fi
+lists all entries, the command:
+.nf
+  smartctl \-P showall \'MODEL\'
+.fi
+lists all entries matching MODEL, and the command:
+.nf
+  smartctl \-P showall \'MODEL\' \'FIRMWARE\'
+.fi
+lists all entries for this MODEL and a specific FIRMWARE version.
+
 .TP
 .B SMART RUN/ABORT OFFLINE TEST AND SELF\-TEST OPTIONS:
 .TP
@@ -1204,7 +1219,7 @@ University of Wisconsin \- Milwaukee Physics Department
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface)
+\fBChristian Franke\fP (Windows interface and Cygwin package)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
@@ -1265,7 +1280,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.76 2005/09/14 19:11:55 chrfranke Exp $
+$Id: smartctl.8.in,v 1.77 2006/04/05 19:50:07 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

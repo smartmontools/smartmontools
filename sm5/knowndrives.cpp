@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-5 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-6 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.138 2006/03/29 22:03:04 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.139 2006/04/05 19:50:07 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1120,6 +1120,49 @@ int showallpresets(void){
   pout("For information about adding a drive to the database see the FAQ on the\n");
   pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
   return rc;
+}
+
+// Shows all matching presets for a drive in knowndrives[].
+// Returns # matching entries.
+int showmatchingpresets(const char *model, const char *firmware){
+  int i;
+  int cnt = 0;
+  const char * firmwaremsg = (firmware ? firmware : "(any)");
+  regex_t regex;
+
+  for (i=0; knowndrives[i].modelregexp; i++){
+    if (i > 0)
+      regfree(&regex);
+    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+      continue;
+    if (regexec(&regex, model, 0, NULL, 0))
+      continue;
+    if (firmware && knowndrives[i].firmwareregexp) {
+      regfree(&regex);
+      if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+        continue;
+      if (regexec(&regex, firmware, 0, NULL, 0))
+        continue;
+    }
+    if (++cnt == 1)
+      pout("Drive found in smartmontools Database.  Drive identity strings:\n"
+           "%-*s %s\n"
+           "%-*s %s\n"
+           "match smartmontools Drive Database entry:\n",
+           TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmwaremsg);
+    else if (cnt == 2)
+      pout("and match these additional entries:\n");
+    showonepreset(&knowndrives[i]);
+    pout("\n");
+  }
+  regfree(&regex);
+  if (cnt == 0)
+    pout("No presets are defined for this drive.  Its identity strings:\n"
+         "MODEL:    %s\n"
+         "FIRMWARE: %s\n"
+         "do not match any of the known regular expressions.\n",
+         model, firmwaremsg);
+  return cnt;
 }
 
 // Shows the presets (if any) that are available for the given drive.
