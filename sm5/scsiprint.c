@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.103 2006/01/16 07:36:57 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.104 2006/04/06 04:05:59 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -401,7 +401,7 @@ static void scsiPrintSeagateCacheLPage(int device)
 
 static void scsiPrintSeagateFactoryLPage(int device)
 {
-    int k, j, num, pl, pc, len, err;
+    int k, j, num, pl, pc, len, err, good, bad;
     unsigned char * ucp;
     unsigned char * xp;
     uint64_t ull;
@@ -422,23 +422,30 @@ static void scsiPrintSeagateFactoryLPage(int device)
     len = ((gBuf[2] << 8) | gBuf[3]) + 4;
     num = len - 4;
     ucp = &gBuf[0] + 4;
+    good = 0;
+    bad = 0;
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
         switch (pc) {
         case 0: case 8:
+            ++good;
             break;
         default: 
-            if (con->reportscsiioctl > 0) {
-                PRINT_ON(con);
-                pout("\nVendor (Seagate/Hitachi) factory lpage has unexpected"
-                     " parameter, skip\n");
-                PRINT_OFF(con);
-            }
-            return;
+            ++bad;
+            break;
         }
         num -= pl;
         ucp += pl;
+    }
+    if ((good < 2) || (bad > 4)) {  /* heuristic */
+        if (con->reportscsiioctl > 0) {
+            PRINT_ON(con);
+            pout("\nVendor (Seagate/Hitachi) factory lpage has too many "
+                 "unexpected parameters, skip\n");
+            PRINT_OFF(con);
+        }
+        return;
     }
     pout("Vendor (Seagate/Hitachi) factory information\n");
     num = len - 4;
@@ -446,28 +453,41 @@ static void scsiPrintSeagateFactoryLPage(int device)
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
         pl = ucp[3] + 4;
+        good = 0;
         switch (pc) {
-        case 0: pout("  number of hours powered up"); break;
-        case 8: pout("  number of minutes until next internal SMART test");
+        case 0: pout("  number of hours powered up");
+            good = 1;
             break;
-        default: pout("  Unknown parameter code [0x%x]", pc); break;
+        case 8: pout("  number of minutes until next internal SMART test");
+            good = 1;
+            break;
+        default:
+            if (con->reportscsiioctl > 0) {
+                PRINT_ON(con);
+                pout("Vendor (Seagate/Hitachi) factory lpage: "
+                     "unknown parameter code [0x%x]\n", pc);
+                PRINT_OFF(con);
+            }
+            break;
         }
-        k = pl - 4;
-        xp = ucp + 4;
-        if (k > (int)sizeof(ull)) {
-            xp += (k - (int)sizeof(ull));
-            k = (int)sizeof(ull);
+        if (good) {
+            k = pl - 4;
+            xp = ucp + 4;
+            if (k > (int)sizeof(ull)) {
+                xp += (k - (int)sizeof(ull));
+                k = (int)sizeof(ull);
+            }
+            ull = 0;
+            for (j = 0; j < k; ++j) {
+                if (j > 0)
+                    ull <<= 8;
+                ull |= xp[j];
+            }
+            if (0 == pc)
+                pout(" = %.2f\n", uint64_to_double(ull) / 60.0 );
+            else
+                pout(" = %"PRIu64"\n", ull);
         }
-        ull = 0;
-        for (j = 0; j < k; ++j) {
-            if (j > 0)
-                ull <<= 8;
-            ull |= xp[j];
-        }
-        if (0 == pc)
-            pout(" = %.2f\n", uint64_to_double(ull) / 60.0 );
-        else
-            pout(" = %"PRIu64"\n", ull);
         num -= pl;
         ucp += pl;
     }
