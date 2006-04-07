@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-6 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.32 2005/11/07 16:02:23 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.33 2006/04/07 15:02:19 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -50,7 +50,7 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTI
 // Return build host and OS version as static string
 const char * get_os_version_str()
 {
-	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2000-sp2.1")+2];
+	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2003r2-sp2.1")+13];
 	char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1;
 	const int vlen = sizeof(vstr)-(sizeof(SMARTMONTOOLS_BUILD_HOST)-3);
 
@@ -84,8 +84,13 @@ const char * get_os_version_str()
 	//case VER_PLATFORM_WIN32_NT     <<16|0x0300|51: w = "nt3.51"; break;
 	  case VER_PLATFORM_WIN32_NT     <<16|0x0400| 0: w = "nt4";    break;
 	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 0: w = "2000";   break;
-	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 1: w = "xp";     break;
-	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 2: w = "2003";   break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 1:
+		w = (!GetSystemMetrics(87/*SM_MEDIACENTER*/) ?   "xp"
+		                                             :   "xp-mc"); break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0500| 2:
+		w = (!GetSystemMetrics(89/*SM_SERVERR2*/) ?      "2003"
+		                                             :   "2003r2"); break;
+	  case VER_PLATFORM_WIN32_NT     <<16|0x0600| 0: w = "vista";  break;
 	  default: w = 0; break;
 	}
 
@@ -1224,15 +1229,14 @@ static int aspi_call(ASPI_SRB * srb)
 	i = 0;
 	while (((volatile ASPI_SRB *)srb)->h.status == ASPI_STATUS_IN_PROGRESS) {
 		if (++i > 100/*10sek*/) {
-			pout("ASPI Adapter %u: Timeout\n", srb->h.adapter);
+			pout("ASPI Adapter %u: Timed out\n", srb->h.adapter);
 			aspi_entry = 0;
 			h_aspi_dll = INVALID_HANDLE_VALUE;
 			errno = EIO;
 			return -1;
 		}
-#ifdef _DEBUG
-		pout("ASPI Wait %d\n", i);
-#endif
+		if (con->reportscsiioctl > 1)
+			pout("ASPI Adapter %u: Waiting (%d) ...\n", srb->h.adapter, i);
 		Sleep(100);
 	}
 	return 0;
@@ -1292,6 +1296,13 @@ static int aspi_open_dll(int verbose)
 		errno = ENOENT;
 		return -1;
 	}
+	if (con->reportscsiioctl > 1) {
+		// Print full path of WNASPI32.DLL
+		char path[MAX_PATH];
+		if (!GetModuleFileName(h_aspi_dll, path, sizeof(path)))
+			strcpy(path, "*unknown*");
+		pout("Using ASPI interface \"%s\"\n", path);
+	}
 
 	// Get ASPI entrypoints
 	if (!(aspi_info = (UINT (*)(void))aspi_get_address("GetASPI32SupportInfo", verbose)))
@@ -1348,7 +1359,7 @@ static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
 		DWORD rc = WaitForSingleObject(event, timeout*1000L);
 		if (rc != WAIT_OBJECT_0) {
 			if (rc == WAIT_TIMEOUT) {
-				pout("ASPI Adapter %u, ID %u: timed out after %u seconds\n",
+				pout("ASPI Adapter %u, ID %u: Timed out after %u seconds\n",
 					srb->h.adapter, srb->i.target_id, timeout);
 			}
 			else {
