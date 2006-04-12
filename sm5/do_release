@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.37 2006/04/12 17:17:35 ballen4705 Exp $
+# $Id: do_release,v 1.38 2006/04/12 17:39:32 ballen4705 Exp $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -13,7 +13,7 @@
 # (5) to test, set USECVS below to 0
 # (6) when satisfied, set USECVS below to 1
 
-USECVS=0
+USECVS=1
 
 KEYID=0x841ABAE8
 

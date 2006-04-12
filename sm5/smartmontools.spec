@@ -8,7 +8,7 @@ Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
-Version:	5.34
+Version:	5.36
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
@@ -35,7 +35,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.166 2006/04/12 14:54:28 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.167 2006/04/12 17:39:32 ballen4705 Exp $
 
 # Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -310,11 +310,13 @@ fi
 # [EB] Erik Inge Bolsø
 # [SB] Stanislav Brabec
 # [PC] Peter Cassidy
+# [YD] Yuri Dario
 # [CD] Capser Dik
 # [CF] Christian Franke
 # [GF] Guilhem Frézou
 # [DG] Douglas Gilbert
 # [GG] Guido Guenther
+# [GK] Geoff Keating
 # [DK] David Kirkby
 # [KM] Kai Mäkisarai
 # [EM] Eduard Martinescu
@@ -322,8 +324,71 @@ fi
 # [KS] Keiji Sawada
 # [SS] Sergey Svishchev
 # [PW] Phil Williams
+# [LW] Leon Woestenberg
+# [RZ] Richard Zybert
+
 
 %changelog
+* Wed Apr 12 2006 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [BA] Update copyright dates to 2006.
+  [DG] [SCSI] Loosen sanity check on Seagate/Hitachi factory information
+       log page so it is not skipped on recent Seagate SCSI disks.
+  [CF] Added command 'smartd -q showtests' to list test schedules.
+  [CF] Added command 'smartctl -P showall MODEL [FIRMWARE]' to list
+       database entries for specific drives and firmware.
+  [PW] Automatically set -v 9,minutes and -v 194,unknown for Maxtor
+       DiamondMax D540X-4G drives.
+  [DG] [SCSI] suppress various outputs when data fails sanity checks.
+       Correct 'last n error events' log page indexing.
+  [DG] [SCSI] changed smartctl exit status to reflect any problems in
+       the most recent 20 self test logs [Leandro Santi]
+  [DG] [SCSI] Fix process return value when scsiGetSmartData() fails
+       in smartctl [Leandro Santi]
+  [BA] Updated docs and error message to reflect Linux libata
+       support for smartmontools starting with the 2.6.15 kernel
+       series. Also init script support for the 'tinysofa' release.
+  [DG] [SCSI] Mask dpofua bit when changing mode pages. Fix failure
+       of 'smartctl -l error'.
+  [EM] Fixed a problem with FreeBSD and 3Ware 'twe' devices
+  [CF] Fixed a regexp in knowndrives table, added regexp syntax check
+       via 'smartctl -P showall'.
+  [CF] Cygwin & Windows: Fixed memory leak in function calling
+       IOCTL_IDE_PASS_THROUGH. Thanks to Fred Schmidt for the problem
+       report.
+  [CF] Cygwin: added cygrunsrv support and commands "install", "remove"
+       and "status" to smartd.initd.
+  [SS] Fix runtime problems on big-engian NetBSD platforms (patch provided
+       by Martin Husemann)
+  [CF] Cygwin smartd: Open smartd.conf in textmode to allow use of
+       Windows editors.
+  [CF] Cygwin smartd: Added option '--service' to allow smartd running
+       as windows service via cygrunsrv. Useful in conjunction with new
+       syslogd support added in Cygwin 1.5.15.
+  [CF] Windows: Added patch to avoid output of non-ascii timezone names.
+  [EM] Incorporate various patches to provide TWE support and support for 
+       multiple 3Ware cards, Power Check Support, and FreeBSD 6.x support.
+       Thanks to Rudolf Cejka, Frank Behrens, and Jung-uk Kim.
+  [DG] Silence gcc 4.0.1 compile warning concerning the difference in
+       "signedness" in pointer assignments. Changes to SCSI code
+       and os_linux.c .
+  [PW] Additions to knowndrives table: added missing drive from Quantum
+       Fireball Plus LM series, added QUANTUM BIGFOOT TS10.0A, added
+       ExcelStor J680 and J880, added Western Digital Caviar RE Serial ATA
+       series, added missing drives from Western Digital Caviar SE series,
+       added Seagate Momentus 4200.2 series, added missing drives from
+       Maxtor DiamondMax 10 series, added Fujitsu MHG and MHH series, and
+       added Hitachi Travelstar 5K100 series.
+  [PW] Additions to knowndrives table: added Fujitsu MHU2100AT, added
+       Fujitsu M1623TAU, added missing drives from Seagate Barracuda
+       7200.8 series, added Seagate Momentus 5400.2 series, and added
+       QUANTUM FIREBALL CR8.4A.
+  [PW] Additions to knowndrives table: added missing drive from Maxtor
+       MaxLine II series, added Maxtor DiamondMax 2880 Ultra ATA series,
+       added Maxtor DiamondMax 17 VL series, added Hitachi Deskstar 7K80
+       series, and added Hitachi Deskstar 7K400 series.
+  [CF] Windows: Fixed unsupported 'smartctl -X' on Win2000/XP by using
+       IOCTL_IDE_PASS_THROUGH instead.
+
 * Tue Apr 20 2005 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
   [CF] Cygwin & Windows smartd: Increased SCSI DEVICESCAN range
        from ASPI adapter 0-3 to 0-9. Added diagnostic messages.
