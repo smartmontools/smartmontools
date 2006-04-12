@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-5 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.20 2005/04/20 03:29:59 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.21 2006/04/12 14:54:28 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 

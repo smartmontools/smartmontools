@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-5 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-6 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +38,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.c,v 1.48 2005/12/03 19:02:21 arvoreen Exp $";
+static const char *filenameandversion="$Id: os_freebsd.c,v 1.49 2006/04/12 14:54:28 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.48 2005/12/03 19:02:21 arvoreen Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.c,v 1.49 2006/04/12 14:54:28 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine

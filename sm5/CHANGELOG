@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.534 2006/04/06 04:09:14 dpgilbert Exp $
+$Id: CHANGELOG,v 1.535 2006/04/12 14:54:28 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
 
 smartmontools 5.34 Stable Release
+
+  [BA] Update copyright dates to 2006.
 
   [DG] [SCSI] Loosen sanity check on Seagate/Hitachi factory information
        log page so it is not skipped on recent Seagate SCSI disks.

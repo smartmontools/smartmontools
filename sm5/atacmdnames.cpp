@@ -7,7 +7,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-5 Philip Williams
+ * Copyright (C) 2003-6 Philip Williams
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 
 #define COMMAND_TABLE_SIZE 256
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.12 2005/04/20 03:29:58 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.13 2006/04/12 14:54:28 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";

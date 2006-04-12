@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-6 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #ifndef HOSTNAME_WIN32_H
 #define HOSTNAME_WIN32_H
 
-#define HOSTNAME_WIN32_H_CVSID "$Id: hostname_win32.h,v 1.2 2005/04/20 03:30:20 ballen4705 Exp $\n"
+#define HOSTNAME_WIN32_H_CVSID "$Id: hostname_win32.h,v 1.3 2006/04/12 14:54:28 ballen4705 Exp $\n"
 
 int gethostname(char * name, int len);
 int getdomainname(char * name, int len);

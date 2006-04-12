@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-5 Geoffrey Keating <geoffk@geoffk.org>
+ * Copyright (C) 2004-6 Geoffrey Keating <geoffk@geoffk.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.12 2005/04/20 03:29:58 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.13 2006/04/12 14:54:28 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
