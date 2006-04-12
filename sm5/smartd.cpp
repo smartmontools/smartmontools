@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.361 2006/04/12 16:11:44 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.362 2006/04/12 16:18:57 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.361 2006/04/12 16:11:44 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.362 2006/04/12 16:18:57 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1568,7 +1568,8 @@ static int SCSIFilterKnown(int fd, char * device)
   len = (avail_len < req_len) ? avail_len : req_len;
   if (len >= 36) {
     if (0 == strncmp(req_buff + 8, "3ware", 5) || 0 == strncmp(req_buff + 8, "AMCC", 4) ) {
-      PrintOut(LOG_INFO, "Device %s, please try '-d 3ware,N'\n", device);
+      PrintOut(LOG_INFO, "Device %s, please try adding '-d 3ware,N'\n", device);
+      PrintOut(LOG_INFO, "Device %s, you may need to replace %s with /dev/twaN or /dev/tweN\n", device, device);
       return 1;
     } else if ((len >= 42) && (0 == strncmp(req_buff + 36, "MVSATA", 6))) {
       PrintOut(LOG_INFO, "Device %s, please try '-d marvell'\n", device);
