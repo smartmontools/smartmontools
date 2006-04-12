@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.167 2006/04/12 14:54:28 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.168 2006/04/12 17:01:46 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -608,6 +608,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   case CONTROLLER_3WARE_678K_CHAR:
   case CONTROLLER_3WARE_9000_CHAR:
     retval=escalade_command_interface(device, con->controller_port-1, con->controller_type, command, select, data);
+    if (retval &&  con->controller_port<=0)
+      pout("WARNING: apparently missing '-d 3ware,N' disk specification\n");
     break;
   case CONTROLLER_MARVELL_SATA:
     retval=marvell_command_interface(device, command, select, data);
