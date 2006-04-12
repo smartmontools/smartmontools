@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.536 2006/04/12 15:46:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.537 2006/04/12 16:11:44 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -33,6 +33,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
 smartmontools 5.36 Stable Release
+
+  [BA] Linux: smartd/smartctl issue syntax hints to user if 3ware
+       disk controller present with EITHER 3ware OR AMCC vendor
+       name, and user syntax incorrect.
 
   [BA] Update copyright dates to 2006.
 
