@@ -3,7 +3,7 @@
 ! 
 !   Home page of code is: http://smartmontools.sourceforge.net
 ! 
-!   Copyright (C) 2003-5 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
+!   Copyright (C) 2003-6 SAWADA Keiji <smartmontools-support@lists.sourceforge.net>
 ! 
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@
 	.section	".rodata"
 	.align 8
 .LLC0:
-	.asciz	"$Id: os_solaris_ata.s,v 1.4 2005/04/20 03:29:59 ballen4705 Exp $"
+	.asciz	"$Id: os_solaris_ata.s,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $"
 	.global os_solaris_ata_s_cvsid
 	.section	".data"
 	.align 4

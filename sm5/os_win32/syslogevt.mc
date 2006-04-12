@@ -3,7 +3,7 @@
 ; *
 ; * Home page of code is: http://smartmontools.sourceforge.net
 ; *
-; * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; * Copyright (C) 2004-6 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ; *
 ; * This program is free software; you can redistribute it and/or modify
 ; * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 ; *
 ; */
 ;
-;// $Id: syslogevt.mc,v 1.3 2005/04/20 03:30:20 ballen4705 Exp $
+;// $Id: syslogevt.mc,v 1.4 2006/04/12 14:54:29 ballen4705 Exp $
 ;
 ;// Use message compiler "mc" to generate
 ;//   syslogevt.rc, syslogevt.h, msg00001.bin

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-5 Geoff Keating <geoffk@geoffk.org>
+ * Copyright (C) 2004-6 Geoff Keating <geoffk@geoffk.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h,v 1.4 2005/04/20 03:29:58 ballen4705 Exp $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $\n"
 
 // There isn't actually any content here yet.
 

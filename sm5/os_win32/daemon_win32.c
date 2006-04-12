@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-5 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-6 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.9 2005/04/08 15:28:31 chrfranke Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.c,v 1.10 2006/04/12 14:54:28 ballen4705 Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
