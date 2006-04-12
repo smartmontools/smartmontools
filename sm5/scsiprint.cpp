@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.104 2006/04/06 04:05:59 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.105 2006/04/12 14:23:56 ballen4705 Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -892,12 +892,10 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         avail_len = ((gBuf[2] << 8) + gBuf[3]) + 4;
         len = (avail_len < req_len) ? avail_len : req_len;
         if (isLinuxLibAta(gBuf, len)) {
-            pout("\nIn Linux, SATA disks accessed via libata are not "
-                 "currently supported\n"
-                 "by smartmontools. By the time you read this, support "
-                 "may have been added\n"
-                 "in recent kernels. Try an additional '-d ata' "
-                 "argument.\n");
+            pout("\nIn Linux, SATA disks accessed via libata are "
+                 "only supported by smartmontools\n"
+                 "for kernel versions 2.6.15 and above. Try "
+                 "an additional '-d ata' argument.\n");
             return 2;
         }
     }
