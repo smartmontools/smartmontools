@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.77 2006/04/05 19:50:07 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.78 2006/04/12 15:45:38 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -60,6 +60,10 @@ Use the forms \fB"/dev/hd[a\-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a\-z]"\fP for SCSI devices. For
 SCSI Tape Drives and Changers with TapeAlert support use the devices
 \fB"/dev/nst*"\fP and \fB"/dev/sg*"\fP. 
+For SATA disks accessed with libata, use \fB"/dev/sd[a\-z]"\fP
+and append \fB"\-d ata"\fP. For disks behind 3ware controllers
+you may need \fB"/dev/sd[a\-z]"\fP or \fB"/dev/twe[0\-9]"\fP
+or \fB"/dev/twa[0\-9]"\fP: see details below.
 More general paths (such as devfs ones) may also be specified.
 .IP \fBDARWIN\fP: 9
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
@@ -1280,7 +1284,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.77 2006/04/05 19:50:07 chrfranke Exp $
+$Id: smartctl.8.in,v 1.78 2006/04/12 15:45:38 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
