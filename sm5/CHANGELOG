@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.535 2006/04/12 14:54:28 ballen4705 Exp $
+$Id: CHANGELOG,v 1.536 2006/04/12 15:46:30 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -10,6 +10,7 @@ Maintainers / Developers Key:
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
+[YD] Yuri Dario
 [CD] Casper Dik
 [CF] Christian Franke
 [GF] Guilhem Frézou
@@ -26,13 +27,12 @@ Maintainers / Developers Key:
 [PW] Phil Williams
 [LW] Leon Woestenberg
 [RZ] Richard Zybert
-[YD] Yuri Dario
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
-<ADDITIONS TO THE CHANGE LOG SHOULD BE ADDED JUST BELOW HERE, PLEASE>
+<DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-smartmontools 5.34 Stable Release
+smartmontools 5.36 Stable Release
 
   [BA] Update copyright dates to 2006.
 
@@ -115,6 +115,8 @@ smartmontools 5.34 Stable Release
 
   [CF] Windows: Fixed unsupported 'smartctl -X' on Win2000/XP by using
        IOCTL_IDE_PASS_THROUGH instead.
+
+smartmontools 5.34 Stable Release [NOTE: never officially released]
 
   [CF] Cygwin & Windows smartd: Increased SCSI DEVICESCAN range
        from ASPI adapter 0-3 to 0-9. Added diagnostic messages.
