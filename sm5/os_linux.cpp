@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.81 2006/04/12 14:54:28 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.82 2006/04/12 16:28:56 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.81 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.82 2006/04/12 16:28:56 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1125,6 +1125,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   case PIDENTIFY:
     // 3WARE controller can NOT have packet device internally
     pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", disknum);
+    pout("Note: /dev/sdX many need to be replaced with /dev/tweN or /dev/twaN\n");
     errno=ENODEV;
     return -1;
   case ENABLE:
