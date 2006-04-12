@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.36 2006/04/12 15:46:30 ballen4705 Exp $
+# $Id: do_release,v 1.37 2006/04/12 17:17:35 ballen4705 Exp $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -101,7 +101,7 @@ if [ $USECVS -ne 0 ] ; then
     perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spec
 fi
 
-mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm .
+mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm . || mv -f $RPM_BASE/RPMS/x86_64/smartmontools-$VERSION-*.x86_64.rpm .
 mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
 cp -f build/smartmontools-$VERSION.tar.gz .
 if [ "$KEYID" ]; then
