@@ -1,9 +1,28 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.28 2005/04/20 07:38:44 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.29 2006/04/12 15:46:30 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
+
+Date 2006-04-12
+Summary: smartmontools release 5.36 (STABLE)
+-----------------------------------------------------------
+This is a stable smartmontools release.  The 5.34 version
+described just below was never officially released because
+Bruce Allen decided to wait until Linux support for
+accessing SATA devices through libata was in the official
+kernel.org sources.  Changes include:
+
+- Win 2000/XP:ability to cancel drive self-tests
+- Additions to the table of known drives
+- FreeBSD support for 3ware char device interface and
+  multiple 3ware cards
+- Various cygwin improvements for running as service
+- Works 'out of the box' with Linux SATA libata
+- smartd option added to list test schedules
+- smartctl option added to list part of drive database
+- various improvements for SCSI disks and logs
 
 
 Date 2005-04-19
