@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.72 2006/04/05 20:57:12 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.73 2006/04/12 14:03:14 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -117,11 +117,11 @@ Section below!
 .B ################################################
 .B # This is an example smartd startup config file
 .B # /usr/local/etc/smartd.conf for monitoring three
-.B # ATA disks, three SCSI disks, and six ATA disks
-.B # behind two 3ware controllers.
+.B # ATA disks, three SCSI disks, six ATA disks
+.B # behind two 3ware controllers and one SATA disk
 .B #
 .nf
-.B # First ATA disk on each of two interfaces. On
+.B # First ATA disk on two different interfaces. On
 .B # the second disk, start a long self-test every
 .B # Sunday between 3 and 4 am.
 .B #
@@ -141,10 +141,19 @@ Section below!
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
+.B # Linux-specific: SATA disk using the libata
+.B # driver.  This requires a 2.6.15 or greater
+.B # kernel.  The device entry is SCSI but the
+.B # underlying disk understands ATA SMART commands
+.B \ \ /dev/sda -a -d ata
+.B #
+.nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
 .B # Start short self-tests daily between midnight and 1am,
-.B # 1-2, 2-3, and 3-4 am
-.B # (Note that the syntax /dev/twe0 is also allowed.)
+.B # 1-2, 2-3, and 3-4 am.  Starting with the Linux 2.6
+.B # kernel series, /dev/sdX is deprecated in favor of
+.B # /dev/tweN.  For example replace /dev/sdc by /dev/twe0
+.B # and /dev/sdd by /dev/twe1.
 .B \ \ /dev/sdc -d 3ware,0 -a -s S/../.././00
 .B \ \ /dev/sdc -d 3ware,1 -a -s S/../.././01
 .B \ \ /dev/sdd -d 3ware,2 -a -s S/../.././02
@@ -1241,4 +1250,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.72 2006/04/05 20:57:12 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.73 2006/04/12 14:03:14 ballen4705 Exp $
