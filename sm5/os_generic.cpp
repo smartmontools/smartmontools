@@ -16,9 +16,18 @@
  * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/*  PORTING NOTES AND COMMENTS
 
-    To port smartmontools to the OS of your choice, please:
+/*
+    NOTE: The code in this file is only called when smartmontools has
+    been compiled on an unrecognized/unsupported platform.  This file
+    can then serve as a "template" to make os_myOS.c if you wish to
+    build support for that platform.
+
+
+ PORTING NOTES AND COMMENTS
+ --------------------------
+
+ To port smartmontools to the OS of your choice, please:
 
  [0] Contact smartmontools-support@lists.sourceforge.net to check
      that it's not already been done.
@@ -70,7 +79,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.21 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.22 2006/04/13 14:00:57 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
