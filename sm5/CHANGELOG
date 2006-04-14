@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.537 2006/04/12 16:11:44 ballen4705 Exp $
+$Id: CHANGELOG,v 1.538 2006/04/14 08:08:33 ballen4705 Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,14 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Identified Attribute 190 for Western Digital disks.  This
+       stores temperature in Celsius, just like Attribute 190.
+       But it has a failure threshold set to correspond to the
+       maximum design operating temperature of the disk, which
+       is typically 55 Celsius.  So if this Attribute has 'failed
+       in the past' this means that the maximum disk operating
+       temperature has been exceeded.
 
 smartmontools 5.36 Stable Release
 
