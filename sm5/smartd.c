@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.362 2006/04/12 16:18:57 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.363 2006/04/15 14:29:25 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.362 2006/04/12 16:18:57 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.363 2006/04/15 14:29:25 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1578,7 +1578,7 @@ static int SCSIFilterKnown(int fd, char * device)
       /* <<<< This is Linux specific code to detect SATA disks using a
               SCSI-ATA command translation layer. This may be generalized
               later when the t10.org SAT project matures. >>>> */
-      req_len = 96;
+      req_len = 252;
       memset(di_buff, 0, req_len);
       if (scsiInquiryVpd(fd, 0x83, (unsigned char *)di_buff, req_len)) {
         return 0;    // guess it is normal device
