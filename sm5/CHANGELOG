@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.540 2006/04/14 16:20:47 ballen4705 Exp $
+$Id: CHANGELOG,v 1.541 2006/04/15 14:36:14 dpgilbert Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [DG] [SCSI/SATA linux] from lk 2.6.17 SATA disk identification in
+       libata will change. Expand LibAta detection to see old
+       identifier and new variant (VPD page 0x83).
 
   [BA] Identified Attribute 190 for Western Digital disks.  This
        stores temperature in Celsius, just like Attribute 194.
