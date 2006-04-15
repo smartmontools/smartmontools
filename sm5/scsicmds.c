@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.85 2006/04/12 14:54:28 ballen4705 Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.86 2006/04/15 14:32:54 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2069,11 +2069,15 @@ int isLinuxLibAta(unsigned char * vpd_di_buff, int len)
     int k, id_len, c_set, assoc, id_type, i_len;
     unsigned char * ucp;
     unsigned char * ip;
+    unsigned char buff1[20];
+    unsigned char buff2[20];
 
     if (len < 4) {
         /* Device identification VPD page length too short */
         return 0;
     }
+    buff1[0] = '\0';
+    buff2[0] = '\0';
     len -= 4;
     ucp = vpd_di_buff + 4;
     for (k = 0; k < len; k += id_len, ucp += id_len) {
@@ -2087,9 +2091,24 @@ int isLinuxLibAta(unsigned char * vpd_di_buff, int len)
         c_set = (ucp[0] & 0xf);
         assoc = ((ucp[1] >> 4) & 0x3);
         id_type = (ucp[1] & 0xf);
-        if ((0 == id_type) && (2 == c_set) && (0 == assoc) &&
-            (0 == strncmp((const char *)ip,
-                          "Linux ATA-SCSI simulator", i_len))) {
+        if ((0 == id_type) && (2 == c_set) && (0 == assoc)) {
+            /* assoc=lu, c_set=ascii, id_type=vendor */
+            if (0 == strncmp((const char *)ip,
+                             "Linux ATA-SCSI simulator", i_len)) {
+                /* until lk 2.6.16 */
+                return 1;
+            }
+            memcpy(buff1, ip, sizeof(buff1));
+        }
+        if ((1 == id_type) && (2 == c_set) && (0 == assoc)) {
+            /* assoc=lu, c_set=ascii, id_type=t10 vendor id */
+            if (0 == strncmp((const char *)ip, "ATA", 3))
+                memcpy(buff2, ip + 48, sizeof(buff2));
+        }
+    }
+    if (buff1[0] && buff2[0]) {
+        if (0 == memcmp(buff1, buff2, sizeof(buff1))) {
+            /* after lk 2.6.16, look for serial number match */
             return 1;
         }
     }
