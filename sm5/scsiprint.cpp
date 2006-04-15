@@ -41,7 +41,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.107 2006/04/12 16:18:57 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.108 2006/04/15 14:29:01 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -881,7 +881,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         /* <<<< This is Linux specific code to detect SATA disks using a
                 SCSI-ATA command translation layer. This may be generalized
                 later when the t10.org SAT project matures. >>>> */
-        req_len = 96;
+        req_len = 252;
         memset(gBuf, 0, req_len);
         if ((err = scsiInquiryVpd(device, 0x83, gBuf, req_len))) {
             PRINT_ON(con);
