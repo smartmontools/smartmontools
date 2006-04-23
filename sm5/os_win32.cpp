@@ -39,7 +39,7 @@ extern int64_t bytes; // malloc() byte count
 #define ARGUSED(x) ((void)(x))
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.33 2006/04/07 15:02:19 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.34 2006/04/23 14:34:40 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -711,16 +711,18 @@ static int smartvsd_error()
 		}
 	}
 	else {
-		// Some Windows versions install SMARTVSD.VXD in SYSTEM directory
-		// http://support.microsoft.com/default.aspx?scid=kb;en-us;265854
 		strcpy(path+len, "\\SMARTVSD.VXD");
 		if (!access(path, 0)) {
+			// Some Windows versions install SMARTVSD.VXD in SYSTEM directory
+			// (http://support.microsoft.com/kb/265854/en-us).
 			path[len] = 0;
 			pout("SMART driver is not properly installed,\n"
 				 " move SMARTVSD.VXD from \"%s\" to \"%s\\IOSUBSYS\"\n"
 				 " and reboot Windows.\n", path, path);
 		}
 		else {
+			// Some Windows versions do not provide SMARTVSD.VXD
+			// (http://support.microsoft.com/kb/199886/en-us).
 			path[len] = 0;
 			pout("SMARTVSD.VXD is missing in folder \"%s\\IOSUBSYS\".\n", path);
 		}
@@ -747,13 +749,14 @@ static int ata_open(int drive)
 
 	win9x = ((GetVersion() & 0x80000000) != 0);
 
-	if (!(0 <= drive && drive <= (win9x ? 3 : 9))) {
+	if (!(0 <= drive && drive <= (win9x ? 7 : 9))) {
 		errno = ENOENT;
 		return -1;
 	}
 	// path depends on Windows Version
 	if (win9x)
-		strcpy(devpath, "\\\\.\\SMARTVSD");
+		// Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
+		strcpy(devpath, (drive <= 3 ? "\\\\.\\SMARTVSD" : "\\\\.\\SMARTVSE"));
 	else
 		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", drive);
 
@@ -764,7 +767,7 @@ static int ata_open(int drive)
 		long err = GetLastError();	
 		pout("Cannot open device %s, Error=%ld\n", devpath, err);
 		if (err == ERROR_FILE_NOT_FOUND)
-			errno = (win9x ? smartvsd_error() : ENOENT);
+			errno = (win9x && drive <= 3 ? smartvsd_error() : ENOENT);
 		else if (err == ERROR_ACCESS_DENIED) {
 			if (!win9x)
 				pout("Administrator rights are necessary to access physical drives.\n");
@@ -799,19 +802,17 @@ static int ata_open(int drive)
 	// TODO: Check vers.fCapabilities here?
 
 	if (!win9x)
-		// NT4/2K/XP: Drive exists, Drive number not necessary for ioctl
+		// NT4/2K/XP: Drive exists, drive number not necessary for ioctl
 		return 0;
 
 	// Win9x/ME: Check device presence & type
-	if (((vers.bIDEDeviceMap >> drive) & 0x11) != 0x01) {
-		unsigned char atapi = (vers.bIDEDeviceMap >> drive) & 0x10;
-		pout((  atapi
-		      ? "Drive %d is an ATAPI device (IDEDeviceMap=0x%02x).\n"
-			  : "Drive %d does not exist (IDEDeviceMap=0x%02x).\n"),
-			drive, vers.bIDEDeviceMap);
-		// Win9x Drive existence check may not work as expected
+	if (((vers.bIDEDeviceMap >> (drive & 0x3)) & 0x11) != 0x01) {
+		unsigned char atapi = (vers.bIDEDeviceMap >> (drive & 0x3)) & 0x10;
+		pout("%s: Drive %d %s (IDEDeviceMap=0x%02x).\n", devpath,
+		     drive, (atapi?"is an ATAPI device":"does not exist"), vers.bIDEDeviceMap);
+		// Win9x drive existence check may not work as expected
 		// The atapi.sys driver incorrectly fills in the bIDEDeviceMap with 0x01
-		// http://support.microsoft.com/support/kb/articles/Q196/1/20.ASP
+		// (The related KB Article Q196120 is no longer available)
 		if (!is_permissive()) {
 			CloseHandle(h_ata_ioctl); h_ata_ioctl = 0;
 			errno = (atapi ? ENOSYS : ENOENT);
@@ -819,7 +820,7 @@ static int ata_open(int drive)
 		}
 	}
 	// Use drive number as fd for ioctl
-	return drive;
+	return (drive & 0x3);
 }
 
 
