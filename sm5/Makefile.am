@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.74 2005/11/29 18:22:51 chrfranke Exp $
+# $Id: Makefile.am,v 1.75 2006/04/23 14:10:43 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -334,11 +334,21 @@ htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html
 
 txtman:  smartctl.8.txt smartd.8.txt smartd.conf.5.txt
 
+if OS_WIN32_MINGW
+
+%.5.html: %.5
+	$(DOS2UNIX) < $< | $(MAN2HTML) | $(FIXHTML) > $@
+
+%.8.html: %.8
+	$(DOS2UNIX) < $< | $(MAN2HTML) | $(FIXHTML) > $@
+else
+
 %.5.html: %.5
 	$(MAN2HTML) $< | $(FIXHTML) > $@
 
 %.8.html: %.8
 	$(MAN2HTML) $< | $(FIXHTML) > $@
+endif
 
 %.5.txt: %.5
 	$(MAN2TXT) $< > $@
@@ -379,6 +389,7 @@ CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe distdir.mkdir sysloge
 
 # Textfile converter from cygutils
 UNIX2DOS = unix2dos -D
+DOS2UNIX = dos2unix -U
 
 # Build Windows distribution
 
