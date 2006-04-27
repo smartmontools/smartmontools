@@ -38,8 +38,15 @@ extern int64_t bytes; // malloc() byte count
 
 #define ARGUSED(x) ((void)(x))
 
+// Macro to check constants at compile time using a dummy typedef
+#define ASSERT_CONST(c, n) \
+  typedef char assert_const_##c[((c) == (n)) ? 1 : -1]
+#define ASSERT_SIZEOF(t, n) \
+  typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
+
+
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.34 2006/04/23 14:34:40 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.35 2006/04/27 20:15:49 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -108,9 +115,10 @@ const char * get_os_version_str()
 }
 
 
-static int ata_open(int drive);
+static int ata_open(int drive, const char * options);
 static void ata_close(int fd);
 static int ata_scan(unsigned long * drives);
+static const char * ata_get_def_options(void);
 
 static int aspi_open(unsigned adapter, unsigned id);
 static void aspi_close(int fd);
@@ -215,13 +223,14 @@ int deviceopen(const char * pathname, char *type)
 	len = strlen(pathname);
 
 	if (!strcmp(type, "ATA")) {
-		// hd[a-z] => ATA 0-9
-		if (!(len  == 3 && pathname[0] == 'h' && pathname[1] == 'd'
-			  && 'a' <= pathname[2] && pathname[2] <= 'j')) {
+		// hd[a-j](:[saic]+)? => ATA 0-9 with options
+		char drive[1+1] = "", options[4+1] = ""; int n1 = -1, n2 = -1;
+		if (!(sscanf(pathname, "hd%1[a-j]%n:%4[saic]%n", drive, &n1, options, &n2) >= 1
+		      && ((n1 == len && !options[0]) || n2 == len)                             )) {
 			errno = ENOENT;
 			return -1;
 		}
-		return ata_open(pathname[2] - 'a');
+		return ata_open(drive[0] - 'a', options);
 	}
 
 	if (!strcmp(type, "SCSI")) {
@@ -270,6 +279,12 @@ void print_smartctl_examples(){
 #endif
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
+		 "\n"
+		 "  ATA SMART access methods and ordering may be specified by modifiers\n"
+		 "  following the device name: /dev/hdX:[saic], where\n"
+		 "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
+		 "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH.\n"
+		 "  The default on this system is /dev/hdX:%s\n", ata_get_def_options()
   );
 }
 
@@ -294,14 +309,19 @@ void print_smartctl_examples(){
 #define SMART_GET_VERSION \
   CTL_CODE(IOCTL_DISK_BASE, 0x0020, METHOD_BUFFERED, FILE_READ_ACCESS)
 
-#define SMART_RCV_DRIVE_DATA \
-  CTL_CODE(IOCTL_DISK_BASE, 0x0022, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
 #define SMART_SEND_DRIVE_COMMAND \
   CTL_CODE(IOCTL_DISK_BASE, 0x0021, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
+#define SMART_RCV_DRIVE_DATA \
+  CTL_CODE(IOCTL_DISK_BASE, 0x0022, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+ASSERT_CONST(SMART_GET_VERSION       , 0x074080);
+ASSERT_CONST(SMART_SEND_DRIVE_COMMAND, 0x07c084);
+ASSERT_CONST(SMART_RCV_DRIVE_DATA    , 0x07c088);
+
 #define SMART_CYL_LOW  0x4F
 #define SMART_CYL_HI   0xC2
+
 
 #pragma pack(1)
 
@@ -313,6 +333,8 @@ typedef struct _GETVERSIONOUTPARAMS {
 	ULONG  fCapabilities;
 	ULONG  dwReserved[4];
 } GETVERSIONOUTPARAMS, *PGETVERSIONOUTPARAMS, *LPGETVERSIONOUTPARAMS;
+
+ASSERT_SIZEOF(GETVERSIONOUTPARAMS, 24);
 
 typedef struct _IDEREGS {
 	UCHAR  bFeaturesReg;
@@ -333,6 +355,8 @@ typedef struct _SENDCMDINPARAMS {
 	ULONG  dwReserved[4];
 	UCHAR  bBuffer[1];
 } SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
+
+ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
 
 /* DRIVERSTATUS.bDriverError constants (just for info, not used)
 #define SMART_NO_ERROR                    0
@@ -360,6 +384,8 @@ typedef struct _SENDCMDOUTPARAMS {
 	DRIVERSTATUS  DriverStatus;
 	UCHAR  bBuffer[1];
 } SENDCMDOUTPARAMS, *PSENDCMDOUTPARAMS, *LPSENDCMDOUTPARAMS;
+
+ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
 
 #pragma pack()
 
@@ -393,11 +419,6 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	DWORD code, num_out;
 	unsigned int size_out;
 	const char * name;
-
-	assert(SMART_SEND_DRIVE_COMMAND == 0x07c084);
-	assert(SMART_RCV_DRIVE_DATA == 0x07c088);
-	assert(sizeof(SENDCMDINPARAMS)-1 == 32);
-	assert(sizeof(SENDCMDOUTPARAMS)-1 == 16);
 
 	memset(&inpar, 0, sizeof(inpar));
 	inpar.irDriveRegs = *regs;
@@ -443,7 +464,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 				outpar->DriverStatus.bDriverError, outpar->DriverStatus.bIDEError);
 			print_ide_regs_io(regs, NULL);
 		}
-		errno = EIO;
+		errno = (!outpar->DriverStatus.bIDEError ? ENOSYS : EIO);
 		return -1;
 	}
 
@@ -465,8 +486,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
 /////////////////////////////////////////////////////////////////////////////
 
-// IDE PASS THROUGH for W2K/XP (does not work on W9x/NT4)
-// Only used for SMART commands not supported by SMART_* IOCTLs
+// IDE PASS THROUGH (2000, XP, undocumented)
 //
 // Based on WinATA.cpp, 2002 c't/Matthias Withopf
 // ftp://ftp.heise.de/pub/ct/listings/0207-218.zip
@@ -477,6 +497,8 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 #define IOCTL_IDE_PASS_THROUGH \
   CTL_CODE(IOCTL_SCSI_BASE, 0x040A, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
 
+ASSERT_CONST(IOCTL_IDE_PASS_THROUGH, 0x04d028);
+
 #pragma pack(1)
 
 typedef struct {
@@ -484,6 +506,8 @@ typedef struct {
 	ULONG   DataBufferSize;
 	UCHAR   DataBuffer[1];
 } ATA_PASS_THROUGH;
+
+ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
 
 #pragma pack()
 
@@ -496,8 +520,6 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	ATA_PASS_THROUGH * buf = (ATA_PASS_THROUGH *)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 	DWORD num_out;
 	const unsigned char magic = 0xcf;
-	assert(sizeof(ATA_PASS_THROUGH)-1 == 12);
-	assert(IOCTL_IDE_PASS_THROUGH == 0x04d028);
 
 	if (!buf) {
 		errno = ENOMEM;
@@ -559,17 +581,126 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+
+// ATA PASS THROUGH (Win2003, XP SP2)
+
+#define IOCTL_ATA_PASS_THROUGH \
+	CTL_CODE(IOCTL_SCSI_BASE, 0x040B, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+ASSERT_CONST(IOCTL_ATA_PASS_THROUGH, 0x04d02c);
+
+typedef struct _ATA_PASS_THROUGH_EX {
+	USHORT  Length;
+	USHORT  AtaFlags;
+	UCHAR  PathId;
+	UCHAR  TargetId;
+	UCHAR  Lun;
+	UCHAR  ReservedAsUchar;
+	ULONG  DataTransferLength;
+	ULONG  TimeOutValue;
+	ULONG  ReservedAsUlong;
+	ULONG/*_PTR*/ DataBufferOffset;
+	UCHAR  PreviousTaskFile[8];
+	UCHAR  CurrentTaskFile[8];
+} ATA_PASS_THROUGH_EX, *PATA_PASS_THROUGH_EX;
+
+ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, 40);
+
+#define ATA_FLAGS_DRDY_REQUIRED 0x01
+#define ATA_FLAGS_DATA_IN       0x02
+#define ATA_FLAGS_DATA_OUT      0x04
+#define ATA_FLAGS_48BIT_COMMAND 0x08
+
 
 /////////////////////////////////////////////////////////////////////////////
 
-// ATA PASS THROUGH via SCSI PASS THROUGH for NT4 only
-// Only used for SMART commands not supported by SMART_* IOCTLs
+static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize)
+{ 
+	typedef struct {
+		ATA_PASS_THROUGH_EX apt;
+		ULONG Filler;
+		UCHAR ucDataBuf[512];
+	} ATA_PASS_THROUGH_EX_WITH_BUFFERS;
+
+	ATA_PASS_THROUGH_EX_WITH_BUFFERS ab;
+	IDEREGS * ctfregs;
+	unsigned int size;
+	DWORD num_out;
+	const unsigned char magic = 0xcf;
+
+	memset(&ab, 0, sizeof(ab));
+	ab.apt.Length = sizeof(ATA_PASS_THROUGH_EX);
+	//ab.apt.PathId = 0;
+	//ab.apt.TargetId = 0;
+	//ab.apt.Lun = 0;
+	ab.apt.TimeOutValue = 10;
+	size = offsetof(ATA_PASS_THROUGH_EX_WITH_BUFFERS, ucDataBuf);
+	ab.apt.DataBufferOffset = size;
+ 
+	if (datasize) {
+		if (!(0 <= datasize && datasize <= (int)sizeof(ab.ucDataBuf))) {
+			errno = EINVAL;
+			return -1;
+		}
+		ab.apt.AtaFlags = ATA_FLAGS_DATA_IN;
+		ab.apt.DataTransferLength = datasize;
+		size += datasize;
+		ab.ucDataBuf[0] = magic;
+	}
+	else {
+		//ab.apt.AtaFlags = 0;
+		//ab.apt.DataTransferLength = 0;
+	}
+
+	assert(sizeof(ab.apt.CurrentTaskFile) == sizeof(IDEREGS));
+	ctfregs = (IDEREGS *)ab.apt.CurrentTaskFile;
+	*ctfregs = *regs;
+
+	if (!DeviceIoControl(hdevice, IOCTL_ATA_PASS_THROUGH,
+		&ab, size, &ab, size, &num_out, NULL)) {
+		long err = GetLastError();
+		if (con->reportataioctl)
+			pout("  IOCTL_ATA_PASS_THROUGH_EX failed, Error=%ld\n", err);
+		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		return -1;
+	}
+
+	// Check and copy data
+	if (datasize) {
+		if (   num_out != size
+		    || (ab.ucDataBuf[0] == magic && !nonempty(ab.ucDataBuf+1, datasize-1))) {
+			if (con->reportataioctl) {
+				pout("  IOCTL_ATA_PASS_THROUGH_EX output data missing (%lu)\n", num_out);
+				print_ide_regs_io(regs, ctfregs);
+			}
+			errno = EIO;
+			return -1;
+		}
+		memcpy(data, ab.ucDataBuf, datasize);
+	}
+
+	if (con->reportataioctl > 1) {
+		pout("  IOCTL_ATA_PASS_THROUGH_EX suceeded, bytes returned: %lu\n", num_out);
+		print_ide_regs_io(regs, ctfregs);
+	}
+	*regs = *ctfregs;
+
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// ATA PASS THROUGH via SCSI PASS THROUGH (WinNT4 only)
 
 // Declarations from:
 // http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ntddscsi.h?rev=1.2
 
 #define IOCTL_SCSI_PASS_THROUGH \
 	CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH, 0x04d004);
 
 #define SCSI_IOCTL_DATA_OUT          0
 #define SCSI_IOCTL_DATA_IN           1
@@ -593,6 +724,8 @@ typedef struct _SCSI_PASS_THROUGH {
 	UCHAR  Cdb[16];
 } SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
 
+ASSERT_SIZEOF(SCSI_PASS_THROUGH, 44);
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -610,9 +743,6 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 	unsigned int size;
 	DWORD num_out;
 	const unsigned char magic = 0xcf;
-
-	assert(sizeof(SCSI_PASS_THROUGH) == 44);
-	assert(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
 
 	memset(&sb, 0, sizeof(sb));
 	sb.spt.Length = sizeof(SCSI_PASS_THROUGH);
@@ -681,6 +811,8 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 /////////////////////////////////////////////////////////////////////////////
 
 static HANDLE h_ata_ioctl = 0;
+static const char * ata_def_options;
+static char * ata_cur_options;
 
 
 // Print SMARTVSD error message, return errno
@@ -731,15 +863,28 @@ static int smartvsd_error()
 }
 
 
-static int ata_open(int drive)
+// Get default ATA device options
+
+static const char * ata_get_def_options()
+{
+	DWORD ver = GetVersion();
+	if ((ver & 0x80000000) || (ver & 0xff) < 4) // Win9x/ME
+		return "s"; // SMART_* only
+	else if ((ver & 0xff) == 4) // WinNT4
+		return "sc"; // SMART_*, SCSI_PASS_THROUGH
+	else // WinXP, 2003, Vista
+		return "sai"; // SMART_*, ATA_, IDE_PASS_THROUGH
+}
+
+
+// Open ATA device
+
+static int ata_open(int drive, const char * options)
 {
 	int win9x;
 	char devpath[30];
 	GETVERSIONOUTPARAMS vers;
 	DWORD num_out;
-
-	assert(SMART_GET_VERSION == 0x074080);
-	assert(sizeof(GETVERSIONOUTPARAMS) == 24);
 
 	// TODO: This version does not allow to open more than 1 ATA devices
 	if (h_ata_ioctl) {
@@ -753,6 +898,7 @@ static int ata_open(int drive)
 		errno = ENOENT;
 		return -1;
 	}
+
 	// path depends on Windows Version
 	if (win9x)
 		// Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
@@ -779,6 +925,19 @@ static int ata_open(int drive)
 		return -1;
 	}
 
+	// Save options
+	if (!*options) {
+		// Set default options according to Windows version
+		if (!ata_def_options)
+			ata_def_options = ata_get_def_options();
+		options = ata_def_options;
+	}
+	ata_cur_options = strdup(options);
+
+	// Skip SMART_GET_VERSION if missing in options
+	if (!win9x && !strchr(ata_cur_options, 's'))
+		return 0;
+
 	// Get drive map
 	memset(&vers, 0, sizeof(vers));
 	if (!DeviceIoControl(h_ata_ioctl, SMART_GET_VERSION,
@@ -787,7 +946,7 @@ static int ata_open(int drive)
 		if (!win9x)
 			pout("If this is a SCSI disk, try \"scsi<adapter><id>\".\n");
 		if (!is_permissive()) {
-			CloseHandle(h_ata_ioctl); h_ata_ioctl = 0;
+			ata_close(0);
 			errno = ENOSYS;
 			return -1;
 		}
@@ -814,7 +973,7 @@ static int ata_open(int drive)
 		// The atapi.sys driver incorrectly fills in the bIDEDeviceMap with 0x01
 		// (The related KB Article Q196120 is no longer available)
 		if (!is_permissive()) {
-			CloseHandle(h_ata_ioctl); h_ata_ioctl = 0;
+			ata_close(0);
 			errno = (atapi ? ENOSYS : ENOENT);
 			return -1;
 		}
@@ -829,6 +988,8 @@ static void ata_close(int fd)
 	ARGUSED(fd);
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
+	if (ata_cur_options)
+		free(ata_cur_options);
 }
 
 
@@ -901,7 +1062,9 @@ static int ata_scan(unsigned long * drives)
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
 	IDEREGS regs;
-	int copydata, try_ioctl;
+	int datasize;
+	const char * valid_options;
+	int i;
 
 	if (!(0 <= fd && fd <= 3)) {
 		errno = EBADF;
@@ -912,38 +1075,38 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	memset(&regs, 0, sizeof(regs));
 	regs.bCommandReg = ATA_SMART_CMD;
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
-	copydata = 0;
-	try_ioctl = 0x01; // 0x01=SMART_*, 0x02=IDE_PASS_THROUGH [, 0x04=ATA_PASS_THROUGH]
+	datasize = 0;
+
+	// Try all IOCTLS by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH
+	valid_options = "saic";
 
 	switch (command) {
 	  case WRITE_LOG:
-		// TODO. Not supported by SMART IOCTL (no data out ioctl available),
-		//  also not supported by IOCTL_IDE_PASS_THROUGH (data out not working)
+		// TODO. Requires DATA OUT support
 		errno = ENOSYS;
 		return -1;
 	  case CHECK_POWER_MODE:
 		regs.bCommandReg = ATA_CHECK_POWER_MODE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
-		try_ioctl = 0x02; // IOCTL_IDE_PASS_THROUGH
+		valid_options = "ai"; // Not a SMART command, needs IDE register return
 		// Note: returns SectorCountReg in data[0]
 		break;
 	  case READ_VALUES:
 		regs.bFeaturesReg = ATA_SMART_READ_VALUES;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
-		copydata = 1;
+		datasize = 512;
 		break;
 	  case READ_THRESHOLDS:
 		regs.bFeaturesReg = ATA_SMART_READ_THRESHOLDS;
 		regs.bSectorNumberReg = regs.bSectorCountReg = 1;
-		copydata = 1;
+		datasize = 512;
 		break;
 	  case READ_LOG:
 		regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
-		// Read log only supported on Win9x, retry with pass through command
-		try_ioctl = 0x03; // SMART_RCV_DRIVE_DATA, then IOCTL_IDE_PASS_THROUGH
-		copydata = 1;
+		// Note: SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
+		datasize = 512;
 		break;
 	  case IDENTIFY:
 		// Note: WinNT4/2000/XP return identify data cached during boot
@@ -951,13 +1114,13 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bCommandReg = ATA_IDENTIFY_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
-		copydata = 1;
+		datasize = 512;
 		break;
 	  case PIDENTIFY:
 		regs.bCommandReg = ATA_IDENTIFY_PACKET_DEVICE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
 		regs.bSectorCountReg = 1;
-		copydata = 1;
+		datasize = 512;
 		break;
 	  case ENABLE:
 		regs.bFeaturesReg = ATA_SMART_ENABLE;
@@ -967,8 +1130,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bFeaturesReg = ATA_SMART_DISABLE;
 		regs.bSectorNumberReg = 1;
 		break;
-	  case STATUS:
 	  case STATUS_CHECK:
+		valid_options = "sai"; // Needs IDE register return
+	  case STATUS:
 		regs.bFeaturesReg = ATA_SMART_STATUS;
 		break;
 	  case AUTO_OFFLINE:
@@ -982,8 +1146,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	  case IMMEDIATE_OFFLINE:
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
-		if (select == ABORT_SELF_TEST) // Abort only supported on Win9x, try
-			try_ioctl = 0x03; // SMART_SEND_DRIVE_COMMAND, then IOCTL_IDE_PASS_THROUGH
+		// Note: SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST this only on Win9x/ME
 		break;
 	  default:
 		pout("Unrecognized command %d in win32_ata_command_interface()\n"
@@ -992,34 +1155,48 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		return -1;
 	}
 
-	if (try_ioctl & 0x01) {
-		if (smart_ioctl(h_ata_ioctl, fd, &regs, data, (copydata?512:0))) {
-			if (!(try_ioctl & 0x02) || errno != ENOSYS)
-				return -1;
-			// CAUTION: smart_ioctl() MUST NOT change "regs" Parameter in this case
-		}
-		else
-			try_ioctl = 0;
-	}
+	// Try all valid ioctls in the order specified in dev_ioctls;
+	for (i = 0; ; i++) {
+		char opt = ata_cur_options[i];
+		int rc;
 
-	if (try_ioctl & 0x02) {
+		if (!opt) {
+			// No IOCTL found
+			errno = ENOSYS;
+			return -1;
+		}
+		if (!strchr(valid_options, opt))
+			// Invalid for this command
+			continue;
+
 		errno = 0;
-		if ((GetVersion() & 0x8000ffff) == 0x00000004) {
-			// Special case WinNT4
-			if (command == CHECK_POWER_MODE) { // SCSI_PASS_THROUGH does not return regs!
-				errno = ENOSYS;
-				return -1;
-			}
-			if (ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
-				return -1;
+		assert(datasize == 0 || datasize == 512);
+		switch (opt) {
+		  default: assert(0);
+		  case 's':
+			rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize);
+			break;
+		  case 'a':
+			rc = ata_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
+		  case 'i':
+			rc = ide_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
+		  case 'c':
+			rc = ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
 		}
-		else {
-			if (ide_pass_through_ioctl(h_ata_ioctl, &regs, data, (copydata?512:0)))
-				return -1;
-		}
-		try_ioctl = 0;
+
+		if (!rc)
+			// Working ioctl found
+			break;
+
+		if (errno != ENOSYS)
+			// Abort on I/O error
+			return -1;
+
+		// CAUTION: *_ioctl() MUST NOT change "regs" Parameter in the ENOSYS case
 	}
-	assert(!try_ioctl);
 
 	switch (command) {
 	  case CHECK_POWER_MODE:
