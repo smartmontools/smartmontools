@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.542 2006/04/23 14:34:40 chrfranke Exp $
+$Id: CHANGELOG,v 1.543 2006/04/27 20:15:49 chrfranke Exp $
 
 The most recent version of this file is:
 http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
@@ -31,6 +31,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added IOCTL_ATA_PASS_THROUGH (Win2003, XP SP2)
+       for commands unsupported by SMART_IOCTL. Added device
+       specific options to select subset and ordering of the ATA
+       IOCTLs actually used. These options are specified as
+       modifiers of the device name (/dev/hd[a-j]:[saic]+)
 
   [CF] Windows: Added support for drives 4-7 (/dev/hd[e-h]) via
        SMARTVSE.VXD on Win9x/ME. Thanks to Dariusz Rzonca for
