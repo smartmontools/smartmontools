@@ -22,9 +22,17 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2004-09-25</pubdate>
+  <pubdate>2006-04-28</pubdate>
 
   <revhistory>
+     <revision>
+       <revnumber>1.4</revnumber>
+       <date>2006-04-28</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             5.38 update, SATA, SAS
+       </revremark>
+     </revision>
      <revision>
        <revnumber>1.3</revnumber>
        <date>2004-09-25</date>
@@ -62,6 +70,8 @@ ps, txt, etc.
   <copyright>
    <year>2003</year>
    <year>2004</year>
+   <year>2005</year>
+   <year>2006</year>
    <holder>Douglas Gilbert</holder>
   </copyright>
 
@@ -108,7 +118,8 @@ support yet), FreeBSD, NetBSD, OpenBSD, Solaris and Windows.
 This article describes how smartmontools interacts with SCSI devices.
 Passing reference is also made to devices that use the SCSI command
 set such as USB mass storage devices and IEEE1394 devices that use
-the "sbp2" protocol.
+the "sbp2" protocol. In many situations SATA disks are accessed
+using a (partial) SCSI command set.
 </para>
 <para>
 The primary web site for smartmontools is at
@@ -123,8 +134,8 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 </para>
 <para>
 This document outlines the features found in smartmontools
-version 5.34 that are relevant to SCSI disks and tape drives.
-This document was last altered on 25th September 2004.
+version 5.38 that are relevant to SCSI disks and tape drives.
+This document was last altered on 28th April 2006.
 </para>
 </sect1>
 
@@ -239,13 +250,15 @@ utility and in <command>smartd</command> daemon's configuration file.
 <para>
 What is a SCSI disk? A SCSI disk is a storage device that "talks" the SCSI
 command set. An ATA disk is a storage device that "talks" the ATA 
-command set. That seems pretty clear. However by the time an operating
-system sees the device the situation can be more complicated.
+command set. That seems pretty clear. However the command set that a
+disk uses at its connector (and thus shown on its label) may not be
+the command set that the operating system needs to use due to command
+set translation between the OS and the disk.
 </para>
 <para>
 The ATA command set is used over native ATA transports which are
-parallel ATA (PATA) up to 133 MB/sec and serial ATA (SATA) up to 1.5 Gbps
-(approximately 150 MB/sec). In the past
+parallel ATA (PATA) up to 133 MB/sec and serial ATA (SATA) at link
+speeds of 1.5 Gbps (approximately 150 MB/sec) or 3 Gbps. In the past
 when ATA disks needed to use some other transport (e.g. USB and IEEE1394)
 the SCSI command set was sent over the foreign transport. So in this
 case the operating system sees a device "talking" the SCSI command set
@@ -256,9 +269,9 @@ USB mass storage devices talking the SCSI command set.
 <para>
 The SCSI command set is used over various transports: the SCSI Parallel
 Interface (SPI), Fibre Channel (FCP), Serial Attached SCSI (SAS),
-IEEE1394 (SBP) and USB (mass storage). Many of these transports can
+IEEE1394 (SBP), USB (mass storage) and iSCSI. Many of these transports can
 convey multiple command sets (i.e. not just the SCSI command set). The
-forthcoming SAS transport is interesting as it can convey both the SCSI
+SAS transport is interesting as it can convey both the SCSI
 and ATA command sets. There is also the case of a RAID made up of ATA
 disks which communicates to host operating system with the SCSI command
 set (e.g. 3ware RAID controller).
@@ -278,6 +291,101 @@ The 3ware RAID solution tunnels the ATA commands needed for
 smartmontools (together with a disk number) through a vendor specific 
 SCSI command.
 </para></footnote>
+</para>
+<para>
+There is an emerging SCSI to ATA Translation (SAT) standard
+at <ulink url="http://www.t10.org"> <literal>www.t10.org</literal></ulink>
+that may lead to improvements in this area. Apart from defining
+some of the facilities smartmontools needs, it defines two ATA PASS THROUGH
+SCSI commands. These pass through commands could be used in much the
+same way that the 3ware RAID tunnels ATA commands.
+</para>
+</sect1>
+
+<sect1 id="satadisk">
+      <title>SATA disks</title>
+<para>
+SATA disks use a 1.5 or 3 Gbps serial transport which carries the
+ATA command set. The serial connection is point to point so each SATA disk
+needs its own cable and plug on the host adapter or motherboard.
+<footnote><para>
+There are SATA devices called port multipliers that allow up to 15
+SATA drives to be connected to one host. SAS expanders seem to be a
+better approach to the problem of connecting a large number of disks
+to one or more hosts.
+</para></footnote>
+Many aspects of SATA are like SCSI and some operating
+systems use existing SCSI infrastructure to handle SATA hosts (e.g.
+Linux's libata). 
+</para>
+<para>
+Serial Attached SCSI (SAS) can be viewed as a superset of SATA.
+It can directly connect thousands of SAS disks to one or more controllers
+spread across multiple machines in one SAS "domain". Such a domain can
+also contain SATA disks, connected to intermediate fanout devices called
+expanders (similar to switches in networking). Most SAS host adapters
+can also have SATA disks connected directly to the adapter (which
+technically is not a usage of SAS but that is of little concern to
+the end user).
+</para>
+<para>
+So a SATA disk may be connected
+<itemizedlist>
+<listitem><para>
+to a SATA host controller (on a motherboard or an adapter)
+</para></listitem>
+<listitem><para>
+directly to a SAS host adapter
+</para></listitem>
+<listitem><para>
+to a SAS expander which is connected to one or more SAS host adapters
+</para></listitem>
+<listitem><para>
+or connected via a bridge which is connected to the host computer via
+some other transport (e.g. fibre channel)
+</para></listitem>
+</itemizedlist>
+Since all but the first item might have other disks connected which
+use the SCSI command set (e.g. SAS and FC disks) often the SATA disks
+have a SAT layer put in front of them so they look like SCSI disks.
+That SAT layer may be in:
+<itemizedlist>
+<listitem><para>
+the operating system kernel (e.g. libata in Linux)
+</para></listitem>
+<listitem><para>
+in the host adapter firmware (or RAID controller)
+</para></listitem>
+<listitem><para>
+or external to the host computer: within a disk enclosure (e.g.
+associated with a SAS expander)
+</para></listitem>
+</itemizedlist>
+</para>
+<para>
+For normal file system work, a SCSI to ATA translation layer only
+needs to concern itself with around 6 commands. Unfortunately
+smartmontools uses other commands (both in the SCSI and ATA
+command sets). Probably the simplest way to handle SMART for SATA disks
+behind a SAT layer is to use the ATA PASS THROUGH SCSI commands.
+</para>
+<para>
+smartmontools guesses to disk (or tape) command set (i.e. ATA or SCSI)
+based on the device node it is given. For example in Linux,
+<filename>/dev/hda</filename> would be assumed to use the ATA command set
+while <filename>/dev/sda</filename> would be assumed to use the SCSI
+command set. 
+<footnote><para>
+Even sending trial ATA and SCSI commands to see which one a device
+responds to could be tricked. ATAPI cd/dvd drives respond to
+both ATA commands (a few, for examplel IDENTIFY PACKET DEVICE) and SCSI
+commands (found in MMC).
+</para></footnote>
+By using either the '-d ata' or the '-d scsi' option, the command set
+guess made by smartmontools can be overridden. Future versions of
+smartmontools may automate this but currently if a SATA disk appears
+with a SCSI type device node name then a command like this may be
+required: <command>smartctl -a -d ata /dev/sda</command> . 
 </para>
 </sect1>
 
@@ -299,7 +407,7 @@ their standards' compliance. [In the vendors' defence some of the
 "standards" are drafts and are yet to be ratified.]
 Some SCSI disk vendors have product manuals (available on the net)
 that cover the parts of the SCSI command set
-that their disk supports. Some of these manuals fill in details that are
+that their disks support. Some of these manuals fill in details that are
 left deliberately vague in the the standards.
 <footnote><para>
 For example: Seagate's "Cheetah 15K.3 Product Manual, Rev F" contains 
@@ -328,7 +436,7 @@ has many options that can be viewed by the long usage message output be
 either of these invocations: <command>smartctl -h</command> or
 <command>smartctl --help</command>. Those options that are only
 available to ATA disks (i.e. not available to SCSI disks or tape drives)
-are marked with "[ATA]". So called "man" page documentation is also
+are marked with "(ATA)". So called "man" page documentation is also
 available online.
 </para>
 <para>
@@ -340,9 +448,9 @@ combination <command>-i -H -A -l error -l selftest</command> options
 invoked in that order.
 </para></listitem>
 <listitem><para><command>-A | --attributes</command>: outputs the
-current device temperature, trip temperature and data from the
-start-stop log page. Outputs some vendor specific information if
-available.
+current device temperature, trip temperature, the number of elements
+in the grown defect table and data from the start-stop log page.
+Outputs some vendor specific information if available.
 </para></listitem>
 <listitem><para><command>-C | --captive</command>: used in conjunction
 with <command>-t short</command> or <command>-t long</command> options to
@@ -364,7 +472,9 @@ or a failure message.
 <listitem><para><command>-i | --info</command>: outputs device 
 identification information (derived from a SCSI INQUIRY command) and
 whether the device supports <acronym>SMART</acronym> (and temperature 
-warnings) and if those facilities are currently enabled.
+warnings) and if those facilities are currently enabled. The
+type of transport (e.g. FC or SAS) is also reported, if available.
+Some users have reported disks that report the wrong transport.
 </para></listitem>
 <listitem><para><command>-l TYPE | --log=TYPE</command> where TYPE is
 either "selftest" or "error". Outputs either the selftest log or the
@@ -397,7 +507,9 @@ preserved across device power cycles.
 is either "offline", "short" or "long". Despite its name "offline" is
 a short foreground test that all SCSI devices should support. A "short"
 self test is typically 2 minutes or less. A "long" self test will be
-considerably longer that 2 minutes, depending on the size of the media.
+considerably longer than 2 minutes, depending on the size of the media.
+The estimated time that a "long" self test will take is printed after
+the "selftest" log (i.e. with '-l selftest' or '-a')
 </para></listitem>
 <listitem><para><command>-V | --version</command>: outputs the smartctl
 version number (including the cvs version of all its source files)
@@ -420,42 +532,44 @@ then that is reported. Only one device name can be given.
 Examples of various invocations of <command>smartctl</command> on a
 SCSI disk follow:
 <programlisting>
-# smartctl -i /dev/sda
-smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+# smartctl -i /dev/sdc
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
-Device: SEAGATE  ST318451LW       Version: 0003
-Serial number: xxxxxxxxxx
+Device: SEAGATE  ST336754SS       Version: 0003
+Serial number: xxxxxxxx
 Device type: disk
-Local Time is: Sat May  1 21:17:14 2004 EST
+Transport protocol: SAS
+Local Time is: Fri Apr 28 15:55:34 2006 EDT
 Device supports SMART and is Enabled
 Temperature Warning Enabled
 </programlisting>
 </para>
 <para>
 <programlisting>
-# smartctl -H /dev/sda
-smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+# smartctl -H /dev/sdd
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
-SMART Health Status: OK
+SMART Health Status: O
 </programlisting>
 <programlisting>
-# smartctl -A /dev/sda
-smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+# smartctl -A /dev/sdc
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
-Current Drive Temperature:     33 C
-Drive Trip Temperature:        65 C
+Current Drive Temperature:     42 C
+Drive Trip Temperature:        68 C
+Elements in grown defect list: 0
 Vendor (Seagate) cache information
-  Blocks sent to initiator = 177230717
-  Blocks received from initiator = 11929237
-  Blocks read from cache and sent to initiator = 28677864
-  Number of read and write commands whose size &lt;= segment size = 2454038
-  Number of read and write commands whose size &gt; segment size = 1388
-Vendor (Seagate) factory information
-  number of hours powered up = 107.90
-  number of minutes until next internal SMART test = 104
+  Blocks sent to initiator = 1666124337
+  Blocks received from initiator = 1517744621
+  Blocks read from cache and sent to initiator = 384030649
+  Number of read and write commands whose size &lt;= segment size = 21193148
+  Number of read and write commands whose size &gt; segment size = 1278317
+Vendor (Seagate/Hitachi) factory information
+  number of hours powered up = 277.08
+  number of minutes until next internal SMART test = 108
 </programlisting>
 </para>
 </sect1>
@@ -463,15 +577,18 @@ Vendor (Seagate) factory information
 <sect1 id="selftest">
       <title>Self Tests</title>
 <para>
-Rather than wait for thresholds to be triggered, an administrator can
-request a self test or program one to happen periodically (e.g. at 3 a.m.
-every night or perhaps weekly) with <command>smartd</command>. All SCSI 
-disks and tape drives should support a <emphasis>default</emphasis> self
-test since it is mandatory. This can
-be invoked with the <command>smartctl -t offline &lt;device&gt;</command>
-command. Despite the term "offline" this is actually a foreground test
-of less than 2 minutes. On completion the default self test yields any 
-errors detected and makes no entry into the self test log.
+Rather than wait for thresholds to be tripped, an administrator can
+request a self test. Alternatively a self test can be scheduled
+periodically (e.g. at 3 a.m.  every night or perhaps weekly) with
+<command>smartd</command>. All SCSI disks and tape drives should
+support a <emphasis>default</emphasis> self test since it is mandatory.
+This can be invoked with the
+<command>smartctl -t offline &lt;device&gt;</command> command. Despite
+the term "offline" this is actually a foreground test of less than 2
+minutes. On completion the default self test reports any errors detected
+in its response. The default self test makes no entry into the self test
+log. Most SCSI devices perform a default self test when they are being
+powered up.
 </para>
 <para>
 The other self tests that are optionally supported by the device are listed
@@ -502,7 +619,7 @@ in the self test log page as an aborted self test. This problem is fixed
 in lk 2.4.22 and the lk 2.6 series (by extending the
 timeout to 2 hours). To be on the safe side use the background extended
 test instead. Also some disks silently ignore foreground self 
-tests (e.g. Seagate Cheetah 15K.1).
+tests (e.g. the Seagate Cheetah series).
 </para></footnote>
 </para>
 <para>
@@ -526,38 +643,23 @@ extended self test (when that figure is provided by the device).
 <para>
 Here is an example of a self test log:
 <programlisting>
-# smartctl -l selftest /dev/sda
-smartctl version 5.31 Copyright (C) 2002-4 Bruce Allen
+# smartctl -l selftest /dev/sdd
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
 
-SMART Self-test log
-Num  Test              Status         segment  LifeTime  LBA_first_err [SK ASC ASQ]
-     Description                      number   (hours)
-# 1  Background short  Completed           -    30                   - [-   -    -]
-# 2  Background long   Completed           -    18                   - [-   -    -]
-# 3  Background long   Completed           -    11                   - [-   -    -]
-# 4  Background long   Completed           -    11                   - [-   -    -]
-# 5  Background short  Completed           -    11                   - [-   -    -]
-# 6  Background short  Completed           -    10                   - [-   -    -]
-# 7  Background short  Completed           -     6                   - [-   -    -]
-# 8  Background long   Completed           -     6                   - [-   -    -]
-# 9  Background short  Completed           -     6                   - [-   -    -]
-#10  Background short  Completed           -     5                   - [-   -    -]
-#11  Background long   Completed           -     3                   - [-   -    -]
-#12  Background short  Completed           -     3                   - [-   -    -]
-#13  Background short  Completed           -     2                   - [-   -    -]
-#14  Background short  Completed           -     0                   - [-   -    -]
-#15  Background short  Completed           -     0                   - [-   -    -]
-#16  Background short  Completed           -     0                   - [-   -    -]
-#17  Background short  Completed           -     0                   - [-   -    -]
-#18  Background short  Completed           -     0                   - [-   -    -]
-#19  Background short  Completed           -     0                   - [-   -    -]
 
-Long (extended) Self Test duration: 587 seconds [9.8 minutes]
+SMART Self-test log
+Num  Test              Status                 segment  LifeTime  LBA_first_err [SK ASC ASQ]
+     Description                              number   (hours)
+# 1  Background long   Completed                   -     100                 - [-   -    -]
+# 2  Background long   Completed                   -      25                 - [-   -    -]
+# 3  Background long   Completed                   -      24                 - [-   -    -]
+# 4  Background short  Completed                   -       0                 - [-   -    -]
+
+Long (extended) Self Test duration: 603 seconds [10.1 minutes]
 </programlisting>
 </para>
 </sect1>
-
 <sect1 id="errorlog">
       <title>Error Logs</title>
 <para>
@@ -565,21 +667,19 @@ The <command>smartctl -l error &lt;device&gt;</command> command displays
 the error counters maintained in the device's log pages. Here is an
 example of an error log:
 <programlisting>
-# smartctl -l error /dev/sda
-smartctl version 5.34 Copyright (C) 2002-4 Bruce Allen
+# smartctl -l error /dev/sdd
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
 Home page is http://smartmontools.sourceforge.net/
+
 
 Error counter log:
            Errors Corrected by           Total   Correction     Gigabytes    Total
                ECC          rereads/    errors   algorithm      processed    uncorrected
            fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
-read:       2213        0         0      2213       2213        257.214           0
-write:         0        0         0         0          0         29.212           0
-verify:        0        0         0         0          0          0.010           0
+read:       5805        0         0      5805       5805        121.451           0
+write:         0        0         0         0          0        471.291           0
 
 Non-medium error count:        0
-
-Error Events logging not supported
 </programlisting>
 The displayed error logs (if available) are displayed on separate lines:
 <itemizedlist>
@@ -613,8 +713,8 @@ where &lt;n&gt; is the parameter code.
 Each of the write, read and verify error counter logs has various
 parameters codes. They are itemized below with the smartctl column
 name followed, in brackets, with SCSI standard's description and
-parameter code). A description taken from Seagate's SCSI manual (publication
-77738479, Rev J) is then given.
+parameter code). A description taken from Seagate's SCSI
+manual (publication 77738479, Rev J) is then given.
 <itemizedlist>
 <listitem><para>
 Errors Corrected by ECC, fast [Errors corrected without substantial delay:
@@ -702,6 +802,30 @@ pending.
 They also imply that their firmware is monitoring these error counters
 and if they exceed some threshold (e.g. in a certain time interval)
 then the firmware will report a thresholds exceeded.
+</para>
+<para>
+The error counter logs for some disks (e.g. some Seagate models) can
+look worrying:
+<programlisting>
+# smartctl -l error /dev/sdc
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+
+Error counter log:
+           Errors Corrected by           Total   Correction     Gigabytes    Total
+               ECC          rereads/    errors   algorithm      processed    uncorrected
+           fast | delayed   rewrites  corrected  invocations   [10^9 bytes]  errors
+read:    1111396        0         0   1111396    1113203        781.138          13
+write:         0        0         0         0         92        822.450           4
+verify:   341115        0         0    341115     341115         42.159           0
+
+Non-medium error count:        1
+</programlisting>
+The "fast" ECC corrected number is high. However the '-H' option reports the disk is
+in good health as does an extended (long) background self test. The uncorrected errors
+would be a problem had in not been for the fact that the author caused them on
+purpose (by writing a bad sector with the SCSI WRITE LONG command).
 </para>
 </sect1>
 
@@ -933,8 +1057,8 @@ The original SCSI standard (over 20 years old now) and the SCSI-2 standard
 were monolithic documents. In SCSI-3 and beyond the SCSI standards have
 been sub-divided and three categories of interest are the:
 <itemizedlist>
-<listitem><para>architectural model [SAM-3]</para></listitem>
-<listitem><para>command sets [SPC-3, SBC-2, SSC-2, SMC-2, etc]
+<listitem><para>architectural model [SAM-4]</para></listitem>
+<listitem><para>command sets [SPC-4, SBC-3, SSC-3, SMC-2, etc]
 </para></listitem>
 <listitem><para>transports [SPI-4, SBP-2, FCP-3, SAS, etc]</para></listitem>
 </itemizedlist>
@@ -944,7 +1068,7 @@ the term <emphasis>SCSI</emphasis> has often been synonymous with one
 of the SCSI Parallel Interface transports (e.g. SPI-4 which is often know
 as "Ultra320") however this is unhelpful. For the purpose of smartmontools
 the SCSI command sets are more interesting. The main reference is the
-SCSI Primary Commands (SPC-3) document, specifically these sections:
+SCSI Primary Commands (SPC-4) document, specifically these sections:
 <itemizedlist>
 <listitem><para>self test operations; SEND DIAGNOSTIC command (which is
 the mechanism for requesting self tests)
@@ -959,12 +1083,12 @@ read/write/verify error counters, non medium error count, temperature,
 start-stop cycle counter and the self test results]
 </para></listitem>
 </itemizedlist>
-The SCSI Block Commands (SBC-2) document covers random access storage
+The SCSI Block Commands (SBC-3) document covers random access storage
 devices such as disks (but excluding CD/DVD readers and writers which are
-covered by MMC-3) while the SCSI Streaming Commands (SSC-2) document covers 
-tape systems.  The SBC-2 standard does not contain any additional 
-information (compared with SPC-3) about Informational Exceptions. 
-The SSC-2 standard covers TapeAlert (section 4.2.15), some extra facilities in
+covered by MMC-4) while the SCSI Streaming Commands (SSC-3) document covers 
+tape systems.  The SBC-3 standard does not contain any additional 
+information (compared with SPC-4) about Informational Exceptions. 
+The SSC-3 standard covers TapeAlert (section 4.2.15), some extra facilities in
 the IEC mode page (see the mode parameters section) and some additional
 log pages. Medium changers, typically the "robots" in jukebox tape systems,
 often support the TapeAlert mechanism and are described in the SMC-2 standard. 
@@ -1031,11 +1155,12 @@ of an actual error.
 See this <link linkend="testbit">footnote</link> for more information.
 </para>
 <para>
-One difficulty is that the device firmware may detect these conditions
-independently of any command executing. Even if it detects an informational
-exception during a command it needs to be careful sending IE error
-notifications back with a command especially if that command succeeded
-(Linux will not handle this too well in the 2.4 kernel series). 
+One difficulty with IE is that the device firmware may detect these
+conditions independently of any command executing. Even if it detects
+an informational exception during a command it needs to be careful
+sending IE error notifications back with a command especially if
+that command succeeded (Linux will not handle this too well in the
+2.4 kernel series). 
 There is asynchronous event notification (AEN) in SCSI but it is not
 reliably supported across all transports. So smartmontools relies
 on a poll from the <command>smartd</command> daemon (the default
@@ -1151,11 +1276,22 @@ tools <ulink url="http://scsirastools.sourceforge.net">
 <literal>scsirastools.sourceforge.net</literal></ulink> .
 </para></listitem>
 <listitem><para>
+<anchor id="sdparm"/>
+The <command>sdparm</command> utility allows mode page settings to be
+viewed and changed. It can decode Vital Product Data (VPD) pages.
+It implements a small number of commands to start and stop media,
+and to eject and load removable media.
+on this page <ulink url="http://www.torque.net/sg/sdparm.html">
+<literal>www.torque.net/sg/sdparm.html</literal></ulink> .
+<command>sdparm</command> is available on Linux with ports to
+FreeBSD and Tru64.
+</para></listitem>
+<listitem><para>
 <anchor id="sg3utils"/>
 A package of SCSI low level tools for Linux called sg3_utils can be found
-on this page <ulink url="http://www.torque.net/sg">
-<literal>www.torque.net/sg</literal></ulink> (the most recent version
-is sg3_utils-1.06). Allows command level access to SCSI devices.
+on this page <ulink url="http://www.torque.net/sg/u_index.html">
+<literal>www.torque.net/sg/u_index.html</literal></ulink> (the most recent
+version is sg3_utils-1.20). Allows command level access to SCSI devices.
 </para></listitem>
 <listitem><para>
 <anchor id="howto"/>
@@ -1167,7 +1303,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.11 2004/09/25 01:51:32 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.12 2006/04/29 00:12:30 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
