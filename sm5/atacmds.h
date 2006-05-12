@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.81 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.82 2006/05/12 21:39:20 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -489,6 +489,10 @@ void checksumwarning(const char *string);
 // range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
 // return -1.
 int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data);
+
+// Return Temperature Attribute raw value selected according to possible
+// non-default interpretations. If the Attribute does not exist, return 0
+unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data, const unsigned char *defs);
 
 
 // This are the meanings of the Self-test failure checkpoint byte.

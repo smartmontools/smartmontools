@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.73 2006/04/12 14:03:14 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.74 2006/05/12 21:39:20 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -916,6 +916,41 @@ need to read it, the read will fail.  Please see the previous \'\-C\'
 option for more details.
 
 .TP
+.B \-W DIFF[,INFO[,CRIT]]
+Report if the current temperature had changed by at least \fBDIFF\fP
+degrees since last report. Report or Warn if the temperature is greater
+or equal than one of \fBINFO\fP or \fBCRIT\fP degrees Celsius. If the
+limit \fBCRIT\fP is reached, a message with loglevel
+\fB\'LOG_CRITICAL\'\fP will be logged to syslog and a warning email
+will be send if '-m' is specified. If only the limit \fBINFO\fP is
+reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
+
+To disable any of the 3 reports, set the corresponding limit to 0.
+Trailing zero arguments may be omitted. By default, all temperature
+reports are disabled (\'-W 0\').
+
+To track temperature changes of at least 2 degrees, use:
+.nf
+\fB \-W 2
+.fi
+To log informal messages on temperatures of at least 40 degrees, use:
+.nf
+\fB \-W 0,40
+.fi
+For warning messages/mails on temperatures of at least 45 degrees, use:
+.nf
+\fB \-W 0,0,45
+.fi
+To combine all of the above reports, use:
+.nf
+\fB \-W 2,40,45
+.fi
+
+For ATA devices, smartd interprets Attribute 194 as Temperature Celsius
+by default. This can be changed to Attribute 9 or 220 by the drive
+database or by the \'-v\' directive, see below.
+
+.TP
 .B \-F TYPE
 [ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
 some known and understood device firmware bug.  The arguments to this
@@ -1250,4 +1285,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.73 2006/04/12 14:03:14 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.74 2006/05/12 21:39:20 chrfranke Exp $
