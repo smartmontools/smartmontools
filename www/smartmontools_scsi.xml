@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2006-04-28</pubdate>
+  <pubdate>2006-05-08</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.4</revnumber>
-       <date>2006-04-28</date>
+       <date>2006-05-08</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              5.38 update, SATA, SAS
@@ -97,8 +97,9 @@ ps, txt, etc.
     storage devices (including tapes). Smartmontools is a SMART
     utility toolset. <acronym>SMART</acronym> is an acronym for
     Self-Monitoring, Analysis and Reporting Technology. Smartmontools
-    is available for the these operating systems: Darwin (no SCSI
-    support yet), FreeBSD, Linux, NetBSD, OpenBSD, Solaris and Windows.
+    is available for the these operating systems: Darwin (Mac OS X
+    but with no SCSI support yet), FreeBSD, Linux, NetBSD, OpenBSD,
+    Solaris and Windows.
   </para>
   </abstract>
  </articleinfo>
@@ -113,8 +114,9 @@ ps, txt, etc.
 Smartmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology 
 (<acronym>SMART</acronym>) system. This toolset was originally built
-for the Linux operating system and has been ported to Darwin (no SCSI
-support yet), FreeBSD, NetBSD, OpenBSD, Solaris and Windows. 
+for the Linux operating system and has been ported to Darwin for
+Mac OS X (no SCSI support yet), FreeBSD, NetBSD, OpenBSD, Solaris
+and Windows. 
 This article describes how smartmontools interacts with SCSI devices.
 Passing reference is also made to devices that use the SCSI command
 set such as USB mass storage devices and IEEE1394 devices that use
@@ -135,7 +137,7 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 <para>
 This document outlines the features found in smartmontools
 version 5.38 that are relevant to SCSI disks and tape drives.
-This document was last altered on 28th April 2006.
+This document was last altered on 8th May 2006.
 </para>
 </sect1>
 
@@ -283,8 +285,8 @@ incoming (from the host) SCSI commands to their ATA equivalents and process
 responses as required. This translation is limited typically to a small
 number of SCSI commands (e.g. READ and WRITE) but <emphasis>not</emphasis>
 those commands needed by smartmontools. The author does not know of any 
-SCSI_over_USB devices that support Smartmontools. The 3ware RAID (6000, 7000 
-and 8000 series Escalade) controllers are supported
+SCSI_over_USB devices that support Smartmontools. The 3ware RAID (6000,
+7000, 8000 and 9000 series Escalade) controllers are supported
 on several operating systems with special code.
 <footnote><para>
 The 3ware RAID solution tunnels the ATA commands needed for
@@ -370,7 +372,7 @@ command sets). Probably the simplest way to handle SMART for SATA disks
 behind a SAT layer is to use the ATA PASS THROUGH SCSI commands.
 </para>
 <para>
-smartmontools guesses to disk (or tape) command set (i.e. ATA or SCSI)
+smartmontools guesses the disk command set (i.e. ATA or SCSI)
 based on the device node it is given. For example in Linux,
 <filename>/dev/hda</filename> would be assumed to use the ATA command set
 while <filename>/dev/sda</filename> would be assumed to use the SCSI
@@ -720,9 +722,10 @@ manual (publication 77738479, Rev J) is then given.
 Errors Corrected by ECC, fast [Errors corrected without substantial delay:
 00h]. An error correction was applied to get perfect data (a.k.a. ECC
 on-the-fly). "Without substantial delay" means the correction did not
-postpone reading of later sectors (e.g. a revolution was lost). The counter
-is incremented once for each logical block that requies correction. Two
-different blocks corrected during the same command are counted as two events.
+postpone reading of later sectors (e.g. a revolution was not lost). The
+counter is incremented once for each logical block that requies correction.
+Two different blocks corrected during the same command are counted as two
+events.
 </para></listitem>
 <listitem><para>
 Errors Corrected by ECC: delayed [Errors corrected with possible delays: 01h].
@@ -1303,7 +1306,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.12 2006/04/29 00:12:30 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.13 2006/05/12 02:28:28 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
