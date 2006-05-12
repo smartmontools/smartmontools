@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.169 2006/04/14 08:08:33 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.170 2006/05/12 21:39:20 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1894,4 +1894,29 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *da
   return -1;
 }
 
-
+// Return Temperature Attribute raw value selected according to possible
+// non-default interpretations. If the Attribute does not exist, return 0
+unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data, const unsigned char *defs){
+  int i;
+  for (i = 0; i < 3; i++) {
+    static const unsigned char ids[3] = {194, 9, 220};
+    unsigned char id = ids[i];
+    unsigned char select = (defs ? defs[id] : 0);
+    int64_t raw; unsigned temp;
+    if (!(   (id == 194 && select <= 1)   // ! -v 194,unknown
+          || (id == 9 && select == 2)     // -v 9,temp
+          || (id == 220 && select == 1))) // -v 220,temp
+      continue;
+    raw = ATAReturnAttributeRawValue(id, data);
+    if (raw < 0)
+      continue;
+    temp = (unsigned)(raw); // ignore possible min/max values in high words
+    if (id == 194 && select == 1) // -v 194,10xCelsius
+      temp = (temp+5) / 10;
+    if (!(0 < temp && temp <= 255))
+      continue;
+    return temp;
+  }
+  // No valid attribute found
+  return 0;
+}

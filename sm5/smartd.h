@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.76 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.77 2006/05/12 21:39:20 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -64,7 +64,7 @@
 
 
 // Number of allowed mail message types
-#define SMARTD_NMAIL 12
+#define SMARTD_NMAIL 13
 
 typedef struct mailinfo_s {
   int logged;// number of times an email has been sent
@@ -185,6 +185,8 @@ typedef struct configfile_s {
   char removable;                         // Device may disappear (not be present)
   char powermode;                         // skip check, if disk in idle or standby mode
   char powerquiet;                        // skip powermode 'skipping checks' message
+  unsigned char tempdiff;                 // Track Temperature changes >= this limit
+  unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
   testinfo *testdata;                     // Pointer to data on scheduled testing
@@ -193,11 +195,11 @@ typedef struct configfile_s {
   
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
+  unsigned char temperature;              // last recorded Temperature (in Celsius)
 
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
   unsigned char TempPageSupported;        // has log sense temperature page (0xd)
-  unsigned char Temperature;              // last recorded figure (in Celsius)
   unsigned char SuppressReport;           // minimize nuisance reports
   unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
                                           // know yet) 6 or 10

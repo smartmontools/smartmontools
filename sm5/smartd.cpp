@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.363 2006/04/15 14:29:25 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.364 2006/05/12 21:39:20 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.363 2006/04/15 14:29:25 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.364 2006/05/12 21:39:20 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -533,7 +533,8 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "FailedReadSmartSelfTestLog", // 8
     "FailedOpenDevice",           // 9
     "CurrentPendingSector",       // 10
-    "OfflineUncorrectableSector" //  11
+    "OfflineUncorrectableSector", // 11
+    "Temperature"                 // 12
   };
   
   char *address, *executable;
@@ -1094,6 +1095,7 @@ void Directives() {
            "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
 	   "  -C ID   Monitor Current Pending Sectors in Attribute ID\n"
 	   "  -U ID   Monitor Offline Uncorrectable Sectors in Attribute ID\n"
+           "  -W D,I,C Monitor Temperature D)ifference, I)nformal limit, C)ritical limit\n"
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
            "  -a      Default: -H -f -t -l error -l selftest -C 197 -U 198\n"
@@ -1392,7 +1394,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   // but sadly not for ATA-5.  Sigh.
 
   // do we need to retain SMART data after returning from this routine?
-  retainsmartdata=cfg->usagefailed || cfg->prefail || cfg->usage;
+  retainsmartdata=cfg->usagefailed || cfg->prefail || cfg->usage || cfg->tempdiff || cfg->tempinfo || cfg->tempcrit;
   
   // do we need to get SMART data?
   if (retainsmartdata || cfg->autoofflinetest || cfg->selftest || cfg->errorlog || cfg->pending!=DONT_MONITOR_UNC) {
@@ -1415,7 +1417,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
     }
     
     // see if the necessary Attribute is there to monitor offline or
-    // current pending sectors
+    // current pending sectors or temperature
     TranslatePending(cfg->pending, &currentpending, &offlinepending);
     
     if (currentpending && ATAReturnAttributeRawValue(currentpending, cfg->smartval)<0) {
@@ -1430,6 +1432,12 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
 	       name, (int)offlinepending);
       cfg->pending &= 0x00ff;
       cfg->pending |= OFF_UNC_DEFAULT<<8;
+    }
+
+    if (   (cfg->tempdiff || cfg->tempinfo || cfg->tempcrit)
+        && !ATAReturnTemperatureValue(cfg->smartval, cfg->attributedefs)) {
+      PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", name);
+      cfg->tempdiff = cfg->tempinfo = cfg->tempcrit = 0;
     }
   }
   
@@ -1711,6 +1719,10 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
                     &asc, &ascq, &currenttemp, &triptemp)) {
       PrintOut(LOG_INFO, "Device: %s, unexpectedly failed to read SMART values\n", device);
       cfg->SuppressReport = 1;
+      if (cfg->tempdiff || cfg->tempinfo || cfg->tempcrit) {
+        PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", device);
+        cfg->tempdiff = cfg->tempinfo = cfg->tempcrit = 0;
+      }
     }
   }
   
@@ -2142,6 +2154,40 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   return retval;
 }
 
+// Check Temperature limits
+static void CheckTemperature(cfgfile * cfg, unsigned char currtemp, unsigned char triptemp)
+{
+  if (!currtemp || currtemp == 255) {
+    PrintOut(LOG_INFO, "Device: %s, failed to read Temperature\n", cfg->name);
+    return;
+  }
+
+  // Track changes
+  if (!cfg->temperature) {
+    PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius\n",
+      cfg->name, (int)currtemp);
+    if (triptemp)
+      PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n", (int)triptemp);
+    cfg->temperature = currtemp;
+  }
+  else if (cfg->tempdiff && abs((int)currtemp - (int)cfg->temperature) >= cfg->tempdiff) {
+    PrintOut(LOG_INFO, "Device: %s, Temperature changed %d Celsius to %d Celsius since last report\n",
+      cfg->name, ((int)currtemp - (int)cfg->temperature), (int)currtemp);
+    cfg->temperature = currtemp;
+  }
+
+  // Check limits
+  if (cfg->tempcrit && currtemp >= cfg->tempcrit) {
+    PrintOut(LOG_CRIT, "Device: %s, Temperature %d Celsius reached critical limit of %d Celsius\n",
+      cfg->name, (int)currtemp, (int)cfg->tempcrit);
+    MailWarning(cfg, 12, "Device: %s, Temperature %d Celsius reached critical limit of %d Celsius\n",
+      cfg->name, (int)currtemp, (int)cfg->tempcrit);
+  }
+  else if (cfg->tempinfo && currtemp >= cfg->tempinfo) {
+    PrintOut(LOG_INFO, "Device: %s, Temperature %d Celsius reached limit of %d Celsius\n",
+      cfg->name, (int)currtemp, (int)cfg->tempinfo);
+  }
+}
 
 int ATACheckDevice(cfgfile *cfg){
   int fd,i;
@@ -2238,7 +2284,8 @@ int ATACheckDevice(cfgfile *cfg){
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
-  if (cfg->usagefailed || cfg->prefail || cfg->usage || cfg->pending!=DONT_MONITOR_UNC){
+  if (   cfg->usagefailed || cfg->prefail || cfg->usage || cfg->pending!=DONT_MONITOR_UNC
+      || cfg->tempdiff || cfg->tempinfo || cfg->tempcrit                                 ){
     struct ata_smart_values     curval;
     struct ata_smart_thresholds_pvt *thresh=cfg->smartthres;
     
@@ -2267,6 +2314,10 @@ int ATACheckDevice(cfgfile *cfg){
 	  MailWarning(cfg, 11, "Device: %s, %"PRId64" Offline uncorrectable sectors", name, rawval);
 	}
       }
+
+      // check temperature limits
+      if (cfg->tempdiff || cfg->tempinfo || cfg->tempcrit)
+        CheckTemperature(cfg, ATAReturnTemperatureValue(&curval, cfg->attributedefs), 0);
 
       if (cfg->usagefailed || cfg->prefail || cfg->usage) {
 
@@ -2398,9 +2449,6 @@ int ATACheckDevice(cfgfile *cfg){
   return 0;
 }
 
-#define DEF_SCSI_REPORT_TEMPERATURE_DELTA 2
-static int scsi_report_temperature_delta = DEF_SCSI_REPORT_TEMPERATURE_DELTA;
-
 int SCSICheckDevice(cfgfile *cfg)
 {
     UINT8 asc, ascq;
@@ -2442,29 +2490,11 @@ int SCSICheckDevice(cfgfile *cfg)
     } else if (debugmode)
         PrintOut(LOG_INFO,"Device: %s, Acceptable asc,ascq: %d,%d\n", 
                  name, (int)asc, (int)ascq);  
-  
-    if (currenttemp && currenttemp!=255) {
-        if (cfg->Temperature) {
-            if (abs(((int)currenttemp - (int)cfg->Temperature)) >= 
-                scsi_report_temperature_delta) {
-                PrintOut(LOG_INFO, "Device: %s, Temperature changed %d Celsius "
-                         "to %d Celsius since last report\n", name, 
-                         (int)(currenttemp - cfg->Temperature), 
-                         (int)currenttemp);
-                cfg->Temperature = currenttemp;
-            }
-        }
-        else {
-            PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d "
-                     "Celsius\n", name, (int)currenttemp);
-           if (triptemp)
-                PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n",
-                         (int)triptemp);
-            cfg->Temperature = currenttemp;
-            cfg->Temperature = currenttemp;
-        }
-    }
-    
+
+    // check temperature limits
+    if (cfg->tempdiff || cfg->tempinfo || cfg->tempcrit)
+      CheckTemperature(cfg, currenttemp, triptemp);
+
     // check if number of selftest errors has increased (note: may also DECREASE)
     if (cfg->selftest)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
@@ -2684,6 +2714,30 @@ int GetInteger(char *arg, char *name, char *token, int lineno, char *configfile,
   // all is well; return value
   return val;
 }
+
+
+// Get 1-3 small integer(s) for '-W' directive
+int Get3Integers(const char *arg, const char *name, const char *token, int lineno, const char *configfile,
+                 unsigned char * val1, unsigned char * val2, unsigned char * val3){
+  unsigned v1 = 0, v2 = 0, v3 = 0;
+  int n1 = -1, n2 = -1, n3 = -1, len;
+  if (!arg) {
+    PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes 1-3 integer argument(s) from 0 to 255.\n",
+             configfile, lineno, name, token);
+    return -1;
+  }
+
+  len = strlen(arg);
+  if (!(   sscanf(arg, "%u%n,%u%n,%u%n", &v1, &n1, &v2, &n2, &v3, &n3) >= 1
+        && (n1 == len || n2 == len || n3 == len) && v1 <= 255 && v2 <= 255 && v3 <= 255)) {
+    PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs 1-3 integer(s) from 0 to 255.\n",
+             configfile, lineno, name, token, arg);
+    return -1;
+  }
+  *val1 = (unsigned char)v1; *val2 = (unsigned char)v2; *val3 = (unsigned char)v3;
+  return 0;
+}
+
 
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
@@ -3016,6 +3070,12 @@ int ParseToken(char *token,cfgfile *cfg){
       return -1;
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAWPRINT, __LINE__);
     IsAttributeOff(val, &cfg->monitorattflags, 1, MONITOR_RAW, __LINE__);
+    break;
+  case 'W':
+    // track Temperature
+    if ((val=Get3Integers(arg=strtok(NULL,delim), name, token, lineno, configfile,
+                          &cfg->tempdiff, &cfg->tempinfo, &cfg->tempcrit))<0)
+      return -1;
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
