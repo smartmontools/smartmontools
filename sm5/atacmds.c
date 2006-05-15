@@ -35,7 +35,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.170 2006/05/12 21:39:20 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.c,v 1.171 2006/05/15 19:21:26 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1910,7 +1910,7 @@ unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data,
     raw = ATAReturnAttributeRawValue(id, data);
     if (raw < 0)
       continue;
-    temp = (unsigned)(raw); // ignore possible min/max values in high words
+    temp = (unsigned short)raw; // ignore possible min/max values in high words
     if (id == 194 && select == 1) // -v 194,10xCelsius
       temp = (temp+5) / 10;
     if (!(0 < temp && temp <= 255))
