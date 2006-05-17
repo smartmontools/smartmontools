@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.77 2006/05/12 21:39:20 chrfranke Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.78 2006/05/17 20:46:08 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -187,6 +187,7 @@ typedef struct configfile_s {
   char powerquiet;                        // skip powermode 'skipping checks' message
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
+  unsigned char tempmin, tempmax;         // Min/Max Temperatures
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
   testinfo *testdata;                     // Pointer to data on scheduled testing
@@ -196,6 +197,7 @@ typedef struct configfile_s {
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
   unsigned char temperature;              // last recorded Temperature (in Celsius)
+  unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
 
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)

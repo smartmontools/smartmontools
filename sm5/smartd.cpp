@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.364 2006/05/12 21:39:20 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.365 2006/05/17 20:46:08 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.364 2006/05/12 21:39:20 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.365 2006/05/17 20:46:08 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1413,6 +1413,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
         ataReadSmartThresholds (fd,cfg->smartthres)){
       PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
       retainsmartdata=cfg->usagefailed=cfg->prefail=cfg->usage=0;
+      cfg->tempdiff = cfg->tempinfo = cfg->tempcrit = 0;
       cfg->pending=DONT_MONITOR_UNC;
     }
     
@@ -1529,8 +1530,9 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   }
 
   // If no tests available or selected, return
-  if (!(cfg->errorlog || cfg->selftest || cfg->smartcheck || 
-        cfg->usagefailed || cfg->prefail || cfg->usage)) {
+  if (!(cfg->errorlog    || cfg->selftest || cfg->smartcheck || 
+        cfg->usagefailed || cfg->prefail  || cfg->usage      ||
+        cfg->tempdiff    || cfg->tempinfo || cfg->tempcrit     )) {
     CloseDevice(fd, name);
     return 3;
   }
@@ -2157,35 +2159,52 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
 // Check Temperature limits
 static void CheckTemperature(cfgfile * cfg, unsigned char currtemp, unsigned char triptemp)
 {
-  if (!currtemp || currtemp == 255) {
+  const char *minchg = "", *maxchg = "";
+  if (!(0 < currtemp && currtemp < 255)) {
     PrintOut(LOG_INFO, "Device: %s, failed to read Temperature\n", cfg->name);
     return;
   }
 
-  // Track changes
   if (!cfg->temperature) {
     PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius\n",
       cfg->name, (int)currtemp);
     if (triptemp)
       PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n", (int)triptemp);
-    cfg->temperature = currtemp;
+    cfg->temperature = cfg->tempmin = cfg->tempmax = currtemp;
   }
-  else if (cfg->tempdiff && abs((int)currtemp - (int)cfg->temperature) >= cfg->tempdiff) {
-    PrintOut(LOG_INFO, "Device: %s, Temperature changed %d Celsius to %d Celsius since last report\n",
-      cfg->name, ((int)currtemp - (int)cfg->temperature), (int)currtemp);
-    cfg->temperature = currtemp;
+  else {
+    // Update [min,max]
+    if (currtemp < cfg->tempmin) {
+      cfg->tempmin = currtemp; minchg = "!";
+      cfg->tempmininc = 0;
+    }
+    else if (cfg->tempmininc) {
+      // increase min Temperature during first 30 minutes
+      cfg->tempmin = currtemp;
+      cfg->tempmininc--;
+    }
+    if (currtemp > cfg->tempmax) {
+      cfg->tempmax = currtemp; maxchg = "!";
+    }
+
+    // Track changes
+    if (cfg->tempdiff && (*minchg || *maxchg || abs((int)currtemp - (int)cfg->temperature) >= cfg->tempdiff)) {
+      PrintOut(LOG_INFO, "Device: %s, Temperature changed %+d Celsius to %u Celsius (Min/Max %u%s/%u%s)\n",
+        cfg->name, (int)currtemp-(int)cfg->temperature, currtemp, cfg->tempmin, minchg, cfg->tempmax, maxchg);
+      cfg->temperature = currtemp;
+    }
   }
 
   // Check limits
   if (cfg->tempcrit && currtemp >= cfg->tempcrit) {
-    PrintOut(LOG_CRIT, "Device: %s, Temperature %d Celsius reached critical limit of %d Celsius\n",
-      cfg->name, (int)currtemp, (int)cfg->tempcrit);
-    MailWarning(cfg, 12, "Device: %s, Temperature %d Celsius reached critical limit of %d Celsius\n",
-      cfg->name, (int)currtemp, (int)cfg->tempcrit);
+    PrintOut(LOG_CRIT, "Device: %s, Temperature %u Celsius reached critical limit of %u Celsius (Min/Max %u%s/%u%s)\n",
+      cfg->name, currtemp, cfg->tempcrit, cfg->tempmin, minchg, cfg->tempmax, maxchg);
+    MailWarning(cfg, 12, "Device: %s, Temperature %d Celsius reached critical limit of %u Celsius (Min/Max %u%s/%u%s)\n",
+      cfg->name, currtemp, cfg->tempcrit, cfg->tempmin, minchg, cfg->tempmax, maxchg);
   }
   else if (cfg->tempinfo && currtemp >= cfg->tempinfo) {
-    PrintOut(LOG_INFO, "Device: %s, Temperature %d Celsius reached limit of %d Celsius\n",
-      cfg->name, (int)currtemp, (int)cfg->tempinfo);
+    PrintOut(LOG_INFO, "Device: %s, Temperature %u Celsius reached limit of %u Celsius (Min/Max %u%s/%u%s)\n",
+      cfg->name, currtemp, cfg->tempinfo, cfg->tempmin, minchg, cfg->tempmax, maxchg);
   }
 }
 
@@ -3076,6 +3095,9 @@ int ParseToken(char *token,cfgfile *cfg){
     if ((val=Get3Integers(arg=strtok(NULL,delim), name, token, lineno, configfile,
                           &cfg->tempdiff, &cfg->tempinfo, &cfg->tempcrit))<0)
       return -1;
+    // increase min Temperature during first 30 minutes
+    if (!(cfg->tempmininc = (unsigned char)(CHECKTIME / checktime)))
+      cfg->tempmininc = 1;
     break;
   case 'v':
     // non-default vendor-specific attribute meaning
@@ -3308,7 +3330,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
 
   // If NO monitoring directives are set, then set all of them.
   if (!(cfg->smartcheck || cfg->usagefailed || cfg->prefail  || 
-        cfg->usage      || cfg->selftest    || cfg->errorlog   )){
+        cfg->usage      || cfg->selftest    || cfg->errorlog ||  
+        cfg->tempdiff   || cfg->tempinfo    || cfg->tempcrit   )) {
     
     PrintOut(LOG_INFO,"Drive: %s, implied '-a' Directive on line %d of file %s\n",
              cfg->name, cfg->lineno, configfile);
