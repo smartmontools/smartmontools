@@ -1,9 +1,9 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.544 2006/05/12 21:39:20 chrfranke Exp $
+$Id: CHANGELOG,v 1.545 2006/05/19 16:33:33 chrfranke Exp $
 
 The most recent version of this file is:
-http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?sortby=date&view=markup
+http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
@@ -31,6 +31,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Updated hostname and links for new SourceForge CVS service.
 
   [CF] smartd: Added '-W' directive to track temperature changes
        and warn if temperature limits are reached.

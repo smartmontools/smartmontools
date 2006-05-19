@@ -3,7 +3,7 @@ smartmontools - S.M.A.R.T. utility toolset for Darwin/Mac
 OSX, FreeBSD, Linux, NetBSD, OpenBSD, Solaris, and Windows.
 ==========================================================
 
-$Id: README,v 1.55 2006/04/12 14:54:28 ballen4705 Exp $
+$Id: README,v 1.56 2006/05/19 16:33:33 chrfranke Exp $
 
 == HOME ==
 The home for smartmontools is located at:
@@ -74,14 +74,14 @@ http://sourceforge.net/project/showfiles.php?group_id=64297
 CVS
 ---
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools co sm5
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
 
 This will create a subdirectory called sm5/ containing the code.
 
 To instead get the 5.1-16 release:
 
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
 
 To update your sources to the 5.1-18 release:
 
@@ -94,7 +94,7 @@ cd sm5
 cvs up -A
 
 You can see what the different tags are by looking at
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/smartmontools/sm5/ .
+http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/ .
 You'll see the tag names in the little scroll window where it says "Show
 only files with tag".
 

@@ -1,9 +1,9 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.29 2006/04/12 15:46:30 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.30 2006/05/19 16:33:33 chrfranke Exp $
 
 The most up-to-date version of this file is:
-http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/NEWS?sortby=date&view=markup
+http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
 
 Date 2006-04-12
 Summary: smartmontools release 5.36 (STABLE)
@@ -72,7 +72,7 @@ This is an stable release of smartmontools.
 Note added 2004/7/7: users building a Solaris/Intel version of the code should 
 modify the 'configure' file, changing "pc-*-solaris*" on line 106
 to read "*-pc-solaris*".  Reference:
-http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/configure.in?r1=1.83&r2=1.84
+http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/configure.in?r1=1.83&r2=1.84
 
 
 Date: 2004-5-4

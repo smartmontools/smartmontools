@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.63 2006/04/23 14:34:40 chrfranke Exp $
+$Id: INSTALL,v 1.64 2006/05/19 16:33:33 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -206,8 +206,8 @@ Table of contents:
 [2] Installing from CVS
 =======================
     Get the sources from the CVS repository:
-    cvs -d :pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools login
-    cvs -d :pserver:anonymous@cvs.sourceforge.net:/cvsroot/smartmontools co sm5
+    cvs -d :pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login
+    cvs -d :pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
     (when prompted for a password, just press Enter)
 
     Then type:
