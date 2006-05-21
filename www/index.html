@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/05/19 16:50:36 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/05/21 01:16:52 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.199 2006/05/19 16:50:36 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.200 2006/05/21 01:16:52 dpgilbert Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -232,21 +232,18 @@ package page</a>.
 This package is for the (unreleased) <a href="http://www.debian.org/releases/">unstable</a>
 distribution.</li>
 <li>If you're running Debian <a
-href="http://www.debian.org/releases/stable/">stable</a> please download the
-package from <a
-href="http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian/smartmontools/">here</a>.</li>
+href="http://www.debian.org/releases/stable/">stable</a> please download a
+backport to stable <a
+href="http://www.backports.org/debian/pool/main/s/smartmontools/">here</a>.
+These packages are provided by <a
+href="http://www.backports.org"</li>www.backports.org</a>.
 <li>
 You can then install the package using:
 <pre>
-dpkg -i smartmontools_5.1.18-1.agx0_i386.deb
+dpkg -i smartmontools_5.36-1_i386.deb
 </pre>
-But the preferred method is to add the following line to your
-<tt>/etc/apt/sources.list</tt>:
-<pre>deb http://honk.physik.uni-konstanz.de/~agx/linux-i386/debian smartmontools/
-</pre>
-and type <pre>
-apt-get update &amp;&amp; apt-get install smartmontools
-</pre> this will automatically download and install the package.
+If you prefer to fetch the packages using apt, please read the instructions at
+<a href="http://www.backports.org/instructions.html">backports.org</a>.
 </li>
 </ul>
 
@@ -1191,8 +1188,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/05/19 16:50:36 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.199 2006/05/19 16:50:36 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2006/05/21 01:16:52 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.200 2006/05/21 01:16:52 dpgilbert Exp $</tt>
 
 <hr size="2" />
 
