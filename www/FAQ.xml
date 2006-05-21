@@ -477,8 +477,8 @@ smartmontools has added functionality for this (<emphasis role="tt">-q,
 documentation, and also fixes small technical bugs in smartsuite.  [One
 example: smartsuite does not actually use the ATA SMART RETURN STATUS
 command to find out the health status of a disk.  It instead tries to
-infer this from the SMART Attribute values.]  See <ulink url="http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">
-<literal>http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain</literal></ulink> for a summary of what's been done.</para>
+infer this from the SMART Attribute values.]  See <ulink url="http://smartmontools.cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain">
+<literal>http://smartmontools.cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/CHANGELOG?rev=HEAD&amp;content-type=text/plain</literal></ulink> for a summary of what's been done.</para>
 
 <para>The <emphasis role="tt">smartd</emphasis> utility differs from the
 smartsuite <emphasis role="tt">smartd</emphasis> in major ways.  First,
