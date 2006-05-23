@@ -344,10 +344,162 @@ on.
                                                                                                                               
 ---------------------------------------------------------------------------
 
+From: Frederic BOITEUX
+
+HOW TO LOCATE AND REPAIR BAD BLOCKS ON AN LVM VOLUME
+
+* Smartd reports an error in a short test :
+-------------------------------------------
+
+# smartctl -a /dev/hdb
+...
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Short offline       Completed: read failure       90%        66         37383668
+
+So the disk has a bad block located in LBA block 37383668
+
+
+* In which physical partition is the bad block ?
+------------------------------------------------
+
+# sfdisk -lu /dev/hdb
+
+Disk /dev/hdb: 9729 cylinders, 255 heads, 63 sectors/track
+Units = sectors of 512 bytes, counting from 0
+
+   Device Boot    Start       End   #sectors  Id  System
+/dev/hdb1            63    996029     995967  82  Linux swap / Solaris
+/dev/hdb2   *    996030   1188809     192780  83  Linux
+/dev/hdb3       1188810 156296384  155107575  8e  Linux LVM
+/dev/hdb4             0         -          0   0  Empty
+
+It's in the /dev/hdb3 partition, a LVM2 partition.
+From the LVM2 partition beginning, the bad block has an offset of
+(37383668 - 1188810) = 36194858
+
+We have to find in which LVM2 logical partition the block belongs to.
+
+
+* In which logical partition is the bad block ?
+-----------------------------------------------
+
+*IMPORTANT* : LVM2 can use different schemes dividing its physical
+ partitions to logical ones : linear, striped, contiguous or
+ not... The following example assumes that allocation is linear !
+
+
+The physical partition used by LVM2 is divided in PE (Physical Extent)
+units of the same size, starting at pe_start' 512 bytes blocks from
+the beginning of the physical partition.
+
+The 'pvdisplay' command gives the size of the PE (in KB) of the
+LVM partition :
+#  part=/dev/hdb3 ; pvdisplay -c $part | awk -F: '{print $8}'
+4096
+
+To get its size in LBA block size (512 bytes or 0.5 KB), we multiply this
+number by 2 : 4096 * 2 = 8192 blocks for each PE.
+
+
+To find the offset from the beginning of the physical partition is a
+bit more difficult : if you have a recent LVM2 version, try :
+# pvs -o+pe_start $part
+
+Either, you can look in /etc/lvm/backup :
+# grep pe_start $(grep -l $part /etc/lvm/backup/*)
+                        pe_start = 384
+
+
+Then, we search in which PE is the badblock, calculating the PE rank
+in which the faulty block of the partition is :
+physical partition's bad block number / sizeof(PE) =
+36194858 / 8192 = 4418.3176
+
+So we have to find in which LVM2 logical partition is used the PE
+number 4418 (count starts from 0) :
+# lvdisplay --maps |egrep 'Physical|LV Name|Type'
+  LV Name                /dev/WDC80Go/racine
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    0 to 127
+  LV Name                /dev/WDC80Go/usr
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    128 to 1407
+  LV Name                /dev/WDC80Go/var
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    1408 to 1663
+  LV Name                /dev/WDC80Go/tmp
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    1664 to 1791
+  LV Name                /dev/WDC80Go/home
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    1792 to 3071
+  LV Name                /dev/WDC80Go/ext1
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    3072 to 10751
+  LV Name                /dev/WDC80Go/ext2
+    Type                linear
+    Physical volume     /dev/hdb3
+    Physical extents    10752 to 18932
+
+So the PE #4418 is in the /dev/WDC80Go/ext1 LVM logical partition.
+
+
+* Size of logical block of filesystem on /dev/WDC80Go/ext1 :
+------------------------------------------------------------
+
+It's a ext3 fs, so I get it like this :
+# dumpe2fs /dev/WDC80Go/ext1 | grep 'Block size'
+dumpe2fs 1.37 (21-Mar-2005)
+Block size:               4096
+
+
+* bad block number for the filesystem :
+---------------------------------------
+
+The logical partition begins on PE 3072 :
+ (# PE's start of partition * sizeof(PE)) + parttion offset[pe_start] =
+ (3072 * 8192) + 384 = 25166208
+512b block of the physical partition, so the bad block number for the
+filesystem  is :
+(36194858 - 25166208) / (sizeof(fs block) / 512)
+= 11028650 / (4096 / 512)  = 1378581.25
+
+
+* Test of the fs bad block :
+
+dd if=/dev/WDC80Go/ext1 of=block1378581 bs=4096 count=1 skip=1378581
+
+If this dd command succeeds, without any error message in console or
+syslog, then the block number calculation is probably wrong ! *Don't*
+go further, re-check it and if you don't find the error, please
+renunce !
+
+
+* Search / correction follows the same scheme as for simple
+  partitions :
+
+- find possible impacted files with debugfs (icheck <fs block nb>,
+  then ncheck <icheck nb>).
+
+- reallocate bad block writing zeros in it, *using the fs block size* :
+
+dd if=/dev/zero of=/dev/WDC80Go/ext1 count=1 bs=4096 seek=1378581
+
+Et voilà !
+
+---------------------------------------------------------------------------
 
 
 
-This document is version $Id: BadBlockHowTo.txt,v 1.7 2005/04/26 16:56:19 ballen4705 Exp $
+
+This document is version $Id: BadBlockHowTo.txt,v 1.8 2006/05/23 10:50:31 ballen4705 Exp $
 It is Copyright Bruce Allen (2004) and distributed under GPL2.
 
 
