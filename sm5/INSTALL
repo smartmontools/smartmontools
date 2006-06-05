@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.64 2006/05/19 16:33:33 chrfranke Exp $
+$Id: INSTALL,v 1.65 2006/06/05 17:36:03 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -427,7 +427,7 @@ To compile the Windows release with MinGW, use the following on Cygwin:
 To build the Windows binary distribution, use:
 
   make dist-win32
-  
+
   This builds the distribution in directory
 
   ./smartmontools-VERSION.win32/
@@ -435,6 +435,23 @@ To build the Windows binary distribution, use:
   and packs it into
 
   ./smartmontools-VERSION.win32.zip
+
+To create a Windows installer, use:
+
+  make installer-win32
+
+  This builds the distribution directory and packs it into the
+  self-extracting install program
+
+  ./smartmontools-VERSION.win32-setup.exe
+
+  The installer is build using the command "makensis" from the NSIS
+  package. See http://nsis.sourceforge.net/ for documentation and
+  download location. The install script was tested with NSIS 2.17.
+
+To both create and run the (interactive) installer, use:
+
+  make install-win32
 
   Additional make targets are distdir-win32 to build the directory
   only and cleandist-win32 for cleanup.
