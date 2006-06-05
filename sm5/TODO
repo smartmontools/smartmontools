@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.59 2005/12/11 18:40:35 ballen4705 Exp $
+$Id: TODO,v 1.60 2006/06/05 17:36:03 chrfranke Exp $
 
 SATA devices under Linux
 ------------------------
@@ -130,10 +130,6 @@ Add IDE/ATA selective self test.
 
 Access SCSI devices via IOCTL_SCSI_PASS_THROUGH on 2000/XP
 to support systems with missing ASPI driver.
-
-Windows
--------
-Provide some installer.
 
 Packaging
 ---------

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.76 2006/05/20 13:31:03 chrfranke Exp $
+# $Id: Makefile.am,v 1.77 2006/06/05 17:36:03 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -207,6 +207,7 @@ EXTRA_DIST = smartmontools.spec                    \
              os_darwin/SMART.in                    \
              os_darwin/StartupParameters.plist     \
              os_darwin/English_Localizable.strings \
+             os_win32/installer.nsi                \
              $(docs_DATA)
 
 CLEANFILES = smartd.conf.5      \
@@ -364,6 +365,7 @@ if OS_WIN32_MINGW
 
 distdir_win32 = $(PACKAGE)-$(VERSION).win32
 distzip_win32 = $(PACKAGE)-$(VERSION).win32.zip
+distinst_win32= $(PACKAGE)-$(VERSION).win32-setup.exe
 
 exedir_win32 = $(distdir_win32)/bin
 docdir_win32 = $(distdir_win32)/doc
@@ -396,11 +398,31 @@ DOS2UNIX = dos2unix -U
 
 dist-win32: $(distzip_win32)
 
+install-win32: $(distinst_win32)
+	./$(distinst_win32)
+
+installer-win32: $(distinst_win32)
+
 distdir-win32: distdir.mkdir $(FILES_WIN32) syslogevt.check
 
 $(distzip_win32): distdir.mkdir $(FILES_WIN32) syslogevt.check
 	@rm -fv $(distzip_win32)
 	cd $(distdir_win32) && zip -9Dr ../$(distzip_win32) .
+
+# Build NSIS installer, try to locate makensis in default location first
+$(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32) syslogevt.check
+	@makensis="$(MAKENSIS)"; if [ -z "$$makensis" ]; then \
+	  if [ ! -z "$$PROGRAMFILES" ] && "$$PROGRAMFILES/NSIS/makensis" /VERSION >/dev/null 2>&1; then \
+	    makensis="$$PROGRAMFILES/NSIS/makensis"; \
+	  elif makensis /VERSION >/dev/null 2>&1; then \
+	    makensis=makensis; \
+	  else \
+	    echo 'makensis: command not found. Please download and install NSIS' 1>&2; \
+	    echo 'from http://nsis.sourceforge.net/Download' 1>&2; exit 1; \
+	  fi; \
+	fi; \
+	echo "$$makensis /V2 /NOCD /DINPDIR=$(distdir_win32) /DOUTFILE=$(distinst_win32) $(srcdir)/os_win32/installer.nsi"; \
+	"$$makensis" /V2 /NOCD /DINPDIR="$(distdir_win32)" /DOUTFILE="$(distinst_win32)" "$(srcdir)/os_win32/installer.nsi"
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir syslogevt.check
