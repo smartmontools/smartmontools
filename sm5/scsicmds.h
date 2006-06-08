@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.57 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.58 2006/06/08 03:12:53 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,6 +75,13 @@
 #endif
 #ifndef READ_DEFECT_10
 #define READ_DEFECT_10  0x37
+#endif
+
+#ifndef SAT_ATA_PASSTHROUGH_12
+#define SAT_ATA_PASSTHROUGH_12 0xa1
+#endif
+#ifndef SAT_ATA_PASSTHROUGH_16
+#define SAT_ATA_PASSTHROUGH_16 0x85
 #endif
 
 typedef unsigned char UINT8;
@@ -261,6 +268,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
                           struct scsi_sense_disect * out);
+
+int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo);
 
 const char * scsiErrString(int scsiErr);
 
