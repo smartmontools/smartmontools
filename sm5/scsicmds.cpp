@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.86 2006/04/15 14:32:54 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.87 2006/06/08 03:27:32 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -124,6 +124,8 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {LOG_SENSE, "log sense"},                   /* 0x4d */
     {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
     {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
+    {SAT_ATA_PASSTHROUGH_16, "ata pass-through(16)"}, /* 0x85 */
+    {SAT_ATA_PASSTHROUGH_12, "ata pass-through(12)"}, /* 0xa1 */
 };
 
 const char * scsi_get_opcode_name(UINT8 opcode)
@@ -158,7 +160,7 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
     }
 }
 
-static int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
+int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
 {
     switch (sinfo->sense_key) {
     case SCSI_SK_NOT_READY:
