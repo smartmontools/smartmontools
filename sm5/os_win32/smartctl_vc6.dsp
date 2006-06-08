@@ -198,6 +198,14 @@ SOURCE=..\os_win32.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\scsiata.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\scsiata.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\scsicmds.c
 # End Source File
 # Begin Source File
