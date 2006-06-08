@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.77 2006/06/05 17:36:03 chrfranke Exp $
+# $Id: Makefile.am,v 1.78 2006/06/08 03:18:41 dpgilbert Exp $
 #
 
 @SET_MAKE@
@@ -24,6 +24,8 @@ smartd_SOURCES =  smartd.c      \
                   knowndrives.h	\
                   scsicmds.c	\
                   scsicmds.h	\
+                  scsiata.c	\
+                  scsiata.h	\
                   scsiprint.c	\
                   scsiprint.h	\
                   utility.c 	\
@@ -84,6 +86,8 @@ smartctl_SOURCES= smartctl.c    \
                   knowndrives.h	\
                   scsicmds.c	\
                   scsicmds.h	\
+                  scsiata.c	\
+                  scsiata.h	\
                   scsiprint.c	\
                   scsiprint.h	\
                   utility.c	\
