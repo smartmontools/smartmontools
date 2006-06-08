@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.546 2006/06/05 17:36:03 chrfranke Exp $
+$Id: CHANGELOG,v 1.547 2006/06/08 03:25:04 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SATA] Add new 'sat' device type for SATA disks behind a
+       SCSI to ATA Translation (SAT) Layer (SATL). Uses the ATA
+       PASS THROUGH (16) SCSI command thence the generic SCSI
+       passthrough for each platform.
 
   [CF] Windows: Added script and make targets to create installer
        with NSIS (http://nsis.sourceforge.net/)
