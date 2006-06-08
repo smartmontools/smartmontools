@@ -32,10 +32,11 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
+#include "scsiata.h"
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.171 2006/05/15 19:21:26 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.172 2006/06/08 03:16:16 dpgilbert Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -613,6 +614,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     break;
   case CONTROLLER_MARVELL_SATA:
     retval=marvell_command_interface(device, command, select, data);
+    break;
+  case CONTROLLER_SAT:
+    retval=sat_command_interface(device, command, select, data);
     break;
   default:
     retval=ata_command_interface(device, command, select, data);
