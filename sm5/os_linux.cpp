@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.82 2006/04/12 16:28:56 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.83 2006/06/08 03:14:36 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.82 2006/04/12 16:28:56 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.83 2006/06/08 03:14:36 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -125,34 +125,34 @@ int setup_3ware_nodes(char *nodename, char *driver_name) {
   /* Now check if nodes are correct */
   for (index=0; index<16; index++) {
     sprintf(nodestring, "/dev/%s%d", nodename, index);
-	  
+          
     /* Try to stat the node */
     if ((stat(nodestring, &stat_buf))) {
       /* Create a new node if it doesn't exist */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-	pout("problem creating 3ware device nodes %s", nodestring);
-	syserror("mknod");
-	return 3;
+        pout("problem creating 3ware device nodes %s", nodestring);
+        syserror("mknod");
+        return 3;
       }
     }
     
     /* See if nodes major and minor numbers are correct */
     if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
-	(index    != (int)(minor(stat_buf.st_rdev))) ||
-	(!S_ISCHR(stat_buf.st_mode))) {
+        (index    != (int)(minor(stat_buf.st_rdev))) ||
+        (!S_ISCHR(stat_buf.st_mode))) {
       
       /* Delete the old node */
       if (unlink(nodestring)) {
-	pout("problem unlinking stale 3ware device node %s", nodestring);
-	syserror("unlink");
-	return 4;
+        pout("problem unlinking stale 3ware device node %s", nodestring);
+        syserror("unlink");
+        return 4;
       }
       
       /* Make a new node */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-	pout("problem creating 3ware device nodes %s", nodestring);
-	syserror("mknod");
-	return 5;
+        pout("problem creating 3ware device nodes %s", nodestring);
+        syserror("mknod");
+        return 5;
       }
     }
   }
@@ -175,7 +175,7 @@ int deviceopen(const char *pathname, char *type){
     // numbers and if not, create them
     if (setup_3ware_nodes("twa", "3w-9xxx")) {
       if (!errno)
-	errno=ENXIO;
+        errno=ENXIO;
       return -1;
     }
     return open(pathname, O_RDONLY | O_NONBLOCK);
@@ -186,7 +186,7 @@ int deviceopen(const char *pathname, char *type){
     // numbers and if not, create them
     if (setup_3ware_nodes("twe", "3w-xxxx")) {
       if (!errno)
-	errno=ENXIO;
+        errno=ENXIO;
       return -1;
     }
     return open(pathname, O_RDONLY | O_NONBLOCK);
@@ -509,7 +509,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
       
     if ((retval=ioctl(device, HDIO_DRIVE_TASKFILE, task))) {
       if (retval==-EINVAL)
-	pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
+        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
       return -1;
     }
     return 0;
@@ -537,11 +537,11 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     
     if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff))) {
       if (retval==-EINVAL) {
-	pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
-	pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
+        pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
+        pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
       }
       else
-	syserror("Error SMART Status command failed");
+        syserror("Error SMART Status command failed");
       return -1;
     }
     
@@ -644,7 +644,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 #define SG_IO_PRESENT_NO 2
 
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-			 int unknown);
+                         int unknown);
 static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
 static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
@@ -654,7 +654,7 @@ static int sg_io_state = SG_IO_PRESENT_UNKNOWN;
  * (various status values should still be checked). If the SCSI command
  * cannot be issued then a negative errno value is returned. */
 static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
-			 int unknown)
+                         int unknown)
 {
 #ifndef SG_IO
     ARGUSED(dev_fd); ARGUSED(iop); ARGUSED(report);
@@ -681,7 +681,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                           "data, len=%d%s:\n", (int)iop->dxfer_len,
                           (trunc ? " [only first 256 bytes shown]" : ""));
             dStrHex((const char *)iop->dxferp, 
-		    (trunc ? 256 : iop->dxfer_len) , 1);
+                    (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -718,14 +718,14 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     if (ioctl(dev_fd, SG_IO, &io_hdr) < 0) {
         if (report && (! unknown))
             pout("  SG_IO ioctl failed, errno=%d [%s]\n", errno,
-		 strerror(errno));
+                 strerror(errno));
         return -errno;
     }
     if (report > 0) {
         pout("  scsi_status=0x%x, host_status=0x%x, driver_status=0x%x\n"
-	     "  info=0x%x  duration=%d milliseconds\n", io_hdr.status, 
-	     io_hdr.host_status, io_hdr.driver_status, io_hdr.info,
-	     io_hdr.duration);
+             "  info=0x%x  duration=%d milliseconds\n", io_hdr.status, 
+             io_hdr.host_status, io_hdr.driver_status, io_hdr.info,
+             io_hdr.duration);
         if (report > 1) {
             if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
                 int trunc = (iop->dxfer_len > 256) ? 1 : 0;
@@ -733,7 +733,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
                 dStrHex((const char*)iop->dxferp, 
-		        (trunc ? 256 : iop->dxfer_len) , 1);
+                        (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
     }
@@ -741,22 +741,22 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     iop->scsi_status = io_hdr.status;
 
     if (io_hdr.info | SG_INFO_CHECK) { /* error or warning */
-	int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
+        int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
 
-	if (0 != io_hdr.host_status) {
+        if (0 != io_hdr.host_status) {
             if ((LSCSI_DID_NO_CONNECT == io_hdr.host_status) ||
                 (LSCSI_DID_BUS_BUSY == io_hdr.host_status) ||
                 (LSCSI_DID_TIME_OUT == io_hdr.host_status))
                 return -ETIMEDOUT;
-	    else
-		return -EIO;	/* catch all */
+            else
+                return -EIO;    /* catch all */
         }
         if (0 != masked_driver_status) {
             if (LSCSI_DRIVER_TIMEOUT == masked_driver_status)
                 return -ETIMEDOUT;
-	    else if (LSCSI_DRIVER_SENSE != masked_driver_status)
-		return -EIO;
-	}
+            else if (LSCSI_DRIVER_SENSE != masked_driver_status)
+                return -EIO;
+        }
         if (LSCSI_DRIVER_SENSE == masked_driver_status)
             iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
         iop->resp_sense_len = io_hdr.sb_len_wr;
@@ -764,15 +764,20 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
             iop->sensep && (iop->resp_sense_len > 0)) {
             if (report > 1) {
                 pout("  >>> Sense buffer, len=%d:\n",
-		     (int)iop->resp_sense_len);
+                     (int)iop->resp_sense_len);
                 dStrHex((const char *)iop->sensep, iop->resp_sense_len , 1);
             }
         }
         if (report) {
             if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-                pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
-		     iop->scsi_status, iop->sensep[2] & 0xf, iop->sensep[12],
-		     iop->sensep[13]);
+                if ((iop->sensep[0] & 0x7f) > 0x71)
+                    pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+                         iop->scsi_status, iop->sensep[1] & 0xf,
+                         iop->sensep[2], iop->sensep[3]);
+                else
+                    pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+                         iop->scsi_status, iop->sensep[2] & 0xf,
+                         iop->sensep[12], iop->sensep[13]);
             }
             else
                 pout("  status=0x%x\n", iop->scsi_status);
@@ -820,7 +825,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
                           "data, len=%d%s:\n", (int)iop->dxfer_len,
                           (trunc ? " [only first 256 bytes shown]" : ""));
             dStrHex((const char *)iop->dxferp, 
-		    (trunc ? 256 : iop->dxfer_len) , 1);
+                    (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
@@ -869,7 +874,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
                 dStrHex((const char*)iop->dxferp, 
-			(trunc ? 256 : iop->dxfer_len) , 1);
+                        (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
         return 0;
@@ -925,21 +930,21 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
     switch (sg_io_state) {
     case SG_IO_PRESENT_UNKNOWN:
         /* ignore report argument */
-	if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, 1))) {
-	    sg_io_state = SG_IO_PRESENT_YES;
-	    return 0;
-	} else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
-	    return res;		/* wait until we see a device */
+        if (0 == (res = sg_io_cmnd_io(dev_fd, iop, report, 1))) {
+            sg_io_state = SG_IO_PRESENT_YES;
+            return 0;
+        } else if ((-ENODEV == res) || (-EACCES == res) || (-EPERM == res))
+            return res;         /* wait until we see a device */
         sg_io_state = SG_IO_PRESENT_NO;
-	/* drop through by design */
+        /* drop through by design */
     case SG_IO_PRESENT_NO:
-	return sisc_cmnd_io(dev_fd, iop, report);
+        return sisc_cmnd_io(dev_fd, iop, report);
     case SG_IO_PRESENT_YES:
-	return sg_io_cmnd_io(dev_fd, iop, report, 0);
+        return sg_io_cmnd_io(dev_fd, iop, report, 0);
     default:
-	pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state); 
-	sg_io_state = SG_IO_PRESENT_UNKNOWN;
-        return -EIO; 	/* report error and reset state */
+        pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state); 
+        sg_io_state = SG_IO_PRESENT_UNKNOWN;
+        return -EIO;    /* report error and reset state */
     }
 }
 
