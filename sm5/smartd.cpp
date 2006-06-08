@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.365 2006/05/17 20:46:08 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.366 2006/06/08 03:17:47 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.365 2006/05/17 20:46:08 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.366 2006/06/08 03:17:47 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -723,6 +723,9 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   case CONTROLLER_SCSI:
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "scsi");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+  case CONTROLLER_SAT:
+    exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "sat");
+    exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
   }
 
   snprintf(fullmessage, 1024,
@@ -1075,7 +1078,7 @@ void PrintHead(){
 void Directives() {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: ata, scsi, marvell, removable, 3ware,N\n"
+           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
@@ -2672,7 +2675,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "ata, scsi, marvell, removable, 3ware,N");
+    PrintOut(priority, "ata, scsi, marvell, removable, sat, 3ware,N");
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");
@@ -2857,6 +2860,9 @@ int ParseToken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "marvell")) {
       cfg->controller_port =0;
       cfg->controller_type = CONTROLLER_MARVELL_SATA;
+    } else if (!strcmp(arg, "sat")) {
+      cfg->controller_port =0;
+      cfg->controller_type = CONTROLLER_SAT;
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
     } else {
