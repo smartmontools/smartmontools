@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.367 2006/06/08 19:08:00 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.368 2006/06/09 17:33:13 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.367 2006/06/08 19:08:00 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.368 2006/06/09 17:33:13 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1304,6 +1304,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   con->controller_port=cfg->controller_port;
   con->controller_type=cfg->controller_type;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
+  con->satpassthrulen = cfg->satpassthrulen;
   
   // Get drive identity structure
   if ((retid=ataReadHDIdentity (fd,&drive))){
@@ -2863,9 +2864,25 @@ int ParseToken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "marvell")) {
       cfg->controller_port =0;
       cfg->controller_type = CONTROLLER_MARVELL_SATA;
-    } else if (!strcmp(arg, "sat")) {
-      cfg->controller_port =0;
+    } else if (!strncmp(arg, "sat", 3)) {
       cfg->controller_type = CONTROLLER_SAT;
+      cfg->controller_port = 0;
+      cfg->satpassthrulen = 0;
+      if (strlen(arg) > 3) {
+        int k;
+        char * cp;
+
+        cp = strchr(arg, ',');
+        if (cp && (1 == sscanf(cp + 1, "%d", &k)) &&
+            ((0 == k) || (12 == k) || (16 == k)))
+          cfg->satpassthrulen = k;
+        else {
+          PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive "
+                   "'-d sat,<n>' requires <n> to be 0, 12 or 16\n",
+                   configfile, lineno, name);
+          badarg = 1;
+        }
+      }
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
     } else {

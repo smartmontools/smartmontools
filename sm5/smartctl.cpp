@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.145 2006/06/08 19:08:00 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.146 2006/06/09 17:32:49 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -374,9 +374,24 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"marvell")) {
 	con->controller_type = CONTROLLER_MARVELL_SATA;
         con->controller_port = 0;
-      } else if (!strcmp(optarg,"sat")) {
+      } else if (!strncmp(optarg, "sat", 3)) {
 	con->controller_type = CONTROLLER_SAT;
         con->controller_port = 0;
+        con->satpassthrulen = 0;
+        if (strlen(optarg) > 3) {
+          int k;
+          char * cp;
+
+	  cp = strchr(optarg, ',');
+          if (cp && (1 == sscanf(cp + 1, "%d", &k)) &&
+              ((0 == k) || (12 == k) || (16 == k)))
+            con->satpassthrulen = k;
+          else {
+            sprintf(extraerror, "Option '-d sat,<n>' requires <n> to be "
+                    "0, 12 or 16\n");
+            badarg = TRUE;
+          }
+        }
       } else {
         // look for RAID-type device
         int i;
