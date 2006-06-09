@@ -42,7 +42,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.1 2006/06/08 03:10:07 dpgilbert Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.2 2006/06/09 00:51:40 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -69,7 +69,8 @@ extern smartmonctrl *con;
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
-int sat_command_interface(int device, smart_command_set command, int select, char *data)
+int sat_command_interface(int device, smart_command_set command, int select,
+                          char *data)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -90,19 +91,27 @@ int sat_command_interface(int device, smart_command_set command, int select, cha
 
     memset(cdb, 0, sizeof(cdb));
     memset(sense, 0, sizeof(sense));
+
+    // cdb[0]: ATA PASS THROUGH (16) SCSI command opcode byte (0x85)
+    // cdb[1]: multiple_count, protocol + extend
+    // cdb[2]: offline, ck_cond, t_dir, byte_block + t_length
+    // cdb[3]: features (15:8)
+    // cdb[4]: features (7:0)
+    // cdb[5]: sector_count (15:8)
+    // cdb[6]: sector_count (7:0)
+    // cdb[7]: lba_low (15:8)
+    // cdb[8]: lba_low (7:0)
+    // cdb[9]: lba_mid (15:8)
+    // cdb[10]: lba_mid (7:0)
+    // cdb[11]: lba_high (15:8)
+    // cdb[12]: lba_high (7:0)
+    // cdb[13]: device
+    // cdb[14]: (ata) command
+    // cdb[15]: control (SCSI, leave as zero)
+    //
+    // 24 bit lba (from MSB): cdb[12] cdb[10] cdb[8]
+    // 48 bit lba (from MSB): cdb[11] cdb[9] cdb[7] cdb[12] cdb[10] cdb[8]
     cdb[0] = SAT_ATA_PASSTHROUGH_16;
-
-
-  // See struct hd_drive_cmd_hdr in hdreg.h.  Before calling ioctl()
-  // buff[0]: ATA COMMAND CODE REGISTER  -->> cdb[14]
-  // buff[1]: ATA SECTOR NUMBER REGISTER == LBA LOW REGISTER  -->> cdb[8]
-  // buff[2]: ATA FEATURES REGISTER  -->> cdb[4]
-  // buff[3]: ATA SECTOR COUNT REGISTER  -->> cdb[6]
-
-  // Note that on return:
-  // buff[2] contains the ATA SECTOR COUNT REGISTER  ????
-  
-
     cdb[14] = ATA_SMART_CMD;
     switch (command) {
     case CHECK_POWER_MODE:
@@ -110,50 +119,50 @@ int sat_command_interface(int device, smart_command_set command, int select, cha
         chk_cond = 1;
         copydata = 1;
         break;
-    case READ_VALUES:
+    case READ_VALUES:           /* READ DATA */
         cdb[4] = ATA_SMART_READ_VALUES;
-        cdb[6] = 1;
+        cdb[6] = 1;     /* one (512 byte) block */
         protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         copydata = 512;
         break;
-    case READ_THRESHOLDS:
+    case READ_THRESHOLDS:       /* obsolete */
         cdb[4] = ATA_SMART_READ_THRESHOLDS;
+        cdb[6] = 1;     /* one (512 byte) block */
         cdb[8] = 1;
-        cdb[6] = 1;
         protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         copydata=512;
         break;
     case READ_LOG:
         cdb[4] = ATA_SMART_READ_LOG_SECTOR;
+        cdb[6] = 1;     /* one (512 byte) block */
         cdb[8] = select;
-        cdb[6] = 1;
         protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         copydata = 512;
         break;
     case WRITE_LOG:
         cdb[4] = ATA_SMART_WRITE_LOG_SECTOR;
+        cdb[6] = 1;     /* one (512 byte) block */
         cdb[8] = select;
-        cdb[6] = 1;
         protocol = 5;   /* PIO data-out */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         t_dir = 0;      /* to device */
         outlen = 512;
         break;
     case IDENTIFY:
         cdb[14] = ATA_IDENTIFY_DEVICE;
-        cdb[6] = 1;
+        cdb[6] = 1;     /* one (512 byte) block */
         protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         copydata = 512;
         break;
     case PIDENTIFY:
         cdb[14] = ATA_IDENTIFY_PACKET_DEVICE;
-        cdb[6] = 1;
+        cdb[6] = 1;     /* one (512 byte) block */
         protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count register holds count */
+        t_length = 2;   /* sector count (7:0) holds count */
         copydata = 512;
         break;
     case ENABLE:
@@ -224,8 +233,12 @@ int sat_command_interface(int device, smart_command_set command, int select, cha
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
     status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (0 != status) {
+        if (con->reportscsiioctl > 0)
+            pout("sat_command_interface: do_scsi_cmnd_io() failed, "
+                 "status=%d\n", status);
+        return -1;
+    }
     if (chk_cond) {     /* expecting SAT specific sense data */
         ucp = NULL;
         if (sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
@@ -261,10 +274,39 @@ int sat_command_interface(int device, smart_command_set command, int select, cha
         }
     }
     if (0 == chk_cond) {
-        scsi_do_sense_disect(&io_hdr, &sinfo);
-        status = scsiSimpleSenseFilter(&sinfo);
-        if (0 != status)
-            return status;
+        ucp = NULL;
+        if (sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
+                                    &ssh)) {
+            if ((ssh.response_code >= 0x72) &&
+                ((SCSI_SK_NO_SENSE == ssh.sense_key) ||
+                 (SCSI_SK_RECOVERED_ERR == ssh.sense_key)) &&
+                (0 == ssh.asc) &&
+                (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
+                /* look for SAT extended ATA status return descriptor (9) */
+                ucp = sg_scsi_sense_desc_find(io_hdr.sensep,
+                                              io_hdr.resp_sense_len, 9);
+                if (ucp) {
+                    if (con->reportscsiioctl > 0) {
+                        pout("Values from ATA status return descriptor are:\n");
+                        len = ucp[1] + 2;
+                        if (len < 12)
+                            len = 12;
+                        else if (len > 14)
+                            len = 14;
+                        dStrHex((const char *)ucp, len, 1);
+                    }
+                    return -1;
+                }
+            }
+            scsi_do_sense_disect(&io_hdr, &sinfo);
+            status = scsiSimpleSenseFilter(&sinfo);
+            if (0 != status) {
+                if (con->reportscsiioctl > 0)
+                    pout("sat_command_interface: scsi error: %s\n",
+                         scsiErrString(status));
+                return -1;
+            }
+        }
     }
     if (copydata)
         memcpy(data, b, copydata);
