@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/05/21 01:16:52 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/06/09 20:24:05 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.200 2006/05/21 01:16:52 dpgilbert Exp $ -->
+<!-- $Id: index.html,v 1.201 2006/06/09 20:24:05 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -31,6 +31,8 @@ CHANGELOG</a> for details.
 </font></li>
 <li><font color="#ff0000">SourceForge CVS architecture has changed 2006-05-12, please read
 notes <a href="#CVSInstall">below</a> if you install smartmontools from CVS.</font></li>
+<li><font color="#ff0000">A Windows installer version of smartmontools 5.36 was released
+2006-06-06, see <a href="#WindowsInstall">below</a>.</font></li>
 </ul>
 <font color="#ff0000">
 Please report problems (or success!) with the new release to the
@@ -236,7 +238,7 @@ href="http://www.debian.org/releases/stable/">stable</a> please download a
 backport to stable <a
 href="http://www.backports.org/debian/pool/main/s/smartmontools/">here</a>.
 These packages are provided by <a
-href="http://www.backports.org"</li>www.backports.org</a>.
+href="http://www.backports.org">www.backports.org</a>.</li>
 <li>
 You can then install the package using:
 <pre>
@@ -275,12 +277,26 @@ for details.</p>
 Sixth Method (Windows) - Install the Windows package
 </b>
 <ul>
-<li>Download the latest Windows package (<tt>*.win32.zip</tt>) from
+<li>Download and run the latest smartmontools
+<a href="http://nsis.sourceforge.net/">NSIS</a>-installer
+(<tt>*.win32-setup.exe</tt>) from
 <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
+<ul>
+<li>The default install type "Full" creates start menu shortcuts
+including an uninstaller, and adds the install directory to the PATH variable.
 </li>
-<li><p>Unzip the files into a directory of your choice.
-A directory in the PATH is recommended for the <tt>*.exe</tt> files.</p>
+<li>Select install type "Extract files only" to disable these extra
+components.
 </li>
+</ul>
+</li>
+<li><p>Or download and unzip the latest smartmontools Windows archive
+(<tt>*.win32.zip</tt>) from
+<a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
+</p></li>
+<li><p>More recent (and probably unstable) Windows test releases build from CVS
+snapshots are available <a href="http://franke.dvrdns.org/smartmontools/">here</a>.
+</p></li>
 </ul>
 
 
@@ -1188,8 +1204,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/05/21 01:16:52 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.200 2006/05/21 01:16:52 dpgilbert Exp $</tt>
+Last updated: <tt>$Date: 2006/06/09 20:24:05 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.201 2006/06/09 20:24:05 chrfranke Exp $</tt>
 
 <hr size="2" />
 
