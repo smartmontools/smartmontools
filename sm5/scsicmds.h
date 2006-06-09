@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.58 2006/06/08 03:12:53 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.59 2006/06/09 00:50:27 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,6 +219,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_STATUS_CHECK_CONDITION     0x2
 
 /* defines for useful Sense Key codes */
+#define SCSI_SK_NO_SENSE                0x0
+#define SCSI_SK_RECOVERED_ERR           0x1
 #define SCSI_SK_NOT_READY               0x2
 #define SCSI_SK_MEDIUM_ERROR            0x3
 #define SCSI_SK_HARDWARE_ERROR          0x4
@@ -233,6 +235,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define SCSI_ASC_UNKNOWN_PARAM          0x26
 #define SCSI_ASC_WARNING                0xb
 #define SCSI_ASC_IMPENDING_FAILURE      0x5d
+
+#define SCSI_ASCQ_ATA_PASS_THROUGH      0x1d
 
 /* Simplified error code (negative values as per errno) */
 #define SIMPLE_NO_ERROR                 0
