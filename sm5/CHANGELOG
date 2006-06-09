@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.547 2006/06/08 03:25:04 dpgilbert Exp $
+$Id: CHANGELOG,v 1.548 2006/06/09 17:39:49 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SATA] Extend 'sat' device type to allow either 12 or 16 byte
+       variant of the SAT ATA PASS THROUGH SCSI command. Syntax is
+       '-d sat,<n>' where <n> can be 0, 12 or 16 . The ',<n>' part
+       is optional. Currently defaults to 16 byte variant but that
+       could be made platform or even device dependent.
 
   [DG] [SATA] Add new 'sat' device type for SATA disks behind a
        SCSI to ATA Translation (SAT) Layer (SATL). Uses the ATA
