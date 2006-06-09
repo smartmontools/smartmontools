@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.87 2006/06/08 03:27:32 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.c,v 1.88 2006/06/09 00:48:48 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -148,14 +148,22 @@ const char * scsi_get_opcode_name(UINT8 opcode)
 void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
                           struct scsi_sense_disect * out)
 {
+    int resp_code;
+
     memset(out, 0, sizeof(struct scsi_sense_disect));
-    if ((SCSI_STATUS_CHECK_CONDITION == io_buf->scsi_status) && 
-        (io_buf->resp_sense_len > 7)) {  
-        out->error_code = (io_buf->sensep[0] & 0x7f);
-        out->sense_key = (io_buf->sensep[2] & 0xf);
-        if (io_buf->resp_sense_len > 13) {
-            out->asc = io_buf->sensep[12];
-            out->ascq = io_buf->sensep[13];
+    if (SCSI_STATUS_CHECK_CONDITION == io_buf->scsi_status) {
+        resp_code = (io_buf->sensep[0] & 0x7f);
+        out->error_code = resp_code;
+        if (resp_code >= 0x72) {
+            out->sense_key = (io_buf->sensep[1] & 0xf);
+            out->asc = io_buf->sensep[2];
+            out->ascq = io_buf->sensep[3];
+        } else if (resp_code >= 0x70) {
+            out->sense_key = (io_buf->sensep[2] & 0xf);
+            if (io_buf->resp_sense_len > 13) {
+                out->asc = io_buf->sensep[12];
+                out->ascq = io_buf->sensep[13];
+            }
         }
     }
 }
