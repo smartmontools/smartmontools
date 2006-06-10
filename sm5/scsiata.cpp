@@ -42,8 +42,8 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.3 2006/06/09 17:35:00 dpgilbert Exp $"
-CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.4 2006/06/10 16:30:57 ballen4705 Exp $"
+CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;

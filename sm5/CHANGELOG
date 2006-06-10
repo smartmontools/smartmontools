@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.548 2006/06/09 17:39:49 dpgilbert Exp $
+$Id: CHANGELOG,v 1.549 2006/06/10 16:30:57 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Code janitor: added missing header strings for '-V' option.
 
   [DG] [SATA] Extend 'sat' device type to allow either 12 or 16 byte
        variant of the SAT ATA PASS THROUGH SCSI command. Syntax is
