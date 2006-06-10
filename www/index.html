@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/06/09 20:24:05 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/06/10 19:13:34 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.201 2006/06/09 20:24:05 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.202 2006/06/10 19:13:34 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -727,21 +727,6 @@ versions of smartctl and smartd.
 Installation instructions for binary distributions can be found
 <a href="#CygwinInstall">here</a> and <a href="#WindowsInstall">here</a>.</p>
 
-<p>Some code showing how to access SMART data under Windows 98, NT 4,
-2000, and XP can be found <a
-href="ftp://ftp.heise.de/pub/ct/listings/0207-218.zip">here</a>.
-An example program from Microsoft can be found
-<a href="http://download.microsoft.com/download/winddk/sample3/9x/W9X/EN-US/SmartApp.exe">
-here</a> (the related knowledge base article 208048 is no longer available).
-Reference information about the I/O requests to access SMART data is
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/storage/hh/storage/k307_8c974d08-3752-4442-82a5-cc13835ba482.xml.asp">
-here</a> and
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/storage/hh/storage/k307_2b043284-934c-4440-a4a4-6078f1bc845d.xml.asp">
-here</a>.
-A related newsgroup thread (with pointers to additional documentation,
-etc.) is <a
-href="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;oe=UTF-8&amp;th=18cdac9d90f6bda1&amp;rnum=1">here</a>.
-</p>
 </li>
 
 <li><b>Why did the release version scheme change?</b>
@@ -947,6 +932,54 @@ error log entries in the circular buffer.  Smartmontools will correct
 for this oversight, so this warning message can be safely ignored by
 users.  (On the other hand, firmware engineers: please read the ATA
 specs more closely then fix your code!).
+</p>
+</li>
+
+<li><a name="FAQ-win-ioctl"></a><b>On Windows, smartctl prints the
+message: "...Log Read failed: Function not implemented". What is
+going wrong?</b>
+<p>
+This means that the device driver does not support the command
+SMART READ LOG.
+<u>The message does not indicate a hard disk problem!</u>
+It does also not mean that the disk itself does not support SMART
+logs. It may still be possible to read the logs with a Linux version
+of smartmontools run from some <a href="#bootable">bootable CD</a>.
+</p>
+<p>
+To access ATA SMART functionality on Windows, smartmontools uses the
+I/O control calls
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_8c974d08-3752-4442-82a5-cc13835ba482.xml.asp">
+SMART_RCV_DRIVE_DATA</a> and
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_2b043284-934c-4440-a4a4-6078f1bc845d.xml.asp">
+SMART_SEND_DRIVE_CMD</a>.
+These calls were available since Win95 OSR2.
+An example program from Microsoft can be found
+<a href="http://download.microsoft.com/download/winddk/sample3/9x/W9X/EN-US/SmartApp.exe">
+here</a> (the related KB article 208048 is no longer available).
+</p>
+<p>
+Starting with NT4, these calls do more restrictive parameter checks.
+In particular, the command codes for SMART READ LOG and ABORT SELF-TEST
+are not accepted. To perform these functions, smartmontools uses the
+undocumented functions SCSIOP_ATA_PASSTHROUGH (NT4) or
+IOCTL_IDE_PASS_THROUGH (2000/XP) instead.
+An example program using these calls can be found
+<a href="ftp://ftp.heise.de/pub/ct/listings/0207-218.zip">here</a>,
+a related newsgroup thread is
+<a href="http://groups.google.com/group/microsoft.public.development.device.drivers/browse_frm/thread/e9763262823e11d1">
+here</a>.
+</p>
+Unfortunately, these undocumented functions are not implemented in
+most vendor specific ATA device drivers. Smartctl prints a
+"Function not implemented" message in this case.
+<p>
+A new I/O control call
+<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_e93738e1-b773-452b-8776-854f9c616967.xml.asp">
+IOCTL_ATA_PASS_THROUGH</a> is available since Win2003 and XP SP2.
+It should be supported by most new drivers. Experimental code using
+this call was added 2006-04-27 and will appear in smartmontools
+release 5.37.
 </p>
 </li>
 </ul>
@@ -1204,8 +1237,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/06/09 20:24:05 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.201 2006/06/09 20:24:05 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2006/06/10 19:13:34 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.202 2006/06/10 19:13:34 chrfranke Exp $</tt>
 
 <hr size="2" />
 
