@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.101 2006/05/12 21:39:20 chrfranke Exp $
+$Id: smartd.8.in,v 1.102 2006/06/10 17:40:22 dpgilbert Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -595,7 +595,7 @@ directives can be used for these disks (but see note below).
 .TP
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
-times for one device, but the arguments \fIata\fP, \fIscsi\fP,
+times for one device, but the arguments \fIata\fP, \fIscsi\fP, \fIsat\fP,
 \fImarvell\fP, and \fI3ware,N\fP are mutually-exclusive. If more than
 one is given then \fBsmartd\fP will use the last one which appears.
 
@@ -619,6 +619,18 @@ from issuing SCSI commands to an ATA device.
 \- the device type is SCSI.  This prevents
 \fBsmartd\fP
 from issuing ATA commands to a SCSI device.
+
+.I sat
+\- the device type is SCSI to ATA Translation (SAT).
+\fBsmartd\fP
+will generate ATA (smart) commands and then package them in
+the SAT defined ATA PASS THROUGH SCSI commands. The commands
+are then routed through the SCSI pass through interface to the
+operating system. There are two types of ATA PASS THROUGH
+SCSI commands: a 12 byte and 16 byte variant.
+\fBsmartd\fP
+can use either and defaults to the 16 byte variant. This can
+be overridden with this syntax: \'\-d sat,12\' or \'\-d sat,16\'.
 
 .I marvell
 \- Under Linux, interact with SATA disks behind Marvell chip-set
@@ -1876,4 +1888,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.101 2006/05/12 21:39:20 chrfranke Exp $
+$Id: smartd.8.in,v 1.102 2006/06/10 17:40:22 dpgilbert Exp $
