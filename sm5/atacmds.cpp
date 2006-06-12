@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.173 2006/06/10 16:30:57 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.174 2006/06/12 02:13:44 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -85,7 +85,7 @@ const char *minor_str[] = {                     /* word 81 value: */
   "ATA/ATAPI-7 T13 1532D revision 1",           /* 0x001a       */
   "ATA/ATAPI-6 T13 1410D revision 2",           /* 0x001b       */
   "ATA/ATAPI-6 T13 1410D revision 1",           /* 0x001c       */
-  "reserved",                                   /* 0x001d       */
+  "ATA/ATAPI-7 published, ANSI INCITS 397-2005",/* 0x001d       */
   "ATA/ATAPI-7 T13 1532D revision 0",           /* 0x001e       */
   "reserved",                                   /* 0x001f       */
   "reserved",                                   /* 0x0020       */
@@ -130,7 +130,7 @@ const int actual_ver[] = {
   7,            /* 0x001a       WARNING:        */
   6,            /* 0x001b       WARNING:        */
   6,            /* 0x001c       WARNING:        */
-  0,            /* 0x001d       WARNING:        */
+  7,            /* 0x001d       WARNING:        */
   7,            /* 0x001e       WARNING:        */
   0,            /* 0x001f       WARNING:        */
   0,            /* 0x0020       WARNING:        */
