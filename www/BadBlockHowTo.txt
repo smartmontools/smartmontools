@@ -499,7 +499,7 @@ Et voilà !
 
 
 
-This document is version $Id: BadBlockHowTo.txt,v 1.8 2006/05/23 10:50:31 ballen4705 Exp $
-It is Copyright Bruce Allen (2004) and distributed under GPL2.
+This document is version $Id: BadBlockHowTo.txt,v 1.9 2006/06/12 02:16:50 ballen4705 Exp $
+It is Copyright Bruce Allen (2004-6) and distributed under GPL2.
 
 
