@@ -29,6 +29,9 @@
  * adapter (HA or HBA) firmware, or somewhere on the interconnect
  * between the host computer and the SATA devices (e.g. a RAID made
  * of SATA disks and the RAID talks "SCSI" to the host computer).
+ * Note that in the latter case, this code does not solve the
+ * addressing issue (i.e. which SATA disk to address behind the logical
+ * SCSI (RAID) interface).
  * 
  */
 
@@ -42,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.4 2006/06/10 16:30:57 ballen4705 Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.5 2006/06/13 14:38:50 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -105,17 +108,17 @@ extern smartmonctrl *con;
 
 
 // PURPOSE
-//   This is an interface routine meant to isolate the OS dependent
-//   parts of the code, and to provide a debugging interface.  Each
-//   different port and OS needs to provide it's own interface.  This
-//   is the linux one.
+//   This interface routine takes ATA SMART commands and packages
+//   them in the SAT-defined ATA PASS THROUGH SCSI commands. There are
+//   two available SCSI commands: a 12 byte and 16 byte variant; the
+//   one used is chosen via con->satpassthrulen .
 // DETAILED DESCRIPTION OF ARGUMENTS
-//   device: is the file descriptor provided by open()
-//   command: defines the different operations.
+//   device: is the file descriptor provided by (a SCSI dvice type) open()
+//   command: defines the different ATA operations.
 //   select: additional input data if needed (which log, which type of
 //           self-test).
 //   data:   location to write output data, if needed (512 bytes).
-//   Note: not all commands use all arguments.
+//     Note: not all commands use all arguments.
 // RETURN VALUES
 //  -1 if the command failed
 //   0 if the command succeeded,
@@ -315,8 +318,9 @@ int sat_command_interface(int device, smart_command_set command, int select,
                     if ((ucp[9] == 0x4f) && (ucp[11] == 0xc2))
                         return 0;    /* GOOD smart status */
                     if ((ucp[9] == 0xf4) && (ucp[11] == 0x2c))
-                        return 1;    /* smart predicting failure, "bad" status */
-                    // We haven't gotten output that makes sense; print out some debugging info
+                        return 1;    // smart predicting failure, "bad" status
+                    // We haven't gotten output that makes sense so
+                    // print out some debugging info
                     syserror("Error SMART Status command failed");
                     pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
                     pout("Values from ATA status return descriptor are:\n");
