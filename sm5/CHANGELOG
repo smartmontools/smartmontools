@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.550 2006/06/12 02:13:44 ballen4705 Exp $
+$Id: CHANGELOG,v 1.551 2006/06/20 23:31:39 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SS] NetBSD: Deliver strings from ata_identify_device properly 
+       on little- and big-endian platforms.
 
   [BA] Added published ANSI ATA-7 spec to list of recognized ATA
        versions.
