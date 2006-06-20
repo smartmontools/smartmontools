@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.15 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.16 2006/06/20 19:24:00 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -229,7 +229,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
   case IDENTIFY:
     req.flags = ATACMD_READ;
     req.command = WDCC_IDENTIFY;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
     req.timeout = 1000;
     copydata = 1;
@@ -237,7 +237,7 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
   case PIDENTIFY:
     req.flags = ATACMD_READ;
     req.command = ATAPI_IDENTIFY_DEVICE;
-    req.databuf = (caddr_t) inbuf;
+    req.databuf = inbuf;
     req.datalen = sizeof(inbuf);
     req.timeout = 1000;
     copydata = 1;
