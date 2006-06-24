@@ -22,9 +22,17 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2006-05-08</pubdate>
+  <pubdate>2006-06-24</pubdate>
 
   <revhistory>
+     <revision>
+       <revnumber>1.5</revnumber>
+       <date>2006-06-24</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             device type sat
+       </revremark>
+     </revision>
      <revision>
        <revnumber>1.4</revnumber>
        <date>2006-05-08</date>
@@ -137,7 +145,7 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 <para>
 This document outlines the features found in smartmontools
 version 5.38 that are relevant to SCSI disks and tape drives.
-This document was last altered on 8th May 2006.
+This document was last altered on 24th May 2006.
 </para>
 </sect1>
 
@@ -242,8 +250,9 @@ series) and udev (its replacement in the lk 2.6 series). In short, device
 naming is a complex area and smartmontools does its best to find
 and identify (i.e. whether ATA or SCSI) a device depending on its name. In
 some cases smartmontools needs guidance from the user and this can be given
-by the '-d ata|scsi|marvell|3ware,N' option in the <command>smartctl</command>
-utility and in <command>smartd</command> daemon's configuration file.
+by the '-d ata|scsi|sat|marvell|3ware,N' option in the
+<command>smartctl</command> utility and in <command>smartd</command>
+daemon's configuration file.
 </para>
 </sect1>
 
@@ -301,6 +310,28 @@ that may lead to improvements in this area. Apart from defining
 some of the facilities smartmontools needs, it defines two ATA PASS THROUGH
 SCSI commands. These pass through commands could be used in much the
 same way that the 3ware RAID tunnels ATA commands.
+</para>
+<para>
+In order for smartmontools to access an ATA device "behind" a SAT layer
+that implements either of the ATA PASS THROUGH SCSI commands, a new device
+type called '-d sat' has been introduced. For example this command:
+<command>smartctl -a -d sat /dev/sda</command> will form ATA commands
+to access various SMART attributes of an ATA disk, then package those
+commands within ATA PASS THROUGH SCSI commands and then forward them
+to the SCSI interface of <filename>/dev/sda</filename>.
+</para>
+<para>
+It has been reported that many external USB enclosures use a "Cypress"
+chipset. This contains an ATACB proprietary pass through (for ATA
+commands passed through SCSI commands) for which some publicly
+available information is available. Smartmontools has no ATACB specific
+code but may move in this direction in the future. Another approach is
+to hope USB and SBP2 external enclosures adopt the SAT standard in the
+near future. One interesting comment about ATACB is that it should not
+be used at the same time as other types of access to the disk (e.g. a
+mounted file system)! That implies that a disk should be taken
+offline before smartmontools is used on it. It also implies that
+the smartd background daemon should not be used.
 </para>
 </sect1>
 
@@ -365,7 +396,7 @@ associated with a SAS expander)
 </itemizedlist>
 </para>
 <para>
-For normal file system work, a SCSI to ATA translation layer only
+For normal file system work, a SCSI to ATA (SAT) translation layer only
 needs to concern itself with around 6 commands. Unfortunately
 smartmontools uses other commands (both in the SCSI and ATA
 command sets). Probably the simplest way to handle SMART for SATA disks
@@ -380,37 +411,39 @@ command set.
 <footnote><para>
 Even sending trial ATA and SCSI commands to see which one a device
 responds to could be tricked. ATAPI cd/dvd drives respond to
-both ATA commands (a few, for examplel IDENTIFY PACKET DEVICE) and SCSI
+both ATA commands (a few, for example IDENTIFY PACKET DEVICE) and SCSI
 commands (found in MMC).
 </para></footnote>
 By using either the '-d ata' or the '-d scsi' option, the command set
-guess made by smartmontools can be overridden. Future versions of
-smartmontools may automate this but currently if a SATA disk appears
+guess made by smartmontools can be overridden. The '-d sat' device
+type causes smartmontools to generate ATA commands which are then packaged
+within the ATA PASS THROUGH SCSI commands (defined by the SAT standard)
+and then sent to the device via a SCSI pass through mechanism.
+Future versions of smartmontools may automate the detection of a "SATA
+disk behind a SAT layer" but currently if a SATA disk appears
 with a SCSI type device node name then a command like this may be
-required: <command>smartctl -a -d ata /dev/sda</command> . 
+required: <command>smartctl -a -d sat /dev/sda</command> . 
 </para>
 </sect1>
 
 <sect1 id="smart">
       <title>SMART</title>
 <para>
-<acronym>SMART</acronym> never attained the status
-of "standard" and its original documents have been withdrawn. Its catchy
-name lives on, especially on vendors' web sites and obviously in the
-name of this toolset. Luckily the good ideas in <acronym>SMART</acronym>
-have been incorporated into the ATA and SCSI standards albeit in
-slightly different forms.
+<acronym>SMART</acronym> never attained the status of "standard" and its
+original documents have been withdrawn. Its catchy name lives on, especially
+on vendors' web sites and obviously in the name of this toolset. Luckily
+the good ideas in <acronym>SMART</acronym> have been incorporated into the
+ATA and SCSI standards albeit in slightly different forms.
 </para>
 <para>
 Initially <acronym>SMART</acronym> began on SCSI disks as vendor
 specific extensions. Gradually the <acronym>SMART</acronym> functionality has
 moved into the standards (often by other names) and vendors are improving
 their standards' compliance. [In the vendors' defence some of the
-"standards" are drafts and are yet to be ratified.]
-Some SCSI disk vendors have product manuals (available on the net)
-that cover the parts of the SCSI command set
-that their disks support. Some of these manuals fill in details that are
-left deliberately vague in the the standards.
+"standards" are drafts and are yet to be ratified.] Some SCSI disk vendors
+have product manuals (available on the net) that cover the parts of the SCSI
+command set that their disks support. Some of these manuals fill in details
+that are left deliberately vague in the the standards.
 <footnote><para>
 For example: Seagate's "Cheetah 15K.3 Product Manual, Rev F" contains 
 sections on <acronym>SMART</acronym>,
@@ -421,9 +454,9 @@ lists the supported mode pages with their default and changeable values.
 <para>
 SCSI standards (found at <ulink url="http://www.t10.org">
 <literal>www.t10.org</literal></ulink>) only make one footnote
-reference to the term <acronym>SMART</acronym>.
-Instead the awkward term "Informational Exceptions" is used.
-For SCSI tapes the term "TapeAlert" is used.
+reference to the term <acronym>SMART</acronym>. In its place
+the awkward term "Informational Exceptions" is used. For SCSI tapes the term
+"TapeAlert" is used.
 </para>
 </sect1>
 
@@ -723,7 +756,7 @@ Errors Corrected by ECC, fast [Errors corrected without substantial delay:
 00h]. An error correction was applied to get perfect data (a.k.a. ECC
 on-the-fly). "Without substantial delay" means the correction did not
 postpone reading of later sectors (e.g. a revolution was not lost). The
-counter is incremented once for each logical block that requies correction.
+counter is incremented once for each logical block that requires correction.
 Two different blocks corrected during the same command are counted as two
 events.
 </para></listitem>
@@ -763,7 +796,7 @@ Seagate manual.]
 <listitem><para>
 Correction algorithm invocations [Total times correction algorithm
 processed: 04h]. This parameter code specifies the counter that counts
-the total numer of retries, or "times the retry algorithm is invoked".
+the total number of retries, or "times the retry algorithm is invoked".
 If after five attempts a counter 02h type error is recovered, then five
 is added to this counter. If three retries are required to get stable
 ECC syndrome before a counter 01h type error is corrected, then those
@@ -1050,9 +1083,8 @@ remotely administer the enclosure.
 <para>
 One of the first surprises working with SCSI devices and smartmontools
 is that the SCSI standards (found at <ulink url="http://www.t10.org">
-<literal>www.t10.org</literal></ulink>)
-do <emphasis>not</emphasis> use
-the term <acronym>SMART</acronym>. Instead the awkward term "Informational
+<literal>www.t10.org</literal></ulink>) do <emphasis>not</emphasis> use
+the term <acronym>SMART</acronym>. In its place the awkward term "Informational
 Exceptions" (IE) is used.
 </para>
 <para>
@@ -1306,7 +1338,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.13 2006/05/12 02:28:28 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.14 2006/06/24 13:05:58 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
