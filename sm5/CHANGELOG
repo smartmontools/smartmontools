@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.551 2006/06/20 23:31:39 shattered Exp $
+$Id: CHANGELOG,v 1.552 2006/06/26 17:03:30 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] Add indication that controller (device) type has been
+       explicitly set. Preparation for automatic detection of
+       'sat' device type unless user specifies a device type.
 
   [SS] NetBSD: Deliver strings from ata_identify_device properly 
        on little- and big-endian platforms.
