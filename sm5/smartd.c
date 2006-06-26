@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.368 2006/06/09 17:33:13 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.369 2006/06/26 16:59:13 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.368 2006/06/09 17:33:13 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.369 2006/06/26 16:59:13 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1303,6 +1303,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   // pass user settings on to low-level ATA commands
   con->controller_port=cfg->controller_port;
   con->controller_type=cfg->controller_type;
+  con->controller_explicit=cfg->controller_explicit;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
   con->satpassthrulen = cfg->satpassthrulen;
   
@@ -2224,6 +2225,7 @@ int ATACheckDevice(cfgfile *cfg){
   con->fixfirmwarebug=cfg->fixfirmwarebug;
   con->controller_port=cfg->controller_port;
   con->controller_type=cfg->controller_type;
+  con->controller_explicit=cfg->controller_explicit;
 
   // If user has asked, test the email warning system
   if (cfg->mailwarn && cfg->mailwarn->emailtest)
@@ -2853,6 +2855,7 @@ int ParseToken(char *token,cfgfile *cfg){
     break;
   case 'd':
     // specify the device type
+    cfg->controller_explicit = 1;
     if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "ata")) {
