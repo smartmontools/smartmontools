@@ -45,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.5 2006/06/13 14:38:50 dpgilbert Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.c,v 1.6 2006/07/01 21:30:04 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -371,6 +371,21 @@ int sat_command_interface(int device, smart_command_set command, int select,
         }
     }
     return 0;
+}
+
+/* Attempt an IDENTIFY DEVICE ATA command via SATL when packet_interface
+   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
+   return 1, else 0 */
+int has_sat_pass_through(int device, int packet_interface)
+{
+    char data[512];
+    smart_command_set command;
+
+    command = packet_interface ? PIDENTIFY : IDENTIFY;
+    if (0 == sat_command_interface(device, command, 0, data))
+        return 1;
+    else
+        return 0;
 }
 
 /* Next two functions are borrowed from sg_lib.c in the sg3_utils
