@@ -20,7 +20,7 @@
 #ifndef SCSIATA_H_
 #define SCSIATA_H_
 
-#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.1 2006/06/08 03:09:30 dpgilbert Exp $\n"
+#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.2 2006/07/01 21:29:31 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +34,11 @@
 
 extern int sat_command_interface(int device, smart_command_set command,
                                  int select, char *data);
+
+/* Attempt an IDENTIFY DEVICE ATA command via SATL when packet_interface
+   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
+   return 1, else 0 */
+extern int has_sat_pass_through(int device, int packet_interface);
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
