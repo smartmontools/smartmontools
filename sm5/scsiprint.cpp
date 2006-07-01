@@ -38,10 +38,11 @@
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
+#include "scsiata.h"
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.108 2006/04/15 14:29:01 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.109 2006/07/01 21:32:20 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -850,8 +851,6 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     peri_dt = gBuf[0] & 0x1f;
     if (peripheral_type)
         *peripheral_type = peri_dt;
-    if (! all)
-        return 0;
 
     if (len < 36) {
         PRINT_ON(con);
@@ -867,7 +866,8 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         
     memset(revision, 0, sizeof(revision));
     strncpy(revision, (char *)&gBuf[32], 4);
-    pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
+    if (all && (0 != strncmp(manufacturer, "ATA", 3)))
+        pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
     if (0 == strncmp(manufacturer, "3ware", 5) || 0 == strncmp(manufacturer, "AMCC", 4) ) {
         pout("please try adding '-d 3ware,N'\n");
@@ -877,10 +877,21 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
 	       (0 == strncmp((const char *)(gBuf + 36), "MVSATA", 6))) {
         pout("please try '-d marvell'\n");
         return 2;
+    } else if ((0 == con->controller_explicit) &&
+	       (0 == strncmp(manufacturer, "ATA     ", 8)) &&
+               has_sat_pass_through(device, 0)) {
+        con->controller_type = CONTROLLER_SAT;
+        if (con->reportscsiioctl > 0) {
+            PRINT_ON(con);
+            pout("Detected SAT interface, switch to device type 'sat'\n");
+            PRINT_OFF(con);
+        }
+	return 2;
     } else if ((avail_len >= 96) && (0 == strncmp(manufacturer, "ATA", 3))) {
         /* <<<< This is Linux specific code to detect SATA disks using a
                 SCSI-ATA command translation layer. This may be generalized
                 later when the t10.org SAT project matures. >>>> */
+        pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
         req_len = 252;
         memset(gBuf, 0, req_len);
         if ((err = scsiInquiryVpd(device, 0x83, gBuf, req_len))) {
@@ -895,11 +906,13 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         if (isLinuxLibAta(gBuf, len)) {
             pout("\nIn Linux, SATA disks accessed via libata are "
                  "only supported by smartmontools\n"
-                 "for kernel versions 2.6.15 and above. Try "
-                 "an additional '-d ata' argument.\n");
+                 "for kernel versions 2.6.15 and above.\n  Try "
+                 "an additional '-d ata' or '-d sat' argument.\n");
             return 2;
         }
     }
+    if (! all)
+        return 0;
 
     /* Do this here to try and detect badly conforming devices (some USB
        keys) that will lock up on a InquiryVpd or log sense or ... */
