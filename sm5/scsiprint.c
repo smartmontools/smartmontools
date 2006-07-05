@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.109 2006/07/01 21:32:20 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.c,v 1.110 2006/07/05 15:54:43 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -235,10 +235,9 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
 
 static void scsiGetStartStopData(int device)
 {
-    UINT32 currentStartStop;
-    UINT32 recommendedStartStop; 
-    int err, len, k;
-    char str[6];
+    UINT32 u;
+    int err, len, k, extra, pc;
+    unsigned char * ucp;
 
     if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, gBuf,
                             LOG_RESP_LEN, 0))) {
@@ -253,26 +252,45 @@ static void scsiGetStartStopData(int device)
         PRINT_OFF(con);
         return;
     }
-    len = ((gBuf[2] << 8) | gBuf[3]) + 4;
-    if (len > 13) {
-        for (k = 0; k < 2; ++k)
-            str[k] = gBuf[12 + k];
-        str[k] = '\0';
-        pout("Manufactured in week %s of year ", str);
-        for (k = 0; k < 4; ++k)
-            str[k] = gBuf[8 + k];
-        str[k] = '\0';
-        pout("%s\n", str);
-    }
-    if (len > 39) {
-        recommendedStartStop = (gBuf[28] << 24) | (gBuf[29] << 16) |
-                               (gBuf[30] << 8) | gBuf[31];
-        currentStartStop = (gBuf[36] << 24) | (gBuf[37] << 16) |
-                           (gBuf[38] << 8) | gBuf[39];
-        pout("Current start stop count:      %u times\n", currentStartStop);
-	if (0xffffffff != recommendedStartStop)
-            pout("Recommended maximum start stop count:  %u times\n", 
-                 recommendedStartStop);
+    len = ((gBuf[2] << 8) | gBuf[3]);
+    ucp = gBuf + 4;
+    for (k = len; k > 0; k -= extra, ucp += extra) {
+        if (k < 3) {
+            PRINT_ON(con);
+            pout("StartStop Log Sense Failed: short\n");
+            PRINT_OFF(con);
+            return;
+        }
+        extra = ucp[3] + 4;
+        pc = (ucp[0] << 8) + ucp[1];
+        switch (pc) {
+        case 1:
+            if (10 == extra)
+                pout("Manufactured in week %.2s of year %.4s\n", ucp + 8,
+                     ucp + 4);
+            break;
+        case 2:
+            /* ignore Accounting date */
+            break;
+        case 3:
+            if (extra > 7) {
+                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
+                if (0xffffffff != u)
+                    pout("Recommended maximum start stop count:  %u times\n",
+                         u);
+            }
+            break;
+        case 4:
+            if (extra > 7) {
+                u = (ucp[4] << 24) | (ucp[5] << 16) | (ucp[6] << 8) | ucp[7];
+                if (0xffffffff != u)
+                    pout("Current start stop count:      %u times\n", u);
+            }
+            break;
+        default:
+            /* ignore */
+            break;
+        }
     }
 } 
 

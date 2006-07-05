@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.553 2006/07/01 21:37:07 dpgilbert Exp $
+$Id: CHANGELOG,v 1.554 2006/07/05 15:56:05 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] Make start stop cycle counter log page decoding
+       more robust
 
   [DG] Modify smartctl (but not smartd) to detect probable ATA
        devices behind a SAT layer. In the absence of an explicit
