@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.65 2006/06/05 17:36:03 chrfranke Exp $
+$Id: INSTALL,v 1.66 2006/07/08 17:15:44 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -150,7 +150,8 @@ Table of contents:
     SCSI devices are supported on all versions of Windows. An installed
     ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
     The code was tested with Adaptec Windows ASPI drivers 4.71.2.
-    (http://www.adaptec.com/worldwide/support/drivers_by_product.jsp?cat=/Product/ASPI-4.70)
+    (http://www.adaptec.com/en-US/support/scsi_soft/ASPI/ASPI-4.70/)
+    Links to other ASPI drivers can be found at http://www.nu2.nu/aspi/.
 
     G) MacOS/Darwin
 
