@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.75 2006/07/16 17:30:04 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.76 2006/07/16 18:01:28 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -371,6 +371,9 @@ this is probably what you want.
 \- check the device unless it is in SLEEP, STANDBY or IDLE mode.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
+
+When a self test is scheduled (see \'\-s\' Directive below), the
+\'\fB\-n\fP\' Directive is ignored, and all tests are carried out.
 
 When a periodic test is skipped, \fBsmartd\fP normally writes an
 informal log message. The message can be suppressed by appending
@@ -1297,4 +1300,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.75 2006/07/16 17:30:04 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.76 2006/07/16 18:01:28 chrfranke Exp $
