@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.370 2006/07/01 21:33:49 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.371 2006/07/16 18:01:28 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.370 2006/07/01 21:33:49 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.371 2006/07/16 18:01:28 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2221,6 +2221,7 @@ int ATACheckDevice(cfgfile *cfg){
   int fd,i;
   char *name=cfg->name;
   char *mode="ATA";
+  char testtype=0;
   
   // fix firmware bug if requested
   con->fixfirmwarebug=cfg->fixfirmwarebug;
@@ -2245,6 +2246,25 @@ int ATACheckDevice(cfgfile *cfg){
   if ((fd=OpenDevice(name, mode, 0))<0){
     MailWarning(cfg, 9, "Device: %s, unable to open device", name);
     return 1;
+  }
+
+  // if the user has asked, and device is capable (or we're not yet
+  // sure) check whether a self test should be done now.
+  // This check is done before powermode check to avoid missing self
+  // tests on idle or sleeping disks.
+  if (cfg->testdata) {
+    // long test
+    if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
+      testtype = 'L';
+    // short test
+    else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S', 0)>0)
+      testtype = 'S';
+    // conveyance test
+    else if (!cfg->testdata->not_cap_conveyance && DoTestNow(cfg, 'C', 0)>0)
+      testtype = 'C';
+    // offline immediate
+    else if (!cfg->testdata->not_cap_offline && DoTestNow(cfg, 'O', 0)>0)
+      testtype = 'O';
   }
 
   // user may have requested (with the -n Directive) to leave the disk
@@ -2292,11 +2312,15 @@ int ATACheckDevice(cfgfile *cfg){
 
     // if we are going to skip a check, return now
     if (dontcheck){
-      CloseDevice(fd, name);
-      if (!cfg->powerquiet) // to avoid waking up system disk
-        PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
-      return 0;
-    }    
+      // but ignore powermode on scheduled selftest
+      if (!testtype) {
+        CloseDevice(fd, name);
+        if (!cfg->powerquiet) // to avoid waking up system disk
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
+        return 0;
+      }
+      PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test\n", name, mode);
+    }
   }
 
   // check smart status
@@ -2455,22 +2479,9 @@ int ATACheckDevice(cfgfile *cfg){
       cfg->ataerrorcount=new;
   }
   
-  // if the user has asked, and device is capable (or we're not yet
-  // sure) carry out scheduled self-tests.
-  if (cfg->testdata) {
-    // long test
-    if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
-      DoATASelfTest(fd, cfg, 'L');    
-    // short test
-    else if (!cfg->testdata->not_cap_short && DoTestNow(cfg, 'S', 0)>0)
-      DoATASelfTest(fd, cfg, 'S');
-    // conveyance test
-    else if (!cfg->testdata->not_cap_conveyance && DoTestNow(cfg, 'C', 0)>0)
-      DoATASelfTest(fd, cfg, 'C');
-    // offline immediate
-    else if (!cfg->testdata->not_cap_offline && DoTestNow(cfg, 'O', 0)>0)
-      DoATASelfTest(fd, cfg, 'O');  
-  }
+  // carry out scheduled self-test
+  if (testtype)
+    DoATASelfTest(fd, cfg, testtype);
   
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
