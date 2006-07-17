@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.c,v 1.371 2006/07/16 18:01:28 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.c,v 1.372 2006/07/17 20:42:04 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.c,v 1.371 2006/07/16 18:01:28 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.c,v 1.372 2006/07/17 20:42:04 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2285,27 +2285,28 @@ int ATACheckDevice(cfgfile *cfg){
       // SLEEP
       mode="SLEEP";
       if (cfg->powermode>=1)
-	dontcheck=1;
+        dontcheck=1;
       break;
     case 0:
       // STANDBY
       mode="STANDBY";
       if (cfg->powermode>=2)
-	dontcheck=1;
+        dontcheck=1;
       break;
     case 0x80:
       // IDLE
       mode="IDLE";
       if (cfg->powermode>=3)
-	dontcheck=1;
+        dontcheck=1;
       break;
     case 0xff:
       // ACTIVE/IDLE
+      mode="ACTIVE or IDLE";
       break;
     default:
       // UNKNOWN
       PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
-	       name, powermode);
+        name, powermode);
       cfg->powermode=0;
       break;
     }
@@ -2315,11 +2316,19 @@ int ATACheckDevice(cfgfile *cfg){
       // but ignore powermode on scheduled selftest
       if (!testtype) {
         CloseDevice(fd, name);
-        if (!cfg->powerquiet) // to avoid waking up system disk
-          PrintOut(LOG_INFO, "Device: %s, is in %s mode, skipping checks\n", name, mode);
+        if (!cfg->powerskipcnt && !cfg->powerquiet) // report first only and avoid waking up system disk
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
+        cfg->powerskipcnt++;
         return 0;
       }
-      PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test\n", name, mode);
+      PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test (%d check%s skipped)\n",
+        name, mode, cfg->powerskipcnt, (cfg->powerskipcnt==1?"":"s"));
+      cfg->powerskipcnt = 0;
+    }
+    else if (cfg->powerskipcnt) {
+      PrintOut(LOG_INFO, "Device: %s, is back in %s mode, resuming checks (%d check%s skipped)\n",
+        name, mode, cfg->powerskipcnt, (cfg->powerskipcnt==1?"":"s"));
+      cfg->powerskipcnt = 0;
     }
   }
 

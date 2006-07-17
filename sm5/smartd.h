@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.80 2006/06/26 16:58:20 dpgilbert Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.81 2006/07/17 20:42:04 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -200,6 +200,7 @@ typedef struct configfile_s {
   maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
   unsigned char temperature;              // last recorded Temperature (in Celsius)
   unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
+  int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
 
   // SCSI ONLY
   unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
