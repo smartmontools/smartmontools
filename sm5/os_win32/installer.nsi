@@ -8,7 +8,7 @@
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
 ; Process with makensis to create installer (tested with NSIS 2.17).
 ;
-; $Id: installer.nsi,v 1.1 2006/06/05 17:35:34 chrfranke Exp $
+; $Id: installer.nsi,v 1.2 2006/07/17 20:51:22 chrfranke Exp $
 ;
 
 
@@ -153,10 +153,10 @@ Section "Start Menu Shortcuts"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART health status (-H).lnk"         "$INSTDIR\bin\smartctl-run.bat" "-H hda"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART error log (-l error).lnk"       "$INSTDIR\bin\smartctl-run.bat" "-l error hda"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART selftest log (-l selftest).lnk" "$INSTDIR\bin\smartctl-run.bat" "-l selftest hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start long selfttest (-t long).lnk"   "$INSTDIR\bin\smartctl-run.bat" "-t long hda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start long selftest (-t long).lnk"    "$INSTDIR\bin\smartctl-run.bat" "-t long hda"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start offline test (-t offline).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t offline hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start short selfttest (-t short).lnk" "$INSTDIR\bin\smartctl-run.bat" "-t short hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Stop(Abort) selfttest (-X).lnk"       "$INSTDIR\bin\smartctl-run.bat" "-X hda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start short selftest (-t short).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t short hda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Stop(Abort) selftest (-X).lnk"        "$INSTDIR\bin\smartctl-run.bat" "-X hda"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART off (-s off).lnk"          "$INSTDIR\bin\smartctl-run.bat" "-s off hda"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART on (-s on).lnk"            "$INSTDIR\bin\smartctl-run.bat" "-s on hda"  
   noctl:
