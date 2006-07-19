@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.36 2006/06/08 19:00:40 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.37 2006/07/19 19:01:43 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -279,12 +279,12 @@ void print_smartctl_examples(){
 #endif
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
-		 "\n"
-		 "  ATA SMART access methods and ordering may be specified by modifiers\n"
-		 "  following the device name: /dev/hdX:[saic], where\n"
-		 "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
-		 "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH.\n"
-		 "  The default on this system is /dev/hdX:%s\n", ata_get_def_options()
+         "\n"
+         "  ATA SMART access methods and ordering may be specified by modifiers\n"
+         "  following the device name: /dev/hdX:[saic], where\n"
+         "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
+         "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH.\n"
+         "  The default on this system is /dev/hdX:%s\n", ata_get_def_options()
   );
 }
 
@@ -534,8 +534,10 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 	if (!DeviceIoControl(hdevice, IOCTL_IDE_PASS_THROUGH,
 		buf, size, buf, size, &num_out, NULL)) {
 		long err = GetLastError();
-		if (con->reportataioctl)
+		if (con->reportataioctl) {
 			pout("  IOCTL_IDE_PASS_THROUGH failed, Error=%ld\n", err);
+			print_ide_regs_io(regs, NULL);
+		}
 		VirtualFree(buf, 0, MEM_RELEASE);
 		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
 		return -1;
@@ -660,8 +662,10 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 	if (!DeviceIoControl(hdevice, IOCTL_ATA_PASS_THROUGH,
 		&ab, size, &ab, size, &num_out, NULL)) {
 		long err = GetLastError();
-		if (con->reportataioctl)
+		if (con->reportataioctl) {
 			pout("  IOCTL_ATA_PASS_THROUGH_EX failed, Error=%ld\n", err);
+			print_ide_regs_io(regs, NULL);
+		}
 		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
 		return -1;
 	}
@@ -807,12 +811,73 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 	return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+// Call GetDevicePowerState() if available (Win98/ME/2000/XP/2003)
+// returns: 1=active, 0=standby, -1=error
+// (This would also work for SCSI drives)
+
+static int get_device_power_state(HANDLE hdevice)
+{
+	static HINSTANCE h_kernel_dll = 0;
+#ifdef __CYGWIN__
+	static DWORD kernel_dll_pid = 0;
+#endif
+	static BOOL (WINAPI * GetDevicePowerState_p)(HANDLE, BOOL *) = 0;
+
+	BOOL state = TRUE;
+
+	if (!GetDevicePowerState_p
+#ifdef __CYGWIN__
+	    || kernel_dll_pid != GetCurrentProcessId() // detect fork()
+#endif
+	   ) {
+		if (h_kernel_dll == INVALID_HANDLE_VALUE) {
+			errno = ENOSYS;
+			return -1;
+		}
+		if (!(h_kernel_dll = LoadLibraryA("KERNEL32.DLL"))) {
+			pout("Cannot load KERNEL32.DLL, Error=%ld\n", GetLastError());
+			h_kernel_dll = INVALID_HANDLE_VALUE;
+			errno = ENOSYS;
+			return -1;
+		}
+		if (!(GetDevicePowerState_p = (BOOL (WINAPI *)(HANDLE, BOOL *))
+		                              GetProcAddress(h_kernel_dll, "GetDevicePowerState"))) {
+			if (con->reportataioctl)
+				pout("  GetDevicePowerState() not found, Error=%ld\n", GetLastError());
+			FreeLibrary(h_kernel_dll);
+			h_kernel_dll = INVALID_HANDLE_VALUE;
+			errno = ENOSYS;
+			return -1;
+		}
+#ifdef __CYGWIN__
+		kernel_dll_pid = GetCurrentProcessId();
+#endif
+	}
+
+	if (!GetDevicePowerState_p(hdevice, &state)) {
+		long err = GetLastError();
+		if (con->reportataioctl)
+			pout("  GetDevicePowerState() failed, Error=%ld\n", err);
+		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		// TODO: This may not work as expected on transient errors,
+		// because smartd interprets -1 as SLEEP mode regardless of errno.
+		return -1;
+	}
+
+	if (con->reportataioctl > 1)
+		pout("  GetDevicePowerState() succeeded, state=%d\n", state);
+	return state;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 
 static HANDLE h_ata_ioctl = 0;
 static const char * ata_def_options;
 static char * ata_cur_options;
+static char ata_opened[10]; // true if drive# has been opened before
 
 
 // Print SMARTVSD error message, return errno
@@ -873,7 +938,7 @@ static const char * ata_get_def_options()
 	else if ((ver & 0xff) == 4) // WinNT4
 		return "sc"; // SMART_*, SCSI_PASS_THROUGH
 	else // WinXP, 2003, Vista
-		return "sai"; // SMART_*, ATA_, IDE_PASS_THROUGH
+		return "psai"; // GetDevicePowerState(), SMART_*, ATA_, IDE_PASS_THROUGH
 }
 
 
@@ -925,6 +990,9 @@ static int ata_open(int drive, const char * options)
 		return -1;
 	}
 
+	if (con->reportataioctl > 1)
+		pout("%s: successfully opened\n", devpath);
+
 	// Save options
 	if (!*options) {
 		// Set default options according to Windows version
@@ -934,8 +1002,10 @@ static int ata_open(int drive, const char * options)
 	}
 	ata_cur_options = strdup(options);
 
-	// Skip SMART_GET_VERSION if missing in options
-	if (!win9x && !strchr(ata_cur_options, 's'))
+	// Skip SMART_GET_VERSION if missing in options or checked before
+	// (SMART_GET_VERSION may spin up disk)
+	assert(0 <= drive && drive < sizeof(ata_opened));
+	if (!win9x && (ata_opened[drive] || !strchr(ata_cur_options, 's')))
 		return 0;
 
 	// Get drive map
@@ -943,8 +1013,10 @@ static int ata_open(int drive, const char * options)
 	if (!DeviceIoControl(h_ata_ioctl, SMART_GET_VERSION,
 		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
 		pout("%s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
-		if (!win9x)
+		if (!win9x) {
+			pout("ATA/SATA driver is possibly a SCSI class driver not supporting SMART.\n");
 			pout("If this is a SCSI disk, try \"scsi<adapter><id>\".\n");
+		}
 		if (!is_permissive()) {
 			ata_close(0);
 			errno = ENOSYS;
@@ -960,6 +1032,7 @@ static int ata_open(int drive, const char * options)
 
 	// TODO: Check vers.fCapabilities here?
 
+	ata_opened[drive] = 1;
 	if (!win9x)
 		// NT4/2K/XP: Drive exists, drive number not necessary for ioctl
 		return 0;
@@ -1086,9 +1159,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		errno = ENOSYS;
 		return -1;
 	  case CHECK_POWER_MODE:
+		// Not a SMART command, needs IDE register return
 		regs.bCommandReg = ATA_CHECK_POWER_MODE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
-		valid_options = "ai"; // Not a SMART command, needs IDE register return
+		valid_options = "pai"; // Try GetDevicePowerState() first, ATA/IDE_PASS_THROUGH may spin up disk
 		// Note: returns SectorCountReg in data[0]
 		break;
 	  case READ_VALUES:
@@ -1184,6 +1258,14 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 			break;
 		  case 'c':
 			rc = ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
+		  case 'p':
+			assert(command == CHECK_POWER_MODE && datasize == 0);
+			rc = get_device_power_state(h_ata_ioctl);
+			if (rc >= 0) { // Simulate ATA command result
+				regs.bSectorCountReg = (rc ? 0xff/*ACTIVE/IDLE*/ : 0x00/*STANDBY*/);
+				rc = 0;
+			}
 			break;
 		}
 
