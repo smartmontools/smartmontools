@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.556 2006/07/17 20:42:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.557 2006/07/19 19:01:43 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added alternate system call for power state check
+       because the PASS THROUGH calls may spin up the disk.
 
   [CF] smartd: Modified power state logging to report state changes
        instead of standby condition.
