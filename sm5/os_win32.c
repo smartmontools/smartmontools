@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.37 2006/07/19 19:01:43 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.c,v 1.38 2006/07/20 20:47:41 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -127,7 +127,7 @@ static int aspi_scan(unsigned long * drives);
 
 static int is_permissive()
 {
-	if (con->permissive <= 0) {
+	if (!con->permissive) {
 		pout("To continue, add one or more '-T permissive' options.\n");
 		return 0;
 	}
@@ -224,8 +224,8 @@ int deviceopen(const char * pathname, char *type)
 
 	if (!strcmp(type, "ATA")) {
 		// hd[a-j](:[saic]+)? => ATA 0-9 with options
-		char drive[1+1] = "", options[4+1] = ""; int n1 = -1, n2 = -1;
-		if (!(sscanf(pathname, "hd%1[a-j]%n:%4[saic]%n", drive, &n1, options, &n2) >= 1
+		char drive[1+1] = "", options[5+1] = ""; int n1 = -1, n2 = -1;
+		if (!(sscanf(pathname, "hd%1[a-j]%n:%5[saicp]%n", drive, &n1, options, &n2) >= 1
 		      && ((n1 == len && !options[0]) || n2 == len)                             )) {
 			errno = ENOENT;
 			return -1;
@@ -408,6 +408,34 @@ static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+// call SMART_GET_VERSION, return device map or -1 on error
+
+static int smart_get_version(HANDLE hdevice)
+{
+	GETVERSIONOUTPARAMS vers;
+	DWORD num_out;
+
+	memset(&vers, 0, sizeof(vers));
+	if (!DeviceIoControl(hdevice, SMART_GET_VERSION,
+		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
+		if (con->reportataioctl)
+			pout("  SMART_GET_VERSION failed, Error=%ld\n", GetLastError());
+		errno = ENOSYS;
+		return -1;
+	}
+	assert(num_out == sizeof(GETVERSIONOUTPARAMS));
+
+	if (con->reportataioctl > 1)
+		pout("  SMART_GET_VERSION suceeded, bytes returned: %lu\n"
+		     "    Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
+			num_out, vers.bVersion, vers.bRevision,
+			vers.fCapabilities, vers.bIDEDeviceMap);
+
+	// TODO: Check vers.fCapabilities here?
+	return vers.bIDEDeviceMap;
+}
+
 
 // call SMART_* ioctl
 
@@ -874,11 +902,12 @@ static int get_device_power_state(HANDLE hdevice)
 
 /////////////////////////////////////////////////////////////////////////////
 
+// TODO: Put in a struct indexed by fd (or better a C++ object of course ;-)
 static HANDLE h_ata_ioctl = 0;
 static const char * ata_def_options;
 static char * ata_cur_options;
-static char ata_opened[10]; // true if drive# has been opened before
-
+static int ata_driveno; // Drive number
+static char ata_smartver_state[10]; // SMART_GET_VERSION: 0=unknown, 1=OK, 2=failed
 
 // Print SMARTVSD error message, return errno
 
@@ -948,8 +977,7 @@ static int ata_open(int drive, const char * options)
 {
 	int win9x;
 	char devpath[30];
-	GETVERSIONOUTPARAMS vers;
-	DWORD num_out;
+	int devmap;
 
 	// TODO: This version does not allow to open more than 1 ATA devices
 	if (h_ata_ioctl) {
@@ -1002,46 +1030,28 @@ static int ata_open(int drive, const char * options)
 	}
 	ata_cur_options = strdup(options);
 
-	// Skip SMART_GET_VERSION if missing in options or checked before
-	// (SMART_GET_VERSION may spin up disk)
-	assert(0 <= drive && drive < sizeof(ata_opened));
-	if (!win9x && (ata_opened[drive] || !strchr(ata_cur_options, 's')))
+	// NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
+	ata_driveno = drive;
+	if (!win9x)
 		return 0;
 
-	// Get drive map
-	memset(&vers, 0, sizeof(vers));
-	if (!DeviceIoControl(h_ata_ioctl, SMART_GET_VERSION,
-		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-		pout("%s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
-		if (!win9x) {
-			pout("ATA/SATA driver is possibly a SCSI class driver not supporting SMART.\n");
-			pout("If this is a SCSI disk, try \"scsi<adapter><id>\".\n");
-		}
+	// Win9X/ME: Get drive map
+	devmap = smart_get_version(h_ata_ioctl);
+	if (devmap < 0) {
 		if (!is_permissive()) {
 			ata_close(0);
 			errno = ENOSYS;
 			return -1;
 		}
+		devmap = 0x0f;
 	}
-
-	if (con->reportataioctl > 1)
-		pout("%s: SMART_GET_VERSION (%ld bytes):\n"
-		     " Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-			devpath, num_out, vers.bVersion, vers.bRevision,
-			vers.fCapabilities, vers.bIDEDeviceMap);
-
-	// TODO: Check vers.fCapabilities here?
-
-	ata_opened[drive] = 1;
-	if (!win9x)
-		// NT4/2K/XP: Drive exists, drive number not necessary for ioctl
-		return 0;
+	ata_smartver_state[drive] = 1;
 
 	// Win9x/ME: Check device presence & type
-	if (((vers.bIDEDeviceMap >> (drive & 0x3)) & 0x11) != 0x01) {
-		unsigned char atapi = (vers.bIDEDeviceMap >> (drive & 0x3)) & 0x10;
+	if (((devmap >> (drive & 0x3)) & 0x11) != 0x01) {
+		unsigned char atapi = (devmap >> (drive & 0x3)) & 0x10;
 		pout("%s: Drive %d %s (IDEDeviceMap=0x%02x).\n", devpath,
-		     drive, (atapi?"is an ATAPI device":"does not exist"), vers.bIDEDeviceMap);
+		     drive, (atapi?"is an ATAPI device":"does not exist"), devmap);
 		// Win9x drive existence check may not work as expected
 		// The atapi.sys driver incorrectly fills in the bIDEDeviceMap with 0x01
 		// (The related KB Article Q196120 is no longer available)
@@ -1248,6 +1258,25 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		switch (opt) {
 		  default: assert(0);
 		  case 's':
+			// call SMART_GET_VERSION once for each drive
+			assert(0 <= ata_driveno && ata_driveno < sizeof(ata_smartver_state));
+			if (ata_smartver_state[ata_driveno] > 1) {
+				rc = -1; errno = ENOSYS;
+				break;
+			}
+			if (!ata_smartver_state[ata_driveno]) {
+				if (smart_get_version(h_ata_ioctl) < 0) {
+					if (!con->permissive) {
+						pout("ATA/SATA driver is possibly a SCSI class driver not supporting SMART.\n");
+						pout("If this is a SCSI disk, try \"scsi<adapter><id>\".\n");
+						ata_smartver_state[ata_driveno] = 2;
+						rc = -1; errno = ENOSYS;
+						break;
+					}
+					con->permissive--;
+				}
+				ata_smartver_state[ata_driveno] = 1;
+			}
 			rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize);
 			break;
 		  case 'a':
