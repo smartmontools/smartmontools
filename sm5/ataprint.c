@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #ifdef HAVE_LOCALE_H
@@ -40,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.165 2006/06/20 19:23:32 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.166 2006/07/20 20:59:44 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1408,6 +1409,37 @@ struct ata_smart_selftestlog smartselftest;
 int ataPrintMain (int fd){
   int timewait,code;
   int returnval=0, retid=0, supported=0, needupdate=0;
+  const char * powername = 0; char powerchg = 0;
+
+  // If requested, check power mode first
+  if (con->powermode) {
+    unsigned char powerlimit = 0xff;
+    int powermode = ataCheckPowerMode(fd);
+    switch (powermode) {
+      case -1:
+        if (errno == ENOSYS) {
+          pout("CHECK POWER STATUS not implemented, ignoring -n Option\n"); break;
+        }
+        powername = "SLEEP";   powerlimit = 2;
+        break;
+      case 0:
+        powername = "STANDBY"; powerlimit = 3; break;
+      case 0x80:
+        powername = "IDLE";    powerlimit = 4; break;
+      case 0xff:
+        powername = "ACTIVE or IDLE"; break;
+      default:
+        pout("CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Option\n", powermode);
+        break;
+    }
+    if (powername) {
+      if (con->powermode >= powerlimit) {
+        pout("Device is in %s mode, exit(%d)\n", powername, FAILPOWER);
+        return FAILPOWER;
+      }
+      powerchg = (powermode != 0xff); // SMART tests will spin up drives
+    }
+  }
 
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if ((retid=ataReadHDIdentity(fd,&drive))<0){
@@ -1500,6 +1532,9 @@ int ataPrintMain (int fd){
       else
         pout("SMART support is: Disabled\n");
     }
+    // Print the (now possibly changed) power mode if available
+    if (powername)
+      pout("Power mode %s   %s\n", (powerchg?"was:":"is: "), powername);
     pout("\n");
   }
   
