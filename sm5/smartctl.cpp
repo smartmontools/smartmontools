@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.148 2006/07/01 21:32:57 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.149 2006/07/20 20:59:45 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -150,6 +150,8 @@ void Usage (void){
 "         Set action on bad checksum to one of: warn, exit, ignore\n\n"
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
+"  -n MODE, --nocheck=MODE                                             (ATA)\n"
+"         No check if: never, sleep, standby, idle (see man page)\n\n"
   );
 #else
   printf(
@@ -157,7 +159,8 @@ void Usage (void){
 "  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N\n"
 "  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
-"  -r TYPE   Report transactions (see man page)\n\n"
+"  -r TYPE   Report transactions (see man page)\n"
+"  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n"
   );
 #endif
   printf("============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n");
@@ -253,6 +256,8 @@ const char *getvalidarglist(char opt) {
     return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,on, afterselect,off";
   case 'F':
     return "none, samsung, samsung2";
+  case 'n':
+    return "never, sleep, standby, idle";
   case 'v':
   default:
     return NULL;
@@ -298,7 +303,7 @@ void ParseOpts (int argc, char** argv){
   extern int optopt, optind, opterr;
   char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -328,6 +333,7 @@ void ParseOpts (int argc, char** argv){
     { "captive",         no_argument,       0, 'C' },
     { "abort",           no_argument,       0, 'X' },
     { "firmwarebug",     required_argument, 0, 'F' },
+    { "nocheck",         required_argument, 0, 'n' },
     { 0,                 0,                 0, 0   }
   };
 #endif
@@ -661,6 +667,19 @@ void ParseOpts (int argc, char** argv){
     case 'X':
       con->smartselftestabort = TRUE;
       con->testcase           = ABORT_SELF_TEST;
+      break;
+    case 'n':
+      // skip disk check if in low-power mode
+      if (!strcmp(optarg, "never"))
+        con->powermode = 1; // do not skip, but print mode
+      else if (!strcmp(optarg, "sleep"))
+        con->powermode = 2;
+      else if (!strcmp(optarg, "standby"))
+        con->powermode = 3;
+      else if (!strcmp(optarg, "idle"))
+        con->powermode = 4;
+      else
+        badarg = TRUE;
       break;
     case 'h':
       con->dont_print=FALSE;

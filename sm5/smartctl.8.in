@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.80 2006/06/10 17:41:03 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.81 2006/07/20 20:59:45 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -141,7 +141,8 @@ mode) print current user drive capacity in bytes. (If drive is has a
 user protected area reserved, or is "clipped", this may be smaller
 than the potential maximum drive capacity.)  Indicates if the drive is
 in the smartmontools database (see \'\-v\' options below).  If so, the
-drive model family may also be printed.
+drive model family may also be printed. If \'\-n\' (see below) is
+specified, the power mode of the drive is printed.
 .TP
 .B \-a, \-\-all
 Prints all SMART information about the disk, or TapeAlert information
@@ -355,6 +356,30 @@ the integer with no spaces.  For example,
 .I ataioctl,2
 The default
 level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are equivalent.
+
+.TP
+.B \-n POWERMODE, \-\-nocheck=POWERMODE
+Specifieds if \fBsmartctl\fP should exit before performing any checks
+when the device is in a low\-power mode. It may be used to prevent a disk
+from being spun\-up by \fBsmartctl\fP. The power mode is ignored by
+default. The allowed values of POWERMODE are:
+
+.I never
+\- check the device always, but print the power mode if \'\-i\' is
+specified.
+
+.I sleep
+\- check the device unless it is in SLEEP mode.
+
+.I standby
+\- check the device unless it is in SLEEP or STANDBY mode.  In
+these modes most disks are not spinning, so if you want to prevent
+a disk from spinning up, this is probably what you want.
+
+.I idle
+\- check the device unless it is in SLEEP, STANDBY or IDLE mode.
+In the IDLE state, most disks are still spinning, so this is probably
+not what you want.
 
 .TP
 .B SMART FEATURE ENABLE/DISABLE COMMANDS:
@@ -1293,7 +1318,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.80 2006/06/10 17:41:03 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.81 2006/07/20 20:59:45 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

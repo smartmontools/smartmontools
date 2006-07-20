@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.43 2006/06/26 16:57:57 dpgilbert Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.44 2006/07/20 20:59:45 chrfranke Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -50,6 +50,8 @@ typedef struct smartmonctrl_s {
   // turn off scan after selective self-test, 2: turn on scan after
   // selective self-test.
   unsigned char scanafterselect;
+  // skip check, if disk in idle or standby mode
+  unsigned char powermode;
   unsigned char driveinfo;
   unsigned char checksmart;
   unsigned char smartvendorattrib;

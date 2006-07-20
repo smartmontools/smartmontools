@@ -25,7 +25,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.23 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define SMARTCTL_H_CVSID "$Id: smartctl.h,v 1.24 2006/07/20 20:59:45 chrfranke Exp $\n"
 
 /* Boolean Values */
 #define TRUE 0x01
@@ -38,6 +38,9 @@
 
 // device open failed
 #define FAILDEV   (0x01<<1)
+
+// device is in low power mode and -n option requests to exit
+#define FAILPOWER (0x01<<1)
 
 // read device identity (ATA only) failed
 #define FAILID    (0x01<<1)
