@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.115 2006/04/12 18:00:16 ballen4705 Exp $
+# $Id: configure.in,v 1.116 2006/07/26 05:09:16 geoffk1 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.37, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.c)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.115 2006/04/12 18:00:16 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.116 2006/07/26 05:09:16 geoffk1 Exp $'`
 smartmontools_release_date=2006/04/12
 smartmontools_release_time="17:39:01 UTC"
 
@@ -78,7 +78,9 @@ AH_TEMPLATE(HAVE_WORKING_SNPRINTF, [Define to 1 if the `snprintf' function is sa
 AC_MSG_CHECKING([for working snprintf])
 AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]], [[ char buf[]="ABCDEFGHI";
                int i=snprintf(buf,8,"12345678"); return !(!buf[7] && i==8); ]])],
-              [libc_have_working_snprintf=yes], [libc_have_working_snprintf=no])
+              [libc_have_working_snprintf=yes],
+	      [libc_have_working_snprintf=no],
+	      [libc_have_working_snprintf=no])
 AC_SUBST(libc_have_working_snprintf)
 if test "$libc_have_working_snprintf" = "yes"; then
   AC_DEFINE(HAVE_WORKING_SNPRINTF)
