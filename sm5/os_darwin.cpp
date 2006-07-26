@@ -24,10 +24,11 @@
 #include <IOKit/IOKitLib.h>
 #include <IOKit/IOReturn.h>
 #include <IOKit/IOBSD.h>
-#include <IOKit/storage/ata/IOATAStorageDefines.h>
-#include <IOKit/storage/ata/ATASMARTLib.h>
+#include <IOKit/storage/IOBlockStorageDevice.h>
 #include <IOKit/storage/IOStorageDeviceCharacteristics.h>
 #include <IOKit/storage/IOMedia.h>
+#include <IOKit/storage/ata/IOATAStorageDefines.h>
+#include <IOKit/storage/ata/ATASMARTLib.h>
 #include <CoreFoundation/CoreFoundation.h>
 
   // No, I don't know why there isn't a header for this.
@@ -42,7 +43,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.13 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.14 2006/07/26 05:02:29 geoffk1 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -76,6 +77,46 @@ int guess_device_type (const char* dev_name) {
   return CONTROLLER_ATA;
 }
 
+// Determine whether 'dev' is a SMART-capable device.
+static bool is_smart_capable (io_object_t dev) {
+  CFTypeRef smartCapableKey;
+  CFDictionaryRef diskChars;
+
+  // If the device has kIOPropertySMARTCapableKey, then it's capable,
+  // no matter what it looks like.
+  smartCapableKey = IORegistryEntryCreateCFProperty
+    (dev, CFSTR (kIOPropertySMARTCapableKey),
+     kCFAllocatorDefault, 0);
+  if (smartCapableKey)
+    {
+      CFRelease (smartCapableKey);
+      return true;
+    }
+
+  // If it's an kIOATABlockStorageDeviceClass then we're successful
+  // only if its ATA features indicate it supports SMART.
+  if (IOObjectConformsTo (dev, kIOATABlockStorageDeviceClass)
+      && (diskChars = IORegistryEntryCreateCFProperty
+	  (dev, CFSTR (kIOPropertyDeviceCharacteristicsKey),
+	   kCFAllocatorDefault, kNilOptions)) != NULL)
+    {
+      CFNumberRef diskFeatures = NULL;
+      UInt32 ataFeatures = 0;
+
+      if (CFDictionaryGetValueIfPresent (diskChars, CFSTR ("ATA Features"),
+					 (const void **)&diskFeatures))
+	CFNumberGetValue (diskFeatures, kCFNumberLongType,
+			  &ataFeatures);
+      CFRelease (diskChars);
+      if (diskFeatures)
+	CFRelease (diskFeatures);
+      
+      return (ataFeatures & kIOATAFeatureSMART) != 0;
+    }
+  return false;
+}
+
+
 // makes a list of ATA or SCSI devices for the DEVICESCAN directive of
 // smartd.  Returns number N of devices, or -1 if out of
 // memory. Allocates N+1 arrays: one of N pointers (devlist); the
@@ -85,46 +126,52 @@ int guess_device_type (const char* dev_name) {
 int make_device_names (char*** devlist, const char* name) {
   IOReturn err;
   io_iterator_t i;
-  io_object_t device;
+  io_object_t device = MACH_PORT_NULL;
   int result;
   int index;
-  const char * cls;
 
-  if (strcmp (name, "ATA") == 0)
-    cls = kIOATABlockStorageDeviceClass;
-  else  // only ATA supported right now.
+  // We treat all devices as ATA so long as they support SMARTLib.
+  if (strcmp (name, "ATA") != 0)
     return 0;
 
-  err = IOServiceGetMatchingServices (kIOMasterPortDefault,
-				      IOServiceMatching (cls),
-				      &i);
+  err = IOServiceGetMatchingServices 
+    (kIOMasterPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
   if (err != kIOReturnSuccess)
     return -1;
 
   // Count the devices.
-  for (result = 0; (device = IOIteratorNext (i)) != MACH_PORT_NULL; result++)
+  result = 0;
+  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
+    if (is_smart_capable (device))
+      result++;
     IOObjectRelease (device);
+  }
 
   // Create an array of service names.
   IOIteratorReset (i);
   *devlist = Calloc (result, sizeof (char *));
   if (! *devlist)
     goto error;
-  for (index = 0; (device = IOIteratorNext (i)) != MACH_PORT_NULL; index++)
-    {
-      io_string_t devName;
-      IORegistryEntryGetPath(device, kIOServicePlane, devName);
-      IOObjectRelease (device);
+  index = 0;
+  while ((device = IOIteratorNext (i)) != MACH_PORT_NULL) {
+    if (is_smart_capable (device))
+      {
+	io_string_t devName;
+	IORegistryEntryGetPath(device, kIOServicePlane, devName);
+	(*devlist)[index] = CustomStrDup (devName, true, __LINE__, __FILE__);
+	if (! (*devlist)[index])
+	  goto error;
+	index++;
+      }
+    IOObjectRelease (device);
+  }
 
-      (*devlist)[index] = CustomStrDup (devName, true, __LINE__, __FILE__);
-      if (! (*devlist)[index])
-	goto error;
-    }
   IOObjectRelease (i);
-
   return result;
 
  error:
+  if (device != MACH_PORT_NULL)
+    IOObjectRelease (device);
   IOObjectRelease (i);
   if (*devlist)
     {
@@ -140,7 +187,6 @@ int make_device_names (char*** devlist, const char* name) {
 
 static struct {
   io_object_t ioob;
-  bool hassmart;
   IOCFPlugInInterface **plugin;
   IOATASMARTInterface **smartIf;
 } devices[20];
@@ -203,44 +249,24 @@ int deviceopen(const char *pathname, char *type){
       return -1;
     }
   
-  // Find the ATA block storage driver that is the parent of this device
-  while (! IOObjectConformsTo (disk, kIOATABlockStorageDeviceClass))
+  // Find a SMART-capable driver which is a parent of this device.
+  while (! is_smart_capable (disk))
     {
       IOReturn err;
-      io_object_t notdisk = disk;
+      io_object_t prevdisk = disk;
 
-      err = IORegistryEntryGetParentEntry (notdisk, kIOServicePlane, &disk);
+      // Find this device's parent and try again.
+      err = IORegistryEntryGetParentEntry (disk, kIOServicePlane, &disk);
       if (err != kIOReturnSuccess || ! disk)
 	{
 	  errno = ENODEV;
-	  IOObjectRelease (notdisk);
+	  IOObjectRelease (prevdisk);
 	  return -1;
 	}
     }
-
+  
   devices[devnum].ioob = disk;
-  
-  {
-    CFDictionaryRef diskChars = NULL;
-    CFNumberRef diskFeatures = NULL;
-    UInt32 ataFeatures;
 
-    // Determine whether the drive actually supports SMART.
-    if ((diskChars = IORegistryEntryCreateCFProperty (disk, 
-			      CFSTR (kIOPropertyDeviceCharacteristicsKey),
-						      kCFAllocatorDefault,
-						      kNilOptions)) != NULL
-	&& CFDictionaryGetValueIfPresent (diskChars, CFSTR ("ATA Features"),
-					  (const void **)&diskFeatures)
-	&& CFNumberGetValue (diskFeatures, kCFNumberLongType, &ataFeatures)
-	&& (ataFeatures & kIOATAFeatureSMART))
-      devices[devnum].hassmart = true;
-    else
-      devices[devnum].hassmart = false;
-    if (diskChars)
-      CFRelease (diskChars);
-  }
-  
   {
     SInt32 dummy;
   
@@ -248,12 +274,11 @@ int deviceopen(const char *pathname, char *type){
     devices[devnum].smartIf = NULL;
 
     // Create an interface to the ATA SMART library.
-    if (devices[devnum].hassmart
-	&& IOCreatePlugInInterfaceForService (disk,
-					      kIOATASMARTUserClientTypeID,
-					      kIOCFPlugInInterfaceID,
-					      &devices[devnum].plugin,
-					      &dummy) == kIOReturnSuccess)
+    if (IOCreatePlugInInterfaceForService (disk,
+					   kIOATASMARTUserClientTypeID,
+					   kIOCFPlugInInterfaceID,
+					   &devices[devnum].plugin,
+					   &dummy) == kIOReturnSuccess)
       (*devices[devnum].plugin)->QueryInterface
 	(devices[devnum].plugin,
 	 CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
@@ -301,10 +326,6 @@ int deviceclose(int fd){
 // have a buggy library that treats the boolean value in
 // SMARTEnableDisableOperations, SMARTEnableDisableAutosave, and
 // SMARTExecuteOffLineImmediate as always being true.
-int marvell_command_interface(int fd, smart_command_set command,
-		      int select, char *data)
-{ return -1; }
- 
 int
 ata_command_interface(int fd, smart_command_set command,
 		      int select, char *data)
@@ -312,72 +333,83 @@ ata_command_interface(int fd, smart_command_set command,
   IOATASMARTInterface **ifp = devices[fd].smartIf;
   IOATASMARTInterface *smartIf;
   IOReturn err;
+  int timeoutCount = 2;
   
   if (! ifp)
     return -1;
   smartIf = *ifp;
 
-  switch (command)
-    {
-    case STATUS:
-      return 0;
-    case STATUS_CHECK:
+  do {
+    switch (command)
       {
-	Boolean is_failing;
-	err = smartIf->SMARTReturnStatus (ifp, &is_failing);
-	if (err == kIOReturnSuccess && is_failing)
-	  return 1;
-	break;
-      }
-    case ENABLE:
-    case DISABLE:
-      err = smartIf->SMARTEnableDisableOperations (ifp, command == ENABLE);
-      break;
-    case AUTOSAVE:
-      err = smartIf->SMARTEnableDisableAutosave (ifp, select != 0);
-      break;
-    case IMMEDIATE_OFFLINE:
-      if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
+      case STATUS:
+	return 0;
+      case STATUS_CHECK:
 	{
-	  errno = EINVAL;
-	  return -1;
+	  Boolean is_failing;
+	  err = smartIf->SMARTReturnStatus (ifp, &is_failing);
+	  if (err == kIOReturnSuccess && is_failing)
+	    return 1;
+	  break;
 	}
-      err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
-						   select == EXTEND_SELF_TEST);
-      break;
-    case READ_VALUES:
-      err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
-      break;
-    case READ_THRESHOLDS:
-      err = smartIf->SMARTReadDataThresholds (ifp, 
-					      (ATASMARTDataThresholds *)data);
-      break;
-    case READ_LOG:
-      err = smartIf->SMARTReadLogAtAddress (ifp, select, data, 512);
-      break;
-    case WRITE_LOG:
-      err = smartIf->SMARTWriteLogAtAddress (ifp, select, data, 512);
-      break;
-    case IDENTIFY:
-      {
-	UInt32 dummy;
-	err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
-	if (err == kIOReturnSuccess && isbigendian())
+      case ENABLE:
+      case DISABLE:
+	err = smartIf->SMARTEnableDisableOperations (ifp, command == ENABLE);
+	break;
+      case AUTOSAVE:
+	err = smartIf->SMARTEnableDisableAutosave (ifp, select != 0);
+	break;
+      case IMMEDIATE_OFFLINE:
+	if (select != SHORT_SELF_TEST && select != EXTEND_SELF_TEST)
 	  {
-	    int i;
-	    /* The system has already byte-swapped, undo it.  */
-	    for (i = 0; i < 256; i+=2)
-	      swap2 (data + i);
+	    errno = EINVAL;
+	    return -1;
 	  }
+	err = smartIf->SMARTExecuteOffLineImmediate (ifp, 
+						     select == EXTEND_SELF_TEST);
+	break;
+      case READ_VALUES:
+	err = smartIf->SMARTReadData (ifp, (ATASMARTData *)data);
+	break;
+      case READ_THRESHOLDS:
+	err = smartIf->SMARTReadDataThresholds (ifp, 
+						(ATASMARTDataThresholds *)data);
+	break;
+      case READ_LOG:
+	err = smartIf->SMARTReadLogAtAddress (ifp, select, data, 512);
+	break;
+      case WRITE_LOG:
+	err = smartIf->SMARTWriteLogAtAddress (ifp, select, data, 512);
+	break;
+      case IDENTIFY:
+	{
+	  UInt32 dummy;
+	  err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
+	  if (err != kIOReturnSuccess)
+	    printf ("identify failed: %d\n", (int) err);
+	  if (err == kIOReturnSuccess && isbigendian())
+	    {
+	      int i;
+	      /* The system has already byte-swapped, undo it.  */
+	      for (i = 0; i < 256; i+=2)
+		swap2 (data + i);
+	    }
+	}
+	break;
+      case CHECK_POWER_MODE:
+	// The information is right there in the device registry, but how
+	// to get to it portably?
+      default:
+	errno = ENOTSUP;
+	return -1;
       }
-      break;
-    case CHECK_POWER_MODE:
-      // The information is right there in the device registry, but how
-      // to get to it portably?
-    default:
-      errno = ENOTSUP;
-      return -1;
-    }
+    /* This bit is a bit strange.  Apparently, when the drive is spun
+       down, the intended behaviour of these calls is that they fail,
+       return kIOReturnTimeout and then power the drive up.  So if
+       you get a timeout, you have to try again to get the actual
+       command run, but the drive is already powering up so you can't
+       use this for CHECK_POWER_MODE.  */
+  } while (err == kIOReturnTimeout && timeoutCount-- > 0);
   if (err == kIOReturnExclusiveAccess)
     errno = EBUSY;
   return err == kIOReturnSuccess ? 0 : -1;
@@ -398,7 +430,20 @@ int escalade_command_interface(int fd, int escalade_port, int escalade_type,
   return -1;
 }
 
+int marvell_command_interface(int fd, smart_command_set command,
+		      int select, char *data)
+{ 
+  fd = fd;
+  command = command;
+  select = select;
+  data = data;
+  return -1;
+}
+ 
 // Interface to SCSI devices.  See os_linux.c
 int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
+  fd = fd;
+  iop = iop;
+  report = report;
   return -ENOSYS;
 }
