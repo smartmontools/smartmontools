@@ -1,5 +1,5 @@
 /*
- * knowndrives.c
+ * knowndrives.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.140 2006/06/09 19:06:14 geoffk1 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.141 2006/08/09 20:40:19 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40

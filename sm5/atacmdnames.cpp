@@ -1,5 +1,5 @@
 /*
- * atacmdnames.c
+ * atacmdnames.cpp
  *
  * This module is based on the T13/1532D Volume 1 Revision 3 (ATA/ATAPI-7)
  * specification, which is available from http://www.t13.org/#FTP_site
@@ -26,7 +26,7 @@
 
 #define COMMAND_TABLE_SIZE 256
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.13 2006/04/12 14:54:28 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.14 2006/08/09 20:40:19 chrfranke Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";

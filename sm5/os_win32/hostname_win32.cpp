@@ -1,5 +1,5 @@
 /*
- * os_win32/hostname_win32.c
+ * os_win32/hostname_win32.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -18,7 +18,7 @@
 
 #include "hostname_win32.h"
 
-const char * hostname_win32_c_cvsid = "$Id: hostname_win32.cpp,v 1.4 2006/04/12 14:54:28 ballen4705 Exp $" HOSTNAME_WIN32_H_CVSID;
+const char * hostname_win32_c_cvsid = "$Id: hostname_win32.cpp,v 1.5 2006/08/09 20:40:20 chrfranke Exp $" HOSTNAME_WIN32_H_CVSID;
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -67,7 +67,7 @@ DWORD WINAPI GetNetworkParams(PFIXED_INFO info, PULONG size);
 
 static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
 {
-	HANDLE hdll;
+	HINSTANCE hdll;
 	BOOL (WINAPI * GetComputerNameExA_p)(int/*enum COMPUTER_NAME_FORMAT*/, LPSTR, LPDWORD);
 	BOOL ret;
 	if (!(hdll = LoadLibraryA("KERNEL32.DLL")))
@@ -85,7 +85,7 @@ static BOOL CallGetComputerNameExA(int type, LPSTR name, LPDWORD size)
 
 static DWORD CallGetNetworkParams(PFIXED_INFO info, PULONG size)
 {
-	HANDLE hdll;
+	HINSTANCE hdll;
 	DWORD (WINAPI * GetNetworkParams_p)(PFIXED_INFO, PULONG);
 	DWORD ret;
 	if (!(hdll = LoadLibraryA("IPHlpApi.dll")))
@@ -111,11 +111,11 @@ static DWORD GetNamesFromRegistry(BOOL domain, char * name, int len)
 	    0, KEY_READ, &hk) != ERROR_SUCCESS)
 		return 0;
 	size = len-1;
-	if (!(RegQueryValueExA(hk, (!domain?"HostName":"Domain"), 0, &type, name, &size) == ERROR_SUCCESS && type == REG_SZ))
+	if (!(RegQueryValueExA(hk, (!domain?"HostName":"Domain"), 0, &type, (unsigned char *)name, &size) == ERROR_SUCCESS && type == REG_SZ))
 		size = 0;
 	if (size == 0 && domain) {
 		size = len-1;
-		if (!(RegQueryValueExA(hk, "DhcpDomain", 0, &type, name, &size) == ERROR_SUCCESS && type == REG_SZ))
+		if (!(RegQueryValueExA(hk, "DhcpDomain", 0, &type, (unsigned char *)name, &size) == ERROR_SUCCESS && type == REG_SZ))
 			size = 0;
 	}
 	RegCloseKey(hk);

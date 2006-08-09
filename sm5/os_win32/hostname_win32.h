@@ -19,9 +19,17 @@
 #ifndef HOSTNAME_WIN32_H
 #define HOSTNAME_WIN32_H
 
-#define HOSTNAME_WIN32_H_CVSID "$Id: hostname_win32.h,v 1.3 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define HOSTNAME_WIN32_H_CVSID "$Id: hostname_win32.h,v 1.4 2006/08/09 20:40:20 chrfranke Exp $\n"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int gethostname(char * name, int len);
 int getdomainname(char * name, int len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // HOSTNAME_WIN32_H

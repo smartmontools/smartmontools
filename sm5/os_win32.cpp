@@ -1,5 +1,5 @@
 /*
- * os_win32.c
+ * os_win32.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.38 2006/07/20 20:47:41 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.39 2006/08/09 20:40:19 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -866,7 +866,7 @@ static int get_device_power_state(HANDLE hdevice)
 		}
 		if (!(h_kernel_dll = LoadLibraryA("KERNEL32.DLL"))) {
 			pout("Cannot load KERNEL32.DLL, Error=%ld\n", GetLastError());
-			h_kernel_dll = INVALID_HANDLE_VALUE;
+			h_kernel_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 			errno = ENOSYS;
 			return -1;
 		}
@@ -875,7 +875,7 @@ static int get_device_power_state(HANDLE hdevice)
 			if (con->reportataioctl)
 				pout("  GetDevicePowerState() not found, Error=%ld\n", GetLastError());
 			FreeLibrary(h_kernel_dll);
-			h_kernel_dll = INVALID_HANDLE_VALUE;
+			h_kernel_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 			errno = ENOSYS;
 			return -1;
 		}
@@ -1520,7 +1520,7 @@ static int aspi_call(ASPI_SRB * srb)
 		if (++i > 100/*10sek*/) {
 			pout("ASPI Adapter %u: Timed out\n", srb->h.adapter);
 			aspi_entry = 0;
-			h_aspi_dll = INVALID_HANDLE_VALUE;
+			h_aspi_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 			errno = EIO;
 			return -1;
 		}
@@ -1544,7 +1544,7 @@ static FARPROC aspi_get_address(const char * name, int verbose)
 			pout("Missing %s() in WNASPI32.DLL\n", name);
 		aspi_entry = 0;
 		FreeLibrary(h_aspi_dll);
-		h_aspi_dll = INVALID_HANDLE_VALUE;
+		h_aspi_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 		errno = ENOSYS;
 		return 0;
 	}
@@ -1581,7 +1581,7 @@ static int aspi_open_dll(int verbose)
 	if (!(h_aspi_dll = LoadLibraryA("WNASPI32.DLL"))) {
 		if (verbose)
 			pout("Cannot load WNASPI32.DLL, Error=%ld\n", GetLastError());
-		h_aspi_dll = INVALID_HANDLE_VALUE;
+		h_aspi_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 		errno = ENOENT;
 		return -1;
 	}
@@ -1615,7 +1615,7 @@ static int aspi_open_dll(int verbose)
 			pout("Got strange 0x%04x from GetASPI32SupportInfo()\n", info);
 		aspi_entry = 0;
 		FreeLibrary(h_aspi_dll);
-		h_aspi_dll = INVALID_HANDLE_VALUE;
+		h_aspi_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 		errno = ENOENT;
 		return -1;
 	}
@@ -1657,7 +1657,7 @@ static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
 			}
 			// TODO: ASPI_ABORT_IO command
 			aspi_entry = 0;
-			h_aspi_dll = INVALID_HANDLE_VALUE;
+			h_aspi_dll = (HINSTANCE)INVALID_HANDLE_VALUE;
 			return -EIO;
 		}
 	}

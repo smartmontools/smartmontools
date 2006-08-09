@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.558 2006/07/20 20:59:45 chrfranke Exp $
+$Id: CHANGELOG,v 1.559 2006/08/09 20:40:19 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Added changes for C++ to platform independent and Windows
+       related files.
+
+  [BA] Tagged last .c Version with PRE_MOVE_TO_CPP. Copied *.c,v
+       to *.cpp,v in CVS repository to preserve history of source
+       files. Removed sm5_Darvin repository.
 
   [CF] smartctl: Added -n option to skip checks when disk is in
        low-power mode.

@@ -1,5 +1,5 @@
 /*
- * scsiprint.c
+ * scsiprint.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.110 2006/07/05 15:54:43 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.111 2006/08/09 20:40:19 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables

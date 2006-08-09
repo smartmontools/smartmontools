@@ -67,7 +67,7 @@ typedef int pid_t;
 #ifdef __CYGWIN__
 // From <windows.h>:
 // BOOL WINAPI FreeConsole(void);
-int __stdcall FreeConsole(void);
+extern "C" int __stdcall FreeConsole(void);
 #include <io.h> // setmode()
 #endif // __CYGWIN__
 
@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.373 2006/07/19 17:55:16 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.374 2006/08/09 20:40:20 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.373 2006/07/19 17:55:16 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.374 2006/08/09 20:40:20 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -271,20 +271,20 @@ cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, char *listname){
   // Perhaps increase in the future.
   const int BLOCKSIZE=8;
   int i;
-  int old = *oldsize;
-  int new = old + BLOCKSIZE;
-  cfgfile **newptr=realloc(oldarray, new*sizeof(cfgfile *));
+  int olds = *oldsize;
+  int news = olds + BLOCKSIZE;
+  cfgfile **newptr=(cfgfile **)realloc(oldarray, news*sizeof(cfgfile *));
   
   // did we get more space?
   if (newptr) {
 
     // clear remaining entries ala calloc()
-    for (i=old; i<new; i++)
+    for (i=olds; i<news; i++)
       newptr[i]=NULL;
     
     bytes += BLOCKSIZE*sizeof(cfgfile *);
     
-    *oldsize=new;
+    *oldsize=news;
     
 #if 0
     PrintOut(LOG_INFO, "allocating %d slots for %s\n", BLOCKSIZE, listname);
@@ -545,7 +545,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 #else
   char stdinbuf[1024]; int boxmsgoffs, boxtype;
 #endif
-  char *newadd=NULL, *newwarn=NULL;
+  const char *newadd=NULL, *newwarn=NULL;
   const char *unknown="[Unknown]";
 
   // See if user wants us to send mail
@@ -907,7 +907,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 // values. This means the objects of type char or short int (whether
 // signed or not) are promoted to either int or unsigned int, as
 // appropriate.]
-void pout(char *fmt, ...){
+void pout(const char *fmt, ...){
   va_list ap;
 
   // get the correct time in syslog()
@@ -935,7 +935,7 @@ void pout(char *fmt, ...){
 
 // This function prints either to stdout or to the syslog as needed.
 // This function is also used by utility.c to report LOG_CRIT errors.
-void PrintOut(int priority,char *fmt, ...){
+void PrintOut(int priority, const char *fmt, ...){
   va_list ap;
   
   // get the correct time in syslog()
@@ -1453,7 +1453,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   // enable/disable automatic on-line testing
   if (cfg->autoofflinetest){
     // is this an enable or disable request?
-    char *what=(cfg->autoofflinetest==1)?"disable":"enable";
+    const char *what=(cfg->autoofflinetest==1)?"disable":"enable";
     if (!cfg->smartval)
       PrintOut(LOG_INFO,"Device: %s, could not %s SMART Automatic Offline Testing.\n",name, what);
     else {
@@ -1782,8 +1782,8 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
 // is NOT the attribute ID number.. If (Normalized & Raw) equal,
 // then return 0, else nonzero.
 int  ATACompareValues(changedattribute_t *delta,
-                            struct ata_smart_values *new,
-                            struct ata_smart_values *old,
+                            struct ata_smart_values *newv,
+                            struct ata_smart_values *oldv,
                             struct ata_smart_thresholds_pvt *thresholds,
                             int n, char *name){
   struct ata_smart_attribute *now,*was;
@@ -1792,12 +1792,12 @@ int  ATACompareValues(changedattribute_t *delta,
   int sameraw;
 
   // check that attribute number in range, and no null pointers
-  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !new || !old || !thresholds)
+  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !newv || !oldv || !thresholds)
     return 0;
   
   // pointers to disk's values and vendor's thresholds
-  now=new->vendor_attributes+n;
-  was=old->vendor_attributes+n;
+  now=newv->vendor_attributes+n;
+  was=oldv->vendor_attributes+n;
   thre=thresholds->thres_entries+n;
 
   // consider only valid attributes
@@ -1884,20 +1884,20 @@ int IsAttributeOff(unsigned char attr, unsigned char **datap, int set, int which
 
 // If the self-test log has got more self-test errors (or more recent
 // self-test errors) recorded, then notify user.
-void CheckSelfTestLogs(cfgfile *cfg, int new){
+void CheckSelfTestLogs(cfgfile *cfg, int newi){
   char *name=cfg->name;
 
-  if (new<0)
+  if (newi<0)
     // command failed
     MailWarning(cfg, 8, "Device: %s, Read SMART Self-Test Log Failed", name);
   else {      
     // old and new error counts
     int oldc=cfg->selflogcount;
-    int newc=SELFTEST_ERRORCOUNT(new);
+    int newc=SELFTEST_ERRORCOUNT(newi);
     
     // old and new error timestamps in hours
     int oldh=cfg->selfloghour;
-    int newh=SELFTEST_ERRORHOURS(new);
+    int newh=SELFTEST_ERRORHOURS(newi);
     
     if (oldc<newc) {
       // increase in error count
@@ -1996,7 +1996,7 @@ void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
   cnt_t * testcnts; // testcnts[numdev][4]
   if (numdev <= 0)
     return;
-  testcnts = calloc(numdev, sizeof(testcnts[0]));
+  testcnts = (cnt_t *)calloc(numdev, sizeof(testcnts[0]));
   if (!testcnts)
     return;
 
@@ -2468,27 +2468,27 @@ int ATACheckDevice(cfgfile *cfg){
   // check if number of ATA errors has increased
   if (cfg->errorlog){
 
-    int new,old=cfg->ataerrorcount;
+    int newc,oldc=cfg->ataerrorcount;
 
     // new number of errors
-    new=ATAErrorCount(fd, name);
+    newc=ATAErrorCount(fd, name);
 
     // did command fail?
-    if (new<0)
+    if (newc<0)
       // lack of PrintOut here is INTENTIONAL
       MailWarning(cfg, 7, "Device: %s, Read SMART Error Log Failed", name);
 
     // has error count increased?
-    if (new>old){
+    if (newc>oldc){
       PrintOut(LOG_CRIT, "Device: %s, ATA error count increased from %d to %d\n",
-               name, old, new);
+               name, oldc, newc);
       MailWarning(cfg, 4, "Device: %s, ATA error count increased from %d to %d",
-                   name, old, new);
+                   name, oldc, newc);
     }
     
     // this last line is probably not needed, count always increases
-    if (new>=0)
-      cfg->ataerrorcount=new;
+    if (newc>=0)
+      cfg->ataerrorcount=newc;
   }
   
   // carry out scheduled self-test

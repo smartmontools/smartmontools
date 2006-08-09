@@ -1,5 +1,5 @@
 /*
- * atacmds.c
+ * atacmds.cpp
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.174 2006/06/12 02:13:44 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.175 2006/08/09 20:40:19 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1874,8 +1874,8 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *da
   
   // loop over Attributes to see if there is one with the desired ID
   for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-    struct ata_smart_attribute *this = data->vendor_attributes + i;
-    if (this->id == id) {
+    struct ata_smart_attribute *ap = data->vendor_attributes + i;
+    if (ap->id == id) {
       // we've found the desired Attribute.  Return its value
       int64_t rawvalue=0;
       int j;
@@ -1886,7 +1886,7 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *da
 	// the normal rules this will be promoted to the native type.
 	// On a 32 bit machine this might then overflow.
 	int64_t temp;
-	temp = this->raw[j];
+	temp = ap->raw[j];
 	temp <<= 8*j;
 	rawvalue |= temp;
       } // loop over j

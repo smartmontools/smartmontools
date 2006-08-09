@@ -1,5 +1,5 @@
 /*
- * scsiata.c
+ * scsiata.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -45,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.6 2006/07/01 21:30:04 dpgilbert Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.7 2006/08/09 20:40:19 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */

@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.44 2006/06/08 03:11:42 dpgilbert Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.45 2006/08/09 20:40:20 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -59,7 +59,7 @@ void printone(char *block, const char *cvsid);
 #ifndef __GNUC__
 #define __attribute__(x)      /* nothing */
 #endif
-void pout(char *fmt, ...)  
+void pout(const char *fmt, ...)  
      __attribute__ ((format (printf, 1, 2)));
 
 // replacement for perror() with redirected output.
@@ -96,7 +96,12 @@ int make_device_names (char ***devlist, const char* name);
 void *Calloc(size_t nmemb, size_t size);
 
 // Utility function to free memory
-void *FreeNonZero(void* address, int size, int whatline, const char* file);
+void *FreeNonZero1(void* address, int size, int whatline, const char* file);
+
+// Typesafe version of above
+template <class T>
+inline T * FreeNonZero(T * address, int size, int whatline, const char* file)
+  { return (T *)FreeNonZero1((void *)address, size, whatline, file); }
 
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
@@ -105,7 +110,12 @@ char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file);
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree(void *address, int whatline, const char* file);
+void *CheckFree1(void *address, int whatline, const char* file);
+
+// Typesafe version of above
+template <class T>
+inline T * CheckFree(T * address, int whatline, const char* file)
+  { return (T *)CheckFree1((void *)address, whatline, file); }
 
 // This function prints either to stdout or to the syslog as needed
 
@@ -115,7 +125,7 @@ void *CheckFree(void *address, int whatline, const char* file);
 // values. This means the objects of type char or short int (whether
 // signed or not) are promoted to either int or unsigned int, as
 // appropriate.]
-void PrintOut(int priority,char *fmt, ...);
+void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
 // run time, determine byte ordering
 int isbigendian();

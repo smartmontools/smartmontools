@@ -1,5 +1,5 @@
 /*
- * utility.c
+ * utility.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.61 2006/04/12 14:54:28 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.62 2006/08/09 20:40:20 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -365,7 +365,7 @@ void syserror(const char *message){
 // regcomp().
 void printregexwarning(int errcode, regex_t *compiled){
   size_t length = regerror(errcode, compiled, NULL, 0);
-  char *buffer = malloc(length);
+  char *buffer = (char*)malloc(length);
   if (!buffer){
     pout("Out of memory in printregexwarning()\n");
     return;
@@ -543,20 +543,20 @@ int64_t bytes = 0;
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.
-void *FreeNonZero(void *address, int size, int line, const char* file){
+void *FreeNonZero1(void *address, int size, int line, const char* file){
   if (address) {
     if (size<0)
-      bytes-=1+strlen(address);
+      bytes-=1+strlen((char*)address);
     else
       bytes-=size;
-    return CheckFree(address, line, file);
+    return CheckFree1(address, line, file);
   }
   return NULL;
 }
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
-void *CheckFree(void *address, int whatline, const char* file){
+void *CheckFree1(void *address, int whatline, const char* file){
   if (address){
     free(address);
     return NULL;

@@ -1,5 +1,5 @@
 /*
- * os_win32/daemon_win32.c
+ * os_win32/daemon_win32.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -31,7 +31,7 @@
 
 #include "daemon_win32.h"
 
-const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.10 2006/04/12 14:54:28 ballen4705 Exp $"
+const char *daemon_win32_c_cvsid = "$Id: daemon_win32.cpp,v 1.11 2006/08/09 20:40:20 chrfranke Exp $"
 DAEMON_WIN32_H_CVSID;
 
 
@@ -972,7 +972,7 @@ static void WINAPI service_main(DWORD argc, LPSTR * argv)
 
 static int svcadm_setdesc(SC_HANDLE hs, const char * desc)
 {
-	HANDLE hdll;
+	HINSTANCE hdll;
 	BOOL (WINAPI * ChangeServiceConfig2A_p)(SC_HANDLE, DWORD, LPVOID);
 	BOOL ret;
 	if (!(hdll = LoadLibraryA("ADVAPI32.DLL")))

@@ -1,5 +1,5 @@
 /*
- * ataprint.c
+ * ataprint.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.166 2006/07/20 20:59:44 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.167 2006/08/09 20:40:19 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -826,7 +826,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
     // consider only valid attributes (allowing some screw-ups in the
     // thresholds page data to slip by)
     if (disk->id){
-      char *type, *update;
+      const char *type, *update;
       int failednow,failedever;
       char attributename[64];
 

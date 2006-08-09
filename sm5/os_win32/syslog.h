@@ -19,9 +19,13 @@
 #ifndef SYSLOG_H
 #define SYSLOG_H
 
-#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.4 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define SYSLOG_H_CVSID "$Id: syslog.h,v 1.5 2006/08/09 20:40:20 chrfranke Exp $\n"
 
 #include <stdarg.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* EVENTLOG_ERROR_TYPE: */
 #define LOG_EMERG       0
@@ -58,5 +62,9 @@ void openlog(const char * ident, int option, int facility);
 void closelog(void);
 
 void vsyslog(int priority, const char * message, va_list args);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SYSLOG_H */

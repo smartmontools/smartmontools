@@ -1,5 +1,5 @@
 /*
- * scsicmds.c
+ * scsicmds.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.88 2006/06/09 00:48:48 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.89 2006/08/09 20:40:19 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
