@@ -72,9 +72,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.83 2006/06/08 03:14:36 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.84 2006/08/09 22:18:09 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.83 2006/06/08 03:14:36 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.84 2006/08/09 22:18:09 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -315,7 +315,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
         // this case, we check that the link to the directory is of
         // the correct type, and then append "disc" to it.
         char tmpname[1024]={0};
-        char *type=strcmp(name,"ATA")?"scsi":"ide";
+        const char * type = (strcmp(name,"ATA") ? "scsi" : "ide");
         if (strstr(linkbuf, type)){
           snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
           mp[n++] = CustomStrDup(tmpname, 1, __LINE__, filenameandversion);
@@ -326,7 +326,7 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
   
   // free memory, track memory usage
   globfree(&globbuf);
-  mp = realloc(mp,n*(sizeof(char*)));
+  mp = static_cast<char **>(realloc(mp,n*(sizeof(char*))));
   bytes += n*(sizeof(char*));
   
   // and set up return values
