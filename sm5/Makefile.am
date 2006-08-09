@@ -1,67 +1,72 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.78 2006/06/08 03:18:41 dpgilbert Exp $
+# $Id: Makefile.am,v 1.79 2006/08/09 20:40:19 chrfranke Exp $
 #
 
 @SET_MAKE@
+
+# Make sure .cpp takes precedence to avoid compiling old .c file
+SUFFIXES = .cpp .c .s .o
+
 
 AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR=\"$(sysconfdir)\"
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
 
-smartd_SOURCES =  smartd.c      \
-                  smartd.h      \
-                  atacmdnames.c	\
-                  atacmdnames.h	\
-                  atacmds.c	\
-                  atacmds.h	\
-                  ataprint.c 	\
-                  ataprint.h	\
-                  extern.h      \
-                  int64.h       \
-                  knowndrives.c	\
-                  knowndrives.h	\
-                  scsicmds.c	\
-                  scsicmds.h	\
-                  scsiata.c	\
-                  scsiata.h	\
-                  scsiprint.c	\
-                  scsiprint.h	\
-                  utility.c 	\
+smartd_SOURCES =  smartd.cpp      \
+                  smartd.h        \
+                  atacmdnames.cpp \
+                  atacmdnames.h   \
+                  atacmds.cpp     \
+                  atacmds.h       \
+                  ataprint.cpp    \
+                  ataprint.h      \
+                  extern.h        \
+                  int64.h         \
+                  knowndrives.cpp \
+                  knowndrives.h   \
+                  scsicmds.cpp    \
+                  scsicmds.h      \
+                  scsiata.cpp     \
+                  scsiata.h       \
+                  scsiprint.cpp   \
+                  scsiprint.h     \
+                  utility.cpp     \
                   utility.h
 
 smartd_LDADD = @os_deps@ @os_libs@
 smartd_DEPENDENCIES = @os_deps@
-EXTRA_smartd_SOURCES = os_darwin.c      \
-		       os_darwin.h      \
-		       os_linux.c       \
+
+EXTRA_smartd_SOURCES = os_darwin.cpp    \
+                       os_darwin.h      \
+                       os_linux.cpp     \
                        os_linux.h       \
-		       os_freebsd.c     \
-		       os_freebsd.h     \
-		       os_netbsd.c      \
-		       os_netbsd.h      \
-		       os_openbsd.c     \
-		       os_openbsd.h     \
-		       os_solaris.c     \
-		       os_solaris.h     \
-		       os_solaris_ata.s \
-		       os_win32.c       \
-	               os_generic.c     \
-	               os_generic.h
+                       os_freebsd.cpp   \
+                       os_freebsd.h     \
+                       os_netbsd.cpp    \
+                       os_netbsd.h      \
+                       os_openbsd.cpp   \
+                       os_openbsd.h     \
+                       os_solaris.cpp   \
+                       os_solaris.h     \
+                       os_solaris_ata.s \
+                       os_win32.cpp     \
+                       os_generic.cpp   \
+                       os_generic.h
 
 
 if OS_WIN32_MINGW
 
-smartd_SOURCES +=                         \
-                posix/regex.h             \
-                posix/regex.c             \
-                os_win32/daemon_win32.h   \
-                os_win32/daemon_win32.c   \
-                os_win32/hostname_win32.h \
-                os_win32/hostname_win32.c \
-                os_win32/syslog.h         \
-                os_win32/syslog_win32.c
+smartd_SOURCES +=                           \
+                posix/regex.h               \
+                posix/regex.c               \
+                os_win32/daemon_win32.h     \
+                os_win32/daemon_win32.cpp   \
+                os_win32/hostname_win32.h   \
+                os_win32/hostname_win32.cpp \
+                os_win32/syslog.h           \
+                os_win32/syslog_win32.cpp
 
 # Included by regex.c:
 EXTRA_smartd_SOURCES +=                   \
@@ -72,42 +77,43 @@ EXTRA_smartd_SOURCES +=                   \
 
 endif
 
-smartctl_SOURCES= smartctl.c    \
-                  smartctl.h    \
-                  atacmdnames.c	\
-                  atacmdnames.h	\
-                  atacmds.c	\
-                  atacmds.h	\
-                  ataprint.c	\
-                  ataprint.h	\
-                  extern.h      \
-                  int64.h       \
-                  knowndrives.c	\
-                  knowndrives.h	\
-                  scsicmds.c	\
-                  scsicmds.h	\
-                  scsiata.c	\
-                  scsiata.h	\
-                  scsiprint.c	\
-                  scsiprint.h	\
-                  utility.c	\
+smartctl_SOURCES= smartctl.cpp    \
+                  smartctl.h      \
+                  atacmdnames.cpp \
+                  atacmdnames.h   \
+                  atacmds.cpp     \
+                  atacmds.h       \
+                  ataprint.cpp    \
+                  ataprint.h      \
+                  extern.h        \
+                  int64.h         \
+                  knowndrives.cpp \
+                  knowndrives.h   \
+                  scsicmds.cpp    \
+                  scsicmds.h      \
+                  scsiata.cpp     \
+                  scsiata.h       \
+                  scsiprint.cpp   \
+                  scsiprint.h     \
+                  utility.cpp     \
                   utility.h
 
 smartctl_LDADD = @os_deps@ @os_libs@
 smartctl_DEPENDENCIES = @os_deps@
-EXTRA_smartctl_SOURCES = os_linux.c \
-                       os_linux.h   \
-		       os_freebsd.c \
-		       os_freebsd.h \
-		       os_netbsd.c  \
-		       os_netbsd.h  \
-		       os_openbsd.c \
-		       os_openbsd.h \
-		       os_solaris.c \
-		       os_solaris.h \
-		       os_win32.c   \
-		       os_generic.c \
-		       os_generic.h
+
+EXTRA_smartctl_SOURCES = os_linux.cpp \
+                       os_linux.h     \
+                       os_freebsd.cpp \
+                       os_freebsd.h   \
+                       os_netbsd.cpp  \
+                       os_netbsd.h    \
+                       os_openbsd.cpp \
+                       os_openbsd.h   \
+                       os_solaris.cpp \
+                       os_solaris.h   \
+                       os_win32.cpp   \
+                       os_generic.cpp \
+                       os_generic.h
 
 if OS_WIN32_MINGW
 

@@ -127,7 +127,7 @@ SOURCE=..\posix\regexec.c
 # End Group
 # Begin Source File
 
-SOURCE=..\atacmdnames.c
+SOURCE=..\atacmdnames.cpp
 # End Source File
 # Begin Source File
 
@@ -135,7 +135,7 @@ SOURCE=..\atacmdnames.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\atacmds.c
+SOURCE=..\atacmds.cpp
 # End Source File
 # Begin Source File
 
@@ -143,7 +143,7 @@ SOURCE=..\atacmds.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\ataprint.c
+SOURCE=..\ataprint.cpp
 # End Source File
 # Begin Source File
 
@@ -186,7 +186,7 @@ SOURCE=..\int64.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\knowndrives.c
+SOURCE=..\knowndrives.cpp
 # End Source File
 # Begin Source File
 
@@ -194,11 +194,11 @@ SOURCE=..\knowndrives.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\os_win32.c
+SOURCE=..\os_win32.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\scsiata.c
+SOURCE=..\scsiata.cpp
 # End Source File
 # Begin Source File
 
@@ -206,7 +206,7 @@ SOURCE=..\scsiata.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\scsicmds.c
+SOURCE=..\scsicmds.cpp
 # End Source File
 # Begin Source File
 
@@ -214,7 +214,7 @@ SOURCE=..\scsicmds.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\scsiprint.c
+SOURCE=..\scsiprint.cpp
 # End Source File
 # Begin Source File
 
@@ -222,7 +222,7 @@ SOURCE=..\scsiprint.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\smartctl.c
+SOURCE=..\smartctl.cpp
 # End Source File
 # Begin Source File
 
@@ -234,7 +234,7 @@ SOURCE=.\syslog.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\utility.c
+SOURCE=..\utility.cpp
 # End Source File
 # Begin Source File
 

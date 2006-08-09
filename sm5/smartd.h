@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.81 2006/07/17 20:42:04 chrfranke Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.82 2006/08/09 20:40:20 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -248,7 +248,7 @@ typedef struct changedattribute_s {
 #ifndef __GNUC__
 #define __attribute__(x)      /* nothing */
 #endif
-void PrintOut(int priority,char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
+void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
 
 void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 

@@ -1,13 +1,13 @@
 #
-# $Id: configure.in,v 1.116 2006/07/26 05:09:16 geoffk1 Exp $
+# $Id: configure.in,v 1.117 2006/08/09 20:40:19 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 5.37, smartmontools-support@lists.sourceforge.net)
-AC_CONFIG_SRCDIR(smartctl.c)
+AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.116 2006/07/26 05:09:16 geoffk1 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.117 2006/08/09 20:40:19 chrfranke Exp $'`
 smartmontools_release_date=2006/04/12
 smartmontools_release_time="17:39:01 UTC"
 
@@ -24,9 +24,9 @@ AM_INIT_AUTOMAKE
 
 AM_MAINTAINER_MODE
 
-AC_LANG_C
+AC_LANG_CPLUSPLUS
 dnl Checks for programs.
-AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_AS
 AC_PROG_INSTALL
 
@@ -88,8 +88,8 @@ fi
 AC_MSG_RESULT([$libc_have_working_snprintf])
 
 # check for __attribute__((packed))
-AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C compiler supports __attribute__((packed))])
-AC_MSG_CHECKING([whether C compiler supports __attribute__((packed))])
+AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C++ compiler supports __attribute__((packed))])
+AC_MSG_CHECKING([whether C++ compiler supports __attribute__((packed))])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[struct a { int b; } __attribute__((packed));]])],
                   [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
 AC_SUBST(gcc_have_attr_packed)
@@ -182,41 +182,41 @@ AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
 
 dnl Add -Wall and -W if using gcc and its not already specified.
 if test "x$GCC" = "xyes"; then
-  if test -z "`echo "$CFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
-      CFLAGS="$CFLAGS -Wall"
+  if test -z "`echo "$CXXFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
+      CXXFLAGS="$CXXFLAGS -Wall"
   fi
 # In the next line, do NOT delete the 2 spaces inside double quotes.
-  if test -z "`echo "$CFLAGS " | grep "\-W " 2> /dev/null`" ; then
-      CFLAGS="$CFLAGS -W"
+  if test -z "`echo "$CXXFLAGS " | grep "\-W " 2> /dev/null`" ; then
+      CXXFLAGS="$CXXFLAGS -W"
   fi
   case "${host}" in
     *-*-mingw*)
       # MinGW uses MSVCRT.DLL which uses printf format "%I64d" and not "%lld" for int64_t
-      CFLAGS="$CFLAGS -Wno-format";;
+      CXXFLAGS="$CXXFLAGS -Wno-format";;
   esac
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
  case "${host}" in
 	*-*-solaris*) 
-          dnl set CFLAGS for Solaris C compiler
-          if test -z "`echo "$CFLAGS" | grep "\-xmemalign" 2> /dev/null`" ; then
+          dnl set CXXFLAGS for Solaris C++ compiler
+          if test -z "`echo "$CXXFLAGS" | grep "\-xmemalign" 2> /dev/null`" ; then
             dnl we have to tell the compilers about packed ATA structures
-            CFLAGS="-xmemalign=1i $CFLAGS"
+            CXXFLAGS="-xmemalign=1i $CXXFLAGS"
           fi
-          if test -z "`echo "$CFLAGS" | grep "\-xCC" 2> /dev/null`" ; then
+          if test -z "`echo "$CXXFLAGS" | grep "\-xCC" 2> /dev/null`" ; then
             dnl we have to tell the compiler to ignore C++ style comments
-            CFLAGS="-xCC $CFLAGS"
+            CXXFLAGS="-xCC $CXXFLAGS"
           fi
-          if test -z "`echo "$CFLAGS" | grep "\-xO" 2> /dev/null`" ; then
+          if test -z "`echo "$CXXFLAGS" | grep "\-xO" 2> /dev/null`" ; then
             dnl turn on optimization if user has not explicitly set its value
-            CFLAGS="-xO2 $CFLAGS"
+            CXXFLAGS="-xO2 $CXXFLAGS"
           fi
  esac
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
-AC_SUBST(CFLAGS)
+AC_SUBST(CXXFLAGS)
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
 AC_PROG_MAKE_SET

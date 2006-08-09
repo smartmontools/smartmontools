@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.59 2006/06/09 00:50:27 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.60 2006/08/09 20:40:19 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -349,6 +349,9 @@ const char * scsiTapeAlertsChangerDevice(unsigned short code);
 
 const char * scsi_get_opcode_name(UINT8 opcode);
 void dStrHex(const char* str, int len, int no_ascii);
+inline void dStrHex(const unsigned char* str, int len, int no_ascii)
+  { dStrHex((const char *)str, len, no_ascii); }
+
 
 /* SCSI command transmission interface function declaration. Its
  * definition is target OS specific (see os_<OS>.c file).
