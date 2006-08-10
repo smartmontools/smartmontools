@@ -43,7 +43,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.14 2006/07/26 05:02:29 geoffk1 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.15 2006/08/10 19:57:47 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -96,7 +96,7 @@ static bool is_smart_capable (io_object_t dev) {
   // If it's an kIOATABlockStorageDeviceClass then we're successful
   // only if its ATA features indicate it supports SMART.
   if (IOObjectConformsTo (dev, kIOATABlockStorageDeviceClass)
-      && (diskChars = IORegistryEntryCreateCFProperty
+      && (diskChars = (CFDictionaryRef)IORegistryEntryCreateCFProperty                                                                                                           
 	  (dev, CFSTR (kIOPropertyDeviceCharacteristicsKey),
 	   kCFAllocatorDefault, kNilOptions)) != NULL)
     {
@@ -149,7 +149,7 @@ int make_device_names (char*** devlist, const char* name) {
 
   // Create an array of service names.
   IOIteratorReset (i);
-  *devlist = Calloc (result, sizeof (char *));
+  *devlist = (char**)Calloc (result, sizeof (char *)); 
   if (! *devlist)
     goto error;
   index = 0;
@@ -282,7 +282,7 @@ int deviceopen(const char *pathname, char *type){
       (*devices[devnum].plugin)->QueryInterface
 	(devices[devnum].plugin,
 	 CFUUIDGetUUIDBytes ( kIOATASMARTInterfaceID),
-	 (LPVOID) &devices[devnum].smartIf);
+         (void **)&devices[devnum].smartIf);
   }
   
   return devnum;
