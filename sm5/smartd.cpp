@@ -106,7 +106,7 @@ extern "C" int __stdcall FreeConsole(void);
 #endif // _WIN32
 
 #if defined (__SVR4) && defined (__sun)
-int getdomainname(char *, int); /* no declaration in header files! */
+extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
 #define ARGUSED(x) ((void)(x))
@@ -115,14 +115,14 @@ int getdomainname(char *, int); /* no declaration in header files! */
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.374 2006/08/09 20:40:20 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.375 2006/08/12 05:41:14 card_captor Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.374 2006/08/09 20:40:20 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.375 2006/08/12 05:41:14 card_captor Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
