@@ -25,7 +25,7 @@
 #ifndef OS_SOLARIS_H_
 #define OS_SOLARIS_H_
 
-#define OS_SOLARIS_H_CVSID "$Id: os_solaris.h,v 1.12 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_SOLARIS_H_CVSID "$Id: os_solaris.h,v 1.13 2006/08/12 05:41:13 card_captor Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
@@ -37,18 +37,20 @@
 #include <fcntl.h>
 
 // function prototypes for functions defined in os_solaris_ata.s
-int smart_read_data(int fd, void *data);
-int smart_read_thresholds(int fd, void *data);
-int smart_read_log(int fd, int s, int count, void *data);
-int ata_identify(int fd, void *data);
-int ata_pidentify(int fd, void *data);
-int smart_enable(int fd);
-int smart_disable(int fd);
-int smart_status(int fd);
-int smart_auto_offline(int fd, int s);
-int smart_auto_save(int fd, int s);
-int smart_immediate_offline(int fd, int s);
-int smart_status_check(int fd);
+extern "C" {
+  int smart_read_data(int fd, void *data);
+  int smart_read_thresholds(int fd, void *data);
+  int smart_read_log(int fd, int s, int count, void *data);
+  int ata_identify(int fd, void *data);
+  int ata_pidentify(int fd, void *data);
+  int smart_enable(int fd);
+  int smart_disable(int fd);
+  int smart_status(int fd);
+  int smart_auto_offline(int fd, int s);
+  int smart_auto_save(int fd, int s);
+  int smart_immediate_offline(int fd, int s);
+  int smart_status_check(int fd);
+}
 
 // wrapper macros
 #define smart_enable_auto_save(fd)	smart_auto_save(fd, 0xf1)

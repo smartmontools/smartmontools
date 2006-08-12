@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.26 2006/04/12 14:54:28 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.27 2006/08/12 05:41:13 card_captor Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.26 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.27 2006/08/12 05:41:13 card_captor Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -163,7 +163,7 @@ addpath(const char *path, struct pathlist *res)
 {
         if (++res->nnames > res->maxnames) {
                 res->maxnames += 16;
-                res->names = realloc(res->names, res->maxnames * sizeof (char *));
+                res->names = static_cast<char**>(realloc(res->names, res->maxnames * sizeof (char *)));
                 if (res->names == NULL)
                         return -1;
                 bytes += 16*sizeof(char *);
@@ -247,7 +247,7 @@ int make_device_names (char*** devlist, const char* name) {
 	}
 
 	// shrink array to min possible size
-	res.names = realloc(res.names, res.nnames * sizeof (char *));
+	res.names = static_cast<char**>(realloc(res.names, res.nnames * sizeof (char *)));
 	bytes -= sizeof(char *)*(res.maxnames-res.nnames);
 
 	// pass list back
@@ -271,15 +271,18 @@ int deviceclose(int fd){
     return close(fd);
 }
 
+#if defined(__sparc)
+// swap each 2-byte pairs in a sector
 static void swap_sector(void *p)
 {
     int i;
-    unsigned char t, *cp = p;
+    char t, *cp = static_cast<char*>(p);
     for(i = 0; i < 256; i++) {
         t = cp[0]; cp[0] = cp[1]; cp[1] = t;
         cp += 2;
     }
 }
+#endif
 
 // Interface to ATA devices.  See os_linux.c
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
@@ -304,12 +307,12 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     case IDENTIFY:
 	err = ata_identify(fd, data);
 	if(err) return err;
-	swap_sector(data);
+	swap_sector(static_cast<void*>(data));
 	return 0;
     case PIDENTIFY:
 	err = ata_pidentify(fd, data);
 	if(err) return err;
-	swap_sector(data);
+	swap_sector(static_cast<void*>(data));
 	return 0;
     case ENABLE:
 	return smart_enable(fd);
@@ -331,9 +334,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	break;
     }
 #else /* __sparc */
-    // avoid gcc warnings//
-    fd=command=select=0;
-    data=NULL;
+    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 
     /* Above smart_* routines uses undocumented ioctls of "dada"
      * driver, which is specific to SPARC Solaris.  See
@@ -347,9 +348,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
-  // avoid gcc warnings//
-  fd=disknum=escalade_type=command=select=0;
-  data=NULL;
+  ARGUSED(fd);  ARGUSED(disknum);  ARGUSED(escalade_type);
+  ARGUSED(command);  ARGUSED(select);  ARGUSED(data); 
 
   if (printwarning(1))
     return -1;
@@ -390,15 +390,15 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
 
   memset(&uscsi, 0, sizeof (uscsi));
 
-  uscsi.uscsi_cdb = (void *)iop->cmnd;
+  uscsi.uscsi_cdb = reinterpret_cast<char*>(iop->cmnd);
   uscsi.uscsi_cdblen = iop->cmnd_len;
   if (iop->timeout == 0)
     uscsi.uscsi_timeout = 60; /* XXX */
   else
     uscsi.uscsi_timeout = iop->timeout;
-  uscsi.uscsi_bufaddr = (void *)iop->dxferp;
+  uscsi.uscsi_bufaddr = reinterpret_cast<char*>(iop->dxferp);
   uscsi.uscsi_buflen = iop->dxfer_len;
-  uscsi.uscsi_rqbuf = (void *)iop->sensep;
+  uscsi.uscsi_rqbuf = reinterpret_cast<char*>(iop->sensep);
   uscsi.uscsi_rqlen = iop->max_sense_len;
 
   switch (iop->dxfer_dir) {
