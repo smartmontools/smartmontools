@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.6 2006/08/25 06:06:25 sxzzsf Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -524,6 +524,12 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 }
 
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
+  unsupported(1);
+  return -1;
+}
+
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{
   unsupported(1);
   return -1;
 }

@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.16 2006/06/20 19:24:00 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.17 2006/08/25 06:06:25 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -170,6 +170,11 @@ deviceclose(int fd)
 int
 marvell_command_interface(int fd, smart_command_set command, int select, char *data)
 { return -1; }
+
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{
+  return -1;
+}
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)

@@ -79,7 +79,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.22 2006/04/13 14:00:57 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.23 2006/08/25 06:06:24 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -228,6 +228,17 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 }
 
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
+  ARGUSED(fd);
+  ARGUSED(command);
+  ARGUSED(select);
+  ARGUSED(data);
+  unsupported();
+  return -1;
+}
+
+
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{
   ARGUSED(fd);
   ARGUSED(command);
   ARGUSED(select);

@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.82 2006/05/12 21:39:20 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.83 2006/08/25 06:06:24 sxzzsf Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -525,6 +525,7 @@ char *create_vendor_attribute_arg_list(void);
 int ata_command_interface(int device, smart_command_set command, int select, char *data);
 int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
 int marvell_command_interface(int device, smart_command_set command, int select, char *data);
+int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
 // Optional functions of os_*.c
 #ifdef HAVE_ATA_IDENTIFY_IS_CACHED
 // Return true if OS caches the ATA identify sector

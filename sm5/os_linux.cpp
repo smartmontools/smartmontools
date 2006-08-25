@@ -61,6 +61,8 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
+#include "extern.h"
+extern smartmonctrl * con;
 #include "os_linux.h"
 #include "scsicmds.h"
 #include "utility.h"
@@ -72,9 +74,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.84 2006/08/09 22:18:09 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.85 2006/08/25 06:06:24 sxzzsf Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.84 2006/08/09 22:18:09 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.85 2006/08/25 06:06:24 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -215,6 +217,9 @@ void print_smartctl_examples(){
          "  smartctl --all --device=3ware,2 /dev/twe0\n"
          "  smartctl --all --device=3ware,2 /dev/twa0\n"
          "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         "  smartctl --all --device=hpt,1/1/3 /dev/sda\n"
+         "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
+         "           of the 1st channel on the 1st HighPoint RAID controller)\n"
          );
 #else
   printf(
@@ -227,6 +232,9 @@ void print_smartctl_examples(){
          "  smartctl -a -d 3ware,2 /dev/twa0\n"
          "  smartctl -a -d 3ware,2 /dev/twe0\n"
          "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
+         "  smartctl -a -d hpt,1/1/3 /dev/sda\n"
+         "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
+         "           of the 1st channel on the 1st HighPoint RAID controller)\n"
          );
 #endif
   return;
@@ -1399,6 +1407,210 @@ int marvell_command_interface(int device,
 
   if (copydata)
     memcpy(data, buff, 512);
+  return 0; 
+}
+
+// this implementation is derived from ata_command_interface with a header
+// packing for highpoint linux driver ioctl interface
+// 
+// ioctl(fd,HPTIO_CTL,buff)
+//          ^^^^^^^^^
+//
+// structure of hpt_buff
+// +----+----+----+----+--------------------.....---------------------+
+// | 1  | 2  | 3  | 4  | 5                                            |
+// +----+----+----+----+--------------------.....---------------------+
+// 
+// 1: The target controller                     [ int    ( 4 Bytes ) ]
+// 2: The channel of the target controllee      [ int    ( 4 Bytes ) ]
+// 3: HDIO_ ioctl call                          [ int    ( 4 Bytes ) ]
+//    available from ${LINUX_KERNEL_SOURCE}/Documentation/ioctl/hdio
+// 4: the pmport that disk attached,            [ int    ( 4 Bytes ) ]
+//    if no pmport device, set to 1 or leave blank
+// 5: data                                      [ void * ( var leangth ) ]
+// 
+int highpoint_command_interface(int device, smart_command_set command,
+                                int select, char *data)
+{
+  unsigned char hpt_buff[4*sizeof(int) + STRANGE_BUFFER_LENGTH];
+  unsigned int *hpt = (unsigned int *)hpt_buff;
+  unsigned char *buff = &hpt_buff[4*sizeof(int)];
+  int copydata = 0;
+  const int HDIO_DRIVE_CMD_OFFSET = 4;
+
+  memset(hpt_buff, 0, 4*sizeof(int) + STRANGE_BUFFER_LENGTH);
+  hpt[0] = con->hpt_data[0]; // controller id
+  hpt[1] = con->hpt_data[1]; // channel number
+  hpt[3] = con->hpt_data[2]; // pmport number
+
+  buff[0]=ATA_SMART_CMD;
+  switch (command){
+  case CHECK_POWER_MODE:
+    buff[0]=ATA_CHECK_POWER_MODE;
+    copydata=1;
+    break;
+  case READ_VALUES:
+    buff[2]=ATA_SMART_READ_VALUES;
+    buff[3]=1;
+    copydata=512;
+    break;
+  case READ_THRESHOLDS:
+    buff[2]=ATA_SMART_READ_THRESHOLDS;
+    buff[1]=buff[3]=1;
+    copydata=512;
+    break;
+  case READ_LOG:
+    buff[2]=ATA_SMART_READ_LOG_SECTOR;
+    buff[1]=select;
+    buff[3]=1;
+    copydata=512;
+    break;
+  case WRITE_LOG:
+    break;
+  case IDENTIFY:
+    buff[0]=ATA_IDENTIFY_DEVICE;
+    buff[3]=1;
+    copydata=512;
+    break;
+  case PIDENTIFY:
+    buff[0]=ATA_IDENTIFY_PACKET_DEVICE;
+    buff[3]=1;
+    copydata=512;
+    break;
+  case ENABLE:
+    buff[2]=ATA_SMART_ENABLE;
+    buff[1]=1;
+    break;
+  case DISABLE:
+    buff[2]=ATA_SMART_DISABLE;
+    buff[1]=1;
+    break;
+  case STATUS:
+    buff[2]=ATA_SMART_STATUS;
+    break;
+  case AUTO_OFFLINE:
+    buff[2]=ATA_SMART_AUTO_OFFLINE;
+    buff[3]=select;
+    break;
+  case AUTOSAVE:
+    buff[2]=ATA_SMART_AUTOSAVE;
+    buff[3]=select;
+    break;
+  case IMMEDIATE_OFFLINE:
+    buff[2]=ATA_SMART_IMMEDIATE_OFFLINE;
+    buff[1]=select;
+    break;
+  case STATUS_CHECK:
+    buff[1]=ATA_SMART_STATUS;
+    break;
+  default:
+    pout("Unrecognized command %d in linux_highpoint_command_interface()\n"
+         "Please contact " PACKAGE_BUGREPORT "\n", command);
+    errno=ENOSYS;
+    return -1;
+  }
+
+  if (command==WRITE_LOG) {
+    unsigned char task[4*sizeof(int)+sizeof(ide_task_request_t)+512];
+    unsigned int *hpt = (unsigned int *)task;
+    ide_task_request_t *reqtask = (ide_task_request_t *)(&task[4*sizeof(int)]);
+    task_struct_t *taskfile = (task_struct_t *)reqtask->io_ports;
+    int retval;
+
+    memset(task, 0, sizeof(task));
+
+    hpt[0] = con->hpt_data[0]; // controller id
+    hpt[1] = con->hpt_data[1]; // channel number
+    hpt[3] = con->hpt_data[2]; // pmport number
+    hpt[2] = HDIO_DRIVE_TASKFILE; // real hd ioctl
+
+    taskfile->data           = 0;
+    taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
+    taskfile->sector_count   = 1;
+    taskfile->sector_number  = select;
+    taskfile->low_cylinder   = 0x4f;
+    taskfile->high_cylinder  = 0xc2;
+    taskfile->device_head    = 0;
+    taskfile->command        = ATA_SMART_CMD;
+    
+    reqtask->data_phase      = TASKFILE_OUT;
+    reqtask->req_cmd         = IDE_DRIVE_TASK_OUT;
+    reqtask->out_size        = 512;
+    reqtask->in_size         = 0;
+    
+    memcpy(task+sizeof(ide_task_request_t)+4*sizeof(int), data, 512);
+
+    if ((retval=ioctl(device, HPTIO_CTL, task))) {
+      if (retval==-EINVAL)
+        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
+      return -1;
+    }
+    return 0;
+  }
+    
+  if (command==STATUS_CHECK){
+    int retval;
+    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+    buff[4]=normal_lo;
+    buff[5]=normal_hi;
+
+    hpt[2] = HDIO_DRIVE_TASK;
+
+    if ((retval=ioctl(device, HPTIO_CTL, hpt_buff))) {
+      if (retval==-EINVAL) {
+        pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
+        pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
+      }
+      else
+        syserror("Error SMART Status command failed");
+      return -1;
+    }
+    
+    if (buff[4]==normal_lo && buff[5]==normal_hi)
+      return 0;
+    
+    if (buff[4]==failed_lo && buff[5]==failed_hi)
+      return 1;
+    
+    syserror("Error SMART Status command failed");
+    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+    pout("Register values returned from SMART Status command are:\n");
+    pout("CMD=0x%02x\n",(int)buff[0]);
+    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("NS =0x%02x\n",(int)buff[2]);
+    pout("SC =0x%02x\n",(int)buff[3]);
+    pout("CL =0x%02x\n",(int)buff[4]);
+    pout("CH =0x%02x\n",(int)buff[5]);
+    pout("SEL=0x%02x\n",(int)buff[6]);
+    return -1;   
+  }
+  
+#if 1
+  if (command==IDENTIFY || command==PIDENTIFY){
+    unsigned short deviceid[4*sizeof(int)+256];
+    unsigned int *hpt = (unsigned int *)deviceid;
+
+    hpt[0] = con->hpt_data[0]; // controller id
+    hpt[1] = con->hpt_data[1]; // channel number
+    hpt[3] = con->hpt_data[2]; // pmport number
+
+    hpt[2] = HDIO_GET_IDENTITY;
+    if (!ioctl(device, HPTIO_CTL, deviceid) && (deviceid[4*sizeof(int)] & 0x8000))
+      buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
+  }
+#endif
+  
+  hpt[2] = HDIO_DRIVE_CMD;
+  if ((ioctl(device, HPTIO_CTL, hpt_buff)))
+    return -1;
+
+  if (command==CHECK_POWER_MODE)
+    buff[HDIO_DRIVE_CMD_OFFSET]=buff[2];
+
+  if (copydata)
+    memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, copydata);
+  
   return 0; 
 }
 
