@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.150 2006/08/09 20:40:19 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.151 2006/08/25 06:06:25 sxzzsf Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -237,7 +237,7 @@ const char *getvalidarglist(char opt) {
   case 'q':
     return "errorsonly, silent";
   case 'd':
-    return "ata, scsi, marvell, sat, 3ware,N";
+    return "ata, scsi, marvell, sat, 3ware,N, hpt,L/M/N";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -373,23 +373,23 @@ void ParseOpts (int argc, char** argv){
     case 'd':
       con->controller_explicit = 1;
       if (!strcmp(optarg,"ata")) {
-	con->controller_type = CONTROLLER_ATA;
+        con->controller_type = CONTROLLER_ATA;
         con->controller_port = 0;
       } else if (!strcmp(optarg,"scsi")) {
-	con->controller_type = CONTROLLER_SCSI;
+        con->controller_type = CONTROLLER_SCSI;
         con->controller_port = 0;
       } else if (!strcmp(optarg,"marvell")) {
-	con->controller_type = CONTROLLER_MARVELL_SATA;
+        con->controller_type = CONTROLLER_MARVELL_SATA;
         con->controller_port = 0;
       } else if (!strncmp(optarg, "sat", 3)) {
-	con->controller_type = CONTROLLER_SAT;
+        con->controller_type = CONTROLLER_SAT;
         con->controller_port = 0;
         con->satpassthrulen = 0;
         if (strlen(optarg) > 3) {
           int k;
           char * cp;
 
-	  cp = strchr(optarg, ',');
+          cp = strchr(optarg, ',');
           if (cp && (1 == sscanf(cp + 1, "%d", &k)) &&
               ((0 == k) || (12 == k) || (16 == k)))
             con->satpassthrulen = k;
@@ -398,6 +398,45 @@ void ParseOpts (int argc, char** argv){
                     "0, 12 or 16\n");
             badarg = TRUE;
           }
+        }
+      } else if (!strncmp(optarg, "hpt", 3)){
+        unsigned char i, splash = 0;
+        con->hpt_data[0] = 0;
+        con->hpt_data[1] = 0;
+        con->hpt_data[2] = 0;
+        con->controller_type = CONTROLLER_HPT;
+        for (i=4; i < strlen(optarg); i++) {
+          if(optarg[i] == '/') {
+            splash++;
+            if(splash == 3) {
+              sprintf(extraerror, "Option -d hpt,L/M/N supports 2-3 items\n");
+              badarg = TRUE;
+              break;
+            }
+          }
+          else if ((optarg[i])>='0' && (optarg[i])<='9') {
+            if (con->hpt_data[splash]>1) { /* data[x] max 19 */
+              badarg = TRUE;
+              break;
+            }
+            con->hpt_data[splash] = con->hpt_data[splash]*10 + optarg[i] - '0';
+          }
+          else {
+            badarg = TRUE;
+            break;
+          }
+        }
+        if (badarg != TRUE && splash != 0) {
+          if(con->hpt_data[0]==0){
+              sprintf(extraerror, "Option -d hpt,L/M/N: no/invalid controller id L supplied\n");
+              badarg = TRUE;
+          }
+          if(con->hpt_data[1]==0){
+              sprintf(extraerror, "Option -d hpt,L/M/N: no/invalid channel number M supplied\n");
+              badarg = TRUE;
+          }
+          if(con->hpt_data[2]==0)
+            con->hpt_data[2]=1;
         }
       } else {
         // look for RAID-type device
@@ -419,7 +458,7 @@ void ParseOpts (int argc, char** argv){
           badarg = TRUE;
         } else {
 	  // NOTE: controller_port == disk number + 1
-	  con->controller_type = CONTROLLER_3WARE;
+          con->controller_type = CONTROLLER_3WARE;
           con->controller_port = i+1;
         }
         free(s);

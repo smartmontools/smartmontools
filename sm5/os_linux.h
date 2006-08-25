@@ -9,7 +9,7 @@
  *
  *  Written By: Adam Radford <linux@3ware.com>
  *  Modifications By: Joel Jacobson <linux@3ware.com>
- *                   Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ *                    Arnaldo Carvalho de Melo <acme@conectiva.com.br>
  *                    Brad Strand <linux@3ware.com>
  *
  *  Copyright (C) 1999-2003 3ware Inc.
@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.24 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.25 2006/08/25 06:06:25 sxzzsf Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -386,5 +386,7 @@ typedef struct ide_task_request_s {
 #define HDIO_DRIVE_TASK           0x031e
 #define HDIO_DRIVE_TASKFILE       0x031d
 #define HDIO_GET_IDENTITY         0x030d
+
+#define HPTIO_CTL                       0x03ff // ioctl interface for HighPoint raid device
 
 #endif /* OS_LINUX_H_ */

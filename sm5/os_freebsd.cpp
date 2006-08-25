@@ -38,9 +38,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.49 2006/04/12 14:54:28 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.50 2006/08/25 06:06:24 sxzzsf Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.49 2006/04/12 14:54:28 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.50 2006/08/25 06:06:24 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -252,6 +252,11 @@ void printwarning(int msgNo, const char* extra) {
 // Interface to ATA devices.  See os_linux.c
 int marvell_command_interface(int fd __unused, smart_command_set command __unused, int select __unused, char *data __unused) {
 	return -1;
+}
+
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{
+  return -1;
 }
 
 int ata_command_interface(int fd, smart_command_set command, int select, char *data) {

@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.27 2006/08/12 05:41:13 card_captor Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.28 2006/08/25 06:06:25 sxzzsf Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.27 2006/08/12 05:41:13 card_captor Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.28 2006/08/25 06:06:25 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -286,6 +286,12 @@ static void swap_sector(void *p)
 
 // Interface to ATA devices.  See os_linux.c
 int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
+    ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
+    return -1;
+}
+
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{
     ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
     return -1;
 }
