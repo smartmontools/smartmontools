@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.151 2006/08/25 06:06:25 sxzzsf Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.152 2006/08/25 07:53:13 sxzzsf Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -400,33 +400,33 @@ void ParseOpts (int argc, char** argv){
           }
         }
       } else if (!strncmp(optarg, "hpt", 3)){
-        unsigned char i, splash = 0;
+        unsigned char i, slash = 0;
         con->hpt_data[0] = 0;
         con->hpt_data[1] = 0;
         con->hpt_data[2] = 0;
         con->controller_type = CONTROLLER_HPT;
         for (i=4; i < strlen(optarg); i++) {
           if(optarg[i] == '/') {
-            splash++;
-            if(splash == 3) {
+            slash++;
+            if(slash == 3) {
               sprintf(extraerror, "Option -d hpt,L/M/N supports 2-3 items\n");
               badarg = TRUE;
               break;
             }
           }
           else if ((optarg[i])>='0' && (optarg[i])<='9') {
-            if (con->hpt_data[splash]>1) { /* data[x] max 19 */
+            if (con->hpt_data[slash]>1) { /* hpt_data[x] max 19 */
               badarg = TRUE;
               break;
             }
-            con->hpt_data[splash] = con->hpt_data[splash]*10 + optarg[i] - '0';
+            con->hpt_data[slash] = con->hpt_data[slash]*10 + optarg[i] - '0';
           }
           else {
             badarg = TRUE;
             break;
           }
         }
-        if (badarg != TRUE && splash != 0) {
+        if (badarg != TRUE && slash != 0) {
           if(con->hpt_data[0]==0){
               sprintf(extraerror, "Option -d hpt,L/M/N: no/invalid controller id L supplied\n");
               badarg = TRUE;
