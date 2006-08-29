@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.60 2006/08/09 20:40:19 chrfranke Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.61 2006/08/29 16:36:26 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,6 +170,7 @@ struct scsiNonMediumError {
 #define STARTSTOP_CYCLE_COUNTER_LPAGE           0x0e
 #define APPLICATION_CLIENT_LPAGE                0x0f
 #define SELFTEST_RESULTS_LPAGE                  0x10
+#define BACKGROUND_RESULTS_LPAGE                0x15   /* SBC-2 */
 #define IE_LPAGE                                0x2f
 
 /* Seagate vendor specific log pages. */
@@ -206,6 +207,9 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 #define POWER_CONDITION_PAGE                     0x1a
 #define INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE    0x1c
 #define FAULT_FAILURE_REPORTING_PAGE             0x1c
+
+/* Background control mode subpage is [0x1c,0x1] */
+#define BACKGROUND_CONTROL_M_SUBPAGE             0x1   /* SBC-2 */
 
 #define ALL_MODE_PAGES                           0x3f
 
@@ -284,14 +288,16 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen);
 
 int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
 
-int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
-                 int known_resp_len);
+int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
+		 int bufLen, int known_resp_len);
 
-int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
+int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
+                  UINT8 *pBuf, int bufLen);
 
 int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen);
 
-int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen);
+int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
+		    UINT8 *pBuf, int bufLen);
 
 int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen);
 
