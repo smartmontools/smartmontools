@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.111 2006/08/09 20:40:19 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.112 2006/08/29 16:37:08 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -84,7 +84,7 @@ static void scsiGetSupportedLogPages(int device)
 {
     int i, err;
 
-    if ((err = scsiLogSense(device, SUPPORTED_LPAGES, gBuf, 
+    if ((err = scsiLogSense(device, SUPPORTED_LPAGES, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         if (con->reportscsiioctl > 0)
             pout("Log Sense for supported pages failed [%s]\n", 
@@ -195,7 +195,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     int failures = 0;
 
     PRINT_ON(con);
-    if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, gBuf, 
+    if ((err = scsiLogSense(device, TAPE_ALERTS_LPAGE, 0, gBuf,
                         LOG_RESP_TAPE_ALERT_LEN, LOG_RESP_TAPE_ALERT_LEN))) {
         pout("scsiGetTapesAlertData Failed [%s]\n", scsiErrString(err));
         PRINT_OFF(con);
@@ -239,7 +239,7 @@ static void scsiGetStartStopData(int device)
     int err, len, k, extra, pc;
     unsigned char * ucp;
 
-    if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, gBuf,
+    if ((err = scsiLogSense(device, STARTSTOP_CYCLE_COUNTER_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         PRINT_ON(con);
         pout("scsiGetStartStopData Failed [%s]\n", scsiErrString(err));
@@ -350,7 +350,7 @@ static void scsiPrintSeagateCacheLPage(int device)
     unsigned char * xp;
     uint64_t ull;
 
-    if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, gBuf,
+    if ((err = scsiLogSense(device, SEAGATE_CACHE_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         PRINT_ON(con);
         pout("Seagate Cache Log Sense Failed: %s\n", scsiErrString(err));
@@ -425,7 +425,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
     unsigned char * xp;
     uint64_t ull;
 
-    if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, gBuf,
+    if ((err = scsiLogSense(device, SEAGATE_FACTORY_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         PRINT_ON(con);
         pout("scsiPrintSeagateFactoryLPage Failed [%s]\n", scsiErrString(err));
@@ -523,17 +523,17 @@ static void scsiPrintErrorCounterLog(int device)
     double processed_gb;
 
     if (gReadECounterLPage && (0 == scsiLogSense(device,
-                READ_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
+                READ_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[0]);
         found[0] = 1;
     }
     if (gWriteECounterLPage && (0 == scsiLogSense(device,
-                WRITE_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
+                WRITE_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[1]);
         found[1] = 1;
     }
     if (gVerifyECounterLPage && (0 == scsiLogSense(device,
-                VERIFY_ERROR_COUNTER_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
+                VERIFY_ERROR_COUNTER_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeErrCounterPage(gBuf, &errCounterArr[2]);
         ecp = &errCounterArr[2];
         for (k = 0; k < 7; ++k) {
@@ -565,7 +565,7 @@ static void scsiPrintErrorCounterLog(int device)
     else 
         pout("\nError Counter logging not supported\n");
     if (gNonMediumELPage && (0 == scsiLogSense(device,
-                NON_MEDIUM_ERROR_LPAGE, gBuf, LOG_RESP_LEN, 0))) {
+                NON_MEDIUM_ERROR_LPAGE, 0, gBuf, LOG_RESP_LEN, 0))) {
         scsiDecodeNonMediumErrPage(gBuf, &nme);
         if (nme.gotPC0)
             pout("\nNon-medium error count: %8"PRIu64"\n", nme.counterPC0);
@@ -577,7 +577,7 @@ static void scsiPrintErrorCounterLog(int device)
                  nme.counterPE_H);
     }
     if (gLastNErrorLPage && (0 == scsiLogSense(device,
-                LAST_N_ERROR_LPAGE, gBuf, LOG_RESP_LONG_LEN, 0))) {
+                LAST_N_ERROR_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
         unsigned char * ucp;
         int num, k, pc, pl;
 
@@ -659,7 +659,7 @@ static int scsiPrintSelfTest(int device)
     UINT8 * ucp;
     uint64_t ull=0;
 
-    if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, gBuf, 
+    if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
                             LOG_RESP_SELF_TEST_LEN, 0))) {
         PRINT_ON(con);
         pout("scsiPrintSelfTest Failed [%s]\n", scsiErrString(err));

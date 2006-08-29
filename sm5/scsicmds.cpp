@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.89 2006/08/09 20:40:19 chrfranke Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.90 2006/08/29 16:36:47 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -240,8 +240,8 @@ const char * scsiErrString(int scsiErr)
    requesting the deduced response length. This protects certain fragile 
    HBAs. The twin fetch technique should not be used with the TapeAlert
    log page since it clears its state flags after each fetch. */
-int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
-                 int known_resp_len)
+int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
+                 int bufLen, int known_resp_len)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -269,6 +269,7 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
         io_hdr.dxferp = pBuf;
         cdb[0] = LOG_SENSE;
         cdb[2] = 0x40 | (pagenum & 0x3f);  /* Page control (PC)==1 */
+        cdb[3] = subpagenum;
         cdb[7] = (pageLen >> 8) & 0xff;
         cdb[8] = pageLen & 0xff;
         io_hdr.cmnd = cdb;
@@ -330,7 +331,8 @@ int scsiLogSense(int device, int pagenum, UINT8 *pBuf, int bufLen,
  * 2 if command not supported (then MODE SENSE(10) should be supported),
  * 3 if field in command not supported or returns negated errno. 
  * SPC-3 sections 6.9 and 7.4 (rev 22a) [mode subpage==0] */
-int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
+int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
+                  UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -347,6 +349,7 @@ int scsiModeSense(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = MODE_SENSE;
     cdb[2] = (pc << 6) | (pagenum & 0x3f);
+    cdb[3] = subpagenum;
     cdb[4] = bufLen;
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = sizeof(cdb);
@@ -427,7 +430,8 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
  * not supported (then MODE SENSE(6) might be supported), 3 if field in
  * command not supported or returns negated errno.  
  * SPC-3 sections 6.10 and 7.4 (rev 22a) [mode subpage==0] */
-int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
+int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
+                    UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -442,6 +446,7 @@ int scsiModeSense10(int device, int pagenum, int pc, UINT8 *pBuf, int bufLen)
     io_hdr.dxferp = pBuf;
     cdb[0] = MODE_SENSE_10;
     cdb[2] = (pc << 6) | (pagenum & 0x3f);
+    cdb[3] = subpagenum;
     cdb[7] = (bufLen >> 8) & 0xff;
     cdb[8] = bufLen & 0xff;
     io_hdr.cmnd = cdb;
@@ -852,8 +857,8 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->modese_len = modese_len;
     iecp->requestedCurrent = 1;
     if (iecp->modese_len <= 6) {
-        if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
-                                 MPAGE_CONTROL_CURRENT, 
+        if ((err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
+                                 0, MPAGE_CONTROL_CURRENT,
                                  iecp->raw_curr, sizeof(iecp->raw_curr)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 iecp->modese_len = 10;
@@ -866,7 +871,7 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     }
     if (10 == iecp->modese_len) {
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
-                              MPAGE_CONTROL_CURRENT, 
+                              0, MPAGE_CONTROL_CURRENT,
                               iecp->raw_curr, sizeof(iecp->raw_curr));
         if (err) {
             iecp->modese_len = 0;
@@ -877,11 +882,11 @@ int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_le
     iecp->requestedChangeable = 1;
     if (10 == iecp->modese_len)
         err = scsiModeSense10(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE,
-                                 MPAGE_CONTROL_CHANGEABLE,
-                                 iecp->raw_chg, sizeof(iecp->raw_chg));
+                              0, MPAGE_CONTROL_CHANGEABLE,
+                              iecp->raw_chg, sizeof(iecp->raw_chg));
     else if (6 == iecp->modese_len)
         err = scsiModeSense(device, INFORMATIONAL_EXCEPTIONS_CONTROL_PAGE, 
-                            MPAGE_CONTROL_CHANGEABLE, 
+                            0, MPAGE_CONTROL_CHANGEABLE, 
                             iecp->raw_chg, sizeof(iecp->raw_chg));
     if (err)
         return err;
@@ -1015,7 +1020,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
     int err;
 
     memset(tBuf, 0, sizeof(tBuf));
-    if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, tBuf, 
+    if ((err = scsiLogSense(device, TEMPERATURE_LPAGE, 0, tBuf,
                             sizeof(tBuf), 0))) {
         *currenttemp = 0;
         *triptemp = 0;
@@ -1049,7 +1054,7 @@ int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
     memset(tBuf,0,sizeof(tBuf)); // need to clear stack space of junk
     memset(&sense_info, 0, sizeof(sense_info));
     if (hasIELogPage) {
-        if ((err = scsiLogSense(device, IE_LPAGE, tBuf, 
+        if ((err = scsiLogSense(device, IE_LPAGE, 0, tBuf,
                                 sizeof(tBuf), 0))) {
             pout("Log Sense failed, IE page [%s]\n", scsiErrString(err));
             return err;
@@ -1706,8 +1711,8 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                                 MPAGE_CONTROL_CURRENT, 
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0,
+                                 MPAGE_CONTROL_CURRENT,
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1717,7 +1722,7 @@ int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
             modese_len = 6;
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 0,
                               MPAGE_CONTROL_CURRENT, 
                               buff, sizeof(buff));
         if (err)
@@ -1865,7 +1870,7 @@ int scsiCountFailedSelfTests(int fd, int noisy)
     UINT8 * ucp;
     unsigned char resp[LOG_RESP_SELF_TEST_LEN];
 
-    if ((err = scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, resp, 
+    if ((err = scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, 0, resp,
                             LOG_RESP_SELF_TEST_LEN, 0))) {
         if (noisy)
             pout("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
@@ -1914,7 +1919,7 @@ int scsiSelfTestInProgress(int fd, int * inProgress)
     UINT8 * ucp;
     unsigned char resp[LOG_RESP_SELF_TEST_LEN];
 
-    if (scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, resp, 
+    if (scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, 0, resp,
                      LOG_RESP_SELF_TEST_LEN, 0))
         return -1;
     if (resp[0] != SELFTEST_RESULTS_LPAGE)
@@ -1943,7 +1948,7 @@ int scsiFetchControlGLTSD(int device, int modese_len, int current)
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, pc, 
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0, pc,
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1953,7 +1958,7 @@ int scsiFetchControlGLTSD(int device, int modese_len, int current)
             modese_len = 6;
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE, pc,
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 0, pc,
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
@@ -1976,8 +1981,8 @@ int scsiSetControlGLTSD(int device, int enabled, int modese_len)
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                                 MPAGE_CONTROL_CURRENT, 
+        if ((err = scsiModeSense(device, CONTROL_MODE_PAGE, 0,
+                                 MPAGE_CONTROL_CURRENT,
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -1987,8 +1992,8 @@ int scsiSetControlGLTSD(int device, int enabled, int modese_len)
             modese_len = 6;
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MPAGE_CONTROL_CURRENT, 
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 0,
+                              MPAGE_CONTROL_CURRENT,
                               buff, sizeof(buff));
         if (err)
             return err;
@@ -2003,12 +2008,12 @@ int scsiSetControlGLTSD(int device, int enabled, int modese_len)
         return 0;       /* GLTSD already in wanted state so nothing to do */
 
     if (modese_len == 6)
-        err = scsiModeSense(device, CONTROL_MODE_PAGE, 
-                            MPAGE_CONTROL_CHANGEABLE, 
+        err = scsiModeSense(device, CONTROL_MODE_PAGE, 0,
+                            MPAGE_CONTROL_CHANGEABLE,
                             ch_buff, sizeof(ch_buff));
     else
-        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 
-                              MPAGE_CONTROL_CHANGEABLE, 
+        err = scsiModeSense10(device, CONTROL_MODE_PAGE, 0,
+                              MPAGE_CONTROL_CHANGEABLE,
                               ch_buff, sizeof(ch_buff));
     if (err)
         return err;
@@ -2044,8 +2049,8 @@ int scsiFetchTransportProtocol(int device, int modese_len)
 
     memset(buff, 0, sizeof(buff));
     if (modese_len <= 6) {
-        if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
-                                 MPAGE_CONTROL_CURRENT, 
+        if ((err = scsiModeSense(device, PROTOCOL_SPECIFIC_PORT_PAGE, 0,
+                                 MPAGE_CONTROL_CURRENT,
                                  buff, sizeof(buff)))) {
             if (SIMPLE_ERR_BAD_OPCODE == err)
                 modese_len = 10;
@@ -2055,8 +2060,8 @@ int scsiFetchTransportProtocol(int device, int modese_len)
             modese_len = 6;
     }
     if (10 == modese_len) {
-        err = scsiModeSense10(device, PROTOCOL_SPECIFIC_PORT_PAGE, 
-                              MPAGE_CONTROL_CURRENT, 
+        err = scsiModeSense10(device, PROTOCOL_SPECIFIC_PORT_PAGE, 0,
+                              MPAGE_CONTROL_CURRENT,
                               buff, sizeof(buff));
         if (err)
             return -EINVAL;
