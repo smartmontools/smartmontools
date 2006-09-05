@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.66 2006/07/08 17:15:44 chrfranke Exp $
+$Id: INSTALL,v 1.67 2006/09/05 03:17:03 geoffk1 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -158,11 +158,11 @@ Table of contents:
     The code was tested on MacOS 10.3.4.  It should work from 10.3
     forwards.  It doesn't support 10.2.
 
-    There's an important limitation (see WARNINGS); due to bugs in
-    the libraries used, you cannot run a short test or switch SMART
-    support off on a drive; if you try, you will just run an extended
-    test or switch SMART support on.  So don't panic when your "short"
-    test seems to be taking hours.
+    It's important to know that on 10.3.x, some things don't work
+    (see WARNINGS): due to bugs in the libraries used, you cannot run
+    a short test or switch SMART support off on a drive; if you try,
+    you will just run an extended test or switch SMART support on.  So
+    don't panic when your "short" test seems to be taking hours.
 
     It's also not possible at present to control when the offline
     routine runs. If your drive doesn't have it running automatically by
@@ -184,17 +184,16 @@ Table of contents:
      - checking the power mode [-n Directive of smartd] (this is not
        completely impossible, but not by using a documented API)
 
-   * Are implemented, but don't work due to OS bugs:
+   * Work on 10.4 and later, but not on 10.3:
      - switching off SMART (switching *on* works fine)
      - switching off auto-save (but why would you want to?)
      - running the short test (that leaves you with only the extended test)
 
-    The last set have been filed in Apple's bug tracking system and
-    hopefully will be fixed in the next major version of Mac OS.
-
     However, some things do work well.  For ATA devices, all the
     informational output is available, unless you want something that only
-    an offline test updates.
+    an offline test updates.  On many newer Mac OS systems, the
+    hard drive comes with the offline test switched on by default, so
+    even that works.
 
     H) OS/2, eComStation
 
@@ -341,6 +340,12 @@ SuSE:
 =========================
   ./configure --with-initscriptdir=/Library/StartupItems
 
+  If you'd like to build the i386 version on a powerpc machine, you can
+  use
+
+  CC='gcc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386' \
+    ./configure --host=i386-apple-darwin \
+    		--with-initscriptdir=/Library/StartupItems
 
 [7] Guidelines for NetBSD/OpenBSD
 =================================
