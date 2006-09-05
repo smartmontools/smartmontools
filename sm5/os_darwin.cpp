@@ -43,7 +43,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.16 2006/08/25 06:06:24 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.17 2006/09/05 03:16:03 geoffk1 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -442,6 +442,10 @@ int marvell_command_interface(int fd, smart_command_set command,
 
 int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
 {
+  fd = fd;
+  command = command;
+  select = select;
+  data = data;
   return -1;
 }
 
