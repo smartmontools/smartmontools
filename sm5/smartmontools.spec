@@ -26,16 +26,19 @@ Obsoletes:	ucsc-smartsuite
 Obsoletes:      smartsuite
 Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-%define redhat      %(test ! -f /etc/redhat-release ; echo $?)
-%define redhat      %(test ! -f /etc/fedora-release ; echo $?)
 %define mandrake    %(test ! -f /etc/mandrake-release ; echo $?)
 %define suse        %(test ! -f /etc/SuSE-release ; echo $?)
+%define redhat      %(test ! -f /etc/redhat-release ; echo $?)
+%define fedora      %(test ! -f /etc/fedora-release ; echo $?)
+%if %{fedora}                                                                                                                                                             
+   %define redhat 1                                                                                                                                                       
+%endif
 
 # Source code can be found at:
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.168 2006/04/12 18:00:16 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.169 2006/09/09 02:59:03 ballen4705 Exp $
 
 # Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
