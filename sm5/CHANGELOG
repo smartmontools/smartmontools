@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.562 2006/08/12 05:41:13 card_captor Exp $
+$Id: CHANGELOG,v 1.563 2006/09/11 05:46:30 sxzzsf Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -27,10 +27,13 @@ Maintainers / Developers Key:
 [PW] Phil Williams
 [LW] Leon Woestenberg
 [RZ] Richard Zybert
+[SZ] Sf Zhou
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SZ] smartctl: Support HighPoint RocketRAID controller under GNU/linux
 
   [KS] C++ compile fixes for Solaris with a few cleanups.
 
