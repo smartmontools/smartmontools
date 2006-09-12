@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.90 2006/08/29 16:36:47 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.91 2006/09/12 00:25:44 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1876,7 +1876,7 @@ int scsiCountFailedSelfTests(int fd, int noisy)
             pout("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
         return -1;
     }
-    if (resp[0] != SELFTEST_RESULTS_LPAGE) {
+    if ((resp[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
         if (noisy)
             pout("Self-test Log Sense Failed, page mismatch\n");
         return -1;
