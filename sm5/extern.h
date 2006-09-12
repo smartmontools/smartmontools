@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.45 2006/08/25 06:06:24 sxzzsf Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.46 2006/09/12 00:21:51 dpgilbert Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -60,6 +60,7 @@ typedef struct smartmonctrl_s {
   unsigned char smartselftestlog;
   unsigned char selectivetestlog;
   unsigned char smarterrorlog;
+  unsigned char smartbackgroundlog;
   unsigned char smartdisable;
   unsigned char smartenable; 
   unsigned char smartstatus;
