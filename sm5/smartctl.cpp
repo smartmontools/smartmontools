@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.152 2006/08/25 07:53:13 sxzzsf Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.153 2006/09/12 00:24:01 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -190,7 +190,8 @@ void Usage (void){
 "  -A, --attributes                                                         \n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
-"        Show device log. TYPE: error, selftest, selective, directory\n\n"
+"        Show device log. TYPE: error, selftest, selective, directory,\n"
+"                               background\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -203,7 +204,8 @@ void Usage (void){
 "  -H        Show device SMART health status\n"
 "  -c        Show device SMART capabilities                             (ATA)\n"
 "  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
-"  -l TYPE   Show device log. TYPE: error,selftest,selective,directory\n"
+"  -l TYPE   Show device log. TYPE: error, selftest, selective, directory,\n"
+"                                   background\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
 "  -F TYPE   Use firmware bug workaround: none, samsung, samsung2       (ATA)\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n\n"
@@ -249,7 +251,7 @@ const char *getvalidarglist(char opt) {
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory";
+    return "error, selftest, selective, directory, background";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -582,6 +584,8 @@ void ParseOpts (int argc, char** argv){
 	con->selectivetestlog = TRUE;
       } else if (!strcmp(optarg,"directory")) {
         con->smartlogdirectory = TRUE;
+      } else if (!strcmp(optarg,"background")) {
+        con->smartbackgroundlog = TRUE;
       } else {
         badarg = TRUE;
       }
@@ -597,6 +601,7 @@ void ParseOpts (int argc, char** argv){
       con->smarterrorlog      = TRUE;
       con->smartselftestlog   = TRUE;
       con->selectivetestlog   = TRUE;
+      /* con->smartbackgroundlog = TRUE; */
       break;
     case 'v':
       // parse vendor-specific definitions of attributes
