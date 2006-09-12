@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.563 2006/09/11 05:46:30 sxzzsf Exp $
+$Id: CHANGELOG,v 1.564 2006/09/12 00:29:25 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] [SCSI] First cut for '-l background' to show background scan
+       results log
 
   [SZ] smartctl: Support HighPoint RocketRAID controller under GNU/linux
 
