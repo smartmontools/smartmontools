@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.112 2006/08/29 16:37:08 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.113 2006/09/12 00:26:07 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -66,6 +66,7 @@ static int gWriteECounterLPage = 0;
 static int gVerifyECounterLPage = 0;
 static int gNonMediumELPage = 0;
 static int gLastNErrorLPage = 0;
+static int gBackgroundResultsLPage = 0;
 static int gTapeAlertsLPage = 0;
 static int gSeagateCacheLPage = 0;
 static int gSeagateFactoryLPage = 0;
@@ -121,6 +122,9 @@ static void scsiGetSupportedLogPages(int device)
                 break;
             case IE_LPAGE:
                 gSmartLPage = 1;
+                break;
+            case BACKGROUND_RESULTS_LPAGE:
+                gBackgroundResultsLPage = 1;
                 break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = 1;
@@ -246,7 +250,7 @@ static void scsiGetStartStopData(int device)
         PRINT_OFF(con);
         return;
     }
-    if (gBuf[0] != STARTSTOP_CYCLE_COUNTER_LPAGE) {
+    if ((gBuf[0] & 0x3f) != STARTSTOP_CYCLE_COUNTER_LPAGE) {
         PRINT_ON(con);
         pout("StartStop Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
@@ -357,7 +361,7 @@ static void scsiPrintSeagateCacheLPage(int device)
         PRINT_OFF(con);
         return;
     }
-    if (gBuf[0] != SEAGATE_CACHE_LPAGE) {
+    if ((gBuf[0] & 0x3f) != SEAGATE_CACHE_LPAGE) {
         PRINT_ON(con);
         pout("Seagate Cache Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
@@ -432,7 +436,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
         PRINT_OFF(con);
         return;
     }
-    if (gBuf[0] != SEAGATE_FACTORY_LPAGE) {
+    if ((gBuf[0] & 0x3f) != SEAGATE_FACTORY_LPAGE) {
         PRINT_ON(con);
         pout("Seagate/Hitachi Factory Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
@@ -666,7 +670,7 @@ static int scsiPrintSelfTest(int device)
         PRINT_OFF(con);
         return FAILSMART;
     }
-    if (gBuf[0] != SELFTEST_RESULTS_LPAGE) {
+    if ((gBuf[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
         PRINT_ON(con);
         pout("Self-test Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
@@ -792,6 +796,122 @@ static int scsiPrintSelfTest(int device)
                         modese_len)) && (durationSec > 0)) {
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
+    }
+    return retval;
+}
+
+static const char * bms_status[] = {
+    "no scans active",
+    "scan is active",
+    "pre-scan is active",
+    "halted due to fatal error",
+    "halted due to a vendor specific pattern of error",
+    "halted due to medium formatted without P-List",
+    "halted - vendor specific cause",
+    "halted due to temperature out of range",
+    "halted until BM interval timer expires", /* 8 */
+};
+
+static const char * reassign_status[] = {
+    "No reassignment needed",
+    "Require Reassign or Write command",
+    "Successfully reassigned",
+    "Reserved [0x3]",
+    "Failed",
+    "Recovered via rewrite in-place",
+    "Reassigned by app, has valid data",
+    "Reassigned by app, has no valid data",
+    "Unsuccessfully reassigned by app", /* 8 */
+};
+
+// See SCSI Block Commands - 3 (SBC-3) rev 6 (draft) section 6.2.2 .
+// Returns 0 if ok else FAIL* bitmask. Note can have a status entry
+// and up to 2048 events (although would hope to have less). May set
+// FAILLOG if serious errors detected (in the future).
+static int scsiPrintBackgroundResults(int device)
+{
+    int num, j, m, err, pc, pl;
+    int noheader = 1;
+    int firstresult = 1;
+    int retval = 0;
+    UINT8 * ucp;
+
+    if ((err = scsiLogSense(device, BACKGROUND_RESULTS_LPAGE, 0, gBuf,
+                            LOG_RESP_LONG_LEN, 0))) {
+        PRINT_ON(con);
+        pout("scsiPrintBackgroundResults Failed [%s]\n", scsiErrString(err));
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    if ((gBuf[0] & 0x3f) != BACKGROUND_RESULTS_LPAGE) {
+        PRINT_ON(con);
+        pout("Background results Log Sense Failed, page mismatch\n");
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    // compute page length
+    num = (gBuf[2] << 8) + gBuf[3];
+    if (num < 16) {
+        PRINT_ON(con);
+        pout("Background results Log Sense length is 0x%x no scan status\n", num);
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    ucp = gBuf + 4;
+    while (num > 3) {
+        pc = (ucp[0] << 8) | ucp[1];
+        // pcb = ucp[2];
+        pl = ucp[3] + 4;
+        switch (pc) {
+        case 0:
+            if (noheader) {
+                noheader = 0;
+                pout("\nBackground scan results log\n");
+            }
+            pout("  Status: ");
+            j = ucp[9];
+            if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
+                pout("%s\n", bms_status[j]);
+            else
+                pout("unknown [0x%x] background scan status value\n", j);
+            j = (ucp[4] << 24) + (ucp[5] << 16) + (ucp[6] << 8) + ucp[7];
+            pout("    Accumulated power on time, hours:minutes %d:%02d "
+                 "[%d minutes]\n", (j / 60), (j % 60), j);
+            pout("    Number of background scans performed: %d,  ",
+                 (ucp[10] << 8) + ucp[11]);
+            pout("scan progress: %.2f%%\n",
+                 (double)((ucp[12] << 8) + ucp[13]) * 100.0 / 65536.0);
+            break;
+        default:
+            if (noheader) {
+                noheader = 0;
+                pout("\nBackground scan results log\n");
+            }
+            if (firstresult) {
+                firstresult = 0;
+                pout("\n   #  when        lba(hex)    [sk,asc,ascq]    "
+                     "reassign_status\n");
+            }
+            pout(" %3d ", pc);
+            if (pl < 24) {
+                pout("parameter length >= 24 expected, got %d\n", pl);
+                break;
+            }
+            j = (ucp[4] << 24) + (ucp[5] << 16) + (ucp[6] << 8) + ucp[7];
+            pout("%4d:%02d  ", (j / 60), (j % 60));
+            for (m = 0; m < 8; ++m)
+                pout("%02x", ucp[16 + m]);
+            pout("  [%x,%x,%x]   ", ucp[8] & 0xf, ucp[9], ucp[10]);
+            j = (ucp[8] >> 4) & 0xf;
+            if (j <
+                (int)(sizeof(reassign_status) / sizeof(reassign_status[0])))
+                pout("%s\n", reassign_status[j]);
+            else
+                pout("Reassign status: reserved [0x%x]\n", j);
+            break;
+        }
+        num -= pl;
+        ucp += pl;
     }
     return retval;
 }
@@ -1214,6 +1334,19 @@ int scsiPrintMain(int fd)
             res = scsiPrintSelfTest(fd);
         else {
             pout("Device does not support Self Test logging\n");
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        if (0 != res)
+            failuretest(OPTIONAL_CMD, returnval|=res);
+    }
+    if (con->smartbackgroundlog) {
+        if (! checkedSupportedLogPages)
+            scsiGetSupportedLogPages(fd);
+        res = 0;
+        if (gBackgroundResultsLPage)
+            res = scsiPrintBackgroundResults(fd);
+        else {
+            pout("Device does not support Background results logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
