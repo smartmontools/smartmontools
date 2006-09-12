@@ -74,9 +74,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.85 2006/08/25 06:06:24 sxzzsf Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.86 2006/09/12 01:16:54 sxzzsf Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.85 2006/08/25 06:06:24 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.86 2006/09/12 01:16:54 sxzzsf Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1587,8 +1587,8 @@ int highpoint_command_interface(int device, smart_command_set command,
   }
   
 #if 1
-  if (command==IDENTIFY || command==PIDENTIFY){
-    unsigned short deviceid[4*sizeof(int)+256];
+  if (command==IDENTIFY || command==PIDENTIFY) {
+    unsigned char deviceid[4*sizeof(int)+512*sizeof(char)];
     unsigned int *hpt = (unsigned int *)deviceid;
 
     hpt[0] = con->hpt_data[0]; // controller id
