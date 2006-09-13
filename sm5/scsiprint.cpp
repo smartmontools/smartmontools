@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.113 2006/09/12 00:26:07 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.114 2006/09/13 23:16:23 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -53,7 +53,7 @@ extern int exitstatus;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
-#define LOG_RESP_LONG_LEN 8192
+#define LOG_RESP_LONG_LEN 16384
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
 
 /* Log pages supported */
@@ -857,6 +857,7 @@ static int scsiPrintBackgroundResults(int device)
         PRINT_OFF(con);
         return FAILSMART;
     }
+    num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
     ucp = gBuf + 4;
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
@@ -869,6 +870,8 @@ static int scsiPrintBackgroundResults(int device)
                 pout("\nBackground scan results log\n");
             }
             pout("  Status: ");
+            if (pl < 16)
+                break;
             j = ucp[9];
             if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
                 pout("%s\n", bms_status[j]);
