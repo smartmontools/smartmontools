@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.114 2006/09/13 23:16:23 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.115 2006/09/14 04:43:21 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -583,10 +583,12 @@ static void scsiPrintErrorCounterLog(int device)
     if (gLastNErrorLPage && (0 == scsiLogSense(device,
                 LAST_N_ERROR_LPAGE, 0, gBuf, LOG_RESP_LONG_LEN, 0))) {
         unsigned char * ucp;
-        int num, k, pc, pl;
+        int num, k, pc, pl, truncated;
 
         num = (gBuf[2] << 8) + gBuf[3] + 4;
-        num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
+        truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+        if (truncated)
+            num = LOG_RESP_LONG_LEN;
         ucp = gBuf + 4;
         num -= 4;
         if (num < 4)
@@ -613,10 +615,13 @@ static void scsiPrintErrorCounterLog(int device)
                             pout("  Error event %d:\n", pc);
                             pout("    [data counter??]:\n");
                             dStrHex((const char *)ucp + 4, pl - 4, 1);
-			}
+                        }
                     }
                 }
             }
+            if (truncated)
+                pout(" >>>> log truncated, fetched %d of %d available "
+                     "bytes\n", LOG_RESP_LONG_LEN, truncated);
         }
     }
 }
@@ -830,7 +835,7 @@ static const char * reassign_status[] = {
 // FAILLOG if serious errors detected (in the future).
 static int scsiPrintBackgroundResults(int device)
 {
-    int num, j, m, err, pc, pl;
+    int num, j, m, err, pc, pl, truncated;
     int noheader = 1;
     int firstresult = 1;
     int retval = 0;
@@ -850,15 +855,18 @@ static int scsiPrintBackgroundResults(int device)
         return FAILSMART;
     }
     // compute page length
-    num = (gBuf[2] << 8) + gBuf[3];
-    if (num < 16) {
+    num = (gBuf[2] << 8) + gBuf[3] + 4;
+    if (num < 20) {
         PRINT_ON(con);
-        pout("Background results Log Sense length is 0x%x no scan status\n", num);
+        pout("Background results Log Sense length is %d, no scan status\n", num);
         PRINT_OFF(con);
         return FAILSMART;
     }
-    num = (num < LOG_RESP_LONG_LEN) ? num : LOG_RESP_LONG_LEN;
+    truncated = (num > LOG_RESP_LONG_LEN) ? num : 0;
+    if (truncated)
+        num = LOG_RESP_LONG_LEN;
     ucp = gBuf + 4;
+    num -= 4;
     while (num > 3) {
         pc = (ucp[0] << 8) | ucp[1];
         // pcb = ucp[2];
@@ -916,6 +924,9 @@ static int scsiPrintBackgroundResults(int device)
         num -= pl;
         ucp += pl;
     }
+    if (truncated)
+        pout(" >>>> log truncated, fetched %d of %d available "
+             "bytes\n", LOG_RESP_LONG_LEN, truncated);
     return retval;
 }
 
