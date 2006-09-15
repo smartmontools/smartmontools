@@ -115,14 +115,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.376 2006/08/29 16:37:32 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.377 2006/09/15 08:01:20 sxzzsf Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.376 2006/08/29 16:37:32 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.377 2006/09/15 08:01:20 sxzzsf Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -726,6 +726,18 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   case CONTROLLER_SAT:
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "sat");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+  case CONTROLLER_HPT:
+    {
+      char *s,devicetype[16];
+      sprintf(devicetype, "hpt,%d/%d/%d", cfg->hpt_data[0],
+              cfg->hpt_data[1], cfg->hpt_data[2]);
+      exportenv(environ_strings[8], "SMARTD_DEVICETYPE", devicetype);
+      if ((s=strchr(cfg->name, ' ')))
+        *s='\0';
+      exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+      if (s)
+        *s=' ';
+    }
   }
 
   snprintf(fullmessage, 1024,
@@ -1078,7 +1090,7 @@ void PrintHead(){
 void Directives() {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N\n"
+           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
@@ -1196,7 +1208,7 @@ static int OpenDevice(char *device, char *mode, int scanning) {
   char *s=device;
   
   // If there is an ASCII "space" character in the device name,
-  // terminate string there.  This is for 3ware devices only.
+  // terminate string there.  This is for 3ware and highpoint devices only.
   if ((s=strchr(device,' ')))
     *s='\0';
 
@@ -1215,8 +1227,8 @@ static int OpenDevice(char *device, char *mode, int scanning) {
     // If no debug and scanning - don't print errors
     if (debugmode || !scanning) {
       if (errno==ENOENT || errno==ENOTDIR)
-	errno=ENODEV;
-      
+        errno=ENODEV;
+
       PrintOut(LOG_INFO,"Device: %s, %s, open() failed\n",
 	       device, strerror(errno));
     }
@@ -1276,6 +1288,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   case CONTROLLER_ATA:
   case CONTROLLER_3WARE_678K:
   case CONTROLLER_MARVELL_SATA:
+  case CONTROLLER_HPT:
   case CONTROLLER_UNKNOWN:
     mode="ATA";
     break;
@@ -1302,6 +1315,9 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   
   // pass user settings on to low-level ATA commands
   con->controller_port=cfg->controller_port;
+  con->hpt_data[0]=cfg->hpt_data[0];
+  con->hpt_data[1]=cfg->hpt_data[1];
+  con->hpt_data[2]=cfg->hpt_data[2];
   con->controller_type=cfg->controller_type;
   con->controller_explicit=cfg->controller_explicit;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
@@ -2705,7 +2721,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "ata, scsi, marvell, removable, sat, 3ware,N");
+    PrintOut(priority, "ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N");
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");
@@ -2908,6 +2924,61 @@ int ParseToken(char *token,cfgfile *cfg){
                    "'-d sat,<n>' requires <n> to be 0, 12 or 16\n",
                    configfile, lineno, name);
           badarg = 1;
+        }
+      }
+    } else if (!strncmp(arg, "hpt", 3)){
+      unsigned char i, slash = 0;
+      cfg->hpt_data[0] = 0;
+      cfg->hpt_data[1] = 0;
+      cfg->hpt_data[2] = 0;
+      cfg->controller_type = CONTROLLER_HPT;
+      for (i=4; i < strlen(arg); i++) {
+        if(arg[i] == '/') {
+          slash++;
+          if(slash == 3) {
+            PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive "
+                     "'-d hpt,L/M/N' supports 2-3 items\n",
+                     configfile, lineno, name);
+            badarg = TRUE;
+            break;
+          }
+        }
+        else if ((arg[i])>='0' && (arg[i])<='9') {
+          if (cfg->hpt_data[slash]>1) { /* hpt_data[x] max 19 */
+            badarg = TRUE;
+            break;
+          }
+          cfg->hpt_data[slash] = cfg->hpt_data[slash]*10 + arg[i] - '0';
+        }
+        else {
+          badarg = TRUE;
+          break;
+        }
+      }
+      if ( slash == 0 ) {
+        badarg = TRUE;
+      } else if (badarg != TRUE) {
+        if (cfg->hpt_data[0]==0 || cfg->hpt_data[0]>8){
+           PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive "
+                    "'-d hpt,L/M/N' no/invalid controller id L supplied\n",
+                    configfile, lineno, name);
+           badarg = TRUE;
+        }
+        if (cfg->hpt_data[1]==0 || cfg->hpt_data[1]>8){
+          PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive "
+                   "'-d hpt,L/M/N' no/invalid channel number M supplied\n",
+                   configfile, lineno, name);
+          badarg = TRUE;
+        }
+        if (slash==2){
+          if (cfg->hpt_data[2]==0 || cfg->hpt_data[2]>15){
+            PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive "
+                     "'-d hpt,L/M/N' no/invalid pmport number N supplied\n",
+                     configfile, lineno, name);
+            badarg = TRUE;
+          }
+        } else { /* no pmport device */
+          cfg->hpt_data[2]=1;
         }
       }
     } else if (!strcmp(arg, "removable")) {
@@ -3379,6 +3450,29 @@ int ParseConfigLine(int entry, int lineno,char *line){
     cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
     cfg->name=newname;
     bytes+=16;
+  }
+
+  if (cfg->hpt_data[0]) {
+      int len=17+strlen(cfg->name);
+      char *newname;
+
+      if (devscan){
+        PrintOut(LOG_CRIT, "smartd: can not scan for highpoint devices (line %d of file %s)\n",
+                 lineno, configfile);
+        return -2;
+      }
+
+      if (!(newname=(char *)calloc(len,1))) {
+        PrintOut(LOG_INFO,"No memory to parse file: %s line %d, %s\n", configfile, lineno, strerror(errno));
+        EXIT(EXIT_NOMEM);
+      }
+
+      // Make new device name by adding a space then RAID disk number
+      snprintf(newname, len, "%s [hpt_%d/%d/%d]", cfg->name, cfg->hpt_data[0],
+               cfg->hpt_data[1], cfg->hpt_data[2]);
+      cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
+      cfg->name=newname;
+      bytes+=16;
   }
 
   // If NO monitoring directives are set, then set all of them.
