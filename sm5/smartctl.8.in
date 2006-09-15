@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.82 2006/09/11 05:29:27 sxzzsf Exp $
+ $Id: smartctl.8.in,v 1.83 2006/09/15 08:03:52 sxzzsf Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -182,7 +182,7 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
 are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, and \fIhpt,L/M\fP
-or \fIhpt,L/M/N\fP. If this option is not used then \fBsmartctl\fP will attempt to
+or \fIhpt,L/M/N\fP.  If this option is not used then \fBsmartctl\fP will attempt to
 guess the device type from the device name.
 
 The \'sat\' device type is for ATA disks that have a SCSI to ATA
@@ -282,7 +282,8 @@ controller id, the integer M is the channel number, and the integer N is the
 PMPort number if it is available. The allowed values of L are from 1 to 4
 inclusive, M are from 1 to 8 inclusive and N from 1 to 4 if PMPort available.
 Note that the /dev/sda-z form should be the device node which stands for
-the disks derived from the HighPoint RocketRAID controllers
+the disks derived from the HighPoint RocketRAID controllers.  And also
+these values are limited by the model of the HighPoint RocketRAID controller.
 
 .B HighPoint RocketRAID controllers are currently ONLY supported under Linux.
 
@@ -1351,7 +1352,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.82 2006/09/11 05:29:27 sxzzsf Exp $
+$Id: smartctl.8.in,v 1.83 2006/09/15 08:03:52 sxzzsf Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
