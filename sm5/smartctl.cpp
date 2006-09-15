@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.153 2006/09/12 00:24:01 dpgilbert Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.154 2006/09/15 08:03:52 sxzzsf Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -411,7 +411,7 @@ void ParseOpts (int argc, char** argv){
           if(optarg[i] == '/') {
             slash++;
             if(slash == 3) {
-              sprintf(extraerror, "Option -d hpt,L/M/N supports 2-3 items\n");
+              sprintf(extraerror, "Option '-d hpt,L/M/N' supports 2-3 items\n");
               badarg = TRUE;
               break;
             }
@@ -428,17 +428,26 @@ void ParseOpts (int argc, char** argv){
             break;
           }
         }
-        if (badarg != TRUE && slash != 0) {
-          if(con->hpt_data[0]==0){
-              sprintf(extraerror, "Option -d hpt,L/M/N: no/invalid controller id L supplied\n");
-              badarg = TRUE;
+        if (slash == 0) {
+          sprintf(extraerror, "Option '-d hpt,L/M/N' requires 2-3 items\n");
+          badarg = TRUE;
+        } else if (badarg != TRUE) {
+          if (con->hpt_data[0]==0 || con->hpt_data[0]>8){
+            sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid controller id L supplied\n");
+            badarg = TRUE;
           }
-          if(con->hpt_data[1]==0){
-              sprintf(extraerror, "Option -d hpt,L/M/N: no/invalid channel number M supplied\n");
-              badarg = TRUE;
+          if (con->hpt_data[1]==0 || con->hpt_data[1]>8){
+            sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid channel number M supplied\n");
+            badarg = TRUE;
           }
-          if(con->hpt_data[2]==0)
+          if (slash==2) {
+            if ( con->hpt_data[2]==0 || con->hpt_data[2]>15) {
+              sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid pmport number N supplied\n");
+              badarg = TRUE;
+            }
+          } else {
             con->hpt_data[2]=1;
+          }
         }
       } else {
         // look for RAID-type device

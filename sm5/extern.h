@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.46 2006/09/12 00:21:51 dpgilbert Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.47 2006/09/15 08:03:52 sxzzsf Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -94,7 +94,7 @@ typedef struct smartmonctrl_s {
   unsigned char controller_type;
   // For 3Ware controllers, nonzero value is 1 plus the disk number
   unsigned char controller_port;
-  // combined controller/channle/pmport for highpoint raid controller
+  // combined controller/channle/pmport for highpoint rocketraid controller
   unsigned char hpt_data[3];
   unsigned char ignorepresets;
   unsigned char showpresets;
