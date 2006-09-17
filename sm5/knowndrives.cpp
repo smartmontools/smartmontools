@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.141 2006/08/09 20:40:19 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.142 2006/09/17 18:28:12 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -180,50 +180,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHG and MHH series",
-    "^FUJITSU MH(G2102|H20(64|48|32))AT$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MHJ and MHK series",
-    "^FUJITSU MH[JK]....ATU?$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPB series",
-    "^FUJITSU MPB....ATU?$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPD and MPE series",
-    "^FUJITSU MP[DE]....A[HTE]$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPF series",
-    "^FUJITSU MPF3(102A[HT]|153A[HT]|204A[HT])$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPG series",
-    "^FUJITSU MPG3(102A(H|T  E)|153AH|204A(H|[HT]  E)|307A(H  E|T)|409A[HT]  E)$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPC series",
-    "^FUJITSU MPC3(032AT|043AT|045AH|064A[HT]|084AT|096AT|102AT)$",
+  { "Fujitsu MHG..MHK, MHT, MHU series",
+    "^FUJITSU MH[GHJKTU]2...ATU?",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -265,15 +223,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHT2xxxAT/MHU2100AT series",
-    "^FUJITSU MH(T20[23468]0AT( PL)?|U2100AT)$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MHTxxxxAH family",
-    "^FUJITSU MHT20[468]0AH$",
+  { "Fujitsu MPA..MPG series",
+    "^FUJITSU MP[A-G]3...A[HTEV]U?",
     ".*",
     NULL,
     vendoropts_9_seconds,
