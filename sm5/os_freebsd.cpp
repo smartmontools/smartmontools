@@ -38,9 +38,9 @@
 #include "utility.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.50 2006/08/25 06:06:24 sxzzsf Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.51 2006/09/17 03:17:53 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.50 2006/08/25 06:06:24 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.51 2006/09/17 03:17:53 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -101,7 +101,7 @@ int deviceopen (const char* dev, char* mode __unused) {
     return -1;
   }
 
-  fdchan = calloc(1,sizeof(struct freebsd_dev_channel));
+  fdchan = (struct freebsd_dev_channel *)calloc(1,sizeof(struct freebsd_dev_channel));
   if (fdchan == NULL) {
     // errno already set by call to malloc()
     return -1;
@@ -254,7 +254,7 @@ int marvell_command_interface(int fd __unused, smart_command_set command __unuse
 	return -1;
 }
 
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+int highpoint_command_interface(int fd __unused, smart_command_set command __unused, int select __unused, char *data __unused)
 {
   return -1;
 }
@@ -302,7 +302,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     request.u.ata.feature=ATA_SMART_READ_VALUES;
     request.u.ata.lba=0xc24f<<8;
     request.flags=ATA_CMD_READ;
-    request.data=buff;
+    request.data=(char *)buff;
     request.count=512;
     copydata=1;
     break;
@@ -311,7 +311,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     request.u.ata.count=1;
     request.u.ata.lba=1|(0xc24f<<8);
     request.flags=ATA_CMD_READ;
-    request.data=buff;
+    request.data=(char *)buff;
     request.count=512;
     copydata=1;
     break;
@@ -320,21 +320,21 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     request.u.ata.lba=select|(0xc24f<<8);
     request.u.ata.count=1;
     request.flags=ATA_CMD_READ;
-    request.data=buff;
+    request.data=(char *)buff;
     request.count=512;
     copydata=1;
     break;
   case IDENTIFY:
     request.u.ata.command=ATA_IDENTIFY_DEVICE;
     request.flags=ATA_CMD_READ;
-    request.data=buff;
+    request.data=(char *)buff;
     request.count=512;
     copydata=1;
     break;
   case PIDENTIFY:
     request.u.ata.command=ATA_IDENTIFY_PACKET_DEVICE;
     request.flags=ATA_CMD_READ;
-    request.data=buff;
+    request.data=(char *)buff;
     request.count=512;
     copydata=1;
     break;
@@ -959,7 +959,7 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
 
  handlescsi:
   if (chan != NULL) {
-    if (!(chan->devname = calloc(1,DEV_IDLEN+1)))
+    if (!(chan->devname = (char *)calloc(1,DEV_IDLEN+1)))
       return CONTROLLER_UNKNOWN;
     
     if (cam_get_device(dev_name,chan->devname,DEV_IDLEN,&(chan->unitnum)) == -1)
@@ -1058,7 +1058,7 @@ int get_dev_names(char*** names, const char* prefix) {
   }
 
   globfree(&globbuf);
-  mp = realloc(mp,n*(sizeof(char*))); // shrink to correct size
+  mp = (char **)realloc(mp,n*(sizeof(char*))); // shrink to correct size
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
   *names=mp;
   return n;
