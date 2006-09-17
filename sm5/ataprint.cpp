@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.167 2006/08/09 20:40:19 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.168 2006/09/17 09:34:29 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -502,7 +502,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   return capacity_short;
 }
 
-void ataPrintDriveInfo (struct ata_identify_device *drive){
+int ataPrintDriveInfo (struct ata_identify_device *drive){
   int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[DATEANDEPOCHLEN];
@@ -567,11 +567,11 @@ void ataPrintDriveInfo (struct ata_identify_device *drive){
     pout("\n==> WARNING: %s\n\n", knowndrives[drivetype].warningmsg);
 
   if (version>=3)
-    return;
+    return drivetype;
   
   pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
   pout("We will try to proceed in spite of this.\n");
-  return;
+  return drivetype;
 }
 
 
@@ -1408,7 +1408,7 @@ struct ata_smart_selftestlog smartselftest;
 
 int ataPrintMain (int fd){
   int timewait,code;
-  int returnval=0, retid=0, supported=0, needupdate=0;
+  int returnval=0, retid=0, supported=0, needupdate=0, known=0;
   const char * powername = 0; char powerchg = 0;
 
   // If requested, check power mode first
@@ -1467,7 +1467,7 @@ int ataPrintMain (int fd){
   // Print most drive identity information if requested
   if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");
-    ataPrintDriveInfo(&drive);
+    known = ataPrintDriveInfo(&drive);
   }
 
   // Was this a packet device?
@@ -1486,7 +1486,7 @@ int ataPrintMain (int fd){
     }
     else {
       pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 don't show if SMART supported.\n");
-      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      if (!known) failuretest(MANDATORY_CMD, returnval|=FAILSMART);
       pout("                  Checking for SMART support by trying SMART ENABLE command.\n");
     }
 
