@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.104 2006/09/15 08:01:19 sxzzsf Exp $
+$Id: smartd.8.in,v 1.105 2006/09/18 08:31:42 guidog Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -340,7 +340,7 @@ equivalent.
 .B \-\-service
 Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
 
-On Cygwin, this option simply prevents fork'ing into background mode to
+On Cygwin, this option simply prevents forking into background mode to
 allow running \fBsmartd\fP as service via cygrunsrv, see NOTES below.
 
 On Windows, this option enables the buildin service support.
@@ -1925,4 +1925,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.104 2006/09/15 08:01:19 sxzzsf Exp $
+$Id: smartd.8.in,v 1.105 2006/09/18 08:31:42 guidog Exp $
