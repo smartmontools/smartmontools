@@ -26,7 +26,7 @@
 #ifndef OS_OPENBSD_H_
 #define OS_OPENBSD_H_
 
-#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.4 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.5 2006/09/19 07:22:09 snyderx Exp $\n"
 
 /* from NetBSD: atareg.h,v 1.17, by Manuel Bouyer */
 /* Actually fits _perfectly_ into OBSDs wdcreg.h, but... */
@@ -51,5 +51,6 @@
 #include <err.h>
 #include <fcntl.h>
 #include <util.h>
+#include <unistd.h>
 
 #endif /* OS_OPENBSD_H_ */
