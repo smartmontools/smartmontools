@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.84 2006/09/18 08:31:42 guidog Exp $
+ $Id: smartctl.8.in,v 1.85 2006/09/19 15:05:55 dpgilbert Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -113,9 +113,9 @@ will execute the corresponding commands in the order: INFORMATION,
 ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 
 SCSI devices only accept the options \fB\-h, \-V, \-i, \-a, \-A, \-d,
-\-s, \-S,\-H, \-t, \-C, \-l selftest, \-l error, \-r,\fP and
-\fB\-X\fP.  TapeAlert devices only accept the options \fB\-h, \-V,
-\-i, \-a, \-A, \-d, \-s, \-S, \-t, \-l selftest, \-l error, \-r,\fP
+\-s, \-S,\-H, \-t, \-C, \-l background, \-l error, \-l selftest, \-r,\fP
+and \fB\-X\fP.  TapeAlert devices only accept the options \fB\-h, \-V,
+\-i, \-a, \-A, \-d, \-s, \-S, \-t, \-l error, \-l selftest, \-r,\fP
 and \fB\-H\fP.
 
 Long options  are  not  supported  on  all  systems.   Use
@@ -636,7 +636,8 @@ relatively free format (compared with ATA disk attributes).
 .TP
 .B \-l TYPE, \-\-log=TYPE
 Prints either the SMART Error Log, the SMART Self\-Test Log, the SMART
-Selective Self\-Test Log [ATA only], or the Log Directory [ATA only].
+Selective Self\-Test Log [ATA only], the Log Directory [ATA only], or
+the Background Scan Results Log [SCSI only].
 The valid arguments to this option are:
 
 .I error
@@ -785,6 +786,18 @@ feature.  We would like to add support for printing the contents of
 extended and comprehensive SMART self\-test and error logs.  If your
 disk supports these, and you would like to assist, please contact the
 \fBsmartmontools\fP developers.]
+
+.I background [SCSI]
+\- the background scan results log outputs information derived from
+Background Media Scans (BMS) done after power up and/or periodocally (e.g.
+every 24 hours) on recent SCSI disks. If supported, the BMS status
+is output first, indicating whether a background scan is currently
+underway (and if so a progress percentage), the amount of time the disk
+has been powered up and the number of scans already completed. Then there
+is a header and a line for each background scan "event". These will
+typically be either recovered or unrecoverable errors. That latter group
+may need some attention. There is a description of the background scan
+mechansim in section 4.18 of SBC\-3 revision 6 (see www.t10.org ).
 
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
@@ -1352,7 +1365,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.84 2006/09/18 08:31:42 guidog Exp $
+$Id: smartctl.8.in,v 1.85 2006/09/19 15:05:55 dpgilbert Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
