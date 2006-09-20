@@ -26,14 +26,14 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.142 2006/09/17 18:28:12 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.143 2006/09/20 16:17:31 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
 
-// See vendorattributeargs[] array in atacmds.c for definitions.
+// See vendorattributeargs[] array in atacmds.cpp for definitions.
 #define PRESET_9_MINUTES                   {   9,  1 }
 #define PRESET_9_TEMP                      {   9,  2 }
 #define PRESET_9_SECONDS                   {   9,  3 }

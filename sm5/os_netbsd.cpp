@@ -1,5 +1,5 @@
 /*
- * os_netbsd.c
+ * os_netbsd.cpp
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.18 2006/09/17 07:37:27 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.19 2006/09/20 16:17:31 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -394,7 +394,7 @@ do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   sc.senselen = iop->max_sense_len;
   sc.timeout = iop->timeout == 0 ? 60000 : (1000 * iop->timeout);
   sc.flags =
-    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :	/* XXX */
+    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
     (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
 
   if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
