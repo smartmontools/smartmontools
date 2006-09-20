@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.40 2006/08/25 06:06:25 sxzzsf Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.41 2006/09/20 16:17:31 shattered Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -215,7 +215,7 @@ int make_device_names (char*** devlist, const char* type)
 // Like open().  Return positive integer handle, only used by
 // functions below.  type="ATA" or "SCSI".  If you need to store extra
 // information about your devices, create a private internal array
-// within this file (see os_freebsd.c for an example).
+// within this file (see os_freebsd.cpp for an example).
 int deviceopen(const char * pathname, char *type)
 {
 	int len;

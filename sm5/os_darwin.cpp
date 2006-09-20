@@ -43,7 +43,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.17 2006/09/05 03:16:03 geoffk1 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.18 2006/09/20 16:17:31 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -300,7 +300,7 @@ int deviceclose(int fd){
   return 0;
 }
 
-// Interface to ATA devices.  See os_linux.c for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h

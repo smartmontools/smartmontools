@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.6 2006/08/25 06:06:25 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.7 2006/09/20 16:17:31 shattered Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -149,7 +149,7 @@ int make_device_names (char*** devlist, const char* name) {
 // Like open().  Return non-negative integer handle, only used by the
 // functions below.  type=="ATA" or "SCSI".  If you need to store
 // extra information about your devices, create a private internal
-// array within this file (see os_freebsd.c for an example).  If you
+// array within this file (see os_freebsd.cpp for an example).  If you
 // can not open the device (permission denied, does not exist, etc)
 // set errno as open() does and return <0.
 int deviceopen(const char *pathname, char *type){
@@ -335,7 +335,7 @@ int dani_ioctl( int device, int request, void* arg)
    return 0;
 }
 
-// Interface to ATA devices.  See os_linux.c for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h

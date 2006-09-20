@@ -20,7 +20,7 @@
 /*
     NOTE: The code in this file is only called when smartmontools has
     been compiled on an unrecognized/unsupported platform.  This file
-    can then serve as a "template" to make os_myOS.c if you wish to
+    can then serve as a "template" to make os_myOS.cpp if you wish to
     build support for that platform.
 
 
@@ -79,7 +79,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.23 2006/08/25 06:06:24 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.24 2006/09/20 16:17:31 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -119,7 +119,7 @@ static void unsupported(){
     pout("\n"
          "############################################################################\n"
          "WARNING: smartmontools has not been ported to the %s Operating System.\n"
-         "Please see the files os_generic.c and os_generic.h for porting instructions.\n"
+         "Please see the files os_generic.cpp and os_generic.h for porting instructions.\n"
          "############################################################################\n\n",
          osname);
     debugmode=savedebugmode;
@@ -185,7 +185,7 @@ int make_device_names (char*** devlist, const char* name) {
 // Like open().  Return non-negative integer handle, only used by the
 // functions below.  type=="ATA" or "SCSI".  If you need to store
 // extra information about your devices, create a private internal
-// array within this file (see os_freebsd.c for an example).  If you
+// array within this file (see os_freebsd.cpp for an example).  If you
 // can not open the device (permission denied, does not exist, etc)
 // set errno as open() does and return <0.
 int deviceopen(const char *pathname, char *type){
@@ -203,7 +203,7 @@ int deviceclose(int fd){
   return 0;
 }
 
-// Interface to ATA devices.  See os_linux.c for the cannonical example.
+// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the integer handle provided by deviceopen()
 //   command: defines the different operations, see atacmds.h
