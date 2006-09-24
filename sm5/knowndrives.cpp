@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.143 2006/09/20 16:17:31 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.144 2006/09/24 16:32:25 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -293,6 +293,14 @@ const drivesettings knowndrives[] = {
     vendoropts_9_halfminutes,
     specialpurpose_reverse_samsung,
     same_as_minus_F
+  },
+  { "SAMSUNG SpinPoint T133 series", // tested with HD300LJ/ZT100-12, HD400LJ/ZZ100-14, HD401LJ/ZZ100-15
+    "^SAMSUNG HD[34][02][01]L[DJ]$",
+    ".*",
+    NULL,
+    NULL,
+    NULL,
+    NULL
   },
   { 
     NULL, // Any other Samsung disk with *-23 *-24 firmware
