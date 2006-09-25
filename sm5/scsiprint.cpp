@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.115 2006/09/14 04:43:21 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.116 2006/09/25 03:57:01 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -858,7 +858,8 @@ static int scsiPrintBackgroundResults(int device)
     num = (gBuf[2] << 8) + gBuf[3] + 4;
     if (num < 20) {
         PRINT_ON(con);
-        pout("Background results Log Sense length is %d, no scan status\n", num);
+        pout("Background results Log Sense length is %d, no scan status\n",
+             num);
         PRINT_OFF(con);
         return FAILSMART;
     }
@@ -878,8 +879,10 @@ static int scsiPrintBackgroundResults(int device)
                 pout("\nBackground scan results log\n");
             }
             pout("  Status: ");
-            if (pl < 16)
+            if ((pl < 16) || (num < 16)) {
+                pout("\n");
                 break;
+            }
             j = ucp[9];
             if (j < (int)(sizeof(bms_status) / sizeof(bms_status[0])))
                 pout("%s\n", bms_status[j]);
@@ -904,8 +907,9 @@ static int scsiPrintBackgroundResults(int device)
                      "reassign_status\n");
             }
             pout(" %3d ", pc);
-            if (pl < 24) {
-                pout("parameter length >= 24 expected, got %d\n", pl);
+            if ((pl < 24) || (num < 24)) {
+                if (pl < 24)
+                    pout("parameter length >= 24 expected, got %d\n", pl);
                 break;
             }
             j = (ucp[4] << 24) + (ucp[5] << 16) + (ucp[6] << 8) + ucp[7];
