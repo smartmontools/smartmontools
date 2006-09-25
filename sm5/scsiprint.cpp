@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.116 2006/09/25 03:57:01 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.117 2006/09/25 22:47:58 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -850,7 +850,7 @@ static int scsiPrintBackgroundResults(int device)
     }
     if ((gBuf[0] & 0x3f) != BACKGROUND_RESULTS_LPAGE) {
         PRINT_ON(con);
-        pout("Background results Log Sense Failed, page mismatch\n");
+        pout("Background scan results Log Sense Failed, page mismatch\n");
         PRINT_OFF(con);
         return FAILSMART;
     }
@@ -858,8 +858,8 @@ static int scsiPrintBackgroundResults(int device)
     num = (gBuf[2] << 8) + gBuf[3] + 4;
     if (num < 20) {
         PRINT_ON(con);
-        pout("Background results Log Sense length is %d, no scan status\n",
-             num);
+        pout("Background scan results Log Sense length is %d, no scan "
+             "status\n", num);
         PRINT_OFF(con);
         return FAILSMART;
     }
@@ -1364,7 +1364,7 @@ int scsiPrintMain(int fd)
         if (gBackgroundResultsLPage)
             res = scsiPrintBackgroundResults(fd);
         else {
-            pout("Device does not support Background results logging\n");
+            pout("Device does not support Background scan results logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         }
         if (0 != res)
