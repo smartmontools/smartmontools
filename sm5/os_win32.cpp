@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.41 2006/09/20 16:17:31 shattered Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.42 2006/09/27 21:42:03 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -115,9 +115,9 @@ const char * get_os_version_str()
 }
 
 
-static int ata_open(int drive, const char * options);
+static int ata_open(int drive, const char * options, int port);
 static void ata_close(int fd);
-static int ata_scan(unsigned long * drives);
+static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
 
 static int aspi_open(unsigned adapter, unsigned id);
@@ -161,13 +161,18 @@ int guess_device_type (const char * dev_name)
 int make_device_names (char*** devlist, const char* type)
 {
 	unsigned long drives[3];
+	int rdriveno[2];
+	unsigned long rdrives[2];
 	int i, j, n, nmax, sz;
 	const char * path;
 
 	drives[0] = drives[1] = drives[2] = 0;
+	rdriveno[0] = rdriveno[1] = -1;
+	rdrives[0] = rdrives[1] = 0;
+	
 	if (!strcmp(type, "ATA")) {
 		// bit i set => drive i present
-		n = ata_scan(drives);
+		n = ata_scan(drives, rdriveno, rdrives);
 		path = "/dev/hda";
 		nmax = 10;
 	}
@@ -188,26 +193,44 @@ int make_device_names (char*** devlist, const char* type)
 	*devlist = (char **)malloc(sz); bytes += sz;
 
 	// Add devices
-	for (i = j = 0; i < n; i++) {
-		char * s;
-		sz = strlen(path)+1;
-		s = (char *)malloc(sz); bytes += sz;
-		strcpy(s, path);
+	for (i = j = 0; i < n; ) {
 		while (j < nmax && !(drives[j >> 5] & (1L << (j & 0x1f))))
 			j++;
 		assert(j < nmax);
-		if (nmax <= 10) {
-			assert(j <= 9);
-			s[sz-2] += j; // /dev/hd[a-j]
+
+		if (j == rdriveno[0] || j == rdriveno[1]) {
+			// Add physical drives behind this logical drive
+			int ci = (j == rdriveno[0] ? 0 : 1);
+			for (int pi = 0; pi < 32 && i < n; pi++) {
+				if (!(rdrives[ci] & (1L << pi)))
+					continue;
+				char rpath[20];
+				sprintf(rpath, "/dev/hd%c,%u", 'a'+j, pi);
+				sz = strlen(rpath)+1;
+				char * s = (char *)malloc(sz); bytes += sz;
+				strcpy(s, rpath);
+				(*devlist)[i++] = s;
+			}
 		}
 		else {
-			assert((j >> 3) <= 9);
-			s[sz-3] += (j >> 3);  // /dev/scsi[0-9].....
-			s[sz-2] += (j & 0x7); //          .....[0-7]
+			sz = strlen(path)+1;
+			char * s = (char *)malloc(sz); bytes += sz;
+			strcpy(s, path);
+
+			if (nmax <= 10) {
+				assert(j <= 9);
+				s[sz-2] += j; // /dev/hd[a-j]
+			}
+			else {
+				assert((j >> 3) <= 9);
+				s[sz-3] += (j >> 3);  // /dev/scsi[0-9].....
+				s[sz-2] += (j & 0x7); //          .....[0-7]
+			}
+			(*devlist)[i++] = s;
 		}
-		(*devlist)[i] = s;
 		j++;
 	}
+
 	return n;
 }
 
@@ -225,24 +248,28 @@ int deviceopen(const char * pathname, char *type)
 	if (!strcmp(type, "ATA")) {
 		// hd[a-j](:[saic]+)? => ATA 0-9 with options
 		char drive[1+1] = "", options[5+1] = ""; int n1 = -1, n2 = -1;
-		if (!(sscanf(pathname, "hd%1[a-j]%n:%5[saicp]%n", drive, &n1, options, &n2) >= 1
-		      && ((n1 == len && !options[0]) || n2 == len)                             )) {
-			errno = ENOENT;
-			return -1;
+		if (   sscanf(pathname, "hd%1[a-j]%n:%5[saicp]%n", drive, &n1, options, &n2) >= 1
+			&& ((n1 == len && !options[0]) || n2 == len)                                 ) {
+			return ata_open(drive[0] - 'a', options, -1);
 		}
-		return ata_open(drive[0] - 'a', options);
+		// hd[a-j],N => Physical drive 0-9, RAID port N
+		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
+		unsigned port = ~0;
+		if (   sscanf(pathname, "hd%1[a-j],%u%n:%5[saicp]%n", drive, &port, &n1, options, &n2) >= 2
+		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                              ) {
+			return ata_open(drive[0] - 'a', options, port);
+		}
 	}
 
-	if (!strcmp(type, "SCSI")) {
+	else if (!strcmp(type, "SCSI")) {
 		// scsi[0-9][0-f] => SCSI Adapter 0-9, ID 0-15, LUN 0
 		unsigned adapter = ~0, id = ~0; int n = -1;
-		if (!(sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n) == 2 && n == len)) {
-			errno = ENOENT;
-			return -1;
+		if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n) == 2 && n == len) {
+			return aspi_open(adapter, id);
 		}
-		return aspi_open(adapter, id);
 	}
-	errno = ENOENT;
+
+	errno = EINVAL;
 	return -1;
 }
 
@@ -251,7 +278,7 @@ int deviceopen(const char * pathname, char *type)
 // (Never called in smartctl!)
 int deviceclose(int fd)
 {
-	if (fd < 0x100) {
+	if ((fd & 0xff00) != 0x0100) {
 		ata_close(fd);
 	}
 	else {
@@ -279,6 +306,8 @@ void print_smartctl_examples(){
 #endif
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
+         "  smartctl -A /dev/hdb,3\n"
+         "                (Prints Attributes for physical drive 3 on 3ware 9000 RAID)\n"
          "\n"
          "  ATA SMART access methods and ordering may be specified by modifiers\n"
          "  following the device name: /dev/hdX:[saic], where\n"
@@ -336,6 +365,24 @@ typedef struct _GETVERSIONOUTPARAMS {
 
 ASSERT_SIZEOF(GETVERSIONOUTPARAMS, 24);
 
+
+#define SMART_VENDOR_3WARE      0x13C1  // identifies 3ware specific parameters
+
+typedef struct _GETVERSIONINPARAMS_EX {
+	BYTE    bVersion;
+	BYTE    bRevision;
+	BYTE    bReserved;
+	BYTE    bIDEDeviceMap;
+	DWORD   fCapabilities;
+	DWORD   dwDeviceMapEx;  // 3ware specific: RAID drive bit map
+	WORD    wIdentifier;    // Vendor specific identifier
+	WORD    wControllerId;  // 3ware specific: Controller ID (0,1,...)
+	ULONG   dwReserved[2];
+} GETVERSIONINPARAMS_EX, *PGETVERSIONINPARAMS_EX, *LPGETVERSIONINPARAMS_EX;
+
+ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONOUTPARAMS));
+
+
 typedef struct _IDEREGS {
 	UCHAR  bFeaturesReg;
 	UCHAR  bSectorCountReg;
@@ -357,6 +404,19 @@ typedef struct _SENDCMDINPARAMS {
 } SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
 
 ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
+
+typedef struct _SENDCMDINPARAMS_EX {
+	DWORD   cBufferSize;
+	IDEREGS irDriveRegs;
+	BYTE    bDriveNumber;
+	BYTE    bPortNumber;   // 3ware specific: port number
+	WORD    wIdentifier;   // Vendor specific identifier
+	DWORD   dwReserved[4];
+	BYTE    bBuffer[1];
+} SENDCMDINPARAMS_EX, *PSENDCMDINPARAMS_EX, *LPSENDCMDINPARAMS_EX;
+
+ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
+
 
 /* DRIVERSTATUS.bDriverError constants (just for info, not used)
 #define SMART_NO_ERROR                    0
@@ -411,9 +471,10 @@ static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 
 // call SMART_GET_VERSION, return device map or -1 on error
 
-static int smart_get_version(HANDLE hdevice)
+static int smart_get_version(HANDLE hdevice, unsigned long * portmap = 0)
 {
 	GETVERSIONOUTPARAMS vers;
+	const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
 	DWORD num_out;
 
 	memset(&vers, 0, sizeof(vers));
@@ -426,11 +487,26 @@ static int smart_get_version(HANDLE hdevice)
 	}
 	assert(num_out == sizeof(GETVERSIONOUTPARAMS));
 
-	if (con->reportataioctl > 1)
+	if (portmap) {
+		// Return bitmask of valid RAID ports
+		if (vers_ex.wIdentifier != SMART_VENDOR_3WARE) {
+			pout("  SMART_GET_VERSION returns unknown Identifier = %04x\n"
+				 "  This is no 3ware 9000 controller or driver has no SMART support.\n", vers_ex.wIdentifier);
+			errno = ENOENT;
+			return -1;
+		}
+		*portmap = vers_ex.dwDeviceMapEx;
+	}
+
+	if (con->reportataioctl > 1) {
 		pout("  SMART_GET_VERSION suceeded, bytes returned: %lu\n"
 		     "    Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
 			num_out, vers.bVersion, vers.bRevision,
 			vers.fCapabilities, vers.bIDEDeviceMap);
+		if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
+			pout("    Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
+			vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
+	}
 
 	// TODO: Check vers.fCapabilities here?
 	return vers.bIDEDeviceMap;
@@ -439,9 +515,11 @@ static int smart_get_version(HANDLE hdevice)
 
 // call SMART_* ioctl
 
-static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, unsigned datasize)
+static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, unsigned datasize, int port)
 {
 	SENDCMDINPARAMS inpar;
+	SENDCMDINPARAMS_EX & inpar_ex = (SENDCMDINPARAMS_EX &)inpar;
+
 	unsigned char outbuf[sizeof(SENDCMDOUTPARAMS)-1 + 512];
 	const SENDCMDOUTPARAMS * outpar;
 	DWORD code, num_out;
@@ -454,6 +532,12 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	inpar.irDriveRegs.bDriveHeadReg = 0xA0 | ((drive & 1) << 4);
 	inpar.bDriveNumber = drive;
 
+	if (port >= 0) {
+		// Set RAID port
+		inpar_ex.wIdentifier = SMART_VENDOR_3WARE;
+		inpar_ex.bPortNumber = port;
+	}
+
 	assert(datasize == 0 || datasize == 512);
 	if (datasize) {
 		code = SMART_RCV_DRIVE_DATA; name = "SMART_RCV_DRIVE_DATA";
@@ -461,9 +545,11 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	}
 	else {
 		code = SMART_SEND_DRIVE_COMMAND; name = "SMART_SEND_DRIVE_COMMAND";
-		if (regs->bFeaturesReg == ATA_SMART_STATUS)
+		if (regs->bFeaturesReg == ATA_SMART_STATUS) {
 			size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
 			// Note: cBufferSize must be 0 on Win9x
+			inpar.cBufferSize = size_out;
+		}
 		else
 			size_out = 0;
 	}
@@ -505,8 +591,15 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
 	if (datasize)
 		memcpy(data, outpar->bBuffer, 512);
-	else if (regs->bFeaturesReg == ATA_SMART_STATUS)
-		*regs = *(const IDEREGS *)(outpar->bBuffer);
+	else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
+		if (nonempty(const_cast<unsigned char *>(outpar->bBuffer), sizeof(IDEREGS)))
+			*regs = *(const IDEREGS *)(outpar->bBuffer);
+		else {  // Workaround for driver not returning regs
+			if (con->reportataioctl)
+				pout("  WARNING: driver does not return ATA registers in output buffer!\n");
+			*regs = inpar.irDriveRegs;
+		}
+	}
 
 	return 0;
 }
@@ -973,7 +1066,7 @@ static const char * ata_get_def_options()
 
 // Open ATA device
 
-static int ata_open(int drive, const char * options)
+static int ata_open(int drive, const char * options, int port)
 {
 	int win9x;
 	char devpath[30];
@@ -1026,17 +1119,19 @@ static int ata_open(int drive, const char * options)
 		// Set default options according to Windows version
 		if (!ata_def_options)
 			ata_def_options = ata_get_def_options();
-		options = ata_def_options;
+		options = (port < 0 ? ata_def_options : "s"); // RAID: SMART_* only
 	}
 	ata_cur_options = strdup(options);
 
 	// NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
 	ata_driveno = drive;
-	if (!win9x)
+	if (!win9x && port < 0)
 		return 0;
 
 	// Win9X/ME: Get drive map
-	devmap = smart_get_version(h_ata_ioctl);
+	// RAID: Get port map
+	unsigned long portmap = 0;
+	devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &portmap : 0));
 	if (devmap < 0) {
 		if (!is_permissive()) {
 			ata_close(0);
@@ -1046,6 +1141,20 @@ static int ata_open(int drive, const char * options)
 		devmap = 0x0f;
 	}
 	ata_smartver_state[drive] = 1;
+
+	if (port >= 0) {
+		// RAID: Check port existence
+		if (!(portmap & (1L << port))) {
+			pout("%s: Port %d is empty or does not exist\n", devpath, port);
+			if (!is_permissive()) {
+				ata_close(0);
+				errno = ENOENT;
+				return -1;
+			}
+		}
+		// Encode port into pseudo fd
+		return (0x0200 | port);
+	}
 
 	// Win9x/ME: Check device presence & type
 	if (((devmap >> (drive & 0x3)) & 0x11) != 0x01) {
@@ -1071,14 +1180,16 @@ static void ata_close(int fd)
 	ARGUSED(fd);
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
-	if (ata_cur_options)
+	if (ata_cur_options) {
 		free(ata_cur_options);
+		ata_cur_options = 0;
+	}
 }
 
 
 // Scan for ATA drives, fill bitmask of drives present, return #drives
 
-static int ata_scan(unsigned long * drives)
+static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives)
 {
 	int win9x = ((GetVersion() & 0x80000000) != 0);
 	int cnt = 0, i;
@@ -1086,6 +1197,7 @@ static int ata_scan(unsigned long * drives)
 	for (i = 0; i <= 9; i++) {
 		char devpath[30];
 		GETVERSIONOUTPARAMS vers;
+		const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
 		DWORD num_out;
 		HANDLE h;
 		if (win9x)
@@ -1117,17 +1229,39 @@ static int ata_scan(unsigned long * drives)
 		}
 		CloseHandle(h);
 
-		if (con->reportataioctl)
+		if (con->reportataioctl) {
 			pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
 			     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
 				devpath, num_out, vers.bVersion, vers.bRevision,
 				vers.fCapabilities, vers.bIDEDeviceMap);
+			if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
+				pout("  Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
+					vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
+		}
 
 		if (win9x) {
 			// Check ATA device presence, remove ATAPI devices
 			drives[0] = (vers.bIDEDeviceMap & 0xf) & ~((vers.bIDEDeviceMap >> 4) & 0xf);
 			cnt = (drives[0]&1) + ((drives[0]>>1)&1) + ((drives[0]>>2)&1) + ((drives[0]>>3)&1);
 			break;
+		}
+
+		if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
+			// Skip if more than 2 controllers or logical drive from this controller already seen
+			if (vers_ex.wControllerId >= 2 || rdriveno[vers_ex.wControllerId] >= 0)
+				continue;
+			assert(rdrives[vers_ex.wControllerId] == 0);
+			// Count physical drives
+			int pcnt = 0;
+			for (int pi = 0; pi < 32; pi++) {
+				if (vers_ex.dwDeviceMapEx & (1L << pi))
+					pcnt++;
+			}
+			if (!pcnt)
+				continue; // Should not happen
+			rdrives[vers_ex.wControllerId] = vers_ex.dwDeviceMapEx;
+			rdriveno[vers_ex.wControllerId] = i;
+			cnt += pcnt-1;
 		}
 
 		// ATA drive exists and driver supports SMART ioctl
@@ -1148,6 +1282,13 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	int datasize;
 	const char * valid_options;
 	int i;
+
+	int port = -1;
+	if ((fd & ~0x1f) == 0x0200) {
+		// RAID Port encoded into pseudo fd
+		port = fd & 0x1f;
+		fd = 0;
+	}
 
 	if (!(0 <= fd && fd <= 3)) {
 		errno = EBADF;
@@ -1230,7 +1371,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	  case IMMEDIATE_OFFLINE:
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
-		// Note: SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST this only on Win9x/ME
+		// Note: SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
 		break;
 	  default:
 		pout("Unrecognized command %d in win32_ata_command_interface()\n"
@@ -1265,6 +1406,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				break;
 			}
 			if (!ata_smartver_state[ata_driveno]) {
+				assert(port == -1);
 				if (smart_get_version(h_ata_ioctl) < 0) {
 					if (!con->permissive) {
 						pout("ATA/SATA driver is possibly a SCSI class driver not supporting SMART.\n");
@@ -1277,7 +1419,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				}
 				ata_smartver_state[ata_driveno] = 1;
 			}
-			rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize);
+			rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize, port);
 			break;
 		  case 'a':
 			rc = ata_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
@@ -1345,9 +1487,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 // Return true if OS caches the ATA identify sector
 int ata_identify_is_cached(int fd)
 {
-	ARGUSED(fd);
-	// WinNT4/2000/XP => true, Win9x/ME => false
-	return ((GetVersion() & 0x80000000) == 0);
+	// Not RAID and WinNT4/2000/XP => true, RAID or Win9x/ME => false
+	return (!(fd & 0xff00) && (GetVersion() & 0x80000000) == 0);
 }
 
 
@@ -1372,8 +1513,13 @@ static void pr_not_impl(const char * what, int * warned)
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
 {
 	static int warned = 0;
-	ARGUSED(fd); ARGUSED(disknum); ARGUSED(escalade_type); ARGUSED(command); ARGUSED(select); ARGUSED(data);
-	pr_not_impl("3ware Escalade Controller command routine escalade_command_interface()", &warned);
+	ARGUSED(fd); ARGUSED(escalade_type); ARGUSED(command); ARGUSED(select); ARGUSED(data);
+	if (!warned) {
+		pout("Option '-d 3ware,%d' does not work on Windows.\n"
+		     "Controller port can be specified in the device name: '/dev/hd%c,%d'.\n\n",
+			disknum, 'a'+ata_driveno, disknum);
+		warned = 1;
+	}
 	errno = ENOSYS;
 	return -1;
 }
@@ -1771,6 +1917,8 @@ static int aspi_scan(unsigned long * drives)
 			pout(" ASPI Adapter %u (\"%.16s\"):\n", ad, srb.q.adapter_id);
 		}
 
+		bool ignore = !strnicmp(srb.q.adapter_id, "3ware", 5);
+
 		for (id = 0; id <= 7; id++) {
 			// Get device type
 			memset(&srb, 0, sizeof(srb));
@@ -1783,12 +1931,15 @@ static int aspi_scan(unsigned long * drives)
 					pout("  ID %u: No such device (Status=0x%02x)\n", id, srb.h.status);
 				continue;
 			}
-			if (con->reportscsiioctl)
-				pout("  ID %u: Device Type=0x%02x\n", id, srb.t.devtype);
-			if (srb.t.devtype == 0x00/*HDD*/) {
+
+			if (!ignore && srb.t.devtype == 0x00/*HDD*/) {
+				if (con->reportscsiioctl)
+					pout("  ID %u: Device Type=0x%02x\n", id, srb.t.devtype);
 				drives[ad >> 2] |= (1L << (((ad & 0x3) << 3) + id));
 				cnt++;
 			}
+			else if (con->reportscsiioctl)
+				pout("  ID %u: Device Type=0x%02x (ignored)\n", id, srb.t.devtype);
 		}
 	}
 	return cnt;

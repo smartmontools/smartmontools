@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.117 2006/09/25 22:47:58 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.118 2006/09/27 21:42:03 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1026,8 +1026,12 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
     if (0 == strncmp(manufacturer, "3ware", 5) || 0 == strncmp(manufacturer, "AMCC", 4) ) {
+#if defined(_WIN32) || defined(__CYGWIN__)
+        pout("please try changing device to /dev/hdX,N\n");
+#else
         pout("please try adding '-d 3ware,N'\n");
         pout("you may also need to change device to /dev/twaN or /dev/tweN\n");
+#endif
         return 2;
     } else if ((len >= 42) &&
 	       (0 == strncmp((const char *)(gBuf + 36), "MVSATA", 6))) {

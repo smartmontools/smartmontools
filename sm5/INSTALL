@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.67 2006/09/05 03:17:03 geoffk1 Exp $
+$Id: INSTALL,v 1.68 2006/09/27 21:42:03 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -152,6 +152,15 @@ Table of contents:
     The code was tested with Adaptec Windows ASPI drivers 4.71.2.
     (http://www.adaptec.com/en-US/support/scsi_soft/ASPI/ASPI-4.70/)
     Links to other ASPI drivers can be found at http://www.nu2.nu/aspi/.
+
+    3ware 9000 RAID controllers are supported using new features added
+    to the 3ware 9000 Windows driver. These features are not implemented
+    in the latest 'Released' driver (9.3.0.6) available at the time of
+    this writing. But an 'in Engineering Phase' driver v3.00.02.061 or
+    later can be used to access SMART functionality of each individual
+    drive. Older drivers provide SMART access only to the first drive
+    (port) of each unit. The commands READ LOG and ABORT SELFTEST are
+    still unsupported due to the limitations of SMART IOCTL (see above).
 
     G) MacOS/Darwin
 
