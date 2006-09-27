@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.565 2006/09/15 08:01:19 sxzzsf Exp $
+$Id: CHANGELOG,v 1.566 2006/09/27 21:42:03 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added support for 3ware 9000 controllers using extended
+       SMART functionality in new 3ware driver. This includes DEVICESCAN
+       support for at most 2 controllers. Thanks to Greg de Valois from
+       AMCC/3ware for new driver features, development support and
+       hardware for testing.
 
   [SZ] smartd: Support HighPoint RocketRAID controller under GNU/linux
 

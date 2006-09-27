@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.85 2006/09/19 15:05:55 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.86 2006/09/27 21:42:03 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -89,6 +89,10 @@ and \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices on ASPI adapter 0\-9, ID 0\-1
 For IDE/ATA devices on Win95/98/98SE/ME, use \fB"/dev/hd[a\-d]"\fP for standard devices
 accessed via SMARTVSD.VXD, and \fB"/dev/hd[e\-h]"\fP for additional devices
 accessed via a patched SMARTVSE.VXD (see INSTALL file for details).
+For disks behind 3ware controllers use \fB"/dev/hd[a\-j],N"\fP where
+N specifies the disk number (3ware \'port\') behind the controller
+providing the logical drive (\'unit\') specified by \fB"/dev/hd[a\-j]"\fP.
+The option \'-d 3ware,N\' is not necessary on Windows.
 The prefix \fB"/dev/"\fP is optional.
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS" above.
@@ -200,8 +204,8 @@ either 0x5040, 0x5041, 0x5080, 0x5081, 0x6041 or 0x6081. The \'linuxIAL\' driver
 seems not (yet?) available in the Linux kernel source tree, but should be available
 from system vendors (ftp://ftp.aslab.com/ is known to provide a patch with the driver).
 
-To look at ATA disks behind 3ware SCSI RAID controllers, use syntax
-such as:
+Under Linux and FreeBSD, to look at ATA disks behind 3ware SCSI RAID controllers,
+use syntax such as:
 .nf
 \fBsmartctl \-a \-d 3ware,2 /dev/sda\fP
 .fi
@@ -266,7 +270,7 @@ using the character device interface /dev/twa0\-15 and /dev/twe0\-15.
 The necessary WRITE LOG commands can not be passed through the SCSI
 interface.
 
-.B 3ware controllers are currently ONLY supported under Linux and FreeBSD.
+.B 3ware controllers are supported under Linux, FreeBSD and Windows.
 
 To look at (S)ATA disks behind HighPoint RocketRAID controllers, use syntax
 such as:
@@ -1365,7 +1369,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.85 2006/09/19 15:05:55 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.86 2006/09/27 21:42:03 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
