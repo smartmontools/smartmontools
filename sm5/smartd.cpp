@@ -109,20 +109,24 @@ extern "C" int __stdcall FreeConsole(void);
 extern "C" int getdomainname(char *, int); // no declaration in header files!
 #endif
 
+#ifdef __osf__
+char *strsignal(int sig);
+#endif
+
 #define ARGUSED(x) ((void)(x))
 
 // These are CVS identification information for *.cpp and *.h files
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.378 2006/09/20 16:17:31 shattered Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.378.2.1 2006/10/06 18:09:44 shattered Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.378 2006/09/20 16:17:31 shattered Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.378.2.1 2006/10/06 18:09:44 shattered Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID

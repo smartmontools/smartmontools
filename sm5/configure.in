@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.118 2006/08/12 05:41:13 card_captor Exp $
+# $Id: configure.in,v 1.118.2.1 2006/10/06 18:09:44 shattered Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.37, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.118 2006/08/12 05:41:13 card_captor Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.118.2.1 2006/10/06 18:09:44 shattered Exp $'`
 smartmontools_release_date=2006/04/12
 smartmontools_release_time="17:39:01 UTC"
 
@@ -71,6 +71,7 @@ AC_CHECK_FUNCS([gethostname])
 AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([sigset])
 AC_CHECK_FUNCS([strtoull])
+AC_CHECK_FUNCS([strsignal])
 AC_CHECK_FUNCS([uname])
 
 # Check whether snprintf appends null char and returns expected length on overflow
@@ -160,6 +161,9 @@ case "${host}" in
 	*-*-darwin*)
 		AC_SUBST([os_deps], ['os_darwin.o'])
 		AC_SUBST([os_libs], ['-framework CoreFoundation -framework IOKit']) ;;
+	*-*-osf*)
+		AC_SUBST([os_deps], ['os_osf1.o'])
+		AC_SUBST([os_libs], ['-lcsfk5']) ;;
 	*)
 		AC_SUBST([os_deps], ['os_generic.o']) 
 		AC_SUBST([os_libs], ['']) ;;
