@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.168 2006/09/17 09:34:29 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.168.2.1 2006/10/06 18:09:44 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -143,7 +143,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   // Please keep in alphabetic order if you add more.
   const char  *abrt  = "ABRT";  // ABORTED
  const char   *amnf  = "AMNF";  // ADDRESS MARK NOT FOUND
- const char   *ccto  = "CCTO";  // COMMAND COMPLETTION TIMED OUT
+ const char   *ccto  = "CCTO";  // COMMAND COMPLETION TIMED OUT
  const char   *eom   = "EOM";   // END OF MEDIA
  const char   *icrc  = "ICRC";  // INTERFACE CRC ERROR
  const char   *idnf  = "IDNF";  // ID NOT FOUND

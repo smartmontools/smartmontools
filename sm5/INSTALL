@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.68 2006/09/27 21:42:03 chrfranke Exp $
+$Id: INSTALL,v 1.68.2.1 2006/10/06 18:09:44 shattered Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -407,7 +407,18 @@ SuSE:
     sh -c 'for n in S 0 1 2; do ln init.d/smartd rc$n.d/K05smartd; done'
     sh -c 'for n in 3      ; do ln init.d/smartd rc$n.d/S95smartd; done'
 
-[9] Guidelines for Cygwin
+[9] Guidelines for Tru64 UNIX
+=============================
+
+   It can be compiled with either the base system C compiler or gcc
+   but not with the DTK cc.
+
+   To compile with the base system C compiler:
+
+   CC="cc -nodtk" \
+	    ./configure
+
+[10] Guidelines for Cygwin
 =========================
 
 Same as Red Hat:
@@ -428,7 +439,7 @@ Same as Red Hat:
   file type ("binmode" mount option) set. The "autogen.sh" script prints a
   warning if DOS type is selected.
 
-[10] Guidelines for Windows
+[11] Guidelines for Windows
 ==========================
 
 To compile the Windows release with MinGW, use the following on Cygwin:
