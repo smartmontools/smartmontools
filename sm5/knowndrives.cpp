@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.145 2006/10/04 23:04:27 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.146 2006/10/08 22:36:38 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -215,8 +215,8 @@ const drivesettings knowndrives[] = {
     vendoropts_Fujitsu_MHS2020AT,
     NULL, NULL
   },
-  { NULL, // Fujitsu MHL2300AT, MHM2200AT, MHM2100AT, MHM2150AT
-    "^FUJITSU MH(L230|M2(20|10|15))0AT$",
+  { NULL, // Fujitsu MHL2300AT, MHM2200AT, MHM2100AT, MHM2150AT, MHM2060AT
+    "^FUJITSU MH(L230|M2(20|10|15|06))0AT$",
     ".*",
     "This drive's firmware has a harmless Drive Identity Structure\n"
       "checksum error bug.",
@@ -225,6 +225,13 @@ const drivesettings knowndrives[] = {
   },
   { "Fujitsu MPA..MPG series",
     "^FUJITSU MP[A-G]3...A[HTEV]U?",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { NULL, // FUJITSU MHT2040AS
+    "^FUJITSU MHT2040AS$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -535,6 +542,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { "Maxtor MaXLine III family",
+    "^Maxtor 7(V(25|30)0F|L(25|30)0[SR])0$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { NULL, // HITACHI_DK14FA-20B
     "^HITACHI_DK14FA-20B$",
     ".*",
@@ -565,6 +579,11 @@ const drivesettings knowndrives[] = {
     "^IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0$",
     ".*",
     NULL, NULL, NULL, NULL
+  },
+  { "IBM Travelstar 4GT family",
+    "^IBM-DTCA-2(324|409)0$",
+    ".*",
+    NULL, NULL, NULL, NULL 
   },
   { "IBM Travelstar 25GS, 18GT, and 12GN family",
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
@@ -662,7 +681,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Toshiba 2.5\" HDD series", // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
-    "^TOSHIBA MK6021GAS$",
+    "^TOSHIBA MK((1032|4026)GAX|6021GAS)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -721,13 +740,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Seagate Medalist 8641 family",
-    "^ST3(2110|3221|4312|6531|8641)A$",
+  { "Seagate Medalist 2110, 3221, 4321, 6531, and 8641",
+    "^ST3(2110|3221|4321|6531|8641)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { "Seagate U Series X family",
     "^ST3(10014A(CE)?|20014A)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate U7 family",
+    "^ST3(30012|40012|60012|80022|120020)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -873,7 +897,12 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Caviar SE (Serial ATA) family",
-    "^WDC WD(4|8|12|16|20|25)00JD-.*$",
+    "^WDC WD((4|8|12|16|20|25)00JD|(12|16|20|25|30|32)00JS|1600AAJS)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar SE16 family",
+    "^WDC WD((25|32|40|50)00KS|4000KD)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -883,7 +912,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Raptor family",
-    "^WDC WD(360|740)GD",
+    "^WDC WD((360|740|800)GD|(360|740|1500)ADFD)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -917,8 +946,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // QUANTUM FIREBALLP AS10.2, AS20.5, and AS40.0
-    "^QUANTUM FIREBALLP AS(10.2|20.5|40.0)$",
+  { NULL, // QUANTUM FIREBALLP AS10.2, AS20.5, AS30.0, and AS40.0
+    "^QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -942,8 +971,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // QUANTUM FIREBALLP KA10.1
-    "^QUANTUM FIREBALLP KA10.1$",
+  { "Quantum Fireball Plus KA series",
+    "^QUANTUM FIREBALLP KA(9|10).1$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Quantum Fireball SE series",
+    "^QUANTUM FIREBALL SE4.3A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
