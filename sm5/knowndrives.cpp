@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.146 2006/10/08 22:36:38 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.147 2006/10/08 22:50:39 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -670,8 +670,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Deskstar T7K250 series",
+    "^(Hitachi )?HDT7225((25|20|16)DLA(T80|380))$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Hitachi Deskstar 7K400 series",
     "^(Hitachi )?HDS724040KL(AT|SA)80$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Hitachi Deskstar 7K500 series",
+    "^(Hitachi )?HDS725050KLA(360|T80)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
