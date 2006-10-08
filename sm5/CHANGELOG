@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.567 2006/10/08 22:36:38 pjwilliams Exp $
+$Id: CHANGELOG,v 1.568 2006/10/08 22:50:39 pjwilliams Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
+       Deskstar 7K500 series.  Thanks to L. J. Wu for providing a
+       patch
 
   [PW] Drive database: added Maxtor MaXLine III family, Seagate U7
        family, Seagate ST34321A, FUJITSU MHM2060AT, FUJITSU MHT2040AS,
