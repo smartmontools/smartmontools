@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.566 2006/09/27 21:42:03 chrfranke Exp $
+$Id: CHANGELOG,v 1.567 2006/10/08 22:36:38 pjwilliams Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,15 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [PW] Drive database: added Maxtor MaXLine III family, Seagate U7
+       family, Seagate ST34321A, FUJITSU MHM2060AT, FUJITSU MHT2040AS,
+       Western Digital Caviar SE16 family, IBM Travelstar 4GT family,
+       QUANTUM FIREBALLP KA9.1, QUANTUM FIREBALL SE4.3A, TOSHIBA
+       MK1032GAX, TOSHIBA MK4026GAX
+
+  [PW] Drive database: added missing drives from Western Digital Caviar
+       SE (Serial ATA) and WD Raptor families
 
   [CF] Windows: Added support for 3ware 9000 controllers using extended
        SMART functionality in new 3ware driver. This includes DEVICESCAN
