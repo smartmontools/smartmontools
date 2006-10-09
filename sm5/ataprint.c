@@ -1,9 +1,9 @@
 /*
- * ataprint.cpp
+ * ataprint.c
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-4 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,26 +22,20 @@
  *
  */
 
-#include "config.h"
-
 #include <ctype.h>
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_LOCALE_H
-#include <locale.h>
-#endif // #ifdef HAVE_LOCALE_H
-
-#include "int64.h"
 #include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataprint.h"
 #include "smartctl.h"
+#include "int64.h"
 #include "extern.h"
 #include "utility.h"
 #include "knowndrives.h"
+#include "config.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.169 2006/10/09 21:48:05 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.c,v 1.156 2004/09/10 04:13:41 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -96,25 +90,21 @@ void formatdriveidstring(char *out, const char *in, int n)
   char tmp[65];
 
   n = n > 64 ? 64 : n;
-#ifndef __NetBSD__
   swapbytes(tmp, in, n);
-#else
-  if (isbigendian())
-    strncpy(tmp, in, n);
-  else
-    swapbytes(tmp, in, n);
-#endif
   tmp[n] = '\0';
   trim(out, tmp);
 }
 
-void infofound(char *output) {
+// Function for printing ASCII byte-swapped strings, skipping white
+// space. Please note that this is needed on both big- and
+// little-endian hardware.
+void printswap(char *output, char *in, unsigned int n){
+  formatdriveidstring(output, in, n);
   if (*output)
     pout("%s\n", output);
   else
     pout("[No Information Found]\n");
 }
-
 
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
@@ -449,17 +439,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   unsigned short lba_64         = drive->words088_255[103-88];
   uint64_t capacity_short=0, capacity=0, threedigits, power_of_ten;
   int started=0,k=1000000000;
-  char *separator=",";
-
-  // get correct character to use as thousands separator
-#ifdef HAVE_LOCALE_H
-  struct lconv *currentlocale=NULL;
-  setlocale (LC_ALL, "");
-  currentlocale=localeconv();
-  if (*(currentlocale->thousands_sep))
-    separator=currentlocale->thousands_sep;
-#endif // #ifdef HAVE_LOCALE_H
-
+  
   // if drive supports LBA addressing, determine 32-bit LBA capacity
   if (capabilities_0 & 0x0200) {
     capacity_short = (unsigned int)sects_32 << 16 | 
@@ -480,7 +460,8 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   // turn sectors into bytes
   capacity_short = (capacity *= 512);
   
-  // print with locale-specific separators (default is comma)
+  // print with comma separators.  I know this is anglo-centric:
+  // tell me what to change to use LOCALE if you want.
   power_of_ten =  k;
   power_of_ten *= k;
   
@@ -489,7 +470,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
     capacity   -= threedigits*power_of_ten;
     if (started)
       // we have already printed some digits
-      pstring += sprintf(pstring, "%s%03"PRIu64, separator, threedigits);
+      pstring += sprintf(pstring, ",%03"PRIu64, threedigits);
     else if (threedigits || k==6) {
       // these are the first digits that we are printing
       pstring += sprintf(pstring, "%"PRIu64, threedigits);
@@ -502,36 +483,29 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   return capacity_short;
 }
 
-int ataPrintDriveInfo (struct ata_identify_device *drive){
+void ataPrintDriveInfo (struct ata_identify_device *drive){
   int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[DATEANDEPOCHLEN];
   unsigned short minorrev;
   char model[64], serial[64], firm[64], capacity[64];
-
-  // format drive information (with byte swapping as needed)
-  formatdriveidstring(model, (char *)drive->model,40);
-  formatdriveidstring(serial, (char *)drive->serial_no,20);
-  formatdriveidstring(firm, (char *)drive->fw_rev,8);
+  
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
-  drivetype=lookupdrive(model, firm);
-
-  // Print model family if known
-  if (drivetype>=0 && knowndrives[drivetype].modelfamily)
-    pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
-
   pout("Device Model:     ");
-  infofound(model);
+  printswap(model, (char *)drive->model,40);
+
   pout("Serial Number:    ");
-  infofound(serial);
+  printswap(serial, (char *)drive->serial_no,20);
+
   pout("Firmware Version: ");
-  infofound(firm);
+  printswap(firm, (char *)drive->fw_rev,8);
 
   if (determine_capacity(drive, capacity))
     pout("User Capacity:    %s bytes\n", capacity);
   
   // See if drive is recognized
+  drivetype=lookupdrive(model, firm);
   pout("Device is:        %s\n", drivetype<0?
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
@@ -567,11 +541,11 @@ int ataPrintDriveInfo (struct ata_identify_device *drive){
     pout("\n==> WARNING: %s\n\n", knowndrives[drivetype].warningmsg);
 
   if (version>=3)
-    return drivetype;
+    return;
   
   pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
   pout("We will try to proceed in spite of this.\n");
-  return drivetype;
+  return;
 }
 
 
@@ -826,7 +800,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
     // consider only valid attributes (allowing some screw-ups in the
     // thresholds page data to slip by)
     if (disk->id){
-      const char *type, *update;
+      char *type, *update;
       int failednow,failedever;
       char attributename[64];
 
@@ -1408,38 +1382,7 @@ struct ata_smart_selftestlog smartselftest;
 
 int ataPrintMain (int fd){
   int timewait,code;
-  int returnval=0, retid=0, supported=0, needupdate=0, known=0;
-  const char * powername = 0; char powerchg = 0;
-
-  // If requested, check power mode first
-  if (con->powermode) {
-    unsigned char powerlimit = 0xff;
-    int powermode = ataCheckPowerMode(fd);
-    switch (powermode) {
-      case -1:
-        if (errno == ENOSYS) {
-          pout("CHECK POWER STATUS not implemented, ignoring -n Option\n"); break;
-        }
-        powername = "SLEEP";   powerlimit = 2;
-        break;
-      case 0:
-        powername = "STANDBY"; powerlimit = 3; break;
-      case 0x80:
-        powername = "IDLE";    powerlimit = 4; break;
-      case 0xff:
-        powername = "ACTIVE or IDLE"; break;
-      default:
-        pout("CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Option\n", powermode);
-        break;
-    }
-    if (powername) {
-      if (con->powermode >= powerlimit) {
-        pout("Device is in %s mode, exit(%d)\n", powername, FAILPOWER);
-        return FAILPOWER;
-      }
-      powerchg = (powermode != 0xff); // SMART tests will spin up drives
-    }
-  }
+  int returnval=0, retid=0, supported=0, needupdate=0;
 
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   if ((retid=ataReadHDIdentity(fd,&drive))<0){
@@ -1467,7 +1410,7 @@ int ataPrintMain (int fd){
   // Print most drive identity information if requested
   if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");
-    known = ataPrintDriveInfo(&drive);
+    ataPrintDriveInfo(&drive);
   }
 
   // Was this a packet device?
@@ -1486,7 +1429,7 @@ int ataPrintMain (int fd){
     }
     else {
       pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 don't show if SMART supported.\n");
-      if (!known) failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
       pout("                  Checking for SMART support by trying SMART ENABLE command.\n");
     }
 
@@ -1513,17 +1456,9 @@ int ataPrintMain (int fd){
       pout("                  Checking to be sure by trying SMART RETURN STATUS command.\n");
       isenabled=ataDoesSmartWork(fd);
     }
-    else {
+    else
       pout("SMART support is: Available - device has SMART capability.\n");
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-      if (ata_identify_is_cached(fd)) {
-        pout("                  %sabled status cached by OS, trying SMART RETURN STATUS cmd.\n",
-                    (isenabled?"En":"Dis"));
-        isenabled=ataDoesSmartWork(fd);
-      }
-#endif
-    }
-
+    
     if (isenabled)
       pout("SMART support is: Enabled\n");
     else {
@@ -1532,9 +1467,6 @@ int ataPrintMain (int fd){
       else
         pout("SMART support is: Disabled\n");
     }
-    // Print the (now possibly changed) power mode if available
-    if (powername)
-      pout("Power mode %s   %s\n", (powerchg?"was:":"is: "), powername);
     pout("\n");
   }
   
