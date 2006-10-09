@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.148 2006/10/09 14:34:37 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.149 2006/10/09 18:04:44 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -752,8 +752,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK8026GAX
-    "^TOSHIBA MK8026GAX$",
+  { NULL, // TOSHIBA MK4026GAX, MK6026GAX, MK8026GAX
+    "^TOSHIBA MK[468]026GAX$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -929,7 +929,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Caviar SE (Serial ATA) family",
-    "^WDC WD((4|8|12|16|20|25)00JD|(12|16|20|25|30|32)00JS|1600AAJS)-.*$",
+    "^WDC WD((4|8|12|16|20|25|32)00JD|(12|16|20|25|30|32)00JS|1600AAJS)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -954,7 +954,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { NULL, // QUANTUM FIREBALLlct15 20 and QUANTUM FIREBALLlct15 30
-    "^QUANTUM FIREBALLlct15 [23]0$",
+    "^QUANTUM FIREBALLlct15 [123]0$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -989,7 +989,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { NULL, // QUANTUM FIREBALL ST3.2A
-    "^QUANTUM FIREBALL ST3.2A$",
+    "^QUANTUM FIREBALL ST(3.2|4.3)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
