@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.147 2006/10/08 22:50:39 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.148 2006/10/09 14:34:37 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -301,13 +301,35 @@ const drivesettings knowndrives[] = {
     specialpurpose_reverse_samsung,
     same_as_minus_F
   },
+  { NULL, // SAMSUNG SP8004H with QW100-61 firmware
+    "^SAMSUNG SP8004H$",
+    "^QW100-61$",
+    NULL,
+    vendoropts_9_halfminutes,
+    specialpurpose_reverse_samsung,
+    same_as_minus_F
+  },
   { "SAMSUNG SpinPoint T133 series", // tested with HD300LJ/ZT100-12, HD400LJ/ZZ100-14, HD401LJ/ZZ100-15
-    "^SAMSUNG HD[34][02][01]L[DJ]$",
+    "^SAMSUNG HD(250KD|(30[01]|320|40[01])L[DJ])$",
     ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "SAMSUNG SpinPoint P120 series", // tested with SP2504C/VT100-33
+    "^SAMSUNG SP(16[01]3|2[05][01]4)[CN]$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "SAMSUNG SpinPoint P80 SD series", // tested with HD160JJ/ZM100-33
+    "^SAMSUNG HD(080H|120I|160J)J$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "SAMSUNG SpinPoint P80 series", // firmware *-26 or later, tested with SP1614C/SW100-34
+    "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
+    ".*-(2[6789]|3[0-9])$",
     NULL,
-    NULL,
-    NULL,
-    NULL
+    vendoropts_9_halfminutes,
+    NULL, NULL
   },
   { 
     NULL, // Any other Samsung disk with *-23 *-24 firmware
