@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.155 2006/09/20 16:17:31 shattered Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.156 2006/10/09 11:45:12 guidog Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -239,7 +239,7 @@ const char *getvalidarglist(char opt) {
   case 'q':
     return "errorsonly, silent";
   case 'd':
-    return "ata, scsi, marvell, sat, 3ware,N, hpt,L/M/N";
+    return "ata, scsi, marvell, sat, 3ware,N, hpt,L/M/N cciss,N";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -459,21 +459,35 @@ void ParseOpts (int argc, char** argv){
           con->dont_print = FALSE;
           pout("No memory for argument of -d. Exiting...\n");
           exit(FAILCMD);
-        } else if (strncmp(s,"3ware,",6)) {
-          badarg = TRUE;
-        } else if (split_report_arg2(s, &i)) {
-          sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
-          badarg = TRUE;
-        } else if (i<0 || i>15) {
-          sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
-          badarg = TRUE;
-        } else {
-	  // NOTE: controller_port == disk number + 1
-          con->controller_type = CONTROLLER_3WARE;
-          con->controller_port = i+1;
-        }
-        free(s);
-      }         
+        } else if (!strncmp(s,"3ware,",6)) {
+            if (split_report_arg2(s, &i)) {
+                 sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
+                 badarg = TRUE;
+            } else if (i<0 || i>15) {
+                 sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
+                 badarg = TRUE;
+            } else {
+ 	        // NOTE: controller_port == disk number + 1
+ 	        con->controller_type = CONTROLLER_3WARE;
+                 con->controller_port = i+1;
+            }
+ 	    free(s);
+        } else if (!strncmp(s,"cciss,",6)) {
+             if (split_report_arg2(s, &i)) {
+                 sprintf(extraerror, "Option -d cciss,N requires N to be a non-negative integer\n");
+                 badarg = TRUE;
+             } else if (i<0 || i>15) {
+                 sprintf(extraerror, "Option -d cciss,N (N=%d) must have 0 <= N <= 15\n", i);
+                 badarg = TRUE;
+             } else {
+               // NOTE: controller_port == drive number
+               con->controller_type = CONTROLLER_CCISS;
+               con->controller_port = i+1;
+             }
+             free(s);
+        } else
+ 	    badarg=TRUE;
+      }
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
@@ -948,6 +962,9 @@ int main (int argc, char **argv){
   case CONTROLLER_3WARE_678K_CHAR:
     mode="ATA_3WARE_678K";
     break;
+  case CONTROLLER_CCISS:
+    mode="CCISS";
+    break;
   default:
     mode="ATA";
     break;
@@ -980,6 +997,11 @@ int main (int argc, char **argv){
     retval = scsiPrintMain(fd);
     if ((0 == retval) && (CONTROLLER_SAT == con->controller_type))
         retval = ataPrintMain(fd);
+    break;
+  case CONTROLLER_CCISS:
+    // route the cciss command through scsiPrintMain. 
+    // cciss pass-throughs will separeate from the SCSI data-path.
+    retval = scsiPrintMain(fd);
     break;
   default:
     retval = ataPrintMain(fd);

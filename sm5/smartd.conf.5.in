@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.77 2006/09/15 08:01:20 sxzzsf Exp $
+$Id: smartd.conf.5.in,v 1.78 2006/10/09 11:45:12 guidog Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -254,8 +254,8 @@ directives can be used for these disks (but see note below).
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
 times for one device, but the arguments \fIata\fP, \fIscsi\fP, \fIsat\fP,
-\fImarvell\fP, and \fI3ware,N\fP are mutually-exclusive. If more than
-one is given then \fBsmartd\fP will use the last one which appears.
+\fImarvell\fP, \fIcciss,N\fP and \fI3ware,N\fP are mutually-exclusive. If more
+than one is given then \fBsmartd\fP will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
 first attempt to guess the device type by looking at whether the sixth
@@ -334,8 +334,14 @@ Alternatively use the character device interfaces /dev/twe0-15 (3ware
 6/7/8000 series controllers) or /dev/twa0-15 (3ware 9000 series
 controllers).
 
+.I cciss,N
+\- the device consists of one or more SCSI disks connected to a cciss
+RAID controller. The non-negative integer N (in the range from 0 to 15
+inclusive) denotes which disk on the controller is monitored.  In log
+files and email messages this disk will be identified as cciss_disk_XX
+with XX in the range from 00 to 15 inclusive.
 
-.B 3ware controllers are currently ONLY supported under Linux.
+.B 3ware and cciss controllers are currently ONLY supported under Linux.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint
@@ -1334,4 +1340,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.77 2006/09/15 08:01:20 sxzzsf Exp $
+$Id: smartd.conf.5.in,v 1.78 2006/10/09 11:45:12 guidog Exp $

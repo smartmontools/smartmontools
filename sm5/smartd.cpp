@@ -115,14 +115,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.378 2006/09/20 16:17:31 shattered Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.379 2006/10/09 11:45:12 guidog Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.378 2006/09/20 16:17:31 shattered Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.379 2006/10/09 11:45:12 guidog Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -712,6 +712,18 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
 	*s=' ';
     }
     break;
+  case CONTROLLER_CCISS:
+    {
+      char *s,devicetype[16];
+      sprintf(devicetype, "cciss,%d", cfg->controller_port-1);
+      exportenv(environ_strings[8], "SMARTD_DEVICETYPE", devicetype);
+      if ((s=strchr(cfg->name, ' ')))
+	*s='\0';
+      exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+      if (s)
+	*s=' ';
+    }
+    break;
   case CONTROLLER_ATA:
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "ata");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
@@ -723,9 +735,11 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   case CONTROLLER_SCSI:
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "scsi");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+    break;
   case CONTROLLER_SAT:
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "sat");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+    break;
   case CONTROLLER_HPT:
     {
       char *s,devicetype[16];
@@ -738,6 +752,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
       if (s)
         *s=' ';
     }
+    break;
   }
 
   snprintf(fullmessage, 1024,
@@ -1090,7 +1105,7 @@ void PrintHead(){
 void Directives() {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N\n"
+           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N, cciss,N\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
@@ -1638,18 +1653,26 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   char *device = cfg->name;
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
+  char *mode=NULL;
   
   // should we try to register this as a SCSI device?
   switch (cfg->controller_type) {
   case CONTROLLER_SCSI:
   case CONTROLLER_UNKNOWN:
+    mode="SCSI";
+    break;
+  case CONTROLLER_CCISS:
+    mode="CCISS";
     break;
   default:
     return 1;
   }
+  // pass user settings on to low-level SCSI commands
+  con->controller_port=cfg->controller_port;
+  con->controller_type=cfg->controller_type;
   
   // open the device
-  if ((fd = OpenDevice(device, "SCSI", scanning)) < 0)
+  if ((fd = OpenDevice(device, mode, scanning)) < 0)
     return 1;
   PrintOut(LOG_INFO,"Device: %s, opened\n", device);
 
@@ -1725,7 +1748,8 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   }
   
   // record type of device
-  cfg->controller_type = CONTROLLER_SCSI;
+  if (cfg->controller_type == CONTROLLER_UNKNOWN)
+          cfg->controller_type = CONTROLLER_SCSI;
   
   // get rid of allocated memory only needed for ATA devices.  These
   // might have been allocated if the user specified Ignore options or
@@ -2525,6 +2549,24 @@ int SCSICheckDevice(cfgfile *cfg)
     int fd;
     char *name=cfg->name;
     const char *cp;
+    char *mode=NULL;
+
+    // should we try to register this as a SCSI device?
+    switch (cfg->controller_type) {
+    case CONTROLLER_CCISS:
+      mode="CCISS";
+      break;
+    case CONTROLLER_SCSI:
+    case CONTROLLER_UNKNOWN:
+      mode="SCSI";
+      break;
+    default:
+      return 1;
+    }
+
+    // pass user settings on to low-level SCSI commands
+    con->controller_port=cfg->controller_port;
+    con->controller_type=cfg->controller_type;
 
     // If the user has asked for it, test the email warning system
     if (cfg->mailwarn && cfg->mailwarn->emailtest)
@@ -2532,7 +2574,7 @@ int SCSICheckDevice(cfgfile *cfg)
 
     // if we can't open device, fail gracefully rather than hard --
     // perhaps the next time around we'll be able to open it
-    if ((fd=OpenDevice(name, "SCSI", 0))<0) {
+    if ((fd=OpenDevice(name, mode, 0))<0) {
       // Lack of PrintOut() here is intentional!
       MailWarning(cfg, 9, "Device: %s, unable to open device", name);
       return 1;
@@ -2993,26 +3035,42 @@ int ParseToken(char *token,cfgfile *cfg){
         PrintOut(LOG_CRIT,
                  "No memory to copy argument to -d option - exiting\n");
         EXIT(EXIT_NOMEM);
-      } else if (strncmp(s,"3ware,",6)) {
-        badarg=1;
-      } else if (split_report_arg2(s, &i)){
-        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
-                 configfile, lineno, name);
-        badarg=1;
-      } else if ( i<0 || i>15) {
-        PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
-                 configfile, lineno, name, i);
-        badarg=1;
-      } else {
-	// determine type of escalade device from name of device
-	cfg->controller_type = guess_device_type(name);
-	if (cfg->controller_type!=CONTROLLER_3WARE_9000_CHAR && cfg->controller_type!=CONTROLLER_3WARE_678K_CHAR)
-	  cfg->controller_type=CONTROLLER_3WARE_678K;
+      } else if (!strncmp(s,"3ware,",6)) {
+          if (split_report_arg2(s, &i)){
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
+               	       configfile, lineno, name);
+              badarg=1;
+          } else if ( i<0 || i>15) {
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 15\n",
+                       configfile, lineno, name, i);
+              badarg=1;
+          } else {
+	      // determine type of escalade device from name of device
+	      cfg->controller_type = guess_device_type(name);
+	      if (cfg->controller_type!=CONTROLLER_3WARE_9000_CHAR && cfg->controller_type!=CONTROLLER_3WARE_678K_CHAR)
+	           cfg->controller_type=CONTROLLER_3WARE_678K;
 	    
-        // NOTE: controller_port == disk number + 1
-        cfg->controller_port = i+1;
+              // NOTE: controller_port == disk number + 1
+              cfg->controller_port = i+1;
+          }
+      } else if (!strncmp(s,"cciss,",6)) {
+          if (split_report_arg2(s, &i)){
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d cciss,N requires N integer\n",
+               	       configfile, lineno, name);
+              badarg=1;
+          } else if ( i<0 || i>15) {
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d cciss,N (N=%d) must have 0 <= N <= 15\n",
+                       configfile, lineno, name, i);
+              badarg=1;
+          } else {
+              // NOTE: controller_port == disk number + 1
+              cfg->controller_type = CONTROLLER_CCISS;
+              cfg->controller_port = i+1;
+          }
+      } else {
+          badarg=1;
       }
-      s=CheckFree(s, __LINE__,filenameandversion); 
+      s=CheckFree(s, __LINE__,filenameandversion);
     }
     break;
   case 'F':
@@ -3429,13 +3487,13 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
   }
   
-  // If we found 3ware controller, then modify device name by adding a SPACE
-  if (cfg->controller_port){
+  // If we found 3ware/cciss controller, then modify device name by adding a SPACE
+  if (cfg->controller_port) {
     int len=17+strlen(cfg->name);
     char *newname;
     
     if (devscan){
-      PrintOut(LOG_CRIT, "smartd: can not scan for 3ware devices (line %d of file %s)\n",
+      PrintOut(LOG_CRIT, "smartd: can not scan for 3ware/cciss devices (line %d of file %s)\n",
                lineno, configfile);
       return -2;
     }
@@ -3446,7 +3504,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
     
     // Make new device name by adding a space then RAID disk number
-    snprintf(newname, len, "%s [3ware_disk_%02d]", cfg->name, cfg->controller_port-1);
+    snprintf(newname, len, "%s [%s_disk_%02d]", cfg->name, (cfg->controller_type == CONTROLLER_CCISS) ? "cciss" : "3ware", 
+		                                cfg->controller_port-1);
     cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
     cfg->name=newname;
     bytes+=16;
@@ -4116,7 +4175,7 @@ void RegisterDevices(int scanning){
       continue;
     
     // register ATA devices
-    if (ent->controller_type!=CONTROLLER_SCSI){
+    if (ent->controller_type!=CONTROLLER_SCSI && ent->controller_type!=CONTROLLER_CCISS){
       if (ATADeviceScan(ent, scanning))
         CanNotRegister(ent->name, "ATA", ent->lineno, scanning);
       else {
@@ -4129,7 +4188,8 @@ void RegisterDevices(int scanning){
     }
     
     // then register SCSI devices
-    if (ent->controller_type==CONTROLLER_SCSI || ent->controller_type==CONTROLLER_UNKNOWN){
+    if (ent->controller_type==CONTROLLER_SCSI || ent->controller_type==CONTROLLER_CCISS || 
+        ent->controller_type==CONTROLLER_UNKNOWN){
       int retscsi=0;
 
 #if SCSITIMEOUT

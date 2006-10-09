@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.568 2006/10/08 22:50:39 pjwilliams Exp $
+$Id: CHANGELOG,v 1.569 2006/10/09 11:45:12 guidog Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [GG] Add CCISS (Compaq Smart Array Controller) support with contributions
+       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frédéric
+       BOITEUX
 
   [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
        Deskstar 7K500 series.  Thanks to L. J. Wu for providing a

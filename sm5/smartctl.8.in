@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.86 2006/09/27 21:42:03 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.87 2006/10/09 11:45:12 guidog Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -185,9 +185,9 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, and \fIhpt,L/M\fP
-or \fIhpt,L/M/N\fP.  If this option is not used then \fBsmartctl\fP will attempt to
-guess the device type from the device name.
+are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, and \fIhpt,L/M\fP,
+\fIcciss,N\fP or \fIhpt,L/M/N\fP.  If this option is not used then
+\fBsmartctl\fP will attempt to guess the device type from the device name.
 
 The \'sat\' device type is for ATA disks that have a SCSI to ATA
 Translation (SAT) Layer (SATL) between the disk and the operating system.
@@ -290,6 +290,8 @@ the disks derived from the HighPoint RocketRAID controllers.  And also
 these values are limited by the model of the HighPoint RocketRAID controller.
 
 .B HighPoint RocketRAID controllers are currently ONLY supported under Linux.
+
+.B cciss controllers are currently ONLY supported under Linux.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -1242,6 +1244,12 @@ these LBAs have been tested, read\-scan the remainder of the disk.  If the disk 
 power\-cycled during the read\-scan, resume the scan 45 minutes after power to the
 device is restored.
 .PP
+.nf
+.B smartctl \-a \-d cciss,0 /dev/cciss/c0d0
+.fi
+Examine all SMART data for the first SCSI disk connected to a cciss
+RAID controller card.
+.PP
 .SH RETURN VALUES
 The return values of \fBsmartctl\fP are defined by a bitmask.  If all
 is well with the disk, the return value (exit status) of
@@ -1369,7 +1377,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.86 2006/09/27 21:42:03 chrfranke Exp $
+$Id: smartctl.8.in,v 1.87 2006/10/09 11:45:12 guidog Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
