@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.42 2006/09/27 21:42:03 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.43 2006/10/09 11:11:59 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -784,10 +784,20 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 		&ab, size, &ab, size, &num_out, NULL)) {
 		long err = GetLastError();
 		if (con->reportataioctl) {
-			pout("  IOCTL_ATA_PASS_THROUGH_EX failed, Error=%ld\n", err);
+			pout("  IOCTL_ATA_PASS_THROUGH failed, Error=%ld\n", err);
 			print_ide_regs_io(regs, NULL);
 		}
 		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		return -1;
+	}
+
+	// Check ATA status
+	if (ctfregs->bCommandReg/*Status*/ & 0x01) {
+		if (con->reportataioctl) {
+			pout("  IOCTL_ATA_PASS_THROUGH command failed:\n");
+			print_ide_regs_io(regs, ctfregs);
+		}
+		errno = EIO;
 		return -1;
 	}
 
@@ -796,7 +806,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 		if (   num_out != size
 		    || (ab.ucDataBuf[0] == magic && !nonempty(ab.ucDataBuf+1, datasize-1))) {
 			if (con->reportataioctl) {
-				pout("  IOCTL_ATA_PASS_THROUGH_EX output data missing (%lu)\n", num_out);
+				pout("  IOCTL_ATA_PASS_THROUGH output data missing (%lu)\n", num_out);
 				print_ide_regs_io(regs, ctfregs);
 			}
 			errno = EIO;
@@ -806,7 +816,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 	}
 
 	if (con->reportataioctl > 1) {
-		pout("  IOCTL_ATA_PASS_THROUGH_EX suceeded, bytes returned: %lu\n", num_out);
+		pout("  IOCTL_ATA_PASS_THROUGH suceeded, bytes returned: %lu\n", num_out);
 		print_ide_regs_io(regs, ctfregs);
 	}
 	*regs = *ctfregs;
@@ -1381,11 +1391,17 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	}
 
 	// Try all valid ioctls in the order specified in dev_ioctls;
+	bool powered_up = false;
 	for (i = 0; ; i++) {
 		char opt = ata_cur_options[i];
-		int rc;
 
 		if (!opt) {
+			if (command == CHECK_POWER_MODE && powered_up) {
+				// Power up reported by GetDevicePowerState() and no ioctl available
+				// to detect the actual mode of the drive => simulate ATA result ACTIVE/IDLE.
+				regs.bSectorCountReg = 0xff;
+				break;
+			}
 			// No IOCTL found
 			errno = ENOSYS;
 			return -1;
@@ -1396,6 +1412,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 		errno = 0;
 		assert(datasize == 0 || datasize == 512);
+		int rc;
 		switch (opt) {
 		  default: assert(0);
 		  case 's':
@@ -1433,9 +1450,17 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		  case 'p':
 			assert(command == CHECK_POWER_MODE && datasize == 0);
 			rc = get_device_power_state(h_ata_ioctl);
-			if (rc >= 0) { // Simulate ATA command result
-				regs.bSectorCountReg = (rc ? 0xff/*ACTIVE/IDLE*/ : 0x00/*STANDBY*/);
-				rc = 0;
+			if (rc == 0) {
+				// Power down reported by GetDevicePowerState(), using a passthrough ioctl would
+				// spin up the drive => simulate ATA result STANDBY.
+				regs.bSectorCountReg = 0x00;
+			}
+			else if (rc > 0) {
+				// Power up reported by GetDevicePowerState(), but this reflects the actual mode
+				// only if it is selected by the device driver => try a passthrough ioctl to get the
+				// actual mode, if none available simulate ACTIVE/IDLE.
+				powered_up = true;
+				errno = ENOSYS; rc = -1;
 			}
 			break;
 		}
