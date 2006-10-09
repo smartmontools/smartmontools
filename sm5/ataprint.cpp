@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.168 2006/09/17 09:34:29 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.169 2006/10/09 21:48:05 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -449,7 +449,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   unsigned short lba_64         = drive->words088_255[103-88];
   uint64_t capacity_short=0, capacity=0, threedigits, power_of_ten;
   int started=0,k=1000000000;
-  char separator=',';
+  char *separator=",";
 
   // get correct character to use as thousands separator
 #ifdef HAVE_LOCALE_H
@@ -457,7 +457,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   setlocale (LC_ALL, "");
   currentlocale=localeconv();
   if (*(currentlocale->thousands_sep))
-    separator=*(currentlocale->thousands_sep);
+    separator=currentlocale->thousands_sep;
 #endif // #ifdef HAVE_LOCALE_H
 
   // if drive supports LBA addressing, determine 32-bit LBA capacity
@@ -489,7 +489,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
     capacity   -= threedigits*power_of_ten;
     if (started)
       // we have already printed some digits
-      pstring += sprintf(pstring, "%c%03"PRIu64, separator, threedigits);
+      pstring += sprintf(pstring, "%s%03"PRIu64, separator, threedigits);
     else if (threedigits || k==6) {
       // these are the first digits that we are printing
       pstring += sprintf(pstring, "%"PRIu64, threedigits);
