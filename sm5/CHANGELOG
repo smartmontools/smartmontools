@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.570 2006/10/09 14:34:37 chrfranke Exp $
+$Id: CHANGELOG,v 1.571 2006/10/09 15:13:21 sbrabec Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SB] Minor improvements of SuSE part of init script.
 
   [CF] Drive database: added Samsung P80 series, P120 series, SP8004H
        and T series.

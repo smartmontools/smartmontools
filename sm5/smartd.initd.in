@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.33 2006/04/12 14:54:28 ballen4705 Exp $
+# $Id: smartd.initd.in,v 1.34 2006/10/09 15:13:21 sbrabec Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -171,7 +171,7 @@ elif [ -f /etc/SuSE-release ] ; then
    # considered a success.
     case "$1" in
 	start)
-	    echo -n "Starting smartd"
+	    echo -n "Starting smartd "
             ## Start daemon with startproc(8). If this fails
             ## the echo return value is set appropriate.
 	    
@@ -183,24 +183,40 @@ elif [ -f /etc/SuSE-release ] ; then
             rc_status -v
 	    ;;
 	stop)
-	    echo -n "Shutting down smartd"
+	    echo -n "Shutting down smartd "
             killproc -TERM $SMARTD_BIN
 	    
             # Remember status and be verbose
             rc_status -v
 	    ;;
-	restart | force-reload)
+    try-restart|condrestart)
+	## Do a restart only if the service was active before.
+	## Note: try-restart is now part of LSB (as of 1.9).
+	## RH has a similar command named condrestart.
+	if test "$1" = "condrestart"; then
+		echo "${attn} Use try-restart ${done}(LSB)${attn} rather than condrestart ${warn}(RH)${norm}"
+	fi
+	$0 status
+	if test $? = 0; then
+		$0 restart 
+	else 
+		rc_reset	# Not running is not a failure.
+	fi
+	# Remember status and be quiet
+	rc_status
+	;;
+    restart | force-reload)
 	    $0 stop
 	    $0 start
 	    ;;
-	reload)
+    reload)
 	## Like force-reload, but if daemon does not support
 	## signaling, do nothing (!)
 	    rc_failed 3
 	    rc_status -v
 	    ;;
-        status)
-            echo -n "Checking for service smartd: "
+    status)
+            echo -n "Checking for service smartd "
             ## Check status with checkproc(8), if process is running
             ## checkproc will return with exit status 0.
 	    
@@ -222,7 +238,7 @@ elif [ -f /etc/SuSE-release ] ; then
 	    test $SMARTD_CONFIG -nt /var/run/smartd.pid && echo reload
 	    ;;
 	*)
-	    echo "Usage: $0 {start|stop|status|restart|force-reload|reload|probe}"
+	    echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload|probe}"
 	    exit 1
 	    ;;
     esac
