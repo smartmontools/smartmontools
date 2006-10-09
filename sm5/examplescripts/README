@@ -1,6 +1,6 @@
 # Home page: http://smartmontools.sourceforge.net
 #
-# $Id: README,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $
+# $Id: README,v 1.6 2006/10/09 15:25:41 sbrabec Exp $
 #
 # Copyright (C) 2003-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # 
@@ -47,4 +47,4 @@ Example2: Appends output of smartctl -a to the normal email message
 Example3: Uses wall(1) to send a warning message to all users, then powers
           down the machine.
 
-
+Example4: Uses powersave-notify to issue a desktop neutral warning.
