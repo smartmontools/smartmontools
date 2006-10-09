@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.571 2006/10/09 15:13:21 sbrabec Exp $
+$Id: CHANGELOG,v 1.572 2006/10/09 15:25:41 sbrabec Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SB] Added examplescripts/Example4 using powersave-notify.
+
+  [SB] More temperature monitoring examples in smartd.conf with DEVICESCAN.
 
   [SB] Minor improvements of SuSE part of init script.
 
