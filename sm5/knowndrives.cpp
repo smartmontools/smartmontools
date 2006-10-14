@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.149 2006/10/09 18:04:44 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.150 2006/10/14 16:43:47 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -619,6 +619,11 @@ const drivesettings knowndrives[] = {
   },
   { "IBM Travelstar 32GH, 30GT, and 20GN family",
     "^IBM-DJSA-2(32|30|20|10|05)$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { "IBM Travelstar 4GN family",
+    "^IBM-DKLA-2(216|324|432)0$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
