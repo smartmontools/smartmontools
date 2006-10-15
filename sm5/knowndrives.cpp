@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.152 2006/10/14 16:53:27 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.153 2006/10/15 23:38:32 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -180,15 +180,59 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHG..MHK, MHT, MHU series",
-    "^FUJITSU MH[GHJKTU]2...ATU?",
+  { "Fujitsu MHG series",
+    "^FUJITSU MHG2...ATU?",
     ".*",
     NULL,
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { NULL, // Fujitsu MHN2300AT
-    "^FUJITSU MHN2300AT$",
+  { "Fujitsu MHH series",
+    "^FUJITSU MHH2...ATU?",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MHJ series",
+    "^FUJITSU MHJ2...ATU?",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MHK series",
+    "^FUJITSU MHK2...ATU?",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { NULL,  // Fujitsu MHL2300AT
+    "^FUJITSU MHL2300AT$",
+    ".*",
+    "This drive's firmware has a harmless Drive Identity Structure\n"
+      "checksum error bug.",
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { NULL,  // MHM2200AT, MHM2150AT, MHM2100AT, MHM2060AT
+    "^FUJITSU MHM2(20|15|10|06)0AT$",
+    ".*",
+    "This drive's firmware has a harmless Drive Identity Structure\n"
+      "checksum error bug.",
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MHN series",
+    "^FUJITSU MHN2...AT$",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { NULL, // Fujitsu MHR2020AT
+    "^FUJITSU MHR2020AT$",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -201,13 +245,6 @@ const drivesettings knowndrives[] = {
     vendoropts_Fujitsu_MHR2040AT,
     NULL, NULL
   },
-  { NULL, // Fujitsu MHR2020AT
-    "^FUJITSU MHR2020AT$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
   { "Fujitsu MHSxxxxAT family",
     "^FUJITSU MHS20[6432]0AT(  .)?$",
     ".*",
@@ -215,23 +252,29 @@ const drivesettings knowndrives[] = {
     vendoropts_Fujitsu_MHS2020AT,
     NULL, NULL
   },
-  { NULL, // Fujitsu MHL2300AT, MHM2200AT, MHM2100AT, MHM2150AT, MHM2060AT
-    "^FUJITSU MH(L230|M2(20|10|15|06))0AT$",
-    ".*",
-    "This drive's firmware has a harmless Drive Identity Structure\n"
-      "checksum error bug.",
-    vendoropts_9_seconds,
-    NULL, NULL
-  },
-  { "Fujitsu MPA..MPG series",
-    "^FUJITSU MP[A-G]3...A[HTEV]U?",
+  { "Fujitsu MHT series",
+    "^FUJITSU MHT2...(AH|AS|AT|BH)U?",
     ".*",
     NULL,
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { NULL, // FUJITSU MHT2040AS
-    "^FUJITSU MHT2040AS$",
+  { "Fujitsu MHU series",
+    "^FUJITSU MHU2...ATU?",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MHV series",
+    "^FUJITSU MHV2...(AH|AS|AT|BH|BS|BT)",
+    ".*",
+    NULL,
+    vendoropts_9_seconds,
+    NULL, NULL
+  },
+  { "Fujitsu MPA..MPG series",
+    "^FUJITSU MP[A-G]3...A[HTEV]U?",
     ".*",
     NULL,
     vendoropts_9_seconds,
@@ -530,18 +573,23 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor DiamondMax Plus 8 family",
-    "^Maxtor 6E0[234]0L0$",
+    "^Maxtor 6(E0[234]|K04)0L0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "Maxtor DiamondMax 10 family",
-    "^Maxtor 6(B(30|25|20|16|12|08)0[MPRS]|L(100P|120[MP]|160M|200[MPRS]|250[RS]|300[RS]))0$",
+  { "Maxtor DiamondMax 10 family (ATA/133 and SATA/150)",
+    "^Maxtor 6(B(30|25|20|16|12|08)0[MPRS]|L(080[MLP]|(100|120)[MP]|160[MP]|200[MPRS]|250[RS]|300[RS]))0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
+  },
+  { "Maxtor DiamondMax 10 family (SATA/300)",
+    "^Maxtor 6V(080E|160E|200E|250F|300F|320F)0$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { "Maxtor DiamondMax Plus 9 family",
     "^Maxtor 6Y((060|080|120|160)L0|(060|080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
@@ -549,6 +597,11 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
+  },
+  { "Maxtor DiamondMax 11 family",
+    "^Maxtor 6H[45]00[FR]0$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { "Maxtor MaXLine Plus II",
     "^Maxtor 7Y250[PM]0$",
@@ -564,12 +617,22 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "Maxtor MaXLine III family",
-    "^Maxtor 7(V(25|30)0F|L(25|30)0[SR])0$",
+  { "Maxtor MaXLine III family (ATA/133 and SATA/150)",
+    "^Maxtor 7L(25|30)0[SR]0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
     NULL, NULL
+  },
+  { "Maxtor MaXLine III family (SATA/300)",
+    "^Maxtor 7V(25|30)0F0$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Maxtor MaXLine Pro 500 family",  // There is also a 7H500R0 model, but I
+    "^Maxtor 7H500F0$",               // haven't added it because I suspect
+    ".*",                             // it might need vendoropts_9_minutes
+    NULL, NULL, NULL, NULL            // and nobody has submitted a report yet
   },
   { NULL, // HITACHI_DK14FA-20B
     "^HITACHI_DK14FA-20B$",
@@ -733,17 +796,17 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Toshiba 2.5\" HDD series", // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
-    "^TOSHIBA MK((1032|4026)GAX|6021GAS)$",
+    "^TOSHIBA MK(1032GAX|6021GAS)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Toshiba 2.5\" HDD series (30-60 GB)",
+    "^TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { NULL, // TOSHIBA MK6022GAX
     "^TOSHIBA MK6022GAX$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { NULL, // TOSHIBA MK4019GAX/MK4019GAXB
-    "^TOSHIBA MK4019GAXB?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -762,18 +825,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK4018GAS, MK4018GAP
-    "^TOSHIBA MK4018GA[SP]$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { NULL, // TOSHIBA MK3017GAP
-    "^TOSHIBA MK3017GAP$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { NULL, // TOSHIBA MK4026GAX, MK6026GAX, MK8026GAX
-    "^TOSHIBA MK[468]026GAX$",
+  { NULL, // TOSHIBA MK8026GAX
+    "^TOSHIBA MK8026GAX$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -863,7 +916,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.8 family",
-    "^ST3(400832|300831|250823|200826)AS?$",
+    "^ST3(400[68]32|300[68]31|250[68]23|200826)AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -965,6 +1018,11 @@ const drivesettings knowndrives[] = {
   },
   { "Western Digital Raptor family",
     "^WDC WD((360|740|800)GD|(360|740|1500)ADFD)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Scorpio family",
+    "^WDC WD((12|10|8|6|4)00(UE|VE|BEAS|BEVS))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
