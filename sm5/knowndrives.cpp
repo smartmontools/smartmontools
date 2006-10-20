@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.153 2006/10/15 23:38:32 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.154 2006/10/20 19:21:50 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -932,6 +932,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate Medalist 17242, 13032, 10232, 8422, and 4312",
     "^ST3(1724|1303|1023|842|431)2A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate NL35 family",
+    "^ST3(250623|250823|400632|400832|250824|250624|400633|400833|500641|500841)NS$",
     ".*",
     NULL, NULL, NULL, NULL
   },
