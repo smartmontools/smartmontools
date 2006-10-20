@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.68 2006/09/27 21:42:03 chrfranke Exp $
+$Id: INSTALL,v 1.69 2006/10/20 21:56:03 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -155,12 +155,11 @@ Table of contents:
 
     3ware 9000 RAID controllers are supported using new features added
     to the 3ware 9000 Windows driver. These features are not implemented
-    in the latest 'Released' driver (9.3.0.6) available at the time of
-    this writing. But an 'in Engineering Phase' driver v3.00.02.061 or
+    in the latest 'Released' driver (9.3.0.7) available at the time of
+    this writing. But an 'in Engineering Phase' driver v3.00.02.070 or
     later can be used to access SMART functionality of each individual
     drive. Older drivers provide SMART access only to the first drive
-    (port) of each unit. The commands READ LOG and ABORT SELFTEST are
-    still unsupported due to the limitations of SMART IOCTL (see above).
+    (port) of each unit.
 
     G) MacOS/Darwin
 

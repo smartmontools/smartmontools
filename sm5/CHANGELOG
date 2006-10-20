@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.575 2006/10/20 19:21:49 pjwilliams Exp $
+$Id: CHANGELOG,v 1.576 2006/10/20 21:56:03 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added missing support for READ_LOG, ABORT_SELFTEST
+       and CHECK_POWER_STATE for 3ware 9000 controllers. Thanks to
+       Greg de Valois for implementing this new ioctl in the driver.
 
   [PW] Drive database: added Seagate NL35 SATA family.  Thanks to Kai
        Harrekilde-Petersen for providing a patch.
