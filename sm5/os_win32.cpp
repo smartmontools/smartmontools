@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.45 2006/10/20 19:45:58 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.46 2006/10/20 21:56:03 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -980,6 +980,124 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 	return 0;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+// ATA PASS THROUGH via 3ware specific SCSI MINIPORT ioctl
+
+#define IOCTL_SCSI_MINIPORT \
+	CTL_CODE(IOCTL_SCSI_BASE, 0x0402, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+ASSERT_CONST(IOCTL_SCSI_MINIPORT, 0x04d008);
+
+typedef struct _SRB_IO_CONTROL {
+	ULONG HeaderLength;
+	UCHAR Signature[8];
+	ULONG Timeout;
+	ULONG ControlCode;
+	ULONG ReturnCode;
+	ULONG Length;
+} SRB_IO_CONTROL, *PSRB_IO_CONTROL;
+
+ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
+
+/////////////////////////////////////////////////////////////////////////////
+
+static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize, int port)
+{
+	struct {
+		SRB_IO_CONTROL srbc;
+		IDEREGS regs;
+		UCHAR buffer[512];
+	} sb;
+	ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
+
+	if (!(0 <= datasize && datasize <= sizeof(sb.buffer) && port >= 0)) {
+		errno = EINVAL;
+		return -1;
+	}
+	memset(&sb, 0, sizeof(sb));
+	strcpy((char *)sb.srbc.Signature, "<3ware>");
+	sb.srbc.HeaderLength = sizeof(SRB_IO_CONTROL);
+	sb.srbc.Timeout = 60; // seconds
+	sb.srbc.ControlCode = 0xA0000000;
+	sb.srbc.ReturnCode = 0;
+	sb.srbc.Length = sizeof(IDEREGS) + (datasize > 0 ? datasize : 1);
+	sb.regs = *regs;
+	sb.regs.bReserved = port;
+
+	DWORD num_out;
+	if (!DeviceIoControl(hdevice, IOCTL_SCSI_MINIPORT,
+		&sb, sizeof(sb), &sb, sizeof(sb), &num_out, NULL)) {
+		long err = GetLastError();
+		if (con->reportataioctl) {
+			pout("  ATA via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
+			print_ide_regs_io(regs, NULL);
+		}
+		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		return -1;
+	}
+
+	if (sb.srbc.ReturnCode) {
+		if (con->reportataioctl) {
+			pout("  ATA via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08lx\n", sb.srbc.ReturnCode);
+			print_ide_regs_io(regs, NULL);
+		}
+		errno = EIO;
+		return -1;
+	}
+
+	// Copy data
+	if (datasize > 0)
+		memcpy(data, sb.buffer, datasize);
+
+	if (con->reportataioctl > 1) {
+		pout("  ATA via IOCTL_SCSI_MINIPORT suceeded, bytes returned: %lu\n", num_out);
+		print_ide_regs_io(regs, &sb.regs);
+	}
+	*regs = sb.regs;
+
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// 3ware specific call to update the devicemap returned by SMART_GET_VERSION.
+// 3DM/CLI "Rescan Controller" function does not to always update it.
+
+static int update_3ware_devicemap_ioctl(HANDLE hdevice)
+{
+	SRB_IO_CONTROL srbc;
+	memset(&srbc, 0, sizeof(srbc));
+	strcpy((char *)srbc.Signature, "<3ware>");
+	srbc.HeaderLength = sizeof(SRB_IO_CONTROL);
+	srbc.Timeout = 60; // seconds
+	srbc.ControlCode = 0xCC010014;
+	srbc.ReturnCode = 0;
+	srbc.Length = 0;
+
+	DWORD num_out;
+	if (!DeviceIoControl(hdevice, IOCTL_SCSI_MINIPORT,
+		&srbc, sizeof(srbc), &srbc, sizeof(srbc), &num_out, NULL)) {
+		long err = GetLastError();
+		if (con->reportataioctl)
+			pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
+		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		return -1;
+	}
+	if (srbc.ReturnCode) {
+		if (con->reportataioctl)
+			pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08lx\n", srbc.ReturnCode);
+		errno = EIO;
+		return -1;
+	}
+	if (con->reportataioctl > 1)
+		pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT suceeded\n");
+	return 0;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 // Call GetDevicePowerState() if available (Win98/ME/2000/XP/2003)
@@ -1167,7 +1285,7 @@ static int ata_open(int drive, const char * options, int port)
 		// Set default options according to Windows version
 		if (!ata_def_options)
 			ata_def_options = ata_get_def_options();
-		options = (port < 0 ? ata_def_options : "s"); // RAID: SMART_* only
+		options = (port < 0 ? ata_def_options : "s3"); // RAID: SMART_* and SCSI_MINIPORT
 	}
 	ata_cur_options = strdup(options);
 
@@ -1191,7 +1309,13 @@ static int ata_open(int drive, const char * options, int port)
 	ata_smartver_state[drive] = 1;
 
 	if (port >= 0) {
-		// RAID: Check port existence
+		// 3ware RAID: update devicemap first
+		if (!update_3ware_devicemap_ioctl(h_ata_ioctl)) {
+			unsigned long portmap1 = 0;
+			if (smart_get_version(h_ata_ioctl, &portmap1) >= 0)
+				portmap = portmap1;
+		}	
+		// Check port existence
 		if (!(portmap & (1L << port))) {
 			pout("%s: Port %d is empty or does not exist\n", devpath, port);
 			if (!is_permissive()) {
@@ -1361,7 +1485,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		// Not a SMART command, needs IDE register return
 		regs.bCommandReg = ATA_CHECK_POWER_MODE;
 		regs.bCylLowReg = regs.bCylHighReg = 0;
-		valid_options = "pai"; // Try GetDevicePowerState() first, ATA/IDE_PASS_THROUGH may spin up disk
+		valid_options = "pai3"; // Try GetDevicePowerState() first, ATA/IDE_PASS_THROUGH may spin up disk
 		// Note: returns SectorCountReg in data[0]
 		break;
 	  case READ_VALUES:
@@ -1378,6 +1502,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
+		valid_options = "saic3";
 		// Note: SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
 		datasize = 512;
 		break;
@@ -1419,6 +1544,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	  case IMMEDIATE_OFFLINE:
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
+		valid_options = "saic3";
 		// Note: SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
 		break;
 	  default:
@@ -1484,6 +1610,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 			break;
 		  case 'c':
 			rc = ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
+		  case '3':
+			rc = ata_via_3ware_miniport_ioctl(h_ata_ioctl, &regs, data, datasize, port);
 			break;
 		  case 'p':
 			assert(command == CHECK_POWER_MODE && datasize == 0);
