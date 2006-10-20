@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.44 2006/10/20 04:25:20 dpgilbert Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.45 2006/10/20 19:45:58 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -115,16 +115,20 @@ const char * get_os_version_str()
 }
 
 
+#define ATARAID_FDOFFSET 0x0200
+
 static int ata_open(int drive, const char * options, int port);
 static void ata_close(int fd);
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
 
+#define ASPI_FDOFFSET 0x0100
+
 static int aspi_open(unsigned adapter, unsigned id);
 static void aspi_close(int fd);
 static int aspi_scan(unsigned long * drives);
 
-#define SPT_FDOFFSET 512
+#define SPT_FDOFFSET 0x0400
 
 static int spt_open(int pd_num, int tape_num, int sub_addr);
 static void spt_close(int fd);
@@ -312,7 +316,7 @@ int deviceopen(const char * pathname, char *type)
 // (Never called in smartctl!)
 int deviceclose(int fd)
 {
-	if ((fd & 0xff00) == 0x0100)
+	if ((fd & 0xff00) == ASPI_FDOFFSET)
 		aspi_close(fd);
 	else if (fd >= SPT_FDOFFSET)
  		spt_close(fd);
@@ -1197,7 +1201,7 @@ static int ata_open(int drive, const char * options, int port)
 			}
 		}
 		// Encode port into pseudo fd
-		return (0x0200 | port);
+		return (ATARAID_FDOFFSET | port);
 	}
 
 	// Win9x/ME: Check device presence & type
@@ -1328,7 +1332,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	int i;
 
 	int port = -1;
-	if ((fd & ~0x1f) == 0x0200) {
+	if ((fd & ~0x1f) == ATARAID_FDOFFSET) {
 		// RAID Port encoded into pseudo fd
 		port = fd & 0x1f;
 		fd = 0;
@@ -1922,7 +1926,7 @@ static int aspi_open(unsigned adapter, unsigned id)
 	else if (con->reportscsiioctl)
 		pout("ASPI Adapter %u, ID %u: Device Type=0x%02x\n", adapter, id, srb.t.devtype);
 
-	return (0x0100 | ((adapter & 0xf)<<4) | (id & 0xf));
+	return (ASPI_FDOFFSET | ((adapter & 0xf)<<4) | (id & 0xf));
 }
 
 
@@ -2014,7 +2018,7 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
 	if (!aspi_entry_valid())
 		return -EBADF;
-	if (!((fd & ~0xff) == 0x100))
+	if (!((fd & ~0xff) == ASPI_FDOFFSET))
 		return -EBADF;
 
 	if (!(iop->cmnd_len == 6 || iop->cmnd_len == 10 || iop->cmnd_len == 12 || iop->cmnd_len == 16)) {
@@ -2383,7 +2387,7 @@ static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 // Declaration and explanation in scsicmds.h
 int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
-	if ((fd & ~0xff) == 0x100)
+	if ((fd & ~0xff) == ASPI_FDOFFSET)
 		return do_aspi_cmnd_io(fd, iop, report);
 	else
 		return do_spt_cmnd_io(fd, iop, report);
