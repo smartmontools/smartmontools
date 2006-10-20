@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.574 2006/10/20 04:30:15 dpgilbert Exp $
+$Id: CHANGELOG,v 1.575 2006/10/20 19:21:49 pjwilliams Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [PW] Drive database: added Seagate NL35 SATA family.  Thanks to Kai
+       Harrekilde-Petersen for providing a patch.
 
   [DG] [SCSI, Windows] add SPT interface for NT and later. New device
        names are "pd<n>", "sd<l>" and "tape<n>".
