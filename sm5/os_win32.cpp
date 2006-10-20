@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.43 2006/10/09 11:11:59 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.44 2006/10/20 04:25:20 dpgilbert Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -124,6 +124,11 @@ static int aspi_open(unsigned adapter, unsigned id);
 static void aspi_close(int fd);
 static int aspi_scan(unsigned long * drives);
 
+#define SPT_FDOFFSET 512
+
+static int spt_open(int pd_num, int tape_num, int sub_addr);
+static void spt_close(int fd);
+
 
 static int is_permissive()
 {
@@ -149,6 +154,12 @@ int guess_device_type (const char * dev_name)
 	if (!strncmp(dev_name, "hd", 2))
 		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "scsi", 4))
+		return CONTROLLER_SCSI;
+	if (!strncmp(dev_name, "sd", 2))
+		return CONTROLLER_SCSI;
+	if (!strncmp(dev_name, "pd", 2))
+		return CONTROLLER_SCSI;
+	if (!strncmp(dev_name, "tape", 4))
 		return CONTROLLER_SCSI;
 	return CONTROLLER_UNKNOWN;
 }
@@ -259,13 +270,36 @@ int deviceopen(const char * pathname, char *type)
 		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                              ) {
 			return ata_open(drive[0] - 'a', options, port);
 		}
-	}
+	} else if (!strcmp(type, "SCSI")) {
+		char letter;
+		int pd_num, tape_num, sub_addr, res;
 
-	else if (!strcmp(type, "SCSI")) {
 		// scsi[0-9][0-f] => SCSI Adapter 0-9, ID 0-15, LUN 0
 		unsigned adapter = ~0, id = ~0; int n = -1;
 		if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n) == 2 && n == len) {
 			return aspi_open(adapter, id);
+		}
+		// sd[a-z],N => Physical drive 0-26, RAID port N
+		if (0 == strncmp("sd", pathname, 2)) {
+			letter = ' ';
+			res = sscanf(pathname, "sd%c,%d", &letter, &sub_addr);
+			pd_num = letter - 'a';
+			if ((2 == res) && (pd_num >= 0) && (sub_addr >= 0))
+				return spt_open(pd_num, -1, sub_addr);
+			if ((1 == res) && (pd_num >= 0))
+				return spt_open(pd_num, -1, -1);
+		// pd<m>,N => Physical drive <m>, RAID port N
+		} else if (0 == strncmp("pd", pathname, 2)) {
+			res = sscanf(pathname, "pd%d,%d", &pd_num, &sub_addr);
+			if ((2 == res) && (pd_num >= 0) && (sub_addr >= 0))
+				return spt_open(pd_num, -1, sub_addr);
+			if ((1 == res) && (pd_num >= 0))
+				return spt_open(pd_num, -1, -1);
+		// tape<m> => tape drive <m>
+		} else if (0 == strncmp("tape", pathname, 4)) {
+			res = sscanf(pathname, "tape%d", &tape_num);
+			if ((1 == res) && (tape_num >= 0))
+				return spt_open(-1, tape_num, -1);
 		}
 	}
 
@@ -278,12 +312,12 @@ int deviceopen(const char * pathname, char *type)
 // (Never called in smartctl!)
 int deviceclose(int fd)
 {
-	if ((fd & 0xff00) != 0x0100) {
-		ata_close(fd);
-	}
-	else {
+	if ((fd & 0xff00) == 0x0100)
 		aspi_close(fd);
-	}
+	else if (fd >= SPT_FDOFFSET)
+ 		spt_close(fd);
+	else
+		ata_close(fd);
 	return 0;
 }
 
@@ -1571,7 +1605,7 @@ int highpoint_command_interface(int fd, smart_command_set command, int select, c
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ASPI Interface
+// ASPI Interface (for SCSI devices)
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma pack(1)
@@ -1973,8 +2007,8 @@ static int aspi_scan(unsigned long * drives)
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+// Interface to ASPI SCSI devices.  See scsicmds.h and os_linux.c
+static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
 	ASPI_SRB srb;
 
@@ -1984,7 +2018,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 		return -EBADF;
 
 	if (!(iop->cmnd_len == 6 || iop->cmnd_len == 10 || iop->cmnd_len == 12 || iop->cmnd_len == 16)) {
-		pout("do_scsi_cmnd_io: bad CDB length\n");
+		pout("do_aspi_cmnd_io: bad CDB length\n");
 		return -EINVAL;
 	}
 
@@ -2038,7 +2072,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 			srb.i.data_addr = iop->dxferp;
 			break;
 		default:
-			pout("do_scsi_cmnd_io: bad dxfer_dir\n");
+			pout("do_aspi_cmnd_io: bad dxfer_dir\n");
 			return -EINVAL;
 	}
 
@@ -2091,4 +2125,266 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 	}
 
 	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// SPT Interface (for SCSI devices and ATA devices behind SATLs)
+// Only supported in NT and later
+/////////////////////////////////////////////////////////////////////////////
+
+#define SPT_MAXDEV 64
+
+struct spt_dev_info {
+	HANDLE h_spt_ioctl;
+	int   pd_num;		// physical drive number
+	int   tape_num;		// tape number ('\\.\TAPE<n>')
+	int   sub_addr;		// addressing disks within a RAID, for example
+};
+
+// Private table of open devices: guaranteed zero on startup since
+// part of static data.
+static struct spt_dev_info * spt_dev_arr[SPT_MAXDEV];
+
+
+static int spt_open(int pd_num, int tape_num, int sub_addr)
+{
+	int k;
+	struct spt_dev_info * sdip;
+	char b[128];
+	HANDLE h;
+
+	for (k = 0; k < SPT_MAXDEV; k++)
+		if (! spt_dev_arr[k])
+			break;
+
+	// If no free entry found, return error.  We have max allowed number
+	// of "file descriptors" already allocated.
+	if (k == SPT_MAXDEV) {
+		if (con->reportscsiioctl)
+			pout("spt_open: too many open file descriptors (%d)\n",
+			     SPT_MAXDEV);
+		errno = EMFILE;
+		return -1;
+	}
+	sdip = (struct spt_dev_info *)malloc(sizeof(struct spt_dev_info));
+	if (NULL == sdip) {
+		errno = ENOMEM;
+		return -1;
+	}
+	spt_dev_arr[k] = sdip;
+	sdip->pd_num = pd_num;
+	sdip->tape_num = tape_num;
+	sdip->sub_addr = sub_addr;
+
+	b[sizeof(b) - 1] = '\0';
+	if (pd_num >= 0)
+		snprintf(b, sizeof(b) - 1, "\\\\.\\PhysicalDrive%d", pd_num);
+	else if (tape_num >= 0)
+		snprintf(b, sizeof(b) - 1, "\\\\.\\TAPE%d", tape_num);
+	else {
+		if (con->reportscsiioctl)
+                        pout("spt_open: bad parameters\n");
+		errno = EINVAL;
+		goto err_out;
+	}
+
+	// Open device
+	if ((h = CreateFileA(b, GENERIC_READ|GENERIC_WRITE,
+			     FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
+			     OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
+		if (con->reportscsiioctl)
+			pout(" %s: Open failed, Error=%ld\n", b, GetLastError());
+		errno = ENODEV;
+		goto err_out;
+	}
+	sdip->h_spt_ioctl = h;
+	return k + SPT_FDOFFSET;
+                               
+err_out:
+	spt_dev_arr[k] = NULL;
+	free(sdip);
+	return -1;
+}
+
+
+static void spt_close(int fd)
+{
+	struct spt_dev_info * sdip;
+	int index = fd - SPT_FDOFFSET;
+
+	if ((index < 0) || (index >= SPT_MAXDEV)) {
+		if (con->reportscsiioctl)
+			pout("spt_close: bad fd range\n");
+		return;
+	}
+	sdip = spt_dev_arr[index];
+	if (NULL == sdip) {
+		if (con->reportscsiioctl)
+			pout("spt_close: fd already closed\n");
+		return;
+	}
+	free(sdip);
+	spt_dev_arr[index] = NULL;
+}
+
+
+#define IOCTL_SCSI_PASS_THROUGH_DIRECT  \
+	CTL_CODE(IOCTL_SCSI_BASE, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+typedef struct _SCSI_PASS_THROUGH_DIRECT {
+	USHORT          Length;
+	UCHAR           ScsiStatus;
+	UCHAR           PathId;
+	UCHAR           TargetId;
+	UCHAR           Lun;
+	UCHAR           CdbLength;
+	UCHAR           SenseInfoLength;
+	UCHAR           DataIn;
+	ULONG           DataTransferLength;
+	ULONG           TimeOutValue;
+	PVOID           DataBuffer;
+	ULONG           SenseInfoOffset;
+	UCHAR           Cdb[16];
+} SCSI_PASS_THROUGH_DIRECT;
+
+typedef struct {
+	SCSI_PASS_THROUGH_DIRECT spt;
+	ULONG           Filler;
+	UCHAR           ucSenseBuf[64];
+} SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER;
+
+
+// Interface to SPT SCSI devices.  See scsicmds.h and os_linux.c
+static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+{
+	struct spt_dev_info * sdip;
+	int index = fd - SPT_FDOFFSET;
+	SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
+	DWORD num_out;
+
+	if ((index < 0) || (index >= SPT_MAXDEV)) {
+		if (report)
+			pout("do_spt_cmnd_io: bad fd range\n");
+		return -EBADF;
+	}
+	sdip = spt_dev_arr[index];
+	if (NULL == sdip) {
+		if (report)
+			pout("do_spt_cmnd_io: fd already closed\n");
+		return -EBADF;
+	}
+
+	if (report > 0) {
+		int k, j;
+		const unsigned char * ucp = iop->cmnd;
+		const char * np;
+		char buff[256];
+		const int sz = (int)sizeof(buff);
+
+		np = scsi_get_opcode_name(ucp[0]);
+		j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+		for (k = 0; k < (int)iop->cmnd_len; ++k)
+			j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+		if ((report > 1) && 
+			(DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+			int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+			j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+						  "data, len=%d%s:\n", (int)iop->dxfer_len,
+						  (trunc ? " [only first 256 bytes shown]" : ""));
+			dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+		}
+		else
+			j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+		pout(buff);
+	}
+	if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
+		if (report)
+			pout("do_spt_cmnd_io: cmnd_len too large\n");
+		return -EINVAL;
+	}
+
+	memset(&sb, 0, sizeof(sb));
+	sb.spt.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
+        sb.spt.CdbLength = iop->cmnd_len;
+	memcpy(sb.spt.Cdb, iop->cmnd, iop->cmnd_len);
+	sb.spt.SenseInfoLength = sizeof(sb.ucSenseBuf);
+	sb.spt.SenseInfoOffset =
+		offsetof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER, ucSenseBuf);
+	sb.spt.TimeOutValue = (iop->timeout ? iop->timeout : 60);
+	switch (iop->dxfer_dir) {
+		case DXFER_NONE:
+			sb.spt.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED;
+			break;
+		case DXFER_FROM_DEVICE:
+			sb.spt.DataIn = SCSI_IOCTL_DATA_IN;
+			sb.spt.DataTransferLength = iop->dxfer_len;
+			sb.spt.DataBuffer = iop->dxferp;
+			break;
+		case DXFER_TO_DEVICE:
+			sb.spt.DataIn = SCSI_IOCTL_DATA_OUT;
+			sb.spt.DataTransferLength = iop->dxfer_len;
+			sb.spt.DataBuffer = iop->dxferp;
+			break;
+		default:
+			pout("do_spt_cmnd_io: bad dxfer_dir\n");
+			return -EINVAL;
+	}
+
+	if (! DeviceIoControl(sdip->h_spt_ioctl, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+		&sb, sizeof(sb), &sb, sizeof(sb), &num_out, NULL)) {
+		long err = GetLastError();
+
+		if (report)
+			pout("  IOCTL_SCSI_PASS_THROUGH_DIRECT failed, Error=%ld\n", err);
+		return -(err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+	}
+
+	iop->scsi_status = sb.spt.ScsiStatus;
+	if (SCSI_STATUS_CHECK_CONDITION & iop->scsi_status) {
+		int slen = sb.ucSenseBuf[7] + 8;
+
+		if (slen > (int)sizeof(sb.ucSenseBuf))
+			slen = sizeof(sb.ucSenseBuf);
+		if (slen > (int)iop->max_sense_len)
+			slen = iop->max_sense_len;
+		memcpy(iop->sensep, sb.ucSenseBuf, slen);
+		iop->resp_sense_len = slen;
+		if (report) {
+			if ((iop->sensep[0] & 0x7f) > 0x71)
+				pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+				     iop->scsi_status, iop->sensep[1] & 0xf,
+				     iop->sensep[2], iop->sensep[3]);
+			else
+				pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+				     iop->scsi_status, iop->sensep[2] & 0xf,
+				     iop->sensep[12], iop->sensep[13]);
+		}
+	} else
+		iop->resp_sense_len = 0;
+
+	if ((iop->dxfer_len > 0) && (sb.spt.DataTransferLength > 0))
+		iop->resid = iop->dxfer_len - sb.spt.DataTransferLength;
+	else
+		iop->resid = 0;
+
+	if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
+		 int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+		 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+			  (trunc ? " [only first 256 bytes shown]" : ""));
+				dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+	}
+	return 0;
+}
+
+
+// Decides which SCSI implementation based on pseudo fd.
+// Declaration and explanation in scsicmds.h
+int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+{
+	if ((fd & ~0xff) == 0x100)
+		return do_aspi_cmnd_io(fd, iop, report);
+	else
+		return do_spt_cmnd_io(fd, iop, report);
 }
