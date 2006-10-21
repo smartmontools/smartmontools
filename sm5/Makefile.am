@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.79 2006/08/09 20:40:19 chrfranke Exp $
+# $Id: Makefile.am,v 1.80 2006/10/21 18:34:31 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -453,7 +453,11 @@ $(exedir_win32)/%.exe: %.exe
 	strip -s $@
 	touch -r $< $@
 
-$(docdir_win32)/%: %
+$(docdir_win32)/%.html: %.html
+	$(UNIX2DOS) < $< > $@
+	touch -r $< $@
+
+$(docdir_win32)/%.txt: %.txt
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
 
