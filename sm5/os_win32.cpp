@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.47 2006/10/21 14:19:51 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.48 2006/10/21 20:02:17 dpgilbert Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -335,6 +335,12 @@ void print_smartctl_examples(){
 #endif
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
+         "  smartctl -a /dev/sda\n"
+         "             (Prints all information for SCSI disk on PhysicalDrive 0)\n"
+         "  smartctl -a /dev/pd3\n"
+         "             (Prints all information for SCSI disk on PhysicalDrive 3)\n"
+         "  smartctl -a /dev/tape1\n"
+         "             (Prints all information for SCSI tape on Tape 1)\n"
          "  smartctl -A /dev/hdb,3\n"
          "                (Prints Attributes for physical drive 3 on 3ware 9000 RAID)\n"
          "\n"
