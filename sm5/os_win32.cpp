@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.46 2006/10/20 21:56:03 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.47 2006/10/21 14:19:51 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -256,18 +256,17 @@ int make_device_names (char*** devlist, const char* type)
 // within this file (see os_freebsd.cpp for an example).
 int deviceopen(const char * pathname, char *type)
 {
-	int len;
 	pathname = skipdev(pathname);
-	len = strlen(pathname);
+	int len = strlen(pathname);
 
 	if (!strcmp(type, "ATA")) {
-		// hd[a-j](:[saic]+)? => ATA 0-9 with options
+		// hd[a-j](:[saicp]+)? => ATA 0-9 with options
 		char drive[1+1] = "", options[5+1] = ""; int n1 = -1, n2 = -1;
 		if (   sscanf(pathname, "hd%1[a-j]%n:%5[saicp]%n", drive, &n1, options, &n2) >= 1
-			&& ((n1 == len && !options[0]) || n2 == len)                                 ) {
+		    && ((n1 == len && !options[0]) || n2 == len)                                 ) {
 			return ata_open(drive[0] - 'a', options, -1);
 		}
-		// hd[a-j],N => Physical drive 0-9, RAID port N
+		// hd[a-j],N(:[saicp]+)? => Physical drive 0-9, RAID port N, with options
 		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
 		unsigned port = ~0;
 		if (   sscanf(pathname, "hd%1[a-j],%u%n:%5[saicp]%n", drive, &port, &n1, options, &n2) >= 2
@@ -275,35 +274,27 @@ int deviceopen(const char * pathname, char *type)
 			return ata_open(drive[0] - 'a', options, port);
 		}
 	} else if (!strcmp(type, "SCSI")) {
-		char letter;
-		int pd_num, tape_num, sub_addr, res;
-
-		// scsi[0-9][0-f] => SCSI Adapter 0-9, ID 0-15, LUN 0
-		unsigned adapter = ~0, id = ~0; int n = -1;
-		if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n) == 2 && n == len) {
+		// scsi[0-9][0-f] => ASPI Adapter 0-9, ID 0-15, LUN 0
+		unsigned adapter = ~0, id = ~0; int n1 = -1;
+		if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n1) == 2 && n1 == len) {
 			return aspi_open(adapter, id);
 		}
 		// sd[a-z],N => Physical drive 0-26, RAID port N
-		if (0 == strncmp("sd", pathname, 2)) {
-			letter = ' ';
-			res = sscanf(pathname, "sd%c,%d", &letter, &sub_addr);
-			pd_num = letter - 'a';
-			if ((2 == res) && (pd_num >= 0) && (sub_addr >= 0))
-				return spt_open(pd_num, -1, sub_addr);
-			if ((1 == res) && (pd_num >= 0))
-				return spt_open(pd_num, -1, -1);
+		char drive[1+1] = ""; int sub_addr = -1; n1 = -1; int n2 = -1;
+		if (   sscanf(pathname, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
+		    && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))      ) {
+			return spt_open(drive[0] - 'a', -1, sub_addr);
+		}
 		// pd<m>,N => Physical drive <m>, RAID port N
-		} else if (0 == strncmp("pd", pathname, 2)) {
-			res = sscanf(pathname, "pd%d,%d", &pd_num, &sub_addr);
-			if ((2 == res) && (pd_num >= 0) && (sub_addr >= 0))
-				return spt_open(pd_num, -1, sub_addr);
-			if ((1 == res) && (pd_num >= 0))
-				return spt_open(pd_num, -1, -1);
+		int pd_num = -1; sub_addr = -1; n1 = -1; n2 = -1;
+		if (   sscanf(pathname, "pd%d%n,%d%n", &pd_num, &n1, &sub_addr, &n2) >= 1
+		    && pd_num >= 0 && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))) {
+			return spt_open(pd_num, -1, sub_addr);
+		}
 		// tape<m> => tape drive <m>
-		} else if (0 == strncmp("tape", pathname, 4)) {
-			res = sscanf(pathname, "tape%d", &tape_num);
-			if ((1 == res) && (tape_num >= 0))
-				return spt_open(-1, tape_num, -1);
+		int tape_num = -1; n1 = -1;
+		if (sscanf(pathname, "tape%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+			return spt_open(-1, tape_num, -1);
 		}
 	}
 
@@ -1012,7 +1003,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
 	} sb;
 	ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
 
-	if (!(0 <= datasize && datasize <= sizeof(sb.buffer) && port >= 0)) {
+	if (!(0 <= datasize && datasize <= (int)sizeof(sb.buffer) && port >= 0)) {
 		errno = EINVAL;
 		return -1;
 	}
