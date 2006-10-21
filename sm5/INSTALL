@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.69 2006/10/20 21:56:03 chrfranke Exp $
+$Id: INSTALL,v 1.70 2006/10/21 19:24:14 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -102,8 +102,8 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18. It should also
-    work on other recent releases.
+    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18-21. It should
+    also work on other recent releases.
 
     Release 1.5.15 or later is recommended for Cygwin smartd. Older versions
     do not provide syslogd support.
@@ -426,6 +426,15 @@ Same as Red Hat:
   "make" is possible, but "make dist" and related targets work only with UNIX
   file type ("binmode" mount option) set. The "autogen.sh" script prints a
   warning if DOS type is selected.
+
+  If installing from CVS, you may check out all files either with CR/LF
+  or LF line endings. Starting with release 3.1-7, Cygwin's bash does no
+  longer accept scripts with CR/LF by default. To run the initial script
+  ./autogen.sh checked out with CR/LF on a "binmode" mount, type:
+
+  bash -O igncr ./autogen.sh
+
+  instead. This is not necessary for the generated ./configure script.
 
 [10] Guidelines for Windows
 ==========================
