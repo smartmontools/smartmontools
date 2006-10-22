@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.577 2006/10/22 11:50:47 ballen4705 Exp $
+$Id: CHANGELOG,v 1.578 2006/10/22 18:39:39 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Added a couple SATA commands to the tables -- thanks DG!
+       Phil -- how about going through and systematically adding
+       these new commands to atacmdnames.cpp?
 
   [BA] Linux s86_64: get rid of some compiler warnings on
        x86_64 Linux systems.

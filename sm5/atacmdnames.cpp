@@ -26,7 +26,7 @@
 
 #define COMMAND_TABLE_SIZE 256
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.14 2006/08/09 20:40:19 chrfranke Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.15 2006/10/22 18:39:39 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -140,8 +140,8 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
   cmd_reserved,
   cmd_reserved,
 /*-------------------------------------------------- 60h-6Fh -----*/
-  cmd_reserved_sa,
-  cmd_reserved_sa,
+  "READ FPDMA QUEUED",
+  "WRITE FPDMA QUEUED",  
   cmd_reserved_sa,
   cmd_reserved_sa,
   cmd_reserved_sa,
