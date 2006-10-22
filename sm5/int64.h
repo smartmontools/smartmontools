@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.13 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.14 2006/10/22 11:50:47 ballen4705 Exp $\n"
 
 // 64 bit integer typedefs
 
@@ -64,6 +64,16 @@ typedef unsigned long long uint64_t;
 #define PRIu64 "I64u"
 #define PRIx64 "I64x"
 #endif // _WIN32 && _MSC_VER
+
+#ifdef LINUX_X86_64
+// For Linux x86_64
+#undef PRId64
+#undef PRIu64
+#undef PRIx64
+#define PRId64 "ld"
+#define PRIu64 "lu"
+#define PRIx64 "lx"
+#endif
 
 // If macros not defined in inttypes.h, fix here.  Default is GCC
 // style
