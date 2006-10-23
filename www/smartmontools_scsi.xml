@@ -22,15 +22,23 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2006-06-24</pubdate>
+  <pubdate>2006-10-22</pubdate>
 
   <revhistory>
+     <revision>
+       <revnumber>1.6</revnumber>
+       <date>2006-10-22</date>
+       <authorinitials>dpg</authorinitials>
+       <revremark>
+             auto '-d sat', background scan, windows device names
+       </revremark>
+     </revision>
      <revision>
        <revnumber>1.5</revnumber>
        <date>2006-06-24</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
-             device type sat
+             device type 'sat'
        </revremark>
      </revision>
      <revision>
@@ -101,13 +109,13 @@ ps, txt, etc.
 
   <abstract>
   <para>
-    This article describes how smartmontools interacts with SCSI 
-    storage devices (including tapes). Smartmontools is a SMART
+    This article describes how smartmontools interacts with SCSI storage
+    devices (mainly hard disks and tape drives). Smartmontools is a SMART
     utility toolset. <acronym>SMART</acronym> is an acronym for
     Self-Monitoring, Analysis and Reporting Technology. Smartmontools
     is available for the these operating systems: Darwin (Mac OS X
     but with no SCSI support yet), FreeBSD, Linux, NetBSD, OpenBSD,
-    Solaris and Windows.
+    OS/2 (no SCSI support), Solaris and Windows.
   </para>
   </abstract>
  </articleinfo>
@@ -123,8 +131,8 @@ Smartmontools controls and monitors storage devices using the
 Self-Monitoring, Analysis and Reporting Technology 
 (<acronym>SMART</acronym>) system. This toolset was originally built
 for the Linux operating system and has been ported to Darwin for
-Mac OS X (no SCSI support yet), FreeBSD, NetBSD, OpenBSD, Solaris
-and Windows. 
+Mac OS X (no SCSI support yet), FreeBSD, NetBSD, OpenBSD, 
+OS/2 (no SCSI support), Solaris and Windows. 
 This article describes how smartmontools interacts with SCSI devices.
 Passing reference is also made to devices that use the SCSI command
 set such as USB mass storage devices and IEEE1394 devices that use
@@ -137,15 +145,15 @@ The primary web site for smartmontools is at
 <literal>smartmontools.sourceforge.net</literal></ulink> from which the
 latest versions (both source and binaries) can be obtained. Smartmontools
 grew out of the now dormant <emphasis>smartsuite</emphasis> project which
-is still available on its sourceforge site. The smartmontools main page
+is still available on its own sourceforge site. The smartmontools main page
 concentrates on ATA devices.
 This article supplies some SCSI specific information for
 those users of smartmontools that wish to monitor SCSI storage devices.
 </para>
 <para>
 This document outlines the features found in smartmontools
-version 5.38 that are relevant to SCSI disks and tape drives.
-This document was last altered on 24th May 2006.
+version 5.37 that are relevant to SCSI disks and tape drives.
+This document was last altered on 22nd October 2006.
 </para>
 </sect1>
 
@@ -188,8 +196,17 @@ pending failures are reported.
       <title>Operating Systems</title>
 <para>
 Smartmontools was originally written for Linux. Since then it has been
-ported to various other Unix based system and Windows. The names of
-SCSI disk and tape devices vary. Here is a summary:
+ported to various other Unix based systems and Windows. Note that the
+device names are based on the transport that an operating system sees.
+These days it is not uncommon for an operating system to see a
+transport that only conveys SCSI commands connected, via some command
+translation bridge, to an ATA disk. Examples are USB external disk
+enclosures and SATA disks behind a SCSI to ATA Translation Layer (SATL)
+in a SAS or FC domain.
+</para>
+<para>
+The names of SCSI disk and tape devices vary with the operating system.
+Here is a summary:
 
 <table frame="all"><title>SCSI device names in various systems</title>
 <tgroup cols="4" align="left" colsep="1" rowsep="1">
@@ -214,8 +231,13 @@ SCSI disk and tape devices vary. Here is a summary:
 </row>
 <row>
 <entry><command>NetBSD</command></entry>
-<entry><filename>/dev/sd[0-9]</filename></entry>
-<entry><filename>/dev/enrst[0-9]</filename></entry>
+<entry><filename>/dev/sd[0-9]+c</filename></entry>
+<entry><filename>/dev/st[0-9]+c</filename></entry>
+</row>
+<row>
+<entry><command>OpenBSD</command></entry>
+<entry><filename>/dev/sd[0-9]+c</filename></entry>
+<entry><filename>/dev/st[0-9]+c</filename></entry>
 </row>
 <row>
 <entry><command>Solaris</command></entry>
@@ -226,15 +248,44 @@ SCSI disk and tape devices vary. Here is a summary:
 <entry><command>Windows</command></entry>
 <entry><filename>/dev/scsi[0-9][0-f]</filename></entry>
 <entry><filename>/dev/scsi[0-9][0-f]</filename></entry>
-<entry>ASPI adapter:0-9, ID:0-15, <filename>/dev/</filename> optional
-</entry>
+<entry>ASPI adapter:0-9, ID:0-15</entry>
+</row>
+<row>
+<entry/>
+<entry><filename>/dev/sd[a-z]</filename></entry>
+<entry/>
+<entry>for '\\.\PhysicalDrive[0-25]'</entry>
+</row>
+<row>
+<entry/>
+<entry><filename>/dev/pd[0-255]</filename></entry>
+<entry/>
+<entry>for '\\.\PhysicalDrive[0-255]'</entry>
+</row>
+<row>
+<entry/>
+<entry/>
+<entry><filename>/dev/tape[0-255]</filename></entry>
+<entry>for '\\.\Tape[0-255]'</entry>
+</row>
+<row>
+<entry><command>Darwin</command></entry>
+<entry/>
+<entry/>
+<entry>no support for SCSI devices</entry>
+</row>
+<row>
+<entry><command>OS/2</command></entry>
+<entry/>
+<entry/>
+<entry>no support for SCSI devices</entry>
 </row>
 </tbody>
 </tgroup>
 </table>
 </para>
 <para>
-The above list is a simplification of course. In Linux there can be multiple
+The above list is a simplification. In Linux there can be multiple
 drive letters followed by a partition number (1 to 15). Smartmontools will
 ignore the partition number if it is given and query the underlying device.
 In Linux the SCSI tape device name can be "nst" and a letter can be
@@ -246,13 +297,20 @@ be accessed via their generic name which is of the form
 <para>
 Linux also has an optional Solaris like
 naming scheme for SCSI device (scsidev), devfs (mainly used in the lk 2.4
-series) and udev (its replacement in the lk 2.6 series). In short, device
+series) and udev (devfs's replacement in the lk 2.6 series). In short, device
 naming is a complex area and smartmontools does its best to find
 and identify (i.e. whether ATA or SCSI) a device depending on its name. In
 some cases smartmontools needs guidance from the user and this can be given
 by the '-d ata|scsi|sat|marvell|3ware,N' option in the
 <command>smartctl</command> utility and in <command>smartd</command>
 daemon's configuration file.
+</para>
+<para>
+Windows has several schemes for naming devices. The "scsi[0-9][0-f]" scheme
+uses the aspi dll from Adaptec. That dll is not distributed with Windows. The
+other schemes use the "SCSI Pass Through" interface which is native to
+Windows in NT and later. In all cases for Windows, the leading
+<filename>/dev/</filename> is optional.
 </para>
 </sect1>
 
@@ -305,20 +363,24 @@ SCSI command.
 </para>
 <para>
 There is an emerging SCSI to ATA Translation (SAT) standard
-at <ulink url="http://www.t10.org"> <literal>www.t10.org</literal></ulink>
+at <link linkend="t10">www.t10.org</link>
 that may lead to improvements in this area. Apart from defining
 some of the facilities smartmontools needs, it defines two ATA PASS THROUGH
 SCSI commands. These pass through commands could be used in much the
 same way that the 3ware RAID tunnels ATA commands.
 </para>
 <para>
-In order for smartmontools to access an ATA device "behind" a SAT layer
-that implements either of the ATA PASS THROUGH SCSI commands, a new device
-type called '-d sat' has been introduced. For example this command:
-<command>smartctl -a -d sat /dev/sda</command> will form ATA commands
-to access various SMART attributes of an ATA disk, then package those
-commands within ATA PASS THROUGH SCSI commands and then forward them
-to the SCSI interface of <filename>/dev/sda</filename>.
+The device type '-d sat' instructs the <command>smartctl</command>
+command and the <command>smartd</command> daemon, to form SMART
+commands for the ATA command set and then package those commands
+within the ATA PASS THROUGH SCSI commands. The SCSI commands
+are then sent to the "SCSI" device that the operating system
+has been given. In version 5.37 of smartmontools it is no longer
+necessary to specify '-d sat' in this situation. All that is
+needed is a SATL that complies with the emerging SAT standard.
+If the automatic detection of an ATA disk behind a SATL is
+tricked, '-d scsi' (or some other device type) can be used to
+override.
 </para>
 <para>
 It has been reported that many external USB enclosures use a "Cypress"
@@ -396,7 +458,7 @@ associated with a SAS expander)
 </itemizedlist>
 </para>
 <para>
-For normal file system work, a SCSI to ATA (SAT) translation layer only
+For normal file system work, a SCSI to ATA Translation Layer (SATL) only
 needs to concern itself with around 6 commands. Unfortunately
 smartmontools uses other commands (both in the SCSI and ATA
 command sets). Probably the simplest way to handle SMART for SATA disks
@@ -419,10 +481,9 @@ guess made by smartmontools can be overridden. The '-d sat' device
 type causes smartmontools to generate ATA commands which are then packaged
 within the ATA PASS THROUGH SCSI commands (defined by the SAT standard)
 and then sent to the device via a SCSI pass through mechanism.
-Future versions of smartmontools may automate the detection of a "SATA
-disk behind a SAT layer" but currently if a SATA disk appears
-with a SCSI type device node name then a command like this may be
-required: <command>smartctl -a -d sat /dev/sda</command> . 
+As noted in the previous section, version 5.37 of smartmontools now
+automatically detects a SATA disk behind a SAT layer and acts as
+if '-d sat' has been given.
 </para>
 </sect1>
 
@@ -452,11 +513,10 @@ lists the supported mode pages with their default and changeable values.
 </para></footnote>
 </para>
 <para>
-SCSI standards (found at <ulink url="http://www.t10.org">
-<literal>www.t10.org</literal></ulink>) only make one footnote
-reference to the term <acronym>SMART</acronym>. In its place
-the awkward term "Informational Exceptions" is used. For SCSI tapes the term
-"TapeAlert" is used.
+SCSI standards (found at <link linkend="t10">www.t10.org</link>)
+only make one footnote reference to the term <acronym>SMART</acronym>.
+In its place the awkward term "Informational Exceptions" is used. For SCSI
+tapes the term "TapeAlert" is used.
 </para>
 </sect1>
 
@@ -471,8 +531,8 @@ has many options that can be viewed by the long usage message output be
 either of these invocations: <command>smartctl -h</command> or
 <command>smartctl --help</command>. Those options that are only
 available to ATA disks (i.e. not available to SCSI disks or tape drives)
-are marked with "(ATA)". So called "man" page documentation is also
-available online.
+are marked with "(ATA)". Unix style "man" page documentation is also
+available.
 </para>
 <para>
 The following options are currently available for SCSI disks and tape
@@ -484,7 +544,7 @@ invoked in that order.
 </para></listitem>
 <listitem><para><command>-A | --attributes</command>: outputs the
 current device temperature, trip temperature, the number of elements
-in the grown defect table and data from the start-stop log page.
+in the grown defect list (GLIST) and data from the start-stop log page.
 Outputs some vendor specific information if available.
 </para></listitem>
 <listitem><para><command>-C | --captive</command>: used in conjunction
@@ -493,9 +553,9 @@ do short or long self tests in the foreground. [Has no effect on tape
 drives.]
 </para></listitem>
 <listitem><para><command>-d TYPE | --device=TYPE</command> where TYPE 
-is "ata", "scsi", "marvell" or "3ware,N". Overrides utility's guess
-about the class of the device which is based on the form of the nominated
-device's name.
+is "ata", "scsi", "sat", "marvell", "3ware,N", "hpt,L/N[,M]"
+or "cciss,N". Overrides utility's guess about the class of the device
+which is based on the form of the nominated device's name.
 </para></listitem>
 <listitem><para><command>-h | --help</command>: outputs lengthy usage
 message and exits without any other action.
@@ -512,8 +572,9 @@ type of transport (e.g. FC or SAS) is also reported, if available.
 Some users have reported disks that report the wrong transport.
 </para></listitem>
 <listitem><para><command>-l TYPE | --log=TYPE</command> where TYPE is
-either "selftest" or "error". Outputs either the selftest log or the
-error log. 
+either "background", "selftest" or "error". Decodes are outputs the
+requested log. Note that <command>--all</command> does not include
+<command>--log=background</command> .
 </para></listitem>
 <listitem><para><command>-q TYPE | --quietmode=TYPE</command> where TYPE is
 either "silent" or "errorsonly". When the type is silent then nothing is
@@ -865,6 +926,79 @@ purpose (by writing a bad sector with the SCSI WRITE LONG command).
 </para>
 </sect1>
 
+<sect1 id="background">
+      <title>Background scan</title>
+<para>
+Recent SCSI disks can perform what are termed as "background scans". These
+are reads of the whole media with recoverable errors acted on and
+unrecoverable errors noted. If a sector (block) is found with a recoverable
+error (i.e. the error correction codes (ECC) detect a problem but contain
+enough redundant information to fix the problem) it may be fixed with a
+re-write "in place". Alternatively the disk may decide to re-assign the
+recovered data to another physical sector which is assigned the same logical
+block address (and the original faulted sector is unmapped and placed on
+the grown defect list (GLIST)). Since unrecoverable errors potentially
+involve user data being lost, no automatic recovery action is undertaken by
+the disk. However logical block addresses that contain either recovered
+data or unrecoverable errors are noted in the Background Scan Results
+log page. The <command>smartctl --log=background</command> command decodes
+and outputs that log page.
+</para>
+<para>
+Background scans may be performed periodically (e.g. every 24 hours) or
+every time the disk is powered up (or both). These parameters can be
+controlled via the Background Control mode page. The 
+<link linkend="sdparm">sdparm</link> utility can be used to access and
+modify this mode page.
+</para>
+<para>
+Here is an example of the output from the Background Scan Results log page.
+The first descriptor in that log page shows the status followed by up
+to 2048 entries for background scan "events". In this case a background
+scan is still in progress and 3 scans have been completed in the past.
+The "events" shown are all recoverable errors that the disk dealt with
+by rewriting the block.
+<programlisting>
+# smartctl -l background /dev/sda
+smartctl version 5.37 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+Background scan results log
+  Status: scan is active
+    Accumulated power on time, hours:minutes 618:01 [37081 minutes]
+    Number of background scans performed: 3,  scan progress: 59.81%
+
+   #  when        lba(hex)    [sk,asc,ascq]    reassign_status
+   1  617:13  0000000001fbc5b2  [1,17,1]   Recovered via rewrite in-place
+   2  617:13  00000000022756d2  [1,17,1]   Recovered via rewrite in-place
+   3  617:14  000000000227727f  [1,17,1]   Recovered via rewrite in-place
+   4  617:18  00000000023568e5  [1,17,1]   Recovered via rewrite in-place
+   5  617:22  00000000024fab5f  [1,17,1]   Recovered via rewrite in-place
+   6  617:23  00000000025aa29a  [1,17,1]   Recovered via rewrite in-place
+   7  617:27  000000000275d0bc  [1,17,1]   Recovered via rewrite in-place
+</programlisting>
+In this case the reassign_status shows that no user intervention is
+required. The other "don't worry (too much)" reassign_status is "Logical
+block successfully reassigned". Any other reassign_status will require
+user intervention to correct. There is a LOWIR ("log only when intervention
+required") bit in the Background Control mode page that the user can
+set (e.g. with the <link linkend="sdparm">sdparm</link> utility) to filter
+out "noisy" entries like those shown above.
+</para>
+<para>
+The user can manually re-assign logical blocks with a utility like
+<command>sg_reassign</command> found in the
+<link linkend="sg3utils">sg3_utils</link> package. The background scan
+output contains a "[sk,asc,ascq]" tuple of numbers. The one shown above
+translates to "recovered error, recovered data with retries". Unrecoverable
+errors would most likely have 3 ("medium eror") or 4 ("hardware error")
+as the first number. A decoding of the latter two numbers can be found
+in the "Numeric Order Codes" annex of SPC-4 (see <link linkend="t10">
+www.t10.org</link>) in the Additional Sense Codes section.
+</para>
+</sect1>
+
+
 <sect1 id="smartd">
       <title>smartd daemon</title>
 <para>
@@ -900,7 +1034,9 @@ named explicitly:
 /dev/sdb -d scsi
 </programlisting>
 The "-d scsi" argument overrides what <command>smartd</command> would
-guess as the device class (i.e. "ata", "scsi", "marvell" or "3ware,N"). 
+guess as the device
+class (i.e. "ata", "scsi", "sat", "marvell", "3ware,N", "hpt,L/N[,M]"
+or "cciss,N").
 </para>
 </sect1>
 
@@ -1022,11 +1158,9 @@ Quantum ATLAS IV 36 WLS, 36 GigaByte
 <literal>disk</literal></ulink>
 </para></listitem>
 <listitem><para>
-Seagate Cheetah ST318451LW 18 GigaByte 
-<ulink url="examples/st318451_smt_a.html">
-<literal>disk</literal></ulink>. It would seem that the total count of bytes
-written is reset every time the disk is power cycled. However the total
-count of bytes read seems to accumulate over power cycles.
+Seagate Cheetah ST336754 36 GigaByte
+<ulink url="examples/st336754_smt_a.html">
+<literal>disk</literal></ulink>.
 </para></listitem>
 </itemizedlist>
 
@@ -1067,12 +1201,11 @@ to collectively monitor and manage a group of disks and/or tape
 drives (be they a RAID, "Just a Bunch Of Disks" <acronym>JBOD</acronym>
 or a collection of disks and tape drives) in an enclosure. The SCSI
 Enclosure Services <acronym>SES</acronym> (reference: SES-2 at
-<ulink url="http://www.t10.org"> <literal>www.t10.org</literal></ulink>)
-is designed for this task. Both SCSI device and recent SATA disk
-enclosures are using SES. Amongst other things SES can monitor the state
-of individual devices within the enclosure, the temperature, power
-supplies and fans. A user can set thresholds, define alarm types and
-remotely administer the enclosure.
+<link linkend="t10">www.t10.org</link>) is designed for this task.
+Both SCSI device and recent SATA disk enclosures are using SES. Amongst
+other things SES can monitor the state of individual devices within the
+enclosure, the temperature, power supplies and fans. A user can set
+thresholds, define alarm types and remotely administer the enclosure.
 </para>
 </sect1>
 
@@ -1082,10 +1215,9 @@ remotely administer the enclosure.
       <title>Standards</title>
 <para>
 One of the first surprises working with SCSI devices and smartmontools
-is that the SCSI standards (found at <ulink url="http://www.t10.org">
-<literal>www.t10.org</literal></ulink>) do <emphasis>not</emphasis> use
-the term <acronym>SMART</acronym>. In its place the awkward term "Informational
-Exceptions" (IE) is used.
+is that the SCSI standards (found at <link linkend="t10">www.t10.org</link>)
+do <emphasis>not</emphasis> use the term <acronym>SMART</acronym>. In its
+place the awkward term "Informational Exceptions" (IE) is used.
 </para>
 <para>
 The original SCSI standard (over 20 years old now) and the SCSI-2 standard
@@ -1294,9 +1426,14 @@ Here are some links to related projects and packages:
 <itemizedlist>
 <listitem><para>
 <anchor id="t10"/>
-primary reference site for SCSI architecture, command sets and transports
-<ulink url="http://www.t10.org">
-<literal>www.t10.org</literal></ulink>.
+the primary reference site for SCSI architecture, command sets and transports
+is <ulink url="http://www.t10.org">
+<literal>www.t10.org</literal></ulink>. The main documents of interest
+to smartmontools are the "Primary Commands" (SPC-4), the "Block
+Commands" (SBC-3) for disks and the "Streaming Commands" (SSC-3) for
+tape drives. This <ulink url="http://www.t10.org/scsi-3.htm">
+<literal>www.t10.org/scsi-3.htm</literal></ulink> page contains a diagram
+showing the relationships of various SCSI standards.
 <footnote><para>
 The documents found on the t10 site are actually <emphasis>draft</emphasis>
 standards. Once they are ratified they become available from ANSI for
@@ -1316,17 +1453,18 @@ The <command>sdparm</command> utility allows mode page settings to be
 viewed and changed. It can decode Vital Product Data (VPD) pages.
 It implements a small number of commands to start and stop media,
 and to eject and load removable media.
-on this page <ulink url="http://www.torque.net/sg/sdparm.html">
+See this page <ulink url="http://www.torque.net/sg/sdparm.html">
 <literal>www.torque.net/sg/sdparm.html</literal></ulink> .
 <command>sdparm</command> is available on Linux with ports to
-FreeBSD and Tru64.
+FreeBSD, Tru64 and Windows.
 </para></listitem>
 <listitem><para>
 <anchor id="sg3utils"/>
 A package of SCSI low level tools for Linux called sg3_utils can be found
-on this page <ulink url="http://www.torque.net/sg/u_index.html">
-<literal>www.torque.net/sg/u_index.html</literal></ulink> (the most recent
-version is sg3_utils-1.20). Allows command level access to SCSI devices.
+on this page <ulink url="http://www.torque.net/sg/sg3_utils.html">
+<literal>www.torque.net/sg/sg3_utils.html</literal></ulink> (the most recent
+version is sg3_utils-1.22). Allows command level access to SCSI devices
+and is available on Linux with ports to FreeBSD, Tru64 and Windows.
 </para></listitem>
 <listitem><para>
 <anchor id="howto"/>
@@ -1338,7 +1476,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.14 2006/06/24 13:05:58 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.15 2006/10/23 01:16:31 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
