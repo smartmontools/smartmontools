@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.579 2006/10/25 06:52:06 ballen4705 Exp $
+$Id: CHANGELOG,v 1.580 2006/10/25 17:01:42 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Linux: compile fix for SuSE.  Check for existence
+       of linux/compiler.h and include in os_linux.h if
+       present.  Thanks to SB.
 
   [BA] smartd: DEVICESCAN will now pick up SATA/SAT devices
        attached to a SCSI device tree via SAT translation.
