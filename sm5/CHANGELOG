@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.578 2006/10/22 18:39:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.579 2006/10/25 06:52:06 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: DEVICESCAN will now pick up SATA/SAT devices
+       attached to a SCSI device tree via SAT translation.
+       Note: this is a bit of a hack.  I will document it once
+       I know if this needs to be Linux only or can have more
+       general application.
 
   [BA] Added a couple SATA commands to the tables -- thanks DG!
        Phil -- how about going through and systematically adding

@@ -115,14 +115,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.379 2006/10/09 11:45:12 guidog Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.380 2006/10/25 06:52:07 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.379 2006/10/09 11:45:12 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.380 2006/10/25 06:52:07 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -4037,8 +4037,18 @@ int MakeConfigEntries(const char *type, int start){
   char** devlist = NULL;
   cfgfile *first=cfgentries[0],*cfg=first;
 
+  // Hack! This is to make DEVICESCAN work on Linux libata devices.
+  // This will work on a general OS if the way that SAT devices are
+  // named is the same as SCSI devices.
+  // The BETTER solution is to modify make_device_names to recognize
+  // the additional type "SAT".  This requires changing os_*.cpp.
+
+  const char *basetype = type;
+  if (!strcmp(type,"SAT") )
+    basetype = "SCSI";
+
   // make list of devices
-  if ((num=make_device_names(&devlist,type))<0)
+  if ((num=make_device_names(&devlist,basetype))<0)
     PrintOut(LOG_CRIT,"Problem creating device name scan list\n");
   
   // if no devices, or error constructing list, return
@@ -4061,6 +4071,8 @@ int MakeConfigEntries(const char *type, int start){
       cfg->controller_type = CONTROLLER_ATA;
     if (!strcmp(type,"SCSI") ) 
       cfg->controller_type = CONTROLLER_SCSI;
+    if (!strcmp(type,"SAT") )
+      cfg->controller_type = CONTROLLER_SAT;
     
     // remove device name, if it's there, and put in correct one
     cfg->name=FreeNonZero(cfg->name, -1,__LINE__,filenameandversion);
@@ -4124,9 +4136,21 @@ int ReadOrMakeConfigEntries(int *scanning){
     // scan.  Configuration file's first entry contains all options
     // that were set
     cfgfile *first=cfgentries[0];
-    int doata  = !(first->controller_type==CONTROLLER_SCSI);
-    int doscsi = !(first->controller_type==CONTROLLER_ATA);
-    
+
+    // By default scan for ATA, SCSI and SAT devices
+    int doata=1, doscsi=1, dosat=1;
+
+    if (first->controller_type==CONTROLLER_SCSI) {
+      doata = 0;
+      dosat = 0;
+    } else if (first->controller_type==CONTROLLER_ATA) {
+      doscsi = 0;
+      dosat = 0;
+    } else if (first->controller_type==CONTROLLER_SAT) {
+      doata = 0;
+      doscsi = 0;
+    }
+
     *scanning=1;
     
     if (first->lineno)
@@ -4140,6 +4164,8 @@ int ReadOrMakeConfigEntries(int *scanning){
     // make config list of SCSI devices to search for
     if (doscsi)
       entries+=MakeConfigEntries("SCSI", entries);
+    if (dosat)
+      entries+=MakeConfigEntries("SAT", entries);
 
     // warn user if scan table found no devices
     if (!entries) {
