@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.154 2006/10/20 19:21:50 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.155 2006/10/25 22:18:43 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -488,8 +488,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "Maxtor DiamondMax 4320 family",
-    "^Maxtor (91728D8|91512D7|91303D6|91080D5|90845D4|90645D3|90648D4|90432D2)$",
+  { "Maxtor DiamondMax 4320 Ultra ATA family",
+    "^Maxtor (91728D8|91512D7|91303D6|91080D5|90845D4|90645D3|90648D[34]|90432D2)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -546,6 +546,20 @@ const drivesettings knowndrives[] = {
   },
   { "Maxtor DiamondMax Plus 45 Ulta ATA 100 family",
     "^Maxtor 5(4610H6|4098H6|3073H4|2049H3|1536H2|1369H2|1023H2)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { "Maxtor DiamondMax 60 ATA 66 family",
+    "^Maxtor 9(1023U2|1536U2|2049U3|2305U3|3073U4|4610U6|6147U8)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
+  { "Maxtor DiamondMax 60 ATA 100 family",
+    "^Maxtor 9(1023H2|1536H2|2049H3|2305H3|3073H4|4610H6|6147H8)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -766,7 +780,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Hitachi Deskstar 7K80 series",
-    "^(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320)$",
+    "^(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -790,18 +804,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK4025GAS
-    "^TOSHIBA MK4025GAS$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { "Toshiba 2.5\" HDD series", // TOSHIBA MK6021GAS [Bruce -- use for testing on laptop]
-    "^TOSHIBA MK(1032GAX|6021GAS)$",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
   { "Toshiba 2.5\" HDD series (30-60 GB)",
     "^TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Toshiba 2.5\" HDD series (80 GB and above)",
+    "^TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -825,13 +834,13 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // TOSHIBA MK8026GAX
-    "^TOSHIBA MK8026GAX$",
+  { "Seagate Momentus family",
+    "^ST9(20|28|40|48)11A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Seagate Momentus family",
-    "^ST9(20|28|40|48)11A$",
+  { "Seagate Momentus 42 family",
+    "^ST9(2014|3015|4019)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -842,6 +851,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate Momentus 5400.2 series",
     "^ST9(9808211|960822|808211|408114|308110|120821|10082[34]|98823|96812|94813|93811|60822)AS?$", 
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Momentus 7200.1 series",
+    "^ST9(10021|80825|6023|4015)AS?$", 
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -911,7 +925,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.7 and 7200.7 Plus family",
-    "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]0827AS|8001[13]AS?|80817AS|60014A|40014AS?)$",
+    "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|80817AS|60014A|40111AS|40014AS?)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -921,7 +935,12 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.9 family",
-    "^ST3(500641|400633|300622|250824|200827|160[28]12|120814|120[28]13|80[28]110|402111)AS?$",
+    "^ST3(500[68]41|400[68]33|300[68]22|250[68]24|250[68]24|200827|160[28]12|120814|120[28]13|80[28]110|402111)AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Barracuda 7200.10 family",
+    "^ST3(750[68]4|500[68]3|400[68]2|320[68]2|300[68]2|250[68]2|20082)0AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -996,6 +1015,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Western Digital Caviar Serial ATA family",
+    "^WDC WD(4|8|20|32)00BD-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Western Digital Caviar SE family",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
    * a  non-standard manner.  These entries may need to be updated when it
@@ -1017,7 +1041,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Caviar RE Serial ATA series",
-    "^WDC WD((12|16|25|32)00SD|4000YR)-.*$",
+    "^WDC WD((12|16|25|32)00SD|2500YD|4000Y[RS]|5000YS)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.580 2006/10/25 17:01:42 ballen4705 Exp $
+$Id: CHANGELOG,v 1.581 2006/10/25 22:18:43 pjwilliams Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,17 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [PW] Drive database: added Seagate Barracuda 7200.10 family, Seagate
+       Momentus 42 family, Maxtor DiamondMax 60 ATA 66 family, Maxtor
+       DiamondMax 60 ATA 100 family, and Western Digital Caviar Serial
+       ATA family
+
+  [PW] Drive database: added missing drives from Seagate Barracuda
+       7200.9 family, Seagate Barracuda 7200.7 family, Seagate Momentus
+       7200.1 family, Toshiba 2.5" HDD family (80 GB and above), Western
+       Digital Caviar RE Serial ATA family, Hitachi Deskstar 7K80 family,
+       and Maxtor DiamondMax 4320 Ultra ATA family
+
   [BA] Linux: compile fix for SuSE.  Check for existence
        of linux/compiler.h and include in os_linux.h if
        present.  Thanks to SB.
@@ -64,7 +75,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        family, Maxtor MaXLine Pro 500 family, and Maxtor DiamondMax 11
        family
 
-  [PW] Drive database: added missing drives from Toshiba 2.5\" HDD
+  [PW] Drive database: added missing drives from Toshiba 2.5" HDD
        (30-60 GB) family, Maxtor DiamondMax 10 family, Seagate Barracuda
        7200.8 family, Fujitsu MHT family, and Maxtor DiamondMax Plus 8
        family
