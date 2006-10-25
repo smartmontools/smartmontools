@@ -47,6 +47,11 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>
+
+#ifdef HAVE_LINUX_COMPILER_H
+#include <linux/compiler.h>
+#endif
+
 #include <scsi/scsi_ioctl.h>
 #include <scsi/sg.h>
 #include <stdlib.h>
@@ -79,9 +84,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.87 2006/10/09 11:45:12 guidog Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.88 2006/10/25 17:01:42 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.87 2006/10/09 11:45:12 guidog Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.88 2006/10/25 17:01:42 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
