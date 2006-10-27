@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.48 2006/10/21 20:02:17 dpgilbert Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.49 2006/10/27 21:49:41 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -672,6 +672,10 @@ ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
 
 static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize)
 { 
+	if (datasize > 512) {
+		errno = EINVAL;
+		return -1;
+	}
 	unsigned int size = sizeof(ATA_PASS_THROUGH)-1 + datasize;
 	ATA_PASS_THROUGH * buf = (ATA_PASS_THROUGH *)VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 	DWORD num_out;
@@ -781,23 +785,19 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 		UCHAR ucDataBuf[512];
 	} ATA_PASS_THROUGH_EX_WITH_BUFFERS;
 
-	ATA_PASS_THROUGH_EX_WITH_BUFFERS ab;
-	IDEREGS * ctfregs;
-	unsigned int size;
-	DWORD num_out;
 	const unsigned char magic = 0xcf;
 
-	memset(&ab, 0, sizeof(ab));
+	ATA_PASS_THROUGH_EX_WITH_BUFFERS ab; memset(&ab, 0, sizeof(ab));
 	ab.apt.Length = sizeof(ATA_PASS_THROUGH_EX);
 	//ab.apt.PathId = 0;
 	//ab.apt.TargetId = 0;
 	//ab.apt.Lun = 0;
 	ab.apt.TimeOutValue = 10;
-	size = offsetof(ATA_PASS_THROUGH_EX_WITH_BUFFERS, ucDataBuf);
+	unsigned size = offsetof(ATA_PASS_THROUGH_EX_WITH_BUFFERS, ucDataBuf);
 	ab.apt.DataBufferOffset = size;
  
-	if (datasize) {
-		if (!(0 <= datasize && datasize <= (int)sizeof(ab.ucDataBuf))) {
+	if (datasize > 0) {
+		if (datasize > (int)sizeof(ab.ucDataBuf)) {
 			errno = EINVAL;
 			return -1;
 		}
@@ -806,15 +806,26 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 		size += datasize;
 		ab.ucDataBuf[0] = magic;
 	}
+	else if (datasize < 0) {
+		if (-datasize > (int)sizeof(ab.ucDataBuf)) {
+			errno = EINVAL;
+			return -1;
+		}
+		ab.apt.AtaFlags = ATA_FLAGS_DATA_OUT;
+		ab.apt.DataTransferLength = -datasize;
+		size += -datasize;
+		memcpy(ab.ucDataBuf, data, -datasize);
+	}
 	else {
-		//ab.apt.AtaFlags = 0;
-		//ab.apt.DataTransferLength = 0;
+		assert(ab.apt.AtaFlags == 0);
+		assert(ab.apt.DataTransferLength == 0);
 	}
 
 	assert(sizeof(ab.apt.CurrentTaskFile) == sizeof(IDEREGS));
-	ctfregs = (IDEREGS *)ab.apt.CurrentTaskFile;
+	IDEREGS * ctfregs = (IDEREGS *)ab.apt.CurrentTaskFile;
 	*ctfregs = *regs;
 
+	DWORD num_out;
 	if (!DeviceIoControl(hdevice, IOCTL_ATA_PASS_THROUGH,
 		&ab, size, &ab, size, &num_out, NULL)) {
 		long err = GetLastError();
@@ -837,7 +848,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 	}
 
 	// Check and copy data
-	if (datasize) {
+	if (datasize > 0) {
 		if (   num_out != size
 		    || (ab.ucDataBuf[0] == magic && !nonempty(ab.ucDataBuf+1, datasize-1))) {
 			if (con->reportataioctl) {
@@ -1447,11 +1458,6 @@ static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdri
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
-	IDEREGS regs;
-	int datasize;
-	const char * valid_options;
-	int i;
-
 	int port = -1;
 	if ((fd & ~0x1f) == ATARAID_FDOFFSET) {
 		// RAID Port encoded into pseudo fd
@@ -1465,19 +1471,15 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	}
 
 	// CMD,CYL default to SMART, changed by P?IDENTIFY and CHECK_POWER_MODE
-	memset(&regs, 0, sizeof(regs));
+	IDEREGS regs; memset(&regs, 0, sizeof(regs));
 	regs.bCommandReg = ATA_SMART_CMD;
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
-	datasize = 0;
+	int datasize = 0;
 
 	// Try all IOCTLS by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH
-	valid_options = "saic";
+	const char * valid_options = "saic";
 
 	switch (command) {
-	  case WRITE_LOG:
-		// TODO. Requires DATA OUT support
-		errno = ENOSYS;
-		return -1;
 	  case CHECK_POWER_MODE:
 		// Not a SMART command, needs IDE register return
 		regs.bCommandReg = ATA_CHECK_POWER_MODE;
@@ -1502,6 +1504,13 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		valid_options = "saic3";
 		// Note: SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
 		datasize = 512;
+		break;
+	  case WRITE_LOG:
+		regs.bFeaturesReg = ATA_SMART_WRITE_LOG_SECTOR;
+		regs.bSectorNumberReg = select;
+		regs.bSectorCountReg = 1;
+		valid_options = "a"; // ATA_PASS_THROUGH only, others don't support DATA_OUT
+		datasize = -512; // DATA_OUT!
 		break;
 	  case IDENTIFY:
 		// Note: WinNT4/2000/XP return identify data cached during boot
@@ -1553,7 +1562,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 	// Try all valid ioctls in the order specified in dev_ioctls;
 	bool powered_up = false;
-	for (i = 0; ; i++) {
+	for (int i = 0; ; i++) {
 		char opt = ata_cur_options[i];
 
 		if (!opt) {
@@ -1572,7 +1581,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 			continue;
 
 		errno = 0;
-		assert(datasize == 0 || datasize == 512);
+		assert(datasize == 0 || datasize == 512 || (opt == 'a' && datasize == -512));
 		int rc;
 		switch (opt) {
 		  default: assert(0);
