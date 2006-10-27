@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.581 2006/10/25 22:18:43 pjwilliams Exp $
+$Id: CHANGELOG,v 1.582 2006/10/27 20:24:27 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Fixed int64 printf format for MinGW runtime.
 
   [PW] Drive database: added Seagate Barracuda 7200.10 family, Seagate
        Momentus 42 family, Maxtor DiamondMax 60 ATA 66 family, Maxtor

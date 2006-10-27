@@ -20,7 +20,7 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.14 2006/10/22 11:50:47 ballen4705 Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.15 2006/10/27 20:24:27 chrfranke Exp $\n"
 
 // 64 bit integer typedefs
 
@@ -58,8 +58,8 @@ typedef unsigned long long uint64_t;
 
 // 64 bit integer format strings
 
-#if defined(_WIN32) && defined(_MSC_VER)
-// for MSVC 6.0
+#if defined(_WIN32)
+// for MSVCRT.DLL (used by both MSVC 6.0 and MinGW)
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
 #define PRIx64 "I64x"
@@ -77,7 +77,7 @@ typedef unsigned long long uint64_t;
 
 // If macros not defined in inttypes.h, fix here.  Default is GCC
 // style
-#ifndef PRId64		
+#ifndef PRId64
 #define PRId64 "lld"
 #endif // ndef PRId64
 
