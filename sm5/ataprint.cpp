@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.170 2006/10/24 21:36:42 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.171 2006/10/28 11:51:25 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1180,7 +1180,7 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
       // this span is currently under test
       pout("    %d  %*"PRIu64"  %*"PRIu64"  %s [%01d0%% left] (%"PRIu64"-%"PRIu64")\n",
 	   i+1, field1, start, field2, end, msg,
-	   (int)(sv->self_test_exec_status & 0x7), current, currentend);
+	   (int)(sv->self_test_exec_status & 0xf), current, currentend);
     else
       // this span is not currently under test
       pout("    %d  %*"PRIu64"  %*"PRIu64"  Not_testing\n",
