@@ -20,15 +20,18 @@
 #ifndef INT64_H_
 #define INT64_H_
 
-#define INT64_H_CVSID "$Id: int64.h,v 1.15 2006/10/27 20:24:27 chrfranke Exp $\n"
+#define INT64_H_CVSID "$Id: int64.h,v 1.16 2006/10/29 20:35:35 chrfranke Exp $\n"
 
-// 64 bit integer typedefs
+// 64 bit integer typedefs and format strings
 
 #ifdef HAVE_INTTYPES_H
-#include <inttypes.h>
+// The ISO C99 standard specifies that in C++ implementations the PRI* macros
+// from <inttypes.h> should only be defined if explicitly requested
+#define __STDC_FORMAT_MACROS 1
+#include <inttypes.h> // PRId64, PRIu64, PRIx64 (also includes <stdint.h>)
 #else
 #ifdef HAVE_STDINT_H
-#include <stdint.h>
+#include <stdint.h> // int64_t, uint64_t (usually included above)
 #else
 #ifdef HAVE_SYS_INTTYPES_H
 #include <sys/inttypes.h>
@@ -56,24 +59,12 @@ typedef unsigned long long uint64_t;
 #endif // HAVE_STDINT_H
 #endif // HAVE_INTTYPES_H
 
-// 64 bit integer format strings
-
-#if defined(_WIN32)
+#ifdef _WIN32
 // for MSVCRT.DLL (used by both MSVC 6.0 and MinGW)
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
 #define PRIx64 "I64x"
-#endif // _WIN32 && _MSC_VER
-
-#ifdef LINUX_X86_64
-// For Linux x86_64
-#undef PRId64
-#undef PRIu64
-#undef PRIx64
-#define PRId64 "ld"
-#define PRIu64 "lu"
-#define PRIx64 "lx"
-#endif
+#endif // _WIN32
 
 // If macros not defined in inttypes.h, fix here.  Default is GCC
 // style
