@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.584 2006/10/27 21:49:41 chrfranke Exp $
+$Id: CHANGELOG,v 1.585 2006/10/29 20:35:35 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fixed inclusion of PRI?64 macros from inttypes.h.
 
   [CF] Windows: Added WRITE LOG to support selective self tests.
 
