@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.585 2006/10/29 20:35:35 chrfranke Exp $
+$Id: CHANGELOG,v 1.586 2006/10/30 08:58:55 geoffk1 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -212,6 +212,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        So if this Attribute has 'failed
        in the past' this means that the maximum disk operating
        temperature has been exceeded.
+
+  [GK] Darwin: Add support for AHCI drivers found in Intel-based Macs.
 
 smartmontools 5.36 Stable Release
 
