@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.587 2006/10/30 12:28:53 ballen4705 Exp $
+$Id: CHANGELOG,v 1.588 2006/10/30 22:35:28 pjwilliams Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [PW] Drive database: added missing drives from Seagate Momentus 5400.2
+       family
 
   [BA] Finished Christian's fix (next item below) by removing
        LINUX_86_64 hack from configure.in.
