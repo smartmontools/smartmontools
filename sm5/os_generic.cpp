@@ -32,7 +32,8 @@
  [0] Contact smartmontools-support@lists.sourceforge.net to check
      that it's not already been done.
 
- [1] Make copies of os_generic.[hc] called os_myOS.[hc].
+ [1] Make copies of os_generic.h and os_generic.cpp called os_myOS.h
+     and os_myOS.cpp .
 
  [2] Modify configure.in so that case "${host}" includes myOS.
 
@@ -47,7 +48,10 @@
      where the macro HAVE_MISSINGFUNCTION is (or is not) defined in
      config.h.
 
- [4] Provide the functions defined in this file by fleshing out the
+ [4] Now that you have a working build environment, you have to
+     replace the 'stub' function calls provided in this file.
+
+     Provide the functions defined in this file by fleshing out the
      skeletons below.  You can entirely eliminate the function
      'unsupported()'.
 
@@ -79,7 +83,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.24 2006/09/20 16:17:31 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.25 2006/10/30 18:34:30 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
