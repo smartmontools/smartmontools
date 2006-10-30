@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.155 2006/10/25 22:18:43 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.156 2006/10/30 22:35:28 pjwilliams Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -850,7 +850,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Momentus 5400.2 series",
-    "^ST9(9808211|960822|808211|408114|308110|120821|10082[34]|98823|96812|94813|93811|60822)AS?$", 
+    "^ST9(808211|60822|408114|308110|120821|10082[34]|8823|6812|4813|3811)AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
