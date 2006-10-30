@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.120 2006/10/25 17:01:42 ballen4705 Exp $
+# $Id: configure.in,v 1.121 2006/10/30 12:28:54 ballen4705 Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.37, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.120 2006/10/25 17:01:42 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.121 2006/10/30 12:28:54 ballen4705 Exp $'`
 smartmontools_release_date=2006/04/12
 smartmontools_release_time="17:39:01 UTC"
 
@@ -129,10 +129,6 @@ AC_SUBST(smartmontools_release_time)
 
 dnl if OS not recognized, then use the os_generic modules
 case "${host}" in
-	x86_64-*-linux-gnu*) 
-		AC_DEFINE_UNQUOTED(LINUX_X86_64, 1, [this is an x86_64 Linux system])
-		AC_SUBST([os_deps], ['os_linux.o']) 
-		AC_SUBST([os_libs], ['']) ;;
 	*-*-linux-gnu*) 
 		AC_SUBST([os_deps], ['os_linux.o']) 
 		AC_SUBST([os_libs], ['']) ;;
