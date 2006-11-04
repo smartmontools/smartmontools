@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/09/01 17:12:49 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/11/04 20:04:26 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.207 2006/09/01 17:12:49 guidog Exp $ -->
+<!-- $Id: index.html,v 1.208 2006/11/04 20:04:26 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -33,6 +33,8 @@ CHANGELOG</a> for details.
 notes <a href="#CVSInstall">below</a> if you install smartmontools from CVS.</font></li>
 <li><font color="#ff0000">A Windows installer version of smartmontools 5.36 was released
 2006-06-06, see <a href="#WindowsInstall">below</a>.</font></li>
+<li><font color="#ff0000">New RAID controller support (CCISS and HighPoint on Linux,
+3ware on Windows) was added, see <a href="#FAQ-RAID">below</a>.</font></li>
 </ul>
 <font color="#ff0000">
 Please report problems (or success!) with the new release to the
@@ -84,7 +86,8 @@ Project Page</a></li>
 <li>Mailing List <a href="http://lists.sourceforge.net/lists/listinfo/smartmontools-support">Information</a>
 and <a href="http://sourceforge.net/mailarchive/forum.php?forum=smartmontools-support">Archives</a>
 (Archive has <b>Search Box</b> in top left corner). <a href="#altmail">Alternative</a> (and usually up to date) archives.</li>
-<li>Current <a href="man/smartctl.8.html">smartctl</a>, <a href="man/smartd.8.html">smartd</a>, and <a href="man/smartd.conf.5.html">smartd.conf</a> HTML man pages generated from CVS.</li>
+<li><a name="man"></a>
+Current <a href="man/smartctl.8.html">smartctl</a>, <a href="man/smartd.8.html">smartd</a>, and <a href="man/smartd.conf.5.html">smartd.conf</a> HTML man pages generated from CVS.</li>
 </ul>
 
 <hr size="2" />
@@ -303,7 +306,7 @@ mailing list</a>.
 <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
 </p></li>
 <li><p>More recent (and probably unstable) Windows test releases build from CVS
-snapshots are available <a href="http://franke.dvrdns.org/smartmontools/">here</a>.
+snapshots are available <a href="http://smartmontools-win32.dyndns.org/smartmontools/">here</a>.
 </p></li>
 </ul>
 
@@ -669,54 +672,48 @@ list.
 </p>
 </li>
 
-<li><b>Can I monitor ATA disks behind SCSI RAID controllers?</b>
+<li><a name="FAQ-RAID"></a><b>Can I monitor disks behind RAID controllers?</b>
 
 <p>
-From release 5.1-18, smartmontools fully supports 3ware SCSI RAID
-controllers that use ATA disks internally. To pass commands through
-the 3ware controller, use the smartmontools <b>-d 3ware,N</b> option
-or Directive.
-</p>
-<p>
-3ware Linux device drivers (<tt>3w-xxxx</tt>) versions <b>1.02.00.036</b>
-and earlier do not return the SMART HEALTH STATUS (smartmontools
-<b>-H</b>) of the disks. In addition, the ENABLE AUTOMATIC OFFLINE and
-ENABLE ATTRIBUTE AUTOSAVE commands (smartmontools <b>-o on</b> and
-<b>-S on</b>) can not be passed through the driver to the disks.
-Later driver versions support <i>all</i> of these commands.  You may:
+RAID controllers typically simulate a (logical) disk for each array of
+(physical) disks to the OS.
+Access to SMART functionality relies on ATA or SCSI pass through I/O controls
+providing direct access to each physical disk.
+But the standard I/O controls available are usually not designed to make this
+distinction between logical and physical disks.
+Therefore, smartmontools has to use vendor specific I/O controls.
+Support for disks behind RAID controllers is highly dependent on both platform
+and controller type.
 </p>
 <ul>
-<li>use version <b>1.02.00.037</b> or greater of the <tt>3w-xxxx</tt> driver, or</li>
-<li><a href="3w-xxxx.txt">patch</a> earlier 3ware <tt>3w-xxxx</tt> drivers so that
-these commands reach the disks, or</li>
-<li> use an <b>unpatched</b> earlier <tt>3w-xxxx</tt> driver (which won't pass these
-commands to the disks but will instead print
-harmless warning messages to SYSLOG).</li>
+<li><p>
+3ware RAID controllers are supported on Linux since smartmontools release 5.1-18.
+Support for char devices /dev/tw* was added in release 5.33. 
+</p></li>
+<li><p>
+3ware support on FreeBSD is available since release 5.33, multiple controller and
+char device support was added in release 5.36.
+</p></li>
+<li><p><font color="#ff0000">
+3ware 9000 support for Windows was added 2006-09-27, the corresponding 3ware
+driver 9.4.0 was released 2006-11-01.
+</font></p></li>
+<li><p><font color="#ff0000">
+HighPoint RocketRAID support for Linux was added 2006-08-25.
+</font></p></li>
+<li><p><font color="#ff0000">
+CCISS (Compaq Smart Array Controller) support for Linux was added 2006-10-09.
+</font></p></li>
 </ul>
 <p>
-To see if your system's <tt>3w-xxxx</tt> driver has been patched, give the
-command:<br/>
-<tt>smartctl -H -S on -o on -d 3ware,? /dev/sd?</tt>
-<br/>
-If you
-have an unpatched kernel, you'll see warning messages prompting you to
-patch the kernel.</p>
-<p>
-The 3ware <tt>3w-xxxx</tt> version 1.02.00.037 driver first appeared
-in kernel version 2.6.0-test5-bk11 on 24 September 2003 and in kernel
-version 2.4.23-bk2 on 3 December 2003.  It was officially released on
-the 3ware web site on December 19, 2003 as part of their
-driver/firmware/utility package version 7.7.0.
+The recent additions will appear in upcoming release 5.37.
 </p>
-
 <p>
-Note (added 29 July 2004): starting with smartmontools (experimental)
-release 5.33, one can also access SMART data from drives behind 3ware
-controllers using the (character) devices /dev/twe0-15.  This should
-work correctly even with older versions of the 3w-xxxx driver. One can
-also access SMART data from drives behind 3ware 9000-series
-controllers (3w-9xxx driver) using the (character) devices
-/dev/twa0-15.
+See<b>
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
+</b>file for information about kernel and driver requirements on your platform,
+and the <a href="#man">man pages</a> for controller specific smartmontools options or
+directives (<tt>-d 3ware,N</tt>, <tt>-d cciss,N</tt>, <tt>-d hpt,L/M/N</tt>).
 </p>
 
 </li>
@@ -1264,8 +1261,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/09/01 17:12:49 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.207 2006/09/01 17:12:49 guidog Exp $</tt>
+Last updated: <tt>$Date: 2006/11/04 20:04:26 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.208 2006/11/04 20:04:26 chrfranke Exp $</tt>
 
 <hr size="2" />
 
