@@ -118,14 +118,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.382 2006/11/10 04:43:57 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.383 2006/11/10 04:59:02 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.382 2006/11/10 04:43:57 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.383 2006/11/10 04:59:02 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2600,7 +2600,7 @@ int SCSICheckDevice(cfgfile *cfg)
         if (cp) {
             PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
             MailWarning(cfg, 1,"Device: %s, SMART Failure: %s", name, cp); 
-        } if (debugmode)
+        } else if (debugmode)
             PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
                      name, (int)asc, (int)ascq);  
     } else if (debugmode)
