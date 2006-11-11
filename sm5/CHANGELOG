@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.588 2006/10/30 22:35:28 pjwilliams Exp $
+$Id: CHANGELOG,v 1.589 2006/11/11 17:50:50 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Increased max line length MAXLINELEN for /etc/smartd.conf from
+       128 to 256 characters to handle long strings in
+       /dev/disk/by-id.  Thanks to Martin Krafft.
 
   [PW] Drive database: added missing drives from Seagate Momentus 5400.2
        family

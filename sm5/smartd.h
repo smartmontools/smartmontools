@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.83 2006/09/15 08:01:21 sxzzsf Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.84 2006/11/11 17:50:50 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -42,7 +42,7 @@
 #define SCANDIRECTIVE "DEVICESCAN"
 
 // maximum line length in configuration file
-#define MAXLINELEN 128
+#define MAXLINELEN 256
 
 // maximum length of a continued line in configuration file
 #define MAXCONTLINE 1023
