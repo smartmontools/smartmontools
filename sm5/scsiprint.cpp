@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.118 2006/09/27 21:42:03 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.119 2006/11/12 04:47:23 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1047,29 +1047,11 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
             PRINT_OFF(con);
         }
 	return 2;
-    } else if ((avail_len >= 96) && (0 == strncmp(manufacturer, "ATA", 3))) {
-        /* <<<< This is Linux specific code to detect SATA disks using a
-                SCSI-ATA command translation layer. This may be generalized
-                later when the t10.org SAT project matures. >>>> */
-        pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
-        req_len = 252;
-        memset(gBuf, 0, req_len);
-        if ((err = scsiInquiryVpd(device, 0x83, gBuf, req_len))) {
-            PRINT_ON(con);
-            pout("Inquiry for VPD page 0x83 [device id] failed [%s]\n",
-                  scsiErrString(err));
-            PRINT_OFF(con);
-            return 1;
-        }
-        avail_len = ((gBuf[2] << 8) + gBuf[3]) + 4;
-        len = (avail_len < req_len) ? avail_len : req_len;
-        if (isLinuxLibAta(gBuf, len)) {
-            pout("\nIn Linux, SATA disks accessed via libata are "
-                 "only supported by smartmontools\n"
-                 "for kernel versions 2.6.15 and above.\n  Try "
-                 "an additional '-d ata' or '-d sat' argument.\n");
-            return 2;
-        }
+    } else if ((0 == con->controller_explicit) &&
+               (0 == strncmp(manufacturer, "ATA", 3))) {
+        pout("\nProbable ATA device behind a SAT layer\n"
+             "Try an additional '-d ata' or '-d sat' argument.\n");
+        return 2;
     }
     if (! all)
         return 0;

@@ -81,6 +81,7 @@ extern "C" int __stdcall FreeConsole(void);
 #include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
+#include "scsiata.h"
 #include "smartd.h"
 #include "utility.h"
 
@@ -118,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.383 2006/11/10 04:59:02 dpgilbert Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.384 2006/11/12 04:49:09 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.383 2006/11/10 04:59:02 dpgilbert Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.384 2006/11/12 04:49:09 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1595,13 +1596,13 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   return 0;
 }
 
-// Returns 1 if device recognised as one we do not want to treat as a general
-// SCSI device. Also returns 1 if INQUIRY fails (all "SCSI" devices should
-// respond to INQUIRY). Otherwise returns 0 (i.e. normal SCSI device).
+// Returns 0 if normal SCSI device. Returns -1 if INQUIRY fails.
+// Returns 2 if ATA device detected behind SAT layer.
+// Returns 1 if other device detected that we don't want to treat
+// as a normal SCSI device.
 static int SCSIFilterKnown(int fd, char * device)
 {
   char req_buff[256];
-  char di_buff[256];
   int req_len, avail_len, len;
 
   memset(req_buff, 0, 96);
@@ -1613,7 +1614,7 @@ static int SCSIFilterKnown(int fd, char * device)
     if (scsiStdInquiry(fd, (unsigned char *)req_buff, req_len)) {
       PrintOut(LOG_INFO, "Device: %s, failed on INQUIRY; skip device\n", device);
       // device doesn't like INQUIRY commands
-      return 1;
+      return -1;
     }
   }
   avail_len = req_buff[4] + 5;
@@ -1626,24 +1627,16 @@ static int SCSIFilterKnown(int fd, char * device)
     } else if ((len >= 42) && (0 == strncmp(req_buff + 36, "MVSATA", 6))) {
       PrintOut(LOG_INFO, "Device %s, please try '-d marvell'\n", device);
       return 1;
-    } else if ((avail_len >= 96) && (0 == strncmp(req_buff + 8, "ATA", 3))) {
-      /* <<<< This is Linux specific code to detect SATA disks using a
-              SCSI-ATA command translation layer. This may be generalized
-              later when the t10.org SAT project matures. >>>> */
-      req_len = 252;
-      memset(di_buff, 0, req_len);
-      if (scsiInquiryVpd(fd, 0x83, (unsigned char *)di_buff, req_len)) {
-        return 0;    // guess it is normal device
-      }
-      avail_len = ((di_buff[2] << 8) + di_buff[3]) + 4;
-      len = (avail_len < req_len) ? avail_len : req_len;
-      if (isLinuxLibAta((unsigned char *)di_buff, len)) {
-        PrintOut(LOG_INFO, "Device %s: SATA disks accessed via libata are "
-                 "supported by Linux\nkernel versions 2.6.15-rc1 and above. "
-                 "Try adding '-d ata' or\n'-d sat' to the smartd.conf "
-                 "config file line.\n", device);
-        return 1;
-      }
+    } else if ((avail_len >= 36) &&
+               (0 == strncmp(req_buff + 8, "ATA     ", 8)) &&
+	       has_sat_pass_through(fd, 0 /* non-packet dev */)) {
+
+      PrintOut(LOG_INFO, "Device %s: ATA disk detected behind SAT layer\n",
+               device);
+      PrintOut(LOG_INFO, "  Try adding '-d sat' to the device line in the "
+               "smartd.conf file.\n");
+      PrintOut(LOG_INFO, "  For example: '%s -a -d sat'\n", device);
+      return 2;
     }
   }
   return 0;
@@ -4042,7 +4035,8 @@ int MakeConfigEntries(const char *type, int start){
   char** devlist = NULL;
   cfgfile *first=cfgentries[0],*cfg=first;
 
-  // Hack! This is to make DEVICESCAN work on Linux libata devices.
+  // Hack! This is to make DEVICESCAN work on ATA devices behind
+  // a SCSI to ATA Translation (SAT) Layer.
   // This will work on a general OS if the way that SAT devices are
   // named is the same as SCSI devices.
   // The BETTER solution is to modify make_device_names to recognize
