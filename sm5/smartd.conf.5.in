@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.78 2006/10/09 11:45:12 guidog Exp $
+$Id: smartd.conf.5.in,v 1.79 2006/11/12 23:39:26 dpgilbert Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -121,8 +121,8 @@ Section below!
 .B # behind two 3ware controllers, three SATA disks
 .B # directly connected to the highpoint rocket-
 .B # raid controller, two SATA disks connected to
-.B # the highpoint rocketraid controller via a pmport
-.B # device and one SATA disk.
+.B # the highpoint controller via a pmport device
+.B # and one SATA disk.
 .B #
 .nf
 .B # First ATA disk on two different interfaces. On
@@ -145,11 +145,13 @@ Section below!
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Linux-specific: SATA disk using the libata
-.B # driver.  This requires a 2.6.15 or greater
-.B # kernel.  The device entry is SCSI but the
-.B # underlying disk understands ATA SMART commands
-.B \ \ /dev/sda -a -d ata
+.B # An ATA disk may appear as a SCSI device to the
+.B # OS. If a SCSI to ATA Translation (SAT) layer
+.B # is between the OS and the device then this can be
+.B # flagged with the '-d sat' option. This situation
+.B # may become common with SATA disks in SAS and FC
+.B # environments.
+.B \ \ /dev/sda -a -d sat
 .B #
 .nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
@@ -181,7 +183,7 @@ Section below!
 .nf
 .B # Two SATA disks connected to a highpoint rocketraid 
 .B # via a pmport device.  Start long self-tests Sundays
-.B # between midnight and 1am and 2-3 am.
+.B # between midnight and 1am and 2-3 am
 .B \ \ /dev/sde -d hpt,1/4/1 -a -s L/../../7/00
 .B \ \ /dev/sde -d hpt,1/4/2 -a -s L/../../7/02
 .B #
@@ -254,7 +256,7 @@ directives can be used for these disks (but see note below).
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
 times for one device, but the arguments \fIata\fP, \fIscsi\fP, \fIsat\fP,
-\fImarvell\fP, \fIcciss,N\fP and \fI3ware,N\fP are mutually-exclusive. If more
+\fImarvell\fP, \fIcciss\fP and \fI3ware,N\fP are mutually-exclusive. If more
 than one is given then \fBsmartd\fP will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
@@ -345,7 +347,7 @@ with XX in the range from 00 to 15 inclusive.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint
-RocketRAID controller.  The integer L is the controller id, the integer M
+RocketRAID controller. The integer L is the controller id, the integer M
 is the channel number, and the integer N is the PMPort number if it is
 available. The allowed values of L are from 1 to 4 inclusive, M are from
 1 to 8 inclusive and N from 1 to 4 if PMPort available.  And also these
@@ -1340,4 +1342,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.78 2006/10/09 11:45:12 guidog Exp $
+$Id: smartd.conf.5.in,v 1.79 2006/11/12 23:39:26 dpgilbert Exp $
