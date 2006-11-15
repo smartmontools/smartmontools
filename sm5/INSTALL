@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.71 2006/11/03 20:01:32 chrfranke Exp $
+$Id: INSTALL,v 1.72 2006/11/15 22:48:04 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -102,7 +102,7 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18-21. It should
+    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18-22. It should
     also work on other recent releases.
 
     Release 1.5.15 or later is recommended for Cygwin smartd. Older versions
@@ -156,7 +156,9 @@ Table of contents:
     3ware 9000 RAID controllers are supported using new features available
     in the Windows driver release 9.4.0 (3wareDrv.sys 3.0.2.70) or later.
     Older drivers provide SMART access to the first physical drive (port)
-    of each logical drive (unit).
+    of each logical drive (unit). If driver support is not available
+    (7000/8000 series, 9000 on XP 64), smartctl can be used to parse SMART
+    data output from CLI or 3DM.
 
     G) MacOS/Darwin
 
