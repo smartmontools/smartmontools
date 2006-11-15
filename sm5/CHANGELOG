@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.590 2006/11/12 04:54:48 dpgilbert Exp $
+$Id: CHANGELOG,v 1.591 2006/11/15 22:48:04 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added alternate method for (limited) monitoring of
+       3ware controllers by parsing the output of CLI or 3DM.
+       Either "tw_cli" can be run internally ("/dev/tw_cli/cx/py"),
+       or data can be read from standard input ("/dev/tw_cli/stdin")
+       or clipboard ("/dev/tw_cli/clip").
 
   [DG] Remove linux specific libata detect code; rely on general SAT
        code. smartd should now generate a sensible log message for

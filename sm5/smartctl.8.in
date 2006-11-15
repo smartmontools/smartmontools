@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.88 2006/10/22 02:38:27 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.89 2006/11/15 22:48:04 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -95,9 +95,14 @@ maps to "0"). SCSI disks can also be referred to as \fB"/dev/pd[0\-255]"\fP
 for "\\\\.\\PhysicalDrive[0\-255]" on WinNT4/2000/XP/2003. Use the
 form \fB"/dev/tape[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]"
 on WinNT4/2000/XP/2003.
-For disks behind 3ware controllers use \fB"/dev/hd[a\-j],N"\fP where
+For disks behind 3ware 9000 controllers use \fB"/dev/hd[a\-j],N"\fP where
 N specifies the disk number (3ware \'port\') behind the controller
 providing the logical drive (\'unit\') specified by \fB"/dev/hd[a\-j]"\fP.
+Alternatively, use \fB"/dev/tw_cli/cx/py"\fP for controller x, port y
+to run the \'tw_cli\' tool and parse the output. This provides limited
+monitoring (\'-i\', \'-c\', \'-A\' below) if SMART support is missing
+in the driver. Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
+to parse CLI or 3DM output from standard input or clipboard.
 The option \'-d 3ware,N\' is not necessary on Windows.
 The prefix \fB"/dev/"\fP is optional.
 .IP \fBCYGWIN\fP: 9
@@ -1383,7 +1388,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.88 2006/10/22 02:38:27 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.89 2006/11/15 22:48:04 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

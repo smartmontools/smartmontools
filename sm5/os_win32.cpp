@@ -46,7 +46,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.49 2006/10/27 21:49:41 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.50 2006/11/15 22:48:04 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -122,6 +122,11 @@ static void ata_close(int fd);
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
 
+#define TW_CLI_FDOFFSET 0x0300
+
+static int tw_cli_open(const char * name);
+static void tw_cli_close();
+
 #define ASPI_FDOFFSET 0x0100
 
 static int aspi_open(unsigned adapter, unsigned id);
@@ -156,6 +161,8 @@ int guess_device_type (const char * dev_name)
 {
 	dev_name = skipdev(dev_name);
 	if (!strncmp(dev_name, "hd", 2))
+		return CONTROLLER_ATA;
+	if (!strncmp(dev_name, "tw_cli", 6))
 		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "scsi", 4))
 		return CONTROLLER_SCSI;
@@ -273,6 +280,10 @@ int deviceopen(const char * pathname, char *type)
 		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                              ) {
 			return ata_open(drive[0] - 'a', options, port);
 		}
+		// tw_cli/... => Parse tw_cli output
+		if (!strncmp(pathname, "tw_cli/", 7)) {
+			return tw_cli_open(pathname+7);
+		}
 	} else if (!strcmp(type, "SCSI")) {
 		// scsi[0-9][0-f] => ASPI Adapter 0-9, ID 0-15, LUN 0
 		unsigned adapter = ~0, id = ~0; int n1 = -1;
@@ -311,6 +322,8 @@ int deviceclose(int fd)
 		aspi_close(fd);
 	else if (fd >= SPT_FDOFFSET)
  		spt_close(fd);
+	else if (fd == TW_CLI_FDOFFSET)
+		tw_cli_close();
 	else
 		ata_close(fd);
 	return 0;
@@ -343,6 +356,8 @@ void print_smartctl_examples(){
          "             (Prints all information for SCSI tape on Tape 1)\n"
          "  smartctl -A /dev/hdb,3\n"
          "                (Prints Attributes for physical drive 3 on 3ware 9000 RAID)\n"
+         "  smartctl -A /dev/tw_cli/c0/p1\n"
+         "            (Prints Attributes for 3ware controller 0, port 1 using tw_cli)\n"
          "\n"
          "  ATA SMART access methods and ordering may be specified by modifiers\n"
          "  following the device name: /dev/hdX:[saic], where\n"
@@ -1106,6 +1121,269 @@ static int update_3ware_devicemap_ioctl(HANDLE hdevice)
 }
 
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Routines for pseudo device /dev/tw_cli/*
+// Parses output of 3ware "tw_cli /cx/py show all" or 3DM SMART data window
+
+
+// Get clipboard data
+
+static int get_clipboard(char * data, int datasize)
+{
+	if (!OpenClipboard(NULL))
+		return -1;
+	HANDLE h = GetClipboardData(CF_TEXT);
+	if (!h) {
+		CloseClipboard();
+		return 0;
+	}
+	const void * p = GlobalLock(h);
+	int n = GlobalSize(h);
+	if (n > datasize)
+		n = datasize;
+	memcpy(data, p, n);
+	GlobalFree(h);
+	CloseClipboard();
+	return n;
+}
+
+
+// Run a command, write stdout to dataout
+// TODO: Combine with daemon_win32.cpp:daemon_spawn()
+
+static int run_cmd(const char * cmd, char * dataout, int outsize)
+{
+	// Create stdout pipe
+	SECURITY_ATTRIBUTES sa = {sizeof(sa), 0, TRUE};
+	HANDLE pipe_out_w, h;
+	if (!CreatePipe(&h, &pipe_out_w, &sa/*inherit*/, outsize))
+		return -1;
+	HANDLE self = GetCurrentProcess();
+	HANDLE pipe_out_r;
+	if (!DuplicateHandle(self, h, self, &pipe_out_r,
+		GENERIC_READ, FALSE/*!inherit*/, DUPLICATE_CLOSE_SOURCE)) {
+		CloseHandle(pipe_out_w);
+		return -1;
+	}
+	HANDLE pipe_err_w;
+	if (!DuplicateHandle(self, pipe_out_w, self, &pipe_err_w,
+		0, TRUE/*inherit*/, DUPLICATE_SAME_ACCESS)) {
+		CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
+		return -1;
+	}
+
+	// Create process
+	STARTUPINFO si;	memset(&si, 0, sizeof(si)); si.cb = sizeof(si);
+	si.hStdInput  = INVALID_HANDLE_VALUE;
+	si.hStdOutput = pipe_out_w; si.hStdError  = pipe_err_w;
+	si.dwFlags = STARTF_USESTDHANDLES;
+	PROCESS_INFORMATION pi;
+	if (!CreateProcess(
+		NULL, const_cast<char *>(cmd),
+		NULL, NULL, TRUE/*inherit*/,
+		CREATE_NO_WINDOW/*do not create a new console window*/,
+		NULL, NULL, &si, &pi)) {
+		CloseHandle(pipe_err_w); CloseHandle(pipe_out_r); CloseHandle(pipe_out_w);
+		return -1;
+	}
+	CloseHandle(pi.hThread);
+	CloseHandle(pipe_err_w); CloseHandle(pipe_out_w);
+
+	// Copy stdout to output buffer
+	int i = 0;
+	while (i < outsize) {
+		DWORD num_read;
+		if (!ReadFile(pipe_out_r, dataout+i, outsize-i, &num_read, NULL) || num_read == 0)
+			break;
+		i += num_read;
+	}
+	CloseHandle(pipe_out_r);
+	// Wait for process
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	CloseHandle(pi.hProcess);
+	return i;
+}
+
+
+static const char * findstr(const char * str, const char * sub)
+{
+	const char * s = strstr(str, sub);
+	return (s ? s+strlen(sub) : "");
+}
+
+
+static void copy_swapped(unsigned char * dest, const char * src, int destsize)
+{
+	int srclen = strcspn(src, "\r\n");
+	int i;
+	for (i = 0; i < destsize-1 && i < srclen-1; i+=2) {
+		dest[i] = src[i+1]; dest[i+1] = src[i];
+	}
+	if (i < destsize-1 && i < srclen)
+		dest[i+1] = src[i];
+}
+
+
+static ata_identify_device * tw_cli_identbuf = 0;
+static ata_smart_values * tw_cli_smartbuf = 0;
+
+static int tw_cli_open(const char * name)
+{
+	// Read tw_cli or 3DM browser output into buffer
+	char buffer[4096];
+	int size = -1, n1 = -1;
+	if (!strcmp(name, "clip")) { // tw_cli/clip => read clipboard
+		size = get_clipboard(buffer, sizeof(buffer));
+	}
+	else if (!strcmp(name, "stdin")) {  // tw_cli/stdin => read stdin
+		size = fread(buffer, 1, sizeof(buffer), stdin);
+	}
+	else if (sscanf(name, "c%*u/p%*u%n", &n1) >= 0 && n1 == (int)strlen(name)) {
+		// tw_cli/cx/py => read output from "tw_cli /cx/py show all"
+		char cmd[100];
+		snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name);
+		if (con->reportataioctl > 1)
+			pout("tw_cli/%s: Run: \"%s\"\n", name, cmd);
+		size = run_cmd(cmd, buffer, sizeof(buffer));
+	}
+	else {
+		errno = EINVAL; return -1;
+	}
+
+	if (con->reportataioctl > 1)
+		pout("tw_cli/%s: Read %d bytes\n", name, size);
+	if (size <= 0) {
+		errno = ENOENT; return -1;
+	}
+	if (size >= (int)sizeof(buffer)) {
+		errno = EIO; return -1;
+	}
+	buffer[size] = 0;
+	if (con->reportataioctl > 1)
+		pout("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
+
+	// Fake identify sector
+	ASSERT_SIZEOF(ata_identify_device, 512);
+	ata_identify_device * id = (ata_identify_device *)malloc(sizeof(ata_identify_device));
+	memset(id, 0, sizeof(*id));
+	copy_swapped(id->model    , findstr(buffer, " Model = "   ), sizeof(id->model));
+	copy_swapped(id->fw_rev   , findstr(buffer, " Firmware Version = "), sizeof(id->fw_rev));
+	copy_swapped(id->serial_no, findstr(buffer, " Serial = "  ), sizeof(id->serial_no));
+	unsigned long nblocks = 0; // "Capacity = N.N GB (N Blocks)"
+	sscanf(findstr(buffer, "Capacity = "), "%*[^(\r\n](%lu", &nblocks);
+	if (nblocks) {
+		id->words047_079[49-47] = 0x0200; // size valid
+		id->words047_079[60-47] = (unsigned short)(nblocks    ); // secs_16
+		id->words047_079[61-47] = (unsigned short)(nblocks>>16); // secs_32
+	}
+	id->major_rev_num = 0x1<<3; // ATA-3
+	id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
+	id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
+
+	// Parse smart data hex dump
+	const char * s = findstr(buffer, "Drive Smart Data:");
+	if (!*s) {
+		s = findstr(buffer, "S.M.A.R.T. (Controller"); // from 3DM browser window
+		if (*s) {
+			const char * s1 = findstr(s, "<td class"); // html version
+			if (*s1)
+				s = s1;
+			s += strcspn(s, "\r\n");
+		}
+		else
+			s = buffer; // try raw hex dump without header
+	}
+	unsigned char * sd = (unsigned char *)malloc(512);
+	int i = 0;
+	for (;;) {
+		unsigned x = ~0; int n = -1;
+		if (!(sscanf(s, "%x %n", &x, &n) == 1 && !(x & ~0xff)))
+			break;
+		sd[i] = (unsigned char)x;
+		if (!(++i < 512 && n > 0))
+			break;
+		s += n;
+		if (*s == '<') // "<br>"
+			s += strcspn(s, "\r\n");
+	}
+	if (i < 512) {
+		free(sd);
+		if (!id->model[1]) {
+			// No useful data found
+			free(id);
+			char * err = strstr(buffer, "Error:");
+			if (!err)
+				err = strstr(buffer, "error :");
+			if (err) {
+				// Print tw_cli error message
+				err[strcspn(err, "\r\n")] = 0;
+				pout("%s\n", err);
+			}
+			errno = EIO;
+			return -1;
+		}
+		sd = 0;
+	}
+
+	tw_cli_identbuf = id;
+	tw_cli_smartbuf = (ata_smart_values *)sd;
+	return TW_CLI_FDOFFSET;
+}
+
+
+static void tw_cli_close()
+{
+	if (tw_cli_identbuf) {
+		free(tw_cli_identbuf); tw_cli_identbuf = 0;
+	}
+	if (tw_cli_smartbuf) {
+		free(tw_cli_smartbuf); tw_cli_smartbuf = 0;
+	}
+}
+
+
+static int tw_cli_command_interface(smart_command_set command, int /*select*/, char * data)
+{
+	switch (command) {
+	  case IDENTIFY:
+		if (!tw_cli_identbuf)
+			break;
+		memcpy(data, tw_cli_identbuf, 512);
+		return 0;
+	  case READ_VALUES:
+		if (!tw_cli_smartbuf)
+			break;
+		memcpy(data, tw_cli_smartbuf, 512);
+		return 0;
+	  case READ_THRESHOLDS:
+		if (!tw_cli_smartbuf)
+			break;
+		// Fake zero thresholds
+		{
+			const ata_smart_values   * sv = tw_cli_smartbuf;
+			ata_smart_thresholds_pvt * tr = (ata_smart_thresholds_pvt *)data;
+			memset(tr, 0, 512);
+			// TODO: Indicate missing thresholds in ataprint.cpp:PrintSmartAttribWithThres()
+			// (ATA_SMART_READ_THRESHOLDS is marked obsolete since ATA-5)
+			for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++)
+				tr->chksum -= tr->thres_entries[i].id = sv->vendor_attributes[i].id;
+		}
+		return 0;
+	  case ENABLE:
+	  case STATUS:
+	  case STATUS_CHECK: // Fake "good" SMART status
+		return 0;
+	  default:
+		break;
+	}
+	// Arrive here for all unsupported commands
+	errno = ENOSYS;
+	return -1;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 // Call GetDevicePowerState() if available (Win98/ME/2000/XP/2003)
@@ -1458,6 +1736,9 @@ static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdri
 // Interface to ATA devices.  See os_linux.c
 int ata_command_interface(int fd, smart_command_set command, int select, char * data)
 {
+	if (fd == TW_CLI_FDOFFSET) // Parse tw_cli output
+		return tw_cli_command_interface(command, select, data);
+
 	int port = -1;
 	if ((fd & ~0x1f) == ATARAID_FDOFFSET) {
 		// RAID Port encoded into pseudo fd
