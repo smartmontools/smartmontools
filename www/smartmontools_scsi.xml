@@ -22,12 +22,12 @@ ps, txt, etc.
     </affiliation>
    </author>
   <authorinitials>dpg</authorinitials>
-  <pubdate>2006-10-22</pubdate>
+  <pubdate>2006-11-21</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.6</revnumber>
-       <date>2006-10-22</date>
+       <date>2006-11-21</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              auto '-d sat', background scan, windows device names
@@ -153,7 +153,7 @@ those users of smartmontools that wish to monitor SCSI storage devices.
 <para>
 This document outlines the features found in smartmontools
 version 5.37 that are relevant to SCSI disks and tape drives.
-This document was last altered on 22nd October 2006.
+This document was last altered on 21st November 2006.
 </para>
 </sect1>
 
@@ -189,6 +189,12 @@ In Unix systems its configuration file can
 be found <filename>/etc/smartd.conf</filename>. It sends alerts to the
 system logs and can be configured to email system administrators when
 pending failures are reported.
+</para>
+<para>
+If smartmontools detects some "bad blocks" then the reader should
+look at this page:
+<ulink url="http://smartmontools.sourceforge.net/badblockhowto.html">
+<literal>smartmontools.sourceforge.net/badblockhowto.html</literal></ulink> .
 </para>
 </sect1>
 
@@ -1030,13 +1036,33 @@ device nodes (for linux: <filename>/dev/sda</filename> through to
 "DEVICESCAN" word can be removed (or commented out) and SCSI devices
 named explicitly:
 <programlisting>
-/dev/sda -d scsi
-/dev/sdb -d scsi
+/dev/sda -a -d scsi
+/dev/sdb -a -d scsi
 </programlisting>
+</para>
+<para>
 The "-d scsi" argument overrides what <command>smartd</command> would
 guess as the device
 class (i.e. "ata", "scsi", "sat", "marvell", "3ware,N", "hpt,L/N[,M]"
-or "cciss,N").
+or "cciss,N"). In smartmontools version 5.37 the <command>smartd</command>
+daemon guesses SCSI device nodes on the basis of their name (i.e. without
+querying the device beforehand). However it does query the device
+after it has been placed in the SCSI group and if it notices that the
+vendor name is "ATA     " and that it responds to SCSI ATA PASS THROUGH
+commands then a informational message is sent to the log suggesting
+that the user try adding '-d sat' (or perhaps a '-d scsi' should be
+changed to '-d sat'). After such a warning for node <filename>/dev/sdb
+</filename> the code snippet from the <filename>/etc/smartd.conf</filename>
+file might be changed to:
+<programlisting>
+/dev/sda -a -d scsi
+/dev/sdb -a -d sat
+</programlisting>
+</para>
+<para>
+This may be automated in a later version of
+smartmontools (the <command>smartctl</command> command does automatic
+detection in version 5.37).
 </para>
 </sect1>
 
@@ -1476,7 +1502,7 @@ There is a HOWTO on the Linux SCSI subsystem in the 2.4 series here:
 </para>
 
 <para>
-CVS $Id: smartmontools_scsi.xml,v 1.15 2006/10/23 01:16:31 dpgilbert Exp $
+CVS $Id: smartmontools_scsi.xml,v 1.16 2006/11/21 20:23:07 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
