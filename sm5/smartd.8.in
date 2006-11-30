@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.108 2006/10/22 02:38:51 dpgilbert Exp $
+$Id: smartd.8.in,v 1.109 2006/11/30 04:17:41 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1060,6 +1060,10 @@ In addition, one may add zero or more of the following Directives:
 immediately upon
 \fBsmartd\fP
 startup.  This allows one to verify that email is delivered correctly.
+Note that if this Directive is used,
+\fBsmartd\fP
+will also send the normal email warnings that were enabled with the \'\-m\' Directive,
+in addition to the single test email!
 
 .I exec PATH
 \- run the executable PATH instead of the default mail command, when
@@ -1943,4 +1947,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.108 2006/10/22 02:38:51 dpgilbert Exp $
+$Id: smartd.8.in,v 1.109 2006/11/30 04:17:41 ballen4705 Exp $
