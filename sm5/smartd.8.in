@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.109 2006/11/30 04:17:41 ballen4705 Exp $
+$Id: smartd.8.in,v 1.110 2006/11/30 05:24:13 sxzzsf Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -494,8 +494,8 @@ Section below!
 .B # behind two 3ware controllers, three SATA disks
 .B # directly connected to the highpoint rocket-
 .B # raid controller, two SATA disks connected to
-.B # the highpoint controller via a pmport device
-.B # and one SATA disk.
+.B # the highpoint rocketraid controller via a pmport
+.B # device and one SATA disk.
 .B #
 .nf
 .B # First ATA disk on two different interfaces. On
@@ -554,7 +554,7 @@ Section below!
 .nf
 .B # Two SATA disks connected to a highpoint rocketraid 
 .B # via a pmport device.  Start long self-tests Sundays
-.B # between midnight and 1am and 2-3 am
+.B # between midnight and 1am and 2-3 am.
 .B \ \ /dev/sde -d hpt,1/4/1 -a -s L/../../7/00
 .B \ \ /dev/sde -d hpt,1/4/2 -a -s L/../../7/02
 .B #
@@ -1947,4 +1947,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.109 2006/11/30 04:17:41 ballen4705 Exp $
+$Id: smartd.8.in,v 1.110 2006/11/30 05:24:13 sxzzsf Exp $
