@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.110 2006/11/30 05:24:13 sxzzsf Exp $
+$Id: smartd.8.in,v 1.111 2006/11/30 16:15:19 dpgilbert Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -518,11 +518,13 @@ Section below!
 .B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
 .B #
 .nf
-.B # Linux-specific: SATA disk using the libata
-.B # driver.  This requires a 2.6.15 or greater
-.B # kernel.  The device entry is SCSI but the
-.B # underlying disk understands ATA SMART commands
-.B \ \ /dev/sda -a -d ata
+.B # An ATA disk may appear as a SCSI device to the
+.B # OS. If a SCSI to ATA Translation (SAT) layer
+.B # is between the OS and the device then this can be
+.B # flagged with the '-d sat' option. This situation
+.B # may become common with SATA disks in SAS and FC
+.B # environments.
+.B \ \ /dev/sda -a -d sat
 .B #
 .nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
@@ -1947,4 +1949,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.110 2006/11/30 05:24:13 sxzzsf Exp $
+$Id: smartd.8.in,v 1.111 2006/11/30 16:15:19 dpgilbert Exp $
