@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.111 2006/11/30 16:15:19 dpgilbert Exp $
+$Id: smartd.8.in,v 1.112 2006/12/13 13:51:34 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -629,7 +629,7 @@ directives can be used for these disks (but see note below).
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
 times for one device, but the arguments \fIata\fP, \fIscsi\fP, \fIsat\fP,
-\fImarvell\fP, \fIcciss\fP and \fI3ware,N\fP are mutually-exclusive. If more
+\fImarvell\fP, \fIcciss,N\fP and \fI3ware,N\fP are mutually-exclusive. If more
 than one is given then \fBsmartd\fP will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
@@ -720,7 +720,7 @@ with XX in the range from 00 to 15 inclusive.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint
-RocketRAID controller. The integer L is the controller id, the integer M
+RocketRAID controller.  The integer L is the controller id, the integer M
 is the channel number, and the integer N is the PMPort number if it is
 available. The allowed values of L are from 1 to 4 inclusive, M are from
 1 to 8 inclusive and N from 1 to 4 if PMPort available.  And also these
@@ -1949,4 +1949,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.111 2006/11/30 16:15:19 dpgilbert Exp $
+$Id: smartd.8.in,v 1.112 2006/12/13 13:51:34 chrfranke Exp $
