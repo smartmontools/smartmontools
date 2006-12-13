@@ -3,8 +3,9 @@ examplesdir=$(exampledir)
 
 examples_DATA = README
 
-examples_SCRIPTS = Example1            \
-                       Example2        \
-                       Example3
+examples_SCRIPTS = Example1     \
+                   Example2     \
+                   Example3     \
+                   Example4
 
 EXTRA_DIST = $(examples_SCRIPTS)
