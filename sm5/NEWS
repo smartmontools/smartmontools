@@ -1,9 +1,31 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.30 2006/05/19 16:33:33 chrfranke Exp $
+CVS ID: $Id: NEWS,v 1.31 2006/12/19 18:47:44 chrfranke Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
+
+Date <Not released yet>
+Summary: smartmontools release 5.37 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+This is an unstable/experimental release of smartmontools.
+It includes:
+
+- Many additions to the table of known drives
+- SAT (SCSI/ATA Translation) support
+- SCSI background scan results log
+- smartd -W directive for temperature tracking and warning
+- smartctl -n option to check power state
+- improved smartd power state logging
+- CCISS support under Linux
+- HighPoint RocketRAID support under Linux
+- 3ware RAID support under Windows
+- SPT interface for SCSI devices under Windows
+- ATA selective self test under Windows XP/2003
+- NSIS installer support for Windows version
+- Started move from C to C++
+- Various other improvements
+
 
 Date 2006-04-12
 Summary: smartmontools release 5.36 (STABLE)
