@@ -3,7 +3,7 @@
 # do a smartmontools release
 # (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.39 2006/05/19 16:33:33 chrfranke Exp $
+# $Id: do_release,v 1.40 2006/12/19 19:25:42 chrfranke Exp $
 
 # Notes on generating releases:
 # (1) update NEWS
@@ -16,13 +16,6 @@
 USECVS=1
 
 KEYID=0x841ABAE8
-
-if [ -f /etc/redhat-release ]; then
-  RPM_BASE=/usr/src/redhat/
-else
-  RPM_BASE=/usr/src/rpm/
-fi
-SOURCES=$RPM_BASE/SOURCES/
 
 setup_cvs()
 {
@@ -86,13 +79,6 @@ cd build
 ../configure
 make distcheck || exit 1
 cd ..
-cp build/smartmontools-$VERSION.tar.gz $SOURCES
-
-# build rpm
-rpmbuild -ba --sign smartmontools.spec
-
-# remove source tarball
-rm -f $SOURCES/smartmontools-$VERSION.tar.gz
 
 # increase release number:
 inc_release
@@ -101,8 +87,6 @@ if [ $USECVS -ne 0 ] ; then
     perl -p -i.bak -e "s/Version:\t$PERL_OLD/Version:\t$PERL_NEW/" smartmontools.spec
 fi
 
-mv -f $RPM_BASE/RPMS/i386/smartmontools-$VERSION-*.i386.rpm . || mv -f $RPM_BASE/RPMS/x86_64/smartmontools-$VERSION-*.x86_64.rpm .
-mv -f $RPM_BASE/SRPMS/smartmontools-$VERSION-*.src.rpm .
 cp -f build/smartmontools-$VERSION.tar.gz .
 if [ "$KEYID" ]; then
   gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSION.tar.gz
@@ -110,4 +94,5 @@ fi
 
 # cleanup
 rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
-       depcomp mkinstalldirs install-sh configure aclocal.m4 missing *.bak
+       depcomp mkinstalldirs install-sh configure config.guess config.sub \
+       aclocal.m4 missing *.bak
