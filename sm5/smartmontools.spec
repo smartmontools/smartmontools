@@ -8,7 +8,7 @@ Summary(pt):	smartmontools - para monitorar discos e dispositivos S.M.A.R.T.
 Summary(it):	smartmontools - per monitare dischi e dispositivi S.M.A.R.T.
 Summary(pl):	Monitorowanie i kontrola dysków u¿ywaj±æ S.M.A.R.T.
 Name:		smartmontools
-Version:	5.37
+Version:	5.38
 License:	GPL
 Group:		Applications/System
 Group(de):	Applikationen/System
@@ -38,7 +38,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.170 2006/12/20 20:39:25 chrfranke Exp $
+# $Id: smartmontools.spec,v 1.171 2006/12/20 21:59:04 chrfranke Exp $
 
 # Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
