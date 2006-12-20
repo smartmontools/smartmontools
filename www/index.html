@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/11/04 20:04:26 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/12/20 22:09:02 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.208 2006/11/04 20:04:26 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.209 2006/12/20 22:09:02 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -23,16 +23,12 @@
 <b>NEWS:</b>
 </font>
 <ul>
-<li><font color="#ff0000">Smartmontools 5.36 (stable) was released 2006-04-16, see
-<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?revision=RELEASE_5_36&amp;view=markup">
+<li><font color="#ff0000">Smartmontools 5.37 (experimental) was released 2006-12-20, see
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?revision=RELEASE_5_37&amp;view=markup">
 NEWS</a> and
-<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?revision=RELEASE_5_36&amp;view=markup">
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?revision=RELEASE_5_37&amp;view=markup">
 CHANGELOG</a> for details.
 </font></li>
-<li><font color="#ff0000">SourceForge CVS architecture has changed 2006-05-12, please read
-notes <a href="#CVSInstall">below</a> if you install smartmontools from CVS.</font></li>
-<li><font color="#ff0000">A Windows installer version of smartmontools 5.36 was released
-2006-06-06, see <a href="#WindowsInstall">below</a>.</font></li>
 <li><font color="#ff0000">New RAID controller support (CCISS and HighPoint on Linux,
 3ware on Windows) was added, see <a href="#FAQ-RAID">below</a>.</font></li>
 </ul>
@@ -105,8 +101,12 @@ INSTALL</a></b> file contains additional information.
 </p>
 <b>First Method (Redhat/Fedora Linux) - Install from the RPM file</b>
 <ul>
-<li>Download the latest binary RPM file (<tt>*.rpm</tt>) from <a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.&#160;
-Don't get the SRPM file (<tt>*.src.rpm</tt>).<br/> SuSE users: use one of the SuSE-specific RPM files.</li>
+
+<li><p><font color="#ff0000">Starting with smartmontools release 5.37, RPM files
+are no longer available at the smartmontools project download page.
+Refer to the package download location of your distribution.</font></p></li>
+<li><p>Download the latest binary RPM file (<tt>smartmontools*.rpm</tt>) for your
+distribution. Don't get the SRPM file (<tt>*.src.rpm</tt>).</p></li>
 <li>Install it using RPM.&#160; <i>You must be root to do this</i>:
 <pre>su root (enter root password)
 rpm -ivh smartmontools-5.32.i386.rpm</pre>
@@ -291,20 +291,18 @@ including an uninstaller, and adds the install directory to the PATH variable.
 <li>Select install type "Extract files only" to disable these extra
 components.
 </li>
-<li><font color="#ff0000">
-Virus scanners occasionally produce false positive virus reports for
+<li>Virus scanners occasionally produce false positive virus reports for
 NSIS-installers, see the
 <a href="http://nsis.sourceforge.net/NSIS_False_Positives">NSIS False Positives page</a>.
 If this is the case for the smartmontools installer, please send a report to the
 <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">smartmontools-support
-mailing list</a>.
-</font></li>
+mailing list</a>.</li>
 </ul>
 </li>
-<li><p>Or download and unzip the latest smartmontools Windows archive
-(<tt>*.win32.zip</tt>) from
-<a href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
-</p></li>
+<li><p><font color="#ff0000">Starting with smartmontools release 5.37, the Windows package
+is no longer provided as a ZIP archive (<tt>*.win32.zip</tt>).</font><br />
+If the self extracting installer cannot be used for some reason, the files may also
+be unpacked by a recent version of <a href="http://www.7-zip.org/">7-Zip</a>.</p></li>
 <li><p>More recent (and probably unstable) Windows test releases build from CVS
 snapshots are available <a href="http://smartmontools-win32.dyndns.org/smartmontools/">here</a>.
 </p></li>
@@ -705,9 +703,9 @@ HighPoint RocketRAID support for Linux was added 2006-08-25.
 CCISS (Compaq Smart Array Controller) support for Linux was added 2006-10-09.
 </font></p></li>
 </ul>
-<p>
-The recent additions will appear in upcoming release 5.37.
-</p>
+<p><font color="#ff0000">
+The recent additions are included in smartmontools release 5.37.
+</font></p>
 <p>
 See<b>
 <a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
@@ -1000,7 +998,7 @@ A new I/O control call
 <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_e93738e1-b773-452b-8776-854f9c616967.xml.asp">
 IOCTL_ATA_PASS_THROUGH</a> is available since Win2003 and XP SP2.
 It should be supported by most new drivers. Experimental code using
-this call was added 2006-04-27 and will appear in smartmontools
+this call was added 2006-04-27 and is included in smartmontools
 release 5.37.
 </p>
 </li>
@@ -1149,16 +1147,18 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10">LinuxUser 2004/10</a></l
 <li><a href="http://www.linux-magazine.com/issue/49/Monitoring_Hard_Disks_with_smartmontools.pdf">Crash Prevention
 (English version of above)</a> from <a href="http://www.linux-magazine.com/issue/49">Linux Magazine Dec 2004</a></li>
 <li><a href="http://www.wikipedia.org/">Wikipedia</a> articles about SMART:
-<a href="http://en.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">English</a>,
+<a href="http://en.wikipedia.org/wiki/Self-Monitoring%2C_Analysis%2C_and_Reporting_Technology">English</a>,
 <a href="http://de.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Deutsch</a>,
-<a href="http://es.wikipedia.org/wiki/SMART">Espa&#241;ol</a>,
+<a href="http://es.wikipedia.org/wiki/S.M.A.R.T.">Espa&#241;ol</a>,
 <a href="http://fr.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Fran&#231;ais</a>,
 <a href="http://it.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Italiano</a>,
 <a href="http://ja.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology">Japanese</a>,
 <a href="http://nl.wikipedia.org/wiki/S.M.A.R.T.">Nederlands</a>,
 <a href="http://pl.wikipedia.org/wiki/S.M.A.R.T._%28informatyka%29">Polski</a>,
+<a href="http://pt.wikipedia.org/wiki/S.M.A.R.T.">Portugu&#234;s</a>,
 <a href="http://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F_SMART">Russian</a>,
-<a href="http://sk.wikipedia.org/wiki/S.M.A.R.T">Sloven&#269;ina</a>
+<a href="http://sk.wikipedia.org/wiki/S.M.A.R.T">Sloven&#269;ina</a>,
+<a href="http://sv.wikipedia.org/wiki/S.M.A.R.T.">Svenska</a>
 </li>
  <li>The <a href="http://www.t13.org/project/d1321r3-ATA-ATAPI-5.pdf"> ATAPI/ATA-5
 Revision 3 specification</a> (start with Section 8.41)</li>
@@ -1261,8 +1261,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/11/04 20:04:26 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.208 2006/11/04 20:04:26 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2006/12/20 22:09:02 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.209 2006/12/20 22:09:02 chrfranke Exp $</tt>
 
 <hr size="2" />
 
