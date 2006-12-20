@@ -38,7 +38,7 @@ Packager:       Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # http://ftp1.sourceforge.net/smartmontools/smartmontools-%{version}-%{release}.tar.gz
 
 # CVS ID of this file is:
-# $Id: smartmontools.spec,v 1.169 2006/09/09 02:59:03 ballen4705 Exp $
+# $Id: smartmontools.spec,v 1.170 2006/12/20 20:39:25 chrfranke Exp $
 
 # Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 # Home page: http://smartmontools.sourceforge.net/
@@ -325,14 +325,166 @@ fi
 # [EM] Eduard Martinescu
 # [FM] Frédéric L. W. Meunier
 # [KS] Keiji Sawada
+# [DS] David Snyder
 # [SS] Sergey Svishchev
 # [PW] Phil Williams
 # [LW] Leon Woestenberg
 # [RZ] Richard Zybert
+# [SZ] Sf Zhou
 
 
 %changelog
+* Wed Dec 20 2006 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [CF] Windows: Added alternate method for (limited) monitoring of
+       3ware controllers by parsing the output of CLI or 3DM.
+       Either "tw_cli" can be run internally ("/dev/tw_cli/cx/py"),
+       or data can be read from standard input ("/dev/tw_cli/stdin")
+       or clipboard ("/dev/tw_cli/clip").
+  [DG] Remove linux specific libata detect code; rely on general SAT
+       code. smartd should now generate a sensible log message for
+       ATA devices behind a SAT layer on all architectures.
+  [BA] Increased max line length MAXLINELEN for /etc/smartd.conf from
+       128 to 256 characters to handle long strings in
+       /dev/disk/by-id.  Thanks to Martin Krafft.
+  [PW] Drive database: added missing drives from Seagate Momentus 5400.2
+       family
+  [BA] Finished Christian's fix (next item below) by removing
+       LINUX_86_64 hack from configure.in.
+  [CF] Fixed inclusion of PRI?64 macros from inttypes.h.
+  [CF] Windows: Added WRITE LOG to support selective self tests.
+  [CF] Fix selective self test log revision number if '-T permissive'
+       is specified (Tested with Samsung HD401LJ).
+  [CF] Windows: Fixed int64 printf format for MinGW runtime.
+  [PW] Drive database: added Seagate Barracuda 7200.10 family, Seagate
+       Momentus 42 family, Maxtor DiamondMax 60 ATA 66 family, Maxtor
+       DiamondMax 60 ATA 100 family, and Western Digital Caviar Serial
+       ATA family
+  [PW] Drive database: added missing drives from Seagate Barracuda
+       7200.9 family, Seagate Barracuda 7200.7 family, Seagate Momentus
+       7200.1 family, Toshiba 2.5" HDD family (80 GB and above), Western
+       Digital Caviar RE Serial ATA family, Hitachi Deskstar 7K80 family,
+       and Maxtor DiamondMax 4320 Ultra ATA family
+  [BA] Linux: compile fix for SuSE.  Check for existence
+       of linux/compiler.h and include in os_linux.h if
+       present.  Thanks to SB.
+  [BA] smartd: DEVICESCAN will now pick up SATA/SAT devices
+       attached to a SCSI device tree via SAT translation.
+       Note: this is a bit of a hack.  I will document it once
+       I know if this needs to be Linux only or can have more
+       general application.
+  [BA] Added a couple SATA commands to the tables -- thanks DG!
+       Phil -- how about going through and systematically adding
+       these new commands to atacmdnames.cpp?
+  [BA] Linux s86_64: get rid of some compiler warnings on
+       x86_64 Linux systems.
+  [CF] Windows: Added missing support for READ_LOG, ABORT_SELFTEST
+       and CHECK_POWER_STATE for 3ware 9000 controllers. Thanks to
+       Greg de Valois for implementing this new ioctl in the driver.
+  [PW] Drive database: added Seagate NL35 SATA family.  Thanks to Kai
+       Harrekilde-Petersen for providing a patch.
+  [DG] [SCSI, Windows] add SPT interface for NT and later. New device
+       names are "pd<n>", "sd<l>" and "tape<n>".
+  [PW] Drive database: added Western Digital Scorpio family, Fujitsu MHV
+       family, Maxtor MaXLine Pro 500 family, and Maxtor DiamondMax 11
+       family
+  [PW] Drive database: added missing drives from Toshiba 2.5" HDD
+       (30-60 GB) family, Maxtor DiamondMax 10 family, Seagate Barracuda
+       7200.8 family, Fujitsu MHT family, and Maxtor DiamondMax Plus 8
+       family
+  [SB] Added examplescripts/Example4 using powersave-notify.
+  [SB] More temperature monitoring examples in smartd.conf with DEVICESCAN.
+  [SB] Minor improvements of SuSE part of init script.
+  [CF] Drive database: added Samsung P80 series, P120 series, SP8004H
+       and T series.
+  [GG] Add CCISS (Compaq Smart Array Controller) support with contributions
+       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frédéric
+       BOITEUX
+  [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
+       Deskstar 7K500 series.  Thanks to L. J. Wu for providing a
+       patch
+  [PW] Drive database: added Maxtor MaXLine III family, Seagate U7
+       family, Seagate ST34321A, FUJITSU MHM2060AT, FUJITSU MHT2040AS,
+       Western Digital Caviar SE16 family, IBM Travelstar 4GT family,
+       QUANTUM FIREBALLP KA9.1, QUANTUM FIREBALL SE4.3A, TOSHIBA
+       MK1032GAX, TOSHIBA MK4026GAX
+  [PW] Drive database: added missing drives from Western Digital Caviar
+       SE (Serial ATA) and WD Raptor families
+  [CF] Windows: Added support for 3ware 9000 controllers using extended
+       SMART functionality in new 3ware driver. This includes DEVICESCAN
+       support for at most 2 controllers. Thanks to Greg de Valois from
+       AMCC/3ware for new driver features, development support and
+       hardware for testing.
+  [SZ] smartd: Support HighPoint RocketRAID controller under GNU/linux
+  [DG] [SCSI] First cut for '-l background' to show background scan
+       results log
+  [SZ] smartctl: Support HighPoint RocketRAID controller under GNU/linux
+  [KS] C++ compile fixes for Solaris with a few cleanups.
+  [BA] C++ compile fixes for Darwin (thanks to CF)
+  [CF] Removed old *.c files (now in CVS Attic).
+  [CF] Added changes for C++ to platform independent and Windows
+       related files.
+  [BA] Tagged last .c Version with PRE_MOVE_TO_CPP. Copied *.c,v
+       to *.cpp,v in CVS repository to preserve history of source
+       files. Removed sm5_Darwin repository.
+  [CF] smartctl: Added -n option to skip checks when disk is in
+       low-power mode.
+  [CF] Windows: Added alternate system call for power state check
+       because the PASS THROUGH calls may spin up the disk.
+  [CF] smartd: Modified power state logging to report state changes
+       instead of standby condition.
+  [CF] smartd: Ignore -n directive on scheduled self tests.
+  [DG] [SCSI] Make start stop cycle counter log page decoding
+       more robust
+  [DG] Modify smartctl (but not smartd) to detect probable ATA
+       devices behind a SAT layer. In the absence of an explicit
+       device type, change to device type 'sat'.
+  [DG] Add indication that controller (device) type has been
+       explicitly set. Preparation for automatic detection of
+       'sat' device type unless user specifies a device type.
+  [SS] NetBSD: Deliver strings from ata_identify_device properly 
+       on little- and big-endian platforms.
+  [BA] Added published ANSI ATA-7 spec to list of recognized ATA
+       versions.
+  [BA] Code janitor: added missing header strings for '-V' option.
+  [DG] [SATA] Extend 'sat' device type to allow either 12 or 16 byte
+       variant of the SAT ATA PASS THROUGH SCSI command. Syntax is
+       '-d sat,<n>' where <n> can be 0, 12 or 16 . The ',<n>' part
+       is optional. Currently defaults to 16 byte variant but that
+       could be made platform or even device dependent.
+  [DG] [SATA] Add new 'sat' device type for SATA disks behind a
+       SCSI to ATA Translation (SAT) Layer (SATL). Uses the ATA
+       PASS THROUGH (16) SCSI command thence the generic SCSI
+       passthrough for each platform.
+  [CF] Windows: Added script and make targets to create installer
+       with NSIS (http://nsis.sourceforge.net/)
+  [CF] Updated hostname and links for new SourceForge CVS service.
+  [CF] smartd: Added '-W' directive to track temperature changes
+       and warn if temperature limits are reached.
+  [CF] Windows: Added IOCTL_ATA_PASS_THROUGH (Win2003, XP SP2)
+       for commands unsupported by SMART_IOCTL. Added device
+       specific options to select subset and ordering of the ATA
+       IOCTLs actually used. These options are specified as
+       modifiers of the device name (/dev/hd[a-j]:[saic]+)
+  [CF] Windows: Added support for drives 4-7 (/dev/hd[e-h]) via
+       SMARTVSE.VXD on Win9x/ME. Thanks to Dariusz Rzonca for
+       patch and testing.
+  [DG] [SCSI/SATA linux] from lk 2.6.17 SATA disk identification in
+       libata will change. Expand LibAta detection to see old
+       identifier and new variant (VPD page 0x83).
+  [BA] Identified Attribute 190 for Western Digital disks.  This
+       stores temperature in Celsius, just like Attribute 194.
+       But it has a failure threshold set to correspond to the
+       maximum design operating temperature of the disk, which
+       is 55 Celsius on the WD800JD drives that I studied.
+       So if this Attribute has 'failed
+       in the past' this means that the maximum disk operating
+       temperature has been exceeded.
+  [GK] Darwin: Add support for AHCI drivers found in Intel-based Macs.
+
 * Wed Apr 12 2006 Bruce Allen  <smartmontools-support@lists.sourceforge.net>
+  [BA] Linux: smartd/smartctl issue syntax hints to user if 3ware
+       disk controller present with EITHER 3ware OR AMCC vendor
+       name, and user syntax incorrect.
   [BA] Update copyright dates to 2006.
   [DG] [SCSI] Loosen sanity check on Seagate/Hitachi factory information
        log page so it is not skipped on recent Seagate SCSI disks.

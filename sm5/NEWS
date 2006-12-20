@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.31 2006/12/19 18:47:44 chrfranke Exp $
+CVS ID: $Id: NEWS,v 1.32 2006/12/20 20:39:25 chrfranke Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
 
-Date <Not released yet>
+Date 2006-12-20
 Summary: smartmontools release 5.37 (UNSTABLE/EXPERIMENTAL)
 -----------------------------------------------------------
 This is an unstable/experimental release of smartmontools.

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.591 2006/11/15 22:48:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.592 2006/12/20 20:39:25 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+smartmontools 5.37 Experimental Release
 
   [CF] Windows: Added alternate method for (limited) monitoring of
        3ware controllers by parsing the output of CLI or 3DM.
