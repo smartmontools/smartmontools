@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.63 2006/11/12 04:46:32 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.64 2006/12/27 17:11:44 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +85,7 @@
 #endif
 
 typedef unsigned char UINT8;
-typedef char INT8;
+typedef signed char INT8;
 typedef unsigned int UINT32;
 typedef int INT32;
 
