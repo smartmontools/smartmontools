@@ -44,6 +44,8 @@
 // one for SCSI devices, and one for ATA devices behind escalade
 // controllers.
 
+#include "config.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <glob.h>
@@ -63,7 +65,6 @@
 #include <sys/sysmacros.h>
 #endif
 
-#include "config.h"
 #include "int64.h"
 #include "atacmds.h"
 #include "extern.h"
@@ -84,9 +85,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.88 2006/10/25 17:01:42 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.89 2006/12/27 17:05:53 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.88 2006/10/25 17:01:42 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.89 2006/12/27 17:05:53 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
