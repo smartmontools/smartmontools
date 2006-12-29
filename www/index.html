@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/12/20 22:09:02 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2006/12/29 17:21:59 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.209 2006/12/20 22:09:02 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.210 2006/12/29 17:21:59 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -253,7 +253,7 @@ If you prefer to fetch the packages using apt, please read the instructions at
 </ul>
 
 <b><a name="CygwinInstall"></a>
-Fifth Method (Windows with <a href="http://www.cygwin.com/">Cygwin</a>
+Fifth Method (Windows with <a href="http://cygwin.com/">Cygwin</a>
 installed) - Install the Cygwin package
 </b>
 <ul>
@@ -1160,18 +1160,31 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10">LinuxUser 2004/10</a></l
 <a href="http://sk.wikipedia.org/wiki/S.M.A.R.T">Sloven&#269;ina</a>,
 <a href="http://sv.wikipedia.org/wiki/S.M.A.R.T.">Svenska</a>
 </li>
- <li>The <a href="http://www.t13.org/project/d1321r3-ATA-ATAPI-5.pdf"> ATAPI/ATA-5
-Revision 3 specification</a> (start with Section 8.41)</li>
- <li>The <a href="http://www.t13.org/docs2002/d1410r3b.pdf"> ATAPI/ATA-6
-Revision 3b specification</a></li>
- <li>The  ATAPI/ATA-7 specification (Draft 4b) 
-  <a href="http://www.t13.org/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf">Volume 1 (has SMART documentation)</a>,
-  <a href="http://www.t13.org/docs2004/d1532v2r4b-ATA-ATAPI-7.pdf">Volume 2</a>,
-  <a href="http://www.t13.org/docs2004/d1532v3r4b-ATA-ATAPI-7.pdf">Volume 3</a></li>
- <li>The <a href="http://www.t13.org/docs2005/D1699r1f-ATA8-ACS.pdf">ATAPI/ATA-8 Command Set
-specification (Draft 1f)</a></li>
- <li><a href="http://www.t13.org/#FTP_site">Other revisions
-of the ATAPI/ATA Specs</a></li>
+<li>ATA References:
+<ul>
+ <li>The <a href="http://www.t13.org">homepage of the T13 project</a>.</li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1153r18-ATA-ATAPI-4.pdf">
+  ATA/ATAPI-4 revision 18 (final draft)</a></li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1321r3-ATA-ATAPI-5.pdf">
+  ATA/ATAPI-5 revision 3 (final draft)</a> (start with Section 8.41)</li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1410r3b-ATA-ATAPI-6.pdf">
+  ATA/ATAPI-6 revision 3b (final draft)</a></li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf">
+  ATA/ATAPI-7 revision 4b (final draft) Volume 1</a> (has SMART documentation),
+  <a href="http://www.t13.org/Documents/UploadedDocuments/docs2004/d1532v2r4b-ATA-ATAPI-7.pdf">Volume 2</a>,
+  <a href="http://www.t13.org/Documents/UploadedDocuments/docs2004/d1532v3r4b-ATA-ATAPI-7.pdf">Volume 3</a></li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/docs2006/D1699r3f-ATA8-ACS.pdf">
+  ATA/ATAPI-8 Command Set revision 3f (working draft)</a></li>
+ <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05148r0-ACS-SMARTAttributesAnnex.pdf">
+  ATA/ATAPI-8 SMART Attribute Annex (proposal)</a> (now split into 3 parts:
+  <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05171r0-ACS-SMARTAttributes_Overview.pdf">
+  Overview</a>,
+  <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05172r0-ACS-SMARTAttributes_Assignment.pdf">
+  Assignment</a>,
+  <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05173r0-ACS-SMARTAttributes_List.pdf">
+  List</a>).</li>
+</ul>
+</li>
 <li>SCSI References:
 <ul>
  <li>The <a href="http://www.t10.org">homepage of the T10 project</a>.</li>
@@ -1261,8 +1274,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/12/20 22:09:02 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.209 2006/12/20 22:09:02 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2006/12/29 17:21:59 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.210 2006/12/29 17:21:59 chrfranke Exp $</tt>
 
 <hr size="2" />
 
