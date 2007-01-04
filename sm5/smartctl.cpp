@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.157 2006/12/27 17:30:15 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.158 2007/01/04 15:16:16 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -195,7 +195,7 @@ void Usage (void){
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
-"        Use firmware bug workaround: none, samsung, samsung2\n\n"
+"        Use firmware bug workaround: none, samsung, samsung2, samsung3\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
   );
@@ -207,7 +207,7 @@ void Usage (void){
 "  -l TYPE   Show device log. TYPE: error, selftest, selective, directory,\n"
 "                                   background\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
-"  -F TYPE   Use firmware bug workaround: none, samsung, samsung2       (ATA)\n"
+"  -F TYPE   Use firmware bug workaround: none, samsung, samsung[23]    (ATA)\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n\n"
   );
 #endif
@@ -257,7 +257,7 @@ const char *getvalidarglist(char opt) {
   case 't':
     return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,on, afterselect,off";
   case 'F':
-    return "none, samsung, samsung2";
+    return "none, samsung, samsung2, samsung3";
   case 'n':
     return "never, sleep, standby, idle";
   case 'v':
@@ -588,6 +588,8 @@ void ParseOpts (int argc, char** argv){
         con->fixfirmwarebug = FIX_SAMSUNG;
       } else if (!strcmp(optarg,"samsung2")) {
         con->fixfirmwarebug = FIX_SAMSUNG2;
+      } else if (!strcmp(optarg,"samsung3")) {
+        con->fixfirmwarebug = FIX_SAMSUNG3;
       } else {
         badarg = TRUE;
       }

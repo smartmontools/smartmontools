@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.47 2006/09/15 08:03:52 sxzzsf Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.48 2007/01/04 15:16:16 chrfranke Exp $\n"
 
 // Possible values for fixfirmwarebug.  If use has NOT specified -F at
 // all, then value is 0.
@@ -33,6 +33,7 @@
 #define FIX_NONE             1
 #define FIX_SAMSUNG          2
 #define FIX_SAMSUNG2         3
+#define FIX_SAMSUNG3         4
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to

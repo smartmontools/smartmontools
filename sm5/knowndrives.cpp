@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-6 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-7 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.156 2006/10/30 22:35:28 pjwilliams Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.157 2007/01/04 15:16:16 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -111,11 +111,13 @@ const unsigned char vendoropts_Hitachi_DK23XX[][2] = {
 
 const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
 const char same_as_minus_F2[]="Fixes byte order in some SMART data (same as -F samsung2)";
+const char same_as_minus_F3[]="Fixes completed self-test reported as in progress (same as -F samsung3)";
 
 const char may_need_minus_F_disabled[] ="May need -F samsung disabled; see manual for details.";
 const char may_need_minus_F2_disabled[]="May need -F samsung2 disabled; see manual for details.";
 const char may_need_minus_F2_enabled[] ="May need -F samsung2 enabled; see manual for details.";
 const char may_need_minus_F_enabled[]  ="May need -F samsung or -F samsung2 enabled; see manual for details.";
+const char may_need_minus_F3_enabled[] ="May need -F samsung3 enabled; see manual for details.";
 
 /* Special-purpose functions for use in knowndrives[]. */
 void specialpurpose_reverse_samsung(smartmonctrl *con)
@@ -127,6 +129,11 @@ void specialpurpose_reverse_samsung2(smartmonctrl *con)
 {
   if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
     con->fixfirmwarebug = FIX_SAMSUNG2;
+}
+void specialpurpose_fix_samsung3(smartmonctrl *con)
+{
+  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
+    con->fixfirmwarebug = FIX_SAMSUNG3;
 }
 
 /* Table of settings for known drives terminated by an element containing all
@@ -357,10 +364,18 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "SAMSUNG SpinPoint P120 series", // tested with SP2504C/VT100-33
+  { "SAMSUNG SpinPoint P120 series", // VF100-37 firmware, tested with SP2514N/VF100-37
+    "^SAMSUNG SP(16[01]3|2[05][01]4)[CN]$",
+    "^VF100-37$",
+    NULL, NULL,
+    specialpurpose_fix_samsung3,
+    same_as_minus_F3
+  },
+  { "SAMSUNG SpinPoint P120 series", // other firmware, tested with SP2504C/VT100-33
     "^SAMSUNG SP(16[01]3|2[05][01]4)[CN]$",
     ".*",
-    NULL, NULL, NULL, NULL
+    may_need_minus_F3_enabled,
+    NULL, NULL, NULL
   },
   { "SAMSUNG SpinPoint P80 SD series", // tested with HD160JJ/ZM100-33
     "^SAMSUNG HD(080H|120I|160J)J$",
