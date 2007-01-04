@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.171 2006/10/28 11:51:25 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.172 2007/01/04 15:16:15 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -677,10 +677,18 @@ void PrintSmartSelfExecStatus(struct ata_smart_values *data)
           pout("the read element of the test failed.\n");
           break;
        case 15:
-          pout("(%4d)\tSelf-test routine in progress...\n\t\t\t\t\t",
-                  (int)data->self_test_exec_status);
-          pout("%1d0%% of test remaining.\n", 
+          if (con->fixfirmwarebug == FIX_SAMSUNG3 && data->self_test_exec_status == 0xf0) {
+            pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t",
+                    (int)data->self_test_exec_status);
+            pout("with unknown result or self-test in\n\t\t\t\t\t");
+            pout("progress with less than 10%% remaining.\n");
+          }
+          else {
+            pout("(%4d)\tSelf-test routine in progress...\n\t\t\t\t\t",
+                    (int)data->self_test_exec_status);
+            pout("%1d0%% of test remaining.\n", 
                   (int)(data->self_test_exec_status & 0x0f));
+          }
           break;
        default:
           pout("(%4d)\tReserved.\n",

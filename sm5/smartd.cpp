@@ -1,7 +1,7 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.385 2006/12/27 17:30:15 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.386 2007/01/04 15:16:17 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.385 2006/12/27 17:30:15 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.386 2007/01/04 15:16:17 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1133,7 +1133,7 @@ void Directives() {
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
            "  -a      Default: -H -f -t -l error -l selftest -C 197 -U 198\n"
-           "  -F TYPE Firmware bug workaround: none, samsung, samsung2\n"
+           "  -F TYPE Firmware bug workaround: none, samsung, samsung2, samsung3\n"
            "   #      Comment: text after a hash sign is ignored\n"
            "   \\      Line continuation character\n"
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
@@ -2187,9 +2187,14 @@ int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   
   // If currently running a self-test, do not interrupt it to start another.
   if (15==(data.self_test_exec_status >> 4)) {
-    PrintOut(LOG_INFO, "Device: %s, skip scheduled %sTest; %1d0%% remaining of current Self-Test.\n",
-             name, testname, (int)(data.self_test_exec_status & 0x0f));
-    return 1;
+    if (cfg->fixfirmwarebug == FIX_SAMSUNG3 && data.self_test_exec_status == 0xf0) {
+      PrintOut(LOG_INFO, "Device: %s, will not skip scheduled %sTest "
+               "despite unclear Self-Test byte (SAMSUNG Firmware bug).\n", name, testname);
+    } else {
+      PrintOut(LOG_INFO, "Device: %s, skip scheduled %sTest; %1d0%% remaining of current Self-Test.\n",
+               name, testname, (int)(data.self_test_exec_status & 0x0f));
+      return 1;
+    }
   }
 
   // else execute the test, and return status
@@ -2788,7 +2793,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "use, ignore, show, showall");
     break;
   case 'F':
-    PrintOut(priority, "none, samsung, samsung2");
+    PrintOut(priority, "none, samsung, samsung2, samsung3");
     break;
   }
 }
@@ -3081,6 +3086,8 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->fixfirmwarebug = FIX_SAMSUNG;
     } else if (!strcmp(arg, "samsung2")) {
       cfg->fixfirmwarebug = FIX_SAMSUNG2;
+    } else if (!strcmp(arg, "samsung3")) {
+      cfg->fixfirmwarebug = FIX_SAMSUNG3;
     } else {
       badarg = 1;
     }

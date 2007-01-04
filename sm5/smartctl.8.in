@@ -1,7 +1,7 @@
 .ig
- Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.90 2006/12/20 07:30:43 sxzzsf Exp $
+ $Id: smartctl.8.in,v 1.91 2007/01/04 15:16:16 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -939,6 +939,12 @@ very large number of errors in the SMART error log.  This is because
 the error count is byte swapped.  Thus a disk with five errors
 (0x0005) will appear to have 20480 errors (0x5000).
 
+.I samsung3
+\- Some Samsung disks (at least SP2514N with Firmware VF100\-37) report
+a self\-test still in progress with 0% remaining when the test was already
+completed. Enabling this option modifies the output of the self\-test
+execution status (see options \'\-c\' or \'\-a\' above) accordingly.
+
 Note that an explicit \'\-F\' option on the command line will
 over\-ride any preset values for \'\-F\' (see the \'\-P\' option
 below).
@@ -1389,7 +1395,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.90 2006/12/20 07:30:43 sxzzsf Exp $
+$Id: smartctl.8.in,v 1.91 2007/01/04 15:16:16 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
