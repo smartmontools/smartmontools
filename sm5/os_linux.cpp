@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-6 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-7 Doug Gilbert <dougg@torque.net>
  *
  *  Parts of this file are derived from code that was
  *
@@ -74,7 +74,9 @@ extern smartmonctrl * con;
 #include "utility.h"
 #include "extern.h"
 
+#ifdef HAVE_LINUX_CCISS_IOCTL_H
 #include <linux/cciss_ioctl.h>
+#endif
 
 
 #ifndef ENOTSUP
@@ -85,9 +87,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.89 2006/12/27 17:05:53 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.90 2007/01/05 16:14:24 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.89 2006/12/27 17:05:53 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.90 2007/01/05 16:14:24 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -99,6 +101,7 @@ extern long long bytes;
 /* for passing global control variables */
 extern smartmonctrl *con;
 
+#ifdef HAVE_LINUX_CCISS_IOCTL_H
 static int cciss_io_interface(int device, int target,
 			      struct scsi_cmnd_io * iop, int report);
 
@@ -108,6 +111,7 @@ typedef struct _ReportLUNdata_struct
   DWORD reserved;
   BYTE LUN[CISS_MAX_LUN][8];
 } ReportLunData_struct;
+#endif
 
 /* Structure/defines of Report Physical LUNS of drive */
 #define CISS_MAX_LUN        16
@@ -651,6 +655,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   return 0; 
 }
 
+#ifdef HAVE_LINUX_CCISS_IOCTL_H
 // CCISS Smart Array Controller
 static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     			unsigned int CDBlen, char *buff,
@@ -738,6 +743,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun)
     return ret;
 }
 // end CCISS Smart Array Controller
+#endif
 
 // >>>>>> Start of general SCSI specific linux code
 
@@ -1085,7 +1091,20 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
      switch(con->controller_type)
      {
          case CONTROLLER_CCISS:
+#ifdef HAVE_LINUX_CCISS_IOCTL_H
              return cciss_io_interface(dev_fd, con->controller_port-1, iop, report);
+#else
+             {
+                 static int warned = 0;
+                 if (!warned) {
+                     pout("CCISS support is not available in this build of smartmontools,\n"
+                          "<linux/cciss_ioctl.h> was not available at build time.\n\n");
+                     warned = 1;
+                 }
+             }
+             errno = ENOSYS;
+             return -1;
+#endif
              // not reached
              break;
          default:
@@ -1097,6 +1116,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
  
 // >>>>>> End of general SCSI specific linux code
 
+#ifdef HAVE_LINUX_CCISS_IOCTL_H
 /* cciss >> CCSISS I/O passthrough
    This is an interface that uses the cciss passthrough to talk to the SMART controller on
    the HP system. The cciss driver provides a way to send SCSI cmds through the CCISS passthrough
@@ -1164,7 +1184,8 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
              printf("  ioctl status=0x%x but scsi status=0, fail with EIO\n", status);
          return -EIO;      /* give up, assume no device there */
      }
- } 
+ }
+#endif
  
 
 // prototype
