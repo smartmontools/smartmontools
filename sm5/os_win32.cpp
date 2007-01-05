@@ -46,8 +46,25 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.50 2006/11/15 22:48:04 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.51 2007/01/05 11:23:57 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+
+
+// Running on 64-bit Windows as 32-bit app ?
+static bool is_wow64()
+{
+	HMODULE hk = GetModuleHandleA("kernel32");
+	if (!hk)
+		return false;
+	BOOL (WINAPI * IsWow64Process_p)(HANDLE, PBOOL) =
+		(BOOL (WINAPI *)(HANDLE, PBOOL))GetProcAddress(hk, "IsWow64Process");
+	if (!IsWow64Process_p)
+		return false;
+	BOOL w64 = FALSE;
+	if (!IsWow64Process_p(GetCurrentProcess(), &w64))
+		return false;
+	return !!w64;
+}
 
 
 #ifndef HAVE_GET_OS_VERSION_STR
@@ -57,19 +74,16 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTI
 // Return build host and OS version as static string
 const char * get_os_version_str()
 {
-	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2003r2-sp2.1")+13];
+	static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2003r2(64)-sp2.1")+13];
 	char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1;
 	const int vlen = sizeof(vstr)-(sizeof(SMARTMONTOOLS_BUILD_HOST)-3);
-
-	OSVERSIONINFOEXA vi;
-	const char * w;
 
 	// remove "-pc" to avoid long lines
 	assert(!strncmp(SMARTMONTOOLS_BUILD_HOST+5, "pc-", 3));
 	strcpy(vstr, "i686-"); strcpy(vstr+5, SMARTMONTOOLS_BUILD_HOST+5+3);
 	assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
 
-	memset(&vi, 0, sizeof(vi));
+	OSVERSIONINFOEXA vi; memset(&vi, 0, sizeof(vi));
 	vi.dwOSVersionInfoSize = sizeof(vi);
 	if (!GetVersionExA((OSVERSIONINFOA *)&vi)) {
 		memset(&vi, 0, sizeof(vi));
@@ -81,6 +95,7 @@ const char * get_os_version_str()
 	if (vi.dwPlatformId > 0xff || vi.dwMajorVersion > 0xff || vi.dwMinorVersion > 0xff)
 		return vstr;
 
+	const char * w;
 	switch (vi.dwPlatformId << 16 | vi.dwMajorVersion << 8 | vi.dwMinorVersion) {
 	  case VER_PLATFORM_WIN32_WINDOWS<<16|0x0400| 0:
 		w = (vi.szCSDVersion[1] == 'B' ||
@@ -101,16 +116,17 @@ const char * get_os_version_str()
 	  default: w = 0; break;
 	}
 
+	const char * w64 = (is_wow64() ? "(64)" : "");
 	if (!w)
-		snprintf(vptr, vlen, "-%s%lu.%lu",
+		snprintf(vptr, vlen, "-%s%lu.%lu%s",
 			(vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "9x"),
-			vi.dwMajorVersion, vi.dwMinorVersion);
+			vi.dwMajorVersion, vi.dwMinorVersion, w64);
 	else if (vi.wServicePackMinor)
-		snprintf(vptr, vlen, "-%s-sp%u.%u", w, vi.wServicePackMajor, vi.wServicePackMinor);
+		snprintf(vptr, vlen, "-%s%s-sp%u.%u", w, w64, vi.wServicePackMajor, vi.wServicePackMinor);
 	else if (vi.wServicePackMajor)
-		snprintf(vptr, vlen, "-%s-sp%u", w, vi.wServicePackMajor);
+		snprintf(vptr, vlen, "-%s%s-sp%u", w, w64, vi.wServicePackMajor);
 	else
-		snprintf(vptr, vlen, "-%s", w);
+		snprintf(vptr, vlen, "-%s%s", w, w64);
 	return vstr;
 }
 
