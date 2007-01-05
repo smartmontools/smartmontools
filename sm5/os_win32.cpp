@@ -36,8 +36,6 @@ extern int64_t bytes; // malloc() byte count
 #include <stddef.h> // offsetof()
 #include <io.h> // access()
 
-#define ARGUSED(x) ((void)(x))
-
 // Macro to check constants at compile time using a dummy typedef
 #define ASSERT_CONST(c, n) \
   typedef char assert_const_##c[((c) == (n)) ? 1 : -1]
@@ -46,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.51 2007/01/05 11:23:57 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.52 2007/01/05 12:23:02 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1649,9 +1647,8 @@ static int ata_open(int drive, const char * options, int port)
 }
 
 
-static void ata_close(int fd)
+static void ata_close(int /*fd*/)
 {
-	ARGUSED(fd);
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
 	if (ata_cur_options) {
@@ -2005,10 +2002,9 @@ static void pr_not_impl(const char * what, int * warned)
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
-int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data)
+int escalade_command_interface(int /*fd*/, int disknum, int /*escalade_type*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
 {
 	static int warned = 0;
-	ARGUSED(fd); ARGUSED(escalade_type); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 	if (!warned) {
 		pout("Option '-d 3ware,%d' does not work on Windows.\n"
 		     "Controller port can be specified in the device name: '/dev/hd%c,%d'.\n\n",
@@ -2020,20 +2016,18 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 }
 
 // Interface to ATA devices behind Marvell chip-set based controllers.  See os_linux.c
-int marvell_command_interface(int fd, smart_command_set command, int select, char * data)
+int marvell_command_interface(int /*fd*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
 {
 	static int warned = 0;
-	ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 	pr_not_impl("Marvell chip-set command routine marvell_command_interface()", &warned);
 	errno = ENOSYS;
 	return -1;
 }
 
 // Interface to ATA devices behind HighPoint Raid controllers.  See os_linux.c
-int highpoint_command_interface(int fd, smart_command_set command, int select, char * data)
+int highpoint_command_interface(int /*fd*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
 {
 	static int warned = 0;
-	ARGUSED(fd); ARGUSED(command); ARGUSED(select); ARGUSED(data);
 	pr_not_impl("HighPoint raid controller command routine highpoint_command_interface()", &warned);
 	errno = ENOSYS;
 	return -1;
@@ -2362,10 +2356,9 @@ static int aspi_open(unsigned adapter, unsigned id)
 }
 
 
-static void aspi_close(int fd)
+static void aspi_close(int /*fd*/)
 {
 	// No FreeLibrary(h_aspi_dll) to prevent problems with ASPI threads
-	ARGUSED(fd);
 }
 
 
