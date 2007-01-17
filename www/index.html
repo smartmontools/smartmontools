@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2006/12/29 17:21:59 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2007/01/17 18:23:18 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.210 2006/12/29 17:21:59 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.211 2007/01/17 18:23:18 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -814,7 +814,7 @@ sector as 'bad' and then allocate a spare sectors to replace it.  But
 if the disk can't read the sector even once, then it won't reallocate
 the sector, in hopes of being able, at some time in the future, to
 read the data from it.  See <a
-href="http://smartmontools.sourceforge.net/BadBlockHowTo.txt">BadBlockHowTo</a>
+href="http://smartmontools.sourceforge.net/badblockhowto.html">Bad block HOWTO</a>
 for instructions about how to force this sector to reallocate (Linux
 only).
 </p>
@@ -827,7 +827,7 @@ Such disks can often be repaired by using the disk manufaturer's 'disk
 evaluation and repair' utility.  Beware: this may force reallocation
 of the lost sector and thus corrupt or destroy any file system on the
 disk. See <a
-href="http://smartmontools.sourceforge.net/BadBlockHowTo.txt">BadBlockHowTo</a>
+href="http://smartmontools.sourceforge.net/badblockhowto.html">Bad block HOWTO</a>
 for generic Linux instructions.
 </p>
 
@@ -861,7 +861,7 @@ Disks with uncorrectable sectors can often be repaired by using the
 disk manufaturer's 'disk evaluation and repair' utility (see previous
 FAQ entry).  Beware: this may force reallocation of the lost sector
 and thus corrupt or destroy any file system on the disk. See <a
-href="http://smartmontools.sourceforge.net/BadBlockHowTo.txt">BadBlockHowTo</a>
+href="http://smartmontools.sourceforge.net/badblockhowto.html">Bad block HOWTO</a>
 for generic Linux instructions.
 </p>
 <p>
@@ -1163,8 +1163,11 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10">LinuxUser 2004/10</a></l
 <li>ATA References:
 <ul>
  <li>The <a href="http://www.t13.org">homepage of the T13 project</a>.</li>
+ <li>The <a href="ftp://ftp.t10.org/t13/project/d2008r7b-ATA-3.pdf">
+  ATA-3 revision 7b (working draft)</a> (last specification of SMART Attributes and Thresholds,
+  removed before final standard was published!)</li>
  <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1153r18-ATA-ATAPI-4.pdf">
-  ATA/ATAPI-4 revision 18 (final draft)</a></li>
+  ATA/ATAPI-4 revision 18 (final draft)</a> (SMART Attributes and Thresholds no longer specified)</li>
  <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1321r3-ATA-ATAPI-5.pdf">
   ATA/ATAPI-5 revision 3 (final draft)</a> (start with Section 8.41)</li>
  <li>The <a href="http://www.t13.org/Documents/UploadedDocuments/project/d1410r3b-ATA-ATAPI-6.pdf">
@@ -1183,6 +1186,7 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10">LinuxUser 2004/10</a></l
   Assignment</a>,
   <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05173r0-ACS-SMARTAttributes_List.pdf">
   List</a>).</li>
+ <li>See also other subdirectories <a href="ftp://ftp.t10.org/t13/">here</a>.</li>
 </ul>
 </li>
 <li>SCSI References:
@@ -1227,7 +1231,8 @@ Disk-Drive Failure Warnings</a></li>
 <!--  <li><a href="http://www.seagate.com/newsinfo/docs/disc/drive_reliability.pdf" target="_blank">
 Estimating Drive Reliability in Desktop Computers and Consumer Electronics Systems</a></li> -->
   <li><a href="http://www.seagate.com/docs/pdf/whitepaper/enhanced_smart.pdf" target="_blank">Enhanced SMART - Get SMART For Reliability</a></li>
-  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/smart_u8.pdf" target="_blank">Playing it SMART</a></li>
+  <li><a href="http://www.seagate.com/docs/pdf/whitepaper/smart_u8.pdf" target="_blank">Playing it SMART</a>
+   (<a href="http://www.seagate.com/support/kb/disc/smart.html" target="_blank">HTML Version</a>)</li>
   <li><a href="http://www.seagate.com/docs/pdf/whitepaper/Enhanced_DST_Tech_Paper.pdf" target="_blank">Enhanced Drive Self-Test</a></li>
  </ul>
  </li>
@@ -1274,8 +1279,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2006/12/29 17:21:59 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.210 2006/12/29 17:21:59 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2007/01/17 18:23:18 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.211 2007/01/17 18:23:18 chrfranke Exp $</tt>
 
 <hr size="2" />
 
