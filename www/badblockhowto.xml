@@ -32,12 +32,12 @@ ps, txt, etc.
     </affiliation>
    </author>
    <authorinitials>dpg</authorinitials>
-  <pubdate>2007-01-14</pubdate>
+  <pubdate>2007-01-18</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.1</revnumber>
-       <date>2007-01-14</date>
+       <date>2007-01-18</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              add sections on ReiserFS and partition table damage
@@ -103,30 +103,33 @@ drive transparently, there is still a lingering worry about media
 deterioration and the disk running out of spare sectors to remap.
 </para>
 <para>
-Can smartmontools help? As the <acronym>SMART</acronym> acronym suggests,
-the <command>smartctl</command> command and the <command>smartd</command>
-daemon concentrate on monitoring and analysis. So apart from changing some
-reporting settings, smartmontools will not modify the raw data in a
-device. Also smartmontools only works with physical devices, it does
-not know about partitions and file systems. So other tools are needed.
-The job of smartmontools is to alert the user that something is wrong
-and user intervention may be required.
+Can smartmontools help? As the <acronym>SMART</acronym> acronym
+<footnote><para>
+Self-Monitoring, Analysis and Reporting Technology -> SMART
+</para></footnote>
+suggests, the <command>smartctl</command> command and the
+<command>smartd</command> daemon concentrate on monitoring and analysis.
+So apart from changing some reporting settings, smartmontools will not
+modify the raw data in a device. Also smartmontools only works with
+physical devices, it does not know about partitions and file systems.
+So other tools are needed. The job of smartmontools is to alert the user
+that something is wrong and user intervention may be required.
 </para>
 <para>
-One approach is to work out the mapping between the logical block
-address used by a storage device and a file or some other component of a
-file system using that device. Note that there may not be such a mapping
-reflecting that a bad block has been found at a location not currently
-used by the file system. A user may want to do this analysis to localize
-and minimize the number of replacement files that are retrieved from some
-backup store. This approach requires knowledge of the file system involved
-and this document uses the Linux ext2/ext3 and ReiserFS file systems for
-examples. Also the type of content may come into play. For example if
-an area storing video has a corrupted sector, it may be easiest to
-accept that a frame or two might be corrupted and instruct the disk
-not to retry as that may have the visual effect of causing a momentary
-blank into a 1 second pause (while the disk retries the faulty sector,
-often accompanied by a telltale clicking sound).
+When a bad block is reported one approach is to work out the mapping between
+the logical block address used by a storage device and a file or some other
+component of a file system using that device. Note that there may not be such
+a mapping reflecting that a bad block has been found at a location not
+currently used by the file system. A user may want to do this analysis to
+localize and minimize the number of replacement files that are retrieved from
+some backup store. This approach requires knowledge of the file system
+involved and this document uses the Linux ext2/ext3 and ReiserFS file systems
+for examples. Also the type of content may come into play. For example if
+an area storing video has a corrupted sector, it may be easiest to accept
+that a frame or two might be corrupted and instruct the disk not to retry
+as that may have the visual effect of causing a momentary blank into a 1
+second pause (while the disk retries the faulty sector, often accompanied
+by a telltale clicking sound).
 </para>
 <para>
 Another approach is to ignore the upper level consequences (e.g. corrupting
@@ -693,8 +696,13 @@ block, as bad blocks are often social. Not too large as this test probably
 has not 0% risk.
 </para></footnote>:
 <programlisting>
-# badblocks -b 4096 -p 3 -s -v -n /dev/hda3 $((484335+100)) $((484335-100))
+# badblocks -b 4096 -p 3 -s -v -n /dev/hda3 `expr 484335 + 100` `expr 484335 - 100`
 </programlisting>
+<footnote><para>
+The rather awkward `expr 484335 + 100` (note the back quotes) can be replaced
+with $((484335+100)) if the bash shell is being used. Similarly the last
+argument can become $((484335-100)) .
+</para></footnote>
 </para>
 <para>
 check success with <command>debugreiserfs -1 484335 /dev/hda3</command>.
@@ -765,6 +773,37 @@ The offset is in bytes so the number given is (63 * 512). If the file
 system cannot be identified then a '-t &lt;fs_type&gt;'
 may be needed (although this is not a good sign). If this mount is
 successful, a backup procedure is advised.
+</para>
+<para>
+Only the primary DOS partitions are recorded in the first block of
+a disk. The extended DOS partition table is placed elsewhere on
+a disk. Again there is only one copy of it so it represents another
+single point of failure. All DOS partition information can be
+read in a form that can be used to recreate the tables with the
+<command>sfdisk</command> command. Obviously this needs to be done
+beforehand and the file put on other media. Here is how to fetch the
+partition table information:
+<programlisting>
+# sfdisk -dx /dev/hda &gt; my_disk_partition_info.txt
+</programlisting>
+Then <filename>my_disk_partition_info.txt</filename> should be placed on
+other media. If disaster strikes, then the disk with the damaged partition
+table(s) can be placed in a working system, let us say the damaged disk is
+now at <filename>/dev/hdc</filename>, and the following command restores
+the partition table(s):
+<programlisting>
+# sfdisk -x -O part_block_prior.img /dev/hdc &lt; my_disk_partition_info.txt
+</programlisting>
+Since the above command is potentially destructive it takes a copy of the
+block(s) holding the partition table(s) and puts it in
+<filename>part_block_prior.img</filename> prior to any changes. Then it
+changes the partition tables as indicated by
+<filename>my_disk_partition_info.txt</filename>. For what it is worth the
+author did test this on his system!
+<footnote><para>
+Thanks to Manfred Schwarb for the information about storing partition
+table(s) beforehand.
+</para></footnote>
 </para>
 </sect2>
 
@@ -1183,7 +1222,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-CVS $Id: badblockhowto.xml,v 1.2 2007/01/16 17:01:40 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.3 2007/01/18 21:52:50 dpgilbert Exp $
 </para>
 </sect3>
 </sect2>
@@ -1199,7 +1238,7 @@ dummy
 </para>
 
 <para>
-CVS $Id: badblockhowto.xml,v 1.2 2007/01/16 17:01:40 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.3 2007/01/18 21:52:50 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
