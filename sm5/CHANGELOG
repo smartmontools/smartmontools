@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.596 2007/01/05 16:14:24 chrfranke Exp $
+$Id: CHANGELOG,v 1.597 2007/01/19 22:11:15 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Added Min/Max Temperature format used in attribute 190 of
+       recent Maxtor disks (DiamondMax 20).
 
   [CF] Linux: Added check for <linux/cciss_ioctl.h> to allow build
        (without CCISS support) also when this file is missing.

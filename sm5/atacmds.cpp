@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.177 2006/10/27 21:30:02 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.178 2007/01/19 22:11:15 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1484,6 +1484,32 @@ int ataCheckAttribute(struct ata_smart_values *data,
 }
 
 
+// Print temperature value and Min/Max value if present
+static void ataPrintTemperatureValue(char *out, const unsigned char *raw, const unsigned *word)
+{
+  out+=sprintf(out, "%u", word[0]);
+  if (!word[1] && !word[2])
+    return; // No Min/Max
+
+  unsigned lo = ~0, hi = ~0;
+  if (!raw[3]) {
+    // 00 HH 00 LL 00 TT (IBM)
+    hi = word[2]; lo = word[1];
+  }
+  else if (!word[2]) {
+    // 00 00 HH LL 00 TT (Maxtor)
+    hi = raw[3]; lo = raw[2];
+  }
+  if (lo > hi) {
+    unsigned t = lo; lo = hi; hi = t;
+  }
+  if (lo <= word[0] && word[0] <= hi)
+    sprintf(out, " (Lifetime Min/Max %u/%u)", lo, hi);
+  else
+    sprintf(out, " (%u %u %u %u)", raw[5], raw[4], raw[3], raw[2]);
+}
+
+
 // This routine prints the raw value of an attribute as a text string
 // into out. It also returns this 48-bit number as a long long.  The
 // array defs[] contains non-zero values if particular attributes have
@@ -1579,6 +1605,10 @@ int64_t ataPrintSmartAttribRawValue(char *out,
       // hours
       out+=sprintf(out, "%"PRIu64, rawvalue);  //stored in hours
     break;
+    // Temperature
+  case 190:
+    ataPrintTemperatureValue(out, attribute->raw, word);
+    break;
    // Load unload cycles
   case 193:
     if (select==1){
@@ -1602,15 +1632,8 @@ int64_t ataPrintSmartAttribRawValue(char *out,
     else if (select==2)
       // unknown attribute
       out+=sprintf(out, "%"PRIu64, rawvalue);
-    else {
-      out+=sprintf(out, "%d", word[0]);
-      if (!(rawvalue==word[0])) {
-	int min=word[1]<word[2]?word[1]:word[2];
-	int max=word[1]>word[2]?word[1]:word[2];
-        // The other bytes are in use. Try IBM's model
-        out+=sprintf(out, " (Lifetime Min/Max %d/%d)", min, max);
-      }
-    }
+    else
+      ataPrintTemperatureValue(out, attribute->raw, word);
     break;
   default:
     out+=sprintf(out, "%"PRIu64, rawvalue);
