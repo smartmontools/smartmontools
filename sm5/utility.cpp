@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.62 2006/08/09 20:40:20 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.63 2007/01/29 21:28:54 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -580,7 +580,7 @@ void *Calloc(size_t nmemb, size_t size) {
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file){
+char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file){
   char *tmp;
 
   // report error if ptr is NULL and mustexist is set

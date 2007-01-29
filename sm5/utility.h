@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.47 2006/10/09 11:45:12 guidog Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.48 2007/01/29 21:28:54 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -106,7 +106,7 @@ inline T * FreeNonZero(T * address, int size, int whatline, const char* file)
 // A custom version of strdup() that keeps track of how much memory is
 // being allocated. If mustexist is set, it also throws an error if we
 // try to duplicate a NULL string.
-char *CustomStrDup(char *ptr, int mustexist, int whatline, const char* file);
+char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* file);
 
 // To help with memory checking.  Use when it is known that address is
 // NOT null.
