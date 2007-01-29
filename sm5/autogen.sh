@@ -1,9 +1,9 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.13 2005/09/19 09:28:11 chrfranke Exp $
+# $Id: autogen.sh,v 1.14 2007/01/29 21:24:18 chrfranke Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
-# direcory. To update these files at a later date use:
+# directory. To update these files at a later date use:
 #	autoreconf -f -i -v
 
 
@@ -36,7 +36,8 @@ typep()
     return 1
 }
 
-test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.9` || AUTOMAKE=`typep automake-1.8` || AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
+test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.10` || AUTOMAKE=`typep automake-1.9` ||
+    AUTOMAKE=`typep automake-1.8` || AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
 {
 echo
 echo "You must have at least GNU Automake 1.7 (up to 1.9.x) installed"
@@ -70,7 +71,7 @@ case "$AUTOMAKE" in
     ver="`$AUTOMAKE --version | head -1 | sed -n 's,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
     ver="${ver:-?.?.?}"
     case "$ver" in
-      1.[78]*|1.9.[1-6]) ver= ;;
+      1.[78]*|1.9.[1-6]|1.10) ver= ;;
     esac ;;
 esac
 
