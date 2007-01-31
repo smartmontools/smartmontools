@@ -32,12 +32,12 @@ ps, txt, etc.
     </affiliation>
    </author>
    <authorinitials>dpg</authorinitials>
-  <pubdate>2007-01-18</pubdate>
+  <pubdate>2007-01-23</pubdate>
 
   <revhistory>
      <revision>
        <revnumber>1.1</revnumber>
-       <date>2007-01-18</date>
+       <date>2007-01-23</date>
        <authorinitials>dpg</authorinitials>
        <revremark>
              add sections on ReiserFS and partition table damage
@@ -563,8 +563,7 @@ This section was written by Joachim Jautz with additions from Manfred
 Schwarb.
 </para>
 <para>
-I was notified by mail about the following two problems that were
-detected during a scheduled test:
+The following problems were reported during a scheduled test:
 <programlisting>
 smartd[575]: Device: /dev/hda, starting scheduled Offline Immediate Test.
 [... 1 hour later ...]
@@ -592,46 +591,12 @@ it indicates that the disk has re-allocated one or more sectors.
 <para>
 [Step 1] Get the file system's block size:
 <programlisting>
-# debugreiserfs /dev/hda3
-debugreiserfs 3.6.19 (2003 http://www.namesys.com)
-
-
-Filesystem state: consistent
-
-Reiserfs super block in block 16 on 0x303 of format 3.6 with standard journal
-Count of blocks on the device: 487974
-Number of bitmaps: 15
+# debugreiserfs /dev/hda3 | grep '^Blocksize'
 Blocksize: 4096
-Free blocks (count of blocks - used [journal, bitmaps, data, reserved] blocks): 173201
-Root block: 46000
-Filesystem is clean
-Tree height: 4
-Hash function used to sort names: "r5"
-Objectid map size 2, max 972
-Journal parameters:
-Device [0x0]
-Magic [0x62035f33]
-Size 8193 blocks (including 1 for journal header) (first block 18)
-Max transaction length 1024 blocks
-Max batch size 900 blocks
-Max commit age 30
-Blocks reserved by journal: 0
-Fs state field: 0x0:
-sb_version: 2
-inode generation number: 106760
-UUID: 81a2b9e6-4540-4cca-bc05-1b6b3b264f36
-LABEL:
-Set flags in SB:
-ATTRIBUTES CLEAN
 </programlisting>
 </para>
 <para>
 [Step 2] Calculate the block number:
-<programlisting>
-# calc '(58656333-54781650)*512/4096'
-484335.375
-</programlisting>
-or if <command>calc</command> is not available:
 <programlisting>
 # echo "(58656333-54781650)*512/4096" | bc -l
 484335.37500000000000000000
@@ -650,12 +615,12 @@ check if our calculation in [Step 2] was correct ;)
 debugreiserfs 3.6.19 (2003 http://www.namesys.com)
 
 484335 is free in ondisk bitmap
+The problem has occurred looks like a hardware problem.
 </programlisting>
 </para>
 <para>
-The problem has occurred looks like a hardware problem. If you have
-bad blocks, we advise you to get a new hard drive, because once you
-get one bad block that the disk drive internals cannot hide from
+If you have bad blocks, we advise you to get a new hard drive, because
+once you get one bad block that the disk drive internals cannot hide from
 your sight, the chances of getting more are generally said to become
 much higher (precise statistics are unknown to us), and this disk
 drive is probably not expensive enough for you to risk your
@@ -709,7 +674,8 @@ check success with <command>debugreiserfs -1 484335 /dev/hda3</command>.
 Otherwise:
 </para>
 <para>
-[Step 6] Overwrite that block to force reallocation:
+[Step 6] Perform this step <emphasis>only</emphasis> if Step 5 has failed
+to fix the problem: overwrite that block to force reallocation:
 <programlisting>
 # dd if=/dev/zero of=/dev/hda3 count=1 bs=4096 seek=484335
 1+0 records in
@@ -756,6 +722,17 @@ One utility that may help is
 <ulink url="http://www.cgsecurity.org/wiki/TestDisk">
 <literal>testdisk</literal></ulink> which can scan a disk looking for
 partitions and recreate a partition table if requested.
+<footnote><para>
+<command>testdisk</command> scans the media for the beginning of file
+systems that it recognizes. It can be tricked by data that looks
+like the beginning of a file system or an old file system from a
+previous partitioning of the media (disk). So care should be taken.
+Note that file systems should not overlap apart from the fact that
+extended partitions lie wholly within a extended partition table
+allocation. Also if the root partition of a Linux/Unix installation
+can be found then the <filename>/etc/fstab</filename> file is a useful
+resource for finding the partition numbers of other partitions.
+</para></footnote>
 </para>
 <para>
 Programs that create DOS partitions
@@ -804,6 +781,14 @@ author did test this on his system!
 Thanks to Manfred Schwarb for the information about storing partition
 table(s) beforehand.
 </para></footnote>
+</para>
+<para>
+For creating, destroying, resizing, checking and copying partitions, and
+the file systems on them, GNU's
+<ulink url="http://www.gnu.org/software/parted">
+<literal>parted</literal></ulink> is worth examining.
+The <ulink url="http://www.tldp.org/HOWTO/Large-Disk-HOWTO.html">
+<literal>Large Disk HOWTO</literal></ulink> is also a useful resource.
 </para>
 </sect2>
 
@@ -1222,7 +1207,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-CVS $Id: badblockhowto.xml,v 1.3 2007/01/18 21:52:50 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.4 2007/01/31 13:56:32 dpgilbert Exp $
 </para>
 </sect3>
 </sect2>
@@ -1238,7 +1223,7 @@ dummy
 </para>
 
 <para>
-CVS $Id: badblockhowto.xml,v 1.3 2007/01/18 21:52:50 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.4 2007/01/31 13:56:32 dpgilbert Exp $
 </para>
 </sect1>
 </appendix>
