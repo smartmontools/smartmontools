@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.91 2007/01/04 15:16:16 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.92 2007/02/03 15:14:13 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -100,10 +100,10 @@ N specifies the disk number (3ware \'port\') behind the controller
 providing the logical drive (\'unit\') specified by \fB"/dev/hd[a\-j]"\fP.
 Alternatively, use \fB"/dev/tw_cli/cx/py"\fP for controller x, port y
 to run the \'tw_cli\' tool and parse the output. This provides limited
-monitoring (\'-i\', \'-c\', \'-A\' below) if SMART support is missing
+monitoring (\'\-i\', \'\-c\', \'\-A\' below) if SMART support is missing
 in the driver. Use \fB"/dev/tw_cli/stdin"\fP or \fB"/dev/tw_cli/clip"\fP
 to parse CLI or 3DM output from standard input or clipboard.
-The option \'-d 3ware,N\' is not necessary on Windows.
+The option \'\-d 3ware,N\' is not necessary on Windows.
 The prefix \fB"/dev/"\fP is optional.
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS" above.
@@ -165,7 +165,7 @@ Prints all SMART information about the disk, or TapeAlert information
 about the tape drive or changer.  For ATA devices this is equivalent
 to
 .nf
-\'\-H \-i \-c \-A \-l error \-l selftest -l selective\'
+\'\-H \-i \-c \-A \-l error \-l selftest \-l selective\'
 .fi
 and for SCSI, this is equivalent to
 .nf
@@ -210,7 +210,7 @@ overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 Under Linux, to look at SATA disks behind Marvell SATA controllers
 (using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
 controllers show up as Marvell Technology Group Ltd. SATA I or II controllers
-using lspci, or using lspci -n show a vendor ID 0x11ab and a device ID of
+using lspci, or using lspci \-n show a vendor ID 0x11ab and a device ID of
 either 0x5040, 0x5041, 0x5080, 0x5081, 0x6041 or 0x6081. The \'linuxIAL\' driver
 seems not (yet?) available in the Linux kernel source tree, but should be available
 from system vendors (ftp://ftp.aslab.com/ is known to provide a patch with the driver).
@@ -229,20 +229,20 @@ use syntax such as:
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 (3ware \'port\') within the 3ware ATA RAID controller.  The allowed
 values of N are from 0 to 15 inclusive.  The first two forms, which
-refer to devices /dev/sda-z and /dev/twe0-15, may be used with 3ware
-series 6000, 7000, and 8000 series controllers that use the 3x-xxxx
-driver.  \fBNote that the /dev/sda-z form is deprecated\fP starting
+refer to devices /dev/sda\-z and /dev/twe0\-15, may be used with 3ware
+series 6000, 7000, and 8000 series controllers that use the 3x\-xxxx
+driver.  \fBNote that the /dev/sda\-z form is deprecated\fP starting
 with the Linux 2.6 kernel series and may not be supported by the Linux
 kernel in the near future. The final form, which refers to devices
-/dev/twa0-15, must be used with 3ware 9000 series controllers, which
-use the 3w-9xxx driver.
+/dev/twa0\-15, must be used with 3ware 9000 series controllers, which
+use the 3w\-9xxx driver.
 
 Note that if the special character device nodes /dev/twa? and
 /dev/twe? do not exist, or exist with the incorrect major or minor
 numbers, smartctl will recreate them on the fly.  Typically /dev/twa0
-refers to the first 9000-series controller, /dev/twa1 refers to the
+refers to the first 9000\-series controller, /dev/twa1 refers to the
 second 9000 series controller, and so on. Likewise /dev/twe0 refers to
-the first 6/7/8000-series controller, /dev/twa1 refers to the second
+the first 6/7/8000\-series controller, /dev/twa1 refers to the second
 6/7/8000 series controller, and so on.
 
 Note that for the 6/7/8000 controllers, \fBany\fP of the physical
@@ -274,7 +274,7 @@ messages instead: "\fB3w\-xxxx: tw_ioctl(): Passthru size (123392) too
 big\fP". This can be fixed by upgrading to version 1.02.00.037 or
 later of the 3w\-xxxx driver, or by applying a patch to older
 versions. See \fBhttp://smartmontools.sourceforge.net/\fP for
-instructions.  Alternatively, use the character device /dev/twe0-15 interface.
+instructions.  Alternatively, use the character device /dev/twe0\-15 interface.
 
 The selective self\-test functions (\'\-t select,A\-B\') are only supported
 using the character device interface /dev/twa0\-15 and /dev/twe0\-15.
@@ -296,7 +296,7 @@ where in the argument \fIhpt,L/M\fP or \fIhpt,L/M/N\fP, the integer L is the
 controller id, the integer M is the channel number, and the integer N is the
 PMPort number if it is available. The allowed values of L are from 1 to 4
 inclusive, M are from 1 to 8 inclusive and N from 1 to 4 if PMPort available.
-Note that the /dev/sda-z form should be the device node which stands for
+Note that the /dev/sda\-z form should be the device node which stands for
 the disks derived from the HighPoint RocketRAID controllers.  And also
 these values are limited by the model of the HighPoint RocketRAID controller.
 
@@ -647,7 +647,7 @@ ATA/ATAPI\-5 disks seem to respect their meaning, so we have retained
 the option of printing the Attribute values.
 
 For SCSI devices the "attributes" are obtained from the temperature
-and start-stop cycle counter log pages. Certain vendor specific
+and start\-stop cycle counter log pages. Certain vendor specific
 attributes are listed if recognised. The attributes are output in a
 relatively free format (compared with ATA disk attributes).
 .TP
@@ -934,7 +934,7 @@ are (1) no self\-test log printed, even though you have run self\-tests;
 the number of ATA errors reported is byte swapped.  Enabling this
 option tells \fBsmartctl\fP to evaluate this quantity in
 byte\-reversed order. An indication that your Samsung disk needs this
-option is that the self-test log is printed correctly, but there are a
+option is that the self\-test log is printed correctly, but there are a
 very large number of errors in the SMART error log.  This is because
 the error count is byte swapped.  Thus a disk with five errors
 (0x0005) will appear to have 20480 errors (0x5000).
@@ -1074,18 +1074,27 @@ order of minutes to complete.  Note that this command can be given
 during normal system operation (unless run in captive mode \- see the
 \'\-C\' option below).
 
-.I select,N\-M
-\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] runs a SMART
+.I select,N\-M, select,N+SIZE
+\- [ATA ONLY] [EXPERIMENTAL SMARTCTL FEATURE] runs a SMART
 Selective Self Test, to test a \fBrange\fP of disk Logical Block
 Addresses (LBAs), rather than the entire disk.  Each range of LBAs
 that is checked is called a "span" and is specified by a starting LBA
-(N) and an ending LBA (M) with N less than or equal to M.  For example
-the command:
+(N) and an ending LBA (M) with N less than or equal to M. The range
+can also be specified as N+SIZE. A span at the end of a disk can
+be specified by N\-\fBmax\fP.
+
+For example the commands:
 .nf
   smartctl \-t select,10\-20 /dev/hda
+  smartctl \-t select,10+11 /dev/hda
 .fi
-runs a self test on one span consisting of LBAs ten to twenty
-(inclusive). The \'\-t\' option can be given up to five times, to test
+both runs a self test on one span consisting of LBAs ten to twenty
+(inclusive). The command:
+.nf
+  smartctl \-t select,100000000\-max /dev/hda
+.fi
+run a self test from LBA 100000000 up to the end of the disk.
+The \'\-t\' option can be given up to five times, to test
 up to five spans.  For example the command:
 .nf
   smartctl \-t select,0\-100 \-t select,1000\-2000 /dev/hda
@@ -1110,11 +1119,60 @@ Logical Block Addresses (LBAs).
 Selective self\-tests can be run during normal system operation (unless
 done in captive mode \- see the \'\-C\' option below).
 
-[Note: this new experimental smartmontools feature is currently only
-available under Linux.  The Linux kernel must be compiled with the
-configuration option CONFIG_IDE_TASKFILE_IO enabled.  Please report
-unusual or incorrect behavior to the smartmontools\-support mailing
-list.]
+[Note: To use this feature on Linux, the kernel must be compiled with
+the configuration option CONFIG_IDE_TASKFILE_IO enabled.  Please report
+unusual or incorrect behavior to the smartmontools\-support mailing list.]
+
+The following variants of the selective self\-test command use spans based
+on the ranges from past tests already stored on the disk:
+
+.I select,redo[+SIZE]
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] redo the last SMART
+Selective Self Test using the same LBA range. The starting LBA is identical
+to the LBA used by last test, same for ending LBA unless a new span size
+is specified by optional +SIZE argument.
+
+For example the commands:
+.nf
+  smartctl \-t select,10\-20 /dev/hda
+  smartctl \-t select,redo /dev/hda
+  smartctl \-t select,redo+20 /dev/hda
+.fi
+have the same effect as:
+.nf
+  smartctl \-t select,10\-20 /dev/hda
+  smartctl \-t select,10\-20 /dev/hda
+  smartctl \-t select,10\-29 /dev/hda
+.fi
+
+.I select,next[+SIZE]
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] runs a SMART Selective
+Self Test on the LBA range which follows the range of the last test. The
+starting LBA is set to (ending LBA +1) of the last test. A new span size
+may be specified by the optional +SIZE argument.
+
+For example the commands:
+.nf
+  smartctl \-t select,0\-999 /dev/hda
+  smartctl \-t select,next /dev/hda
+  smartctl \-t select,next+2000 /dev/hda
+.fi
+have the same effect as:
+.nf
+  smartctl \-t select,0\-999 /dev/hda
+  smartctl \-t select,1000\-1999 /dev/hda
+  smartctl \-t select,2000\-3999 /dev/hda
+.fi
+
+If the last test ended at the last LBA of the disk, the new range starts
+at LBA 0. The span size of the last span of a disk is adjusted such that
+the total number of spans to check the full disk will not be changed
+by future uses of \'\-t select,next\'.
+
+.I select,cont[+SIZE]
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] performs a \'redo\'
+(above) if the self test status reports that the last test was aborted
+by the host. Otherwise it run the \'next\' (above) test.
 
 .I afterselect,on
 \- [ATA ONLY] perform an offline read scan after a Selective Self\-test
@@ -1372,12 +1430,12 @@ REFERENCES FOR SMART
 .fi
 An introductory article about smartmontools is \fIMonitoring Hard
 Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
-pages 74-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
+pages 74\-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
 online.
 
 If you would like to understand better how SMART works, and what it
 does, a good place to start is with Sections 4.8 and 6.54 of the first
-volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
+volume of the \'AT Attachment with Packet Interface\-7\' (ATA/ATAPI\-7)
 specification.  This documents the SMART functionality which the
 \fBsmartmontools\fP utilities provide access to.  You can find
 Revision 4b of this document at
@@ -1395,7 +1453,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.91 2007/01/04 15:16:16 chrfranke Exp $
+$Id: smartctl.8.in,v 1.92 2007/02/03 15:14:13 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.597 2007/01/19 22:11:15 chrfranke Exp $
+$Id: CHANGELOG,v 1.598 2007/02/03 15:14:11 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] ATA: Added '-t selective,{redo,next,cont}' commands to
+       perform tests based on the last ranges still stored on
+       disk. Added 'N+SIZE' and 'N-max' format for LBA range
+       specification.
 
   [CF] Added Min/Max Temperature format used in attribute 190 of
        recent Maxtor disks (DiamondMax 20).

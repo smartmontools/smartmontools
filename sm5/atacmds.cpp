@@ -3,7 +3,7 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.178 2007/01/19 22:11:15 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.179 2007/02/03 15:14:11 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -945,13 +945,17 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
 }
 
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv){   
-  int i;
-  struct ata_selective_self_test_log sstlog, *data=&sstlog;
-  unsigned char cksum=0;
-  unsigned char *ptr=(unsigned char *)data;
-  
+int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv, uint64_t num_sectors){   
+
+  // Disk size must be known
+  if (!num_sectors) {
+    pout("Disk size is unknown, unable to check selective self-test spans\n");
+    return -1;
+  }
+
   // Read log
+  struct ata_selective_self_test_log sstlog, *data=&sstlog;
+  unsigned char *ptr=(unsigned char *)data;
   if (ataReadSelectiveSelfTestLog(device, data)) {
     pout("Since Read failed, will not attempt to WRITE Selective Self-test Log\n");
     return -1;
@@ -977,7 +981,81 @@ int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv){
     pout("Error SMART Selective or other Self-Test in progress.\n");
     return -4;
   }
-  
+
+  // Set start/end values based on old spans for special -t select,... options
+  int i;
+  for (i=0; i<con->smartselectivenumspans; i++) {
+    char mode = con->smartselectivemode[i];
+    uint64_t start = con->smartselectivespan[i][0];
+    uint64_t end   = con->smartselectivespan[i][1];
+    if (mode == SEL_CONT) {// redo or next dependig on last test status
+      switch (sv->self_test_exec_status >> 4) {
+        case 1: case 2: // Aborted/Interrupted by host
+          pout("Continue Selective Self-Test: Redo last span\n");
+          mode = SEL_REDO;
+          break;
+        default: // All others
+          pout("Continue Selective Self-Test: Start next span\n");
+          mode = SEL_NEXT;
+          break;
+      }
+    }
+    switch (mode) {
+      case SEL_RANGE: // -t select,START-END
+        break;
+      case SEL_REDO: // -t select,redo... => Redo current
+        start = data->span[i].start;
+        if (end > 0) { // -t select,redo+SIZE
+          end--; end += start; // [oldstart, oldstart+SIZE)
+        }
+        else // -t select,redo
+          end = data->span[i].end; // [oldstart, oldend]
+        break;
+      case SEL_NEXT: // -t select,next... => Do next
+        if (data->span[i].end == 0) {
+          start = end = 0; break; // skip empty spans
+        }
+        start = data->span[i].end + 1;
+        if (start >= num_sectors)
+          start = 0; // wrap around
+        if (end > 0) { // -t select,next+SIZE
+          end--; end += start; // (oldend, oldend+SIZE]
+        }
+        else { // -t select,next
+          uint64_t oldsize = data->span[i].end - data->span[i].start + 1;
+          end = start + oldsize - 1; // (oldend, oldend+oldsize]
+          if (end >= num_sectors) {
+            // Adjust size to allow round-robin testing without future size decrease
+            uint64_t spans = (num_sectors + oldsize-1) / oldsize;
+            uint64_t newsize = (num_sectors + spans-1) / spans;
+            uint64_t newstart = num_sectors - newsize, newend = num_sectors - 1;
+            pout("Span %d changed from %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n"
+                 "                 to %"PRIu64"-%"PRIu64" (%"PRIu64" sectors) (%"PRIu64" spans)\n",
+                i, start, end, oldsize, newstart, newend, newsize, spans);
+            start = newstart; end = newend;
+          }
+        }
+        break;
+      default:
+        pout("ataWriteSelectiveSelfTestLog: Invalid mode %d\n", mode);
+        return -1;
+    }
+    // Range check
+    if (start < num_sectors && num_sectors <= end) {
+      if (end != ~(uint64_t)0) // -t select,N-max
+        pout("Size of self-test span %d decreased according to disk size\n", i);
+      end = num_sectors - 1;
+    }
+    if (!(start <= end && end < num_sectors)) {
+      pout("Invalid selective self-test span %d: %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n",
+        i, start, end, num_sectors);
+      return -1;
+    }
+    // Write back to allow ataSmartTest() to print the actual values
+    con->smartselectivespan[i][0] = start;
+    con->smartselectivespan[i][1] = end;
+  }
+
   // Clear spans
   for (i=0; i<5; i++)
     memset(data->span+i, 0, sizeof(struct test_span));
@@ -1010,6 +1088,7 @@ int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv){
 
   // Set checksum to zero, then compute checksum
   data->checksum=0;
+  unsigned char cksum=0;
   for (i=0; i<512; i++)
     cksum+=ptr[i];
   cksum=~cksum;
@@ -1018,9 +1097,8 @@ int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv){
 
     // swap endian order if needed
   if (isbigendian()){
-    int i;
     swap2((char *)&(data->logversion));
-    for (i=0;i<5;i++){
+    for (int i=0;i<5;i++){
       swap8((char *)&(data->span[i].start));
       swap8((char *)&(data->span[i].end));
     }
@@ -1212,7 +1290,8 @@ int ataSmartStatus2(int device){
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(int device, int testtype, struct ata_smart_values *sv) {     
+int ataSmartTest(int device, int testtype, struct ata_smart_values *sv, uint64_t num_sectors)
+{
   char cmdmsg[128],*type,*captive;
   int errornum, cap, retval, select=0;
 
@@ -1240,7 +1319,7 @@ int ataSmartTest(int device, int testtype, struct ata_smart_values *sv) {
   
   // If doing a selective self-test, first use WRITE_LOG to write the
   // selective self-test log.
-  if (select && (retval=ataWriteSelectiveSelfTestLog(device, sv))) {
+  if (select && (retval=ataWriteSelectiveSelfTestLog(device, sv, num_sectors))) {
     if (retval==-4)
       pout("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
     return retval;

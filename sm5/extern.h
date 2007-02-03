@@ -25,9 +25,9 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.48 2007/01/04 15:16:16 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.49 2007/02/03 15:14:11 chrfranke Exp $\n"
 
-// Possible values for fixfirmwarebug.  If use has NOT specified -F at
+// Possible values for fixfirmwarebug.  If user has NOT specified -F at
 // all, then value is 0.
 #define FIX_NOTSPECIFIED     0
 #define FIX_NONE             1
@@ -41,6 +41,8 @@
 typedef struct smartmonctrl_s {
   // spans for selective self-test
   uint64_t smartselectivespan[5][2];
+  // mode for each span, see SEL_* in utility.h
+  char smartselectivemode[5];
   // number of spans
   int smartselectivenumspans;
   int           testcase;
