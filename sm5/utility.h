@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.48 2007/01/29 21:28:54 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.49 2007/02/03 15:14:14 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -76,8 +76,14 @@ int compileregex(regex_t *compiled, const char *pattern, int cflags);
 int split_report_arg(char *s, int *i);
 // Function for processing -c option in smartctl and smartd
 int split_report_arg2(char *s, int *i);
+
+// Possible values for smartselectivemode
+#define SEL_RANGE            0 // MIN-MAX
+#define SEL_REDO             1 // redo this
+#define SEL_NEXT             2 // do next range
+#define SEL_CONT             3 // redo or next depending of last test status
 // Function for processing -t selective... option in smartctl
-int split_selective_arg(char *s, uint64_t *start, uint64_t *stop);
+int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
 
 // Guess device type (ata or scsi) based on device name 

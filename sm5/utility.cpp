@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.63 2007/01/29 21:28:54 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.64 2007/02/03 15:14:14 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -517,25 +517,51 @@ static uint64_t strtoull(const char * p, char * * endp, int base)
 // are allowed).  The first long long int is assigned to *start and the second
 // to *stop.  Returns zero if successful and non-zero otherwise.
 int split_selective_arg(char *s, uint64_t *start,
-                        uint64_t *stop)
+                        uint64_t *stop, int *mode)
 {
   char *tailptr;
-
   if (!(s = strchr(s, ',')))
     return 1;
-  if (!isdigit((int)(*++s)))
-    return 1;
-  errno = 0;
-  // Last argument to strtoull (the base) is 0 meaning that decimal is assumed
-  // unless prefixes of "0" (for octal) or "0x"/"0X" (for hex) are used.
-  *start = strtoull(s, &tailptr, 0);
-
-  s = tailptr;
-  if (errno || *s++ != '-')
-    return 1;
-  *stop = strtoull(s, &tailptr, 0);
+  bool add = false;
+  if (!isdigit((int)(*++s))) {
+    *start = *stop = 0;
+    if (!strncmp(s, "redo", 4))
+      *mode = SEL_REDO;
+    else if (!strncmp(s, "next", 4))
+      *mode = SEL_NEXT;
+    else if (!strncmp(s, "cont", 4))
+      *mode = SEL_CONT;
+    else
+      return 1;
+    s += 4;
+    if (!*s)
+      return 0;
+    if (*s != '+')
+      return 1;
+  }
+  else {
+    *mode = SEL_RANGE;
+    errno = 0;
+    // Last argument to strtoull (the base) is 0 meaning that decimal is assumed
+    // unless prefixes of "0" (for octal) or "0x"/"0X" (for hex) are used.
+    *start = strtoull(s, &tailptr, 0);
+    s = tailptr;
+    add = (*s == '+');
+    if (!(!errno && (add || *s == '-')))
+      return 1;
+    if (!strcmp(s, "-max")) {
+      *stop = ~(uint64_t)0; // replaced by max LBA later
+      return 0;
+    }
+  }
+  *stop = strtoull(s+1, &tailptr, 0);
   if (errno || *tailptr != '\0')
     return 1;
+  if (add) {
+    if (*stop > 0)
+      (*stop)--;
+    *stop += *start; // -t select,N+M => -t select,N,(N+M-1)
+  }
   return 0;
 }
 

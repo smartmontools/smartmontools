@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.158 2007/01/04 15:16:16 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.159 2007/02/03 15:14:13 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -69,7 +69,7 @@ void printslogan(){
 #else
   const char * ver = SMARTMONTOOLS_BUILD_HOST;
 #endif
-  pout("smartctl version %s [%s] Copyright (C) 2002-6 Bruce Allen\n", PACKAGE_VERSION, ver);
+  pout("smartctl version %s [%s] Copyright (C) 2002-7 Bruce Allen\n", PACKAGE_VERSION, ver);
   pout("Home page is " PACKAGE_HOMEPAGE "\n\n");
   return;
 }
@@ -704,10 +704,9 @@ void ParseOpts (int argc, char** argv){
 	  con->pendingtime=i+1;
 	}
       } else if (!strncmp(optarg,"select",strlen("select"))) {
-	// parse range of LBAs to test
-	uint64_t start, stop;
-
-        if (split_selective_arg(optarg, &start, &stop)) {
+        // parse range of LBAs to test
+        uint64_t start, stop; int mode;
+        if (split_selective_arg(optarg, &start, &stop, &mode)) {
 	  sprintf(extraerror, "Option -t select,M-N must have non-negative integer M and N\n");
           badarg = TRUE;
         } else {
@@ -723,6 +722,7 @@ void ParseOpts (int argc, char** argv){
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
           con->smartselectivespan[con->smartselectivenumspans][1] = stop;
+          con->smartselectivemode[con->smartselectivenumspans] = mode;
           con->smartselectivenumspans++;
           con->testcase            = SELECTIVE_SELF_TEST;
         }
