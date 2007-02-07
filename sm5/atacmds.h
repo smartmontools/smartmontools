@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.84 2007/02/03 15:14:11 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.85 2007/02/07 20:56:05 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -372,6 +372,74 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 #define SELECTIVE_FLAG_PENDING (0x0008)
 #define SELECTIVE_FLAG_ACTIVE  (0x0010)
 
+
+// SCT (SMART Command Transport) data structures
+// See Sections 8.2 and 8.3 of:
+//   AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
+//   T13/1699-D Revision 3f (Working Draft), December 11, 2006.
+
+// SCT Status response (read with SMART_READ_LOG page 0xe0)
+#pragma pack(1)
+struct ata_sct_status_response
+{
+  unsigned short format_version;    // 0-1: Status response format version number (2)
+  unsigned short sct_version;       // 2-3: Vendor specific version number
+  unsigned short sct_spec;          // 4-5: SCT level supported (1)
+  unsigned long status_flags;       // 6-9: Status flags (Bit 0: Segment Initialized, Bits 1-31: reserved)
+  unsigned char device_state;       // 10: Device State (0-5)
+  unsigned char bytes011_013[3];    // 11-13: reserved
+  unsigned short ext_status_code;   // 14-15: Status of last SCT command (0xffff if executing)
+  unsigned short action_code;       // 16-17: Action code of last SCT command
+  unsigned short function_code;     // 18-19: Function code of last SCT command issued
+  unsigned char bytes020_039[20];   // 20-39: reserved
+  uint64_t lba_current;             // 40-47: LBA of SCT command executing in background
+  unsigned char bytes048_199[152];  // 48-199: reserved
+  signed char hda_temp;             // 200: Current temperature in Celsius (0x80 = invalid)
+  signed char min_temp;             // 201: Minimum temperature this power cycle
+  signed char max_temp;             // 202: Maximum temperature this power cycle
+  signed char life_min_temp;        // 203: Minimum lifetime temperature
+  signed char life_max_temp;        // 204: Maximum lifetime temperature
+  unsigned char byte205;            // 205: reserved
+  unsigned int over_limit_count;    // 206-209: # intervals since last reset with temperature > Max Op Limit
+  unsigned int under_limit_count;   // 210-213: # intervals since last reset with temperature < Min Op Limit
+  unsigned char bytes214_479[266];  // 214-479: reserved
+  unsigned char vendor_specific[32];// 480-511: vendor specific
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_sct_status_response, 512);
+
+// SCT Data Table command (send with SMART_WRITE_LOG page 0xe0)
+#pragma pack(1)
+struct ata_sct_data_table_command
+{
+  unsigned short action_code;       // 5 for Data Table
+  unsigned short function_code;     // 1 for Read Table
+  unsigned short table_id;          // Data Table id
+  unsigned short words003_255[253]; // reserved
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_sct_data_table_command, 512);
+
+// SCT Temperature History Table (read with SMART_READ_LOG page 0xe1)
+#pragma pack(1)
+struct ata_sct_temperature_history_table
+{
+  unsigned short format_version;    // 0-1: Data table format version number (2)
+  unsigned short sampling_period;   // 2-3: Temperature sampling period in minutes
+  unsigned short interval;          // 4-5: Timer interval between history entries
+  signed char max_op_limit;         // 6: Maximum recommended continuous operating temperature
+  signed char over_limit;           // 7: Maximum temperature limit
+  signed char min_op_limit;         // 8: Minimum recommended continuous operating limit
+  signed char under_limit;          // 9: Minimum temperature limit
+  unsigned char bytes010_029[20];   // 10-29: reserved
+  unsigned short cb_size;           // 30-31: Number of history entries (range 128-478)
+  unsigned short cb_index;          // 32-33: Index of last updated entry (zero-based)
+  signed char cb[512-34];           // 34+cb_size-1: Circular buffer of temperature values
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_sct_temperature_history_table, 512);
+
+
 // Get information from drive
 int ataReadHDIdentity(int device, struct ata_identify_device *buf);
 int ataCheckPowerMode(int device);
@@ -384,7 +452,13 @@ int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
 int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data);
 int ataSmartStatus(int device);
 int ataSetSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
-int ataReadLogDirectory(int device, struct ata_smart_log_directory *);  
+int ataReadLogDirectory(int device, struct ata_smart_log_directory *);
+
+// Read SCT information
+int ataReadSCTStatus(int device, ata_sct_status_response * sts);
+int ataReadSCTTempHist(int device, ata_sct_status_response * sts,
+                       ata_sct_temperature_history_table * tmh);
+
 
 /* Enable/Disable SMART on device */
 int ataEnableSmart ( int device );
@@ -454,6 +528,12 @@ int isSupportSelfTest (struct ata_smart_values *data);
 int isSupportConveyanceSelfTest(struct ata_smart_values *data);
 
 int isSupportSelectiveSelfTest(struct ata_smart_values *data);
+
+inline bool isSCTCapable(const ata_identify_device *drive)
+  { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support
+
+inline bool isSCTDataTableCapable(const ata_identify_device *drive)
+  { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
 int ataSmartTest(int device, int testtype, struct ata_smart_values *data, uint64_t num_sectors);
 
@@ -539,4 +619,12 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 void swap2(char *location);
 void swap4(char *location);
 void swap8(char *location);
+// Typesafe variants using overloading
+inline void swapx(unsigned short * p)
+  { swap2((char*)p); }
+inline void swapx(unsigned int * p)
+  { swap4((char*)p); }
+inline void swapx(uint64_t * p)
+  { swap8((char*)p); }
+
 #endif /* ATACMDS_H_ */
