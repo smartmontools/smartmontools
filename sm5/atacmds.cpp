@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.179 2007/02/03 15:14:11 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.180 2007/02/07 20:56:05 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -2036,3 +2036,85 @@ unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data,
   // No valid attribute found
   return 0;
 }
+
+// Read SCT Status
+int ataReadSCTStatus(int device, ata_sct_status_response * sts)
+{
+  // read SCT status via SMART log 0xe0
+  memset(sts, 0, sizeof(*sts));
+  if (smartcommandhandler(device, READ_LOG, 0xe0, (char *)sts)){
+    syserror("Error Read SCT Status failed");
+    return -1;
+  }
+
+  // swap endian order if needed
+  if (isbigendian()){
+    swapx(&sts->format_version);
+    swapx(&sts->sct_version);
+    swapx(&sts->sct_spec);
+    swapx(&sts->ext_status_code);
+    swapx(&sts->action_code);
+    swapx(&sts->function_code);
+    swapx(&sts->over_limit_count);
+    swapx(&sts->under_limit_count);
+  }
+  return 0;
+}
+
+// Read SCT Temperature History Table.
+// Requires last SCT Status as input.
+int ataReadSCTTempHist(int device, ata_sct_status_response * sts,
+                       ata_sct_temperature_history_table * tmh)
+{
+  if (sts->format_version != 2) {
+    pout("Error unknown SCT Status format version %u, should be 2.\n", sts->format_version);
+    return -1;
+  }
+
+  // Do nothing if other SCT command is executing
+  if (sts->ext_status_code == 0xffff) {
+    pout("Another SCT command is executing, abort read temperature\n"
+         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+      sts->ext_status_code, sts->action_code, sts->function_code);
+    return -1;
+  }
+
+  ata_sct_data_table_command cmd; memset(&cmd, 0, sizeof(cmd));
+  // CAUTION: DO NOT CHANGE THIS VALUE (SOME ACTION CODES MAY ERASE DISK)
+  cmd.action_code   = 5; // Data table command
+  cmd.function_code = 1; // Read table
+  cmd.table_id      = 2; // Temperature History Table
+
+  // write command via SMART log page 0xe0
+  if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
+    syserror("Error Write SCT Command failed");
+    return -1;
+  }
+
+  // read SCT data via SMART log page 0xe1
+  memset(tmh, 0, sizeof(*tmh));
+  if (smartcommandhandler(device, READ_LOG, 0xe1, (char *)tmh)){
+    syserror("Error Read SCT Data failed");
+    return -1;
+  }
+
+  // re-read and check SCT status
+  if (ataReadSCTStatus(device, sts))
+    return -1;
+
+  if (!(   sts->format_version == 2 && sts->ext_status_code == 0
+        && sts->action_code == 5 && sts->function_code == 1     )) {
+    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+      sts->ext_status_code, sts->action_code, sts->function_code);
+    return -1;
+  }
+
+  // swap endian order if needed
+  if (isbigendian()){
+    swapx(&tmh->format_version);
+    swapx(&tmh->sampling_period);
+    swapx(&tmh->interval);
+  }
+  return 0;
+}
+
