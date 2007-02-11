@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.50 2007/02/07 20:56:05 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.51 2007/02/11 12:31:09 chrfranke Exp $\n"
 
 // Possible values for fixfirmwarebug.  If user has NOT specified -F at
 // all, then value is 0.
@@ -46,6 +46,7 @@ typedef struct smartmonctrl_s {
   // number of spans
   int smartselectivenumspans;
   int           testcase;
+  unsigned      scttempint;
   // one plus time in minutes to wait after powerup before restarting
   // interrupted offline scan after selective self-test.
   int  pendingtime;

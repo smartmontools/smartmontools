@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.599 2007/02/07 20:56:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.600 2007/02/11 12:31:06 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] ATA: Added '-t scttempint,N' option to set SCT temperature
+       logging interval.
 
   [CF] ATA: Added '-l scttemp[sts,hist]' options to print disk
        temperature information and history table provided by

@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.174 2007/02/07 20:56:05 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.175 2007/02/11 12:31:08 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -905,6 +905,20 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
   if (!needheader) pout("\n");
 }
 
+// Print SMART related SCT capabilities
+static void ataPrintSCTCapability(const ata_identify_device *drive)
+{
+  unsigned short sctcaps = drive->words088_255[206-88];
+  if (!(sctcaps & 0x01))
+    return;
+  pout("SCT capabilities: \t       (0x%04x)\tSCT Status supported.\n", sctcaps);
+  if (sctcaps & 0x10)
+    pout("\t\t\t\t\tSCT Feature Control supported.\n");
+  if (sctcaps & 0x20)
+    pout("\t\t\t\t\tSCT Data Table supported.\n");
+}
+
+
 void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identify_device *drive){
   pout("General SMART Values:\n");
   
@@ -930,7 +944,9 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
   }
   if (isSupportConveyanceSelfTest(data))
     PrintSmartConveyanceSelfTestPollingTime (data);
-  
+
+  ataPrintSCTCapability(drive);
+
   pout("\n");
 }
 
@@ -1400,8 +1416,11 @@ static const char * sct_pbar(int x, char * buf)
     memset(buf, '*', x);
     if (ov)
       buf[x-1] = '+';
+    buf[x] = 0;
   }
-  buf[x] = 0;
+  else {
+    buf[0] = '-'; buf[1] = 0;
+  }
   return buf;
 }
 
@@ -1432,13 +1451,13 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   pout("Device State:                        %s (%u)\n",
     sct_device_state_msg(sts->device_state), sts->device_state);
   char buf1[20], buf2[20];
-  pout("Current Temperature:                   %s Celsius\n",
+  pout("Current Temperature:                    %s Celsius\n",
     sct_ptemp(sts->hda_temp, buf1));
-  pout("Power Cycle Min/Max Temperature:    %s/%s Celsius\n",
+  pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
     sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
-  pout("Lifetime    Min/Max Temperature:    %s/%s Celsius\n",
+  pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
     sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
-  pout("Under/Over Temperature Limit Count: %2u/%2u\n",
+  pout("Under/Over Temperature Limit Count:  %2u/%u\n",
     sts->under_limit_count, sts->over_limit_count);
   return 0;
 }
@@ -1453,9 +1472,10 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 
   char buf1[20], buf2[80];
   pout("SCT Temperature History Version:     %u\n", tmh->format_version);
-  pout("Temperature Sampling Period:         %u Minute%s\n",
+  pout("Temperature Sampling Period:         %u minute%s\n",
     tmh->sampling_period, (tmh->sampling_period==1?"":"s"));
-  pout("Timer Interval (vendor specific):    %u\n", tmh->interval);
+  pout("Temperature Logging Interval:        %u minute%s\n",
+    tmh->interval,        (tmh->interval==1?"":"s"));
   pout("Min/Max recommended Temperature:     %s/%s Celsius\n",
     sct_ptemp(tmh->min_op_limit, buf1), sct_ptemp(tmh->max_op_limit, buf2));
   pout("Min/Max Temperature Limit:           %s/%s Celsius\n",
@@ -1469,7 +1489,9 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   // Print table
   pout("\nIndex    Estimated Time   Temperature Celsius\n");
   unsigned n = 0, i = (tmh->cb_index+1) % tmh->cb_size;
-  time_t t = time(0) - tmh->cb_size * 60;
+  unsigned interval = (tmh->interval > 0 ? tmh->interval : 1);
+  time_t t = time(0) - (tmh->cb_size-1) * interval * 60;
+  t -= t % (interval * 60);
   while (n < tmh->cb_size) {
     // Find range of identical temperatures
     unsigned n1 = n, n2 = n+1, i2 = (i+1) % tmh->cb_size;
@@ -1489,7 +1511,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
         pout(" ...    ..(%3u skipped).    ..  %s\n",
           n2-n1-2, sct_pbar(tmh->cb[i], buf2));
       }
-      t += 60; i = (i+1) % tmh->cb_size; n++;
+      t += interval * 60; i = (i+1) % tmh->cb_size; n++;
     }
   }
   //assert(n == tmh->cb_size && i == (tmh->cb_index+1) % tmh->cb_size);
@@ -1958,38 +1980,55 @@ int ataPrintMain (int fd){
   }
 
   // Print SMART SCT status and temperature history table
-  if (con->scttempsts || con->scttemphist) {
+  if (con->scttempsts || con->scttemphist || con->scttempint) {
     for (;;) {
-      // Read SCT status first
       if (!isSCTCapable(&drive)) {
-        pout("Warning: device does not support SCT Feature Set\n");
+        pout("Warning: device does not support SCT Commands\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         break;
       }
-      ata_sct_status_response sts;
-      if (ataReadSCTStatus(fd, &sts)) {
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        break;
-      }
-      if (con->scttempsts)
-        ataPrintSCTStatus(&sts);
-      if (!con->scttemphist) {
+      if (con->scttempsts || con->scttemphist) {
+        ata_sct_status_response sts;
+        ata_sct_temperature_history_table tmh;
+        if (!con->scttemphist) {
+          // Read SCT status only
+          if (ataReadSCTStatus(fd, &sts)) {
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            break;
+          }
+        }
+        else {
+          if (!isSCTDataTableCapable(&drive)) {
+            pout("Warning: device does not support SCT Data Table command\n");
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            break;
+          }
+          // Read SCT status and temperature history
+          if (ataReadSCTTempHist(fd, &tmh, &sts)) {
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+            break;
+          }
+        }
+        if (con->scttempsts)
+          ataPrintSCTStatus(&sts);
+        if (con->scttemphist)
+          ataPrintSCTTempHist(&tmh);
         pout("\n");
-        break;
       }
-      // Read SCT temperature history, needs last status as input
-      if (!isSCTDataTableCapable(&drive)) {
-        pout("Warning: device does not support SCT Data Tables\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        break;
+      if (con->scttempint) {
+        // Set new temperature logging interval
+        if (!isSCTFeatureControlCapable(&drive)) {
+          pout("Warning: device does not support SCT Feature Control command\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          break;
+        }
+        if (ataSetSCTTempInterval(fd, con->scttempint)) {
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          break;
+        }
+        pout("Temperature Logging Interval set to %u minute%s\n",
+          con->scttempint, (con->scttempint==1?"":"s"));
       }
-      ata_sct_temperature_history_table tmh;
-      if (ataReadSCTTempHist(fd, &sts, &tmh)) {
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        break;
-      }
-      ataPrintSCTTempHist(&tmh);
-      pout("\n");
       break;
     }
   }

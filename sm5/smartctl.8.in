@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.93 2007/02/07 20:56:05 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.94 2007/02/11 12:31:09 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -816,15 +816,19 @@ typically be either recovered or unrecoverable errors. That latter group
 may need some attention. There is a description of the background scan
 mechansim in section 4.18 of SBC\-3 revision 6 (see www.t10.org ).
 
-.I scttemp, scttempsts, scttemphist [ATA] 
-\- [EXPERIMENTAL SMARTCTL FEATURE] prints the disk temperature
-information provided by the SMART Command Transport (SCT) Feature Set.
+.I scttemp, scttempsts, scttemphist [ATA]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the disk temperature
+information provided by the SMART Command Transport (SCT) commands.
 The option \'scttempsts\' prints current temperature and temperature
 ranges returned by the SCT Status command, \'scttemphist\' prints
 temperature limits and the temperature history table returned by
 the SCT Data Table command, and \'scttemp\' prints both.
-The SCT commands are specified in the proposed ATA\-8 Command Set (ACS),
-and are already implemented in some recent ATA\-7 disks.
+The default temperature logging interval is 1 minute and can be
+configured with the \'\-t scttempint,N\' option, see below.
+The temperature values and the logging interval are persistent
+across power cycles. 
+The SCT commands are specified in the proposed ATA\-8 Command Set
+(ACS), and are already implemented in some recent ATA\-7 disks.
 
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
@@ -1210,6 +1214,12 @@ option must be use together with one or more of the \fIselect,N\-M\fP
 options above. The value of this option is preserved between selective
 self\-tests.
 
+.I scttempint,N
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] set the time interval
+for SCT temperature logging to N minutes. This command also clears the
+temperature history table. See \'\-l scttemp\' above for more information
+about SCT temperature logging.
+
 .TP
 .B \-C, \-\-captive
 Runs self\-tests in captive mode.  This has no effect with \'\-t
@@ -1463,7 +1473,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.93 2007/02/07 20:56:05 chrfranke Exp $
+$Id: smartctl.8.in,v 1.94 2007/02/11 12:31:09 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
