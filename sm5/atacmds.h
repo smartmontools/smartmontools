@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.85 2007/02/07 20:56:05 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.86 2007/02/11 12:31:07 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -379,6 +379,7 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 //   T13/1699-D Revision 3f (Working Draft), December 11, 2006.
 
 // SCT Status response (read with SMART_READ_LOG page 0xe0)
+// Table 60 of T13/1699-D Revision 3f 
 #pragma pack(1)
 struct ata_sct_status_response
 {
@@ -408,19 +409,35 @@ struct ata_sct_status_response
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_status_response, 512);
 
+// SCT Feature Control command (send with SMART_WRITE_LOG page 0xe0)
+// Table 72 of T13/1699-D Revision 3f 
+#pragma pack(1)
+struct ata_sct_feature_control_command
+{
+  unsigned short action_code;       // 4 = Feature Control
+  unsigned short function_code;     // 1 = Set, 2 = Return, 3 = Return options
+  unsigned short feature_code;      // 3 = Temperature logging interval
+  unsigned short state;             // Interval
+  unsigned short words004_255[252]; // reserved
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_sct_feature_control_command, 512);
+
 // SCT Data Table command (send with SMART_WRITE_LOG page 0xe0)
+// Table 73 of T13/1699-D Revision 3f 
 #pragma pack(1)
 struct ata_sct_data_table_command
 {
-  unsigned short action_code;       // 5 for Data Table
-  unsigned short function_code;     // 1 for Read Table
-  unsigned short table_id;          // Data Table id
+  unsigned short action_code;       // 5 = Data Table
+  unsigned short function_code;     // 1 = Read Table
+  unsigned short table_id;          // 2 = Temperature History
   unsigned short words003_255[253]; // reserved
 } ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_data_table_command, 512);
 
 // SCT Temperature History Table (read with SMART_READ_LOG page 0xe1)
+// Table 75 of T13/1699-D Revision 3f 
 #pragma pack(1)
 struct ata_sct_temperature_history_table
 {
@@ -434,7 +451,7 @@ struct ata_sct_temperature_history_table
   unsigned char bytes010_029[20];   // 10-29: reserved
   unsigned short cb_size;           // 30-31: Number of history entries (range 128-478)
   unsigned short cb_index;          // 32-33: Index of last updated entry (zero-based)
-  signed char cb[512-34];           // 34+cb_size-1: Circular buffer of temperature values
+  signed char cb[478];              // 34-(34+cb_size-1): Circular buffer of temperature values
 } ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_temperature_history_table, 512);
@@ -456,8 +473,10 @@ int ataReadLogDirectory(int device, struct ata_smart_log_directory *);
 
 // Read SCT information
 int ataReadSCTStatus(int device, ata_sct_status_response * sts);
-int ataReadSCTTempHist(int device, ata_sct_status_response * sts,
-                       ata_sct_temperature_history_table * tmh);
+int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
+                       ata_sct_status_response * sts);
+// Set SCT temperature logging interval
+int ataSetSCTTempInterval(int device, unsigned interval);
 
 
 /* Enable/Disable SMART on device */
@@ -531,6 +550,9 @@ int isSupportSelectiveSelfTest(struct ata_smart_values *data);
 
 inline bool isSCTCapable(const ata_identify_device *drive)
   { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support
+
+inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
+  { return ((drive->words088_255[206-88] & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
 
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support

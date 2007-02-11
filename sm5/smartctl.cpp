@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.160 2007/02/07 20:56:05 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.161 2007/02/11 12:31:09 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -215,7 +215,8 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printf(
 "  -t TEST, --test=TEST\n"
-"        Run test.  TEST is: offline short long conveyance select,M-N pending,N afterselect,on afterselect,off\n\n"
+"        Run test. TEST: offline short long conveyance select,M-N\n"
+"                        pending,N afterselect,[on|off] scttempint,N\n\n"
 "  -C, --captive\n"
 "        Do test in captive mode (along with -t)\n\n"
 "  -X, --abort\n"
@@ -223,7 +224,8 @@ void Usage (void){
 );
 #else
   printf(
-"  -t TEST   Run test.  TEST is: offline short long conveyance select,M-N pending,N afterselect,on afterselect,off\n"
+"  -t TEST   Run test. TEST: offline short long conveyance select,M-N\n"
+"                            pending,N afterselect,[on|off] scttempint,N\n"
 "  -C        Do test in captive mode (along with -t)\n"
 "  -X        Abort any non-captive test\n\n"
   );
@@ -251,11 +253,11 @@ const char *getvalidarglist(char opt) {
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory, background, scttemp[sts,hist]";
+    return "error, selftest, selective, directory, background, scttemp[sts|hist]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
-    return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,on, afterselect,off";
+    return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,[on|off], scttempint,N";
   case 'F':
     return "none, samsung, samsung2, samsung3";
   case 'n':
@@ -732,6 +734,14 @@ void ParseOpts (int argc, char** argv){
           con->smartselectivenumspans++;
           con->testcase            = SELECTIVE_SELF_TEST;
         }
+      } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
+        unsigned interval = 0; int n = -1;
+        if (!(   sscanf(optarg,"scttempint,%u%n", &interval, &n) == 1
+              && 0 < interval && interval <= 0xffff && n == (int)strlen(optarg))) {
+            strcpy(extraerror, "Option -t scttempint,N must have positive integer N\n");
+            badarg = TRUE;
+        }
+        con->scttempint = interval;
       } else {
         badarg = TRUE;
       }
