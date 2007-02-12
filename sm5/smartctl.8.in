@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.94 2007/02/11 12:31:09 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.95 2007/02/12 21:58:31 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -823,10 +823,9 @@ The option \'scttempsts\' prints current temperature and temperature
 ranges returned by the SCT Status command, \'scttemphist\' prints
 temperature limits and the temperature history table returned by
 the SCT Data Table command, and \'scttemp\' prints both.
+The temperature values are preserved across power cycles.
 The default temperature logging interval is 1 minute and can be
-configured with the \'\-t scttempint,N\' option, see below.
-The temperature values and the logging interval are persistent
-across power cycles. 
+configured with the \'\-t scttempint,N[,p]\' option, see below.
 The SCT commands are specified in the proposed ATA\-8 Command Set
 (ACS), and are already implemented in some recent ATA\-7 disks.
 
@@ -1214,11 +1213,14 @@ option must be use together with one or more of the \fIselect,N\-M\fP
 options above. The value of this option is preserved between selective
 self\-tests.
 
-.I scttempint,N
+.I scttempint,N[,p]
 \- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] set the time interval
-for SCT temperature logging to N minutes. This command also clears the
-temperature history table. See \'\-l scttemp\' above for more information
-about SCT temperature logging.
+for SCT temperature logging to N minutes. If \',p\' is specified, the
+setting is preserved across power cycles. Otherwise, the setting is
+volatile and will be reverted to default (1 minute), or last
+non-volatile setting by the next hard reset. This command also clears
+the temperature history table. See \'\-l scttemp\' above for more
+information about SCT temperature logging.
 
 .TP
 .B \-C, \-\-captive
@@ -1473,7 +1475,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.94 2007/02/11 12:31:09 chrfranke Exp $
+$Id: smartctl.8.in,v 1.95 2007/02/12 21:58:31 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

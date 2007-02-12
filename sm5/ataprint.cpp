@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.175 2007/02/11 12:31:08 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.176 2007/02/12 21:58:31 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -2022,12 +2022,12 @@ int ataPrintMain (int fd){
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
           break;
         }
-        if (ataSetSCTTempInterval(fd, con->scttempint)) {
+        if (ataSetSCTTempInterval(fd, con->scttempint, !!con->scttempintp)) {
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
           break;
         }
-        pout("Temperature Logging Interval set to %u minute%s\n",
-          con->scttempint, (con->scttempint==1?"":"s"));
+        pout("Temperature Logging Interval set to %u minute%s (%s)\n",
+          con->scttempint, (con->scttempint==1?"":"s"), (con->scttempintp?"persistent":"volatile"));
       }
       break;
     }

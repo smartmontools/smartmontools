@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.181 2007/02/11 12:31:06 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.182 2007/02/12 21:58:31 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -2121,7 +2121,7 @@ int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
 }
 
 // Set SCT Temperature Logging Interval
-int ataSetSCTTempInterval(int device, unsigned interval)
+int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
 {
   // Check initial status
   ata_sct_status_response sts;
@@ -2146,6 +2146,7 @@ int ataSetSCTTempInterval(int device, unsigned interval)
   cmd.function_code = 1; // Set state
   cmd.feature_code  = 3; // Temperature logging interval
   cmd.state         = interval;
+  cmd.option_flags  = (persistent ? 0x01 : 0x00);
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
