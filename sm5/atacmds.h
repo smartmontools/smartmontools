@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.86 2007/02/11 12:31:07 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.87 2007/02/12 21:58:31 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -410,7 +410,7 @@ struct ata_sct_status_response
 ASSERT_SIZEOF_STRUCT(ata_sct_status_response, 512);
 
 // SCT Feature Control command (send with SMART_WRITE_LOG page 0xe0)
-// Table 72 of T13/1699-D Revision 3f 
+// Table 72 of T13/1699-D Revision 3f
 #pragma pack(1)
 struct ata_sct_feature_control_command
 {
@@ -418,7 +418,8 @@ struct ata_sct_feature_control_command
   unsigned short function_code;     // 1 = Set, 2 = Return, 3 = Return options
   unsigned short feature_code;      // 3 = Temperature logging interval
   unsigned short state;             // Interval
-  unsigned short words004_255[252]; // reserved
+  unsigned short option_flags;      // Bit 0: persistent, Bits 1-31: reserved
+  unsigned short words005_255[251]; // reserved 
 } ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_feature_control_command, 512);
@@ -476,7 +477,7 @@ int ataReadSCTStatus(int device, ata_sct_status_response * sts);
 int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
                        ata_sct_status_response * sts);
 // Set SCT temperature logging interval
-int ataSetSCTTempInterval(int device, unsigned interval);
+int ataSetSCTTempInterval(int device, unsigned interval, bool persistent);
 
 
 /* Enable/Disable SMART on device */
