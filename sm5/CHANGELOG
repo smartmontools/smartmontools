@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.601 2007/02/12 21:58:31 chrfranke Exp $
+$Id: CHANGELOG,v 1.602 2007/02/22 21:06:26 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Drive database: added Samsung T166 series.
 
   [CF] ATA: Added ',p' option for '-t scttempint,N' to make
        setting persistent.
