@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.182 2007/02/12 21:58:31 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.183 2007/02/23 20:44:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -771,7 +771,23 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
       return std;
     }
   }
-  
+
+  // Try new ATA-8 minor revision numbers (Table 22 of T13/1699-D Revision 3f)
+  // (not in actual_ver/minor_str to avoid large sparse tables)
+  const char *desc;
+  switch (*minor) {
+    case 0x0027: desc = "ATA-8-ACS revision 3c"; break;
+    case 0x0033: desc = "ATA-8-ACS revision 3e"; break;
+    case 0x0042: desc = "ATA-8-ACS revision 3f"; break;
+    case 0x0052: desc = "ATA-8-ACS revision 3b"; break;
+    case 0x0107: desc = "ATA-8-ACS revision 2d"; break;
+    default:     desc = 0; break;
+  }
+  if (desc) {
+    *description = desc;
+    return 8;
+  }
+
   // HDPARM has a very complicated algorithm from here on. Since SMART only
   // exists on ATA-3 and later standards, let's punt on this.  If you don't
   // like it, please fix it.  The code's in CVS.
@@ -2058,6 +2074,12 @@ int ataReadSCTStatus(int device, ata_sct_status_response * sts)
     swapx(&sts->over_limit_count);
     swapx(&sts->under_limit_count);
   }
+
+  // Check format version
+  if (!(sts->format_version == 2 || sts->format_version == 3)) {
+    pout("Error unknown SCT Status format version %u, should be 2 or 3.\n", sts->format_version);
+    return -1;
+  }
   return 0;
 }
 
@@ -2068,10 +2090,6 @@ int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
   // Check initial status
   if (ataReadSCTStatus(device, sts))
     return -1;
-  if (sts->format_version != 2) {
-    pout("Error unknown SCT Status format version %u, should be 2.\n", sts->format_version);
-    return -1;
-  }
 
   // Do nothing if other SCT command is executing
   if (sts->ext_status_code == 0xffff) {
@@ -2104,8 +2122,7 @@ int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
   if (ataReadSCTStatus(device, sts))
     return -1;
 
-  if (!(   sts->format_version == 2 && sts->ext_status_code == 0
-        && sts->action_code == 5 && sts->function_code == 1     )) {
+  if (!(sts->ext_status_code == 0 && sts->action_code == 5 && sts->function_code == 1)) {
     pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
@@ -2117,6 +2134,12 @@ int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
     swapx(&tmh->sampling_period);
     swapx(&tmh->interval);
   }
+
+  // Check format version
+  if (tmh->format_version != 2) {
+    pout("Error unknown SCT Temperature History Format Version (%u), should be 2.\n", tmh->format_version);
+    return -1;
+  }
   return 0;
 }
 
@@ -2127,10 +2150,6 @@ int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
   ata_sct_status_response sts;
   if (ataReadSCTStatus(device, &sts))
     return -1;
-  if (sts.format_version != 2) {
-    pout("Error unknown SCT Status format version %u, should be 2.\n", sts.format_version);
-    return -1;
-  }
 
   // Do nothing if other SCT command is executing
   if (sts.ext_status_code == 0xffff) {
@@ -2158,8 +2177,7 @@ int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
   if (ataReadSCTStatus(device, &sts))
     return -1;
 
-  if (!(   sts.format_version == 2 && sts.ext_status_code == 0
-        && sts.action_code == 4 && sts.function_code == 1     )) {
+  if (!(sts.ext_status_code == 0 && sts.action_code == 4 && sts.function_code == 1)) {
     pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
