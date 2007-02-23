@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.158 2007/02/22 21:06:27 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.159 2007/02/23 20:13:49 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -365,7 +365,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "SAMSUNG SpinPoint T166 series", // tested with HD501LJ/CR100-10
-    "^SAMSUNG HD(080G|160H|32[01]K|50[01]L)J$",
+    "^SAMSUNG HD(080G|160H|32[01]K|403L|50[01]L)J$",
     ".*",
     NULL, NULL, NULL, NULL
   },
