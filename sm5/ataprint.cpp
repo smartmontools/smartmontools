@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.176 2007/02/12 21:58:31 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.177 2007/02/23 20:44:00 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1440,36 +1440,46 @@ static const char * sct_device_state_msg(unsigned char state)
 // Print SCT Status
 static int ataPrintSCTStatus(const ata_sct_status_response * sts)
 {
-  if (sts->format_version != 2) {
-    pout("Error unknown SCT Status Format Version (%u), should be 2.\n", sts->format_version);
-    return -1;
-  }
-
   pout("SCT Status Version:                  %u\n", sts->format_version);
   pout("SCT Version (vendor specific):       %u (0x%04x)\n", sts->sct_version, sts->sct_version);
   pout("SCT Support Level:                   %u\n", sts->sct_spec);
   pout("Device State:                        %s (%u)\n",
     sct_device_state_msg(sts->device_state), sts->device_state);
   char buf1[20], buf2[20];
-  pout("Current Temperature:                    %s Celsius\n",
-    sct_ptemp(sts->hda_temp, buf1));
-  pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
-    sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
-  pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
-    sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
-  pout("Under/Over Temperature Limit Count:  %2u/%u\n",
-    sts->under_limit_count, sts->over_limit_count);
+  if (   !sts->min_temp && !sts->life_min_temp && !sts->byte205
+      && !sts->under_limit_count && !sts->over_limit_count     ) {
+    // "Reserved" fields not set, assume "old" format version 2
+    // Table 11 of T13/1701DT Revision 5
+    // Table 54 of T13/1699-D Revision 3e
+    pout("Current Temperature:                 %s Celsius\n",
+      sct_ptemp(sts->hda_temp, buf1));
+    pout("Power Cycle Max Temperature:         %s Celsius\n",
+      sct_ptemp(sts->max_temp, buf2));
+    pout("Lifetime    Max Temperature:         %s Celsius\n",
+      sct_ptemp(sts->life_max_temp, buf2));
+  }
+  else {
+    // Assume "new" format version 2 or version 3
+    // T13/e06152r0-3 (Additional SCT Temperature Statistics)
+    // Table 60 of T13/1699-D Revision 3f
+    pout("Current Temperature:                    %s Celsius\n",
+      sct_ptemp(sts->hda_temp, buf1));
+    pout("Power Cycle Min/Max Temperature:     %s/%s Celsius\n",
+      sct_ptemp(sts->min_temp, buf1), sct_ptemp(sts->max_temp, buf2));
+    pout("Lifetime    Min/Max Temperature:     %s/%s Celsius\n",
+      sct_ptemp(sts->life_min_temp, buf1), sct_ptemp(sts->life_max_temp, buf2));
+    if (sts->byte205) // e06152r0-2, removed in e06152r3
+      pout("Lifetime    Average Temperature:        %s Celsius\n",
+        sct_ptemp((signed char)sts->byte205, buf1));
+    pout("Under/Over Temperature Limit Count:  %2u/%u\n",
+      sts->under_limit_count, sts->over_limit_count);
+  }
   return 0;
 }
 
 // Print SCT Temperature History Table
 static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
 {
-  if (tmh->format_version != 2) {
-    pout("Error unknown SCT Temperature History Format Version (%u), should be 2.\n", tmh->format_version);
-    return -1;
-  }
-
   char buf1[20], buf2[80];
   pout("SCT Temperature History Version:     %u\n", tmh->format_version);
   pout("Temperature Sampling Period:         %u minute%s\n",
