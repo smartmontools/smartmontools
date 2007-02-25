@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.177 2007/02/23 20:44:00 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.178 2007/02/25 20:09:00 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1491,7 +1491,7 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   pout("Min/Max Temperature Limit:           %s/%s Celsius\n",
     sct_ptemp(tmh->under_limit, buf1), sct_ptemp(tmh->over_limit, buf2));
   pout("Temperature History Size (Index):    %u (%u)\n", tmh->cb_size, tmh->cb_index);
-  if (!(0 < tmh->cb_size && tmh->cb_size < sizeof(tmh->cb) && tmh->cb_index < tmh->cb_size)) {
+  if (!(0 < tmh->cb_size && tmh->cb_size <= sizeof(tmh->cb) && tmh->cb_index < tmh->cb_size)) {
     pout("Error invalid Temperature History Size or Index\n");
     return 0;
   }
