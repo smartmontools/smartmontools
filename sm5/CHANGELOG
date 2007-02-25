@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.603 2007/02/23 20:44:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.604 2007/02/25 20:09:00 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fixed check of SCT temperature table size.
 
   [CF] Added ATA-8 draft revisions, added SCT status format 3.
 
