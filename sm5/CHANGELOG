@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.604 2007/02/25 20:09:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.605 2007/02/26 19:59:56 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] SAT/SCSI: make real SCSI disks visible to DEVICESCAN in
+       smartd again.
 
   [CF] Fixed check of SCT temperature table size.
 
