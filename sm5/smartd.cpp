@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.386 2007/01/04 15:16:17 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.387 2007/02/26 19:53:59 dpgilbert Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.386 2007/01/04 15:16:17 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.387 2007/02/26 19:53:59 dpgilbert Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -4155,7 +4155,14 @@ int ReadOrMakeConfigEntries(int *scanning){
     } else if (first->controller_type==CONTROLLER_SAT) {
       doata = 0;
       doscsi = 0;
-    }
+    } else
+      dosat = 0;
+// The code in this block has been neutered by D. Gilbert
+// on 20070226. smartd can't cope ATA disk behind a SAT
+// transport seamlessly _without_ a bigger restructuring
+// of smartd than this code tried. It made ATA disks
+// behind a SAT interface automatically detected only by
+// killing support for real SCSI disks. Sorry, no.
 
     *scanning=1;
     
