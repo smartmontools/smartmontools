@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.605 2007/02/26 19:59:56 dpgilbert Exp $
+$Id: CHANGELOG,v 1.606 2007/02/27 09:40:02 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fixed 64-bit compilation issue in SCT status struct.
 
   [DG] SAT/SCSI: make real SCSI disks visible to DEVICESCAN in
        smartd again.
