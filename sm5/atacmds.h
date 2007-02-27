@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.87 2007/02/12 21:58:31 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.88 2007/02/27 09:40:02 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -383,15 +383,15 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 #pragma pack(1)
 struct ata_sct_status_response
 {
-  unsigned short format_version;    // 0-1: Status response format version number (2)
+  unsigned short format_version;    // 0-1: Status response format version number (2, 3)
   unsigned short sct_version;       // 2-3: Vendor specific version number
   unsigned short sct_spec;          // 4-5: SCT level supported (1)
-  unsigned long status_flags;       // 6-9: Status flags (Bit 0: Segment Initialized, Bits 1-31: reserved)
+  unsigned int status_flags;        // 6-9: Status flags (Bit 0: Segment initialized, Bits 1-31: reserved)
   unsigned char device_state;       // 10: Device State (0-5)
   unsigned char bytes011_013[3];    // 11-13: reserved
   unsigned short ext_status_code;   // 14-15: Status of last SCT command (0xffff if executing)
   unsigned short action_code;       // 16-17: Action code of last SCT command
-  unsigned short function_code;     // 18-19: Function code of last SCT command issued
+  unsigned short function_code;     // 18-19: Function code of last SCT command
   unsigned char bytes020_039[20];   // 20-39: reserved
   uint64_t lba_current;             // 40-47: LBA of SCT command executing in background
   unsigned char bytes048_199[152];  // 48-199: reserved
@@ -400,7 +400,7 @@ struct ata_sct_status_response
   signed char max_temp;             // 202: Maximum temperature this power cycle
   signed char life_min_temp;        // 203: Minimum lifetime temperature
   signed char life_max_temp;        // 204: Maximum lifetime temperature
-  unsigned char byte205;            // 205: reserved
+  unsigned char byte205;            // 205: reserved (T13/e06152r0-2: Average lifetime temperature)
   unsigned int over_limit_count;    // 206-209: # intervals since last reset with temperature > Max Op Limit
   unsigned int under_limit_count;   // 210-213: # intervals since last reset with temperature < Min Op Limit
   unsigned char bytes214_479[266];  // 214-479: reserved
