@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.606 2007/02/27 09:40:02 chrfranke Exp $
+$Id: CHANGELOG,v 1.607 2007/03/21 20:33:02 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Applied Guido's patch to fix CCISS LUN array bounds check
+       (openSUSE bug #239956) and remove trailing spaces in
+       os_linux.cpp.
 
   [CF] Fixed 64-bit compilation issue in SCT status struct.
 
