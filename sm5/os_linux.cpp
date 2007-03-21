@@ -1,6 +1,6 @@
-/* 
+/*
  *  os_linux.c
- * 
+ *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2003-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -19,7 +19,7 @@
  *  Non-Copyright (C) 2000      Andre Hedrick <andre@suse.com>
  *
  * Other ars of this file are derived from code that was
- * 
+ *
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -36,7 +36,7 @@
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
  * Research Center), Jack Baskin School of Engineering, University of
  * California, Santa Cruz. http://ssrc.soe.ucsc.edu/
- * 
+ *
  */
 
 // This file contains the linux-specific IOCTL parts of
@@ -87,9 +87,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.90 2007/01/05 16:14:24 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.91 2007/03/21 20:33:02 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.90 2007/01/05 16:14:24 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.91 2007/03/21 20:33:02 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -114,7 +114,6 @@ typedef struct _ReportLUNdata_struct
 #endif
 
 /* Structure/defines of Report Physical LUNS of drive */
-#define CISS_MAX_LUN        16
 #define CISS_MAX_PHYS_LUN   1024
 #define CISS_REPORT_PHYS    0xc3
 
@@ -131,14 +130,14 @@ int setup_3ware_nodes(char *nodename, char *driver_name) {
   char             nodestring[NODE_STRING_LENGTH];
   struct stat      stat_buf;
   FILE             *file;
-  
+
   /* First try to open up /proc/devices */
   if (!(file = fopen("/proc/devices", "r"))) {
     pout("Error opening /proc/devices to check/create 3ware device nodes\n");
     syserror("fopen");
     return 0;  // don't fail here: user might not have /proc !
   }
-  
+
   /* Attempt to get device major number */
   while (EOF != fscanf(file, "%3s %32s", majorstring, device_name)) {
     majorstring[MAJOR_STRING_LENGTH]='\0';
@@ -149,17 +148,17 @@ int setup_3ware_nodes(char *nodename, char *driver_name) {
     }
   }
   fclose(file);
-  
+
   /* See if we found a major device number */
   if (!tw_major) {
     pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
     return 2;
   }
-  
+
   /* Now check if nodes are correct */
   for (index=0; index<16; index++) {
     sprintf(nodestring, "/dev/%s%d", nodename, index);
-          
+
     /* Try to stat the node */
     if ((stat(nodestring, &stat_buf))) {
       /* Create a new node if it doesn't exist */
@@ -169,19 +168,19 @@ int setup_3ware_nodes(char *nodename, char *driver_name) {
         return 3;
       }
     }
-    
+
     /* See if nodes major and minor numbers are correct */
     if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
         (index    != (int)(minor(stat_buf.st_rdev))) ||
         (!S_ISCHR(stat_buf.st_mode))) {
-      
+
       /* Delete the old node */
       if (unlink(nodestring)) {
         pout("problem unlinking stale 3ware device node %s", nodestring);
         syserror("unlink");
         return 4;
       }
-      
+
       /* Make a new node */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
         pout("problem creating 3ware device nodes %s", nodestring);
@@ -201,7 +200,7 @@ int deviceopen(const char *pathname, char *type){
       fd = open(pathname, O_RDONLY | O_NONBLOCK);
     return fd;
   }
-  else if (!strcmp(type,"ATA")) 
+  else if (!strcmp(type,"ATA"))
     return open(pathname, O_RDONLY | O_NONBLOCK);
   else if (!strcmp(type,"ATA_3WARE_9000")) {
     // the device nodes for this controller are dynamically assigned,
@@ -288,23 +287,23 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
   int n = 0, retglob, i, lim;
   char** mp;
   glob_t globbuf;
-  
+
   memset(&globbuf, 0, sizeof(globbuf));
 
   // in case of non-clean exit
   *names=NULL;
-  
+
   // Use glob to look for any directory entries matching the pattern
   if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))) {
-    
+
     //  glob failed: free memory and return
     globfree(&globbuf);
-    
+
     if (retglob==GLOB_NOMATCH){
       pout("glob(3) found no matches for pattern %s\n", pattern);
       return 0;
     }
-    
+
     if (retglob==GLOB_NOSPACE)
       pout("glob(3) ran out of memory matching pattern %s\n", pattern);
 #ifdef GLOB_ABORTED // missing in old versions of glob.h
@@ -313,34 +312,34 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
 #endif
     else
       pout("Unexplained error in glob(3) of pattern %s\n", pattern);
-    
+
     return -1;
   }
 
   // did we find too many paths?
   lim = ((int)globbuf.gl_pathc < max) ? (int)globbuf.gl_pathc : max;
   if (lim < (int)globbuf.gl_pathc)
-    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n", 
+    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
          (int)globbuf.gl_pathc, max, pattern, (int)(globbuf.gl_pathc-max));
-  
+
   // allocate space for up to lim number of ATA devices
   if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
     pout("Out of memory constructing scan device list\n");
     return -1;
   }
-  
+
   // now step through the list returned by glob.  If not a link, copy
   // to list.  If it is a link, evaluate it and see if the path ends
   // in "disc".
   for (i=0; i<lim; i++){
     int retlink;
-    
+
     // prepare a buffer for storing the link
     char linkbuf[1024];
-    
+
     // see if path is a link
     retlink=readlink(globbuf.gl_pathv[i], linkbuf, 1023);
-    
+
     // if not a link (or a strange link), keep it
     if (retlink<=0 || retlink>1023)
       mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
@@ -368,12 +367,12 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
       }
     }
   }
-  
+
   // free memory, track memory usage
   globfree(&globbuf);
   mp = static_cast<char **>(realloc(mp,n*(sizeof(char*))));
   bytes += n*(sizeof(char*));
-  
+
   // and set up return values
   *names=mp;
   return n;
@@ -384,12 +383,12 @@ int get_dev_names(char*** names, const char* pattern, const char* name, int max)
 // devices on the list, which can be >=0.
 int make_device_names (char*** devlist, const char* name) {
   int retval, maxdev;
-  
+
 #if 0
   // for testing case where no device names are found
   return 0;
 #endif
-  
+
   if (!strcmp(name,"SCSI"))
     retval=get_dev_names(devlist,"/dev/sd[a-z]", name, maxdev=26);
   else if (!strcmp(name,"ATA"))
@@ -401,7 +400,7 @@ int make_device_names (char*** devlist, const char* name) {
   // if we found traditional links, we are done
   if (retval>0)
     return retval;
-  
+
   // else look for devfs entries without traditional links
   return get_dev_names(devlist,"/dev/discs/disc*", name, maxdev);
 }
@@ -422,7 +421,7 @@ int make_device_names (char*** devlist, const char* name) {
 // RETURN VALUES
 //  -1 if the command failed
 //   0 if the command succeeded,
-//   STATUS_CHECK routine: 
+//   STATUS_CHECK routine:
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
@@ -450,7 +449,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
   // Note that on return:
   // buff[2] contains the ATA SECTOR COUNT REGISTER
-  
+
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
   memset(buff, 0, STRANGE_BUFFER_LENGTH);
 
@@ -524,17 +523,17 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     errno=ENOSYS;
     return -1;
   }
-  
+
   // This command uses the HDIO_DRIVE_TASKFILE ioctl(). This is the
   // only ioctl() that can be used to WRITE data to the disk.
-  if (command==WRITE_LOG) {    
+  if (command==WRITE_LOG) {
     unsigned char task[sizeof(ide_task_request_t)+512];
     ide_task_request_t *reqtask=(ide_task_request_t *) task;
     task_struct_t      *taskfile=(task_struct_t *) reqtask->io_ports;
     int retval;
 
     memset(task,      0, sizeof(task));
-    
+
     taskfile->data           = 0;
     taskfile->feature        = ATA_SMART_WRITE_LOG_SECTOR;
     taskfile->sector_count   = 1;
@@ -543,15 +542,15 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     taskfile->high_cylinder  = 0xc2;
     taskfile->device_head    = 0;
     taskfile->command        = ATA_SMART_CMD;
-    
+
     reqtask->data_phase      = TASKFILE_OUT;
     reqtask->req_cmd         = IDE_DRIVE_TASK_OUT;
     reqtask->out_size        = 512;
     reqtask->in_size         = 0;
-    
+
     // copy user data into the task request structure
     memcpy(task+sizeof(ide_task_request_t), data, 512);
-      
+
     if ((retval=ioctl(device, HDIO_DRIVE_TASKFILE, task))) {
       if (retval==-EINVAL)
         pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASKFILE_IO set\n");
@@ -559,7 +558,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     }
     return 0;
   }
-    
+
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   if (command==STATUS_CHECK){
@@ -579,7 +578,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
     buff[4]=normal_lo;
     buff[5]=normal_hi;
-    
+
     if ((retval=ioctl(device, HDIO_DRIVE_TASK, buff))) {
       if (retval==-EINVAL) {
         pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
@@ -589,15 +588,15 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
         syserror("Error SMART Status command failed");
       return -1;
     }
-    
+
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buff[4]==normal_lo && buff[5]==normal_hi)
       return 0;
-    
+
     // These values mean "Bad SMART status"
     if (buff[4]==failed_lo && buff[5]==failed_hi)
       return 1;
-    
+
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
     pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
@@ -609,9 +608,9 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     pout("CL =0x%02x\n",(int)buff[4]);
     pout("CH =0x%02x\n",(int)buff[5]);
     pout("SEL=0x%02x\n",(int)buff[6]);
-    return -1;   
+    return -1;
   }
-  
+
 #if 1
   // Note to people doing ports to other OSes -- don't worry about
   // this block -- you can safely ignore it.  I have put it here
@@ -638,7 +637,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
       buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
   }
 #endif
-  
+
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
   if ((ioctl(device, HDIO_DRIVE_CMD, buff)))
     return -1;
@@ -651,8 +650,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // if the command returns data then copy it back
   if (copydata)
     memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, copydata);
-  
-  return 0; 
+
+  return 0;
 }
 
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
@@ -667,21 +666,21 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 
     memset(&iocommand, 0, sizeof(iocommand));
 
-    if (cmdtype == 0) 
+    if (cmdtype == 0)
     {
         // To controller; nothing to do
     }
-    else if (cmdtype == 1) 
+    else if (cmdtype == 1)
     {
         iocommand.LUN_info.LogDev.VolId = LunID;
         iocommand.LUN_info.LogDev.Mode = 1;
     }
-    else if (cmdtype == 2) 
+    else if (cmdtype == 2)
     {
         memcpy(&iocommand.LUN_info.LunAddrBytes,scsi3addr,8);
         iocommand.LUN_info.LogDev.Mode = 0;
     }
-    else 
+    else
     {
         fprintf(stderr, "cciss_sendpassthru: bad cmdtype\n");
         return 1;
@@ -697,7 +696,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     iocommand.buf_size = size;
     iocommand.buf = (unsigned char *)buff;
 
-    if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand))) 
+    if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand)))
     {
         fprintf(stderr, "CCISS ioctl error %d\n", err);
     }
@@ -729,9 +728,9 @@ static int cciss_getlun(int device, int target, unsigned char *physlun)
         return ret;
     }
 
-    for (i=0; i<CISS_MAX_LUN+1; i++) 
+    for (i=0; i<CISS_MAX_LUN; i++)
     {
-        if (luns->LUN[i][6] == target) 
+        if (luns->LUN[i][6] == target)
         {
             memcpy(physlun, luns->LUN[i], 8);
             free(luns);
@@ -808,14 +807,14 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-        if ((report > 1) && 
+        if ((report > 1) &&
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                           "data, len=%d%s:\n", (int)iop->dxfer_len,
                           (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((const char *)iop->dxferp, 
+            dStrHex((const char *)iop->dxferp,
                     (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
@@ -858,7 +857,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
     }
     if (report > 0) {
         pout("  scsi_status=0x%x, host_status=0x%x, driver_status=0x%x\n"
-             "  info=0x%x  duration=%d milliseconds\n", io_hdr.status, 
+             "  info=0x%x  duration=%d milliseconds\n", io_hdr.status,
              io_hdr.host_status, io_hdr.driver_status, io_hdr.info,
              io_hdr.duration);
         if (report > 1) {
@@ -867,7 +866,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
 
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex((const char*)iop->dxferp, 
+                dStrHex((const char*)iop->dxferp,
                         (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
@@ -895,7 +894,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         if (LSCSI_DRIVER_SENSE == masked_driver_status)
             iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
         iop->resp_sense_len = io_hdr.sb_len_wr;
-        if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
+        if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
             iop->sensep && (iop->resp_sense_len > 0)) {
             if (report > 1) {
                 pout("  >>> Sense buffer, len=%d:\n",
@@ -929,7 +928,7 @@ struct linux_ioctl_send_command
     UINT8 buff[MAX_DXFER_LEN + 16];
 };
 
-/* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't 
+/* The Linux SCSI_IOCTL_SEND_COMMAND ioctl is primitive and it doesn't
  * support: CDB length (guesses it from opcode), resid and timeout.
  * Patches in Linux 2.4.21 and 2.5.70 to extend SEND DIAGNOSTIC timeout
  * to 2 hours in order to allow long foreground extended self tests. */
@@ -952,14 +951,14 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-        if ((report > 1) && 
+        if ((report > 1) &&
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
             int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                           "data, len=%d%s:\n", (int)iop->dxfer_len,
                           (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((const char *)iop->dxferp, 
+            dStrHex((const char *)iop->dxferp,
                     (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
@@ -1008,7 +1007,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 
                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex((const char*)iop->dxferp, 
+                dStrHex((const char*)iop->dxferp,
                         (trunc ? 256 : iop->dxfer_len) , 1);
             }
         }
@@ -1019,7 +1018,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         iop->scsi_status = SCSI_STATUS_CHECK_CONDITION;
     len = (SEND_IOCTL_RESP_SENSE_LEN < iop->max_sense_len) ?
                 SEND_IOCTL_RESP_SENSE_LEN : iop->max_sense_len;
-    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) && 
+    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
         iop->sensep && (len > 0)) {
         memcpy(iop->sensep, wrk.buff, len);
         iop->resp_sense_len = len;
@@ -1040,7 +1039,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         return 0;
     else {
         if (report > 0)
-            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n", 
+            pout("  ioctl status=0x%x but scsi status=0, fail with EIO\n",
                  status);
         return -EIO;      /* give up, assume no device there */
     }
@@ -1048,7 +1047,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 
 /* SCSI command transmission interface function, linux version.
  * Returns 0 if SCSI command successfully launched and response
- * received. Even when 0 is returned the caller should check 
+ * received. Even when 0 is returned the caller should check
  * scsi_cmnd_io::scsi_status for SCSI defined errors and warnings
  * (e.g. CHECK CONDITION). If the SCSI command could not be issued
  * (e.g. device not present or timeout) or some other problem
@@ -1061,7 +1060,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
     /* implementation relies on static sg_io_state variable. If not
      * previously set tries the SG_IO ioctl. If that succeeds assume
      * that SG_IO ioctl functional. If it fails with an errno value
-     * other than ENODEV (no device) or permission then assume 
+     * other than ENODEV (no device) or permission then assume
      * SCSI_IOCTL_SEND_COMMAND is the only option. */
     switch (sg_io_state) {
     case SG_IO_PRESENT_UNKNOWN:
@@ -1078,7 +1077,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
     case SG_IO_PRESENT_YES:
         return sg_io_cmnd_io(dev_fd, iop, report, 0);
     default:
-        pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state); 
+        pout(">>>> do_scsi_cmnd_io: bad sg_io_state=%d\n", sg_io_state);
         sg_io_state = SG_IO_PRESENT_UNKNOWN;
         return -EIO;    /* report error and reset state */
     }
@@ -1113,7 +1112,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
              break;
      }
  }
- 
+
 // >>>>>> End of general SCSI specific linux code
 
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
@@ -1130,10 +1129,10 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
      int status = -1;
      int len = 0; // used later in the code.
      report = 0;
- 
+
      cciss_getlun(device, target, phylun);
      status = cciss_sendpassthru( 2, iop->cmnd, iop->cmnd_len, (char*) pBuf, iBufLen, 1, phylun, device);
- 
+
      if (0 == status)
      {
          if (report > 0)
@@ -1186,7 +1185,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
      }
  }
 #endif
- 
+
 
 // prototype
 void printwarning(smart_command_set command);
@@ -1209,7 +1208,7 @@ void printwarning(smart_command_set command);
 // RETURN VALUES
 //  -1 if the command failed
 //   0 if the command succeeded,
-//   STATUS_CHECK routine: 
+//   STATUS_CHECK routine:
 //  -1 if the command failed
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
@@ -1239,7 +1238,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 
   // only used for 9000 character device interface
   TW_Ioctl_Buf_Apache *tw_ioctl_apache=NULL;
-  
+
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
 
   if (escalade_type==CONTROLLER_3WARE_9000_CHAR) {
@@ -1274,7 +1273,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   passthru->request_id    = 0xFF;
   passthru->byte3.aport   = disknum;
   passthru->byte3.host_id = 0;
-  passthru->status        = 0;           
+  passthru->status        = 0;
   passthru->flags         = 0x1;
   passthru->drive_head    = 0x0;
   passthru->sector_num    = 0;
@@ -1283,10 +1282,10 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   // values from the ATA specifications.
   passthru->cylinder_lo   = 0x4F;
   passthru->cylinder_hi   = 0xC2;
-  
+
   // SMART ATA COMMAND REGISTER value
   passthru->command       = ATA_SMART_CMD;
-  
+
   // Is this a command that reads or returns 512 bytes?
   // passthru->param values are:
   // 0x0 - non data command without TFR write check,
@@ -1312,14 +1311,14 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       passthru->size++;
   }
   else {
-    // Non data command -- but doesn't use large sector 
-    // count register values.  
+    // Non data command -- but doesn't use large sector
+    // count register values.
     passthru->byte0.sgloff = 0x0;
     passthru->size         = 0x5;
     passthru->param        = 0x8;
     passthru->sector_count = 0x0;
   }
-  
+
   // Now set ATA registers depending upon command
   switch (command){
   case CHECK_POWER_MODE:
@@ -1414,7 +1413,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
     ioctlreturn=ioctl(fd, TW_CMD_PACKET_WITH_DATA, tw_ioctl_char);
   else
     ioctlreturn=ioctl(fd, SCSI_IOCTL_SEND_COMMAND, tw_ioctl);
-  
+
   // Deal with the different error cases
   if (ioctlreturn) {
     if (CONTROLLER_3WARE_678K==escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
@@ -1426,9 +1425,9 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       errno=EIO;
     return -1;
   }
-  
+
   // The passthru structure is valid after return from an ioctl if:
-  // - we are using the character interface OR 
+  // - we are using the character interface OR
   // - we are using the SCSI interface and this is a NON-READ-DATA command
   // For SCSI interface, note that we set passthru to a different
   // value after ioctl().
@@ -1450,12 +1449,12 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   // While we *might* decode the ATA ERROR register, at the moment it
   // doesn't make much sense: we don't care in detail why the error
   // happened.
-  
+
   if (passthru && (passthru->status || (passthru->command & 0x21))) {
     errno=EIO;
     return -1;
   }
-  
+
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (escalade_type==CONTROLLER_3WARE_9000_CHAR)
@@ -1468,22 +1467,22 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 
   // For STATUS_CHECK, we need to check register values
   if (command==STATUS_CHECK) {
-    
+
     // To find out if the SMART RETURN STATUS is good or failing, we
     // need to examine the values of the Cylinder Low and Cylinder
     // High Registers.
-    
+
     unsigned short cyl_lo=passthru->cylinder_lo;
     unsigned short cyl_hi=passthru->cylinder_hi;
-    
+
     // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
     if (cyl_lo==0x4F && cyl_hi==0xC2)
       return 0;
-    
+
     // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
     if (cyl_lo==0xF4 && cyl_hi==0x2C)
       return 1;
-    
+
     // Any other values mean that something has gone wrong with the command
     if (CONTROLLER_3WARE_678K==escalade_type) {
       printwarning(command);
@@ -1495,32 +1494,32 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
       return -1;
     }
   }
-  
+
   // copy sector count register (one byte!) to return data
   if (command==CHECK_POWER_MODE)
     *data=*(char *)&(passthru->sector_count);
-  
+
   // look for nonexistent devices/ports
   if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
     errno=ENODEV;
     return -1;
   }
-  
+
   return 0;
 }
 
 
 
-int marvell_command_interface(int device, 
-                              smart_command_set command, 
-                              int select, 
-                              char *data) {  
-  typedef struct {  
+int marvell_command_interface(int device,
+                              smart_command_set command,
+                              int select,
+                              char *data) {
+  typedef struct {
     int  inlen;
     int  outlen;
     char cmd[540];
   } mvsata_scsi_cmd;
-  
+
   int copydata = 0;
   mvsata_scsi_cmd  smart_command;
   unsigned char *buff = (unsigned char *)&smart_command.cmd[6];
@@ -1529,14 +1528,14 @@ int marvell_command_interface(int device,
   // buff[1]: ATA SECTOR NUMBER REGISTER
   // buff[2]: ATA FEATURES REGISTER
   // buff[3]: ATA SECTOR COUNT REGISTER
-  
+
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
   memset(&smart_command, 0, sizeof(smart_command));
   smart_command.inlen = 540;
   smart_command.outlen = 540;
   smart_command.cmd[0] = 0xC;  //Vendor-specific code
   smart_command.cmd[4] = 6;     //command length
-  
+
   buff[0] = ATA_SMART_CMD;
   switch (command){
   case CHECK_POWER_MODE:
@@ -1593,7 +1592,7 @@ int marvell_command_interface(int device,
     pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
     exit(1);
     break;
-  }  
+  }
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
   // We are now doing the HDIO_DRIVE_CMD type ioctl.
@@ -1607,19 +1606,19 @@ int marvell_command_interface(int device,
     return 0;
   }
 
-  // Always succeed on a SMART status, as a disk that failed returned  
+  // Always succeed on a SMART status, as a disk that failed returned
   // buff[4]=0xF4, buff[5]=0x2C, i.e. "Bad SMART status" (see below).
   if (command == STATUS)
     return 0;
-  //Data returned is starting from 0 offset  
+  //Data returned is starting from 0 offset
   if (command == STATUS_CHECK)
   {
     // Cyl low and Cyl high unchanged means "Good SMART status"
     if (buff[4] == 0x4F && buff[5] == 0xC2)
-      return 0;    
+      return 0;
     // These values mean "Bad SMART status"
     if (buff[4] == 0xF4 && buff[5] == 0x2C)
-      return 1;    
+      return 1;
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
     pout("Please get assistance from %s\n",PACKAGE_BUGREPORT);
@@ -1631,17 +1630,17 @@ int marvell_command_interface(int device,
     pout("CL =0x%02x\n",(int)buff[4]);
     pout("CH =0x%02x\n",(int)buff[5]);
     pout("SEL=0x%02x\n",(int)buff[6]);
-    return -1;   
-  }  
+    return -1;
+  }
 
   if (copydata)
     memcpy(data, buff, 512);
-  return 0; 
+  return 0;
 }
 
 // this implementation is derived from ata_command_interface with a header
 // packing for highpoint linux driver ioctl interface
-// 
+//
 // ioctl(fd,HPTIO_CTL,buff)
 //          ^^^^^^^^^
 //
@@ -1649,7 +1648,7 @@ int marvell_command_interface(int device,
 // +----+----+----+----+--------------------.....---------------------+
 // | 1  | 2  | 3  | 4  | 5                                            |
 // +----+----+----+----+--------------------.....---------------------+
-// 
+//
 // 1: The target controller                     [ int    ( 4 Bytes ) ]
 // 2: The channel of the target controllee      [ int    ( 4 Bytes ) ]
 // 3: HDIO_ ioctl call                          [ int    ( 4 Bytes ) ]
@@ -1657,7 +1656,7 @@ int marvell_command_interface(int device,
 // 4: the pmport that disk attached,            [ int    ( 4 Bytes ) ]
 //    if no pmport device, set to 1 or leave blank
 // 5: data                                      [ void * ( var leangth ) ]
-// 
+//
 int highpoint_command_interface(int device, smart_command_set command,
                                 int select, char *data)
 {
@@ -1761,12 +1760,12 @@ int highpoint_command_interface(int device, smart_command_set command,
     taskfile->high_cylinder  = 0xc2;
     taskfile->device_head    = 0;
     taskfile->command        = ATA_SMART_CMD;
-    
+
     reqtask->data_phase      = TASKFILE_OUT;
     reqtask->req_cmd         = IDE_DRIVE_TASK_OUT;
     reqtask->out_size        = 512;
     reqtask->in_size         = 0;
-    
+
     memcpy(task+sizeof(ide_task_request_t)+4*sizeof(int), data, 512);
 
     if ((retval=ioctl(device, HPTIO_CTL, task))) {
@@ -1776,7 +1775,7 @@ int highpoint_command_interface(int device, smart_command_set command,
     }
     return 0;
   }
-    
+
   if (command==STATUS_CHECK){
     int retval;
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
@@ -1795,13 +1794,13 @@ int highpoint_command_interface(int device, smart_command_set command,
         syserror("Error SMART Status command failed");
       return -1;
     }
-    
+
     if (buff[4]==normal_lo && buff[5]==normal_hi)
       return 0;
-    
+
     if (buff[4]==failed_lo && buff[5]==failed_hi)
       return 1;
-    
+
     syserror("Error SMART Status command failed");
     pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
     pout("Register values returned from SMART Status command are:\n");
@@ -1812,9 +1811,9 @@ int highpoint_command_interface(int device, smart_command_set command,
     pout("CL =0x%02x\n",(int)buff[4]);
     pout("CH =0x%02x\n",(int)buff[5]);
     pout("SEL=0x%02x\n",(int)buff[6]);
-    return -1;   
+    return -1;
   }
-  
+
 #if 1
   if (command==IDENTIFY || command==PIDENTIFY) {
     unsigned char deviceid[4*sizeof(int)+512*sizeof(char)];
@@ -1829,7 +1828,7 @@ int highpoint_command_interface(int device, smart_command_set command,
       buff[0]=(command==IDENTIFY)?ATA_IDENTIFY_PACKET_DEVICE:ATA_IDENTIFY_DEVICE;
   }
 #endif
-  
+
   hpt[2] = HDIO_DRIVE_CMD;
   if ((ioctl(device, HPTIO_CTL, hpt_buff)))
     return -1;
@@ -1839,8 +1838,8 @@ int highpoint_command_interface(int device, smart_command_set command,
 
   if (copydata)
     memcpy(data, buff+HDIO_DRIVE_CMD_OFFSET, copydata);
-  
-  return 0; 
+
+  return 0;
 }
 
 
@@ -1856,7 +1855,7 @@ void printwarning(smart_command_set command){
   if (command==AUTO_OFFLINE && !printed[0]) {
     printed[0]=1;
     pout("The SMART AUTO-OFFLINE ENABLE command (smartmontools -o on option/Directive)\n%s", message);
-  } 
+  }
   else if (command==AUTOSAVE && !printed[1]) {
     printed[1]=1;
     pout("The SMART AUTOSAVE ENABLE command (smartmontools -S on option/Directive)\n%s", message);
@@ -1869,7 +1868,7 @@ void printwarning(smart_command_set command){
     printed[3]=1;
     pout("The SMART WRITE LOG command (smartmontools -t selective) only supported via char /dev/tw[ae] interface\n");
   }
-  
+
   return;
 }
 
@@ -1891,11 +1890,11 @@ static const char * lin_dev_cciss_dir = "cciss/";
 int guess_device_type(const char * dev_name) {
   int len;
   int dev_prefix_len = strlen(lin_dev_prefix);
-  
+
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
     return CONTROLLER_UNKNOWN;
-  
+
   // Remove the leading /dev/... if it's there
   if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len)
@@ -1904,12 +1903,12 @@ int guess_device_type(const char * dev_name) {
     // else advance pointer to following characters
     dev_name += dev_prefix_len;
   }
-  
+
   // form /dev/h* or h*
   if (!strncmp(lin_dev_ata_disk_plus, dev_name,
                strlen(lin_dev_ata_disk_plus)))
     return CONTROLLER_ATA;
-  
+
   // form /dev/ide/* or ide/*
   if (!strncmp(lin_dev_ata_devfs_disk_plus, dev_name,
                strlen(lin_dev_ata_devfs_disk_plus)))
@@ -1924,17 +1923,17 @@ int guess_device_type(const char * dev_name) {
   if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
                strlen(lin_dev_scsi_devfs_disk_plus)))
     return CONTROLLER_SCSI;
-  
+
   // form /dev/ns* or ns*
   if (!strncmp(lin_dev_scsi_tape1, dev_name,
                strlen(lin_dev_scsi_tape1)))
     return CONTROLLER_SCSI;
-  
+
   // form /dev/os* or os*
   if (!strncmp(lin_dev_scsi_tape2, dev_name,
                strlen(lin_dev_scsi_tape2)))
     return CONTROLLER_SCSI;
-  
+
   // form /dev/nos* or nos*
   if (!strncmp(lin_dev_scsi_tape3, dev_name,
                strlen(lin_dev_scsi_tape3)))
@@ -1972,7 +1971,7 @@ brw-------    1 root     root      33,   0 Dec 31  1969 /dev/ide/host2/bus0/targ
 brw-------    1 root     root      34,   0 Dec 31  1969 /dev/ide/host2/bus1/target0/lun0/disc
 [ed@firestorm ed]$ ls -l  /dev/ide/c*b*t*u*
 ls: /dev/ide/c*b*t*u*: No such file or directory
-[ed@firestorm ed]$ 
+[ed@firestorm ed]$
 Script done on Fri Nov  7 13:46:28 2003
 
 #endif
