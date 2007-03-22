@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.92 2006/11/12 04:45:54 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.93 2007/03/22 12:06:15 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -290,6 +290,8 @@ int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
         if (0 == ((pBuf[2] << 8) + pBuf[3]))
             return SIMPLE_ERR_BAD_RESP;
         pageLen = (pBuf[2] << 8) + pBuf[3] + 4;
+        if (4 == pageLen)  /* why define a lpage with no payload? */
+            pageLen = 252; /* some IBM tape drives don't like double fetch */
         /* some SCSI HBA don't like "odd" length transfers */
         if (pageLen % 2)
             pageLen += 1;   
