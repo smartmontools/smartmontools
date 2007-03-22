@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2007/02/28 04:10:51 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2007/03/22 20:46:59 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.214 2007/02/28 04:10:51 dpgilbert Exp $ -->
+<!-- $Id: index.html,v 1.215 2007/03/22 20:46:59 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -563,14 +563,18 @@ they have the uninitialized value 253.
 </p>
 </li>
 
-<li><b>Where can I find manufacturer-specific disk-testing
-utilities?</b>
+<li><a name="UBCD"></a><b>Where can I find manufacturer-specific
+disk-testing utilities?</b>
 
 <p>A good listing of such utilities can be found <a
 href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html">here</a>.
 Unfortunately most of these are for MS operating systems, but most can
-be run from an MS-DOS boot disk or from the UBCD (Ultimate Boot CD,
-see <a href="#bootable">below</a>).
+be run from a MS-DOS boot disk.
+The <a href="http://ubcd.sourceforge.net/">UBCD (Ultimate Boot CD)</a>
+includes most of these disk-testing utilities and many other useful
+diagnostic tools ready to boot from CD or USB memory stick.
+The UBCD can be customized by adding other images, like one
+<a href="#bootable">containing smartmontools</a>.
 </p>
 
 <p>Note: if you do run one of these utilities, and it identifies the
@@ -644,26 +648,25 @@ day-to-day operating system.</p>
 
 <p><a name="bootable"></a>Here is a list of such bootable CDs:</p>
 <ul>
-<li><a href="http://www.lnx-bbc.org/">LNX-BBC Bootable CD</a> </li>
+<li><a href="http://www.lnx-bbc.com/">LNX-BBC Bootable CD</a> </li>
 <li><a href="http://www.stresslinux.org/">Stresslinux Bootable CD</a></li>
 <li><a href="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/">RIP (Recovery Is Possible) Bootable CD</a></li>
 <li><a href="http://www.sysresccd.org/Main_Page">SystemRescueCd</a></li>
 <li><a href="http://www.gpstudio.com/stux/">STUX Bootable CD</a></li>
-<li><a href="http://www.knopper.net/knoppix/index-en.html">Knoppix Bootable CD</a>
-(Version 3.6 contains smartmontools 5.32, older versions contain
-<a href="#differfromsmartsuite">smartsuite</a>)</li>
+<li><a href="http://www.knopper.net/knoppix/index-en.html">Knoppix</a>
+(<a href="http://packages.debian.org/testing/utils/smartmontools">Debian/testing</a> based CD)</li>
 <li><a href="http://www.gentoo.org/">Gentoo Installer LiveCD</a></li>
 <li><a href="http://www.grml.org/">grml Linux Live-CD</a>
-(Debian based CD with many <a href="http://www.grml.org/features/list.html">packages</a>,
+(<a href="http://packages.debian.org/unstable/utils/smartmontools">Debian/unstable</a>
+based CD with many <a href="http://www.grml.org/features/list.html">packages</a>,
 smartmontools is also included in <a href="http://www.grml.org/download/#small">grml-small</a>)</li>
 <li><a href="http://smartlinux.sourceforge.net/">S.M.A.R.T. Linux</a>
 (a bootable FLOPPY containing smartmontools!)</li>
-<li><a href="http://ubcd.sourceforge.net/">Ultimate Boot CD</a>
-(The "Full" version of UBCD 3.0 contains
-<a href="http://www.inside-security.de/insert_en.html">INSERT</a> with smartmontools 5.32
-<a href="http://ubcd.sourceforge.net/insert/start.html#TOCChanges">added</a>)</li>
+<li><a href="http://www.inside-security.de/insert_en.html">INSERT (Inside Security Rescue Toolkit)</a>
+(Knoppix based)</li>
 <li><a href="http://www.911cd.net/forums/index.php?showtopic=13459">Smartctl Plugin</a>
 for <a href="http://www.nu2.nu/pebuilder/">BartPE bootable live windows CD</a></li>
+<li>See also note about UBCD <a href="#UBCD">above</a></li>
 </ul>
 <p>
 Please let me know if there are others, and I will add them to this
@@ -1302,8 +1305,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2007/02/28 04:10:51 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.214 2007/02/28 04:10:51 dpgilbert Exp $</tt>
+Last updated: <tt>$Date: 2007/03/22 20:46:59 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.215 2007/03/22 20:46:59 chrfranke Exp $</tt>
 
 <hr size="2" />
 
