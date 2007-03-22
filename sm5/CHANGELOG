@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.607 2007/03/21 20:33:02 chrfranke Exp $
+$Id: CHANGELOG,v 1.608 2007/03/22 12:08:17 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] SCSI/TAPE: some IBM tape drives don't react properly to a LOG
+       SENSE with an allocation length of 4; work around for that case.
 
   [CF] Applied Guido's patch to fix CCISS LUN array bounds check
        (openSUSE bug #239956) and remove trailing spaces in
