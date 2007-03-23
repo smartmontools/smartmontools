@@ -87,9 +87,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.91 2007/03/21 20:33:02 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.92 2007/03/23 03:46:44 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.91 2007/03/21 20:33:02 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.92 2007/03/23 03:46:44 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -855,24 +855,29 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                  strerror(errno));
         return -errno;
     }
+    iop->resid = io_hdr.resid;
+    iop->scsi_status = io_hdr.status;
     if (report > 0) {
         pout("  scsi_status=0x%x, host_status=0x%x, driver_status=0x%x\n"
-             "  info=0x%x  duration=%d milliseconds\n", io_hdr.status,
+             "  info=0x%x  duration=%d milliseconds  resid=%d\n", io_hdr.status,
              io_hdr.host_status, io_hdr.driver_status, io_hdr.info,
-             io_hdr.duration);
+             io_hdr.duration, io_hdr.resid);
         if (report > 1) {
             if (DXFER_FROM_DEVICE == iop->dxfer_dir) {
-                int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+                int trunc, len;
 
-                pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-                dStrHex((const char*)iop->dxferp,
-                        (trunc ? 256 : iop->dxfer_len) , 1);
+		len = iop->dxfer_len - iop->resid;
+		trunc = (len > 256) ? 1 : 0;
+                if (len > 0) {
+                    pout("  Incoming data, len=%d%s:\n", len,
+                         (trunc ? " [only first 256 bytes shown]" : ""));
+                    dStrHex((const char*)iop->dxferp, (trunc ? 256 : len),
+                            1);
+                } else
+                    pout("  Incoming data trimmed to nothing by resid\n");
             }
         }
     }
-    iop->resid = io_hdr.resid;
-    iop->scsi_status = io_hdr.status;
 
     if (io_hdr.info | SG_INFO_CHECK) { /* error or warning */
         int masked_driver_status = (LSCSI_DRIVER_MASK & io_hdr.driver_status);
