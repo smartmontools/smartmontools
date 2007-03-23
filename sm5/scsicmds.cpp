@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.93 2007/03/22 12:06:15 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.94 2007/03/23 03:47:28 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -116,8 +116,8 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {TEST_UNIT_READY, "test unit ready"},       /* 0x00 */
     {REQUEST_SENSE, "request sense"},           /* 0x03 */
     {INQUIRY, "inquiry"},                       /* 0x12 */
-    {MODE_SELECT, "mode select"},               /* 0x15 */
-    {MODE_SENSE, "mode sense"},                 /* 0x1a */
+    {MODE_SELECT, "mode select(6)"},            /* 0x15 */
+    {MODE_SENSE, "mode sense(6)"},              /* 0x1a */
     {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
     {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
     {READ_DEFECT_10, "read defect list(10)"},   /* 0x37 */
@@ -171,6 +171,9 @@ void scsi_do_sense_disect(const struct scsi_cmnd_io * io_buf,
 int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
 {
     switch (sinfo->sense_key) {
+    case SCSI_SK_NO_SENSE:
+    case SCSI_SK_RECOVERED_ERR:
+        return SIMPLE_NO_ERROR;
     case SCSI_SK_NOT_READY:
         if (SCSI_ASC_NO_MEDIUM == sinfo->asc) 
             return SIMPLE_ERR_NO_MEDIUM;
@@ -195,8 +198,10 @@ int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo)
             return SIMPLE_ERR_BAD_PARAM;    /* all other illegal request */
     case SCSI_SK_UNIT_ATTENTION:
         return SIMPLE_ERR_TRY_AGAIN;
+    case SCSI_SK_ABORTED_COMMAND:
+        return SIMPLE_ERR_ABORTED_COMMAND;
     default:
-        return SIMPLE_NO_ERROR;
+        return SIMPLE_ERR_UNKNOWN;
     }
 }
 
@@ -225,6 +230,10 @@ const char * scsiErrString(int scsiErr)
             return "unit attention reported, try again";
         case SIMPLE_ERR_MEDIUM_HARDWARE: 
             return "medium or hardware error (serious)";
+        case SIMPLE_ERR_UNKNOWN: 
+            return "unknown error (unexpected sense key)";
+        case SIMPLE_ERR_ABORTED_COMMAND: 
+            return "aborted command (transport problem?)";
         default:
             return "unknown error";
     }
