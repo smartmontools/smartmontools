@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2007/03/22 20:46:59 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2007/03/23 11:55:33 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.215 2007/03/22 20:46:59 chrfranke Exp $ -->
+<!-- $Id: index.html,v 1.216 2007/03/23 11:55:33 chrfranke Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -946,7 +946,7 @@ specs more closely then fix your code!).
 with the message "...SMART_GET_VERSION failed". What is going wrong?</b>
 <p>
 A failing
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_2a8bcdd5-f85d-4228-b59c-bba2cc3211ee.xml.asp">
+<a href="http://msdn2.microsoft.com/en-us/library/ms803644.aspx">
 SMART_GET_VERSION</a> call means that the device driver does not
 implement the I/O controls (see <a href="#FAQ-win-ioctl">below</a>)
 to access ATA SMART functionality.
@@ -973,9 +973,9 @@ of smartmontools run from some <a href="#bootable">bootable CD</a>.
 <p>
 To access ATA SMART functionality on Windows, smartmontools uses the
 I/O control calls
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_8c974d08-3752-4442-82a5-cc13835ba482.xml.asp">
+<a href="http://msdn2.microsoft.com/en-us/library/ms804269.aspx">
 SMART_RCV_DRIVE_DATA</a> and
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_2b043284-934c-4440-a4a4-6078f1bc845d.xml.asp">
+<a href="http://msdn2.microsoft.com/en-us/library/ms803645.aspx">
 SMART_SEND_DRIVE_CMD</a>.
 These calls were available since Win95 OSR2.
 An example program from Microsoft can be found
@@ -999,7 +999,7 @@ most vendor specific ATA device drivers. Smartctl prints a
 "Function not implemented" message in this case.
 <p>
 A new I/O control call
-<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Storage_r/hh/Storage_r/k307_e93738e1-b773-452b-8776-854f9c616967.xml.asp">
+<a href="http://msdn2.microsoft.com/en-us/library/ms804551.aspx">
 IOCTL_ATA_PASS_THROUGH</a> is available since Win2003 and XP SP2.
 It should be supported by most new drivers. Experimental code using
 this call was added 2006-04-27 and is included in smartmontools
@@ -1014,7 +1014,7 @@ release 5.37.
 discussed on a separate <a href="smartmontools_scsi.html">page</a>.
 </p>
 
-<hr size="2"><a name="testinghelp"></a><b>FireWire, USB, and SATA
+<hr size="2" /><a name="testinghelp"></a><b>FireWire, USB, and SATA
 disks/systems</b>
 <p>As for USB and FireWire (IEEE 1394) disks and tape drives, the news
 is not good. They appear to the operating system as SCSI devices but
@@ -1028,7 +1028,7 @@ standards. Even still, that compliance means that they tend to only
 support the bare minimum of commands
 needed for device operation (i.e. SMART support is an unsupported
 extra). Hopefully external USB and Firewire devices will support SAT in
-the future, see below.<br>
+the future, see below.
 </p>
 <p>Smartmontools should work correctly with SATA drives under both
 Linux 2.4 and 2.6 kernels. Depending on which subsystem the SATA
@@ -1049,7 +1049,7 @@ the command line with <span style="font-family: monospace;">smartctl</span>.
 The '<span style="font-family: monospace;">-d ata</span>' option means
 that even though the drive has a SCSI device name, treat it as an ATA
 disk. Unfortunately such an approach doesn't often work. The next
-paragraph has more information about '-d sat'.<br>
+paragraph has more information about '-d sat'.
 </p>
 <p>The SCSI to ATA Translation (SAT) standard (ANSI INCITS 431-2007)
 may solve many problems in this area. It defines how SCSI commands will
@@ -1077,7 +1077,7 @@ and <span style="font-family: monospace;">smartd</span> to assume a
 SATL is in place and act accordingly. The <span
  style="font-family: monospace;">smartctl</span> command can often
 detect a SATL and autoconfigure while in smartmontools version 5.37 <span
- style="font-family: monospace;">smartd</span> often needs a hint.<br>
+ style="font-family: monospace;">smartd</span> often needs a hint.
 </p>
 
 <hr size="2" /><a name="differfromsmartsuite"></a><b>How does
@@ -1305,8 +1305,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2007/03/22 20:46:59 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.215 2007/03/22 20:46:59 chrfranke Exp $</tt>
+Last updated: <tt>$Date: 2007/03/23 11:55:33 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.216 2007/03/23 11:55:33 chrfranke Exp $</tt>
 
 <hr size="2" />
 
