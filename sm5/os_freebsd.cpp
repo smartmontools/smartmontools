@@ -35,16 +35,20 @@
 #include "int64.h"
 #include "atacmds.h"
 #include "scsicmds.h"
+#include "cciss.h"
 #include "utility.h"
+#include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.51 2006/09/17 03:17:53 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.52 2007/04/01 16:49:48 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.51 2006/09/17 03:17:53 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.52 2007/04/01 16:49:48 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
 extern int exitstatus;
+
+extern smartmonctrl * con;
 
 // Private table of open devices: guaranteed zero on startup since
 // part of static data.
@@ -85,7 +89,7 @@ void print_smartctl_examples(){
 }
 
 // Like open().  Return positive integer handle, used by functions below only.  mode=="ATA" or "SCSI".
-int deviceopen (const char* dev, char* mode __unused) {
+int deviceopen (const char* dev, __unused char* mode) {
   struct freebsd_dev_channel *fdchan;
   int parse_ok, i;
 
@@ -150,6 +154,15 @@ int deviceopen (const char* dev, char* mode __unused) {
 #else
     if ((fdchan->atacommand = open(buf,O_RDWR))<0) {
 #endif
+      int myerror = errno; // preserver across free call
+      free(fdchan);
+      errno=myerror;
+      return -1;
+    }
+  }
+
+  if (parse_ok == CONTROLLER_CCISS) {
+    if ((fdchan->device = open(dev,O_RDWR))<0) {
       int myerror = errno; // preserver across free call
       free(fdchan);
       errno=myerror;
@@ -248,13 +261,13 @@ void printwarning(int msgNo, const char* extra) {
   return;
 }
 
-
 // Interface to ATA devices.  See os_linux.c
-int marvell_command_interface(int fd __unused, smart_command_set command __unused, int select __unused, char *data __unused) {
-	return -1;
+
+int marvell_command_interface(__unused int fd, __unused smart_command_set command, __unused int select, __unused char *data) {
+  return -1;
 }
 
-int highpoint_command_interface(int fd __unused, smart_command_set command __unused, int select __unused, char *data __unused)
+int highpoint_command_interface(__unused int fd, __unused smart_command_set command, __unused int select, __unused char *data) {
 {
   return -1;
 }
@@ -439,7 +452,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 
 
 // Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
   struct freebsd_dev_channel* con = NULL;
   struct cam_device* cam_dev = NULL;
@@ -538,6 +551,40 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
   return 0;
+}
+
+/* Check and call the right interface. Maybe when the do_generic_scsi_cmd_io interface is better
+   we can take off this crude way of calling the right interface */
+int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
+{
+struct freebsd_dev_channel *fdchan;
+     switch(con->controller_type)
+     {
+         case CONTROLLER_CCISS:
+	     // check that "file descriptor" is valid
+	     if (isnotopen(&dev_fd,&fdchan))
+		  return -ENOTTY;
+#ifdef HAVE_DEV_CISS_CISSIO_H
+             return cciss_io_interface(fdchan->device, con->controller_port-1, iop, report);
+#else
+             {
+                 static int warned = 0;
+                 if (!warned) {
+                     pout("CCISS support is not available in this build of smartmontools,\n"
+                          "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
+                     warned = 1;
+                 }
+             }
+             errno = ENOSYS;
+             return -1;
+#endif
+             // not reached
+             break;
+         default:
+             return do_normal_scsi_cmnd_io(dev_fd, iop, report);
+             // not reached
+             break;
+     }
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
@@ -878,6 +925,7 @@ static const char * fbsd_dev_scsi_tape2 = "nsa";
 static const char * fbsd_dev_scsi_tape3 = "esa";
 static const char * fbsd_dev_twe_ctrl = "twe";
 static const char * fbsd_dev_twa_ctrl = "twa";
+static const char * fbsd_dev_cciss = "ciss";
 
 static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
   int len;
@@ -953,6 +1001,10 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
     }
     return CONTROLLER_3WARE_678K_CHAR;
   }
+  // form /dev/ciss*
+  if (!strncmp(fbsd_dev_cciss, dev_name,
+               strlen(fbsd_dev_cciss)))
+    return CONTROLLER_CCISS;
 
   // we failed to recognize any of the forms
   return CONTROLLER_UNKNOWN;
