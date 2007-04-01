@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.80 2006/10/21 18:34:31 chrfranke Exp $
+# $Id: Makefile.am,v 1.81 2007/04/01 16:49:44 shattered Exp $
 #
 
 @SET_MAKE@
@@ -53,7 +53,9 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
                        os_solaris_ata.s \
                        os_win32.cpp     \
                        os_generic.cpp   \
-                       os_generic.h
+                       os_generic.h     \
+                       cciss.cpp        \
+                       cciss.h
 
 
 if OS_WIN32_MINGW
@@ -113,7 +115,9 @@ EXTRA_smartctl_SOURCES = os_linux.cpp \
                        os_solaris.h   \
                        os_win32.cpp   \
                        os_generic.cpp \
-                       os_generic.h
+                       os_generic.h   \
+                       cciss.cpp      \
+                       cciss.h
 
 if OS_WIN32_MINGW
 
