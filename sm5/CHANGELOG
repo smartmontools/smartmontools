@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.608 2007/03/22 12:08:17 dpgilbert Exp $
+$Id: CHANGELOG,v 1.609 2007/04/03 18:23:27 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SS] Support CCISS on FreeBSD (kernel source is required).
 
   [DG] SCSI/TAPE: some IBM tape drives don't react properly to a LOG
        SENSE with an allocation length of 4; work around for that case.
