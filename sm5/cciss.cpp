@@ -5,6 +5,7 @@
 #include "config.h"
 
 #if defined(linux)
+#  include <sys/ioctl.h>
 #  ifdef HAVE_LINUX_COMPILER_H
 #    include <linux/compiler.h>
 #  endif
