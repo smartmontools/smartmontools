@@ -21,6 +21,7 @@
 #ifdef _HAVE_CCISS
 #include "int64.h"
 #include "scsicmds.h"
+#include "utility.h"
 
 typedef struct _ReportLUNdata_struct
 {
@@ -39,7 +40,7 @@ typedef struct _ReportLUNdata_struct
 #define LSCSI_DRIVER_SENSE  0x8		/* alternate CHECK CONDITION indication */
 #define SEND_IOCTL_RESP_SENSE_LEN 16    /* ioctl limitation */
 
-static int cciss_getlun(int device, int target, unsigned char *physlun);
+static int cciss_getlun(int device, int target, unsigned char *physlun, int report);
 static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     			unsigned int CDBlen, char *buff,
     			unsigned int size, unsigned int LunID,
@@ -52,13 +53,20 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int report)
 {
      unsigned char pBuf[512] = {0};
-     unsigned char phylun[1024] = {0};
+     unsigned char phylun[8] = {0};
      int iBufLen = 512;
      int status = -1;
      int len = 0; // used later in the code.
-     report = 0;
  
-     cciss_getlun(device, target, phylun);
+     status = cciss_getlun(device, target, phylun, report);
+     if (report > 0)
+         printf("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
+	     device, target, status, 
+	     phylun[0], phylun[1], phylun[2], phylun[3], phylun[4], phylun[5], phylun[6], phylun[7]);
+     if (status) {
+         return -ENXIO;      /* give up, assume no device there */
+     }
+
      status = cciss_sendpassthru( 2, iop->cmnd, iop->cmnd_len, (char*) pBuf, iBufLen, 1, phylun, device);
  
      if (0 == status)
@@ -108,8 +116,8 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
      else
      {
          if (report > 0)
-             printf("  ioctl status=0x%x but scsi status=0, fail with EIO\n", status);
-         return -EIO;      /* give up, assume no device there */
+             printf("  ioctl status=0x%x but scsi status=0, fail with ENXIO\n", status);
+         return -ENXIO;      /* give up, assume no device there */
      }
 } 
 
@@ -161,7 +169,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     return err;
 }
 
-static int cciss_getlun(int device, int target, unsigned char *physlun)
+static int cciss_getlun(int device, int target, unsigned char *physlun, int report)
 {
     unsigned char CDB[16]= {0};
     ReportLunData_struct *luns;
@@ -186,6 +194,21 @@ static int cciss_getlun(int device, int target, unsigned char *physlun)
         return ret;
     }
 
+    if (report > 1)
+    {
+      int i,j;
+      unsigned char *stuff = (unsigned char *)luns;
+
+      pout("\n===== [%s] DATA START (BASE-16) =====\n", "LUN DATA");
+      for (i=0; i<(sizeof(_ReportLUNdata_struct)+15)/16; i++){
+	pout("%03d-%03d: ", 16*i, 16*(i+1)-1);
+	for (j=0; j<15; j++)
+	  pout("%02x ",*stuff++);
+	pout("%02x\n",*stuff++);
+      }
+      pout("===== [%s] DATA END (%d Bytes) =====\n\n", "LUN DATA", sizeof(_ReportLUNdata_struct));
+    }
+
     for (i=0; i<CISS_MAX_LUN; i++) 
     {
         if (luns->LUN[i][6] == target) 
@@ -197,6 +220,6 @@ static int cciss_getlun(int device, int target, unsigned char *physlun)
     }
 
     free(luns);
-    return ret;
+    return 1;
 }
 #endif 
