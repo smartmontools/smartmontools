@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.178 2007/02/25 20:09:00 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.179 2007/04/05 18:23:29 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -91,7 +91,7 @@ void trim(char *out, const char *in)
 }
 
 // Convenience function for formatting strings from ata_identify_device
-void formatdriveidstring(char *out, const char *in, int n)
+void format_ata_string(char *out, const char *in, int n)
 {
   char tmp[65];
 
@@ -520,9 +520,9 @@ int ataPrintDriveInfo (struct ata_identify_device *drive){
   char model[64], serial[64], firm[64], capacity[64];
 
   // format drive information (with byte swapping as needed)
-  formatdriveidstring(model, (char *)drive->model,40);
-  formatdriveidstring(serial, (char *)drive->serial_no,20);
-  formatdriveidstring(firm, (char *)drive->fw_rev,8);
+  format_ata_string(model, (char *)drive->model,40);
+  format_ata_string(serial, (char *)drive->serial_no,20);
+  format_ata_string(firm, (char *)drive->fw_rev,8);
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   drivetype=lookupdrive(model, firm);
