@@ -196,7 +196,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
 
     if (report > 1)
     {
-      int i,j;
+      unsigned int i,j;
       unsigned char *stuff = (unsigned char *)luns;
 
       pout("\n===== [%s] DATA START (BASE-16) =====\n", "LUN DATA");
