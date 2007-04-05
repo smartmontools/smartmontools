@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.13 2006/09/20 16:17:31 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.14 2007/04/05 16:39:21 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -105,7 +105,7 @@ get_dev_names(char ***names, const char *prefix)
     pout("Failed to get value of sysctl `hw.disknames'\n");
     return -1;
   }
-  if (!(disknames = (char*)malloc(sysctl_len))) {
+  if (!(disknames = (char *)malloc(sysctl_len))) {
     pout("Out of memory constructing scan device list\n");
     return -1;
   }
@@ -121,7 +121,7 @@ get_dev_names(char ***names, const char *prefix)
     if (strncmp(p, prefix, strlen(prefix))) {
       continue;
     }
-    mp[n] = (char*)malloc(strlen(net_dev_prefix) + strlen(p) + 2);
+    mp[n] = (char *)malloc(strlen(net_dev_prefix) + strlen(p) + 2);
     if (!mp[n]) {
       pout("Out of memory constructing scan device list\n");
       return -1;
@@ -131,7 +131,7 @@ get_dev_names(char ***names, const char *prefix)
     n++;
   }
 
-  mp = (char**)realloc(mp, n * (sizeof(char *)));
+  mp = (char **)realloc(mp, n * (sizeof(char *)));
   bytes += (n) * (sizeof(char *));
   *names = mp;
   return n;
@@ -390,12 +390,12 @@ do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   memset(&sc, 0, sizeof(sc));
   memcpy(sc.cmd, iop->cmnd, iop->cmnd_len);
   sc.cmdlen = iop->cmnd_len;
-  sc.databuf = (char*)iop->dxferp;
+  sc.databuf = (char *)iop->dxferp;
   sc.datalen = iop->dxfer_len;
   sc.senselen = iop->max_sense_len;
   sc.timeout = iop->timeout == 0 ? 60000 : iop->timeout;	/* XXX */
   sc.flags =
-    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :	/* XXX */
+    (iop->dxfer_dir == DXFER_NONE ? SCCMD_READ :
     (iop->dxfer_dir == DXFER_FROM_DEVICE ? SCCMD_READ : SCCMD_WRITE));
 
   if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
