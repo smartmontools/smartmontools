@@ -40,9 +40,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.52 2007/04/01 16:49:48 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.53 2007/04/10 17:48:18 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.52 2007/04/01 16:49:48 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.53 2007/04/10 17:48:18 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1057,10 +1057,10 @@ int get_dev_names(char*** names, const char* prefix) {
   
   // Use glob to look for any directory entries matching the patterns
   // first call inits with first pattern match, second call appends
-  // to first list. Turn on NOCHECK for second call. This results in no
-  // error if no more matches found, however it does append the actual
-  // pattern to the list of paths....
-  if ((retglob=glob(pattern1, GLOB_ERR, NULL, &globbuf)) ||
+  // to first list. GLOB_NOCHECK results in no error if no more matches 
+  // found, however it does append the actual pattern to the list of 
+  // paths....
+  if ((retglob=glob(pattern1, GLOB_ERR|GLOB_NOCHECK, NULL, &globbuf)) ||
       (retglob=glob(pattern2, GLOB_ERR|GLOB_APPEND|GLOB_NOCHECK,NULL,&globbuf))) {
      int retval = -1;
     // glob failed
@@ -1086,7 +1086,6 @@ int get_dev_names(char*** names, const char* prefix) {
   }
 
   // did we find too many paths?
-  // did we find too many paths?
   lim = globbuf.gl_pathc < MAX_NUM_DEV ? globbuf.gl_pathc : MAX_NUM_DEV;
   if (lim < globbuf.gl_pathc)
     pout("glob(3) found %d > MAX=%d devices matching patterns (%s),(%s): ignoring %d paths\n", 
@@ -1102,7 +1101,7 @@ int get_dev_names(char*** names, const char* prefix) {
   // now step through the list returned by glob.  No link checking needed
   // in FreeBSD
   for (i=0; i<globbuf.gl_pathc; i++){
-    // becuase of the NO_CHECK on second call to glob,
+    // because of the NO_CHECK in calls to glob,
     // the pattern itself will be added to path list..
     // so ignore any paths that have the ']' from pattern
     if (strchr(globbuf.gl_pathv[i],']') == NULL)
