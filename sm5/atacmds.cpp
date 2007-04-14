@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.183 2007/02/23 20:44:00 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.184 2007/04/14 08:57:47 shattered Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -700,7 +700,7 @@ int ataReadHDIdentity (int device, struct ata_identify_device *buf){
 
 #ifndef __NetBSD__
   // if machine is big-endian, swap byte order as needed
-  // (the NetBSD kernel does deliver the results in host byte order)
+  // NetBSD kernel delivers IDENTIFY data in host byte order
   if (isbigendian()){
     int i;
     
@@ -843,7 +843,7 @@ int ataReadSmartValues(int device, struct ata_smart_values *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Data Structure");
   
-  // byte swap if needed
+  // swap endian order if needed
   if (isbigendian()){
     int i;
     swap2((char *)&(data->revnumber));
@@ -895,7 +895,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
   if (con->fixfirmwarebug == FIX_SAMSUNG)
     fixsamsungselftestlog(data);
 
-  // fix endian order, if needed
+  // swap endian order if needed
   if (isbigendian()){
     int i;
     swap2((char*)&(data->revnumber));
@@ -1111,7 +1111,7 @@ int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv, uint64
   cksum+=1;
   data->checksum=cksum;
 
-    // swap endian order if needed
+  // swap endian order if needed
   if (isbigendian()){
     swap2((char *)&(data->logversion));
     for (int i=0;i<5;i++){
@@ -1186,7 +1186,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   else if (con->fixfirmwarebug == FIX_SAMSUNG2)
     fixsamsungerrorlog2(data);
 
-  // Correct endian order if necessary
+  // swap endian order if needed
   if (isbigendian()){
     int i,j;
     
@@ -1219,7 +1219,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds_pvt *data){
   if (checksum((unsigned char *)data))
     checksumwarning("SMART Attribute Thresholds Structure");
   
-  // byte swap if needed
+  // swap endian order if needed
   if (isbigendian())
     swap2((char *)&(data->revnumber));
 
