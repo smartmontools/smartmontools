@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.93 2007/04/01 16:49:48 shattered Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.94 2007/04/14 08:53:31 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.93 2007/04/01 16:49:48 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.94 2007/04/14 08:53:31 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -576,8 +576,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     syserror("Error SMART Status command failed");
     pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
     pout("Register values returned from SMART Status command are:\n");
-    pout("CMD=0x%02x\n",(int)buff[0]);
-    pout("FR =0x%02x\n",(int)buff[1]);
+    pout("ST =0x%02x\n",(int)buff[0]);
+    pout("ERR=0x%02x\n",(int)buff[1]);
     pout("NS =0x%02x\n",(int)buff[2]);
     pout("SC =0x%02x\n",(int)buff[3]);
     pout("CL =0x%02x\n",(int)buff[4]);
