@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.179 2007/04/05 18:23:29 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.180 2007/04/14 08:57:47 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -99,6 +99,7 @@ void format_ata_string(char *out, const char *in, int n)
 #ifndef __NetBSD__
   swapbytes(tmp, in, n);
 #else
+  /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
   if (isbigendian())
     strncpy(tmp, in, n);
   else
