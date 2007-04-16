@@ -24,8 +24,12 @@
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
 
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_DARWIN_H_CVSID "$Id: os_darwin.h,v 1.6 2007/04/16 17:49:02 shattered Exp $\n"
 
-// There isn't actually any content here yet.
+// Isn't in 10.3.9?
+
+#ifndef kIOPropertySMARTCapableKey
+#define kIOPropertySMARTCapableKey	"SMART Capable"
+#endif
 
 #endif /* OS_DARWIN_H_ */
