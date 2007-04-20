@@ -13,7 +13,10 @@
 #    include <linux/cciss_ioctl.h>
 #    define _HAVE_CCISS
 #  endif
+#  include <asm/byteorder.h>
+#  define be32toh __be32_to_cpu
 #elif defined(__FreeBSD__) && defined(HAVE_DEV_CISS_CISSIO_H)
+#  include <sys/endian.h>
 #  include <dev/ciss/cissio.h>
 #  define _HAVE_CCISS
 #endif
@@ -25,7 +28,7 @@
 
 typedef struct _ReportLUNdata_struct
 {
-  uint8_t LUNListLength[4];
+  uint32_t LUNListLength;	/* always big-endian */
   uint32_t reserved;
   uint8_t LUN[CISS_MAX_LUN][8];
 } ReportLunData_struct;
@@ -209,6 +212,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
       pout("===== [%s] DATA END (%d Bytes) =====\n\n", "LUN DATA", sizeof(_ReportLUNdata_struct));
     }
 
+#if 0
     for (i=0; i<CISS_MAX_LUN; i++) 
     {
         if (luns->LUN[i][6] == target) 
@@ -218,6 +222,14 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
             return 0;
         }
     }
+#else
+    if (target >= 0 && target < (int) be32toh(luns->LUNListLength) / 8)
+    {
+	memcpy(physlun, luns->LUN[target], 8);
+	free(luns);
+	return 0;
+    }
+#endif
 
     free(luns);
     return 1;
