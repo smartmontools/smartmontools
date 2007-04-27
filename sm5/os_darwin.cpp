@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-6 Geoffrey Keating <geoffk@geoffk.org>
+ * Copyright (C) 2004-7 Geoffrey Keating <geoffk@geoffk.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 #include <stdbool.h>
 #include <errno.h>
+#include <unistd.h>
 #include <mach/mach.h>
 #include <mach/mach_error.h>
 #include <mach/mach_init.h>
@@ -43,7 +44,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.18 2006/09/20 16:17:31 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.19 2007/04/27 08:52:44 geoffk1 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -333,7 +334,7 @@ ata_command_interface(int fd, smart_command_set command,
   IOATASMARTInterface **ifp = devices[fd].smartIf;
   IOATASMARTInterface *smartIf;
   IOReturn err;
-  int timeoutCount = 2;
+  int timeoutCount = 5;
   
   if (! ifp)
     return -1;
@@ -385,8 +386,9 @@ ata_command_interface(int fd, smart_command_set command,
 	{
 	  UInt32 dummy;
 	  err = smartIf->GetATAIdentifyData (ifp, data, 512, &dummy);
-	  if (err != kIOReturnSuccess)
-	    printf ("identify failed: %d\n", (int) err);
+	  if (err != kIOReturnSuccess && err != kIOReturnTimeout
+	      && err != kIOReturnNotResponding)
+	    printf ("identify failed: %#x\n", (unsigned) err);
 	  if (err == kIOReturnSuccess && isbigendian())
 	    {
 	      int i;
@@ -409,7 +411,10 @@ ata_command_interface(int fd, smart_command_set command,
        you get a timeout, you have to try again to get the actual
        command run, but the drive is already powering up so you can't
        use this for CHECK_POWER_MODE.  */
-  } while (err == kIOReturnTimeout && timeoutCount-- > 0);
+    if (err == kIOReturnTimeout || err == kIOReturnNotResponding)
+      sleep (1);
+  } while ((err == kIOReturnTimeout || err == kIOReturnNotResponding)
+	   && timeoutCount-- > 0);
   if (err == kIOReturnExclusiveAccess)
     errno = EBUSY;
   return err == kIOReturnSuccess ? 0 : -1;
