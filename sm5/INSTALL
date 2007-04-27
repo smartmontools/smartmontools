@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.72 2006/11/15 22:48:04 chrfranke Exp $
+$Id: INSTALL,v 1.73 2007/04/27 08:50:00 geoffk1 Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -350,7 +350,7 @@ SuSE:
   If you'd like to build the i386 version on a powerpc machine, you can
   use
 
-  CC='gcc -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386' \
+  CXX='g++ -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386' \
     ./configure --host=i386-apple-darwin \
     		--with-initscriptdir=/Library/StartupItems
 
