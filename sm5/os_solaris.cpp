@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.28 2006/08/25 06:06:25 sxzzsf Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.29 2007/05/09 19:01:32 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.28 2006/08/25 06:06:25 sxzzsf Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.29 2007/05/09 19:01:32 dpgilbert Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -369,37 +369,35 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 #include <sys/scsi/impl/uscsi.h>
 
 // Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
+int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+{
   struct uscsi_cmd uscsi;
 
-    if (report > 0) {
-        int k;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
+  if (report > 0) {
+    int k;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
 
-        np = scsi_get_opcode_name(ucp[0]);
-        pout(" [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < (int)iop->cmnd_len; ++k)
-            pout("%02x ", ucp[k]);
-        if ((report > 1) && 
-            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    np = scsi_get_opcode_name(ucp[0]);
+    pout(" [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < (int)iop->cmnd_len; ++k)
+      pout("%02x ", ucp[k]);
+    pout("]\n");
+    if ((report > 1) && 
+        (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-                 (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            pout("]");
+      pout("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+           (trunc ? " [only first 256 bytes shown]" : ""));
+      dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
-
-
+  }
   memset(&uscsi, 0, sizeof (uscsi));
 
   uscsi.uscsi_cdb = reinterpret_cast<char*>(iop->cmnd);
   uscsi.uscsi_cdblen = iop->cmnd_len;
   if (iop->timeout == 0)
-    uscsi.uscsi_timeout = 60; /* XXX */
+    uscsi.uscsi_timeout = 60; /* 60 seconds */
   else
     uscsi.uscsi_timeout = iop->timeout;
   uscsi.uscsi_bufaddr = reinterpret_cast<char*>(iop->dxferp);
@@ -418,23 +416,46 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
   default:
     return -EINVAL;
   }
-  uscsi.uscsi_flags |= USCSI_ISOLATE;
+  uscsi.uscsi_flags |= (USCSI_ISOLATE | USCSI_RQENABLE);
 
-  if (ioctl(fd, USCSICMD, &uscsi))
-    return -errno;
+  if (ioctl(fd, USCSICMD, &uscsi)) {
+    int err = errno;
+
+    if (! ((EIO == err) && uscsi.uscsi_status))
+      return -err;
+    /* errno is set to EIO when a non-zero SCSI completion status given */
+  }
 
   iop->scsi_status = uscsi.uscsi_status;
   iop->resid = uscsi.uscsi_resid;
   iop->resp_sense_len = iop->max_sense_len - uscsi.uscsi_rqresid;
 
   if (report > 0) {
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-    pout("  status=0\n");
-    
-    pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-         (trunc ? " [only first 256 bytes shown]" : ""));
-    dStrHex((char *)iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-  }
+    int trunc;
+    int len = iop->resp_sense_len;
 
-  return (0);
+    if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
+        iop->sensep && (len > 3)) {
+      pout("  status=0x%x: sense_key=0x%x asc=0x%x ascq=0x%x\n", 
+           iop->scsi_status, iop->sensep[2] & 0xf,
+           iop->sensep[12], iop->sensep[13]);
+      if (report > 1) {
+          pout("  >>> Sense buffer, len=%d:\n", len);
+          dStrHex((const char *)iop->sensep, ((len > 252) ? 252 : len) , 1);
+        }
+    } else if (iop->scsi_status)
+      pout("  status=%x\n", iop->scsi_status);
+    if (iop->resid)
+      pout("  dxfer_len=%d, resid=%d\n", iop->dxfer_len, iop->resid);
+    if (report > 1) {
+      len = iop->dxfer_len - iop->resid;
+      if (len > 0) {
+        trunc = (len > 256) ? 1 : 0;
+        pout("  Incoming data, len=%d%s:\n", len,
+             (trunc ? " [only first 256 bytes shown]" : ""));
+        dStrHex((char *)iop->dxferp, (trunc ? 256 : len) , 1);
+      }
+    }
+  }
+  return 0;
 }
