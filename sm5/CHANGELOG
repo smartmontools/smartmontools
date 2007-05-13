@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.613 2007/05/09 19:02:37 dpgilbert Exp $
+$Id: CHANGELOG,v 1.614 2007/05/13 14:33:33 guidog Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [GG] cciss: support more than 16 disks (patch taken from
+       http://cciss.sourceforge.net/smartmontools_cciss_more_than_16_drives.patch
+       and adjusted for smartd)
 
   [DG] Solaris: [SCSI] add USCSI_RQENABLE flag to uscsi pass-through so
        sense buffer is made available. Expand reporting at this level.
