@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.614 2007/05/13 14:33:33 guidog Exp $
+$Id: CHANGELOG,v 1.615 2007/05/30 19:29:40 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Added message text for ATA-7 self-test execution status 8
+       ("... handling damage").
 
   [GG] cciss: support more than 16 disks (patch taken from
        http://cciss.sourceforge.net/smartmontools_cciss_more_than_16_drives.patch

@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.180 2007/04/14 08:57:47 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.181 2007/05/30 19:29:40 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -686,6 +686,13 @@ void PrintSmartSelfExecStatus(struct ata_smart_values *data)
           pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
                   (int)data->self_test_exec_status);
           pout("the read element of the test failed.\n");
+          break;
+       case 8:
+          pout("(%4d)\tThe previous self-test completed having\n\t\t\t\t\t",
+                  (int)data->self_test_exec_status);
+          pout("a test element that failed and the\n\t\t\t\t\t");
+          pout("device is suspected of having handling\n\t\t\t\t\t");
+          pout("damage.\n");
           break;
        case 15:
           if (con->fixfirmwarebug == FIX_SAMSUNG3 && data->self_test_exec_status == 0xf0) {
