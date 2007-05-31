@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.94 2007/04/14 08:53:31 shattered Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.95 2007/05/31 17:57:29 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.94 2007/04/14 08:53:31 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.95 2007/05/31 17:57:29 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -402,14 +402,10 @@ int make_device_names (char*** devlist, const char* name) {
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
 
-// huge value of buffer size needed because HDIO_DRIVE_CMD assumes
-// that buff[3] is the data size.  Since the ATA_SMART_AUTOSAVE and
-// ATA_SMART_AUTO_OFFLINE use values of 0xf1 and 0xf8 we need the space.
-// Otherwise a 4+512 byte buffer would be enough.
-#define STRANGE_BUFFER_LENGTH (4+512*0xf8)
+#define BUFFER_LENGTH (4+512)
 
 int ata_command_interface(int device, smart_command_set command, int select, char *data){
-  unsigned char buff[STRANGE_BUFFER_LENGTH];
+  unsigned char buff[BUFFER_LENGTH];
   // positive: bytes to write to caller.  negative: bytes to READ from
   // caller. zero: non-data command
   int copydata=0;
@@ -426,7 +422,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   // buff[2] contains the ATA SECTOR COUNT REGISTER
 
   // clear out buff.  Large enough for HDIO_DRIVE_CMD (4+512 bytes)
-  memset(buff, 0, STRANGE_BUFFER_LENGTH);
+  memset(buff, 0, BUFFER_LENGTH);
 
   buff[0]=ATA_SMART_CMD;
   switch (command){
@@ -476,12 +472,14 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     buff[2]=ATA_SMART_STATUS;
     break;
   case AUTO_OFFLINE:
-    buff[2]=ATA_SMART_AUTO_OFFLINE;
-    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    // NSECT is 241 for enable but no data transfer.  Use TASK ioctl.
+    buff[1]=ATA_SMART_AUTO_OFFLINE;
+    buff[2]=select;
     break;
   case AUTOSAVE:
-    buff[2]=ATA_SMART_AUTOSAVE;
-    buff[3]=select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+    // NSECT is 248 for enable but no data transfer.  Use TASK ioctl.
+    buff[1]=ATA_SMART_AUTOSAVE;
+    buff[2]=select;
     break;
   case IMMEDIATE_OFFLINE:
     buff[2]=ATA_SMART_IMMEDIATE_OFFLINE;
@@ -536,7 +534,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK
   // one is this:
-  if (command==STATUS_CHECK){
+  if (command==STATUS_CHECK || command==AUTOSAVE || command==AUTO_OFFLINE){
     int retval;
 
     // NOT DOCUMENTED in /usr/src/linux/include/linux/hdreg.h. You

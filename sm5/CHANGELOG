@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.615 2007/05/30 19:29:40 chrfranke Exp $
+$Id: CHANGELOG,v 1.616 2007/05/31 17:57:29 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Added patch from Tejun Heo http://thread.gmane.org/gmane.linux.ide/13222/focus=13235
+       to fix broken auto-offline and auto-save via libata.  Very clean fix: does it
+       "the right way".  Thanks Tejun!
 
   [CF] Added message text for ATA-7 self-test execution status 8
        ("... handling damage").
