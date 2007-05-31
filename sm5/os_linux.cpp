@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.95 2007/05/31 17:57:29 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.96 2007/05/31 18:02:32 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.95 2007/05/31 17:57:29 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.96 2007/05/31 18:02:32 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1473,8 +1473,12 @@ int marvell_command_interface(int device,
 //    if no pmport device, set to 1 or leave blank
 // 5: data                                      [ void * ( var leangth ) ]
 //
+#define STRANGE_BUFFER_LENGTH (4+512*0xf8)
+
 int highpoint_command_interface(int device, smart_command_set command,
                                 int select, char *data)
+
+
 {
   unsigned char hpt_buff[4*sizeof(int) + STRANGE_BUFFER_LENGTH];
   unsigned int *hpt = (unsigned int *)hpt_buff;
