@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.616 2007/05/31 17:57:29 ballen4705 Exp $
+$Id: CHANGELOG,v 1.617 2007/06/05 20:41:10 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SS] Applied patch from Dean Bennett to fix scheduled tests on 
+       Highpoint RAID controllers.
 
   [BA] Added patch from Tejun Heo http://thread.gmane.org/gmane.linux.ide/13222/focus=13235
        to fix broken auto-offline and auto-save via libata.  Very clean fix: does it

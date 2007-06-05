@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.389 2007/05/13 14:33:33 guidog Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.390 2007/06/05 20:41:10 shattered Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.389 2007/05/13 14:33:33 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.390 2007/06/05 20:41:10 shattered Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2269,6 +2269,10 @@ int ATACheckDevice(cfgfile *cfg){
   con->controller_port=cfg->controller_port;
   con->controller_type=cfg->controller_type;
   con->controller_explicit=cfg->controller_explicit;
+  // Highpoint-specific data
+  con->hpt_data[0]=cfg->hpt_data[0];
+  con->hpt_data[1]=cfg->hpt_data[1];
+  con->hpt_data[2]=cfg->hpt_data[2];
 
   // If user has asked, test the email warning system
   if (cfg->mailwarn && cfg->mailwarn->emailtest)
