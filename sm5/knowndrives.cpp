@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.160 2007/04/05 18:23:29 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.161 2007/06/13 20:52:22 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -387,9 +387,22 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "SAMSUNG SpinPoint P80 series", // firmware *-26 or later, tested with SP1614C/SW100-34
+  { "SAMSUNG SpinPoint P80 series", // BH100-35 firmware, tested with SP0842N/BH100-35
     "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
-    ".*-(2[6789]|3[0-9])$",
+    "^BH100-35$",
+    NULL, NULL,
+    specialpurpose_fix_samsung3,
+    same_as_minus_F3
+  },
+  { "SAMSUNG SpinPoint P80 series", // firmware *-35 or later
+    "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
+    ".*-3[5-9]$",
+    may_need_minus_F3_enabled,
+    NULL, NULL, NULL
+  },
+  { "SAMSUNG SpinPoint P80 series", // firmware *-26...34, tested with SP1614C/SW100-34
+    "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
+    ".*-(2[6789]|3[0-4])$",
     NULL,
     vendoropts_9_halfminutes,
     NULL, NULL
