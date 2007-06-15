@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.95 2007/02/12 21:58:31 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.96 2007/06/15 16:23:13 guidog Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1370,7 +1370,7 @@ in a SMART data structure (see \'\-b\' option above).
 SMART status check returned "DISK FAILING".
 .TP
 .B Bit 4:
-SMART status check returned "DISK OK" but we found prefail Attributes <= threshold.
+We found prefail Attributes <= threshold.
 .TP
 .B Bit 5:
 SMART status check returned "DISK OK" but we found that some (usage
@@ -1475,7 +1475,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.95 2007/02/12 21:58:31 chrfranke Exp $
+$Id: smartctl.8.in,v 1.96 2007/06/15 16:23:13 guidog Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

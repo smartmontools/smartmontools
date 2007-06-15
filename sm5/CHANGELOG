@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.618 2007/06/13 20:52:22 chrfranke Exp $
+$Id: CHANGELOG,v 1.619 2007/06/15 16:23:13 guidog Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [GG] bit 4 in smartctl's return code might be set even when the dist check
+       didn't return "DISK OK"
 
   [CF] Drive database: added '-F samsung3' for Samsung P80 firmware
        BH100-35.
