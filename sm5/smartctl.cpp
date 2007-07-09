@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.163 2007/05/13 14:33:33 guidog Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.164 2007/07/09 01:57:31 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -465,8 +465,8 @@ void ParseOpts (int argc, char** argv){
             if (split_report_arg2(s, &i)) {
                  sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
                  badarg = TRUE;
-            } else if (i<0 || i>15) {
-                 sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15\n", i);
+            } else if (i<0 || i>23) {
+                 sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 23\n", i);
                  badarg = TRUE;
             } else {
  	        // NOTE: controller_port == disk number + 1

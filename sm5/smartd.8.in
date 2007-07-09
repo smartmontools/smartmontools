@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.114 2007/01/04 15:16:16 chrfranke Exp $
+$Id: smartd.8.in,v 1.115 2007/07/09 01:57:31 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -671,10 +671,10 @@ controllers (using the Marvell rather than libata driver).
 
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
-RAID controller. The non-negative integer N (in the range from 0 to 15
+RAID controller. The non-negative integer N (in the range from 0 to 23
 inclusive) denotes which disk on the controller is monitored.  In log
 files and email messages this disk will be identified as 3ware_disk_XX
-with XX in the range from 00 to 15 inclusive.
+with XX in the range from 00 to 23 inclusive.
 
 This Directive may at first appear confusing, because the 3ware
 controller is a SCSI device (such as /dev/sda) and should be listed as
@@ -1102,7 +1102,7 @@ is set to the argument of \-M exec, if present or else to \'mail\'
 is set to the device path (examples: /dev/hda, /dev/sdb).
 .IP \fBSMARTD_DEVICETYPE\fP 4
 is set to the device type (possible values: ata, scsi, 3ware,N, hpt,L/M/N).
-Here N=0,...,15 denotes the ATA disk behind a 3ware RAID controller and
+Here N=0,...,23 denotes the ATA disk behind a 3ware RAID controller and
 L/M/N denotes the SATA disk behind a HighPoint RocketRAID controller.
 .IP \fBSMARTD_DEVICESTRING\fP 4
 is set to the device description.  For SMARTD_DEVICETYPE of ata or
@@ -1956,4 +1956,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.114 2007/01/04 15:16:16 chrfranke Exp $
+$Id: smartd.8.in,v 1.115 2007/07/09 01:57:31 ballen4705 Exp $
