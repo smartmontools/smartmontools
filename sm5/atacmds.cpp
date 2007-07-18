@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.184 2007/04/14 08:57:47 shattered Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.185 2007/07/18 21:18:09 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -592,13 +592,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   }
 
 
-  // If reporting is enabled, say what input was sent to the command
-  if (con->reportataioctl && sendsdata){
-    pout("REPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
-    // if requested, pretty-print the output data structure
-    if (con->reportataioctl>1)
-      prettyprint((unsigned char *)data, commandstrings[command]);
-  }
+  // if requested, pretty-print the input data structure
+  if (con->reportataioctl>1 && sendsdata)
+    prettyprint((unsigned char *)data, commandstrings[command]);
 
   // In case the command produces an error, we'll want to know what it is:
   errno=0;
@@ -772,11 +768,12 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
     }
   }
 
-  // Try new ATA-8 minor revision numbers (Table 22 of T13/1699-D Revision 3f)
+  // Try new ATA-8 minor revision numbers (Table 30 of T13/1699-D Revision 4b)
   // (not in actual_ver/minor_str to avoid large sparse tables)
   const char *desc;
   switch (*minor) {
     case 0x0027: desc = "ATA-8-ACS revision 3c"; break;
+    case 0x0029: desc = "ATA-8-ACS revision 4"; break;
     case 0x0033: desc = "ATA-8-ACS revision 3e"; break;
     case 0x0042: desc = "ATA-8-ACS revision 3f"; break;
     case 0x0052: desc = "ATA-8-ACS revision 3b"; break;
