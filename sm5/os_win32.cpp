@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-6 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-7 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,9 +44,15 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.52 2007/01/05 12:23:02 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.53 2007/07/19 21:36:39 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
+
+// Running on Win9x/ME ?
+static inline bool is_win9x()
+{
+	return !!(GetVersion() & 0x80000000);
+}
 
 // Running on 64-bit Windows as 32-bit app ?
 static bool is_wow64()
@@ -282,15 +288,15 @@ int deviceopen(const char * pathname, char *type)
 
 	if (!strcmp(type, "ATA")) {
 		// hd[a-j](:[saicp]+)? => ATA 0-9 with options
-		char drive[1+1] = "", options[5+1] = ""; int n1 = -1, n2 = -1;
-		if (   sscanf(pathname, "hd%1[a-j]%n:%5[saicp]%n", drive, &n1, options, &n2) >= 1
+		char drive[1+1] = "", options[7+1] = ""; int n1 = -1, n2 = -1;
+		if (   sscanf(pathname, "hd%1[a-j]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
 		    && ((n1 == len && !options[0]) || n2 == len)                                 ) {
 			return ata_open(drive[0] - 'a', options, -1);
 		}
 		// hd[a-j],N(:[saicp]+)? => Physical drive 0-9, RAID port N, with options
 		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
 		unsigned port = ~0;
-		if (   sscanf(pathname, "hd%1[a-j],%u%n:%5[saicp]%n", drive, &port, &n1, options, &n2) >= 2
+		if (   sscanf(pathname, "hd%1[a-j],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
 		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                              ) {
 			return ata_open(drive[0] - 'a', options, port);
 		}
@@ -374,9 +380,10 @@ void print_smartctl_examples(){
          "            (Prints Attributes for 3ware controller 0, port 1 using tw_cli)\n"
          "\n"
          "  ATA SMART access methods and ordering may be specified by modifiers\n"
-         "  following the device name: /dev/hdX:[saic], where\n"
+         "  following the device name: /dev/hdX:[saicm], where\n"
          "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
-         "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH.\n"
+         "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH,\n"
+         "  'm': IOCTL_SCSI_MINIPORT_*.\n"
          "  The default on this system is /dev/hdX:%s\n", ata_get_def_options()
   );
 }
@@ -387,9 +394,6 @@ void print_smartctl_examples(){
 /////////////////////////////////////////////////////////////////////////////
 
 // SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
-
-// Deklarations from:
-// http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ntdddisk.h?rev=1.3
 
 #define FILE_READ_ACCESS       0x0001
 #define FILE_WRITE_ACCESS      0x0002
@@ -518,7 +522,7 @@ ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
 
 static void print_ide_regs(const IDEREGS * r, int out)
 {
-	pout("%s=0x%02x,%s=0x%02x, SC=0x%02x, NS=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
+	pout("%s=0x%02x,%s=0x%02x, SC=0x%02x, SN=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
 	(out?"STS":"CMD"), r->bCommandReg, (out?"ERR":" FR"), r->bFeaturesReg,
 	r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
 }
@@ -544,8 +548,7 @@ static int smart_get_version(HANDLE hdevice, unsigned long * portmap = 0)
 	memset(&vers, 0, sizeof(vers));
 	if (!DeviceIoControl(hdevice, SMART_GET_VERSION,
 		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-		if (con->reportataioctl)
-			pout("  SMART_GET_VERSION failed, Error=%ld\n", GetLastError());
+		pout("  SMART_GET_VERSION failed, Error=%ld\n", GetLastError());
 		errno = ENOSYS;
 		return -1;
 	}
@@ -628,8 +631,9 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 			pout("  %s failed, Error=%ld\n", name, err);
 			print_ide_regs_io(regs, NULL);
 		}
-		errno = (   err == ERROR_INVALID_FUNCTION /*9x*/
-		         || err == ERROR_INVALID_PARAMETER/*NT/2K/XP*/ ? ENOSYS : EIO);
+		errno = (   err == ERROR_INVALID_FUNCTION/*9x*/
+		         || err == ERROR_INVALID_PARAMETER/*NT/2K/XP*/
+		         || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
 		return -1;
 	}
 	// NOTE: On Win9x, inpar.irDriveRegs now contains the returned regs
@@ -728,7 +732,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 			print_ide_regs_io(regs, NULL);
 		}
 		VirtualFree(buf, 0, MEM_RELEASE);
-		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
 		return -1;
 	}
 
@@ -862,7 +866,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 			pout("  IOCTL_ATA_PASS_THROUGH failed, Error=%ld\n", err);
 			print_ide_regs_io(regs, NULL);
 		}
-		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
 		return -1;
 	}
 
@@ -903,9 +907,6 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 /////////////////////////////////////////////////////////////////////////////
 
 // ATA PASS THROUGH via SCSI PASS THROUGH (WinNT4 only)
-
-// Declarations from:
-// http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ntddscsi.h?rev=1.2
 
 #define IOCTL_SCSI_PASS_THROUGH \
 	CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
@@ -990,7 +991,7 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 		long err = GetLastError();
 		if (con->reportataioctl)
 			pout("  ATA via IOCTL_SCSI_PASS_THROUGH failed, Error=%ld\n", err);
-		errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+		errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
 		return -1;
 	}
 
@@ -1020,7 +1021,12 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 
 /////////////////////////////////////////////////////////////////////////////
 
-// ATA PASS THROUGH via 3ware specific SCSI MINIPORT ioctl
+// SMART IOCTL via SCSI MINIPORT ioctl
+
+// This function is handled by ATAPI port driver (atapi.sys) or by SCSI
+// miniport driver (via SCSI port driver scsiport.sys).
+// It can be used to skip the missing or broken handling of some SMART
+// command codes (e.g. READ_LOG) in the disk class driver (disk.sys)
 
 #define IOCTL_SCSI_MINIPORT \
 	CTL_CODE(IOCTL_SCSI_BASE, 0x0402, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
@@ -1038,7 +1044,154 @@ typedef struct _SRB_IO_CONTROL {
 
 ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
 
+#define FILE_DEVICE_SCSI 0x001b
+
+#define IOCTL_SCSI_MINIPORT_SMART_VERSION               ((FILE_DEVICE_SCSI << 16) + 0x0500)
+#define IOCTL_SCSI_MINIPORT_IDENTIFY                    ((FILE_DEVICE_SCSI << 16) + 0x0501)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_ATTRIBS          ((FILE_DEVICE_SCSI << 16) + 0x0502)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_THRESHOLDS       ((FILE_DEVICE_SCSI << 16) + 0x0503)
+#define IOCTL_SCSI_MINIPORT_ENABLE_SMART                ((FILE_DEVICE_SCSI << 16) + 0x0504)
+#define IOCTL_SCSI_MINIPORT_DISABLE_SMART               ((FILE_DEVICE_SCSI << 16) + 0x0505)
+#define IOCTL_SCSI_MINIPORT_RETURN_STATUS               ((FILE_DEVICE_SCSI << 16) + 0x0506)
+#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTOSAVE     ((FILE_DEVICE_SCSI << 16) + 0x0507)
+#define IOCTL_SCSI_MINIPORT_SAVE_ATTRIBUTE_VALUES       ((FILE_DEVICE_SCSI << 16) + 0x0508)
+#define IOCTL_SCSI_MINIPORT_EXECUTE_OFFLINE_DIAGS       ((FILE_DEVICE_SCSI << 16) + 0x0509)
+#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTO_OFFLINE ((FILE_DEVICE_SCSI << 16) + 0x050a)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_LOG              ((FILE_DEVICE_SCSI << 16) + 0x050b)
+#define IOCTL_SCSI_MINIPORT_WRITE_SMART_LOG             ((FILE_DEVICE_SCSI << 16) + 0x050c)
+
 /////////////////////////////////////////////////////////////////////////////
+
+static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize)
+{
+	// Select code
+	DWORD code = 0; const char * name = 0;
+	if (regs->bCommandReg == ATA_IDENTIFY_DEVICE) {
+		code = IOCTL_SCSI_MINIPORT_IDENTIFY; name = "IDENTIFY";
+	}
+	else if (regs->bCommandReg == ATA_SMART_CMD) switch (regs->bFeaturesReg) {
+	  case ATA_SMART_READ_VALUES:
+		code = IOCTL_SCSI_MINIPORT_READ_SMART_ATTRIBS; name = "READ_SMART_ATTRIBS"; break;
+	  case ATA_SMART_READ_THRESHOLDS:
+		code = IOCTL_SCSI_MINIPORT_READ_SMART_THRESHOLDS; name = "READ_SMART_THRESHOLDS"; break;
+	  case ATA_SMART_ENABLE:
+		code = IOCTL_SCSI_MINIPORT_ENABLE_SMART; name = "ENABLE_SMART"; break;
+	  case ATA_SMART_DISABLE:
+		code = IOCTL_SCSI_MINIPORT_DISABLE_SMART; name = "DISABLE_SMART"; break;
+	  case ATA_SMART_STATUS:
+		code = IOCTL_SCSI_MINIPORT_RETURN_STATUS; name = "RETURN_STATUS"; break;
+	  case ATA_SMART_AUTOSAVE:
+		code = IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTOSAVE; name = "ENABLE_DISABLE_AUTOSAVE"; break;
+	//case ATA_SMART_SAVE: // obsolete since ATA-6, not used by smartmontools
+	//	code = IOCTL_SCSI_MINIPORT_SAVE_ATTRIBUTE_VALUES; name = "SAVE_ATTRIBUTE_VALUES"; break;
+	  case ATA_SMART_IMMEDIATE_OFFLINE:
+		code = IOCTL_SCSI_MINIPORT_EXECUTE_OFFLINE_DIAGS; name = "EXECUTE_OFFLINE_DIAGS"; break;
+	  case ATA_SMART_AUTO_OFFLINE:
+		code = IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTO_OFFLINE; name = "ENABLE_DISABLE_AUTO_OFFLINE"; break;
+	  case ATA_SMART_READ_LOG_SECTOR:
+		code = IOCTL_SCSI_MINIPORT_READ_SMART_LOG; name = "READ_SMART_LOG"; break;
+	  case ATA_SMART_WRITE_LOG_SECTOR:
+		code = IOCTL_SCSI_MINIPORT_WRITE_SMART_LOG; name = "WRITE_SMART_LOG"; break;
+	}
+	if (!code) {
+		errno = ENOSYS;
+		return -1;
+	}
+
+	// Set SRB
+	struct {
+		SRB_IO_CONTROL srbc;
+		union {
+			SENDCMDINPARAMS in;
+			SENDCMDOUTPARAMS out;
+		} params;
+		char space[512-1];
+	} sb;
+	ASSERT_SIZEOF(sb, sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
+	memset(&sb, 0, sizeof(sb));
+
+	unsigned size;
+	if (datasize > 0) {
+		if (datasize > (int)sizeof(sb.space)+1) {
+			errno = EINVAL;
+			return -1;
+		}
+		size = datasize;
+	}
+	else if (datasize < 0) {
+		if (-datasize > (int)sizeof(sb.space)+1) {
+			errno = EINVAL;
+			return -1;
+		}
+		size = -datasize;
+		memcpy(sb.params.in.bBuffer, data, size);
+	}
+	else if (code == IOCTL_SCSI_MINIPORT_RETURN_STATUS)
+		size = sizeof(IDEREGS);
+	else
+		size = 0;
+	sb.srbc.HeaderLength = sizeof(SRB_IO_CONTROL);
+	memcpy(sb.srbc.Signature, "SCSIDISK", 8); // atapi.sys
+	sb.srbc.Timeout = 60; // seconds
+	sb.srbc.ControlCode = code;
+	//sb.srbc.ReturnCode = 0;
+	sb.srbc.Length = sizeof(SENDCMDINPARAMS)-1 + size;
+	sb.params.in.irDriveRegs = *regs;
+	sb.params.in.cBufferSize = size;
+
+	// Call miniport ioctl
+	size += sizeof(SRB_IO_CONTROL) + sizeof(SENDCMDINPARAMS)-1;
+	DWORD num_out;
+	if (!DeviceIoControl(hdevice, IOCTL_SCSI_MINIPORT,
+		&sb, size, &sb, size, &num_out, NULL)) {
+		long err = GetLastError();
+		if (con->reportataioctl) {
+			pout("  IOCTL_SCSI_MINIPORT_%s failed, Error=%ld\n", name, err);
+			print_ide_regs_io(regs, NULL);
+		}
+		errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
+		return -1;
+	}
+
+	// Check result
+	if (sb.srbc.ReturnCode) {
+		if (con->reportataioctl) {
+			pout("  IOCTL_SCSI_MINIPORT_%s failed, ReturnCode=0x%08lx\n", name, sb.srbc.ReturnCode);
+			print_ide_regs_io(regs, NULL);
+		}
+		errno = EIO;
+		return -1;
+	}
+
+	if (sb.params.out.DriverStatus.bDriverError) {
+		if (con->reportataioctl) {
+			pout("  IOCTL_SCSI_MINIPORT_%s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
+				sb.params.out.DriverStatus.bDriverError, sb.params.out.DriverStatus.bIDEError);
+			print_ide_regs_io(regs, NULL);
+		}
+		errno = (!sb.params.out.DriverStatus.bIDEError ? ENOSYS : EIO);
+		return -1;
+	}
+
+	if (con->reportataioctl > 1) {
+		pout("  IOCTL_SCSI_MINIPORT_%s suceeded, bytes returned: %lu (buffer %lu)\n", name,
+			num_out, sb.params.out.cBufferSize);
+		print_ide_regs_io(regs, (code == IOCTL_SCSI_MINIPORT_RETURN_STATUS ?
+		                         (const IDEREGS *)(sb.params.out.bBuffer) : 0));
+	}
+
+	if (datasize > 0)
+		memcpy(data, sb.params.out.bBuffer, datasize);
+	else if (datasize == 0 && code == IOCTL_SCSI_MINIPORT_RETURN_STATUS)
+		*regs = *(const IDEREGS *)(sb.params.out.bBuffer);
+
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// ATA PASS THROUGH via 3ware specific SCSI MINIPORT ioctl
 
 static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize, int port)
 {
@@ -1464,7 +1617,7 @@ static int get_device_power_state(HANDLE hdevice)
 // TODO: Put in a struct indexed by fd (or better a C++ object of course ;-)
 static HANDLE h_ata_ioctl = 0;
 static const char * ata_def_options;
-static char * ata_cur_options;
+static char * ata_usr_options;
 static int ata_driveno; // Drive number
 static char ata_smartver_state[10]; // SMART_GET_VERSION: 0=unknown, 1=OK, 2=failed
 
@@ -1526,7 +1679,7 @@ static const char * ata_get_def_options()
 	else if ((ver & 0xff) == 4) // WinNT4
 		return "sc"; // SMART_*, SCSI_PASS_THROUGH
 	else // WinXP, 2003, Vista
-		return "psai"; // GetDevicePowerState(), SMART_*, ATA_, IDE_PASS_THROUGH
+		return "psaim"; // GetDevicePowerState(), SMART_*, ATA_, IDE_PASS_THROUGH, SCSI_MINIPORT_*
 }
 
 
@@ -1534,24 +1687,20 @@ static const char * ata_get_def_options()
 
 static int ata_open(int drive, const char * options, int port)
 {
-	int win9x;
-	char devpath[30];
-	int devmap;
-
 	// TODO: This version does not allow to open more than 1 ATA devices
 	if (h_ata_ioctl) {
 		errno = ENFILE;
 		return -1;
 	}
 
-	win9x = ((GetVersion() & 0x80000000) != 0);
-
+	bool win9x = is_win9x();
 	if (!(0 <= drive && drive <= (win9x ? 7 : 9))) {
 		errno = ENOENT;
 		return -1;
 	}
 
 	// path depends on Windows Version
+	char devpath[30];
 	if (win9x)
 		// Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
 		strcpy(devpath, (drive <= 3 ? "\\\\.\\SMARTVSD" : "\\\\.\\SMARTVSE"));
@@ -1580,14 +1729,15 @@ static int ata_open(int drive, const char * options, int port)
 	if (con->reportataioctl > 1)
 		pout("%s: successfully opened\n", devpath);
 
-	// Save options
-	if (!*options) {
-		// Set default options according to Windows version
-		if (!ata_def_options)
-			ata_def_options = ata_get_def_options();
-		options = (port < 0 ? ata_def_options : "s3"); // RAID: SMART_* and SCSI_MINIPORT
-	}
-	ata_cur_options = strdup(options);
+	// Set default options according to Windows version
+	if (!ata_def_options)
+		ata_def_options = ata_get_def_options();
+	// Save user options
+	if (port >= 0 && !*options)
+		options = "s3"; // RAID: SMART_* and SCSI_MINIPORT
+	assert(!ata_usr_options);
+	if (*options)
+		ata_usr_options = strdup(options);
 
 	// NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
 	ata_driveno = drive;
@@ -1597,7 +1747,7 @@ static int ata_open(int drive, const char * options, int port)
 	// Win9X/ME: Get drive map
 	// RAID: Get port map
 	unsigned long portmap = 0;
-	devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &portmap : 0));
+	int devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &portmap : 0));
 	if (devmap < 0) {
 		if (!is_permissive()) {
 			ata_close(0);
@@ -1651,9 +1801,9 @@ static void ata_close(int /*fd*/)
 {
 	CloseHandle(h_ata_ioctl);
 	h_ata_ioctl = 0;
-	if (ata_cur_options) {
-		free(ata_cur_options);
-		ata_cur_options = 0;
+	if (ata_usr_options) {
+		free(ata_usr_options);
+		ata_usr_options = 0;
 	}
 }
 
@@ -1662,10 +1812,9 @@ static void ata_close(int /*fd*/)
 
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives)
 {
-	int win9x = ((GetVersion() & 0x80000000) != 0);
-	int cnt = 0, i;
-
-	for (i = 0; i <= 9; i++) {
+	bool win9x = is_win9x();
+	int cnt = 0;
+	for (int i = 0; i <= 9; i++) {
 		char devpath[30];
 		GETVERSIONOUTPARAMS vers;
 		const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
@@ -1770,8 +1919,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
 	int datasize = 0;
 
-	// Try all IOCTLS by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH
-	const char * valid_options = "saic";
+	// Try by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH,
+	// and SCSI_MINIPORT_* if requested by user
+	const char * valid_options = (ata_usr_options ? "saicm" : "saic");
 
 	switch (command) {
 	  case CHECK_POWER_MODE:
@@ -1795,15 +1945,18 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
-		valid_options = "saic3";
-		// Note: SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
+		// SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
+		// Try SCSI_MINIPORT also to skip buggy class driver
+		valid_options = (ata_usr_options || is_win9x() ? "saicm3" : "aicm3");
 		datasize = 512;
 		break;
 	  case WRITE_LOG:
 		regs.bFeaturesReg = ATA_SMART_WRITE_LOG_SECTOR;
 		regs.bSectorNumberReg = select;
 		regs.bSectorCountReg = 1;
-		valid_options = "a"; // ATA_PASS_THROUGH only, others don't support DATA_OUT
+		// ATA_PASS_THROUGH, SCSI_MINIPORT, others don't support DATA_OUT
+		// but SCSI_MINIPORT_* only if requested by user
+		valid_options = (ata_usr_options ? "am" : "a");
 		datasize = -512; // DATA_OUT!
 		break;
 	  case IDENTIFY:
@@ -1829,7 +1982,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		regs.bSectorNumberReg = 1;
 		break;
 	  case STATUS_CHECK:
-		valid_options = "sai"; // Needs IDE register return
+		// Requires CL,CH register return
+		valid_options = (ata_usr_options ? "saim" : "sai");
 	  case STATUS:
 		regs.bFeaturesReg = ATA_SMART_STATUS;
 		break;
@@ -1844,8 +1998,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	  case IMMEDIATE_OFFLINE:
 		regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
 		regs.bSectorNumberReg = select;
-		valid_options = "saic3";
-		// Note: SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
+		// SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
+		valid_options = (ata_usr_options || select != 127/*ABORT*/ || is_win9x() ?
+			"saicm3" : "aicm3");
 		break;
 	  default:
 		pout("Unrecognized command %d in win32_ata_command_interface()\n"
@@ -1856,8 +2011,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
 	// Try all valid ioctls in the order specified in dev_ioctls;
 	bool powered_up = false;
+	assert(ata_def_options);
+	const char * options = (ata_usr_options ? ata_usr_options : ata_def_options);
 	for (int i = 0; ; i++) {
-		char opt = ata_cur_options[i];
+		char opt = options[i];
 
 		if (!opt) {
 			if (command == CHECK_POWER_MODE && powered_up) {
@@ -1875,7 +2032,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 			continue;
 
 		errno = 0;
-		assert(datasize == 0 || datasize == 512 || (opt == 'a' && datasize == -512));
+		assert(datasize == 0 || datasize == 512 || (strchr("am", opt) && datasize == -512));
 		int rc;
 		switch (opt) {
 		  default: assert(0);
@@ -1890,8 +2047,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				assert(port == -1);
 				if (smart_get_version(h_ata_ioctl) < 0) {
 					if (!con->permissive) {
-						pout("ATA/SATA driver is possibly a SCSI class driver not supporting SMART.\n");
-						pout("If this is a SCSI disk, try \"scsi<adapter><id>\".\n");
+						pout("ATA/SATA driver is possibly a SCSI driver not supporting SMART.\n");
+						pout("If this is a SCSI disk, try '/dev/sd%c\'.\n", 'a'+ata_driveno);
 						ata_smartver_state[ata_driveno] = 2;
 						rc = -1; errno = ENOSYS;
 						break;
@@ -1901,6 +2058,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				ata_smartver_state[ata_driveno] = 1;
 			}
 			rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize, port);
+			break;
+		  case 'm':
+			rc = ata_via_scsi_miniport_smart_ioctl(h_ata_ioctl, &regs, data, datasize);
 			break;
 		  case 'a':
 			rc = ata_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
@@ -1980,7 +2140,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 int ata_identify_is_cached(int fd)
 {
 	// Not RAID and WinNT4/2000/XP => true, RAID or Win9x/ME => false
-	return (!(fd & 0xff00) && (GetVersion() & 0x80000000) == 0);
+	return (!(fd & 0xff00) && !is_win9x());
 }
 
 
@@ -2736,7 +2896,7 @@ static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
 	memset(&sb, 0, sizeof(sb));
 	sb.spt.Length = sizeof(SCSI_PASS_THROUGH_DIRECT);
-        sb.spt.CdbLength = iop->cmnd_len;
+	sb.spt.CdbLength = iop->cmnd_len;
 	memcpy(sb.spt.Cdb, iop->cmnd, iop->cmnd_len);
 	sb.spt.SenseInfoLength = sizeof(sb.ucSenseBuf);
 	sb.spt.SenseInfoOffset =

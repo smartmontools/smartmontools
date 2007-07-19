@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.621 2007/07/18 21:18:09 chrfranke Exp $
+$Id: CHANGELOG,v 1.622 2007/07/19 21:36:38 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Added IOCTL_SCSI_MINIPORT_*SMART* for commands not handled
+       properly by SMART_IOCTL in disk class driver. This allows to use
+       READ_LOG, WRITE_LOG and ABORT_SELFTEST even if the driver does not
+       support ATA_PASS_THROUGH.
 
   [CF] Added ATA-8 revision 4, fixed WRITE LOG '-r ioctl' output.
 
