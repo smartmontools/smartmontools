@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.115 2007/07/09 01:57:31 ballen4705 Exp $
+$Id: smartd.8.in,v 1.116 2007/07/20 21:00:43 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -117,8 +117,10 @@ configuration file and only apply to WinNT4/2000/XP/2003. The
 form \fB"/dev/sd[a\-z]"\fP can be given for SCSI
 disks "\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0"). Additionally
 the form \fB"/dev/pd[0\-255]"\fP can be given for SCSI
-disks "\\\\.\\PhysicalDrive[0\-255]". The form \fB"/dev/tape[0\-255]"\fP
-can be given for SCSI tape drives "\\\\.\\Tape[0\-255]".
+disks "\\\\.\\PhysicalDrive[0\-255]".
+One the forms \fB"/dev/tape[0\-255]"\fP, \fB"/dev/st[0\-255]"\fP,
+or \fB"/dev/nst[0\-255]"\fP can be given for SCSI tape
+drives "\\\\.\\Tape[0\-255]".
 .IP \fBCYGWIN\fP: 9
 See "WINDOWS" above.
 .IP \fBOS/2,eComStation\fP: 9
@@ -1956,4 +1958,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.115 2007/07/09 01:57:31 ballen4705 Exp $
+$Id: smartd.8.in,v 1.116 2007/07/20 21:00:43 chrfranke Exp $

@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.53 2007/07/19 21:36:39 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.54 2007/07/20 21:00:42 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -190,6 +190,10 @@ int guess_device_type (const char * dev_name)
 		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "pd", 2))
 		return CONTROLLER_SCSI;
+	if (!strncmp(dev_name, "st", 2))
+		return CONTROLLER_SCSI;
+	if (!strncmp(dev_name, "nst", 3))
+		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "tape", 4))
 		return CONTROLLER_SCSI;
 	return CONTROLLER_UNKNOWN;
@@ -310,7 +314,7 @@ int deviceopen(const char * pathname, char *type)
 		if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n1) == 2 && n1 == len) {
 			return aspi_open(adapter, id);
 		}
-		// sd[a-z],N => Physical drive 0-26, RAID port N
+		// sd[a-z],N => Physical drive 0-25, RAID port N
 		char drive[1+1] = ""; int sub_addr = -1; n1 = -1; int n2 = -1;
 		if (   sscanf(pathname, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
 		    && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))      ) {
@@ -322,8 +326,17 @@ int deviceopen(const char * pathname, char *type)
 		    && pd_num >= 0 && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))) {
 			return spt_open(pd_num, -1, sub_addr);
 		}
-		// tape<m> => tape drive <m>
+		// n?st<m> => tape drive <m> (same names used in Cygwin's /dev emulation)
 		int tape_num = -1; n1 = -1;
+		if (sscanf(pathname, "st%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+			return spt_open(-1, tape_num, -1);
+		}
+		tape_num = -1; n1 = -1;
+		if (sscanf(pathname, "nst%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+			return spt_open(-1, tape_num, -1);
+		}
+		// tape<m> => tape drive <m>
+		tape_num = -1; n1 = -1;
 		if (sscanf(pathname, "tape%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
 			return spt_open(-1, tape_num, -1);
 		}
