@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.181 2007/05/30 19:29:40 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.182 2007/07/20 15:56:42 shattered Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -483,7 +483,7 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   setlocale (LC_ALL, "");
   currentlocale=localeconv();
   if (*(currentlocale->thousands_sep))
-    separator=currentlocale->thousands_sep;
+    separator=(char *)currentlocale->thousands_sep;
 #endif // #ifdef HAVE_LOCALE_H
 
   // get #sectors and turn into bytes
