@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.97 2007/07/09 01:57:31 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.98 2007/07/20 21:00:43 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -92,9 +92,11 @@ Use the form \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices via an aspi dll
 on ASPI adapter 0\-9, ID 0\-15. Alternatively use \fB"/dev/sd[a\-z]"\fP for
 SCSI disks "\\\\.\\PhysicalDrive[0\-25]" on WinNT4/2000/XP/2003 (where "a"
 maps to "0"). SCSI disks can also be referred to as \fB"/dev/pd[0\-255]"\fP
-for "\\\\.\\PhysicalDrive[0\-255]" on WinNT4/2000/XP/2003. Use the
-form \fB"/dev/tape[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]"
+for "\\\\.\\PhysicalDrive[0\-255]" on WinNT4/2000/XP/2003.
+Use one the forms \fB"/dev/tape[0\-255]"\fP, \fB"/dev/st[0\-255]"\fP,
+or \fB"/dev/nst[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]"
 on WinNT4/2000/XP/2003.
+
 For disks behind 3ware 9000 controllers use \fB"/dev/hd[a\-j],N"\fP where
 N specifies the disk number (3ware \'port\') behind the controller
 providing the logical drive (\'unit\') specified by \fB"/dev/hd[a\-j]"\fP.
@@ -1475,7 +1477,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.97 2007/07/09 01:57:31 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.98 2007/07/20 21:00:43 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
