@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.164 2007/07/09 01:57:31 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.165 2007/07/21 20:59:41 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -141,7 +141,7 @@ void Usage (void){
 #ifdef HAVE_GETOPT_LONG
   printf(
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
-"         Set smartctl quiet mode to one of: errorsonly, silent\n\n"
+"         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
 "         Specify device type to one of: ata, scsi, marvell, sat, 3ware,N\n\n"
 "  -T TYPE, --tolerance=TYPE                                           (ATA)\n"
@@ -155,9 +155,10 @@ void Usage (void){
   );
 #else
   printf(
-"  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
+"  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent,    (ATA)\n"
+"                                               noserial\n"
 "  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N\n"
-"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA\n"
+"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA)\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n"
 "  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n"
@@ -195,7 +196,8 @@ void Usage (void){
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
-"        Use firmware bug workaround: none, samsung, samsung2, samsung3\n\n"
+"        Use firmware bug workaround: none, samsung, samsung2,\n"
+"                                     samsung3, swapid\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
   );
@@ -207,7 +209,8 @@ void Usage (void){
 "  -l TYPE   Show device log. TYPE: error, selftest, selective, directory,\n"
 "                                   background, scttemp[sts,hist]\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
-"  -F TYPE   Use firmware bug workaround: none, samsung, samsung[23]    (ATA)\n"
+"  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
+"                                         samsung3, swapid\n"
 "  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n\n"
   );
 #endif
@@ -239,7 +242,7 @@ void Usage (void){
 const char *getvalidarglist(char opt) {
   switch (opt) {
   case 'q':
-    return "errorsonly, silent";
+    return "errorsonly, silent, noserial";
   case 'd':
     return "ata, scsi, marvell, sat, 3ware,N, hpt,L/M/N cciss,N";
   case 'T':
@@ -259,7 +262,7 @@ const char *getvalidarglist(char opt) {
   case 't':
     return "offline, short, long, conveyance, select,M-N, pending,N, afterselect,[on|off], scttempint,N[,p]";
   case 'F':
-    return "none, samsung, samsung2, samsung3";
+    return "none, samsung, samsung2, samsung3, swapid";
   case 'n':
     return "never, sleep, standby, idle";
   case 'v':
@@ -370,6 +373,8 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"silent")) {
         con->printing_switchable     = FALSE;
         con->dont_print = TRUE;
+      } else if (!strcmp(optarg,"noserial")) {
+        con->dont_print_serial = TRUE;
       } else {
         badarg = TRUE;
       }
@@ -592,6 +597,8 @@ void ParseOpts (int argc, char** argv){
         con->fixfirmwarebug = FIX_SAMSUNG2;
       } else if (!strcmp(optarg,"samsung3")) {
         con->fixfirmwarebug = FIX_SAMSUNG3;
+      } else if (!strcmp(optarg,"swapid")) {
+        con->fixswappedid = TRUE;
       } else {
         badarg = TRUE;
       }
