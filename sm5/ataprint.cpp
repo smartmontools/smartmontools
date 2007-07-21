@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.182 2007/07/20 15:56:42 shattered Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.183 2007/07/21 20:59:41 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -93,27 +93,25 @@ void trim(char *out, const char *in)
 // Convenience function for formatting strings from ata_identify_device
 void format_ata_string(char *out, const char *in, int n)
 {
-  char tmp[65];
-
-  n = n > 64 ? 64 : n;
+  bool must_swap = !con->fixswappedid;
 #ifndef __NetBSD__
-  swapbytes(tmp, in, n);
-#else
   /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
   if (isbigendian())
+    must_swap = !must_swap;
+#endif
+
+  char tmp[65];
+  n = n > 64 ? 64 : n;
+  if (!must_swap)
     strncpy(tmp, in, n);
   else
     swapbytes(tmp, in, n);
-#endif
   tmp[n] = '\0';
   trim(out, tmp);
 }
 
-void infofound(char *output) {
-  if (*output)
-    pout("%s\n", output);
-  else
-    pout("[No Information Found]\n");
+static const char * infofound(const char *output) {
+  return (*output ? output : "[No Information Found]");
 }
 
 
@@ -532,12 +530,10 @@ int ataPrintDriveInfo (struct ata_identify_device *drive){
   if (drivetype>=0 && knowndrives[drivetype].modelfamily)
     pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
 
-  pout("Device Model:     ");
-  infofound(model);
-  pout("Serial Number:    ");
-  infofound(serial);
-  pout("Firmware Version: ");
-  infofound(firm);
+  pout("Device Model:     %s\n", infofound(model));
+  if (!con->dont_print_serial)
+    pout("Serial Number:    %s\n", infofound(serial));
+  pout("Firmware Version: %s\n", infofound(firm));
 
   if (determine_capacity(drive, capacity))
     pout("User Capacity:    %s bytes\n", capacity);

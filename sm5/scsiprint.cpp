@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-6 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-7 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.119 2006/11/12 04:47:23 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.120 2007/07/21 20:59:41 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1069,20 +1069,22 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     } else
         modese_len = iec.modese_len;
 
-    if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
-        /* should use VPD page 0x83 and fall back to this page (0x80)
-         * if 0x83 not supported. NAA requires a lot of decoding code */
-        len = gBuf[3];
-        gBuf[4 + len] = '\0';
-        pout("Serial number: %s\n", &gBuf[4]);
-    }
-    else if (con->reportscsiioctl > 0) {
-        PRINT_ON(con);
-        if (SIMPLE_ERR_BAD_RESP == err)
-            pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
-        else
-            pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
-        PRINT_OFF(con);
+    if (!con->dont_print_serial) {
+        if (0 == (err = scsiInquiryVpd(device, 0x80, gBuf, 64))) {
+            /* should use VPD page 0x83 and fall back to this page (0x80)
+             * if 0x83 not supported. NAA requires a lot of decoding code */
+            len = gBuf[3];
+            gBuf[4 + len] = '\0';
+            pout("Serial number: %s\n", &gBuf[4]);
+        }
+        else if (con->reportscsiioctl > 0) {
+            PRINT_ON(con);
+            if (SIMPLE_ERR_BAD_RESP == err)
+                pout("Vital Product Data (VPD) bit ignored in INQUIRY\n");
+            else
+                pout("Vital Product Data (VPD) INQUIRY failed [%d]\n", err);
+            PRINT_OFF(con);
+        }
     }
 
     // print SCSI peripheral device type

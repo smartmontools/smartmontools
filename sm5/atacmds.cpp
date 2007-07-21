@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.185 2007/07/18 21:18:09 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.186 2007/07/21 20:59:41 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -514,6 +514,25 @@ void swap8(char *location){
   return;
 }
 
+// Invalidate serial number and adjust checksum in IDENTIFY data
+static void invalidate_serno(ata_identify_device * id){
+  unsigned char sum = 0;
+  for (unsigned i = 0; i < sizeof(id->serial_no); i++) {
+    sum += id->serial_no[i]; sum -= id->serial_no[i] = 'X';
+  }
+#ifndef __NetBSD__
+  bool must_swap = !!isbigendian();
+  if (must_swap)
+    swapx(id->words088_255+255-88);
+#endif
+  if ((id->words088_255[255-88] & 0x00ff) == 0x00a5)
+    id->words088_255[255-88] += sum << 8;
+#ifndef __NetBSD__
+  if (must_swap)
+    swapx(id->words088_255+255-88);
+#endif
+}
+
 static char *commandstrings[]={
   "SMART ENABLE",
   "SMART DISABLE",
@@ -532,15 +551,15 @@ static char *commandstrings[]={
   "WARNING (UNDEFINED COMMAND -- CONTACT DEVELOPERS AT " PACKAGE_BUGREPORT ")\n"
 };
 
-void prettyprint(unsigned char *stuff, char *name){
-  int i,j;
+static void prettyprint(const unsigned char *p, const char *name){
   pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
-  for (i=0; i<32; i++){
-    pout("%03d-%03d: ", 16*i, 16*(i+1)-1);
-    for (j=0; j<15; j++)
-      pout("%02x ",*stuff++);
-    pout("%02x\n",*stuff++);
-  }
+  for (int i=0; i<512; i+=16, p+=16)
+    // print complete line to avoid slow tty output and extra lines in syslog.
+    pout("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
+                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+         i, i+16-1,
+         p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
+         p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15]);
   pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
@@ -620,6 +639,10 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   default:
     retval=ata_command_interface(device, command, select, data);
   }
+
+  // If requested, invalidate serial number before any printing is done
+  if ((command == IDENTIFY || command == PIDENTIFY) && !retval && con->dont_print_serial)
+    invalidate_serno((ata_identify_device *)data);
 
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){

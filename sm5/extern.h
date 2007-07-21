@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.52 2007/02/12 21:58:31 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.53 2007/07/21 20:59:41 chrfranke Exp $\n"
 
 // Possible values for fixfirmwarebug.  If user has NOT specified -F at
 // all, then value is 0.
@@ -87,6 +87,7 @@ typedef struct smartmonctrl_s {
   unsigned char smartautosavedisable;
   unsigned char printing_switchable;
   unsigned char dont_print;
+  unsigned char dont_print_serial;
   unsigned char permissive;
   unsigned char conservative;
   unsigned char checksumfail;
@@ -94,6 +95,7 @@ typedef struct smartmonctrl_s {
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
+  unsigned char fixswappedid;
   unsigned char satpassthrulen;
   // Controller type (device type) has been specified explicitly
   unsigned char controller_explicit;

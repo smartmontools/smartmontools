@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.98 2007/07/20 21:00:43 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.99 2007/07/21 20:59:41 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -195,6 +195,10 @@ which failed either now or in the past.
 .I silent
 \- print no output.  The only way to learn about what was found is to
 use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
+
+.I noserial
+\- Do not print the serial number of the device.
+
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
@@ -925,9 +929,9 @@ value for Attribute 123 in this form.
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
 Modifies the behavior of \fBsmartctl\fP to compensate for some known
-and understood device firmware bug.  The arguments to this option are
-exclusive, so that only the final option given is used.  The valid
-values are:
+and understood device firmware or driver bug.  Except \'swapid\',
+the arguments to this option are exclusive, so that only the final
+option given is used.  The valid values are:
 
 .I none
 \- Assume that the device firmware obeys the ATA specifications.  This
@@ -963,6 +967,10 @@ execution status (see options \'\-c\' or \'\-a\' above) accordingly.
 Note that an explicit \'\-F\' option on the command line will
 over\-ride any preset values for \'\-F\' (see the \'\-P\' option
 below).
+
+.I swapid
+\- Fixes byte swapped ATA identify strings (device name, serial number,
+firmware version) returned by some buggy device drivers.
 
 .TP
 .B \-P TYPE, \-\-presets=TYPE
@@ -1477,7 +1485,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.98 2007/07/20 21:00:43 chrfranke Exp $
+$Id: smartctl.8.in,v 1.99 2007/07/21 20:59:41 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
