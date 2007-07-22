@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.54 2007/07/20 21:00:42 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.55 2007/07/22 19:38:44 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -137,7 +137,7 @@ const char * get_os_version_str()
 
 #define ATARAID_FDOFFSET 0x0200
 
-static int ata_open(int drive, const char * options, int port);
+static int ata_open(int phydrive, int logdrive, const char * options, int port);
 static void ata_close(int fd);
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
@@ -155,7 +155,7 @@ static int aspi_scan(unsigned long * drives);
 
 #define SPT_FDOFFSET 0x0400
 
-static int spt_open(int pd_num, int tape_num, int sub_addr);
+static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr);
 static void spt_close(int fd);
 
 
@@ -169,9 +169,20 @@ static int is_permissive()
 	return 1;
 }
 
+// return number for drive letter, -1 on error
+// "[A-Za-z]:[/\\]?" => 0-25
+// Accepts trailing '"' to fix broken "X:\" parameter passing from .bat files
+static int drive_letter(const char * s)
+{
+	return (   (('A' <= s[0] && s[0] <= 'Z') || ('a' <= s[0] && s[0] <= 'z'))
+	        && s[1] == ':' && (!s[2] || (strchr("/\\\"", s[2]) && !s[3])) ?
+	        (s[0] & 0x1f) - 1 : -1);
+}
+
+// Skip trailing "/dev/", do not allow "/dev/X:"
 static const char * skipdev(const char * s)
 {
-	return (!strncmp(s, "/dev/", 5) ? s + 5 : s);
+	return (!strncmp(s, "/dev/", 5) && drive_letter(s+5) < 0 ? s+5 : s);
 }
 
 
@@ -181,6 +192,8 @@ int guess_device_type (const char * dev_name)
 {
 	dev_name = skipdev(dev_name);
 	if (!strncmp(dev_name, "hd", 2))
+		return CONTROLLER_ATA;
+	if (drive_letter(dev_name) >= 0)
 		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "tw_cli", 6))
 		return CONTROLLER_ATA;
@@ -291,18 +304,23 @@ int deviceopen(const char * pathname, char *type)
 	int len = strlen(pathname);
 
 	if (!strcmp(type, "ATA")) {
-		// hd[a-j](:[saicp]+)? => ATA 0-9 with options
+		// hd[a-j](:[saicp]+)? => Physical drive 0-25, with options
 		char drive[1+1] = "", options[7+1] = ""; int n1 = -1, n2 = -1;
-		if (   sscanf(pathname, "hd%1[a-j]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
-		    && ((n1 == len && !options[0]) || n2 == len)                                 ) {
-			return ata_open(drive[0] - 'a', options, -1);
+		if (   sscanf(pathname, "hd%1[a-z]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
+		    && ((n1 == len && !options[0]) || n2 == len)                                  ) {
+			return ata_open(drive[0] - 'a', -1, options, -1);
 		}
-		// hd[a-j],N(:[saicp]+)? => Physical drive 0-9, RAID port N, with options
+		// hd[a-j],N(:[saicp]+)? => Physical drive 0-25, RAID port N, with options
 		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
 		unsigned port = ~0;
-		if (   sscanf(pathname, "hd%1[a-j],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
-		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                              ) {
-			return ata_open(drive[0] - 'a', options, port);
+		if (   sscanf(pathname, "hd%1[a-z],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
+		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                ) {
+			return ata_open(drive[0] - 'a', -1, options, port);
+		}
+		// [a-zA-Z]: => Physical drive behind logical drive 0-25
+		int logdrive = drive_letter(pathname);
+		if (logdrive >= 0) {
+			return ata_open(-1, logdrive, "", -1);
 		}
 		// tw_cli/... => Parse tw_cli output
 		if (!strncmp(pathname, "tw_cli/", 7)) {
@@ -318,27 +336,32 @@ int deviceopen(const char * pathname, char *type)
 		char drive[1+1] = ""; int sub_addr = -1; n1 = -1; int n2 = -1;
 		if (   sscanf(pathname, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
 		    && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))      ) {
-			return spt_open(drive[0] - 'a', -1, sub_addr);
+			return spt_open(drive[0] - 'a', -1, -1, sub_addr);
 		}
 		// pd<m>,N => Physical drive <m>, RAID port N
 		int pd_num = -1; sub_addr = -1; n1 = -1; n2 = -1;
 		if (   sscanf(pathname, "pd%d%n,%d%n", &pd_num, &n1, &sub_addr, &n2) >= 1
 		    && pd_num >= 0 && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))) {
-			return spt_open(pd_num, -1, sub_addr);
+			return spt_open(pd_num, -1, -1, sub_addr);
+		}
+		// [a-zA-Z]: => Physical drive behind logical drive 0-25
+		int logdrive = drive_letter(pathname);
+		if (logdrive >= 0) {
+			return spt_open(-1, logdrive, -1, -1);
 		}
 		// n?st<m> => tape drive <m> (same names used in Cygwin's /dev emulation)
 		int tape_num = -1; n1 = -1;
 		if (sscanf(pathname, "st%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-			return spt_open(-1, tape_num, -1);
+			return spt_open(-1, -1, tape_num, -1);
 		}
 		tape_num = -1; n1 = -1;
 		if (sscanf(pathname, "nst%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-			return spt_open(-1, tape_num, -1);
+			return spt_open(-1, -1, tape_num, -1);
 		}
 		// tape<m> => tape drive <m>
 		tape_num = -1; n1 = -1;
 		if (sscanf(pathname, "tape%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-			return spt_open(-1, tape_num, -1);
+			return spt_open(-1, -1, tape_num, -1);
 		}
 	}
 
@@ -1631,8 +1654,10 @@ static int get_device_power_state(HANDLE hdevice)
 static HANDLE h_ata_ioctl = 0;
 static const char * ata_def_options;
 static char * ata_usr_options;
+const int max_ata_driveno = 25;
 static int ata_driveno; // Drive number
-static char ata_smartver_state[10]; // SMART_GET_VERSION: 0=unknown, 1=OK, 2=failed
+static int ata_driveno_is_log = -1; // 0=physical drivenumber, 1=logical drive number, -1=unknown
+static char ata_smartver_state[max_ata_driveno+1]; // SMART_GET_VERSION: 0=unknown, 1=OK, 2=failed
 
 // Print SMARTVSD error message, return errno
 
@@ -1698,7 +1723,7 @@ static const char * ata_get_def_options()
 
 // Open ATA device
 
-static int ata_open(int drive, const char * options, int port)
+static int ata_open(int phydrive, int logdrive, const char * options, int port)
 {
 	// TODO: This version does not allow to open more than 1 ATA devices
 	if (h_ata_ioctl) {
@@ -1706,19 +1731,30 @@ static int ata_open(int drive, const char * options, int port)
 		return -1;
 	}
 
-	bool win9x = is_win9x();
-	if (!(0 <= drive && drive <= (win9x ? 7 : 9))) {
-		errno = ENOENT;
+	// Using both physical and logical drive names (in smartd.conf) not supported yet
+	if (!(   ata_driveno_is_log < 0
+	      || (phydrive >= 0 && !ata_driveno_is_log)
+	      || (logdrive >= 0 &&  ata_driveno_is_log))) {
+		pout("Using both /dev/hdX and X: is not supported\n");
+		errno = EINVAL;
 		return -1;
 	}
 
 	// path depends on Windows Version
+	bool win9x = is_win9x();
 	char devpath[30];
-	if (win9x)
+	if (win9x && 0 <= phydrive && phydrive <= 7)
 		// Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
-		strcpy(devpath, (drive <= 3 ? "\\\\.\\SMARTVSD" : "\\\\.\\SMARTVSE"));
-	else
-		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", drive);
+		strcpy(devpath, (phydrive <= 3 ? "\\\\.\\SMARTVSD" : "\\\\.\\SMARTVSE"));
+	else if (!win9x && 0 <= phydrive && phydrive <= max_ata_driveno)
+		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", phydrive);
+	else if (!win9x && 0 <= logdrive && logdrive <= max_ata_driveno) {
+		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\%c:", 'A'+logdrive);
+	}
+	else {
+		errno = ENOENT;
+		return -1;
+	}
 
 	// Open device
 	if ((h_ata_ioctl = CreateFileA(devpath,
@@ -1727,7 +1763,7 @@ static int ata_open(int drive, const char * options, int port)
 		long err = GetLastError();	
 		pout("Cannot open device %s, Error=%ld\n", devpath, err);
 		if (err == ERROR_FILE_NOT_FOUND)
-			errno = (win9x && drive <= 3 ? smartvsd_error() : ENOENT);
+			errno = (win9x && phydrive <= 3 ? smartvsd_error() : ENOENT);
 		else if (err == ERROR_ACCESS_DENIED) {
 			if (!win9x)
 				pout("Administrator rights are necessary to access physical drives.\n");
@@ -1753,7 +1789,13 @@ static int ata_open(int drive, const char * options, int port)
 		ata_usr_options = strdup(options);
 
 	// NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
-	ata_driveno = drive;
+	if (phydrive >= 0) {
+		ata_driveno = phydrive; ata_driveno_is_log = 0;
+	}
+	else {
+		assert(logdrive >= 0);
+		ata_driveno = logdrive; ata_driveno_is_log = 1;
+	}
 	if (!win9x && port < 0)
 		return 0;
 
@@ -1769,7 +1811,7 @@ static int ata_open(int drive, const char * options, int port)
 		}
 		devmap = 0x0f;
 	}
-	ata_smartver_state[drive] = 1;
+	ata_smartver_state[ata_driveno] = 1;
 
 	if (port >= 0) {
 		// 3ware RAID: update devicemap first
@@ -1792,10 +1834,10 @@ static int ata_open(int drive, const char * options, int port)
 	}
 
 	// Win9x/ME: Check device presence & type
-	if (((devmap >> (drive & 0x3)) & 0x11) != 0x01) {
-		unsigned char atapi = (devmap >> (drive & 0x3)) & 0x10;
+	if (((devmap >> (ata_driveno & 0x3)) & 0x11) != 0x01) {
+		unsigned char atapi = (devmap >> (ata_driveno & 0x3)) & 0x10;
 		pout("%s: Drive %d %s (IDEDeviceMap=0x%02x).\n", devpath,
-		     drive, (atapi?"is an ATAPI device":"does not exist"), devmap);
+		     ata_driveno, (atapi?"is an ATAPI device":"does not exist"), devmap);
 		// Win9x drive existence check may not work as expected
 		// The atapi.sys driver incorrectly fills in the bIDEDeviceMap with 0x01
 		// (The related KB Article Q196120 is no longer available)
@@ -1806,7 +1848,7 @@ static int ata_open(int drive, const char * options, int port)
 		}
 	}
 	// Use drive number as fd for ioctl
-	return (drive & 0x3);
+	return (ata_driveno & 0x3);
 }
 
 
@@ -2739,8 +2781,6 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
 struct spt_dev_info {
 	HANDLE h_spt_ioctl;
-	int   pd_num;		// physical drive number
-	int   tape_num;		// tape number ('\\.\TAPE<n>')
 	int   sub_addr;		// addressing disks within a RAID, for example
 };
 
@@ -2749,7 +2789,7 @@ struct spt_dev_info {
 static struct spt_dev_info * spt_dev_arr[SPT_MAXDEV];
 
 
-static int spt_open(int pd_num, int tape_num, int sub_addr)
+static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr)
 {
 	int k;
 	struct spt_dev_info * sdip;
@@ -2775,18 +2815,18 @@ static int spt_open(int pd_num, int tape_num, int sub_addr)
 		return -1;
 	}
 	spt_dev_arr[k] = sdip;
-	sdip->pd_num = pd_num;
-	sdip->tape_num = tape_num;
 	sdip->sub_addr = sub_addr;
 
 	b[sizeof(b) - 1] = '\0';
 	if (pd_num >= 0)
 		snprintf(b, sizeof(b) - 1, "\\\\.\\PhysicalDrive%d", pd_num);
+	else if (ld_num >= 0)
+		snprintf(b, sizeof(b) - 1, "\\\\.\\%c:", 'A' + ld_num);
 	else if (tape_num >= 0)
 		snprintf(b, sizeof(b) - 1, "\\\\.\\TAPE%d", tape_num);
 	else {
 		if (con->reportscsiioctl)
-                        pout("spt_open: bad parameters\n");
+			pout("spt_open: bad parameters\n");
 		errno = EINVAL;
 		goto err_out;
 	}
