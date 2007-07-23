@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.186 2007/07/21 20:59:41 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.187 2007/07/23 15:33:13 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1830,6 +1830,12 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
   case 13:
     name="Read_Soft_Error_Rate";
     break;
+  case 187:
+    name="Reported_Uncorrect";
+    break;
+  case 189:
+    name="High_Fly_Writes";
+    break;
   case 190:
     // Western Digital uses this for temperature.
     // It's identical to Attribute 194 except that it
@@ -1838,7 +1844,7 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
     // is typically 55C.  So if this attribute has failed
     // in the past, it indicates that the drive temp exceeded
     // 55C sometime in the past.
-    name="Temperature_Celsius";
+    name="Airflow_Temperature_Cel";
     break;
   case 191:
     name="G-Sense_Error_Rate";
