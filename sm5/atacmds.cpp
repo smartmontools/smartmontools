@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.187 2007/07/23 15:33:13 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.188 2007/07/26 20:58:50 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -563,6 +563,8 @@ static void prettyprint(const unsigned char *p, const char *name){
   pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
+static int parsedev_command_interface(int fd, smart_command_set command, int select, char * data);
+
 // This function provides the pretty-print reporting for SMART
 // commands: it implements the various -r "reporting" options for ATA
 // ioctls.
@@ -635,6 +637,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     break;
   case CONTROLLER_HPT:
     retval=highpoint_command_interface(device, command, select, data);
+    break;
+  case CONTROLLER_PARSEDEV:
+    retval=parsedev_command_interface(device, command, select, data);
     break;
   default:
     retval=ata_command_interface(device, command, select, data);
@@ -2211,3 +2216,266 @@ int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
   return 0;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+// Pseudo-device to parse "smartctl -r ataioctl,2 ..." output and simulate
+// an ATA device with same behaviour
+
+// Table of parsed commands, return value, data
+struct parsed_ata_command
+{ 
+  smart_command_set command;
+  int select;
+  int retval, errval;
+  char * data;
+};
+
+const int max_num_parsed_commands = 32;
+static parsed_ata_command parsed_command_table[max_num_parsed_commands];
+static int num_parsed_commands;
+static int next_replay_command;
+static bool replay_out_of_sync;
+
+
+static const char * nextline(const char * s, int & lineno)
+{
+  for (s += strcspn(s, "\r\n"); *s == '\r' || *s == '\n'; s++) {
+    if (*s == '\r' && s[1] == '\n')
+      s++;
+    lineno++;
+  }
+  return s;
+}
+
+static int name2command(const char * s)
+{
+  for (int i = 0; i < (int)(sizeof(commandstrings)/sizeof(commandstrings[0])); i++) {
+    if (!strcmp(s, commandstrings[i]))
+      return i;
+  }
+  return -1;
+}
+
+static bool matchcpy(char * dest, size_t size, const char * src, const regmatch_t & srcmatch)
+{
+  if (srcmatch.rm_so < 0)
+    return false;
+  size_t n = srcmatch.rm_eo - srcmatch.rm_so;
+  if (n >= size)
+    n = size-1;
+  memcpy(dest, src + srcmatch.rm_so, n);
+  dest[n] = 0;
+  return true;
+}
+
+static inline int matchtoi(const char * src, const regmatch_t & srcmatch, int defval)
+{
+  if (srcmatch.rm_so < 0)
+    return defval;
+  return atoi(src + srcmatch.rm_so);
+}
+
+
+// Parse stdin and build command table
+int parsedev_open(const char * pathname)
+{
+  if (strcmp(pathname, "-")) {
+    errno = EINVAL; return -1;
+  }
+  pathname = "<stdin>";
+  // Fill buffer
+  char buffer[64*1024];
+  int size = 0;
+  while (size < (int)sizeof(buffer)) {
+    int nr = fread(buffer, 1, sizeof(buffer), stdin);
+    if (nr <= 0)
+      break;
+    size += nr;
+  }
+  if (size <= 0) {
+    pout("%s: Unexpected EOF\n", pathname);
+    errno = ENOENT; return -1;
+  }
+  if (size >= (int)sizeof(buffer)) {
+    pout("%s: Buffer overflow\n", pathname);
+    errno = EIO; return -1;
+  }
+  buffer[size] = 0;
+
+  // Regex to match output from "-r ataioctl,2"
+  static const char pattern[] = "^"
+  "(" // (1
+    "REPORT-IOCTL: DeviceFD=[0-9]+ Command=([A-Z ]*[A-Z])" // (2)
+    "(" // (3
+      "( InputParameter=([0-9]+))?" // (4 (5))
+    "|"
+      "( returned (-?[0-9]+)( errno=([0-9]+)[^\r\n]*)?)" // (6 (7) (8 (9)))
+    ")" // )
+    "[\r\n]" // EOL match necessary to match optional parts above
+  "|"
+    "===== \\[([A-Z ]*[A-Z])\\] DATA START " // (10)
+  ")"; // )
+
+  // Compile regex
+  regex_t rex;
+  if (compileregex(&rex, pattern, REG_EXTENDED)) {
+    errno = EIO; return -1;
+  }
+
+  // Parse buffer
+  const char * errmsg = 0;
+  int i = -1, state = 0, lineno = 1;
+  for (const char * line = buffer; *line; line = nextline(line, lineno)) {
+    // Match line
+    if (!(line[0] == 'R' || line[0] == '='))
+      continue;
+    const int nmatch = 1+10;
+    regmatch_t match[nmatch];
+    if (regexec(&rex, line, nmatch, match, 0))
+      continue;
+
+    char cmdname[40];
+    if (matchcpy(cmdname, sizeof(cmdname), line, match[2])) { // "REPORT-IOCTL:... Command=%s ..."
+      int nc = name2command(cmdname);
+      if (nc < 0) {
+        errmsg = "Unknown ATA command name"; break;
+      }
+      if (match[7].rm_so < 0) { // "returned %d"
+        // Start of command
+        if (!(state == 0 || state == 2)) {
+          errmsg = "Missing REPORT-IOCTL result"; break;
+        }
+        if (++i >= max_num_parsed_commands) {
+          errmsg = "Too many ATA commands"; break;
+        }
+        parsed_command_table[i].command = (smart_command_set)nc;
+        parsed_command_table[i].select = matchtoi(line, match[5], 0); // "InputParameter=%d"
+        state = 1;
+      }
+      else {
+        // End of command
+        if (!(state == 1 && (int)parsed_command_table[i].command == nc)) {
+          errmsg = "Missing REPORT-IOCTL start"; break;
+        }
+        parsed_command_table[i].retval = matchtoi(line, match[7], -1); // "returned %d"
+        parsed_command_table[i].errval = matchtoi(line, match[9], 0); // "errno=%d"
+        state = 2;
+      }
+    }
+    else if (matchcpy(cmdname, sizeof(cmdname), line, match[10])) { // "===== [%s] DATA START "
+      // Start of sector hexdump
+      int nc = name2command(cmdname);
+      if (!(state == (nc == WRITE_LOG ? 1 : 2) && (int)parsed_command_table[i].command == nc)) {
+          errmsg = "Unexpected DATA START"; break;
+      }
+      line = nextline(line, lineno);
+      char * data = (char *)malloc(512);
+      unsigned j;
+      for (j = 0; j < 32; j++) {
+        unsigned b[16];
+        unsigned u1, u2; int n1 = -1;
+        if (!(sscanf(line, "%3u-%3u: "
+                        "%2x %2x %2x %2x %2x %2x %2x %2x "
+                        "%2x %2x %2x %2x %2x %2x %2x %2x%n",
+                     &u1, &u2,
+                     b+ 0, b+ 1, b+ 2, b+ 3, b+ 4, b+ 5, b+ 6, b+ 7,
+                     b+ 8, b+ 9, b+10, b+11, b+12, b+13, b+14, b+15, &n1) == 18
+              && n1 >= 56 && u1 == j*16 && u2 == j*16+15))
+          break;
+        for (unsigned k = 0; k < 16; k++)
+          data[j*16+k] = b[k];
+        line = nextline(line, lineno);
+      }
+      if (j < 32) {
+        free(data);
+        errmsg = "Incomplete sector hex dump"; break;
+      }
+      parsed_command_table[i].data = data;
+      if (nc != WRITE_LOG)
+        state = 0;
+    }
+  }
+
+  if (!(state == 0 || state == 2))
+    errmsg = "Missing REPORT-IOCTL result";
+
+  if (!errmsg && i < 0)
+    errmsg = "No information found";
+
+  num_parsed_commands = i+1;
+  next_replay_command = 0;
+  replay_out_of_sync = false;
+
+  if (errmsg) {
+    pout("%s(%d): Syntax error: %s\n", pathname, lineno, errmsg);
+    errno = EIO;
+    parsedev_close(0);
+    return -1;
+  }
+  return 0;
+}
+
+// Report warnings and free command table 
+void parsedev_close(int /*fd*/)
+{
+  if (replay_out_of_sync)
+      pout("REPLAY-IOCTL: Warning: commands replayed out of sync\n");
+  else if (next_replay_command != 0)
+      pout("REPLAY-IOCTL: Warning: %d command(s) not replayed\n", num_parsed_commands-next_replay_command);
+
+  for (int i = 0; i < num_parsed_commands; i++) {
+    if (parsed_command_table[i].data) {
+      free(parsed_command_table[i].data); parsed_command_table[i].data = 0;
+    }
+  }
+  num_parsed_commands = 0;
+}
+
+// Simulate ATA command from command table
+static int parsedev_command_interface(int /*fd*/, smart_command_set command, int select, char * data)
+{
+  // Find command, try round-robin of out of sync
+  int i = next_replay_command;
+  for (int j = 0; ; j++) {
+    if (j >= num_parsed_commands) {
+      pout("REPLAY-IOCTL: Warning: Command not found\n");
+      errno = ENOSYS;
+      return -1;
+    }
+    if (parsed_command_table[i].command == command && parsed_command_table[i].select == select)
+      break;
+    if (!replay_out_of_sync) {
+      replay_out_of_sync = true;
+      pout("REPLAY-IOCTL: Warning: Command #%d is out of sync\n", i+1);
+    }
+    if (++i >= num_parsed_commands)
+      i = 0;
+  }
+  next_replay_command = i;
+  if (++next_replay_command >= num_parsed_commands)
+    next_replay_command = 0;
+
+  // Return command data
+  switch (command) {
+    case IDENTIFY:
+    case PIDENTIFY:
+    case READ_VALUES:
+    case READ_THRESHOLDS:
+    case READ_LOG:
+      if (parsed_command_table[i].data)
+        memcpy(data, parsed_command_table[i].data, 512);
+      break;
+    case WRITE_LOG:
+      if (!(parsed_command_table[i].data && !memcmp(data, parsed_command_table[i].data, 512)))
+        pout("REPLAY-IOCTL: Warning: WRITE LOG data does not match\n");
+      break;
+    case CHECK_POWER_MODE:
+      data[0] = (char)0xff;
+    default:
+      break;
+  }
+
+  if (parsed_command_table[i].errval)
+    errno = parsed_command_table[i].errval;
+  return parsed_command_table[i].retval;
+}

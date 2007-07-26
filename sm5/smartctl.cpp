@@ -50,7 +50,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.165 2007/07/21 20:59:41 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.166 2007/07/26 20:58:50 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -960,6 +960,16 @@ int main (int argc, char **argv){
 
   device = argv[argc-1];
 
+  // Device name "-": Parse "smartctl -r ataioctl,2 ..." output
+  if (!strcmp(device,"-")) {
+    if (con->controller_type != CONTROLLER_UNKNOWN) {
+      pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
+      UsageSummary();
+      return FAILCMD;
+    }
+    con->controller_type = CONTROLLER_PARSEDEV;
+  }
+
   // If use has specified 3ware controller, determine which interface 
   if (con->controller_type == CONTROLLER_3WARE) {
     con->controller_type=guess_device_type(device);
@@ -1002,7 +1012,10 @@ int main (int argc, char **argv){
   // present (e.g. with st).  Opening is retried O_RDONLY if read-only
   // media prevents opening O_RDWR (it cannot happen for scsi generic
   // devices, but it can for the others).
-  fd = deviceopen(device, mode);
+  if (con->controller_type != CONTROLLER_PARSEDEV)
+    fd = deviceopen(device, mode);
+  else
+    fd = parsedev_open(device);
   if (fd<0) {
     char errmsg[256];
     snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);
@@ -1034,5 +1047,10 @@ int main (int argc, char **argv){
     break;
   }
   
+  if (con->controller_type != CONTROLLER_PARSEDEV)
+    deviceclose(fd);
+  else
+    parsedev_close(fd);
+
   return retval;
 }
