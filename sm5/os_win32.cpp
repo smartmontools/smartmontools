@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.55 2007/07/22 19:38:44 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.56 2007/07/28 13:17:38 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -135,10 +135,13 @@ const char * get_os_version_str()
 }
 
 
+static int get_controller_type(int phydrive, int logdrive);
+
 #define ATARAID_FDOFFSET 0x0200
 
 static int ata_open(int phydrive, int logdrive, const char * options, int port);
 static void ata_close(int fd);
+static int ata_scan_win9x(unsigned long * drives);
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
 
@@ -157,6 +160,7 @@ static int aspi_scan(unsigned long * drives);
 
 static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr);
 static void spt_close(int fd);
+static int spt_scan(unsigned long * drives);
 
 
 static int is_permissive()
@@ -193,15 +197,9 @@ int guess_device_type (const char * dev_name)
 	dev_name = skipdev(dev_name);
 	if (!strncmp(dev_name, "hd", 2))
 		return CONTROLLER_ATA;
-	if (drive_letter(dev_name) >= 0)
-		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "tw_cli", 6))
 		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "scsi", 4))
-		return CONTROLLER_SCSI;
-	if (!strncmp(dev_name, "sd", 2))
-		return CONTROLLER_SCSI;
-	if (!strncmp(dev_name, "pd", 2))
 		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "st", 2))
 		return CONTROLLER_SCSI;
@@ -209,6 +207,15 @@ int guess_device_type (const char * dev_name)
 		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "tape", 4))
 		return CONTROLLER_SCSI;
+	int logdrive = drive_letter(dev_name);
+	if (logdrive >= 0)
+		return get_controller_type(-1, logdrive);
+	char drive[1+1] = "";
+	if (sscanf(dev_name, "sd%1[a-z]", drive) == 1)
+		return get_controller_type(drive[0]-'a', -1);
+	int phydrive = -1;
+	if (sscanf(dev_name, "pd%d", &phydrive) == 1 && phydrive >= 0)
+		return get_controller_type(phydrive, -1);
 	return CONTROLLER_UNKNOWN;
 }
 
@@ -229,17 +236,32 @@ int make_device_names (char*** devlist, const char* type)
 	rdriveno[0] = rdriveno[1] = -1;
 	rdrives[0] = rdrives[1] = 0;
 	
+	bool win9x = is_win9x();
 	if (!strcmp(type, "ATA")) {
 		// bit i set => drive i present
-		n = ata_scan(drives, rdriveno, rdrives);
-		path = "/dev/hda";
+		if (win9x) {
+			n = ata_scan_win9x(drives);
+			path = "/dev/hda";
+		}
+		else {
+			n = ata_scan(drives, rdriveno, rdrives);
+			path = "/dev/sda";
+		}
 		nmax = 10;
 	}
 	else if (!strcmp(type, "SCSI")) {
-		// bit i set => drive with ID (i & 0x7) on adapter (i >> 3) present
-		n = aspi_scan(drives);
-		path = "/dev/scsi00";
-		nmax = 10*8;
+		if (win9x) {
+			// bit i set => drive with ID (i & 0x7) on adapter (i >> 3) present
+			n = aspi_scan(drives);
+			path = "/dev/scsi00";
+			nmax = 10*8;
+		}
+		else {
+			// bit i set => drive i present
+			n = spt_scan(drives);
+			path = "/dev/sda";
+			nmax = 10;
+		}
 	}
 	else
 		return -1;
@@ -264,7 +286,7 @@ int make_device_names (char*** devlist, const char* type)
 				if (!(rdrives[ci] & (1L << pi)))
 					continue;
 				char rpath[20];
-				sprintf(rpath, "/dev/hd%c,%u", 'a'+j, pi);
+				sprintf(rpath, "/dev/sd%c,%u", 'a'+j, pi);
 				sz = strlen(rpath)+1;
 				char * s = (char *)malloc(sz); bytes += sz;
 				strcpy(s, rpath);
@@ -304,18 +326,24 @@ int deviceopen(const char * pathname, char *type)
 	int len = strlen(pathname);
 
 	if (!strcmp(type, "ATA")) {
-		// hd[a-j](:[saicp]+)? => Physical drive 0-25, with options
+		// [sh]d[a-z](:[saicp]+)? => Physical drive 0-25, with options
 		char drive[1+1] = "", options[7+1] = ""; int n1 = -1, n2 = -1;
-		if (   sscanf(pathname, "hd%1[a-z]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
-		    && ((n1 == len && !options[0]) || n2 == len)                                  ) {
+		if (   sscanf(pathname, "%*[sh]d%1[a-z]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
+		    && ((n1 == len && !options[0]) || n2 == len)                                       ) {
 			return ata_open(drive[0] - 'a', -1, options, -1);
 		}
-		// hd[a-j],N(:[saicp]+)? => Physical drive 0-25, RAID port N, with options
+		// [sh]d[a-z],N(:[saicp]+)? => Physical drive 0-25, RAID port N, with options
 		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
 		unsigned port = ~0;
-		if (   sscanf(pathname, "hd%1[a-z],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
-		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                ) {
+		if (   sscanf(pathname, "%*[sh]d%1[a-z],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
+		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                     ) {
 			return ata_open(drive[0] - 'a', -1, options, port);
+		}
+		// pd<m>,N => Physical drive <m>, RAID port N
+		int phydrive = -1; port = ~0; n1 = -1; n2 = -1;
+		if (   sscanf(pathname, "pd%d%n,%u%n", &phydrive, &n1, &port, &n2) >= 1
+		    && phydrive >= 0 && ((n1 == len && (int)port < 0) || (n2 == len && port < 32))) {
+			return ata_open(phydrive, -1, "", (int)port);
 		}
 		// [a-zA-Z]: => Physical drive behind logical drive 0-25
 		int logdrive = drive_letter(pathname);
@@ -1589,6 +1617,162 @@ static int tw_cli_command_interface(smart_command_set command, int /*select*/, c
 
 /////////////////////////////////////////////////////////////////////////////
 
+// IOCTL_STORAGE_QUERY_PROPERTY
+
+#define FILE_DEVICE_MASS_STORAGE    0x0000002d
+#define IOCTL_STORAGE_BASE          FILE_DEVICE_MASS_STORAGE
+#define FILE_ANY_ACCESS             0
+
+#define IOCTL_STORAGE_QUERY_PROPERTY \
+	CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+typedef enum _STORAGE_BUS_TYPE {
+	BusTypeUnknown      = 0x00,
+	BusTypeScsi         = 0x01,
+	BusTypeAtapi        = 0x02,
+	BusTypeAta          = 0x03,
+	BusType1394         = 0x04,
+	BusTypeSsa          = 0x05,
+	BusTypeFibre        = 0x06,
+	BusTypeUsb          = 0x07,
+	BusTypeRAID         = 0x08,
+	BusTypeiScsi        = 0x09,
+	BusTypeSas          = 0x0A,
+	BusTypeSata         = 0x0B,
+	BusTypeSd           = 0x0C,
+	BusTypeMmc          = 0x0D,
+	BusTypeMax          = 0x0E,
+	BusTypeMaxReserved  = 0x7F
+} STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
+
+typedef struct _STORAGE_DEVICE_DESCRIPTOR {
+	ULONG Version;
+	ULONG Size;
+	UCHAR DeviceType;
+	UCHAR DeviceTypeModifier;
+	BOOLEAN RemovableMedia;
+	BOOLEAN CommandQueueing;
+	ULONG VendorIdOffset;
+	ULONG ProductIdOffset;
+	ULONG ProductRevisionOffset;
+	ULONG SerialNumberOffset;
+	STORAGE_BUS_TYPE BusType;
+	ULONG RawPropertiesLength;
+	UCHAR RawDeviceProperties[1];
+} STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
+
+typedef enum _STORAGE_QUERY_TYPE {
+	PropertyStandardQuery = 0,
+	PropertyExistsQuery,
+	PropertyMaskQuery,
+	PropertyQueryMaxDefined
+} STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
+
+typedef enum _STORAGE_PROPERTY_ID {
+	StorageDeviceProperty = 0,
+	StorageAdapterProperty,
+	StorageDeviceIdProperty,
+	StorageDeviceUniqueIdProperty,
+	StorageDeviceWriteCacheProperty,
+	StorageMiniportProperty,
+	StorageAccessAlignmentProperty
+} STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
+
+typedef struct _STORAGE_PROPERTY_QUERY {
+	STORAGE_PROPERTY_ID PropertyId;
+	STORAGE_QUERY_TYPE QueryType;
+	UCHAR AdditionalParameters[1];
+} STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Return STORAGE_BUS_TYPE for device, BusTypeUnknown on error.
+// (HANDLE does not need any access rights, therefore this works
+// without admin rights)
+
+static STORAGE_BUS_TYPE ioctl_get_storage_bus_type(HANDLE hdevice)
+{
+	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery, 0};
+
+	union {
+		STORAGE_DEVICE_DESCRIPTOR dev;
+		char raw[256];
+	} prop;
+	memset(&prop, 0, sizeof(prop));
+
+	DWORD num_out;
+	if (!DeviceIoControl(hdevice, IOCTL_STORAGE_QUERY_PROPERTY,
+		&query, sizeof(query), &prop, sizeof(prop), &num_out, NULL)) {
+		if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
+			pout("  IOCTL_STORAGE_QUERY_PROPERTY failed, Error=%ld\n", GetLastError());
+		return BusTypeUnknown;
+	}
+
+	if (con->reportataioctl > 1 || con->reportscsiioctl > 1) {
+		pout("  IOCTL_STORAGE_QUERY_PROPERTY returns:\n"
+		     "    Vendor:   \"%s\"\n"
+		     "    Product:  \"%s\"\n"
+		     "    Revision: \"%s\"\n"
+		     "    Removable: %s\n"
+		     "    BusType:   0x%02x\n",
+		     (prop.dev.VendorIdOffset        ? prop.raw+prop.dev.VendorIdOffset : ""),
+		     (prop.dev.ProductIdOffset       ? prop.raw+prop.dev.ProductIdOffset : ""),
+		     (prop.dev.ProductRevisionOffset ? prop.raw+prop.dev.ProductRevisionOffset : ""),
+		     (prop.dev.RemovableMedia? "Yes":"No"), prop.dev.BusType
+		);
+	}
+	return prop.dev.BusType;
+}
+
+// get CONTROLLER_* for open handle
+static int get_controller_type(HANDLE hdevice)
+{
+	STORAGE_BUS_TYPE type = ioctl_get_storage_bus_type(hdevice);
+	switch (type) {
+		case BusTypeAta:
+		case BusTypeSata:
+			return CONTROLLER_ATA;
+		case BusTypeScsi:
+		case BusTypeiScsi:
+		case BusTypeSas:
+			return CONTROLLER_SCSI;
+		default:
+			return CONTROLLER_UNKNOWN;
+	}
+	/*NOTREACHED*/
+}
+
+// get CONTROLLER_* for device path
+static int get_controller_type(const char * path)
+{
+	HANDLE h = CreateFileA(path, 0/*NO ACCESS*/, FILE_SHARE_READ|FILE_SHARE_WRITE,
+		NULL, OPEN_EXISTING, 0, NULL);
+	if (h == INVALID_HANDLE_VALUE)
+		return CONTROLLER_UNKNOWN;
+	if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
+		pout(" %s: successfully opened\n", path);
+	int type = get_controller_type(h);
+	CloseHandle(h);
+	return type;
+}
+
+// get CONTROLLER_* for physical or logical drive number
+static int get_controller_type(int phydrive, int logdrive)
+{
+	char path[30];
+	if (phydrive >= 0)
+		snprintf (path, sizeof(path)-1, "\\\\.\\PhysicalDrive%d", phydrive);
+	else if (logdrive >= 0)
+		snprintf(path, sizeof(path)-1, "\\\\.\\%c:", 'A'+logdrive);
+	else
+		return CONTROLLER_UNKNOWN;
+	return get_controller_type(path);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
 // Call GetDevicePowerState() if available (Win98/ME/2000/XP/2003)
 // returns: 1=active, 0=standby, -1=error
 // (This would also work for SCSI drives)
@@ -1863,65 +2047,98 @@ static void ata_close(int /*fd*/)
 }
 
 
+// Scan for ATA drives on Win9x/ME, fill bitmask of drives present, return #drives
+
+static int ata_scan_win9x(unsigned long * drives)
+{
+	// Open device
+	const char devpath[] = "\\\\.\\SMARTVSD";
+	HANDLE h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
+	if (h == INVALID_HANDLE_VALUE) {
+		if (con->reportataioctl > 1)
+			pout(" %s: Open failed, Error=%ld\n", devpath, GetLastError());
+		return 0; // SMARTVSD.VXD missing or no ATA devices
+	}
+
+	// Get drive map
+	GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
+	DWORD num_out;
+	if (!DeviceIoControl(h, SMART_GET_VERSION,
+		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
+		if (con->reportataioctl)
+			pout(" %s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
+		CloseHandle(h);
+		return 0; // Should not happen
+	}
+	CloseHandle(h);
+
+	if (con->reportataioctl) {
+		pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
+		     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
+			devpath, num_out, vers.bVersion, vers.bRevision,
+			vers.fCapabilities, vers.bIDEDeviceMap);
+	}
+
+	// Check ATA device presence, remove ATAPI devices
+	drives[0] = (vers.bIDEDeviceMap & 0xf) & ~((vers.bIDEDeviceMap >> 4) & 0xf);
+	return (drives[0]&1) + ((drives[0]>>1)&1) + ((drives[0]>>2)&1) + ((drives[0]>>3)&1);
+}
+
+
 // Scan for ATA drives, fill bitmask of drives present, return #drives
 
 static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives)
 {
-	bool win9x = is_win9x();
 	int cnt = 0;
 	for (int i = 0; i <= 9; i++) {
-		char devpath[30];
-		GETVERSIONOUTPARAMS vers;
-		const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
-		DWORD num_out;
-		HANDLE h;
-		if (win9x)
-			strcpy(devpath, "\\\\.\\SMARTVSD");
-		else
-			snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", i);
-
 		// Open device
-		if ((h = CreateFileA(devpath,
-			GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
-			NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
+		char devpath[30];
+		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", i);
+		HANDLE h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+			FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
+		if (h == INVALID_HANDLE_VALUE) {
 			if (con->reportataioctl > 1)
 				pout(" %s: Open failed, Error=%ld\n", devpath, GetLastError());
-			if (win9x)
-				break; // SMARTVSD.VXD missing or no ATA devices
-			continue; // Disk not found or access denied (break;?)
+			continue;
+		}
+		if (con->reportataioctl)
+			pout(" %s: successfully opened\n", devpath);
+
+		// Skip SCSI
+		int type = get_controller_type(h);
+		if (type == CONTROLLER_SCSI) { // ATA RAID may return CONTROLLER_UNKNOWN
+			CloseHandle(h);
+			continue;
 		}
 
-		// Get drive map
-		memset(&vers, 0, sizeof(vers));
-		if (!DeviceIoControl(h, SMART_GET_VERSION,
-			NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-			if (con->reportataioctl)
+		// Try SMART_GET_VERSION
+		GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
+		const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
+		DWORD num_out;
+		BOOL smart_ok = DeviceIoControl(h, SMART_GET_VERSION,
+			NULL, 0, &vers, sizeof(vers), &num_out, NULL);
+		if (con->reportataioctl) {
+			if (!smart_ok)
 				pout(" %s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
-			CloseHandle(h);
-			if (win9x)
-				break; // Should not happen
-			continue; // Non ATA disk or no SMART ioctl support (possibly SCSI disk)
+			else {
+				pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
+				     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
+					devpath, num_out, vers.bVersion, vers.bRevision,
+					vers.fCapabilities, vers.bIDEDeviceMap);
+				if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
+					pout("  Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
+						vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
+			}
 		}
 		CloseHandle(h);
 
-		if (con->reportataioctl) {
-			pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
-			     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-				devpath, num_out, vers.bVersion, vers.bRevision,
-				vers.fCapabilities, vers.bIDEDeviceMap);
-			if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
-				pout("  Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
-					vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
-		}
+		// If SMART_GET_VERSION failed, driver may support ATA_PASS_THROUGH instead
+		if (!(smart_ok || type == CONTROLLER_ATA))
+			continue;
 
-		if (win9x) {
-			// Check ATA device presence, remove ATAPI devices
-			drives[0] = (vers.bIDEDeviceMap & 0xf) & ~((vers.bIDEDeviceMap >> 4) & 0xf);
-			cnt = (drives[0]&1) + ((drives[0]>>1)&1) + ((drives[0]>>2)&1) + ((drives[0]>>3)&1);
-			break;
-		}
-
-		if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
+		// Interpret RAID drive map if present
+		if (smart_ok && vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
 			// Skip if more than 2 controllers or logical drive from this controller already seen
 			if (vers_ex.wControllerId >= 2 || rdriveno[vers_ex.wControllerId] >= 0)
 				continue;
@@ -1939,7 +2156,7 @@ static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdri
 			cnt += pcnt-1;
 		}
 
-		// ATA drive exists and driver supports SMART ioctl
+		// Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returns ATA/SATA
 		drives[0] |= (1L << i);
 		cnt++;
 	}
@@ -2842,7 +3059,7 @@ static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr)
 	}
 	sdip->h_spt_ioctl = h;
 	return k + SPT_FDOFFSET;
-                               
+
 err_out:
 	spt_dev_arr[k] = NULL;
 	free(sdip);
@@ -2868,6 +3085,20 @@ static void spt_close(int fd)
 	}
 	free(sdip);
 	spt_dev_arr[index] = NULL;
+}
+
+
+static int spt_scan(unsigned long * drives)
+{
+	int cnt = 0;
+	for (int i = 0; i <= 9; i++) {
+		if (get_controller_type(i, -1) != CONTROLLER_SCSI)
+			continue;
+		// STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
+		drives[0] |= (1L << i);
+		cnt++;
+	}
+	return cnt;
 }
 
 
