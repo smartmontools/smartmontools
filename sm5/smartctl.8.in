@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.101 2007/07/26 20:58:50 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.102 2007/07/28 13:17:38 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -89,20 +89,21 @@ accessed via a patched SMARTVSE.VXD (see INSTALL file for details).
 Use the form \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices via an aspi dll
 on ASPI adapter 0\-9, ID 0\-15. The prefix \fB"/dev/"\fP is optional.
 .IP \fBWINDOWS\ NT4/2000/XP/2003/Vista\fP: 9
-Use the form \fB"/dev/hd[a\-z]"\fP for IDE/(S)ATA disks
-"\\\\.\\PhysicalDrive[0\-25]". Use \fB"/dev/sd[a\-z]"\fP for SCSI disks
-"\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0"). SCSI disks can
-also be referred to as \fB"/dev/pd[0\-255]"\fP for
+Use the forms \fB"/dev/sd[a\-z]"\fP for IDE/(S)ATA and SCSI disks
+"\\\\.\\PhysicalDrive[0\-25]" (where "a" maps to "0").
+These disks can also be referred to as \fB"/dev/pd[0\-255]"\fP for
 "\\\\.\\PhysicalDrive[0\-255]".
+ATA disks can also be referred to as \fB"/dev/hd[a\-z]"\fP for
+"\\\\.\\PhysicalDrive[0\-25]". 
 Use one the forms \fB"/dev/tape[0\-255]"\fP, \fB"/dev/st[0\-255]"\fP,
 or \fB"/dev/nst[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]".
 
 Alternatively, drive letters \fB"X:"\fP or \fB"X:\\"\fP may be used to
 specify the physical drive behind a mounted partition.
 
-For disks behind 3ware 9000 controllers use \fB"/dev/hd[a\-z],N"\fP where
+For disks behind 3ware 9000 controllers use \fB"/dev/sd[a\-z],N"\fP where
 N specifies the disk number (3ware \'port\') behind the controller
-providing the logical drive (\'unit\') specified by \fB"/dev/hd[a\-z]"\fP.
+providing the logical drive (\'unit\') specified by \fB"/dev/sd[a\-z]"\fP.
 Alternatively, use \fB"/dev/tw_cli/cx/py"\fP for controller x, port y
 to run the \'tw_cli\' tool and parse the output. This provides limited
 monitoring (\'\-i\', \'\-c\', \'\-A\' below) if SMART support is missing
@@ -1499,7 +1500,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.101 2007/07/26 20:58:50 chrfranke Exp $
+$Id: smartctl.8.in,v 1.102 2007/07/28 13:17:38 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
