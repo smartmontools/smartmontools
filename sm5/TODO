@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.62 2006/10/27 21:49:42 chrfranke Exp $
+$Id: TODO,v 1.63 2007/07/30 17:27:14 chrfranke Exp $
 
 SATA devices under Linux
 ------------------------
@@ -123,10 +123,6 @@ FreeBSD
 -------
 
 Add support for 3ware 9000 series SATA controllers.
-
-Cygwin and Windows
-------------------
-Support DEVICESCAN for SPT (IOCTL_SCSI_PASS_THROUGH).
 
 Packaging
 ---------
