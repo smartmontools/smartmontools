@@ -1,14 +1,14 @@
 ;
 ; installer.nsi - NSIS install script for smartmontools
 ;
-; Copyright (C) 2006 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-7 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; Project home page is: http://smartmontools.sourceforge.net
 ;
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
-; Process with makensis to create installer (tested with NSIS 2.17).
+; Process with makensis to create installer (tested with NSIS 2.29)
 ;
-; $Id: installer.nsi,v 1.2 2006/07/17 20:51:22 chrfranke Exp $
+; $Id: installer.nsi,v 1.3 2007/08/19 14:57:05 chrfranke Exp $
 ;
 
 
@@ -37,6 +37,7 @@ InstallColors /windows
 
 InstallDir "$PROGRAMFILES\smartmontools"
 InstallDirRegKey HKLM "Software\smartmontools" "Install_Dir"
+Var UBCDDIR
 
 LicenseData "${INPDIR}\doc\COPYING.txt"
 
@@ -45,7 +46,12 @@ LicenseData "${INPDIR}\doc\COPYING.txt"
 
 Page license
 Page components
-Page directory
+Page directory SkipProgPath "" ""
+PageEx directory
+  PageCallbacks SkipUBCDPath "" ""
+  DirText "Setup will install the UBCD4Win plugin in the following folder."
+  DirVar $UBCDDIR
+PageExEnd
 Page instfiles
 
 UninstPage uninstConfirm
@@ -53,14 +59,16 @@ UninstPage instfiles
 
 InstType "Full"
 InstType "Extract files only"
+InstType "Drive menu"
+InstType "UBCD4Win plugin"
 
 
 ;--------------------------------------------------------------------
 ; Sections
 
-SectionGroup "Program files"
+SectionGroup "!Program files"
 
-  Section "smartctl"
+  Section "smartctl" SMARTCTL_SECTION
 
     SectionIn 1 2
 
@@ -69,11 +77,19 @@ SectionGroup "Program files"
 
   SectionEnd
 
-  Section "smartd"
+  Section "smartd" SMARTD_SECTION
 
     SectionIn 1 2
 
     SetOutPath "$INSTDIR\bin"
+
+    ; Stop service ?
+    StrCpy $1 ""
+    IfFileExists "$INSTDIR\bin\smartd.exe" 0 nosrv
+      ReadRegStr $0 HKLM "System\CurrentControlSet\Services\smartd" "ImagePath"
+      StrCmp $0 "" nosrv
+        ExecWait "net stop smartd" $1
+  nosrv:
     File "${INPDIR}\bin\smartd.exe"
 
     IfFileExists "$INSTDIR\bin\smartd.conf" 0 +2
@@ -83,11 +99,16 @@ SectionGroup "Program files"
     IfFileExists "$WINDIR\system32\cmd.exe" 0 +2
       File /nonfatal "${INPDIR}\bin\syslogevt.exe"
 
+    ; Restart service ?
+    StrCmp $1 "0" 0 +3
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Restart smartd service ?" IDYES 0 IDNO +2
+        ExecWait "net start smartd"
+
   SectionEnd
 
 SectionGroupEnd
 
-Section "Documentation"
+Section "!Documentation" DOC_SECTION
 
   SectionIn 1 2
 
@@ -110,7 +131,7 @@ Section "Documentation"
 
 SectionEnd
 
-Section "Uninstaller"
+Section "Uninstaller" UNINST_SECTION
 
   SectionIn 1
   AddSize 35
@@ -122,14 +143,19 @@ Section "Uninstaller"
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
+  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher" "smartmontools"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
+  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout" "http://smartmontools.sourceforge.net/"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "HelpLink"     "http://smartmontools.sourceforge.net/"
+  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://sourceforge.net/project/showfiles.php?group_id=64297"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLUpdateInfo" "http://smartmontools-win32.dyndns.org/"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoRepair" 1
   WriteUninstaller "uninst-smartmontools.exe"
 
 SectionEnd
 
-Section "Start Menu Shortcuts"
+Section "Start Menu Shortcuts" MENU_SECTION
 
   SectionIn 1
 
@@ -139,26 +165,27 @@ Section "Start Menu Shortcuts"
   IfFileExists "$INSTDIR\bin\smartctl.exe" 0 noctl
     SetOutPath "$INSTDIR\bin"
     DetailPrint "Create file: $INSTDIR\bin\smartctl-run.bat"
-    FileOpen $0 "$INSTDIR\bin\smartctl-run.bat" "w"
-    FileWrite $0 "@echo off$\r$\necho smartctl %1 %2 %3 %4 %5$\r$\nsmartctl %1 %2 %3 %4 %5$\r$\npause$\r$\n"
-    FileClose $0
+    Push "$INSTDIR\bin\smartctl-run.bat"
+    Call CreateSmartctlBat
+    IfFileExists "$WINDIR\system32\cmd.exe" 0 +2
+      CreateShortCut "$SMPROGRAMS\smartmontools\smartctl (CMD).lnk" "cmd.exe" "/k smartctl-run.bat"
     CreateDirectory "$SMPROGRAMS\smartmontools\smartctl Examples"
     FileOpen $0 "$SMPROGRAMS\smartmontools\smartctl Examples\!Read this first!.txt" "w"
-    FileWrite $0 "All the example commands in this directory$\r$\napply to the first IDE/ATA/SATA drive (hda).$\r$\n"
+    FileWrite $0 "All the example commands in this directory$\r$\napply to the first drive (sda).$\r$\n"
     FileClose $0
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\All info (-a).lnk"                    "$INSTDIR\bin\smartctl-run.bat" "-a hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Identify drive (-i).lnk"              "$INSTDIR\bin\smartctl-run.bat" "-i hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART attributes (-A).lnk"            "$INSTDIR\bin\smartctl-run.bat" "-A hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART capabilities (-c).lnk"          "$INSTDIR\bin\smartctl-run.bat" "-c hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART health status (-H).lnk"         "$INSTDIR\bin\smartctl-run.bat" "-H hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART error log (-l error).lnk"       "$INSTDIR\bin\smartctl-run.bat" "-l error hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART selftest log (-l selftest).lnk" "$INSTDIR\bin\smartctl-run.bat" "-l selftest hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start long selftest (-t long).lnk"    "$INSTDIR\bin\smartctl-run.bat" "-t long hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start offline test (-t offline).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t offline hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start short selftest (-t short).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t short hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Stop(Abort) selftest (-X).lnk"        "$INSTDIR\bin\smartctl-run.bat" "-X hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART off (-s off).lnk"          "$INSTDIR\bin\smartctl-run.bat" "-s off hda"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART on (-s on).lnk"            "$INSTDIR\bin\smartctl-run.bat" "-s on hda"  
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\All info (-a).lnk"                    "$INSTDIR\bin\smartctl-run.bat" "-a sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Identify drive (-i).lnk"              "$INSTDIR\bin\smartctl-run.bat" "-i sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART attributes (-A).lnk"            "$INSTDIR\bin\smartctl-run.bat" "-A sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART capabilities (-c).lnk"          "$INSTDIR\bin\smartctl-run.bat" "-c sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART health status (-H).lnk"         "$INSTDIR\bin\smartctl-run.bat" "-H sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART error log (-l error).lnk"       "$INSTDIR\bin\smartctl-run.bat" "-l error sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\SMART selftest log (-l selftest).lnk" "$INSTDIR\bin\smartctl-run.bat" "-l selftest sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start long selftest (-t long).lnk"    "$INSTDIR\bin\smartctl-run.bat" "-t long sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start offline test (-t offline).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t offline sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Start short selftest (-t short).lnk"  "$INSTDIR\bin\smartctl-run.bat" "-t short sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Stop(Abort) selftest (-X).lnk"        "$INSTDIR\bin\smartctl-run.bat" "-X sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART off (-s off).lnk"          "$INSTDIR\bin\smartctl-run.bat" "-s off sda"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartctl Examples\Turn SMART on (-s on).lnk"            "$INSTDIR\bin\smartctl-run.bat" "-s on sda"  
   noctl:
 
   ; smartd
@@ -169,9 +196,9 @@ Section "Start Menu Shortcuts"
     FileWrite $0 "@echo off$\r$\necho smartd %1 %2 %3 %4 %5$\r$\nsmartd %1 %2 %3 %4 %5$\r$\npause$\r$\n"
     FileClose $0
     CreateDirectory "$SMPROGRAMS\smartmontools\smartd Examples"
-    CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, log to smartd.log.lnk" "$INSTDIR\bin\smartd-run.bat" "-l local0"
+    CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, smartd.log.lnk" "$INSTDIR\bin\smartd-run.bat" "-l local0"
     IfFileExists "$WINDIR\system32\cmd.exe" 0 +2
-      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, log to eventlog.lnk" "$INSTDIR\bin\smartd-run.bat" ""
+      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon start, eventlog.lnk" "$INSTDIR\bin\smartd-run.bat" ""
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Daemon stop.lnk" "$INSTDIR\bin\smartd-run.bat" "stop"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Do all tests once (-q onecheck).lnk" "$INSTDIR\bin\smartd-run.bat" "-q onecheck"
     CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Debug mode (-d).lnk" "$INSTDIR\bin\smartd-run.bat" "-d"
@@ -182,8 +209,9 @@ Section "Start Menu Shortcuts"
 
     ; smartd service (not on 9x/ME)
     IfFileExists "$WINDIR\system32\cmd.exe" 0 nosvc
-      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, log to eventlog.lnk" "$INSTDIR\bin\smartd-run.bat" "install"
-      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, log to smartd.log.lnk" "$INSTDIR\bin\smartd-run.bat" "install -l local0"
+      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, eventlog, 30min.lnk" "$INSTDIR\bin\smartd-run.bat" "install"
+      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 10min.lnk" "$INSTDIR\bin\smartd-run.bat" "install -l local0 -i 600"
+      CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service install, smartd.log, 30min.lnk" "$INSTDIR\bin\smartd-run.bat" "install -l local0"
       CreateShortCut "$SMPROGRAMS\smartmontools\smartd Examples\Service remove.lnk" "$INSTDIR\bin\smartd-run.bat" "remove"
       DetailPrint "Create file: $INSTDIR\bin\net-run.bat"
       FileOpen $0 "$INSTDIR\bin\net-run.bat" "w"
@@ -214,6 +242,7 @@ Section "Start Menu Shortcuts"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\README.lnk"    "$INSTDIR\doc\README.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\TODO.lnk"      "$INSTDIR\doc\TODO.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\WARNINGS.lnk"  "$INSTDIR\doc\WARNINGS.txt"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\Windows version download page.lnk" "http://smartmontools-win32.dyndns.org/smartmontools/"
   nodoc:
 
   ; Homepage
@@ -225,7 +254,7 @@ Section "Start Menu Shortcuts"
 
 SectionEnd
 
-Section "Add install dir to PATH" PATH_IDX
+Section "Add install dir to PATH" PATH_SECTION
 
   SectionIn 1
 
@@ -235,14 +264,105 @@ Section "Add install dir to PATH" PATH_IDX
  
 SectionEnd
 
+SectionGroup "Add smartctl to drive menu"
+
+!macro DriveMenuRemove
+  DetailPrint "Remove drive menu entries"
+  DeleteRegKey HKCR "Drive\shell\smartctl0"
+  DeleteRegKey HKCR "Drive\shell\smartctl1"
+  DeleteRegKey HKCR "Drive\shell\smartctl2"
+  DeleteRegKey HKCR "Drive\shell\smartctl3"
+  DeleteRegKey HKCR "Drive\shell\smartctl4"
+  DeleteRegKey HKCR "Drive\shell\smartctl5"
+!macroend
+
+  Section "Remove existing entries first"
+    SectionIn 3
+    !insertmacro DriveMenuRemove
+  SectionEnd
+
+!macro DriveSection id name args
+  Section 'smartctl ${args} ...' DRIVE_${id}_SECTION
+    SectionIn 3
+    DetailPrint 'Add drive menu entry "${name}": smartctl ${args} ...'
+    WriteRegStr HKCR "Drive\shell\smartctl${id}" "" "${name}"
+    WriteRegStr HKCR "Drive\shell\smartctl${id}\command" "" '"$INSTDIR\bin\smartctl-run.bat" ${args} %L'
+  SectionEnd
+!macroend
+
+  !insertmacro DriveSection 0 "SMART all info"       "-a"
+  !insertmacro DriveSection 1 "SMART status"         "-Hc"
+  !insertmacro DriveSection 2 "SMART attributes"     "-A"
+  !insertmacro DriveSection 3 "SMART short selftest" "-t short"
+  !insertmacro DriveSection 4 "SMART long selftest"  "-t long"
+  !insertmacro DriveSection 5 "SMART continue selective selftest"  '-t "selective,cont"'
+
+SectionGroupEnd
+
+Section "UBCD4Win Plugin" UBCD_SECTION
+
+  SectionIn 4
+
+  SetOutPath "$UBCDDIR"
+  DetailPrint "Create file: smartmontools.inf"
+  FileOpen $0 "$UBCDDIR\smartmontools.inf" "w"
+  FileWrite $0 '; smartmontools.inf$\r$\n; PE Builder v3 plug-in INF file$\r$\n'
+  FileWrite $0 '; Created by smartmontools installer$\r$\n'
+  FileWrite $0 '; http://smartmontools.sourceforge.net/$\r$\n$\r$\n'
+  FileWrite $0 '[Version]$\r$\nSignature= "$$Windows NT$$"$\r$\n$\r$\n'
+  FileWrite $0 '[PEBuilder]$\r$\nName="Disk -Diagnostic: smartmontools"$\r$\n'
+  FileWrite $0 'Enable=1$\r$\nHelp="files\smartctl.8.html"$\r$\n$\r$\n'
+  FileWrite $0 '[WinntDirectories]$\r$\na=Programs\smartmontools,2$\r$\n$\r$\n'
+  FileWrite $0 '[SourceDisksFolders]$\r$\nfiles=a,,1$\r$\n$\r$\n'
+  FileWrite $0 '[Append]$\r$\nnu2menu.xml, smartmontools_nu2menu.xml$\r$\n'
+  FileClose $0
+
+  DetailPrint "Create file: smartmontools_nu2menu.xml"
+  FileOpen $0 "$UBCDDIR\smartmontools_nu2menu.xml" "w"
+  FileWrite $0 '<!-- Nu2Menu entry for smartmontools -->$\r$\n<NU2MENU>$\r$\n'
+  FileWrite $0 '$\t<MENU ID="Programs">$\r$\n$\t$\t<MITEM TYPE="POPUP" MENUID="Disk Tools">'
+  FileWrite $0 'Disk Tools</MITEM>$\r$\n$\t</MENU>$\r$\n$\t<MENU ID="Disk Tools">$\r$\n'
+  FileWrite $0 '$\t$\t<MITEM TYPE="POPUP" MENUID="Diagnostic">Diagnostic</MITEM>$\r$\n$\t</MENU>'
+  FileWrite $0 '$\r$\n$\t<MENU ID="Diagnostic">$\r$\n$\t$\t<MITEM TYPE="ITEM" DISABLED="'
+  FileWrite $0 '@Not(@FileExists(@GetProgramDrive()\Programs\smartmontools\smartctl.exe))" '
+  FileWrite $0 'CMD="RUN" FUNC="cmd.exe /k cd /d @GetProgramDrive()\Programs\smartmontools&'
+  FileWrite $0 'set PATH=@GetProgramDrive()\Programs\smartmontools;%PATH%&smartctl-run.bat  ">'
+  FileWrite $0 'smartctl</MITEM>$\r$\n$\t</MENU>$\r$\n</NU2MENU>$\r$\n'
+  FileClose $0
+  
+  SetOutPath "$UBCDDIR\files"
+  DetailPrint "Create file: smartctl-run.bat"
+  Push "$UBCDDIR\files\smartctl-run.bat"
+  Call CreateSmartctlBat
+  File "${INPDIR}\bin\smartctl.exe"
+  File "${INPDIR}\bin\smartd.exe"
+  File "${INPDIR}\doc\smartctl.8.html"
+  File "${INPDIR}\doc\smartctl.8.txt"
+  File "${INPDIR}\doc\smartd.8.html"
+  File "${INPDIR}\doc\smartd.8.txt"
+  File "${INPDIR}\doc\smartd.conf"
+
+SectionEnd
+
+
 ;--------------------------------------------------------------------
 
 Section "Uninstall"
   
-  ; Remove registry keys
+  ; Stop & remove service
+  IfFileExists "$INSTDIR\bin\smartd.exe" 0 nosrv
+    ReadRegStr $0 HKLM "System\CurrentControlSet\Services\smartd" "ImagePath"
+    StrCmp $0 "" nosrv
+      ExecWait "net stop smartd"
+      MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Remove smartd service ?" IDYES 0 IDNO nosrv
+        ExecWait "$INSTDIR\bin\smartd.exe remove"
+  nosrv:
+
+  ; Remove installer registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools"
   DeleteRegKey HKLM "Software\smartmontools"
 
+  ; Remove conf and log file
   IfFileExists "$INSTDIR\bin\smartd.conf" 0 noconf
     ; Assume unchanged if timestamp is equal to sample file
     GetFileTime "$INSTDIR\bin\smartd.conf" $0 $1
@@ -288,8 +408,8 @@ Section "Uninstall"
 
   ; Remove folders
   RMDir  "$SMPROGRAMS\smartmontools\Documentation"
-  RMDir  "$SMPROGRAMS\smartmontools\smartctl Examples\"
-  RMDir  "$SMPROGRAMS\smartmontools\smartd Examples\"
+  RMDir  "$SMPROGRAMS\smartmontools\smartctl Examples"
+  RMDir  "$SMPROGRAMS\smartmontools\smartd Examples"
   RMDir  "$SMPROGRAMS\smartmontools"
   RMDir  "$INSTDIR\bin"
   RMDir  "$INSTDIR\doc"
@@ -300,28 +420,98 @@ Section "Uninstall"
     Push "$INSTDIR\bin"
     Call un.RemoveFromPath
 
-  ; Check for still existing files
+  ; Remove drive menu registry entries
+  !insertmacro DriveMenuRemove
+
+  ; Check for still existing entries
   IfFileExists "$INSTDIR\bin\smartd.exe" 0 +3
     MessageBox MB_OK|MB_ICONEXCLAMATION "$INSTDIR\bin\smartd.exe could not be removed.$\nsmartd is possibly still running."
     Goto +3
   IfFileExists "$INSTDIR" 0 +2
     MessageBox MB_OK "Note: $INSTDIR could not be removed."
 
+  IfFileExists "$SMPROGRAMS\smartmontools" 0 +2
+    MessageBox MB_OK "Note: $SMPROGRAMS\smartmontools could not be removed."
+
 SectionEnd
 
 ;--------------------------------------------------------------------
+; Functions
 
 Function .onInit
 
+  ; Get UBCD4Win install location
+  ReadRegStr $0 HKLM "Software\UBCD4Win" "InstallPath"
+  StrCmp $0 "" 0 +2
+    StrCpy $0 "C:\UBCD4Win"
+  StrCpy $UBCDDIR "$0\plugin\Disk\Diagnostic\smartmontools"
+
   ; Hide "Add install dir to PATH" on 9x/ME
   IfFileExists "$WINDIR\system32\cmd.exe" +2 0
-    SectionSetText ${PATH_IDX} ""
+    SectionSetText ${PATH_SECTION} ""
 
+FunctionEnd
+
+; Directory page callbacks
+
+!macro CheckSection section
+  SectionGetFlags ${section} $0
+  IntOp $0 $0 & 1
+  IntCmp $0 1 done
+!macroend
+
+Function SkipProgPath
+  !insertmacro CheckSection ${SMARTCTL_SECTION}
+  !insertmacro CheckSection ${SMARTD_SECTION}
+  !insertmacro CheckSection ${DOC_SECTION}
+  !insertmacro CheckSection ${MENU_SECTION}
+  !insertmacro CheckSection ${PATH_SECTION}
+  !insertmacro CheckSection ${DRIVE_0_SECTION}
+  !insertmacro CheckSection ${DRIVE_1_SECTION}
+  !insertmacro CheckSection ${DRIVE_2_SECTION}
+  !insertmacro CheckSection ${DRIVE_3_SECTION}
+  !insertmacro CheckSection ${DRIVE_4_SECTION}
+  !insertmacro CheckSection ${DRIVE_5_SECTION}
+  Abort
+done:
+FunctionEnd
+
+Function SkipUBCDPath
+  !insertmacro CheckSection ${UBCD_SECTION}
+  Abort
+done:
+FunctionEnd
+
+
+; Create smartctl-run.bat
+
+Function CreateSmartctlBat
+  Exch $0
+  FileOpen $0 $0 "w"
+  FileWrite $0 '@echo off$\r$\nif not "%1" == "" goto run$\r$\n'
+  FileWrite $0 'echo Examples (for first drive):$\r$\n'
+  FileWrite $0 'echo smartctl -i sda            Show identify information$\r$\n'
+  FileWrite $0 'echo smartctl -H sda            Show SMART health status$\r$\n'
+  FileWrite $0 'echo smartctl -c sda            Show SMART capabilities$\r$\n'
+  FileWrite $0 'echo smartctl -A sda            Show SMART attributes$\r$\n'
+  FileWrite $0 'echo smartctl -l error sda      Show error log$\r$\n'
+  FileWrite $0 'echo smartctl -l selftest sda   Show self-test log$\r$\n'
+  FileWrite $0 'echo smartctl -a sda            Show all of the above$\r$\n'
+  FileWrite $0 'echo smartctl -t short sda      Start short self test$\r$\n'
+  FileWrite $0 'echo smartctl -t long sda       Start long self test$\r$\n'
+  FileWrite $0 'echo Use "sdb", "sdc", ... for second, third, ... drive.$\r$\n'
+  FileWrite $0 'echo See man page (smartctl.8.*) for further info.$\r$\n'
+  FileWrite $0 'goto end$\r$\n:run$\r$\n'
+  FileWrite $0 'echo smartctl %1 %2 %3 %4 %5$\r$\n'
+  FileWrite $0 'smartctl %1 %2 %3 %4 %5$\r$\n'
+  FileWrite $0 'pause$\r$\n:end$\r$\n'
+  FileClose $0
+  Pop $0
 FunctionEnd
 
 
 ;--------------------------------------------------------------------
-; Utility functions
+; Path functions
 ;
 ; Based on example from:
 ; http://nsis.sourceforge.net/Path_Manipulation
@@ -349,19 +539,19 @@ Function AddToPath
   Push $1
   Push $2
   Push $3
- 
+
   ReadRegStr $1 ${Environ} "PATH"
   Push "$1;"
   Push "$0;"
   Call StrStr
   Pop $2
-  StrCmp $2 "" "" done
+  StrCmp $2 "" 0 done
   Push "$1;"
   Push "$0\;"
   Call StrStr
   Pop $2
-  StrCmp $2 "" "" done
- 
+  StrCmp $2 "" 0 done
+
   DetailPrint "Add to PATH: $0"
   StrCpy $2 $1 1 -1
   StrCmp $2 ";" 0 +2
@@ -370,7 +560,7 @@ Function AddToPath
     StrCpy $0 "$1;$0"
   WriteRegExpandStr ${Environ} "PATH" $0
   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
- 
+
 done:
   Pop $3
   Pop $2
@@ -384,7 +574,7 @@ FunctionEnd
 ; Usage:
 ;   Push "dir"
 ;   Call RemoveFromPath
- 
+
 Function un.RemoveFromPath
   Exch $0
   Push $1
@@ -393,7 +583,7 @@ Function un.RemoveFromPath
   Push $4
   Push $5
   Push $6
- 
+
   ReadRegStr $1 ${Environ} "PATH"
   StrCpy $5 $1 1 -1
   StrCmp $5 ";" +2
@@ -434,7 +624,7 @@ FunctionEnd
 ;   Push "some"
 ;   Call StrStr
 ;   Pop $0 ; "some string"
- 
+
 !macro StrStr un
 Function ${un}StrStr
   Exch $R1 ; $R1=substring, stack=[old$R1,string,...]
