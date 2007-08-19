@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.628 2007/07/28 13:17:38 chrfranke Exp $
+$Id: CHANGELOG,v 1.629 2007/08/19 14:29:45 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Modified drive letter handling for explorer drive
+       context menu: try SCSI if type is unknown, allow 'X:\.' syntax.
 
   [CF] Windows: Added automatic ATA/SCSI device type detection and
        SCSI device scanning. The device names '/dev/sdX' and
