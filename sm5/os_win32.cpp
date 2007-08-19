@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.56 2007/07/28 13:17:38 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.57 2007/08/19 14:29:45 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -174,12 +174,14 @@ static int is_permissive()
 }
 
 // return number for drive letter, -1 on error
-// "[A-Za-z]:[/\\]?" => 0-25
+// "[A-Za-z]:([/\\][.]?)?" => 0-25
 // Accepts trailing '"' to fix broken "X:\" parameter passing from .bat files
 static int drive_letter(const char * s)
 {
 	return (   (('A' <= s[0] && s[0] <= 'Z') || ('a' <= s[0] && s[0] <= 'z'))
-	        && s[1] == ':' && (!s[2] || (strchr("/\\\"", s[2]) && !s[3])) ?
+	        && s[1] == ':'
+	        && (!s[2] || (   strchr("/\\\"", s[2])
+	                      && (!s[3] || (s[3] == '.' && !s[4])))              ) ?
 	        (s[0] & 0x1f) - 1 : -1);
 }
 
@@ -208,8 +210,10 @@ int guess_device_type (const char * dev_name)
 	if (!strncmp(dev_name, "tape", 4))
 		return CONTROLLER_SCSI;
 	int logdrive = drive_letter(dev_name);
-	if (logdrive >= 0)
-		return get_controller_type(-1, logdrive);
+	if (logdrive >= 0) {
+		int type = get_controller_type(-1, logdrive);
+		return (type != CONTROLLER_UNKNOWN ? type : CONTROLLER_SCSI);
+	}
 	char drive[1+1] = "";
 	if (sscanf(dev_name, "sd%1[a-z]", drive) == 1)
 		return get_controller_type(drive[0]-'a', -1);
