@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.63 2007/07/30 17:27:14 chrfranke Exp $
+$Id: TODO,v 1.64 2007/09/03 19:36:58 chrfranke Exp $
 
 SATA devices under Linux
 ------------------------
@@ -29,21 +29,6 @@ To use this, just use (for example) 'smartctl -a -d ata /dev/sda'.
 Since this looks like this patch will become standard, we need to add something
 to smartmontools to automatically recognize the libata, and add the '-d ata'
 automatically.
-
-SATA devices
-------------
-The ATA PASS THROUGH SCSI command (12 and 16 byte cdb) as defined in
-SAT: http://www.t10.org/ftp/t10/drafts/sat/sat-r07.pdf (section 12.2)
-provides a general way to pass ATA SMART commands through to SATA
-devices.
-
-Doug Gilbert will in the future add a '-d sat' type (note, this is not
-a typo, we do not mean '-d sata') which will instruct the generic
-smartmontools code to assume an ATA device but use those ATA PASS
-THROUGH commands.
-
-This should provide additional support for SATA devices under most or
-all operating systems.
 
 USB devices under Linux
 -----------------------
@@ -106,11 +91,6 @@ executable/script in the background rather than in the foreground.
 But let's wait for someone to request this. At that point we should
 probably use fork/exec rather than system().
 
-Perhaps change smartd to look in /proc/ide and /proc/scsi to see what
-exists? If something doesn't exit then don't try to open it?  This
-should probably be the default option if there is no configuration
-file.
-
 Add ability to monitor "worst" value from attributes (sometimes it
 gets larger!) and to monitor the threshold value (sometimes it
 changes!).
@@ -118,11 +98,6 @@ changes!).
 Add command line option that scans devices then WRITES
 /etc/smartd.conf, perhaps as /etc/smartd.conf.output, just for devices
 that can be monitored.
-
-FreeBSD
--------
-
-Add support for 3ware 9000 series SATA controllers.
 
 Packaging
 ---------
