@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.96 2007/05/31 18:02:32 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.97 2007/09/06 08:48:55 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.96 2007/05/31 18:02:32 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.97 2007/09/06 08:48:55 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -1087,8 +1087,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
   // Same for (almost) all commands - but some reset below
   passthru->byte0.opcode  = TW_OP_ATA_PASSTHRU;
   passthru->request_id    = 0xFF;
-  passthru->byte3.aport   = disknum;
-  passthru->byte3.host_id = 0;
+  passthru->unit          = disknum;
   passthru->status        = 0;
   passthru->flags         = 0x1;
   passthru->drive_head    = 0x0;

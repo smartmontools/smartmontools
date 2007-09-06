@@ -40,9 +40,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.53 2007/04/10 17:48:18 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.54 2007/09/06 08:48:55 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.53 2007/04/10 17:48:18 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.54 2007/09/06 08:48:55 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -636,8 +636,7 @@ int escalade_command_interface(int fd, int disknum, int escalade_type, smart_com
 
   // Same for (almost) all commands - but some reset below
   ata->request_id    = 0xFF;
-  ata->unit   = disknum;
-  ata->host_id = 0;
+  ata->unit          = disknum;
   ata->status        = 0;           
   ata->flags         = 0x1;
   ata->drive_head    = 0x0;
