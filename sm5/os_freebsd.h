@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.20 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.21 2007/09/06 08:48:55 ballen4705 Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -234,8 +234,7 @@ typedef struct
     u_int8_t	sgl_offset:3;
     u_int8_t	size;
     u_int8_t	request_id;
-    u_int8_t	unit:4;
-    u_int8_t	host_id:4;
+    u_int8_t	unit;
     u_int8_t	status;
     u_int8_t	flags;
     u_int16_t	param;

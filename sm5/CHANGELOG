@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.630 2007/08/19 14:57:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.631 2007/09/06 08:48:55 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,23 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Fixed 3ware issue with new controllers.  Documentation said
+       that one could address up to 24 disks on a single controller,
+       but in fact one was limited to 16 disks.  This is now fixed:
+       up to 32 disks can be addressed.  Thanks to Adam Radford.
+
+       NOTE1: I have patched the Linux and FreeBSD code but not
+       modified the Win32 code. Christian, please remove this
+       note if no modification is needed.
+
+       NOTE2: NOT TESTED ON LINUX.  Do not use this on a production box!
+       I will remove this NOTE2 as soon as some positive test
+       reports are recieved.
+
+       NOTE3: NOT TESTED ON FREEBSD. Do not use this on a production box!
+       I will remove this NOTE3 as soon as some positive test
+       reports are recieved.
 
   [CF] Windows installer: Added explorer drive menu, CMD window,
        UBCD4Win plugin, smartd service update and other minor

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.102 2007/07/28 13:17:38 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.103 2007/09/06 08:48:55 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -242,7 +242,7 @@ use syntax such as:
 .fi
 where in the argument \fI3ware,N\fP, the integer N is the disk number
 (3ware \'port\') within the 3ware ATA RAID controller.  The allowed
-values of N are from 0 to 23 inclusive.  The first two forms, which
+values of N are from 0 to 31 inclusive.  The first two forms, which
 refer to devices /dev/sda\-z and /dev/twe0\-15, may be used with 3ware
 series 6000, 7000, and 8000 series controllers that use the 3x\-xxxx
 driver.  \fBNote that the /dev/sda\-z form is deprecated\fP starting
@@ -1500,7 +1500,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.102 2007/07/28 13:17:38 chrfranke Exp $
+$Id: smartctl.8.in,v 1.103 2007/09/06 08:48:55 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

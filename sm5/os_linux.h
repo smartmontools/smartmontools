@@ -38,7 +38,7 @@
 #ifndef OS_LINUX_H_
 #define OS_LINUX_H_
 
-#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.25 2006/08/25 06:06:25 sxzzsf Exp $\n"
+#define OS_LINUX_H_CVSID "$Id: os_linux.h,v 1.26 2007/09/06 08:48:55 ballen4705 Exp $\n"
 
 /* 
    The following definitions/macros/prototypes are used for three
@@ -76,10 +76,7 @@ typedef struct TAG_TW_Passthru {
   } byte0;
   unsigned char size;
   unsigned char request_id;
-  struct { 
-    unsigned char aport:4;
-    unsigned char host_id:4;
-  } byte3;
+  unsigned char unit;
   unsigned char status;  // On return, contains 3ware STATUS register
   unsigned char flags;
   unsigned short param;
