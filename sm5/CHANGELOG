@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.631 2007/09/06 08:48:55 ballen4705 Exp $
+$Id: CHANGELOG,v 1.632 2007/09/06 19:00:21 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,8 +39,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        up to 32 disks can be addressed.  Thanks to Adam Radford.
 
        NOTE1: I have patched the Linux and FreeBSD code but not
-       modified the Win32 code. Christian, please remove this
-       note if no modification is needed.
+       modified the Win32 code (it already supports up to 32 disks).
 
        NOTE2: NOT TESTED ON LINUX.  Do not use this on a production box!
        I will remove this NOTE2 as soon as some positive test
