@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.57 2007/08/19 14:29:45 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.58 2007/09/14 20:52:14 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -197,12 +197,14 @@ static const char * skipdev(const char * s)
 int guess_device_type (const char * dev_name)
 {
 	dev_name = skipdev(dev_name);
+	if (!strncmp(dev_name, "scsi", 4))
+		return CONTROLLER_SCSI;
+	if (is_win9x())
+		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "hd", 2))
 		return CONTROLLER_ATA;
 	if (!strncmp(dev_name, "tw_cli", 6))
 		return CONTROLLER_ATA;
-	if (!strncmp(dev_name, "scsi", 4))
-		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "st", 2))
 		return CONTROLLER_SCSI;
 	if (!strncmp(dev_name, "nst", 3))
@@ -680,11 +682,9 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 	}
 	else {
 		code = SMART_SEND_DRIVE_COMMAND; name = "SMART_SEND_DRIVE_COMMAND";
-		if (regs->bFeaturesReg == ATA_SMART_STATUS) {
+		if (regs->bFeaturesReg == ATA_SMART_STATUS)
 			size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
 			// Note: cBufferSize must be 0 on Win9x
-			inpar.cBufferSize = size_out;
-		}
 		else
 			size_out = 0;
 	}
