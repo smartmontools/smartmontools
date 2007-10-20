@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.633 2007/09/14 20:52:14 chrfranke Exp $
+$Id: CHANGELOG,v 1.634 2007/10/20 13:02:50 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Don't start self tests in first pass to avoid
+       performance problems during boot.
+       https://bugzilla.novell.com/show_bug.cgi?id=192591
 
   [CF] Fixed regression in SMART STATUS command on Win9x/ME.
 

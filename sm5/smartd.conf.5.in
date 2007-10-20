@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.85 2007/09/14 20:48:18 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.86 2007/10/20 13:02:50 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -570,6 +570,10 @@ interrupted to begin another test.
 
 \fBsmartd\fP will not attempt to run \fBany\fP type of test if another
 test was already started or run in the same hour.
+
+To avoid performance problems during system boot, \fBsmartd\fP will
+not attempt to run any scheduled tests following the very first
+device polling (unless \'\-q onecheck\' is specified).
 
 Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
 You can use these or the '-q showtests' command-line option to verify
@@ -1353,4 +1357,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.85 2007/09/14 20:48:18 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.86 2007/10/20 13:02:50 chrfranke Exp $

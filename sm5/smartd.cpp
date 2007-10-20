@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.392 2007/09/06 08:48:55 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.393 2007/10/20 13:02:51 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.392 2007/09/06 08:48:55 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.393 2007/10/20 13:02:51 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2041,7 +2041,7 @@ void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
   // FixGlibcTimeZoneBug(); // done in PrintOut()
   now=time(NULL);
   dateandtimezoneepoch(datenow, now);
-  for (seconds=0; seconds<3600L*24*90; seconds+=checktime) {
+  for (seconds=checktime; seconds<3600L*24*90; seconds+=checktime) {
     // Check for each device whether a test will be run
     time_t testtime = now + seconds;
     for (i=0; i<numdev; i++) {
@@ -2258,7 +2258,7 @@ static void CheckTemperature(cfgfile * cfg, unsigned char currtemp, unsigned cha
   }
 }
 
-int ATACheckDevice(cfgfile *cfg){
+int ATACheckDevice(cfgfile *cfg, bool allow_selftests){
   int fd,i;
   char *name=cfg->name;
   char *mode="ATA";
@@ -2297,7 +2297,7 @@ int ATACheckDevice(cfgfile *cfg){
   // sure) check whether a self test should be done now.
   // This check is done before powermode check to avoid missing self
   // tests on idle or sleeping disks.
-  if (cfg->testdata) {
+  if (allow_selftests && cfg->testdata) {
     // long test
     if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
       testtype = 'L';
@@ -2546,7 +2546,7 @@ int ATACheckDevice(cfgfile *cfg){
   return 0;
 }
 
-int SCSICheckDevice(cfgfile *cfg)
+int SCSICheckDevice(cfgfile *cfg, bool allow_selftests)
 {
     UINT8 asc, ascq;
     UINT8 currenttemp;
@@ -2616,7 +2616,7 @@ int SCSICheckDevice(cfgfile *cfg)
     if (cfg->selftest)
       CheckSelfTestLogs(cfg, scsiCountFailedSelfTests(fd, 0));
     
-    if (cfg->testdata) {
+    if (allow_selftests && cfg->testdata) {
       // long (extended) background test
       if (!cfg->testdata->not_cap_long && DoTestNow(cfg, 'L', 0)>0)
         DoSCSISelfTest(fd, cfg, 'L');
@@ -2629,14 +2629,14 @@ int SCSICheckDevice(cfgfile *cfg)
 }
 
 // Checks the SMART status of all ATA and SCSI devices
-void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices){
+void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices, bool allow_selftests){
   int i;
   
   for (i=0; i<numdevata; i++) 
-    ATACheckDevice(atadevices[i]);
+    ATACheckDevice(atadevices[i], allow_selftests);
   
   for (i=0; i<numdevscsi; i++)
-    SCSICheckDevice(scsidevices[i]);
+    SCSICheckDevice(scsidevices[i], allow_selftests);
 
   return;
 }
@@ -4409,8 +4409,9 @@ static int smartd_main(int argc, char **argv)
       caughtsigHUP=0;
     }
 
-    // check all devices once
-    CheckDevicesOnce(atadevlist, scsidevlist); 
+    // check all devices once,
+    // self tests are not started in first pass unless '-q onecheck' is specified
+    CheckDevicesOnce(atadevlist, scsidevlist, (!firstpass || quit==3)); 
     
     // user has asked us to exit after first check
     if (quit==3) {
