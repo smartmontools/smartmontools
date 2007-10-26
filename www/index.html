@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
- <title>smartmontools Home Page (last updated $Date: 2007/07/09 01:31:39 $)</title>
+ <title>smartmontools Home Page (last updated $Date: 2007/10/26 21:49:03 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- $Id: index.html,v 1.218 2007/07/09 01:31:39 ballen4705 Exp $ -->
+<!-- $Id: index.html,v 1.219 2007/10/26 21:49:03 ballen4705 Exp $ -->
 
 <div align="center">
   <img src="smart_logo.gif" border="0" width="105" height="59" alt="SMART LOGO" />
@@ -814,13 +814,26 @@ After the test has completed, you should examine the results with:
 
 <p>
 If the drive fails a self-test, but still has 'PASS' SMART health
-status, this usually means that there is a corrupted sector on the
-disk, which can not be read.  If the disk were able to read that
-sector of data, even once, then the disk firmware would mark the
-sector as 'bad' and then allocate a spare sectors to replace it.  But
+status, this usually means that there is a corrupted (uncorrectable=UNC) sector on the
+disk. This means that the ECC data stored at that sector is not
+consistent with the user data stored at that sector, and an attempt to read the sector fails with a UNC error.
+This can be a one-time transient effect: a sudden power failure
+while the disk was writing to the sector corrupted the
+ECC code or data, but the sector <i>could</i> correctly store new data.
+Or it can be a permanent effect: the magnetic media
+has been damaged by a bit of dust, and the sector could <i>not</i> correctly store new data.
+</p>
+
+<p> 
+If the disk can read the
+sector of data a single time, and the damage is permanent, not transient, then the disk firmware will mark the
+sector as 'bad' and allocate a spare sector to replace it.  But
 if the disk can't read the sector even once, then it won't reallocate
 the sector, in hopes of being able, at some time in the future, to
-read the data from it.  See <a
+read the data from it.  <b>A write to an unreadable (corrupted) sector will fix the problem.</b>
+If the damage is transient, then new consistent data will be written to the sector.
+If the damange is permanent, then the write will force sector reallocation.
+Please see <a
 href="http://smartmontools.sourceforge.net/badblockhowto.html">Bad block HOWTO</a>
 for instructions about how to force this sector to reallocate (Linux
 only).
@@ -1308,8 +1321,8 @@ from smartmontools smartctl utility:</b>
 
 Maintained by: <a href="mailto:smartmontools-support&#64;lists.sourceforge.net">Bruce Allen</a><br />
 Copyright (C) 2002-5 Bruce Allen<br />
-Last updated: <tt>$Date: 2007/07/09 01:31:39 $</tt><br />
-CVS tag: <tt>$Id: index.html,v 1.218 2007/07/09 01:31:39 ballen4705 Exp $</tt>
+Last updated: <tt>$Date: 2007/10/26 21:49:03 $</tt><br />
+CVS tag: <tt>$Id: index.html,v 1.219 2007/10/26 21:49:03 ballen4705 Exp $</tt>
 
 <hr size="2" />
 
