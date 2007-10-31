@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.634 2007/10/20 13:02:50 chrfranke Exp $
+$Id: CHANGELOG,v 1.635 2007/10/31 22:08:03 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -32,6 +32,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Improved ATA/SCSI device type detection and
+       DEVICESCAN. This also fixes a regression in 3ware DEVICESCAN.
 
   [CF] smartd: Don't start self tests in first pass to avoid
        performance problems during boot.
