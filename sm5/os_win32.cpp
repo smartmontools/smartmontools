@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.58 2007/09/14 20:52:14 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.59 2007/10/31 22:08:04 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -135,7 +135,8 @@ const char * get_os_version_str()
 }
 
 
-static int get_controller_type(int phydrive, int logdrive);
+static int get_phy_drive_type(int drive);
+static int get_log_drive_type(int drive);
 
 #define ATARAID_FDOFFSET 0x0200
 
@@ -213,15 +214,15 @@ int guess_device_type (const char * dev_name)
 		return CONTROLLER_SCSI;
 	int logdrive = drive_letter(dev_name);
 	if (logdrive >= 0) {
-		int type = get_controller_type(-1, logdrive);
+		int type = get_log_drive_type(logdrive);
 		return (type != CONTROLLER_UNKNOWN ? type : CONTROLLER_SCSI);
 	}
 	char drive[1+1] = "";
 	if (sscanf(dev_name, "sd%1[a-z]", drive) == 1)
-		return get_controller_type(drive[0]-'a', -1);
+		return get_phy_drive_type(drive[0]-'a');
 	int phydrive = -1;
 	if (sscanf(dev_name, "pd%d", &phydrive) == 1 && phydrive >= 0)
-		return get_controller_type(phydrive, -1);
+		return get_phy_drive_type(phydrive);
 	return CONTROLLER_UNKNOWN;
 }
 
@@ -609,31 +610,20 @@ static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 
 // call SMART_GET_VERSION, return device map or -1 on error
 
-static int smart_get_version(HANDLE hdevice, unsigned long * portmap = 0)
+static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
-	GETVERSIONOUTPARAMS vers;
+	GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
 	const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
 	DWORD num_out;
 
-	memset(&vers, 0, sizeof(vers));
 	if (!DeviceIoControl(hdevice, SMART_GET_VERSION,
 		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-		pout("  SMART_GET_VERSION failed, Error=%ld\n", GetLastError());
+		if (con->reportataioctl)
+			pout("  SMART_GET_VERSION failed, Error=%ld\n", GetLastError());
 		errno = ENOSYS;
 		return -1;
 	}
 	assert(num_out == sizeof(GETVERSIONOUTPARAMS));
-
-	if (portmap) {
-		// Return bitmask of valid RAID ports
-		if (vers_ex.wIdentifier != SMART_VENDOR_3WARE) {
-			pout("  SMART_GET_VERSION returns unknown Identifier = %04x\n"
-				 "  This is no 3ware 9000 controller or driver has no SMART support.\n", vers_ex.wIdentifier);
-			errno = ENOENT;
-			return -1;
-		}
-		*portmap = vers_ex.dwDeviceMapEx;
-	}
 
 	if (con->reportataioctl > 1) {
 		pout("  SMART_GET_VERSION suceeded, bytes returned: %lu\n"
@@ -644,6 +634,9 @@ static int smart_get_version(HANDLE hdevice, unsigned long * portmap = 0)
 			pout("    Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
 			vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
 	}
+
+	if (ata_version_ex)
+		*ata_version_ex = vers_ex;
 
 	// TODO: Check vers.fCapabilities here?
 	return vers.bIDEDeviceMap;
@@ -1729,13 +1722,23 @@ static STORAGE_BUS_TYPE ioctl_get_storage_bus_type(HANDLE hdevice)
 	return prop.dev.BusType;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+
 // get CONTROLLER_* for open handle
-static int get_controller_type(HANDLE hdevice)
+static int get_controller_type(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
+	// Try SMART_GET_VERSION first to detect ATA SMART support
+	// for drivers reporting BusTypeScsi (3ware)
+	if (smart_get_version(hdevice, ata_version_ex) >= 0)
+		return CONTROLLER_ATA;
+
 	STORAGE_BUS_TYPE type = ioctl_get_storage_bus_type(hdevice);
 	switch (type) {
 		case BusTypeAta:
 		case BusTypeSata:
+			if (ata_version_ex)
+				memset(ata_version_ex, 0, sizeof(*ata_version_ex));
 			return CONTROLLER_ATA;
 		case BusTypeScsi:
 		case BusTypeiScsi:
@@ -1748,29 +1751,37 @@ static int get_controller_type(HANDLE hdevice)
 }
 
 // get CONTROLLER_* for device path
-static int get_controller_type(const char * path)
+static int get_controller_type(const char * path, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
-	HANDLE h = CreateFileA(path, 0/*NO ACCESS*/, FILE_SHARE_READ|FILE_SHARE_WRITE,
-		NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE h = CreateFileA(path, GENERIC_READ|GENERIC_WRITE,
+		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 	if (h == INVALID_HANDLE_VALUE)
 		return CONTROLLER_UNKNOWN;
 	if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
 		pout(" %s: successfully opened\n", path);
-	int type = get_controller_type(h);
+	int type = get_controller_type(h, ata_version_ex);
 	CloseHandle(h);
 	return type;
 }
 
-// get CONTROLLER_* for physical or logical drive number
-static int get_controller_type(int phydrive, int logdrive)
+// get CONTROLLER_* for physical drive number
+static int get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex)
 {
 	char path[30];
-	if (phydrive >= 0)
-		snprintf (path, sizeof(path)-1, "\\\\.\\PhysicalDrive%d", phydrive);
-	else if (logdrive >= 0)
-		snprintf(path, sizeof(path)-1, "\\\\.\\%c:", 'A'+logdrive);
-	else
-		return CONTROLLER_UNKNOWN;
+	snprintf(path, sizeof(path)-1, "\\\\.\\PhysicalDrive%d", drive);
+	return get_controller_type(path, ata_version_ex);
+}
+
+static int get_phy_drive_type(int drive)
+{
+	return get_phy_drive_type(drive, 0);
+}
+
+// get CONTROLLER_* for logical drive number
+static int get_log_drive_type(int drive)
+{
+	char path[30];
+	snprintf(path, sizeof(path)-1, "\\\\.\\%c:", 'A'+drive);
 	return get_controller_type(path);
 }
 
@@ -1989,9 +2000,23 @@ static int ata_open(int phydrive, int logdrive, const char * options, int port)
 
 	// Win9X/ME: Get drive map
 	// RAID: Get port map
+	GETVERSIONINPARAMS_EX vers_ex;
+	int devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &vers_ex : 0));
+
 	unsigned long portmap = 0;
-	int devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &portmap : 0));
+	if (port >= 0 && devmap >= 0) {
+		// 3ware RAID: check vendor id
+		if (vers_ex.wIdentifier != SMART_VENDOR_3WARE) {
+			pout("SMART_GET_VERSION returns unknown Identifier = %04x\n"
+			     "This is no 3ware 9000 controller or driver has no SMART support.\n",
+			     vers_ex.wIdentifier);
+			devmap = -1;
+		}
+		else
+			portmap = vers_ex.dwDeviceMapEx;
+	}
 	if (devmap < 0) {
+		pout("%s: ATA driver has no SMART support\n", devpath);
 		if (!is_permissive()) {
 			ata_close(0);
 			errno = ENOSYS;
@@ -2004,10 +2029,10 @@ static int ata_open(int phydrive, int logdrive, const char * options, int port)
 	if (port >= 0) {
 		// 3ware RAID: update devicemap first
 		if (!update_3ware_devicemap_ioctl(h_ata_ioctl)) {
-			unsigned long portmap1 = 0;
-			if (smart_get_version(h_ata_ioctl, &portmap1) >= 0)
-				portmap = portmap1;
-		}	
+			if (   smart_get_version(h_ata_ioctl, &vers_ex) >= 0
+			    && vers_ex.wIdentifier == SMART_VENDOR_3WARE    )
+				portmap = vers_ex.dwDeviceMapEx;
+		}
 		// Check port existence
 		if (!(portmap & (1L << port))) {
 			pout("%s: Port %d is empty or does not exist\n", devpath, port);
@@ -2066,26 +2091,13 @@ static int ata_scan_win9x(unsigned long * drives)
 	}
 
 	// Get drive map
-	GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
-	DWORD num_out;
-	if (!DeviceIoControl(h, SMART_GET_VERSION,
-		NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
-		if (con->reportataioctl)
-			pout(" %s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
-		CloseHandle(h);
-		return 0; // Should not happen
-	}
+	int devmap = smart_get_version(h);
 	CloseHandle(h);
-
-	if (con->reportataioctl) {
-		pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
-		     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-			devpath, num_out, vers.bVersion, vers.bRevision,
-			vers.fCapabilities, vers.bIDEDeviceMap);
-	}
+	if (devmap < 0)
+		return 0; // Should not happen
 
 	// Check ATA device presence, remove ATAPI devices
-	drives[0] = (vers.bIDEDeviceMap & 0xf) & ~((vers.bIDEDeviceMap >> 4) & 0xf);
+	drives[0] = (devmap & 0xf) & ~((devmap >> 4) & 0xf);
 	return (drives[0]&1) + ((drives[0]>>1)&1) + ((drives[0]>>2)&1) + ((drives[0]>>3)&1);
 }
 
@@ -2096,53 +2108,12 @@ static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdri
 {
 	int cnt = 0;
 	for (int i = 0; i <= 9; i++) {
-		// Open device
-		char devpath[30];
-		snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", i);
-		HANDLE h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
-			FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
-		if (h == INVALID_HANDLE_VALUE) {
-			if (con->reportataioctl > 1)
-				pout(" %s: Open failed, Error=%ld\n", devpath, GetLastError());
-			continue;
-		}
-		if (con->reportataioctl)
-			pout(" %s: successfully opened\n", devpath);
-
-		// Skip SCSI
-		int type = get_controller_type(h);
-		if (type == CONTROLLER_SCSI) { // ATA RAID may return CONTROLLER_UNKNOWN
-			CloseHandle(h);
-			continue;
-		}
-
-		// Try SMART_GET_VERSION
-		GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
-		const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
-		DWORD num_out;
-		BOOL smart_ok = DeviceIoControl(h, SMART_GET_VERSION,
-			NULL, 0, &vers, sizeof(vers), &num_out, NULL);
-		if (con->reportataioctl) {
-			if (!smart_ok)
-				pout(" %s: SMART_GET_VERSION failed, Error=%ld\n", devpath, GetLastError());
-			else {
-				pout(" %s: SMART_GET_VERSION (%ld bytes):\n"
-				     "  Vers = %d.%d, Caps = 0x%lx, DeviceMap = 0x%02x\n",
-					devpath, num_out, vers.bVersion, vers.bRevision,
-					vers.fCapabilities, vers.bIDEDeviceMap);
-				if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
-					pout("  Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08lx\n",
-						vers_ex.wIdentifier, vers_ex.wControllerId, vers_ex.dwDeviceMapEx);
-			}
-		}
-		CloseHandle(h);
-
-		// If SMART_GET_VERSION failed, driver may support ATA_PASS_THROUGH instead
-		if (!(smart_ok || type == CONTROLLER_ATA))
+		GETVERSIONINPARAMS_EX vers_ex;
+		if (get_phy_drive_type(i, &vers_ex) != CONTROLLER_ATA)
 			continue;
 
 		// Interpret RAID drive map if present
-		if (smart_ok && vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
+		if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
 			// Skip if more than 2 controllers or logical drive from this controller already seen
 			if (vers_ex.wControllerId >= 2 || rdriveno[vers_ex.wControllerId] >= 0)
 				continue;
@@ -2324,7 +2295,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 				if (smart_get_version(h_ata_ioctl) < 0) {
 					if (!con->permissive) {
 						pout("ATA/SATA driver is possibly a SCSI driver not supporting SMART.\n");
-						pout("If this is a SCSI disk, try '/dev/sd%c\'.\n", 'a'+ata_driveno);
+						pout("If this is a SCSI disk, please try adding '-d scsi'.\n");
 						ata_smartver_state[ata_driveno] = 2;
 						rc = -1; errno = ENOSYS;
 						break;
@@ -3096,7 +3067,7 @@ static int spt_scan(unsigned long * drives)
 {
 	int cnt = 0;
 	for (int i = 0; i <= 9; i++) {
-		if (get_controller_type(i, -1) != CONTROLLER_SCSI)
+		if (get_phy_drive_type(i) != CONTROLLER_SCSI)
 			continue;
 		// STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
 		drives[0] |= (1L << i);
