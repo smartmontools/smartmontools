@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.393 2007/10/20 13:02:51 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.394 2007/11/01 20:53:30 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.393 2007/10/20 13:02:51 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.394 2007/11/01 20:53:30 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -174,9 +174,9 @@ static int quit=0;
 // command-line; this is the default syslog(3) log facility to use.
 static int facility=LOG_DAEMON;
 
-#ifdef __CYGWIN__
-// command-line: running as service, so don't fork()
-static int is_service=0;
+#ifndef _WIN32
+// command-line: fork into background?
+static bool do_fork=true;
 #endif
 
 // used for control of printing, passing arguments to atacmds.c
@@ -1001,30 +1001,32 @@ void DaemonInit(){
   // flush all buffered streams.  Else we might get two copies of open
   // streams since both parent and child get copies of the buffers.
   fflush(NULL);
-  
-  if ((pid=fork()) < 0) {
-    // unable to fork!
-    PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
-    EXIT(EXIT_STARTUP);
-  }
-  else if (pid)
-    // we are the parent process -- exit cleanly
-    EXIT(0);
-  
-  // from here on, we are the child process.
-  setsid();
 
-  // Fork one more time to avoid any possibility of having terminals
-  if ((pid=fork()) < 0) {
-    // unable to fork!
-    PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
-    EXIT(EXIT_STARTUP);
-  }
-  else if (pid)
-    // we are the parent process -- exit cleanly
-    EXIT(0);
+  if (do_fork) {
+    if ((pid=fork()) < 0) {
+      // unable to fork!
+      PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
+      EXIT(EXIT_STARTUP);
+    }
+    else if (pid)
+      // we are the parent process -- exit cleanly
+      EXIT(0);
+  
+    // from here on, we are the child process.
+    setsid();
 
-  // Now we are the child's child...
+    // Fork one more time to avoid any possibility of having terminals
+    if ((pid=fork()) < 0) {
+      // unable to fork!
+      PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
+      EXIT(EXIT_STARTUP);
+    }
+    else if (pid)
+      // we are the parent process -- exit cleanly
+      EXIT(0);
+
+    // Now we are the child's child...
+  }
 
   // close any open file descriptors
   for (i=getdtablesize();i>=0;--i)
@@ -1043,8 +1045,9 @@ void DaemonInit(){
   dup(i);
   umask(0);
   chdir("/");
-  
-  PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());
+
+  if (do_fork)
+    PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());
 
 #else // _WIN32
 
@@ -1186,24 +1189,23 @@ void Usage (void){
 #else
   PrintOut(LOG_INFO,"        Log to \"./smartd.log\", stdout, stderr [default is event log]\n\n");
 #endif
+#ifndef _WIN32
+  PrintOut(LOG_INFO,"  -n, --no-fork\n");
+  PrintOut(LOG_INFO,"        Do not fork into background\n\n");
+#endif  // _WIN32
   PrintOut(LOG_INFO,"  -p NAME, --pidfile=NAME\n");
   PrintOut(LOG_INFO,"        Write PID file NAME\n\n");
   PrintOut(LOG_INFO,"  -q WHEN, --quit=WHEN\n");
   PrintOut(LOG_INFO,"        Quit on one of: %s\n\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
-#if defined(_WIN32) || defined(__CYGWIN__)
+#ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
   PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
-#ifdef _WIN32
   PrintOut(LOG_INFO,"          smartd install [options]\n");
   PrintOut(LOG_INFO,"        Remove service with:\n");
   PrintOut(LOG_INFO,"          smartd remove\n\n");
 #else
-  PrintOut(LOG_INFO,"          /etc/rc.d/init.d/smartd install [options]\n");
-  PrintOut(LOG_INFO,"        Remove service with:\n");
-  PrintOut(LOG_INFO,"          /etc/rc.d/init.d/smartd remove\n\n");
-#endif
 #endif // _WIN32 || __CYGWIN__
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
@@ -1214,6 +1216,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
   PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
   PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7, or daemon\n");
+  PrintOut(LOG_INFO,"  -n         Do not fork into background\n");
   PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
@@ -3792,7 +3795,7 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "c:l:q:dDi:p:r:Vh?";
+  const char *shortopts = "c:l:q:dDni:p:r:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
@@ -3803,10 +3806,13 @@ void ParseOpts(int argc, char **argv){
     { "debug",          no_argument,       0, 'd' },
     { "showdirectives", no_argument,       0, 'D' },
     { "interval",       required_argument, 0, 'i' },
+#ifndef _WIN32
+    { "no-fork",        no_argument,       0, 'n' },
+#endif
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
 #if defined(_WIN32) || defined(__CYGWIN__)
-    { "service",        no_argument,       0, 'S' },
+    { "service",        no_argument,       0, 'n' },
 #endif
     { "version",        no_argument,       0, 'V' },
     { "license",        no_argument,       0, 'V' },
@@ -3878,6 +3884,12 @@ void ParseOpts(int argc, char **argv){
       // enable debug mode
       debugmode = TRUE;
       break;
+    case 'n':
+      // don't fork()
+#ifndef _WIN32 // On Windows, --service is already handled by daemon_main()
+      do_fork = false;
+#endif
+      break;
     case 'D':
       // print summary of all valid directives
       debugmode = TRUE;
@@ -3942,14 +3954,6 @@ void ParseOpts(int argc, char **argv){
       // output file with PID number
       pid_file=CustomStrDup(optarg, 1, __LINE__,filenameandversion);
       break;
-#if defined(_WIN32) || defined(__CYGWIN__)
-    case 'S':
-      // running as service
-#ifdef __CYGWIN__ // On Windows, option is already handled by daemon_main(), so ignore it
-      is_service = 1;
-#endif
-      break;
-#endif // _WIN32 || __CYGWIN__
     case 'V':
       // print version and CVS info
       PrintCopyleft();
@@ -4422,9 +4426,6 @@ static int smartd_main(int argc, char **argv)
     
     // fork into background if needed
     if (firstpass && !debugmode) {
-#ifdef __CYGWIN__
-     if (!is_service) // don't fork() if running as service via cygrunsrv
-#endif
       DaemonInit();
     }
 

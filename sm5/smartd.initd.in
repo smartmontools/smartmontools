@@ -1,8 +1,8 @@
 #! /bin/sh
 
 # smartmontools init file for smartd
-# Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.35 2006/10/24 13:29:24 sbrabec Exp $
+# Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+# $Id: smartd.initd.in,v 1.36 2007/11/01 20:53:30 chrfranke Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -446,7 +446,7 @@ http://smartmontools.sourceforge.net/"
             fi
             echo "Installing service ${smartd_svcname}${smartd_opts+ with options '$smartd_opts'}:"
             cygrunsrv -I "$smartd_svcname" -d "$smartd_svcdisp"  -f "$smartd_svcdesc" $dep \
-              -e CYGWIN="$CYGWIN" -p $SMARTD_BIN -a "--service -p ${PID_FILE}${smartd_opts+ }$smartd_opts"
+              -e CYGWIN="$CYGWIN" -p $SMARTD_BIN -a "-n -p ${PID_FILE}${smartd_opts+ }$smartd_opts"
             RETVAL=$?
             ;;
         remove)
