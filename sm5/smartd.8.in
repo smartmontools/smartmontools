@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.119 2007/10/20 13:02:50 chrfranke Exp $
+$Id: smartd.8.in,v 1.120 2007/11/01 20:53:29 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -252,6 +252,16 @@ to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
 \'\fBsyslogevt\fP\' for more help.
 
 .TP
+.B \-n, \-\-no\-fork
+Do not fork into background; this is useful when executed from modern
+init methods like initng, minit or supervise.
+
+On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
+see NOTES below.
+
+On Windows, this option is not available, use \'\-\-service\' instead.
+
+.TP
 .B \-p NAME, \-\-pidfile=NAME
 Writes pidfile \fINAME\fP containing the \fBsmartd\fP Process ID
 number (PID).  To avoid symlink attacks make sure the directory to
@@ -347,8 +357,8 @@ equivalent.
 .B \-\-service
 Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
 
-On Cygwin, this option simply prevents forking into background mode to
-allow running \fBsmartd\fP as service via cygrunsrv, see NOTES below.
+On Cygwin, this option is kept for backward compatibility only.
+It has the same effect as \'\-n, \-\-no\-fork\', see above.
 
 On Windows, this option enables the buildin service support.
 The option must be specified in the service command line as the first
@@ -1955,4 +1965,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.119 2007/10/20 13:02:50 chrfranke Exp $
+$Id: smartd.8.in,v 1.120 2007/11/01 20:53:29 chrfranke Exp $
