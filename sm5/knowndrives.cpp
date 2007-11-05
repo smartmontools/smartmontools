@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.161 2007/06/13 20:52:22 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.162 2007/11/05 00:29:11 geoffk1 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -769,6 +769,11 @@ const drivesettings knowndrives[] = {
   },
   { "Hitachi Travelstar E5K100 series",
     "^HTE541040G9(AT|SA)00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { "Hitachi Travelstar 5K160 series",
+    "^(Hitachi )?HTS5416([468]0|1[26])J9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
