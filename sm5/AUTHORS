@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.17 2006/12/20 12:24:34 guidog Exp $
+$Id: AUTHORS,v 1.18 2007/11/13 14:53:27 jhering Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -11,19 +11,19 @@ ucsc-smartsuite and smartsuite packages, and is derived from that code.
 Maintainers / Developers:
 
 Bruce Allen		<smartmontools-support@lists.sourceforge.net>
-Erik Inge Bolsø		<knan@mo.himolde.no>
+Erik Inge Bolsï¿½		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
 Casper Dik		<casper@holland.sun.com>
 Christian Franke	<franke@computer.org>
-Guilhem Frézou		<guilhem.frezou@catii.fr>
+Guilhem Frï¿½zou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
 Geoff Keating		<geoffk@geoffk.org>
 Dr. David Kirkby	<drkirkby@ntlworld.com>
-Kai Mäkisara		<kai.makisara@kolumbus.fi>
+Kai Mï¿½kisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu	<martines@rochester.rr.com>
-Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
+Frï¿½dï¿½ric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Keiji Sawada		<card_captor@users.sourceforge.net>
 David Snyder            <dasnyderx@yahoo.com>
 Sergey Svishchev	<svs@ropnet.ru>
@@ -32,3 +32,4 @@ Richard Zybert		<richard.zybert@zybert.co.uk>
 Yuri Dario		<mc6530@mclink.it>
 Shengfeng Zhou		<linux@highpoint-tech.com>
 Praveen Chidambaram 	<bunchofmails@gmail.com>
+Joerg Hering            <hering.ruegen@gmx.de>
