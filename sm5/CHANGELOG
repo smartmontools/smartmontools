@@ -1,26 +1,27 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.636 2007/11/01 20:53:29 chrfranke Exp $
+$Id: CHANGELOG,v 1.637 2007/11/13 14:53:27 jhering Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsø
+[EB] Erik Inge Bolsï¿½
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [YD] Yuri Dario
 [CD] Casper Dik
 [CF] Christian Franke
-[GF] Guilhem Frézou
+[GF] Guilhem Frï¿½zou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
-[KM] Kai Mäkisara
+[JH] Joerg Hering
+[KM] Kai Mï¿½kisara
 [EM] Eduard Martinescu
-[FM] Frédéric L. W. Meunier
+[FM] Frï¿½dï¿½ric L. W. Meunier
 [KS] Keiji Sawada
 [DS] David Snyder
 [SS] Sergey Svishchev
@@ -32,6 +33,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [JH] initial porting to QNX Neutrino 6.3.2
+       need at this time a prerelease devb-eide driver and libcam.so.2
+       only tested for X86 Target, but devb-eide and lobcam.so.2 available for X86/ARM
+       the officional driver coming soon with the next QNX release
+       create two new source files os_qnxnto.[c..h]
 
   [CF] smartd: Added option '-n, --no-fork' so that smartd works
        better with modern init methods. Thanks to Enrico Scholz
@@ -266,7 +272,7 @@ smartmontools 5.37 Experimental Release
        and T series.
 
   [GG] Add CCISS (Compaq Smart Array Controller) support with contributions
-       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frédéric
+       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frï¿½dï¿½ric
        BOITEUX
 
   [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
