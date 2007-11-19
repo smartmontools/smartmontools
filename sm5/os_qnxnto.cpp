@@ -18,7 +18,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp,v 1.1 2007/11/13 14:53:27 jhering Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp,v 1.2 2007/11/19 12:32:12 jhering Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -189,168 +189,168 @@ int                  status,rc;
   switch(command)
    {
     case READ_VALUES:
-         cpt.cam_flags			= CAM_DIR_IN;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_dxfer_len		= 512;
-         cpt.cam_data_ptr		= (uint32_t)data;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_PIO_DATA_IN;
-         cdb->ata_pass_thru.flags	= ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_READ_VALUES;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_IN;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_dxfer_len              = 512;
+         cpt.cam_data_ptr               = (uint32_t)data;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_PIO_DATA_IN;
+         cdb->ata_pass_thru.flags       = ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_READ_VALUES;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case READ_THRESHOLDS:
-         cpt.cam_flags			= CAM_DIR_IN;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_dxfer_len		= 512;
-         cpt.cam_data_ptr		= (uint32_t)data;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_PIO_DATA_IN;
-         cdb->ata_pass_thru.flags	= ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_READ_THRESHOLDS;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_IN;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_dxfer_len              = 512;
+         cpt.cam_data_ptr               = (uint32_t)data;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_PIO_DATA_IN;
+         cdb->ata_pass_thru.flags       = ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_READ_THRESHOLDS;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case READ_LOG:
-         cpt.cam_flags			= CAM_DIR_IN;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_dxfer_len		= 512;
-         cpt.cam_data_ptr		= (uint32_t)data;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_PIO_DATA_IN;
-         cdb->ata_pass_thru.flags	= ATA_FLG_T_DIR | ATA_FLG_TLEN_STPSIU;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_READ_LOG_SECTOR;
+         cpt.cam_flags                  = CAM_DIR_IN;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_dxfer_len              = 512;
+         cpt.cam_data_ptr               = (uint32_t)data;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_PIO_DATA_IN;
+         cdb->ata_pass_thru.flags       = ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_READ_LOG_SECTOR;
          cdb->ata_pass_thru.sector_count= 1;
-         cdb->ata_pass_thru.lba_low	= select;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cdb->ata_pass_thru.lba_low     = select;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case WRITE_LOG:
          return(-1);
          break;
     case IDENTIFY:
-         cpt.cam_flags			= CAM_DIR_IN;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_dxfer_len		= 512;
-         cpt.cam_data_ptr		= (uint32_t)data;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_PIO_DATA_IN;
-         cdb->ata_pass_thru.flags	= ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
-         cdb->ata_pass_thru.command	= ATA_IDENTIFY_DEVICE;
+         cpt.cam_flags                  = CAM_DIR_IN;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_dxfer_len              = 512;
+         cpt.cam_data_ptr               = (uint32_t)data;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_PIO_DATA_IN;
+         cdb->ata_pass_thru.flags       = ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
+         cdb->ata_pass_thru.command     = ATA_IDENTIFY_DEVICE;
          break;
     case PIDENTIFY:
-         cpt.cam_flags			= CAM_DIR_IN;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_dxfer_len		= 512;
-         cpt.cam_data_ptr		= (uint32_t)data;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_PIO_DATA_IN;
-         cdb->ata_pass_thru.flags	= ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
-         cdb->ata_pass_thru.command	= ATA_IDENTIFY_PACKET_DEVICE;
+         cpt.cam_flags                  = CAM_DIR_IN;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_dxfer_len              = 512;
+         cpt.cam_data_ptr               = (uint32_t)data;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_PIO_DATA_IN;
+         cdb->ata_pass_thru.flags       = ATA_FLG_T_DIR|ATA_FLG_TLEN_STPSIU;
+         cdb->ata_pass_thru.command     = ATA_IDENTIFY_PACKET_DEVICE;
          break;
     case ENABLE:
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_ENABLE;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_ENABLE;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case DISABLE:
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_DISABLE;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_DISABLE;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case AUTO_OFFLINE:
     // NOTE: According to ATAPI 4 and UP, this command is obsolete 
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_AUTO_OFFLINE;
-         cdb->ata_pass_thru.lba_low	= select;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_AUTO_OFFLINE;
+         cdb->ata_pass_thru.lba_low     = select;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case AUTOSAVE:
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_AUTOSAVE;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_AUTOSAVE;
          cdb->ata_pass_thru.sector_count= select;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case IMMEDIATE_OFFLINE:
     // NOTE: According to ATAPI 4 and UP, this command is obsolete 
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_IMMEDIATE_OFFLINE;
-         cdb->ata_pass_thru.lba_low	= select;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_IMMEDIATE_OFFLINE;
+         cdb->ata_pass_thru.lba_low     = select;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case STATUS_CHECK:
     // same command, no HDIO in NetBSD 
     case STATUS:
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.flags	= ATA_FLG_CK_COND;
-         cdb->ata_pass_thru.command	= ATA_SMART_CMD;
-         cdb->ata_pass_thru.features	= ATA_SMART_STATUS;
-         cdb->ata_pass_thru.lba_mid	= ATA_SMART_LBA_MID_SIG;
-         cdb->ata_pass_thru.lba_high	= ATA_SMART_LBA_HI_SIG;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.flags       = ATA_FLG_CK_COND;
+         cdb->ata_pass_thru.command     = ATA_SMART_CMD;
+         cdb->ata_pass_thru.features    = ATA_SMART_STATUS;
+         cdb->ata_pass_thru.lba_mid     = ATA_SMART_LBA_MID_SIG;
+         cdb->ata_pass_thru.lba_high    = ATA_SMART_LBA_HI_SIG;
          break;
     case CHECK_POWER_MODE:
-         cpt.cam_flags			= CAM_DIR_NONE;
-         cpt.cam_cdb_len		= 16;
-         cpt.cam_sense_len		= sizeof(sense);
-         cpt.cam_sense_ptr		= (uint32_t)&sense;
-         cdb->ata_pass_thru.opcode	= SC_ATA_PT16;
-         cdb->ata_pass_thru.protocol	= ATA_PROTO_DATA_NONE;
-         cdb->ata_pass_thru.flags	= ATA_FLG_CK_COND;
-         cdb->ata_pass_thru.command	= ATA_CHECK_POWER_MODE;
+         cpt.cam_flags                  = CAM_DIR_NONE;
+         cpt.cam_cdb_len                = 16;
+         cpt.cam_sense_len              = sizeof(sense);
+         cpt.cam_sense_ptr              = (uint32_t)&sense;
+         cdb->ata_pass_thru.opcode      = SC_ATA_PT16;
+         cdb->ata_pass_thru.protocol    = ATA_PROTO_DATA_NONE;
+         cdb->ata_pass_thru.flags       = ATA_FLG_CK_COND;
+         cdb->ata_pass_thru.command     = ATA_CHECK_POWER_MODE;
          break;
     default:
          pout("Unrecognized command %d in ata_command_interface()\n", command);
@@ -359,11 +359,15 @@ int                  status,rc;
    }
 // execute now
   if((status=ata_pass_thru(fd,&cpt))==EOK)
+   {
+    rc=status==EOK?0:-1;
     if(cpt.cam_status!=CAM_REQ_CMP)
+     {
       ata_interpret_sense(&cpt,&sense,&status,0);
-  rc=status==EOK?0:1;
-  if((command==STATUS||command==STATUS_CHECK)&&status==EOK)
-    rc=((sense.desc.lba_high<<8)|sense.desc.lba_mid)==ATA_SMART_SIG?0:1;
+      if(command==STATUS||command==STATUS_CHECK)
+        rc=((sense.desc.lba_high<<8)|sense.desc.lba_mid)==ATA_SMART_SIG?0:1;
+     }
+   }
   if(command==CHECK_POWER_MODE)
     data[0]=cdb->ata_pass_thru.sector_count;
 // finish
