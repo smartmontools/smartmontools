@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.637 2007/11/13 14:53:27 jhering Exp $
+$Id: CHANGELOG,v 1.638 2007/11/19 12:31:42 jhering Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [JH] fix bad return code (get STATUS) for QNX Part
+
   [JH] initial porting to QNX Neutrino 6.3.2
        need at this time a prerelease devb-eide driver and libcam.so.2
        only tested for X86 Target, but devb-eide and lobcam.so.2 available for X86/ARM
