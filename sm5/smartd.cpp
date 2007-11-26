@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.394 2007/11/01 20:53:30 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.395 2007/11/26 18:11:32 guidog Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.394 2007/11/01 20:53:30 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.395 2007/11/26 18:11:32 guidog Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -989,6 +989,27 @@ void PrintOut(int priority, const char *fmt, ...){
   return;
 }
 
+
+// Wait for the pid file to show up, this makes sure a calling program knows
+// that the daemon is really up and running and has a pid to kill it
+bool WaitForPidFile()
+{
+    int waited, max_wait = 10;
+    struct stat stat_buf;
+
+    if(!pid_file || debugmode)
+    	return true;
+
+    for(waited = 0; waited < max_wait; ++waited) {
+	if(stat(pid_file, &stat_buf) == 0) {
+		return true;
+	} else
+		sleep(1);
+    }
+    return false;
+}
+
+
 // Forks new process, closes ALL file descriptors, redirects stdin,
 // stdout, and stderr.  Not quite daemon().  See
 // http://www.iar.unlp.edu.ar/~fede/revistas/lj/Magazines/LJ47/2335.html
@@ -1009,8 +1030,12 @@ void DaemonInit(){
       EXIT(EXIT_STARTUP);
     }
     else if (pid)
-      // we are the parent process -- exit cleanly
-      EXIT(0);
+      // we are the parent process, wait for pid file, then exit cleanly
+      if(!WaitForPidFile()) {
+        PrintOut(LOG_CRIT,"PID file %s didn't show up!\n", pid_file);
+     	EXIT(EXIT_STARTUP);
+      } else
+        EXIT(0);
   
     // from here on, we are the child process.
     setsid();
