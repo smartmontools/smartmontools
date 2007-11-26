@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.638 2007/11/19 12:31:42 jhering Exp $
+$Id: CHANGELOG,v 1.639 2007/11/26 18:11:32 guidog Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [GG] smartd: wait for the pid file to show up, return an error if it doesn't
+
   [JH] fix bad return code (get STATUS) for QNX Part
 
   [JH] initial porting to QNX Neutrino 6.3.2
