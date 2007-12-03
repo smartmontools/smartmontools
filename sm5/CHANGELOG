@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.639 2007/11/26 18:11:32 guidog Exp $
+$Id: CHANGELOG,v 1.640 2007/12/03 02:14:20 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [DG] SAT/SCSI: Improve SAT error processing code. Aborted commands from
+       ATA devices (typically because SMART was disabled) were not being
+       properly detected.
+
   [GG] smartd: wait for the pid file to show up, return an error if it doesn't
 
   [JH] fix bad return code (get STATUS) for QNX Part

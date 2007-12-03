@@ -45,13 +45,14 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.7 2006/08/09 20:40:19 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.8 2007/12/03 02:14:20 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
 
 #define DEF_SAT_ATA_PASSTHRU_SIZE 16
+#define ATA_RETURN_DESCRIPTOR 9
 
 
 // cdb[0]: ATA PASS THROUGH (16) SCSI command opcode byte (0x85)
@@ -89,7 +90,7 @@ extern smartmonctrl *con;
 // cdb[11]: control (SCSI, leave as zero)
 //
 //
-// ATA status return descriptor (component of descriptor sense data)
+// ATA Return Descriptor (component of descriptor sense data)
 // des[0]: descriptor code (0x9)
 // des[1]: additional descriptor length (0xc)
 // des[2]: extend (bit 0)
@@ -135,12 +136,12 @@ int sat_command_interface(int device, smart_command_set command, int select,
     struct sg_scsi_sense_hdr ssh;
     unsigned char cdb[SAT_ATA_PASSTHROUGH_16LEN];
     unsigned char sense[32];
-    const unsigned char * ucp;
-    int status, len;
+    const unsigned char * ardp;
+    int status, ard_len, have_sense;
     int copydata = 0;
     int outlen = 0;
     int extend = 0;
-    int chk_cond = 0;   /* set to 1 to read register(s) back */
+    int ck_cond = 0;    /* set to 1 to read register(s) back */
     int protocol = 3;   /* non-data */
     int t_dir = 1;      /* 0 -> to device, 1 -> from device */
     int byte_block = 1; /* 0 -> bytes, 1 -> 512 byte blocks */
@@ -160,7 +161,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
     switch (command) {
     case CHECK_POWER_MODE:
         ata_command = ATA_CHECK_POWER_MODE;
-        chk_cond = 1;
+        ck_cond = 1;
         copydata = 1;
         break;
     case READ_VALUES:           /* READ DATA */
@@ -221,7 +222,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
         // this command only says if SMART is working.  It could be
         // replaced with STATUS_CHECK below.
         feature = ATA_SMART_STATUS;
-        chk_cond = 1;
+        ck_cond = 1;
         break;
     case AUTO_OFFLINE:
         feature = ATA_SMART_AUTO_OFFLINE;
@@ -239,7 +240,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
         // This command uses HDIO_DRIVE_TASK and has different syntax than
         // the other commands.
         feature = ATA_SMART_STATUS;      /* SMART RETURN STATUS */
-        chk_cond = 1;
+        ck_cond = 1;
         break;
     default:
         pout("Unrecognized command %d in sat_command_interface()\n"
@@ -259,7 +260,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
              SAT_ATA_PASSTHROUGH_12 : SAT_ATA_PASSTHROUGH_16;
 
     cdb[1] = (protocol << 1) | extend;
-    cdb[2] = (chk_cond << 5) | (t_dir << 3) |
+    cdb[2] = (ck_cond << 5) | (t_dir << 3) |
              (byte_block << 2) | t_length;
     cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 3 : 4] = feature;
     cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 4 : 6] = sector_count;
@@ -295,78 +296,79 @@ int sat_command_interface(int device, smart_command_set command, int select,
                  "status=%d\n", status);
         return -1;
     }
-    if (chk_cond) {     /* expecting SAT specific sense data */
-        ucp = NULL;
-        if (sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
-                                    &ssh)) {
-            /* look for SAT extended ATA status return descriptor (9) */
-            ucp = sg_scsi_sense_desc_find(io_hdr.sensep,
-                                          io_hdr.resp_sense_len, 9);
-            if (ucp) {
-                len = ucp[1] + 2;
-                if (len < 12)
-                    len = 12;
-                else if (len > 14)
-                    len = 14;
-                if (con->reportscsiioctl > 1) {
-                    pout("Values from ATA status return descriptor are:\n");
-                    dStrHex((const char *)ucp, len, 1);
+    ardp = NULL;
+    ard_len = 0;
+    have_sense = sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
+                                         &ssh);
+    if (have_sense) {
+        /* look for SAT ATA Return Descriptor */
+        ardp = sg_scsi_sense_desc_find(io_hdr.sensep,
+                                       io_hdr.resp_sense_len,
+                                       ATA_RETURN_DESCRIPTOR);
+        if (ardp) {
+            ard_len = ardp[1] + 2;
+            if (ard_len < 12)
+                ard_len = 12;
+            else if (ard_len > 14)
+                ard_len = 14;
+        }
+        scsi_do_sense_disect(&io_hdr, &sinfo);
+        status = scsiSimpleSenseFilter(&sinfo);
+        if (0 != status) {
+            if (con->reportscsiioctl > 0) {
+                pout("sat_command_interface: scsi error: %s\n",
+                     scsiErrString(status));
+                if (ardp && (con->reportscsiioctl > 1)) {
+                    pout("Values from ATA Return Descriptor are:\n");
+                    dStrHex((const char *)ardp, ard_len, 1);
                 }
-                if (ATA_CHECK_POWER_MODE == cdb[14])
-                    data[0] = ucp[5];      /* sector count (0:7) */
+            }
+            if (t_dir && (t_length > 0) && (copydata > 0))
+                memset(data, 0, copydata);
+            return -1;
+        }
+    }
+    if (ck_cond) {     /* expecting SAT specific sense data */
+        if (have_sense) {
+            if (ardp) {
+                if (con->reportscsiioctl > 1) {
+                    pout("Values from ATA Return Descriptor are:\n");
+                    dStrHex((const char *)ardp, ard_len, 1);
+                }
+                if (ATA_CHECK_POWER_MODE == ata_command)
+                    data[0] = ardp[5];      /* sector count (0:7) */
                 else if (STATUS_CHECK == command) {
-                    if ((ucp[9] == 0x4f) && (ucp[11] == 0xc2))
+                    if ((ardp[9] == 0x4f) && (ardp[11] == 0xc2))
                         return 0;    /* GOOD smart status */
-                    if ((ucp[9] == 0xf4) && (ucp[11] == 0x2c))
+                    if ((ardp[9] == 0xf4) && (ardp[11] == 0x2c))
                         return 1;    // smart predicting failure, "bad" status
                     // We haven't gotten output that makes sense so
                     // print out some debugging info
                     syserror("Error SMART Status command failed");
                     pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
-                    pout("Values from ATA status return descriptor are:\n");
-                    dStrHex((const char *)ucp, len, 1);
+                    pout("Values from ATA Return Descriptor are:\n");
+                    dStrHex((const char *)ardp, ard_len, 1);
                     return -1;
                 }
             }
         }
-        if (ucp == NULL) {
-            chk_cond = 0;       /* not the type of sense data expected */
-            if (t_dir && (t_length > 0))
-                data[0] = 0;
-        }
+        if (ardp == NULL)
+            ck_cond = 0;       /* not the type of sense data expected */
     }
-    if (0 == chk_cond) {
-        ucp = NULL;
-        if (sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len,
-                                    &ssh)) {
+    if (0 == ck_cond) {
+        if (have_sense) {
             if ((ssh.response_code >= 0x72) &&
                 ((SCSI_SK_NO_SENSE == ssh.sense_key) ||
                  (SCSI_SK_RECOVERED_ERR == ssh.sense_key)) &&
                 (0 == ssh.asc) &&
                 (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
-                /* look for SAT extended ATA status return descriptor (9) */
-                ucp = sg_scsi_sense_desc_find(io_hdr.sensep,
-                                              io_hdr.resp_sense_len, 9);
-                if (ucp) {
+                if (ardp) {
                     if (con->reportscsiioctl > 0) {
-                        pout("Values from ATA status return descriptor are:\n");
-                        len = ucp[1] + 2;
-                        if (len < 12)
-                            len = 12;
-                        else if (len > 14)
-                            len = 14;
-                        dStrHex((const char *)ucp, len, 1);
+                        pout("Values from ATA Return Descriptor are:\n");
+                        dStrHex((const char *)ardp, ard_len, 1);
                     }
                     return -1;
                 }
-            }
-            scsi_do_sense_disect(&io_hdr, &sinfo);
-            status = scsiSimpleSenseFilter(&sinfo);
-            if (0 != status) {
-                if (con->reportscsiioctl > 0)
-                    pout("sat_command_interface: scsi error: %s\n",
-                         scsiErrString(status));
-                return -1;
             }
         }
     }
