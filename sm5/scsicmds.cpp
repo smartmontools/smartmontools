@@ -47,7 +47,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.94 2007/03/23 03:47:28 dpgilbert Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.95 2007/12/03 02:14:20 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -233,7 +233,7 @@ const char * scsiErrString(int scsiErr)
         case SIMPLE_ERR_UNKNOWN: 
             return "unknown error (unexpected sense key)";
         case SIMPLE_ERR_ABORTED_COMMAND: 
-            return "aborted command (transport problem?)";
+            return "aborted command";
         default:
             return "unknown error";
     }
