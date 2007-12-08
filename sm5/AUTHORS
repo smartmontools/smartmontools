@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.18 2007/11/13 14:53:27 jhering Exp $
+$Id: AUTHORS,v 1.19 2007/12/08 12:58:53 chrfranke Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -11,19 +11,19 @@ ucsc-smartsuite and smartsuite packages, and is derived from that code.
 Maintainers / Developers:
 
 Bruce Allen		<smartmontools-support@lists.sourceforge.net>
-Erik Inge Bolsï¿½		<knan@mo.himolde.no>
+Erik Inge Bolsø		<knan@mo.himolde.no>
 Stanislav Brabec	<sbrabec@suse.cz>
 Peter Cassidy		<pcassidy@mac.com>
 Casper Dik		<casper@holland.sun.com>
 Christian Franke	<franke@computer.org>
-Guilhem Frï¿½zou		<guilhem.frezou@catii.fr>
+Guilhem Frézou		<guilhem.frezou@catii.fr>
 Douglas Gilbert		<dougg@torque.net>
 Guido Guenther		<agx@sigxcpu.org>
 Geoff Keating		<geoffk@geoffk.org>
 Dr. David Kirkby	<drkirkby@ntlworld.com>
-Kai Mï¿½kisara		<kai.makisara@kolumbus.fi>
+Kai Mäkisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu	<martines@rochester.rr.com>
-Frï¿½dï¿½ric L. W. Meunier	<http://www.pervalidus.net/contact.html>
+Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Keiji Sawada		<card_captor@users.sourceforge.net>
 David Snyder            <dasnyderx@yahoo.com>
 Sergey Svishchev	<svs@ropnet.ru>
