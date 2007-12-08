@@ -22,7 +22,11 @@
 #include <err.h>
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
+#if defined(__DragonFly__)
+#include <sys/nata.h>
+#else
 #include <sys/ata.h>
+#endif
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -40,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.54 2007/09/06 08:48:55 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.55 2007/12/08 17:11:11 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.54 2007/09/06 08:48:55 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.55 2007/12/08 17:11:11 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
