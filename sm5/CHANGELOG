@@ -1,27 +1,27 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.640 2007/12/03 02:14:20 dpgilbert Exp $
+$Id: CHANGELOG,v 1.641 2007/12/08 12:58:53 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsï¿½
+[EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [YD] Yuri Dario
 [CD] Casper Dik
 [CF] Christian Franke
-[GF] Guilhem Frï¿½zou
+[GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
 [JH] Joerg Hering
-[KM] Kai Mï¿½kisara
+[KM] Kai Mäkisara
 [EM] Eduard Martinescu
-[FM] Frï¿½dï¿½ric L. W. Meunier
+[FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
 [DS] David Snyder
 [SS] Sergey Svishchev
@@ -280,7 +280,7 @@ smartmontools 5.37 Experimental Release
        and T series.
 
   [GG] Add CCISS (Compaq Smart Array Controller) support with contributions
-       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frï¿½dï¿½ric
+       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frédéric
        BOITEUX
 
   [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
