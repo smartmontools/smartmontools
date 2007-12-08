@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.643 2007/12/08 17:24:39 shattered Exp $
+$Id: CHANGELOG,v 1.644 2007/12/08 18:05:55 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SS] DragonFly support added (using os_freebsd code; untested).
 
   [CF] smartctl: Fixed ATA identify byte swapping issue on big-endian
        platforms. This regression was introduced by the change for
