@@ -212,24 +212,12 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
       pout("===== [%s] DATA END (%d Bytes) =====\n\n", "LUN DATA", sizeof(_ReportLUNdata_struct));
     }
 
-#if 0
-    for (i=0; i<CISS_MAX_LUN; i++) 
-    {
-        if (luns->LUN[i][6] == target) 
-        {
-            memcpy(physlun, luns->LUN[i], 8);
-            free(luns);
-            return 0;
-        }
-    }
-#else
     if (target >= 0 && target < (int) be32toh(luns->LUNListLength) / 8)
     {
 	memcpy(physlun, luns->LUN[target], 8);
 	free(luns);
 	return 0;
     }
-#endif
 
     free(luns);
     return 1;
