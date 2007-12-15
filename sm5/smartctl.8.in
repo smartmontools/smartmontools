@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.103 2007/09/06 08:48:55 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.104 2007/12/15 17:47:10 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -565,7 +565,7 @@ that the device has already failed,
 .B or 
 that it is predicting its own failure within the next 24 hours.  If
 this happens, use the \'\-a\' option to get more information, and
-.B get your data off the disk and someplace safe as soon as you can.
+.B get your data off the disk and to someplace safe as soon as you can.
 .TP
 .B \-c, \-\-capabilities
 Prints only the generic SMART capabilities.  These show
@@ -1500,7 +1500,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.103 2007/09/06 08:48:55 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.104 2007/12/15 17:47:10 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
