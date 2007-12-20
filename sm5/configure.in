@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.128 2007/12/08 17:11:11 shattered Exp $
+# $Id: configure.in,v 1.129 2007/12/20 17:34:18 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.38, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.128 2007/12/08 17:11:11 shattered Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.129 2007/12/20 17:34:18 chrfranke Exp $'`
 smartmontools_release_date=2006/12/20
 smartmontools_release_time="20:37:59 UTC"
 
@@ -65,10 +65,14 @@ dnl Check for FreeBSD twa include files...
 AC_CHECK_HEADERS([sys/tw_osl_ioctl.h])
 dnl Check for FreeBSD ciss include files...
 AC_CHECK_HEADERS([dev/ciss/cissio.h])
-dnl Check for Linux CCISS include file
-AC_CHECK_HEADERS([linux/cciss_ioctl.h])
-dnl This header file needed at least for SuSE LINUX
+dnl This header file is needed for cciss_ioctl.h at least on SuSE LINUX
 AC_CHECK_HEADERS([linux/compiler.h])
+dnl Check for Linux CCISS include file
+AC_CHECK_HEADERS([linux/cciss_ioctl.h], [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_COMPILER_H
+# include <linux/compiler.h>
+#endif
+])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])
