@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bootstrap.sh,v 1.1 2008/01/02 19:00:46 bkorb Exp $
+# $Id: autogen.sh,v 1.16 2008/01/02 19:34:55 bkorb Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
