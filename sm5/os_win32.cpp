@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.59 2007/10/31 22:08:04 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.60 2008/01/07 21:37:57 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -333,16 +333,16 @@ int deviceopen(const char * pathname, char *type)
 	int len = strlen(pathname);
 
 	if (!strcmp(type, "ATA")) {
-		// [sh]d[a-z](:[saicp]+)? => Physical drive 0-25, with options
-		char drive[1+1] = "", options[7+1] = ""; int n1 = -1, n2 = -1;
-		if (   sscanf(pathname, "%*[sh]d%1[a-z]%n:%6[saicmp]%n", drive, &n1, options, &n2) >= 1
+		// [sh]d[a-z](:[saicmfp]+)? => Physical drive 0-25, with options
+		char drive[1+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
+		if (   sscanf(pathname, "%*[sh]d%1[a-z]%n:%7[saicmfp]%n", drive, &n1, options, &n2) >= 1
 		    && ((n1 == len && !options[0]) || n2 == len)                                       ) {
 			return ata_open(drive[0] - 'a', -1, options, -1);
 		}
-		// [sh]d[a-z],N(:[saicp]+)? => Physical drive 0-25, RAID port N, with options
+		// [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-25, RAID port N, with options
 		drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
 		unsigned port = ~0;
-		if (   sscanf(pathname, "%*[sh]d%1[a-z],%u%n:%7[saicmp3]%n", drive, &port, &n1, options, &n2) >= 2
+		if (   sscanf(pathname, "%*[sh]d%1[a-z],%u%n:%8[saicmfp3]%n", drive, &port, &n1, options, &n2) >= 2
 		    && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                     ) {
 			return ata_open(drive[0] - 'a', -1, options, port);
 		}
@@ -406,7 +406,6 @@ int deviceopen(const char * pathname, char *type)
 
 
 // Like close().  Acts only on handles returned by above function.
-// (Never called in smartctl!)
 int deviceclose(int fd)
 {
 	if ((fd & 0xff00) == ASPI_FDOFFSET)
@@ -454,8 +453,8 @@ void print_smartctl_examples(){
          "  following the device name: /dev/hdX:[saicm], where\n"
          "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
          "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH,\n"
-         "  'm': IOCTL_SCSI_MINIPORT_*.\n"
-         "  The default on this system is /dev/hdX:%s\n", ata_get_def_options()
+         "  'f': IOCTL_STORAGE_*,        'm': IOCTL_SCSI_MINIPORT_*.\n"
+         "  The default on this system is /dev/sdX:%s\n", ata_get_def_options()
   );
 }
 
@@ -1684,26 +1683,26 @@ typedef struct _STORAGE_PROPERTY_QUERY {
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Return STORAGE_BUS_TYPE for device, BusTypeUnknown on error.
-// (HANDLE does not need any access rights, therefore this works
-// without admin rights)
+union STORAGE_DEVICE_DESCRIPTOR_DATA {
+	STORAGE_DEVICE_DESCRIPTOR desc;
+	char raw[256];
+};
 
-static STORAGE_BUS_TYPE ioctl_get_storage_bus_type(HANDLE hdevice)
+// Get STORAGE_DEVICE_DESCRIPTOR_DATA for device.
+// (This works without admin rights)
+
+static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTOR_DATA * data)
 {
 	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery, 0};
-
-	union {
-		STORAGE_DEVICE_DESCRIPTOR dev;
-		char raw[256];
-	} prop;
-	memset(&prop, 0, sizeof(prop));
+	memset(data, 0, sizeof(*data));
 
 	DWORD num_out;
 	if (!DeviceIoControl(hdevice, IOCTL_STORAGE_QUERY_PROPERTY,
-		&query, sizeof(query), &prop, sizeof(prop), &num_out, NULL)) {
+		&query, sizeof(query), data, sizeof(*data), &num_out, NULL)) {
 		if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
 			pout("  IOCTL_STORAGE_QUERY_PROPERTY failed, Error=%ld\n", GetLastError());
-		return BusTypeUnknown;
+		errno = ENOSYS;
+		return -1;
 	}
 
 	if (con->reportataioctl > 1 || con->reportscsiioctl > 1) {
@@ -1713,28 +1712,83 @@ static STORAGE_BUS_TYPE ioctl_get_storage_bus_type(HANDLE hdevice)
 		     "    Revision: \"%s\"\n"
 		     "    Removable: %s\n"
 		     "    BusType:   0x%02x\n",
-		     (prop.dev.VendorIdOffset        ? prop.raw+prop.dev.VendorIdOffset : ""),
-		     (prop.dev.ProductIdOffset       ? prop.raw+prop.dev.ProductIdOffset : ""),
-		     (prop.dev.ProductRevisionOffset ? prop.raw+prop.dev.ProductRevisionOffset : ""),
-		     (prop.dev.RemovableMedia? "Yes":"No"), prop.dev.BusType
+		     (data->desc.VendorIdOffset        ? data->raw+data->desc.VendorIdOffset : ""),
+		     (data->desc.ProductIdOffset       ? data->raw+data->desc.ProductIdOffset : ""),
+		     (data->desc.ProductRevisionOffset ? data->raw+data->desc.ProductRevisionOffset : ""),
+		     (data->desc.RemovableMedia? "Yes":"No"), data->desc.BusType
 		);
 	}
-	return prop.dev.BusType;
+	return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// IOCTL_STORAGE_PREDICT_FAILURE
+
+#define IOCTL_STORAGE_PREDICT_FAILURE \
+  CTL_CODE(IOCTL_STORAGE_BASE, 0x0440, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+typedef struct _STORAGE_PREDICT_FAILURE {
+	ULONG  PredictFailure;
+	UCHAR  VendorSpecific[512];
+} STORAGE_PREDICT_FAILURE, *PSTORAGE_PREDICT_FAILURE;
+
+ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+// Call IOCTL_STORAGE_PREDICT_FAILURE, return PredictFailure value
+// or -1 on error, opionally return VendorSpecific data.
+// (This works without admin rights)
+
+static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
+{
+	STORAGE_PREDICT_FAILURE pred;
+	memset(&pred, 0, sizeof(pred));
+
+	DWORD num_out;
+	if (!DeviceIoControl(hdevice, IOCTL_STORAGE_PREDICT_FAILURE,
+		0, 0, &pred, sizeof(pred), &num_out, NULL)) {
+		if (con->reportataioctl > 1)
+			pout("  IOCTL_STORAGE_PREDICT_FAILURE failed, Error=%ld\n", GetLastError());
+		errno = ENOSYS;
+		return -1;
+	}
+
+	if (con->reportataioctl > 1) {
+		pout("  IOCTL_STORAGE_PREDICT_FAILURE returns:\n"
+		     "    PredictFailure: 0x%08lx\n"
+		     "    VendorSpecific: 0x%02x,0x%02x,0x%02x,...,0x%02x\n",
+		     pred.PredictFailure,
+		     pred.VendorSpecific[0], pred.VendorSpecific[1], pred.VendorSpecific[2],
+		     pred.VendorSpecific[sizeof(pred.VendorSpecific)-1]
+		);
+	}
+	if (data)
+		memcpy(data, pred.VendorSpecific, sizeof(pred.VendorSpecific));
+	return (!pred.PredictFailure ? 0 : 1);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
 // get CONTROLLER_* for open handle
-static int get_controller_type(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
+static int get_controller_type(HANDLE hdevice, bool admin, GETVERSIONINPARAMS_EX * ata_version_ex)
 {
 	// Try SMART_GET_VERSION first to detect ATA SMART support
 	// for drivers reporting BusTypeScsi (3ware)
-	if (smart_get_version(hdevice, ata_version_ex) >= 0)
+	if (admin && smart_get_version(hdevice, ata_version_ex) >= 0)
 		return CONTROLLER_ATA;
 
-	STORAGE_BUS_TYPE type = ioctl_get_storage_bus_type(hdevice);
-	switch (type) {
+	// Get BusType from device descriptor
+	STORAGE_DEVICE_DESCRIPTOR_DATA data;
+	if (storage_query_property_ioctl(hdevice, &data))
+		return CONTROLLER_UNKNOWN;
+
+	switch (data.desc.BusType) {
 		case BusTypeAta:
 		case BusTypeSata:
 			if (ata_version_ex)
@@ -1753,13 +1807,19 @@ static int get_controller_type(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_versi
 // get CONTROLLER_* for device path
 static int get_controller_type(const char * path, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
+	bool admin = true;
 	HANDLE h = CreateFileA(path, GENERIC_READ|GENERIC_WRITE,
 		FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-	if (h == INVALID_HANDLE_VALUE)
-		return CONTROLLER_UNKNOWN;
+	if (h == INVALID_HANDLE_VALUE) {
+		admin = false;
+		h = CreateFileA(path, 0,
+			FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+		if (h == INVALID_HANDLE_VALUE)
+			return CONTROLLER_UNKNOWN;
+	}
 	if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
-		pout(" %s: successfully opened\n", path);
-	int type = get_controller_type(h, ata_version_ex);
+		pout(" %s: successfully opened%s\n", path, (!admin ? " (without admin rights)" :""));
+	int type = get_controller_type(h, admin, ata_version_ex);
 	CloseHandle(h);
 	return type;
 }
@@ -1783,6 +1843,24 @@ static int get_log_drive_type(int drive)
 	char path[30];
 	snprintf(path, sizeof(path)-1, "\\\\.\\%c:", 'A'+drive);
 	return get_controller_type(path);
+}
+
+// Build IDENTIFY information from STORAGE_DEVICE_DESCRIPTOR
+static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device * id)
+{
+	STORAGE_DEVICE_DESCRIPTOR_DATA data;
+	if (storage_query_property_ioctl(hdevice, &data))
+		return -1;
+
+	memset(id, 0, sizeof(*id));
+	if (data.desc.ProductIdOffset)
+		copy_swapped(id->model, data.raw+data.desc.ProductIdOffset, sizeof(id->model));
+	if (data.desc.ProductRevisionOffset)
+		copy_swapped(id->fw_rev, data.raw+data.desc.ProductRevisionOffset, sizeof(id->fw_rev));
+	id->major_rev_num = 0x1<<3; // ATA-3
+	id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
+	id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
+	return 0;
 }
 
 
@@ -1851,6 +1929,7 @@ static int get_device_power_state(HANDLE hdevice)
 
 // TODO: Put in a struct indexed by fd (or better a C++ object of course ;-)
 static HANDLE h_ata_ioctl = 0;
+static bool ata_admin; // true if opened with admin rights
 static const char * ata_def_options;
 static char * ata_usr_options;
 const int max_ata_driveno = 25;
@@ -1916,7 +1995,8 @@ static const char * ata_get_def_options()
 	else if ((ver & 0xff) == 4) // WinNT4
 		return "sc"; // SMART_*, SCSI_PASS_THROUGH
 	else // WinXP, 2003, Vista
-		return "psaim"; // GetDevicePowerState(), SMART_*, ATA_, IDE_PASS_THROUGH, SCSI_MINIPORT_*
+		return "pasifm"; // GetDevicePowerState(), ATA_, SMART_*, IDE_PASS_THROUGH,
+		                 // STORAGE_*, SCSI_MINIPORT_*
 }
 
 
@@ -1956,18 +2036,28 @@ static int ata_open(int phydrive, int logdrive, const char * options, int port)
 	}
 
 	// Open device
-	if ((h_ata_ioctl = CreateFileA(devpath,
-		GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE,
-		NULL, OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
-		long err = GetLastError();	
+	h_ata_ioctl = INVALID_HANDLE_VALUE;
+	if (win9x || !(*options && !options[strspn(options, "fp")])) {
+		// Open with admin rights
+		ata_admin = true;
+		h_ata_ioctl = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+			FILE_SHARE_READ|FILE_SHARE_WRITE,
+			NULL, OPEN_EXISTING, 0, 0);
+	}
+	if (!win9x && h_ata_ioctl == INVALID_HANDLE_VALUE) {
+		// Open without admin rights
+		ata_admin = false;
+		h_ata_ioctl = CreateFileA(devpath, 0,
+			FILE_SHARE_READ|FILE_SHARE_WRITE,
+			NULL, OPEN_EXISTING, 0, 0);
+	}
+	if (h_ata_ioctl == INVALID_HANDLE_VALUE) {
+		long err = GetLastError();
 		pout("Cannot open device %s, Error=%ld\n", devpath, err);
 		if (err == ERROR_FILE_NOT_FOUND)
 			errno = (win9x && phydrive <= 3 ? smartvsd_error() : ENOENT);
-		else if (err == ERROR_ACCESS_DENIED) {
-			if (!win9x)
-				pout("Administrator rights are necessary to access physical drives.\n");
+		else if (err == ERROR_ACCESS_DENIED)
 			errno = EACCES;
-		}
 		else
 			errno = EIO;
 		h_ata_ioctl = 0;
@@ -1975,7 +2065,7 @@ static int ata_open(int phydrive, int logdrive, const char * options, int port)
 	}
 
 	if (con->reportataioctl > 1)
-		pout("%s: successfully opened\n", devpath);
+		pout("%s: successfully opened%s\n", devpath, (!ata_admin ? " (without admin rights)" :""));
 
 	// Set default options according to Windows version
 	if (!ata_def_options)
@@ -2166,9 +2256,9 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 	regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
 	int datasize = 0;
 
-	// Try by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH,
+	// Try by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
 	// and SCSI_MINIPORT_* if requested by user
-	const char * valid_options = (ata_usr_options ? "saicm" : "saic");
+	const char * valid_options = (ata_usr_options ? "saicmf" : "saicf");
 
 	switch (command) {
 	  case CHECK_POWER_MODE:
@@ -2230,7 +2320,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		break;
 	  case STATUS_CHECK:
 		// Requires CL,CH register return
-		valid_options = (ata_usr_options ? "saim" : "sai");
+		valid_options = (ata_usr_options ? "saimf" : "saif");
 	  case STATUS:
 		regs.bFeaturesReg = ATA_SMART_STATUS;
 		break;
@@ -2256,7 +2346,19 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 		return -1;
 	}
 
-	// Try all valid ioctls in the order specified in dev_ioctls;
+	if (!ata_admin) {
+		// Restrict to IOCTL_STORAGE_*
+		if (strchr(valid_options, 'f'))
+			valid_options = "f";
+		else if (strchr(valid_options, 'p'))
+			valid_options = "p";
+		else {
+			errno = ENOSYS;
+			return -1;
+		}
+	}
+
+	// Try all valid ioctls in the order specified in ata_*_options
 	bool powered_up = false;
 	assert(ata_def_options);
 	const char * options = (ata_usr_options ? ata_usr_options : ata_def_options);
@@ -2317,6 +2419,47 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 			break;
 		  case 'c':
 			rc = ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+			break;
+		  case 'f':
+			switch (command) {
+			  case READ_VALUES:
+				rc = storage_predict_failure_ioctl(h_ata_ioctl, data);
+				if (rc > 0)
+					rc = 0;
+				break;
+			  case READ_THRESHOLDS:
+				{
+					ata_smart_values sv;
+					rc = storage_predict_failure_ioctl(h_ata_ioctl, (char *)&sv);
+					if (rc < 0)
+						break;
+					rc = 0;
+					// Fake zero thresholds
+					ata_smart_thresholds_pvt * tr = (ata_smart_thresholds_pvt *)data;
+					memset(tr, 0, 512);
+					for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++)
+						tr->chksum -= tr->thres_entries[i].id = sv.vendor_attributes[i].id;
+				}
+				break;
+			  case IDENTIFY:
+				rc = get_identify_from_device_property(h_ata_ioctl, (ata_identify_device *)data);
+				break;
+			  case ENABLE:
+				rc = 0;
+				break;
+			  case STATUS_CHECK:
+			  case STATUS:
+				rc = storage_predict_failure_ioctl(h_ata_ioctl);
+				if (rc > 0) {
+					if (command == STATUS_CHECK) {
+						regs.bCylHighReg = 0x2c; regs.bCylLowReg = 0xf4;
+					}
+					rc = 0;
+				}
+				break;
+			  default:
+				errno = ENOSYS; rc = -1;
+			}
 			break;
 		  case '3':
 			rc = ata_via_3ware_miniport_ioctl(h_ata_ioctl, &regs, data, datasize, port);
