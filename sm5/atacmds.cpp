@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.188 2007/07/26 20:58:50 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.189 2008/01/07 20:07:55 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -796,13 +796,14 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
     }
   }
 
-  // Try new ATA-8 minor revision numbers (Table 30 of T13/1699-D Revision 4b)
+  // Try new ATA-8 minor revision numbers (Table 32 of T13/1699-D Revision 4c)
   // (not in actual_ver/minor_str to avoid large sparse tables)
   const char *desc;
   switch (*minor) {
     case 0x0027: desc = "ATA-8-ACS revision 3c"; break;
     case 0x0029: desc = "ATA-8-ACS revision 4"; break;
     case 0x0033: desc = "ATA-8-ACS revision 3e"; break;
+    case 0x0039: desc = "ATA-8-ACS revision 4c"; break;
     case 0x0042: desc = "ATA-8-ACS revision 3f"; break;
     case 0x0052: desc = "ATA-8-ACS revision 3b"; break;
     case 0x0107: desc = "ATA-8-ACS revision 2d"; break;
