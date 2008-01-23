@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.16 2008/01/02 19:34:55 bkorb Exp $
+# $Id: autogen.sh,v 1.17 2008/01/23 13:43:24 ballen4705 Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -68,7 +68,14 @@ case "$AUTOMAKE" in
   *automake-1.[78]|*automake17)
     ;;
   *)
-    ver="`$AUTOMAKE --version | head -1 | sed -n 's,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
+    # first see if we need 'head -1' or 'head -n 1'
+    echo hello | head -1 > /dev/null 2> /dev/null
+    if [ $? ] ; then 
+        ver="`$AUTOMAKE --version | head -n 1 | sed -n 's,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
+    else
+        ver="`$AUTOMAKE --version | head -1 | sed -n 's,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
+    fi
+
     ver="${ver:-?.?.?}"
     case "$ver" in
       1.[78]*|1.9.[1-6]|1.10) ver= ;;

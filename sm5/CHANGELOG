@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.647 2008/01/07 21:37:57 chrfranke Exp $
+$Id: CHANGELOG,v 1.648 2008/01/23 13:43:24 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,6 +34,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [BA] Fixed autogen.sh script so that it uses 'grep -n 1' if 'grep -1'
+       fails.  Needed for Mac OS X 10.4. Uck.
+ 
   [CF] Windows: Added IOCTL_STORAGE_PREDICT_FAILURE. This allows access
        to ATA SMART status and data if other calls do not work.
        Thanks to Jaroslaw Kowalski for pointing this out.
