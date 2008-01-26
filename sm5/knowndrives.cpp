@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.162 2007/11/05 00:29:11 geoffk1 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.163 2008/01/26 09:33:37 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1089,7 +1089,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Scorpio family",
-    "^WDC WD((12|10|8|6|4)00(UE|VE|BEAS|BEVS))-.*$",
+    "^WDC WD((25|20|16|12|10|8|6|4)00(UE|VE|BEAS|BEVS))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
