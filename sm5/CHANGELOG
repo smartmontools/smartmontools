@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.648 2008/01/23 13:43:24 ballen4705 Exp $
+$Id: CHANGELOG,v 1.649 2008/01/29 18:36:20 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Replaced 'head [-n] -1' by 'sed 1...' in autogen.sh to avoid
+       portability issues.
 
   [BA] Fixed autogen.sh script so that it uses 'grep -n 1' if 'grep -1'
        fails.  Needed for Mac OS X 10.4. Uck.
