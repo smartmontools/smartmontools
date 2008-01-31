@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-7 Philip Williams, Bruce Allen
+ * Copyright (C) 2003-8 Philip Williams, Bruce Allen
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.164 2008/01/29 18:52:17 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.165 2008/01/31 21:54:44 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1063,23 +1063,29 @@ const drivesettings knowndrives[] = {
    * a  non-standard manner.  These entries may need to be updated when it
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
-   * smartmontools FAQ */
-    "^WDC WD((4|6|8|10|12|16|18|20|25|30|32)00JB|(12|20|25)00PB)-.*$",
+   * smartmontools FAQ 
+   * UPDATE 2: this does not apply to more recent models, at least WD3200AAJB */
+    "^WDC WD((4|6|8|10|12|16|18|20|25|30|32|40|50)00(JB|PB|AAJB|AAKB))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar SE (Serial ATA) family",
-    "^WDC WD((4|8|12|16|20|25|32)00JD|(12|16|20|25|30|32)00JS|1600AAJS)-.*$",
+  { "Western Digital Caviar SE Serial ATA family",
+    "^WDC WD((4|8|12|16|20|25|32|40)00(JD|KD))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar SE16 family",
-    "^WDC WD((25|32|40|50)00KS|4000KD)-.*$",
+  { "Western Digital Caviar Second Generation Serial ATA family",
+    "^WDC WD((8|12|16|20|25|30|32|40|50|75)00(JS|KS|AABS|AAJS|AAKS))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar RE Serial ATA series",
-    "^WDC WD((12|16|25|32)00SD|2500YD|4000Y[RS]|5000YS)-.*$",
+  { "Western Digital Caviar RE Serial ATA family",
+    "^WDC WD((12|16|25|32|40|50|75)00(SD|YD|YR|YS|ABYS|AYYS))-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar RE EIDE family",
+    "^WDC WD((12|16|25|32)00SB)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1089,7 +1095,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Scorpio family",
-    "^WDC WD((25|20|16|12|10|8|6|4)00(UE|VE|BEAS|BEVS))-.*$",
+    "^WDC WD((4|6|8|10|12|16|20|25)00(UE|VE|BEAS|BEVE|BEVS))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
