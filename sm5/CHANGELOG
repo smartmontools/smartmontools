@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.650 2008/01/29 18:52:17 chrfranke Exp $
+$Id: CHANGELOG,v 1.651 2008/01/31 21:54:44 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Drive database: Added several Western Digital Caviar and Scorpio
+       drives, added Caviar RE EIDE family.
 
   [CF] Drive database: Added Samsung P80 series with *-25 firmware.
 
