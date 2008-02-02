@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.651 2008/01/31 21:54:44 chrfranke Exp $
+$Id: CHANGELOG,v 1.652 2008/02/02 18:10:48 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Drive database: Added Fujitsu MHW2 BH, Maxtor DiamondMax 17, 20, 21,
+       Hitachi Travelstar 4K40, 5K120, 7K200, Deskstar 7K160, T7K500,
+       T7K1000, Toshiba 1.8", Seagate Momentus 5400.3, 5400.3 ED, 7200.2,
+       Barracuda 7200.11 and ES.
+       Updated Toshiba 2.5", Seagate Barracuda 7200.9 and 7200.10.
+       Added missing "(Hitachi )?" to Travelstar entries.
 
   [CF] Drive database: Added several Western Digital Caviar and Scorpio
        drives, added Caviar RE EIDE family.
