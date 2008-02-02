@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.165 2008/01/31 21:54:44 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.166 2008/02/02 18:10:48 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -286,6 +286,11 @@ const drivesettings knowndrives[] = {
     NULL,
     vendoropts_9_seconds,
     NULL, NULL
+  },
+  { "Fujitsu MHW2 BH",
+    "^FUJITSU MHW2(04|06|08|10|12|16)0BH$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { NULL, // Samsung SV4012H (known firmware)
     "^SAMSUNG SV4012H$",
@@ -650,6 +655,21 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Maxtor DiamondMax 17",
+    "^Maxtor 6G(080L|160[PE])0$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Maxtor DiamondMax 20",
+    "^MAXTOR STM3(40|80|160)[28]1[12]0?AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Maxtor DiamondMax 21",
+    "^MAXTOR STM3(250|320)820AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Maxtor MaXLine Plus II",
     "^Maxtor 7Y250[PM]0$",
     ".*",
@@ -757,18 +777,28 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Travelstar 4K40",
+    "^(Hitachi )?HTS4240[234]0M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
   { "Hitachi Travelstar 5K80 family",
-    "^HTS5480[8642]0M9AT00$",
+    "^(Hitachi )?HTS5480[8642]0M9AT00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
   { "Hitachi Travelstar 5K100 series",
-    "^HTS5410[1864]0G9(AT|SA)00$",
+    "^(Hitachi )?HTS5410[1864]0G9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
   { "Hitachi Travelstar E5K100 series",
-    "^HTE541040G9(AT|SA)00$",
+    "^(Hitachi )?HTE541040G9(AT|SA)00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { "Hitachi Travelstar 5K120",
+    "^(Hitachi )?HTS5412(60|80|10|12)H9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
@@ -778,22 +808,27 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL 
   },
   { "Hitachi Travelstar 7K60",
-    "^HTS726060M9AT00$",
+    "^(Hitachi )?HTS726060M9AT00$",
+    ".*",
+    NULL, NULL, NULL, NULL 
+  },
+  { "Hitachi Travelstar E7K60",
+    "^(Hitachi )?HTE7260[46]0M9AT00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
   { "Hitachi Travelstar 7K100",
-    "^HTS7210[168]0G9(AT|SA)00$",
+    "^(Hitachi )?HTS7210[168]0G9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
   { "Hitachi Travelstar E7K100",
-    "^HTE7210[168]0G9(AT|SA)00$",
+    "^(Hitachi )?HTE7210[168]0G9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
-  { "Hitachi Travelstar E7K60 family",
-    "^HTE7260[46]0M9AT00$",
+  { "Hitachi Travelstar 7K200",
+    "^(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
   },
@@ -822,6 +857,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Deskstar 7K160",
+    "^(Hitachi )?HDS7216(80|16)PLA[3T]80$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Hitachi Deskstar 7K250 series",
     "^(Hitachi )?HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)$",
     ".*",
@@ -842,13 +882,33 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Deskstar T7K500",
+    "^(Hitachi )?HDT7250(25|32|40|50)VLA(360|380|T80)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Hitachi Deskstar 7K1000",
+    "^(Hitachi )?HDS7210(75|10)KLA330$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Hitachi Ultrastar 7K1000",
+    "^(Hitachi )?HUA7210(50|75|10)KLA330$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Toshiba 2.5\" HDD series (30-60 GB)",
-    "^TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)$",
+    "^TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3025|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { "Toshiba 2.5\" HDD series (80 GB and above)",
     "^TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Toshiba 1.8\" HDD series",
+    "^TOSHIBA MK[23468]00[4-9]GA[HL]$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -892,8 +952,23 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate Momentus 5400.3",
+    "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Momentus 5400.3 ED",
+    "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AB$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate Momentus 7200.1 series",
     "^ST9(10021|80825|6023|4015)AS?$", 
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Momentus 7200.2",
+    "^ST9(80813|100821|120823|160823|200420)ASG?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -973,12 +1048,22 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.9 family",
-    "^ST3(500[68]41|400[68]33|300[68]22|250[68]24|250[68]24|200827|160[28]12|120814|120[28]13|80[28]110|402111)AS?$",
+    "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.10 family",
-    "^ST3(750[68]4|500[68]3|400[68]2|320[68]2|300[68]2|250[68]2|20082)0AS?$",
+    "^ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Barracuda 7200.11",
+    "^ST3(500[368]2|750[36]3|1000[36]4)0AS?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Barracuda ES",
+    "^ST3(250[68]2|32062|40062|50063|75064)0NS$",
     ".*",
     NULL, NULL, NULL, NULL
   },
