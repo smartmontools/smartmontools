@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.652 2008/02/02 18:10:48 chrfranke Exp $
+$Id: CHANGELOG,v 1.653 2008/02/17 00:30:47 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] smartd re-opens "SCSI" devices as ATA devices if a SAT layer is
+       detected (smartd bug IMO). In Linux this upsets scsi generic
+       device nodes (e.g. /dev/sg0). Detect the re-open in os_linux.cpp
+       and set the O_RDWR flag (ATA uses the O_RDONLY flag).
 
   [CF] Drive database: Added Fujitsu MHW2 BH, Maxtor DiamondMax 17, 20, 21,
        Hitachi Travelstar 4K40, 5K120, 7K200, Deskstar 7K160, T7K500,
