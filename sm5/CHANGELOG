@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.654 2008/02/23 06:41:59 ballen4705 Exp $
+$Id: CHANGELOG,v 1.655 2008/02/24 20:16:31 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+
+
+SMARTMONTOOLS STABLE RELEASE 5.38 2008/02/24
 
   [BA] Fix auto-offline support in FreeBSD.  Thanks to
        Cyrus Rahman <crahman@gmail.com> for the patch, and

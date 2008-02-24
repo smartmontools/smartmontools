@@ -1,9 +1,43 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.32 2006/12/20 20:39:25 chrfranke Exp $
+CVS ID: $Id: NEWS,v 1.33 2008/02/24 20:16:31 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
+
+Date 2008-02-24
+Summary: smartmontools release 5.38 (STABLE)
+--------------------------------------------
+This is a stable release of smartmontools.  In addition to changes
+below, it includes:
+
+ - Fixed auto-offline support in FreeBSD
+ - SAT device type + SCSI generic devices work properly with smartd under Linux
+ - Many additions to drive database
+ - More portable autogen/autoconf/automake script set
+ - Additional Windows IOCTL route to access SMART data
+ - Some ATA-8 updates
+ - Smoother CCISS compilation support in Linux
+ - Dragonfly support
+ - Fixed some ATA identity byte swap problems on big endian CPUs
+ - Added support for the QNX operating system
+ - No-fork option added to smartd
+ - Improved device scanning and drive type recognition in Windows
+ - 3ware support for controllers with more disks (32 max)
+ - Improved Windows installer
+ - Improved SMART Attribute list and descriptions
+ - Fix to smartctl return codes
+ - Fix to scheduled tests on Highpoint RAID controllers
+ - New samsung firmware bug workaround option
+ - Auto-offline and Auto-save fixed in Linux + libata
+ - Solaris: better SCSI support
+ - Fixed and improvements to CCISS support
+ - More options for SCSI temperature monitoring and history
+ - Additional command line options for selective self-tests
+ - Compilation fixes for various platforms.
+
+See CHANGELOG for more details, or smartmontools CVS for still further
+details.
 
 Date 2006-12-20
 Summary: smartmontools release 5.37 (UNSTABLE/EXPERIMENTAL)
