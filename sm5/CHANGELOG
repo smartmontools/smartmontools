@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.655 2008/02/24 20:16:31 ballen4705 Exp $
+$Id: CHANGELOG,v 1.656 2008/02/26 13:47:58 guidog Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/02/24
+
+  [GG] add kfreebsd gnu support to configure.in
 
   [BA] Fix auto-offline support in FreeBSD.  Thanks to
        Cyrus Rahman <crahman@gmail.com> for the patch, and
