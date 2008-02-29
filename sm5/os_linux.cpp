@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.98 2008/02/17 00:30:47 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.99 2008/02/29 20:46:27 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.98 2008/02/17 00:30:47 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.99 2008/02/29 20:46:27 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -484,12 +484,13 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
     buff[2]=ATA_SMART_STATUS;
     break;
   case AUTO_OFFLINE:
-    // NSECT is 241 for enable but no data transfer.  Use TASK ioctl.
+    // NOTE: According to ATAPI 4 and UP, this command is obsolete
+    // select == 241 for enable but no data transfer.  Use TASK ioctl.
     buff[1]=ATA_SMART_AUTO_OFFLINE;
     buff[2]=select;
     break;
   case AUTOSAVE:
-    // NSECT is 248 for enable but no data transfer.  Use TASK ioctl.
+    // select == 248 for enable but no data transfer.  Use TASK ioctl.
     buff[1]=ATA_SMART_AUTOSAVE;
     buff[2]=select;
     break;
