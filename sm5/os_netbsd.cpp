@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.19 2006/09/20 16:17:31 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.20 2008/03/03 22:29:02 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -171,10 +171,9 @@ int
 marvell_command_interface(int fd, smart_command_set command, int select, char *data)
 { return -1; }
 
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  return -1;
-}
+int
+highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{ return -1; }
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)
@@ -248,14 +247,14 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     copydata = 1;
     break;
   case ENABLE:
-    req.flags = ATACMD_READ;
+    req.flags = ATACMD_READREG;
     req.features = WDSM_ENABLE_OPS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
     req.timeout = 1000;
     break;
   case DISABLE:
-    req.flags = ATACMD_READ;
+    req.flags = ATACMD_READREG;
     req.features = WDSM_DISABLE_OPS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
@@ -263,28 +262,24 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     break;
   case AUTO_OFFLINE:
     /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
-    req.flags = ATACMD_READ;
+    req.flags = ATACMD_READREG;
     req.features = ATA_SMART_AUTO_OFFLINE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (char *)inbuf;
-    req.datalen = sizeof(inbuf);
     req.cylinder = WDSMART_CYL;
-    req.sec_num = select;
-    req.sec_count = 1;
+    req.sec_count = select;
     req.timeout = 1000;
     break;
   case AUTOSAVE:
-    req.flags = ATACMD_READ;
+    req.flags = ATACMD_READREG;
     req.features = ATA_SMART_AUTOSAVE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
-    req.sec_count = 0xf1;
-    /* to enable autosave */
+    req.sec_count = select;
     req.timeout = 1000;
     break;
   case IMMEDIATE_OFFLINE:
     /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
-    req.flags = ATACMD_READ;
+    req.flags = ATACMD_READREG;
     req.features = ATA_SMART_IMMEDIATE_OFFLINE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
     req.databuf = (char *)inbuf;
@@ -294,10 +289,9 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.sec_count = 1;
     req.timeout = 1000;
     break;
-  case STATUS_CHECK:
-    /* same command, no HDIO in NetBSD */
-  case STATUS:
-    req.flags = ATACMD_READ;
+  case STATUS:		/* should return 0 if SMART is enabled at all */
+  case STATUS_CHECK:	/* should return 0 if disk's health is ok */
+    req.flags = ATACMD_READREG;
     req.features = WDSM_STATUS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
@@ -314,13 +308,16 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     return -1;
   }
 
-  if (command == STATUS_CHECK) {
+  if (command == STATUS_CHECK || command == AUTOSAVE || command == AUTO_OFFLINE) {
     char buf[512];
 
     unsigned const short normal = WDSMART_CYL, failed = 0x2cf4;
 
     if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
       perror("Failed command");
+      return -1;
+    }
+    if (req.retsts != ATACMD_OK) {
       return -1;
     }
     /* Cyl low and Cyl high unchanged means "Good SMART status" */
@@ -341,10 +338,15 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     printwarning(BAD_SMART, buf);
     return 0;
   }
+
   if ((retval = ioctl(fd, ATAIOCCOMMAND, &req))) {
     perror("Failed command");
     return -1;
   }
+  if (req.retsts != ATACMD_OK) {
+    return -1;
+  }
+
   if (command == CHECK_POWER_MODE)
     data[0] = req.sec_count;
 
@@ -417,7 +419,16 @@ do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
   }
-  return 0;
+  switch (sc.retsts) {
+    case SCCMD_OK:
+      return 0;
+    case SCCMD_TIMEOUT:
+      return -ETIMEDOUT;
+    case SCCMD_BUSY:
+      return -EBUSY;
+    default:
+      return -EIO;
+  }
 }
 
 /* print examples for smartctl */

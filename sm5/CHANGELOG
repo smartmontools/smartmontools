@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.656 2008/02/26 13:47:58 guidog Exp $
+$Id: CHANGELOG,v 1.657 2008/03/03 22:29:02 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/02/24
+
+  [SS] Major NetBSD-specific bugfixes:
+       - handle actual SCSI and ATA errors and not only ioctl() errors;
+       - set up I/O request properly for AUTO_OFFLINE and AUTOSAVE commands (inspired by
+         similar change in os_freebsd.cpp);
+       - handle AUTO_OFFLINE and AUTOSAVE like STATUS_CHECK (like os_linux.cpp does).
 
   [GG] add kfreebsd gnu support to configure.in
 
