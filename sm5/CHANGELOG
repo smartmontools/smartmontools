@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.657 2008/03/03 22:29:02 shattered Exp $
+$Id: CHANGELOG,v 1.658 2008/03/03 22:38:48 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/02/24
+
+  [SS] (Maybe) fix attribute autosave in FreeBSD.
 
   [SS] Major NetBSD-specific bugfixes:
        - handle actual SCSI and ATA errors and not only ioctl() errors;

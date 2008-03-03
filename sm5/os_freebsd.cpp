@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.56 2008/02/23 06:41:59 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.57 2008/03/03 22:38:48 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.56 2008/02/23 06:41:59 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.57 2008/03/03 22:38:48 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -374,8 +374,8 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     break;
   case AUTOSAVE:
     request.u.ata.feature=ATA_SMART_AUTOSAVE;
-    request.u.ata.count=0xf1;  // to enable autosave
     request.u.ata.lba=0xc24f<<8;
+    request.u.ata.count=select;
     request.flags=ATA_CMD_CONTROL;
     break;
   case IMMEDIATE_OFFLINE:
