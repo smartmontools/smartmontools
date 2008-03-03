@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.14 2007/04/05 16:39:21 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.15 2008/03/03 22:42:44 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -172,10 +172,9 @@ int
 marvell_command_interface(int fd, smart_command_set command, int select, char *data)
 { return -1; }
 
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
-{
-  return -1;
-}
+int
+highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+{ return -1; }
 
 int
 ata_command_interface(int fd, smart_command_set command, int select, char *data)
