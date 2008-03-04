@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.22 2008/03/04 17:56:03 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.23 2008/03/04 18:02:07 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -41,7 +41,7 @@ printwarning(int msgNo, const char *extra)
   static int printed[] = {0, 0};
   static const char *message[] = {
     "Error: SMART Status command failed.\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    PACKAGE_STRING " does not currentlly support twe(4) devices (3ware Escalade)\n",
+    PACKAGE_STRING " does not currently support twe(4) and twa(4) devices (3ware Escalade, Apache)\n",
   };
 
   if (msgNo >= 0 && msgNo <= MAX_MSG) {
@@ -60,7 +60,7 @@ static const char *net_dev_ata_disk = "wd";
 static const char *net_dev_scsi_disk = "sd";
 static const char *net_dev_scsi_tape = "enrst";
 
-/* Guess device type(ata or scsi) based on device name */
+/* Guess device type (ATA or SCSI) based on device name */
 int
 guess_device_type(const char *dev_name)
 {
