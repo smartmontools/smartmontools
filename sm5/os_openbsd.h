@@ -3,9 +3,9 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-6 David Snyder <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-8 David Snyder <smartmontools-support@lists.sourceforge.net>
  *
- * Derived from os_netbsd.c by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-6 
+ * Derived from os_netbsd.c by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-8 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #ifndef OS_OPENBSD_H_
 #define OS_OPENBSD_H_
 
-#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.5 2006/09/19 07:22:09 snyderx Exp $\n"
+#define OS_OPENBSD_H_CVSID "$Id: os_openbsd.h,v 1.6 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 /* from NetBSD: atareg.h,v 1.17, by Manuel Bouyer */
 /* Actually fits _perfectly_ into OBSDs wdcreg.h, but... */

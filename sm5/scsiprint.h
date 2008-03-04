@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-6 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-8 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.20 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.21 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 int scsiPrintMain(int fd);
 

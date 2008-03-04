@@ -4,7 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) Joerg Hering       <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-6 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  */
 #ifndef OS_QNXNTO_H_
 #define OS_QNXNTO_H_
-#define OS_QNXNTO_H_CVSID "$Id: os_qnxnto.h,v 1.1 2007/11/13 14:53:27 jhering Exp $\n"
+#define OS_QNXNTO_H_CVSID "$Id: os_qnxnto.h,v 1.2 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include

@@ -3,9 +3,9 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-6 David Snyder <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-8 David Snyder <smartmontools-support@lists.sourceforge.net>
  *
- * Derived from os_netbsd.cpp by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-6 
+ * Derived from os_netbsd.cpp by Sergey Svishchev <smartmontools-support@lists.sourceforge.net>, Copyright (C) 2003-8 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "utility.h"
 #include "os_openbsd.h"
 
-const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.15 2008/03/03 22:42:44 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_openbsd.cpp,v 1.16 2008/03/04 22:09:47 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_OPENBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */

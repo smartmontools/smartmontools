@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-6 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-8 Sergey Svishchev <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #ifndef OS_NETBSD_H_
 #define OS_NETBSD_H_
 
-#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.9 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define OS_NETBSD_H_CVSID "$Id: os_netbsd.h,v 1.10 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 #include <sys/device.h>
 #include <sys/param.h>
