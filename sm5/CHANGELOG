@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.658 2008/03/03 22:38:48 shattered Exp $
+$Id: CHANGELOG,v 1.659 2008/03/04 21:24:58 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,7 +36,19 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 
-SMARTMONTOOLS STABLE RELEASE 5.38 2008/02/24
+SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/04
+
+  [BA] smartd.initd.in addition from Erwan Velu <erwan@seanodes.com>
+
+  [BA] smartd fixes:
+
+       - On Linux, DEVICESCAN now automatically recognizes SATA devices
+         behind libata, and SATA devices behind the Marvell driver, and
+         treats them correctly.
+
+       - On Linux, a '-d sat' or '-d marvell' is automatically added
+         if libata or the marvell driver are recognized behind a SCSI
+         device type
 
   [SS] (Maybe) fix attribute autosave in FreeBSD.
 

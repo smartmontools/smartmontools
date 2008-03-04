@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.36 2007/11/01 20:53:30 chrfranke Exp $
+# $Id: smartd.initd.in,v 1.37 2008/03/04 21:24:58 ballen4705 Exp $
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -11,15 +11,16 @@
 
 # For SuSE and cousins
 ### BEGIN INIT INFO
-# Provides:          smartd
-# Required-Start:    $syslog
+# Provides:                   smartd
+# Required-Start:             $syslog
 # X-UnitedLinux-Should-Start: $sendmail
-# Required-Stop:     $syslog
+# Should-Start:               $sendmail
+# Required-Stop:              $syslog
 # X-UnitedLinux-Should-Stop:
-# Default-Start:     2 3 5
+# Default-Start:              2 3 5
 # Default-Stop:
-# Short-Description: Monitors disk and tape health via S.M.A.R.T.
-# Description:       Start S.M.A.R.T. disk and tape monitor.
+# Short-Description:          Monitors disk and tape health via S.M.A.R.T.
+# Description:                Start S.M.A.R.T. disk and tape monitor.
 ### END INIT INFO
 
 # This program is free software; you can redistribute it and/or modify it
