@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.21 2008/03/04 17:54:27 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.22 2008/03/04 17:56:03 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -183,6 +183,8 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
   int retval, copydata = 0;
 
   memset(&req, 0, sizeof(req));
+  req.timeout = 1000;
+
   memset(&inbuf, 0, sizeof(inbuf));
 
   switch (command) {
@@ -193,7 +195,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.databuf = (char *)inbuf;
     req.datalen = sizeof(inbuf);
     req.cylinder = WDSMART_CYL;
-    req.timeout = 1000;
     copydata = 1;
     break;
   case READ_THRESHOLDS:
@@ -203,7 +204,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.databuf = (char *)inbuf;
     req.datalen = sizeof(inbuf);
     req.cylinder = WDSMART_CYL;
-    req.timeout = 1000;
     copydata = 1;
     break;
   case READ_LOG:
@@ -215,7 +215,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
-    req.timeout = 1000;
     copydata = 1;
     break;
   case WRITE_LOG:
@@ -228,14 +227,12 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
-    req.timeout = 1000;
     break;
   case IDENTIFY:
     req.flags = ATACMD_READ;
     req.command = WDCC_IDENTIFY;
     req.databuf = (char *)inbuf;
     req.datalen = sizeof(inbuf);
-    req.timeout = 1000;
     copydata = 1;
     break;
   case PIDENTIFY:
@@ -243,7 +240,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = ATAPI_IDENTIFY_DEVICE;
     req.databuf = (char *)inbuf;
     req.datalen = sizeof(inbuf);
-    req.timeout = 1000;
     copydata = 1;
     break;
   case ENABLE:
@@ -251,14 +247,12 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.features = WDSM_ENABLE_OPS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
-    req.timeout = 1000;
     break;
   case DISABLE:
     req.flags = ATACMD_READREG;
     req.features = WDSM_DISABLE_OPS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
-    req.timeout = 1000;
     break;
   case AUTO_OFFLINE:
     /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
@@ -267,7 +261,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
     req.sec_count = select;
-    req.timeout = 1000;
     break;
   case AUTOSAVE:
     req.flags = ATACMD_READREG;
@@ -275,7 +268,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
     req.sec_count = select;
-    req.timeout = 1000;
     break;
   case IMMEDIATE_OFFLINE:
     /* NOTE: According to ATAPI 4 and UP, this command is obsolete */
@@ -285,7 +277,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
-    req.timeout = 1000;
     break;
   case STATUS:		/* should return 0 if SMART is enabled at all */
   case STATUS_CHECK:	/* should return 0 if disk's health is ok */
@@ -293,12 +284,10 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.features = WDSM_STATUS;
     req.command = WDCC_SMART;
     req.cylinder = WDSMART_CYL;
-    req.timeout = 1000;
     break;
   case CHECK_POWER_MODE:
     req.flags = ATACMD_READREG;
     req.command = WDCC_CHECK_PWR;
-    req.timeout = 1000;
     break;
   default:
     pout("Unrecognized command %d in ata_command_interface()\n", command);
