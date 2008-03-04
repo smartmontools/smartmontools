@@ -1,14 +1,14 @@
 ;
 ; installer.nsi - NSIS install script for smartmontools
 ;
-; Copyright (C) 2006-7 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; Project home page is: http://smartmontools.sourceforge.net
 ;
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
 ; Process with makensis to create installer (tested with NSIS 2.29)
 ;
-; $Id: installer.nsi,v 1.3 2007/08/19 14:57:05 chrfranke Exp $
+; $Id: installer.nsi,v 1.4 2008/03/04 22:09:48 ballen4705 Exp $
 ;
 
 

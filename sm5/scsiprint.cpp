@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-7 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-8 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.120 2007/07/21 20:59:41 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.121 2008/03/04 22:09:47 ballen4705 Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables

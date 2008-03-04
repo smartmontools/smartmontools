@@ -7,7 +7,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-6 Philip Williams
+ * Copyright (C) 2003-8 Philip Williams
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #ifndef ATACMDNAMES_H_
 #define ATACMDNAMES_H_
 
-#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h,v 1.5 2006/04/12 14:54:28 ballen4705 Exp $\n"
+#define ATACMDNAMES_H_CVSID "$Id: atacmdnames.h,v 1.6 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values. */

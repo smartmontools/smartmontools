@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.89 2007/07/26 20:58:50 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.90 2008/03/04 22:09:47 ballen4705 Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array

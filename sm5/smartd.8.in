@@ -1,7 +1,7 @@
 .ig
-Copyright (C) 2002-7 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.120 2007/11/01 20:53:29 chrfranke Exp $
+$Id: smartd.8.in,v 1.121 2008/03/04 22:09:47 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1965,4 +1965,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.120 2007/11/01 20:53:29 chrfranke Exp $
+$Id: smartd.8.in,v 1.121 2008/03/04 22:09:47 ballen4705 Exp $
