@@ -1,17 +1,19 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.33 2008/02/24 20:16:31 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.34 2008/03/04 21:24:58 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
 
-Date 2008-02-24
+Date 2008-03-04
 Summary: smartmontools release 5.38 (STABLE)
 --------------------------------------------
 This is a stable release of smartmontools.  In addition to changes
 below, it includes:
 
- - Fixed auto-offline support in FreeBSD
+ - Libata/Marvell driver devices no longer need explicit '-d' switch
+ - DEVICESCAN automatically detects libata/marvell driver SATA devices 
+ - Fixed auto-offline/autosave support in FreeBSD
  - SAT device type + SCSI generic devices work properly with smartd under Linux
  - Many additions to drive database
  - More portable autogen/autoconf/automake script set

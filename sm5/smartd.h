@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.84 2006/11/11 17:50:50 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.85 2008/03/04 21:24:58 ballen4705 Exp $\n"
 #endif
 
 // Configuration file
@@ -233,6 +233,9 @@ typedef struct configfile_s {
   struct ata_smart_values *smartval;       // Pointer to SMART data
   struct ata_smart_thresholds_pvt *smartthres; // Pointer to SMART thresholds
 
+  // Added to distinguish ATA and SCSI entries on list
+  int WhichCheckDevice;
+
 } cfgfile;
 
 
@@ -278,7 +281,6 @@ export NJAMD_TRACE_LIBS=1
 #define SIGNALFN signal
 #endif
 
-#endif
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
 #define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
@@ -297,3 +299,16 @@ export NJAMD_TRACE_LIBS=1
 
 // if cfg->pending has this value, dont' monitor
 #define DONT_MONITOR_UNC (256*OFF_UNC_DEFAULT+CUR_UNC_DEFAULT)
+
+// Some return values from SCSIFilterKnown(), used to detect known
+// device types hidden behind SCSI devices.
+
+#define SCSIFK_FAILED   -1
+#define SCSIFK_NORMAL    0
+#define SCSIFK_3WARE    11
+#define SCSIFK_SAT      12
+#define SCSIFK_MARVELL  13
+
+// Make additions BEFORE this line.  The line is the end of
+// double-inclusion protection and should remain the final line.
+#endif  // #ifndef SMARTD_H_

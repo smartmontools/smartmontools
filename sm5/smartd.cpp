@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.395 2007/11/26 18:11:32 guidog Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.396 2008/03/04 21:24:58 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.395 2007/11/26 18:11:32 guidog Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.396 2008/03/04 21:24:58 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -189,8 +189,8 @@ int cfgentries_max=0;
 
 // pointers to ATA and SCSI devices being monitored, maximum and
 // actual numbers
-cfgfile **atadevlist=NULL, **scsidevlist=NULL;
-int atadevlist_max=0, scsidevlist_max=0;
+cfgfile **ATAandSCSIdevlist=NULL;
+int ATAandSCSIdevlist_max=0;
 int numdevata=0, numdevscsi=0;
 
 // track memory usage
@@ -392,17 +392,11 @@ void RmAllConfigEntries(){
 void RmAllDevEntries(){
   int i;
   
-  for (i=0; i<atadevlist_max; i++)
-    RmConfigEntry(atadevlist+i, __LINE__);
-
-  atadevlist=FreeNonZero(atadevlist, sizeof(cfgfile *)*atadevlist_max, __LINE__, filenameandversion);
-  atadevlist_max=0;
-
-  for (i=0; i<scsidevlist_max; i++)
-    RmConfigEntry(scsidevlist+i, __LINE__);
+  for (i=0; i<ATAandSCSIdevlist_max; i++)
+      RmConfigEntry(ATAandSCSIdevlist+i, __LINE__);
   
-  scsidevlist=FreeNonZero(scsidevlist, sizeof(cfgfile *)*scsidevlist_max, __LINE__, filenameandversion);
-  scsidevlist_max=0;
+  ATAandSCSIdevlist=FreeNonZero(ATAandSCSIdevlist, sizeof(cfgfile *)*ATAandSCSIdevlist_max, __LINE__, filenameandversion);
+  ATAandSCSIdevlist_max=0;
 
   return;
 }
@@ -1609,8 +1603,8 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   }
   
   // Do we still have entries available?
-  while (numdevata>=atadevlist_max)
-    atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
+  while (numdevata+numdevscsi>=ATAandSCSIdevlist_max)
+    ATAandSCSIdevlist=AllocateMoreSpace(ATAandSCSIdevlist, &ATAandSCSIdevlist_max, "ATA and SCSI devices");
   
   // register device
   PrintOut(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",name);
@@ -1624,10 +1618,12 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   return 0;
 }
 
-// Returns 0 if normal SCSI device. Returns -1 if INQUIRY fails.
+// Returns 0 if normal SCSI device.
+// Returns -1 if INQUIRY fails.
 // Returns 2 if ATA device detected behind SAT layer.
+// Returns 3 if ATA device detected behind Marvell controller.
 // Returns 1 if other device detected that we don't want to treat
-// as a normal SCSI device.
+//     as a normal SCSI device.
 static int SCSIFilterKnown(int fd, char * device)
 {
   char req_buff[256];
@@ -1642,7 +1638,7 @@ static int SCSIFilterKnown(int fd, char * device)
     if (scsiStdInquiry(fd, (unsigned char *)req_buff, req_len)) {
       PrintOut(LOG_INFO, "Device: %s, failed on INQUIRY; skip device\n", device);
       // device doesn't like INQUIRY commands
-      return -1;
+      return SCSIFK_FAILED;
     }
   }
   avail_len = req_buff[4] + 5;
@@ -1651,29 +1647,25 @@ static int SCSIFilterKnown(int fd, char * device)
     if (0 == strncmp(req_buff + 8, "3ware", 5) || 0 == strncmp(req_buff + 8, "AMCC", 4) ) {
       PrintOut(LOG_INFO, "Device %s, please try adding '-d 3ware,N'\n", device);
       PrintOut(LOG_INFO, "Device %s, you may need to replace %s with /dev/twaN or /dev/tweN\n", device, device);
-      return 1;
+      return SCSIFK_3WARE;
     } else if ((len >= 42) && (0 == strncmp(req_buff + 36, "MVSATA", 6))) {
-      PrintOut(LOG_INFO, "Device %s, please try '-d marvell'\n", device);
-      return 1;
+      PrintOut(LOG_INFO, "Device %s: using '-d marvell' for ATA disk with Marvell driver\n", device);
+      return SCSIFK_MARVELL;
     } else if ((avail_len >= 36) &&
                (0 == strncmp(req_buff + 8, "ATA     ", 8)) &&
 	       has_sat_pass_through(fd, 0 /* non-packet dev */)) {
-
-      PrintOut(LOG_INFO, "Device %s: ATA disk detected behind SAT layer\n",
+      PrintOut(LOG_INFO, "Device %s: using '-d sat' for ATA disk behind SAT layer.\n",
                device);
-      PrintOut(LOG_INFO, "  Try adding '-d sat' to the device line in the "
-               "smartd.conf file.\n");
-      PrintOut(LOG_INFO, "  For example: '%s -a -d sat'\n", device);
-      return 2;
+      return SCSIFK_SAT;
     }
   }
-  return 0;
+  return SCSIFK_NORMAL;
 }
 
 // on success, return 0. On failure, return >0.  Never return <0,
 // please.
 static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
-  int k, fd, err; 
+    int k, fd, err, retval; 
   char *device = cfg->name;
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
@@ -1702,9 +1694,18 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
 
   // early skip if device known and needs to be handled by some other
   // device type (e.g. '-d 3ware,<n>')
-  if (SCSIFilterKnown(fd, device)) {
+  if ((retval = SCSIFilterKnown(fd, device))) {
     CloseDevice(fd, device);
-    return 2; 
+
+    if (retval==SCSIFK_SAT)
+	// SATA Device behind SAT layer
+	return SCSIFK_SAT;
+
+    if (retval==SCSIFK_MARVELL)
+        // ATA/SATA device behind Marvell driver
+	return SCSIFK_MARVELL;
+    
+    return 2;
   }
     
   // check that device is ready for commands. IE stores its stuff on
@@ -1751,8 +1752,8 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   }
   
   // Device exists, and does SMART.  Add to list (allocating more space if needed)
-  while (numdevscsi >= scsidevlist_max)
-    scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
+  while (numdevscsi+numdevata >= ATAandSCSIdevlist_max)
+    ATAandSCSIdevlist=AllocateMoreSpace(ATAandSCSIdevlist, &ATAandSCSIdevlist_max, "ATA and SCSI devices");
   
   // Flag that certain log pages are supported (information may be
   // available from other sources).
@@ -1841,6 +1842,29 @@ static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
   CloseDevice(fd, device);
   return 0;
 }
+
+// modified treatment of SCSI device behind SAT layer
+static int SCSIandSATDeviceScan(cfgfile *cfg, int scanning) {
+  int retval = SCSIDeviceScan(cfg, scanning);
+  cfg->WhichCheckDevice=1; // default SCSI device
+  
+  if (retval==SCSIFK_SAT) {
+    // found SATA device behind SAT translation layer	
+    cfg->controller_type=CONTROLLER_SAT;
+    cfg->WhichCheckDevice=0; // actually SATA device!
+    return ATADeviceScan(cfg, scanning);
+  }
+
+  if (retval==SCSIFK_MARVELL) {
+    // found SATA device behind Marvell controller
+    cfg->controller_type=CONTROLLER_MARVELL_SATA;
+    cfg->WhichCheckDevice=0; // actually SATA device!
+    return ATADeviceScan(cfg, scanning);
+  }
+
+  return retval; 
+}
+
 
 // We compare old and new values of the n'th attribute.  Note that n
 // is NOT the attribute ID number.. If (Normalized & Raw) equal,
@@ -2050,7 +2074,7 @@ int DoTestNow(cfgfile *cfg, char testtype, time_t testtime) {
 }
 
 // Print a list of future tests.
-void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
+void PrintTestSchedule(cfgfile **ATAandSCSIdevices){
   int i, t;
   cfgfile * cfg;
   char datenow[DATEANDEPOCHLEN], date[DATEANDEPOCHLEN];
@@ -2073,8 +2097,8 @@ void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
     // Check for each device whether a test will be run
     time_t testtime = now + seconds;
     for (i=0; i<numdev; i++) {
-      cfg = (i<numdevata? atadevices[i] : scsidevices[i-numdevata]);
-      for (t=0; t<(i<numdevata?4:2); t++) {
+	cfg = ATAandSCSIdevices[i];
+      for (t=0; t<(cfg->WhichCheckDevice==0?4:2); t++) {
         char testtype = "LSCO"[t];
         if (DoTestNow(cfg, testtype, testtime)) {
           // Report at most 5 tests of each type
@@ -2092,8 +2116,8 @@ void PrintTestSchedule(cfgfile **atadevices, cfgfile **scsidevices){
   dateandtimezoneepoch(date, now+seconds);
   PrintOut(LOG_INFO, "\nTotals [%s - %s]:\n", datenow, date);
   for (i=0; i<numdev; i++) {
-    cfg = (i<numdevata? atadevices[i] : scsidevices[i-numdevata]);
-    for (t=0; t<(i<numdevata?4:2); t++) {
+      cfg = ATAandSCSIdevices[i];
+    for (t=0; t<(cfg->WhichCheckDevice==0?4:2); t++) {
       PrintOut(LOG_INFO, "Device: %s, will do %3d test%s of type %c\n", cfg->name, testcnts[i][t],
         (testcnts[i][t]==1?"":"s"), "LSCO"[t]);
     }
@@ -2657,14 +2681,15 @@ int SCSICheckDevice(cfgfile *cfg, bool allow_selftests)
 }
 
 // Checks the SMART status of all ATA and SCSI devices
-void CheckDevicesOnce(cfgfile **atadevices, cfgfile **scsidevices, bool allow_selftests){
+void CheckDevicesOnce(cfgfile **ATAandSCSIdevices, bool allow_selftests){
   int i;
   
-  for (i=0; i<numdevata; i++) 
-    ATACheckDevice(atadevices[i], allow_selftests);
-  
-  for (i=0; i<numdevscsi; i++)
-    SCSICheckDevice(scsidevices[i], allow_selftests);
+  for (i=0; i<numdevata+numdevscsi; i++) {
+      if (ATAandSCSIdevices[i]->WhichCheckDevice==1)
+	  SCSICheckDevice(ATAandSCSIdevices[i], allow_selftests);
+      else
+	  ATACheckDevice(ATAandSCSIdevices[i], allow_selftests);
+  }
 
   return;
 }
@@ -4253,9 +4278,11 @@ void RegisterDevices(int scanning){
       else {
         // move onto the list of ata devices
         cfgentries[i]=NULL;
-        while (numdevata>=atadevlist_max)
-          atadevlist=AllocateMoreSpace(atadevlist, &atadevlist_max, "ATA device");
-        atadevlist[numdevata++]=ent;
+        while (numdevata+numdevscsi>=ATAandSCSIdevlist_max)
+	    ATAandSCSIdevlist=AllocateMoreSpace(ATAandSCSIdevlist, &ATAandSCSIdevlist_max, "ATA and SCSI devices");
+	ent->WhichCheckDevice=0;
+        ATAandSCSIdevlist[numdevscsi+numdevata]=ent;
+        numdevata++;
       }
     }
     
@@ -4274,7 +4301,7 @@ void RegisterDevices(int scanning){
       if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
         // if we can't set timeout, just scan device
         PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
-        retscsi=SCSIDeviceScan(ent, scanning);
+        retscsi=SCSIandSATDeviceScan(ent, scanning);
       }
       else {
         // prepare return point in case of bad SCSI device
@@ -4284,7 +4311,7 @@ void RegisterDevices(int scanning){
         else {
         // Set alarm, make SCSI call, reset alarm
           alarm(SCSITIMEOUT);
-          retscsi=SCSIDeviceScan(ent, scanning);
+          retscsi=SCSIandSATDeviceScan(ent, scanning);
           alarm(0);
         }
         if (sigaction(SIGALRM, &defaultaction, NULL)){
@@ -4292,7 +4319,7 @@ void RegisterDevices(int scanning){
         }
       }
 #else
-      retscsi=SCSIDeviceScan(ent, scanning);
+      retscsi=SCSIandSATDeviceScan(ent, scanning);
 #endif   
 
       // Now scan SCSI device...
@@ -4304,9 +4331,10 @@ void RegisterDevices(int scanning){
       else {
         // move onto the list of scsi devices
         cfgentries[i]=NULL;
-        while (numdevscsi>=scsidevlist_max)
-          scsidevlist=AllocateMoreSpace(scsidevlist, &scsidevlist_max, "SCSI device");
-        scsidevlist[numdevscsi++]=ent;
+        while (numdevscsi+numdevata>=ATAandSCSIdevlist_max)
+	  ATAandSCSIdevlist=AllocateMoreSpace(ATAandSCSIdevlist, &ATAandSCSIdevlist_max, "ATA and SCSI devices");
+        ATAandSCSIdevlist[numdevata+numdevscsi]=ent;
+        numdevscsi++;
       }
     }
     
@@ -4430,7 +4458,7 @@ static int smartd_main(int argc, char **argv)
 
       if (quit==4) {
         // user has asked to print test schedule
-        PrintTestSchedule(atadevlist, scsidevlist);
+        PrintTestSchedule(ATAandSCSIdevlist);
         EXIT(0);
       }
       
@@ -4440,7 +4468,7 @@ static int smartd_main(int argc, char **argv)
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
-    CheckDevicesOnce(atadevlist, scsidevlist, (!firstpass || quit==3)); 
+    CheckDevicesOnce(ATAandSCSIdevlist, (!firstpass || quit==3)); 
     
     // user has asked us to exit after first check
     if (quit==3) {
