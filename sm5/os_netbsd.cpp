@@ -24,7 +24,7 @@
 #include "os_netbsd.h"
 #include <unistd.h>
 
-const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.20 2008/03/03 22:29:02 shattered Exp $" \
+const char *os_XXXX_c_cvsid = "$Id: os_netbsd.cpp,v 1.21 2008/03/04 17:54:27 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_NETBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* global variable holding byte count of allocated memory */
@@ -282,8 +282,6 @@ ata_command_interface(int fd, smart_command_set command, int select, char *data)
     req.flags = ATACMD_READREG;
     req.features = ATA_SMART_IMMEDIATE_OFFLINE;	/* XXX missing from wdcreg.h */
     req.command = WDCC_SMART;
-    req.databuf = (char *)inbuf;
-    req.datalen = sizeof(inbuf);
     req.cylinder = WDSMART_CYL;
     req.sec_num = select;
     req.sec_count = 1;
