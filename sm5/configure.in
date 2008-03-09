@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.133 2008/03/04 22:28:25 ballen4705 Exp $
+# $Id: configure.in,v 1.134 2008/03/09 13:41:23 card_captor Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.38, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.133 2008/03/04 22:28:25 ballen4705 Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.134 2008/03/09 13:41:23 card_captor Exp $'`
 smartmontools_release_date=2008/03/04
 smartmontools_release_time="22:28:04 GMT"
 
@@ -106,6 +106,10 @@ AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C++ compiler supports __attribute_
 AC_MSG_CHECKING([whether C++ compiler supports __attribute__((packed))])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[struct a { int b; } __attribute__((packed));]])],
                   [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[#if defined(__SUNPRO_C) || defined(__SUNPRO_CC)
+#error "Sun's compiler cannot handle __attribute__((packed))!"
+#endif]])],
+                  [true], [gcc_have_attr_packed=no])
 AC_SUBST(gcc_have_attr_packed)
 if test "$gcc_have_attr_packed" = "yes"; then
   AC_DEFINE(HAVE_ATTR_PACKED)
@@ -212,12 +216,15 @@ if test "x$GCC" = "xyes"; then
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
  case "${host}" in
-	*-*-solaris*) 
-          dnl set CXXFLAGS for Solaris C++ compiler
+	sparc*-*-solaris*) 
+          dnl set CXXFLAGS for Solaris/SPARC C++ compiler
           if test -z "`echo "$CXXFLAGS" | grep "\-xmemalign" 2> /dev/null`" ; then
             dnl we have to tell the compilers about packed ATA structures
             CXXFLAGS="-xmemalign=1i $CXXFLAGS"
           fi
+ esac
+ case "${host}" in
+	*-*-solaris*) 
           if test -z "`echo "$CXXFLAGS" | grep "\-xO" 2> /dev/null`" ; then
             dnl turn on optimization if user has not explicitly set its value
             CXXFLAGS="-xO2 $CXXFLAGS"

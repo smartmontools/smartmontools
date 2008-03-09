@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.659 2008/03/04 21:24:58 ballen4705 Exp $
+$Id: CHANGELOG,v 1.660 2008/03/09 13:41:23 card_captor Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/04
+
+  [KS] Solaris/x86: modified configure.in for Sun's compiler.
 
   [BA] smartd.initd.in addition from Erwan Velu <erwan@seanodes.com>
 
