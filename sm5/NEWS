@@ -1,11 +1,11 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.34 2008/03/04 21:24:58 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.35 2008/03/10 10:44:30 ballen4705 Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
 
-Date 2008-03-04
+Date 2008-03-10
 Summary: smartmontools release 5.38 (STABLE)
 --------------------------------------------
 This is a stable release of smartmontools.  In addition to changes
@@ -32,7 +32,7 @@ below, it includes:
  - Fix to scheduled tests on Highpoint RAID controllers
  - New samsung firmware bug workaround option
  - Auto-offline and Auto-save fixed in Linux + libata
- - Solaris: better SCSI support
+ - Solaris: better SCSI support and support for Sun compilers AND gcc
  - Fixed and improvements to CCISS support
  - More options for SCSI temperature monitoring and history
  - Additional command line options for selective self-tests
