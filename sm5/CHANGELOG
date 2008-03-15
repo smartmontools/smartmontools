@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.661 2008/03/10 10:44:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.662 2008/03/15 12:04:29 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,7 +34,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-
+  [BA] Fix ugly syntax bug in os_freebsd.cpp.  How did this go
+       undetected for so long??
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/10
 
