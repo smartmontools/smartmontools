@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.100 2008/03/04 22:09:47 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.101 2008/03/17 15:54:25 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.100 2008/03/04 22:09:47 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.101 2008/03/17 15:54:25 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -171,7 +171,7 @@ static char prev_scsi_dev[128];
 
 // equivalent to open(path, flags)
 int deviceopen(const char *pathname, char *type){
-  int fd;
+  int fd = -1;
 
   if (0 == strcmp(type,"SCSI")) {
     strncpy(prev_scsi_dev, pathname, sizeof(prev_scsi_dev) - 1);
@@ -186,9 +186,9 @@ int deviceopen(const char *pathname, char *type){
     // The purpose of the next code line is to limit the scope of
     // this change as a release is pending (and smartd needs a rewrite).
     if (0 == strncmp(pathname, prev_scsi_dev, sizeof(prev_scsi_dev)))
-      return open(pathname, O_RDWR | O_NONBLOCK);
+      fd = open(pathname, O_RDWR | O_NONBLOCK);
     else
-      return open(pathname, O_RDONLY | O_NONBLOCK);
+      fd = open(pathname, O_RDONLY | O_NONBLOCK);
   } else if (0 == strcmp(type,"ATA_3WARE_9000")) {
     // the device nodes for this controller are dynamically assigned,
     // so we need to check that they exist with the correct major
@@ -198,7 +198,7 @@ int deviceopen(const char *pathname, char *type){
         errno=ENXIO;
       return -1;
     }
-    return open(pathname, O_RDONLY | O_NONBLOCK);
+    fd = open(pathname, O_RDONLY | O_NONBLOCK);
   }
   else if (0 == strcmp(type,"ATA_3WARE_678K")) {
     // the device nodes for this controller are dynamically assigned,
@@ -209,15 +209,17 @@ int deviceopen(const char *pathname, char *type){
         errno=ENXIO;
       return -1;
     }
-    return open(pathname, O_RDONLY | O_NONBLOCK);
+    fd = open(pathname, O_RDONLY | O_NONBLOCK);
   }
   else if(0 == strcmp(type, "CCISS")) {
     // the device is a cciss smart array device.
-    return open(pathname, O_RDWR | O_NONBLOCK);
+    fd = open(pathname, O_RDWR | O_NONBLOCK);
   }
-  else
-    return -1;
 
+  if (fd != -1) {
+    fcntl(fd, F_SETFD, FD_CLOEXEC);
+  }
+  return fd;
 }
 
 // equivalent to close(file descriptor)

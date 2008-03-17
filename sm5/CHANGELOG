@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.663 2008/03/17 13:36:30 ballen4705 Exp $
+$Id: CHANGELOG,v 1.664 2008/03/17 15:54:25 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] smartd on Linux: sets FD_CLOEXEC on the opened device file
+       descriptor.  The descriptor is otherwise leaked to other
+       applications (mail sender) which may be considered a security
+       risk and may result in AVC messages on SELinux-enabled systems.
+       Thanks to: Tomá Smetana" <tsmetana@redhat.com>.
 
   [BA] smartd: when sending email, to gather information about the
        host for the body of the email, eliminate gethostbyname()
