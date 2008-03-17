@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.101 2008/03/17 15:54:25 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.102 2008/03/17 16:16:17 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.101 2008/03/17 15:54:25 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.102 2008/03/17 16:16:17 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -217,7 +217,12 @@ int deviceopen(const char *pathname, char *type){
   }
 
   if (fd != -1) {
-    fcntl(fd, F_SETFD, FD_CLOEXEC);
+    // sets FD_CLOEXEC on the opened device file descriptor.  The
+    // descriptor is otherwise leaked to other applications (mail
+    // sender) which may be considered a security risk and may result
+    // in AVC messages on SELinux-enabled systems.
+    if (-1 == fcntl(fd, F_SETFD, FD_CLOEXEC))
+      pout("fcntl(set  FD_CLOEXEC) failed, errno=%d [%s]\n", errno, strerror(errno));
   }
   return fd;
 }
