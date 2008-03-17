@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.664 2008/03/17 15:54:25 ballen4705 Exp $
+$Id: CHANGELOG,v 1.665 2008/03/17 17:02:26 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] removed smartmontools.spec file (now in CVS Attic).  This
+       was not being used by RH or FC anyhow, and was out of
+       date and not maintained.
 
   [BA] smartd on Linux: sets FD_CLOEXEC on the opened device file
        descriptor.  The descriptor is otherwise leaked to other
