@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.397 2008/03/04 22:09:47 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.398 2008/03/17 13:36:30 ballen4705 Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.397 2008/03/04 22:09:47 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.398 2008/03/17 13:36:30 ballen4705 Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -492,9 +492,28 @@ int exportenv(char* stackspace, const char *name, const char *value){
 
 char* dnsdomain(const char* hostname) {
   char *p = NULL;
-#ifdef HAVE_GETHOSTBYNAME
+#ifdef HAVE_GETADDRINFO
+  static char canon_name[NI_MAXHOST];
+  struct addrinfo *info = NULL;
+  struct addrinfo hints;
+  int err;
+
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_flags = AI_CANONNAME;
+  if ((err = getaddrinfo(hostname, NULL, &hints, &info)) || (!info)) {
+    PrintOut(LOG_CRIT, "Error retrieving getaddrinfo(%s): %s\n", hostname, gai_strerror(err));
+    return NULL;
+  }
+  if (info->ai_canonname) {
+    strncpy(canon_name, info->ai_canonname, sizeof(canon_name));
+    canon_name[NI_MAXHOST - 1] = '\0';
+    p = canon_name;
+    if ((p = strchr(canon_name, '.')))
+      p++;
+  }
+  freeaddrinfo(info);
+#elif HAVE_GETHOSTBYNAME
   struct hostent *hp;
-  
   if ((hp = gethostbyname(hostname))) {
     // Does this work if gethostbyname() returns an IPv6 name in
     // colon/dot notation?  [BA]
