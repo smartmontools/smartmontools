@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.81 2007/04/01 16:49:44 shattered Exp $
+# $Id: Makefile.am,v 1.82 2008/03/17 17:02:26 ballen4705 Exp $
 #
 
 @SET_MAKE@
@@ -211,8 +211,7 @@ smartd.conf$(smartd_suffix): smartd.conf
 	cp ${srcdir}/smartd.conf smartd.conf$(smartd_suffix)
 endif
 
-EXTRA_DIST = smartmontools.spec                    \
-             smartd.initd.in                       \
+EXTRA_DIST = smartd.initd.in                       \
              smartd.8.in                           \
              smartctl.8.in                         \
              smartd.conf.5.in                      \
