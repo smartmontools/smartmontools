@@ -55,7 +55,7 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.169 2008/03/04 22:09:47 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.170 2008/03/17 21:50:32 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -955,7 +955,7 @@ int main (int argc, char **argv){
   int fd,retval=0;
   char *device;
   smartmonctrl control;
-  char *mode=NULL;
+  const char *mode = 0;
 
   // define control block for external functions
   con=&control;
@@ -1018,7 +1018,7 @@ int main (int argc, char **argv){
   // media prevents opening O_RDWR (it cannot happen for scsi generic
   // devices, but it can for the others).
   if (con->controller_type != CONTROLLER_PARSEDEV)
-    fd = deviceopen(device, mode);
+    fd = deviceopen(device, (char*)mode); // TODO: const
   else
     fd = parsedev_open(device);
   if (fd<0) {

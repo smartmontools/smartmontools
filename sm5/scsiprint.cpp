@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.121 2008/03/04 22:09:47 ballen4705 Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.122 2008/03/17 21:50:32 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -187,14 +187,14 @@ static int scsiGetSmartData(int device, int attribs)
 
 // Returns number of logged errors or zero if none or -1 if fetching
 // TapeAlerts fails
-static char *severities = "CWI";
+static const char * const severities = "CWI";
 
 static int scsiGetTapeAlertsData(int device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
     int i, err;
-    char *s;
+    const char *s;
     const char *ts;
     int failures = 0;
 
