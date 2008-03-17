@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.665 2008/03/17 17:02:26 ballen4705 Exp $
+$Id: CHANGELOG,v 1.666 2008/03/17 19:43:09 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] autogen.sh: automake 1.10.1 is OK. Updated message texts.
 
   [BA] removed smartmontools.spec file (now in CVS Attic).  This
        was not being used by RH or FC anyhow, and was out of
