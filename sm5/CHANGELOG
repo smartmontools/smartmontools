@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.662 2008/03/15 12:04:29 ballen4705 Exp $
+$Id: CHANGELOG,v 1.663 2008/03/17 13:36:30 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -33,6 +33,18 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] smartd: when sending email, to gather information about the
+       host for the body of the email, eliminate gethostbyname()
+       in favor of the IPv6-friendly function getaddrinfo() if the
+       latter is available.  Info may be found here
+       http://udrepper.livejournal.com/16116.html
+       and here
+       http://people.redhat.com/drepper/userapi-ipv6.html
+       Thanks to: Tomá Smetana" <tsmetana@redhat.com>.
+
+       Smartmontools developers: please check that smartd still LINKS
+       properly on your systems.
 
   [BA] Fix ugly syntax bug in os_freebsd.cpp.  How did this go
        undetected for so long??
