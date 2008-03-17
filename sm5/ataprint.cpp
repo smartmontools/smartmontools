@@ -41,7 +41,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.185 2008/03/04 22:09:47 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.186 2008/03/17 21:50:32 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -475,7 +475,7 @@ static uint64_t get_num_sectors(const ata_identify_device *drive)
 uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
 
   // get correct character to use as thousands separator
-  char *separator=",";
+  const char *separator = ",";
 #ifdef HAVE_LOCALE_H
   struct lconv *currentlocale=NULL;
   setlocale (LC_ALL, "");
@@ -841,7 +841,7 @@ void PrintSmartAttribWithThres (struct ata_smart_values *data,
     
   // step through all vendor attributes
   for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
-    char *status;
+    const char *status;
     struct ata_smart_attribute *disk=data->vendor_attributes+i;
     struct ata_smart_threshold_entry *thre=thresholds->thres_entries+i;
     
@@ -956,7 +956,7 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
 
 int ataPrintLogDirectory(struct ata_smart_log_directory *data){
   int i;
-  char *name;
+  const char *name;
 
   pout("SMART Log Directory Logging Version %d%s\n",
        data->logversion, data->logversion==1?" [multi-sector log support]":"");
@@ -1068,7 +1068,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
     // Spec says: unused error log structures shall be zero filled
     if (nonempty((unsigned char*)elog,sizeof(*elog))){
       // Table 57 of T13/1532D Volume 1 Revision 3
-      char *msgstate;
+      const char *msgstate;
       int bits=summary->state & 0x0f;
       int days = (int)summary->timestamp/24;
 
@@ -1148,7 +1148,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
 
 void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struct ata_smart_values *sv) {
   int i,field1,field2;
-  char *msg;
+  const char *msg;
   char tmp[64];
   uint64_t maxl=0,maxr=0;
   uint64_t current=log->currentlba;

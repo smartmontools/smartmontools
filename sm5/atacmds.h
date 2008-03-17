@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.90 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.91 2008/03/17 21:50:32 chrfranke Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -615,7 +615,7 @@ extern const char *vendorattributeargs[];
 // extern.h for definition of defs[].  Returns 0 if pair recognized,
 // else 1 if there is a problem.  Allocates memory for array if the
 // array address is *defs==NULL.
-int parse_attribute_def(char *pair, unsigned char **defs);
+int parse_attribute_def(const char *pair, unsigned char **defs);
 
 // Function to return a string containing a list of the arguments in
 // vendorattributeargs[].  Returns NULL if the required memory can't

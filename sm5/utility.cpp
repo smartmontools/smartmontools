@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.65 2008/03/04 22:09:47 ballen4705 Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.66 2008/03/17 21:50:32 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -230,7 +230,7 @@ int isbigendian(){
 // timezone info (sigh).
 void dateandtimezoneepoch(char *buffer, time_t tval){
   struct tm *tmval;
-  char *timezonename;
+  const char *timezonename;
   char datebuffer[DATEANDEPOCHLEN];
   int lenm1;
 #ifdef _WIN32

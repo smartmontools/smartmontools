@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.398 2008/03/17 13:36:30 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.399 2008/03/17 21:50:32 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.398 2008/03/17 13:36:30 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.399 2008/03/17 21:50:32 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -159,12 +159,12 @@ static char* pid_file=NULL;
 
 // configuration file name
 #ifndef _WIN32
-static char* configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
+static const char *configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
 #else
-static char* configfile = "./" CONFIGFILENAME ;
+static const char *configfile = "./" CONFIGFILENAME ;
 #endif
 // configuration file "name" if read from stdin
-static /*const*/ char * const configfile_stdin = "<stdin>";
+static const char * const configfile_stdin = "<stdin>";
 // allocated memory for alternate configuration file name
 static char* configfile_alt = NULL;
 
@@ -270,7 +270,7 @@ testinfo* FreeTestData(testinfo *data){
   return NULL;
 }
 
-cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, char *listname){
+cfgfile **AllocateMoreSpace(cfgfile **oldarray, int *oldsize, const char *listname){
   // for now keep BLOCKSIZE small to help detect coding problems.
   // Perhaps increase in the future.
   const int BLOCKSIZE=8;
@@ -530,7 +530,7 @@ char* dnsdomain(const char* hostname) {
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
-void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
+void MailWarning(cfgfile *cfg, int which, const char *fmt, ...){
   char command[2048], message[256], hostname[256], domainname[256], additional[256],fullmessage[1024];
   char original[256], further[256], nisdomain[256], subject[256],dates[DATEANDEPOCHLEN];
   char environ_strings[11][ENVLENGTH];
@@ -538,7 +538,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
   va_list ap;
   const int day=24*3600;
   int days=0;
-  char *whichfail[]={
+  const char * const whichfail[]={
     "EmailTest",                  // 0
     "Health",                     // 1
     "Usage",                      // 2
@@ -554,7 +554,7 @@ void MailWarning(cfgfile *cfg, int which, char *fmt, ...){
     "Temperature"                 // 12
   };
   
-  char *address, *executable;
+  char *address; const char *executable;
   mailinfo *mail;
   maildata* data=cfg->mailwarn;
 #ifndef _WIN32
@@ -1263,7 +1263,7 @@ void Usage (void){
 }
 
 // returns negative if problem, else fd>=0
-static int OpenDevice(char *device, char *mode, int scanning) {
+static int OpenDevice(/*const*/ char *device, const char *mode, int scanning) {
   int fd;
   char *s=device;
   
@@ -1273,7 +1273,7 @@ static int OpenDevice(char *device, char *mode, int scanning) {
     *s='\0';
 
   // open the device
-  fd = deviceopen(device, mode);
+  fd = deviceopen(device, (char*)mode); // TODO: const
 
   // if we removed a space, put it back in please
   if (s)
@@ -1298,7 +1298,7 @@ static int OpenDevice(char *device, char *mode, int scanning) {
   return fd;
 }
 
-int CloseDevice(int fd, char *name){
+int CloseDevice(int fd, const char *name){
   if (deviceclose(fd)){
     PrintOut(LOG_INFO,"Device: %s, %s, close(%d) failed\n", name, strerror(errno), fd);
     return 1;
@@ -1338,10 +1338,10 @@ int SelfTestErrorCount(int fd, char *name){
 int ATADeviceScan(cfgfile *cfg, int scanning){
   int fd, supported=0;
   struct ata_identify_device drive;
-  char *name=cfg->name;
+  /*const*/ char *name = cfg->name;
   int retainsmartdata=0;
   int retid;
-  char *mode;
+  const char *mode;
   
   // should we try to register this as an ATA device?
   switch (cfg->controller_type) {
@@ -1685,10 +1685,10 @@ static int SCSIFilterKnown(int fd, char * device)
 // please.
 static int SCSIDeviceScan(cfgfile *cfg, int scanning) {
     int k, fd, err, retval; 
-  char *device = cfg->name;
+  /*const*/ char *device = cfg->name;
   struct scsi_iec_mode_page iec;
   UINT8  tBuf[64];
-  char *mode=NULL;
+  const char *mode = 0;
   
   // should we try to register this as a SCSI device?
   switch (cfg->controller_type) {
@@ -2149,8 +2149,8 @@ void PrintTestSchedule(cfgfile **ATAandSCSIdevices){
 // short or long (extended) self test on given scsi device.
 int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
   int retval = 0;
-  char *testname = NULL;
-  char *name = cfg->name;
+  const char *testname = 0;
+  const char *name = cfg->name;
   int inProgress;
 
   if (scsiSelfTestInProgress(fd, &inProgress)) {
@@ -2208,9 +2208,9 @@ int DoSCSISelfTest(int fd, cfgfile *cfg, char testtype) {
 int DoATASelfTest(int fd, cfgfile *cfg, char testtype) {
   
   struct ata_smart_values data;
-  char *testname=NULL;
+  const char *testname = 0;
   int retval, dotest=-1;
-  char *name=cfg->name;
+  const char *name = cfg->name;
   
   // Read current smart data and check status/capability
   if (ataReadSmartValues(fd, &data) || !(data.offline_data_collection_capability)) {
@@ -2331,8 +2331,8 @@ static void CheckTemperature(cfgfile * cfg, unsigned char currtemp, unsigned cha
 
 int ATACheckDevice(cfgfile *cfg, bool allow_selftests){
   int fd,i;
-  char *name=cfg->name;
-  char *mode="ATA";
+  /*const*/ char *name = cfg->name;
+  const char *mode = "ATA";
   char testtype=0;
   
   // fix firmware bug if requested
@@ -2623,9 +2623,9 @@ int SCSICheckDevice(cfgfile *cfg, bool allow_selftests)
     UINT8 currenttemp;
     UINT8 triptemp;
     int fd;
-    char *name=cfg->name;
+    /*const*/ char *name=cfg->name;
     const char *cp;
-    char *mode=NULL;
+    const char *mode = 0;
 
     // should we try to register this as a SCSI device?
     switch (cfg->controller_type) {
@@ -2875,7 +2875,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 }
 
 // exits with an error message, or returns integer value of token
-int GetInteger(char *arg, char *name, char *token, int lineno, char *configfile, int min, int max){
+int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *configfile, int min, int max){
   char *endptr;
   int val;
   
@@ -2933,12 +2933,12 @@ int Get3Integers(const char *arg, const char *name, const char *token, int linen
 // error was encountered.
 int ParseToken(char *token,cfgfile *cfg){
   char sym;
-  char *name=cfg->name;
+  const char *name = cfg->name;
   int lineno=cfg->lineno;
-  char *delim = " \n\t";
+  const char *delim = " \n\t";
   int badarg = 0;
   int missingarg = 0;
-  char *arg = NULL;
+  const char *arg = 0;
   int makemail=0;
   maildata *mdat=NULL, tempmail;
 
@@ -3034,7 +3034,7 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->satpassthrulen = 0;
       if (strlen(arg) > 3) {
         int k;
-        char * cp;
+        const char * cp;
 
         cp = strchr(arg, ',');
         if (cp && (1 == sscanf(cp + 1, "%d", &k)) &&
@@ -3512,7 +3512,7 @@ cfgfile *CreateConfigEntry(cfgfile *original){
 int ParseConfigLine(int entry, int lineno,char *line){
   char *token=NULL;
   char *name=NULL;
-  char *delim = " \n\t";
+  const char *delim = " \n\t";
   cfgfile *cfg=NULL;
   int devscan=0;
 
@@ -3773,7 +3773,7 @@ int ParseConfigFile(){
     // See if line is too long
     len=strlen(line);
     if (len>MAXLINELEN){
-      char *warn;
+      const char *warn;
       if (line[len-1]=='\n')
         warn="(including newline!) ";
       else
@@ -4174,7 +4174,7 @@ int MakeConfigEntries(const char *type, int start){
   return num;
 }
  
-void CanNotRegister(char *name, char *type, int line, int scandirective){
+void CanNotRegister(const char *name, const char *type, int line, int scandirective){
   if( !debugmode && scandirective == 1 ) { return; }
   if (line)
     PrintOut(scandirective?LOG_INFO:LOG_CRIT,

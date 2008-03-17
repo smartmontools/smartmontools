@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.102 2008/03/17 16:16:17 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.103 2008/03/17 21:50:32 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.102 2008/03/17 16:16:17 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.103 2008/03/17 21:50:32 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -97,7 +97,7 @@ extern smartmonctrl *con;
 #define MAJOR_STRING_LENGTH 3
 #define DEVICE_STRING_LENGTH 32
 #define NODE_STRING_LENGTH 16
-int setup_3ware_nodes(char *nodename, char *driver_name) {
+int setup_3ware_nodes(const char *nodename, const char *driver_name) {
   int              tw_major      = 0;
   int              index         = 0;
   char             majorstring[MAJOR_STRING_LENGTH+1];

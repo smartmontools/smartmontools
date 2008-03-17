@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.190 2008/03/04 22:09:47 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.191 2008/03/17 21:50:32 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -55,7 +55,7 @@ extern smartmonctrl *con;
 #define NOVAL_1                 0xffff
 /* word 81: minor version number */
 #define MINOR_MAX 0x22
-const char *minor_str[] = {                     /* word 81 value: */
+static const char * const minor_str[] = {       /* word 81 value: */
   "Device does not report version",             /* 0x0000       */
   "ATA-1 X3T9.2 781D prior to revision 4",      /* 0x0001       */
   "ATA-1 published, ANSI X3.221-1994",          /* 0x0002       */
@@ -99,7 +99,7 @@ const char *minor_str[] = {                     /* word 81 value: */
 // vendor values in sensible format.
 
 // Negative values below are because it doesn't support SMART
-const int actual_ver[] = { 
+static const int actual_ver[] = { 
   /* word 81 value: */
   0,            /* 0x0000       WARNING:        */
   1,            /* 0x0001       WARNING:        */
@@ -213,7 +213,7 @@ const char *SelfTestFailureCodeName(unsigned char which){
 // This is a utility function for parsing pairs like "9,minutes" or
 // "220,temp", and putting the correct flag into the attributedefs
 // array.  Returns 1 if problem, 0 if pair has been recongized.
-int parse_attribute_def(char *pair, unsigned char **defsptr){
+int parse_attribute_def(const char *pair, unsigned char **defsptr){
   int i,j;
   char temp[32];
   unsigned char *defs;
@@ -533,7 +533,7 @@ static void invalidate_serno(ata_identify_device * id){
 #endif
 }
 
-static char *commandstrings[]={
+static const char * const commandstrings[]={
   "SMART ENABLE",
   "SMART DISABLE",
   "SMART AUTOMATIC ATTRIBUTE SAVE",
@@ -1334,7 +1334,7 @@ int ataSmartStatus2(int device){
 // extended self test, with and without captive mode, etc.
 int ataSmartTest(int device, int testtype, struct ata_smart_values *sv, uint64_t num_sectors)
 {
-  char cmdmsg[128],*type,*captive;
+  char cmdmsg[128]; const char *type, *captive;
   int errornum, cap, retval, select=0;
 
   // Boolean, if set, says test is captive
@@ -1770,7 +1770,7 @@ int64_t ataPrintSmartAttribRawValue(char *out,
 // same name.  The variable val should contain a non-zero value if a particular
 // attributes has a non-default interpretation.
 void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definitions){
-  char *name;
+  const char *name;
   unsigned char val;
 
   // If no data array, use default interpretations
