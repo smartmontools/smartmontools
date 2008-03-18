@@ -79,9 +79,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.103 2008/03/17 21:50:32 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.104 2008/03/18 08:26:20 tsmetana Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.103 2008/03/17 21:50:32 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.104 2008/03/18 08:26:20 tsmetana Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -178,7 +178,6 @@ int deviceopen(const char *pathname, char *type){
     fd = open(pathname, O_RDWR | O_NONBLOCK);
     if (fd < 0 && errno == EROFS)
       fd = open(pathname, O_RDONLY | O_NONBLOCK);
-    return fd;
   } else if (0 == strcmp(type,"ATA")) {
     // smartd re-opens SCSI devices with "type"==ATA for some reason.
     // If that was a SCSI generic device (e.g. /dev/sg0) then the
