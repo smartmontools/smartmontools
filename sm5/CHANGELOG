@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.667 2008/03/17 21:50:32 chrfranke Exp $
+$Id: CHANGELOG,v 1.668 2008/03/18 08:26:20 tsmetana Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -29,10 +29,15 @@ Maintainers / Developers Key:
 [LW] Leon Woestenberg
 [RZ] Richard Zybert
 [SZ] Sf Zhou
+[TS] Tomas Smetana
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [TS] smartd on Linux: remove forgotten return from deviceopen();
+       SCSI device descriptors had the FD_CLOEXEC flag unset.
+
 
   [CF] Added 'const' to avoid warning on depreciated string constant
        to 'char *' conversion.
