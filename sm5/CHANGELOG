@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.668 2008/03/18 08:26:20 tsmetana Exp $
+$Id: CHANGELOG,v 1.669 2008/03/21 15:35:18 card_captor Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,6 +34,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [KS] configure.in on Solaris: added direction to search suitable
+       libraries for getaddrinfo().
 
   [TS] smartd on Linux: remove forgotten return from deviceopen();
        SCSI device descriptors had the FD_CLOEXEC flag unset.
