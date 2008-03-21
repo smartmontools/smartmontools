@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.137 2008/03/21 15:35:18 card_captor Exp $
+# $Id: configure.in,v 1.138 2008/03/21 15:39:39 card_captor Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.137 2008/03/21 15:35:18 card_captor Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.138 2008/03/21 15:39:39 card_captor Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -234,9 +234,8 @@ else
             CXXFLAGS="-xO2 $CXXFLAGS"
           fi
           if test -z "`echo "$CXXFLAGS" | grep "\-erroff" 2> /dev/null`" ; then
-	    dnl suppress warnings on use of string literal (const char[]) as
-	    dnl char*. TODO: Sun Studio 10 (Sun C++ 5.7) or above only?
-	    CXXFLAGS="-erroff=%none,wbadinitl,wbadasgl,badargtypel2w $CXXFLAGS"
+	    dnl suppress trivial warnings
+	    CXXFLAGS="-erroff=%none,wbadinitl,wbadasgl,badargtypel2w,badargtype2w $CXXFLAGS"
 	  fi
  esac
 fi
