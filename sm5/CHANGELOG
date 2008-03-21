@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.670 2008/03/21 15:39:39 card_captor Exp $
+$Id: CHANGELOG,v 1.671 2008/03/21 15:51:50 card_captor Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,6 +34,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [KS] INSTALL on Solaris: updated description to use C++ compiler.
 
   [KS] configure.in on Solaris: added options for Sun's compiler to
        suppress trivial warnings.

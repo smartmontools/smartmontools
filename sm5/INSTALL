@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.73 2007/04/27 08:50:00 geoffk1 Exp $
+$Id: INSTALL,v 1.74 2008/03/21 15:51:50 card_captor Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -368,17 +368,17 @@ SuSE:
 
     smartmontools has been partially but not completely ported to
     Solaris.  It includes complete SCSI support but no ATA or 3ware
-    support.  It can be compiled with either cc or gcc. To compile
-    with gcc:
+    support.  It can be compiled with either CC (Sun's C++ compiler)
+    or GNU g++.
+
+    To compile with g++:
 
     ./configure [args]
     make
 
-    To compile with Sun cc:
+    To compile with Sun CC:
 
-    setenv CC cc  [csh syntax], or
-    CC=cc         [sh syntax]
-    ./configure [args]
+    env CC=cc CXX=CC ./configure [args]
     make
 
     The correct arguments [args] to configure are:
