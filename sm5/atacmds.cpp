@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.191 2008/03/17 21:50:32 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.192 2008/03/23 22:52:55 mat-c Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -634,6 +634,9 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     break;
   case CONTROLLER_SAT:
     retval=sat_command_interface(device, command, select, data);
+    break;
+  case CONTROLLER_ATACB:
+    retval=atacb_command_interface(device, command, select, data);
     break;
   case CONTROLLER_HPT:
     retval=highpoint_command_interface(device, command, select, data);

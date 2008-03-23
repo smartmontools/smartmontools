@@ -20,7 +20,7 @@
 #ifndef SCSIATA_H_
 #define SCSIATA_H_
 
-#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.2 2006/07/01 21:29:31 dpgilbert Exp $\n"
+#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.3 2008/03/23 22:52:55 mat-c Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,6 +73,9 @@ extern int sg_scsi_normalize_sense(const unsigned char * sensep,
    descriptor; otherwise (including fixed format sense data) returns NULL. */
 extern const unsigned char * sg_scsi_sense_desc_find(
                 const unsigned char * sensep, int sense_len, int desc_type);
+
+extern int atacb_command_interface(int device, smart_command_set command,
+                                 int select, char *data);
 
 #endif
 

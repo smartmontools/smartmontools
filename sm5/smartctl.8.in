@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.105 2008/03/04 22:09:47 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.106 2008/03/23 22:52:55 mat-c Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -210,7 +210,7 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, and \fIhpt,L/M\fP,
+are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, \fIatacb\fP, and \fIhpt,L/M\fP,
 \fIcciss,N\fP or \fIhpt,L/M/N\fP.  If this option is not used then
 \fBsmartctl\fP will attempt to guess the device type from the device name.
 
@@ -220,6 +220,10 @@ SAT defines two ATA PASS THROUGH SCSI commands, one 12 bytes long and
 the other 16 bytes long that \fBsmartctl\fP will utilize when this device
 type is selected. The default is the 16 byte variant which can be
 overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
+
+The \'atacb\' device type is for ATA disks that are behind a cypress
+usb-pata bridge. The default atacb command is 0x24, but it can be overridden
+with either \'\-d atacb,0xn\', where n is the command number.
 
 Under Linux, to look at SATA disks behind Marvell SATA controllers
 (using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
@@ -1500,7 +1504,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.105 2008/03/04 22:09:47 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.106 2008/03/23 22:52:55 mat-c Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
