@@ -45,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.8 2007/12/03 02:14:20 dpgilbert Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.9 2008/03/23 22:52:55 mat-c Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -451,3 +451,245 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
     }
     return NULL;
 }
+
+/* see cy7c68300c_8.pdf for more information */
+#define ATACB_PASSTHROUGH_LEN 16
+int atacb_command_interface(int device, smart_command_set command, int select,
+                          char *data)
+{
+    struct scsi_cmnd_io io_hdr;
+    unsigned char cdb[ATACB_PASSTHROUGH_LEN];
+    unsigned char sense[32];
+    int status;
+    int copydata = 0;
+    int outlen = 0;
+    int ck_cond = 0;    /* set to 1 to read register(s) back */
+    int protocol = 3;   /* non-data */
+    int t_dir = 1;      /* 0 -> to device, 1 -> from device */
+    int byte_block = 1; /* 0 -> bytes, 1 -> 512 byte blocks */
+    int t_length = 0;   /* 0 -> no data transferred */
+    int feature = 0;
+    int ata_command = 0;
+    int sector_count = 0;
+    int lba_low = 0;
+    int lba_mid = 0;
+    int lba_high = 0;
+    int passthru_size = ATACB_PASSTHROUGH_LEN;
+
+    memset(cdb, 0, sizeof(cdb));
+    memset(sense, 0, sizeof(sense));
+
+    ata_command = ATA_SMART_CMD;
+    switch (command) {
+    case CHECK_POWER_MODE:
+        ata_command = ATA_CHECK_POWER_MODE;
+        ck_cond = 1;
+        copydata = 1;
+        break;
+    case READ_VALUES:           /* READ DATA */
+        feature = ATA_SMART_READ_VALUES;
+        sector_count = 1;     /* one (512 byte) block */
+        protocol = 4;   /* PIO data-in */
+        t_length = 2;   /* sector count holds count */
+        copydata = 512;
+        break;
+    case READ_THRESHOLDS:       /* obsolete */
+        feature = ATA_SMART_READ_THRESHOLDS;
+        sector_count = 1;     /* one (512 byte) block */
+        lba_low = 1;
+        protocol = 4;   /* PIO data-in */
+        t_length = 2;   /* sector count holds count */
+        copydata=512;
+        break;
+    case READ_LOG:
+        feature = ATA_SMART_READ_LOG_SECTOR;
+        sector_count = 1;     /* one (512 byte) block */
+        lba_low = select;
+        protocol = 4;   /* PIO data-in */
+        t_length = 2;   /* sector count holds count */
+        copydata = 512;
+        break;
+    case WRITE_LOG:
+        feature = ATA_SMART_WRITE_LOG_SECTOR;
+        sector_count = 1;     /* one (512 byte) block */
+        lba_low = select;
+        protocol = 5;   /* PIO data-out */
+        t_length = 2;   /* sector count holds count */
+        t_dir = 0;      /* to device */
+        outlen = 512;
+        break;
+    case IDENTIFY:
+        ata_command = ATA_IDENTIFY_DEVICE;
+        sector_count = 1;     /* one (512 byte) block */
+        protocol = 4;   /* PIO data-in */
+        t_length = 2;   /* sector count holds count */
+        copydata = 512;
+        break;
+    case PIDENTIFY:
+        ata_command = ATA_IDENTIFY_PACKET_DEVICE;
+        sector_count = 1;     /* one (512 byte) block */
+        protocol = 4;   /* PIO data-in */
+        t_length = 2;   /* sector count (7:0) holds count */
+        copydata = 512;
+        break;
+    case ENABLE:
+        feature = ATA_SMART_ENABLE;
+        lba_low = 1;
+        break;
+    case DISABLE:
+        feature = ATA_SMART_DISABLE;
+        lba_low = 1;
+        break;
+    case STATUS:
+        // this command only says if SMART is working.  It could be
+        // replaced with STATUS_CHECK below.
+        feature = ATA_SMART_STATUS;
+        ck_cond = 1;
+        break;
+    case AUTO_OFFLINE:
+        feature = ATA_SMART_AUTO_OFFLINE;
+        sector_count = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+        break;
+    case AUTOSAVE:
+        feature = ATA_SMART_AUTOSAVE;
+        sector_count = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
+        break;
+    case IMMEDIATE_OFFLINE:
+        feature = ATA_SMART_IMMEDIATE_OFFLINE;
+        lba_low = select;
+        break;
+    case STATUS_CHECK:
+        // This command uses HDIO_DRIVE_TASK and has different syntax than
+        // the other commands.
+        feature = ATA_SMART_STATUS;      /* SMART RETURN STATUS */
+        ck_cond = 1;
+        break;
+    default:
+        pout("Unrecognized command %d in sat_command_interface()\n"
+             "Please contact " PACKAGE_BUGREPORT "\n", command);
+        errno=ENOSYS;
+        return -1;
+    }
+    if (ATA_SMART_CMD == ata_command) {
+        lba_mid = 0x4f;
+        lba_high = 0xc2;
+    }
+
+    cdb[0] = con->atacb_signature; // bVSCBSignature : vendor-specific command
+    cdb[1] = 0x24; // bVSCBSubCommand : 0x24 for ATACB
+    cdb[2] = 0x0;
+    if (ata_command == ATA_IDENTIFY_DEVICE || ata_command == ATA_IDENTIFY_PACKET_DEVICE)
+        cdb[2] |= (1<<7); //set  IdentifyPacketDevice for these cmds
+    cdb[3] = 0xff - (1<<0) - (1<<6); //features, sector count, lba low, lba med
+                                     // lba high, command are valid
+    cdb[4] = byte_block; //TransferBlockCount : 512
+
+
+    cdb[6] = feature;
+    cdb[7] = sector_count;
+    cdb[8] = lba_low;
+    cdb[9] = lba_mid;
+    cdb[10] = lba_high;
+    cdb[12] = ata_command;
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    if (0 == t_length) {
+        io_hdr.dxfer_dir = DXFER_NONE;
+        io_hdr.dxfer_len = 0;
+    } else if (t_dir) {         /* from device */
+        io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+        io_hdr.dxfer_len = copydata;
+        io_hdr.dxferp = (unsigned char *)data;
+        memset(data, 0, copydata); /* prefill with zeroes */
+    } else {                    /* to device */
+        io_hdr.dxfer_dir = DXFER_TO_DEVICE;
+        io_hdr.dxfer_len = outlen;
+        io_hdr.dxferp = (unsigned char *)data;
+    }
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = passthru_size;
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+    if (0 != status) {
+        if (con->reportscsiioctl > 0)
+            pout("sat_command_interface: do_scsi_cmnd_io() failed, "
+                 "status=%d\n", status);
+        return -1;
+    }
+
+    // if there is a sense the command failed or the
+    // device doesn't support atacb
+    if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
+            sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
+        return -1;
+    }
+    if (ck_cond) {
+        unsigned char ardp[8];
+        int ard_len = 8;
+        /* XXX this is racy if there other scsi command between
+         * the first atacb command and this one
+         */
+        //pout("If you got strange result, please retry without traffic on the disc\n");
+        /* we use the same command as before, but we set
+         * * the read taskfile bit, for not executing atacb command,
+         * * but reading register selected in srb->cmnd[4]
+         */
+        cdb[2] = (1<<0); /* ask read taskfile */
+        memset(sense, 0, sizeof(sense));
+
+        /* transfert 8 bytes */
+        memset(&io_hdr, 0, sizeof(io_hdr));
+        io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+        io_hdr.dxfer_len = ard_len;
+        io_hdr.dxferp = (unsigned char *)ardp;
+        memset(ardp, 0, ard_len); /* prefill with zeroes */
+
+        io_hdr.cmnd = cdb;
+        io_hdr.cmnd_len = passthru_size;
+        io_hdr.sensep = sense;
+        io_hdr.max_sense_len = sizeof(sense);
+        io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+
+        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
+        if (0 != status) {
+            if (con->reportscsiioctl > 0)
+                pout("sat_command_interface: do_scsi_cmnd_io() failed, "
+                        "status=%d\n", status);
+            return -1;
+        }
+        // if there is a sense the command failed or the
+        // device doesn't support atacb
+        if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
+                sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
+            return -1;
+        }
+
+
+        if (con->reportscsiioctl > 1) {
+            pout("Values from ATA Return Descriptor are:\n");
+            dStrHex((const char *)ardp, ard_len, 1);
+        }
+
+        if (ATA_CHECK_POWER_MODE == ata_command)
+            data[0] = ardp[2];      /* sector count (0:7) */
+        else if (STATUS_CHECK == command) {
+            if ((ardp[4] == 0x4f) && (ardp[5] == 0xc2))
+                return 0;    /* GOOD smart status */
+            if ((ardp[4] == 0xf4) && (ardp[5] == 0x2c))
+                return 1;    // smart predicting failure, "bad" status
+            // We haven't gotten output that makes sense so
+            // print out some debugging info
+            syserror("Error SMART Status command failed");
+            pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
+            pout("Values from ATA Return Descriptor are:\n");
+            dStrHex((const char *)ardp, ard_len, 1);
+            return -1;
+        }
+    }
+    return 0;
+}
+

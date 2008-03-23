@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.671 2008/03/21 15:51:50 card_captor Exp $
+$Id: CHANGELOG,v 1.672 2008/03/23 22:52:55 mat-c Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -10,6 +10,7 @@ Maintainers / Developers Key:
 [EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
+[MC] Matthieu Castet
 [YD] Yuri Dario
 [CD] Casper Dik
 [CF] Christian Franke
@@ -34,6 +35,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MC] Add atacb device support for smartctl.
 
   [KS] INSTALL on Solaris: updated description to use C++ compiler.
 
