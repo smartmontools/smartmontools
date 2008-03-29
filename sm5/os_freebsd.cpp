@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.59 2008/03/15 12:04:29 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.60 2008/03/29 20:02:54 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.59 2008/03/15 12:04:29 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.60 2008/03/29 20:02:54 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -220,9 +220,6 @@ int deviceclose (int fd) {
   if (fdchan->atacommand)
     failed=close(fdchan->atacommand);
 #endif
-
-  if (fdchan->scsicontrol)
-    failed=close(fdchan->scsicontrol);
   
   // if close succeeded, then remove from device list
   // Eduard, should we also remove it from list if close() fails?  I'm

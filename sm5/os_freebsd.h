@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.22 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.23 2008/03/29 20:02:54 shattered Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -90,7 +90,6 @@ struct freebsd_dev_channel {
   int   atacommand;             // the ATA Command file descriptor (/dev/ata)
   char* devname;                // the SCSI device name
   int   unitnum;                // the SCSI unit number
-  int   scsicontrol;            // the SCSI control interface
 };
 
 #define FREEBSD_MAXDEV 64
