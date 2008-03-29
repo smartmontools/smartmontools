@@ -82,12 +82,14 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.23 2008/03/29 20:02:54 shattered Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.24 2008/03/29 20:08:55 shattered Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
   int   device;                 // the device on the channel
+#ifndef IOCATAREQUEST
   int   atacommand;             // the ATA Command file descriptor (/dev/ata)
+#endif
   char* devname;                // the SCSI device name
   int   unitnum;                // the SCSI unit number
 };
