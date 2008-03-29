@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.63 2008/03/29 23:32:11 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.64 2008/03/29 23:37:44 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.63 2008/03/29 23:32:11 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.64 2008/03/29 23:37:44 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -562,10 +562,10 @@ struct freebsd_dev_channel *fdchan;
      switch(con->controller_type)
      {
          case CONTROLLER_CCISS:
+#ifdef HAVE_DEV_CISS_CISSIO_H
 	     // check that "file descriptor" is valid
 	     if (isnotopen(&dev_fd,&fdchan))
-		  return -ENOTTY;
-#ifdef HAVE_DEV_CISS_CISSIO_H
+		 return -ENOTTY;
              return cciss_io_interface(fdchan->device, con->controller_port-1, iop, report);
 #else
              {
