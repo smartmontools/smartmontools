@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.62 2008/03/29 23:29:16 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.63 2008/03/29 23:32:11 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.62 2008/03/29 23:29:16 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.63 2008/03/29 23:32:11 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -104,8 +104,8 @@ int deviceopen (const char* dev, __unused char* mode) {
   
   // If no free entry found, return error.  We have max allowed number
   // of "file descriptors" already allocated.
-  if (i==FREEBSD_MAXDEV) {
-    errno=EMFILE;
+  if (i == FREEBSD_MAXDEV) {
+    errno = EMFILE;
     return -1;
   }
 
@@ -115,7 +115,7 @@ int deviceopen (const char* dev, __unused char* mode) {
     return -1;
   }
 
-  parse_ok = parse_ata_chan_dev (dev,fdchan);
+  parse_ok = parse_ata_chan_dev(dev,fdchan);
   if (parse_ok == CONTROLLER_UNKNOWN) {
     free(fdchan);
     errno = ENOTTY;
@@ -128,8 +128,8 @@ int deviceopen (const char* dev, __unused char* mode) {
 #else
     if ((fdchan->atacommand = open("/dev/ata",O_RDWR))<0) {
 #endif
-      int myerror = errno;      //preserve across free call
-      free (fdchan);
+      int myerror = errno;	// preserve across free call
+      free(fdchan);
       errno = myerror;
       return -1;
     }
@@ -143,9 +143,9 @@ int deviceopen (const char* dev, __unused char* mode) {
 #else
     if ((fdchan->atacommand = open(buf,O_RDWR))<0) {
 #endif
-      int myerror = errno; // preserver across free call
+      int myerror = errno;	// preserve across free call
       free(fdchan);
-      errno=myerror;
+      errno = myerror;
       return -1;
     }
   }
@@ -158,18 +158,18 @@ int deviceopen (const char* dev, __unused char* mode) {
 #else
     if ((fdchan->atacommand = open(buf,O_RDWR))<0) {
 #endif
-      int myerror = errno; // preserver across free call
+      int myerror = errno;	// preserve across free call
       free(fdchan);
-      errno=myerror;
+      errno = myerror;
       return -1;
     }
   }
 
   if (parse_ok == CONTROLLER_CCISS) {
     if ((fdchan->device = open(dev,O_RDWR))<0) {
-      int myerror = errno; // preserver across free call
+      int myerror = errno;	// preserve across free call
       free(fdchan);
-      errno=myerror;
+      errno = myerror;
       return -1;
     }
   }
