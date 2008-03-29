@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.24 2008/03/29 20:08:55 shattered Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.25 2008/03/29 23:32:11 shattered Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -95,7 +95,7 @@ struct freebsd_dev_channel {
 };
 
 #define FREEBSD_MAXDEV 64
-#define FREEBSD_FDOFFSET 16;
+#define FREEBSD_FDOFFSET 16
 #define MAX_NUM_DEV 26
 
 #ifdef  HAVE_SYS_TWEREG_H
