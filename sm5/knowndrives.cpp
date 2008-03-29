@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.166 2008/02/02 18:10:48 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.167 2008/03/29 20:51:34 shattered Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1155,7 +1155,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Caviar SE Serial ATA family",
-    "^WDC WD((4|8|12|16|20|25|32|40)00(JD|KD))-.*$",
+    "^WDC WD((4|8|12|16|20|25|32|40)00(JD|KD|PD))-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
