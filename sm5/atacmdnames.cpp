@@ -26,7 +26,7 @@
 
 #define COMMAND_TABLE_SIZE 256
 
-const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.16 2008/03/04 22:09:47 ballen4705 Exp $" ATACMDNAMES_H_CVSID;
+const char *atacmdnames_c_cvsid="$Id: atacmdnames.cpp,v 1.17 2008/03/29 23:41:28 shattered Exp $" ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -289,7 +289,7 @@ const char *command_table[COMMAND_TABLE_SIZE] = {
                             f_reg is used in look_up_ata_command().  If this
                             command code is reclaimed in a future standard then
                             be sure to update look_up_ata_command(). */
-  "FLUSH CACHE EXIT",
+  "FLUSH CACHE EXT",
   cmd_reserved,
   "IDENTIFY DEVICE",
   "MEDIA EJECT",
