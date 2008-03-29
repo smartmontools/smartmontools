@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.61 2008/03/29 20:26:40 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.62 2008/03/29 23:29:16 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.61 2008/03/29 20:26:40 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.62 2008/03/29 23:29:16 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -488,7 +488,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   if (!(cam_dev = cam_open_spec_device(con->devname,con->unitnum,O_RDWR,NULL))) {
     warnx("%s",cam_errbuf);
-    return -1;
+    return -EIO;
   }
 
   if (!(ccb = cam_getccb(cam_dev))) {
@@ -518,7 +518,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
  #endif
     cam_freeccb(ccb);
-    return -1;
+    return -EIO;
   }
 
   if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
@@ -526,7 +526,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
  #endif
     cam_freeccb(ccb);
-    return -1;
+    return -EIO;
   }
 
   if (iop->sensep) {
@@ -576,8 +576,7 @@ struct freebsd_dev_channel *fdchan;
                      warned = 1;
                  }
              }
-             errno = ENOSYS;
-             return -1;
+             return -ENOSYS;
 #endif
              // not reached
              break;
