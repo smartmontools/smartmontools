@@ -97,7 +97,7 @@ extern "C" int __stdcall FreeConsole(void);
 #define sleep     daemon_sleep
 #undef EXIT // see utility.h
 #define EXIT(x)  { exitstatus = daemon_winsvc_exitcode = (x); exit((x)); }
-// SIGQUIT does not exits, CONTROL-Break signals SIGBREAK.
+// SIGQUIT does not exit, CONTROL-Break signals SIGBREAK.
 #define SIGQUIT SIGBREAK
 #define SIGQUIT_KEYNAME "CONTROL-Break"
 #else  // _WIN32
@@ -119,14 +119,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.399 2008/03/17 21:50:32 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.400 2008/03/30 16:14:22 shattered Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.399 2008/03/17 21:50:32 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.400 2008/03/30 16:14:22 shattered Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -319,8 +319,6 @@ void PrintCVS(void){
   PrintOneCVS(ataprint_c_cvsid);
 #ifdef _WIN32
   PrintOneCVS(daemon_win32_c_cvsid);
-#endif
-#ifdef _WIN32
   PrintOneCVS(hostname_win32_c_cvsid);
 #endif
   PrintOneCVS(knowndrives_c_cvsid);
