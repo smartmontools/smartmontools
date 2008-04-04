@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.64 2008/03/29 23:37:44 shattered Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.65 2008/04/04 20:34:21 shattered Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.64 2008/03/29 23:37:44 shattered Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.65 2008/04/04 20:34:21 shattered Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // to hold onto exit code for atexit routine
@@ -92,7 +92,7 @@ void print_smartctl_examples(){
   return;
 }
 
-// Like open().  Return positive integer handle, used by functions below only.  mode=="ATA" or "SCSI".
+// Like open().  Return positive integer handle, used by functions below only.
 int deviceopen (const char* dev, __unused char* mode) {
   struct freebsd_dev_channel *fdchan;
   int parse_ok, i;
@@ -213,10 +213,9 @@ int deviceclose (int fd) {
     free(fdchan->devname);
   
   // close device, if open
-#ifdef IOCATAREQUEST
   if (fdchan->device)
     failed=close(fdchan->device);
-#else
+#ifndef IOCATAREQUEST
   if (fdchan->atacommand)
     failed=close(fdchan->atacommand);
 #endif
