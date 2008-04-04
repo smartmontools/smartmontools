@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.673 2008/03/29 20:26:40 shattered Exp $
+$Id: CHANGELOG,v 1.674 2008/04/04 20:34:21 shattered Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -35,6 +35,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SS] FreeBSD: plug file descriptor leak in smartd (only happens with
+       CISS devices).  Reported by Vadim Ostranitsyn.
 
   [SS] FreeBSD: allow smartctl to interact with SCSI /dev/pass devices,
        thus enabling it to work with RAID controllers that expose disks
