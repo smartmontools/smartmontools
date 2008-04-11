@@ -41,14 +41,11 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.186 2008/03/17 21:50:32 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.187 2008/04/11 20:09:15 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 // Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
 // bytes.

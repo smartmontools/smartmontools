@@ -39,9 +39,9 @@
 
 extern long long bytes;
 
-static const char *filenameandversion="$Id: os_solaris.cpp,v 1.30 2008/03/04 22:09:47 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_solaris.cpp,v 1.31 2008/04/11 20:09:15 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.30 2008/03/04 22:09:47 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_solaris.cpp,v 1.31 2008/04/11 20:09:15 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_SOLARIS_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // The printwarning() function warns about unimplemented functions
@@ -336,7 +336,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
 	return smart_status_check(fd);
     default:
 	pout("Unrecognized command %d in ata_command_interface() of os_solaris.c\n", command);
-	exit(1);
+	EXIT(1);
 	break;
     }
 #else /* __sparc */

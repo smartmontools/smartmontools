@@ -44,7 +44,7 @@
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.66 2008/03/17 21:50:32 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.67 2008/04/11 20:09:15 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -69,10 +69,6 @@ const char * packet_types[] = {
 // Whenever exit() status is EXIT_BADCODE, please print this message
 const char *reportbug="Please report this bug to the Smartmontools developers at " PACKAGE_BUGREPORT ".\n";
 
-
-// hang on to exit code, so we can make use of more generic 'atexit()'
-// functionality and still check our exit code
-int exitstatus = 0;
 
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;

@@ -79,13 +79,10 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.104 2008/03/18 08:26:20 tsmetana Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.105 2008/04/11 20:09:15 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.104 2008/03/18 08:26:20 tsmetana Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.105 2008/04/11 20:09:15 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 // global variable holding byte count of allocated memory
 extern long long bytes;
@@ -1424,7 +1421,7 @@ int marvell_command_interface(int device,
     break;
   default:
     pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
-    exit(1);
+    EXIT(1);
     break;
   }
   // There are two different types of ioctls().  The HDIO_DRIVE_TASK

@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.167 2008/03/29 20:51:34 shattered Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.168 2008/04/11 20:09:15 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -51,9 +51,6 @@ ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNO
  * knowndrives[]. */
 
 extern int64_t bytes;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 // These three are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {

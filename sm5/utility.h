@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.52 2008/03/23 22:52:55 mat-c Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.53 2008/04/11 20:09:15 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -95,8 +95,9 @@ int guess_device_type(const char * dev_name);
 // if the DEVICESCAN option is in the smartd config file
 int make_device_names (char ***devlist, const char* name);
 
-
-#define EXIT(x)  { exitstatus = (x); exit((x)); }
+// Replacement for exit(status)
+// (exit is not compatible with C++ destructors)
+#define EXIT(status) { throw (int)(status); }
 
 // replacement for calloc() that tracks memory usage
 void *Calloc(size_t nmemb, size_t size);
