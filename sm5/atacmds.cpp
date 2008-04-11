@@ -36,11 +36,8 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.192 2008/03/23 22:52:55 mat-c Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.193 2008/04/11 20:09:14 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 // for passing global control variables
 extern smartmonctrl *con;

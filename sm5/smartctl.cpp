@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdexcept>
 
 #include "config.h"
 #ifdef HAVE_GETOPT_LONG
@@ -58,15 +59,12 @@
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.172 2008/03/30 00:00:07 shattered Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.173 2008/04/11 20:09:15 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
 smartmonctrl *con=NULL;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 // Track memory use
 extern int64_t bytes;
@@ -372,7 +370,7 @@ void ParseOpts (int argc, char** argv){
       con->dont_print=FALSE;
       printslogan();
       printcopy();
-      exit(0);
+      EXIT(0);
       break;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
@@ -490,8 +488,7 @@ void ParseOpts (int argc, char** argv){
         // make a copy of the string to mess with
         if (!(s = strdup(optarg))) {
           con->dont_print = FALSE;
-          pout("No memory for argument of -d. Exiting...\n");
-          exit(FAILCMD);
+          throw std::bad_alloc();
         } else if (!strncmp(s,"3ware,",6)) {
             if (split_report_arg2(s, &i)) {
                  sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
@@ -559,10 +556,7 @@ void ParseOpts (int argc, char** argv){
         // split_report_arg() may modify its first argument string, so use a
         // copy of optarg in case we want optarg for an error message.
         if (!(s = strdup(optarg))) {
-          con->dont_print = FALSE;
-          pout("Can't allocate memory to copy argument to -r option"
-               " - exiting\n");
-          EXIT(FAILCMD);
+          throw std::bad_alloc();
         }
         if (split_report_arg(s, &i)) {
           badarg = TRUE;
@@ -676,8 +670,7 @@ void ParseOpts (int argc, char** argv){
         con->dont_print=FALSE;
         printslogan();
         if (!(s = create_vendor_attribute_arg_list())) {
-          pout("Insufficient memory to construct argument list\n");
-          EXIT(FAILCMD);
+          throw std::bad_alloc();
         }
         pout("The valid arguments to -v are:\n\thelp\n%s\n", s);
         free(s);
@@ -685,8 +678,7 @@ void ParseOpts (int argc, char** argv){
       }
       charp=con->attributedefs;
       if (!charp){
-        pout("Fatal internal error in ParseOpts()\n");
-        EXIT(FAILCMD);
+        throw std::runtime_error("Fatal internal error in ParseOpts()");
       }
       if (parse_attribute_def(optarg, &charp))
         badarg = TRUE;
@@ -971,8 +963,9 @@ void PrintOut(int priority, const char *fmt, ...) {
 }
 
 
-/* Main Program */
-int main (int argc, char **argv){
+// Main program without exception handling
+int main_worker(int argc, char **argv)
+{
   int fd,retval=0;
   char *device;
   smartmonctrl control;
@@ -1082,3 +1075,30 @@ int main (int argc, char **argv){
 
   return retval;
 }
+
+
+// Main program
+int main(int argc, char **argv)
+{
+  int status;
+  try {
+    // Do the real work ...
+    status = main_worker(argc, argv);
+  }
+  catch (int ex) {
+    // EXIT(status) arrives here
+    status = ex;
+  }
+  catch (const std::bad_alloc & /*ex*/) {
+    // Memory allocation failed (also thrown by std::operator new)
+    pout("Smartctl: Out of memory\n");
+    status = FAILCMD;
+  }
+  catch (const std::exception & ex) {
+    // Other fatal errors
+    pout("Smartctl: Exception: %s\n", ex.what());
+    status = FAILCMD;
+  }
+  return status;
+}
+

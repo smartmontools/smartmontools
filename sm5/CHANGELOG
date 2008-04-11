@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.674 2008/04/04 20:34:21 shattered Exp $
+$Id: CHANGELOG,v 1.675 2008/04/11 20:09:14 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] C++: Added new main() with exception handlers, replaced
+       exit(x) with throw(x), removed global variable 'exitstatus'.
+       Necessary for future changes, because exit() does not call
+       any destructors.
+
   [SS] FreeBSD: plug file descriptor leak in smartd (only happens with
        CISS devices).  Reported by Vadim Ostranitsyn.
 
@@ -55,7 +60,6 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [TS] smartd on Linux: remove forgotten return from deviceopen();
        SCSI device descriptors had the FD_CLOEXEC flag unset.
-
 
   [CF] Added 'const' to avoid warning on depreciated string constant
        to 'char *' conversion.

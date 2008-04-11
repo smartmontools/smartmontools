@@ -41,6 +41,7 @@
 #include <errno.h>
 #include <time.h>
 #include <limits.h>
+#include <stdexcept>
 
 #if SCSITIMEOUT
 #include <setjmp.h>
@@ -95,9 +96,7 @@ extern "C" int __stdcall FreeConsole(void);
 #define SIGNALFN  daemon_signal
 #define strsignal daemon_strsignal
 #define sleep     daemon_sleep
-#undef EXIT // see utility.h
-#define EXIT(x)  { exitstatus = daemon_winsvc_exitcode = (x); exit((x)); }
-// SIGQUIT does not exit, CONTROL-Break signals SIGBREAK.
+// SIGQUIT does not exist, CONTROL-Break signals SIGBREAK.
 #define SIGQUIT SIGBREAK
 #define SIGQUIT_KEYNAME "CONTROL-Break"
 #else  // _WIN32
@@ -119,14 +118,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.400 2008/03/30 16:14:22 shattered Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.401 2008/04/11 20:09:15 chrfranke Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.400 2008/03/30 16:14:22 shattered Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.401 2008/04/11 20:09:15 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -195,9 +194,6 @@ int numdevata=0, numdevscsi=0;
 
 // track memory usage
 extern int64_t bytes;
-
-// exit status
-extern int exitstatus;
 
 // set to one if we catch a USR1 (check devices now)
 volatile int caughtsigUSR1=0;
@@ -410,6 +406,7 @@ void RemovePidFile(){
   return;
 }
 
+extern "C" { // signal handlers require C-linkage
 
 //  Note if we catch a SIGUSR1
 void USR1handler(int sig){
@@ -443,10 +440,11 @@ void sighandler(int sig){
   return;
 }
 
+} // extern "C"
 
-// signal handler that prints Goodbye message and removes pidfile
-void Goodbye(void){
-  
+// Cleanup, print Goodbye message and remove pidfile
+static int Goodbye(int status)
+{
   // clean up memory -- useful for debugging
   RmAllConfigEntries();
   RmAllDevEntries();
@@ -458,20 +456,20 @@ void Goodbye(void){
   configfile_alt=FreeNonZero(configfile_alt, -1,__LINE__,filenameandversion);
 
   // useful for debugging -- have we managed memory correctly?
-  if (debugmode || (bytes && exitstatus!=EXIT_NOMEM))
+  if (debugmode || (bytes && status!=EXIT_NOMEM))
     PrintOut(LOG_INFO, "Memory still allocated for devices at exit is %" PRId64 " bytes.\n", bytes);
 
   // if we are exiting because of a code bug, tell user
-  if (exitstatus==EXIT_BADCODE || (bytes && exitstatus!=EXIT_NOMEM))
+  if (status==EXIT_BADCODE || (bytes && status!=EXIT_NOMEM))
         PrintOut(LOG_CRIT, "Please inform " PACKAGE_BUGREPORT ", including output of smartd -V.\n");
 
-  if (exitstatus==0 && bytes)
-    exitstatus=EXIT_BADCODE;
+  if (status==0 && bytes)
+    status=EXIT_BADCODE;
 
   // and this should be the final output from smartd before it exits
-  PrintOut(exitstatus?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", exitstatus);
+  PrintOut(status?LOG_CRIT:LOG_INFO, "smartd is exiting (exit status %d)\n", status);
 
-  return;
+  return status;
 }
 
 #define ENVLENGTH 1024
@@ -2718,13 +2716,17 @@ void AlarmHandler(int signal) {
 }
 #endif
 
+
+// Set if Initialize() was called
+static bool is_initialized = false;
+
 // Does initialization right after fork to daemon mode
 void Initialize(time_t *wakeuptime){
 
-  // install goobye message and remove pidfile handler
-  atexit(Goodbye);
+  // Call Goodbye() on exit
+  is_initialized = true;
   
-  // write PID file only after installing exit handler
+  // write PID file
   if (!debugmode)
     WritePidFile();
   
@@ -4374,13 +4376,8 @@ void RegisterDevices(int scanning){
 }
 
 
-#ifndef _WIN32
-// Main function
-int main(int argc, char **argv)
-#else
-// Windows: internal main function started direct or by service control manager
-static int smartd_main(int argc, char **argv)
-#endif
+// Main program without exception handling
+int main_worker(int argc, char **argv)
 {
   // external control variables for ATA disks
   smartmonctrl control;
@@ -4508,6 +4505,44 @@ static int smartd_main(int argc, char **argv)
     // sleep until next check time, or a signal arrives
     wakeuptime=dosleep(wakeuptime);
   }
+}
+
+
+#ifndef _WIN32
+// Main program
+int main(int argc, char **argv)
+#else
+// Windows: internal main function started direct or by service control manager
+static int smartd_main(int argc, char **argv)
+#endif
+{
+  int status;
+  try {
+    // Do the real work ...
+    status = main_worker(argc, argv);
+  }
+  catch (int ex) {
+    // EXIT(status) arrives here
+    status = ex;
+  }
+  catch (const std::bad_alloc & /*ex*/) {
+    // Memory allocation failed (also thrown by std::operator new)
+    PrintOut(LOG_CRIT, "Smartd: Out of memory\n");
+    status = EXIT_NOMEM;
+  }
+  catch (const std::exception & ex) {
+    // Other fatal errors
+    PrintOut(LOG_CRIT, "Smartd: Exception: %s\n", ex.what());
+    status = EXIT_BADCODE;
+  }
+
+  if (is_initialized)
+    status = Goodbye(status);
+
+#ifdef _WIN32
+  daemon_winsvc_exitcode = status;
+#endif
+  return status;
 }
 
 

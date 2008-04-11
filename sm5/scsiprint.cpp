@@ -42,14 +42,11 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.122 2008/03/17 21:50:32 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.123 2008/04/11 20:09:15 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
 extern smartmonctrl *con;
-
-// to hold onto exit code for atexit routine
-extern int exitstatus;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
