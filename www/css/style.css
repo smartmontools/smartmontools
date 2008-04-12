@@ -1,0 +1,143 @@
+/* 
+    $Id: style.css,v 1.1 2008/04/12 13:22:37 dipohl Exp $
+    
+    Lookup Table for Colors:
+    blue: #3333FF
+    green: #009966
+    yellow: #FFFFCC
+    
+*/
+
+body {
+    background: #FFFFFF;
+    color: #000000;
+    margin: 1em;
+    font-size: 1em;
+    font-family: verdana,arial,helvetica,sans-serif;
+}
+
+div {
+    margin-left: 1em;
+}
+
+div.left-header {
+    float:left;
+    position:relative;
+    top:0px;
+    left:0px;
+    max-width: 350px;
+    padding: .4em 1em;
+    margin-right: 1em;
+    border: 1px solid #000000;
+    background: #E6E6FA;
+}
+
+h1 {
+    color:  #3333FF
+}
+
+h2 {
+    font-size: 1.3em;
+    color:  #009966;
+    border: 1px solid #d7d7d7;
+    font-style:italic; 
+    background: #FFFFFF;
+    padding-left: 0.8em;
+    padding-right: 0.8em;
+    margin-bottom: 0;
+}
+
+h3 {
+    background: #FFFFCC;
+    font-size: 1.1em;
+}
+
+tt {font-size: 1.1em}
+
+a:active { color: #A020F0; }
+a:link { color: #0000FF; }
+a:visited { color: #1E90FF; }
+
+/* Navigation */
+.nav h2, .nav hr { display: none }
+.nav ul { font-size: 1em; list-style: none; margin: 0; text-align: left }
+.nav li {
+ border-right: 1px solid #d7d7d7;
+ display: inline;
+ padding: 0.75em;
+ white-space: nowrap;
+}
+.nav li.first { border-left: none }
+.nav li.last { border-right: none }
+
+/* Main navigation bar */
+#mainmenu {
+ background: #FFFFFF;
+ border: 1px solid #000;
+ font-size: 0.8em;
+ margin: .66em 0 .33em;
+ margin-bottom: 1em;
+ padding: .2em 0;
+}
+#mainmenu li { border-right: none; padding: .25em 0 }
+#mainmenu :link, #mainmenu :visited {
+ border-right: 1px solid #fff;
+ border-bottom: 1em;
+ border-left: 1px solid #555;
+ color: #000000;
+ padding: .2em 20px;
+ font-weight: bold;
+}
+* html #mainmenu :link, * html #mainmenu :visited { background-position: 1px 0 }
+#mainmenu :link:hover, #mainmenu :visited:hover {
+ background-color: #FFFFCC;
+ border-right: 1px solid #ddd;
+}
+#mainmenu .active :link, #mainmenu .active :visited {
+ background: #009966;
+ border-top: none;
+ border-right: 1px solid #000;
+ color: #eee;
+ font-weight: bold;
+}
+#mainmenu .active :link:hover, #mainmenu .active :visited:hover {
+ border-right: 1px solid #000;
+}
+
+/* draw box around index */
+#index {
+background: #F5F5F5;
+border: 1px solid #000000;
+padding: .2em 1em
+}
+
+ul.High {
+  list-style-image: url(../pics/raute-blau.gif);
+  font-style: italic;
+  position: relative;
+  margin-top: 0em;
+  margin-left: 1em;
+  margin-bottom: 0;
+  padding: 1em;
+}
+
+ul.Circle {
+  list-style-type: circle;
+  margin-top: 0;
+  margin-left: 2em;
+  margin-bottom: 0;
+  padding: 0
+}
+
+ul.Square {
+  list-style-type: square;
+  list-style-position:inside;
+}
+
+.marked { color: #FF0000; }
+
+.code { 
+    font-family: monospace;
+	font-weight: bold;
+	font-size: 1.1em;
+}
