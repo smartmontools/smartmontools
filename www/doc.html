@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+ <title>smartmontools Documentation Page (last updated $Date: 2008/04/12 13:35:09 $)</title>
+ <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
+ <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+ <meta name="description" content="smartmontools Home Page" />
+ <meta name="keywords" content="Documentation, smartctl, smartd, crash prevention, S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
+ <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+ <meta http-equiv="content-style-type" content="text/css" />
+ <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<!-- $Id: doc.html,v 1.1 2008/04/12 13:35:09 dipohl Exp $ -->
+<div id="header">
+    <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
+    smartmontools Documentation Page</h1>
+</div>
+
+<div id="mainmenu" class="nav">
+    <ul>
+        <li class="first"><a accesskey="n" href="index.html">Home</a></li>
+        <li class="active"><a href="doc.html">Documentation</a></li>
+        <li><a accesskey="d" href="download.html">Download</a></li>
+        <li><a accesskey="f" href="faq.html">FAQ</a></li>
+        <li><a accesskey="h" href="help.html">Help</a></li>
+        <li><a accesskey="a" href="about.html">About</a></li>
+        <li class="last"><a accesskey="l" href="links.html">Links</a></li>
+    </ul>
+</div>
+
+<div class="left-header">
+<h2>Documentation</h2>
+<ul class="High">
+    <li><a href="#man-pages">Manual pages</a> of smartmontools</li>
+    <li><a href="#tutorials">Tutorials and articles</a> about smartmontools</li>
+    <li><a href="links.html#references">References on SMART and ATA/ATAPI standards</a></li>
+    <li>Smartmontools for <a href="#testinghelp">FireWire, USB, and SATA disks/systems</a></li>
+    <li>Smartmontools for <a href="#scsi">SCSI disks and tapes (TapeAlert)</a></li>
+</ul>
+</div>
+<div>
+<p>In this section we provide documentation upon basic and general understanding
+of smartmontools. Have a look on the <a href="faq.html">FAQ Page</a> too,
+where you find information concerning more specific issues.</p>
+
+<h3><a name="man-pages"></a>Smartmontools manual pages</h3>
+<p>If you are having trouble understanding the output of smartctl
+or smartd, please first read the manual pages installed on your
+system:</p>
+
+<p class="code">
+man 8 smartctl<br />
+man 8 smartd<br />
+man 5 smartd.conf</p>
+
+<p>Here are on-line versions of the smartmontools man pages:</p>
+<ul class="Square">
+    <li><a href="man/smartctl.8.html">smartctl manual page</a></li>
+    <li><a href="man/smartd.8.html">smartd manual page</a></li>
+    <li><a href="man/smartd.conf.5.html">smartd.conf manual page</a></li>
+</ul>
+
+<p>Note that these are the manual pages for the <strong><em>current version</em></strong>
+of smartmontools in the developers CVS repository; they might not
+correspond to the (possibly older) version of smartmontools installed
+on <em>your</em> system.  So the manual pages installed on your system
+should be regarded as definitive for your installation.</p>
+<hr />
+
+<h3><a name="tutorials"></a>Tutorials and articles about smartmontools and S.M.A.R.T.</h3>
+
+<p>If you'd like to know more about SMART, then the following
+references may be helpful:</p>
+
+<ul>
+<li><a href="http://www.linuxjournal.com/article.php?sid=6983"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Monitoring Hard Disks with SMART (Linux Journal, Jan 2004)</a></li>
+<li><a href="http://lea-linux.org/cached/index/Hardware-hard_plus-smart.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Soyez Smart (Francais) from GNU Linux Magazine France n°68,</a></li>
+<li><a href="http://www.linux-user.de/ausgabe/2004/10/056-smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Vorbeugen statt Crash (Deutsch)</a>
+from <a href="http://www.linux-user.de/ausgabe/2004/10"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />LinuxUser 2004/10</a></li>
+<li><a href="http://www.linux-magazine.com/issue/49/Monitoring_Hard_Disks_with_smartmontools.pdf"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Crash Prevention
+(English version of above)</a> from <a href="http://www.linux-magazine.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Linux Magazine Dec 2004</a></li>
+<li><a href="http://www.wikipedia.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Wikipedia</a> articles about SMART:
+<a href="http://en.wikipedia.org/wiki/Self-Monitoring%2C_Analysis%2C_and_Reporting_Technology"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />English</a>,
+<a href="http://de.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Deutsch</a>,
+<a href="http://es.wikipedia.org/wiki/S.M.A.R.T."><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Espa&#241;ol</a>,
+<a href="http://fr.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Fran&#231;ais</a>,
+<a href="http://it.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Italiano</a>,
+<a href="http://ja.wikipedia.org/wiki/Self-Monitoring%2C_Analysis_and_Reporting_Technology"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Japanese</a>,
+<a href="http://nl.wikipedia.org/wiki/S.M.A.R.T."><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Nederlands</a>,
+<a href="http://pl.wikipedia.org/wiki/S.M.A.R.T._%28informatyka%29"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Polski</a>,
+<a href="http://pt.wikipedia.org/wiki/S.M.A.R.T."><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Portugu&#234;s</a>,
+<a href="http://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F_SMART"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Russian</a>,
+<a href="http://sk.wikipedia.org/wiki/S.M.A.R.T"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Sloven&#269;ina</a>,
+<a href="http://sv.wikipedia.org/wiki/S.M.A.R.T."><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Svenska</a>
+</li>
+</ul>
+<hr />
+
+<h3><a name="testinghelp"></a>Smartmontools for FireWire, USB, and SATA disks/systems</h3>
+<p>As for USB and FireWire (IEEE 1394) disks and tape drives, the news
+is not good. They appear to the operating system as SCSI devices but their
+implementations do not usually support those SCSI commands needed by
+smartmontools. A consortium associated with IEEE 1394 certified <em>some</em> external enclosures
+(containing a ATA disk and a protocol bridge) as being compliant to the relevant
+standards. Even still, that compliance means that they tend to only
+support the bare minimum of commands
+needed for device operation (i.e. SMART support is an unsupported
+extra). Hopefully external USB and Firewire devices will support SAT in
+the future, see below.</p>
+
+<p>Smartmontools should work correctly with SATA drives under both
+Linux 2.4 and 2.6 kernels. Depending on which subsystem the SATA
+controller is in (i.e. <span class="code">drivers/ide</span>,
+<span  class="code">drivers/ata</span> or libata
+(under <span  class="code">drivers/scsi</span>) a
+SATA drive will appear as <span class="code">/dev/hd*</span>
+or <span  class="code">/dev/sd*</span>. Either way,
+smartmontools should be able to figure out what is going on and act
+accordingly. In some cases smartmontools may need a hint in the form of
+a '<span  class="code">-d sat</span>' or '<span
+  class="code">-d ata</span>' option on the <tt>smartctl</tt> command line or in the
+<tt>/etc/smartd.conf</tt> file.
+There may be a hint to add one of those options in the log file when <tt>smartd</tt> is run as a daemon or on
+the command line with <tt>smartctl</tt>.
+The '<span  class="code">-d ata</span>' option means
+that even though the drive has a SCSI device name, treat it as an ATA
+disk. Unfortunately such an approach doesn't often work. The next
+paragraph has more information about '<span  class="code">-d sat</span>'.</p>
+
+<p>The SCSI to ATA Translation (SAT) standard (ANSI INCITS 431-2007)
+may solve many problems in this area. It defines how SCSI commands will
+be translated to the corresponding ATA commands and defines a
+pass-through mechanism. ATA commands are conveyed natively by two
+transports: parallel and serial ATA. SCSI commands can be
+conveyed by many transports: the veteran SCSI Parallel Interface
+(SPI), Fibre Channel (FC), Infiniband (SRP), Serial
+Attached SCSI (SAS), IP (iSCSI and iSER), USB (mass storage), and IEEE
+1394 (SBP) to name some. Due to their cost and storage capacity, more
+and more ATA disks (especially SATA disks) are appearing "behind" a
+SCSI transport. This is especially true of the SAS transport which can
+painlessly accomodate both SAS and SATA disks. Enter another acronym:
+SATL which stands for SCSI to ATA Translation Layer. In Linux libata
+has a SATL in it. Some SAS host bus adapters have a SATL in their
+firmware. FC might have a SATL in a switch. Perhaps in the future USB
+and IEEE 1394 enclosures will have a SATL in them. Starting from
+smartmontools versions 5.36 and 5.37, no matter where a SATL is,
+irrespective of the operating system in use, the user should have less
+problems with ATA disks, no matter which transport is involved. As
+always, it helps to know a little of what is happening under the
+covers. The '<span class="code">-d sat</span>'
+option instructs <tt>smartctl</tt>
+and <tt>smartd</tt> to assume a
+SATL is in place and act accordingly. The <tt>smartctl</tt> command can often
+detect a SATL and autoconfigure while in smartmontools version 5.37 <tt>smartd</tt> often needs a hint.</p>
+<hr />
+
+<h3><a name="scsi"></a>Smartmontools for SCSI disks and tapes (TapeAlert)</h3>
+
+<p>Smartmontools for SCSI disks and tapes (including medium changers) is
+discussed on a separate <a href="smartmontools_scsi.html" target="_blank">page</a>.</p>
+</div>
+<hr style="clear:left" />
+<div align="center">
+Hosted by<br />
+<a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
+   src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
+ <br />
+<font size="-1">Last update: $Date: 2008/04/12 13:35:09 $</font><br />
+<a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdoc.html">W3C Link-Checker</a><br />
+<a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10-blue"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img style="border:0;width:88px;height:31px"
+        src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+        alt="CSS ist valide!" /></a>
+</div>
+</body>
+</html>
