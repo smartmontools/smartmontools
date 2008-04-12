@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+ <title>smartmontools FAQ Page (last updated $Date: 2008/04/12 13:35:09 $)</title>
+ <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
+ <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+ <meta name="description" content="smartmontools Home Page" />
+ <meta name="keywords" content="FAQ, Frequently Asked Questions, Problem, Problems, smartd, smartctl, firmware, S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<!-- $Id: faq.html,v 1.1 2008/04/12 13:35:09 dipohl Exp $ -->
+<div id="header">
+    <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
+    smartmontools FAQ Page</h1>
+</div>
+
+<div id="mainmenu" class="nav">
+    <ul>
+        <li><a accesskey="n" href="index.html">Home</a></li>
+        <li><a href="doc.html">Documentation</a></li>
+        <li><a accesskey="d" href="download.html">Download</a></li>
+        <li class="active first"><a accesskey="f" href="faq.html">FAQ</a></li>
+        <li><a accesskey="h" href="help.html">Help</a></li>
+        <li><a accesskey="a" href="about.html">About</a></li>
+        <li class="last"><a accesskey="l" href="links.html">Links</a></li>
+    </ul>
+</div>
+
+<div id="index"><h2>Frequently Asked Questions</h2>
+<p>If your question is not here, please send an email to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support
+mailing list</a>.</p>
+
+<ul class="High">
+    <li><strong>Attributes</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#strange-output">I see some strange output from <tt>smartctl</tt>.  What does it mean?</a></li>
+    <li><a href="#disk-temperature">Why is my disk temperatures reported by <tt>smartd</tt> as 150 Celsius?</a></li>
+    <li><a href="#temp-seagate">Attribute 194 (Temperature Celsius) behaves strangely on my Seagate disk</a></li>
+    <li><a href="#age-attribute">My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet <tt>smartctl</tt> reports its age (Attribute 9) as thousands of hours!</a></li>
+    <li><a href="#age-attributes-maxtor">The power-on timer (Attribute 9 raw value) on my Maxtor disk acts strange.</a></li>
+    <li><a href="#time-stamps-WD">The time stamps in the self-test log of my Western Digital (WD) disk 
+    don't correspond to the power-on time when the test was run.</a></li>
+    <li><a href="#worst-larger-than-current">The (normalized) WORST Attribute values of my Western Digital
+(WD) disk are <strong>larger</strong> than the (normalized) CURRENT Attribute values</a></li>
+    <li><a href="#attributes-not-recognized">What Attributes does smartmontools not yet recognize?</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>Configuration</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#fedora-failed">My Fedora Core Linux system displays the startup message: smartd [FAILED]</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>smartmontools database</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#FAQ-database">My ATA drive is not in the <tt>smartctl</tt>/<tt>smartd</tt> database.  Does this break anything? How do I get it added?</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>Selftests</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#selftest-failed">My ATA drive is failing its self-tests, but its SMART health status is 'PASS'. What's going on?</a></li>
+    <li><a href="#corrupt-sectors"><tt>smartd</tt> is warning that my ATA disk has unreadable or uncorrectable or pending sectors. What's going on?</a></li>
+    <li><a href="#UBCD">Where can I find manufacturer-specific disk-testing utilities?</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>Operating System</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#os-requirements">What are the operating system requirements?</a></li>
+    <li><a href="#FAQ-win-ata-as-scsi">On Windows, <tt>smartctl</tt> aborts
+with the message "...SMART_GET_VERSION failed". What is going wrong?</a></li>
+    <li><a href="#FAQ-win-ioctl">On Windows, <tt>smartctl</tt> prints the
+message: "...Log Read failed: Function not implemented". What is going wrong?</a></li>
+    <li><a href="#block-major-65">I found in syslog: '<span class="code">Can't locate module block-major-65</span>'</a></li>
+    <li><a href="#FAQ-RAID">Can I monitor disks behind RAID controllers?</a></li>
+    <li><a href="#bios-setting">My computer's BIOS has a SMART enable/disable setting.  What
+does it do, and how should I set it?</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>Firmware Issues</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#ibm-firmware">What's the story on IBM SMART disks?</a></li>
+    <li><a href="#ata-error-count">What's this <tt>smartctl</tt> message mean?: Warning: ATA error count 9 inconsistent with error log pointer 5</a></li>
+</ul>
+
+<ul class="High">
+    <li><strong>Distribution</strong></li>
+</ul>
+<ul class="Circle">
+    <li><a href="#check-signature">How can I check that the package hasn't been tampered with?</a></li>
+    <li><a href="#bootable-cd">Is there a bootable standalone CD or floppy that contains smartmontools?</a></li>
+    <li><a href="#windows">Does it work on Windows?</a></li>
+    <li><a href="#version-scheme-change">Why did the release version scheme change?</a></li>
+</ul>
+</div>
+<hr />
+
+<!-- Strange output -->
+<h3><a name="strange-output"></a>I see some strange output from <tt>smartctl</tt>.  What does it mean?</h3>
+
+<p>The raw SMART attributes (temperature, power-on lifetime, and so
+on) are stored in vendor-specific structures. Sometime these are
+strange. Hitachi disks (at least some of them) store power-on
+lifetime in minutes, rather than hours (see next question below). IBM disks (at least some
+of them) have three temperatures stored in the raw structure, not just
+one. And so on. If you find strange output, or unknown
+attributes, please send an email to <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
+smartmontools-support</a> and we'll help you try and figure it out.</p>
+<hr />
+
+<!-- Disk temperature -->
+<h3><a name="disk-temperature"></a>Why is my disk temperature s reported by <tt>smartd</tt> as 150 Celsius?</h3>
+
+<p>It's not.  Please read the end of the <tt>smartd</tt> man page (NOTES).
+For example, in the message: 
+<br />'<span class="code">Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93</span>'<br />
+the value given is the <em>Normalized</em> not the <em>Raw</em> Attribute value (the
+disk temperature in this case is about 22 Celsius).  The
+<span class="code">-R</span> and <span class="code">-r</span> Directives modify this behavior, so that
+the information is printed with the <em>Raw</em> values as well, for example: 
+<br />'<span class="code">Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]</span>'<br />
+Here the Raw values are the actual disk temperatures in Celsius.  The
+way in which the Raw values are printed, and the names under which the
+Attributes are reported, is governed by the various
+'<span class="code">-v Num,Description</span>' Directives described in the <tt>smartd</tt>
+man page. Please see the <tt>smartctl</tt> manual page for further
+explanation of the differences between <em>Normalized</em> and <em>Raw</em> Attribute values.</p>
+<hr />
+
+<!-- Special age attributes -->
+<h3><a name="age-attribute"></a>My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet <tt>smartctl</tt> reports its age (Attribute 9) as thousands of hours!</h3>
+
+<p>On recent disks, Maxtor has started to use Attribute 9 to
+store the power-on disk lifetime in minutes rather than hours.  In this case, use
+the:
+<br />'<span class="code">-v 9,minutes</span>'<br/>
+option to correctly display hours and minutes.</p>
+
+<p>Some models of Fujitsu disks use Attribute 9 to store
+the power-on disk lifetime in seconds. In that case, use the:
+<br />'<span class="code">-v 9,seconds</span>'<br/>
+option to correctly display hours, minutes and seconds.</p>
+<hr />
+
+<!-- Special age attributes Maxtor -->
+<h3><a name="age-attributes-maxtor"></a>The power-on timer (Attribute 9 raw value) on my Maxtor disk acts strange.</h3>
+
+<p>There are three related problems with Maxtor's SMART firmware:</p>
+
+<ol>
+<li>On some Maxtor disks, the raw value of Attribute 9 (Power
+On Time) is <em>supposed</em> to be minutes. But it advances at an
+unpredictable rate, always more slowly than one count per minute.
+This is because when the disk is in idle mode, the counter stops
+advancing.  This is only supposed to happen in standby mode.  This
+will be corrected in Maxtor product lines released after October 2004.<br /><br /></li>
+
+<li>In Maxtor disks that use the raw value of Attribute 9 as a
+minutes counter, only two bytes (of the six available) are used to
+store the raw value.  So it resets to zero once every 65536=2^16
+minutes, or about once every 1092 hours. This is fixed in all Maxtor
+disks manufactured after July 2003, where the raw value was extended
+to four bytes.<br /><br /></li>
+
+<li>In Maxtor disks that use the raw value of Attribute 9 as a
+minutes counter, the hour time-stamps in the self-test and ATA error
+logs are calculated by right shifting 6 bits.  This is equivalent to
+dividing by 64 rather than by 60.  As a result, the hour time stamps
+in these logs advance 7% more slowly than they should.  Thus, if you
+do self-tests once per week at the same time, instead of the
+time-stamps being 168 hours apart, they are 157 hours apart.  This is
+also fixed in all Maxtor disks manufactured after July 2003.<br /><br /></li>
+</ol>
+<hr />
+
+<!-- Selftests time stamp don't correspond to power-on time -->
+<h3><a name="time-stamps-WD"></a>The time stamps in the self-test log of my Western Digital (WD) disk
+don't correspond to the power-on time when the test was run.</h3>
+
+<p>
+The self-test log timestamps in many WD disks roll back to zero every
+1092 hours (65536 minutes).  This problem is due to a WD firmware bug.
+The power-on lifetime in hours is correctly stored in Attribute
+9. However when the power-on lifetime is calculated for self-test log
+entries, the lifetime in minutes is put into a 16-bit register then
+divided by 60.  The 16-bit register overflows and wraps around every
+1092 hours.</p>
+
+<p>For WD drives that exhibit this firmware bug, the relationship between
+Attribute 9's raw value (H) and the time-stamps in the self-test log (h) are given by:<br />
+Let H = power on hours as shown by Attribute 9 (correct)<br />
+Let M = 60*H (power on minutes, correct)<br />
+Let m = M mod 65536 (incorrect value of power on minutes)<br />
+Let h = m/60 (incorrect value of power on hours, shown in self-test log)</p>
+<hr />
+
+<!-- Normalized values larger than current values -->
+<h3><a name="worst-larger-than-current"></a>The (normalized) WORST Attribute values of my Western Digital
+(WD) disk are <strong>larger</strong> than the (normalized) CURRENT Attribute values</h3>
+<p>Western Digital firmware initializes SMART Attributes 10, 11, and
+199 after either 120 spin-ups or 8 power-on hours.  Until that time,
+they have the uninitialized value 253.</p>
+<hr />
+
+<!-- Attributes not recognized -->
+<h3><a name="attributes-not-recognized"></a>What Attributes does smartmontools not yet recognize?</h3>
+<p>From Maxtor disks (99), (100), and (101).  These are not used by
+Maxtor in SMART revision 5.  They will be used in SMART revision 6,
+but the engineering group has not yet decided what to monitor with these Attributes.</p>
+<hr />
+
+<!-- Operating system requirements -->
+<h3><a name="os-requirements">What are the operating system requirements?</a></h3>
+
+<p>Please see the first section of the
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">
+INSTALL</a> file.</p>
+<hr />
+
+<!-- manufacturer-specific disk-testing utilities -->
+<h3><a name="UBCD"></a><b>Where can I find manufacturer-specific
+disk-testing utilities?</b></h3>
+
+<p>A good listing of such utilities can be found <a
+href="http://www.benchmarkhq.ru/english.html?/be_hdd2.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+Unfortunately most of these are for MS operating systems, but most can
+be run from a MS-DOS boot disk.
+The <a href="http://ubcd.sourceforge.net/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />UBCD (Ultimate Boot CD)</a>
+includes most of these disk-testing utilities and many other useful
+diagnostic tools ready to boot from CD or USB memory stick.
+The UBCD can be customized by adding other images, like one
+<a href="faq.html#bootable">containing smartmontools</a>.
+</p>
+
+<p>Note: if you do run one of these utilities, and it identifies the
+meanings of any SMART Attributes that are not known to smartmontools,
+please report them to the 
+<a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</p>
+
+<p>These utilities have an important role to fill.  If your disk has
+bad sectors (for example, as revealed by running self-tests with
+smartmontools) and the disk is not able to recover the data from those
+sectors, then the disk will <em>not</em> automatically reallocate those
+damaged sectors from its set of spare sectors, because
+forcing the reallocation to take place may entail some loss of data.
+Because the commands that force such reallocation are
+<em>Vendor Specific</em>, most manufactuers provide a utility for this
+purpose. It may cause data loss but can repair damaged sectors (at
+least, until it runs out of replacement sectors).</p>
+<hr />
+
+<!-- Can't locate module block-major-65 -->
+<h3><a name="block-major-65"></a>I found in syslog: '<span class="code">Can't locate module block-major-65</span>'</h3>
+
+<p>When I run <tt>smartd</tt>, the SYSLOG <span class="code">/var/log/messages</span>
+contains messages like this:
+<br />'<span class="code">smartd: Reading Device /dev/sdv
+modprobe: modprobe: Can't locate module block-major-65</span>'</p>
+
+<p>This is because when <tt>smartd</tt> starts, if there is no
+configuration file, it looks for all ATA and SCSI devices to monitor
+(matching the pattern <tt>/dev/hd[a-t]</tt> or
+<tt>/dev/sd[a-z]</tt>). The log messages appear because your
+system doesn't have most of these devices.</p>
+
+<p>The solution is simple: use the <tt>smartd</tt> configuration file
+<tt>/etc/smartd.conf</tt> to specify which devices to monitor.</p>
+<hr />
+
+<!-- IBM-Firmware -->
+<h3><a name="ibm-firmware"></a>What's the story on IBM SMART disks?</h3>
+
+<p>Apparently some of the older SMART firmware on IBM disks can
+interfere with the regular operation of the disk. If you have this
+problem, here are some links to an IBM Firmware Upgrade that fixes the problem:</p>
+<ul>
+    <li><a href="http://www.geocities.com/dtla_update/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Geocities Site</a></li>
+    <li><a href="http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />IBM Site #1</a></li>
+    <li><a href="http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />IBM Site #2</a></li>
+</ul>
+<hr />
+
+<!-- Check Signature -->
+<h3><a name="check-signature"></a>How can I check that the package hasn't been tampered with?</h3>
+
+<p>Since the <tt>smartmontools</tt> utilities run as root, you might
+be concerned about something harmful being embedded within
+them. Starting with release 5.19 of <tt>smartmontools</tt>, the .rpm
+files and tarball have been GPG signed. The tarball's fingerprint is
+given in a file on the release page with a name like
+<tt>smartmontools-5.32.tar.gz.asc</tt>. </p> 
+
+Please verify these using the
+<ul>
+<li><a href="SmartmontoolsSigningKey_2005.txt">Smartmontools GPG Signing Key (current)</a></li>
+<li><a href="SmartmontoolsSigningKey.txt">Smartmontools GPG Signing Key (before 2005)</a></li>
+</ul>
+<hr />
+
+<!-- Bootable CD -->
+<h3><a name="bootable-cd"></a>Is there a bootable standalone CD or floppy that contains smartmontools?</h3>
+
+<p>If you have a system that is showing signs of disk trouble (for
+example, it's unbootable and the console is full of disk error
+messages) it can be handy to have a version of smartmontools that can
+be run off of a bootable CD or floppy to examine the disk's SMART data and run
+self-tests.  This is also useful if you want to run Captive Self-Tests
+(the <b><tt>-<font size="+2">C</font></tt></b> option of
+<b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted,
+such as those hosting the Operating System files. Or you can use
+this to run <tt>smartctl</tt> on computers that don't use Linux as the
+day-to-day operating system.</p>
+
+<p><a name="bootable"></a>Here is a list of such bootable CDs:</p>
+<ul>
+<li><a href="http://docs.fedoraproject.org/release-notes/f7/en_US/sn-Live.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Fedora Core 7 Live Bootable CD</a></li>
+<li><a href="http://www.lnx-bbc.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />LNX-BBC Bootable CD</a></li>
+<li><a href="http://www.stresslinux.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Stresslinux Bootable CD</a></li>
+<li><a href="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />RIP (Recovery Is Possible) Bootable CD</a></li>
+<li><a href="http://www.sysresccd.org/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SystemRescueCd</a></li>
+<li><a href="http://www.gpstudio.com/stux/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />STUX Bootable CD</a></li>
+<li><a href="http://www.knopper.net/knoppix/index-en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Knoppix</a>
+(<a href="http://packages.debian.org/testing/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/testing</a> based CD)</li>
+<li><a href="http://www.gentoo.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Gentoo Installer LiveCD</a></li>
+<li><a href="http://www.grml.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml Linux Live-CD</a>
+(<a href="http://packages.debian.org/unstable/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/unstable</a>
+based CD with many <a href="http://www.grml.org/features/list.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />packages</a>,
+smartmontools is also included in <a href="http://www.grml.org/download/#small"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml-small</a>)</li>
+<li><a href="http://smartlinux.sourceforge.net/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />S.M.A.R.T. Linux</a>
+(a bootable FLOPPY containing smartmontools!)</li>
+<li><a href="http://www.remote-exploit.org/backtrack.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />BackTrack</a>
+(<a href="http://www.slackware.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Slackware</a> based CD with Security and Forensics tools)</li>
+<li><a href="http://www.inside-security.de/insert_en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />INSERT (Inside Security Rescue Toolkit)</a>
+(Knoppix based CD)</li>
+<li><a href="http://www.911cd.net/forums/index.php?showtopic=13459"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Smartctl Plugin</a>
+for <a href="http://www.nu2.nu/pebuilder/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />BartPE bootable live windows CD</a></li>
+<li>See also note about UBCD <a href="faq.html#UBCD">above</a></li>
+</ul>
+
+<p>Please let me know if there are others, and I will add them to this list.</p>
+<hr />
+
+<!-- Disks behind RAID-Controllers -->
+<h3><a name="FAQ-RAID"></a>Can I monitor disks behind RAID controllers?</h3>
+
+<p>RAID controllers typically simulate a (logical) disk for each array of
+(physical) disks to the OS.
+Access to SMART functionality relies on ATA or SCSI pass through I/O controls
+providing direct access to each physical disk.
+But the standard I/O controls available are usually not designed to make this
+distinction between logical and physical disks.
+Therefore, smartmontools has to use vendor specific I/O controls.
+Support for disks behind RAID controllers is highly dependent on both platform
+and controller type.</p>
+<ul>
+<li>3ware RAID controllers are supported on Linux since smartmontools release 5.1-18.
+Support for char devices /dev/tw* was added in release 5.33.</li>
+<li>3ware support on FreeBSD is available since release 5.33, multiple controller and
+char device support was added in release 5.36.</li>
+<li><span class="marked">3ware 9000 support for Windows was added 2006-09-27, the corresponding 3ware
+driver 9.4.0 was released 2006-11-01.</span></li>
+<li><span class="marked">HighPoint RocketRAID support for Linux was added 2006-08-25.</span></li>
+<li><span class="marked">CCISS (Compaq Smart Array Controller) support for Linux was added 2006-10-09.</span></li>
+</ul>
+
+<p><span class="marked">The recent additions are included in smartmontools release 5.37.</span></p>
+
+<p>See<b>
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
+</b>file for information about kernel and driver requirements on your platform,
+and the <a href="doc.html#man">man pages</a> for controller specific smartmontools options or
+directives (<tt>-d 3ware,N</tt>, <tt>-d cciss,N</tt>, <tt>-d hpt,L/M/N</tt>).</p>
+<hr />
+
+<!-- Windows -->
+<h3><a name="windows"></a>Does it work on Windows?</h3>
+
+<p>Yes, finally it does. A windows port of <tt>smartctl</tt> 5.26 by
+<a href="http://sourceforge.net/users/chrfranke/">Christian Franke</a>
+was first checked in 2004/02/23 on CVS branch
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/?pathrev=RELEASE_5_26_WIN32_BRANCH">
+RELEASE_5_26_WIN32_BRANCH</a> and has been merged to the CVS trunk later.</p>
+
+<p>The <a href="http://www.cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> environment can be
+used to built both Cygwin and Windows (using <a href="http://www.mingw.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />MinGW</a>)
+versions of <tt>smartctl</tt> and <tt>smartd</tt>.
+Installation instructions for binary distributions can be found
+<a href="download.html#CygwinInstall">here for Cygwin</a> and <a href="download.html#WindowsInstall">here for Windows</a>.</p>
+<hr />
+
+<!-- Change of version scheme -->
+<h3><a name="version-scheme-change"></a>Why did the release version scheme change?</h3>
+
+<p>It was non-standard.  So with the move to GNU Autoconf and GNU
+Automake it changed from 5.X-Y (where X and Y are one or more digits)
+to 5.Y. Starting with the first release, and moving forward in time, the releases are
+numbered as follows:</p>
+<pre>
+5.0-1,
+5.0-2,
+...,
+5.0-45,
+5.1-1,
+...,
+5.1-18,
+5.19,
+5.20,
+...
+</pre>
+<hr />
+
+<!-- Add drive to database -->
+<h3><a name="FAQ-database"></a>My ATA drive is not in the <tt>smartctl</tt>/<tt>smartd</tt> database.  Does this break anything? How do I get it added?</h3>
+<p> If your drive is not in the database, then the
+ <i>names</i> of the Attributes (displayed in the <tt>ATTRIBUTE_NAME</tt> column of
+ <tt>smartctl -A /dev/hd?</tt>) and the <i>format</i> of the the raw Attribute
+ values shown in the <tt>RAW_VALUE</tt> column may be incorrect.  This
+ is mostly cosmetic: the essential drive health monitoring/testing
+ functionality of <b>smartmontools</b> does <i>not</i> depend upon the
+ database.
+</p>
+
+<p><b>If your drive is not in the database, pleaes check the <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=64297">sourceforge project page</a>
+ to be sure that you are using the latest smartmontools release.  Each
+ new release has additional drives added to the database.  Please do
+ not submit a new drive for the database without checking to see if it
+ is already in the database of the current smartmontools release
+ version.</b></p>
+
+<p><b> If your drive is not in the database of the current release,</b>
+ to have it added to the database, first use the command:<br/>
+ <span class="code">smartctl -t short /dev/hd?</span><br/> to run a short self-test on
+ the drive, and wait a few minutes for the test to complete.  Then
+ email the entire output from:<br/> <span class="code">smartctl -a /dev/hd?</span><br/>
+ to <a
+ href="https://lists.sourceforge.net/lists/listinfo/smartmontools-database">smartmontools-database</a>
+ as a plain-text ASCII email attachment (file type: ".txt").  The timestamp
+ in the self-test log will help us to determine whether Attribute 9 is
+ being used to store the lifetime in hours, minutes, or seconds.</p>
+ 
+<p>If you need to use any of the vendor-specific display options
+ (<tt>-v</tt> options) with the drive, or if any of the Attributes are
+ behaving strangely, please include that information as well.</p>
+<hr />
+
+<!-- Selftest failed but status is 'PASS' -->
+<h3><a name="selftest-failed"></a>My ATA drive is failing its self-tests, but its SMART health status is 'PASS'. What's going on?</h3>
+
+<p>If your ATA drive supports self-tests, you should run them on a
+regular basis, for example one per week:
+<br/><span class="code">smartctl -t long /dev/hd?</span><br/>
+After the test has completed, you should examine the results with:
+<br/><span class="code">smartctl -l selftest /dev/hd?</span></p>
+
+<p>If the drive fails a self-test, but still has '<tt>PASS</tt>' SMART health
+status, this usually means that there is a corrupted (uncorrectable=UNC) sector on the
+disk. This means that the ECC data stored at that sector is not
+consistent with the user data stored at that sector, and an attempt to read the sector fails with a UNC error.
+This can be a one-time transient effect: a sudden power failure
+while the disk was writing to the sector corrupted the
+ECC code or data, but the sector <em>could</em> correctly store new data.
+Or it can be a permanent effect: the magnetic media
+has been damaged by a bit of dust, and the sector could <em>not</em> correctly store new data.</p>
+
+<p>If the disk can read the
+sector of data a single time, and the damage is permanent, not transient, then the disk firmware will mark the
+sector as 'bad' and allocate a spare sector to replace it.  But
+if the disk can't read the sector even once, then it won't reallocate
+the sector, in hopes of being able, at some time in the future, to
+read the data from it.  <b>A write to an unreadable (corrupted) sector will fix the problem.</b>
+If the damage is transient, then new consistent data will be written to the sector.
+If the damange is permanent, then the write will force sector reallocation.
+Please see <a
+href="badblockhowto.html" target="_blank">Bad block HOWTO</a>
+for instructions about how to force this sector to reallocate (Linux only).</p>
+
+<p>The disk still has passing health status because the firmware has not
+found other signs of trouble, such as a failing servo.</p>
+
+<p>Such disks can often be repaired by using the disk manufaturer's 'disk
+evaluation and repair' utility.  Beware: this may force reallocation
+of the lost sector and thus corrupt or destroy any file system on the
+disk. See <a
+href="badblockhowto.html" target="_blank">Bad block HOWTO</a>
+for generic Linux instructions.</p>
+<hr />
+
+<!-- corrupt sectors -->
+<h3><a name="corrupt-sectors"></a><tt>smartd</tt> is warning that my ATA disk has unreadable or uncorrectable or pending sectors. What's going on?</h3>
+
+<p>
+Disk drives store data in blocks (sectors) of 512 bytes.  Each 512
+bytes has additional bytes appended to it (usually 40 to 60) which are
+used internally by the disk firmware for error checking/detection and
+correction.  These are called ECC bytes.
+</p>
+<p>
+Sometimes the data in a sector gets corrupted.  This can happen
+because a speck of dust scratched the disk, or because the disk was
+powered down while writing data to that sector, or for other reasons.
+Usually the ECC bytes can be used to correct the corrupted data.
+However if the ECC bytes are inconsistent or can't be used to correct
+the bad data, then the 512 bytes of data are lost.  Such a sector is
+called unreadable or uncorrectable.
+</p>
+<p>
+If your disk has an unreadable sector, this means that some of your
+data can't be retrieved.  You can force the disk to replace the
+unreadable sector with a spare good sector, but only at the price of
+losing the 512 bytes of data forever.
+</p>
+<p>
+Disks with uncorrectable sectors can often be repaired by using the
+disk manufaturer's 'disk evaluation and repair' utility (see previous
+FAQ entry).  Beware: this may force reallocation of the lost sector
+and thus corrupt or destroy any file system on the disk. See <a
+href="badblockhowto.html">Bad block HOWTO</a>
+for generic Linux instructions.
+</p>
+<p>
+Normally when an uncorrectable sector is found, the disk puts this
+onto a 'pending sector list' to indicate that it should be replaced
+with a spare good sector.  However this replacement won't take place
+until either the disk can read the data on the bad sector, or is
+commanded to write new data to that bad sector.
+</p>
+<hr />
+
+<h3><a name="bios-setting"></a>My computer's BIOS has a SMART enable/disable setting.  What
+does it do, and how should I set it?</h3>
+
+<p>Some type of BIOS can check the SMART health status of a disk at
+bootup: the equivalent of '<span class="code">smartctl -H /dev/hd?</span>'.  This one-time check on
+bootup is done if the BIOS SMART setting is set to '<tt>ENABLE</tt>', and is
+not done if the setting is set to '<tt>DISABLE</tt>'.</p>
+
+<p>If this one-time check is done, and the disk's health status is found
+to be '<tt>FAIL</tt>', then typically the BIOS will display an error message
+and refuse to boot the machine.</p>
+
+<p>For the proper functioning of smartmontools, either BIOS setting may
+be used.</p>
+<hr />
+
+<h3><a name="fedora-failed"></a>My Fedora Core Linux system displays the startup message: smartd [FAILED]</h3>
+
+<p>Fedora Core is distributed with a <tt>smartd</tt> configuration file
+<tt>/etc/smartd.conf</tt> that monitors the first IDE disk /dev/hda.  If this
+device does not exist (or lacks SMART capability) you will get the
+error message above.  Look in SYSLOG (/var/log/messages) for
+additional details about what is going wrong.</p>
+
+<p>The solution: If your system has only SCSI disks, or has IDE disk(s)
+on a non-primary controller, just edit <tt>/etc/smartd.conf</tt> to reflect the
+correct location of the drive(s).  Please also read the <tt>smartd.conf</tt>
+man page for additional information.</p>
+<hr />
+
+<h3><a name="temp-seagate"></a>Attribute 194 (Temperature Celsius) behaves strangely on my Seagate disk</h3>
+
+<p>Some Seagate disks store the current temperature Celsius in both the
+RAW and NORMALIZED Attribute 194 values, and the maximum lifetime
+temperature in Celsius in the WORST value.  Since cooler is better,
+this means that in this case, <em>lower</em> NORMALIZED Attribute values
+are farther from failure, and that over time the WORST Attribute
+values get <em>larger</em>, not <em>smaller</em> (as with other
+Attributes).</p>
+<hr />
+
+<h3><a name="ata-error-count"></a>What's this <tt>smartctl</tt> message mean?: Warning: ATA error count 9 inconsistent with error log pointer 5</h3>
+
+<p>The ATA error log is stored in a circular buffer, and the ATA
+specifications are unambiguous about how the entries should be
+ordered.  This warning message means that the disk's firmware does not
+strictly obey the ATA specification regarding the ordering of the
+error log entries in the circular buffer.  Smartmontools will correct
+for this oversight, so this warning message can be safely ignored by
+users.  (On the other hand, firmware engineers: please read the ATA
+specs more closely then fix your code!).</p>
+<hr />
+
+<h3><a name="FAQ-win-ata-as-scsi"></a>On Windows, <tt>smartctl</tt> aborts
+with the message "...SMART_GET_VERSION failed". What is going wrong?</h3>
+
+<p>A failing 
+<a href="http://msdn2.microsoft.com/en-us/library/ms803644.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_GET_VERSION</a> 
+call means that the device driver does not
+implement the I/O controls (see <a href="faq.html#FAQ-win-ioctl">below</a>)
+to access ATA SMART functionality.</p>
+
+<p>Some Windows drivers for (S)ATA controllers are implemented as SCSI
+class drivers. This is usually the case for drivers which support RAID.
+Unfortunately, such drivers do not support the ATA specific SMART I/O
+controls.</p>
+<hr />
+
+<h3><a name="FAQ-win-ioctl"></a>On Windows, <tt>smartctl</tt> prints the
+message: "...Log Read failed: Function not implemented". What is going wrong?</h3>
+
+<p>This means that the device driver does not support the command SMART READ LOG.
+<span class="marked">The message does not indicate a hard disk problem!</span>
+It does also not mean that the disk itself does not support SMART logs. 
+It may still be possible to read the logs with a Linux version of smartmontools run from 
+some <a href="faq.html#bootable">bootable CD</a>.</p>
+
+<p>To access ATA SMART functionality on Windows, smartmontools uses the
+I/O control calls 
+<a href="http://msdn2.microsoft.com/en-us/library/ms804269.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_RCV_DRIVE_DATA</a> and
+<a href="http://msdn2.microsoft.com/en-us/library/ms803645.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_SEND_DRIVE_CMD</a>.
+These calls were available since Win95 OSR2.
+An example program from Microsoft can be found
+<a href="http://download.microsoft.com/download/winddk/sample3/9x/W9X/EN-US/SmartApp.exe"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a> 
+(the related KB article 208048 is no longer available).</p>
+
+<p>Starting with NT4, these calls do more restrictive parameter checks.
+In particular, the command codes for SMART READ LOG and ABORT SELF-TEST
+are not accepted. To perform these functions, smartmontools uses the
+undocumented functions SCSIOP_ATA_PASSTHROUGH (NT4) or
+IOCTL_IDE_PASS_THROUGH (2000/XP) instead.
+An example program using these calls can be found
+<a href="ftp://ftp.heise.de/pub/ct/listings/0207-218.zip"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>,
+a related newsgroup thread is
+<a href="http://groups.google.com/group/microsoft.public.development.device.drivers/browse_frm/thread/e9763262823e11d1"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.</p>
+
+<p>Unfortunately, these undocumented functions are not implemented in
+most vendor specific ATA device drivers. <tt>Smartctl</tt> prints a
+"Function not implemented" message in this case.</p>
+
+<p>A new I/O control call
+<a href="http://msdn2.microsoft.com/en-us/library/ms804551.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />IOCTL_ATA_PASS_THROUGH</a> 
+is available since Win2003 and XP SP2.
+It should be supported by most new drivers. Experimental code using
+this call was added 2006-04-27 and is included in smartmontools
+release 5.37.</p>
+
+<hr style="clear:left" />
+<div align="center">
+Hosted by<br />
+<a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
+   src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
+ <br />
+<font size="-1">Last update: $Date: 2008/04/12 13:35:09 $</font><br />
+<a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Ffaq.html">W3C Link-Checker</a><br />
+<a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10-blue"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img style="border:0;width:88px;height:31px"
+        src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+        alt="CSS ist valide!" /></a>
+</div>
+
+</body>
+</html>

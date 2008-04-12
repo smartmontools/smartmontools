@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+ <title>smartmontools About Page (last updated $Date: 2008/04/12 13:35:09 $)</title>
+ <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
+ <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+ <meta name="description" content="smartmontools Home Page" />
+ <meta name="keywords" content="S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<!-- $Id: about.html,v 1.1 2008/04/12 13:35:09 dipohl Exp $ -->
+<div id="header">
+    <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
+    smartmontools About Page</h1>
+</div>
+
+<div id="mainmenu" class="nav">
+    <ul>
+        <li><a accesskey="n" href="index.html">Home</a></li>
+        <li><a href="doc.html">Documentation</a></li>
+        <li><a accesskey="d" href="download.html">Download</a></li>
+        <li><a accesskey="f" href="faq.html">FAQ</a></li>
+        <li><a accesskey="h" href="help.html">Help</a></li>
+        <li class="active first"><a accesskey="a" href="about.html">About</a></li>
+        <li class="last"><a accesskey="l" href="links.html">Links</a></li>
+    </ul>
+</div>
+
+<div class="left-header">
+<h2>The project smartmontools</h2>
+<ul class="High">
+    <li><a href="#history">History</a> of smartmontools</li>
+    <li><a href="#roadmap">Future plans</a> for smartmontools</li>
+    <li>The <a href="#team">smartmontools team</a></li>
+</ul>
+</div>
+<div>
+<h3><a name="history"></a>History of smartmontools</h3>
+
+<p>Smartmontools was derived directly from smartsuite. 
+The smartsuite code was originally developed as a Senior Thesis by
+Michael Cornwell at the Concurrent Systems Laboratory (now part of the
+<a href="http://ssrc.soe.ucsc.edu/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Storage Systems Research
+Center</a>), Jack Baskin School of Engineering, University of
+California, Santa Cruz.
+You can find some information about the original smartsuite project here:
+<a href="http://www.ucsc.edu/news_events/press_releases/archive/99-00/09-99/smart_software.htm"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Press Release 1</a>, 
+<a href="http://www.santa-cruz.com/archive/1999/September/22/local/stories/5local.htm"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Press Release 2</a>, 
+<a href="http://www.ucsc.edu/currents/99-00/09-27/smart.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Press Release 3</a>.
+</p>
+
+<p>According to <a href="http://www.ssrc.ucsc.edu/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SSRC</a>
+smartsuite is no longer maintained; the last release was in 2001.</p>
+
+<p>Smartmontools was first released in October 2002. It differs from smartsuite 
+in that it supports the ATA/ATAPI-5 standard. So for example <tt>smartctl</tt> from smartsuite 
+has no facility for printing the SMART self-test logs, and doesn't print timestamp
+information in the most usable way. The <tt>smartctl</tt> utility
+in smartmontools has added functionality for this (<tt>-q, -l selftest,-S,
+-T, -v and -m</tt> options), updated documentation, and also fixes small
+technical bugs in smartsuite. [One example: smartsuite does not actually use the
+ATA SMART RETURN STATUS command to find out the health status of a disk.  It instead tries to infer this from the
+SMART Attribute values.] See the 
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup">CHANGELOG</a>
+file in CVS for a summary of what's been done.</p> 
+
+<p>The <tt>smartd</tt> utility differs from the smartsuite <tt>smartd</tt> in major ways.
+First, it prints somewhat more informative error messages to the syslog.
+Second, on startup it looks for a configuration file
+<tt>/etc/smartd.conf</tt>, and if <tt>smartd</tt> finds this file, it
+monitors the list of devices therein, rather than querying all IDE and
+SCSI devices on your system. (If the configuration file does not
+exist, then it does query all IDE and SCSI devices.) Also, it's
+a well-behaved daemon and doesn't leave open file descriptors and other
+detrius behind. In addition, the <tt>smartmontools</tt> version of
+<tt>smartd</tt> can be instructed (via Directives in the configuration
+file) to monitor for changes in a number of different disk properties:
+the SMART status, failure or prefailure attributes going below
+threshold, new errors appearing in the ATA Error Log or the SMART
+Self-Test Log, and so on. <tt>smartd</tt> can also send an email warning or run a
+user-specified executable if it detects a problem with the disk.
+</p>
+
+<p>The other principle difference is that smartmontools is an
+OpenSource development project, meaning that we keep the files in CVS,
+and that other developers who wish to contribute can commit changes to
+the archive. If you would like to contribute, please write to to <a
+href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support</a>.</p>
+
+<p>But the bottom line is that the code in smartmontools is derived
+directly from smartsuite and is similar. The smartsuite package
+can be found <a href="http://sourceforge.net/projects/smartsuite/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.</p>
+
+
+<h3><a name="roadmap"></a>Future plans for smartmontools</h3>
+
+<p>My plan is that smartmontools-5.x will support ATA/ATAPI-5
+disks. Eventually, we'll do smartmontools-6.x to support
+ATA/ATAPI-6 disks, smartmontools-7.x for the ATA/ATAPI-7 standard, and
+so on. The "x" will denote revision level, as bugs get found and
+fixed, and as enhancements get added. If it's possible to maintain
+backwards compatibility, that would be nice, but I don't know if it will
+be possible or practical.</p>
+
+<h3><a name="team"></a>The developers and supporters of smartmontools</h3>
+
+<ul class="High">
+    <li><strong>Bruce Allen (Initiator and Project Leader)</strong></li>
+</ul>
+<p>My research group at U. Wisconsin - Milwaukee runs a <a
+href="http://www.lsc-group.phys.uwm.edu/beowulf/medusa/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />beowulf
+cluster</a> with 600 ATA-5 and -6 disks (300 IBM and 300
+Maxtor). We have more than 50 TB of data stored on the
+system. I also help out with a 
+<a href="http://pandora.aei.mpg.de/merlin/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />cluster</a> at the Albert
+Einstein Institute that has 540 IBM ATA-6 disks (65 TB
+total). It's nice to have advanced warning when a disk is going to
+fail.</p>
+
+<ul class="High">
+    <li><strong>Christian Franke (Developer and Maintainer)</strong></li>
+</ul>
+<p>- Creator and maintainer of the Windows version.</p>
+<p>.. some words about his motivation and role/responsibility in team..</p>
+</div>
+
+<hr style="clear:left" />
+<div align="center">
+Hosted by<br />
+<a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
+   src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
+ <br />
+<font size="-1">Last update: $Date: 2008/04/12 13:35:09 $</font><br />
+<a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fabout.html">W3C Link-Checker</a><br />
+<a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10-blue"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img style="border:0;width:88px;height:31px"
+        src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+        alt="CSS ist valide!" /></a>
+</div>
+
+</body>
+</html>

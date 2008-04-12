@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+ <title>smartmontools Download Page (last updated $Date: 2008/04/12 13:35:09 $)</title>
+ <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
+ <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+ <meta name="description" content="smartmontools Home Page" />
+ <meta name="keywords" content="Download, Install, Tutorial, S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+<meta http-equiv="content-style-type" content="text/css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<!-- $Id: download.html,v 1.1 2008/04/12 13:35:09 dipohl Exp $ -->
+<div id="header">
+    <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
+    smartmontools Download Page</h1>
+</div>
+
+<div id="mainmenu" class="nav">
+    <ul>
+        <li class="first"><a accesskey="n" href="index.html">Home</a></li>
+        <li><a accesskey="k" href="doc.html">Documentation</a></li>
+        <li class="active"><a accesskey="d" href="download.html">Download</a></li>
+        <li><a accesskey="f" href="faq.html">FAQ</a></li>
+        <li><a accesskey="h" href="help.html">Help</a></li>
+        <li><a accesskey="a" href="about.html">About</a></li>
+        <li class="last"><a accesskey="l" href="links.html">Links</a></li>
+    </ul>
+</div>
+<div class="left-header">
+<h2>How to download and install</h2>
+<ul class="High">
+<li>There are different ways to get and install
+smartmontools. You can use any of the procedures below
+(the fourth is for Debian Linux only). On the right side are instructions for trying 
+out smartmontools once you have completed the installation. The
+<b><a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">
+INSTALL</a></b> file contains additional information.<br /></li>
+</ul>
+<ol>
+<li><a href="#rpm">Install from the RPM file</a><br />(Redhat / Fedora Linux)</li>
+<li><a href="#tarball">Install from the source tarball</a><br />(Linux / Solaris / FreeBSD / NetBSD / OpenBSD / Cygwin)</li>
+<li><a href="#CVSInstall">Install from the CVS repository</a><br />(Darwin / FreeBSD / Linux / NetBSD / OpenBSD / Solaris / Cygwin)</li>
+<li><a href="#debian">Install the Debian package</a><br />(Debian Linux))</li>
+<li><a href="#CygwinInstall">Install the Cygwin package</a><br />
+(Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed)</li>
+<li><a href="#WindowsInstall">Install the Windows package</a><br />(Windows)</li>
+</ol>
+</div>
+
+<!-- Box on the right side --> 
+<div><p><b>After installing it using Method 1, 2, 3, 4 or 5, you can read the
+man pages, and try out the commands:</b></p>
+
+<p class="code">
+man smartd.conf<br />
+man smartctl<br />
+man smartd<br />
+# Only root can do this<br />
+/usr/sbin/smartctl -s on -o on -S on /dev/hda<br /> 
+/usr/sbin/smartctl -a /dev/hda</p>
+
+<p>Note that the default location for the manual pages are
+<tt>/usr/share/man/man5</tt> and <tt>/usr/share/man/man8</tt>.&#160; If
+'<tt>man</tt>' doesn't find them, then you may need to add
+<tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
+variable.</p>
+
+<p>The Windows package (see Method 6 above) provides preformatted man pages
+in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
+<hr />
+
+<h3><a name="rpm"></a>First Method (Redhat/Fedora Linux) - Install from the RPM file</h3>
+<p class="marked">Starting with smartmontools release 5.37, RPM files
+are no longer available at the smartmontools project download page.
+Refer to the package download location of your distribution.</p>
+<ul class="Square">
+<li>Download the latest binary RPM file (<tt>smartmontools*.rpm</tt>) for your
+distribution. Don't get the SRPM file (<tt>*.src.rpm</tt>).<br /><br /></li>
+
+<li>Install it using RPM. <em>You must be <tt>root</tt> to do this</em>:<br />
+<p class="code">su root # -> enter root password
+<br />rpm -ivh smartmontools-5.32.i386.rpm</p>
+For most users, this is all that is needed.<br /><br /></li>
+
+<li>If you receive an error message, you have probably previously
+installed the <tt>smartsuite</tt> package, or RedHat's
+<tt>kernel-utils</tt> package, which provide older versions of the
+<tt>smartd</tt> and <tt>smartctl</tt> utilities.&#160; In this case you
+should use the <tt>--nodeps</tt> or <tt>--force</tt> arguments of rpm to
+replace these two utilities:
+<p class="code">rpm -ivh --nodeps --force smartmontools-5.32.i386.rpm</p></li>
+<li>If you want to remove the package (<tt>rpm -e smartmontools</tt>)
+and your system does not have <tt>chkconfig</tt> installed, you may need
+to use:
+<p class="code">rpm -e --noscripts smartmontools</p></li>
+</ul>
+
+<h3><a name="tarball"></a>Second Method (Linux/Solaris/FreeBSD/NetBSD/OpenBSD/Cygwin) - Install from the source tarball</h3>
+<ul class="Square">
+<li>Download the latest source tarball from <a
+href="http://sourceforge.net/project/showfiles.php?group_id=64297">here</a>.
+Note: you probably want the most recent stable release. Stable releases have
+even-numbered extensions, and unstable experimental releases have
+odd-numbered extensions.<br /><br /></li>
+
+<li>Uncompress the tarball:
+<p class="code">tar zxvf smartmontools-5.32.tar.gz</p></li>
+<li>The previous step created a directory called <tt>smartmontools-5.32</tt>
+containing the code.&#160; Go to that directory, build, and install:
+<p class="code">cd smartmontools-5.32<br />
+./configure<br />
+make<br />
+make install</p></li>
+
+<li>Note that the <tt>./configure</tt> step above is not possible for releases &lt;=5.1-18, you
+have to edit the Makefile by hand to change installation paths. For releases &gt;=5.19, <tt>./configure</tt>
+can take optional arguments. These optional arguments are fully explained in the
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
+file. The most important one is <tt>--prefix</tt> to change the default installation directories.<br />
+<i>Please note that the default installation location changed in versions &gt;=5.31.</i>
+If you don't pass any arguments to <tt>./configure</tt> all files will reside under
+<b>/usr/local</b> to not interfere with files from your distribution. For more detailed
+information please also refer to the
+<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
+document.<br /><br /></li>
+
+<li>To compile from another directory (avoids overwriting virgin files from the smartmontools package)
+replace <tt>./configure [options]</tt> by:
+<p class="code">
+mkdir objdir
+cd objdir
+../configure [options]
+</p></li>
+
+<li>To install to another destination (useful for testing and to avoid overwriting an existing smartmontools installation)
+replace <tt>make install</tt> by:
+<p class="code">make DESTDIR=/home/myself/smartmontools-test install</p>
+Use a full path: <tt>~/smartmontools-test</tt> won't work.<br /><br /></li>
+
+<li>Unless the destination directory is your home directory (or a location that you have write permission)
+only root can do <tt>make install</tt></li>
+</ul>
+
+<h3><a name="CVSInstall"></a>
+Third Method (Darwin/FreeBSD/Linux/NetBSD/OpenBSD/Solaris/Cygwin) - Install from the CVS repository</h3>
+<ul class="Square">
+<li><span class="marked">Due to the new SourceForge CVS
+architecture, the hostname for CVS access has changed from
+<tt>cvs.sourceforge.net</tt> to <tt>smartmontools.cvs.sourceforge.net</tt>.
+To update a copy of smartmontools checked out before 2006-05-12, change all
+the <tt>*/CVS/Root</tt> files accordingly.</span><br /><br /></li>
+
+<li>One of the really cool things about CVS is that you can get
+<i>any</i> version of the code you want, from the first release up the
+the most current development version. And it's trivial, because
+each release is <u>tagged</u> with a name like
+<tt>RELEASE_5_1_18</tt>.&#160; You can see what the different names are
+by looking at the <a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/">
+CVS repository</a>. You'll see the tag names in the little scroll
+window where it says "Show only files with tag". All you need to
+do to get the latest development code is
+(but note that the development code may be unstable, and that the
+documentation and code may be inconsistent):
+
+<p class="code">cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login<br />
+# when prompted for a password, just press Enter<br />
+cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5</p></li>
+
+<li>To instead get the 5.1-16 release:
+
+<p class="code">cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5</p></li>
+
+<li>This will create a subdirectory called <tt>sm5/</tt> containing the
+code.&#160; Go to that directory, build, and install:
+<p class="code">cd sm5<br />
+./autogen.sh<br />
+./configure<br />
+make<br />
+make install</p>
+
+<p>- See notes under <b>Second method - install from source tarball</b> for different options to <tt>./configure</tt>
+and other useful remarks.</p>
+<p>- Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
+&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18).</p>
+<p>- If you get the current sources (<tt>cvs co</tt> with no arguments or do <tt>cvs up
+-A</tt>) then you <i>will</i>  need those two additional steps.</p>
+</li>
+
+<li>To update your sources to the 5.1-18 release:
+<p class="code">cd sm5<br />
+cvs up -r RELEASE_5_1_18</p></li>
+
+<li>To update any tagged release to the latest development code:
+
+<p class="code">cd sm5
+cvs up -A</p></li>
+</ul>
+
+<h3><a name="debian"></a>Fourth Method (Debian Linux) - Install the Debian package</h3>
+<ul class="Square">
+<li>The latest version of the smartmontools package in <i>.deb</i> format is
+available at the  <a href="http://packages.debian.org/unstable/utils/smartmontools.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian smartmontools
+package page</a>.
+This package is for the (unreleased) <a href="http://www.debian.org/releases/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />unstable</a>
+distribution.<br /><br /></li>
+
+<li>If you're running Debian <a
+href="http://www.debian.org/releases/stable/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />stable</a> please download a
+backport to stable <a
+href="http://www.backports.org/debian/pool/main/s/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+These packages are provided by <a
+href="http://www.backports.org"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />www.backports.org</a>.<br /><br /></li>
+
+<li>You can then install the package using:
+<p class="code">dpkg -i smartmontools_5.36-1_i386.deb</p>
+
+If you prefer to fetch the packages using apt, please read the instructions at
+<a href="http://www.backports.org/dokuwiki/doku.php?id=instructions"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />backports.org</a>.
+</li>
+</ul>
+
+<h3><a name="CygwinInstall"></a>
+Fifth Method (Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed) - Install the Cygwin package</h3>
+<ul class="Square">
+<li>Starting with CVS snapshot 2005-11-15, smartmontools is part of
+the <a href="http://cygwin.com/packages/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin distribution</a>.
+A list of available smartmontools packages and their contents is
+<a href="http://cygwin.com/packages/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.<br /><br /></li>
+<li>To update your installation, click on the "Install or update now!"
+link on the <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin web page</a>.
+This downloads <tt>setup.exe</tt> to your system.
+Then, run setup and answer all of the questions.
+Select smartmontools package in the "Utils" category.<br /><br /></li>
+
+<li>The optional source package (<tt>smartmontools-*-src.tar.bz2</tt>)
+can be used to build both the Cygwin and the Windows binary packages
+on Cygwin.
+Refer to the file <tt>/usr/share/doc/Cygwin/smartmontools-*.README</tt>
+for details.</li>
+</ul>
+
+<h3><a name="WindowsInstall"></a>
+Sixth Method (Windows) - Install the Windows package
+</h3>
+<ul class="Square">
+<li>Download and run the latest smartmontools
+<a href="http://nsis.sourceforge.net/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS</a>-installer
+(<tt>*.win32-setup.exe</tt>) from
+<a href="http://sourceforge.net/project/showfiles.php?group_id=64297"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+<ul>
+<li>The default install type "Full" creates start menu shortcuts
+including an uninstaller, and adds the install directory to the PATH variable.
+</li>
+<li>Select install type "Extract files only" to disable these extra
+components.
+</li>
+<li>Virus scanners occasionally produce false positive virus reports for
+NSIS-installers, see the
+<a href="http://nsis.sourceforge.net/NSIS_False_Positives"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS False Positives page</a>.
+If this is the case for the smartmontools installer, please send a report to the
+<a href="mailto:smartmontools-support&#64;lists.sourceforge.net"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support
+mailing list</a>.<br /><br /></li>
+</ul>
+</li>
+<li><span class="marked">Starting with smartmontools release 5.37, the Windows package
+is no longer provided as a ZIP archive (<tt>*.win32.zip</tt>).</span><br />
+If the self extracting installer cannot be used for some reason, the files may also
+be unpacked by a recent version of <a href="http://www.7-zip.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />7-Zip</a>.<br /><br /></li>
+
+<li>More recent (and probably unstable) Windows test releases build from CVS
+snapshots are available <a href="http://smartmontools-win32.dyndns.org/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.</li>
+</ul>
+</div>
+<hr style="clear:left" />
+<div align="center">
+Hosted by<br />
+<a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
+   src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
+ <br />
+<font size="-1">Last update: $Date: 2008/04/12 13:35:09 $</font><br />
+<a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdownload.html">W3C Link-Checker</a><br />
+<a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10-blue"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img style="border:0;width:88px;height:31px"
+        src="http://jigsaw.w3.org/css-validator/images/vcss-blue"
+        alt="CSS ist valide!" /></a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+$Id: tmpl.txt,v 1.1 2008/04/12 13:35:09 dipohl Exp $
+
+Here you find templates for the new website shape:
+
+------------------------------------------------------------
+Set code sections using this markup (please not <pre></pre>!)
+and insert linebreaks with <br /> :
+
+<p class="code"></p>
+
+------------------------------------------------------------
+Markup Pathnames and Programs with:
+
+<tt></tt>
+
+------------------------------------------------------------
+If you want to highlight text within paragraphs use:
+
+<span class="marked"></span>
+
+------------------------------------------------------------
+Markup for bold text is: (please not <b></b>!)
+
+<strong></strong> 
+
+------------------------------------------------------------
+Markup for cursive text is: (please not <i></i>!)
+
+<em></em> 
+
+------------------------------------------------------------
+Icon for external links:
+
+<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
+
+------------------------------------------------------------
+Link within Page "links.html"
+
+<li><a href="??">
+<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />??</a></li>
+------------------------------------------------------------
+
