@@ -118,14 +118,14 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.401 2008/04/11 20:09:15 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.402 2008/04/14 21:16:27 aradford Exp $";
 #ifdef NEED_SOLARIS_ATA_CODE
 extern const char *os_solaris_ata_s_cvsid;
 #endif
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.401 2008/04/11 20:09:15 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.402 2008/04/14 21:16:27 aradford Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3119,8 +3119,8 @@ int ParseToken(char *token,cfgfile *cfg){
               PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N requires N integer\n",
                	       configfile, lineno, name);
               badarg=1;
-          } else if ( i<0 || i>31) {
-              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 31\n",
+          } else if ( i<0 || i>127) {
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d 3ware,N (N=%d) must have 0 <= N <= 127\n",
                        configfile, lineno, name, i);
               badarg=1;
           } else {
