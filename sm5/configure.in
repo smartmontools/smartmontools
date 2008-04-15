@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.138 2008/03/21 15:39:39 card_captor Exp $
+# $Id: configure.in,v 1.139 2008/04/15 07:01:14 tsmetana Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.138 2008/03/21 15:39:39 card_captor Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.139 2008/04/15 07:01:14 tsmetana Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -136,6 +136,16 @@ AC_ARG_ENABLE(sample,[AC_HELP_STRING([--enable-sample],[Enables appending .sampl
 AC_SUBST(smartd_suffix)
 AM_CONDITIONAL(SMARTD_SUFFIX, test $smartd_suffix)
 
+AC_ARG_WITH(selinux,[AC_HELP_STRING([--with-selinux],[Enables SELinux support])],
+	[
+		AC_CHECK_HEADERS([selinux/selinux.h], [], [echo "*** Error: Missing SELinux header files";exit 1])
+		AC_CHECK_LIB(selinux, matchpathcon, [with_selinux=yes], [echo "*** Error: Missing or incorrect SELinux library files"; exit 1],)
+	],[])
+AC_SUBST(with_selinux)
+if test "$with_selinux" = "yes"; then
+	AC_DEFINE(WITH_SELINUX, [1], [Define to 1 if SELinux support is enabled])
+fi
+
 if test "$prefix" = "NONE"; then
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
     if test "$mandir" = '${prefix}/man'; then
@@ -151,7 +161,11 @@ dnl if OS not recognized, then use the os_generic modules
 case "${host}" in
 	*-*-linux*)
 		AC_SUBST([os_deps], ['os_linux.o cciss.o']) 
-		AC_SUBST([os_libs], ['']) ;;
+		if test "$with_selinux" = "yes"; then
+			AC_SUBST([os_libs], ['-lselinux'])
+		else
+			AC_SUBST([os_libs], [''])
+		fi;;
 	*-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
 		AC_SUBST([os_deps], ['os_freebsd.o cciss.o']) 
 		AC_SUBST([os_libs], ['-lcam']);;

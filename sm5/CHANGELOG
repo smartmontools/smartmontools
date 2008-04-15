@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.675 2008/04/11 20:09:14 chrfranke Exp $
+$Id: CHANGELOG,v 1.676 2008/04/15 07:01:14 tsmetana Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -35,6 +35,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [TS] Linux: Ensure the 3ware device nodes are created with a correct
+       SELinux security context.
 
   [CF] C++: Added new main() with exception handlers, replaced
        exit(x) with throw(x), removed global variable 'exitstatus'.
