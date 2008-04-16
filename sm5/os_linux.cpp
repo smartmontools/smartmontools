@@ -82,9 +82,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.106 2008/04/15 07:01:14 tsmetana Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.107 2008/04/16 00:54:25 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.106 2008/04/15 07:01:14 tsmetana Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.107 2008/04/16 00:54:25 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -158,7 +158,7 @@ int setup_3ware_nodes(const char *nodename, const char *driver_name) {
     /* Get context of the node and set it as the default */
     if (selinux_enabled) {
       if (matchpathcon(nodestring, S_IRUSR | S_IWUSR, &node_context) < 0) {
-        pout("Could not retreive context for %s", nodestring);
+        pout("Could not retrieve context for %s", nodestring);
         if (selinux_enforced) {
           retval = 6;
           break;
