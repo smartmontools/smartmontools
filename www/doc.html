@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools Documentation Page (last updated $Date: 2008/04/17 20:52:40 $)</title>
+ <title>smartmontools Documentation Page (last updated $Date: 2008/04/17 21:27:58 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -12,7 +12,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: doc.html,v 1.2 2008/04/17 20:52:40 dipohl Exp $ -->
+<!-- $Id: doc.html,v 1.3 2008/04/17 21:27:58 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools Documentation Page</h1>
@@ -160,15 +160,15 @@ detect a SATL and autoconfigure while in smartmontools version 5.37 <tt>smartd</
 
 <p>The current USB mass storage specification is based on a version of SCSI
 (SPC-2) that can't support SAT. But some chips manufacturers implement
-proprietary SCSI command that allow to do ATA pass through like SAT. The
-most know one is cypress chipset, that contains an ATACB proprietary
-pass through (for ATA commands passed through SCSI commands) for which
-some publicly available information is available. CVS version support
-these cypress chips via the '-d usbcypress' option on the smartctl
-command line. There is no autodetection at the moment. The best way to
-know if your device support it, is to check your device usb id (most
-cypress usb ata bridge got vid=0x04b4, pid=0x6830) or to try the option
-(if the usb device doesn't support ATACB, smartmontools will abort).</p>
+proprietary SCSI commands that allow ATA pass through (similiar like for SAT). 
+Well known is the cypress chipset, that contains an ATACB proprietary pass through 
+(for ATA commands passed through SCSI commands) for which
+some information is publicly available. Smartmontools CVS version support
+these cypress chips via the '<tt>-d usbcypress</tt>' option on the smartctl
+command line. There is no autodetection at the moment. If you want to know,
+wether your device supports it, check your device usb id (most
+cypress usb ata bridge got <tt>vid=0x04b4</tt>, <tt>pid=0x6830</tt>) or to try to call <tt>smartctl</tt>
+with option '<tt>-d usbcypress</tt>'. If the usb device doesn't support ATACB, smartmontools will abort.</p>
 <hr />
 
 <h3><a name="scsi"></a>Smartmontools for SCSI disks and tapes (TapeAlert)</h3>
@@ -182,7 +182,7 @@ Hosted by<br />
 <a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
    src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
  <br />
-<font size="-1">Last update: $Date: 2008/04/17 20:52:40 $</font><br />
+<font size="-1">Last update: $Date: 2008/04/17 21:27:58 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdoc.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
