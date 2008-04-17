@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.677 2008/04/17 20:30:57 ballen4705 Exp $
+$Id: CHANGELOG,v 1.678 2008/04/17 23:36:38 aradford Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -31,6 +31,7 @@ Maintainers / Developers Key:
 [RZ] Richard Zybert
 [SZ] Sf Zhou
 [TS] Tomas Smetana
+[AR] Adam Radford
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
@@ -40,6 +41,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [TS] Linux: Ensure the 3ware device nodes are created with a correct
        SELinux security context.
+
+  [AR] Add support for up to 128 devices on 3ware controllers.
 
   [CF] C++: Added new main() with exception handlers, replaced
        exit(x) with throw(x), removed global variable 'exitstatus'.
