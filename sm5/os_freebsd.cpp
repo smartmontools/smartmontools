@@ -44,10 +44,10 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.66 2008/04/11 20:09:15 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.67 2008/04/17 20:30:57 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.66 2008/04/11 20:09:15 chrfranke Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.67 2008/04/17 20:30:57 ballen4705 Exp $" \
+ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
 

@@ -26,6 +26,9 @@
 #include "scsicmds.h"
 #include "utility.h"
 
+const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.7 2008/04/17 20:30:57 ballen4705 Exp $"
+CONFIG_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
+
 typedef struct _ReportLUNdata_struct
 {
   uint32_t LUNListLength;	/* always big-endian */
