@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.676 2008/04/15 07:01:14 tsmetana Exp $
+$Id: CHANGELOG,v 1.677 2008/04/17 20:30:57 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -35,6 +35,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Add missing CCISS cvs version tags to '-V' printouts.
 
   [TS] Linux: Ensure the 3ware device nodes are created with a correct
        SELinux security context.
