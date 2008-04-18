@@ -1,0 +1,33 @@
+<div class="left-header"><form action="search.php" method="get">
+<?php  if ($adv==1 || $advanced_search==1) {
+?>
+<input type="radio" name="type" value="and" <?php print $type=='and'?'checked="checked"':''?> /><?php print $sph_messages['andSearch']?>
+<input type="radio" name="type" value="or" <?php print $_REQUEST['type']=='or'?'checked="checked"':''?> /><?php print $sph_messages['orSearch']?>
+<input type="radio" name="type" value="phrase" <?php print $_REQUEST['type']=='phrase'?'checked="checked"':''?> /><?php print $sph_messages['phraseSearch']?><br />
+<?php }?>
+
+<input type="text" name="query" id="query" size="40" value="<?php   print quote_replace($query);?>" />	
+<input type="submit" value="<?php print $sph_messages['Search']?>" /><br />
+
+<?php  if ($adv==1 || $advanced_search==1) {
+echo "<br />";
+print $sph_messages['show']?>
+			<select name='results'>
+		      <option <?php  if ($results_per_page==10) echo "selected=\"selected\"";?>>10</option>
+			  <option <?php  if ($results_per_page==20) echo "selected=\"selected\"";?>>20</option>
+		      <option <?php  if ($results_per_page==50) echo "selected=\"selected\"";?>>50</option>
+		      <option <?php  if ($results_per_page==100) echo "selected=\"selected\"";?>>100</option>
+			</select>
+				
+	  		<?php print $sph_messages['resultsPerPage']?>   
+<?php }?>
+	
+<?php if ($catid<>0){?>     
+	<center><b><?php print $sph_messages['Search']?></b>: <input type="radio" name="category" value="<?php print $catid?>"><?php print $sph_messages['Only in category']?> "<?php print $tpl_['category'][0]['category']?>'" <input type="radio" name="category" value="-1" checked /><?php print $sph_messages['All sites']?></center>
+<?php  }?>
+	<input type="hidden" name="search" value="1" /> 
+	</form>
+		<?php if ($has_categories && $search==1 && $show_categories){?> 
+		<a href="search.php"><?php print $sph_messages['Categories']?></a>
+		<?php  }?>	   
+</div>
