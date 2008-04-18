@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.122 2008/04/14 21:16:27 aradford Exp $
+$Id: smartd.8.in,v 1.123 2008/04/18 18:24:04 aradford Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -678,8 +678,8 @@ controllers (using the Marvell rather than libata driver).
 \- the device consists of one or more ATA disks connected to a 3ware
 RAID controller. The non-negative integer N (in the range from 0 to 127 
 inclusive) denotes which disk on the controller is monitored.  In log
-files and email messages this disk will be identified as 3ware_disk_XX
-with XX in the range from 00 to 127 inclusive.
+files and email messages this disk will be identified as 3ware_disk_XXX
+with XXX in the range from 000 to 127 inclusive.
 
 This Directive may at first appear confusing, because the 3ware
 controller is a SCSI device (such as /dev/sda) and should be listed as
@@ -1965,4 +1965,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.122 2008/04/14 21:16:27 aradford Exp $
+$Id: smartd.8.in,v 1.123 2008/04/18 18:24:04 aradford Exp $

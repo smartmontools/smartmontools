@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.403 2008/04/17 20:30:57 ballen4705 Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.404 2008/04/18 18:24:04 aradford Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.403 2008/04/17 20:30:57 ballen4705 Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.404 2008/04/18 18:24:04 aradford Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3591,8 +3591,11 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
     
     // Make new device name by adding a space then RAID disk number
-    snprintf(newname, len, "%s [%s_disk_%02d]", cfg->name, (cfg->controller_type == CONTROLLER_CCISS) ? "cciss" : "3ware", 
-		                                cfg->controller_port-1);
+    if (cfg->controller_type == CONTROLLER_CCISS)
+	    snprintf(newname, len, "%s [cciss_disk_%02d]", cfg->name, cfg->controller_port - 1);
+    else
+	    snprintf(newname, len, "%s [3ware_disk_%03d]", cfg->name, cfg->controller_port - 1);
+  
     cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
     cfg->name=newname;
     bytes+=16;
