@@ -82,9 +82,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.107 2008/04/16 00:54:25 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.108 2008/04/21 23:25:51 aradford Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.107 2008/04/16 00:54:25 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.108 2008/04/21 23:25:51 aradford Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -175,14 +175,15 @@ int setup_3ware_nodes(const char *nodename, const char *driver_name) {
 #endif
     /* Try to stat the node */
     if ((stat(nodestring, &stat_buf))) {
-      pout("Node %s does not exist and must be created. Check the udev rules.", nodestring);
+      pout("Node %s does not exist and must be created. Check the udev rules.\n", nodestring);
       /* Create a new node if it doesn't exist */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
         pout("problem creating 3ware device nodes %s", nodestring);
         syserror("mknod");
         retval = 3;
         break;
-      }
+      } else
+        continue;
     }
 
     /* See if nodes major and minor numbers are correct */
@@ -190,7 +191,7 @@ int setup_3ware_nodes(const char *nodename, const char *driver_name) {
         (index    != (int)(minor(stat_buf.st_rdev))) ||
         (!S_ISCHR(stat_buf.st_mode))) {
       pout("Node %s has wrong major/minor number and must be created anew."
-          " Check the udev rules.", nodestring);
+          " Check the udev rules.\n", nodestring);
       /* Delete the old node */
       if (unlink(nodestring)) {
         pout("problem unlinking stale 3ware device node %s", nodestring);
