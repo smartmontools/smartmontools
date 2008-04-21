@@ -82,9 +82,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.108 2008/04/21 23:25:51 aradford Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.109 2008/04/21 23:36:10 aradford Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.108 2008/04/21 23:25:51 aradford Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.109 2008/04/21 23:36:10 aradford Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -182,8 +182,15 @@ int setup_3ware_nodes(const char *nodename, const char *driver_name) {
         syserror("mknod");
         retval = 3;
         break;
-      } else
+      } else {
+#ifdef WITH_SELINUX
+	if (selinux_enabled && node_context) {
+	  freecon(node_context);
+	  node_context = NULL;
+	}
+#endif
         continue;
+      }
     }
 
     /* See if nodes major and minor numbers are correct */
