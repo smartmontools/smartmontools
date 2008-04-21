@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.678 2008/04/17 23:36:38 aradford Exp $
+$Id: CHANGELOG,v 1.679 2008/04/21 23:39:09 aradford Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AR] Fix bug in 3ware node creation where nodes would be created
+       then deleted, then recreated.
 
   [BA] Add missing CCISS cvs version tags to '-V' printouts.
 
