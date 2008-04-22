@@ -1,18 +1,18 @@
-/* 
-    $Id: style.css,v 1.1 2008/04/12 13:22:37 dipohl Exp $
-    
+/*
+    $Id: style.css,v 1.2 2008/04/22 18:55:01 dipohl Exp $
+
     Lookup Table for Colors:
     blue: #3333FF
     green: #009966
     yellow: #FFFFCC
-    
+
 */
 
 body {
     background: #FFFFFF;
     color: #000000;
     margin: 1em;
-    font-size: 1em;
+    font-size: 0.9em;
     font-family: verdana,arial,helvetica,sans-serif;
 }
 
@@ -26,10 +26,50 @@ div.left-header {
     top:0px;
     left:0px;
     max-width: 350px;
+    padding: 0.4em 1em;
+    margin-right: 1em;
+    font-size: 0.95em;
+    line-height: 1.6em;
+    border: 1px solid #000000;
+    background: #E6E6FA;
+}
+
+div.left-header-yellow {
+    float:left;
+    position:relative;
+    top:0px;
+    left:0px;
+    max-width: 350px;
+    padding: 0.4em 1em;
+    margin-right: 1em;
+    font-size: 0.95em;
+    line-height: 1.6em;
+    border: 1px solid #000000;
+    background: #FFFFCC;
+}
+
+/* draw box around index */
+#index {
+    float:left;
+    position:relative;
+    margin-right: 1em;
+    width: 400px;
+    background: #DAEDDA;
+    border: 1px solid grey;
+    font-size: 0.95em;
+    padding: .2em 1em
+}
+
+div.wide {
+    float:left;
+    position:relative;
+    top:0px;
+    left:0px;
+    max-width: 450px;
     padding: .4em 1em;
     margin-right: 1em;
     border: 1px solid #000000;
-    background: #E6E6FA;
+    background: #DAEDDA;
 }
 
 h1 {
@@ -40,7 +80,7 @@ h2 {
     font-size: 1.3em;
     color:  #009966;
     border: 1px solid #d7d7d7;
-    font-style:italic; 
+    font-style:italic;
     background: #FFFFFF;
     padding-left: 0.8em;
     padding-right: 0.8em;
@@ -104,15 +144,9 @@ a:visited { color: #1E90FF; }
  border-right: 1px solid #000;
 }
 
-/* draw box around index */
-#index {
-background: #F5F5F5;
-border: 1px solid #000000;
-padding: .2em 1em
-}
-
 ul.High {
   list-style-image: url(../pics/raute-blau.gif);
+  font-size: 1em;
   font-style: italic;
   position: relative;
   margin-top: 0em;
@@ -123,21 +157,28 @@ ul.High {
 
 ul.Circle {
   list-style-type: circle;
-  margin-top: 0;
-  margin-left: 2em;
-  margin-bottom: 0;
-  padding: 0
+  font-size: 1em;
+  margin-top: 0.5em;
+  margin-left: 0;
+  margin-bottom: 0.5em;
+  line-height: 1.6em;
 }
 
 ul.Square {
   list-style-type: square;
   list-style-position:inside;
+  font-size: 1em;
+  margin-left: 1em;
 }
 
 .marked { color: #FF0000; }
 
-.code { 
-    font-family: monospace;
+.decent { color: #FF0000; }
+
+.code {
+   font-family: monospace;
 	font-weight: bold;
 	font-size: 1.1em;
 }
+
+.copyright {font-size: 0.84em;}
