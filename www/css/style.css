@@ -1,5 +1,5 @@
 /*
-    $Id: style.css,v 1.3 2008/04/22 18:56:53 dipohl Exp $
+    $Id: style.css,v 1.4 2008/04/22 19:53:51 dipohl Exp $
 
     Lookup Table for Colors:
     blue: #3333FF
@@ -55,7 +55,7 @@ div.left-header-yellow {
     margin-right: 1em;
     width: 400px;
     background: #DAEDDA;
-    border: 1px solid grey;
+    border: 1px solid gray;
     font-size: 0.95em;
     padding: .2em 1em
 }
