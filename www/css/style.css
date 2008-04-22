@@ -1,5 +1,5 @@
 /*
-    $Id: style.css,v 1.4 2008/04/22 19:53:51 dipohl Exp $
+    $Id: style.css,v 1.5 2008/04/22 21:10:22 dipohl Exp $
 
     Lookup Table for Colors:
     blue: #3333FF
@@ -142,6 +142,10 @@ a:visited { color: #1E90FF; }
 }
 #mainmenu .active :link:hover, #mainmenu .active :visited:hover {
  border-right: 1px solid #000;
+}
+
+ol{
+  list-style-position:inside;
 }
 
 ul.High {
