@@ -2,17 +2,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools FAQ Page (last updated $Date: 2008/04/17 20:52:40 $)</title>
+ <title>smartmontools FAQ Page (last updated $Date: 2008/04/22 21:09:02 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
  <meta name="keywords" content="FAQ, Frequently Asked Questions, Problem, Problems, smartd, smartctl, firmware, S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, disk, monitor, monitoring" />
+ <meta name="DC.creator" content="Bruce Allen" />
+ <meta name="DC.contributor" content="Gabriele Pohl" />
+ <meta name="DC.rights" scheme="DCTERMS.URI" content="http://www.gnu.org/licenses/gpl-2.0.html" />
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 <meta http-equiv="content-style-type" content="text/css" />
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: faq.html,v 1.2 2008/04/17 20:52:40 dipohl Exp $ -->
+<!-- $Id: faq.html,v 1.3 2008/04/22 21:09:02 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools FAQ Page</h1>
@@ -31,7 +34,7 @@
     </ul>
 </div>
 
-<div id="index"><h2>Frequently Asked Questions</h2>
+<div class="wide"><h2>Frequently Asked Questions</h2>
 <p>If your question is not here, please send an email to <a href="http://lists.sourceforge.net/mailman/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support
 mailing list</a>.</p>
 
@@ -44,7 +47,7 @@ mailing list</a>.</p>
     <li><a href="#temp-seagate">Attribute 194 (Temperature Celsius) behaves strangely on my Seagate disk</a></li>
     <li><a href="#age-attribute">My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet <tt>smartctl</tt> reports its age (Attribute 9) as thousands of hours!</a></li>
     <li><a href="#age-attributes-maxtor">The power-on timer (Attribute 9 raw value) on my Maxtor disk acts strange.</a></li>
-    <li><a href="#time-stamps-WD">The time stamps in the self-test log of my Western Digital (WD) disk 
+    <li><a href="#time-stamps-WD">The time stamps in the self-test log of my Western Digital (WD) disk
     don't correspond to the power-on time when the test was run.</a></li>
     <li><a href="#worst-larger-than-current">The (normalized) WORST Attribute values of my Western Digital
 (WD) disk are <strong>larger</strong> than the (normalized) CURRENT Attribute values</a></li>
@@ -109,6 +112,7 @@ does it do, and how should I set it?</a></li>
 </div>
 <hr />
 
+<div class="right">
 <!-- Strange output -->
 <h3><a name="strange-output"></a>I see some strange output from <tt>smartctl</tt>.  What does it mean?</h3>
 
@@ -126,12 +130,12 @@ smartmontools-support</a> and we'll help you try and figure it out.</p>
 <h3><a name="disk-temperature"></a>Why is my disk temperature s reported by <tt>smartd</tt> as 150 Celsius?</h3>
 
 <p>It's not.  Please read the end of the <tt>smartd</tt> man page (NOTES).
-For example, in the message: 
+For example, in the message:
 <br />'<span class="code">Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93</span>'<br />
 the value given is the <em>Normalized</em> not the <em>Raw</em> Attribute value (the
 disk temperature in this case is about 22 Celsius).  The
 <span class="code">-R</span> and <span class="code">-r</span> Directives modify this behavior, so that
-the information is printed with the <em>Raw</em> values as well, for example: 
+the information is printed with the <em>Raw</em> values as well, for example:
 <br />'<span class="code">Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]</span>'<br />
 Here the Raw values are the actual disk temperatures in Celsius.  The
 way in which the Raw values are printed, and the names under which the
@@ -248,7 +252,7 @@ The UBCD can be customized by adding other images, like one
 
 <p>Note: if you do run one of these utilities, and it identifies the
 meanings of any SMART Attributes that are not known to smartmontools,
-please report them to the 
+please report them to the
 <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</p>
 
 <p>These utilities have an important role to fill.  If your disk has
@@ -302,7 +306,7 @@ be concerned about something harmful being embedded within
 them. Starting with release 5.19 of <tt>smartmontools</tt>, the .rpm
 files and tarball have been GPG signed. The tarball's fingerprint is
 given in a file on the release page with a name like
-<tt>smartmontools-5.32.tar.gz.asc</tt>. </p> 
+<tt>smartmontools-5.32.tar.gz.asc</tt>. </p>
 
 Please verify these using the
 <ul>
@@ -452,7 +456,7 @@ numbered as follows:</p>
  as a plain-text ASCII email attachment (file type: ".txt").  The timestamp
  in the self-test log will help us to determine whether Attribute 9 is
  being used to store the lifetime in hours, minutes, or seconds.</p>
- 
+
 <p>If you need to use any of the vendor-specific display options
  (<tt>-v</tt> options) with the drive, or if any of the Attributes are
  behaving strangely, please include that information as well.</p>
@@ -597,8 +601,8 @@ specs more closely then fix your code!).</p>
 <h3><a name="FAQ-win-ata-as-scsi"></a>On Windows, <tt>smartctl</tt> aborts
 with the message "...SMART_GET_VERSION failed". What is going wrong?</h3>
 
-<p>A failing 
-<a href="http://msdn2.microsoft.com/en-us/library/ms803644.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_GET_VERSION</a> 
+<p>A failing
+<a href="http://msdn2.microsoft.com/en-us/library/ms803644.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_GET_VERSION</a>
 call means that the device driver does not
 implement the I/O controls (see <a href="faq.html#FAQ-win-ioctl">below</a>)
 to access ATA SMART functionality.</p>
@@ -614,17 +618,17 @@ message: "...Log Read failed: Function not implemented". What is going wrong?</h
 
 <p>This means that the device driver does not support the command SMART READ LOG.
 <span class="marked">The message does not indicate a hard disk problem!</span>
-It does also not mean that the disk itself does not support SMART logs. 
-It may still be possible to read the logs with a Linux version of smartmontools run from 
+It does also not mean that the disk itself does not support SMART logs.
+It may still be possible to read the logs with a Linux version of smartmontools run from
 some <a href="faq.html#bootable">bootable CD</a>.</p>
 
 <p>To access ATA SMART functionality on Windows, smartmontools uses the
-I/O control calls 
+I/O control calls
 <a href="http://msdn2.microsoft.com/en-us/library/ms804269.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_RCV_DRIVE_DATA</a> and
 <a href="http://msdn2.microsoft.com/en-us/library/ms803645.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SMART_SEND_DRIVE_CMD</a>.
 These calls were available since Win95 OSR2.
 An example program from Microsoft can be found
-<a href="http://download.microsoft.com/download/winddk/sample3/9x/W9X/EN-US/SmartApp.exe"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a> 
+<a href="http://download.microsoft.com/download/winddk/sample3/9x/W9X/EN-US/SmartApp.exe"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>
 (the related KB article 208048 is no longer available).</p>
 
 <p>Starting with NT4, these calls do more restrictive parameter checks.
@@ -642,7 +646,7 @@ most vendor specific ATA device drivers. <tt>Smartctl</tt> prints a
 "Function not implemented" message in this case.</p>
 
 <p>A new I/O control call
-<a href="http://msdn2.microsoft.com/en-us/library/ms804551.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />IOCTL_ATA_PASS_THROUGH</a> 
+<a href="http://msdn2.microsoft.com/en-us/library/ms804551.aspx"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />IOCTL_ATA_PASS_THROUGH</a>
 is available since Win2003 and XP SP2.
 It should be supported by most new drivers. Experimental code using
 this call was added 2006-04-27 and is included in smartmontools
@@ -654,7 +658,9 @@ Hosted by<br />
 <a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"
    src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a>
  <br />
-<font size="-1">Last update: $Date: 2008/04/17 20:52:40 $</font><br />
+<font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
+Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
+Last update: $Date: 2008/04/22 21:09:02 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Ffaq.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
