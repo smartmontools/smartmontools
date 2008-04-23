@@ -1,5 +1,5 @@
 /*
-    $Id: style.css,v 1.5 2008/04/22 21:10:22 dipohl Exp $
+    $Id: style.css,v 1.6 2008/04/23 20:22:23 dipohl Exp $
 
     Lookup Table for Colors:
     blue: #3333FF
@@ -34,6 +34,20 @@ div.left-header {
     background: #E6E6FA;
 }
 
+div.right-header {
+    float:right;
+    position:relative;
+    top:0px;
+    left:0px;
+    max-width: 350px;
+    padding: 0.4em 1em;
+    margin-left: 1em;
+    font-size: 0.95em;
+    line-height: 1.6em;
+    border: 1px solid #000000;
+    background: #E6E6FA;
+}
+
 div.left-header-yellow {
     float:left;
     position:relative;
@@ -50,9 +64,9 @@ div.left-header-yellow {
 
 /* draw box around index */
 #index {
-    float:left;
+    float:right;
     position:relative;
-    margin-right: 1em;
+    margin-left: 1em;
     width: 400px;
     background: #DAEDDA;
     border: 1px solid gray;
@@ -61,13 +75,13 @@ div.left-header-yellow {
 }
 
 div.wide {
-    float:left;
+    float:right;
     position:relative;
     top:0px;
     left:0px;
     max-width: 450px;
     padding: .4em 1em;
-    margin-right: 1em;
+    margin-left: 1em;
     border: 1px solid #000000;
     background: #DAEDDA;
 }
@@ -88,8 +102,10 @@ h2 {
 }
 
 h3 {
-    background: #FFFFCC;
     font-size: 1.1em;
+    background: #FFFFCC;
+    padding-left: 0.8em;
+    padding-right: 0.8em;
 }
 
 tt {font-size: 1.1em}
@@ -144,10 +160,6 @@ a:visited { color: #1E90FF; }
  border-right: 1px solid #000;
 }
 
-ol{
-  list-style-position:inside;
-}
-
 ul.High {
   list-style-image: url(../pics/raute-blau.gif);
   font-size: 1em;
@@ -170,9 +182,7 @@ ul.Circle {
 
 ul.Square {
   list-style-type: square;
-  list-style-position:inside;
   font-size: 1em;
-  margin-left: 1em;
 }
 
 .marked { color: #FF0000; }
