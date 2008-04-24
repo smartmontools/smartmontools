@@ -1,24 +1,100 @@
-<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head> <title>smartmontools Home Page (last updated $Date: 2008/04/24 01:59:40 $)</title> <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" /> <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" /> <meta name="description" content="smartmontools Home Page" /> <meta name="keywords" content="S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, Cygwin, disk, monitor, monitoring" />
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head> 
+ <title>smartmontools Home Page (last updated $Date: 2008/04/24 18:20:54 $)</title> 
+ <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" /> 
+ <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" /> 
+ <meta name="description" content="smartmontools Home Page" /> 
+ <meta name="keywords" content="S.M.A.R.T., SMART, FreeBSD, Linux, NetBSD, Solaris, Windows, Cygwin, disk, monitor, monitoring" />
  <meta name="DC.creator" content="Bruce Allen" />
  <meta name="DC.contributor" content="Gabriele Pohl" />
- <meta name="DC.rights" scheme="DCTERMS.URI" content="http://www.gnu.org/licenses/gpl-2.0.html" /> <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" /> <meta http-equiv="content-style-type" content="text/css" /><link rel="stylesheet" type="text/css" href="css/style.css" /></head><body><!-- $Id: index.html,v 1.226 2008/04/24 01:59:40 dipohl Exp $ --><div id="header">    <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>    smartmontools Home Page</h1></div><div id="mainmenu" class="nav">    <ul>        <li class="active first"><a accesskey="n" href="index.html">Home</a></li>        <li><a href="doc.html">Documentation</a></li>        <li><a accesskey="d" href="download.html">Download</a></li>        <li><a accesskey="f" href="faq.html">FAQ</a></li>        <li><a accesskey="h" href="help.html">Help</a></li>        <li><a accesskey="a" href="about.html">About</a></li>        <li><a accesskey="l" href="links.html">Links</a></li>        <li class="last"><a accesskey="s" href="sphider/search.php">Search</a></li>
-    </ul></div><div class="left-header"><h2>News</h2><ul class="High">
-<li><tt>smartctl</tt> has a new option '<tt>-d usbcypress</tt>'. So you can address USB devices 
+ <meta name="DC.rights" scheme="DCTERMS.URI" content="http://www.gnu.org/licenses/gpl-2.0.html" /> 
+ <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" /> 
+ <meta http-equiv="content-style-type" content="text/css" />
+ <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body>
+<!-- $Id: index.html,v 1.227 2008/04/24 18:20:54 dipohl Exp $ -->
+<div id="header">
+ <h1><a id="logo" href="http://smartmontools.sourceforge.net/">
+ <img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>    
+ smartmontools Home Page</h1></div>
+ <div id="mainmenu" class="nav">    
+  <ul>        
+    <li class="active first"><a accesskey="n" href="index.html">Home</a></li>        
+    <li><a href="doc.html">Documentation</a></li>        
+    <li><a accesskey="d" href="download.html">Download</a></li>        
+    <li><a accesskey="f" href="faq.html">FAQ</a></li>        
+    <li><a accesskey="h" href="help.html">Help</a></li>        
+    <li><a accesskey="a" href="about.html">About</a></li>        
+    <li><a accesskey="l" href="links.html">Links</a></li>        
+    <li class="last"><a accesskey="s" href="sphider/search.php">Search</a></li>
+  </ul>
+ </div>
+ <div class="left-header">
+  <h2>News</h2>
+  <ul class="High">
+    <li><tt>smartctl</tt> has a new option '<tt>-d usbcypress</tt>'. So you can address USB devices 
 with cypress chips. The chipset contains an ATACB proprietary <em>pass through</em> for 
-ATA commands passed through SCSI commands. 
-Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>.</li>
+ATA commands passed through SCSI commands. Get <strong>current version</strong> from 
+<a href="download.html#CVSInstall">CVS</a>.</li>
 
-<li>Bruce Allen has been testing code contributed by Areca engineers, which 
+    <li>Bruce Allen has been testing code contributed by Areca engineers, which 
 provides full smartmontools support on Areca SATA RAID controllers.</li>
-<li>Smartmontools 5.38 (stable) was released 2008/03/10, see<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?revision=RELEASE_5_38&amp;view=markup">NEWS</a> and<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?revision=RELEASE_5_38&amp;view=markup">CHANGELOG</a> for details.</li>
-<li>New <a href="faq.html#FAQ-RAID">RAID controller support</a> (CCISS and HighPoint on Linux,3ware on Windows) was added.<br /><span id="marked">Please report problems (or success!) with the new release to the<a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</span></li></ul></div><div><p>The smartmontools package contains two utility programs(<font color="#3333ff"><b>smartctl</b></font> and<font color="#3333ff"><b>smartd</b></font>) to control and monitor storagesystems using the Self-Monitoring, Analysis and Reporting TechnologySystem (SMART) built into most modern ATA and SCSI harddisks. In many cases, these utilities will provide advanced warningof disk degradation and failure.</p><p>Smartmontools supports ATA/ATAPI/SATA-3 to -8 disks and <a href="smartmontools_scsi.html" target="_blank">SCSI</a> disks and tape devices.  
-It should run on any modern Darwin (Mac OS X), Linux, FreeBSD, NetBSD, OpenBSD, 
-Solaris, OS/2, Cygwin, QNX, eComStation or <a href="faq.html#windows">Windows</a> system. Smartmontools can also be runfrom one of many different <a href="faq.html#bootable">bootable CDs or floppies</a>.</p><p>If smartmontools is not already installed on your system, then to get it,
-go to the <a href="download.html">download section</a>. You will also find installation instructionsfor different operating systems and distributions.If you are looking for smartmontools user guides and tutorials, go to the <a href="doc.html">documentation page</a>.Scan section <a href="faq.html">Frequently asked Questions</a>, if you have specific problems or questions.Further support is available via the <a href="help.html">help page</a>.</p><p>Last but not least, the <a href="about.html">about page</a> describes the people behind smartmontools and something about the
-historyof the project.We also provide an extended <a href="links.html">link list</a> with additional background information and links to othermonitoring resources.</p>
-<p>Smartmontools was originally derived from the Linux<a href="http://sourceforge.net/projects/smartsuite/">
-<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartsuite package</a>. 
-</p>
-</div><hr style="clear:left" /><div align="center">Hosted by<br /><a href="http://sourceforge.net/"><img style="border:0;width=:88px;height:31px"   src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a> <br /> 
+
+    <li>Smartmontools 5.38 (stable) was released 2008/03/10, see 
+    <a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?revision=RELEASE_5_38&amp;view=markup">NEWS</a> 
+    and <a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?revision=RELEASE_5_38&amp;view=markup">CHANGELOG</a> 
+    for details.</li>
+    
+    <li>New <a href="faq.html#FAQ-RAID">RAID controller support</a> 
+    (CCISS and HighPoint on Linux,3ware on Windows) was added.<br />
+    <span id="marked">Please report problems (or success!) with the new release to the 
+    <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support">
+    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</span></li>
+
+  </ul>
+ </div>
+ <div><p>The smartmontools package contains two utility programs 
+ (<font color="#3333ff"><b>smartctl</b></font> and <font color="#3333ff"><b>smartd</b></font>) 
+ to control and monitor storage systems using the Self-Monitoring, Analysis and 
+ Reporting Technology System (SMART) built into most modern ATA and SCSI harddisks. 
+ In many cases, these utilities will provide advanced warning of disk degradation and failure.</p>
+ 
+ <p>Smartmontools supports ATA/ATAPI/SATA-3 to -8 disks and <a href="smartmontools_scsi.html" target="_blank">SCSI</a> 
+ disks and tape devices. It should run on any modern Darwin (Mac OS X), Linux, FreeBSD, NetBSD, OpenBSD, 
+Solaris, OS/2, Cygwin, QNX, eComStation or <a href="faq.html#windows">Windows</a> system. 
+Smartmontools can also be run from one of many different <a href="faq.html#bootable">bootable 
+CDs or floppies</a>.</p>
+
+ <p>If smartmontools is not already installed on your system, then to get it,
+go to the <a href="download.html">download section</a>. You will also find installation instructions 
+for different operating systems and distributions. If you are looking for smartmontools 
+user guides and tutorials, go to the <a href="doc.html">documentation page</a>. 
+Scan section <a href="faq.html">Frequently asked Questions</a>, if you have 
+specific problems or questions. Further support is available via the <a href="help.html">help page</a>.</p>
+
+ <p>Last but not least, the <a href="about.html">about page</a> describes the people 
+behind smartmontools and something about the history of the project. We also provide 
+an extended <a href="links.html">link list</a> with additional background information 
+and links to othermonitoring resources.</p>
+
+ <p>Smartmontools was originally derived from the Linux <a href="http://sourceforge.net/projects/smartsuite/">
+<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartsuite package</a>.</p>
+
+ </div>
+ <hr style="clear:left" />
+ <div align="center">Hosted by<br /><a href="http://sourceforge.net/">
+ <img style="border:0;width=:88px;height:31px" src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a> <br /> 
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
-Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />Last update: $Date: 2008/04/24 01:59:40 $<br /></font><a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2F">W3C Link-Checker</a><br /><a href="http://validator.w3.org/check?uri=referer"><img        src="http://www.w3.org/Icons/valid-xhtml10-blue"        alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a><a href="http://jigsaw.w3.org/css-validator/check/referer">    <img style="border:0;width:88px;height:31px"        src="http://jigsaw.w3.org/css-validator/images/vcss-blue"        alt="CSS is valid!" /></a></div></body></html>
+Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
+Last update: $Date: 2008/04/24 18:20:54 $<br /></font>
+<a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2F">W3C Link-Checker</a><br />
+<a href="http://validator.w3.org/check?uri=referer">
+<img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
+<a href="http://jigsaw.w3.org/css-validator/check/referer">
+<img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss-blue" alt="CSS is valid!" /></a>
+</div>
+</body>
+</html>
