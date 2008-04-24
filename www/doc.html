@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools Documentation Page (last updated $Date: 2008/04/23 20:22:23 $)</title>
+ <title>smartmontools Documentation Page (last updated $Date: 2008/04/24 01:50:35 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Documentation Page" />
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: doc.html,v 1.6 2008/04/23 20:22:23 dipohl Exp $ -->
+<!-- $Id: doc.html,v 1.7 2008/04/24 01:50:35 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools Documentation Page</h1>
@@ -163,10 +163,13 @@ detect a SATL and autoconfigure while in smartmontools version 5.37 <tt>smartd</
 
 <p>The current USB mass storage specification is based on a version of SCSI
 (SPC-2) that can't support SAT. But some chips manufacturers implement
-proprietary SCSI commands that allow ATA pass through (similiar like for SAT). 
-Well known is the cypress chipset, that contains an ATACB proprietary pass through 
+proprietary SCSI commands that allow ATA pass through (similiar like for SAT).
+Well known is the cypress chipset, that contains an ATACB proprietary pass through
 (for ATA commands passed through SCSI commands) for which
-some information is publicly available. Smartmontools CVS version support
+<a href="http://download.cypress.com.edgesuite.net/design_resources/datasheets/contents/cy7c68300c_8.pdf" target="_blank">
+<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />some
+information is publicly available <img src="pics/datei16x16-pdf01.gif" width="16" height="16" border="0" alt="PDF"></a>.
+Smartmontools CVS version support
 these cypress chips via the '<tt>-d usbcypress</tt>' option on the smartctl
 command line. There is no autodetection at the moment. If you want to know,
 wether your device supports it, check your device usb id (most
@@ -187,7 +190,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2008/04/23 20:22:23 $</font><br />
+Last update: $Date: 2008/04/24 01:50:35 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdoc.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
