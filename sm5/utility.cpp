@@ -40,11 +40,12 @@
 #endif
 
 #include "config.h"
+#include "cvsversion.h"
 #include "int64.h"
 #include "utility.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.67 2008/04/11 20:09:15 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.68 2008/04/27 16:30:09 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -73,6 +74,27 @@ const char *reportbug="Please report this bug to the Smartmontools developers at
 // command-line argument: are we running in debug mode?.
 unsigned char debugmode = 0;
 
+// BUILD_INFO can be provided by package maintainers
+#ifndef BUILD_INFO
+#define BUILD_INFO "(local build)"
+#endif
+
+// Make version information string
+const char *format_version_info(const char *progname)
+{
+#ifdef HAVE_GET_OS_VERSION_STR
+  const char * osver = get_os_version_str();
+#else
+  const char * osver = SMARTMONTOOLS_BUILD_HOST;
+#endif
+  static char info[200];
+  snprintf(info, sizeof(info),
+    "%s %s %s [%s] %s\n"
+    "Copyright (C) 2002-8 by Bruce Allen, http://smartmontools.sourceforge.net\n",
+    progname, PACKAGE_VERSION, SMARTMONTOOLS_CVS_DATE_TIME, osver, BUILD_INFO
+  );
+  return info;
+}
 
 // Solaris only: Get site-default timezone. This is called from
 // UpdateTimezone() when TZ environment variable is unset at startup.
