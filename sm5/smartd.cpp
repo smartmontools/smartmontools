@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.404 2008/04/18 18:24:04 aradford Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.405 2008/04/27 16:30:09 chrfranke Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.404 2008/04/18 18:24:04 aradford Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.405 2008/04/27 16:30:09 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1138,14 +1138,7 @@ void WritePidFile() {
 
 // Prints header identifying version of code and home
 void PrintHead(){
-#ifdef HAVE_GET_OS_VERSION_STR
-  const char * ver = get_os_version_str();
-#else
-  const char * ver = SMARTMONTOOLS_BUILD_HOST;
-#endif
-  PrintOut(LOG_INFO,"smartd version %s [%s] Copyright (C) 2002-8 Bruce Allen\n", PACKAGE_VERSION, ver);
-  PrintOut(LOG_INFO,"Home page is " PACKAGE_HOMEPAGE "\n\n");
-  return;
+  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd"));
 }
 
 // prints help info for configuration file Directives

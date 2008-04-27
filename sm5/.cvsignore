@@ -23,6 +23,7 @@ config.sub
 configure
 core
 cvs-script
+cvsversion.h
 depcomp
 install-sh
 missing

@@ -25,11 +25,14 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.53 2008/04/11 20:09:15 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.54 2008/04/27 16:30:09 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
+
+// Make version information string
+const char *format_version_info(const char *prog_name);
 
 #ifndef HAVE_WORKING_SNPRINTF
 // Substitute by safe replacement functions
