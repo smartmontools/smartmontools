@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.680 2008/04/27 16:30:09 chrfranke Exp $
+$Id: CHANGELOG,v 1.681 2008/04/30 18:01:57 mat-c Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -63,7 +63,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        thus enabling it to work with RAID controllers that expose disks
        via these devices.  From scottl@ via FreeBSD ports.
 
-  [MC] Add atacb device support for smartctl.
+  [MC] Add usbcypress device support for smartctl.
 
   [KS] INSTALL on Solaris: updated description to use C++ compiler.
 

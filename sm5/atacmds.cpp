@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.193 2008/04/11 20:09:14 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.194 2008/04/30 17:59:40 mat-c Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -632,8 +632,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
   case CONTROLLER_SAT:
     retval=sat_command_interface(device, command, select, data);
     break;
-  case CONTROLLER_ATACB:
-    retval=atacb_command_interface(device, command, select, data);
+  case CONTROLLER_USBCYPRESS:
+    retval=usbcypress_command_interface(device, command, select, data);
     break;
   case CONTROLLER_HPT:
     retval=highpoint_command_interface(device, command, select, data);

@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.55 2008/03/23 22:52:55 mat-c Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.56 2008/04/30 17:59:40 mat-c Exp $\n"
 
 // Possible values for fixfirmwarebug.  If user has NOT specified -F at
 // all, then value is 0.
@@ -105,8 +105,8 @@ typedef struct smartmonctrl_s {
   unsigned char controller_port;
   // combined controller/channle/pmport for highpoint rocketraid controller
   unsigned char hpt_data[3];
-  // atacb scsi command
-  unsigned char atacb_signature;
+  // usbcypress scsi command
+  unsigned char usbcypress_signature;
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
