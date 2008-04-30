@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.54 2008/04/27 16:30:09 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.55 2008/04/30 17:59:40 mat-c Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -198,6 +198,6 @@ void MsecToText(unsigned int msec, char *txt);
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS		0x10  // CCISS controller 
 #define CONTROLLER_PARSEDEV             0x11  // "smartctl -r ataioctl,2 ..." output parser pseudo-device
-#define CONTROLLER_ATACB		0x12 //ata device behind cypress usb bridge
+#define CONTROLLER_USBCYPRESS		0x12 //ata device behind cypress usb bridge
 
 #endif

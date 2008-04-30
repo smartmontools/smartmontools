@@ -62,7 +62,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.176 2008/04/27 16:30:09 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.177 2008/04/30 17:59:40 mat-c Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -395,10 +395,10 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"marvell")) {
         con->controller_type = CONTROLLER_MARVELL_SATA;
         con->controller_port = 0;
-      } else if (!strncmp(optarg, "atacb", 5)) {
-        con->controller_type = CONTROLLER_ATACB;
+      } else if (!strncmp(optarg, "usbcypress", 5)) {
+        con->controller_type = CONTROLLER_USBCYPRESS;
         con->controller_port = 0;
-        con->atacb_signature = 0x24;
+        con->usbcypress_signature = 0x24;
         if (strlen(optarg) > 5) {
           int k;
           char * cp;
@@ -406,9 +406,9 @@ void ParseOpts (int argc, char** argv){
           cp = strchr(optarg, ',');
           if (cp && (1 == sscanf(cp + 1, "0x%x", &k)) &&
               ((0 <= k) && (0xff >= k)))
-            con->atacb_signature = k;
+            con->usbcypress_signature = k;
           else {
-            sprintf(extraerror, "Option '-d atacb,<n>' requires <n> to be "
+            sprintf(extraerror, "Option '-d usbcypress,<n>' requires <n> to be "
                     "an hexadecimal number between 0x0 and 0xff\n");
             badarg = TRUE;
           }
@@ -1008,7 +1008,7 @@ int main_worker(int argc, char **argv)
   switch (con->controller_type) {
   case CONTROLLER_SCSI:
   case CONTROLLER_SAT:
-  case CONTROLLER_ATACB:
+  case CONTROLLER_USBCYPRESS:
     mode="SCSI";
     break;
   case CONTROLLER_3WARE_9000_CHAR:
@@ -1054,7 +1054,7 @@ int main_worker(int argc, char **argv)
   case CONTROLLER_SCSI:
     retval = scsiPrintMain(fd);
     if ((0 == retval) && 
-			(CONTROLLER_SAT == con->controller_type) || (CONTROLLER_ATACB == con->controller_type))
+			(CONTROLLER_SAT == con->controller_type) || (CONTROLLER_USBCYPRESS == con->controller_type))
         retval = ataPrintMain(fd);
     break;
   case CONTROLLER_CCISS:

@@ -45,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.9 2008/03/23 22:52:55 mat-c Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.10 2008/04/30 17:59:40 mat-c Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -453,12 +453,12 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
 }
 
 /* see cy7c68300c_8.pdf for more information */
-#define ATACB_PASSTHROUGH_LEN 16
-int atacb_command_interface(int device, smart_command_set command, int select,
+#define USBCYPRESS_PASSTHROUGH_LEN 16
+int usbcypress_command_interface(int device, smart_command_set command, int select,
                           char *data)
 {
     struct scsi_cmnd_io io_hdr;
-    unsigned char cdb[ATACB_PASSTHROUGH_LEN];
+    unsigned char cdb[USBCYPRESS_PASSTHROUGH_LEN];
     unsigned char sense[32];
     int status;
     int copydata = 0;
@@ -474,7 +474,7 @@ int atacb_command_interface(int device, smart_command_set command, int select,
     int lba_low = 0;
     int lba_mid = 0;
     int lba_high = 0;
-    int passthru_size = ATACB_PASSTHROUGH_LEN;
+    int passthru_size = USBCYPRESS_PASSTHROUGH_LEN;
 
     memset(cdb, 0, sizeof(cdb));
     memset(sense, 0, sizeof(sense));
@@ -575,7 +575,7 @@ int atacb_command_interface(int device, smart_command_set command, int select,
         lba_high = 0xc2;
     }
 
-    cdb[0] = con->atacb_signature; // bVSCBSignature : vendor-specific command
+    cdb[0] = con->usbcypress_signature; // bVSCBSignature : vendor-specific command
     cdb[1] = 0x24; // bVSCBSubCommand : 0x24 for ATACB
     cdb[2] = 0x0;
     if (ata_command == ATA_IDENTIFY_DEVICE || ata_command == ATA_IDENTIFY_PACKET_DEVICE)
@@ -621,7 +621,7 @@ int atacb_command_interface(int device, smart_command_set command, int select,
     }
 
     // if there is a sense the command failed or the
-    // device doesn't support atacb
+    // device doesn't support usbcypress
     if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
             sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
         return -1;
@@ -630,11 +630,11 @@ int atacb_command_interface(int device, smart_command_set command, int select,
         unsigned char ardp[8];
         int ard_len = 8;
         /* XXX this is racy if there other scsi command between
-         * the first atacb command and this one
+         * the first usbcypress command and this one
          */
         //pout("If you got strange result, please retry without traffic on the disc\n");
         /* we use the same command as before, but we set
-         * * the read taskfile bit, for not executing atacb command,
+         * * the read taskfile bit, for not executing usbcypress command,
          * * but reading register selected in srb->cmnd[4]
          */
         cdb[2] = (1<<0); /* ask read taskfile */
@@ -662,7 +662,7 @@ int atacb_command_interface(int device, smart_command_set command, int select,
             return -1;
         }
         // if there is a sense the command failed or the
-        // device doesn't support atacb
+        // device doesn't support usbcypress
         if (io_hdr.scsi_status == SCSI_STATUS_CHECK_CONDITION && 
                 sg_scsi_normalize_sense(io_hdr.sensep, io_hdr.resp_sense_len, NULL)) {
             return -1;
