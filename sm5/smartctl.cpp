@@ -62,7 +62,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.177 2008/04/30 17:59:40 mat-c Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.178 2008/04/30 18:53:28 mat-c Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -395,11 +395,11 @@ void ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg,"marvell")) {
         con->controller_type = CONTROLLER_MARVELL_SATA;
         con->controller_port = 0;
-      } else if (!strncmp(optarg, "usbcypress", 5)) {
+      } else if (!strncmp(optarg, "usbcypress", 10)) {
         con->controller_type = CONTROLLER_USBCYPRESS;
         con->controller_port = 0;
         con->usbcypress_signature = 0x24;
-        if (strlen(optarg) > 5) {
+        if (strlen(optarg) > 10) {
           int k;
           char * cp;
 
