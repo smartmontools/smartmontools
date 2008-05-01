@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools Documentation Page (last updated $Date: 2008/04/29 19:26:41 $)</title>
+ <title>smartmontools Documentation Page (last updated $Date: 2008/05/01 11:28:12 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Documentation Page" />
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: doc.html,v 1.9 2008/04/29 19:26:41 dipohl Exp $ -->
+<!-- $Id: doc.html,v 1.10 2008/05/01 11:28:12 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools Documentation Page</h1>
@@ -45,8 +45,6 @@ where you find information concerning more specific issues.</p>
     <li><a href="#attributes">SMART attributes</a></li>
     <li><a href="#tutorials">Tutorials and articles</a> about smartmontools</li>
     <li><a href="links.html#references">References on SMART and ATA/ATAPI standards</a></li>
-    <li>Smartmontools for <a href="#testinghelp">FireWire, USB, and SATA disks/systems</a></li>
-    <li>Smartmontools for <a href="#scsi">SCSI disks and tapes (TapeAlert)</a></li>
 </ul>
 </div>
 <div>
@@ -110,87 +108,6 @@ from <a href="http://www.linux-user.de/ausgabe/2004/10"><img src="pics/linkext.g
 <a href="http://sv.wikipedia.org/wiki/S.M.A.R.T."><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Svenska</a>
 </li>
 </ul>
-<hr />
-
-<h3><a name="testinghelp"></a>Smartmontools for FireWire, USB, and SATA disks/systems</h3>
-<p>As for USB and FireWire (IEEE 1394) disks and tape drives, the news
-is not good. They appear to the operating system as SCSI devices but their
-implementations do not usually support those SCSI commands needed by
-smartmontools. A consortium associated with IEEE 1394 certified <em>some</em> external enclosures
-(containing a ATA disk and a protocol bridge) as being compliant to the relevant
-standards. Even still, that compliance means that they tend to only
-support the bare minimum of commands
-needed for device operation (i.e. SMART support is an unsupported
-extra). Hopefully external USB and Firewire devices will support SAT in
-the future, see below. Some USB device based on cypress chips support a
-proprietary protocol (ATACB) that allow to send raw ATA commands (i.e.
-SMART support).</p>
-
-<p>Smartmontools should work correctly with SATA drives under both
-Linux 2.4 and 2.6 kernels. Depending on which subsystem the SATA
-controller is in (i.e. <span class="code">drivers/ide</span>,
-<span  class="code">drivers/ata</span> or libata
-(under <span  class="code">drivers/scsi</span>) a
-SATA drive will appear as <span class="code">/dev/hd*</span>
-or <span  class="code">/dev/sd*</span>. Either way,
-smartmontools should be able to figure out what is going on and act
-accordingly. In some cases smartmontools may need a hint in the form of
-a '<span  class="code">-d sat</span>' or '<span
-  class="code">-d ata</span>' option on the <tt>smartctl</tt> command line or in the
-<tt>/etc/smartd.conf</tt> file.
-There may be a hint to add one of those options in the log file when <tt>smartd</tt> is run as a daemon or on
-the command line with <tt>smartctl</tt>.
-The '<span  class="code">-d ata</span>' option means
-that even though the drive has a SCSI device name, treat it as an ATA
-disk. Unfortunately such an approach doesn't often work. The next
-paragraph has more information about '<span  class="code">-d sat</span>'.</p>
-
-<p>The SCSI to ATA Translation (SAT) standard (ANSI INCITS 431-2007)
-may solve many problems in this area. It defines how SCSI commands will
-be translated to the corresponding ATA commands and defines a
-pass-through mechanism. ATA commands are conveyed natively by two
-transports: parallel and serial ATA. SCSI commands can be
-conveyed by many transports: the veteran SCSI Parallel Interface
-(SPI), Fibre Channel (FC), Infiniband (SRP), Serial
-Attached SCSI (SAS), IP (iSCSI and iSER), USB (mass storage), and IEEE
-1394 (SBP) to name some. Due to their cost and storage capacity, more
-and more ATA disks (especially SATA disks) are appearing "behind" a
-SCSI transport. This is especially true of the SAS transport which can
-painlessly accomodate both SAS and SATA disks. Enter another acronym:
-SATL which stands for SCSI to ATA Translation Layer. In Linux libata
-has a SATL in it. Some SAS host bus adapters have a SATL in their
-firmware. FC might have a SATL in a switch. Perhaps in the future USB
-and IEEE 1394 enclosures will have a SATL in them. Starting from
-smartmontools versions 5.36 and 5.37, no matter where a SATL is,
-irrespective of the operating system in use, the user should have less
-problems with ATA disks, no matter which transport is involved. As
-always, it helps to know a little of what is happening under the
-covers. The '<span class="code">-d sat</span>'
-option instructs <tt>smartctl</tt>
-and <tt>smartd</tt> to assume a
-SATL is in place and act accordingly. The <tt>smartctl</tt> command can often
-detect a SATL and autoconfigure while in smartmontools version 5.37 <tt>smartd</tt> often needs a hint.</p>
-
-<p>The current USB mass storage specification is based on a version of SCSI
-(SPC-2) that can't support SAT. But some chips manufacturers implement
-proprietary SCSI commands that allow ATA pass through (similiar like for SAT).
-Well known is the cypress chipset, that contains an ATACB proprietary pass through
-(for ATA commands passed through SCSI commands) for which
-<a href="http://download.cypress.com.edgesuite.net/design_resources/datasheets/contents/cy7c68300c_8.pdf" target="_blank">
-<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />some
-information is publicly available <img src="pics/datei16x16-pdf01.gif" width="16" height="16" border="0" alt="PDF" /></a>.
-Smartmontools CVS version support
-these cypress chips via the '<tt>-d usbcypress</tt>' option on the smartctl
-command line. There is no autodetection at the moment. If you want to know,
-wether your device supports it, check your device usb id (most
-cypress usb ata bridge got <tt>vid=0x04b4</tt>, <tt>pid=0x6830</tt>) or to try to call <tt>smartctl</tt>
-with option '<tt>-d usbcypress</tt>'. If the usb device doesn't support ATACB, smartmontools will abort.</p>
-<hr />
-
-<h3><a name="scsi"></a>Smartmontools for SCSI disks and tapes (TapeAlert)</h3>
-
-<p>Smartmontools for SCSI disks and tapes (including medium changers) is
-discussed on a separate <a href="smartmontools_scsi.html" target="_blank">page</a>.</p>
 </div>
 <hr style="clear:left" />
 <div align="center">
@@ -200,7 +117,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2008/04/29 19:26:41 $</font><br />
+Last update: $Date: 2008/05/01 11:28:12 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdoc.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
