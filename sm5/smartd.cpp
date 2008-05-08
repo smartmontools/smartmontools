@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.405 2008/04/27 16:30:09 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.406 2008/05/08 21:56:49 mat-c Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.405 2008/04/27 16:30:09 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.406 2008/05/08 21:56:49 mat-c Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -772,6 +772,10 @@ void MailWarning(cfgfile *cfg, int which, const char *fmt, ...){
         *s=' ';
     }
     break;
+  case CONTROLLER_USBCYPRESS:
+    exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "usbcypress");
+    exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+    break;
   }
 
   snprintf(fullmessage, 1024,
@@ -1344,6 +1348,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   case CONTROLLER_3WARE_678K:
   case CONTROLLER_MARVELL_SATA:
   case CONTROLLER_HPT:
+  case CONTROLLER_USBCYPRESS:
   case CONTROLLER_UNKNOWN:
     mode="ATA";
     break;
@@ -1377,6 +1382,7 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
   con->controller_explicit=cfg->controller_explicit;
   con->fixfirmwarebug = cfg->fixfirmwarebug;
   con->satpassthrulen = cfg->satpassthrulen;
+  con->usbcypress_signature = cfg->usbcypress_signature;
   
   // Get drive identity structure
   if ((retid=ataReadHDIdentity (fd,&drive))){
@@ -3027,6 +3033,24 @@ int ParseToken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "marvell")) {
       cfg->controller_port =0;
       cfg->controller_type = CONTROLLER_MARVELL_SATA;
+    } else if (!strncmp(arg, "usbcypress", 10)) {
+      cfg->controller_type = CONTROLLER_USBCYPRESS;
+      cfg->controller_port = 0;
+      cfg->usbcypress_signature = 0x24;
+      if (strlen(arg) > 10) {
+        int k;
+        char * cp;
+
+        cp = strchr(arg, ',');
+        if (cp && (1 == sscanf(cp + 1, "0x%x", &k)) &&
+            ((0 <= k) && (0xff >= k)))
+          cfg->usbcypress_signature = k;
+        else {
+          PrintOut(LOG_CRIT, "Option '-d usbcypress,<n>' requires <n> to be "
+              "an hexadecimal number between 0x0 and 0xff\n");
+          badarg = 1;
+        }
+      }
     } else if (!strncmp(arg, "sat", 3)) {
       cfg->controller_type = CONTROLLER_SAT;
       cfg->controller_port = 0;

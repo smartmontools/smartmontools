@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.86 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.87 2008/05/08 21:56:49 mat-c Exp $\n"
 #endif
 
 // Configuration file
@@ -173,6 +173,7 @@ typedef struct configfile_s {
   unsigned char controller_port;          // 1 + (disk number in controller). 0 means controller only handles one disk.
   unsigned char hpt_data[3];              // combined controller/channle/pmport for highpoint rocketraid controller
   unsigned char satpassthrulen;           // length of SAT ata pass through scsi commands (12, 16 or 0 (platform choice))
+  unsigned char usbcypress_signature;     // usbcypress scsi command
   char smartcheck;                        // Check SMART status
   char usagefailed;                       // Check for failed Usage Attributes
   char prefail;                           // Track changes in Prefail Attributes
