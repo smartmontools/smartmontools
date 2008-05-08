@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.681 2008/04/30 18:01:57 mat-c Exp $
+$Id: CHANGELOG,v 1.682 2008/05/08 21:56:49 mat-c Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -105,6 +105,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [BA] Fix ugly syntax bug in os_freebsd.cpp.  How did this go
        undetected for so long??
+
+  [MC] Add usbcypress device support for smartd.
 
 SMARTMONTOOLS STABLE RELEASE 5.38 2008/03/10
 
