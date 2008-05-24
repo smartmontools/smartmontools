@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.406 2008/05/08 21:56:49 mat-c Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.407 2008/05/24 11:21:53 chrfranke Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.406 2008/05/08 21:56:49 mat-c Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.407 2008/05/24 11:21:53 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3039,9 +3039,7 @@ int ParseToken(char *token,cfgfile *cfg){
       cfg->usbcypress_signature = 0x24;
       if (strlen(arg) > 10) {
         int k;
-        char * cp;
-
-        cp = strchr(arg, ',');
+        const char * cp = strchr(arg, ',');
         if (cp && (1 == sscanf(cp + 1, "0x%x", &k)) &&
             ((0 <= k) && (0xff >= k)))
           cfg->usbcypress_signature = k;
