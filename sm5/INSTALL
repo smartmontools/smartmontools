@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.76 2008/04/16 00:50:26 ballen4705 Exp $
+$Id: INSTALL,v 1.77 2008/05/24 11:43:08 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -469,7 +469,7 @@ To create a Windows installer, use:
 
   The installer is build using the command "makensis" from the NSIS
   package. See http://nsis.sourceforge.net/ for documentation and
-  download location. The install script was tested with NSIS 2.17.
+  download location.
 
 To both create and run the (interactive) installer, use:
 
@@ -484,16 +484,22 @@ To both create and run the (interactive) installer, use:
   or a native Win32 release of Info-ZIP, http://www.info-zip.org) are
   necessary but may be not installed by Cygwin's default settings.
 
-  It is also possible to compile smartmontools with MSVC 6.0.
-  The project files (smartmontools_vc6.dsw, smart{ctl,d}_vc6.dsp) are
-  included in CVS (but not in source tarball). The config_vc6.h is no
-  longer maintained in CVS. The command:
+To prepare os_win32 directory for MSVC8, use the following on Cygwin:
 
-  make config-vc6
+  mkdir vctmp && cd vctmp
+  ../configure --build=mingw32
+  make config-vc8
 
-  builds config_vc6.h from MinGW's config.h. Unlike MinGW, MSVC 6.0
-  can also be used to build the syslog message file tool syslogevt.exe.
-  See smartd man page for usage information about this tool.
+  The MSVC8 project files (os_win32/smartmontools_vc8.sln,
+  os_win32/smart{ctl,d}_vc8.vcproj) are included in CVS (but not in
+  source tarball). The target config-vc8 from a Makefile configured
+  for MinGW creates os_win32/{config,cvsversion}_vc8.h from
+  ./{config,cvsversion}.h. The configure skript must be run outside
+  of the source directory to avoid inclusion of the original config.h.
+
+  Unlike MinGW, MSVC can also be used to build the syslog message file
+  tool syslogevt.exe. See smartd man page for usage information about
+  this tool.
 
 
 [11] Guidelines for OS/2, eComStation

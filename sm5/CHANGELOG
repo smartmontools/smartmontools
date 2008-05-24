@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.683 2008/05/16 20:31:49 mat-c Exp $
+$Id: CHANGELOG,v 1.684 2008/05/24 11:43:07 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Add MSVC8 support, remove MSVC6 project files.
 
   [MC] Add usbcypress device support for smartd.
 
