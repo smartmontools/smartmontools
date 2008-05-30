@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.85 2008/05/24 11:43:08 chrfranke Exp $
+# $Id: Makefile.am,v 1.86 2008/05/30 19:35:04 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -8,8 +8,10 @@
 # Make sure .cpp takes precedence to avoid compiling old .c file
 SUFFIXES = .cpp .c .s .o
 
+# BUILD_INFO can be provided by package maintainers (see INSTALL file)
+BUILD_INFO= "(local build)"
 
-AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR=\"$(sysconfdir)\"
+AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' -DBUILD_INFO='$(BUILD_INFO)'
 
 sbin_PROGRAMS = smartd 	\
 		smartctl

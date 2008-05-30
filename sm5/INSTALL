@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.77 2008/05/24 11:43:08 chrfranke Exp $
+$Id: INSTALL,v 1.78 2008/05/30 19:35:04 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -262,6 +262,12 @@ Table of contents:
     environment variable CFLAGS='your options' before doing
     ./configure, or else do:
     make CFLAGS='your options'
+
+    The first output line of smartctl and smartd provides information
+    about release number, last CVS checkin date/time, platform, and
+    package. The latter defaults to "(local build)" and can be changed
+    by the variable BUILD_INFO, for example:
+    make BUILD_INFO='"(Debian 5.39-2)"'
 
 [4] Guidelines for different Linux distributions
 ================================================
