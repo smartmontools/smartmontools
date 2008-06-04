@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.35 2008/03/10 10:44:30 ballen4705 Exp $
+CVS ID: $Id: NEWS,v 1.36 2008/06/04 10:13:58 jhering Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
@@ -10,7 +10,7 @@ Summary: smartmontools release 5.38 (STABLE)
 --------------------------------------------
 This is a stable release of smartmontools.  In addition to changes
 below, it includes:
-
+ - now C++ Support for QNX Target, allready tested for QNX 6.3.2 on x86 and armle target
  - Libata/Marvell driver devices no longer need explicit '-d' switch
  - DEVICESCAN automatically detects libata/marvell driver SATA devices 
  - Fixed auto-offline/autosave support in FreeBSD
