@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.407 2008/05/24 11:21:53 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.408 2008/06/05 19:33:50 chrfranke Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.407 2008/05/24 11:21:53 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.408 2008/06/05 19:33:50 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3591,7 +3591,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
   
   // If we found 3ware/cciss controller, then modify device name by adding a SPACE
   if (cfg->controller_port) {
-    int len=17+strlen(cfg->name);
+    const int addlen = sizeof(" [3ware_disk_127]")-1;
+    int len = strlen(cfg->name) + addlen + 1;
     char *newname;
     
     if (devscan){
@@ -3613,7 +3614,7 @@ int ParseConfigLine(int entry, int lineno,char *line){
   
     cfg->name=CheckFree(cfg->name, __LINE__,filenameandversion);
     cfg->name=newname;
-    bytes+=16;
+    bytes += addlen;
   }
 
   if (cfg->hpt_data[0]) {

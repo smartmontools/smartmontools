@@ -1,28 +1,28 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.686 2008/06/04 10:13:57 jhering Exp $
+$Id: CHANGELOG,v 1.687 2008/06/05 19:33:50 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
 
 Maintainers / Developers Key:
 [BA] Bruce Allen
-[EB] Erik Inge Bolsï¿½
+[EB] Erik Inge Bolsø
 [SB] Stanislav Brabec
 [PC] Peter Cassidy
 [MC] Matthieu Castet
 [YD] Yuri Dario
 [CD] Casper Dik
 [CF] Christian Franke
-[GF] Guilhem Frï¿½zou
+[GF] Guilhem Frézou
 [DG] Douglas Gilbert
 [GG] Guido Guenther
 [GK] Geoff Keating
 [DK] Dr. David Kirkby
 [JH] Joerg Hering
-[KM] Kai Mï¿½kisara
+[KM] Kai Mäkisara
 [EM] Eduard Martinescu
-[FM] Frï¿½dï¿½ric L. W. Meunier
+[FM] Frédéric L. W. Meunier
 [KS] Keiji Sawada
 [DS] David Snyder
 [SS] Sergey Svishchev
@@ -37,8 +37,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Fix too small name buffer for 3ware with >100 devices.
+
   [JH] now C++ Support for QNX Target
-        allready tested for QNX 6.3.2 on x86 and armle target
+       already tested for QNX 6.3.2 on x86 and armle target
    
   [CF] Allow to set BUILD_INFO from make command line.
 
@@ -98,7 +100,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        descriptor.  The descriptor is otherwise leaked to other
        applications (mail sender) which may be considered a security
        risk and may result in AVC messages on SELinux-enabled systems.
-       Thanks to: Tomï¿½ Smetana" <tsmetana@redhat.com>.
+       Thanks to: Tomá Smetana" <tsmetana@redhat.com>.
 
   [BA] smartd: when sending email, to gather information about the
        host for the body of the email, eliminate gethostbyname()
@@ -107,7 +109,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        http://udrepper.livejournal.com/16116.html
        and here
        http://people.redhat.com/drepper/userapi-ipv6.html
-       Thanks to: Tomï¿½ Smetana" <tsmetana@redhat.com>.
+       Thanks to: Tomá Smetana" <tsmetana@redhat.com>.
 
        Smartmontools developers: please check that smartd still LINKS
        properly on your systems.
@@ -432,7 +434,7 @@ smartmontools 5.37 Experimental Release
        and T series.
 
   [GG] Add CCISS (Compaq Smart Array Controller) support with contributions
-       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frï¿½dï¿½ric
+       from Praveen Chidambaram, Douglas Gilbert, Guido Guenther and Frédéric
        BOITEUX
 
   [PW] Drive database: added Hitachi Deskstar T7K250 and Hitachi
