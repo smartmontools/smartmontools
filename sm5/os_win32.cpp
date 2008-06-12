@@ -44,7 +44,7 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.61 2008/03/04 22:09:47 ballen4705 Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.62 2008/06/12 21:46:31 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -2549,6 +2549,20 @@ static void pr_not_impl(const char * what, int * warned)
 		"\n", what
 	);
 	*warned = 1;
+}
+
+// Interface to ATA devices behind Areca RAID controller cards.  See os_linux.c
+int areca_command_interface(int /*fd*/, int disknum, smart_command_set /*command*/, int /*select*/, char * /*data*/)
+{
+	static int warned = 0;
+	if (!warned) {
+		pout("Option '-d areca,%d' does not work on Windows.\n"
+		     "Controller port can be specified in the device name: '/dev/hd%c,%d'.\n\n",
+			disknum, 'a'+ata_driveno, disknum);
+		warned = 1;
+	}
+	errno = ENOSYS;
+	return -1;
 }
 
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c

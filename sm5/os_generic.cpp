@@ -83,7 +83,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.26 2008/03/04 22:09:47 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.27 2008/06/12 21:46:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -267,6 +267,19 @@ int escalade_command_interface(int fd, int disknum, int controller_type, smart_c
   unsupported();
   return -1;
 }
+
+
+int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
+  ARGUSED(fd);
+  ARGUSED(disknum);
+  ARGUSED(command);
+  ARGUSED(select);
+  ARGUSED(data);
+
+  unsupported();
+  return -1;
+}
+
 
 #include <errno.h>
 // Interface to SCSI devices.  See os_linux.c

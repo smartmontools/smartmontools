@@ -31,7 +31,7 @@
 #include "os_os2.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.8 2008/03/04 22:09:47 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_os2.cpp,v 1.9 2008/06/12 21:46:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
@@ -539,6 +539,11 @@ int highpoint_command_interface(int fd, smart_command_set command, int select, c
 // that 0 <= disknum <= 15 specifies the ATA disk attached to the
 // controller.
 int escalade_command_interface(int fd, int disknum, int escalade_type, smart_command_set command, int select, char *data){
+  unsupported(2);
+  return -1;
+}
+
+int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
   unsupported(2);
   return -1;
 }

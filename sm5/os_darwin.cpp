@@ -44,7 +44,7 @@
 #include "os_darwin.h"
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.20 2008/03/04 22:09:47 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_darwin.cpp,v 1.21 2008/06/12 21:46:31 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // Print examples for smartctl.
@@ -434,6 +434,21 @@ int escalade_command_interface(int fd, int escalade_port, int escalade_type,
   data = data;
   return -1;
 }
+
+int areca_command_interface(int fd, int escalade_port, 
+			       smart_command_set command, int select,
+			       char *data)
+{
+  fd = fd;
+  escalade_port = escalade_port;
+  command = command;
+  select = select;
+  data = data;
+  return -1;
+}
+
+
+
 
 int marvell_command_interface(int fd, smart_command_set command,
 		      int select, char *data)
