@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.179 2008/06/04 10:13:58 jhering Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.180 2008/06/12 21:46:31 ballen4705 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -149,7 +149,7 @@ void Usage (void){
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
-"         Specify device type to one of: ata, scsi, marvell, sat, 3ware,N\n\n"
+"         Specify device type to one of: ata, scsi, marvell, sat, areca,N, 3ware,N\n\n"
 "  -T TYPE, --tolerance=TYPE                                           (ATA)\n"
 "         Tolerance: normal, conservative, permissive, verypermissive\n\n"
 "  -b TYPE, --badsum=TYPE                                              (ATA)\n"
@@ -163,7 +163,7 @@ void Usage (void){
   printf(
 "  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent,    (ATA)\n"
 "                                               noserial\n"
-"  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N\n"
+"  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N, areca,N\n"
 "  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA)\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n"
@@ -250,7 +250,7 @@ const char *getvalidarglist(char opt) {
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return "ata, scsi, marvell, sat, 3ware,N, hpt,L/M/N cciss,N";
+    return "ata, scsi, marvell, sat, areca,N, 3ware,N, hpt,L/M/N cciss,N";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -502,6 +502,21 @@ void ParseOpts (int argc, char** argv){
                  con->controller_port = i+1;
             }
  	    free(s);
+
+	} else if (!strncmp(s,"areca,",6)) {
+	    if (split_report_arg2(s, &i)) {
+	         sprintf(extraerror, "Option -d areca,N requires N to be a positive integer\n");
+	         badarg = TRUE;
+	    } else if (i<1 || i>24) {
+	         sprintf(extraerror, "Option -d areca,N (N=%d) must have 1 <= N <= 24\n", i);
+	         badarg = TRUE;
+	    } else {
+	       	 // NOTE: controller_port == disk number + 1
+	       	 con->controller_type = CONTROLLER_ARECA;
+	         con->controller_port = i+1;
+	    }
+	    free(s);
+
         } else if (!strncmp(s,"cciss,",6)) {
              if (split_report_arg2(s, &i)) {
                  sprintf(extraerror, "Option -d cciss,N requires N to be a non-negative integer\n");
@@ -1020,6 +1035,9 @@ int main_worker(int argc, char **argv)
     break;
   case CONTROLLER_CCISS:
     mode="CCISS";
+    break;
+  case CONTROLLER_ARECA:
+    mode="ATA_ARECA";
     break;
   default:
     mode="ATA";

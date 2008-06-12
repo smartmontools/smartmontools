@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.194 2008/04/30 17:59:40 mat-c Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.195 2008/06/12 21:46:31 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -625,6 +625,11 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
     retval=escalade_command_interface(device, con->controller_port-1, con->controller_type, command, select, data);
     if (retval &&  con->controller_port<=0)
       pout("WARNING: apparently missing '-d 3ware,N' disk specification\n");
+    break;
+  case CONTROLLER_ARECA:
+    retval=areca_command_interface(device, con->controller_port-1, command, select, data);
+    if (retval &&  con->controller_port<=0)
+      pout("WARNING: apparently missing '-d areca,N' disk specification\n");
     break;
   case CONTROLLER_MARVELL_SATA:
     retval=marvell_command_interface(device, command, select, data);

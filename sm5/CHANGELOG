@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.687 2008/06/05 19:33:50 chrfranke Exp $
+$Id: CHANGELOG,v 1.688 2008/06/12 21:46:31 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Starting to commit Areca code.  For now just smartctl.
+       More changes and documentation coming soon.
+       Need Areca firmware version 1.45 dated 10 June 2008 or later.
+       May need changes in opening /dev/sg and file locking.
 
   [CF] smartd: Fix too small name buffer for 3ware with >100 devices.
 

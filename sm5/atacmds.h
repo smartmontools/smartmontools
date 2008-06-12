@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.91 2008/03/17 21:50:32 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.92 2008/06/12 21:46:31 ballen4705 Exp $\n"
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -629,6 +629,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
 int marvell_command_interface(int device, smart_command_set command, int select, char *data);
 int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
+int areca_command_interface(int fd, int escalade_port, smart_command_set command, int select, char *data);
 
 // "smartctl -r ataioctl,2 ..." output parser pseudo-device
 int parsedev_open(const char * name);
