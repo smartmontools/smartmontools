@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2008   Hank Wu <hank.wu@areca.com.tw>
  *
  *  Parts of this file are derived from code that was
  *
@@ -82,9 +83,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.110 2008/06/12 21:46:31 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.111 2008/06/13 07:26:37 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.110 2008/06/12 21:46:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.111 2008/06/13 07:26:37 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -325,7 +326,7 @@ void print_smartctl_examples(){
 		  "  smartctl --all --device=hpt,1/1/3 /dev/sda\n"
 		  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
 		  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
-		  "  smartctl --all --device=areca,2 /dev/sg1\n"
+		  "  smartctl --all --device=areca,3 /dev/sg2\n"
 		  "          (Prints all SMART info for 3rd ATA disk on Areca RAID controller)\n"
 		  );
 #else
@@ -342,7 +343,7 @@ void print_smartctl_examples(){
 		  "  smartctl -a -d hpt,1/1/3 /dev/sda\n"
 		  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
 		  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
-		  "  smartctl -a -d areca,2 /dev/sg1\n"
+		  "  smartctl -a -d areca,3 /dev/sg2\n"
 		  "          (Prints all SMART info for 3rd ATA disk on Areca RAID controller)\n"
 		  );
 #endif
