@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Doug Gilbert <dougg@torque.net>
- * Copyright (C) 2008   Hank Wu <hank.wu@areca.com.tw>
+ * Copyright (C) 2008   Hank Wu <hank@areca.com.tw>
  *
  *  Parts of this file are derived from code that was
  *
@@ -83,9 +83,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.111 2008/06/13 07:26:37 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.112 2008/06/13 07:40:48 ballen4705 Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.111 2008/06/13 07:26:37 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.112 2008/06/13 07:40:48 ballen4705 Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
