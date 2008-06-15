@@ -20,7 +20,7 @@
 #ifndef SCSIATA_H_
 #define SCSIATA_H_
 
-#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.4 2008/04/30 17:59:40 mat-c Exp $\n"
+#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.5 2008/06/15 21:23:11 mat-c Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,6 +76,11 @@ extern const unsigned char * sg_scsi_sense_desc_find(
 
 extern int usbcypress_command_interface(int device, smart_command_set command,
                                  int select, char *data);
+/* Attempt an IDENTIFY DEVICE ATA command via USBCYPRESS when packet_interface
+   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
+   return 1, else 0 */
+extern int has_usbcypress_pass_through(int device,
+		char *manufacturer, char *product);
 
 #endif
 

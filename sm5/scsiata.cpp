@@ -37,7 +37,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
+#include "ataprint.h"
 #include "config.h"
 #include "int64.h"
 #include "extern.h"
@@ -45,7 +47,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.11 2008/06/15 17:44:08 mat-c Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.12 2008/06/15 21:23:11 mat-c Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -695,3 +697,56 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
     return 0;
 }
 
+static int isprint_string(const char *s)
+{
+    while (*s) {
+        if (isprint(*s) == 0)
+            return 0;
+        s++;
+    }
+    return 1;
+}
+/* Attempt an IDENTIFY DEVICE ATA or IDENTIFY PACKET DEVICE command
+   If successful return 1, else 0 */
+static int has_pass_through(int device, int controller_type,
+        char *manufacturer, char *product)
+{
+    struct ata_identify_device drive;
+    char model[40], serial[20], firm[8];
+    int old_type = con->controller_type;
+    int retid;
+
+    con->controller_type = controller_type;
+    /* issue the command and do a checksum if possible */
+    retid = ataReadHDIdentity(device,&drive);
+    con->controller_type = old_type;
+    if (retid < 0)
+        return 0;
+
+    /* check if model string match, revision doesn't work for me */
+    format_ata_string(model, (char *)drive.model,40);
+    if (*model == 0 || isprint_string(model) == 0)
+        return 0;
+
+    if (manufacturer && strncmp(manufacturer, model, 8))
+        pout("manufacturer doesn't match in pass_through test\n");
+    if (product &&
+            strlen(model) > 8 && strncmp(product, model+8, strlen(model)-8))
+        pout("product doesn't match in pass_through test\n");
+
+    /* check serial */
+    format_ata_string(serial, (char *)drive.serial_no,20);
+    if (isprint_string(serial) == 0)
+        return 0;
+    format_ata_string(firm, (char *)drive.fw_rev,8);
+    if (isprint_string(firm) == 0)
+        return 0;
+    return 1;
+}
+
+int has_usbcypress_pass_through(int device, char *manufacturer, char *product)
+{
+    con->usbcypress_signature = 0x24;
+    return has_pass_through(device, CONTROLLER_USBCYPRESS,
+            manufacturer, product);
+}

@@ -118,7 +118,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.408 2008/06/05 19:33:50 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.409 2008/06/15 21:23:12 mat-c Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +128,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.408 2008/06/05 19:33:50 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.409 2008/06/15 21:23:12 mat-c Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1677,6 +1677,11 @@ static int SCSIFilterKnown(int fd, char * device)
       PrintOut(LOG_INFO, "Device %s: using '-d sat' for ATA disk behind SAT layer.\n",
                device);
       return SCSIFK_SAT;
+    } else if ((avail_len >= 36) &&
+	       has_usbcypress_pass_through(fd, NULL, NULL)) {
+      PrintOut(LOG_INFO, "Device %s: using '-d usbcypress' for ATA disk behind USBCYPRESS layer.\n",
+               device);
+      return SCSIFK_USBCYPRESS;
     }
   }
   return SCSIFK_NORMAL;

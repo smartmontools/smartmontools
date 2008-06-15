@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.688 2008/06/12 21:46:31 ballen4705 Exp $
+$Id: CHANGELOG,v 1.689 2008/06/15 21:23:11 mat-c Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MC] usbcypress autodetection
 
   [BA] Starting to commit Areca code.  For now just smartctl.
        More changes and documentation coming soon.

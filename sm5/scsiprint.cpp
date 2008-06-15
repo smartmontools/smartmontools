@@ -42,7 +42,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.123 2008/04/11 20:09:15 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.124 2008/06/15 21:23:11 mat-c Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -1049,6 +1049,15 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
         pout("\nProbable ATA device behind a SAT layer\n"
              "Try an additional '-d ata' or '-d sat' argument.\n");
         return 2;
+    } else if ((0 == con->controller_explicit) &&
+               has_usbcypress_pass_through(device, manufacturer, product)) {
+        con->controller_type = CONTROLLER_USBCYPRESS;
+        if (con->reportscsiioctl > 0) {
+            PRINT_ON(con);
+            pout("Detected USBCYPRESS interface, switch to device type 'usbcypress'\n");
+            PRINT_OFF(con);
+        }
+	return 2;
     }
     if (! all)
         return 0;
