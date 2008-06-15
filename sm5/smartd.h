@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.87 2008/05/08 21:56:49 mat-c Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.88 2008/06/15 21:23:12 mat-c Exp $\n"
 #endif
 
 // Configuration file
@@ -309,6 +309,7 @@ export NJAMD_TRACE_LIBS=1
 #define SCSIFK_3WARE    11
 #define SCSIFK_SAT      12
 #define SCSIFK_MARVELL  13
+#define SCSIFK_USBCYPRESS  14
 
 // Make additions BEFORE this line.  The line is the end of
 // double-inclusion protection and should remain the final line.
