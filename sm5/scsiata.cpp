@@ -45,7 +45,7 @@
 #include "scsiata.h"
 #include "utility.h"
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.10 2008/04/30 17:59:40 mat-c Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.11 2008/06/15 17:44:08 mat-c Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -684,6 +684,8 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
             // We haven't gotten output that makes sense so
             // print out some debugging info
             syserror("Error SMART Status command failed");
+            pout("This may be due to a race in usbcypress\n");
+            pout("Retry without other disc access\n");
             pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
             pout("Values from ATA Return Descriptor are:\n");
             dStrHex((const char *)ardp, ard_len, 1);
