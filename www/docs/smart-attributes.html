@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools - S.M.A.R.T. Attributes (last updated $Date: 2008/07/05 14:52:13 $)</title>
+ <title>smartmontools - S.M.A.R.T. Attributes (last updated $Date: 2008/07/06 00:13:11 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools - S.M.A.R.T. Attributes" />
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="../css/style.css" />
 </head>
 <body>
-<!-- $Id: smart-attributes.html,v 1.1 2008/07/05 14:52:13 dipohl Exp $ -->
+<!-- $Id: smart-attributes.html,v 1.2 2008/07/06 00:13:11 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="../smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools - S.M.A.R.T. Attributes</h1>
@@ -49,17 +49,17 @@
 <h3><a name="intro"></a>Values and Threshholds</h3>
 
 <p>If a device supports the <i>Self-Monitoring, Analysis and Reporting Technology</i> (S.M.A.R.T.)
-it offers readable access to the attribute table. There you find the <tt>Raw Value</tt>, 
+it offers readable access to the attribute table. There you find the <tt>Raw Value</tt>,
 a <tt>Normalised Value</tt> and a <tt>Threshhold</tt> (set by the vendor) for each attribute,
 supported by that device.</p>
 
 <p class="marked">What about Field "Worst"? I didn't find it
-mentioned here: 
+mentioned here:
 <a href="http://www.t13.org/Documents/UploadedDocuments/docs2005/e05148r0-ACS-SMARTAttributesAnnex.pdf">http://www.t13.org/Documents/UploadedDocuments/docs2005/e05148r0-ACS-SMARTAttributesAnnex.pdf</a></p>
 
 <p>The meaning and handling of the <tt>Raw Value</tt> is a <i>secret</i> of the vendors
 embedded S.M.A.R.T.-Software on the disk. The only relevant info from our external view
-is the <tt>Normalised Value</tt> in comparison with the <tt>Threshhold</tt>. 
+is the <tt>Normalised Value</tt> in comparison with the <tt>Threshhold</tt>.
 If the attribute value is greater than or equal to the threshhold, the attribute signals
 its failure and the <tt>Health Status</tt> of the device will switch from <tt>Passed</tt> to
 <tt>Failed</tt>. Depending on your systems configuration, you will get a warning.</p>
@@ -68,252 +68,522 @@ its failure and the <tt>Health Status</tt> of the device will switch from <tt>Pa
 
 <table border="1">
 	<tr>
-		<th rowspan="2">ID#</th>
-		<th rowspan="2">Name</th>
-		<th rowspan="2">Description</th>
-		<th colspan="6">Supporting Vendors<sup><a href="#footnote1">1</a></sup></th>
+		<th rowspan="2" bgcolor="Lavender">ID#</th>
+		<th rowspan="2" bgcolor="Lavender">Name</th>
+		<th rowspan="2" bgcolor="Lavender">Description</th>
+		<th colspan="6" bgcolor="Lavender">Supporting Vendors<sup><a href="#footnote1">1</a></sup></th>
 	</tr>
 	<tr>
-		<th>Fujitsu</th>
-		<th>IBM<br />(Hitachi)</th>
-		<th>Maxtor</th>
-		<th>Samsung</th>
-		<th>Seagate</th>
-		<th>Western<br />Digital</th>
+		<th bgcolor="Azure">Fujitsu</th>
+		<th bgcolor="AntiqueWhite">IBM<br />(Hitachi)</th>
+		<th bgcolor="Azure">Maxtor</th>
+		<th bgcolor="AntiqueWhite">Samsung</th>
+		<th bgcolor="Azure">Seagate</th>
+		<th bgcolor="AntiqueWhite">Western<br />Digital</th>
 	</tr>
 	<tr>
 		<td>1</td>
 		<td><tt>Raw Read Error Rate</tt></td>
 		<td>Frequency of errors while reading raw data from a disk.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>2</td>
 		<td><tt>Throughput Performance</tt></td>
 		<td>Average efficiency of a hard disk.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">-</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">-</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>3</td>
 		<td><tt>Spin Up Time</tt></td>
 		<td>Time needed by spindle to spin-up.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>4</td>
 		<td><tt>Start/Stop Count</tt></td>
 		<td>Number of start/stop cycles of spindle.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>5</td>
 		<td><tt>Reallocated Sector Count</tt></td>
 		<td>Quantity of remapped sectors.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>6</td>
 		<td><tt>Start/Stop Count</tt></td>
 		<td>Number of start/stop cycles of spindle.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>7</td>
 		<td><tt>Seek Error Rate</tt></td>
 		<td>Frequency of errors appearance while positioning.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>8</td>
 		<td><tt>Seek Time Performance</tt></td>
 		<td>The average efficiency of operations while positioning.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>9</td>
 		<td><tt>Power-On Hours Count</tt></td>
 		<td>Quantity of elapsed hours in the switched-on state.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>10</td>
 		<td><tt>Spin-up Retry Count</tt></td>
 		<td>Number of retry attempts, that were needed to reach the operational speed of the spindle.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>11</td>
 		<td><tt>Calibration Retry Count</tt></td>
 		<td>Number of attempts to calibrate a drive.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>12</td>
 		<td><tt>Power Cycle Count</tt></td>
 		<td>Number of complete power on/off cycles of hard disk.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
-		<td>13</td>
+		<td>13<br /><span class="marked">(201?)</span></td>
 		<td><tt>Soft Read Error Rate</tt></td>
 		<td>Frequency of <i>program</i> errors appearance while reading data from a disk.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>191<br /><span class="marked">(221?)</span></td>
 		<td><tt>G-Sense Error Rate</tt></td>
 		<td>Frequency of mistakes as a result of impact loads <span class="marked">as detected by a shock sensor(?)</span>.</td>
-		<td align="center">-</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">-</td> <!-- Maxtor -->
-		<td align="center">-</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">-</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">-</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">-</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">-</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">-</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>192<br /><span class="marked">(228?)</span></td>
 		<td><tt>Power-Off Retract Cycle</tt></td>
 		<td>Number of power-off cycles (Fujitsu: Emergency Retract Cycle Count).</td>
-		<td align="center">?</td> <!-- Fujitsu -->
-		<td align="center">?</td> <!-- IBM (Hitachi) -->
-		<td align="center">?</td> <!-- Maxtor -->
-		<td align="center">?</td> <!-- Samsung -->
-		<td align="center">?</td> <!-- Seagate -->
-		<td align="center">?</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
 	</tr>
 	<tr>
-		<td>193</td>
+		<td>193<br /><span class="marked">(225?)</span></td>
 		<td><tt>Load/Unload Cycle Count</tt></td>
 		<td>Number of cycles into <i>Landing Zone</i> position.</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>194</td>
 		<td><tt>HDA Temperature</tt></td>
 		<td>Temperature of a Hard Disk Assembly.</td>
-		<td align="center">not<br />all</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">not<br />all</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">not<br />all</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">not<br />all</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>195</span></td>
 		<td><tt>Hardware ECC Recovered</tt></td>
 		<td>Frequency of the on the fly errors (Fujitsu: ECC On The Fly Count).</td>
-		<td align="center">?</td> <!-- Fujitsu -->
-		<td align="center">?</td> <!-- IBM (Hitachi) -->
-		<td align="center">?</td> <!-- Maxtor -->
-		<td align="center">?</td> <!-- Samsung -->
-		<td align="center">?</td> <!-- Seagate -->
-		<td align="center">?</td> <!-- Western Digital -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>196</span></td>
 		<td><tt>Reallocated Event Count</tt></td>
-		<td>Quantity of remap operations. That means replacing a bad sector by one from the spare area.</td>
-		<td align="center">not<br />all</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">not<br />all</td> <!-- Western Digital -->
+		<td>Number of remap operations. That means replacing a bad sector by one from the spare area.</td>
+		<td align="center" bgcolor="Azure">not<br />all</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">not<br />all</td> <!-- Western Digital -->
 	</tr>
 	<tr>
 		<td>197</span></td>
 		<td><tt>Current Pending Sector Count</tt></td>
-		<td>Current quantity of unstable sectors (waiting for remapping).</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td>Current number of unstable sectors (waiting for remapping).</td>
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
 	</tr>
 	<tr>
-		<td>..</span></td>
-		<td><tt>..</tt></td>
-		<td>..</td>
-		<td align="center">x</td> <!-- Fujitsu -->
-		<td align="center">x</td> <!-- IBM (Hitachi) -->
-		<td align="center">x</td> <!-- Maxtor -->
-		<td align="center">x</td> <!-- Samsung -->
-		<td align="center">x</td> <!-- Seagate -->
-		<td align="center">x</td> <!-- Western Digital -->
+		<td>198</span></td>
+		<td><tt>Offline Scan Uncorrectable Count</tt></td>
+		<td>Number of uncorrected errors.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>199</span></td>
+		<td><tt>UltraDMA CRC Error Rate</tt></td>
+		<td>Total number of errors CRC during UltraDMA mode.</td>
+		<td align="center" bgcolor="Azure">not<br />all</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">not<br />all</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>200</span></td>
+		<td><tt>Write Error Rate</tt></td>
+		<td>Number of errors while writing to disk
+                 <span class="marked">(or) flying height (?)</span>
+                 (Western Digital: Multi Zone Error Rate).</td>
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>201<br /><span class="marked">(13?)</span></td>
+		<td><tt>Soft Read Error Rate</tt></td>
+		<td>Frequency of the off track errors (Maxtor: Off Track Errors).</td>
+		<td align="center" bgcolor="Azure">x</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">x</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">x</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>202</td>
+		<td><tt>Data Address Mark Errors</tt></td>
+		<td>Number of Data Address Mark (DAM) errors (or) vendor-specific.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>203</td>
+		<td><tt>Run Out Cancel</tt></td>
+		<td>Number of the ECC errors (Maxtor: ECC Errors).</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>204</td>
+		<td><tt>Soft ECC Correction</tt></td>
+		<td>Quantity of errors corrected by software ECC.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>205</td>
+		<td><tt>Thermal Asperity Rate (TAR)</tt></td>
+		<td>Frequency of the thermal asperity errors.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>206</td>
+		<td><tt>Flying Height</tt></td>
+		<td>The height of the disk heads above the disk surface.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>207</td>
+		<td><tt>Spin High Current</tt></td>
+		<td>Amount of high current used to spin up the drive.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>208</td>
+		<td><tt>Spin Buzz</tt></td>
+		<td>Number of buzz routines to spin up the drive.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>209</td>
+		<td><tt>Offline Seek Performance</tt></td>
+		<td>Drive's seek performance during offline operations.<br />
+                 <span class="marked">(Relation to Seek Time Performance - #8?)</span></td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>220</td>
+		<td><tt>Disk Shift</tt></td>
+		<td>Shift of disk is possible as a result of strong shock
+                 loading in the store, as a result of it's falling or for
+                 other reasons (sometimes: Temperature)</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>221<br /><span class="marked">(191?)</span></td>
+		<td><tt>G-Sense Error Rate</tt></td>
+		<td>Number of errors as a result of impact loads as detected
+                 by a shock sensor.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>222</td>
+		<td><tt>Loaded Hours</tt></td>
+		<td>Number of hours in general operational state.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>223</td>
+		<td><tt>Load/Unload Retry Count</tt></td>
+		<td>Loading on drive caused by numerous recurrences of operations,
+                 like reading, recording, positioning of heads, etc.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>224</td>
+		<td><tt>Load Friction</tt></td>
+		<td>Load on drive caused by friction in mechanical parts of the store.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>225<span class="marked">(193?)</span></td>
+		<td><tt>Load/Unload Cycle Count</tt></td>
+		<td>Total number of load cycles.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>226</td>
+		<td><tt>Load-in Time</tt></td>
+		<td>General time of loading for drive.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>227</td>
+		<td><tt>Torque Amplification Count</tt></td>
+		<td>Quantity efforts of the rotating moment of a drive.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>228</td>
+		<td><tt>Power-Off Retract Count</tt></td>
+		<td>Number of power-off retract events. Shows how many times the drive was powered down.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>230</td>
+		<td><tt>GMR Head Amplitude</tt></td>
+		<td>Amplitude of heads trembling (GMR-head) in running mode.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>231<br /><span class="marked">(194?)</span></td>
+		<td><tt>Temperature</tt></td>
+		<td>Temperature of a drive.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>240</td>
+		<td><tt>Head Flying Hours</tt></td>
+		<td>Time while head is positioning.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
+	</tr>
+	<tr>
+		<td>250</td>
+		<td><tt>Read Error Retry Rate</tt></td>
+		<td>Number of errors while reading from a disk.</td>
+		<td align="center" bgcolor="Azure">?</td> <!-- Fujitsu -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- IBM (Hitachi) -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Maxtor -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Samsung -->
+		<td align="center" bgcolor="Azure">?</td> <!-- Seagate -->
+		<td align="center" bgcolor="AntiqueWhite">?</td> <!-- Western Digital -->
 	</tr>
 
-	
 </table>
 
 <p>
@@ -329,7 +599,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2008 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2008/07/05 14:52:13 $</font><br />
+Last update: $Date: 2008/07/06 00:13:11 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdocs%2Fsmart-attributes.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
