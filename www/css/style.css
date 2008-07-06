@@ -1,5 +1,5 @@
 /*
-    $Id: style.css,v 1.8 2008/06/30 12:48:56 dipohl Exp $
+    $Id: style.css,v 1.9 2008/07/06 09:46:08 dipohl Exp $
 
     Lookup Table for Colors:
     blue: #3333FF
@@ -200,7 +200,7 @@ ul.Square {
 
 .marked { color: #FF0000; }
 
-.light { background: LightCyan; }
+.light { background: #E0FFFF; }
 
 .decent { color: #FF0000; }
 
