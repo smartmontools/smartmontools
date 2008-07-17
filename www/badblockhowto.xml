@@ -641,11 +641,13 @@ So it looks like we have the right (i.e. faulty) block address.
 <para>
 [Step 4] Try then to find the affected file
 <footnote><para>
-Do not use <command>tar cf /dev/null</command>, see
-<command>info tar</command>.
+Do not use <command>tar -c -f /dev/null</command> or
+<command>tar -cO /mydir >/dev/null</command>. GNU tar does not
+actually read the files if <filename>/dev/null</filename> is used as
+archive path or as standard output, see <command>info tar</command>.
 </para></footnote>:
 <programlisting>
-tar -cO /mydir >/dev/null
+tar -cO /mydir | cat >/dev/null
 </programlisting>
 If you do not find any unreadable files, then the block may be free or
 located in some metadata of the file system.
@@ -1207,7 +1209,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-CVS $Id: badblockhowto.xml,v 1.4 2007/01/31 13:56:32 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.5 2008/07/17 18:24:14 chrfranke Exp $
 </para>
 </sect3>
 </sect2>
@@ -1223,7 +1225,7 @@ dummy
 </para>
 
 <para>
-CVS $Id: badblockhowto.xml,v 1.4 2007/01/31 13:56:32 dpgilbert Exp $
+CVS $Id: badblockhowto.xml,v 1.5 2008/07/17 18:24:14 chrfranke Exp $
 </para>
 </sect1>
 </appendix>
