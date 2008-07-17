@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.690 2008/06/17 09:02:50 ballen4705 Exp $
+$Id: CHANGELOG,v 1.691 2008/07/17 23:37:15 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -36,6 +36,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Fixed selective self-test code.  Data structure revision number
+       may be != 1 if no selective self-test has ever been run.  Host
+       MUST set this value (at least at the first selective self-test
+       instance).  Thanks to Curtis Stevens of WDC for clarification.
 
   [MC] usbcypress autodetection
 
