@@ -36,7 +36,7 @@
 #include "extern.h"
 #include "utility.h"
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.195 2008/06/12 21:46:31 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.196 2008/07/17 23:37:15 ballen4705 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -986,7 +986,7 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
   }
   
   if (data->logversion != 1)
-    pout("SMART Selective Self-Test Log Data Structure Revision Number (%d) should be 1\n", data->logversion);
+    pout("Note: selective self-test log revision number (%d) not 1 implies that no selective self-test has ever been run\n", data->logversion);
   
   return 0;
 }
@@ -1008,19 +1008,8 @@ int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv, uint64
     return -1;
   }
   
-  // Fix logversion if needed
-  if (data->logversion !=1) {
-    if (!con->permissive) {
-      pout("Error SMART Selective Self-Test Log Data Structure Revision not recognized\n"
-           "Revision number should be 1 but is %d. To be safe, aborting WRITE LOG.\n"
-           "To fix revision number, add one '-T permissive' option.\n", data->logversion);
-      return -2;
-    }
-    con->permissive--;
-    pout("SMART Selective Self-Test Log Data Structure Revision should be 1 but is %d\n"
-         "'-T permissive' specified, now trying to fix it by WRITE LOG.\n", data->logversion);
-    data->logversion = 1;
-  }
+  // Set log version
+  data->logversion = 1;
 
   // Host is NOT allowed to write selective self-test log if a selective
   // self-test is in progress.
