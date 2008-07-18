@@ -6,6 +6,7 @@
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Doug Gilbert <dougg@torque.net>
  * Copyright (C) 2008   Hank Wu <hank@areca.com.tw>
+ * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
  *
  *  Parts of this file are derived from code that was
  *
@@ -57,6 +58,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <unistd.h>
 #ifndef makedev // old versions of types.h do not include sysmacros.h
 #include <sys/sysmacros.h>
@@ -83,9 +85,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.112 2008/06/13 07:40:48 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.113 2008/07/18 13:49:35 brevilo Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.112 2008/06/13 07:40:48 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.113 2008/07/18 13:49:35 brevilo Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -289,7 +291,60 @@ int deviceopen(const char *pathname, char *type){
     fd = open(pathname, O_RDWR | O_NONBLOCK);
   }
   else if (0 == strcmp(type, "ATA_ARECA")) {
-    fd = open(pathname, O_RDWR);
+    // SCSI generic devices support exclusive open (using O_EXCL).
+    // For usual files this is only supported during create (O_CREAT)
+    // but it's fine to use it while opening existing /dev/sg devices.
+    // (Please refer to: http://tldp.org/HOWTO/SCSI-Generic-HOWTO)
+
+    // Important: if you set O_NONBLOCK, any subsequent locking will
+    // be disabled, so just use it to test if an O_EXCL lock is already
+    // set for the device concerned! Again, you have to reopen the file
+    // without O_NONBLOCK or O_EXCL won't take effect!
+
+    // TODO: the checks and the following reopen should be made atomic!
+    // This could be done by Doug Gilbert by changing the semantics of
+    // O_NONBLOCK with regard to locking *after* opening the device...
+
+    // determine if an O_EXCL lock is set
+    fd = open(pathname, O_NONBLOCK, O_RDWR | O_EXCL);
+
+    if (-1 == fd && EBUSY == errno) {
+      // device is locked, show info and return
+      pout("The requested device is opened exclusively by another process!\n" \
+           "Please try again later...\n\n");
+    }
+    else if (0 < fd) {
+      // determine if a fcntl() lock is set
+      struct flock lock;
+      lock.l_type = F_WRLCK;
+      lock.l_whence = SEEK_SET;
+      lock.l_start = 0;
+      lock.l_len = 0;
+      lock.l_pid = 0;
+      fcntl(fd, F_GETLK, &lock);
+      if (F_UNLCK != lock.l_type && 0 != lock.l_pid) {
+        // device is locked, show info and return
+        pout("The requested device is locked by another process (PID %i)!\n" \
+             "Please try again later...\n\n", lock.l_pid);
+        close(fd);
+        return -1;
+      }
+
+      // determine if a flock() lock is set
+      int res = flock(fd, LOCK_EX | LOCK_NB);
+      if (-1 == res && EWOULDBLOCK == errno) {
+        // device is locked, show info and return
+        pout("The requested device is locked by another process!\n" \
+             "Please try again later...\n\n");
+        close(fd);
+        return -1;
+      }
+
+      // No locks found so far, go ahead and reopen in blocking mode
+      // (required because O_EXCL doesn't work when opened in non-blocking mode!)
+      close(fd);
+      fd = open(pathname, O_RDWR | O_EXCL);
+    }
   }
 
   if (fd != -1) {
@@ -1724,33 +1779,6 @@ int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data
 	return total;
 }
 
-int arcmsr_locker(int fd, int type)
-{
-    struct flock lock;
-
-	if (fd < 0)
-	{
-		return -1;
-	}
-
-	if(type != F_WRLCK && type != F_UNLCK)
-	{
-		return -1;
-	}
-
-	lock.l_type = type;
-	lock.l_whence  = 0;
-	lock.l_start = 0;
-	lock.l_len = 0;
-	lock.l_pid = getpid();
-	if ( fcntl(fd, F_SETLKW, &lock) < 0 )
-	{		
-		return -1;
-	}
-
-	return 0;
-}
-
 
 // Areca RAID Controller
 int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data)
@@ -1950,25 +1978,7 @@ int areca_command_interface(int fd, int disknum, smart_command_set command, int 
 	unsigned char return_buff[2048];
 	memset(return_buff, 0, sizeof(return_buff));
 
-#if 0
-        // #define SYNC_FILENAME   "/tmp/arcpassioctl"
-#define SYNC_FILENAME   "/dev/sg"
-
-	// the con->sg_number is the sg# for areca virtual controller
-	char buf[256];
-        int sg_num = con->sg_number;
-	memset(buf, 0, sizeof(buf));
-	sprintf(buf, "%s%d", SYNC_FILENAME, sg_num);
-	int lock_fd = open(buf, O_RDWR | O_CREAT);
-	if(lock_fd < 0)
-	{
-		return -1;
-	}
-	arcmsr_locker(lock_fd, F_WRLCK);
-#endif
-	arcmsr_locker(fd, F_WRLCK);
 	expected = arcmsr_command_handler(fd, ARCMSR_IOCTL_CLEAR_RQBUFFER, NULL, 0, NULL);
-
         if (expected==-3) {
 	    find_areca_in_proc(NULL);
 	    return -1;
@@ -1980,15 +1990,6 @@ int areca_command_interface(int fd, int disknum, smart_command_set command, int 
 	{
 		expected = arcmsr_command_handler(fd, ARCMSR_IOCTL_READ_RQBUFFER, return_buff, sizeof(return_buff), NULL);
 	}
-	arcmsr_locker(fd, F_UNLCK);
-
-#if 0
-	if(lock_fd)
-	{
-		close(lock_fd);
-	}
-#endif
-
 	if ( expected < 0 )
 	{
 		return -1;
