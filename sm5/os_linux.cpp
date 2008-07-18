@@ -85,9 +85,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.113 2008/07/18 13:49:35 brevilo Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.114 2008/07/18 16:24:41 brevilo Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.113 2008/07/18 13:49:35 brevilo Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.114 2008/07/18 16:24:41 brevilo Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -291,60 +291,13 @@ int deviceopen(const char *pathname, char *type){
     fd = open(pathname, O_RDWR | O_NONBLOCK);
   }
   else if (0 == strcmp(type, "ATA_ARECA")) {
-    // SCSI generic devices support exclusive open (using O_EXCL).
+    // SCSI Generic (sg) devices support exclusive open (using O_EXCL).
     // For usual files this is only supported during create (O_CREAT)
     // but it's fine to use it while opening existing /dev/sg devices.
     // (Please refer to: http://tldp.org/HOWTO/SCSI-Generic-HOWTO)
 
-    // Important: if you set O_NONBLOCK, any subsequent locking will
-    // be disabled, so just use it to test if an O_EXCL lock is already
-    // set for the device concerned! Again, you have to reopen the file
-    // without O_NONBLOCK or O_EXCL won't take effect!
-
-    // TODO: the checks and the following reopen should be made atomic!
-    // This could be done by Doug Gilbert by changing the semantics of
-    // O_NONBLOCK with regard to locking *after* opening the device...
-
-    // determine if an O_EXCL lock is set
-    fd = open(pathname, O_NONBLOCK, O_RDWR | O_EXCL);
-
-    if (-1 == fd && EBUSY == errno) {
-      // device is locked, show info and return
-      pout("The requested device is opened exclusively by another process!\n" \
-           "Please try again later...\n\n");
-    }
-    else if (0 < fd) {
-      // determine if a fcntl() lock is set
-      struct flock lock;
-      lock.l_type = F_WRLCK;
-      lock.l_whence = SEEK_SET;
-      lock.l_start = 0;
-      lock.l_len = 0;
-      lock.l_pid = 0;
-      fcntl(fd, F_GETLK, &lock);
-      if (F_UNLCK != lock.l_type && 0 != lock.l_pid) {
-        // device is locked, show info and return
-        pout("The requested device is locked by another process (PID %i)!\n" \
-             "Please try again later...\n\n", lock.l_pid);
-        close(fd);
-        return -1;
-      }
-
-      // determine if a flock() lock is set
-      int res = flock(fd, LOCK_EX | LOCK_NB);
-      if (-1 == res && EWOULDBLOCK == errno) {
-        // device is locked, show info and return
-        pout("The requested device is locked by another process!\n" \
-             "Please try again later...\n\n");
-        close(fd);
-        return -1;
-      }
-
-      // No locks found so far, go ahead and reopen in blocking mode
-      // (required because O_EXCL doesn't work when opened in non-blocking mode!)
-      close(fd);
-      fd = open(pathname, O_RDWR | O_EXCL);
-    }
+    // Try to open device exclusively
+    fd = open(pathname, O_RDWR | O_EXCL | O_NONBLOCK);
   }
 
   if (fd != -1) {
