@@ -85,9 +85,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.114 2008/07/18 16:24:41 brevilo Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.115 2008/07/21 09:08:26 brevilo Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.114 2008/07/18 16:24:41 brevilo Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.115 2008/07/21 09:08:26 brevilo Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -298,6 +298,13 @@ int deviceopen(const char *pathname, char *type){
 
     // Try to open device exclusively
     fd = open(pathname, O_RDWR | O_EXCL | O_NONBLOCK);
+
+    if (-1 == fd && EBUSY == errno) {
+      // device is locked, show info
+      pout("The requested controller is used exclusively by another process!\n" \
+           "(e.g. Areca cli[32|64], Areca archttp[32|64], smartctl or smartd)\n" \
+           "Please quit the impeding process or try again later...\n\n");
+    }
   }
 
   if (fd != -1) {
