@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.693 2008/07/18 14:30:27 brevilo Exp $
+$Id: CHANGELOG,v 1.694 2008/07/21 14:53:05 brevilo Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [OB] Added support for Areca controllers to smartd. Extensive tests
+       as well as documentation are still pending however.
 
   [OB] Implemented device locking for Areca controllers in smartctl
 

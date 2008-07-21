@@ -2,7 +2,8 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2000   Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -118,7 +119,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.409 2008/06/15 21:23:12 mat-c Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.410 2008/07/21 14:53:05 brevilo Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -128,7 +129,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.409 2008/06/15 21:23:12 mat-c Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.410 2008/07/21 14:53:05 brevilo Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -776,6 +777,20 @@ void MailWarning(cfgfile *cfg, int which, const char *fmt, ...){
     exportenv(environ_strings[8], "SMARTD_DEVICETYPE", "usbcypress");
     exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
     break;
+  case CONTROLLER_ARECA:
+    {
+      char *s,devicetype[16];
+      // NOTE: controller_port == disk number + 1
+      sprintf(devicetype, "areca,%d", cfg->controller_port-1);
+      exportenv(environ_strings[8], "SMARTD_DEVICETYPE", devicetype);
+      if ((s=strchr(cfg->name, ' '))) {
+        *s='\0';
+      }
+      exportenv(environ_strings[9], "SMARTD_DEVICE", cfg->name);
+      if (s) {
+        *s=' ';
+      }
+    }
   }
 
   snprintf(fullmessage, 1024,
@@ -1048,13 +1063,14 @@ void DaemonInit(){
       PrintOut(LOG_CRIT,"smartd unable to fork daemon process!\n");
       EXIT(EXIT_STARTUP);
     }
-    else if (pid)
+    else if (pid) {
       // we are the parent process, wait for pid file, then exit cleanly
       if(!WaitForPidFile()) {
         PrintOut(LOG_CRIT,"PID file %s didn't show up!\n", pid_file);
      	EXIT(EXIT_STARTUP);
       } else
         EXIT(0);
+    }
   
     // from here on, we are the child process.
     setsid();
@@ -1149,7 +1165,7 @@ void PrintHead(){
 void Directives() {
   PrintOut(LOG_INFO,
            "Configuration file (%s) Directives (after device name):\n"
-           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N, cciss,N\n"
+           "  -d TYPE Set the device type: ata, scsi, marvell, removable, sat, 3ware,N, areca,N, hpt,L/M/N, cciss,N\n"
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
@@ -1267,7 +1283,7 @@ static int OpenDevice(/*const*/ char *device, const char *mode, int scanning) {
   char *s=device;
   
   // If there is an ASCII "space" character in the device name,
-  // terminate string there.  This is for 3ware and highpoint devices only.
+  // terminate string there.  This is for 3ware, areca and highpoint devices only.
   if ((s=strchr(device,' ')))
     *s='\0';
 
@@ -1360,6 +1376,9 @@ int ATADeviceScan(cfgfile *cfg, int scanning){
     break;
   case CONTROLLER_SAT:
     mode="SCSI";
+    break;
+  case CONTROLLER_ARECA:
+    mode="ATA_ARECA";
     break;
   default:
     // not a recognized ATA or SATA device.  We should never enter
@@ -2361,6 +2380,9 @@ int ATACheckDevice(cfgfile *cfg, bool allow_selftests){
   if (cfg->controller_type == CONTROLLER_3WARE_678K_CHAR)
     mode="ATA_3WARE_678K";
 
+  if (cfg->controller_type == CONTROLLER_ARECA)
+    mode="ATA_ARECA";
+
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it.  ATAPI
   // cd/dvd devices will hang awaiting media if O_NONBLOCK is not
@@ -2852,7 +2874,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "ata, scsi, marvell, removable, sat, 3ware,N, hpt,L/M/N");
+    PrintOut(priority, "ata, scsi, marvell, removable, sat, 3ware,N, areca,N, hpt,L/M/N");
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");
@@ -3131,7 +3153,7 @@ int ParseToken(char *token,cfgfile *cfg){
     } else if (!strcmp(arg, "removable")) {
       cfg->removable = 1;
     } else {
-      // look 3ware,N RAID device
+      // look 3ware,N areca,N, cciss,N, RAID device
       int i;
       char *s;
       
@@ -3170,6 +3192,20 @@ int ParseToken(char *token,cfgfile *cfg){
           } else {
               // NOTE: controller_port == disk number + 1
               cfg->controller_type = CONTROLLER_CCISS;
+              cfg->controller_port = i+1;
+          }
+      } else if (!strncmp(s,"areca,",6)) {
+          if (split_report_arg2(s, &i)){
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d areca,N requires N to be a positive integer\n",
+               	       configfile, lineno, name);
+              badarg=1;
+          } else if ( i<1 || i>24) {
+              PrintOut(LOG_CRIT, "File %s line %d (drive %s): Directive -d areca,N (N=%d) must have 1 <= N <= 24\n",
+                       configfile, lineno, name, i);
+              badarg=1;
+          } else {
+              // NOTE: controller_port == disk number + 1
+              cfg->controller_type = CONTROLLER_ARECA;
               cfg->controller_port = i+1;
           }
       } else {
@@ -3594,14 +3630,14 @@ int ParseConfigLine(int entry, int lineno,char *line){
     }
   }
   
-  // If we found 3ware/cciss controller, then modify device name by adding a SPACE
+  // If we found 3ware/cciss/areca controller, then modify device name by adding a SPACE
   if (cfg->controller_port) {
     const int addlen = sizeof(" [3ware_disk_127]")-1;
     int len = strlen(cfg->name) + addlen + 1;
     char *newname;
     
     if (devscan){
-      PrintOut(LOG_CRIT, "smartd: can not scan for 3ware/cciss devices (line %d of file %s)\n",
+      PrintOut(LOG_CRIT, "smartd: can not scan for 3ware/cciss/areca devices (line %d of file %s)\n",
                lineno, configfile);
       return -2;
     }
@@ -3614,6 +3650,8 @@ int ParseConfigLine(int entry, int lineno,char *line){
     // Make new device name by adding a space then RAID disk number
     if (cfg->controller_type == CONTROLLER_CCISS)
 	    snprintf(newname, len, "%s [cciss_disk_%02d]", cfg->name, cfg->controller_port - 1);
+    else if (cfg->controller_type == CONTROLLER_ARECA)
+	    snprintf(newname, len, "%s [areca_disk_%02d]", cfg->name, cfg->controller_port - 1);
     else
 	    snprintf(newname, len, "%s [3ware_disk_%03d]", cfg->name, cfg->controller_port - 1);
   
