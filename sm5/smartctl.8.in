@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.109 2008/07/21 19:10:50 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.110 2008/07/24 07:18:53 ballen4705 Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -327,13 +327,9 @@ smartmontools are the ones with the type field equal to 3.  If the
 incorrect device is addressed, please read the warning/error messages
 carefully.  They should provide hints about what devices to use.
 
-Important: the Areca controller must have firmware version 1.45 (dated
-May 8, 2008) or later.  Lower-numbered firmware versions, or 1.45
-firmware versions with earlier release dates, do not support
-smartmontools and will give (harmless) SCSI error messages.  Suitable
-firmware can be obtained from the beta/ directories for the
-appropriate controller, at the Areca FTP site:
-\fBftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware\fP.
+Important: the Areca controller must have firmware version 1.46 or
+later. Lower-numbered firmware versions will give (harmless) SCSI
+error messages and no SMART information.
 
 To look at (S)ATA disks behind HighPoint RocketRAID controllers, use syntax
 such as:
@@ -1544,7 +1540,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.109 2008/07/21 19:10:50 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.110 2008/07/24 07:18:53 ballen4705 Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
