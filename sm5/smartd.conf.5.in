@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.90 2008/07/21 19:32:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.91 2008/07/24 07:18:53 ballen4705 Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -266,8 +266,9 @@ then the corresponding SCSI generic device (/dev/sg?)  must be listed,
 along with the \'\-d areca,N\' Directive (see below).  The individual
 SATA disks hosted by the Areca controller appear to \fBsmartd\fP as
 normal ATA devices.  Hence all the ATA directives can be used for
-these disks.  Areca firmware which supports smartmontools must be used;
-Please see the \fBsmartctl\fP man page for further details.
+these disks.  Areca firmware version 1.46 or later which supports
+smartmontools must be used; Please see the \fBsmartctl\fP man page for
+further details.
 
 .TP
 .B \-d TYPE
@@ -1384,4 +1385,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.90 2008/07/21 19:32:02 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.91 2008/07/24 07:18:53 ballen4705 Exp $
