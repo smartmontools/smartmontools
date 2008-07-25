@@ -25,6 +25,7 @@ core
 cvs-script
 cvsversion.h
 depcomp
+doc
 install-sh
 missing
 mkinstalldirs
