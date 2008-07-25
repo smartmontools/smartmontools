@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.140 2008/04/27 16:30:09 chrfranke Exp $
+# $Id: configure.in,v 1.141 2008/07/25 21:16:00 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.140 2008/04/27 16:30:09 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.141 2008/07/25 21:16:00 chrfranke Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -218,6 +218,17 @@ case "${os_deps}" in
   os_win32*)
     AC_DEFINE(HAVE_GET_OS_VERSION_STR, 1, [Define to 1 if you have the `get_os_version_str' function in os_*.c.]) ;;
 esac
+
+# Check if we need adapter to old interface (dev_legacy.cpp)
+os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
+AC_MSG_CHECKING([whether ${os_src} uses new interface])
+if grep "smart_interface" "${srcdir}/${os_src}" >/dev/null 2>&1; then
+  os_new_interface=yes
+else
+  os_new_interface=no
+  os_deps="${os_deps} dev_legacy.o"
+fi
+AC_MSG_RESULT([$os_new_interface])
 
 dnl Define platform-specific symbol.
 AM_CONDITIONAL(OS_DARWIN, [echo $host_os | grep '^darwin' > /dev/null])

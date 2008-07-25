@@ -30,8 +30,8 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.21 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.22 2008/07/25 21:16:00 chrfranke Exp $\n"
 
-int scsiPrintMain(int fd);
+int scsiPrintMain(scsi_device * device);
 
 #endif

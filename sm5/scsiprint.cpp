@@ -35,6 +35,8 @@
 #include "int64.h"
 #include "extern.h"
 #include "scsicmds.h"
+#include "atacmds.h" // smart_command_set
+#include "dev_interface.h"
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
@@ -42,7 +44,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.124 2008/06/15 21:23:11 mat-c Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.125 2008/07/25 21:16:00 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -78,7 +80,7 @@ static int modese_len = 0;
 // simply returns to the calling routine.
 extern void failuretest(int type, int returnvalue);
 
-static void scsiGetSupportedLogPages(int device)
+static void scsiGetSupportedLogPages(scsi_device * device)
 {
     int i, err;
 
@@ -140,7 +142,7 @@ static void scsiGetSupportedLogPages(int device)
 
 /* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
    (or at least something to report). */
-static int scsiGetSmartData(int device, int attribs)
+static int scsiGetSmartData(scsi_device * device, int attribs)
 {
     UINT8 asc;
     UINT8 ascq;
@@ -186,7 +188,7 @@ static int scsiGetSmartData(int device, int attribs)
 // TapeAlerts fails
 static const char * const severities = "CWI";
 
-static int scsiGetTapeAlertsData(int device, int peripheral_type)
+static int scsiGetTapeAlertsData(scsi_device * device, int peripheral_type)
 {
     unsigned short pagelength;
     unsigned short parametercode;
@@ -234,7 +236,7 @@ static int scsiGetTapeAlertsData(int device, int peripheral_type)
     return failures;
 }
 
-static void scsiGetStartStopData(int device)
+static void scsiGetStartStopData(scsi_device * device)
 {
     UINT32 u;
     int err, len, k, extra, pc;
@@ -295,7 +297,7 @@ static void scsiGetStartStopData(int device)
     }
 } 
 
-static void scsiPrintGrownDefectListLen(int device)
+static void scsiPrintGrownDefectListLen(scsi_device * device)
 {
     int err, dl_format, dl_len, div;
 
@@ -344,7 +346,7 @@ static void scsiPrintGrownDefectListLen(int device)
     }
 }
 
-static void scsiPrintSeagateCacheLPage(int device)
+static void scsiPrintSeagateCacheLPage(scsi_device * device)
 {
     int k, j, num, pl, pc, err, len;
     unsigned char * ucp;
@@ -419,7 +421,7 @@ static void scsiPrintSeagateCacheLPage(int device)
     }
 }
 
-static void scsiPrintSeagateFactoryLPage(int device)
+static void scsiPrintSeagateFactoryLPage(scsi_device * device)
 {
     int k, j, num, pl, pc, len, err, good, bad;
     unsigned char * ucp;
@@ -513,7 +515,7 @@ static void scsiPrintSeagateFactoryLPage(int device)
     }
 }
 
-static void scsiPrintErrorCounterLog(int device)
+static void scsiPrintErrorCounterLog(scsi_device * device)
 {
     struct scsiErrorCounter errCounterArr[3];
     struct scsiErrorCounter * ecp;
@@ -657,7 +659,7 @@ static const char * self_test_result[] = {
 // Returns 0 if ok else FAIL* bitmask. Note that if any of the most recent
 // 20 self tests fail (result code 3 to 7 inclusive) then FAILLOG and/or
 // FAILSMART is returned.
-static int scsiPrintSelfTest(int device)
+static int scsiPrintSelfTest(scsi_device * device)
 {
     int num, k, n, res, err, durationSec;
     int noheader = 1;
@@ -794,7 +796,7 @@ static int scsiPrintSelfTest(int device)
         pout("No self-tests have been logged\n");
     else
         pout("\n");
-    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec, 
+    if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
         pout("Long (extended) Self Test duration: %d seconds "
              "[%.1f minutes]\n", durationSec, durationSec / 60.0);
@@ -830,7 +832,7 @@ static const char * reassign_status[] = {
 // Returns 0 if ok else FAIL* bitmask. Note can have a status entry
 // and up to 2048 events (although would hope to have less). May set
 // FAILLOG if serious errors detected (in the future).
-static int scsiPrintBackgroundResults(int device)
+static int scsiPrintBackgroundResults(scsi_device * device)
 {
     int num, j, m, err, pc, pl, truncated;
     int noheader = 1;
@@ -970,7 +972,7 @@ static const char * transport_proto_arr[] = {
 };
 
 /* Returns 0 on success, 1 on general error and 2 for early, clean exit */
-static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
+static int scsiGetDriveInfo(scsi_device * device, UINT8 * peripheral_type, int all)
 {
     char manufacturer[9];
     char product[17];
@@ -1022,42 +1024,11 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     if (all && (0 != strncmp(manufacturer, "ATA", 3)))
         pout("Device: %s %s Version: %s\n", manufacturer, product, revision);
 
-    if (0 == strncmp(manufacturer, "3ware", 5) || 0 == strncmp(manufacturer, "AMCC", 4) ) {
-#if defined(_WIN32) || defined(__CYGWIN__)
-        pout("please try changing device to /dev/hdX,N\n");
-#else
-        pout("please try adding '-d 3ware,N'\n");
-        pout("you may also need to change device to /dev/twaN or /dev/tweN\n");
-#endif
-        return 2;
-    } else if ((len >= 42) &&
-	       (0 == strncmp((const char *)(gBuf + 36), "MVSATA", 6))) {
-        pout("please try '-d marvell'\n");
-        return 2;
-    } else if ((0 == con->controller_explicit) &&
-	       (0 == strncmp(manufacturer, "ATA     ", 8)) &&
-               has_sat_pass_through(device, 0)) {
-        con->controller_type = CONTROLLER_SAT;
-        if (con->reportscsiioctl > 0) {
-            PRINT_ON(con);
-            pout("Detected SAT interface, switch to device type 'sat'\n");
-            PRINT_OFF(con);
-        }
-	return 2;
-    } else if ((0 == con->controller_explicit) &&
+    if (!*device->get_req_type()/*no type requested*/ &&
                (0 == strncmp(manufacturer, "ATA", 3))) {
         pout("\nProbable ATA device behind a SAT layer\n"
              "Try an additional '-d ata' or '-d sat' argument.\n");
         return 2;
-    } else if ((0 == con->controller_explicit) &&
-               has_usbcypress_pass_through(device, manufacturer, product)) {
-        con->controller_type = CONTROLLER_USBCYPRESS;
-        if (con->reportscsiioctl > 0) {
-            PRINT_ON(con);
-            pout("Detected USBCYPRESS interface, switch to device type 'usbcypress'\n");
-            PRINT_OFF(con);
-        }
-	return 2;
     }
     if (! all)
         return 0;
@@ -1160,7 +1131,7 @@ static int scsiGetDriveInfo(int device, UINT8 * peripheral_type, int all)
     return 0;
 }
 
-static int scsiSmartEnable(int device)
+static int scsiSmartEnable(scsi_device * device)
 {
     struct scsi_iec_mode_page iec;
     int err;
@@ -1196,7 +1167,7 @@ static int scsiSmartEnable(int device)
     return 0;
 }
         
-static int scsiSmartDisable(int device)
+static int scsiSmartDisable(scsi_device * device)
 {
     struct scsi_iec_mode_page iec;
     int err;
@@ -1232,7 +1203,7 @@ static int scsiSmartDisable(int device)
     return 0;
 }
 
-static void scsiPrintTemp(int device)
+static void scsiPrintTemp(scsi_device * device)
 {
     UINT8 temp = 0;
     UINT8 trip = 0;
@@ -1251,14 +1222,14 @@ static void scsiPrintTemp(int device)
 }
 
 /* Main entry point used by smartctl command. Return 0 for success */
-int scsiPrintMain(int fd)
+int scsiPrintMain(scsi_device * device)
 {
     int checkedSupportedLogPages = 0;
     UINT8 peripheral_type = 0;
     int returnval = 0;
     int res, durationSec;
 
-    res = scsiGetDriveInfo(fd, &peripheral_type, con->driveinfo);
+    res = scsiGetDriveInfo(device, &peripheral_type, con->driveinfo);
     if (res) {
         if (2 == res)
             return 0;
@@ -1267,44 +1238,44 @@ int scsiPrintMain(int fd)
     }
 
     if (con->smartenable) {
-        if (scsiSmartEnable(fd))
+        if (scsiSmartEnable(device))
             failuretest(MANDATORY_CMD, returnval |= FAILSMART);
     }
 
     if (con->smartdisable) {
-        if (scsiSmartDisable(fd))
+        if (scsiSmartDisable(device))
             failuretest(MANDATORY_CMD,returnval |= FAILSMART);
     }
     
     if (con->smartautosaveenable) {
-      if (scsiSetControlGLTSD(fd, 0, modese_len)) {
+      if (scsiSetControlGLTSD(device, 0, modese_len)) {
         pout("Enable autosave (clear GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
     }
     
     if (con->smartautosavedisable) {
-      if (scsiSetControlGLTSD(fd, 1, modese_len)) {
+      if (scsiSetControlGLTSD(device, 1, modese_len)) {
         pout("Disable autosave (set GLTSD bit) failed\n");
         failuretest(OPTIONAL_CMD,returnval |= FAILSMART);
       }
     }
     
     if (con->checksmart) {
-        scsiGetSupportedLogPages(fd);
+        scsiGetSupportedLogPages(device);
         checkedSupportedLogPages = 1;
         if ((SCSI_PT_SEQUENTIAL_ACCESS == peripheral_type) ||
             (SCSI_PT_MEDIUM_CHANGER == peripheral_type)) { /* tape device */
             if (gTapeAlertsLPage) {
                 if (con->driveinfo)
                     pout("TapeAlert Supported\n");
-                if (-1 == scsiGetTapeAlertsData(fd, peripheral_type))
+                if (-1 == scsiGetTapeAlertsData(device, peripheral_type))
                     failuretest(OPTIONAL_CMD, returnval |= FAILSMART);
             }
             else
                 pout("TapeAlert Not Supported\n");
         } else { /* disk, cd/dvd, enclosure, etc */
-            if ((res = scsiGetSmartData(fd, con->smartvendorattrib))) {
+            if ((res = scsiGetSmartData(device, con->smartvendorattrib))) {
                 if (-2 == res)
                     returnval |= FAILSTATUS;
                 else
@@ -1314,36 +1285,36 @@ int scsiPrintMain(int fd)
     }   
     if (con->smartvendorattrib) {
         if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(fd);
+            scsiGetSupportedLogPages(device);
         if (gTempLPage) {
             if (con->checksmart)
                 pout("\n");
-            scsiPrintTemp(fd);         
+            scsiPrintTemp(device);
         }
         if (gStartStopLPage)
-            scsiGetStartStopData(fd);
+            scsiGetStartStopData(device);
         if (SCSI_PT_DIRECT_ACCESS == peripheral_type) {
-            scsiPrintGrownDefectListLen(fd);
+            scsiPrintGrownDefectListLen(device);
             if (gSeagateCacheLPage)
-                scsiPrintSeagateCacheLPage(fd);
+                scsiPrintSeagateCacheLPage(device);
             if (gSeagateFactoryLPage)
-                scsiPrintSeagateFactoryLPage(fd);
+                scsiPrintSeagateFactoryLPage(device);
         }
     }
     if (con->smarterrorlog) {
         if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(fd);
-        scsiPrintErrorCounterLog(fd);
-        if (1 == scsiFetchControlGLTSD(fd, modese_len, 1))
+            scsiGetSupportedLogPages(device);
+        scsiPrintErrorCounterLog(device);
+        if (1 == scsiFetchControlGLTSD(device, modese_len, 1))
             pout("\n[GLTSD (Global Logging Target Save Disable) set. "
                  "Enable Save with '-S on']\n");
     }
     if (con->smartselftestlog) {
         if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(fd);
+            scsiGetSupportedLogPages(device);
         res = 0;
         if (gSelfTestLPage)
-            res = scsiPrintSelfTest(fd);
+            res = scsiPrintSelfTest(device);
         else {
             pout("Device does not support Self Test logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1353,10 +1324,10 @@ int scsiPrintMain(int fd)
     }
     if (con->smartbackgroundlog) {
         if (! checkedSupportedLogPages)
-            scsiGetSupportedLogPages(fd);
+            scsiGetSupportedLogPages(device);
         res = 0;
         if (gBackgroundResultsLPage)
-            res = scsiPrintBackgroundResults(fd);
+            res = scsiPrintBackgroundResults(device);
         else {
             pout("Device does not support Background scan results logging\n");
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1365,26 +1336,26 @@ int scsiPrintMain(int fd)
             failuretest(OPTIONAL_CMD, returnval|=res);
     }
     if (con->smartexeoffimmediate) {
-        if (scsiSmartDefaultSelfTest(fd))
+        if (scsiSmartDefaultSelfTest(device))
             return returnval | FAILSMART;
         pout("Default Self Test Successful\n");
     }
     if (con->smartshortcapselftest) {
-        if (scsiSmartShortCapSelfTest(fd))
+        if (scsiSmartShortCapSelfTest(device))
             return returnval | FAILSMART;
         pout("Short Foreground Self Test Successful\n");
     }
     if (con->smartshortselftest ) { 
-        if (scsiSmartShortSelfTest(fd))
+        if (scsiSmartShortSelfTest(device))
             return returnval | FAILSMART;
         pout("Short Background Self Test has begun\n");
         pout("Use smartctl -X to abort test\n");
     }
     if (con->smartextendselftest) {
-        if (scsiSmartExtendSelfTest(fd))
+        if (scsiSmartExtendSelfTest(device))
             return returnval | FAILSMART;
         pout("Extended Background Self Test has begun\n");
-        if ((0 == scsiFetchExtendedSelfTestTime(fd, &durationSec, 
+        if ((0 == scsiFetchExtendedSelfTestTime(device, &durationSec,
                         modese_len)) && (durationSec > 0)) {
             time_t t = time(NULL);
 
@@ -1396,12 +1367,12 @@ int scsiPrintMain(int fd)
         pout("Use smartctl -X to abort test\n");        
     }
     if (con->smartextendcapselftest) {
-        if (scsiSmartExtendCapSelfTest(fd))
+        if (scsiSmartExtendCapSelfTest(device))
             return returnval | FAILSMART;
         pout("Extended Foreground Self Test Successful\n");
     }
     if (con->smartselftestabort) {
-        if (scsiSmartSelfTestAbort(fd))
+        if (scsiSmartSelfTestAbort(device))
             return returnval | FAILSMART;
         pout("Self Test returned without error\n");
     }           

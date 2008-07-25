@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2006-8 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef SCSIATA_H_
 #define SCSIATA_H_
 
-#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.5 2008/06/15 21:23:11 mat-c Exp $\n"
+#define SCSIATA_H_CVSID "$Id: scsiata.h,v 1.6 2008/07/25 21:16:00 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,13 +32,10 @@
 #define SAT_ATA_PASSTHROUGH_12LEN 12
 #define SAT_ATA_PASSTHROUGH_16LEN 16
 
-extern int sat_command_interface(int device, smart_command_set command,
-                                 int select, char *data);
-
-/* Attempt an IDENTIFY DEVICE ATA command via SATL when packet_interface
-   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
-   return 1, else 0 */
-extern int has_sat_pass_through(int device, int packet_interface);
+// Moved to C++ interface
+//extern int sat_command_interface(int device, smart_command_set command,
+//                                 int select, char *data);
+//extern int has_sat_pass_through(int device, int packet_interface);
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -74,13 +71,9 @@ extern int sg_scsi_normalize_sense(const unsigned char * sensep,
 extern const unsigned char * sg_scsi_sense_desc_find(
                 const unsigned char * sensep, int sense_len, int desc_type);
 
-extern int usbcypress_command_interface(int device, smart_command_set command,
-                                 int select, char *data);
-/* Attempt an IDENTIFY DEVICE ATA command via USBCYPRESS when packet_interface
-   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
-   return 1, else 0 */
-extern int has_usbcypress_pass_through(int device,
-		char *manufacturer, char *product);
+// Moved to C++ interface
+//extern int usbcypress_command_interface(int device, smart_command_set command,
+//                                 int select, char *data);
 
 #endif
 

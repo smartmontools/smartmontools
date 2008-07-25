@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.86 2008/05/30 19:35:04 chrfranke Exp $
+# $Id: Makefile.am,v 1.87 2008/07/25 21:16:00 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -24,6 +24,11 @@ smartd_SOURCES =  smartd.cpp      \
                   atacmds.h       \
                   ataprint.cpp    \
                   ataprint.h      \
+                  dev_ata_cmd_set.cpp \
+                  dev_ata_cmd_set.h   \
+                  dev_interface.cpp   \
+                  dev_interface.h     \
+                  dev_tunnelled.h     \
                   extern.h        \
                   int64.h         \
                   knowndrives.cpp \
@@ -57,7 +62,8 @@ EXTRA_smartd_SOURCES = os_darwin.cpp    \
                        os_generic.cpp   \
                        os_generic.h     \
                        cciss.cpp        \
-                       cciss.h
+                       cciss.h          \
+                       dev_legacy.cpp
 
 
 if OS_WIN32_MINGW
@@ -89,6 +95,11 @@ smartctl_SOURCES= smartctl.cpp    \
                   atacmds.h       \
                   ataprint.cpp    \
                   ataprint.h      \
+                  dev_ata_cmd_set.cpp \
+                  dev_ata_cmd_set.h   \
+                  dev_interface.cpp   \
+                  dev_interface.h     \
+                  dev_tunnelled.h     \
                   extern.h        \
                   int64.h         \
                   knowndrives.cpp \
@@ -101,6 +112,7 @@ smartctl_SOURCES= smartctl.cpp    \
                   scsiprint.h     \
                   utility.cpp     \
                   utility.h
+
 
 smartctl_LDADD = @os_deps@ @os_libs@
 smartctl_DEPENDENCIES = @os_deps@
@@ -119,7 +131,8 @@ EXTRA_smartctl_SOURCES = os_linux.cpp \
                        os_generic.cpp \
                        os_generic.h   \
                        cciss.cpp      \
-                       cciss.h
+                       cciss.h        \
+                       dev_legacy.cpp
 
 if OS_WIN32_MINGW
 
