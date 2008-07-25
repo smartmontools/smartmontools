@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.78 2008/05/30 19:35:04 chrfranke Exp $
+$Id: INSTALL,v 1.79 2008/07/25 21:57:30 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -617,6 +617,19 @@ On systems without man2html, the following command should work
 if groff is available:
 
 make MAN2HTML='groff -man -Thtml' htmlman
+
+
+Some of the source files are prepared for the documentation
+generator Doxygen (http://www.doxygen.org/). If Doxygen is installed,
+the command:
+
+doxygen
+
+creates HTML documentation in doc/html and LaTeX documentation
+in doc/latex. If TeX is installed, the following command creates
+a documentation file doc/latex/refman.pdf:
+
+( cd doc/latex && make pdf )
 
 
 [14] Detailed description of arguments to configure command

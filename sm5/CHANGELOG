@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.696 2008/07/25 21:16:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.697 2008/07/25 21:57:30 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add configuration file for Doxygen.
 
   [CF] Add new object oriented interface to access ATA and SCSI devices.
        smartctl and smartd are modified to use the new classes in
