@@ -25,19 +25,30 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.56 2008/06/12 21:46:32 ballen4705 Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.57 2008/07/25 21:16:00 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
+#include <stdarg.h>
+#include <string>
+
+#if !defined(__GNUC__) && !defined(__attribute__)
+#define __attribute__(x)  /**/
+#endif
 
 // Make version information string
 const char *format_version_info(const char *prog_name);
 
+// return (v)sprintf() formated std::string
+std::string strprintf(const char * fmt, ...)
+    __attribute__ ((format (printf, 1, 2)));
+std::string vstrprintf(const char * fmt, va_list ap);
+
 #ifndef HAVE_WORKING_SNPRINTF
 // Substitute by safe replacement functions
-#include <stdarg.h>
 int safe_snprintf(char *buf, int size, const char *fmt, ...);
+    __attribute__ ((format (printf, 3, 4)));
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
 #define vsnprintf safe_vsnprintf
@@ -59,9 +70,6 @@ void printone(char *block, const char *cvsid);
 // although the prototype is given here in utility.h, the function
 // itself is defined differently in smartctl and smartd.  So the
 // function definition(s) are in smartd.c and in smartctl.c.
-#ifndef __GNUC__
-#define __attribute__(x)      /* nothing */
-#endif
 void pout(const char *fmt, ...)  
      __attribute__ ((format (printf, 1, 2)));
 
@@ -92,11 +100,13 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // Guess device type (ata or scsi) based on device name 
 // Guessing will now use Controller Type defines below
 
-int guess_device_type(const char * dev_name);
+// Moved to C++ interface
+//int guess_device_type(const char * dev_name);
 
 // Create and return the list of devices to probe automatically
 // if the DEVICESCAN option is in the smartd config file
-int make_device_names (char ***devlist, const char* name);
+// Moved to C++ interface
+//int make_device_names (char ***devlist, const char* name);
 
 // Replacement for exit(status)
 // (exit is not compatible with C++ destructors)
@@ -145,14 +155,15 @@ int isbigendian();
 // the ATA standard for packet devices to define the device type.
 const char *packetdevicetype(int type);
 
-int deviceopen(const char *pathname, char *type);
+// Moved to C++ interface
+//int deviceopen(const char *pathname, char *type);
 
-int deviceclose(int fd);
+//int deviceclose(int fd);
 
 // Optional functions of os_*.c
 #ifdef HAVE_GET_OS_VERSION_STR
 // Return build host and OS version as static string
-const char * get_os_version_str(void);
+//const char * get_os_version_str(void);
 #endif
 
 // returns 1 if any of the n bytes are nonzero, else zero.

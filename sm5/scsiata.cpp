@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2006-8 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,15 +39,18 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "ataprint.h"
 #include "config.h"
 #include "int64.h"
 #include "extern.h"
 #include "scsicmds.h"
 #include "scsiata.h"
+#include "ataprint.h" // ataReadHDIdentity()
 #include "utility.h"
+#include "dev_interface.h"
+#include "dev_ata_cmd_set.h" // ata_device_with_command_set
+#include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.12 2008/06/15 21:23:11 mat-c Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.13 2008/07/25 21:16:00 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -55,6 +58,43 @@ extern smartmonctrl *con;
 
 #define DEF_SAT_ATA_PASSTHRU_SIZE 16
 #define ATA_RETURN_DESCRIPTOR 9
+
+namespace sat { // no need to publish anything, name provided for Doxygen
+
+/// SAT support.
+/// Implements ATA by tunnelling through SCSI.
+
+class sat_device
+: public tunnelled_device<
+    /*implements*/ ata_device_with_command_set
+    /*by tunnelling through a*/, scsi_device
+  >
+{
+public:
+  sat_device(smart_interface * intf, scsi_device * scsidev,
+    const char * req_type, int passthrulen = 0);
+
+  virtual ~sat_device() throw();
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+  int m_passthrulen;
+};
+
+
+sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
+  const char * req_type, int passthrulen /*= 0*/)
+: smart_device(intf, scsidev->get_dev_name(), "sat", req_type),
+  tunnelled_device<ata_device_with_command_set, scsi_device>(scsidev),
+  m_passthrulen(passthrulen)
+{
+  set_info().info_name = strprintf("%s [SAT]", scsidev->get_info_name());
+}
+
+sat_device::~sat_device() throw()
+{
+}
 
 
 // cdb[0]: ATA PASS THROUGH (16) SCSI command opcode byte (0x85)
@@ -114,7 +154,7 @@ extern smartmonctrl *con;
 //   This interface routine takes ATA SMART commands and packages
 //   them in the SAT-defined ATA PASS THROUGH SCSI commands. There are
 //   two available SCSI commands: a 12 byte and 16 byte variant; the
-//   one used is chosen via con->satpassthrulen .
+//   one used is chosen via this->m_passthrulen .
 // DETAILED DESCRIPTION OF ARGUMENTS
 //   device: is the file descriptor provided by (a SCSI dvice type) open()
 //   command: defines the different ATA operations.
@@ -130,8 +170,7 @@ extern smartmonctrl *con;
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
-int sat_command_interface(int device, smart_command_set command, int select,
-                          char *data)
+int sat_device::ata_command_interface(smart_command_set command, int select, char *data)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -245,7 +284,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
         ck_cond = 1;
         break;
     default:
-        pout("Unrecognized command %d in sat_command_interface()\n"
+        pout("Unrecognized command %d in sat_device::ata_command_interface()\n"
              "Please contact " PACKAGE_BUGREPORT "\n", command);
         errno=ENOSYS;
         return -1;
@@ -255,9 +294,9 @@ int sat_command_interface(int device, smart_command_set command, int select,
         lba_high = 0xc2;
     }
 
-    if ((SAT_ATA_PASSTHROUGH_12LEN == con->satpassthrulen) ||
-        (SAT_ATA_PASSTHROUGH_16LEN == con->satpassthrulen))
-        passthru_size = con->satpassthrulen;
+    if ((SAT_ATA_PASSTHROUGH_12LEN == m_passthrulen) ||
+        (SAT_ATA_PASSTHROUGH_16LEN == m_passthrulen))
+        passthru_size = m_passthrulen;
     cdb[0] = (SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ?
              SAT_ATA_PASSTHROUGH_12 : SAT_ATA_PASSTHROUGH_16;
 
@@ -291,11 +330,12 @@ int sat_command_interface(int device, smart_command_set command, int select,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status) {
+    scsi_device * scsidev = get_tunnel_dev();
+    if (!scsidev->scsi_pass_through(&io_hdr)) {
         if (con->reportscsiioctl > 0)
-            pout("sat_command_interface: do_scsi_cmnd_io() failed, "
-                 "status=%d\n", status);
+            pout("sat_device::ata_command_interface: scsi_pass_through() failed, "
+                 "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+        set_err(scsidev->get_err());
         return -1;
     }
     ardp = NULL;
@@ -318,7 +358,7 @@ int sat_command_interface(int device, smart_command_set command, int select,
         status = scsiSimpleSenseFilter(&sinfo);
         if (0 != status) {
             if (con->reportscsiioctl > 0) {
-                pout("sat_command_interface: scsi error: %s\n",
+                pout("sat_device::ata_command_interface: scsi error: %s\n",
                      scsiErrString(status));
                 if (ardp && (con->reportscsiioctl > 1)) {
                     pout("Values from ATA Return Descriptor are:\n");
@@ -377,20 +417,25 @@ int sat_command_interface(int device, smart_command_set command, int select,
     return 0;
 }
 
-/* Attempt an IDENTIFY DEVICE ATA command via SATL when packet_interface
-   is 0 otherwise attempt IDENTIFY PACKET DEVICE. If successful
-   return 1, else 0 */
-int has_sat_pass_through(int device, int packet_interface)
-{
-    char data[512];
-    smart_command_set command;
+} // namespace
 
-    command = packet_interface ? PIDENTIFY : IDENTIFY;
-    if (0 == sat_command_interface(device, command, 0, data))
-        return 1;
-    else
-        return 0;
+/////////////////////////////////////////////////////////////////////////////
+
+/* Attempt an IDENTIFY DEVICE ATA command via SATL when packet_interface
+   is false otherwise attempt IDENTIFY PACKET DEVICE. If successful
+   return true, else false */
+
+static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false)
+{
+    ata_cmd_in in;
+    in.in_regs.command = (packet_interface ? ATA_IDENTIFY_PACKET_DEVICE : ATA_IDENTIFY_DEVICE);
+    in.set_data_in(1);
+    char data[512];
+    in.buffer = data;
+    return dev->ata_pass_through(in);
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 /* Next two functions are borrowed from sg_lib.c in the sg3_utils
    package. Same copyrght owner, same license as this file. */
@@ -454,15 +499,53 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
     return NULL;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace sat {
+
+/// Cypress USB Brigde support.
+
+class usbcypress_device
+: public tunnelled_device<
+    /*implements*/ ata_device_with_command_set
+    /*by tunnelling through a*/, scsi_device
+  >
+{
+public:
+  usbcypress_device(smart_interface * intf, scsi_device * scsidev,
+    const char * req_type, unsigned char signature);
+
+  virtual ~usbcypress_device() throw();
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+  unsigned char m_signature;
+};
+
+
+usbcypress_device::usbcypress_device(smart_interface * intf, scsi_device * scsidev,
+  const char * req_type, unsigned char signature)
+: smart_device(intf, scsidev->get_dev_name(), "sat", req_type),
+  tunnelled_device<ata_device_with_command_set, scsi_device>(scsidev),
+  m_signature(signature)
+{
+  set_info().info_name = strprintf("%s [USB Cypress]", scsidev->get_info_name());
+}
+
+usbcypress_device::~usbcypress_device() throw()
+{
+}
+
+
 /* see cy7c68300c_8.pdf for more information */
 #define USBCYPRESS_PASSTHROUGH_LEN 16
-int usbcypress_command_interface(int device, smart_command_set command, int select,
-                          char *data)
+int usbcypress_device::ata_command_interface(smart_command_set command, int select, char *data)
 {
     struct scsi_cmnd_io io_hdr;
     unsigned char cdb[USBCYPRESS_PASSTHROUGH_LEN];
     unsigned char sense[32];
-    int status;
     int copydata = 0;
     int outlen = 0;
     int ck_cond = 0;    /* set to 1 to read register(s) back */
@@ -567,7 +650,7 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
         ck_cond = 1;
         break;
     default:
-        pout("Unrecognized command %d in sat_command_interface()\n"
+        pout("Unrecognized command %d in usbcypress_device::ata_command_interface()\n"
              "Please contact " PACKAGE_BUGREPORT "\n", command);
         errno=ENOSYS;
         return -1;
@@ -577,7 +660,7 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
         lba_high = 0xc2;
     }
 
-    cdb[0] = con->usbcypress_signature; // bVSCBSignature : vendor-specific command
+    cdb[0] = m_signature; // bVSCBSignature : vendor-specific command
     cdb[1] = 0x24; // bVSCBSubCommand : 0x24 for ATACB
     cdb[2] = 0x0;
     if (ata_command == ATA_IDENTIFY_DEVICE || ata_command == ATA_IDENTIFY_PACKET_DEVICE)
@@ -614,11 +697,12 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status) {
+    scsi_device * scsidev = get_tunnel_dev();
+    if (!scsidev->scsi_pass_through(&io_hdr)) {
         if (con->reportscsiioctl > 0)
-            pout("sat_command_interface: do_scsi_cmnd_io() failed, "
-                 "status=%d\n", status);
+            pout("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
+                 "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+        set_err(scsidev->get_err());
         return -1;
     }
 
@@ -656,11 +740,11 @@ int usbcypress_command_interface(int device, smart_command_set command, int sele
         io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
 
-        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-        if (0 != status) {
+        if (!scsidev->scsi_pass_through(&io_hdr)) {
             if (con->reportscsiioctl > 0)
-                pout("sat_command_interface: do_scsi_cmnd_io() failed, "
-                        "status=%d\n", status);
+                pout("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
+                     "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+            set_err(scsidev->get_err());
             return -1;
         }
         // if there is a sense the command failed or the
@@ -706,21 +790,17 @@ static int isprint_string(const char *s)
     }
     return 1;
 }
+
 /* Attempt an IDENTIFY DEVICE ATA or IDENTIFY PACKET DEVICE command
    If successful return 1, else 0 */
-static int has_pass_through(int device, int controller_type,
-        char *manufacturer, char *product)
+// TODO: Combine with has_sat_pass_through above
+static int has_usbcypress_pass_through(ata_device * atadev, const char *manufacturer, const char *product)
 {
     struct ata_identify_device drive;
     char model[40], serial[20], firm[8];
-    int old_type = con->controller_type;
-    int retid;
 
-    con->controller_type = controller_type;
     /* issue the command and do a checksum if possible */
-    retid = ataReadHDIdentity(device,&drive);
-    con->controller_type = old_type;
-    if (retid < 0)
+    if (ataReadHDIdentity(atadev, &drive) < 0)
         return 0;
 
     /* check if model string match, revision doesn't work for me */
@@ -744,9 +824,84 @@ static int has_pass_through(int device, int controller_type,
     return 1;
 }
 
-int has_usbcypress_pass_through(int device, char *manufacturer, char *product)
+} // namespace
+
+using namespace sat;
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Return ATA->SCSI filter for SAT or USB.
+
+ata_device * smart_interface::get_sat_device(const char * name, const char * type, scsi_device * scsidev /* = 0*/)
 {
-    con->usbcypress_signature = 0x24;
-    return has_pass_through(device, CONTROLLER_USBCYPRESS,
-            manufacturer, product);
+  if (!scsidev) {
+    scsidev = get_scsi_device(name, "scsi");
+    if (!scsidev)
+      return 0;
+  }
+  if (!strncmp(type, "sat", 3)) {
+    int ptlen = 0, n1 = -1, n2 = -1;
+    if (!(((sscanf(type, "sat%n,%d%n", &n1, &ptlen, &n2) == 1 && n2 == (int)strlen(type)) || n1 == (int)strlen(type))
+        && (ptlen == 0 || ptlen == 12 || ptlen == 16))) {
+      set_err(EINVAL, "Option '-d sat,<n>' requires <n> to be 0, 12 or 16");
+      return 0;
+    }
+    return new sat_device(this, scsidev, type, ptlen);
+  }
+  else if (!strncmp(type, "usbcypress", 10)) {
+    unsigned signature = 0x24; int n1 = -1, n2 = -1;
+    if (!(((sscanf(type, "usbcypress%n,0x%x%n", &n1, &signature, &n2) == 1 && n2 == (int)strlen(type)) || n1 == (int)strlen(type))
+          && signature <= 0xff)) {
+      set_err(EINVAL, "Option '-d usbcypress,<n>' requires <n> to be "
+                      "an hexadecimal number between 0x0 and 0xff");
+      return 0;
+    }
+    return new usbcypress_device(this, scsidev, type, signature);
+  }
+  else {
+    set_err(EINVAL, "Unknown USB device type '%s'", type);
+    return 0;
+  }
+}
+
+// Try to detect a SAT device behind a SCSI interface.
+
+ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
+  const unsigned char * inqdata, unsigned inqsize)
+{
+  if (!scsidev->is_open())
+    return 0;
+
+  ata_device * atadev = 0;
+  try {
+    // SAT ?
+    if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) { // TODO: Linux-specific?
+      atadev = new sat_device(this, scsidev, "");
+      if (has_sat_pass_through(atadev))
+        return atadev; // Detected SAT
+      atadev->release(scsidev);
+      delete atadev;
+    }
+
+    // USB ?
+    {
+      atadev = new usbcypress_device(this, scsidev, "", 0x24);
+      if (has_usbcypress_pass_through(atadev,
+            (inqdata && inqsize >= 36 ? (const char*)inqdata  + 8 : 0),
+            (inqdata && inqsize >= 36 ? (const char*)inqdata + 16 : 0) ))
+        return atadev; // Detected USB
+      atadev->release(scsidev);
+      delete atadev;
+    }
+  }
+  catch (...) {
+    if (atadev) {
+      atadev->release(scsidev);
+      delete atadev;
+    }
+    throw;
+  }
+
+  return 0;
 }

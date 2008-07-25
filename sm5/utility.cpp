@@ -44,8 +44,11 @@
 #include "int64.h"
 #include "utility.h"
 
+#include "atacmds.h"
+#include "dev_interface.h"
+
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.68 2008/04/27 16:30:09 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.69 2008/07/25 21:16:00 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -82,16 +85,11 @@ unsigned char debugmode = 0;
 // Make version information string
 const char *format_version_info(const char *progname)
 {
-#ifdef HAVE_GET_OS_VERSION_STR
-  const char * osver = get_os_version_str();
-#else
-  const char * osver = SMARTMONTOOLS_BUILD_HOST;
-#endif
   static char info[200];
   snprintf(info, sizeof(info),
     "%s %s %s [%s] %s\n"
     "Copyright (C) 2002-8 by Bruce Allen, http://smartmontools.sourceforge.net\n",
-    progname, PACKAGE_VERSION, SMARTMONTOOLS_CVS_DATE_TIME, osver, BUILD_INFO
+    progname, PACKAGE_VERSION, SMARTMONTOOLS_CVS_DATE_TIME, smi()->get_os_version_str(), BUILD_INFO
   );
   return info;
 }
@@ -688,6 +686,24 @@ void MsecToText(unsigned int msec, char *txt){
 
   sprintf(txt, "%02d:%02d:%02d.%03d", (int)hours, (int)min, (int)sec, (int)msec);  
   return;
+}
+
+// return (v)sprintf() formatted std::string
+
+std::string vstrprintf(const char * fmt, va_list ap)
+{
+  char buf[512];
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  buf[sizeof(buf)-1] = 0;
+  return buf;
+}
+
+std::string strprintf(const char * fmt, ...)
+{
+  va_list ap; va_start(ap, fmt);
+  std::string str = vstrprintf(fmt, ap);
+  va_end(ap);
+  return str;
 }
 
 

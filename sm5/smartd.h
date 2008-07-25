@@ -32,7 +32,7 @@
 
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.88 2008/06/15 21:23:12 mat-c Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.89 2008/07/25 21:16:00 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -168,12 +168,10 @@ typedef struct configfile_s {
   // REGISTERED AND WE LEARN ITS CAPABILITIES.
   int lineno;                             // Line number of entry in file
   char *name;                             // Device name (+ optional [3ware_disk_XX])
-  unsigned char controller_explicit;      // Controller (device) type has been specified explicitly
-  unsigned char controller_type;          // Controller type, ATA/SCSI/SAT/3Ware/(more to come)
-  unsigned char controller_port;          // 1 + (disk number in controller). 0 means controller only handles one disk.
-  unsigned char hpt_data[3];              // combined controller/channle/pmport for highpoint rocketraid controller
-  unsigned char satpassthrulen;           // length of SAT ata pass through scsi commands (12, 16 or 0 (platform choice))
-  unsigned char usbcypress_signature;     // usbcypress scsi command
+  char *dev_type;                         // Device type argument from -d directive, 0 if none
+  smart_device * device;                  // Device object
+  ata_device * atadev;                    // downcast to ATA interface or 0
+  scsi_device * scsidev;                  // downcast to SCSI interface or 0
   char smartcheck;                        // Check SMART status
   char usagefailed;                       // Check for failed Usage Attributes
   char prefail;                           // Track changes in Prefail Attributes
@@ -233,9 +231,6 @@ typedef struct configfile_s {
   // NEEDED, ALLOCATED WHEN DEVICE REGISTERED.
   struct ata_smart_values *smartval;       // Pointer to SMART data
   struct ata_smart_thresholds_pvt *smartthres; // Pointer to SMART thresholds
-
-  // Added to distinguish ATA and SCSI entries on list
-  int WhichCheckDevice;
 
 } cfgfile;
 
@@ -300,16 +295,6 @@ export NJAMD_TRACE_LIBS=1
 
 // if cfg->pending has this value, dont' monitor
 #define DONT_MONITOR_UNC (256*OFF_UNC_DEFAULT+CUR_UNC_DEFAULT)
-
-// Some return values from SCSIFilterKnown(), used to detect known
-// device types hidden behind SCSI devices.
-
-#define SCSIFK_FAILED   -1
-#define SCSIFK_NORMAL    0
-#define SCSIFK_3WARE    11
-#define SCSIFK_SAT      12
-#define SCSIFK_MARVELL  13
-#define SCSIFK_USBCYPRESS  14
 
 // Make additions BEFORE this line.  The line is the end of
 // double-inclusion protection and should remain the final line.

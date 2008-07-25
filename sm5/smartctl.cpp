@@ -48,6 +48,7 @@
 
 #include "int64.h"
 #include "atacmds.h"
+#include "dev_interface.h"
 #include "ataprint.h"
 #include "extern.h"
 #include "knowndrives.h"
@@ -63,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.180 2008/06/12 21:46:31 ballen4705 Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.181 2008/07/25 21:16:00 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -149,7 +150,7 @@ void Usage (void){
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
-"         Specify device type to one of: ata, scsi, marvell, sat, areca,N, 3ware,N\n\n"
+"         Specify device type to one of: %s\n\n"
 "  -T TYPE, --tolerance=TYPE                                           (ATA)\n"
 "         Tolerance: normal, conservative, permissive, verypermissive\n\n"
 "  -b TYPE, --badsum=TYPE                                              (ATA)\n"
@@ -157,18 +158,18 @@ void Usage (void){
 "  -r TYPE, --report=TYPE\n"
 "         Report transactions (see man page)\n\n"
 "  -n MODE, --nocheck=MODE                                             (ATA)\n"
-"         No check if: never, sleep, standby, idle (see man page)\n\n"
-  );
+"         No check if: never, sleep, standby, idle (see man page)\n\n",
+  smi()->get_valid_dev_types_str());
 #else
   printf(
-"  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent,    (ATA)\n"
+"  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
 "                                               noserial\n"
-"  -d TYPE   Specify device type to one of: ata, scsi, 3ware,N, areca,N\n"
-"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA)\n"
+"  -d TYPE   Specify device type to one of: %s\n"
+"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA\n"
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n"
-"  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n"
-  );
+"  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n",
+  smi()->get_valid_dev_types_str());
 #endif
   printf("============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n");
 #ifdef HAVE_GETOPT_LONG
@@ -239,8 +240,9 @@ void Usage (void){
 "  -X        Abort any non-captive test\n\n"
   );
 #endif
-  print_smartctl_examples();
-  return;
+  const char * examples = smi()->get_app_examples("smartctl");
+  if (examples)
+    printf("%s\n", examples);
 }
 
 /* Returns a pointer to a static string containing a formatted list of the valid
@@ -250,7 +252,7 @@ const char *getvalidarglist(char opt) {
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return "ata, scsi, marvell, sat, areca,N, 3ware,N, hpt,L/M/N cciss,N";
+    return smi()->get_valid_dev_types_str();
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -307,7 +309,7 @@ void printvalidarglistmessage(char opt) {
 }
 
 /*      Takes command options and sets features to be run */    
-void ParseOpts (int argc, char** argv){
+const char * ParseOpts (int argc, char** argv){
   int optchar;
   int badarg;
   int captive;
@@ -357,6 +359,8 @@ void ParseOpts (int argc, char** argv){
   opterr=optopt=0;
   badarg = captive = FALSE;
   
+  const char * type = 0; // set to -d optarg
+
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
 #ifdef HAVE_GETOPT_LONG
@@ -386,153 +390,7 @@ void ParseOpts (int argc, char** argv){
       }
       break;
     case 'd':
-      con->controller_explicit = 1;
-      if (!strcmp(optarg,"ata")) {
-        con->controller_type = CONTROLLER_ATA;
-        con->controller_port = 0;
-      } else if (!strcmp(optarg,"scsi")) {
-        con->controller_type = CONTROLLER_SCSI;
-        con->controller_port = 0;
-      } else if (!strcmp(optarg,"marvell")) {
-        con->controller_type = CONTROLLER_MARVELL_SATA;
-        con->controller_port = 0;
-      } else if (!strncmp(optarg, "usbcypress", 10)) {
-        con->controller_type = CONTROLLER_USBCYPRESS;
-        con->controller_port = 0;
-        con->usbcypress_signature = 0x24;
-        if (strlen(optarg) > 10) {
-          int k;
-          char * cp;
-
-          cp = strchr(optarg, ',');
-          if (cp && (1 == sscanf(cp + 1, "0x%x", &k)) &&
-              ((0 <= k) && (0xff >= k)))
-            con->usbcypress_signature = k;
-          else {
-            sprintf(extraerror, "Option '-d usbcypress,<n>' requires <n> to be "
-                    "an hexadecimal number between 0x0 and 0xff\n");
-            badarg = TRUE;
-          }
-        }
-      } else if (!strncmp(optarg, "sat", 3)) {
-        con->controller_type = CONTROLLER_SAT;
-        con->controller_port = 0;
-        con->satpassthrulen = 0;
-        if (strlen(optarg) > 3) {
-          int k;
-          char * cp;
-
-          cp = strchr(optarg, ',');
-          if (cp && (1 == sscanf(cp + 1, "%d", &k)) &&
-              ((0 == k) || (12 == k) || (16 == k)))
-            con->satpassthrulen = k;
-          else {
-            sprintf(extraerror, "Option '-d sat,<n>' requires <n> to be "
-                    "0, 12 or 16\n");
-            badarg = TRUE;
-          }
-        }
-      } else if (!strncmp(optarg, "hpt", 3)){
-        unsigned char i, slash = 0;
-        con->hpt_data[0] = 0;
-        con->hpt_data[1] = 0;
-        con->hpt_data[2] = 0;
-        con->controller_type = CONTROLLER_HPT;
-        for (i=4; i < strlen(optarg); i++) {
-          if(optarg[i] == '/') {
-            slash++;
-            if(slash == 3) {
-              sprintf(extraerror, "Option '-d hpt,L/M/N' supports 2-3 items\n");
-              badarg = TRUE;
-              break;
-            }
-          }
-          else if ((optarg[i])>='0' && (optarg[i])<='9') {
-            if (con->hpt_data[slash]>1) { /* hpt_data[x] max 19 */
-              badarg = TRUE;
-              break;
-            }
-            con->hpt_data[slash] = con->hpt_data[slash]*10 + optarg[i] - '0';
-          }
-          else {
-            badarg = TRUE;
-            break;
-          }
-        }
-        if (slash == 0) {
-          sprintf(extraerror, "Option '-d hpt,L/M/N' requires 2-3 items\n");
-          badarg = TRUE;
-        } else if (badarg != TRUE) {
-          if (con->hpt_data[0]==0 || con->hpt_data[0]>8){
-            sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid controller id L supplied\n");
-            badarg = TRUE;
-          }
-          if (con->hpt_data[1]==0 || con->hpt_data[1]>8){
-            sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid channel number M supplied\n");
-            badarg = TRUE;
-          }
-          if (slash==2) {
-            if ( con->hpt_data[2]==0 || con->hpt_data[2]>15) {
-              sprintf(extraerror, "Option '-d hpt,L/M/N' no/invalid pmport number N supplied\n");
-              badarg = TRUE;
-            }
-          } else {
-            con->hpt_data[2]=1;
-          }
-        }
-      } else {
-        // look for RAID-type device
-        int i;
-        char *s;
-        
-        // make a copy of the string to mess with
-        if (!(s = strdup(optarg))) {
-          con->dont_print = FALSE;
-          throw std::bad_alloc();
-        } else if (!strncmp(s,"3ware,",6)) {
-            if (split_report_arg2(s, &i)) {
-                 sprintf(extraerror, "Option -d 3ware,N requires N to be a non-negative integer\n");
-                 badarg = TRUE;
-            } else if (i<0 || i>127) {
-                 sprintf(extraerror, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127\n", i);
-                 badarg = TRUE;
-            } else {
- 	        // NOTE: controller_port == disk number + 1
- 	        con->controller_type = CONTROLLER_3WARE;
-                 con->controller_port = i+1;
-            }
- 	    free(s);
-
-	} else if (!strncmp(s,"areca,",6)) {
-	    if (split_report_arg2(s, &i)) {
-	         sprintf(extraerror, "Option -d areca,N requires N to be a positive integer\n");
-	         badarg = TRUE;
-	    } else if (i<1 || i>24) {
-	         sprintf(extraerror, "Option -d areca,N (N=%d) must have 1 <= N <= 24\n", i);
-	         badarg = TRUE;
-	    } else {
-	       	 // NOTE: controller_port == disk number + 1
-	       	 con->controller_type = CONTROLLER_ARECA;
-	         con->controller_port = i+1;
-	    }
-	    free(s);
-
-        } else if (!strncmp(s,"cciss,",6)) {
-             if (split_report_arg2(s, &i)) {
-                 sprintf(extraerror, "Option -d cciss,N requires N to be a non-negative integer\n");
-                 badarg = TRUE;
-             } else if (i<0 || i>127) {
-                 sprintf(extraerror, "Option -d cciss,N (N=%d) must have 0 <= N <= 127\n", i);
-                 badarg = TRUE;
-             } else {
-               // NOTE: controller_port == drive number
-               con->controller_type = CONTROLLER_CCISS;
-               con->controller_port = i+1;
-             }
-             free(s);
-        } else
- 	    badarg=TRUE;
-      }
+      type = optarg;
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
@@ -935,7 +793,8 @@ void ParseOpts (int argc, char** argv){
       pout("%s\n",argv[optind+i]);
     UsageSummary();
     EXIT(FAILCMD);
-  }  
+  }
+  return type;
 }
 
 // Printing function (controlled by global con->dont_print) 
@@ -981,116 +840,89 @@ void PrintOut(int priority, const char *fmt, ...) {
 // Main program without exception handling
 int main_worker(int argc, char **argv)
 {
-  int fd,retval=0;
-  char *device;
-  smartmonctrl control;
-  const char *mode = 0;
+  // Initialize interface
+  smart_interface::init();
+  if (!smi())
+    return 1;
 
-  // define control block for external functions
-  con=&control;
+  int retval = 0;
 
-  // Part input arguments
-  ParseOpts(argc,argv);
+  smart_device * dev = 0;
+  try {
+    // define control block for external functions
+    smartmonctrl control;
+    con=&control;
 
-  device = argv[argc-1];
+    // Parse input arguments
+    const char * type = ParseOpts(argc,argv);
 
-  // Device name "-": Parse "smartctl -r ataioctl,2 ..." output
-  if (!strcmp(device,"-")) {
-    if (con->controller_type != CONTROLLER_UNKNOWN) {
-      pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
+    const char * name = argv[argc-1];
+
+    if (!strcmp(name,"-")) {
+      // Parse "smartctl -r ataioctl,2 ..." output from stdin
+      if (type) {
+        pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
+        UsageSummary();
+        return FAILCMD;
+      }
+      dev = get_parsed_ata_device(smi(), name);
+    }
+    else
+      // get device of appropriate type
+      dev = smi()->get_smart_device(name, type);
+
+    if (!dev) {
+      pout("%s: %s\n", name, smi()->get_errmsg());
+      if (type)
+        printvalidarglistmessage('d');
+      else
+        pout("Smartctl: please specify device type with the -d option.\n");
       UsageSummary();
       return FAILCMD;
     }
-    con->controller_type = CONTROLLER_PARSEDEV;
-  }
 
-  // If use has specified 3ware controller, determine which interface 
-  if (con->controller_type == CONTROLLER_3WARE) {
-    con->controller_type=guess_device_type(device);
-    if (con->controller_type!=CONTROLLER_3WARE_9000_CHAR && con->controller_type!=CONTROLLER_3WARE_678K_CHAR)
-      con->controller_type = CONTROLLER_3WARE_678K;
-  }
+    // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
+    // scsi generic device can be used (needs write permission for MODE
+    // SELECT command) plus O_NONBLOCK to stop open hanging if media not
+    // present (e.g. with st).  Opening is retried O_RDONLY if read-only
+    // media prevents opening O_RDWR (it cannot happen for scsi generic
+    // devices, but it can for the others).
+    // TODO: The above comment is probably linux related ;-)
 
-  if (con->controller_type == CONTROLLER_UNKNOWN)
-    con->controller_type=guess_device_type(device);
-  
-  if (con->controller_type == CONTROLLER_UNKNOWN) {
-    pout("Smartctl: please specify device type with the -d option.\n");
-    UsageSummary();
-    return FAILCMD;
-  }
-  
-  // set up mode for open() call.  SCSI case is:
-  switch (con->controller_type) {
-  case CONTROLLER_SCSI:
-  case CONTROLLER_SAT:
-  case CONTROLLER_USBCYPRESS:
-    mode="SCSI";
-    break;
-  case CONTROLLER_3WARE_9000_CHAR:
-    mode="ATA_3WARE_9000";
-    break;
-  case CONTROLLER_3WARE_678K_CHAR:
-    mode="ATA_3WARE_678K";
-    break;
-  case CONTROLLER_CCISS:
-    mode="CCISS";
-    break;
-  case CONTROLLER_ARECA:
-    mode="ATA_ARECA";
-    break;
-  default:
-    mode="ATA";
-    break;
-  }
-  
-  // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
-  // scsi generic device can be used (needs write permission for MODE 
-  // SELECT command) plus O_NONBLOCK to stop open hanging if media not
-  // present (e.g. with st).  Opening is retried O_RDONLY if read-only
-  // media prevents opening O_RDWR (it cannot happen for scsi generic
-  // devices, but it can for the others).
-  if (con->controller_type != CONTROLLER_PARSEDEV)
-    fd = deviceopen(device, (char*)mode); // TODO: const
-  else
-    fd = parsedev_open(device);
-  if (fd<0) {
-    char errmsg[256];
-    snprintf(errmsg,256,"Smartctl open device: %s failed",argv[argc-1]);
-    errmsg[255]='\0';
-    syserror(errmsg);
-    return FAILDEV;
-  }
+    // Open device
+    {
+      // Save old info
+      smart_device::device_info oldinfo = dev->get_info();
 
-  // now call appropriate ATA or SCSI routine
-  switch (con->controller_type) {
-  case CONTROLLER_UNKNOWN:
-    // we should never fall into this branch!
-    pout("Smartctl: please specify device type with the -d option.\n");
-    UsageSummary();
-    retval = FAILCMD;
-    break;
-  case CONTROLLER_SCSI:
-    retval = scsiPrintMain(fd);
-    if ((0 == retval) && 
-			(CONTROLLER_SAT == con->controller_type) || (CONTROLLER_USBCYPRESS == con->controller_type))
-        retval = ataPrintMain(fd);
-    break;
-  case CONTROLLER_CCISS:
-    // route the cciss command through scsiPrintMain. 
-    // cciss pass-throughs will separeate from the SCSI data-path.
-    retval = scsiPrintMain(fd);
-    break;
-  default:
-    retval = ataPrintMain(fd);
-    break;
-  }
-  
-  if (con->controller_type != CONTROLLER_PARSEDEV)
-    deviceclose(fd);
-  else
-    parsedev_close(fd);
+      // Open with autodetect support, may return 'better' device
+      dev = dev->autodetect_open();
 
+      // Report if type has changed
+      if (type && oldinfo.dev_type != dev->get_dev_type())
+        pout("%s: Device type changed from '%s' to '%s'\n",
+          name, oldinfo.dev_type.c_str(), dev->get_dev_type());
+    }
+    if (!dev->is_open()) {
+      pout("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
+      delete dev;
+      return FAILDEV;
+    }
+
+    // now call appropriate ATA or SCSI routine
+    if (dev->is_ata())
+      retval = ataPrintMain(dev->to_ata());
+    else if (dev->is_scsi())
+      retval = scsiPrintMain(dev->to_scsi());
+    else
+      ; // we should never fall into this branch!
+
+    dev->close();
+    delete dev;
+  }
+  catch (...) {
+    delete dev;
+    throw;
+  }
   return retval;
 }
 

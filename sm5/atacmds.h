@@ -25,7 +25,9 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.92 2008/06/12 21:46:31 ballen4705 Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.93 2008/07/25 21:16:00 chrfranke Exp $\n"
+
+#include "dev_interface.h" // ata_device
 
 // Macro to check expected size of struct at compile time using a
 // dummy typedef.  On size mismatch, compiler reports a negative array
@@ -372,6 +374,8 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 #define SELECTIVE_FLAG_PENDING (0x0008)
 #define SELECTIVE_FLAG_ACTIVE  (0x0010)
 
+class ata_device;
+
 
 // SCT (SMART Command Transport) data structures
 // See Sections 8.2 and 8.3 of:
@@ -459,51 +463,51 @@ ASSERT_SIZEOF_STRUCT(ata_sct_temperature_history_table, 512);
 
 
 // Get information from drive
-int ataReadHDIdentity(int device, struct ata_identify_device *buf);
-int ataCheckPowerMode(int device);
+int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
+int ataCheckPowerMode(ata_device * device);
 
 /* Read S.M.A.R.T information from drive */
-int ataReadSmartValues(int device,struct ata_smart_values *);
-int ataReadSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
-int ataReadErrorLog(int device, struct ata_smart_errorlog *);
-int ataReadSelfTestLog(int device, struct ata_smart_selftestlog *);
-int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data);
-int ataSmartStatus(int device);
-int ataSetSmartThresholds(int device, struct ata_smart_thresholds_pvt *);
-int ataReadLogDirectory(int device, struct ata_smart_log_directory *);
+int ataReadSmartValues(ata_device * device,struct ata_smart_values *);
+int ataReadSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
+int ataReadErrorLog(ata_device * device, struct ata_smart_errorlog *);
+int ataReadSelfTestLog(ata_device * device, struct ata_smart_selftestlog *);
+int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
+int ataSmartStatus(ata_device * device);
+int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
+int ataReadLogDirectory(ata_device * device, struct ata_smart_log_directory *);
 
 // Read SCT information
-int ataReadSCTStatus(int device, ata_sct_status_response * sts);
-int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
+int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts);
+int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * tmh,
                        ata_sct_status_response * sts);
 // Set SCT temperature logging interval
-int ataSetSCTTempInterval(int device, unsigned interval, bool persistent);
+int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent);
 
 
 /* Enable/Disable SMART on device */
-int ataEnableSmart ( int device );
-int ataDisableSmart (int device );
-int ataEnableAutoSave(int device);
-int ataDisableAutoSave(int device);
+int ataEnableSmart (ata_device * device);
+int ataDisableSmart (ata_device * device);
+int ataEnableAutoSave(ata_device * device);
+int ataDisableAutoSave(ata_device * device);
 
 /* Automatic Offline Testing */
-int ataEnableAutoOffline ( int device );
-int ataDisableAutoOffline (int device );
+int ataEnableAutoOffline (ata_device * device);
+int ataDisableAutoOffline (ata_device * device);
 
 /* S.M.A.R.T. test commands */
-int ataSmartOfflineTest (int device);
-int ataSmartExtendSelfTest (int device);
-int ataSmartShortSelfTest (int device);
-int ataSmartShortCapSelfTest (int device);
-int ataSmartExtendCapSelfTest (int device);
-int ataSmartSelfTestAbort (int device);
+int ataSmartOfflineTest (ata_device * device);
+int ataSmartExtendSelfTest (ata_device * device);
+int ataSmartShortSelfTest (ata_device * device);
+int ataSmartShortCapSelfTest (ata_device * device);
+int ataSmartExtendCapSelfTest (ata_device * device);
+int ataSmartSelfTestAbort (ata_device * device);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
 int ataVersionInfo (const char **description, struct ata_identify_device *drive, unsigned short *minor);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
-int ataDoesSmartWork(int device);
+int ataDoesSmartWork(ata_device * device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
 int ataSmartSupport ( struct ata_identify_device *drive);
@@ -519,7 +523,7 @@ int ataIsSmartEnabled(struct ata_identify_device *drive);
 // onlyfailed=1:  are any prefailure attributes <= threshold now
 int ataCheckSmart ( struct ata_smart_values *data, struct ata_smart_thresholds_pvt *thresholds, int onlyfailed);
 
-int ataSmartStatus2(int device);
+int ataSmartStatus2(ata_device * device);
 
 // int isOfflineTestTime ( struct ata_smart_values data)
 //  returns S.M.A.R.T. Offline Test Time in seconds
@@ -558,7 +562,7 @@ inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
-int ataSmartTest(int device, int testtype, struct ata_smart_values *data, uint64_t num_sectors);
+int ataSmartTest(ata_device * device, int testtype, struct ata_smart_values *data, uint64_t num_sectors);
 
 int TestTime(struct ata_smart_values *data,int testtype);
 
@@ -625,24 +629,22 @@ char *create_vendor_attribute_arg_list(void);
 
 // These are two of the functions that are defined in os_*.c and need
 // to be ported to get smartmontools onto another OS.
-int ata_command_interface(int device, smart_command_set command, int select, char *data);
-int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
-int marvell_command_interface(int device, smart_command_set command, int select, char *data);
-int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
-int areca_command_interface(int fd, int escalade_port, smart_command_set command, int select, char *data);
+// Moved to C++ interface
+//int ata_command_interface(int device, smart_command_set command, int select, char *data);
+//int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
+//int marvell_command_interface(int device, smart_command_set command, int select, char *data);
+//int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
+//int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
 
-// "smartctl -r ataioctl,2 ..." output parser pseudo-device
-int parsedev_open(const char * name);
-void parsedev_close(int fd);
 
 // Optional functions of os_*.c
 #ifdef HAVE_ATA_IDENTIFY_IS_CACHED
 // Return true if OS caches the ATA identify sector
-int ata_identify_is_cached(int fd);
+//int ata_identify_is_cached(int fd);
 #endif
 
 // This function is exported to give low-level capability
-int smartcommandhandler(int device, smart_command_set command, int select, char *data);
+int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
 
 // Utility routines.
 void swap2(char *location);
@@ -655,5 +657,9 @@ inline void swapx(unsigned int * p)
   { swap4((char*)p); }
 inline void swapx(uint64_t * p)
   { swap8((char*)p); }
+
+// Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
+// and simulate an ATA device with same behaviour
+ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);
 
 #endif /* ATACMDS_H_ */

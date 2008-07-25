@@ -45,9 +45,11 @@
 #include "int64.h"
 #include "extern.h"
 #include "scsicmds.h"
+#include "atacmds.h" // FIXME: for smart_command_set only
+#include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.96 2008/03/04 22:09:47 ballen4705 Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.97 2008/07/25 21:16:00 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -249,7 +251,7 @@ const char * scsiErrString(int scsiErr)
    requesting the deduced response length. This protects certain fragile 
    HBAs. The twin fetch technique should not be used with the TapeAlert
    log page since it clears its state flags after each fetch. */
-int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
+int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
                  int bufLen, int known_resp_len)
 {
     struct scsi_cmnd_io io_hdr;
@@ -286,10 +288,9 @@ int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
         io_hdr.sensep = sense;
         io_hdr.max_sense_len = sizeof(sense);
         io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
-    
-        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-        if (0 != status)
-            return status;
+
+        if (!device->scsi_pass_through(&io_hdr))
+          return -device->get_errno();
         scsi_do_sense_disect(&io_hdr, &sinfo);
         if ((res = scsiSimpleSenseFilter(&sinfo)))
             return res;
@@ -323,9 +324,8 @@ int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     status = scsiSimpleSenseFilter(&sinfo);
     if (0 != status)
@@ -342,7 +342,7 @@ int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
  * 2 if command not supported (then MODE SENSE(10) should be supported),
  * 3 if field in command not supported or returns negated errno. 
  * SPC-3 sections 6.9 and 7.4 (rev 22a) [mode subpage==0] */
-int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
+int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
                   UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -368,15 +368,13 @@ int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     status = scsiSimpleSenseFilter(&sinfo);
     if (SIMPLE_ERR_TRY_AGAIN == status) {
-        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-        if (0 != status)
-            return status;
+        if (!device->scsi_pass_through(&io_hdr))
+          return -device->get_errno();
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
     }
@@ -399,13 +397,13 @@ int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
  * 2 if command not supported (then MODE SELECT(10) may be supported), 
  * 3 if field in command not supported, 4 if bad parameter to command
  * or returns negated errno. SPC-3 sections 6.7 and 7.4 (rev 22a) */
-int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
+int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status, pg_offset, pg_len, hdr_plus_1_pg;
+    int pg_offset, pg_len, hdr_plus_1_pg;
 
     pg_offset = 4 + pBuf[3];
     if (pg_offset + 2 >= bufLen)
@@ -430,9 +428,8 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
@@ -441,7 +438,7 @@ int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen)
  * not supported (then MODE SENSE(6) might be supported), 3 if field in
  * command not supported or returns negated errno.  
  * SPC-3 sections 6.10 and 7.4 (rev 22a) [mode subpage==0] */
-int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
+int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
                     UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
@@ -466,15 +463,13 @@ int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     status = scsiSimpleSenseFilter(&sinfo);
     if (SIMPLE_ERR_TRY_AGAIN == status) {
-        status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-        if (0 != status)
-            return status;
+        if (!device->scsi_pass_through(&io_hdr))
+          return -device->get_errno();
         scsi_do_sense_disect(&io_hdr, &sinfo);
         status = scsiSimpleSenseFilter(&sinfo);
     }
@@ -497,13 +492,13 @@ int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
  * command not supported (then MODE SELECT(6) may be supported), 3 if field
  * in command not supported, 4 if bad parameter to command or returns
  * negated errno. SPC-3 sections 6.8 and 7.4 (rev 22a) */
-int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
+int scsiModeSelect10(scsi_device * device, int sp, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
     UINT8 sense[32];
-    int status, pg_offset, pg_len, hdr_plus_1_pg;
+    int pg_offset, pg_len, hdr_plus_1_pg;
 
     pg_offset = 8 + (pBuf[6] << 8) + pBuf[7];
     if (pg_offset + 2 >= bufLen)
@@ -529,9 +524,8 @@ int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
@@ -539,13 +533,12 @@ int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen)
 /* Standard INQUIRY returns 0 for ok, anything else is a major problem.
  * bufLen should be 36 for unsafe devices (like USB mass storage stuff)
  * otherwise they can lock up! SPC-3 sections 6.4 and 7.6 (rev 22a) */
-int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
+int scsiStdInquiry(scsi_device * device, UINT8 *pBuf, int bufLen)
 {
     struct scsi_sense_disect sinfo;
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status;
 
     if ((bufLen < 0) || (bufLen > 255))
         return -EINVAL;
@@ -562,9 +555,8 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
@@ -573,13 +565,13 @@ int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen)
  * (unlikely), 2 if command not supported, 3 if field in command not 
  * supported, 5 if response indicates that EVPD bit ignored or returns
  * negated errno. SPC-3 section 6.4 and 7.6 (rev 22a) */
-int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
+int scsiInquiryVpd(scsi_device * device, int vpd_page, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status, res;
+    int res;
 
     if ((bufLen < 0) || (bufLen > 255))
         return -EINVAL;
@@ -600,9 +592,8 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     if ((res = scsiSimpleSenseFilter(&sinfo)))
         return res;
@@ -619,13 +610,13 @@ int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen)
 
 /* REQUEST SENSE command. Returns 0 if ok, anything else major problem.
  * SPC-3 section 6.27 (rev 22a) */
-int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
+int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
     UINT8 sense[32];
     UINT8 buff[18];
-    int status, len;
+    int len;
     UINT8 ecode;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
@@ -641,8 +632,9 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if ((0 == status) && (sense_info)) {
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
+    if (sense_info) {
         ecode = buff[0] & 0x7f;
         sense_info->error_code = ecode;
         sense_info->sense_key = buff[2] & 0xf;
@@ -656,19 +648,18 @@ int scsiRequestSense(int device, struct scsi_sense_disect * sense_info)
             }
         }
     }
-    return status;
+    return 0;
 }
 
 /* SEND DIAGNOSTIC command.  Returns 0 if ok, 1 if NOT READY, 2 if command
  * not supported, 3 if field in command not supported or returns negated
  * errno. SPC-3 section 6.28 (rev 22a) */
-int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
+int scsiSendDiagnostic(scsi_device * device, int functioncode, UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -691,9 +682,8 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
     /* worst case is an extended foreground self test on a big disk */
     io_hdr.timeout = SCSI_TIMEOUT_SELF_TEST;
     
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
@@ -701,14 +691,13 @@ int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen)
 /* RECEIVE DIAGNOSTIC command. Returns 0 if ok, 1 if NOT READY, 2 if
  * command not supported, 3 if field in command not supported or returns
  * negated errno. SPC-3 section 6.18 (rev 22a) */
-int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf, 
+int scsiReceiveDiagnostic(scsi_device * device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -726,20 +715,18 @@ int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* TEST UNIT READY command. SPC-3 section 6.33 (rev 22a) */
-static int _testunitready(int device, struct scsi_sense_disect * sinfo)
+static int _testunitready(scsi_device * device, struct scsi_sense_disect * sinfo)
 {
     struct scsi_cmnd_io io_hdr;
     UINT8 cdb[6];
     UINT8 sense[32];
-    int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -753,16 +740,15 @@ static int _testunitready(int device, struct scsi_sense_disect * sinfo)
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, sinfo);
     return 0;
 }
 
 /* Returns 0 for device responds and media ready, 1 for device responds and
    media not ready, or returns a negated errno value */
-int scsiTestUnitReady(int device)
+int scsiTestUnitReady(scsi_device * device)
 {
     struct scsi_sense_disect sinfo;
     int status;
@@ -784,14 +770,13 @@ int scsiTestUnitReady(int device)
 /* READ DEFECT (10) command. Returns 0 if ok, 1 if NOT READY, 2 if
  * command not supported, 3 if field in command not supported or returns
  * negated errno. SBC-2 section 5.12 (rev 16) */
-int scsiReadDefect10(int device, int req_plist, int req_glist, int dl_format,
+int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
                      UINT8 *pBuf, int bufLen)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     UINT8 cdb[10];
     UINT8 sense[32];
-    int status;
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     memset(cdb, 0, sizeof(cdb));
@@ -809,9 +794,8 @@ int scsiReadDefect10(int device, int req_plist, int req_glist, int dl_format,
     io_hdr.max_sense_len = sizeof(sense);
     io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
 
-    status = do_scsi_cmnd_io(device, &io_hdr, con->reportscsiioctl);
-    if (0 != status)
-        return status;
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
     scsi_do_sense_disect(&io_hdr, &sinfo);
     return scsiSimpleSenseFilter(&sinfo);
 }
@@ -860,7 +844,7 @@ int scsiModePageOffset(const UINT8 * resp, int len, int modese_len)
  * tries a 10 byte MODE SENSE command. Returns 0 if successful, a positive
  * number if a known error (see  SIMPLE_ERR_ ...) or a negative errno
  * value. */
-int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, int modese_len)
+int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp, int modese_len)
 {
     int err = 0;
 
@@ -950,7 +934,7 @@ int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp)
  * is to be re-examined.
  * When -r ioctl is invoked 3 or more time on 'smartctl -s on ...'
  * then set the TEST bit (causes asc,ascq pair of 0x5d,0xff). */
-int scsiSetExceptionControlAndWarning(int device, int enabled,
+int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                                       const struct scsi_iec_mode_page *iecp)
 {
     int k, offset, resp_len;
@@ -1025,7 +1009,7 @@ int scsiSetExceptionControlAndWarning(int device, int enabled,
     return err;
 }
 
-int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
+int scsiGetTemp(scsi_device * device, UINT8 *currenttemp, UINT8 *triptemp)
 {
     UINT8 tBuf[252];
     int err;
@@ -1047,7 +1031,7 @@ int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp)
  * Fetching asc/ascq code potentially flagging an exception or warning.
  * Returns 0 if ok, else error number. A current temperature of 255
  * (Celsius) implies that the temperature not available. */
-int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage,
+int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
                 UINT8 *asc, UINT8 *ascq, UINT8 *currenttemp,
                 UINT8 *triptemp)
 {
@@ -1630,7 +1614,7 @@ const char * scsiGetIEString(UINT8 asc, UINT8 ascq)
 
 /* This is not documented in t10.org, page 0x80 is vendor specific */
 /* Some IBM disks do an offline read-scan when they get this command. */
-int scsiSmartIBMOfflineTest(int device)
+int scsiSmartIBMOfflineTest(scsi_device * device)
 {       
     UINT8 tBuf[256];
     int res;
@@ -1651,7 +1635,7 @@ int scsiSmartIBMOfflineTest(int device)
     return res;
 }
 
-int scsiSmartDefaultSelfTest(int device)
+int scsiSmartDefaultSelfTest(scsi_device * device)
 {       
     int res;
 
@@ -1661,7 +1645,7 @@ int scsiSmartDefaultSelfTest(int device)
     return res;
 }
 
-int scsiSmartShortSelfTest(int device)
+int scsiSmartShortSelfTest(scsi_device * device)
 {       
     int res;
 
@@ -1671,7 +1655,7 @@ int scsiSmartShortSelfTest(int device)
     return res;
 }
 
-int scsiSmartExtendSelfTest(int device)
+int scsiSmartExtendSelfTest(scsi_device * device)
 {       
     int res;
 
@@ -1682,7 +1666,7 @@ int scsiSmartExtendSelfTest(int device)
     return res;
 }
 
-int scsiSmartShortCapSelfTest(int device)
+int scsiSmartShortCapSelfTest(scsi_device * device)
 {       
     int res;
 
@@ -1692,7 +1676,7 @@ int scsiSmartShortCapSelfTest(int device)
     return res;
 }
 
-int scsiSmartExtendCapSelfTest(int device)
+int scsiSmartExtendCapSelfTest(scsi_device * device)
 {
     int res;
 
@@ -1703,7 +1687,7 @@ int scsiSmartExtendCapSelfTest(int device)
     return res;
 }
 
-int scsiSmartSelfTestAbort(int device)
+int scsiSmartSelfTestAbort(scsi_device * device)
 {
     int res;
 
@@ -1715,7 +1699,7 @@ int scsiSmartSelfTestAbort(int device)
 
 /* Returns 0 and the expected duration of an extended self test (in seconds)
    if successful; any other return value indicates a failure. */
-int scsiFetchExtendedSelfTestTime(int device, int * durationSec, int modese_len)
+int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec, int modese_len)
 {
     int err, offset, res;
     UINT8 buff[64];
@@ -1875,7 +1859,7 @@ void scsiDecodeNonMediumErrPage(unsigned char *resp,
    tests (typically by the user) and self tests in progress are not 
    considered failures. See Working Draft SCSI Primary Commands - 3 
    (SPC-3) section 7.2.10 T10/1416-D (rev 22a) */
-int scsiCountFailedSelfTests(int fd, int noisy)
+int scsiCountFailedSelfTests(scsi_device * fd, int noisy)
 {
     int num, k, n, err, res, fails, fail_hour;
     UINT8 * ucp;
@@ -1924,7 +1908,7 @@ int scsiCountFailedSelfTests(int fd, int noisy)
 
 /* Returns 0 if able to read self test log page; then outputs 1 into
    *inProgress if self test still in progress, else outputs 0. */
-int scsiSelfTestInProgress(int fd, int * inProgress)
+int scsiSelfTestInProgress(scsi_device * fd, int * inProgress)
 {
     int num;
     UINT8 * ucp;
@@ -1951,7 +1935,7 @@ int scsiSelfTestInProgress(int fd, int * inProgress)
    malformed. Returns 0 if GLTSD bit is zero and returns 1 if the GLTSD
    bit is set. Examines default mode page when current==0 else examines
    current mode page. */
-int scsiFetchControlGLTSD(int device, int modese_len, int current)
+int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current)
 {
     int err, offset;
     UINT8 buff[64];
@@ -1984,7 +1968,7 @@ int scsiFetchControlGLTSD(int device, int modese_len, int current)
    0 attempts to clear GLTSD otherwise it attempts to set it. Returns 0 if
    successful, negative if low level error, > 0 if higher level error (e.g.
    SIMPLE_ERR_BAD_PARAM if GLTSD bit is not changeable). */
-int scsiSetControlGLTSD(int device, int enabled, int modese_len)
+int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len)
 {
     int err, offset, resp_len, sp;
     UINT8 buff[64];
@@ -2053,7 +2037,7 @@ int scsiSetControlGLTSD(int device, int enabled, int modese_len)
 /* Returns a negative value if failed to fetch Protocol specific port mode 
    page or it was malformed. Returns transport protocol identifier when
    value >= 0 . */
-int scsiFetchTransportProtocol(int device, int modese_len)
+int scsiFetchTransportProtocol(scsi_device * device, int modese_len)
 {
     int err, offset;
     UINT8 buff[64];

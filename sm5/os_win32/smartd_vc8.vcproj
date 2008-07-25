@@ -326,6 +326,46 @@
 			>
 		</File>
 		<File
+			RelativePath="..\cciss.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\cciss.h"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath="..\CHANGELOG"
 			>
 		</File>
@@ -342,7 +382,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) config.h"
-					CommandLine="copy $(InputPath) config.h"
+					CommandLine="copy $(InputPath) config.h&#x0D;&#x0A;"
 					Outputs="config.h"
 				/>
 			</FileConfiguration>
@@ -352,7 +392,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) config.h"
-					CommandLine="copy $(InputPath) config.h"
+					CommandLine="copy $(InputPath) config.h&#x0D;&#x0A;"
 					Outputs="config.h"
 				/>
 			</FileConfiguration>
@@ -370,7 +410,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) cvsversion.h"
-					CommandLine="copy $(InputPath) cvsversion.h"
+					CommandLine="copy $(InputPath) cvsversion.h&#x0D;&#x0A;"
 					Outputs="cvsversion.h"
 				/>
 			</FileConfiguration>
@@ -380,13 +420,41 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="Copy $(InputPath) cvsversion.h"
-					CommandLine="copy $(InputPath) cvsversion.h"
+					CommandLine="copy $(InputPath) cvsversion.h&#x0D;&#x0A;"
 					Outputs="cvsversion.h"
 				/>
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath="..\dev_ata_cmd_set.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\dev_ata_cmd_set.h"
+			>
+		</File>
+		<File
+			RelativePath="..\dev_interface.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\dev_interface.h"
+			>
+		</File>
+		<File
+			RelativePath="..\dev_legacy.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\dev_tunnelled.h"
+			>
+		</File>
+		<File
 			RelativePath="..\do_release"
+			>
+		</File>
+		<File
+			RelativePath="..\Doxyfile"
 			>
 		</File>
 		<File
@@ -679,6 +747,46 @@
 		</File>
 		<File
 			RelativePath="..\os_os2.h"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\os_qnxnto.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\os_qnxnto.h"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"

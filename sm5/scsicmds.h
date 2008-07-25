@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.66 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.67 2008/07/25 21:16:00 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -277,6 +277,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 #define LOGPAGEHDRSIZE  4
 
+class scsi_device;
+
 void scsi_do_sense_disect(const struct scsi_cmnd_io * in,
                           struct scsi_sense_disect * out);
 
@@ -285,73 +287,73 @@ int scsiSimpleSenseFilter(const struct scsi_sense_disect * sinfo);
 const char * scsiErrString(int scsiErr);
 
 /* STANDARD SCSI Commands  */
-int scsiTestUnitReady(int device);
+int scsiTestUnitReady(scsi_device * device);
 
-int scsiStdInquiry(int device, UINT8 *pBuf, int bufLen);
+int scsiStdInquiry(scsi_device * device, UINT8 *pBuf, int bufLen);
 
-int scsiInquiryVpd(int device, int vpd_page, UINT8 *pBuf, int bufLen);
+int scsiInquiryVpd(scsi_device * device, int vpd_page, UINT8 *pBuf, int bufLen);
 
-int scsiLogSense(int device, int pagenum, int subpagenum, UINT8 *pBuf,
+int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
 		 int bufLen, int known_resp_len);
 
-int scsiModeSense(int device, int pagenum, int subpagenum, int pc,
+int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
                   UINT8 *pBuf, int bufLen);
 
-int scsiModeSelect(int device, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
 
-int scsiModeSense10(int device, int pagenum, int subpagenum, int pc,
+int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
 		    UINT8 *pBuf, int bufLen);
 
-int scsiModeSelect10(int device, int sp, UINT8 *pBuf, int bufLen);
+int scsiModeSelect10(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
 
 int scsiModePageOffset(const UINT8 * resp, int len, int modese_len);
 
-int scsiRequestSense(int device, struct scsi_sense_disect * sense_info);
+int scsiRequestSense(scsi_device * device, struct scsi_sense_disect * sense_info);
 
-int scsiSendDiagnostic(int device, int functioncode, UINT8 *pBuf, int bufLen);
+int scsiSendDiagnostic(scsi_device * device, int functioncode, UINT8 *pBuf, int bufLen);
 
-int scsiReceiveDiagnostic(int device, int pcv, int pagenum, UINT8 *pBuf,
+int scsiReceiveDiagnostic(scsi_device * device, int pcv, int pagenum, UINT8 *pBuf,
                       int bufLen);
 
-int scsiReadDefect10(int device, int req_plist, int req_glist, int dl_format,
+int scsiReadDefect10(scsi_device * device, int req_plist, int req_glist, int dl_format,
                      UINT8 *pBuf, int bufLen);
 
 /* SMART specific commands */
-int scsiCheckIE(int device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
+int scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage, UINT8 *asc,
                 UINT8 *ascq, UINT8 *currenttemp, UINT8 *triptemp);
 
-int scsiFetchIECmpage(int device, struct scsi_iec_mode_page *iecp, 
+int scsiFetchIECmpage(scsi_device * device, struct scsi_iec_mode_page *iecp,
                       int modese_len);
 int scsi_IsExceptionControlEnabled(const struct scsi_iec_mode_page *iecp);
 int scsi_IsWarningEnabled(const struct scsi_iec_mode_page *iecp);
-int scsiSetExceptionControlAndWarning(int device, int enabled,
+int scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
                             const struct scsi_iec_mode_page *iecp);
 void scsiDecodeErrCounterPage(unsigned char * resp,
                               struct scsiErrorCounter *ecp);
 void scsiDecodeNonMediumErrPage(unsigned char * resp,
                                 struct scsiNonMediumError *nmep);
-int scsiFetchExtendedSelfTestTime(int device, int * durationSec, 
+int scsiFetchExtendedSelfTestTime(scsi_device * device, int * durationSec,
                                   int modese_len);
-int scsiCountFailedSelfTests(int fd, int noisy);
-int scsiSelfTestInProgress(int fd, int * inProgress);
-int scsiFetchControlGLTSD(int device, int modese_len, int current);
-int scsiSetControlGLTSD(int device, int enabled, int modese_len);
-int scsiFetchTransportProtocol(int device, int modese_len);
+int scsiCountFailedSelfTests(scsi_device * device, int noisy);
+int scsiSelfTestInProgress(scsi_device * device, int * inProgress);
+int scsiFetchControlGLTSD(scsi_device * device, int modese_len, int current);
+int scsiSetControlGLTSD(scsi_device * device, int enabled, int modese_len);
+int scsiFetchTransportProtocol(scsi_device * device, int modese_len);
 
 /* T10 Standard IE Additional Sense Code strings taken from t10.org */
 
 const char* scsiGetIEString(UINT8 asc, UINT8 ascq);
-int scsiGetTemp(int device, UINT8 *currenttemp, UINT8 *triptemp);
+int scsiGetTemp(scsi_device * device, UINT8 *currenttemp, UINT8 *triptemp);
 
 
-int scsiSmartIBMOfflineTest(int device);
+int scsiSmartIBMOfflineTest(scsi_device * device);
 
-int scsiSmartDefaultSelfTest(int device);
-int scsiSmartShortSelfTest(int device);
-int scsiSmartExtendSelfTest(int device);
-int scsiSmartShortCapSelfTest(int device);
-int scsiSmartExtendCapSelfTest(int device);
-int scsiSmartSelfTestAbort(int device);
+int scsiSmartDefaultSelfTest(scsi_device * device);
+int scsiSmartShortSelfTest(scsi_device * device);
+int scsiSmartExtendSelfTest(scsi_device * device);
+int scsiSmartShortCapSelfTest(scsi_device * device);
+int scsiSmartExtendCapSelfTest(scsi_device * device);
+int scsiSmartSelfTestAbort(scsi_device * device);
 
 const char * scsiTapeAlertsTapeDevice(unsigned short code);
 const char * scsiTapeAlertsChangerDevice(unsigned short code);
@@ -370,7 +372,9 @@ inline void dStrHex(const unsigned char* str, int len, int no_ascii)
  * (e.g. CHECK CONDITION). If the SCSI command could not be issued
  * (e.g. device not present or not a SCSI device) or some other problem
  * arises (e.g. timeout) then returns a negative errno value. */
-int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+// Moved to C++ interface
+//int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+
 
 
 #endif

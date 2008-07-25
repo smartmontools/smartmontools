@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.695 2008/07/21 19:32:02 ballen4705 Exp $
+$Id: CHANGELOG,v 1.696 2008/07/25 21:16:00 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,15 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add new object oriented interface to access ATA and SCSI devices.
+       smartctl and smartd are modified to use the new classes in
+       'dev_interface.{h,cpp}'. The template class in 'dev_tunnelled.h'
+       is used in 'scsiata.cpp'. The code in 'dev_ata_cmd_set.{h,cpp}'
+       supports migration from old function 'ata_command_interface()'.
+       All existing 'os_*.cpp' modules should still work without any changes.
+       The required adapter classes from 'dev_legacy.cpp' are automatically
+       added by configure if necessary.
 
   [BA] Updated smartd and smartctl and smartd.conf man-page documentation
        to reflect support for Areca SATA RAID controller cards.

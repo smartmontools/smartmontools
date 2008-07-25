@@ -35,12 +35,16 @@
 #include "scsiata.h"
 #include "extern.h"
 #include "utility.h"
+#include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.196 2008/07/17 23:37:15 ballen4705 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.197 2008/07/25 21:16:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
+
+#define SMART_CYL_LOW  0x4F
+#define SMART_CYL_HI   0xC2
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -548,6 +552,33 @@ static const char * const commandstrings[]={
   "WARNING (UNDEFINED COMMAND -- CONTACT DEVELOPERS AT " PACKAGE_BUGREPORT ")\n"
 };
 
+
+static const char * preg(const ata_register & r, char * buf)
+{
+  if (!r.is_set())
+    //return "n/a ";
+    return "....";
+  sprintf(buf, "0x%02x", r.val()); return buf;
+}
+
+void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
+{
+  char bufs[7][4+1+13];
+  pout("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
+    preg(r.features, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
+    preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
+    preg(r.command, bufs[6]), suffix);
+}
+
+void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
+{
+  char bufs[7][4+1+13];
+  pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
+    preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
+    preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
+    preg(r.device, bufs[6]), suffix);
+}
+
 static void prettyprint(const unsigned char *p, const char *name){
   pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
   for (int i=0; i<512; i+=16, p+=16)
@@ -560,14 +591,11 @@ static void prettyprint(const unsigned char *p, const char *name){
   pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
-static int parsedev_command_interface(int fd, smart_command_set command, int select, char * data);
-
 // This function provides the pretty-print reporting for SMART
 // commands: it implements the various -r "reporting" options for ATA
 // ioctls.
-int smartcommandhandler(int device, smart_command_set command, int select, char *data){
-  int retval;
-
+int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data){
+  // TODO: Rework old stuff below
   // This conditional is true for commands that return data
   int getsdata=(command==PIDENTIFY || 
                 command==IDENTIFY || 
@@ -587,7 +615,7 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
                          command==IMMEDIATE_OFFLINE ||
                          command==WRITE_LOG);
                   
-    pout("\nREPORT-IOCTL: DeviceFD=%d Command=%s", device, commandstrings[command]);
+    pout("\nREPORT-IOCTL: Device=%s Command=%s", device->get_dev_name(), commandstrings[command]);
     if (usesparam)
       pout(" InputParameter=%d\n", select);
     else
@@ -612,42 +640,125 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 
   // if requested, pretty-print the input data structure
   if (con->reportataioctl>1 && sendsdata)
+    //pout("REPORT-IOCTL: Device=%s Command=%s\n", device->get_dev_name(), commandstrings[command]);
     prettyprint((unsigned char *)data, commandstrings[command]);
 
-  // In case the command produces an error, we'll want to know what it is:
-  errno=0;
-  
   // now execute the command
-  switch (con->controller_type) {
-  case CONTROLLER_3WARE_678K:
-  case CONTROLLER_3WARE_678K_CHAR:
-  case CONTROLLER_3WARE_9000_CHAR:
-    retval=escalade_command_interface(device, con->controller_port-1, con->controller_type, command, select, data);
-    if (retval &&  con->controller_port<=0)
-      pout("WARNING: apparently missing '-d 3ware,N' disk specification\n");
-    break;
-  case CONTROLLER_ARECA:
-    retval=areca_command_interface(device, con->controller_port-1, command, select, data);
-    if (retval &&  con->controller_port<=0)
-      pout("WARNING: apparently missing '-d areca,N' disk specification\n");
-    break;
-  case CONTROLLER_MARVELL_SATA:
-    retval=marvell_command_interface(device, command, select, data);
-    break;
-  case CONTROLLER_SAT:
-    retval=sat_command_interface(device, command, select, data);
-    break;
-  case CONTROLLER_USBCYPRESS:
-    retval=usbcypress_command_interface(device, command, select, data);
-    break;
-  case CONTROLLER_HPT:
-    retval=highpoint_command_interface(device, command, select, data);
-    break;
-  case CONTROLLER_PARSEDEV:
-    retval=parsedev_command_interface(device, command, select, data);
-    break;
-  default:
-    retval=ata_command_interface(device, command, select, data);
+  int retval = -1;
+  {
+    ata_cmd_in in;
+    // Set common register values
+    switch (command) {
+      default: // SMART commands
+        in.in_regs.command = ATA_SMART_CMD;
+        in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
+        break;
+      case IDENTIFY: case PIDENTIFY: case CHECK_POWER_MODE: // Non SMART commands
+        break;
+    }
+    // Set specific values
+    switch (command) {
+      case IDENTIFY:
+        in.in_regs.command = ATA_IDENTIFY_DEVICE;
+        in.set_data_in(1);
+        break;
+      case PIDENTIFY:
+        in.in_regs.command = ATA_IDENTIFY_PACKET_DEVICE;
+        in.set_data_in(1);
+        break;
+      case CHECK_POWER_MODE:
+        in.in_regs.command = ATA_CHECK_POWER_MODE;
+        in.out_needed.sector_count = true; // Powermode returned here
+        break;
+      case READ_VALUES:
+        in.in_regs.features = ATA_SMART_READ_VALUES;
+        in.set_data_in(1);
+        break;
+      case READ_THRESHOLDS:
+        in.in_regs.features = ATA_SMART_READ_THRESHOLDS;
+        in.in_regs.lba_low = 1; // TODO: CORRECT ???
+        in.set_data_in(1);
+        break;
+      case READ_LOG:
+        in.in_regs.features = ATA_SMART_READ_LOG_SECTOR;
+        in.in_regs.lba_low = select;
+        in.set_data_in(1);
+        break;
+      case WRITE_LOG:
+        in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
+        in.in_regs.lba_low = select;
+        in.set_data_out(1);
+        break;
+      case ENABLE:
+        in.in_regs.features = ATA_SMART_ENABLE;
+        in.in_regs.lba_low = 1; // TODO: CORRECT ???
+        break;
+      case DISABLE:
+        in.in_regs.features = ATA_SMART_DISABLE;
+        in.in_regs.lba_low = 1;  // TODO: CORRECT ???
+        break;
+      case STATUS_CHECK:
+        in.out_needed.lba_high = in.out_needed.lba_mid = true; // Status returned here
+      case STATUS:
+        in.in_regs.features = ATA_SMART_STATUS;
+        break;
+      case AUTO_OFFLINE:
+        in.in_regs.features = ATA_SMART_AUTO_OFFLINE;
+        in.in_regs.sector_count = select;  // Caution: Non-DATA command!
+        break;
+      case AUTOSAVE:
+        in.in_regs.features = ATA_SMART_AUTOSAVE;
+        in.in_regs.sector_count = select;  // Caution: Non-DATA command!
+        break;
+      case IMMEDIATE_OFFLINE:
+        in.in_regs.features = ATA_SMART_IMMEDIATE_OFFLINE;
+        in.in_regs.lba_low = select;
+        break;
+      default:
+        pout("Unrecognized command %d in smartcommandhandler()\n"
+             "Please contact " PACKAGE_BUGREPORT "\n", command);
+        device->set_err(ENOSYS);
+        errno = ENOSYS;
+        return -1;
+    }
+    if (in.direction)
+      in.buffer = data;
+
+    if (con->reportataioctl)
+      print_regs(" Input:  ", in.in_regs,
+        (in.direction==ata_cmd_in::data_in ? " IN\n":
+         in.direction==ata_cmd_in::data_out ? " OUT\n":"\n"));
+
+    ata_cmd_out out;
+    bool ok = device->ata_pass_through(in, out);
+
+    if (con->reportataioctl && out.out_regs.is_set())
+      print_regs(" Output: ", out.out_regs);
+
+    if (ok) switch (command) {
+      default:
+        retval = 0;
+        break;
+      case CHECK_POWER_MODE:
+        data[0] = out.out_regs.sector_count;
+        retval = 0;
+        break;
+      case STATUS_CHECK:
+        // Cyl low and Cyl high unchanged means "Good SMART status"
+        if (out.out_regs.lba_high == SMART_CYL_HI && out.out_regs.lba_mid == SMART_CYL_LOW)
+          retval = 0;
+        // These values mean "Bad SMART status"
+        else if (out.out_regs.lba_high == 0x2c && out.out_regs.lba_mid == 0xf4)
+          retval = 1;
+        else {
+          // We haven't gotten output that makes sense; print out some debugging info
+          pout("Error SMART Status command failed\n"
+               "Please get assistance from %s\n", PACKAGE_HOMEPAGE);
+          errno = EIO;
+          retval = -1;
+        }
+        break;
+    }
   }
 
   // If requested, invalidate serial number before any printing is done
@@ -656,12 +767,13 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 
   // If reporting is enabled, say what output was produced by the command
   if (con->reportataioctl){
-    if (errno)
-      pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d errno=%d [%s]\n", 
-           device, commandstrings[command], retval, errno, strerror(errno));
+    if (device->get_errno())
+      pout("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
+           device->get_dev_name(), commandstrings[command], retval,
+           device->get_errno(), device->get_errmsg());
     else
-      pout("REPORT-IOCTL: DeviceFD=%d Command=%s returned %d\n",
-           device, commandstrings[command], retval);
+      pout("REPORT-IOCTL: Device=%s Command=%s returned %d\n",
+           device->get_dev_name(), commandstrings[command], retval);
     
     // if requested, pretty-print the output data structure
     if (con->reportataioctl>1 && getsdata) {
@@ -671,6 +783,8 @@ int smartcommandhandler(int device, smart_command_set command, int select, char 
 	prettyprint((unsigned char *)data, commandstrings[command]);
     }
   }
+
+  errno = device->get_errno(); // TODO: Callers should not call syserror()
   return retval;
 }
 
@@ -694,7 +808,7 @@ unsigned char checksum(unsigned char *buffer){
 //   80h device is in Idle mode.
 //   FFh device is in Active mode or Idle mode.
 
-int ataCheckPowerMode(int device) {
+int ataCheckPowerMode(ata_device * device) {
   unsigned char result;
 
   if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, (char *)&result)))
@@ -715,7 +829,7 @@ int ataCheckPowerMode(int device) {
 // capable).  The value of the integer helps identify the type of
 // Packet device, which is useful so that the user can connect the
 // formal device number with whatever object is inside their computer.
-int ataReadHDIdentity (int device, struct ata_identify_device *buf){
+int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
   unsigned short *rawshort=(unsigned short *)buf;
   unsigned char  *rawbyte =(unsigned char  *)buf;
 
@@ -863,7 +977,7 @@ int ataIsSmartEnabled(struct ata_identify_device *drive){
 
 
 // Reads SMART attributes into *data
-int ataReadSmartValues(int device, struct ata_smart_values *data){      
+int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
   
   if (smartcommandhandler(device, READ_VALUES, 0, (char *)data)){
     syserror("Error SMART Values Read failed");
@@ -910,7 +1024,7 @@ void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
 }
 
 // Reads the Self Test Log (log #6)
-int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
+int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data){
 
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
@@ -942,7 +1056,7 @@ int ataReadSelfTestLog (int device, struct ata_smart_selftestlog *data){
 
 
 // Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
-int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){     
+int ataReadLogDirectory (ata_device * device, struct ata_smart_log_directory *data){
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
@@ -959,7 +1073,7 @@ int ataReadLogDirectory (int device, struct ata_smart_log_directory *data){
 
 
 // Reads the selective self-test log (log #9)
-int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *data){  
+int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data){
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
@@ -992,7 +1106,7 @@ int ataReadSelectiveSelfTestLog(int device, struct ata_selective_self_test_log *
 }
 
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(int device, struct ata_smart_values *sv, uint64_t num_sectors){   
+int ataWriteSelectiveSelfTestLog(ata_device * device, struct ata_smart_values *sv, uint64_t num_sectors){
 
   // Disk size must be known
   if (!num_sectors) {
@@ -1187,7 +1301,7 @@ void fixsamsungerrorlog2(struct ata_smart_errorlog *data){
 // Reads the Summary SMART Error Log (log #1). The Comprehensive SMART
 // Error Log is #2, and the Extended Comprehensive SMART Error log is
 // #3
-int ataReadErrorLog (int device, struct ata_smart_errorlog *data){      
+int ataReadErrorLog (ata_device * device, struct ata_smart_errorlog *data){
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
@@ -1227,7 +1341,7 @@ int ataReadErrorLog (int device, struct ata_smart_errorlog *data){
   return 0;
 }
 
-int ataReadSmartThresholds (int device, struct ata_smart_thresholds_pvt *data){
+int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt *data){
   
   // get data from device
   if (smartcommandhandler(device, READ_THRESHOLDS, 0, (char *)data)){
@@ -1246,7 +1360,7 @@ int ataReadSmartThresholds (int device, struct ata_smart_thresholds_pvt *data){
   return 0;
 }
 
-int ataEnableSmart (int device ){       
+int ataEnableSmart (ata_device * device ){
   if (smartcommandhandler(device, ENABLE, 0, NULL)){
     syserror("Error SMART Enable failed");
     return -1;
@@ -1254,7 +1368,7 @@ int ataEnableSmart (int device ){
   return 0;
 }
 
-int ataDisableSmart (int device ){      
+int ataDisableSmart (ata_device * device ){
   
   if (smartcommandhandler(device, DISABLE, 0, NULL)){
     syserror("Error SMART Disable failed");
@@ -1263,7 +1377,7 @@ int ataDisableSmart (int device ){
   return 0;
 }
 
-int ataEnableAutoSave(int device){  
+int ataEnableAutoSave(ata_device * device){
   if (smartcommandhandler(device, AUTOSAVE, 241, NULL)){
     syserror("Error SMART Enable Auto-save failed");
     return -1;
@@ -1271,7 +1385,7 @@ int ataEnableAutoSave(int device){
   return 0;
 }
 
-int ataDisableAutoSave(int device){
+int ataDisableAutoSave(ata_device * device){
   
   if (smartcommandhandler(device, AUTOSAVE, 0, NULL)){
     syserror("Error SMART Disable Auto-save failed");
@@ -1284,7 +1398,7 @@ int ataDisableAutoSave(int device){
 // marked "OBSOLETE". It is defined in SFF-8035i Revision 2, and most
 // vendors still support it for backwards compatibility. IBM documents
 // it for some drives.
-int ataEnableAutoOffline (int device ){ 
+int ataEnableAutoOffline (ata_device * device){
   
   /* timer hard coded to 4 hours */  
   if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
@@ -1296,7 +1410,7 @@ int ataEnableAutoOffline (int device ){
 
 // Another Obsolete Command.  See comments directly above, associated
 // with the corresponding Enable command.
-int ataDisableAutoOffline (int device ){        
+int ataDisableAutoOffline (ata_device * device){
   
   if (smartcommandhandler(device, AUTO_OFFLINE, 0, NULL)){
     syserror("Error SMART Disable Automatic Offline failed");
@@ -1309,7 +1423,7 @@ int ataDisableAutoOffline (int device ){
 // guaranteed to return 1, else zero.  Note that it should return 1
 // regardless of whether the disk's SMART status is 'healthy' or
 // 'failing'.
-int ataDoesSmartWork(int device){
+int ataDoesSmartWork(ata_device * device){
   int retval=smartcommandhandler(device, STATUS, 0, NULL);
 
   if (-1 == retval)
@@ -1320,13 +1434,13 @@ int ataDoesSmartWork(int device){
 
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
-int ataSmartStatus2(int device){
+int ataSmartStatus2(ata_device * device){
   return smartcommandhandler(device, STATUS_CHECK, 0, NULL);  
 }
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(int device, int testtype, struct ata_smart_values *sv, uint64_t num_sectors)
+int ataSmartTest(ata_device * device, int testtype, struct ata_smart_values *sv, uint64_t num_sectors)
 {
   char cmdmsg[128]; const char *type, *captive;
   int errornum, cap, retval, select=0;
@@ -2079,8 +2193,9 @@ unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data,
   return 0;
 }
 
+
 // Read SCT Status
-int ataReadSCTStatus(int device, ata_sct_status_response * sts)
+int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
 {
   // read SCT status via SMART log 0xe0
   memset(sts, 0, sizeof(*sts));
@@ -2110,7 +2225,7 @@ int ataReadSCTStatus(int device, ata_sct_status_response * sts)
 }
 
 // Read SCT Temperature History Table and Status
-int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
+int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * tmh,
                        ata_sct_status_response * sts)
 {
   // Check initial status
@@ -2170,7 +2285,7 @@ int ataReadSCTTempHist(int device, ata_sct_temperature_history_table * tmh,
 }
 
 // Set SCT Temperature Logging Interval
-int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
+int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent)
 {
   // Check initial status
   ata_sct_status_response sts;
@@ -2216,21 +2331,45 @@ int ataSetSCTTempInterval(int device, unsigned interval, bool persistent)
 // Pseudo-device to parse "smartctl -r ataioctl,2 ..." output and simulate
 // an ATA device with same behaviour
 
-// Table of parsed commands, return value, data
-struct parsed_ata_command
-{ 
-  smart_command_set command;
-  int select;
-  int retval, errval;
-  char * data;
+namespace {
+
+class parsed_ata_device
+: public /*implements*/ ata_device_with_command_set
+{
+public:
+  parsed_ata_device(smart_interface * intf, const char * dev_name);
+
+  virtual ~parsed_ata_device() throw();
+
+  virtual bool is_open() const;
+
+  virtual bool open();
+
+  virtual bool close();
+
+  virtual bool ata_identify_is_cached() const;
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+private:
+  // Table of parsed commands, return value, data
+  struct parsed_ata_command
+  {
+    smart_command_set command;
+    int select;
+    int retval, errval;
+    char * data;
+  };
+
+  enum { max_num_commands = 32 };
+  parsed_ata_command m_command_table[max_num_commands];
+
+  int m_num_commands;
+  int m_next_replay_command;
+  bool m_replay_out_of_sync;
+  bool m_ata_identify_is_cached;
 };
-
-const int max_num_parsed_commands = 32;
-static parsed_ata_command parsed_command_table[max_num_parsed_commands];
-static int num_parsed_commands;
-static int next_replay_command;
-static bool replay_out_of_sync;
-
 
 static const char * nextline(const char * s, int & lineno)
 {
@@ -2270,13 +2409,32 @@ static inline int matchtoi(const char * src, const regmatch_t & srcmatch, int de
   return atoi(src + srcmatch.rm_so);
 }
 
+parsed_ata_device::parsed_ata_device(smart_interface * intf, const char * dev_name)
+: smart_device(intf, dev_name, "ata", ""),
+  m_num_commands(0),
+  m_next_replay_command(0),
+  m_replay_out_of_sync(false),
+  m_ata_identify_is_cached(false)
+{
+  memset(m_command_table, 0, sizeof(m_command_table));
+}
+
+parsed_ata_device::~parsed_ata_device() throw()
+{
+  close();
+}
+
+bool parsed_ata_device::is_open() const
+{
+  return (m_num_commands > 0);
+}
 
 // Parse stdin and build command table
-int parsedev_open(const char * pathname)
+bool parsed_ata_device::open()
 {
-  if (strcmp(pathname, "-")) {
-    errno = EINVAL; return -1;
-  }
+  const char * pathname = get_dev_name();
+  if (strcmp(pathname, "-"))
+    return set_err(EINVAL);
   pathname = "<stdin>";
   // Fill buffer
   char buffer[64*1024];
@@ -2287,20 +2445,16 @@ int parsedev_open(const char * pathname)
       break;
     size += nr;
   }
-  if (size <= 0) {
-    pout("%s: Unexpected EOF\n", pathname);
-    errno = ENOENT; return -1;
-  }
-  if (size >= (int)sizeof(buffer)) {
-    pout("%s: Buffer overflow\n", pathname);
-    errno = EIO; return -1;
-  }
+  if (size <= 0)
+    return set_err(ENOENT, "%s: Unexpected EOF", pathname);
+  if (size >= (int)sizeof(buffer))
+    return set_err(EIO, "%s: Buffer overflow", pathname);
   buffer[size] = 0;
 
   // Regex to match output from "-r ataioctl,2"
   static const char pattern[] = "^"
   "(" // (1
-    "REPORT-IOCTL: DeviceFD=[0-9]+ Command=([A-Z ]*[A-Z])" // (2)
+    "REPORT-IOCTL: DeviceF?D?=[^ ]+ Command=([A-Z ]*[A-Z])" // (2)
     "(" // (3
       "( InputParameter=([0-9]+))?" // (4 (5))
     "|"
@@ -2309,22 +2463,23 @@ int parsedev_open(const char * pathname)
     "[\r\n]" // EOL match necessary to match optional parts above
   "|"
     "===== \\[([A-Z ]*[A-Z])\\] DATA START " // (10)
+  "|"
+    "    *(En|Dis)abled status cached by OS, " // (11)
   ")"; // )
 
   // Compile regex
   regex_t rex;
-  if (compileregex(&rex, pattern, REG_EXTENDED)) {
-    errno = EIO; return -1;
-  }
+  if (compileregex(&rex, pattern, REG_EXTENDED))
+    return set_err(EIO, "invalid regex");
 
   // Parse buffer
   const char * errmsg = 0;
   int i = -1, state = 0, lineno = 1;
   for (const char * line = buffer; *line; line = nextline(line, lineno)) {
     // Match line
-    if (!(line[0] == 'R' || line[0] == '='))
+    if (!(line[0] == 'R' || line[0] == '=' || line[0] == ' '))
       continue;
-    const int nmatch = 1+10;
+    const int nmatch = 1+11;
     regmatch_t match[nmatch];
     if (regexec(&rex, line, nmatch, match, 0))
       continue;
@@ -2340,27 +2495,27 @@ int parsedev_open(const char * pathname)
         if (!(state == 0 || state == 2)) {
           errmsg = "Missing REPORT-IOCTL result"; break;
         }
-        if (++i >= max_num_parsed_commands) {
+        if (++i >= max_num_commands) {
           errmsg = "Too many ATA commands"; break;
         }
-        parsed_command_table[i].command = (smart_command_set)nc;
-        parsed_command_table[i].select = matchtoi(line, match[5], 0); // "InputParameter=%d"
+        m_command_table[i].command = (smart_command_set)nc;
+        m_command_table[i].select = matchtoi(line, match[5], 0); // "InputParameter=%d"
         state = 1;
       }
       else {
         // End of command
-        if (!(state == 1 && (int)parsed_command_table[i].command == nc)) {
+        if (!(state == 1 && (int)m_command_table[i].command == nc)) {
           errmsg = "Missing REPORT-IOCTL start"; break;
         }
-        parsed_command_table[i].retval = matchtoi(line, match[7], -1); // "returned %d"
-        parsed_command_table[i].errval = matchtoi(line, match[9], 0); // "errno=%d"
+        m_command_table[i].retval = matchtoi(line, match[7], -1); // "returned %d"
+        m_command_table[i].errval = matchtoi(line, match[9], 0); // "errno=%d"
         state = 2;
       }
     }
     else if (matchcpy(cmdname, sizeof(cmdname), line, match[10])) { // "===== [%s] DATA START "
       // Start of sector hexdump
       int nc = name2command(cmdname);
-      if (!(state == (nc == WRITE_LOG ? 1 : 2) && (int)parsed_command_table[i].command == nc)) {
+      if (!(state == (nc == WRITE_LOG ? 1 : 2) && (int)m_command_table[i].command == nc)) {
           errmsg = "Unexpected DATA START"; break;
       }
       line = nextline(line, lineno);
@@ -2385,9 +2540,12 @@ int parsedev_open(const char * pathname)
         free(data);
         errmsg = "Incomplete sector hex dump"; break;
       }
-      parsed_command_table[i].data = data;
+      m_command_table[i].data = data;
       if (nc != WRITE_LOG)
         state = 0;
+    }
+    else if (match[11].rm_so > 0) { // "(En|Dis)abled status cached by OS"
+      m_ata_identify_is_cached = true;
     }
   }
 
@@ -2397,58 +2555,66 @@ int parsedev_open(const char * pathname)
   if (!errmsg && i < 0)
     errmsg = "No information found";
 
-  num_parsed_commands = i+1;
-  next_replay_command = 0;
-  replay_out_of_sync = false;
+  m_num_commands = i+1;
+  m_next_replay_command = 0;
+  m_replay_out_of_sync = false;
 
   if (errmsg) {
-    pout("%s(%d): Syntax error: %s\n", pathname, lineno, errmsg);
-    errno = EIO;
-    parsedev_close(0);
-    return -1;
+    close();
+    return set_err(EIO, "%s(%d): Syntax error: %s", pathname, lineno, errmsg);
   }
-  return 0;
+  return true;
 }
 
 // Report warnings and free command table 
-void parsedev_close(int /*fd*/)
+bool parsed_ata_device::close()
 {
-  if (replay_out_of_sync)
+  if (m_replay_out_of_sync)
       pout("REPLAY-IOCTL: Warning: commands replayed out of sync\n");
-  else if (next_replay_command != 0)
-      pout("REPLAY-IOCTL: Warning: %d command(s) not replayed\n", num_parsed_commands-next_replay_command);
+  else if (m_next_replay_command != 0)
+      pout("REPLAY-IOCTL: Warning: %d command(s) not replayed\n", m_num_commands-m_next_replay_command);
 
-  for (int i = 0; i < num_parsed_commands; i++) {
-    if (parsed_command_table[i].data) {
-      free(parsed_command_table[i].data); parsed_command_table[i].data = 0;
+  for (int i = 0; i < m_num_commands; i++) {
+    if (m_command_table[i].data) {
+      free(m_command_table[i].data); m_command_table[i].data = 0;
     }
   }
-  num_parsed_commands = 0;
+  m_num_commands = 0;
+  m_next_replay_command = 0;
+  m_replay_out_of_sync = false;
+  return true;
 }
 
-// Simulate ATA command from command table
-static int parsedev_command_interface(int /*fd*/, smart_command_set command, int select, char * data)
+
+bool parsed_ata_device::ata_identify_is_cached() const
 {
-  // Find command, try round-robin of out of sync
-  int i = next_replay_command;
+  return m_ata_identify_is_cached;
+}
+
+
+// Simulate ATA command from command table
+int parsed_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
+{
+  // Find command, try round-robin if out of sync
+  int i = m_next_replay_command;
   for (int j = 0; ; j++) {
-    if (j >= num_parsed_commands) {
+    if (j >= m_num_commands) {
       pout("REPLAY-IOCTL: Warning: Command not found\n");
       errno = ENOSYS;
       return -1;
     }
-    if (parsed_command_table[i].command == command && parsed_command_table[i].select == select)
+    if (m_command_table[i].command == command && m_command_table[i].select == select)
       break;
-    if (!replay_out_of_sync) {
-      replay_out_of_sync = true;
+    if (!m_replay_out_of_sync) {
+      m_replay_out_of_sync = true;
       pout("REPLAY-IOCTL: Warning: Command #%d is out of sync\n", i+1);
     }
-    if (++i >= num_parsed_commands)
+    if (++i >= m_num_commands)
       i = 0;
   }
-  next_replay_command = i;
-  if (++next_replay_command >= num_parsed_commands)
-    next_replay_command = 0;
+  m_next_replay_command = i;
+  if (++m_next_replay_command >= m_num_commands)
+    m_next_replay_command = 0;
 
   // Return command data
   switch (command) {
@@ -2457,11 +2623,11 @@ static int parsedev_command_interface(int /*fd*/, smart_command_set command, int
     case READ_VALUES:
     case READ_THRESHOLDS:
     case READ_LOG:
-      if (parsed_command_table[i].data)
-        memcpy(data, parsed_command_table[i].data, 512);
+      if (m_command_table[i].data)
+        memcpy(data, m_command_table[i].data, 512);
       break;
     case WRITE_LOG:
-      if (!(parsed_command_table[i].data && !memcmp(data, parsed_command_table[i].data, 512)))
+      if (!(m_command_table[i].data && !memcmp(data, m_command_table[i].data, 512)))
         pout("REPLAY-IOCTL: Warning: WRITE LOG data does not match\n");
       break;
     case CHECK_POWER_MODE:
@@ -2470,7 +2636,14 @@ static int parsedev_command_interface(int /*fd*/, smart_command_set command, int
       break;
   }
 
-  if (parsed_command_table[i].errval)
-    errno = parsed_command_table[i].errval;
-  return parsed_command_table[i].retval;
+  if (m_command_table[i].errval)
+    errno = m_command_table[i].errval;
+  return m_command_table[i].retval;
+}
+
+} // namespace
+
+ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name)
+{
+  return new parsed_ata_device(intf, dev_name);
 }

@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.31 2008/03/04 22:09:47 ballen4705 Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.32 2008/07/25 21:16:00 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +56,6 @@ void ataPseudoCheckSmart(struct ata_smart_values *, struct ata_smart_thresholds_
 // Convenience function for formatting strings from ata_identify_device.
 void format_ata_string(char *out, const char *in, int n);
 
-int ataPrintMain(int fd);
+int ataPrintMain(ata_device * device);
 
 #endif
