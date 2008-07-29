@@ -85,9 +85,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.115 2008/07/21 09:08:26 brevilo Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.116 2008/07/29 07:08:40 brevilo Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.115 2008/07/21 09:08:26 brevilo Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.116 2008/07/29 07:08:40 brevilo Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -1971,6 +1971,12 @@ int areca_command_interface(int fd, int disknum, smart_command_set command, int 
 	sATA_OUTPUT_REGISTERS *ata_out = (sATA_OUTPUT_REGISTERS *)&return_buff[5] ;
 	if ( ata_out->status )
 	{
+		if ( command == IDENTIFY )
+		{
+			pout("The firmware of your Areca RAID controller appears to be outdated!\n" \
+				 "Please update your controller to firmware version 1.46 or later.\n" \
+				 "You may download it here: ftp://ftp.areca.com.tw/RaidCards/BIOS_Firmware\n\n");
+		}
 		errno = EIO;
 		return -1;
 	}

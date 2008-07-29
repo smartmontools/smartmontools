@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.697 2008/07/25 21:57:30 chrfranke Exp $
+$Id: CHANGELOG,v 1.698 2008/07/29 07:08:40 brevilo Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [OB] Added information message about supported Areca firmware versions.
+       It's displayed in case the ATA device identification fails.
 
   [CF] Add configuration file for Doxygen.
 
