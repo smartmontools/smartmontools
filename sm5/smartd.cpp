@@ -120,7 +120,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.411 2008/07/25 21:16:00 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.412 2008/07/29 14:38:07 chrfranke Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -130,7 +130,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.411 2008/07/25 21:16:00 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.412 2008/07/29 14:38:07 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2146,7 +2146,7 @@ int ATACheckDevice(cfgfile *cfg, bool allow_selftests){
   // power mode and exit without check if needed
   if (cfg->powermode){
     int dontcheck=0, powermode=ataCheckPowerMode(cfg->atadev);
-    char *mode=NULL;
+    const char * mode = 0;
     if (0 <= powermode && powermode < 0xff) {
       // wait for possible spin up and check again
       int powermode2;

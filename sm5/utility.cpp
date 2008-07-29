@@ -48,7 +48,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.69 2008/07/25 21:16:00 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.70 2008/07/29 14:38:08 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -133,9 +133,9 @@ static char *ReadSiteDefaultTimezone(){
 void FixGlibcTimeZoneBug(){
 #if __GLIBC__  
   if (!getenv("TZ")) {
-    putenv("TZ=GMT");
+    putenv((char *)"TZ=GMT"); // POSIX prototype is 'int putenv(char *)'
     tzset();
-    putenv("TZ");
+    putenv((char *)"TZ");
     tzset();
   }
 #elif _WIN32

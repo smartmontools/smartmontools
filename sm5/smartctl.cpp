@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.181 2008/07/25 21:16:00 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.182 2008/07/29 14:38:06 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -914,7 +914,8 @@ int main_worker(int argc, char **argv)
     else if (dev->is_scsi())
       retval = scsiPrintMain(dev->to_scsi());
     else
-      ; // we should never fall into this branch!
+      // we should never fall into this branch!
+      pout("%s: Neither ATA nor SCSI device\n", dev->get_info_name());
 
     dev->close();
     delete dev;

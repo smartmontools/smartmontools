@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.189 2008/07/25 21:16:00 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.190 2008/07/29 14:38:06 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1287,15 +1287,13 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
     log=data->selftest_struct+j;
 
     if (nonempty((unsigned char*)log,sizeof(*log))){
-      char *msgtest,*msgstat,percent[64],firstlba[64];
-      int errorfound=0;
-      
       // count entry based on non-empty structures -- needed for
       // Seagate only -- other vendors don't have blank entries 'in
       // the middle'
       testno++;
 
       // test name
+      const char * msgtest;
       switch(log->selftestnumber){
       case   0: msgtest="Offline            "; break;
       case   1: msgtest="Short offline      "; break;
@@ -1316,6 +1314,8 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       }
       
       // test status
+      int errorfound = 0;
+      const char * msgstat;
       switch((log->selfteststatus)>>4){
       case  0:msgstat="Completed without error      "; break;
       case  1:msgstat="Aborted by host              "; break;
@@ -1330,6 +1330,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
       default:msgstat="Unknown/reserved test status ";
       }
 
+      char percent[64];
       retval+=errorfound;
       sprintf(percent,"%1d0%%",(log->selfteststatus)&0xf);
 
@@ -1345,6 +1346,7 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
 
       // This is true in ALL ATA-5 specs
       
+      char firstlba[64];
       if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
         sprintf(firstlba,"%s","-");
       else      

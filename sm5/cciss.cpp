@@ -26,7 +26,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.7 2008/04/17 20:30:57 ballen4705 Exp $"
+const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.8 2008/07/29 14:38:06 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
@@ -180,7 +180,6 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
     unsigned char CDB[16]= {0};
     ReportLunData_struct *luns;
     int reportlunsize = sizeof(*luns) + CISS_MAX_PHYS_LUN * 8;
-    int i;
     int ret;
 
     luns = (ReportLunData_struct *)malloc(reportlunsize);
