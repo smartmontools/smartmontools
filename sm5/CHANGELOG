@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.699 2008/07/29 14:38:06 chrfranke Exp $
+$Id: CHANGELOG,v 1.700 2008/07/30 11:54:29 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -37,6 +37,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [BA] Fix smartctl bug: when running in silent mode '-q errorsonly'
+       do not print the Selective Self-test log.  Any errors will
+       ALREADY appear in the SMART Self-test log.
 
   [CF] Add missing 'const' and other minor fixes to prevent gcc warnings.
 
