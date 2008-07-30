@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.190 2008/07/29 14:38:06 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.191 2008/07/30 11:54:29 ballen4705 Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1985,7 +1985,10 @@ int ataPrintMain (ata_device * device){
     }
     else {
       PRINT_ON(con);
-      ataPrintSelectiveSelfTestLog(&log, &smartval);
+      // If any errors were found, they are logged in the SMART Self-test log.
+      // So there is no need to print the Selective Self Test log in silent
+      // mode.
+      if (!con->printing_switchable) ataPrintSelectiveSelfTestLog(&log, &smartval);
       PRINT_OFF(con);
       pout("\n");
     }
