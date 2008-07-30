@@ -26,7 +26,7 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.8 2008/07/29 14:38:06 chrfranke Exp $"
+const char *cciss_c_cvsid="$Id: cciss.cpp,v 1.9 2008/07/30 20:42:53 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 typedef struct _ReportLUNdata_struct
@@ -211,7 +211,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
 	  pout("%02x ",*stuff++);
 	pout("%02x\n",*stuff++);
       }
-      pout("===== [%s] DATA END (%d Bytes) =====\n\n", "LUN DATA", sizeof(_ReportLUNdata_struct));
+      pout("===== [%s] DATA END (%u Bytes) =====\n\n", "LUN DATA", (unsigned)sizeof(_ReportLUNdata_struct));
     }
 
     if (target >= 0 && target < (int) be32toh(luns->LUNListLength) / 8)
