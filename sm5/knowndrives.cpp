@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.168 2008/04/11 20:09:15 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.169 2008/08/03 14:51:57 manfred99 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -284,8 +284,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_seconds,
     NULL, NULL
   },
-  { "Fujitsu MHW2 BH",
-    "^FUJITSU MHW2(04|06|08|10|12|16)0BH$",
+  { "Fujitsu MHY2 BH series",
+    "^FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Fujitsu MHW2 BH series",
+    "^FUJITSU MHW2(04|06|08|10|12|16)0BH",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -348,6 +353,14 @@ const drivesettings knowndrives[] = {
   { NULL, // SAMSUNG SP40A2H with RR100-07 firmware
     "^SAMSUNG SP40A2H$",
     "^RR100-07$",
+    NULL,
+    vendoropts_9_halfminutes,
+    specialpurpose_reverse_samsung,
+    same_as_minus_F
+  },
+  { NULL, // SAMSUNG SP80A4H with RT100-06 firmware
+    "^SAMSUNG SP80A4H$",
+    "^RT100-06$",
     NULL,
     vendoropts_9_halfminutes,
     specialpurpose_reverse_samsung,
@@ -629,7 +642,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor DiamondMax 10 family (ATA/133 and SATA/150)",
-    "^Maxtor 6(B(30|25|20|16|12|08)0[MPRS]|L(080[MLP]|(100|120)[MP]|160[MP]|200[MPRS]|250[RS]|300[RS]))0$",
+    "^Maxtor 6(B(30|25|20|16|12|10|08)0[MPRS]|L(080[MLP]|(100|120)[MP]|160[MP]|200[MPRS]|250[RS]|300[RS]))0$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -663,7 +676,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Maxtor DiamondMax 21",
-    "^MAXTOR STM3(250|320)820AS?$",
+    "^MAXTOR STM3(160215|(250|320)820|320620)AS?$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -879,6 +892,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Hitachi Deskstar P7K500 series",
+    "^(Hitachi )?HDP7250(25|32|40|50)GLA(36|38|T8)0$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Hitachi Deskstar T7K500",
     "^(Hitachi )?HDT7250(25|32|40|50)VLA(360|380|T80)$",
     ".*",
@@ -901,6 +919,11 @@ const drivesettings knowndrives[] = {
   },
   { "Toshiba 2.5\" HDD series (80 GB and above)",
     "^TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Toshiba 2.5\" HDD MK..52GSX series",
+    "^TOSHIBA MK(80|12|16|25|32)52GSX$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -966,6 +989,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate Momentus 7200.2",
     "^ST9(80813|100821|120823|160823|200420)ASG?$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
+    "^ST3(1010|1721|2120|3230|4340)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1035,7 +1063,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.7 and 7200.7 Plus family",
-    "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|80817AS|60014A|40111AS|40014AS?)$",
+    "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|8081[79]AS|60014A|40111AS|40014AS?)$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1064,6 +1092,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate Barracuda ES.2",  // no SAS versions added for now
+    "^ST3(25031|50032|75033|100034)0NS$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
     "^ST3(17240|13030|10231|8420|4310)A$",
     ".*",
@@ -1076,6 +1109,11 @@ const drivesettings knowndrives[] = {
   },
   { "Seagate NL35 family",
     "^ST3(250623|250823|400632|400832|250824|250624|400633|400833|500641|500841)NS$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Seagate SV35.2 Series",
+    "^ST3(500630)SV$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1129,14 +1167,10 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { NULL, // Western Digital Caviar AC12500, AC14300, AC23200, AC24300, AC25100,
+  { "Western Digital Caviar AC series",
+          // Western Digital Caviar AC12500, AC14300, AC23200, AC24300, AC25100,
           // AC36400, AC38400
     "^WDC AC(125|143|232|243|251|364|384)00.?",
-    ".*",
-    NULL, NULL, NULL, NULL
-  },
-  { "Western Digital Caviar Serial ATA family",
-    "^WDC WD(4|8|20|32)00BD-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1147,27 +1181,69 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ 
    * UPDATE 2: this does not apply to more recent models, at least WD3200AAJB */
-    "^WDC WD((4|6|8|10|12|16|18|20|25|30|32|40|50)00(JB|PB|AAJB|AAKB))-.*$",
+    "^WDC WD(4|6|8|10|12|16|18|20|25|30|32|40|50)00(JB|PB)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar Blue EIDE family",  // WD Caviar SE EIDE family
+    /* not completely accurate: at least also WD800JB, WD(4|8|20|25)00BB sold as Caviar Blue */
+    "^WDC WD(16|25|32|40|50)00AAJB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar Blue EIDE family",  // WD Caviar SE16 EIDE family
+    "^WDC WD(25|32|40|50)00AAKB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital RE EIDE family",
+    "^WDC WD(12|16|25|32)00SB-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar Serial ATA family",
+    "^WDC WD(4|8|20|32)00BD-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
   { "Western Digital Caviar SE Serial ATA family",
-    "^WDC WD((4|8|12|16|20|25|32|40)00(JD|KD|PD))-.*$",
+    "^WDC WD(4|8|12|16|20|25|32|40)00(JD|KD|PD)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar Second Generation Serial ATA family",
-    "^WDC WD((8|12|16|20|25|30|32|40|50|75)00(JS|KS|AABS|AAJS|AAKS))-.*$",
+  { "Western Digital Caviar SE Serial ATA family",
+    "^WDC WD(8|12|16|20|25|30|32|40|50)00JS-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar RE Serial ATA family",
-    "^WDC WD((12|16|25|32|40|50|75)00(SD|YD|YR|YS|ABYS|AYYS))-.*$",
+  { "Western Digital Caviar SE16 Serial ATA family",
+    "^WDC WD(16|20|25|32|40|50|75)00KS-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar RE EIDE family",
-    "^WDC WD((12|16|25|32)00SB)-.*$",
+  { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE Serial ATA family
+    /* not completely accurate: at least also WD800BD, (4|8)00JD sold as Caviar Blue */
+    "^WDC WD((8|12|16|25|32)00AABS|(12|16|25|32|40|50)00AAJS)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE16 Serial ATA family
+    "^WDC WD(16|20|25|32|40|50|75)00AAKS-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital RE Serial ATA family",
+    "^WDC WD(12|16|25|32)00(SD|YD|YS)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital RE2 Serial ATA family",
+    "^WDC WD((40|50|75)00(YR|YS|AYYS)|(16|32|40|50)01ABYS)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Caviar Green family",
+    "^WDC WD((50|75)00AA|10EA)CS-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1176,8 +1252,28 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Scorpio family",
-    "^WDC WD((4|6|8|10|12|16|20|25)00(UE|VE|BEAS|BEVE|BEVS))-.*$",
+  { "Western Digital VelociRaptor family",
+    "^WDC WD((1500|3000)B|3000G)LFS-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Scorpio EIDE family",
+    "^WDC WD(4|6|8|10|12|16)00(UE|VE)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Scorpio Blue EIDE family",
+    "^WDC WD(4|6|8|10|12|16|25)00BEVE-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Scorpio Serial ATA family",
+    "^WDC WD(4|6|8|10|12|16|25)00BEAS-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital Scorpio Blue Serial ATA family",
+    "^WDC WD((4|6|8|10|12|16|25)00BEVS|3200BEVT)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
