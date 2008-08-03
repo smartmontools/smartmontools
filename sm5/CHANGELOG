@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.700 2008/07/30 11:54:29 ballen4705 Exp $
+$Id: CHANGELOG,v 1.701 2008/08/03 14:51:56 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -24,19 +24,41 @@ Maintainers / Developers Key:
 [KM] Kai Mäkisara
 [EM] Eduard Martinescu
 [FM] Frédéric L. W. Meunier
+[AR] Adam Radford
+[MS] Manfred Schwarb
 [KS] Keiji Sawada
+[TS] Tomas Smetana
 [DS] David Snyder
 [SS] Sergey Svishchev
 [PW] Phil Williams
 [LW] Leon Woestenberg
 [RZ] Richard Zybert
 [SZ] Sf Zhou
-[TS] Tomas Smetana
-[AR] Adam Radford
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates
+       - WD: Separated entries for EIDE and SATA
+       - WD: Separated entries for Caviar SE, SE16, RE, RE2
+       - WD Named: WD Caviar AC series
+       - WD Renamed: WD Caviar RE/RE2 -> WD RE/RE2
+       - WD Renamed: WD Caviar SE/SE16 WD....AA[A-Z][A-Z] -> WD Caviar Blue
+       - WD Renamed: WD Scorpio WD....BEV[A-Z] -> WD Scorpio Blue
+       - Added WD Scorpio Blue WD3200BEVT
+       - Added WD RE2 WD5001ABYS and family
+       - Added WD Caviar Green WD5000AACS and family
+       - Added WD VelociRaptor WD3000GLFS and family
+       - Added Seagate Barracuda ES.2 ST31000340NS and family
+       - Added Samsung SP80A4H
+       - Added Maxtor DiamondMax 21 STM3160215AS and STM3320620AS
+       - Added Seagate Barracuda 7200.7 ST380819AS
+       - Added Maxtor DiamondMax 10 6B100P0
+       - Added Seagate SV35.2 Series
+       - Added Fujitsu MHY2120BH and family
+       - Added Fujitsu MHW2080BH PL (PL variant)
+       - Added Toshiba MK3252GSX and family
 
   [BA] Fix smartctl bug: when running in silent mode '-q errorsonly'
        do not print the Selective Self-test log.  Any errors will

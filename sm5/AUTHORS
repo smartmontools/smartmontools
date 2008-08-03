@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.20 2008/03/18 08:26:19 tsmetana Exp $
+$Id: AUTHORS,v 1.21 2008/08/03 14:51:56 manfred99 Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -25,6 +25,7 @@ Kai Mäkisara		<kai.makisara@kolumbus.fi>
 Eduard Martinescu	<martines@rochester.rr.com>
 Frédéric L. W. Meunier	<http://www.pervalidus.net/contact.html>
 Keiji Sawada		<card_captor@users.sourceforge.net>
+Manfred Schwarb		<manfred99@gmx.ch>
 David Snyder            <dasnyderx@yahoo.com>
 Sergey Svishchev	<svs@ropnet.ru>
 Phil Williams		<phil@subbacultcha.demon.co.uk>
