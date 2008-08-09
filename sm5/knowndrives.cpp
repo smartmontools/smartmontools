@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.169 2008/08/03 14:51:57 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.170 2008/08/09 13:54:34 manfred99 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -470,6 +470,13 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
+  { "Maxtor DiamondMax 1280 ATA family",  // no self-test log, ATA2-Fast
+    "^Maxtor 8(1280A2|2160A4|2560A4|3840A6|4000A6|5120A8)$",
+    ".*",
+    NULL,
+    vendoropts_9_minutes,
+    NULL, NULL
+  },
   { "Maxtor DiamondMax 2160 Ultra ATA family",
     "^Maxtor 8(2160D2|3228D3|3240D3|4320D4|6480D6|8400D8|8455D8)$",
     ".*",
@@ -557,8 +564,8 @@ const drivesettings knowndrives[] = {
     vendoropts_9_minutes,
     NULL, NULL
   },
-  { "Maxtor DiamondMax VL 30 family",
-    "^Maxtor (33073U4|32049U3|31536U2|30768U1)$",
+  { "Maxtor DiamondMax VL 30 family",  // U: ATA66, H: ATA100
+    "^Maxtor (33073U4|32049U3|31536U2|30768U1)|(33073H4|32305H3|31536H2|30768H1)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -607,7 +614,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL
   },
   { "Maxtor DiamondMax 60 ATA 100 family",
-    "^Maxtor 9(1023H2|1536H2|2049H3|2305H3|3073H4|4610H6|6147H8)$",
+    "^Maxtor 9(1023H2|1536H2|2049H3|2305H3|3073H4|4098H6|4610H6|6147H8)$",
     ".*",
     NULL,
     vendoropts_9_minutes,
@@ -816,6 +823,11 @@ const drivesettings knowndrives[] = {
     "^(Hitachi )?HTS5416([468]0|1[26])J9(AT|SA)00$",
     ".*",
     NULL, NULL, NULL, NULL 
+  },
+  { "Hitachi Travelstar 5K250 series",
+    "^(Hitachi )?HTS5425(80|12|16|20|25)K9(A3|SA)00$",
+    ".*",
+    NULL, NULL, NULL, NULL
   },
   { "Hitachi Travelstar 7K60",
     "^(Hitachi )?HTS726060M9AT00$",
@@ -1037,6 +1049,11 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
+  { "Seagate Barracuda ATA family",
+    "^ST3(2804|2724|2043|1362|1022|681)0A$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
   { "Seagate Barracuda ATA II family",
     "^ST3(3063|2042|1532|1021)0A$",
     ".*",
@@ -1073,7 +1090,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Seagate Barracuda 7200.9 family",
-    "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?$",
+    "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1167,10 +1184,8 @@ const drivesettings knowndrives[] = {
     ".*",
     NULL, NULL, NULL, NULL
   },
-  { "Western Digital Caviar AC series",
-          // Western Digital Caviar AC12500, AC14300, AC23200, AC24300, AC25100,
-          // AC36400, AC38400
-    "^WDC AC(125|143|232|243|251|364|384)00.?",
+  { "Western Digital Caviar AC series", // add only 5400rpm/7200rpm (ata33 and faster)
+    "^WDC AC((116|121|125|225|132|232)|([1-4][4-9][0-9])|([1-4][0-9][0-9][0-9]))00[A-Z]?",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1238,7 +1253,12 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Western Digital RE2 Serial ATA family",
-    "^WDC WD((40|50|75)00(YR|YS|AYYS)|(16|32|40|50)01ABYS)-.*$",
+    "^WDC WD((40|50|75)00(YR|YS|AYYS)|(16|32|40|50)0[01]ABYS)-.*$",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Western Digital RE3 Serial ATA family",
+    "^WDC WD((25|32|50)02ABYS)-.*$",
     ".*",
     NULL, NULL, NULL, NULL
   },
@@ -1303,7 +1323,7 @@ const drivesettings knowndrives[] = {
     NULL, NULL, NULL, NULL
   },
   { "Quantum Fireball CR series",
-    "^QUANTUM FIREBALL CR(4.3|8.4)A$",
+    "^QUANTUM FIREBALL CR(4.3|8.4|13.0)A$",
     ".*",
     NULL, NULL, NULL, NULL
   },
