@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.702 2008/08/09 13:54:34 manfred99 Exp $
+$Id: CHANGELOG,v 1.703 2008/08/14 20:38:08 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update
+       - Added FUJITSU MHZ2250BS G2 and family
 
   [MS] knowndrives.cpp updates
        - Added Maxtor DiamondMax 60 94098H6
