@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.170 2008/08/09 13:54:34 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.171 2008/08/14 20:38:08 manfred99 Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -291,6 +291,11 @@ const drivesettings knowndrives[] = {
   },
   { "Fujitsu MHW2 BH series",
     "^FUJITSU MHW2(04|06|08|10|12|16)0BH",
+    ".*",
+    NULL, NULL, NULL, NULL
+  },
+  { "Fujitsu MHZ2 BS series",
+    "^FUJITSU MHZ2(12|25)0BS",
     ".*",
     NULL, NULL, NULL, NULL
   },
