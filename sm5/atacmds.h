@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.93 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.94 2008/08/16 16:49:15 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -67,10 +67,12 @@ typedef enum {
 } smart_command_set;
 
 // ATA Specification Command Register Values (Commands)
-#define ATA_IDENTIFY_DEVICE             0xec                                              
+#define ATA_IDENTIFY_DEVICE             0xec
 #define ATA_IDENTIFY_PACKET_DEVICE      0xa1
 #define ATA_SMART_CMD                   0xb0
 #define ATA_CHECK_POWER_MODE            0xe5
+// 48-bit commands
+#define ATA_READ_LOG_EXT                0x2F
 
 // ATA Specification Feature Register Values (SMART Subcommands).
 // Note that some are obsolete as of ATA-7.
@@ -474,7 +476,7 @@ int ataReadSelfTestLog(ata_device * device, struct ata_smart_selftestlog *);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
 int ataSmartStatus(ata_device * device);
 int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
-int ataReadLogDirectory(ata_device * device, struct ata_smart_log_directory *);
+int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
 
 // Read SCT information
 int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts);

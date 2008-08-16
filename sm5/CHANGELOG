@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.706 2008/08/16 13:17:22 chrfranke Exp $
+$Id: CHANGELOG,v 1.707 2008/08/16 16:49:15 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Enhance '-l directory' to print both GP and SMART Log directories.
+       Add '-l directory[,gs]' modifiers to select GP or SMART log.
+       Enhance 'ata_cmd_in' parameter struct for 48-bit commands.
 
   [CF] Windows: Add full ATA pass through support including 48-bit commands.
 

@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.2 2008/08/16 12:01:02 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.3 2008/08/16 16:49:15 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -357,10 +357,34 @@ struct ata_cmd_in
   void * buffer; ///< Pointer to data buffer
   unsigned size; ///< Size of buffer
 
-  void set_data_in(unsigned nsectors)
-    { in_regs.sector_count = nsectors; direction = data_in; size = 512*nsectors; }
-  void set_data_out(unsigned nsectors)
-    { in_regs.sector_count = nsectors; direction = data_out; size = 512*nsectors; }
+  /// Prepare for 28-bit DATA IN command
+  void set_data_in(void * buf, unsigned nsectors)
+    {
+      buffer = buf;
+      in_regs.sector_count = nsectors;
+      direction = data_in;
+      size = nsectors * 512;
+    }
+
+  /// Prepare for 28-bit DATA OUT command
+  void set_data_out(const void * buf, unsigned nsectors)
+    {
+      buffer = const_cast<void *>(buf);
+      in_regs.sector_count = nsectors;
+      direction = data_out;
+      size = nsectors * 512;
+    }
+
+  /// Prepare for 48-bit DATA IN command
+  void set_data_in_48bit(void * buf, unsigned nsectors)
+    {
+      buffer = buf;
+      in_regs.sector_count      = nsectors;
+      // Note: This also sets 'in_regs.is_48bit_cmd()'
+      in_regs.prev.sector_count = nsectors >> 8;
+      direction = data_in;
+      size = nsectors * 512;
+    }
 
   ata_cmd_in();
 };

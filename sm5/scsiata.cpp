@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.14 2008/08/16 12:01:02 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.15 2008/08/16 16:49:16 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -400,9 +400,8 @@ static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false
 {
     ata_cmd_in in;
     in.in_regs.command = (packet_interface ? ATA_IDENTIFY_PACKET_DEVICE : ATA_IDENTIFY_DEVICE);
-    in.set_data_in(1);
     char data[512];
-    in.buffer = data;
+    in.set_data_in(data, 1);
     return dev->ata_pass_through(in);
 }
 

@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.191 2008/07/30 11:54:29 ballen4705 Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.192 2008/08/16 16:49:15 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -952,59 +952,98 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
   pout("\n");
 }
 
-int ataPrintLogDirectory(struct ata_smart_log_directory *data){
-  int i;
-  const char *name;
+// Print SMART and/or GP Log Directory
+static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
+                                const ata_smart_log_directory * smartlogdir)
+{
+  if (gplogdir)
+    pout("General Purpose Log Directory Version %u\n", gplogdir->logversion);
+  if (smartlogdir)
+    pout("SMART %sLog Directory Version %u%s\n",
+         (gplogdir ? "          " : ""), smartlogdir->logversion,
+         (smartlogdir->logversion==1 ? " [multi-sector log support]" : ""));
 
-  pout("SMART Log Directory Logging Version %d%s\n",
-       data->logversion, data->logversion==1?" [multi-sector log support]":"");
-  for (i=0; i<=255; i++){
-    int numsect;
-    
-    // Directory log length
-    numsect = i? data->entry[i-1].numsectors : 1;
-    
-    // If the log is not empty, what is it's name
-    if (numsect){
-      switch (i) {
-      case 0:
+  for (int i = 0; i <= 0xff; i++) {
+    // Get number of sectors
+    unsigned gp_numsect = 0;
+    if (gplogdir) {
+      if (i == 0)
+        gp_numsect = 1;
+      else // GP logs may have >255 sectors
+        gp_numsect = gplogdir->entry[i-1].numsectors | (gplogdir->entry[i-1].reserved << 8);
+    }
+    unsigned smart_numsect = 0;
+    if (smartlogdir) {
+      if (i == 0)
+        smart_numsect = 1;
+      else
+        smart_numsect = smartlogdir->entry[i-1].numsectors;
+    }
+
+    if (!(smart_numsect || gp_numsect))
+      continue; // Log does not exist
+
+    // Get name of log.
+    // Table A.2 of T13/1699-D Revision 6
+    const char * name;
+    switch (i) {
+      case 0x00:
         name="Log Directory"; break;
-      case 1:
+      case 0x01:
         name="Summary SMART error log"; break;
-      case 2:
+      case 0x02:
         name="Comprehensive SMART error log"; break;
-      case 3:
-        name="Extended Comprehensive SMART error log"; break;
-      case 6:
+      case 0x03:
+        name="Ext. Comprehensive SMART error log"; break;
+      case 0x04:
+        name="Device Statistics"; break;
+      case 0x06:
         name="SMART self-test log"; break;
-      case 7:
+      case 0x07:
         name="Extended self-test log"; break;
-      case 9:
+      case 0x09:
         name="Selective self-test log"; break;
+      case 0x10:
+        name = "NCQ Command Error"; break;
+      case 0x11:
+        name = "SATA Phy Event Counters"; break;
       case 0x20:
-        name="Streaming performance log"; break;
+        name="Streaming performance log"; break; // Obsolete
       case 0x21:
         name="Write stream error log"; break;
       case 0x22:
         name="Read stream error log"; break;
       case 0x23:
-        name="Delayed sector log"; break;
+        name="Delayed sector log"; break; // Obsolete
+      case 0xe0:
+        name="SCT Command/Status"; break;
+      case 0xe1:
+        name="SCT Data Transfer"; break;
       default:
-        if (0xa0<=i && i<=0xbf) 
+        if (0xa0<=i && i<=0xdf)
           name="Device vendor specific log";
         else if (0x80<=i && i<=0x9f)
           name="Host vendor specific log";
+        else if (0x12<=i && i<=0x17)
+          name="Reserved for Serial ATA";
         else
-          name="Reserved log";
+          name="Reserved";
         break;
-      }
+    }
 
-      // print name and length of log
-      pout("Log at address 0x%02x has %03d sectors [%s]\n",
-           i, numsect, name);
+    // Print name and length of log.
+    // If both SMART and GP exist, print separate entries if length differ.
+    if (smart_numsect == gp_numsect)
+      pout(  "GP/S  Log at address 0x%02x has %4d sectors [%s]\n", i, smart_numsect, name);
+    else {
+      if (gp_numsect)
+        pout("GP %sLog at address 0x%02x has %4d sectors [%s]\n", (smartlogdir?"   ":""),
+             i, gp_numsect, name);
+      if (smart_numsect )
+        pout("SMART Log at address 0x%02x has %4d sectors [%s]\n", i, smart_numsect, name);
     }
   }
-  return 0;
+  pout("\n");
 }
 
 // returns number of errors
@@ -1915,23 +1954,37 @@ int ataPrintMain (ata_device * device){
     PRINT_OFF(con);
   }
 
-  // Print SMART log Directory
+  // Print SMART and/or GP log Directory
   if (con->smartlogdirectory){
-    struct ata_smart_log_directory smartlogdirectory;
     if (!isGeneralPurposeLoggingCapable(&drive)){
       pout("Warning: device does not support General Purpose Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       PRINT_ON(con);
-      pout("Log Directory Supported\n");
-      if (ataReadLogDirectory(device, &smartlogdirectory)){
-        PRINT_OFF(con);
-        pout("Read Log Directory failed.\n\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      pout("Log Directories Supported\n");
+      ata_smart_log_directory smartlogdir_buf, gplogdir_buf;
+      const ata_smart_log_directory * smartlogdir = 0, * gplogdir = 0;
+      if (con->smartlogdirectory & 0x1) {
+        if (ataReadLogDirectory(device, &smartlogdir_buf, false)){
+          PRINT_OFF(con);
+          pout("Read SMART Log Directory failed.\n\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        else
+          smartlogdir = &smartlogdir_buf;
       }
-      else
-        ataPrintLogDirectory( &smartlogdirectory);
+      if (con->smartlogdirectory & 0x2) {
+        if (ataReadLogDirectory(device, &gplogdir_buf, true)){
+          PRINT_OFF(con);
+          pout("Read GP Log Directory failed.\n\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        else
+          gplogdir = &gplogdir_buf;
+      }
+      if (gplogdir || smartlogdir)
+        PrintLogDirectories(gplogdir, smartlogdir);
     }
     PRINT_OFF(con);
   }

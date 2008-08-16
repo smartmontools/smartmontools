@@ -49,7 +49,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.65 2008/08/16 13:17:22 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.66 2008/08/16 16:49:15 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -2366,13 +2366,17 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         case ATA_SMART_READ_LOG_SECTOR:
           // SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
           // Try SCSI_MINIPORT also to skip buggy class driver
-          valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
+          // SMART functions do not support multi sector I/O.
+          if (in.size == 512)
+            valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
+          else
+            valid_options = "a";
           break;
 
         case ATA_SMART_WRITE_LOG_SECTOR:
           // ATA_PASS_THROUGH, SCSI_MINIPORT, others don't support DATA_OUT
-          // but SCSI_MINIPORT_* only if requested by user
-          valid_options = (m_usr_options ? "am" : "a");
+          // but SCSI_MINIPORT_* only if requested by user and single sector.
+          valid_options = (in.size == 512 && m_usr_options ? "am" : "a");
           break;
 
         case ATA_SMART_STATUS:
