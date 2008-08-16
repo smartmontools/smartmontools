@@ -11,8 +11,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -23,14 +22,20 @@
 extern smartmonctrl * con; // con->permissive,reportataioctl
 #include "scsicmds.h"
 #include "utility.h"
-extern int64_t bytes; // malloc() byte count
+
+#include "dev_interface.h"
+#include "dev_ata_cmd_set.h"
 
 #include <errno.h>
+
 #ifdef _DEBUG
 #include <assert.h>
 #else
+#ifndef assert
 #define assert(x) /**/
 #endif
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stddef.h> // offsetof()
@@ -44,9 +49,195 @@ extern int64_t bytes; // malloc() byte count
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.63 2008/08/16 12:21:58 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.64 2008/08/16 12:39:18 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace os_win32 { // no need to publish anything, name provided for Doxygen
+
+#ifdef _MSC_VER
+#pragma warning(disable:4250)
+#endif
+
+class win_smart_device
+: virtual public /*implements*/ smart_device
+{
+public:
+  win_smart_device()
+    : smart_device(never_called),
+      m_fh(INVALID_HANDLE_VALUE)
+    { }
+
+  virtual ~win_smart_device() throw();
+
+  virtual bool is_open() const;
+
+  virtual bool close();
+
+protected:
+  /// Set handle for open() in derived classes.
+  void set_fh(HANDLE fh)
+    { m_fh = fh; }
+
+  /// Return handle for derived classes.
+  HANDLE get_fh() const
+    { return m_fh; }
+
+private:
+  HANDLE m_fh; ///< File handle
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+class win_ata_device
+: public /*implements*/ ata_device_with_command_set,
+  public /*extends*/ win_smart_device
+{
+public:
+  win_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
+
+  virtual ~win_ata_device() throw();
+
+  virtual bool open();
+
+  virtual bool ata_identify_is_cached() const;
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+private:
+  bool open(int phydrive, int logdrive, const char * options, int port);
+
+  std::string m_options;
+  bool m_usr_options; // options set by user?
+  bool m_admin; // open with admin access?
+  int m_drive, m_port;
+  int m_smartver_state;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+class win_scsi_device
+: public /*implements*/ scsi_device,
+  virtual public /*extends*/ win_smart_device
+{
+public:
+  win_scsi_device(smart_interface * intf, const char * dev_name, const char * req_type);
+
+  virtual bool open();
+
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+
+private:
+  bool open(int pd_num, int ld_num, int tape_num, int sub_addr);
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+class win_aspi_device
+: public /*implements*/ scsi_device
+{
+public:
+  win_aspi_device(smart_interface * intf, const char * dev_name, const char * req_type);
+
+  virtual bool is_open() const;
+
+  virtual bool open();
+
+  virtual bool close();
+
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop);
+
+private:
+  int m_adapter;
+  unsigned char m_id;
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+class win_tw_cli_device
+: public /*implements*/ ata_device_with_command_set
+{
+public:
+  win_tw_cli_device(smart_interface * intf, const char * dev_name, const char * req_type);
+
+  virtual bool is_open() const;
+
+  virtual bool open();
+
+  virtual bool close();
+
+protected:
+  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+private:
+  bool m_ident_valid, m_smart_valid;
+  ata_identify_device m_ident_buf;
+  ata_smart_values m_smart_buf;
+};
+
+
+//////////////////////////////////////////////////////////////////////
+// Platform specific interfaces
+
+// Common to all windows flavors
+class win_smart_interface
+: public /*implements part of*/ smart_interface
+{
+public:
+  virtual const char * get_os_version_str();
+
+  virtual const char * get_app_examples(const char * appname);
+
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
+protected:
+  virtual ata_device * get_ata_device(const char * name, const char * type);
+
+//virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual smart_device * autodetect_smart_device(const char * name);
+
+  virtual bool ata_scan(smart_device_list & devlist) = 0;
+
+  virtual bool scsi_scan(smart_device_list & devlist) = 0;
+};
+
+// Win9x/ME reduced functionality
+class win9x_smart_interface
+: public /*extends*/ win_smart_interface
+{
+protected:
+  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual bool ata_scan(smart_device_list & devlist);
+
+  virtual bool scsi_scan(smart_device_list & devlist);
+};
+
+// WinNT,2000,XP,...
+class winnt_smart_interface
+: public /*extends*/ win_smart_interface
+{
+protected:
+  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual smart_device * autodetect_smart_device(const char * name);
+
+  virtual bool ata_scan(smart_device_list & devlist);
+
+  virtual bool scsi_scan(smart_device_list & devlist);
+};
+
+
+//////////////////////////////////////////////////////////////////////
 
 // Running on Win9x/ME ?
 static inline bool is_win9x()
@@ -70,21 +261,15 @@ static bool is_wow64()
   return !!w64;
 }
 
-
-#ifndef HAVE_GET_OS_VERSION_STR
-#error define of HAVE_GET_OS_VERSION_STR missing in config.h
-#endif
-
 // Return build host and OS version as static string
-const char * get_os_version_str()
+const char * win_smart_interface::get_os_version_str()
 {
-  static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1+sizeof("-2003r2(64)-sp2.1")+13];
-  char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-3-1;
-  const int vlen = sizeof(vstr)-(sizeof(SMARTMONTOOLS_BUILD_HOST)-3);
-
-  // remove "-pc" to avoid long lines
-  assert(!strncmp(SMARTMONTOOLS_BUILD_HOST+5, "pc-", 3));
-  strcpy(vstr, "i686-"); strcpy(vstr+5, SMARTMONTOOLS_BUILD_HOST+5+3);
+  static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-1+sizeof("-2003r2(64)-sp2.1")+13]
+    = SMARTMONTOOLS_BUILD_HOST;
+  if (vstr[1] < '6')
+    vstr[1] = '6';
+  char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
+  const int vlen = sizeof(vstr)-sizeof(SMARTMONTOOLS_BUILD_HOST);
   assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
 
   OSVERSIONINFOEXA vi; memset(&vi, 0, sizeof(vi));
@@ -134,34 +319,13 @@ const char * get_os_version_str()
   return vstr;
 }
 
+// Return value for device detection functions
+enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI };
 
-static int get_phy_drive_type(int drive);
-static int get_log_drive_type(int drive);
+static win_dev_type get_phy_drive_type(int drive);
+static win_dev_type get_log_drive_type(int drive);
 
-#define ATARAID_FDOFFSET 0x0200
-
-static int ata_open(int phydrive, int logdrive, const char * options, int port);
-static void ata_close(int fd);
-static int ata_scan_win9x(unsigned long * drives);
-static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives);
 static const char * ata_get_def_options(void);
-
-#define TW_CLI_FDOFFSET 0x0300
-
-static int tw_cli_open(const char * name);
-static void tw_cli_close();
-
-#define ASPI_FDOFFSET 0x0100
-
-static int aspi_open(unsigned adapter, unsigned id);
-static void aspi_close(int fd);
-static int aspi_scan(unsigned long * drives);
-
-#define SPT_FDOFFSET 0x0400
-
-static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr);
-static void spt_close(int fd);
-static int spt_scan(unsigned long * drives);
 
 
 static int is_permissive()
@@ -192,237 +356,108 @@ static const char * skipdev(const char * s)
   return (!strncmp(s, "/dev/", 5) && drive_letter(s+5) < 0 ? s+5 : s);
 }
 
-
-// tries to guess device type given the name (a path).  See utility.h
-// for return values.
-int guess_device_type (const char * dev_name)
+ata_device * win_smart_interface::get_ata_device(const char * name, const char * type)
 {
-  dev_name = skipdev(dev_name);
-  if (!strncmp(dev_name, "scsi", 4))
-    return CONTROLLER_SCSI;
-  if (is_win9x())
-    return CONTROLLER_ATA;
-  if (!strncmp(dev_name, "hd", 2))
-    return CONTROLLER_ATA;
-  if (!strncmp(dev_name, "tw_cli", 6))
-    return CONTROLLER_ATA;
-  if (!strncmp(dev_name, "st", 2))
-    return CONTROLLER_SCSI;
-  if (!strncmp(dev_name, "nst", 3))
-    return CONTROLLER_SCSI;
-  if (!strncmp(dev_name, "tape", 4))
-    return CONTROLLER_SCSI;
-  int logdrive = drive_letter(dev_name);
+  const char * testname = skipdev(name);
+  if (!strncmp(testname, "tw_cli", 6))
+    return new win_tw_cli_device(this, name, type);
+  return new win_ata_device(this, name, type);
+}
+
+scsi_device * win9x_smart_interface::get_scsi_device(const char * name, const char * type)
+{
+  return new win_aspi_device(this, name, type);
+}
+
+scsi_device * winnt_smart_interface::get_scsi_device(const char * name, const char * type)
+{
+  const char * testname = skipdev(name);
+  if (!strncmp(testname, "scsi", 4))
+    return new win_aspi_device(this, name, type);
+  return new win_scsi_device(this, name, type);
+}
+
+static win_dev_type get_dev_type(const char * name)
+{
+  name = skipdev(name);
+  if (!strncmp(name, "st", 2))
+    return DEV_SCSI;
+  if (!strncmp(name, "nst", 3))
+    return DEV_SCSI;
+  if (!strncmp(name, "tape", 4))
+    return DEV_SCSI;
+
+  int logdrive = drive_letter(name);
   if (logdrive >= 0) {
-    int type = get_log_drive_type(logdrive);
-    return (type != CONTROLLER_UNKNOWN ? type : CONTROLLER_SCSI);
+    win_dev_type type = get_log_drive_type(logdrive);
+    return (type != DEV_UNKNOWN ? type : DEV_SCSI);
   }
   char drive[1+1] = "";
-  if (sscanf(dev_name, "sd%1[a-z]", drive) == 1)
+  if (sscanf(name, "sd%1[a-z]", drive) == 1)
     return get_phy_drive_type(drive[0]-'a');
   int phydrive = -1;
-  if (sscanf(dev_name, "pd%d", &phydrive) == 1 && phydrive >= 0)
+  if (sscanf(name, "pd%d", &phydrive) == 1 && phydrive >= 0)
     return get_phy_drive_type(phydrive);
-  return CONTROLLER_UNKNOWN;
+  return DEV_UNKNOWN;
 }
 
-
-// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
-// smartd.  Returns number N of devices, or -1 if out of
-// memory. Allocates N+1 arrays: one of N pointers (devlist), the
-// others each contain null-terminated character strings.
-int make_device_names (char*** devlist, const char* type)
+smart_device * win_smart_interface::autodetect_smart_device(const char * name)
 {
-  unsigned long drives[3];
-  int rdriveno[2];
-  unsigned long rdrives[2];
-  int i, j, n, nmax, sz;
-  const char * path;
-
-  drives[0] = drives[1] = drives[2] = 0;
-  rdriveno[0] = rdriveno[1] = -1;
-  rdrives[0] = rdrives[1] = 0;
-
-  bool win9x = is_win9x();
-  if (!strcmp(type, "ATA")) {
-    // bit i set => drive i present
-    if (win9x) {
-      n = ata_scan_win9x(drives);
-      path = "/dev/hda";
-    }
-    else {
-      n = ata_scan(drives, rdriveno, rdrives);
-      path = "/dev/sda";
-    }
-    nmax = 10;
-  }
-  else if (!strcmp(type, "SCSI")) {
-    if (win9x) {
-      // bit i set => drive with ID (i & 0x7) on adapter (i >> 3) present
-      n = aspi_scan(drives);
-      path = "/dev/scsi00";
-      nmax = 10*8;
-    }
-    else {
-      // bit i set => drive i present
-      n = spt_scan(drives);
-      path = "/dev/sda";
-      nmax = 10;
-    }
-  }
-  else
-    return -1;
-
-  if (n <= 0)
-    return 0;
-
-  // Alloc devlist
-  sz = n * sizeof(char **);
-  *devlist = (char **)malloc(sz); bytes += sz;
-
-  // Add devices
-  for (i = j = 0; i < n; ) {
-    while (j < nmax && !(drives[j >> 5] & (1L << (j & 0x1f))))
-      j++;
-    assert(j < nmax);
-
-    if (j == rdriveno[0] || j == rdriveno[1]) {
-      // Add physical drives behind this logical drive
-      int ci = (j == rdriveno[0] ? 0 : 1);
-      for (int pi = 0; pi < 32 && i < n; pi++) {
-        if (!(rdrives[ci] & (1L << pi)))
-          continue;
-        char rpath[20];
-        sprintf(rpath, "/dev/sd%c,%u", 'a'+j, pi);
-        sz = strlen(rpath)+1;
-        char * s = (char *)malloc(sz); bytes += sz;
-        strcpy(s, rpath);
-        (*devlist)[i++] = s;
-      }
-    }
-    else {
-      sz = strlen(path)+1;
-      char * s = (char *)malloc(sz); bytes += sz;
-      strcpy(s, path);
-
-      if (nmax <= 10) {
-        assert(j <= 9);
-        s[sz-2] += j; // /dev/hd[a-j]
-      }
-      else {
-        assert((j >> 3) <= 9);
-        s[sz-3] += (j >> 3);  // /dev/scsi[0-9].....
-        s[sz-2] += (j & 0x7); //          .....[0-7]
-      }
-      (*devlist)[i++] = s;
-    }
-    j++;
-  }
-
-  return n;
+  const char * testname = skipdev(name);
+  if (!strncmp(testname, "hd", 2))
+    return new win_ata_device(this, name, "");
+  if (!strncmp(testname, "scsi", 4))
+    return new win_aspi_device(this, name, "");
+  if (!strncmp(testname, "tw_cli", 6))
+    return new win_tw_cli_device(this, name, "");
+  return 0;
 }
 
-
-// Like open().  Return positive integer handle, only used by
-// functions below.  type="ATA" or "SCSI".  If you need to store extra
-// information about your devices, create a private internal array
-// within this file (see os_freebsd.cpp for an example).
-int deviceopen(const char * pathname, char *type)
+smart_device * winnt_smart_interface::autodetect_smart_device(const char * name)
 {
-  pathname = skipdev(pathname);
-  int len = strlen(pathname);
+  smart_device * dev = win_smart_interface::autodetect_smart_device(name);
+  if (dev)
+    return dev;
 
-  if (!strcmp(type, "ATA")) {
-    // [sh]d[a-z](:[saicmfp]+)? => Physical drive 0-25, with options
-    char drive[1+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
-    if (   sscanf(pathname, "%*[sh]d%1[a-z]%n:%7[saicmfp]%n", drive, &n1, options, &n2) >= 1
-        && ((n1 == len && !options[0]) || n2 == len)                                       ) {
-      return ata_open(drive[0] - 'a', -1, options, -1);
-    }
-    // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-25, RAID port N, with options
-    drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
-    unsigned port = ~0;
-    if (   sscanf(pathname, "%*[sh]d%1[a-z],%u%n:%8[saicmfp3]%n", drive, &port, &n1, options, &n2) >= 2
-        && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                     ) {
-      return ata_open(drive[0] - 'a', -1, options, port);
-    }
-    // pd<m>,N => Physical drive <m>, RAID port N
-    int phydrive = -1; port = ~0; n1 = -1; n2 = -1;
-    if (   sscanf(pathname, "pd%d%n,%u%n", &phydrive, &n1, &port, &n2) >= 1
-        && phydrive >= 0 && ((n1 == len && (int)port < 0) || (n2 == len && port < 32))) {
-      return ata_open(phydrive, -1, "", (int)port);
-    }
-    // [a-zA-Z]: => Physical drive behind logical drive 0-25
-    int logdrive = drive_letter(pathname);
-    if (logdrive >= 0) {
-      return ata_open(-1, logdrive, "", -1);
-    }
-    // tw_cli/... => Parse tw_cli output
-    if (!strncmp(pathname, "tw_cli/", 7)) {
-      return tw_cli_open(pathname+7);
-    }
-  } else if (!strcmp(type, "SCSI")) {
-    // scsi[0-9][0-f] => ASPI Adapter 0-9, ID 0-15, LUN 0
-    unsigned adapter = ~0, id = ~0; int n1 = -1;
-    if (sscanf(pathname,"scsi%1u%1x%n", &adapter, &id, &n1) == 2 && n1 == len) {
-      return aspi_open(adapter, id);
-    }
-    // sd[a-z],N => Physical drive 0-25, RAID port N
-    char drive[1+1] = ""; int sub_addr = -1; n1 = -1; int n2 = -1;
-    if (   sscanf(pathname, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
-        && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))      ) {
-      return spt_open(drive[0] - 'a', -1, -1, sub_addr);
-    }
-    // pd<m>,N => Physical drive <m>, RAID port N
-    int pd_num = -1; sub_addr = -1; n1 = -1; n2 = -1;
-    if (   sscanf(pathname, "pd%d%n,%d%n", &pd_num, &n1, &sub_addr, &n2) >= 1
-        && pd_num >= 0 && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))) {
-      return spt_open(pd_num, -1, -1, sub_addr);
-    }
-    // [a-zA-Z]: => Physical drive behind logical drive 0-25
-    int logdrive = drive_letter(pathname);
-    if (logdrive >= 0) {
-      return spt_open(-1, logdrive, -1, -1);
-    }
-    // n?st<m> => tape drive <m> (same names used in Cygwin's /dev emulation)
-    int tape_num = -1; n1 = -1;
-    if (sscanf(pathname, "st%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-      return spt_open(-1, -1, tape_num, -1);
-    }
-    tape_num = -1; n1 = -1;
-    if (sscanf(pathname, "nst%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-      return spt_open(-1, -1, tape_num, -1);
-    }
-    // tape<m> => tape drive <m>
-    tape_num = -1; n1 = -1;
-    if (sscanf(pathname, "tape%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
-      return spt_open(-1, -1, tape_num, -1);
-    }
-  }
-
-  errno = EINVAL;
-  return -1;
-}
-
-
-// Like close().  Acts only on handles returned by above function.
-int deviceclose(int fd)
-{
-  if ((fd & 0xff00) == ASPI_FDOFFSET)
-    aspi_close(fd);
-  else if (fd >= SPT_FDOFFSET)
-    spt_close(fd);
-  else if (fd == TW_CLI_FDOFFSET)
-    tw_cli_close();
-  else
-    ata_close(fd);
+  win_dev_type type = get_dev_type(name);
+  if (type == DEV_ATA)
+    return new win_ata_device(this, name, "");
+  if (type == DEV_SCSI)
+    return new win_scsi_device(this, name, "");
   return 0;
 }
 
 
-// print examples for smartctl
-void print_smartctl_examples(){
-  printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
+// makes a list of ATA or SCSI devices for the DEVICESCAN directive
+bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const char * type, const char * pattern /* = 0*/)
+{
+  if (pattern) {
+    set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
+    return false;
+  }
+
+  if (!type || !strcmp(type, "ata")) {
+    if (!ata_scan(devlist))
+      return false;
+  }
+
+  if (!type || !strcmp(type, "scsi")) {
+    if (!scsi_scan(devlist))
+      return false;
+  }
+  return true;
+}
+
+
+// get examples for smartctl
+const char * win_smart_interface::get_app_examples(const char * appname)
+{
+  if (strcmp(appname, "smartctl"))
+    return 0;
+  static char buf[2048]; // TODO: Let this function return std::string ?
+  snprintf(buf, sizeof(buf),
+         "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
 #ifdef HAVE_GETOPT_LONG
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
@@ -456,6 +491,7 @@ void print_smartctl_examples(){
          "  'f': IOCTL_STORAGE_*,        'm': IOCTL_SCSI_MINIPORT_*.\n"
          "  The default on this system is /dev/sdX:%s\n", ata_get_def_options()
   );
+  return buf;
 }
 
 
@@ -1453,47 +1489,62 @@ static void copy_swapped(unsigned char * dest, const char * src, int destsize)
 }
 
 
-static ata_identify_device * tw_cli_identbuf = 0;
-static ata_smart_values * tw_cli_smartbuf = 0;
+// TODO: This is OS independent
 
-static int tw_cli_open(const char * name)
+win_tw_cli_device::win_tw_cli_device(smart_interface * intf, const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "tw_cli", req_type),
+  m_ident_valid(false), m_smart_valid(false)
 {
+  memset(&m_ident_buf, 0, sizeof(m_ident_buf));
+  memset(&m_smart_buf, 0, sizeof(m_smart_buf));
+}
+
+
+bool win_tw_cli_device::is_open() const
+{
+  return (m_ident_valid || m_smart_valid);
+}
+
+
+bool win_tw_cli_device::open()
+{
+  m_ident_valid = m_smart_valid = false;
+  const char * name = skipdev(get_dev_name());
   // Read tw_cli or 3DM browser output into buffer
   char buffer[4096];
-  int size = -1, n1 = -1;
-  if (!strcmp(name, "clip")) { // tw_cli/clip => read clipboard
+  int size = -1, n1 = -1, n2 = -1;
+  if (!strcmp(name, "tw_cli/clip")) { // read clipboard
     size = get_clipboard(buffer, sizeof(buffer));
   }
-  else if (!strcmp(name, "stdin")) {  // tw_cli/stdin => read stdin
+  else if (!strcmp(name, "tw_cli/stdin")) {  // read stdin
     size = fread(buffer, 1, sizeof(buffer), stdin);
   }
-  else if (sscanf(name, "c%*u/p%*u%n", &n1) >= 0 && n1 == (int)strlen(name)) {
+  else if (sscanf(name, "tw_cli/%nc%*u/p%*u%n", &n1, &n2) >= 0 && n2 == (int)strlen(name)) {
     // tw_cli/cx/py => read output from "tw_cli /cx/py show all"
     char cmd[100];
-    snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name);
+    snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name+n1);
     if (con->reportataioctl > 1)
-      pout("tw_cli/%s: Run: \"%s\"\n", name, cmd);
+      pout("%s: Run: \"%s\"\n", name, cmd);
     size = run_cmd(cmd, buffer, sizeof(buffer));
   }
   else {
-    errno = EINVAL; return -1;
+    return set_err(EINVAL);
   }
 
   if (con->reportataioctl > 1)
-    pout("tw_cli/%s: Read %d bytes\n", name, size);
-  if (size <= 0) {
-    errno = ENOENT; return -1;
-  }
-  if (size >= (int)sizeof(buffer)) {
-    errno = EIO; return -1;
-  }
+    pout("%s: Read %d bytes\n", name, size);
+  if (size <= 0)
+    return set_err(ENOENT);
+  if (size >= (int)sizeof(buffer))
+    return set_err(EIO);
+
   buffer[size] = 0;
   if (con->reportataioctl > 1)
     pout("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
 
   // Fake identify sector
   ASSERT_SIZEOF(ata_identify_device, 512);
-  ata_identify_device * id = (ata_identify_device *)malloc(sizeof(ata_identify_device));
+  ata_identify_device * id = &m_ident_buf;
   memset(id, 0, sizeof(*id));
   copy_swapped(id->model    , findstr(buffer, " Model = "   ), sizeof(id->model));
   copy_swapped(id->fw_rev   , findstr(buffer, " Firmware Version = "), sizeof(id->fw_rev));
@@ -1522,7 +1573,7 @@ static int tw_cli_open(const char * name)
     else
       s = buffer; // try raw hex dump without header
   }
-  unsigned char * sd = (unsigned char *)malloc(512);
+  unsigned char * sd = (unsigned char *)&m_smart_buf;
   int i = 0;
   for (;;) {
     unsigned x = ~0; int n = -1;
@@ -1536,60 +1587,54 @@ static int tw_cli_open(const char * name)
       s += strcspn(s, "\r\n");
   }
   if (i < 512) {
-    free(sd);
     if (!id->model[1]) {
       // No useful data found
-      free(id);
       char * err = strstr(buffer, "Error:");
       if (!err)
         err = strstr(buffer, "error :");
-      if (err) {
-        // Print tw_cli error message
+      if (err && (err = strchr(err, ':'))) {
+        // Show tw_cli error message
+        err++;
         err[strcspn(err, "\r\n")] = 0;
-        pout("%s\n", err);
+        return set_err(EIO, err);
       }
-      errno = EIO;
-      return -1;
+      return set_err(EIO);
     }
     sd = 0;
   }
 
-  tw_cli_identbuf = id;
-  tw_cli_smartbuf = (ata_smart_values *)sd;
-  return TW_CLI_FDOFFSET;
+  m_ident_valid = true;
+  m_smart_valid = !!sd;
+  return true;
 }
 
 
-static void tw_cli_close()
+bool win_tw_cli_device::close()
 {
-  if (tw_cli_identbuf) {
-    free(tw_cli_identbuf); tw_cli_identbuf = 0;
-  }
-  if (tw_cli_smartbuf) {
-    free(tw_cli_smartbuf); tw_cli_smartbuf = 0;
-  }
+  m_ident_valid = m_smart_valid = false;
+  return true;
 }
 
 
-static int tw_cli_command_interface(smart_command_set command, int /*select*/, char * data)
+int win_tw_cli_device::ata_command_interface(smart_command_set command, int /*select*/, char * data)
 {
   switch (command) {
     case IDENTIFY:
-      if (!tw_cli_identbuf)
+      if (!m_ident_valid)
         break;
-      memcpy(data, tw_cli_identbuf, 512);
+      memcpy(data, &m_ident_buf, 512);
       return 0;
     case READ_VALUES:
-      if (!tw_cli_smartbuf)
+      if (!m_smart_valid)
         break;
-      memcpy(data, tw_cli_smartbuf, 512);
+      memcpy(data, &m_smart_buf, 512);
       return 0;
     case READ_THRESHOLDS:
-      if (!tw_cli_smartbuf)
+      if (!m_smart_valid)
         break;
       // Fake zero thresholds
       {
-        const ata_smart_values   * sv = tw_cli_smartbuf;
+        const ata_smart_values   * sv = &m_smart_buf;
         ata_smart_thresholds_pvt * tr = (ata_smart_thresholds_pvt *)data;
         memset(tr, 0, 512);
         // TODO: Indicate missing thresholds in ataprint.cpp:PrintSmartAttribWithThres()
@@ -1606,7 +1651,7 @@ static int tw_cli_command_interface(smart_command_set command, int /*select*/, c
       break;
   }
   // Arrive here for all unsupported commands
-  errno = ENOSYS;
+  set_err(ENOSYS);
   return -1;
 }
 
@@ -1775,37 +1820,37 @@ static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
 
 /////////////////////////////////////////////////////////////////////////////
 
-// get CONTROLLER_* for open handle
-static int get_controller_type(HANDLE hdevice, bool admin, GETVERSIONINPARAMS_EX * ata_version_ex)
+// get DEV_* for open handle
+static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONINPARAMS_EX * ata_version_ex)
 {
   // Try SMART_GET_VERSION first to detect ATA SMART support
   // for drivers reporting BusTypeScsi (3ware)
   if (admin && smart_get_version(hdevice, ata_version_ex) >= 0)
-    return CONTROLLER_ATA;
+    return DEV_ATA;
 
   // Get BusType from device descriptor
   STORAGE_DEVICE_DESCRIPTOR_DATA data;
   if (storage_query_property_ioctl(hdevice, &data))
-    return CONTROLLER_UNKNOWN;
+    return DEV_UNKNOWN;
 
   switch (data.desc.BusType) {
     case BusTypeAta:
     case BusTypeSata:
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
-      return CONTROLLER_ATA;
+      return DEV_ATA;
     case BusTypeScsi:
     case BusTypeiScsi:
     case BusTypeSas:
-      return CONTROLLER_SCSI;
+      return DEV_SCSI;
     default:
-      return CONTROLLER_UNKNOWN;
+      return DEV_UNKNOWN;
   }
   /*NOTREACHED*/
 }
 
-// get CONTROLLER_* for device path
-static int get_controller_type(const char * path, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
+// get DEV_* for device path
+static win_dev_type get_controller_type(const char * path, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
   bool admin = true;
   HANDLE h = CreateFileA(path, GENERIC_READ|GENERIC_WRITE,
@@ -1815,30 +1860,30 @@ static int get_controller_type(const char * path, GETVERSIONINPARAMS_EX * ata_ve
     h = CreateFileA(path, 0,
       FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     if (h == INVALID_HANDLE_VALUE)
-      return CONTROLLER_UNKNOWN;
+      return DEV_UNKNOWN;
   }
   if (con->reportataioctl > 1 || con->reportscsiioctl > 1)
     pout(" %s: successfully opened%s\n", path, (!admin ? " (without admin rights)" :""));
-  int type = get_controller_type(h, admin, ata_version_ex);
+  win_dev_type type = get_controller_type(h, admin, ata_version_ex);
   CloseHandle(h);
   return type;
 }
 
-// get CONTROLLER_* for physical drive number
-static int get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex)
+// get DEV_* for physical drive number
+static win_dev_type get_phy_drive_type(int drive, GETVERSIONINPARAMS_EX * ata_version_ex)
 {
   char path[30];
   snprintf(path, sizeof(path)-1, "\\\\.\\PhysicalDrive%d", drive);
   return get_controller_type(path, ata_version_ex);
 }
 
-static int get_phy_drive_type(int drive)
+static win_dev_type get_phy_drive_type(int drive)
 {
   return get_phy_drive_type(drive, 0);
 }
 
-// get CONTROLLER_* for logical drive number
-static int get_log_drive_type(int drive)
+// get DEV_* for logical drive number
+static win_dev_type get_log_drive_type(int drive)
 {
   char path[30];
   snprintf(path, sizeof(path)-1, "\\\\.\\%c:", 'A'+drive);
@@ -1927,16 +1972,6 @@ static int get_device_power_state(HANDLE hdevice)
 
 /////////////////////////////////////////////////////////////////////////////
 
-// TODO: Put in a struct indexed by fd (or better a C++ object of course ;-)
-static HANDLE h_ata_ioctl = 0;
-static bool ata_admin; // true if opened with admin rights
-static const char * ata_def_options;
-static char * ata_usr_options;
-const int max_ata_driveno = 25;
-static int ata_driveno; // Drive number
-static int ata_driveno_is_log = -1; // 0=physical drivenumber, 1=logical drive number, -1=unknown
-static char ata_smartver_state[max_ata_driveno+1]; // SMART_GET_VERSION: 0=unknown, 1=OK, 2=failed
-
 // Print SMARTVSD error message, return errno
 
 static int smartvsd_error()
@@ -2000,98 +2035,149 @@ static const char * ata_get_def_options()
 }
 
 
+// Common routines for devices with HANDLEs
+
+win_smart_device::~win_smart_device() throw()
+{
+  if (m_fh != INVALID_HANDLE_VALUE)
+    ::CloseHandle(m_fh);
+}
+
+bool win_smart_device::is_open() const
+{
+  return (m_fh != INVALID_HANDLE_VALUE);
+}
+
+bool win_smart_device::close()
+{
+  if (m_fh == INVALID_HANDLE_VALUE)
+    return true;
+  BOOL rc = ::CloseHandle(m_fh);
+  m_fh = INVALID_HANDLE_VALUE;
+  return !!rc;
+}
+
+// ATA
+
+win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "ata", req_type),
+  m_usr_options(false),
+  m_admin(false),
+  m_drive(0),
+  m_port(-1),
+  m_smartver_state(0)
+{
+}
+
+win_ata_device::~win_ata_device() throw()
+{
+}
+
+
 // Open ATA device
 
-static int ata_open(int phydrive, int logdrive, const char * options, int port)
+bool win_ata_device::open()
 {
-  // TODO: This version does not allow to open more than 1 ATA devices
-  if (h_ata_ioctl) {
-    errno = ENFILE;
-    return -1;
+  const char * name = skipdev(get_dev_name()); int len = strlen(name);
+  // [sh]d[a-z](:[saicmfp]+)? => Physical drive 0-25, with options
+  char drive[1+1] = "", options[8+1] = ""; int n1 = -1, n2 = -1;
+  if (   sscanf(name, "%*[sh]d%1[a-z]%n:%7[saicmfp]%n", drive, &n1, options, &n2) >= 1
+      && ((n1 == len && !options[0]) || n2 == len)                                       ) {
+    return open(drive[0] - 'a', -1, options, -1);
+  }
+  // [sh]d[a-z],N(:[saicmfp3]+)? => Physical drive 0-25, RAID port N, with options
+  drive[0] = 0; options[0] = 0; n1 = -1; n2 = -1;
+  unsigned port = ~0;
+  if (   sscanf(name, "%*[sh]d%1[a-z],%u%n:%8[saicmfp3]%n", drive, &port, &n1, options, &n2) >= 2
+      && port < 32 && ((n1 == len && !options[0]) || n2 == len)                                     ) {
+    return open(drive[0] - 'a', -1, options, port);
+  }
+  // pd<m>,N => Physical drive <m>, RAID port N
+  int phydrive = -1; port = ~0; n1 = -1; n2 = -1;
+  if (   sscanf(name, "pd%d%n,%u%n", &phydrive, &n1, &port, &n2) >= 1
+      && phydrive >= 0 && ((n1 == len && (int)port < 0) || (n2 == len && port < 32))) {
+    return open(phydrive, -1, "", (int)port);
+  }
+  // [a-zA-Z]: => Physical drive behind logical drive 0-25
+  int logdrive = drive_letter(name);
+  if (logdrive >= 0) {
+    return open(-1, logdrive, "", -1);
   }
 
-  // Using both physical and logical drive names (in smartd.conf) not supported yet
-  if (!(   ata_driveno_is_log < 0
-        || (phydrive >= 0 && !ata_driveno_is_log)
-        || (logdrive >= 0 &&  ata_driveno_is_log))) {
-    pout("Using both /dev/hdX and X: is not supported\n");
-    errno = EINVAL;
-    return -1;
-  }
+  return set_err(EINVAL);
+}
 
+
+bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port)
+{
   // path depends on Windows Version
-  bool win9x = is_win9x();
+  bool win9x = is_win9x(); // TODO: Member variable
   char devpath[30];
   if (win9x && 0 <= phydrive && phydrive <= 7)
     // Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
     strcpy(devpath, (phydrive <= 3 ? "\\\\.\\SMARTVSD" : "\\\\.\\SMARTVSE"));
-  else if (!win9x && 0 <= phydrive && phydrive <= max_ata_driveno)
+  else if (!win9x && 0 <= phydrive && phydrive <= 255)
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\PhysicalDrive%d", phydrive);
-  else if (!win9x && 0 <= logdrive && logdrive <= max_ata_driveno) {
+  else if (!win9x && 0 <= logdrive && logdrive <= 'Z'-'A')
     snprintf(devpath, sizeof(devpath)-1, "\\\\.\\%c:", 'A'+logdrive);
-  }
-  else {
-    errno = ENOENT;
-    return -1;
-  }
+  else
+    return set_err(ENOENT);
 
   // Open device
-  h_ata_ioctl = INVALID_HANDLE_VALUE;
+  HANDLE h = INVALID_HANDLE_VALUE;
   if (win9x || !(*options && !options[strspn(options, "fp")])) {
     // Open with admin rights
-    ata_admin = true;
-    h_ata_ioctl = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
+    m_admin = true;
+    h = CreateFileA(devpath, GENERIC_READ|GENERIC_WRITE,
       FILE_SHARE_READ|FILE_SHARE_WRITE,
       NULL, OPEN_EXISTING, 0, 0);
   }
-  if (!win9x && h_ata_ioctl == INVALID_HANDLE_VALUE) {
+  if (!win9x && h == INVALID_HANDLE_VALUE) {
     // Open without admin rights
-    ata_admin = false;
-    h_ata_ioctl = CreateFileA(devpath, 0,
+    m_admin = false;
+    h = CreateFileA(devpath, 0,
       FILE_SHARE_READ|FILE_SHARE_WRITE,
       NULL, OPEN_EXISTING, 0, 0);
   }
-  if (h_ata_ioctl == INVALID_HANDLE_VALUE) {
+  if (h == INVALID_HANDLE_VALUE) {
     long err = GetLastError();
     pout("Cannot open device %s, Error=%ld\n", devpath, err);
     if (err == ERROR_FILE_NOT_FOUND)
-      errno = (win9x && phydrive <= 3 ? smartvsd_error() : ENOENT);
+      set_err((win9x && phydrive <= 3 ? smartvsd_error() : ENOENT), "%s: not found", devpath);
     else if (err == ERROR_ACCESS_DENIED)
-      errno = EACCES;
+      set_err(EACCES, "%s: access denied", devpath);
     else
-      errno = EIO;
-    h_ata_ioctl = 0;
-    return -1;
+      set_err(EIO, "%s: Error=%ld", devpath, err);
+    return false;
   }
+  set_fh(h);
 
   if (con->reportataioctl > 1)
-    pout("%s: successfully opened%s\n", devpath, (!ata_admin ? " (without admin rights)" :""));
+    pout("%s: successfully opened%s\n", devpath, (!m_admin ? " (without admin rights)" :""));
 
-  // Set default options according to Windows version
-  if (!ata_def_options)
-    ata_def_options = ata_get_def_options();
-  // Save user options
-  if (port >= 0 && !*options)
-    options = "s3"; // RAID: SMART_* and SCSI_MINIPORT
-  assert(!ata_usr_options);
-  if (*options)
-    ata_usr_options = strdup(options);
+  m_usr_options = false;
+  if (*options) {
+    // Save user options
+    m_options = options; m_usr_options = true;
+  }
+  else if (port >= 0)
+    // RAID: SMART_* and SCSI_MINIPORT
+    m_options = "s3";
+  else {
+    // Set default options according to Windows version
+    static const char * def_options = ata_get_def_options();
+    m_options = def_options;
+  }
 
   // NT4/2000/XP: SMART_GET_VERSION may spin up disk, so delay until first real SMART_* call
-  if (phydrive >= 0) {
-    ata_driveno = phydrive; ata_driveno_is_log = 0;
-  }
-  else {
-    assert(logdrive >= 0);
-    ata_driveno = logdrive; ata_driveno_is_log = 1;
-  }
+  m_drive = 0; m_port = port;
   if (!win9x && port < 0)
-    return 0;
+    return true;
 
   // Win9X/ME: Get drive map
   // RAID: Get port map
   GETVERSIONINPARAMS_EX vers_ex;
-  int devmap = smart_get_version(h_ata_ioctl, (port >= 0 ? &vers_ex : 0));
+  int devmap = smart_get_version(h, (port >= 0 ? &vers_ex : 0));
 
   unsigned long portmap = 0;
   if (port >= 0 && devmap >= 0) {
@@ -2108,67 +2194,52 @@ static int ata_open(int phydrive, int logdrive, const char * options, int port)
   if (devmap < 0) {
     pout("%s: ATA driver has no SMART support\n", devpath);
     if (!is_permissive()) {
-      ata_close(0);
-      errno = ENOSYS;
-      return -1;
+      close();
+      return set_err(ENOSYS);
     }
     devmap = 0x0f;
   }
-  ata_smartver_state[ata_driveno] = 1;
+  m_smartver_state = 1;
 
   if (port >= 0) {
     // 3ware RAID: update devicemap first
-    if (!update_3ware_devicemap_ioctl(h_ata_ioctl)) {
-      if (   smart_get_version(h_ata_ioctl, &vers_ex) >= 0
+
+    if (!update_3ware_devicemap_ioctl(h)) {
+      if (   smart_get_version(h, &vers_ex) >= 0
           && vers_ex.wIdentifier == SMART_VENDOR_3WARE    )
         portmap = vers_ex.dwDeviceMapEx;
     }
     // Check port existence
     if (!(portmap & (1L << port))) {
-      pout("%s: Port %d is empty or does not exist\n", devpath, port);
       if (!is_permissive()) {
-        ata_close(0);
-        errno = ENOENT;
-        return -1;
+        close();
+        return set_err(ENOENT, "%s: Port %d is empty or does not exist", devpath, port);
       }
     }
-    // Encode port into pseudo fd
-    return (ATARAID_FDOFFSET | port);
+    return true;
   }
 
   // Win9x/ME: Check device presence & type
-  if (((devmap >> (ata_driveno & 0x3)) & 0x11) != 0x01) {
-    unsigned char atapi = (devmap >> (ata_driveno & 0x3)) & 0x10;
-    pout("%s: Drive %d %s (IDEDeviceMap=0x%02x).\n", devpath,
-         ata_driveno, (atapi?"is an ATAPI device":"does not exist"), devmap);
+  if (((devmap >> (phydrive & 0x3)) & 0x11) != 0x01) {
+    unsigned char atapi = (devmap >> (phydrive & 0x3)) & 0x10;
     // Win9x drive existence check may not work as expected
     // The atapi.sys driver incorrectly fills in the bIDEDeviceMap with 0x01
     // (The related KB Article Q196120 is no longer available)
     if (!is_permissive()) {
-      ata_close(0);
-      errno = (atapi ? ENOSYS : ENOENT);
-      return -1;
+      close();
+      return set_err((atapi ? ENOSYS : ENOENT), "%s: Drive %d %s (IDEDeviceMap=0x%02x)",
+        devpath, phydrive, (atapi?"is an ATAPI device":"does not exist"), devmap);
     }
   }
-  // Use drive number as fd for ioctl
-  return (ata_driveno & 0x3);
+  // Drive number must be passed to ioctl
+  m_drive = (phydrive & 0x3);
+  return true;
 }
 
 
-static void ata_close(int /*fd*/)
-{
-  CloseHandle(h_ata_ioctl);
-  h_ata_ioctl = 0;
-  if (ata_usr_options) {
-    free(ata_usr_options);
-    ata_usr_options = 0;
-  }
-}
+// Scan for ATA drives on Win9x/ME
 
-
-// Scan for ATA drives on Win9x/ME, fill bitmask of drives present, return #drives
-
-static int ata_scan_win9x(unsigned long * drives)
+bool win9x_smart_interface::ata_scan(smart_device_list & devlist)
 {
   // Open device
   const char devpath[] = "\\\\.\\SMARTVSD";
@@ -2177,79 +2248,71 @@ static int ata_scan_win9x(unsigned long * drives)
   if (h == INVALID_HANDLE_VALUE) {
     if (con->reportataioctl > 1)
       pout(" %s: Open failed, Error=%ld\n", devpath, GetLastError());
-    return 0; // SMARTVSD.VXD missing or no ATA devices
+    return true; // SMARTVSD.VXD missing or no ATA devices
   }
 
   // Get drive map
   int devmap = smart_get_version(h);
   CloseHandle(h);
   if (devmap < 0)
-    return 0; // Should not happen
+    return true; // Should not happen
 
   // Check ATA device presence, remove ATAPI devices
-  drives[0] = (devmap & 0xf) & ~((devmap >> 4) & 0xf);
-  return (drives[0]&1) + ((drives[0]>>1)&1) + ((drives[0]>>2)&1) + ((drives[0]>>3)&1);
+  devmap = (devmap & 0xf) & ~((devmap >> 4) & 0xf);
+  char name[20];
+  for (int i = 0; i < 4; i++) {
+    if (!(devmap & (1 << i)))
+      continue;
+    sprintf(name, "/dev/hd%c", 'a'+i);
+    devlist.add( new win_ata_device(this, name, "ata") );
+  }
+  return true;
 }
 
 
-// Scan for ATA drives, fill bitmask of drives present, return #drives
+// Scan for ATA drives
 
-static int ata_scan(unsigned long * drives, int * rdriveno, unsigned long * rdrives)
+bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
 {
-  int cnt = 0;
+  const int max_raid = 2;
+  bool raid_seen[max_raid] = {false, false};
+
+  char name[20];
   for (int i = 0; i <= 9; i++) {
     GETVERSIONINPARAMS_EX vers_ex;
-    if (get_phy_drive_type(i, &vers_ex) != CONTROLLER_ATA)
+    if (get_phy_drive_type(i, &vers_ex) != DEV_ATA)
       continue;
 
     // Interpret RAID drive map if present
     if (vers_ex.wIdentifier == SMART_VENDOR_3WARE) {
       // Skip if more than 2 controllers or logical drive from this controller already seen
-      if (vers_ex.wControllerId >= 2 || rdriveno[vers_ex.wControllerId] >= 0)
+      if (vers_ex.wControllerId >= max_raid || raid_seen[vers_ex.wControllerId])
         continue;
-      assert(rdrives[vers_ex.wControllerId] == 0);
-      // Count physical drives
-      int pcnt = 0;
+      raid_seen[vers_ex.wControllerId] = true;
+      // Add physical drives
       for (int pi = 0; pi < 32; pi++) {
-        if (vers_ex.dwDeviceMapEx & (1L << pi))
-          pcnt++;
+        if (vers_ex.dwDeviceMapEx & (1L << pi)) {
+            sprintf(name, "/dev/sd%c,%u", 'a'+i, pi);
+            devlist.add( new win_ata_device(this, name, "ata") );
+        }
       }
-      if (!pcnt)
-        continue; // Should not happen
-      rdrives[vers_ex.wControllerId] = vers_ex.dwDeviceMapEx;
-      rdriveno[vers_ex.wControllerId] = i;
-      cnt += pcnt-1;
+      continue;
     }
 
     // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returns ATA/SATA
-    drives[0] |= (1L << i);
-    cnt++;
+    sprintf(name, "/dev/sd%c", 'a'+i);
+    devlist.add( new win_ata_device(this, name, "ata") );
   }
 
-  return cnt;
+  return true;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Interface to ATA devices.  See os_linux.c
-int ata_command_interface(int fd, smart_command_set command, int select, char * data)
+// Interface to ATA devices
+int win_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
 {
-  if (fd == TW_CLI_FDOFFSET) // Parse tw_cli output
-    return tw_cli_command_interface(command, select, data);
-
-  int port = -1;
-  if ((fd & ~0x1f) == ATARAID_FDOFFSET) {
-    // RAID Port encoded into pseudo fd
-    port = fd & 0x1f;
-    fd = 0;
-  }
-
-  if (!(0 <= fd && fd <= 3)) {
-    errno = EBADF;
-    return -1;
-  }
-
   // CMD,CYL default to SMART, changed by P?IDENTIFY and CHECK_POWER_MODE
   IDEREGS regs; memset(&regs, 0, sizeof(regs));
   regs.bCommandReg = ATA_SMART_CMD;
@@ -2258,7 +2321,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
 
   // Try by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
   // and SCSI_MINIPORT_* if requested by user
-  const char * valid_options = (ata_usr_options ? "saicmf" : "saicf");
+  const char * valid_options = (m_usr_options ? "saicmf" : "saicf");
 
   switch (command) {
     case CHECK_POWER_MODE:
@@ -2284,7 +2347,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       regs.bSectorCountReg = 1;
       // SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
       // Try SCSI_MINIPORT also to skip buggy class driver
-      valid_options = (ata_usr_options || is_win9x() ? "saicm3" : "aicm3");
+      valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
       datasize = 512;
       break;
     case WRITE_LOG:
@@ -2293,7 +2356,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       regs.bSectorCountReg = 1;
       // ATA_PASS_THROUGH, SCSI_MINIPORT, others don't support DATA_OUT
       // but SCSI_MINIPORT_* only if requested by user
-      valid_options = (ata_usr_options ? "am" : "a");
+      valid_options = (m_usr_options ? "am" : "a");
       datasize = -512; // DATA_OUT!
       break;
     case IDENTIFY:
@@ -2320,7 +2383,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       break;
     case STATUS_CHECK:
       // Requires CL,CH register return
-      valid_options = (ata_usr_options ? "saimf" : "saif");
+      valid_options = (m_usr_options ? "saimf" : "saif");
     case STATUS:
       regs.bFeaturesReg = ATA_SMART_STATUS;
       break;
@@ -2336,32 +2399,31 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
       regs.bSectorNumberReg = select;
       // SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
-      valid_options = (ata_usr_options || select != 127/*ABORT*/ || is_win9x() ?
+      valid_options = (m_usr_options || select != 127/*ABORT*/ || is_win9x() ?
         "saicm3" : "aicm3");
       break;
     default:
       pout("Unrecognized command %d in win32_ata_command_interface()\n"
            "Please contact " PACKAGE_BUGREPORT "\n", command);
-      errno = ENOSYS;
+      set_err(ENOSYS);
       return -1;
   }
 
-  if (!ata_admin) {
+  if (!m_admin) {
     // Restrict to IOCTL_STORAGE_*
     if (strchr(valid_options, 'f'))
       valid_options = "f";
     else if (strchr(valid_options, 'p'))
       valid_options = "p";
     else {
-      errno = ENOSYS;
+      set_err(ENOSYS);
       return -1;
     }
   }
 
-  // Try all valid ioctls in the order specified in ata_*_options
+  // Try all valid ioctls in the order specified in m_options
   bool powered_up = false;
-  assert(ata_def_options);
-  const char * options = (ata_usr_options ? ata_usr_options : ata_def_options);
+  const char * options = m_options.c_str();
   for (int i = 0; ; i++) {
     char opt = options[i];
 
@@ -2373,7 +2435,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
         break;
       }
       // No IOCTL found
-      errno = ENOSYS;
+      set_err(ENOSYS);
       return -1;
     }
     if (!strchr(valid_options, opt))
@@ -2387,50 +2449,47 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       default: assert(0);
       case 's':
         // call SMART_GET_VERSION once for each drive
-        assert(0 <= ata_driveno && ata_driveno < sizeof(ata_smartver_state));
-        if (ata_smartver_state[ata_driveno] > 1) {
+        if (m_smartver_state > 1) {
           rc = -1; errno = ENOSYS;
           break;
         }
-        if (!ata_smartver_state[ata_driveno]) {
-          assert(port == -1);
-          if (smart_get_version(h_ata_ioctl) < 0) {
+        if (!m_smartver_state) {
+          assert(m_port == -1);
+          if (smart_get_version(get_fh()) < 0) {
             if (!con->permissive) {
-              pout("ATA/SATA driver is possibly a SCSI driver not supporting SMART.\n");
-              pout("If this is a SCSI disk, please try adding '-d scsi'.\n");
-              ata_smartver_state[ata_driveno] = 2;
+              m_smartver_state = 2;
               rc = -1; errno = ENOSYS;
               break;
             }
             con->permissive--;
           }
-          ata_smartver_state[ata_driveno] = 1;
+          m_smartver_state = 1;
         }
-        rc = smart_ioctl(h_ata_ioctl, fd, &regs, data, datasize, port);
+        rc = smart_ioctl(get_fh(), m_drive, &regs, data, datasize, m_port);
         break;
       case 'm':
-        rc = ata_via_scsi_miniport_smart_ioctl(h_ata_ioctl, &regs, data, datasize);
+        rc = ata_via_scsi_miniport_smart_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'a':
-        rc = ata_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+        rc = ata_pass_through_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'i':
-        rc = ide_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+        rc = ide_pass_through_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'c':
-        rc = ata_via_scsi_pass_through_ioctl(h_ata_ioctl, &regs, data, datasize);
+        rc = ata_via_scsi_pass_through_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'f':
         switch (command) {
           case READ_VALUES:
-            rc = storage_predict_failure_ioctl(h_ata_ioctl, data);
+            rc = storage_predict_failure_ioctl(get_fh(), data);
             if (rc > 0)
               rc = 0;
             break;
           case READ_THRESHOLDS:
             {
               ata_smart_values sv;
-              rc = storage_predict_failure_ioctl(h_ata_ioctl, (char *)&sv);
+              rc = storage_predict_failure_ioctl(get_fh(), (char *)&sv);
               if (rc < 0)
                 break;
               rc = 0;
@@ -2442,14 +2501,14 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
             }
             break;
           case IDENTIFY:
-            rc = get_identify_from_device_property(h_ata_ioctl, (ata_identify_device *)data);
+            rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
             break;
           case ENABLE:
             rc = 0;
             break;
           case STATUS_CHECK:
           case STATUS:
-            rc = storage_predict_failure_ioctl(h_ata_ioctl);
+            rc = storage_predict_failure_ioctl(get_fh());
             if (rc > 0) {
               if (command == STATUS_CHECK) {
                 regs.bCylHighReg = 0x2c; regs.bCylLowReg = 0xf4;
@@ -2462,11 +2521,11 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
         }
         break;
       case '3':
-        rc = ata_via_3ware_miniport_ioctl(h_ata_ioctl, &regs, data, datasize, port);
+        rc = ata_via_3ware_miniport_ioctl(get_fh(), &regs, data, datasize, m_port);
         break;
       case 'p':
         assert(command == CHECK_POWER_MODE && datasize == 0);
-        rc = get_device_power_state(h_ata_ioctl);
+        rc = get_device_power_state(get_fh());
         if (rc == 0) {
           // Power down reported by GetDevicePowerState(), using a passthrough ioctl would
           // spin up the drive => simulate ATA result STANDBY.
@@ -2477,7 +2536,7 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
           // only if it is selected by the device driver => try a passthrough ioctl to get the
           // actual mode, if none available simulate ACTIVE/IDLE.
           powered_up = true;
-          errno = ENOSYS; rc = -1;
+          rc = -1; errno = ENOSYS;
         }
         break;
     }
@@ -2486,9 +2545,11 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       // Working ioctl found
       break;
 
-    if (errno != ENOSYS)
+    if (errno != ENOSYS) {
       // Abort on I/O error
+      set_err(errno);
       return -1;
+    }
 
     // CAUTION: *_ioctl() MUST NOT change "regs" Parameter in the ENOSYS case
   }
@@ -2512,89 +2573,22 @@ int ata_command_interface(int fd, smart_command_set command, int select, char * 
       syserror("Error SMART Status command failed");
       pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
       print_ide_regs(&regs, 1);
-      errno = EIO;
+      set_err(EIO);
       return -1;
 
     default:
-      return 0;
+    return 0;
   }
   /*NOTREACHED*/
 }
 
 
-#ifndef HAVE_ATA_IDENTIFY_IS_CACHED
-#error define of HAVE_ATA_IDENTIFY_IS_CACHED missing in config.h
-#endif
-
 // Return true if OS caches the ATA identify sector
-int ata_identify_is_cached(int fd)
+bool win_ata_device::ata_identify_is_cached() const
 {
   // Not RAID and WinNT4/2000/XP => true, RAID or Win9x/ME => false
-  return (!(fd & 0xff00) && !is_win9x());
-}
-
-
-// Print not implemeted warning once
-static void pr_not_impl(const char * what, int * warned)
-{
-  if (*warned)
-    return;
-  pout(
-    "#######################################################################\n"
-    "%s\n"
-    "NOT IMPLEMENTED under Win32.\n"
-    "Please contact " PACKAGE_BUGREPORT " if\n"
-    "you want to help in porting smartmontools to Win32.\n"
-    "#######################################################################\n"
-    "\n", what
-  );
-  *warned = 1;
-}
-
-// Interface to ATA devices behind Areca RAID controller cards.  See os_linux.c
-int areca_command_interface(int /*fd*/, int disknum, smart_command_set /*command*/, int /*select*/, char * /*data*/)
-{
-  static int warned = 0;
-  if (!warned) {
-    pout("Option '-d areca,%d' does not work on Windows.\n"
-         "Controller port can be specified in the device name: '/dev/hd%c,%d'.\n\n",
-      disknum, 'a'+ata_driveno, disknum);
-    warned = 1;
-  }
-  errno = ENOSYS;
-  return -1;
-}
-
-// Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
-int escalade_command_interface(int /*fd*/, int disknum, int /*escalade_type*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
-{
-  static int warned = 0;
-  if (!warned) {
-    pout("Option '-d 3ware,%d' does not work on Windows.\n"
-         "Controller port can be specified in the device name: '/dev/hd%c,%d'.\n\n",
-      disknum, 'a'+ata_driveno, disknum);
-    warned = 1;
-  }
-  errno = ENOSYS;
-  return -1;
-}
-
-// Interface to ATA devices behind Marvell chip-set based controllers.  See os_linux.c
-int marvell_command_interface(int /*fd*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
-{
-  static int warned = 0;
-  pr_not_impl("Marvell chip-set command routine marvell_command_interface()", &warned);
-  errno = ENOSYS;
-  return -1;
-}
-
-// Interface to ATA devices behind HighPoint Raid controllers.  See os_linux.c
-int highpoint_command_interface(int /*fd*/, smart_command_set /*command*/, int /*select*/, char * /*data*/)
-{
-  static int warned = 0;
-  pr_not_impl("HighPoint raid controller command routine highpoint_command_interface()", &warned);
-  errno = ENOSYS;
-  return -1;
+  // TODO: Set according to ioctl used.
+  return (m_port < 0 && !is_win9x());
 }
 
 
@@ -2875,72 +2869,78 @@ static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
 }
 
 
-static int aspi_open(unsigned adapter, unsigned id)
+win_aspi_device::win_aspi_device(smart_interface * intf,
+  const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "scsi", req_type),
+  m_adapter(-1), m_id(0)
 {
-  ASPI_SRB srb;
-  if (!(adapter <= 9 && id < 16)) {
-    errno = ENOENT;
-    return -1;
-  }
+}
+
+bool win_aspi_device::is_open() const
+{
+  return (m_adapter >= 0);
+}
+
+bool win_aspi_device::open()
+{
+  // scsi[0-9][0-f] => ASPI Adapter 0-9, ID 0-15, LUN 0
+  unsigned adapter = ~0, id = ~0; int n1 = -1;
+  const char * name = skipdev(get_dev_name());
+  if (!(sscanf(name,"scsi%1u%1x%n", &adapter, &id, &n1) == 2 && n1 == (int)strlen(name)
+        && adapter <= 9 && id < 16))
+    return set_err(EINVAL);
 
   if (!aspi_entry_valid()) {
     if (aspi_open_dll(1/*verbose*/))
-      return -1;
+      return set_err(ENOENT);
   }
 
   // Adapter OK?
   if (adapter >= num_aspi_adapters) {
     pout("ASPI Adapter %u does not exist (%u Adapter%s detected).\n",
       adapter, num_aspi_adapters, (num_aspi_adapters!=1?"s":""));
-    if (!is_permissive()) {
-      errno = ENOENT;
-      return -1;
-    }
+    if (!is_permissive())
+      return set_err(ENOENT);
   }
 
   // Device present ?
+  ASPI_SRB srb;
   memset(&srb, 0, sizeof(srb));
   srb.h.cmd = ASPI_CMD_GET_DEVICE_TYPE;
   srb.h.adapter = adapter; srb.i.target_id = id;
-  if (aspi_call(&srb)) {
-    errno = EIO;
-    return -1;
-  }
+  if (aspi_call(&srb))
+    return set_err(EIO);
   if (srb.h.status != ASPI_STATUS_NO_ERROR) {
     pout("ASPI Adapter %u, ID %u: No such device (Status=0x%02x)\n", adapter, id, srb.h.status);
-    if (!is_permissive()) {
-      errno = (srb.h.status == ASPI_STATUS_INVALID_TARGET ? ENOENT : EIO);
-      return -1;
-    }
+    if (!is_permissive())
+      return set_err(srb.h.status == ASPI_STATUS_INVALID_TARGET ? ENOENT : EIO);
   }
   else if (con->reportscsiioctl)
     pout("ASPI Adapter %u, ID %u: Device Type=0x%02x\n", adapter, id, srb.t.devtype);
 
-  return (ASPI_FDOFFSET | ((adapter & 0xf)<<4) | (id & 0xf));
+  m_adapter = (int)adapter; m_id = (unsigned char)id;
+  return true;
 }
 
 
-static void aspi_close(int /*fd*/)
+bool win_aspi_device::close()
 {
   // No FreeLibrary(h_aspi_dll) to prevent problems with ASPI threads
+  return true;
 }
 
 
-// Scan for SCSI drives, fill bitmask [adapter:0-9][id:0-7] of drives present,
-// return #drives
+// Scan for ASPI drives
 
-static int aspi_scan(unsigned long * drives)
+bool win9x_smart_interface::scsi_scan(smart_device_list & devlist)
 {
-  int cnt = 0;
-  unsigned ad;
-
   if (!aspi_entry_valid()) {
     if (aspi_open_dll(con->reportscsiioctl/*default is quiet*/))
-      return 0;
+      return true;
   }
 
-  for (ad = 0; ad < num_aspi_adapters; ad++) {
-    ASPI_SRB srb; unsigned id;
+  for (unsigned ad = 0; ad < num_aspi_adapters; ad++) {
+    ASPI_SRB srb;
 
     if (ad > 9) {
       if (con->reportscsiioctl)
@@ -2953,7 +2953,7 @@ static int aspi_scan(unsigned long * drives)
     srb.h.cmd = ASPI_CMD_ADAPTER_INQUIRE;
     srb.h.adapter = ad;
     if (aspi_call(&srb))
-      return 0;
+      break;
 
     if (srb.h.status != ASPI_STATUS_NO_ERROR) {
       if (con->reportscsiioctl)
@@ -2962,8 +2962,7 @@ static int aspi_scan(unsigned long * drives)
     }
 
     if (con->reportscsiioctl) {
-      int i;
-      for (i = 1; i < 16 && srb.q.adapter_id[i]; i++)
+      for (int i = 1; i < 16 && srb.q.adapter_id[i]; i++)
         if (!(' ' <= srb.q.adapter_id[i] && srb.q.adapter_id[i] <= '~'))
           srb.q.adapter_id[i] = '?';
       pout(" ASPI Adapter %u (\"%.16s\"):\n", ad, srb.q.adapter_id);
@@ -2971,7 +2970,7 @@ static int aspi_scan(unsigned long * drives)
 
     bool ignore = !strnicmp(srb.q.adapter_id, "3ware", 5);
 
-    for (id = 0; id <= 7; id++) {
+    for (unsigned id = 0; id <= 7; id++) {
       // Get device type
       memset(&srb, 0, sizeof(srb));
       srb.h.cmd = ASPI_CMD_GET_DEVICE_TYPE;
@@ -2987,32 +2986,36 @@ static int aspi_scan(unsigned long * drives)
       if (!ignore && srb.t.devtype == 0x00/*HDD*/) {
         if (con->reportscsiioctl)
           pout("  ID %u: Device Type=0x%02x\n", id, srb.t.devtype);
-        drives[ad >> 2] |= (1L << (((ad & 0x3) << 3) + id));
-        cnt++;
+        char name[20];
+        sprintf(name, "/dev/scsi%u%u", ad, id);
+        devlist.add( new win_aspi_device(this, name, "scsi") );
       }
       else if (con->reportscsiioctl)
         pout("  ID %u: Device Type=0x%02x (ignored)\n", id, srb.t.devtype);
     }
   }
-  return cnt;
+  return true;
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-
-// Interface to ASPI SCSI devices.  See scsicmds.h and os_linux.c
-static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+// Interface to ASPI SCSI devices
+bool win_aspi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  ASPI_SRB srb;
+  int report = con->reportscsiioctl; // TODO
 
-  if (!aspi_entry_valid())
-    return -EBADF;
-  if (!((fd & ~0xff) == ASPI_FDOFFSET))
-    return -EBADF;
+  if (m_adapter < 0) {
+    set_err(EBADF);
+    return false;
+  }
+
+  if (!aspi_entry_valid()) {
+    set_err(EBADF);
+    return false;
+  }
 
   if (!(iop->cmnd_len == 6 || iop->cmnd_len == 10 || iop->cmnd_len == 12 || iop->cmnd_len == 16)) {
-    pout("do_aspi_cmnd_io: bad CDB length\n");
-    return -EINVAL;
+    set_err(EINVAL, "bad CDB length");
+    return false;
   }
 
   if (report > 0) {
@@ -3041,10 +3044,11 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     pout(buff);
   }
 
+  ASPI_SRB srb;
   memset(&srb, 0, sizeof(srb));
   srb.h.cmd = ASPI_CMD_EXECUTE_IO;
-  srb.h.adapter = ((fd >> 4) & 0xf);
-  srb.i.target_id = (fd & 0xf);
+  srb.h.adapter = m_adapter;
+  srb.i.target_id = m_id;
   //srb.i.lun = 0;
   srb.i.sense_size = ASPI_SENSE_SIZE;
   srb.i.cdb_size = iop->cmnd_len;
@@ -3065,8 +3069,8 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
       srb.i.data_addr = iop->dxferp;
       break;
     default:
-      pout("do_aspi_cmnd_io: bad dxfer_dir\n");
-      return -EINVAL;
+      set_err(EINVAL, "bad dxfer_dir");
+      return false;
   }
 
   iop->resp_sense_len = 0;
@@ -3075,7 +3079,7 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   if (aspi_io_call(&srb, (iop->timeout ? iop->timeout : 60))) {
     // Timeout
-    return -EIO;
+    set_err(EIO, "ASPI Timeout"); return false;
   }
 
   if (srb.h.status != ASPI_STATUS_NO_ERROR) {
@@ -3098,12 +3102,13 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
         pout("  sense_key=%x asc=%x ascq=%x\n",
          sense[2] & 0xf, sense[12], sense[13]);
       }
-      return 0;
+      return true;
     }
     else {
       if (report)
         pout("  ASPI call failed, (0x%02x,0x%02x,0x%02x)\n", srb.h.status, srb.i.host_status, srb.i.target_status);
-      return -EIO;
+      set_err(EIO);
+      return false;
     }
   }
 
@@ -3117,7 +3122,7 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
 
-  return 0;
+  return true;
 }
 
 
@@ -3126,46 +3131,53 @@ static int do_aspi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 // Only supported in NT and later
 /////////////////////////////////////////////////////////////////////////////
 
-#define SPT_MAXDEV 64
-
-struct spt_dev_info {
-  HANDLE h_spt_ioctl;
-  int   sub_addr; // addressing disks within a RAID, for example
-};
-
-// Private table of open devices: guaranteed zero on startup since
-// part of static data.
-static struct spt_dev_info * spt_dev_arr[SPT_MAXDEV];
-
-
-static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr)
+win_scsi_device::win_scsi_device(smart_interface * intf,
+  const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "scsi", req_type)
 {
-  int k;
-  struct spt_dev_info * sdip;
+}
+
+bool win_scsi_device::open()
+{
+  const char * name = skipdev(get_dev_name()); int len = strlen(name);
+  // sd[a-z],N => Physical drive 0-26, RAID port N
+  char drive[1+1] = ""; int sub_addr = -1; int n1 = -1; int n2 = -1;
+  if (   sscanf(name, "sd%1[a-z]%n,%d%n", drive, &n1, &sub_addr, &n2) >= 1
+      && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))  ) {
+    return open(drive[0] - 'a', -1, -1, sub_addr);
+  }
+  // pd<m>,N => Physical drive <m>, RAID port N
+  int pd_num = -1; sub_addr = -1; n1 = -1; n2 = -1;
+  if (   sscanf(name, "pd%d%n,%d%n", &pd_num, &n1, &sub_addr, &n2) >= 1
+      && pd_num >= 0 && ((n1 == len && sub_addr == -1) || (n2 == len && sub_addr >= 0))) {
+    return open(pd_num, -1, -1, sub_addr);
+  }
+  // [a-zA-Z]: => Physical drive behind logical drive 0-25
+  int logdrive = drive_letter(name);
+  if (logdrive >= 0) {
+    return open(-1, logdrive, -1, -1);
+  }
+  // n?st<m> => tape drive <m> (same names used in Cygwin's /dev emulation)
+  int tape_num = -1; n1 = -1;
+  if (sscanf(name, "st%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+    return open(-1, -1, tape_num, -1);
+  }
+  tape_num = -1; n1 = -1;
+  if (sscanf(name, "nst%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+    return open(-1, -1, tape_num, -1);
+  }
+  // tape<m> => tape drive <m>
+  tape_num = -1; n1 = -1;
+  if (sscanf(name, "tape%d%n", &tape_num, &n1) == 1 && tape_num >= 0 && n1 == len) {
+    return open(-1, -1, tape_num, -1);
+  }
+
+  return set_err(EINVAL);
+}
+
+bool win_scsi_device::open(int pd_num, int ld_num, int tape_num, int /*sub_addr*/)
+{
   char b[128];
-  HANDLE h;
-
-  for (k = 0; k < SPT_MAXDEV; k++)
-    if (! spt_dev_arr[k])
-      break;
-
-  // If no free entry found, return error.  We have max allowed number
-  // of "file descriptors" already allocated.
-  if (k == SPT_MAXDEV) {
-    if (con->reportscsiioctl)
-      pout("spt_open: too many open file descriptors (%d)\n",
-           SPT_MAXDEV);
-    errno = EMFILE;
-    return -1;
-  }
-  sdip = (struct spt_dev_info *)malloc(sizeof(struct spt_dev_info));
-  if (NULL == sdip) {
-    errno = ENOMEM;
-    return -1;
-  }
-  spt_dev_arr[k] = sdip;
-  sdip->sub_addr = sub_addr;
-
   b[sizeof(b) - 1] = '\0';
   if (pd_num >= 0)
     snprintf(b, sizeof(b) - 1, "\\\\.\\PhysicalDrive%d", pd_num);
@@ -3174,63 +3186,34 @@ static int spt_open(int pd_num, int ld_num, int tape_num, int sub_addr)
   else if (tape_num >= 0)
     snprintf(b, sizeof(b) - 1, "\\\\.\\TAPE%d", tape_num);
   else {
-    if (con->reportscsiioctl)
-      pout("spt_open: bad parameters\n");
-    errno = EINVAL;
-    goto err_out;
+    set_err(EINVAL);
+    return false;
   }
 
   // Open device
-  if ((h = CreateFileA(b, GENERIC_READ|GENERIC_WRITE,
+  HANDLE h = CreateFileA(b, GENERIC_READ|GENERIC_WRITE,
            FILE_SHARE_READ|FILE_SHARE_WRITE, NULL,
-           OPEN_EXISTING, 0, 0)) == INVALID_HANDLE_VALUE) {
-    if (con->reportscsiioctl)
-      pout(" %s: Open failed, Error=%ld\n", b, GetLastError());
-    errno = ENODEV;
-    goto err_out;
+           OPEN_EXISTING, 0, 0);
+  if (h == INVALID_HANDLE_VALUE) {
+    set_err(ENODEV, "%s: Open failed, Error=%ld", b, GetLastError());
+    return false;
   }
-  sdip->h_spt_ioctl = h;
-  return k + SPT_FDOFFSET;
-
-err_out:
-  spt_dev_arr[k] = NULL;
-  free(sdip);
-  return -1;
+  set_fh(h);
+  return true;
 }
 
 
-static void spt_close(int fd)
+bool winnt_smart_interface::scsi_scan(smart_device_list & devlist)
 {
-  struct spt_dev_info * sdip;
-  int index = fd - SPT_FDOFFSET;
-
-  if ((index < 0) || (index >= SPT_MAXDEV)) {
-    if (con->reportscsiioctl)
-      pout("spt_close: bad fd range\n");
-    return;
-  }
-  sdip = spt_dev_arr[index];
-  if (NULL == sdip) {
-    if (con->reportscsiioctl)
-      pout("spt_close: fd already closed\n");
-    return;
-  }
-  free(sdip);
-  spt_dev_arr[index] = NULL;
-}
-
-
-static int spt_scan(unsigned long * drives)
-{
-  int cnt = 0;
+  char name[20];
   for (int i = 0; i <= 9; i++) {
-    if (get_phy_drive_type(i) != CONTROLLER_SCSI)
+    if (get_phy_drive_type(i) != DEV_SCSI)
       continue;
     // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
-    drives[0] |= (1L << i);
-    cnt++;
+    sprintf(name, "/dev/sd%c", 'a'+i);
+    devlist.add( new win_scsi_device(this, name, "scsi") );
   }
-  return cnt;
+  return true;
 }
 
 
@@ -3261,24 +3244,9 @@ typedef struct {
 
 
 // Interface to SPT SCSI devices.  See scsicmds.h and os_linux.c
-static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 {
-  struct spt_dev_info * sdip;
-  int index = fd - SPT_FDOFFSET;
-  SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
-  DWORD num_out;
-
-  if ((index < 0) || (index >= SPT_MAXDEV)) {
-    if (report)
-      pout("do_spt_cmnd_io: bad fd range\n");
-    return -EBADF;
-  }
-  sdip = spt_dev_arr[index];
-  if (NULL == sdip) {
-    if (report)
-      pout("do_spt_cmnd_io: fd already closed\n");
-    return -EBADF;
-  }
+  int report = con->reportscsiioctl; // TODO
 
   if (report > 0) {
     int k, j;
@@ -3304,10 +3272,11 @@ static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
     pout(buff);
   }
+
+  SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
   if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
-    if (report)
-      pout("do_spt_cmnd_io: cmnd_len too large\n");
-    return -EINVAL;
+    set_err(EINVAL, "cmnd_len too large");
+    return false;
   }
 
   memset(&sb, 0, sizeof(sb));
@@ -3333,17 +3302,18 @@ static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
       sb.spt.DataBuffer = iop->dxferp;
       break;
     default:
-      pout("do_spt_cmnd_io: bad dxfer_dir\n");
-      return -EINVAL;
+      set_err(EINVAL, "bad dxfer_dir");
+      return false;
   }
 
-  if (! DeviceIoControl(sdip->h_spt_ioctl, IOCTL_SCSI_PASS_THROUGH_DIRECT,
+  DWORD num_out;
+  if (! DeviceIoControl(get_fh(), IOCTL_SCSI_PASS_THROUGH_DIRECT,
     &sb, sizeof(sb), &sb, sizeof(sb), &num_out, NULL)) {
     long err = GetLastError();
 
-    if (report)
-      pout("  IOCTL_SCSI_PASS_THROUGH_DIRECT failed, Error=%ld\n", err);
-    return -(err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
+    set_err((err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO),
+      "IOCTL_SCSI_PASS_THROUGH_DIRECT failed, Error=%ld", err);
+    return false;
   }
 
   iop->scsi_status = sb.spt.ScsiStatus;
@@ -3384,12 +3354,24 @@ static int do_spt_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 }
 
 
-// Decides which SCSI implementation based on pseudo fd.
-// Declaration and explanation in scsicmds.h
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+} // namespace
+
+/////////////////////////////////////////////////////////////////////////////
+
+// Initialize platform interface and register with smi()
+void smart_interface::init()
 {
-  if ((fd & ~0xff) == ASPI_FDOFFSET)
-    return do_aspi_cmnd_io(fd, iop, report);
-  else
-    return do_spt_cmnd_io(fd, iop, report);
+  // Select interface for Windows flavor
+  if (os_win32::is_win9x()) {
+    static os_win32::win9x_smart_interface the_win9x_interface;
+    smart_interface::set(&the_win9x_interface);
+  }
+  else {
+    static os_win32::winnt_smart_interface the_winnt_interface;
+    smart_interface::set(&the_winnt_interface);
+  }
 }
+
