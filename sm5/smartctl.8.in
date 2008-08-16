@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.110 2008/07/24 07:18:53 ballen4705 Exp $
+ $Id: smartctl.8.in,v 1.111 2008/08/16 16:49:16 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -843,9 +843,9 @@ delay before restarting this read\-scan if it is interrupted (see
 report unusual or incorrect behavior to the smartmontools\-support
 mailing list.
 
-.I directory
+.I directory[,gs] [ATA]
 \- if the device supports the General Purpose Logging feature set
-(ATA\-6 and ATA\-7 only) then this prints the Log Directory (the log at
+(ATA\-6 to ATA\-8 only) then this prints the Log Directory (the log at
 address 0).  The Log Directory shows what logs are available and their
 length in sectors (512 bytes).  The contents of the logs at address 1
 [Summary SMART error log] and at address 6 [SMART self\-test log] may
@@ -853,7 +853,12 @@ be printed using the previously\-described
 .I error
 and
 .I selftest
-arguments to this option. [Please note: this is a new, experimental
+arguments to this option.
+If your version of smartctl supports 48-bit ATA commands, both the
+General Purpose Log (GPL) and SMART Log (SL) directories are printed in
+one combined table. The output can be restricted to the GPL directory or
+SL directory by \'\-l directory,q\' or \'\-l directory,s\' respectively.
+[Please note: this is a new, experimental
 feature.  We would like to add support for printing the contents of
 extended and comprehensive SMART self\-test and error logs.  If your
 disk supports these, and you would like to assist, please contact the
@@ -1540,7 +1545,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.110 2008/07/24 07:18:53 ballen4705 Exp $
+$Id: smartctl.8.in,v 1.111 2008/08/16 16:49:16 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

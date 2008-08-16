@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.197 2008/07/25 21:16:00 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.198 2008/08/16 16:49:15 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -660,11 +660,11 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
     switch (command) {
       case IDENTIFY:
         in.in_regs.command = ATA_IDENTIFY_DEVICE;
-        in.set_data_in(1);
+        in.set_data_in(data, 1);
         break;
       case PIDENTIFY:
         in.in_regs.command = ATA_IDENTIFY_PACKET_DEVICE;
-        in.set_data_in(1);
+        in.set_data_in(data, 1);
         break;
       case CHECK_POWER_MODE:
         in.in_regs.command = ATA_CHECK_POWER_MODE;
@@ -672,22 +672,22 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         break;
       case READ_VALUES:
         in.in_regs.features = ATA_SMART_READ_VALUES;
-        in.set_data_in(1);
+        in.set_data_in(data, 1);
         break;
       case READ_THRESHOLDS:
         in.in_regs.features = ATA_SMART_READ_THRESHOLDS;
         in.in_regs.lba_low = 1; // TODO: CORRECT ???
-        in.set_data_in(1);
+        in.set_data_in(data, 1);
         break;
       case READ_LOG:
         in.in_regs.features = ATA_SMART_READ_LOG_SECTOR;
         in.in_regs.lba_low = select;
-        in.set_data_in(1);
+        in.set_data_in(data, 1);
         break;
       case WRITE_LOG:
         in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
         in.in_regs.lba_low = select;
-        in.set_data_out(1);
+        in.set_data_out(data, 1);
         break;
       case ENABLE:
         in.in_regs.features = ATA_SMART_ENABLE;
@@ -721,8 +721,6 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         errno = ENOSYS;
         return -1;
     }
-    if (in.direction)
-      in.buffer = data;
 
     if (con->reportataioctl)
       print_regs(" Input:  ", in.in_regs,
@@ -915,11 +913,12 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
     }
   }
 
-  // Try new ATA-8 minor revision numbers (Table 32 of T13/1699-D Revision 4c)
+  // Try new ATA-8 minor revision numbers (Table 31 of T13/1699-D Revision 6)
   // (not in actual_ver/minor_str to avoid large sparse tables)
   const char *desc;
   switch (*minor) {
     case 0x0027: desc = "ATA-8-ACS revision 3c"; break;
+    case 0x0028: desc = "ATA-8-ACS revision 6"; break;
     case 0x0029: desc = "ATA-8-ACS revision 4"; break;
     case 0x0033: desc = "ATA-8-ACS revision 3e"; break;
     case 0x0039: desc = "ATA-8-ACS revision 4c"; break;
@@ -1055,19 +1054,41 @@ int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data)
 }
 
 
-// Reads the Log Directory (log #0).  Note: NO CHECKSUM!!
-int ataReadLogDirectory (ata_device * device, struct ata_smart_log_directory *data){
-  
-  // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data)){
-    return -1;
+// Read GP Log page(s)
+static bool ReadLogExt(ata_device * device, unsigned logaddr, void * data,
+                       unsigned nsectors = 1, unsigned page = 0)
+{
+  ata_cmd_in in;
+  in.in_regs.command = ATA_READ_LOG_EXT;
+  in.set_data_in_48bit(data, nsectors);
+  in.in_regs.lba_low      = logaddr;
+  in.in_regs.lba_mid      = page;
+  in.in_regs.prev.lba_mid = page >> 8; // TODO: Add to ata_in_regs_48bit.
+
+  if (!device->ata_pass_through(in)) { // TODO: Debug output
+    pout("ATA_READ_LOG_EXT failed: %s\n", device->get_errmsg());
+    return false;
+  }
+  return true;
+}
+
+
+// Reads the SMART or GPL Log Directory (log #0)
+int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, bool gpl)
+{
+  if (!gpl) { // SMART Log directory
+    if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data))
+      return -1;
+  }
+  else { // GP Log directory
+    if (!ReadLogExt(device, 0x00, data))
+      return -1;
   }
 
   // swap endian order if needed
-  if (isbigendian()){
-    swap2((char *)&(data->logversion));
-  }
-  
+  if (isbigendian())
+    swapx(&data->logversion);
+
   return 0;
 }
 

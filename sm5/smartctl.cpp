@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.182 2008/07/29 14:38:06 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.183 2008/08/16 16:49:16 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -198,7 +198,7 @@ void Usage (void){
 "  -A, --attributes                                                         \n"
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
-"        Show device log. TYPE: error, selftest, selective, directory,\n"
+"        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               background, scttemp[sts,hist]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
@@ -213,7 +213,7 @@ void Usage (void){
 "  -H        Show device SMART health status\n"
 "  -c        Show device SMART capabilities                             (ATA)\n"
 "  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
-"  -l TYPE   Show device log. TYPE: error, selftest, selective, directory,\n"
+"  -l TYPE   Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                                   background, scttemp[sts,hist]\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
 "  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
@@ -264,7 +264,7 @@ const char *getvalidarglist(char opt) {
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory, background, scttemp[sts|hist]";
+    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -510,7 +510,11 @@ const char * ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg, "selective")) {
         con->selectivetestlog = TRUE;
       } else if (!strcmp(optarg,"directory")) {
-        con->smartlogdirectory = TRUE;
+        con->smartlogdirectory = 0x03; // SMART+GPL
+      } else if (!strcmp(optarg,"directory,s")) {
+        con->smartlogdirectory = 0x01; // SMART
+      } else if (!strcmp(optarg,"directory,g")) {
+        con->smartlogdirectory = 0x02; // GPL
       } else if (!strcmp(optarg,"background")) {
         con->smartbackgroundlog = TRUE;
       } else if (!strcmp(optarg,"scttemp")) {

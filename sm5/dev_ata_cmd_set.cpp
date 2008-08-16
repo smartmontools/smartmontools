@@ -22,11 +22,9 @@
 
 #include <errno.h>
 
-const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.1 2008/07/25 21:16:00 chrfranke Exp $"
+const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.2 2008/08/16 16:49:15 chrfranke Exp $"
   DEV_ATA_CMD_SET_H_CVSID;
 
-#define SMART_CYL_LOW  0x4F
-#define SMART_CYL_HI   0xC2
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device_with_command_set
@@ -35,6 +33,9 @@ const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.1 2008/07
 
 bool ata_device_with_command_set::ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  if (!(in.size == 0 || in.size == 512))
+    return set_err(ENOSYS, "Multi sector I/O not implemented");
+
   smart_command_set command = (smart_command_set)-1;
   int select = 0;
   char * data = (char *)in.buffer;
@@ -88,13 +89,11 @@ bool ata_device_with_command_set::ata_pass_through_28bit(const ata_cmd_in & in, 
           select = in.in_regs.lba_low;
           break;
         default:
-          set_err(ENOSYS);
-          return false;
+          return set_err(ENOSYS, "Unknown SMART command");
       }
       break;
     default:
-      set_err(ENOSYS);
-      return false;
+      return set_err(ENOSYS, "Non-SMART commands not implemented");
   }
 
   clear_err(); errno = 0;
@@ -112,7 +111,7 @@ bool ata_device_with_command_set::ata_pass_through_28bit(const ata_cmd_in & in, 
     case STATUS_CHECK:
       switch (rc) {
         case 0: // Good SMART status
-          out.out_regs.lba_high = SMART_CYL_HI; out.out_regs.lba_mid = SMART_CYL_LOW;
+          out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
           break;
         case 1: // Bad SMART status
           out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
