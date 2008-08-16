@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.13 2008/07/25 21:16:00 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.14 2008/08/16 12:01:02 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -66,7 +66,7 @@ namespace sat { // no need to publish anything, name provided for Doxygen
 
 class sat_device
 : public tunnelled_device<
-    /*implements*/ ata_device_with_command_set
+    /*implements*/ ata_device
     /*by tunnelling through a*/, scsi_device
   >
 {
@@ -76,8 +76,10 @@ public:
 
   virtual ~sat_device() throw();
 
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out);
 
   int m_passthrulen;
 };
@@ -86,7 +88,7 @@ protected:
 sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
   const char * req_type, int passthrulen /*= 0*/)
 : smart_device(intf, scsidev->get_dev_name(), "sat", req_type),
-  tunnelled_device<ata_device_with_command_set, scsi_device>(scsidev),
+  tunnelled_device<ata_device, scsi_device>(scsidev),
   m_passthrulen(passthrulen)
 {
   set_info().info_name = strprintf("%s [SAT]", scsidev->get_info_name());
@@ -170,7 +172,7 @@ sat_device::~sat_device() throw()
 //   0 if the command succeeded and disk SMART status is "OK"
 //   1 if the command succeeded and disk SMART status is "FAILING"
 
-int sat_device::ata_command_interface(smart_command_set command, int select, char *data)
+bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
@@ -179,136 +181,96 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
     unsigned char sense[32];
     const unsigned char * ardp;
     int status, ard_len, have_sense;
-    int copydata = 0;
-    int outlen = 0;
     int extend = 0;
     int ck_cond = 0;    /* set to 1 to read register(s) back */
     int protocol = 3;   /* non-data */
     int t_dir = 1;      /* 0 -> to device, 1 -> from device */
     int byte_block = 1; /* 0 -> bytes, 1 -> 512 byte blocks */
     int t_length = 0;   /* 0 -> no data transferred */
-    int feature = 0;
-    int ata_command = 0;
-    int sector_count = 0;
-    int lba_low = 0;
-    int lba_mid = 0;
-    int lba_high = 0;
     int passthru_size = DEF_SAT_ATA_PASSTHRU_SIZE;
 
     memset(cdb, 0, sizeof(cdb));
     memset(sense, 0, sizeof(sense));
 
-    ata_command = ATA_SMART_CMD;
-    switch (command) {
-    case CHECK_POWER_MODE:
-        ata_command = ATA_CHECK_POWER_MODE;
-        ck_cond = 1;
-        copydata = 1;
+    // Set data direction
+    // TODO: This works only for commands where sector_count holds count!
+    switch (in.direction) {
+      case ata_cmd_in::no_data:
         break;
-    case READ_VALUES:           /* READ DATA */
-        feature = ATA_SMART_READ_VALUES;
-        sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count holds count */
-        copydata = 512;
+      case ata_cmd_in::data_in:
+        protocol = 4;  // PIO data-in
+        t_length = 2;  // sector_count holds count
         break;
-    case READ_THRESHOLDS:       /* obsolete */
-        feature = ATA_SMART_READ_THRESHOLDS;
-        sector_count = 1;     /* one (512 byte) block */
-        lba_low = 1;
-        protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count holds count */
-        copydata=512;
+      case ata_cmd_in::data_out:
+        protocol = 5;  // PIO data-out
+        t_length = 2;  // sector_count holds count
+        t_dir = 0;     // to device
         break;
-    case READ_LOG:
-        feature = ATA_SMART_READ_LOG_SECTOR;
-        sector_count = 1;     /* one (512 byte) block */
-        lba_low = select;
-        protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count holds count */
-        copydata = 512;
-        break;
-    case WRITE_LOG:
-        feature = ATA_SMART_WRITE_LOG_SECTOR;
-        sector_count = 1;     /* one (512 byte) block */
-        lba_low = select;
-        protocol = 5;   /* PIO data-out */
-        t_length = 2;   /* sector count holds count */
-        t_dir = 0;      /* to device */
-        outlen = 512;
-        break;
-    case IDENTIFY:
-        ata_command = ATA_IDENTIFY_DEVICE;
-        sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count holds count */
-        copydata = 512;
-        break;
-    case PIDENTIFY:
-        ata_command = ATA_IDENTIFY_PACKET_DEVICE;
-        sector_count = 1;     /* one (512 byte) block */
-        protocol = 4;   /* PIO data-in */
-        t_length = 2;   /* sector count (7:0) holds count */
-        copydata = 512;
-        break;
-    case ENABLE:
-        feature = ATA_SMART_ENABLE;
-        lba_low = 1;
-        break;
-    case DISABLE:
-        feature = ATA_SMART_DISABLE;
-        lba_low = 1;
-        break;
-    case STATUS:
-        // this command only says if SMART is working.  It could be
-        // replaced with STATUS_CHECK below.
-        feature = ATA_SMART_STATUS;
-        ck_cond = 1;
-        break;
-    case AUTO_OFFLINE:
-        feature = ATA_SMART_AUTO_OFFLINE;
-        sector_count = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-        break;
-    case AUTOSAVE:
-        feature = ATA_SMART_AUTOSAVE;
-        sector_count = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-        break;
-    case IMMEDIATE_OFFLINE:
-        feature = ATA_SMART_IMMEDIATE_OFFLINE;
-        lba_low = select;
-        break;
-    case STATUS_CHECK:
-        // This command uses HDIO_DRIVE_TASK and has different syntax than
-        // the other commands.
-        feature = ATA_SMART_STATUS;      /* SMART RETURN STATUS */
-        ck_cond = 1;
-        break;
-    default:
-        pout("Unrecognized command %d in sat_device::ata_command_interface()\n"
-             "Please contact " PACKAGE_BUGREPORT "\n", command);
-        errno=ENOSYS;
-        return -1;
+      default:
+        return set_err(EINVAL, "sat_device::ata_pass_through: invalid direction=%d",
+            (int)in.direction);
     }
-    if (ATA_SMART_CMD == ata_command) {
-        lba_mid = 0x4f;
-        lba_high = 0xc2;
-    }
+
+    // Check condition if any output register needed
+    if (in.out_needed.is_set())
+        ck_cond = 1;
 
     if ((SAT_ATA_PASSTHROUGH_12LEN == m_passthrulen) ||
         (SAT_ATA_PASSTHROUGH_16LEN == m_passthrulen))
         passthru_size = m_passthrulen;
+
+    // Set extend bit on 48-bit ATA command
+    if (in.in_regs.is_48bit_cmd()) {
+      if (passthru_size != SAT_ATA_PASSTHROUGH_16LEN)
+        return set_err(ENOSYS, "48-bit ATA commands require SAT ATA PASS-THROUGH (16)");
+      extend = 1;
+    }
+
+    // Check buffer size
+    if (t_length == 2) {
+      // TODO: Add this as utility member function to ata_in_regs
+      unsigned count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
+      // TODO: Add check for sector count == 0
+      if (!(in.buffer && (count * 512 == in.size)))
+        return set_err(EINVAL, "sector_count %u does not match buffer size %u", count, in.size);
+    }
+
     cdb[0] = (SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ?
              SAT_ATA_PASSTHROUGH_12 : SAT_ATA_PASSTHROUGH_16;
 
     cdb[1] = (protocol << 1) | extend;
     cdb[2] = (ck_cond << 5) | (t_dir << 3) |
              (byte_block << 2) | t_length;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 3 : 4] = feature;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 4 : 6] = sector_count;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 5 : 8] = lba_low;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 6 : 10] = lba_mid;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 7 : 12] = lba_high;
-    cdb[(SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ? 9 : 14] = ata_command;
+
+    if (passthru_size == SAT_ATA_PASSTHROUGH_12LEN) {
+        // ATA PASS-THROUGH (12)
+        const ata_in_regs & lo = in.in_regs;
+        cdb[3] = lo.features;
+        cdb[4] = lo.sector_count;
+        cdb[5] = lo.lba_low;
+        cdb[6] = lo.lba_mid;
+        cdb[7] = lo.lba_high;
+        cdb[8] = lo.device;
+        cdb[9] = lo.command;
+    }
+    else {
+        // ATA PASS-THROUGH (16)
+        const ata_in_regs & lo = in.in_regs;
+        const ata_in_regs & hi = in.in_regs.prev;
+        // Note: all 'in.in_regs.prev.*' are always zero for 28-bit commands
+        cdb[ 3] = hi.features;
+        cdb[ 4] = lo.features;
+        cdb[ 5] = hi.sector_count;
+        cdb[ 6] = lo.sector_count;
+        cdb[ 7] = hi.lba_low;
+        cdb[ 8] = lo.lba_low;
+        cdb[ 9] = hi.lba_mid;
+        cdb[10] = lo.lba_mid;
+        cdb[11] = hi.lba_high;
+        cdb[12] = lo.lba_high;
+        cdb[13] = lo.device;
+        cdb[14] = lo.command;
+    }
 
     memset(&io_hdr, 0, sizeof(io_hdr));
     if (0 == t_length) {
@@ -316,13 +278,13 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
         io_hdr.dxfer_len = 0;
     } else if (t_dir) {         /* from device */
         io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-        io_hdr.dxfer_len = copydata;
-        io_hdr.dxferp = (unsigned char *)data;
-        memset(data, 0, copydata); /* prefill with zeroes */
+        io_hdr.dxfer_len = in.size;
+        io_hdr.dxferp = (unsigned char *)in.buffer;
+        memset(in.buffer, 0, in.size); // prefill with zeroes
     } else {                    /* to device */
         io_hdr.dxfer_dir = DXFER_TO_DEVICE;
-        io_hdr.dxfer_len = outlen;
-        io_hdr.dxferp = (unsigned char *)data;
+        io_hdr.dxfer_len = in.size;
+        io_hdr.dxferp = (unsigned char *)in.buffer;
     }
     io_hdr.cmnd = cdb;
     io_hdr.cmnd_len = passthru_size;
@@ -333,10 +295,9 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
     scsi_device * scsidev = get_tunnel_dev();
     if (!scsidev->scsi_pass_through(&io_hdr)) {
         if (con->reportscsiioctl > 0)
-            pout("sat_device::ata_command_interface: scsi_pass_through() failed, "
+            pout("sat_device::ata_pass_through: scsi_pass_through() failed, "
                  "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
-        set_err(scsidev->get_err());
-        return -1;
+        return set_err(scsidev->get_err());
     }
     ardp = NULL;
     ard_len = 0;
@@ -358,16 +319,16 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
         status = scsiSimpleSenseFilter(&sinfo);
         if (0 != status) {
             if (con->reportscsiioctl > 0) {
-                pout("sat_device::ata_command_interface: scsi error: %s\n",
+                pout("sat_device::ata_pass_through: scsi error: %s\n",
                      scsiErrString(status));
                 if (ardp && (con->reportscsiioctl > 1)) {
                     pout("Values from ATA Return Descriptor are:\n");
                     dStrHex((const char *)ardp, ard_len, 1);
                 }
             }
-            if (t_dir && (t_length > 0) && (copydata > 0))
-                memset(data, 0, copydata);
-            return -1;
+            if (t_dir && (t_length > 0) && (in.direction == ata_cmd_in::data_in))
+                memset(in.buffer, 0, in.size);
+            return set_err(EIO, "scsi error %s", scsiErrString(status));
         }
     }
     if (ck_cond) {     /* expecting SAT specific sense data */
@@ -377,20 +338,21 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
                     pout("Values from ATA Return Descriptor are:\n");
                     dStrHex((const char *)ardp, ard_len, 1);
                 }
-                if (ATA_CHECK_POWER_MODE == ata_command)
-                    data[0] = ardp[5];      /* sector count (0:7) */
-                else if (STATUS_CHECK == command) {
-                    if ((ardp[9] == 0x4f) && (ardp[11] == 0xc2))
-                        return 0;    /* GOOD smart status */
-                    if ((ardp[9] == 0xf4) && (ardp[11] == 0x2c))
-                        return 1;    // smart predicting failure, "bad" status
-                    // We haven't gotten output that makes sense so
-                    // print out some debugging info
-                    syserror("Error SMART Status command failed");
-                    pout("Please get assistance from " PACKAGE_HOMEPAGE "\n");
-                    pout("Values from ATA Return Descriptor are:\n");
-                    dStrHex((const char *)ardp, ard_len, 1);
-                    return -1;
+                // Set output registers
+                ata_out_regs & lo = out.out_regs;
+                lo.error        = ardp[ 3];
+                lo.sector_count = ardp[ 5];
+                lo.lba_low      = ardp[ 7];
+                lo.lba_mid      = ardp[ 9];
+                lo.lba_high     = ardp[11];
+                lo.device       = ardp[12];
+                lo.status       = ardp[13];
+                if (in.in_regs.is_48bit_cmd()) {
+                    ata_out_regs & hi = out.out_regs.prev;
+                    hi.sector_count = ardp[ 4];
+                    hi.lba_low      = ardp[ 6];
+                    hi.lba_mid      = ardp[ 8];
+                    hi.lba_high     = ardp[10];
                 }
             }
         }
@@ -409,13 +371,22 @@ int sat_device::ata_command_interface(smart_command_set command, int select, cha
                         pout("Values from ATA Return Descriptor are:\n");
                         dStrHex((const char *)ardp, ard_len, 1);
                     }
-                    return -1;
+                    return set_err(EIO, "SAT command failed");
                 }
             }
         }
     }
-    return 0;
+    return true;
 }
+
+
+// Dummy, never called because above implements 28-bit and 48-bit commands.
+
+bool sat_device::ata_pass_through_28bit(const ata_cmd_in & /*in*/, ata_cmd_out & /*out*/)
+{
+  return set_err(ENOSYS);
+}
+
 
 } // namespace
 

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.703 2008/08/14 20:38:08 manfred99 Exp $
+$Id: CHANGELOG,v 1.704 2008/08/16 12:01:01 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] SAT: Add full ATA pass through support including 48-bit commands.
+       Warning: Not actually tested yet.
 
   [MS] knowndrives.cpp update
        - Added FUJITSU MHZ2250BS G2 and family

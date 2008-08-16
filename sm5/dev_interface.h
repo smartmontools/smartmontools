@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.1 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.2 2008/08/16 12:01:02 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -336,6 +336,12 @@ struct ata_out_regs_flags
 {
   bool error, sector_count, lba_low, lba_mid, lba_high, device, status;
 
+  /// Return true if any flag is set.
+  bool is_set() const
+    { return (   error || sector_count || lba_low
+              || lba_mid || lba_high || device || status); }
+
+  /// Default constructor clears all flags.
   ata_out_regs_flags()
     : error(false), sector_count(false), lba_low(false), lba_mid(false),
       lba_high(false), device(false), status(false) { }
