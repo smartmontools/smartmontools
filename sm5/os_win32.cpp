@@ -49,7 +49,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.64 2008/08/16 12:39:18 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.65 2008/08/16 13:17:22 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -93,7 +93,7 @@ private:
 /////////////////////////////////////////////////////////////////////////////
 
 class win_ata_device
-: public /*implements*/ ata_device_with_command_set,
+: public /*implements*/ ata_device,
   public /*extends*/ win_smart_device
 {
 public:
@@ -103,10 +103,12 @@ public:
 
   virtual bool open();
 
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
   virtual bool ata_identify_is_cached() const;
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out);
 
 private:
   bool open(int phydrive, int logdrive, const char * options, int port);
@@ -703,18 +705,21 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
     inpar_ex.bPortNumber = port;
   }
 
-  assert(datasize == 0 || datasize == 512);
-  if (datasize) {
+  if (datasize == 512) {
     code = SMART_RCV_DRIVE_DATA; name = "SMART_RCV_DRIVE_DATA";
     inpar.cBufferSize = size_out = 512;
   }
-  else {
+  else if (datasize == 0) {
     code = SMART_SEND_DRIVE_COMMAND; name = "SMART_SEND_DRIVE_COMMAND";
     if (regs->bFeaturesReg == ATA_SMART_STATUS)
       size_out = sizeof(IDEREGS); // ioctl returns new IDEREGS as data
       // Note: cBufferSize must be 0 on Win9x
     else
       size_out = 0;
+  }
+  else {
+    errno = EINVAL;
+    return -1;
   }
 
   memset(&outbuf, 0, sizeof(outbuf));
@@ -906,12 +911,14 @@ ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, 40);
 
 /////////////////////////////////////////////////////////////////////////////
 
-static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize)
+static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev_regs, char * data, int datasize)
 {
+  const int max_sectors = 32; // TODO: Allocate dynamic buffer
+
   typedef struct {
     ATA_PASS_THROUGH_EX apt;
     ULONG Filler;
-    UCHAR ucDataBuf[512];
+    UCHAR ucDataBuf[max_sectors * 512];
   } ATA_PASS_THROUGH_EX_WITH_BUFFERS;
 
   const unsigned char magic = 0xcf;
@@ -952,7 +959,13 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
 
   assert(sizeof(ab.apt.CurrentTaskFile) == sizeof(IDEREGS));
   IDEREGS * ctfregs = (IDEREGS *)ab.apt.CurrentTaskFile;
+  IDEREGS * ptfregs = (IDEREGS *)ab.apt.PreviousTaskFile;
   *ctfregs = *regs;
+
+  if (prev_regs) {
+    *ptfregs = *prev_regs;
+    ab.apt.AtaFlags |= ATA_FLAGS_48BIT_COMMAND;
+  }
 
   DWORD num_out;
   if (!DeviceIoControl(hdevice, IOCTL_ATA_PASS_THROUGH,
@@ -995,6 +1008,8 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, i
     print_ide_regs_io(regs, ctfregs);
   }
   *regs = *ctfregs;
+  if (prev_regs)
+    *prev_regs = *ptfregs;
 
   return 0;
 }
@@ -2311,102 +2326,86 @@ bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
 /////////////////////////////////////////////////////////////////////////////
 
 // Interface to ATA devices
-int win_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
+bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  // CMD,CYL default to SMART, changed by P?IDENTIFY and CHECK_POWER_MODE
-  IDEREGS regs; memset(&regs, 0, sizeof(regs));
-  regs.bCommandReg = ATA_SMART_CMD;
-  regs.bCylHighReg = SMART_CYL_HI; regs.bCylLowReg = SMART_CYL_LOW;
-  int datasize = 0;
+  // Determine ioctl functions valid for this ATA cmd
+  const char * valid_options = 0;
 
-  // Try by default: SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
-  // and SCSI_MINIPORT_* if requested by user
-  const char * valid_options = (m_usr_options ? "saicmf" : "saicf");
+  switch (in.in_regs.command) {
+    case ATA_IDENTIFY_DEVICE:
+    case ATA_IDENTIFY_PACKET_DEVICE:
+      // SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
+      // and SCSI_MINIPORT_* if requested by user
+      valid_options = (m_usr_options ? "saicmf" : "saicf");
+      break;
 
-  switch (command) {
-    case CHECK_POWER_MODE:
-      // Not a SMART command, needs IDE register return
-      regs.bCommandReg = ATA_CHECK_POWER_MODE;
-      regs.bCylLowReg = regs.bCylHighReg = 0;
-      valid_options = "pai3"; // Try GetDevicePowerState() first, ATA/IDE_PASS_THROUGH may spin up disk
-      // Note: returns SectorCountReg in data[0]
+    case ATA_CHECK_POWER_MODE:
+      // Try GetDevicePowerState() first, ATA/IDE_PASS_THROUGH may spin up disk
+      valid_options = "pai3";
       break;
-    case READ_VALUES:
-      regs.bFeaturesReg = ATA_SMART_READ_VALUES;
-      regs.bSectorNumberReg = regs.bSectorCountReg = 1;
-      datasize = 512;
+
+    case ATA_SMART_CMD:
+      switch (in.in_regs.features) {
+        case ATA_SMART_READ_VALUES:
+        case ATA_SMART_READ_THRESHOLDS:
+        case ATA_SMART_AUTOSAVE:
+        case ATA_SMART_ENABLE:
+        case ATA_SMART_DISABLE:
+        case ATA_SMART_AUTO_OFFLINE:
+          // SMART_*, ATA_, IDE_, SCSI_PASS_THROUGH, STORAGE_PREDICT_FAILURE
+          // and SCSI_MINIPORT_* if requested by user
+          valid_options = (m_usr_options ? "saicmf" : "saicf");
+          break;
+
+        case ATA_SMART_IMMEDIATE_OFFLINE:
+          // SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
+          valid_options = (m_usr_options || in.in_regs.lba_low != 127/*ABORT*/ || is_win9x() ?
+                           "saicm3" : "aicm3");
+          break;
+
+        case ATA_SMART_READ_LOG_SECTOR:
+          // SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
+          // Try SCSI_MINIPORT also to skip buggy class driver
+          valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
+          break;
+
+        case ATA_SMART_WRITE_LOG_SECTOR:
+          // ATA_PASS_THROUGH, SCSI_MINIPORT, others don't support DATA_OUT
+          // but SCSI_MINIPORT_* only if requested by user
+          valid_options = (m_usr_options ? "am" : "a");
+          break;
+
+        case ATA_SMART_STATUS:
+          // May require lba_mid,lba_high register return
+          if (in.out_needed.is_set())
+            valid_options = (m_usr_options ? "saimf" : "saif");
+          else
+            valid_options = (m_usr_options ? "saicmf" : "saicf");
+          break;
+
+        default:
+          // Unknown SMART command, handle below
+          break;
+      }
       break;
-    case READ_THRESHOLDS:
-      regs.bFeaturesReg = ATA_SMART_READ_THRESHOLDS;
-      regs.bSectorNumberReg = regs.bSectorCountReg = 1;
-      datasize = 512;
-      break;
-    case READ_LOG:
-      regs.bFeaturesReg = ATA_SMART_READ_LOG_SECTOR;
-      regs.bSectorNumberReg = select;
-      regs.bSectorCountReg = 1;
-      // SMART_RCV_DRIVE_DATA supports this only on Win9x/ME
-      // Try SCSI_MINIPORT also to skip buggy class driver
-      valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
-      datasize = 512;
-      break;
-    case WRITE_LOG:
-      regs.bFeaturesReg = ATA_SMART_WRITE_LOG_SECTOR;
-      regs.bSectorNumberReg = select;
-      regs.bSectorCountReg = 1;
-      // ATA_PASS_THROUGH, SCSI_MINIPORT, others don't support DATA_OUT
-      // but SCSI_MINIPORT_* only if requested by user
-      valid_options = (m_usr_options ? "am" : "a");
-      datasize = -512; // DATA_OUT!
-      break;
-    case IDENTIFY:
-      // Note: WinNT4/2000/XP return identify data cached during boot
-      // (true for SMART_RCV_DRIVE_DATA and IOCTL_IDE_PASS_THROUGH)
-      regs.bCommandReg = ATA_IDENTIFY_DEVICE;
-      regs.bCylLowReg = regs.bCylHighReg = 0;
-      regs.bSectorCountReg = 1;
-      datasize = 512;
-      break;
-    case PIDENTIFY:
-      regs.bCommandReg = ATA_IDENTIFY_PACKET_DEVICE;
-      regs.bCylLowReg = regs.bCylHighReg = 0;
-      regs.bSectorCountReg = 1;
-      datasize = 512;
-      break;
-    case ENABLE:
-      regs.bFeaturesReg = ATA_SMART_ENABLE;
-      regs.bSectorNumberReg = 1;
-      break;
-    case DISABLE:
-      regs.bFeaturesReg = ATA_SMART_DISABLE;
-      regs.bSectorNumberReg = 1;
-      break;
-    case STATUS_CHECK:
-      // Requires CL,CH register return
-      valid_options = (m_usr_options ? "saimf" : "saif");
-    case STATUS:
-      regs.bFeaturesReg = ATA_SMART_STATUS;
-      break;
-    case AUTO_OFFLINE:
-      regs.bFeaturesReg = ATA_SMART_AUTO_OFFLINE;
-      regs.bSectorCountReg = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-      break;
-    case AUTOSAVE:
-      regs.bFeaturesReg = ATA_SMART_AUTOSAVE;
-      regs.bSectorCountReg = select;   // YET NOTE - THIS IS A NON-DATA COMMAND!!
-      break;
-    case IMMEDIATE_OFFLINE:
-      regs.bFeaturesReg = ATA_SMART_IMMEDIATE_OFFLINE;
-      regs.bSectorNumberReg = select;
-      // SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
-      valid_options = (m_usr_options || select != 127/*ABORT*/ || is_win9x() ?
-        "saicm3" : "aicm3");
-      break;
+
     default:
-      pout("Unrecognized command %d in win32_ata_command_interface()\n"
-           "Please contact " PACKAGE_BUGREPORT "\n", command);
-      set_err(ENOSYS);
-      return -1;
+      // Other ATA command, handle below
+      break;
+  }
+
+  if (!valid_options) {
+    // No special ATA command found above, select a generic pass through ioctl.
+    if (!(   in.direction == ata_cmd_in::no_data
+          || (in.direction == ata_cmd_in::data_in && in.size == 512))
+         ||  in.in_regs.is_48bit_cmd()                               )
+      // DATA_OUT, more than one sector, 48-bit command: ATA_PASS_THROUGH only
+      valid_options = "a";
+    else if (in.out_needed.is_set())
+      // Need output registers: ATA/IDE_PASS_THROUGH
+      valid_options = "ai";
+    else
+      valid_options = "aic";
   }
 
   if (!m_admin) {
@@ -2415,28 +2414,73 @@ int win_ata_device::ata_command_interface(smart_command_set command, int select,
       valid_options = "f";
     else if (strchr(valid_options, 'p'))
       valid_options = "p";
-    else {
-      set_err(ENOSYS);
-      return -1;
-    }
+    else
+      return set_err(ENOSYS, "Function requires admin rights");
   }
+
+  // Set IDEREGS
+  IDEREGS regs, prev_regs;
+  {
+    const ata_in_regs & lo = in.in_regs;
+    regs.bFeaturesReg     = lo.features;
+    regs.bSectorCountReg  = lo.sector_count;
+    regs.bSectorNumberReg = lo.lba_low;
+    regs.bCylLowReg       = lo.lba_mid;
+    regs.bCylHighReg      = lo.lba_high;
+    regs.bDriveHeadReg    = lo.device;
+    regs.bCommandReg      = lo.command;
+    regs.bReserved        = 0;
+  }
+  if (in.in_regs.is_48bit_cmd()) {
+    const ata_in_regs & hi = in.in_regs.prev;
+    prev_regs.bFeaturesReg     = hi.features;
+    prev_regs.bSectorCountReg  = hi.sector_count;
+    prev_regs.bSectorNumberReg = hi.lba_low;
+    prev_regs.bCylLowReg       = hi.lba_mid;
+    prev_regs.bCylHighReg      = hi.lba_high;
+    prev_regs.bDriveHeadReg    = hi.device;
+    prev_regs.bCommandReg      = hi.command;
+    prev_regs.bReserved        = 0;
+  }
+
+  // Set data direction
+  int datasize = 0;
+  char * data = 0;
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      break;
+    case ata_cmd_in::data_in:
+      datasize = (int)in.size;
+      data = (char *)in.buffer;
+      break;
+    case ata_cmd_in::data_out:
+      datasize = -(int)in.size;
+      data = (char *)in.buffer;
+      break;
+    default:
+      return set_err(EINVAL, "win_ata_device::ata_pass_through: invalid direction=%d",
+          (int)in.direction);
+  }
+
 
   // Try all valid ioctls in the order specified in m_options
   bool powered_up = false;
+  bool out_regs_set = false;
   const char * options = m_options.c_str();
+
   for (int i = 0; ; i++) {
     char opt = options[i];
 
     if (!opt) {
-      if (command == CHECK_POWER_MODE && powered_up) {
+      if (in.in_regs.command == ATA_CHECK_POWER_MODE && powered_up) {
         // Power up reported by GetDevicePowerState() and no ioctl available
         // to detect the actual mode of the drive => simulate ATA result ACTIVE/IDLE.
         regs.bSectorCountReg = 0xff;
+        out_regs_set = true;
         break;
       }
       // No IOCTL found
-      set_err(ENOSYS);
-      return -1;
+      return set_err(ENOSYS);
     }
     if (!strchr(valid_options, opt))
       // Invalid for this command
@@ -2466,27 +2510,35 @@ int win_ata_device::ata_command_interface(smart_command_set command, int select,
           m_smartver_state = 1;
         }
         rc = smart_ioctl(get_fh(), m_drive, &regs, data, datasize, m_port);
+        out_regs_set = (in.in_regs.features == ATA_SMART_STATUS);
         break;
       case 'm':
         rc = ata_via_scsi_miniport_smart_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'a':
-        rc = ata_pass_through_ioctl(get_fh(), &regs, data, datasize);
+        rc = ata_pass_through_ioctl(get_fh(), &regs,
+          (in.in_regs.is_48bit_cmd() ? &prev_regs : 0),
+          data, datasize);
+        out_regs_set = true;
         break;
       case 'i':
         rc = ide_pass_through_ioctl(get_fh(), &regs, data, datasize);
+        out_regs_set = true;
         break;
       case 'c':
         rc = ata_via_scsi_pass_through_ioctl(get_fh(), &regs, data, datasize);
         break;
       case 'f':
-        switch (command) {
-          case READ_VALUES:
+        if (in.in_regs.command == ATA_IDENTIFY_DEVICE) {
+            rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
+        }
+        else if (in.in_regs.command == ATA_SMART_CMD) switch (in.in_regs.features) {
+          case ATA_SMART_READ_VALUES:
             rc = storage_predict_failure_ioctl(get_fh(), data);
             if (rc > 0)
               rc = 0;
             break;
-          case READ_THRESHOLDS:
+          case ATA_SMART_READ_THRESHOLDS:
             {
               ata_smart_values sv;
               rc = storage_predict_failure_ioctl(get_fh(), (char *)&sv);
@@ -2500,36 +2552,38 @@ int win_ata_device::ata_command_interface(smart_command_set command, int select,
                 tr->chksum -= tr->thres_entries[i].id = sv.vendor_attributes[i].id;
             }
             break;
-          case IDENTIFY:
-            rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
-            break;
-          case ENABLE:
+          case ATA_SMART_ENABLE:
             rc = 0;
             break;
-          case STATUS_CHECK:
-          case STATUS:
+          case ATA_SMART_STATUS:
             rc = storage_predict_failure_ioctl(get_fh());
-            if (rc > 0) {
-              if (command == STATUS_CHECK) {
+            if (rc >= 0) {
+              if (rc > 0) {
                 regs.bCylHighReg = 0x2c; regs.bCylLowReg = 0xf4;
+                rc = 0;
               }
-              rc = 0;
+              out_regs_set = true;
             }
             break;
           default:
             errno = ENOSYS; rc = -1;
         }
+        else {
+            errno = ENOSYS; rc = -1;
+        }
         break;
       case '3':
         rc = ata_via_3ware_miniport_ioctl(get_fh(), &regs, data, datasize, m_port);
+        out_regs_set = true;
         break;
       case 'p':
-        assert(command == CHECK_POWER_MODE && datasize == 0);
+        assert(in.in_regs.command == ATA_CHECK_POWER_MODE && in.size == 0);
         rc = get_device_power_state(get_fh());
         if (rc == 0) {
           // Power down reported by GetDevicePowerState(), using a passthrough ioctl would
           // spin up the drive => simulate ATA result STANDBY.
           regs.bSectorCountReg = 0x00;
+          out_regs_set = true;
         }
         else if (rc > 0) {
           // Power up reported by GetDevicePowerState(), but this reflects the actual mode
@@ -2545,43 +2599,40 @@ int win_ata_device::ata_command_interface(smart_command_set command, int select,
       // Working ioctl found
       break;
 
-    if (errno != ENOSYS) {
+    if (errno != ENOSYS)
       // Abort on I/O error
-      set_err(errno);
-      return -1;
-    }
+      return set_err(errno);
 
+    out_regs_set = false;
     // CAUTION: *_ioctl() MUST NOT change "regs" Parameter in the ENOSYS case
   }
 
-  switch (command) {
-    case CHECK_POWER_MODE:
-      // Return power mode from SectorCountReg in data[0]
-      data[0] = regs.bSectorCountReg;
-      return 0;
-
-    case STATUS_CHECK:
-      // Cyl low and Cyl high unchanged means "Good SMART status"
-      if (regs.bCylHighReg == SMART_CYL_HI && regs.bCylLowReg == SMART_CYL_LOW)
-        return 0;
-
-      // These values mean "Bad SMART status"
-      if (regs.bCylHighReg == 0x2c && regs.bCylLowReg == 0xf4)
-        return 1;
-
-      // We haven't gotten output that makes sense; print out some debugging info
-      syserror("Error SMART Status command failed");
-      pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
-      print_ide_regs(&regs, 1);
-      set_err(EIO);
-      return -1;
-
-    default:
-    return 0;
+  // Return IDEREGS if set
+  if (out_regs_set) {
+    ata_out_regs & lo = out.out_regs;
+    lo.error        = regs.bFeaturesReg;
+    lo.sector_count = regs.bSectorCountReg;
+    lo.lba_low      = regs.bSectorNumberReg;
+    lo.lba_mid      = regs.bCylLowReg;
+    lo.lba_high     = regs.bCylHighReg;
+    lo.device       = regs.bDriveHeadReg;
+    lo.status       = regs.bCommandReg;
+    if (in.in_regs.is_48bit_cmd()) {
+      ata_out_regs & hi = out.out_regs.prev;
+      hi.sector_count = prev_regs.bSectorCountReg;
+      hi.lba_low      = prev_regs.bSectorNumberReg;
+      hi.lba_mid      = prev_regs.bCylLowReg;
+      hi.lba_high     = prev_regs.bCylHighReg;
+    }
   }
-  /*NOTREACHED*/
+  return true;
 }
 
+// Dummy, never called because above implements 28-bit and 48-bit commands.
+bool win_ata_device::ata_pass_through_28bit(const ata_cmd_in & /*in*/, ata_cmd_out & /*out*/)
+{
+  return set_err(ENOSYS);
+}
 
 // Return true if OS caches the ATA identify sector
 bool win_ata_device::ata_identify_is_cached() const
