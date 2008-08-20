@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.198 2008/08/16 16:49:15 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.199 2008/08/20 21:19:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1053,13 +1053,13 @@ int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data)
   return 0;
 }
 
-
 // Read GP Log page(s)
-static bool ReadLogExt(ata_device * device, unsigned logaddr, void * data,
-                       unsigned nsectors = 1, unsigned page = 0)
+bool ataReadLogExt(ata_device * device, unsigned char logaddr,
+                   unsigned page, void * data, unsigned nsectors)
 {
   ata_cmd_in in;
-  in.in_regs.command = ATA_READ_LOG_EXT;
+  in.in_regs.command  = ATA_READ_LOG_EXT;
+  in.in_regs.features = 0x00; // log specific
   in.set_data_in_48bit(data, nsectors);
   in.in_regs.lba_low      = logaddr;
   in.in_regs.lba_mid      = page;
@@ -1072,6 +1072,26 @@ static bool ReadLogExt(ata_device * device, unsigned logaddr, void * data,
   return true;
 }
 
+// Read SMART Log page(s)
+bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
+                     void * data, unsigned nsectors)
+{
+  ata_cmd_in in;
+  in.in_regs.command  = ATA_SMART_CMD;
+  in.in_regs.features = ATA_SMART_READ_LOG_SECTOR;
+  in.set_data_in(data, nsectors);
+  in.in_regs.lba_high = SMART_CYL_HI;
+  in.in_regs.lba_mid  = SMART_CYL_LOW;
+  in.in_regs.lba_low  = logaddr;
+
+  if (!device->ata_pass_through(in)) { // TODO: Debug output
+    pout("ATA_SMART_READ_LOG failed: %s\n", device->get_errmsg());
+    return false;
+  }
+  return true;
+}
+
+
 
 // Reads the SMART or GPL Log Directory (log #0)
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, bool gpl)
@@ -1081,7 +1101,7 @@ int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, boo
       return -1;
   }
   else { // GP Log directory
-    if (!ReadLogExt(device, 0x00, data))
+    if (!ataReadLogExt(device, 0x00, 0, data, 1))
       return -1;
   }
 

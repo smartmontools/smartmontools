@@ -25,10 +25,11 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.33 2008/08/16 16:49:15 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.34 2008/08/20 21:19:08 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 /* Prints ATA Drive Information and S.M.A.R.T. Capability */
 int ataPrintDriveInfo(struct ata_identify_device *);
@@ -54,6 +55,33 @@ void ataPseudoCheckSmart(struct ata_smart_values *, struct ata_smart_thresholds_
 // Convenience function for formatting strings from ata_identify_device.
 void format_ata_string(char *out, const char *in, int n);
 
-int ataPrintMain(ata_device * device);
+
+// Request to dump a GP or SMART log
+struct ata_log_request
+{
+  bool gpl; // false: SMART, true: GP
+  unsigned char logaddr; // Log address
+  unsigned page; // First page (sector)
+  unsigned nsectors; // # Sectors
+
+  ata_log_request()
+    : gpl(false), logaddr(0), page(0), nsectors(0)
+    { }
+};
+
+// Options for ataPrintMain
+// TODO: Move remaining options from con->* to here.
+struct ata_print_options
+{
+  bool gp_logdir, smart_logdir;
+
+  std::vector<ata_log_request> log_requests;
+
+  ata_print_options()
+    : gp_logdir(false), smart_logdir(false)
+  { }
+};
+
+int ataPrintMain(ata_device * device, const ata_print_options & options);
 
 #endif

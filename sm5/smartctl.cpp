@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.183 2008/08/16 16:49:16 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.184 2008/08/20 21:19:08 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -199,7 +199,8 @@ void Usage (void){
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                               background, scttemp[sts,hist]\n\n"
+"                               background, scttemp[sts,hist]\n"
+"                               gplog,N[,RANGE], smartlog,N[,RANGE]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -215,6 +216,7 @@ void Usage (void){
 "  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
 "  -l TYPE   Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                                   background, scttemp[sts,hist]\n"
+"                                   gplog,N[,RANGE], smartlog,N[,RANGE]\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
 "  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
 "                                         samsung3, swapid\n"
@@ -264,7 +266,8 @@ const char *getvalidarglist(char opt) {
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist]";
+    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], "
+           "gplog,N[,RANGE], smartlog,N[,RANGE]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -309,7 +312,8 @@ void printvalidarglistmessage(char opt) {
 }
 
 /*      Takes command options and sets features to be run */    
-const char * ParseOpts (int argc, char** argv){
+const char * ParseOpts (int argc, char** argv, ata_print_options & options)
+{
   int optchar;
   int badarg;
   int captive;
@@ -510,11 +514,11 @@ const char * ParseOpts (int argc, char** argv){
       } else if (!strcmp(optarg, "selective")) {
         con->selectivetestlog = TRUE;
       } else if (!strcmp(optarg,"directory")) {
-        con->smartlogdirectory = 0x03; // SMART+GPL
+        options.smart_logdir = options.gp_logdir = true; // SMART+GPL
       } else if (!strcmp(optarg,"directory,s")) {
-        con->smartlogdirectory = 0x01; // SMART
+        options.smart_logdir = true; // SMART
       } else if (!strcmp(optarg,"directory,g")) {
-        con->smartlogdirectory = 0x02; // GPL
+        options.gp_logdir = true; // GPL
       } else if (!strcmp(optarg,"background")) {
         con->smartbackgroundlog = TRUE;
       } else if (!strcmp(optarg,"scttemp")) {
@@ -523,6 +527,35 @@ const char * ParseOpts (int argc, char** argv){
         con->scttempsts = TRUE;
       } else if (!strcmp(optarg,"scttemphist")) {
         con->scttemphist = TRUE;
+      } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
+                 || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {
+        unsigned logaddr = ~0U; unsigned page = 0, nsectors = 1; char sign = 0;
+        int n1 = -1, n2 = -1, n3 = -1, len = strlen(optarg);
+        sscanf(optarg, "%*[a-z],0x%x%n,%u%n%c%u%n",
+               &logaddr, &n1, &page, &n2, &sign, &nsectors, &n3);
+        if (len > n2 && n3 == -1 && !strcmp(optarg+n2, "-max")) {
+          nsectors = ~0U; sign = '+'; n3 = len;
+        }
+        bool gpl = (optarg[0] == 'g');
+        const char * erropt = (gpl ? "gplog" : "smartlog");
+        if (!(   n1 == len || n2 == len
+              || (n3 == len && (sign == '+' || sign == '-')))) {
+          sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] syntax error\n", erropt);
+          badarg = TRUE;
+        }
+        else if (!(    logaddr <= 0xff && page <= (gpl ? 0xffffU : 0x00ffU)
+                   && 0 < nsectors
+                   && (nsectors <= (gpl ? 0xffffU : 0xffU) || nsectors == ~0U)
+                   && (sign != '-' || page <= nsectors)                       )) {
+          sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] parameter out of range\n", erropt);
+          badarg = TRUE;
+        }
+        else {
+          ata_log_request req;
+          req.gpl = gpl; req.logaddr = logaddr; req.page = page;
+          req.nsectors = (sign == '-' ? nsectors-page+1 : nsectors);
+          options.log_requests.push_back(req);
+        }
       } else {
         badarg = TRUE;
       }
@@ -858,7 +891,8 @@ int main_worker(int argc, char **argv)
     con=&control;
 
     // Parse input arguments
-    const char * type = ParseOpts(argc,argv);
+    ata_print_options options;
+    const char * type = ParseOpts(argc, argv, options);
 
     const char * name = argv[argc-1];
 
@@ -914,7 +948,7 @@ int main_worker(int argc, char **argv)
 
     // now call appropriate ATA or SCSI routine
     if (dev->is_ata())
-      retval = ataPrintMain(dev->to_ata());
+      retval = ataPrintMain(dev->to_ata(), options);
     else if (dev->is_scsi())
       retval = scsiPrintMain(dev->to_scsi());
     else

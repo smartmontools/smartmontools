@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.707 2008/08/16 16:49:15 chrfranke Exp $
+$Id: CHANGELOG,v 1.708 2008/08/20 21:19:08 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add '-l gplog,ADDR[,FIRST[-LAST|+SIZE]]' and '-l smartlog,...'
+       to dump any log page accessible via GP or SMART read log commands.
 
   [CF] Enhance '-l directory' to print both GP and SMART Log directories.
        Add '-l directory[,gs]' modifiers to select GP or SMART log.

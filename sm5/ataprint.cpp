@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.192 2008/08/16 16:49:15 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.193 2008/08/20 21:19:08 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -952,6 +952,53 @@ void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identi
   pout("\n");
 }
 
+// Get # sectors of a log addr, 0 if log does not exist.
+static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigned logaddr, bool gpl)
+{
+    if (logaddr > 0xff)
+      return 0;
+    if (logaddr == 0)
+      return 1;
+    unsigned n = logdir->entry[logaddr-1].numsectors;
+    if (gpl)
+        // GP logs may have >255 sectors
+        n |= logdir->entry[logaddr-1].reserved << 8;
+    return n;
+}
+
+// Get name of log.
+// Table A.2 of T13/1699-D Revision 6
+static const char * GetLogName(unsigned logaddr)
+{
+    switch (logaddr) {
+      case 0x00: return "Log Directory";
+      case 0x01: return "Summary SMART error log";
+      case 0x02: return "Comprehensive SMART error log";
+      case 0x03: return "Ext. Comprehensive SMART error log";
+      case 0x04: return "Device Statistics";
+      case 0x06: return "SMART self-test log";
+      case 0x07: return "Extended self-test log";
+      case 0x09: return "Selective self-test log";
+      case 0x10: return "NCQ Command Error";
+      case 0x11: return "SATA Phy Event Counters";
+      case 0x20: return "Streaming performance log"; // Obsolete
+      case 0x21: return "Write stream error log";
+      case 0x22: return "Read stream error log";
+      case 0x23: return "Delayed sector log"; // Obsolete
+      case 0xe0: return "SCT Command/Status";
+      case 0xe1: return "SCT Data Transfer";
+      default:
+        if (0xa0 <= logaddr && logaddr <= 0xdf)
+          return "Device vendor specific log";
+        if (0x80 <= logaddr && logaddr <= 0x9f)
+          return "Host vendor specific log";
+        if (0x12 <= logaddr && logaddr <= 0x17)
+          return "Reserved for Serial ATA";
+        return "Reserved";
+    }
+    /*NOTREACHED*/
+}
+
 // Print SMART and/or GP Log Directory
 static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
                                 const ata_smart_log_directory * smartlogdir)
@@ -963,73 +1010,15 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
          (gplogdir ? "          " : ""), smartlogdir->logversion,
          (smartlogdir->logversion==1 ? " [multi-sector log support]" : ""));
 
-  for (int i = 0; i <= 0xff; i++) {
+  for (unsigned i = 0; i <= 0xff; i++) {
     // Get number of sectors
-    unsigned gp_numsect = 0;
-    if (gplogdir) {
-      if (i == 0)
-        gp_numsect = 1;
-      else // GP logs may have >255 sectors
-        gp_numsect = gplogdir->entry[i-1].numsectors | (gplogdir->entry[i-1].reserved << 8);
-    }
-    unsigned smart_numsect = 0;
-    if (smartlogdir) {
-      if (i == 0)
-        smart_numsect = 1;
-      else
-        smart_numsect = smartlogdir->entry[i-1].numsectors;
-    }
+    unsigned smart_numsect = GetNumLogSectors(smartlogdir, i, false);
+    unsigned gp_numsect    = GetNumLogSectors(gplogdir   , i, true );
 
     if (!(smart_numsect || gp_numsect))
       continue; // Log does not exist
 
-    // Get name of log.
-    // Table A.2 of T13/1699-D Revision 6
-    const char * name;
-    switch (i) {
-      case 0x00:
-        name="Log Directory"; break;
-      case 0x01:
-        name="Summary SMART error log"; break;
-      case 0x02:
-        name="Comprehensive SMART error log"; break;
-      case 0x03:
-        name="Ext. Comprehensive SMART error log"; break;
-      case 0x04:
-        name="Device Statistics"; break;
-      case 0x06:
-        name="SMART self-test log"; break;
-      case 0x07:
-        name="Extended self-test log"; break;
-      case 0x09:
-        name="Selective self-test log"; break;
-      case 0x10:
-        name = "NCQ Command Error"; break;
-      case 0x11:
-        name = "SATA Phy Event Counters"; break;
-      case 0x20:
-        name="Streaming performance log"; break; // Obsolete
-      case 0x21:
-        name="Write stream error log"; break;
-      case 0x22:
-        name="Read stream error log"; break;
-      case 0x23:
-        name="Delayed sector log"; break; // Obsolete
-      case 0xe0:
-        name="SCT Command/Status"; break;
-      case 0xe1:
-        name="SCT Data Transfer"; break;
-      default:
-        if (0xa0<=i && i<=0xdf)
-          name="Device vendor specific log";
-        else if (0x80<=i && i<=0x9f)
-          name="Host vendor specific log";
-        else if (0x12<=i && i<=0x17)
-          name="Reserved for Serial ATA";
-        else
-          name="Reserved";
-        break;
-    }
+    const char * name = GetLogName(i);
 
     // Print name and length of log.
     // If both SMART and GP exist, print separate entries if length differ.
@@ -1044,6 +1033,26 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
     }
   }
   pout("\n");
+}
+
+// Print hexdump of log pages.
+// Format is compatible with 'xxd -r'.
+static void PrintLogPages(const char * type, const unsigned char * data,
+                          unsigned char logaddr, unsigned page,
+                          unsigned num_pages, unsigned max_pages)
+{
+  pout("%s Log 0x%02x [%s], Page %u-%u (of %u)\n",
+    type, logaddr, GetLogName(logaddr), page, page+num_pages-1, max_pages);
+  for (unsigned i = 0; i < num_pages * 512; i += 16) {
+    const unsigned char * p = data+i;
+    pout("%07x: %02x %02x %02x %02x %02x %02x %02x %02x "
+               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+         (page * 512) + i,
+         p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
+         p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15]);
+    if ((i & 0x1ff) == 0x1f0)
+      pout("\n");
+  }
 }
 
 // returns number of errors
@@ -1621,7 +1630,8 @@ struct ata_smart_thresholds_pvt smartthres;
 struct ata_smart_errorlog smarterror;
 struct ata_smart_selftestlog smartselftest;
 
-int ataPrintMain (ata_device * device){
+int ataPrintMain (ata_device * device, const ata_print_options & options)
+{
   int timewait,code;
   int returnval=0, retid=0, supported=0, needupdate=0, known=0;
   const char * powername = 0; char powerchg = 0;
@@ -1954,18 +1964,33 @@ int ataPrintMain (ata_device * device){
     PRINT_OFF(con);
   }
 
-  // Print SMART and/or GP log Directory
-  if (con->smartlogdirectory){
-    if (!isGeneralPurposeLoggingCapable(&drive)){
+  // Print SMART and/or GP log Directory and/or logs
+  if (   options.gp_logdir || options.smart_logdir
+      || !options.log_requests.empty()            ) {
+    if (!isGeneralPurposeLoggingCapable(&drive)) {
       pout("Warning: device does not support General Purpose Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       PRINT_ON(con);
       pout("Log Directories Supported\n");
+
+      // Detect directories needed
+      bool need_smart_logdir = options.smart_logdir;
+      bool need_gp_logdir    = options.gp_logdir;
+      unsigned i;
+      for (i = 0; i < options.log_requests.size(); i++) {
+        if (options.log_requests[i].gpl)
+          need_gp_logdir = true;
+        else
+          need_smart_logdir = true;
+      }
+
       ata_smart_log_directory smartlogdir_buf, gplogdir_buf;
       const ata_smart_log_directory * smartlogdir = 0, * gplogdir = 0;
-      if (con->smartlogdirectory & 0x1) {
+
+      // Read SMART Log directory
+      if (need_smart_logdir) {
         if (ataReadLogDirectory(device, &smartlogdir_buf, false)){
           PRINT_OFF(con);
           pout("Read SMART Log Directory failed.\n\n");
@@ -1974,7 +1999,10 @@ int ataPrintMain (ata_device * device){
         else
           smartlogdir = &smartlogdir_buf;
       }
-      if (con->smartlogdirectory & 0x2) {
+      PRINT_ON(con);
+
+      // Read GP Log directory
+      if (need_gp_logdir) {
         if (ataReadLogDirectory(device, &gplogdir_buf, true)){
           PRINT_OFF(con);
           pout("Read GP Log Directory failed.\n\n");
@@ -1983,12 +2011,61 @@ int ataPrintMain (ata_device * device){
         else
           gplogdir = &gplogdir_buf;
       }
-      if (gplogdir || smartlogdir)
+      PRINT_ON(con);
+
+      // Print log directories
+      if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir))
         PrintLogDirectories(gplogdir, smartlogdir);
+      PRINT_OFF(con);
+
+      // Print log pages
+      for (i = 0; i < options.log_requests.size(); i++) {
+        const ata_log_request & req = options.log_requests[i];
+
+        const char * type;
+        unsigned max_nsectors;
+        if (req.gpl) {
+          type = "General Purpose";
+          max_nsectors = (gplogdir ? GetNumLogSectors(gplogdir, req.logaddr, true) : 0);
+        }
+        else {
+          type = "SMART";
+          max_nsectors = (smartlogdir ? GetNumLogSectors(smartlogdir, req.logaddr, false) : 0);
+        }
+
+        if (!max_nsectors) {
+          pout("%s Log 0x%02x does not exist\n", type, req.logaddr);
+          continue;
+        }
+        if (max_nsectors <= req.page) {
+          pout("%s Log 0x%02x has only %u sectors, output skipped\n", type, req.logaddr, max_nsectors);
+          continue;
+        }
+
+        unsigned ns = req.nsectors;
+        if (ns > max_nsectors - req.page) {
+          if (req.nsectors != ~0U) // "FIRST-max"
+            pout("%s Log 0x%02x has only %u sectors, output truncated\n", type, req.logaddr, max_nsectors);
+          ns = max_nsectors - req.page;
+        }
+
+        // SMART log don't support sector offset, start with first sector
+        unsigned offs = (req.gpl ? 0 : req.page);
+
+        raw_buffer log_buf((offs + ns) * 512);
+        bool ok;
+        if (req.gpl)
+          ok = ataReadLogExt(device, req.logaddr, req.page, log_buf.data(), ns);
+        else
+          ok = ataReadSmartLog(device, req.logaddr, log_buf.data(), offs + ns);
+        if (!ok)
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        else
+          PrintLogPages(type, log_buf.data() + offs*512, req.logaddr, req.page, ns, max_nsectors);
+      }
     }
-    PRINT_OFF(con);
   }
-  
+
   // Print SMART error log
   if (con->smarterrorlog){
     if (!isSmartErrorLogCapable(&smartval, &drive)){

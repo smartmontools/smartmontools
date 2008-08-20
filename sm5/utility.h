@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.57 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.58 2008/08/20 21:19:09 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -174,6 +174,35 @@ void FixGlibcTimeZoneBug();
 
 // convert time in msec to a text string
 void MsecToText(unsigned int msec, char *txt);
+
+// Wrapper class for a raw data buffer
+class raw_buffer
+{
+public:
+  explicit raw_buffer(unsigned sz, unsigned char val = 0)
+    : m_data(new unsigned char[sz]),
+      m_size(sz)
+    { memset(m_data, val, m_size); }
+
+  ~raw_buffer()
+    { delete [] m_data; }
+
+  unsigned size() const
+    { return m_size; }
+
+  unsigned char * data()
+    { return m_data; }
+  const unsigned char * data() const
+    { return m_data; }
+
+private:
+  unsigned char * m_data;
+  unsigned m_size;
+
+  raw_buffer(const raw_buffer &);
+  void operator=(const raw_buffer &);
+};
+
 
 // Exit codes
 #define EXIT_BADCMD    1   // command line did not parse
