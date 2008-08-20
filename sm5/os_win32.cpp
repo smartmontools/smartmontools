@@ -31,9 +31,8 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #ifdef _DEBUG
 #include <assert.h>
 #else
-#ifndef assert
+#undef assert
 #define assert(x) /**/
-#endif
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -49,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.66 2008/08/16 16:49:15 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.67 2008/08/20 21:19:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -2491,7 +2490,9 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       continue;
 
     errno = 0;
-    assert(datasize == 0 || datasize == 512 || (strchr("am", opt) && datasize == -512));
+    assert(   datasize == 0 || datasize == 512
+           || (datasize == -512 && strchr("am", opt))
+           || (datasize > 512 && opt == 'a'));
     int rc;
     switch (opt) {
       default: assert(0);

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.111 2008/08/16 16:49:16 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.112 2008/08/20 21:19:08 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -889,6 +889,36 @@ configured with the \'\-t scttempint,N[,p]\' option, see below.
 The SCT commands are specified in the proposed ATA\-8 Command Set
 (ACS), and are already implemented in some recent ATA\-7 disks.
 
+.I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
+of any log accessible via General Purpose Logging (GPL) feature.
+The log address ADDR is the hex address listed in the log directory
+(see \'\-l directory\' above). The range of log sectors (pages) can
+be specified by decimal values FIRST\-LAST or FIRST+SIZE. FIRST
+defaults to 0, SIZE defaults to 1. LAST can be set to \'max\' to
+specify the last page of the log.
+
+.I smartlog,ADDR[,FIRST[\-LAST|+SIZE]]
+\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
+of any log accessible via SMART Read Log command. See
+\'\-l gplog,...\' above for parameter syntax.
+
+For example, all these commands:
+.nf
+  smartctl \-l gplog,0x80,10-15 /dev/sda
+  smartctl \-l gplog,0x80,10+6 /dev/sda
+  smartctl \-l smartlog,0x80,10-15 /dev/sda
+.fi
+print pages 10-16 of log 0x80 (first host vendor specific log).
+
+The hex dump format is compatible with the \'xxd \-r\' command.
+This command:
+.nf
+  smartctl \-l gplog,0x11 /dev/sda | grep ^0 | xxd -r >log.bin
+.fi
+writes a binary representation of the one sector log 0x11
+(SATA Phy Event Counters) to file log.bin.
+
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
 Sets a vendor\-specific display OPTION for Attribute N.  This option
@@ -1545,7 +1575,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.111 2008/08/16 16:49:16 chrfranke Exp $
+$Id: smartctl.8.in,v 1.112 2008/08/20 21:19:08 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
