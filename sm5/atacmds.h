@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.95 2008/08/20 21:19:08 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.96 2008/08/21 21:20:51 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -480,7 +480,8 @@ int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl
 
 // Read GP Log page(s)
 bool ataReadLogExt(ata_device * device, unsigned char logaddr,
-                   unsigned page, void * data, unsigned nsectors);
+                   unsigned char features, unsigned page,
+                   void * data, unsigned nsectors);
 // Read SMART Log page(s)
 bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors);
@@ -656,6 +657,8 @@ char *create_vendor_attribute_arg_list(void);
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
 
 // Utility routines.
+unsigned char checksum(const unsigned char * buffer);
+
 void swap2(char *location);
 void swap4(char *location);
 void swap8(char *location);

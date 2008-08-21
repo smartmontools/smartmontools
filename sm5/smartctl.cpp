@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.184 2008/08/20 21:19:08 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.185 2008/08/21 21:20:52 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -199,7 +199,7 @@ void Usage (void){
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                               background, scttemp[sts,hist]\n"
+"                               background, sataphy[,reset], scttemp[sts,hist]\n"
 "                               gplog,N[,RANGE], smartlog,N[,RANGE]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
@@ -215,7 +215,7 @@ void Usage (void){
 "  -c        Show device SMART capabilities                             (ATA)\n"
 "  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
 "  -l TYPE   Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                                   background, scttemp[sts,hist]\n"
+"                                   background, sataphy[,reset], scttemp[sts,hist]\n"
 "                                   gplog,N[,RANGE], smartlog,N[,RANGE]\n"
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
 "  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
@@ -267,7 +267,7 @@ const char *getvalidarglist(char opt) {
     return "on, off";
   case 'l':
     return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], "
-           "gplog,N[,RANGE], smartlog,N[,RANGE]";
+           "sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -519,6 +519,10 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
         options.smart_logdir = true; // SMART
       } else if (!strcmp(optarg,"directory,g")) {
         options.gp_logdir = true; // GPL
+      } else if (!strcmp(optarg,"sataphy")) {
+        options.sataphy = true;
+      } else if (!strcmp(optarg,"sataphy,reset")) {
+        options.sataphy = options.sataphy_reset = true;
       } else if (!strcmp(optarg,"background")) {
         con->smartbackgroundlog = TRUE;
       } else if (!strcmp(optarg,"scttemp")) {

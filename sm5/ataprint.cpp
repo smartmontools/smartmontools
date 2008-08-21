@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.193 2008/08/20 21:19:08 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.194 2008/08/21 21:20:51 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1055,6 +1055,70 @@ static void PrintLogPages(const char * type, const unsigned char * data,
   }
 }
 
+// Print log 0x11
+static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
+{
+  if (checksum(data))
+    checksumwarning("SATA Phy Event Counters");
+  pout("SATA Phy Event Counters (GP Log 0x11)\n");
+  if (data[0] || data[1] || data[2] || data[3])
+    pout("[Reserved: 0x%02x 0x%02x 0x%02x 0x%02x]\n",
+    data[0], data[1], data[2], data[3]);
+  pout("ID      Size     Value  Description\n");
+  for (unsigned i = 4; ; ) {
+    // Get counter id
+    unsigned id = data[i] | (data[i+1] << 8);
+    if (!id)
+      break;
+    i += 2;
+
+    // Get counter size (bits 14:12)
+    unsigned size = ((id >> 12) & 0x7) << 1;
+    id &= 0x8fff;
+    if (!(2 <= size && size <= 8 && i + size < 512)) {
+      pout("0x%04x  %u: Invalid entry\n", id, size);
+      break;
+    }
+
+    // Get value
+    uint64_t val = 0, max_val = 0;
+    for (unsigned j = 0; j < size; j+=2) {
+        val |= (uint64_t)(data[i+j] | (data[i+j+1] << 8)) << (j*8);
+        max_val |= (uint64_t)0xffffU << (j*8);
+    }
+    i += size;
+
+    // Get name
+    const char * name;
+    switch (id) {
+      case 0x001: name = "Command failed due to ICRC error"; break; // Mandatory
+      case 0x002: name = "R_ERR response for data FIS"; break;
+      case 0x003: name = "R_ERR response for device-to-host data FIS"; break;
+      case 0x004: name = "R_ERR response for host-to-device data FIS"; break;
+      case 0x005: name = "R_ERR response for non-data FIS"; break;
+      case 0x006: name = "R_ERR response for device-to-host non-data FIS"; break;
+      case 0x007: name = "R_ERR response for host-to-device non-data FIS"; break;
+      case 0x008: name = "Device-to-host non-data FIS retries"; break;
+      case 0x009: name = "Transition from drive PhyRdy to drive PhyNRdy"; break;
+      case 0x00A: name = "Device-to-host register FISes sent due to a COMRESET"; break; // Mandatory
+      case 0x00B: name = "CRC errors within host-to-device FIS"; break;
+      case 0x00D: name = "Non-CRC errors within host-to-device FIS"; break;
+      case 0x00F: name = "R_ERR response for host-to-device data FIS, CRC"; break;
+      case 0x010: name = "R_ERR response for host-to-device data FIS, non-CRC"; break;
+      case 0x012: name = "R_ERR response for host-to-device non-data FIS, CRC"; break;
+      case 0x013: name = "R_ERR response for host-to-device non-data FIS, non-CRC"; break;
+      default:    name = (id & 0x8000 ? "Vendor specific" : "Unknown"); break;
+    }
+
+    // Counters stop at max value, add '+' in this case
+    pout("0x%04x  %u %12"PRIu64"%c %s\n", id, size, val,
+      (val == max_val ? '+' : ' '), name);
+  }
+  if (reset)
+    pout("All counters reset\n");
+  pout("\n");
+}
+
 // returns number of errors
 int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   int k;
@@ -1966,6 +2030,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART and/or GP log Directory and/or logs
   if (   options.gp_logdir || options.smart_logdir
+      || options.sataphy
       || !options.log_requests.empty()            ) {
     if (!isGeneralPurposeLoggingCapable(&drive)) {
       pout("Warning: device does not support General Purpose Logging\n");
@@ -1973,7 +2038,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     else {
       PRINT_ON(con);
-      pout("Log Directories Supported\n");
+      pout("General Purpose Logging supported\n");
 
       // Detect directories needed
       bool need_smart_logdir = options.smart_logdir;
@@ -2055,13 +2120,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         raw_buffer log_buf((offs + ns) * 512);
         bool ok;
         if (req.gpl)
-          ok = ataReadLogExt(device, req.logaddr, req.page, log_buf.data(), ns);
+          ok = ataReadLogExt(device, req.logaddr, 0x00, req.page, log_buf.data(), ns);
         else
           ok = ataReadSmartLog(device, req.logaddr, log_buf.data(), offs + ns);
         if (!ok)
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         else
           PrintLogPages(type, log_buf.data() + offs*512, req.logaddr, req.page, ns, max_nsectors);
+      }
+
+      // Print SATA Phy Event Counters
+      if (options.sataphy) {
+        unsigned char log_11[512] = {0, };
+        unsigned char features = (options.sataphy_reset ? 0x01 : 0x00);
+        if (!ataReadLogExt(device, 0x11, features, 0, log_11, 1))
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        else
+          PrintSataPhyEventCounters(log_11, options.sataphy_reset);
       }
     }
   }

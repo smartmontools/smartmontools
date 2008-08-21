@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.199 2008/08/20 21:19:08 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.200 2008/08/21 21:20:51 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -790,7 +790,8 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 // This function computes the checksum of a single disk sector (512
 // bytes).  Returns zero if checksum is OK, nonzero if the checksum is
 // incorrect.  The size (512) is correct for all SMART structures.
-unsigned char checksum(unsigned char *buffer){
+unsigned char checksum(const unsigned char *buffer)
+{
   unsigned char sum=0;
   int i;
   
@@ -1055,11 +1056,12 @@ int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data)
 
 // Read GP Log page(s)
 bool ataReadLogExt(ata_device * device, unsigned char logaddr,
-                   unsigned page, void * data, unsigned nsectors)
+                   unsigned char features, unsigned page,
+                   void * data, unsigned nsectors)
 {
   ata_cmd_in in;
-  in.in_regs.command  = ATA_READ_LOG_EXT;
-  in.in_regs.features = 0x00; // log specific
+  in.in_regs.command      = ATA_READ_LOG_EXT;
+  in.in_regs.features     = features; // log specific
   in.set_data_in_48bit(data, nsectors);
   in.in_regs.lba_low      = logaddr;
   in.in_regs.lba_mid      = page;
@@ -1101,7 +1103,7 @@ int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, boo
       return -1;
   }
   else { // GP Log directory
-    if (!ataReadLogExt(device, 0x00, 0, data, 1))
+    if (!ataReadLogExt(device, 0x00, 0x00, 0, data, 1))
       return -1;
   }
 
