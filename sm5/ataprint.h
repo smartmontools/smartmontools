@@ -25,7 +25,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.34 2008/08/20 21:19:08 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.35 2008/08/21 21:20:51 chrfranke Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,13 +73,15 @@ struct ata_log_request
 // TODO: Move remaining options from con->* to here.
 struct ata_print_options
 {
+  bool sataphy, sataphy_reset;
   bool gp_logdir, smart_logdir;
 
   std::vector<ata_log_request> log_requests;
 
   ata_print_options()
-    : gp_logdir(false), smart_logdir(false)
-  { }
+    : sataphy(false), sataphy_reset(false),
+      gp_logdir(false), smart_logdir(false)
+    { }
 };
 
 int ataPrintMain(ata_device * device, const ata_print_options & options);

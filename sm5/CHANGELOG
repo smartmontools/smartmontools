@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.708 2008/08/20 21:19:08 chrfranke Exp $
+$Id: CHANGELOG,v 1.709 2008/08/21 21:20:51 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add '-l sataphy[,reset]' to print SATA Phy Event Counters.
+
   [CF] Add '-l gplog,ADDR[,FIRST[-LAST|+SIZE]]' and '-l smartlog,...'
        to dump any log page accessible via GP or SMART read log commands.
 
@@ -51,7 +53,6 @@ NOTES FOR FUTURE RELEASES: see TODO file.
   [CF] Windows: Migrate os_win32.cpp to new interface.
 
   [CF] SAT: Add full ATA pass through support including 48-bit commands.
-       Warning: Not actually tested yet.
 
   [MS] knowndrives.cpp update
        - Added FUJITSU MHZ2250BS G2 and family
