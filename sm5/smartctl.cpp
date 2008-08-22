@@ -30,21 +30,21 @@
 #include <stdexcept>
 
 #include "config.h"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // Declares also standard getopt()
+#endif
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
+
 #if defined(__FreeBSD__)
 #include <sys/param.h>
-#if defined(__FreeBSD_version) && (__FreeBSD_version < 500000)
-#include <unistd.h>
-#endif
 #endif
 
 #if defined(__QNXNTO__) 
-#include <unistd.h>
-#include <new>
+#include <new> // TODO: Why is this include necessary on QNX ?
 #endif
-
 
 #include "int64.h"
 #include "atacmds.h"
@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.185 2008/08/21 21:20:52 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.186 2008/08/22 19:47:49 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -318,8 +318,6 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
   int badarg;
   int captive;
   unsigned char *charp;
-  extern char *optarg;
-  extern int optopt, optind, opterr;
   char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:";
