@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.79 2008/07/25 21:57:30 chrfranke Exp $
+$Id: INSTALL,v 1.80 2008/08/22 21:26:29 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -653,9 +653,10 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   Contents of smartd executable;
                                                                   Contents of smartd/smartd.conf man pages;
                                                                   Directory for rc.d/init.d/smartd init script
---with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts       
---with-docdir	      ${prefix}/share/doc/smartmontools-5.X       Location of the documentation
---enable-sample	      --disable-sample				  Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
+--with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts
+--with-docdir         ${prefix}/share/doc/smartmontools-5.X       Location of the documentation
+--enable-sample       --disable-sample                            Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
+--with-os-deps        os_<guessed>.o                              OS dependent module(s)
 --with-selinux        <not set>                                   Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
                                                                   nodes for 3ware/AMCC controllers, this option ensures that the nodes are created
                                                                   with correct SELinux file contexts.
