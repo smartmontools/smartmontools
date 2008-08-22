@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.710 2008/08/22 19:47:49 chrfranke Exp $
+$Id: CHANGELOG,v 1.711 2008/08/22 21:26:29 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add configure option '--with-os-deps='os_module.o ...' to specify
+       alternate OS interface modules. Useful for testing during migration.
 
   [CF] Remove declarations of 'optarg', 'optind', ..., include <unistd.h>
        instead. This fixes 'auto-importing' linker warnings on Cygwin.
