@@ -22,6 +22,7 @@
  */
 
 #ifndef _GNU_SOURCE
+// TODO: Why is this define necessary?
 #define _GNU_SOURCE
 #endif
 
@@ -29,10 +30,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>   // umask
-#ifndef _WIN32
-#include <sys/wait.h>
-#include <unistd.h>
-#endif
 #include <signal.h>
 #include <fcntl.h>
 #include <string.h>
@@ -52,6 +49,12 @@
 #include "config.h"
 
 // conditionally included files
+#ifndef _WIN32
+#include <sys/wait.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // Declares also standard getopt()
+#endif
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif
@@ -120,7 +123,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
-static const char *filenameandversion="$Id: smartd.cpp,v 1.412 2008/07/29 14:38:07 chrfranke Exp $";
+static const char *filenameandversion="$Id: smartd.cpp,v 1.413 2008/08/22 19:47:49 chrfranke Exp $";
 #ifdef _HAVE_CCISS
 extern const char *cciss_c_cvsid;
 #endif
@@ -130,7 +133,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.412 2008/07/29 14:38:07 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.413 2008/08/22 19:47:49 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3420,8 +3423,6 @@ void PrintValidArgs(char opt) {
 // Parses input line, prints usage message and
 // version/license/copyright messages
 void ParseOpts(int argc, char **argv){
-  extern char *optarg;
-  extern int  optopt, optind, opterr;
   int optchar;
   int badarg;
   char *tailptr;
