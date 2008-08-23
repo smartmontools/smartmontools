@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.200 2008/08/21 21:20:51 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.201 2008/08/23 19:56:18 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1064,8 +1064,7 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
   in.in_regs.features     = features; // log specific
   in.set_data_in_48bit(data, nsectors);
   in.in_regs.lba_low      = logaddr;
-  in.in_regs.lba_mid      = page;
-  in.in_regs.prev.lba_mid = page >> 8; // TODO: Add to ata_in_regs_48bit.
+  in.in_regs.lba_mid_16   = page;
 
   if (!device->ata_pass_through(in)) { // TODO: Debug output
     pout("ATA_READ_LOG_EXT failed: %s\n", device->get_errmsg());

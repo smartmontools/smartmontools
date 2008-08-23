@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.4 2008/08/23 17:07:16 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.5 2008/08/23 19:56:18 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -243,12 +243,15 @@ class ata_register
 public:
   ata_register()
     : m_val(0x00), m_is_set(false) { }
+
   ata_register & operator=(unsigned char val)
     { m_val = val; m_is_set = true; return * this; }
+
   unsigned char val() const
     { return m_val; }
   operator unsigned char() const
     { return m_val; }
+
   bool is_set() const
     { return m_is_set; }
 
@@ -295,6 +298,32 @@ struct ata_out_regs
 };
 
 
+/// 16-bit alias to a 8-bit ATA register pair.
+class ata_reg_alias_16
+{
+public:
+  ata_reg_alias_16(ata_register & lo, ata_register & hi)
+    : m_lo(lo), m_hi(hi) { }
+
+  ata_reg_alias_16 & operator=(unsigned short val)
+    { m_lo = (unsigned char) val;
+      m_hi = (unsigned char)(val >> 8);
+      return * this;                   }
+
+  unsigned short val() const
+    { return m_lo | (m_hi << 8); }
+  operator unsigned short() const
+    { return m_lo | (m_hi << 8); }
+
+private:
+  ata_register & m_lo, & m_hi;
+
+  // References must not be copied.
+  ata_reg_alias_16(const ata_reg_alias_16 &);
+  void operator=(const ata_reg_alias_16 &);
+};
+
+
 /// ATA Input registers for 48-bit commands
 // See section 4.14 of T13/1532D Volume 1 Revision 4b
 //
@@ -311,15 +340,18 @@ struct ata_in_regs_48bit
 {
   ata_in_regs prev;  ///< "previous content"
 
+  // 16-bit aliases for above pair.
+  ata_reg_alias_16 features_16;
+  ata_reg_alias_16 sector_count_16;
+  ata_reg_alias_16 lba_low_16;
+  ata_reg_alias_16 lba_mid_16;
+  ata_reg_alias_16 lba_high_16;
+
   /// Return true if 48-bit command
   bool is_48bit_cmd() const
     { return prev.is_set(); }
 
-  ata_in_regs_48bit()
-    { }
-  // Allow initialization from ata_in_regs (leaves prev unset)
-  ata_in_regs_48bit(const ata_in_regs & r)
-    : ata_in_regs(r) { }
+  ata_in_regs_48bit();
 };
 
 
@@ -328,6 +360,14 @@ struct ata_out_regs_48bit
 : public ata_out_regs   // read with HOB=0
 {
   ata_out_regs prev;  ///< read with HOB=1
+
+  // 16-bit aliases for above pair.
+  ata_reg_alias_16 sector_count_16;
+  ata_reg_alias_16 lba_low_16;
+  ata_reg_alias_16 lba_mid_16;
+  ata_reg_alias_16 lba_high_16;
+
+  ata_out_regs_48bit();
 };
 
 
@@ -379,9 +419,8 @@ struct ata_cmd_in
   void set_data_in_48bit(void * buf, unsigned nsectors)
     {
       buffer = buf;
-      in_regs.sector_count      = nsectors;
       // Note: This also sets 'in_regs.is_48bit_cmd()'
-      in_regs.prev.sector_count = nsectors >> 8;
+      in_regs.sector_count_16 = nsectors;
       direction = data_in;
       size = nsectors * 512;
     }

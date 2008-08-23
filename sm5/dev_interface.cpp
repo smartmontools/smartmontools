@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.2 2008/08/23 17:07:16 chrfranke Exp $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.3 2008/08/23 19:56:18 chrfranke Exp $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,6 +83,23 @@ void smart_device::release(const smart_device * /*dev*/)
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device
+
+ata_in_regs_48bit::ata_in_regs_48bit()
+: features_16(features, prev.features),
+  sector_count_16(sector_count, prev.sector_count),
+  lba_low_16(lba_low, prev.lba_low),
+  lba_mid_16(lba_mid, prev.lba_mid),
+  lba_high_16(lba_high, prev.lba_high)
+{
+}
+
+ata_out_regs_48bit::ata_out_regs_48bit()
+: sector_count_16(sector_count, prev.sector_count),
+  lba_low_16(lba_low, prev.lba_low),
+  lba_mid_16(lba_mid, prev.lba_mid),
+  lba_high_16(lba_high, prev.lba_high)
+{
+}
 
 ata_cmd_in::ata_cmd_in()
 : direction(no_data),
