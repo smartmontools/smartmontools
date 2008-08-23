@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.715 2008/08/23 20:27:02 chrfranke Exp $
+$Id: CHANGELOG,v 1.716 2008/08/23 20:47:06 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Linux: Migrate 3ware interface to 'ata_pass_through()'.
+       Multi-sector support is not complete yet. 48-bit commands
+       possibly work.
+       WARNING: Not tested, please review code before first test!
 
   [CF] Linux: Migrate os_linux.cpp to new interface.
 
