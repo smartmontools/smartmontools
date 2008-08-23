@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.711 2008/08/22 21:26:29 chrfranke Exp $
+$Id: CHANGELOG,v 1.712 2008/08/23 15:38:20 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add CVS date/time from cvsversion.h to man pages also.
 
   [CF] Add configure option '--with-os-deps='os_module.o ...' to specify
        alternate OS interface modules. Useful for testing during migration.
