@@ -22,7 +22,7 @@
 
 #include <errno.h>
 
-const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.2 2008/08/16 16:49:15 chrfranke Exp $"
+const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.3 2008/08/23 17:07:16 chrfranke Exp $"
   DEV_ATA_CMD_SET_H_CVSID;
 
 
@@ -31,10 +31,10 @@ const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.2 2008/08
 
 // Adapter routine to implement new ATA pass through with old interface
 
-bool ata_device_with_command_set::ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out)
+bool ata_device_with_command_set::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!(in.size == 0 || in.size == 512))
-    return set_err(ENOSYS, "Multi sector I/O not implemented");
+  if (!ata_cmd_is_ok(in, true)) // data_out_support
+    return false;
 
   smart_command_set command = (smart_command_set)-1;
   int select = 0;

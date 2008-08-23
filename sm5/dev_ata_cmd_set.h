@@ -18,7 +18,7 @@
 #ifndef DEV_ATA_CMD_SET_H
 #define DEV_ATA_CMD_SET_H
 
-#define DEV_ATA_CMD_SET_H_CVSID "$Id: dev_ata_cmd_set.h,v 1.1 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define DEV_ATA_CMD_SET_H_CVSID "$Id: dev_ata_cmd_set.h,v 1.2 2008/08/23 17:07:16 chrfranke Exp $\n"
 
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"
@@ -32,10 +32,10 @@ class ata_device_with_command_set
 : public /*implements*/ ata_device
 {
 protected:
-  /// 28-bit ATA pass through mapped to ata_command_interface().
-  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out);
+  /// ATA pass through mapped to ata_command_interface().
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
-  /// Old ATA interface called by ata_pass_through_28bit.
+  /// Old ATA interface called by ata_pass_through()
   virtual int ata_command_interface(smart_command_set command, int select, char * data) = 0;
 
   ata_device_with_command_set()

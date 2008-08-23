@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.3 2008/08/16 16:49:15 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.4 2008/08/23 17:07:16 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -404,8 +404,8 @@ class ata_device
 public:
   /// ATA pass through.
   /// Return false on error.
-  /// Default implementation calls ata_pass_through_28bit or _48bit.
-  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+  /// Must be implemented in derived class.
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) = 0;
 
   /// ATA pass through without output registers.
   /// Return false on error.
@@ -417,13 +417,12 @@ public:
   virtual bool ata_identify_is_cached() const;
 
 protected:
-  /// 28-bit ATA pass through.
-  /// Must be implemented in derived class.
-  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out) = 0;
-
-  /// 48-bit ATA pass through.
-  /// Default implementation returns false and sets errno to ENOSYS.
-  virtual bool ata_pass_through_48bit(const ata_cmd_in & in, ata_cmd_out & out);
+  /// Check command input parameters.
+  /// Calls set_err(...) accordingly.
+  bool ata_cmd_is_ok(const ata_cmd_in & in,
+    bool data_out_support = false,
+    bool multi_sector_support = false,
+    bool ata_48bit_support = false);
 
   /// Default constructor, registers device as ATA.
   ata_device()

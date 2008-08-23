@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.15 2008/08/16 16:49:16 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.16 2008/08/23 17:07:17 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -78,9 +78,7 @@ public:
 
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
-protected:
-  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out);
-
+private:
   int m_passthrulen;
 };
 
@@ -174,6 +172,13 @@ sat_device::~sat_device() throw()
 
 bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    true, // multi_sector_support
+    true) // ata_48bit_support
+  )
+    return false;
+
     struct scsi_cmnd_io io_hdr;
     struct scsi_sense_disect sinfo;
     struct sg_scsi_sense_hdr ssh;
@@ -224,15 +229,6 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       if (passthru_size != SAT_ATA_PASSTHROUGH_16LEN)
         return set_err(ENOSYS, "48-bit ATA commands require SAT ATA PASS-THROUGH (16)");
       extend = 1;
-    }
-
-    // Check buffer size
-    if (t_length == 2) {
-      // TODO: Add this as utility member function to ata_in_regs
-      unsigned count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
-      // TODO: Add check for sector count == 0
-      if (!(in.buffer && (count * 512 == in.size)))
-        return set_err(EINVAL, "sector_count %u does not match buffer size %u", count, in.size);
     }
 
     cdb[0] = (SAT_ATA_PASSTHROUGH_12LEN == passthru_size) ?
@@ -378,15 +374,6 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     }
     return true;
 }
-
-
-// Dummy, never called because above implements 28-bit and 48-bit commands.
-
-bool sat_device::ata_pass_through_28bit(const ata_cmd_in & /*in*/, ata_cmd_out & /*out*/)
-{
-  return set_err(ENOSYS);
-}
-
 
 } // namespace
 
