@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.714 2008/08/23 19:56:18 chrfranke Exp $
+$Id: CHANGELOG,v 1.715 2008/08/23 20:27:02 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Linux: Migrate os_linux.cpp to new interface.
 
   [CF] Add direct access to 16-bit registers in 'ata_in/out_regs_48bit'.
 
