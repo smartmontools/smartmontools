@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.58 2008/08/20 21:19:09 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.59 2008/08/23 21:39:34 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -225,6 +225,7 @@ private:
 #define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=0;}
 #define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=1;}
 
+#ifdef OLD_INTERFACE
 // possible values for controller_type in extern.h
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
@@ -240,5 +241,6 @@ private:
 #define CONTROLLER_PARSEDEV             0x11  // "smartctl -r ataioctl,2 ..." output parser pseudo-device
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
+#endif
 
 #endif

@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.142 2008/08/22 21:26:29 chrfranke Exp $
+# $Id: configure.in,v 1.143 2008/08/23 21:39:34 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.142 2008/08/22 21:26:29 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.143 2008/08/23 21:39:34 chrfranke Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -242,6 +242,7 @@ if grep "smart_interface" "${srcdir}/${os_src}" >/dev/null 2>&1; then
 else
   os_new_interface=no
   os_deps="${os_deps} dev_legacy.o"
+  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface])
 fi
 AC_MSG_RESULT([$os_new_interface])
 
