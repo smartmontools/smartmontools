@@ -87,9 +87,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.117 2008/08/23 20:27:02 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.117 2008/08/23 20:27:02 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -1235,7 +1235,7 @@ bool linux_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 /// AMCC/3ware RAID support
 
 class linux_escalade_device
-: public /*implements*/ ata_device_with_command_set,
+: public /*implements*/ ata_device,
   public /*extends*/ linux_smart_device
 {
 public:
@@ -1248,8 +1248,7 @@ public:
   linux_escalade_device(smart_interface * intf, const char * dev_name,
     escalade_type_t escalade_type, int disknum);
 
-protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 private:
   escalade_type_t m_escalade_type; ///< Controller type
@@ -1268,8 +1267,8 @@ linux_escalade_device::linux_escalade_device(smart_interface * intf, const char 
   set_info().info_name = strprintf("%s [3ware_disk_%02d]", dev_name, disknum);
 }
 
-// prototype
-void printwarning(smart_command_set command);
+// TODO: Function no longer useful
+//void printwarning(smart_command_set command);
 
 // PURPOSE
 //   This is an interface routine meant to isolate the OS dependent
@@ -1301,10 +1300,14 @@ void printwarning(smart_command_set command);
 #define BUFFER_LEN_9000      ( sizeof(TW_Ioctl_Buf_Apache)+512-1 ) // 2051 unpacked, 2048 packed
 #define TW_IOCTL_BUFFER_SIZE ( MAX(MAX(BUFFER_LEN_678K, BUFFER_LEN_9000), BUFFER_LEN_678K_CHAR) )
 
-int linux_escalade_device::ata_command_interface(smart_command_set command, int select, char * data)
+bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  // return value and buffer for ioctl()
-  int  ioctlreturn, readdata=0;
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    false, // TODO: multi_sector_support
+    true) // ata_48bit_support
+  )
+    return false;
 
   // Used by both the SCSI and char interfaces
   TW_Passthru *passthru=NULL;
@@ -1344,10 +1347,9 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
     passthru                                      = (TW_Passthru *)&(tw_ioctl->input_data);
   }
   else {
-    pout("Unrecognized escalade_type %d in linux_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", m_escalade_type, m_disknum);
-    errno=ENOSYS;
-    return -1;
+    return set_err(ENOSYS,
+      "Unrecognized escalade_type %d in linux_3ware_command_interface(disk %d)\n"
+      "Please contact " PACKAGE_BUGREPORT "\n", (int)m_escalade_type, m_disknum);
   }
 
   // Same for (almost) all commands - but some reset below
@@ -1356,16 +1358,18 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
   passthru->unit          = m_disknum;
   passthru->status        = 0;
   passthru->flags         = 0x1;
-  passthru->drive_head    = 0x0;
-  passthru->sector_num    = 0;
 
-  // All SMART commands use this CL/CH signature.  These are magic
-  // values from the ATA specifications.
-  passthru->cylinder_lo   = 0x4F;
-  passthru->cylinder_hi   = 0xC2;
-
-  // SMART ATA COMMAND REGISTER value
-  passthru->command       = ATA_SMART_CMD;
+  // Set registers
+  {
+    const ata_in_regs_48bit & r = in.in_regs;
+    passthru->features     = r.features_16;
+    passthru->sector_count = r.sector_count_16;
+    passthru->sector_num   = r.lba_low_16;
+    passthru->cylinder_lo  = r.lba_mid_16;
+    passthru->cylinder_hi  = r.lba_high_16;
+    passthru->drive_head   = r.device;
+    passthru->command      = r.command;
+  }
 
   // Is this a command that reads or returns 512 bytes?
   // passthru->param values are:
@@ -1374,16 +1378,12 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
   // 0xD - data command that returns data to host from device
   // 0xF - data command that writes data from host to device
   // passthru->size values are 0x5 for non-data and 0x07 for data
-  if (command == READ_VALUES     ||
-      command == READ_THRESHOLDS ||
-      command == READ_LOG        ||
-      command == IDENTIFY        ||
-      command == WRITE_LOG ) {
-    readdata=1;
+  bool readdata = false;
+  if (in.direction == ata_cmd_in::data_in) {
+    readdata=true;
     passthru->byte0.sgloff = 0x5;
-    passthru->size         = 0x7;
+    passthru->size         = 0x7; // TODO: Other value for multi-sector ?
     passthru->param        = 0xD;
-    passthru->sector_count = 0x1;
     // For 64-bit to work correctly, up the size of the command packet
     // in dwords by 1 to account for the 64-bit single sgl 'address'
     // field. Note that this doesn't agree with the typedefs but it's
@@ -1391,7 +1391,7 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
     if (m_escalade_type==AMCC_3WARE_9000_CHAR && sizeof(long)==8)
       passthru->size++;
   }
-  else {
+  else if (in.direction == ata_cmd_in::no_data) {
     // Non data command -- but doesn't use large sector
     // count register values.
     passthru->byte0.sgloff = 0x0;
@@ -1399,95 +1399,28 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
     passthru->param        = 0x8;
     passthru->sector_count = 0x0;
   }
-
-  // Now set ATA registers depending upon command
-  switch (command){
-  case CHECK_POWER_MODE:
-    passthru->command     = ATA_CHECK_POWER_MODE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case READ_VALUES:
-    passthru->features = ATA_SMART_READ_VALUES;
-    break;
-  case READ_THRESHOLDS:
-    passthru->features = ATA_SMART_READ_THRESHOLDS;
-    break;
-  case READ_LOG:
-    passthru->features = ATA_SMART_READ_LOG_SECTOR;
-    // log number to return
-    passthru->sector_num  = select;
-    break;
-  case WRITE_LOG:
+  else if (in.direction == ata_cmd_in::data_out) {
     if (m_escalade_type == AMCC_3WARE_9000_CHAR)
-      memcpy((unsigned char *)tw_ioctl_apache->data_buffer, data, 512);
+      memcpy(tw_ioctl_apache->data_buffer, in.buffer, in.size);
     else if (m_escalade_type == AMCC_3WARE_678K_CHAR)
-      memcpy((unsigned char *)tw_ioctl_char->data_buffer,   data, 512);
+      memcpy(tw_ioctl_char->data_buffer,   in.buffer, in.size);
     else {
       // COMMAND NOT SUPPORTED VIA SCSI IOCTL INTERFACE
       // memcpy(tw_output->output_data, data, 512);
-      printwarning(command);
-      errno=ENOTSUP;
-      return -1;
+      // printwarning(command); // TODO: Parameter no longer valid
+      return set_err(ENOTSUP, "DATA OUT not supported for this 3ware controller type");
     }
-    readdata=0;
-    passthru->features     = ATA_SMART_WRITE_LOG_SECTOR;
-    passthru->sector_count = 1;
-    passthru->sector_num   = select;
+    passthru->byte0.sgloff = 0x5;
+    passthru->size         = 0x7;  // TODO: Other value for multi-sector ?
     passthru->param        = 0xF;  // PIO data write
-    break;
-  case IDENTIFY:
-    // ATA IDENTIFY DEVICE
-    passthru->command     = ATA_IDENTIFY_DEVICE;
-    passthru->features    = 0;
-    passthru->cylinder_lo = 0;
-    passthru->cylinder_hi = 0;
-    break;
-  case PIDENTIFY:
-    // 3WARE controller can NOT have packet device internally
-    pout("WARNING - NO DEVICE FOUND ON 3WARE CONTROLLER (disk %d)\n", m_disknum);
-    pout("Note: /dev/sdX many need to be replaced with /dev/tweN or /dev/twaN\n");
-    errno=ENODEV;
-    return -1;
-  case ENABLE:
-    passthru->features = ATA_SMART_ENABLE;
-    break;
-  case DISABLE:
-    passthru->features = ATA_SMART_DISABLE;
-    break;
-  case AUTO_OFFLINE:
-    passthru->features     = ATA_SMART_AUTO_OFFLINE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case AUTOSAVE:
-    passthru->features     = ATA_SMART_AUTOSAVE;
-    // Enable or disable?
-    passthru->sector_count = select;
-    break;
-  case IMMEDIATE_OFFLINE:
-    passthru->features    = ATA_SMART_IMMEDIATE_OFFLINE;
-    // What test type to run?
-    passthru->sector_num  = select;
-    break;
-  case STATUS_CHECK:
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  case STATUS:
-    // This is JUST to see if SMART is enabled, by giving SMART status
-    // command. But it doesn't say if status was good, or failing.
-    // See below for the difference.
-    passthru->features = ATA_SMART_STATUS;
-    break;
-  default:
-    pout("Unrecognized command %d in linux_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command, m_disknum);
-    errno=ENOSYS;
-    return -1;
+    if (m_escalade_type==AMCC_3WARE_9000_CHAR && sizeof(long)==8)
+      passthru->size++;
   }
+  else
+    set_err(EINVAL);
 
   // Now send the command down through an ioctl()
+  int ioctlreturn;
   if (m_escalade_type==AMCC_3WARE_9000_CHAR)
     ioctlreturn=ioctl(get_fd(), TW_IOCTL_FIRMWARE_PASS_THROUGH, tw_ioctl_apache);
   else if (m_escalade_type==AMCC_3WARE_678K_CHAR)
@@ -1497,14 +1430,16 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
 
   // Deal with the different error cases
   if (ioctlreturn) {
-    if (AMCC_3WARE_678K==m_escalade_type && ((command==AUTO_OFFLINE || command==AUTOSAVE) && select)){
+    if (AMCC_3WARE_678K==m_escalade_type
+        && in.in_regs.command==ATA_SMART_CMD
+        && (   in.in_regs.features == ATA_SMART_AUTO_OFFLINE
+            || in.in_regs.features == ATA_SMART_AUTOSAVE    )
+        && in.in_regs.lba_low) {
       // error here is probably a kernel driver whose version is too old
-      printwarning(command);
-      errno=ENOTSUP;
+      // printwarning(command); // TODO: Parameter no longer valid
+      return set_err(ENOTSUP, "Probably kernel driver too old");
     }
-    if (!errno)
-      errno=EIO;
-    return -1;
+    return set_err(EIO);
   }
 
   // The passthru structure is valid after return from an ioctl if:
@@ -1532,61 +1467,38 @@ int linux_escalade_device::ata_command_interface(smart_command_set command, int 
   // happened.
 
   if (passthru && (passthru->status || (passthru->command & 0x21))) {
-    errno=EIO;
-    return -1;
+    return set_err(EIO);
   }
 
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (m_escalade_type==AMCC_3WARE_9000_CHAR)
-      memcpy(data, (unsigned char *)tw_ioctl_apache->data_buffer, 512);
+      memcpy(in.buffer, tw_ioctl_apache->data_buffer, in.size);
     else if (m_escalade_type==AMCC_3WARE_678K_CHAR)
-      memcpy(data, (unsigned char *)tw_ioctl_char->data_buffer, 512);
+      memcpy(in.buffer, tw_ioctl_char->data_buffer, in.size);
     else
-      memcpy(data, tw_output->output_data, 512);
+      memcpy(in.buffer, tw_output->output_data, in.size);
   }
 
-  // For STATUS_CHECK, we need to check register values
-  if (command==STATUS_CHECK) {
-
-    // To find out if the SMART RETURN STATUS is good or failing, we
-    // need to examine the values of the Cylinder Low and Cylinder
-    // High Registers.
-
-    unsigned short cyl_lo=passthru->cylinder_lo;
-    unsigned short cyl_hi=passthru->cylinder_hi;
-
-    // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
-    if (cyl_lo==0x4F && cyl_hi==0xC2)
-      return 0;
-
-    // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
-    if (cyl_lo==0xF4 && cyl_hi==0x2C)
-      return 1;
-
-    // Any other values mean that something has gone wrong with the command
-    if (AMCC_3WARE_678K==m_escalade_type) {
-      printwarning(command);
-      errno=ENOSYS;
-      return 0;
-    }
-    else {
-      errno=EIO;
-      return -1;
-    }
+  // Return register values
+  {
+    ata_out_regs_48bit & r = out.out_regs;
+    r.error           = passthru->features;
+    r.sector_count_16 = passthru->sector_count;
+    r.lba_low_16      = passthru->sector_num;
+    r.lba_mid_16      = passthru->cylinder_lo;
+    r.lba_high_16     = passthru->cylinder_hi;
+    r.device          = passthru->drive_head;
+    r.status          = passthru->command;
   }
-
-  // copy sector count register (one byte!) to return data
-  if (command==CHECK_POWER_MODE)
-    *data=*(char *)&(passthru->sector_count);
 
   // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
-    errno=ENODEV;
-    return -1;
+  if (   in.in_regs.command == ATA_IDENTIFY_DEVICE
+      && !nonempty((unsigned char *)in.buffer, in.size)) {
+    return set_err(ENODEV, "No drive on port %d", m_disknum);
   }
 
-  return 0;
+  return true;
 }
 
 
@@ -2564,6 +2476,7 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
 }
 
 
+#if 0 // TODO: Migrate from 'smart_command_set' to 'ata_in_regs' OR remove the function
 // Utility function for printing warnings
 void printwarning(smart_command_set command){
   static int printed[4]={0,0,0,0};
@@ -2592,6 +2505,7 @@ void printwarning(smart_command_set command){
 
   return;
 }
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2703,7 +2617,7 @@ const char * linux_smart_interface::get_app_examples(const char * appname)
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: os_linux.cpp,v 1.117 2008/08/23 20:27:02 chrfranke Exp $";
+  static const char version[] = "$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
