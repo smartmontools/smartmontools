@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.1 2008/07/25 21:16:00 chrfranke Exp $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.2 2008/08/23 17:07:16 chrfranke Exp $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -95,23 +95,48 @@ ata_cmd_out::ata_cmd_out()
 {
 }
 
-bool ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
-{
-  if (!in.in_regs.is_48bit_cmd())
-    return ata_pass_through_28bit(in, out);
-  else
-    return ata_pass_through_48bit(in, out);
-}
-
 bool ata_device::ata_pass_through(const ata_cmd_in & in)
 {
   ata_cmd_out dummy;
   return ata_pass_through(in, dummy);
 }
 
-bool ata_device::ata_pass_through_48bit(const ata_cmd_in & /*in*/, ata_cmd_out & /*out*/)
+bool ata_device::ata_cmd_is_ok(const ata_cmd_in & in,
+  bool data_out_support /*= false*/,
+  bool multi_sector_support /*= false*/,
+  bool ata_48bit_support /*= false*/)
 {
-  return set_err(ENOSYS, "48-bit ATA commands not supported");
+  // Check DATA IN/OUT
+  switch (in.direction) {
+    case ata_cmd_in::no_data:  break;
+    case ata_cmd_in::data_in:  break;
+    case ata_cmd_in::data_out: break;
+    default:
+      return set_err(EINVAL, "Invalid data direction %d", (int)in.direction);
+  }
+
+  // Check buffer size
+  if (in.direction == ata_cmd_in::no_data) {
+    if (in.size)
+      return set_err(EINVAL, "Buffer size %u > 0 for NO DATA command", in.size);
+  }
+  else {
+    if (!in.buffer)
+      return set_err(EINVAL, "Buffer not set for DATA IN/OUT command");
+    unsigned count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
+    // TODO: Add check for sector count == 0
+    if (count * 512 != in.size)
+      return set_err(EINVAL, "Sector count %u does not match buffer size %u", count, in.size);
+  }
+
+  // Check features
+  if (in.direction == ata_cmd_in::data_out && !data_out_support)
+    return set_err(ENOSYS, "DATA OUT ATA commands not supported");
+  if (!(in.size == 0 || in.size == 512) && !multi_sector_support)
+    return set_err(ENOSYS, "Multi-sector ATA commands not supported");
+  if (in.in_regs.is_48bit_cmd() && !ata_48bit_support)
+    return set_err(ENOSYS, "48-bit ATA commands not supported");
+  return true;
 }
 
 bool ata_device::ata_identify_is_cached() const

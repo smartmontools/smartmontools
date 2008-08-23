@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.67 2008/08/20 21:19:08 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.68 2008/08/23 17:07:16 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -105,9 +105,6 @@ public:
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
   virtual bool ata_identify_is_cached() const;
-
-protected:
-  virtual bool ata_pass_through_28bit(const ata_cmd_in & in, ata_cmd_out & out);
 
 private:
   bool open(int phydrive, int logdrive, const char * options, int port);
@@ -2327,6 +2324,13 @@ bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
 // Interface to ATA devices
 bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  if (!ata_cmd_is_ok(in,
+    true, // data_out_support
+    true, // multi_sector_support
+    true) // ata_48bit_support
+  )
+    return false;
+
   // Determine ioctl functions valid for this ATA cmd
   const char * valid_options = 0;
 
@@ -2631,12 +2635,6 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     }
   }
   return true;
-}
-
-// Dummy, never called because above implements 28-bit and 48-bit commands.
-bool win_ata_device::ata_pass_through_28bit(const ata_cmd_in & /*in*/, ata_cmd_out & /*out*/)
-{
-  return set_err(ENOSYS);
 }
 
 // Return true if OS caches the ATA identify sector
