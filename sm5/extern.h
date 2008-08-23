@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.58 2008/08/20 21:19:08 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.59 2008/08/23 21:39:34 chrfranke Exp $\n"
 
 // Possible values for fixfirmwarebug.  If user has NOT specified -F at
 // all, then value is 0.
@@ -95,14 +95,14 @@ typedef struct smartmonctrl_s {
   unsigned char reportscsiioctl;
   unsigned char fixfirmwarebug;
   unsigned char fixswappedid;
-  // Controller type (device type) has been specified explicitly
-  unsigned char controller_explicit;
+#ifdef OLD_INTERFACE
   // 3Ware controller type, but also extensible to other contoller types
   unsigned char controller_type; // TODO: Only needed for os_linux.cpp
   // For 3Ware controllers, nonzero value is 1 plus the disk number
   unsigned char controller_port;  // TODO: Only needed for os_linux.cpp
   // combined controller/channle/pmport for highpoint rocketraid controller
   unsigned char hpt_data[3]; // TODO: Only needed for os_linux.cpp
+#endif
   unsigned char ignorepresets;
   unsigned char showpresets;
   // The i'th entry in this array will modify the printed meaning of
