@@ -87,9 +87,9 @@ typedef unsigned long long u8;
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $";
+static const char *filenameandversion="$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global variable holding byte count of allocated memory
@@ -103,153 +103,6 @@ extern smartmonctrl *con;
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
-/* This function will setup and fix device nodes for a 3ware controller. */
-#define MAJOR_STRING_LENGTH 3
-#define DEVICE_STRING_LENGTH 32
-#define NODE_STRING_LENGTH 16
-int setup_3ware_nodes(const char *nodename, const char *driver_name) {
-  int              tw_major      = 0;
-  int              index         = 0;
-  char             majorstring[MAJOR_STRING_LENGTH+1];
-  char             device_name[DEVICE_STRING_LENGTH+1];
-  char             nodestring[NODE_STRING_LENGTH];
-  struct stat      stat_buf;
-  FILE             *file;
-  int              retval = 0;
-#ifdef WITH_SELINUX
-  security_context_t orig_context = NULL;
-  security_context_t node_context = NULL;
-  int                selinux_enabled  = is_selinux_enabled();
-  int                selinux_enforced = security_getenforce();
-#endif
-
-
-  /* First try to open up /proc/devices */
-  if (!(file = fopen("/proc/devices", "r"))) {
-    pout("Error opening /proc/devices to check/create 3ware device nodes\n");
-    syserror("fopen");
-    return 0;  // don't fail here: user might not have /proc !
-  }
-
-  /* Attempt to get device major number */
-  while (EOF != fscanf(file, "%3s %32s", majorstring, device_name)) {
-    majorstring[MAJOR_STRING_LENGTH]='\0';
-    device_name[DEVICE_STRING_LENGTH]='\0';
-    if (!strncmp(device_name, nodename, DEVICE_STRING_LENGTH)) {
-      tw_major = atoi(majorstring);
-      break;
-    }
-  }
-  fclose(file);
-
-  /* See if we found a major device number */
-  if (!tw_major) {
-    pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
-    return 2;
-  }
-#ifdef WITH_SELINUX
-  /* Prepare a database of contexts for files in /dev
-   * and save the current context */
-  if (selinux_enabled) {
-    if (matchpathcon_init_prefix(NULL, "/dev") < 0)
-      pout("Error initializing contexts database for /dev");
-    if (getfscreatecon(&orig_context) < 0) {
-      pout("Error retrieving original SELinux fscreate context");
-      if (selinux_enforced)
-        matchpathcon_fini();
-        return 6;
-      }
-  }
-#endif
-  /* Now check if nodes are correct */
-  for (index=0; index<16; index++) {
-    sprintf(nodestring, "/dev/%s%d", nodename, index);
-#ifdef WITH_SELINUX
-    /* Get context of the node and set it as the default */
-    if (selinux_enabled) {
-      if (matchpathcon(nodestring, S_IRUSR | S_IWUSR, &node_context) < 0) {
-        pout("Could not retrieve context for %s", nodestring);
-        if (selinux_enforced) {
-          retval = 6;
-          break;
-        }
-      }
-      if (setfscreatecon(node_context) < 0) {
-        pout ("Error setting default fscreate context");
-        if (selinux_enforced) {
-          retval = 6;
-          break;
-        }
-      }
-    }
-#endif
-    /* Try to stat the node */
-    if ((stat(nodestring, &stat_buf))) {
-      pout("Node %s does not exist and must be created. Check the udev rules.\n", nodestring);
-      /* Create a new node if it doesn't exist */
-      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-        pout("problem creating 3ware device nodes %s", nodestring);
-        syserror("mknod");
-        retval = 3;
-        break;
-      } else {
-#ifdef WITH_SELINUX
-	if (selinux_enabled && node_context) {
-	  freecon(node_context);
-	  node_context = NULL;
-	}
-#endif
-        continue;
-      }
-    }
-
-    /* See if nodes major and minor numbers are correct */
-    if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
-        (index    != (int)(minor(stat_buf.st_rdev))) ||
-        (!S_ISCHR(stat_buf.st_mode))) {
-      pout("Node %s has wrong major/minor number and must be created anew."
-          " Check the udev rules.\n", nodestring);
-      /* Delete the old node */
-      if (unlink(nodestring)) {
-        pout("problem unlinking stale 3ware device node %s", nodestring);
-        syserror("unlink");
-        retval = 4;
-        break;
-      }
-
-      /* Make a new node */
-      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-        pout("problem creating 3ware device nodes %s", nodestring);
-        syserror("mknod");
-        retval = 5;
-        break;
-      }
-    }
-#ifdef WITH_SELINUX
-    if (selinux_enabled && node_context) {
-      freecon(node_context);
-      node_context = NULL;
-    }
-#endif
-  }
-
-#ifdef WITH_SELINUX
-  if (selinux_enabled) {
-    if(setfscreatecon(orig_context) < 0) {
-      pout("Error re-setting original fscreate context");
-      if (selinux_enforced)
-        retval = 6;
-    }
-    if(orig_context)
-      freecon(orig_context);
-    if(node_context)
-      freecon(node_context);
-    matchpathcon_fini();
-  }
-#endif
-  return retval;
-}
-
 /////////////////////////////////////////////////////////////////////////////
 /// Shared open/close routines
 
@@ -257,9 +110,11 @@ class linux_smart_device
 : virtual public /*implements*/ smart_device
 {
 public:
-  explicit linux_smart_device(const char * mode)
+  explicit linux_smart_device(int flags, int retry_flags = -1)
     : smart_device(never_called),
-      m_fd(-1), m_mode(mode) { }
+      m_fd(-1),
+      m_flags(flags), m_retry_flags(retry_flags)
+      { }
 
   virtual ~linux_smart_device() throw();
 
@@ -276,7 +131,8 @@ protected:
 
 private:
   int m_fd; ///< filedesc, -1 if not open.
-  const char * m_mode; ///< Mode string for open()
+  int m_flags; ///< Flags for ::open()
+  int m_retry_flags; ///< Flags to retry ::open(), -1 if no retry
 };
 
 
@@ -291,70 +147,25 @@ bool linux_smart_device::is_open() const
   return (m_fd >= 0);
 }
 
-// TODO: Remove this hack
-static char prev_scsi_dev[128];
-
-// equivalent to open(path, flags)
 bool linux_smart_device::open()
 {
-  const char *pathname = get_dev_name();
-  const char *type = m_mode; // TODO: Remove mode, implement device specific open().
+  m_fd = ::open(get_dev_name(), m_flags);
 
-  if (0 == strcmp(type,"SCSI")) {
-    strncpy(prev_scsi_dev, pathname, sizeof(prev_scsi_dev) - 1);
-    m_fd = ::open(pathname, O_RDWR | O_NONBLOCK);
-    if (m_fd < 0 && errno == EROFS)
-      m_fd = ::open(pathname, O_RDONLY | O_NONBLOCK);
-  } else if (0 == strcmp(type,"ATA")) {
-    // smartd re-opens SCSI devices with "type"==ATA for some reason.
-    // If that was a SCSI generic device (e.g. /dev/sg0) then the
-    // sg driver wants O_RDWR to allow through ATA PASS-THROUGH commands.
-    // The purpose of the next code line is to limit the scope of
-    // this change as a release is pending (and smartd needs a rewrite).
-    if (0 == strncmp(pathname, prev_scsi_dev, sizeof(prev_scsi_dev)))
-      m_fd = ::open(pathname, O_RDWR | O_NONBLOCK);
-    else
-      m_fd = ::open(pathname, O_RDONLY | O_NONBLOCK);
-  } else if (0 == strcmp(type,"ATA_3WARE_9000")) {
-    // the device nodes for this controller are dynamically assigned,
-    // so we need to check that they exist with the correct major
-    // numbers and if not, create them
-    if (setup_3ware_nodes("twa", "3w-9xxx")) {
-      return set_err((errno ? errno : ENXIO), "setup_3ware_nodes(\"twa\", \"3w-9xxx\") failed");
-    }
-    m_fd = ::open(pathname, O_RDONLY | O_NONBLOCK);
-  }
-  else if (0 == strcmp(type,"ATA_3WARE_678K")) {
-    // the device nodes for this controller are dynamically assigned,
-    // so we need to check that they exist with the correct major
-    // numbers and if not, create them
-    if (setup_3ware_nodes("twe", "3w-xxxx")) {
-      return set_err((errno ? errno : ENXIO), "setup_3ware_nodes(\"twe\", \"3w-xxxx\") failed");
-    }
-    m_fd = ::open(pathname, O_RDONLY | O_NONBLOCK);
-  }
-  else if(0 == strcmp(type, "CCISS")) {
-    // the device is a cciss smart array device.
-    m_fd = ::open(pathname, O_RDWR | O_NONBLOCK);
-  }
-  else if (0 == strcmp(type, "ATA_ARECA")) {
-    // SCSI Generic (sg) devices support exclusive open (using O_EXCL).
-    // For usual files this is only supported during create (O_CREAT)
-    // but it's fine to use it while opening existing /dev/sg devices.
-    // (Please refer to: http://tldp.org/HOWTO/SCSI-Generic-HOWTO)
+  if (m_fd < 0 && errno == EROFS && m_retry_flags != -1)
+    // Retry
+    m_fd = ::open(get_dev_name(), m_retry_flags);
 
-    // Try to open device exclusively
-    m_fd = ::open(pathname, O_RDWR | O_EXCL | O_NONBLOCK);
-
-    if (-1 == m_fd && EBUSY == errno) {
-      // device is locked, show info
-      pout("The requested controller is used exclusively by another process!\n" \
-           "(e.g. Areca cli[32|64], Areca archttp[32|64], smartctl or smartd)\n" \
-           "Please quit the impeding process or try again later...\n\n");
-    }
+  if (m_fd < 0) {
+    if (errno == EBUSY && (m_flags & O_EXCL))
+      // device is locked
+      return set_err(EBUSY,
+        "The requested controller is used exclusively by another process!\n"
+        "(e.g. smartctl or smartd)\n"
+        "Please quit the impeding process or try again later...");
+    return set_err((errno==ENOENT || errno==ENOTDIR) ? ENODEV : errno);
   }
 
-  if (m_fd != -1) {
+  if (m_fd >= 0) {
     // sets FD_CLOEXEC on the opened device file descriptor.  The
     // descriptor is otherwise leaked to other applications (mail
     // sender) which may be considered a security risk and may result
@@ -364,8 +175,6 @@ bool linux_smart_device::open()
       pout("fcntl(set  FD_CLOEXEC) failed, errno=%d [%s]\n", errno, strerror(errno));
   }
 
-  if (m_fd < 0)
-    return set_err((errno==ENOENT || errno==ENOTDIR) ? ENODEV : errno);
   return true;
 }
 
@@ -564,7 +373,7 @@ protected:
 
 linux_ata_device::linux_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "ata", req_type),
-  linux_smart_device("ATA")
+  linux_smart_device(O_RDONLY | O_NONBLOCK)
 {
 }
 
@@ -1180,7 +989,7 @@ public:
 linux_scsi_device::linux_scsi_device(smart_interface * intf,
   const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "scsi", req_type),
-  linux_smart_device("SCSI")
+  linux_smart_device(O_RDWR | O_NONBLOCK, O_RDONLY | O_NONBLOCK)
 {
 }
 
@@ -1215,7 +1024,7 @@ private:
 linux_cciss_device::linux_cciss_device(smart_interface * intf,
   const char * dev_name, unsigned char disknum)
 : smart_device(intf, dev_name, "cciss", "cciss"),
-  linux_smart_device("SCSI"),
+  linux_smart_device(O_RDWR | O_NONBLOCK),
   m_disknum(disknum)
 {
   set_info().info_name = strprintf("%s [cciss_disk_%02d]", dev_name, disknum);
@@ -1248,6 +1057,8 @@ public:
   linux_escalade_device(smart_interface * intf, const char * dev_name,
     escalade_type_t escalade_type, int disknum);
 
+  virtual bool open();
+
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 private:
@@ -1258,13 +1069,172 @@ private:
 linux_escalade_device::linux_escalade_device(smart_interface * intf, const char * dev_name,
     escalade_type_t escalade_type, int disknum)
 : smart_device(intf, dev_name, "3ware", "3ware"),
-  linux_smart_device(
-    escalade_type==AMCC_3WARE_9000_CHAR ? "ATA_3WARE_9000" :
-    escalade_type==AMCC_3WARE_678K_CHAR ? "ATA_3WARE_678K" :
-    /*             AMCC_3WARE_678K     */ "ATA"             ),
+  linux_smart_device(O_RDONLY | O_NONBLOCK),
   m_escalade_type(escalade_type), m_disknum(disknum)
 {
   set_info().info_name = strprintf("%s [3ware_disk_%02d]", dev_name, disknum);
+}
+
+/* This function will setup and fix device nodes for a 3ware controller. */
+#define MAJOR_STRING_LENGTH 3
+#define DEVICE_STRING_LENGTH 32
+#define NODE_STRING_LENGTH 16
+int setup_3ware_nodes(const char *nodename, const char *driver_name) {
+  int              tw_major      = 0;
+  int              index         = 0;
+  char             majorstring[MAJOR_STRING_LENGTH+1];
+  char             device_name[DEVICE_STRING_LENGTH+1];
+  char             nodestring[NODE_STRING_LENGTH];
+  struct stat      stat_buf;
+  FILE             *file;
+  int              retval = 0;
+#ifdef WITH_SELINUX
+  security_context_t orig_context = NULL;
+  security_context_t node_context = NULL;
+  int                selinux_enabled  = is_selinux_enabled();
+  int                selinux_enforced = security_getenforce();
+#endif
+
+
+  /* First try to open up /proc/devices */
+  if (!(file = fopen("/proc/devices", "r"))) {
+    pout("Error opening /proc/devices to check/create 3ware device nodes\n");
+    syserror("fopen");
+    return 0;  // don't fail here: user might not have /proc !
+  }
+
+  /* Attempt to get device major number */
+  while (EOF != fscanf(file, "%3s %32s", majorstring, device_name)) {
+    majorstring[MAJOR_STRING_LENGTH]='\0';
+    device_name[DEVICE_STRING_LENGTH]='\0';
+    if (!strncmp(device_name, nodename, DEVICE_STRING_LENGTH)) {
+      tw_major = atoi(majorstring);
+      break;
+    }
+  }
+  fclose(file);
+
+  /* See if we found a major device number */
+  if (!tw_major) {
+    pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
+    return 2;
+  }
+#ifdef WITH_SELINUX
+  /* Prepare a database of contexts for files in /dev
+   * and save the current context */
+  if (selinux_enabled) {
+    if (matchpathcon_init_prefix(NULL, "/dev") < 0)
+      pout("Error initializing contexts database for /dev");
+    if (getfscreatecon(&orig_context) < 0) {
+      pout("Error retrieving original SELinux fscreate context");
+      if (selinux_enforced)
+        matchpathcon_fini();
+        return 6;
+      }
+  }
+#endif
+  /* Now check if nodes are correct */
+  for (index=0; index<16; index++) {
+    sprintf(nodestring, "/dev/%s%d", nodename, index);
+#ifdef WITH_SELINUX
+    /* Get context of the node and set it as the default */
+    if (selinux_enabled) {
+      if (matchpathcon(nodestring, S_IRUSR | S_IWUSR, &node_context) < 0) {
+        pout("Could not retrieve context for %s", nodestring);
+        if (selinux_enforced) {
+          retval = 6;
+          break;
+        }
+      }
+      if (setfscreatecon(node_context) < 0) {
+        pout ("Error setting default fscreate context");
+        if (selinux_enforced) {
+          retval = 6;
+          break;
+        }
+      }
+    }
+#endif
+    /* Try to stat the node */
+    if ((stat(nodestring, &stat_buf))) {
+      pout("Node %s does not exist and must be created. Check the udev rules.\n", nodestring);
+      /* Create a new node if it doesn't exist */
+      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
+        pout("problem creating 3ware device nodes %s", nodestring);
+        syserror("mknod");
+        retval = 3;
+        break;
+      } else {
+#ifdef WITH_SELINUX
+	if (selinux_enabled && node_context) {
+	  freecon(node_context);
+	  node_context = NULL;
+	}
+#endif
+        continue;
+      }
+    }
+
+    /* See if nodes major and minor numbers are correct */
+    if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
+        (index    != (int)(minor(stat_buf.st_rdev))) ||
+        (!S_ISCHR(stat_buf.st_mode))) {
+      pout("Node %s has wrong major/minor number and must be created anew."
+          " Check the udev rules.\n", nodestring);
+      /* Delete the old node */
+      if (unlink(nodestring)) {
+        pout("problem unlinking stale 3ware device node %s", nodestring);
+        syserror("unlink");
+        retval = 4;
+        break;
+      }
+
+      /* Make a new node */
+      if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
+        pout("problem creating 3ware device nodes %s", nodestring);
+        syserror("mknod");
+        retval = 5;
+        break;
+      }
+    }
+#ifdef WITH_SELINUX
+    if (selinux_enabled && node_context) {
+      freecon(node_context);
+      node_context = NULL;
+    }
+#endif
+  }
+
+#ifdef WITH_SELINUX
+  if (selinux_enabled) {
+    if(setfscreatecon(orig_context) < 0) {
+      pout("Error re-setting original fscreate context");
+      if (selinux_enforced)
+        retval = 6;
+    }
+    if(orig_context)
+      freecon(orig_context);
+    if(node_context)
+      freecon(node_context);
+    matchpathcon_fini();
+  }
+#endif
+  return retval;
+}
+
+bool linux_escalade_device::open()
+{
+  if (m_escalade_type == AMCC_3WARE_9000_CHAR || m_escalade_type == AMCC_3WARE_678K_CHAR) {
+    // the device nodes for these controllers are dynamically assigned,
+    // so we need to check that they exist with the correct major
+    // numbers and if not, create them
+    const char * node   = (m_escalade_type == AMCC_3WARE_9000_CHAR ? "twa"    : "twe"    );
+    const char * driver = (m_escalade_type == AMCC_3WARE_9000_CHAR ? "3w-9xxx": "3w-xxxx");
+    if (setup_3ware_nodes(node, driver))
+      return set_err((errno ? errno : ENXIO), "setup_3ware_nodes(\"%s\", \"%s\") failed", node, driver);
+  }
+  // Continue with default open
+  return linux_smart_device::open();
 }
 
 // TODO: Function no longer useful
@@ -1823,7 +1793,7 @@ int arcmsr_command_handler(int fd, unsigned long arcmsr_cmd, unsigned char *data
 
 linux_areca_device::linux_areca_device(smart_interface * intf, const char * dev_name, int disknum)
 : smart_device(intf, dev_name, "areca", "areca"),
-  linux_smart_device("ATA_ARECA"),
+  linux_smart_device(O_RDWR | O_EXCL | O_NONBLOCK),
   m_disknum(disknum)
 {
   set_info().info_name = strprintf("%s [areca_%02d]", dev_name, disknum);
@@ -2112,7 +2082,7 @@ protected:
 linux_marvell_device::linux_marvell_device(smart_interface * intf,
   const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "marvell", req_type),
-  linux_smart_device("ATA")
+  linux_smart_device(O_RDONLY | O_NONBLOCK)
 {
 }
 
@@ -2264,7 +2234,7 @@ private:
 linux_highpoint_device::linux_highpoint_device(smart_interface * intf, const char * dev_name,
   unsigned char controller, unsigned char channel, unsigned char port)
 : smart_device(intf, dev_name, "hpt", "hpt"),
-  linux_smart_device("ATA")
+  linux_smart_device(O_RDONLY | O_NONBLOCK)
 {
   m_hpt_data[0] = controller; m_hpt_data[1] = channel; m_hpt_data[2] = port;
   set_info().info_name = strprintf("%s [hpt_disk_%u/%u/%u]", dev_name, m_hpt_data[0], m_hpt_data[1], m_hpt_data[2]);
@@ -2617,7 +2587,7 @@ const char * linux_smart_interface::get_app_examples(const char * appname)
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: os_linux.cpp,v 1.118 2008/08/23 20:47:07 chrfranke Exp $";
+  static const char version[] = "$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
