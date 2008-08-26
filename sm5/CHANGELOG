@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.718 2008/08/25 18:33:39 chrfranke Exp $
+$Id: CHANGELOG,v 1.719 2008/08/26 19:35:04 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Linux: Cleanup device scan, remove name list, create objects directly.
 
   [CF] Linux: Cleanup smart_device::open(), type strings are no longer used.
 
