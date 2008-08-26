@@ -82,19 +82,11 @@
 #ifndef ENOTSUP
 #define ENOTSUP ENOSYS
 #endif
-typedef unsigned long long u8;
-
 
 #define ARGUSED(x) ((void)(x))
 
-static const char *filenameandversion="$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $";
-
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.120 2008/08/26 19:35:04 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
-// global variable holding byte count of allocated memory
-// TODO: Replace malloc()/free() by new/delete
-extern long long bytes;
 
 /* for passing global control variables */
 // (con->reportscsiioctl only)
@@ -223,138 +215,6 @@ static const char  smartctl_examples[] =
 		  "          (Prints all SMART info for 3rd ATA disk on Areca RAID controller)\n"
 #endif
   ;
-
-
-// we are going to take advantage of the fact that Linux's devfs will only
-// have device entries for devices that exist.  So if we get the equivalent of
-// ls /dev/hd[a-t], we have all the ATA devices on the system
-//
-// If any errors occur, leave errno set as it was returned by the
-// system call, and return <0.
-
-// TODO: create device objects in smart_interface::scan_smart_devices() direcly
-
-int get_dev_names(char*** names, const char* pattern, const char* name, int max) {
-  int n = 0, retglob, i, lim;
-  char** mp;
-  glob_t globbuf;
-
-  memset(&globbuf, 0, sizeof(globbuf));
-
-  // in case of non-clean exit
-  *names=NULL;
-
-  // Use glob to look for any directory entries matching the pattern
-  if ((retglob=glob(pattern, GLOB_ERR, NULL, &globbuf))) {
-
-    //  glob failed: free memory and return
-    globfree(&globbuf);
-
-    if (retglob==GLOB_NOMATCH){
-      pout("glob(3) found no matches for pattern %s\n", pattern);
-      return 0;
-    }
-
-    if (retglob==GLOB_NOSPACE)
-      pout("glob(3) ran out of memory matching pattern %s\n", pattern);
-#ifdef GLOB_ABORTED // missing in old versions of glob.h
-    else if (retglob==GLOB_ABORTED)
-      pout("glob(3) aborted matching pattern %s\n", pattern);
-#endif
-    else
-      pout("Unexplained error in glob(3) of pattern %s\n", pattern);
-
-    return -1;
-  }
-
-  // did we find too many paths?
-  lim = ((int)globbuf.gl_pathc < max) ? (int)globbuf.gl_pathc : max;
-  if (lim < (int)globbuf.gl_pathc)
-    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
-         (int)globbuf.gl_pathc, max, pattern, (int)(globbuf.gl_pathc-max));
-
-  // allocate space for up to lim number of ATA devices
-  if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
-    pout("Out of memory constructing scan device list\n");
-    return -1;
-  }
-
-  // now step through the list returned by glob.  If not a link, copy
-  // to list.  If it is a link, evaluate it and see if the path ends
-  // in "disc".
-  for (i=0; i<lim; i++){
-    int retlink;
-
-    // prepare a buffer for storing the link
-    char linkbuf[1024];
-
-    // see if path is a link
-    retlink=readlink(globbuf.gl_pathv[i], linkbuf, 1023);
-
-    // if not a link (or a strange link), keep it
-    if (retlink<=0 || retlink>1023)
-      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
-    else {
-      // or if it's a link that points to a disc, follow it
-      char *p;
-      linkbuf[retlink]='\0';
-      if ((p=strrchr(linkbuf,'/')) && !strcmp(p+1, "disc"))
-        // This is the branch of the code that gets followed if we are
-        // using devfs WITH traditional compatibility links. In this
-        // case, we add the traditional device name to the list that
-        // is returned.
-        mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
-      else {
-        // This is the branch of the code that gets followed if we are
-        // using devfs WITHOUT traditional compatibility links.  In
-        // this case, we check that the link to the directory is of
-        // the correct type, and then append "disc" to it.
-        char tmpname[1024]={0};
-        const char * type = (strcmp(name,"ATA") ? "scsi" : "ide");
-        if (strstr(linkbuf, type)){
-          snprintf(tmpname, 1024, "%s/disc", globbuf.gl_pathv[i]);
-          mp[n++] = CustomStrDup(tmpname, 1, __LINE__, filenameandversion);
-        }
-      }
-    }
-  }
-
-  // free memory, track memory usage
-  globfree(&globbuf);
-  mp = static_cast<char **>(realloc(mp,n*(sizeof(char*))));
-  bytes += n*(sizeof(char*));
-
-  // and set up return values
-  *names=mp;
-  return n;
-}
-
-// makes a list of device names to scan, for either ATA or SCSI
-// devices.  Return -1 if no memory remaining, else the number of
-// devices on the list, which can be >=0.
-int make_device_names (char*** devlist, const char* name) {
-  int retval, maxdev;
-
-#if 0
-  // for testing case where no device names are found
-  return 0;
-#endif
-
-  if (!strcmp(name,"SCSI"))
-    retval=get_dev_names(devlist,"/dev/sd[a-z]", name, maxdev=26);
-  else if (!strcmp(name,"ATA"))
-    retval=get_dev_names(devlist,"/dev/hd[a-t]", name, maxdev=20);
-  else
-    // don't recognize disk type!
-    return 0;
-
-  // if we found traditional links, we are done
-  if (retval>0)
-    return retval;
-
-  // else look for devfs entries without traditional links
-  return get_dev_names(devlist,"/dev/discs/disc*", name, maxdev);
-}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2525,7 +2385,7 @@ smart_device * linux_scsi_device::autodetect_open()
     }
 
     // Marvell ?
-    if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) { // TODO: Linux-specific?
+    if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
       //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
       close();
       newdev = new linux_marvell_device(smi(), get_dev_name(), get_req_type());
@@ -2575,6 +2435,9 @@ protected:
   virtual const char * get_valid_custom_dev_types_str();
 
 private:
+  bool get_dev_list(smart_device_list & devlist, const char * pattern,
+    bool scan_ata, bool scan_scsi, const char * req_type);
+
   smart_device * missing_option(const char * opt);
 };
 
@@ -2585,12 +2448,99 @@ const char * linux_smart_interface::get_app_examples(const char * appname)
   return 0;
 }
 
-static void free_devnames(char * * devnames, int numdevs)
+
+// we are going to take advantage of the fact that Linux's devfs will only
+// have device entries for devices that exist.  So if we get the equivalent of
+// ls /dev/hd[a-t], we have all the ATA devices on the system
+bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
+  const char * pattern, bool scan_ata, bool scan_scsi, const char * req_type)
 {
-  static const char version[] = "$Id: os_linux.cpp,v 1.119 2008/08/25 18:33:39 chrfranke Exp $";
-  for (int i = 0; i < numdevs; i++)
-    FreeNonZero(devnames[i], -1,__LINE__, version);
-  FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
+  // Use glob to look for any directory entries matching the pattern
+  glob_t globbuf;
+  memset(&globbuf, 0, sizeof(globbuf));
+  int retglob = glob(pattern, GLOB_ERR, NULL, &globbuf);
+  if (retglob) {
+    //  glob failed: free memory and return
+    globfree(&globbuf);
+
+    if (retglob==GLOB_NOMATCH){
+      pout("glob(3) found no matches for pattern %s\n", pattern);
+      return true;
+    }
+
+    if (retglob==GLOB_NOSPACE)
+      set_err(ENOMEM, "glob(3) ran out of memory matching pattern %s", pattern);
+#ifdef GLOB_ABORTED // missing in old versions of glob.h
+    else if (retglob==GLOB_ABORTED)
+      set_err(EINVAL, "glob(3) aborted matching pattern %s", pattern);
+#endif
+    else
+      set_err(EINVAL, "Unexplained error in glob(3) of pattern %s", pattern);
+
+    return false;
+  }
+
+  // did we find too many paths?
+  const int max_pathc = 32;
+  int n = (int)globbuf.gl_pathc;
+  if (n > max_pathc) {
+    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
+         n, max_pathc, pattern, n - max_pathc);
+    n = max_pathc;
+  }
+
+  // now step through the list returned by glob.  If not a link, copy
+  // to list.  If it is a link, evaluate it and see if the path ends
+  // in "disc".
+  for (int i = 0; i < n; i++){
+    // see if path is a link
+    char linkbuf[1024];
+    int retlink = readlink(globbuf.gl_pathv[i], linkbuf, sizeof(linkbuf)-1);
+
+    char tmpname[1024]={0};
+    const char * name = 0;
+    bool is_scsi = scan_scsi;
+    // if not a link (or a strange link), keep it
+    if (retlink<=0 || retlink>1023)
+      name = globbuf.gl_pathv[i];
+    else {
+      // or if it's a link that points to a disc, follow it
+      linkbuf[retlink] = 0;
+      const char *p;
+      if ((p=strrchr(linkbuf, '/')) && !strcmp(p+1, "disc"))
+        // This is the branch of the code that gets followed if we are
+        // using devfs WITH traditional compatibility links. In this
+        // case, we add the traditional device name to the list that
+        // is returned.
+        name = globbuf.gl_pathv[i];
+      else {
+        // This is the branch of the code that gets followed if we are
+        // using devfs WITHOUT traditional compatibility links.  In
+        // this case, we check that the link to the directory is of
+        // the correct type, and then append "disc" to it.
+        bool match_ata  = strstr(linkbuf, "ide");
+        bool match_scsi = strstr(linkbuf, "scsi");
+        if (((match_ata && scan_ata) || (match_scsi && scan_scsi)) && !(match_ata && match_scsi)) {
+          is_scsi = match_scsi;
+          snprintf(tmpname, sizeof(tmpname), "%s/disc", globbuf.gl_pathv[i]);
+          name = tmpname;
+        }
+      }
+    }
+
+    if (name) {
+      // Found a name, add device to list.
+      if (is_scsi)
+        devlist.add(new linux_scsi_device(this, name, req_type));
+      else
+        devlist.add(new linux_ata_device(this, name, req_type));
+    }
+  }
+
+  // free memory
+  globfree(&globbuf);
+
+  return true;
 }
 
 bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
@@ -2601,42 +2551,26 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return false;
   }
 
-  // Make namelists
-  char * * atanames = 0; int numata = 0;
-  if (!type || !strcmp(type, "ata")) {
-    numata = make_device_names(&atanames, "ATA");
-    if (numata < 0) {
-      set_err(ENOMEM);
-      return false;
-    }
-  }
+  if (!type)
+    type = "";
 
-  char * * scsinames = 0; int numscsi = 0;
-  if (!type || !strcmp(type, "scsi")) {
-    numscsi = make_device_names(&scsinames, "SCSI");
-    if (numscsi < 0) {
-      free_devnames(atanames, numata);
-      set_err(ENOMEM);
-      return false;
-    }
-  }
+  bool scan_ata  = (!*type || !strcmp(type, "ata" ));
+  bool scan_scsi = (!*type || !strcmp(type, "scsi"));
+  if (!(scan_ata || scan_scsi))
+    return true;
 
-  // Add to devlist
-  int i;
-  for (i = 0; i < numata; i++) {
-    ata_device * atadev = get_ata_device(atanames[i], type);
-    if (atadev)
-      devlist.add(atadev);
-  }
-  free_devnames(atanames, numata);
+  if (scan_ata)
+    get_dev_list(devlist,"/dev/hd[a-t]", true, false, type);
+  if (scan_scsi)
+    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type);
 
-  for (i = 0; i < numscsi; i++) {
-    scsi_device * scsidev = get_scsi_device(scsinames[i], type);
-    if (scsidev)
-      devlist.add(scsidev);
-  }
-  free_devnames(scsinames, numscsi);
-  return true;
+  // if we found traditional links, we are done
+  if (devlist.size() > 0)
+    return true;
+
+  // else look for devfs entries without traditional links
+  // TODO: Add udev support
+  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, type);
 }
 
 ata_device * linux_smart_interface::get_ata_device(const char * name, const char * type)
