@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.96 2008/08/21 21:20:51 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.97 2008/08/29 20:07:36 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -627,9 +627,8 @@ extern const char *vendorattributeargs[];
 
 // function to parse pairs like "9,minutes" or "220,temp".  See end of
 // extern.h for definition of defs[].  Returns 0 if pair recognized,
-// else 1 if there is a problem.  Allocates memory for array if the
-// array address is *defs==NULL.
-int parse_attribute_def(const char *pair, unsigned char **defs);
+// else 1 if there is a problem.
+int parse_attribute_def(const char * pair, unsigned char * defs);
 
 // Function to return a string containing a list of the arguments in
 // vendorattributeargs[].  Returns NULL if the required memory can't

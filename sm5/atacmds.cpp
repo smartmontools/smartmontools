@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.201 2008/08/23 19:56:18 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.202 2008/08/29 20:07:36 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -214,18 +214,10 @@ const char *SelfTestFailureCodeName(unsigned char which){
 // This is a utility function for parsing pairs like "9,minutes" or
 // "220,temp", and putting the correct flag into the attributedefs
 // array.  Returns 1 if problem, 0 if pair has been recongized.
-int parse_attribute_def(const char *pair, unsigned char **defsptr){
+int parse_attribute_def(const char * pair, unsigned char * defs)
+{
   int i,j;
   char temp[32];
-  unsigned char *defs;
-
-  // If array does not exist, allocate it
-  if (!*defsptr && !(*defsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM, 1))){
-    pout("Out of memory in parse_attribute_def\n");
-    EXIT(1);
-  }
-
-  defs=*defsptr;
 
   // look along list and see if we find the pair
   for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++);

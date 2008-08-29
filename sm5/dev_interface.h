@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.5 2008/08/23 19:56:18 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.6 2008/08/29 20:07:36 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -527,17 +527,31 @@ public:
     }
 
 // Attributes
-  int size() const
+  unsigned size() const
     { return m_list.size(); }
 
 // Operations
+  void clear()
+    {
+      for (unsigned i = 0; i < m_list.size(); i++)
+        delete m_list[i];
+      m_list.clear();
+    }
+
+
   void add(smart_device * dev)
     { m_list.push_back(dev); }
 
-  smart_device * get(int i)
+  void push_back(smart_device * dev)
+    { m_list.push_back(dev); }
+
+  smart_device * at(unsigned i)
     { return m_list.at(i); }
 
-  smart_device * detach(int i)
+  const smart_device * at(unsigned i) const
+    { return m_list.at(i); }
+
+  smart_device * release(unsigned i)
     {
       smart_device * dev = m_list.at(i);
       m_list[i] = 0;

@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.194 2008/08/21 21:20:51 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.195 2008/08/29 20:07:36 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1744,13 +1744,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!con->ignorepresets){
-    unsigned char *charptr;
-    if ((charptr=con->attributedefs))
-      applypresets(&drive, &charptr, con);
-    else {
-      pout("Fatal internal error in ataPrintMain()\n");
-      EXIT(returnval|=FAILCMD);
-    }
+    applypresets(&drive, con->attributedefs, con);
   }
 
   // Print most drive identity information if requested
