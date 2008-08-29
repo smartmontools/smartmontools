@@ -48,7 +48,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.70 2008/07/29 14:38:08 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.71 2008/08/29 20:07:36 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -581,7 +581,10 @@ int split_selective_arg(char *s, uint64_t *start,
   return 0;
 }
 
+#ifdef OLD_INTERFACE
+
 int64_t bytes = 0;
+
 // Helps debugging.  If the second argument is non-negative, then
 // decrement bytes by that amount.  Else decrement bytes by (one plus)
 // length of null terminated string.
@@ -650,13 +653,16 @@ char *CustomStrDup(const char *ptr, int mustexist, int whatline, const char* fil
   return tmp;
 }
 
-// Returns nonzero if region of memory contains non-zero entries
-int nonempty(unsigned char *testarea,int n){
-  int i;
-  for (i=0;i<n;i++)
-    if (testarea[i])
-      return 1;
-  return 0;
+#endif // OLD_INTERFACE
+
+
+// Returns true if region of memory contains non-zero entries
+bool nonempty(const void * data, int size)
+{
+  for (int i = 0; i < size; i++)
+    if (((const unsigned char *)data)[i])
+      return true;
+  return false;
 }
 
 

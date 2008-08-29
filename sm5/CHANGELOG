@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.719 2008/08/26 19:35:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.720 2008/08/29 20:07:36 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Rework of main data structures. Remove explicit memory
+       allocations, use STL containers and structs with value semantics
+       instead. Remove old malloc/free based memory management helper
+       functions unless old interface is still in use.
 
   [CF] Linux: Cleanup device scan, remove name list, create objects directly.
 

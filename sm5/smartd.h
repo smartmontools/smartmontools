@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2008   Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +13,7 @@
  * any later version.
  *
  * You should have received a copy of the GNU General Public License
- * (for example COPYING); if not, write to the Free
- * Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
  *
  * This code was originally developed as a Senior Thesis by Michael Cornwell
  * at the Concurrent Systems Laboratory (now part of the Storage Systems
@@ -25,14 +25,18 @@
 #ifndef SMARTD_H_
 #define SMARTD_H_
 
+// TODO: Move this to smartd.cpp and remove this file.
+//       smartd.cpp does not export anything.
+
 // Needed since some structure definitions below require POSIX
 // extended regular expressions.
 #include <sys/types.h>
 #include <regex.h>
 
+#include <string>
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.89 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.90 2008/08/29 20:07:36 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -66,30 +70,36 @@
 // Number of allowed mail message types
 #define SMARTD_NMAIL 13
 
-typedef struct mailinfo_s {
+struct mailinfo {
   int logged;// number of times an email has been sent
   time_t firstsent;// time first email was sent, as defined by time(2)
   time_t lastsent; // time last email was sent, as defined by time(2)
-} mailinfo;
+
+  mailinfo()
+    : logged(0), firstsent(0), lastsent(0) { }
+};
 
 // If user has requested email warning messages, then this structure
 // stores the information about them, and track type/date of email
 // messages.
-typedef struct maildata_s {
+struct maildata {
   mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
-  char *emailcmdline;                     // script to execute
-  char *address;                          // email address, or null
+  std::string emailcmdline;               // script to execute
+  std::string address;                    // email address, or empty
   unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
-  unsigned char emailtest;                // Send test email?
-} maildata;
+  bool emailtest;                         // Send test email?
+
+  maildata()
+    : emailfreq(0), emailtest(false) { }
+};
 
 // If user has requested automatic testing, then this structure stores
 // their regular expression pattern, the compiled form of that regex,
 // and information about the disk capabilities and when the last text
 // took place
 
-typedef struct testinfo_s {
-  char *regex;                    // text form of regex
+struct testinfo {
+  std::string regex;              // text form of regex
   regex_t cregex;                 // compiled form of regex
   unsigned short hour;            // 1+hour of year when last scheduled self-test done
   char testtype;                  // type of test done at hour indicated just above
@@ -97,9 +107,18 @@ typedef struct testinfo_s {
   signed char not_cap_conveyance;
   signed char not_cap_short;
   signed char not_cap_long;
-} testinfo;
+
+  testinfo();
+  ~testinfo();
+  testinfo(const testinfo & x);
+  testinfo & operator=(const testinfo & x);
+
+private:
+  void recomp_regex();
+};
 
 
+// TODO: Update comment.
 // cfgfile is the main data structure of smartd. It is used in two
 // ways.  First, to store a list of devices/options given in the
 // configuration smartd.conf or constructed with DEVICESCAN.  And
@@ -162,16 +181,16 @@ typedef struct testinfo_s {
 // the capabilities that devices already are known to have (as noted
 // within *cfg).
 
-typedef struct configfile_s {
+/// Configuration & state data for a device.
+/// Supports copy & assignment and is compatible with STL containers.
+struct cfg_entry
+{
   // FIRST SET OF ENTRIES CORRESPOND TO WHAT THE USER PUT IN THE
   // CONFIG FILE.  SOME ENTRIES MAY BE MODIFIED WHEN A DEVICE IS
   // REGISTERED AND WE LEARN ITS CAPABILITIES.
   int lineno;                             // Line number of entry in file
-  char *name;                             // Device name (+ optional [3ware_disk_XX])
-  char *dev_type;                         // Device type argument from -d directive, 0 if none
-  smart_device * device;                  // Device object
-  ata_device * atadev;                    // downcast to ATA interface or 0
-  scsi_device * scsidev;                  // downcast to SCSI interface or 0
+  std::string name;                       // Device name
+  std::string dev_type;                   // Device type argument from -d directive, empty if none
   char smartcheck;                        // Check SMART status
   char usagefailed;                       // Check for failed Usage Attributes
   char prefail;                           // Track changes in Prefail Attributes
@@ -192,12 +211,12 @@ typedef struct configfile_s {
   unsigned char tempmin, tempmax;         // Min/Max Temperatures
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
-  testinfo *testdata;                     // Pointer to data on scheduled testing
+  testinfo testdata;                      // Data on scheduled testing
   unsigned short pending;                 // lower 8 bits: ID of current pending sector count
                                           // upper 8 bits: ID of offline pending sector count
   
   // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
-  maildata *mailwarn;                     // non-NULL: info about sending mail or executing script
+  maildata mailwarn;                      // info about sending mail or executing script
   unsigned char temperature;              // last recorded Temperature (in Celsius)
   unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
@@ -208,11 +227,10 @@ typedef struct configfile_s {
   unsigned char SuppressReport;           // minimize nuisance reports
   unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
                                           // know yet) 6 or 10
-  unsigned char notused2[3];              // for packing alignment
 
   // ATA ONLY FROM HERE ON TO THE END
   int ataerrorcount;                      // Total number of ATA errors
-  
+
   // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags 
   // valid attribute numbers are from 1 <= x <= 255
@@ -220,19 +238,18 @@ typedef struct configfile_s {
   // monitorattflats+32 set: don't track attribute
   // monitorattflags+64 set: print raw value when tracking
   // monitorattflags+96 set: track changes in raw value
-  unsigned char *monitorattflags;
+  // TODO: Encapsulate, add get/set functions
+  unsigned char monitorattflags[NMONITOR*32];
 
-  // NULL UNLESS (1) STORAGE IS ALLOCATED WHEN CONFIG FILE SCANNED
-  // (SET BY USER) or (2) IT IS SET WHEN DRIVE IS AUTOMATICALLY
-  // RECOGNIZED IN DATABASE (WHEN DRIVE IS REGISTERED)
-  unsigned char *attributedefs;            // -v options, see end of extern.h for def
+  // TODO: Encapsulate, add get/set functions
+  unsigned char attributedefs[256];       // -v options, see end of extern.h for def
 
-  // ATA ONLY - SAVE SMART DATA. NULL POINTERS UNLESS NEEDED.  IF
-  // NEEDED, ALLOCATED WHEN DEVICE REGISTERED.
-  struct ata_smart_values *smartval;       // Pointer to SMART data
-  struct ata_smart_thresholds_pvt *smartthres; // Pointer to SMART thresholds
+  // ATA ONLY - SAVE SMART DATA
+  struct ata_smart_values smartval;           // SMART data
+  struct ata_smart_thresholds_pvt smartthres; // SMART thresholds
 
-} cfgfile;
+  cfg_entry();
+};
 
 
 typedef struct changedattribute_s {
@@ -243,14 +260,6 @@ typedef struct changedattribute_s {
   unsigned char sameraw;
 } changedattribute_t;
 
-// Declare our own printing functions. Doing this provides error
-// messages if the argument number/types don't match the format.
-#ifndef __GNUC__
-#define __attribute__(x)      /* nothing */
-#endif
-void PrintOut(int priority, const char *fmt, ...) __attribute__ ((format(printf, 2, 3)));
-
-void PrintAndMail(cfgfile *cfg, int which, int priority, char *fmt, ...) __attribute__ ((format(printf, 4, 5)));   
 
 /* Debugging notes: to check for memory allocation/deallocation problems, use:
 

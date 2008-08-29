@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.59 2008/08/23 21:39:34 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.60 2008/08/29 20:07:36 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -112,6 +112,9 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // (exit is not compatible with C++ destructors)
 #define EXIT(status) { throw (int)(status); }
 
+
+#ifdef OLD_INTERFACE
+
 // replacement for calloc() that tracks memory usage
 void *Calloc(size_t nmemb, size_t size);
 
@@ -136,6 +139,8 @@ void *CheckFree1(void *address, int whatline, const char* file);
 template <class T>
 inline T * CheckFree(T * address, int whatline, const char* file)
   { return (T *)CheckFree1((void *)address, whatline, file); }
+
+#endif // OLD_INTERFACE
 
 // This function prints either to stdout or to the syslog as needed
 
@@ -166,8 +171,8 @@ const char *packetdevicetype(int type);
 //const char * get_os_version_str(void);
 #endif
 
-// returns 1 if any of the n bytes are nonzero, else zero.
-int nonempty(unsigned char *testarea,int n);
+// returns true if any of the n bytes are nonzero, else zero.
+bool nonempty(const void * data, int size);
 
 // needed to fix glibc bug
 void FixGlibcTimeZoneBug();

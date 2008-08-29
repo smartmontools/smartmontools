@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.171 2008/08/14 20:38:08 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.172 2008/08/29 20:07:36 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -49,8 +49,6 @@ ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNO
 
 /* Arrays of preset vendor-specific attribute options for use in
  * knowndrives[]. */
-
-extern int64_t bytes;
 
 // These three are common to several models.
 const unsigned char vendoropts_9_minutes[][2] = {
@@ -1584,28 +1582,17 @@ void showpresets(const struct ata_identify_device *drive){
 // (if any) for the given drive in knowndrives[].  Values that have
 // already been set in opts will not be changed.  Returns <0 if drive
 // not recognized else index >=0 into drive database.
-int applypresets(const struct ata_identify_device *drive, unsigned char **optsptr,
-		 smartmonctrl *con) {
-  int i;
-  unsigned char *opts;
+int applypresets(const ata_identify_device *drive, unsigned char * opts,
+		 smartmonctrl *con)
+{
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-  
-  if (*optsptr==NULL)
-    bytes+=MAX_ATTRIBUTE_NUM;
-  
-  if (*optsptr==NULL && !(*optsptr=(unsigned char *)calloc(MAX_ATTRIBUTE_NUM,1))){
-    pout("Unable to allocate memory in applypresets()");
-    bytes-=MAX_ATTRIBUTE_NUM;
-    EXIT(1);
-  }
-  
-  opts=*optsptr;
-  
+
   // get the drive's model/firmware strings
   format_ata_string(model, (char *)drive->model, MODEL_STRING_LENGTH);
   format_ata_string(firmware, (char *)drive->fw_rev, FIRMWARE_STRING_LENGTH);
   
   // Look up the drive in knowndrives[].
+  int i;
   if ((i = lookupdrive(model, firmware)) >= 0) {
     
     // if vendoropts is non-NULL then Attribute interpretation presets
