@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.187 2008/08/29 20:07:36 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.188 2008/08/29 21:14:29 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -285,27 +285,17 @@ const char *getvalidarglist(char opt) {
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST> \n", where
    <LIST> is the list of valid arguments for option opt. */
 void printvalidarglistmessage(char opt) {
-  char *s;
-  
-  if (opt=='v')
-    s=create_vendor_attribute_arg_list();
-  else
-    s=(char *)getvalidarglist(opt);
-  
-  if (!s) {
-    pout("Error whilst constructing argument list for option %c", opt);
-    return;
-  }
  
   if (opt=='v'){
-    pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n", s);
-    free(s);
+    pout("=======> VALID ARGUMENTS ARE:\n\thelp\n%s\n<=======\n",
+         create_vendor_attribute_arg_list().c_str());
   }
   else {
   // getvalidarglist() might produce a multiline or single line string.  We
   // need to figure out which to get the formatting right.
+    const char * s = getvalidarglist(opt);
     char separator = strchr(s, '\n') ? '\n' : ' ';
-    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, (char *)s, separator);
+    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, s, separator);
   }
 
   return;
@@ -577,14 +567,10 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     case 'v':
       // parse vendor-specific definitions of attributes
       if (!strcmp(optarg,"help")) {
-        char *s;
         con->dont_print=FALSE;
         printslogan();
-        if (!(s = create_vendor_attribute_arg_list())) {
-          throw std::bad_alloc();
-        }
-        pout("The valid arguments to -v are:\n\thelp\n%s\n", s);
-        free(s);
+        pout("The valid arguments to -v are:\n\thelp\n%s\n",
+             create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
       if (parse_attribute_def(optarg, con->attributedefs))

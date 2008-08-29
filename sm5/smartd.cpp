@@ -135,7 +135,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.414 2008/08/29 20:07:36 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.415 2008/08/29 21:14:29 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2475,7 +2475,6 @@ time_t dosleep(time_t wakeuptime){
 
 // Print out a list of valid arguments for the Directive d
 void printoutvaliddirectiveargs(int priority, char d) {
-  char *s=NULL;
 
   switch (d) {
   case 'n':
@@ -2501,12 +2500,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "\"once\", \"daily\", \"diminishing\", \"test\", \"exec\"");
     break;
   case 'v':
-    if (!(s = create_vendor_attribute_arg_list())) {
-      PrintOut(LOG_CRIT,"Insufficient memory to construct argument list\n");
-      EXIT(EXIT_NOMEM);
-    }
-    PrintOut(priority, "\n%s\n", s);
-    free(s); // TODO: use std::string
+    PrintOut(priority, "\n%s\n", create_vendor_attribute_arg_list().c_str());
     break;
   case 'P':
     PrintOut(priority, "use, ignore, show, showall");
