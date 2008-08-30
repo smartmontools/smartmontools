@@ -28,15 +28,10 @@
 // TODO: Move this to smartd.cpp and remove this file.
 //       smartd.cpp does not export anything.
 
-// Needed since some structure definitions below require POSIX
-// extended regular expressions.
-#include <sys/types.h>
-#include <regex.h>
-
 #include <string>
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.90 2008/08/29 20:07:36 chrfranke Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.91 2008/08/30 16:46:17 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -99,8 +94,7 @@ struct maildata {
 // took place
 
 struct testinfo {
-  std::string regex;              // text form of regex
-  regex_t cregex;                 // compiled form of regex
+  regular_expression regex;       // text & compiled form of regex
   unsigned short hour;            // 1+hour of year when last scheduled self-test done
   char testtype;                  // type of test done at hour indicated just above
   signed char not_cap_offline;    // 0==unknown OR capable of offline, 1==not capable 
@@ -108,13 +102,10 @@ struct testinfo {
   signed char not_cap_short;
   signed char not_cap_long;
 
-  testinfo();
-  ~testinfo();
-  testinfo(const testinfo & x);
-  testinfo & operator=(const testinfo & x);
-
-private:
-  void recomp_regex();
+  testinfo()
+    : hour(0), testtype(0),
+      not_cap_offline(false), not_cap_conveyance(false),
+      not_cap_short(false), not_cap_long(false) { }
 };
 
 

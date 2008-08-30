@@ -91,8 +91,8 @@ extern "C" int __stdcall FreeConsole(void);
 #include "knowndrives.h"
 #include "scsicmds.h"
 #include "scsiata.h"
-#include "smartd.h"
 #include "utility.h"
+#include "smartd.h"
 
 #ifdef _WIN32
 #include "hostname_win32.h" // gethost/domainname()
@@ -135,7 +135,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.415 2008/08/29 21:14:29 chrfranke Exp $" 
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.416 2008/08/30 16:46:17 chrfranke Exp $" 
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -210,63 +210,6 @@ volatile int caughtsigEXIT=0;
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
-
-// testinfo construction & assignment
-
-testinfo::testinfo()
-: hour(0),
-  testtype(0),
-  not_cap_offline(false),
-  not_cap_conveyance(false),
-  not_cap_short(false),
-  not_cap_long(false)
-{
-  memset(&cregex, 0, sizeof(cregex));
-}
-
-testinfo::~testinfo()
-{
-  if (nonempty(&cregex, sizeof(cregex)))
-    regfree(&cregex);
-}
-
-testinfo::testinfo(const testinfo & x)
-{
-  memset(&cregex, 0, sizeof(cregex));
-  operator=(x);
-}
-
-testinfo & testinfo::operator=(const testinfo & x)
-{
-  regex = x.regex;
-  hour = x.hour;
-  testtype = x.testtype;
-  not_cap_offline = x.not_cap_offline;
-  not_cap_conveyance = x.not_cap_conveyance;
-  not_cap_short = x.not_cap_short;
-  not_cap_long = x.not_cap_long;
-  recomp_regex();
-  return *this;
-}
-
-void testinfo::recomp_regex()
-{
-  if (nonempty(&cregex, sizeof(cregex))) {
-    regfree(&cregex);
-    memset(&cregex, 0, sizeof(cregex));
-  }
-  if (regex.empty())
-    return;
-  // There is no POSIX compiled-regex-copy command.
-  // TODO: Move this to utility.cpp
-  int val = regcomp(&cregex, regex.c_str(), REG_EXTENDED);
-  if (val) {
-    char errormsg[512];
-    regerror(val, &cregex, errormsg, sizeof(errormsg));
-    throw std::runtime_error(strprintf("unable to recompile regular expression %s. %s", regex.c_str(), errormsg));
-  }
-}
-
 
 // cfg_entry construction
 
@@ -772,7 +715,7 @@ static void MailWarning(cfg_entry * cfg, int which, const char *fmt, ...){
   if (!address.empty()) {
     // address "[sys]msgbox ..." => show warning (also) as [system modal ]messagebox
     char addr1[9+1+13] = ""; int n1 = -1, n2 = -1;
-    if (sscanf(address.c_str(), "%9[a-z]%n,%n", addr1, &n1, &n2) == 1 && (n1 == address.size() || n2 > 0)) {
+    if (sscanf(address.c_str(), "%9[a-z]%n,%n", addr1, &n1, &n2) == 1 && (n1 == (int)address.size() || n2 > 0)) {
       if (!strcmp(addr1, "msgbox"))
         boxtype = 0;
       else if (!strcmp(addr1, "sysmsgbox"))
@@ -1712,8 +1655,7 @@ static int DoTestNow(cfg_entry * cfg, char testtype, time_t testtime)
   struct tm *timenow;
   time_t epochnow;
   char matchpattern[16];
-  regmatch_t substring;
-  int weekday, length;
+  int weekday;
   unsigned short hours;
 
   testinfo * dat = &cfg->testdata; // TODO: Use reference
@@ -1739,12 +1681,8 @@ static int DoTestNow(cfg_entry * cfg, char testtype, time_t testtime)
           timenow->tm_mday, weekday, timenow->tm_hour);
   
   // if no match, we are done
-  if (regexec(&(dat->cregex), matchpattern, 1, &substring, 0))
-    return 0;
-  
   // must match the ENTIRE type/date/time string
-  length=strlen(matchpattern);
-  if (substring.rm_so!=0 || substring.rm_eo!=length)
+  if (!dat->regex.full_match(matchpattern))
     return 0;
   
   // never do a second test in the same hour as another test (the % 7 ensures
@@ -2753,22 +2691,19 @@ static int ParseToken(char *token, cfg_entry * cfg)
     // warn user, and delete any previously given -s REGEXP Directives
     if (!cfg->testdata.regex.empty()){
       PrintOut(LOG_INFO, "File %s line %d (drive %s): ignoring previous Test Directive -s %s\n",
-               configfile, lineno, name, cfg->testdata.regex.c_str());
+               configfile, lineno, name, cfg->testdata.regex.get_pattern());
       cfg->testdata = testinfo();
     }
     // check for missing argument
     if (!(arg = strtok(NULL, delim))) {
       missingarg = 1;
     }
-    // allocate space for structure and string
+    // Compile regex
     else {
-      cfg->testdata.regex = arg;
-      if ((val=regcomp(&(cfg->testdata.cregex), arg, REG_EXTENDED))) { // TODO: Member function
-        char errormsg[512];
+      if (!cfg->testdata.regex.compile(arg, REG_EXTENDED)) {
         // not a valid regular expression!
-        regerror(val, &(cfg->testdata.cregex), errormsg, 512);
         PrintOut(LOG_CRIT, "File %s line %d (drive %s): -s argument \"%s\" is INVALID extended regular expression. %s.\n",
-                  configfile, lineno, name, arg, errormsg);
+                 configfile, lineno, name, arg, cfg->testdata.regex.get_errmsg());
         return -1;
       }
     }

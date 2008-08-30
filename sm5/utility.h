@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.60 2008/08/29 20:07:36 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.61 2008/08/30 16:46:17 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -75,13 +75,6 @@ void pout(const char *fmt, ...)
 
 // replacement for perror() with redirected output.
 void syserror(const char *message);
-
-// Prints a warning message for a failed regular expression compilation from
-// regcomp().
-void printregexwarning(int errcode, regex_t *compiled);
-
-// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
-int compileregex(regex_t *compiled, const char *pattern, int cflags);
 
 // Function for processing -r option in smartctl and smartd
 int split_report_arg(char *s, int *i);
@@ -208,8 +201,67 @@ private:
   void operator=(const raw_buffer &);
 };
 
+/// Wrapper class for regex(3).
+/// Supports copy & assignment and is compatible with STL containers.
+class regular_expression
+{
+public:
+  // Construction & assignment
+  regular_expression();
+
+  regular_expression(const char * pattern, int flags);
+
+  ~regular_expression();
+
+  regular_expression(const regular_expression & x);
+
+  regular_expression & operator=(const regular_expression & x);
+
+  /// Set and compile new pattern, return false on error.
+  bool compile(const char * pattern, int flags);
+
+  // Get pattern from last compile().
+  const char * get_pattern() const
+    { return m_pattern.c_str(); }
+
+  /// Get error message from last compile().
+  const char * get_errmsg() const
+    { return m_errmsg.c_str(); }
+
+  // Return true if pattern is not set or bad.
+  bool empty() const
+    { return (m_pattern.empty() || !m_errmsg.empty()); }
+
+  /// Return true if substring matches pattern
+  bool match(const char * str, int flags = 0) const
+    { return !regexec(&m_regex_buf, str, 0, (regmatch_t*)0, flags); }
+
+  /// Return true if full string matches pattern
+  bool full_match(const char * str, int flags = 0) const
+    {
+      regmatch_t range;
+      return (   !regexec(&m_regex_buf, str, 1, &range, flags)
+              && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
+    }
+
+  /// Return true if substring matches pattern, fill regmatch_t array.
+  bool execute(const char * str, unsigned nmatch, regmatch_t * pmatch, int flags = 0) const
+    { return !regexec(&m_regex_buf, str, nmatch, pmatch, flags); }
+
+private:
+  std::string m_pattern;
+  int m_flags;
+  regex_t m_regex_buf;
+  std::string m_errmsg;
+
+  void free_buf();
+  void copy(const regular_expression & x);
+  bool compile();
+};
+
 
 // Exit codes
+// TODO: Move to smartd.cpp
 #define EXIT_BADCMD    1   // command line did not parse
 #define EXIT_BADCONF   2   // syntax error in config file
 #define EXIT_STARTUP   3   // problem forking daemon
