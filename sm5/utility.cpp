@@ -39,6 +39,8 @@
 #include <mbstring.h> // _mbsinc()
 #endif
 
+#include <stdexcept>
+
 #include "config.h"
 #include "cvsversion.h"
 #include "int64.h"
@@ -48,7 +50,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.71 2008/08/29 20:07:36 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.72 2008/08/30 16:46:17 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -377,21 +379,6 @@ void syserror(const char *message){
   return;
 }
 
-// Prints a warning message for a failed regular expression compilation from
-// regcomp().
-void printregexwarning(int errcode, regex_t *compiled){
-  size_t length = regerror(errcode, compiled, NULL, 0);
-  char *buffer = (char*)malloc(length);
-  if (!buffer){
-    pout("Out of memory in printregexwarning()\n");
-    return;
-  }
-  regerror(errcode, compiled, buffer, length);
-  pout("%s\n", buffer);
-  free(buffer);
-  return;
-}
-
 // POSIX extended regular expressions interpret unmatched ')' ordinary:
 // "The close-parenthesis shall be considered special in this context
 //  only if matched with a preceding open-parenthesis."
@@ -401,7 +388,8 @@ void printregexwarning(int errcode, regex_t *compiled){
 // 
 // The check below is rather incomplete because it does not handle
 // e.g. '\)' '[)]'.
-// But it should work for the regex subset used in drive database.
+// But it should work for the regex subset used in drive database
+// and smartd '-s' directives.
 static int check_regex_nesting(const char * pattern)
 {
   int level = 0, i;
@@ -414,22 +402,88 @@ static int check_regex_nesting(const char * pattern)
   return level;
 }
 
-// A wrapper for regcomp().  Returns zero for success, non-zero otherwise.
-int compileregex(regex_t *compiled, const char *pattern, int cflags)
-{ 
-  int errorcode;
+// Wrapper class for regex(3)
 
-  if (   (errorcode = regcomp(compiled, pattern, cflags))
-      || check_regex_nesting(pattern) < 0                ) {
-    pout("Internal error: unable to compile regular expression \"%s\" ", pattern);
-    if (errorcode)
-      printregexwarning(errorcode, compiled);
-    else
-      pout("Unmatched ')'\n");
-    pout("Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n");
-    return 1;
+regular_expression::regular_expression()
+: m_flags(0)
+{
+  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
+}
+
+regular_expression::regular_expression(const char * pattern, int flags)
+{
+  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
+  compile(pattern, flags);
+}
+
+regular_expression::~regular_expression()
+{
+  free_buf();
+}
+
+regular_expression::regular_expression(const regular_expression & x)
+{
+  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
+  copy(x);
+}
+
+regular_expression & regular_expression::operator=(const regular_expression & x)
+{
+  free_buf();
+  copy(x);
+  return *this;
+}
+
+void regular_expression::free_buf()
+{
+  if (nonempty(&m_regex_buf, sizeof(m_regex_buf))) {
+    regfree(&m_regex_buf);
+    memset(&m_regex_buf, 0, sizeof(m_regex_buf));
   }
-  return 0;
+}
+
+void regular_expression::copy(const regular_expression & x)
+{
+  m_pattern = x.m_pattern;
+  m_flags = x.m_flags;
+  m_errmsg = x.m_errmsg;
+
+  if (!m_pattern.empty() && m_errmsg.empty()) {
+    // There is no POSIX compiled-regex-copy command.
+    if (!compile())
+      throw std::runtime_error(strprintf(
+        "Unable to recompile regular expression \"%s\": %s",
+        m_pattern.c_str(), m_errmsg.c_str()));
+  }
+}
+
+bool regular_expression::compile(const char * pattern, int flags)
+{
+  free_buf();
+  m_pattern = pattern;
+  m_flags = flags;
+  return compile();
+}
+
+bool regular_expression::compile()
+{
+  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), m_flags);
+  if (errcode) {
+    char errmsg[512];
+    regerror(errcode, &m_regex_buf, errmsg, sizeof(errmsg));
+    m_errmsg = errmsg;
+    free_buf();
+    return false;
+  }
+
+  if (check_regex_nesting(m_pattern.c_str()) < 0) {
+    m_errmsg = "Unmatched ')'";
+    free_buf();
+    return false;
+  }
+
+  m_errmsg.clear();
+  return true;
 }
 
 // Splits an argument to the -r option into a name part and an (optional) 

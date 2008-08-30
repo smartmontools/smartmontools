@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.203 2008/08/29 21:14:29 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.204 2008/08/30 16:46:17 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -2395,8 +2395,8 @@ bool parsed_ata_device::open()
   ")"; // )
 
   // Compile regex
-  regex_t rex;
-  if (compileregex(&rex, pattern, REG_EXTENDED))
+  regular_expression regex;
+  if (!regex.compile(pattern, REG_EXTENDED))
     return set_err(EIO, "invalid regex");
 
   // Parse buffer
@@ -2408,7 +2408,7 @@ bool parsed_ata_device::open()
       continue;
     const int nmatch = 1+11;
     regmatch_t match[nmatch];
-    if (regexec(&rex, line, nmatch, match, 0))
+    if (!regex.execute(line, nmatch, match))
       continue;
 
     char cmdname[40];

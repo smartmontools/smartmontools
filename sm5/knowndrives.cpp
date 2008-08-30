@@ -26,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h" // includes <regex.h>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.172 2008/08/29 20:07:36 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.173 2008/08/30 16:46:17 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1371,42 +1371,54 @@ const drivesettings knowndrives[] = {
   {NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 };
 
+
+// Compile regular expression, print message on failure.
+static bool compile(regular_expression & regex, const char *pattern)
+{
+  if (!regex.compile(pattern, REG_EXTENDED)) {
+    pout("Internal error: unable to compile regular expression \"%s\": %s\n"
+         "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n",
+      pattern, regex.get_errmsg());
+    return false;
+  }
+  return true;
+}
+
+// Compile & match a regular expression.
+static bool match(const char * pattern, const char * str)
+{
+  regular_expression regex;
+  if (!compile(regex, pattern))
+    return false;
+  // TODO: Use full_match() and remove all "^...$" from database?
+  return regex.match(str);
+}
+
 // Searches knowndrives[] for a drive with the given model number and firmware
 // string.  If either the drive's model or firmware strings are not set by the
 // manufacturer then values of NULL may be used.  Returns the index of the
 // first match in knowndrives[] or -1 if no match if found.
 int lookupdrive(const char *model, const char *firmware)
 {
-  regex_t regex;
-  int i, index;
-  const char *empty = "";
+  if (!model)
+    model = "";
+  if (!firmware)
+    firmware = "";
 
-  model = model ? model : empty;
-  firmware = firmware ? firmware : empty;
-
-  for (i = 0, index = -1; index == -1 && knowndrives[i].modelregexp; i++) {
-    // Attempt to compile regular expression.
-    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
-      goto CONTINUE;
-
+  int index = -1;
+  for (int i = 0; knowndrives[i].modelregexp; i++) {
     // Check whether model matches the regular expression in knowndrives[i].
-    if (!regexec(&regex, model, 0, NULL, 0)) {
-      // model matches, now check firmware.
-      if (!knowndrives[i].firmwareregexp)
-        // The firmware regular expression in knowndrives[i] is NULL, which is
-        // considered a match.
-        index = i;
-      else {
-        // Compare firmware against the regular expression in knowndrives[i].
-        regfree(&regex);  // Recycle regex.
-        if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
-          goto CONTINUE;
-        if (!regexec(&regex, firmware, 0, NULL, 0))
-          index = i;
-      }
-    }
-  CONTINUE:
-    regfree(&regex);
+    if (!match(knowndrives[i].modelregexp, model))
+      continue;
+
+    // Model matches, now check firmware. nullptr matches always.
+    if (!(  !knowndrives[i].firmwareregexp
+          || match(knowndrives[i].firmwareregexp, firmware)))
+      continue;
+
+    // Found
+    index = i;
+    break;
   }
 
   return index;
@@ -1478,24 +1490,24 @@ void showonepreset(const drivesettings *drivetable){
 
 // Shows all presets for drives in knowndrives[].
 // Returns <0 on syntax error in regular expressions.
-int showallpresets(void){
-  int i;
-  int rc = 0;
-  regex_t regex;
-
+int showallpresets(void)
+{
   // loop over all entries in the knowndrives[] table, printing them
   // out in a nice format
+  int i;
   for (i=0; knowndrives[i].modelregexp; i++){
     showonepreset(&knowndrives[i]);
     pout("\n");
   }
 
   // Check all regular expressions
+  int rc = 0;
+  regular_expression regex;
   for (i=0; knowndrives[i].modelregexp; i++){
-    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+    if (!compile(regex, knowndrives[i].modelregexp))
       rc = -1;
     if (knowndrives[i].firmwareregexp) {
-      if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+      if (!compile(regex, knowndrives[i].firmwareregexp))
         rc = -1;
     }
   }
@@ -1506,26 +1518,18 @@ int showallpresets(void){
 
 // Shows all matching presets for a drive in knowndrives[].
 // Returns # matching entries.
-int showmatchingpresets(const char *model, const char *firmware){
-  int i;
+int showmatchingpresets(const char *model, const char *firmware)
+{
   int cnt = 0;
   const char * firmwaremsg = (firmware ? firmware : "(any)");
-  regex_t regex;
 
-  for (i=0; knowndrives[i].modelregexp; i++){
-    if (i > 0)
-      regfree(&regex);
-    if (compileregex(&regex, knowndrives[i].modelregexp, REG_EXTENDED))
+  for (int i = 0; knowndrives[i].modelregexp; i++) {
+    if (!match(knowndrives[i].modelregexp, model))
       continue;
-    if (regexec(&regex, model, 0, NULL, 0))
-      continue;
-    if (firmware && knowndrives[i].firmwareregexp) {
-      regfree(&regex);
-      if (compileregex(&regex, knowndrives[i].firmwareregexp, REG_EXTENDED))
+    if (   firmware && knowndrives[i].firmwareregexp
+        && !match(knowndrives[i].firmwareregexp, firmware))
         continue;
-      if (regexec(&regex, firmware, 0, NULL, 0))
-        continue;
-    }
+    // Found
     if (++cnt == 1)
       pout("Drive found in smartmontools Database.  Drive identity strings:\n"
            "%-*s %s\n"
@@ -1537,7 +1541,6 @@ int showmatchingpresets(const char *model, const char *firmware){
     showonepreset(&knowndrives[i]);
     pout("\n");
   }
-  regfree(&regex);
   if (cnt == 0)
     pout("No presets are defined for this drive.  Its identity strings:\n"
          "MODEL:    %s\n"
