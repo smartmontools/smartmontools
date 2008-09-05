@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.98 2008/08/29 21:14:29 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.99 2008/09/05 17:40:39 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -514,54 +514,46 @@ int ataSmartSelfTestAbort (ata_device * device);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
-int ataVersionInfo (const char **description, struct ata_identify_device *drive, unsigned short *minor);
+int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
 int ataDoesSmartWork(ata_device * device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport ( struct ata_identify_device *drive);
+int ataSmartSupport(const ata_identify_device * drive);
 
 // Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
-int ataIsSmartEnabled(struct ata_identify_device *drive);
+int ataIsSmartEnabled(const ata_identify_device * drive);
 
 /* Check SMART for Threshold failure */
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart ( struct ata_smart_values *data, struct ata_smart_thresholds_pvt *thresholds, int onlyfailed);
+int ataCheckSmart(const ata_smart_values * data, const ata_smart_thresholds_pvt * thresholds, int onlyfailed);
 
 int ataSmartStatus2(ata_device * device);
 
-// int isOfflineTestTime ( struct ata_smart_values data)
-//  returns S.M.A.R.T. Offline Test Time in seconds
-int isOfflineTestTime ( struct ata_smart_values *data);
+int isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
 
-int isShortSelfTestTime ( struct ata_smart_values *data);
+int isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
 
-int isExtendedSelfTestTime ( struct ata_smart_values *data);
+int isGeneralPurposeLoggingCapable(const ata_identify_device * identity);
 
-int isSmartErrorLogCapable(struct ata_smart_values *data, struct ata_identify_device *identity);
+int isSupportExecuteOfflineImmediate(const ata_smart_values * data);
 
-int isSmartTestLogCapable(struct ata_smart_values *data, struct ata_identify_device *identity);
+int isSupportAutomaticTimer(const ata_smart_values * data);
 
-int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity);
+int isSupportOfflineAbort(const ata_smart_values * data);
 
-int isSupportExecuteOfflineImmediate ( struct ata_smart_values *data);
+int isSupportOfflineSurfaceScan(const ata_smart_values * data);
 
-int isSupportAutomaticTimer ( struct ata_smart_values *data);
+int isSupportSelfTest(const ata_smart_values * data);
 
-int isSupportOfflineAbort ( struct ata_smart_values *data);
+int isSupportConveyanceSelfTest(const ata_smart_values * data);
 
-int isSupportOfflineSurfaceScan ( struct ata_smart_values *data);
-
-int isSupportSelfTest (struct ata_smart_values *data);
-
-int isSupportConveyanceSelfTest(struct ata_smart_values *data);
-
-int isSupportSelectiveSelfTest(struct ata_smart_values *data);
+int isSupportSelectiveSelfTest(const ata_smart_values * data);
 
 inline bool isSCTCapable(const ata_identify_device *drive)
   { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support
@@ -572,19 +564,19 @@ inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
-int ataSmartTest(ata_device * device, int testtype, struct ata_smart_values *data, uint64_t num_sectors);
+int ataSmartTest(ata_device * device, int testtype, const ata_smart_values *data, uint64_t num_sectors);
 
-int TestTime(struct ata_smart_values *data,int testtype);
+int TestTime(const ata_smart_values * data, int testtype);
 
 // Prints the raw value (with appropriate formatting) into the
 // character string out.
 int64_t ataPrintSmartAttribRawValue(char *out, 
-                                    struct ata_smart_attribute *attribute,
-                                    unsigned char *defs);
+                                    const ata_smart_attribute * attribute,
+                                    const unsigned char * defs);
 
 // Prints Attribute Name for standard SMART attributes. Writes a
 // 30 byte string with attribute name into output
-void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *definitions);
+void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char * definitions);
 
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the
@@ -592,8 +584,8 @@ void ataPrintSmartAttribName(char *output, unsigned char id, unsigned char *defi
 // <= threshold (failing) then we the attribute number if it is a
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
-int ataCheckAttribute(struct ata_smart_values *data,
-                      struct ata_smart_thresholds_pvt *thresholds,
+int ataCheckAttribute(const ata_smart_values * data,
+                      const ata_smart_thresholds_pvt * thresholds,
                       int n);
 
 // External handler function, for when a checksum is not correct.  Can
@@ -605,11 +597,11 @@ void checksumwarning(const char *string);
 // Returns raw value of Attribute with ID==id. This will be in the
 // range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
 // return -1.
-int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data);
+int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * data);
 
 // Return Temperature Attribute raw value selected according to possible
 // non-default interpretations. If the Attribute does not exist, return 0
-unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data, const unsigned char *defs);
+unsigned char ATAReturnTemperatureValue(const ata_smart_values * data, const unsigned char * defs);
 
 
 // This are the meanings of the Self-test failure checkpoint byte.
