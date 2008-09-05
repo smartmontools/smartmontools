@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.195 2008/08/29 20:07:36 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.196 2008/09/05 17:40:39 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -50,23 +50,20 @@ extern smartmonctrl *con;
 
 // Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
 // bytes.
-void swapbytes(char *out, const char *in, size_t n)
+static void swapbytes(char * out, const char * in, size_t n)
 {
-  size_t i;
-
-  for (i = 0; i < n; i += 2) {
+  for (size_t i = 0; i < n; i += 2) {
     out[i]   = in[i+1];
     out[i+1] = in[i];
   }
 }
 
 // Copies in to out, but removes leading and trailing whitespace.
-void trim(char *out, const char *in)
+static void trim(char * out, const char * in)
 {
-  int i, first, last;
-
   // Find the first non-space character (maybe none).
-  first = -1;
+  int first = -1;
+  int i;
   for (i = 0; in[i]; i++)
     if (!isspace((int)in[i])) {
       first = i;
@@ -82,7 +79,7 @@ void trim(char *out, const char *in)
   // Find the last non-space character.
   for (i = strlen(in)-1; i >= first && isspace((int)in[i]); i--)
     ;
-  last = i;
+  int last = i;
 
   strncpy(out, in+first, last-first+1);
   out[last-first+1] = '\0';
@@ -127,7 +124,8 @@ static const char * infofound(const char *output) {
  * to produce errors).  If many more are to be added then this function
  * should probably be redesigned.
  */
-char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
+static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
+{
   unsigned char CR=data->commands[4].commandreg;
   unsigned char FR=data->commands[4].featuresreg;
   unsigned char ST=data->error_struct.status;
@@ -374,7 +372,7 @@ char *construct_st_er_desc(struct ata_smart_errorlog_struct *data) {
   }
 
   /* 256 bytes -- that'll be plenty (OK, this is lazy!) */
-  if (!(s = (char *)malloc(256)))
+  if (!(s = (char *)malloc(256))) // TODO: new/delete or std::string
     return s;
 
   s[0] = '\0';
@@ -470,8 +468,8 @@ static uint64_t get_num_sectors(const ata_identify_device *drive)
 // a string, using comma separators to make it easier to read.  If the
 // drive doesn't support LBA addressing or has no user writable
 // sectors (eg, CDROM or DVD) then routine returns zero.
-uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
-
+static uint64_t determine_capacity(const ata_identify_device * drive, char * pstring)
+{
   // get correct character to use as thousands separator
   const char *separator = ",";
 #ifdef HAVE_LOCALE_H
@@ -509,7 +507,8 @@ uint64_t determine_capacity(struct ata_identify_device *drive, char *pstring){
   return retval;
 }
 
-int ataPrintDriveInfo (struct ata_identify_device *drive){
+static int ataPrintDriveInfo (const ata_identify_device * drive)
+{
   int version, drivetype;
   const char *description;
   char unknown[64], timedatetz[DATEANDEPOCHLEN];
@@ -579,8 +578,8 @@ int ataPrintDriveInfo (struct ata_identify_device *drive){
   return drivetype;
 }
 
-
-const char *OfflineDataCollectionStatus(unsigned char status_byte){
+static const char *OfflineDataCollectionStatus(unsigned char status_byte)
+{
   unsigned char stat=status_byte & 0x7f;
   
   switch(stat){
@@ -608,9 +607,9 @@ const char *OfflineDataCollectionStatus(unsigned char status_byte){
 }
   
   
-  /*  prints verbose value Off-line data collection status byte */
-  void PrintSmartOfflineStatus(struct ata_smart_values *data){
-  
+//  prints verbose value Off-line data collection status byte
+static void PrintSmartOfflineStatus(const ata_smart_values * data)
+{
   pout("Offline data collection status:  (0x%02x)\t",
        (int)data->offline_data_collection_status);
     
@@ -629,7 +628,7 @@ const char *OfflineDataCollectionStatus(unsigned char status_byte){
   return;
 }
 
-void PrintSmartSelfExecStatus(struct ata_smart_values *data)
+static void PrintSmartSelfExecStatus(const ata_smart_values * data)
 {
    pout("Self-test execution status:      ");
    
@@ -710,17 +709,15 @@ void PrintSmartSelfExecStatus(struct ata_smart_values *data)
         
 }
 
-
-
-void PrintSmartTotalTimeCompleteOffline ( struct ata_smart_values *data){
+static void PrintSmartTotalTimeCompleteOffline (const ata_smart_values * data)
+{
   pout("Total time to complete Offline \n");
   pout("data collection: \t\t (%4d) seconds.\n", 
        (int)data->total_time_to_complete_off_line);
 }
 
-
-
-void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
+static void PrintSmartOfflineCollectCap(const ata_smart_values *data)
+{
   pout("Offline data collection\n");
   pout("capabilities: \t\t\t (0x%02x) ",
        (int)data->offline_data_collection_capability);
@@ -759,9 +756,7 @@ void PrintSmartOfflineCollectCap(struct ata_smart_values *data){
   }
 }
 
-
-
-void PrintSmartCapability ( struct ata_smart_values *data)
+static void PrintSmartCapability(const ata_smart_values *data)
 {
    pout("SMART capabilities:            ");
    pout("(0x%04x)\t", (int)data->smart_capability);
@@ -784,9 +779,8 @@ void PrintSmartCapability ( struct ata_smart_values *data)
    }
 }
 
-void PrintSmartErrorLogCapability (struct ata_smart_values *data, struct ata_identify_device *identity)
+static void PrintSmartErrorLogCapability(const ata_smart_values * data, const ata_identify_device * identity)
 {
-
    pout("Error logging capability:       ");
     
    if ( isSmartErrorLogCapable(data, identity) )
@@ -800,7 +794,8 @@ void PrintSmartErrorLogCapability (struct ata_smart_values *data, struct ata_ide
    }
 }
 
-void PrintSmartShortSelfTestPollingTime(struct ata_smart_values *data){
+static void PrintSmartShortSelfTestPollingTime(const ata_smart_values * data)
+{
   pout("Short self-test routine \n");
   if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
@@ -809,7 +804,8 @@ void PrintSmartShortSelfTestPollingTime(struct ata_smart_values *data){
     pout("recommended polling time: \t        Not Supported.\n");
 }
 
-void PrintSmartExtendedSelfTestPollingTime(struct ata_smart_values *data){
+static void PrintSmartExtendedSelfTestPollingTime(const ata_smart_values * data)
+{
   pout("Extended self-test routine\n");
   if (isSupportSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
@@ -818,7 +814,8 @@ void PrintSmartExtendedSelfTestPollingTime(struct ata_smart_values *data){
     pout("recommended polling time: \t        Not Supported.\n");
 }
 
-void PrintSmartConveyanceSelfTestPollingTime(struct ata_smart_values *data){
+static void PrintSmartConveyanceSelfTestPollingTime(const ata_smart_values * data)
+{
   pout("Conveyance self-test routine\n");
   if (isSupportConveyanceSelfTest(data))
     pout("recommended polling time: \t (%4d) minutes.\n", 
@@ -830,18 +827,18 @@ void PrintSmartConveyanceSelfTestPollingTime(struct ata_smart_values *data){
 // onlyfailed=0 : print all attribute values
 // onlyfailed=1:  just ones that are currently failed and have prefailure bit set
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
-void PrintSmartAttribWithThres (struct ata_smart_values *data, 
-                                struct ata_smart_thresholds_pvt *thresholds,
-                                int onlyfailed){
-  int i;
+static void PrintSmartAttribWithThres(const ata_smart_values * data,
+                                      const ata_smart_thresholds_pvt * thresholds,
+                                      int onlyfailed)
+{
   int needheader=1;
   char rawstring[64];
     
   // step through all vendor attributes
-  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const char *status;
-    struct ata_smart_attribute *disk=data->vendor_attributes+i;
-    struct ata_smart_threshold_entry *thre=thresholds->thres_entries+i;
+    const ata_smart_attribute * disk = data->vendor_attributes+i;
+    const ata_smart_threshold_entry * thre = thresholds->thres_entries+i;
     
     // consider only valid attributes (allowing some screw-ups in the
     // thresholds page data to slip by)
@@ -921,7 +918,8 @@ static void ataPrintSCTCapability(const ata_identify_device *drive)
 }
 
 
-void ataPrintGeneralSmartValues(struct ata_smart_values *data, struct ata_identify_device *drive){
+static void ataPrintGeneralSmartValues(const ata_smart_values *data, const ata_identify_device *drive)
+{
   pout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
@@ -1120,9 +1118,8 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 }
 
 // returns number of errors
-int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
-  int k;
-
+static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
+{
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
   
   // if no errors logged, return
@@ -1167,13 +1164,13 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
        "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
   
   // now step through the five error log data structures (table 39 of spec)
-  for (k = 4; k >= 0; k-- ) {
+  for (int k = 4; k >= 0; k-- ) {
     char *st_er_desc;
 
     // The error log data structure entries are a circular buffer
     int j, i=(data->error_log_pointer+k)%5;
-    struct ata_smart_errorlog_struct *elog=data->errorlog_struct+i;
-    struct ata_smart_errorlog_error_struct *summary=&(elog->error_struct);
+    const ata_smart_errorlog_struct * elog = data->errorlog_struct+i;
+    const ata_smart_errorlog_error_struct * summary = &(elog->error_struct);
 
     // Spec says: unused error log structures shall be zero filled
     if (nonempty((unsigned char*)elog,sizeof(*elog))){
@@ -1224,7 +1221,7 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
            "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
            "  -- -- -- -- -- -- -- --  ----------------  --------------------\n");
       for ( j = 4; j >= 0; j--){
-        struct ata_smart_errorlog_command_struct *thiscommand=elog->commands+j;
+        const ata_smart_errorlog_command_struct * thiscommand = elog->commands+j;
 
         // Spec says: unused data command structures shall be zero filled
         if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand))) {
@@ -1256,7 +1253,8 @@ int ataPrintSmartErrorlog(struct ata_smart_errorlog *data){
   return data->ata_error_count;  
 }
 
-void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struct ata_smart_values *sv) {
+static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log, const ata_smart_values * sv)
+{
   int i,field1,field2;
   const char *msg;
   char tmp[64];
@@ -1376,10 +1374,8 @@ void ataPrintSelectiveSelfTestLog(struct ata_selective_self_test_log *log, struc
 // return value is:
 // bottom 8 bits: number of entries found where self-test showed an error
 // remaining bits: if nonzero, power on hours of last self-test where error was found
-int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
-  int i,j,noheaderprinted=1;
-  int retval=0, hours=0, testno=0;
-
+int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, int allentries)
+{
   if (allentries)
     pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
   if ((data->revnumber!=0x0001) && allentries && con->fixfirmwarebug != FIX_SAMSUNG)
@@ -1390,13 +1386,14 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
     return 0;
   }
 
-  // print log      
-  for (i=20;i>=0;i--){    
-    struct ata_smart_selftestlog_struct *log;
+  int noheaderprinted=1;
+  int retval=0, hours=0, testno=0;
 
+  // print log
+  for (int i = 20;i >= 0; i--){
     // log is a circular buffer
-    j=(i+data->mostrecenttest)%21;
-    log=data->selftest_struct+j;
+    int j = (i+data->mostrecenttest)%21;
+    const ata_smart_selftestlog_struct * log = data->selftest_struct+j;
 
     if (nonempty((unsigned char*)log,sizeof(*log))){
       // count entry based on non-empty structures -- needed for
@@ -1487,11 +1484,11 @@ int ataPrintSmartSelfTestlog(struct ata_smart_selftestlog *data,int allentries){
   return (retval | hours);
 }
 
-void ataPseudoCheckSmart ( struct ata_smart_values *data, 
-                           struct ata_smart_thresholds_pvt *thresholds) {
-  int i;
+static void ataPseudoCheckSmart(const ata_smart_values * data,
+                                const ata_smart_thresholds_pvt * thresholds)
+{
   int failed = 0;
-  for (i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
+  for (int i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
     if (data->vendor_attributes[i].id &&   
         thresholds->thres_entries[i].id &&
         ATTRIBUTE_FLAGS_PREFAILURE(data->vendor_attributes[i].flags) &&
@@ -1688,11 +1685,11 @@ void checksumwarning(const char *string){
 }
 
 // Initialize to zero just in case some SMART routines don't work
-struct ata_identify_device drive;
-struct ata_smart_values smartval;
-struct ata_smart_thresholds_pvt smartthres;
-struct ata_smart_errorlog smarterror;
-struct ata_smart_selftestlog smartselftest;
+static ata_identify_device drive;
+static ata_smart_values smartval;
+static ata_smart_thresholds_pvt smartthres;
+static ata_smart_errorlog smarterror;
+static ata_smart_selftestlog smartselftest;
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -2174,8 +2171,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART selective self-test log
   if (con->selectivetestlog){
-    struct ata_selective_self_test_log log;
-    
+    ata_selective_self_test_log log;
+
     if (!isSupportSelectiveSelfTest(&smartval))
       pout("Device does not support Selective Self Tests/Logging\n");
     else if(ataReadSelectiveSelfTestLog(device, &log)) {

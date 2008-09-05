@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.204 2008/08/30 16:46:17 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.205 2008/09/05 17:40:39 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -759,10 +759,8 @@ int ataReadHDIdentity (ata_device * device, struct ata_identify_device *buf){
 // describing which revision.  Note that Revision 0 of ATA-3 does NOT
 // support SMART.  For this one case we return -3 rather than +3 as
 // the version number.  See notes above.
-int ataVersionInfo (const char** description, struct ata_identify_device *drive, unsigned short *minor){
-  unsigned short major;
-  int i;
-
+int ataVersionInfo(const char ** description, const ata_identify_device * drive, unsigned short * minor)
+{
   // check that arrays at the top of this file are defined
   // consistently
   if (sizeof(minor_str) != sizeof(char *)*(1+MINOR_MAX)){
@@ -781,7 +779,7 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
   }
 
   // get major and minor ATA revision numbers
-  major=drive->major_rev_num;
+  unsigned short major = drive->major_rev_num;
   *minor=drive->minor_rev_num;
   
   // First check if device has ANY ATA version information in it
@@ -821,6 +819,7 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
   // HDPARM has a very complicated algorithm from here on. Since SMART only
   // exists on ATA-3 and later standards, let's punt on this.  If you don't
   // like it, please fix it.  The code's in CVS.
+  int i;
   for (i=15; i>0; i--)
     if (major & (0x1<<i))
       break;
@@ -833,7 +832,8 @@ int ataVersionInfo (const char** description, struct ata_identify_device *drive,
 }
 
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell
-int ataSmartSupport(struct ata_identify_device *drive){
+int ataSmartSupport(const ata_identify_device * drive)
+{
   unsigned short word82=drive->command_set_1;
   unsigned short word83=drive->command_set_2;
   
@@ -847,7 +847,8 @@ int ataSmartSupport(struct ata_identify_device *drive){
 }
 
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
-int ataIsSmartEnabled(struct ata_identify_device *drive){
+int ataIsSmartEnabled(const ata_identify_device * drive)
+{
   unsigned short word85=drive->cfs_enable_1;
   unsigned short word87=drive->csf_default;
   
@@ -891,9 +892,8 @@ int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
 
 // This corrects some quantities that are byte reversed in the SMART
 // SELF TEST LOG
-void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
-  int i;
-  
+static void fixsamsungselftestlog(ata_smart_selftestlog * data)
+{
   // bytes 508/509 (numbered from 0) swapped (swap of self-test index
   // with one byte of reserved.
   swap2((char *)&(data->mostrecenttest));
@@ -902,7 +902,7 @@ void fixsamsungselftestlog(struct ata_smart_selftestlog *data){
   // information about the TYPE of the self-test) is byte swapped with
   // Self-test execution status byte.  These are bytes N, N+1 in the
   // entries.
-  for (i=0; i<21; i++)
+  for (int i = 0; i < 21; i++)
     swap2((char *)&(data->selftest_struct[i].selftestnumber));
 
   return;
@@ -1033,8 +1033,8 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
 }
 
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(ata_device * device, struct ata_smart_values *sv, uint64_t num_sectors){
-
+int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * sv, uint64_t num_sectors)
+{
   // Disk size must be known
   if (!num_sectors) {
     pout("Disk size is unknown, unable to check selective self-test spans\n");
@@ -1196,18 +1196,17 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, struct ata_smart_values *s
 
 // This corrects some quantities that are byte reversed in the SMART
 // ATA ERROR LOG.
-void fixsamsungerrorlog(struct ata_smart_errorlog *data){
-  int i,j;
-  
+static void fixsamsungerrorlog(ata_smart_errorlog * data)
+{
   // FIXED IN SAMSUNG -25 FIRMWARE???
   // Device error count in bytes 452-3
   swap2((char *)&(data->ata_error_count));
   
   // FIXED IN SAMSUNG -22a FIRMWARE
   // step through 5 error log data structures
-  for (i=0; i<5; i++){
+  for (int i = 0; i < 5; i++){
     // step through 5 command data structures
-    for (j=0; j<5; j++)
+    for (int j = 0; j < 5; j++)
       // Command data structure 4-byte millisec timestamp.  These are
       // bytes (N+8, N+9, N+10, N+11).
       swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
@@ -1219,7 +1218,8 @@ void fixsamsungerrorlog(struct ata_smart_errorlog *data){
 }
 
 // NEEDED ONLY FOR SAMSUNG -22 (some) -23 AND -24?? FIRMWARE
-void fixsamsungerrorlog2(struct ata_smart_errorlog *data){
+static void fixsamsungerrorlog2(ata_smart_errorlog * data)
+{
   // Device error count in bytes 452-3
   swap2((char *)&(data->ata_error_count));
   return;
@@ -1367,7 +1367,7 @@ int ataSmartStatus2(ata_device * device){
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(ata_device * device, int testtype, struct ata_smart_values *sv, uint64_t num_sectors)
+int ataSmartTest(ata_device * device, int testtype, const ata_smart_values * sv, uint64_t num_sectors)
 {
   char cmdmsg[128]; const char *type, *captive;
   int errornum, cap, retval, select=0;
@@ -1438,7 +1438,8 @@ int ataSmartTest(ata_device * device, int testtype, struct ata_smart_values *sv,
 }
 
 /* Test Time Functions */
-int TestTime(struct ata_smart_values *data,int testtype){
+int TestTime(const ata_smart_values *data, int testtype)
+{
   switch (testtype){
   case OFFLINE_FULL_SCAN:
     return (int) data->total_time_to_complete_off_line;
@@ -1463,8 +1464,8 @@ int TestTime(struct ata_smart_values *data,int testtype){
 // word 84 and 87.  Top two bits must match the pattern 01. BEFORE
 // ATA-6 these top two bits still had to match the pattern 01, but the
 // remaining bits were reserved (==0).
-int isSmartErrorLogCapable (struct ata_smart_values *data, struct ata_identify_device *identity){
-
+int isSmartErrorLogCapable (const ata_smart_values * data, const ata_identify_device * identity)
+{
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
   int isata6=identity->major_rev_num & (0x01<<6);
@@ -1482,8 +1483,8 @@ int isSmartErrorLogCapable (struct ata_smart_values *data, struct ata_identify_d
 
 // See previous function.  If the error log exists then the self-test
 // log should (must?) also exist.
-int isSmartTestLogCapable (struct ata_smart_values *data, struct ata_identify_device *identity){
-
+int isSmartTestLogCapable (const ata_smart_values * data, const ata_identify_device *identity)
+{
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
   int isata6=identity->major_rev_num & (0x01<<6);
@@ -1497,11 +1498,12 @@ int isSmartTestLogCapable (struct ata_smart_values *data, struct ata_identify_de
 
 
   // otherwise we'll use the poorly documented capability bit
-    return data->errorlog_capability & 0x01;
+  return data->errorlog_capability & 0x01;
 }
 
 
-int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
+int isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
+{
   unsigned short word84=identity->command_set_extension;
   unsigned short word87=identity->csf_default;
 
@@ -1531,30 +1533,38 @@ int isGeneralPurposeLoggingCapable(struct ata_identify_device *identity){
 // IDENTIFY word 87 (if top two bits of word 87 match pattern 01).
 // However this was only introduced in ATA-6 (but self-test log was in
 // ATA-5).
-int isSupportExecuteOfflineImmediate(struct ata_smart_values *data){
-   return data->offline_data_collection_capability & 0x01;
+int isSupportExecuteOfflineImmediate(const ata_smart_values *data)
+{
+  return data->offline_data_collection_capability & 0x01;
 }
+
 // Note in the ATA-5 standard, the following bit is listed as "Vendor
 // Specific".  So it may not be reliable. The only use of this that I
 // have found is in IBM drives, where it is well-documented.  See for
 // example page 170, section 13.32.1.18 of the IBM Travelstar 40GNX
 // hard disk drive specifications page 164 Revision 1.1 22 Apr 2002.
-int isSupportAutomaticTimer(struct ata_smart_values *data){
-   return data->offline_data_collection_capability & 0x02;
+int isSupportAutomaticTimer(const ata_smart_values * data)
+{
+  return data->offline_data_collection_capability & 0x02;
 }
-int isSupportOfflineAbort(struct ata_smart_values *data){
-   return data->offline_data_collection_capability & 0x04;
+int isSupportOfflineAbort(const ata_smart_values *data)
+{
+  return data->offline_data_collection_capability & 0x04;
 }
-int isSupportOfflineSurfaceScan(struct ata_smart_values *data){
+int isSupportOfflineSurfaceScan(const ata_smart_values * data)
+{
    return data->offline_data_collection_capability & 0x08;
 }
-int isSupportSelfTest (struct ata_smart_values *data){
+int isSupportSelfTest (const ata_smart_values * data)
+{
    return data->offline_data_collection_capability & 0x10;
 }
-int isSupportConveyanceSelfTest(struct ata_smart_values *data){
+int isSupportConveyanceSelfTest(const ata_smart_values * data)
+{
    return data->offline_data_collection_capability & 0x20;
 }
-int isSupportSelectiveSelfTest(struct ata_smart_values *data){
+int isSupportSelectiveSelfTest(const ata_smart_values * data)
+{
    return data->offline_data_collection_capability & 0x40;
 }
 
@@ -1575,17 +1585,16 @@ int isSupportSelectiveSelfTest(struct ata_smart_values *data){
 
 // onlyfailed=0 : are or were any age or prefailure attributes <= threshold
 // onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart(struct ata_smart_values *data,
-                  struct ata_smart_thresholds_pvt *thresholds,
-                  int onlyfailed){
-  int i;
-  
+int ataCheckSmart(const ata_smart_values * data,
+                  const ata_smart_thresholds_pvt * thresholds,
+                  int onlyfailed)
+{
   // loop over all attributes
-  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++){
 
     // pointers to disk's values and vendor's thresholds
-    struct ata_smart_attribute *disk=data->vendor_attributes+i;
-    struct ata_smart_threshold_entry *thre=thresholds->thres_entries+i;
+    const ata_smart_attribute * disk = data->vendor_attributes+i;
+    const ata_smart_threshold_entry * thre = thresholds->thres_entries+i;
  
     // consider only valid attributes
     if (disk->id && thre->id){
@@ -1612,18 +1621,16 @@ int ataCheckSmart(struct ata_smart_values *data,
 // <= threshold (failing) then we the attribute number if it is a
 // prefail attribute.  Else we return minus the attribute number if it
 // is a usage attribute.
-int ataCheckAttribute(struct ata_smart_values *data,
-                      struct ata_smart_thresholds_pvt *thresholds,
-                      int n){
-  struct ata_smart_attribute *disk;
-  struct ata_smart_threshold_entry *thre;
-  
+int ataCheckAttribute(const ata_smart_values * data,
+                      const ata_smart_thresholds_pvt * thresholds,
+                      int n)
+{
   if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !data || !thresholds)
     return 0;
   
   // pointers to disk's values and vendor's thresholds
-  disk=data->vendor_attributes+n;
-  thre=thresholds->thres_entries+n;
+  const ata_smart_attribute * disk = data->vendor_attributes+n;
+  const ata_smart_threshold_entry * thre = thresholds->thres_entries+n;
 
   if (!disk || !thre)
     return 0;
@@ -1672,8 +1679,8 @@ static void ataPrintTemperatureValue(char *out, const unsigned char *raw, const 
 // non-default interpretations.
 
 int64_t ataPrintSmartAttribRawValue(char *out, 
-                                    struct ata_smart_attribute *attribute,
-                                    unsigned char *defs){
+                                    const ata_smart_attribute * attribute,
+                                    const unsigned char * defs){
   int64_t rawvalue;
   unsigned word[3];
   int j;
@@ -1804,7 +1811,7 @@ int64_t ataPrintSmartAttribRawValue(char *out,
 // manufacturers use different attribute IDs for an attribute with the
 // same name.  The variable val should contain a non-zero value if a particular
 // attributes has a non-default interpretation.
-void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definitions){
+void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char * definitions){
   const char *name;
   unsigned char val;
 
@@ -2060,16 +2067,15 @@ void ataPrintSmartAttribName(char *out, unsigned char id, unsigned char *definit
 // Returns raw value of Attribute with ID==id. This will be in the
 // range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
 // return -1.
-int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *data) {
-  int i;
-
+int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * data)
+{
   // valid Attribute IDs are in the range 1 to 255 inclusive.
   if (!id || !data)
     return -1;
   
   // loop over Attributes to see if there is one with the desired ID
-  for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-    struct ata_smart_attribute *ap = data->vendor_attributes + i;
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const ata_smart_attribute * ap = data->vendor_attributes + i;
     if (ap->id == id) {
       // we've found the desired Attribute.  Return its value
       int64_t rawvalue=0;
@@ -2095,9 +2101,9 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, struct ata_smart_values *da
 
 // Return Temperature Attribute raw value selected according to possible
 // non-default interpretations. If the Attribute does not exist, return 0
-unsigned char ATAReturnTemperatureValue(/*const*/ struct ata_smart_values *data, const unsigned char *defs){
-  int i;
-  for (i = 0; i < 3; i++) {
+unsigned char ATAReturnTemperatureValue(const ata_smart_values * data, const unsigned char * defs)
+{
+  for (int i = 0; i < 3; i++) {
     static const unsigned char ids[3] = {194, 9, 220};
     unsigned char id = ids[i];
     unsigned char select = (defs ? defs[id] : 0);
