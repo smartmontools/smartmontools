@@ -31,7 +31,7 @@
 #include <string>
 
 #ifndef SMARTD_H_CVSID
-#define SMARTD_H_CVSID "$Id: smartd.h,v 1.91 2008/08/30 16:46:17 chrfranke Exp $\n"
+#define SMARTD_H_CVSID "$Id: smartd.h,v 1.92 2008/09/05 21:01:05 chrfranke Exp $\n"
 #endif
 
 // Configuration file
@@ -48,10 +48,6 @@
 
 // default for how often SMART status is checked, in seconds
 #define CHECKTIME 1800
-
-/* Boolean Values */
-#define TRUE 0x01
-#define FALSE 0x00
 
 // Number of monitoring flags per Attribute and offsets.  See
 // monitorattflags below.
@@ -72,40 +68,6 @@ struct mailinfo {
 
   mailinfo()
     : logged(0), firstsent(0), lastsent(0) { }
-};
-
-// If user has requested email warning messages, then this structure
-// stores the information about them, and track type/date of email
-// messages.
-struct maildata {
-  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
-  std::string emailcmdline;               // script to execute
-  std::string address;                    // email address, or empty
-  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
-  bool emailtest;                         // Send test email?
-
-  maildata()
-    : emailfreq(0), emailtest(false) { }
-};
-
-// If user has requested automatic testing, then this structure stores
-// their regular expression pattern, the compiled form of that regex,
-// and information about the disk capabilities and when the last text
-// took place
-
-struct testinfo {
-  regular_expression regex;       // text & compiled form of regex
-  unsigned short hour;            // 1+hour of year when last scheduled self-test done
-  char testtype;                  // type of test done at hour indicated just above
-  signed char not_cap_offline;    // 0==unknown OR capable of offline, 1==not capable 
-  signed char not_cap_conveyance;
-  signed char not_cap_short;
-  signed char not_cap_long;
-
-  testinfo()
-    : hour(0), testtype(0),
-      not_cap_offline(false), not_cap_conveyance(false),
-      not_cap_short(false), not_cap_long(false) { }
 };
 
 
@@ -172,56 +134,41 @@ struct testinfo {
 // the capabilities that devices already are known to have (as noted
 // within *cfg).
 
-/// Configuration & state data for a device.
+/// Configuration data for a device. Read from smartd.conf.
 /// Supports copy & assignment and is compatible with STL containers.
-struct cfg_entry
+struct dev_config
 {
-  // FIRST SET OF ENTRIES CORRESPOND TO WHAT THE USER PUT IN THE
-  // CONFIG FILE.  SOME ENTRIES MAY BE MODIFIED WHEN A DEVICE IS
-  // REGISTERED AND WE LEARN ITS CAPABILITIES.
   int lineno;                             // Line number of entry in file
   std::string name;                       // Device name
   std::string dev_type;                   // Device type argument from -d directive, empty if none
-  char smartcheck;                        // Check SMART status
-  char usagefailed;                       // Check for failed Usage Attributes
-  char prefail;                           // Track changes in Prefail Attributes
-  char usage;                             // Track changes in Usage Attributes
-  char selftest;                          // Monitor number of selftest errors
-  char errorlog;                          // Monitor number of ATA errors
-  char permissive;                        // Ignore failed SMART commands
+  bool smartcheck;                        // Check SMART status
+  bool usagefailed;                       // Check for failed Usage Attributes
+  bool prefail;                           // Track changes in Prefail Attributes
+  bool usage;                             // Track changes in Usage Attributes
+  bool selftest;                          // Monitor number of selftest errors
+  bool errorlog;                          // Monitor number of ATA errors
+  bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
   unsigned char fixfirmwarebug;           // Fix firmware bug
-  char ignorepresets;                     // Ignore database of -v options
-  char showpresets;                       // Show database entry for this device
-  char removable;                         // Device may disappear (not be present)
+  bool ignorepresets;                     // Ignore database of -v options
+  bool showpresets;                       // Show database entry for this device
+  bool removable;                         // Device may disappear (not be present)
   char powermode;                         // skip check, if disk in idle or standby mode
-  char powerquiet;                        // skip powermode 'skipping checks' message
+  bool powerquiet;                        // skip powermode 'skipping checks' message
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
-  unsigned char tempmin, tempmax;         // Min/Max Temperatures
-  unsigned char selflogcount;             // total number of self-test errors
-  unsigned short selfloghour;             // lifetime hours of last self-test error
-  testinfo testdata;                      // Data on scheduled testing
+  regular_expression test_regex;          // Regex for scheduled testing
   unsigned short pending;                 // lower 8 bits: ID of current pending sector count
                                           // upper 8 bits: ID of offline pending sector count
-  
-  // THE NEXT SET OF ENTRIES ALSO TRACK DEVICE STATE AND ARE DYNAMIC
-  maildata mailwarn;                      // info about sending mail or executing script
-  unsigned char temperature;              // last recorded Temperature (in Celsius)
-  unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
-  int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
 
-  // SCSI ONLY
-  unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
-  unsigned char TempPageSupported;        // has log sense temperature page (0xd)
-  unsigned char SuppressReport;           // minimize nuisance reports
-  unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
-                                          // know yet) 6 or 10
+  // Configuration of email warning messages
+  std::string emailcmdline;               // script to execute, empty if no messages
+  std::string emailaddress;               // email address, or empty
+  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
+  bool emailtest;                         // Send test email?
 
-  // ATA ONLY FROM HERE ON TO THE END
-  int ataerrorcount;                      // Total number of ATA errors
-
+  // ATA ONLY
   // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags 
   // valid attribute numbers are from 1 <= x <= 255
@@ -235,11 +182,48 @@ struct cfg_entry
   // TODO: Encapsulate, add get/set functions
   unsigned char attributedefs[256];       // -v options, see end of extern.h for def
 
-  // ATA ONLY - SAVE SMART DATA
+  dev_config();
+};
+
+
+/// Runtime state data for a device.
+struct dev_state
+{
+  unsigned char tempmin, tempmax;         // Min/Max Temperatures
+
+  unsigned char selflogcount;             // total number of self-test errors
+  unsigned short selfloghour;             // lifetime hours of last self-test error
+
+  bool not_cap_offline;                   // true == not capable of offline testing
+  bool not_cap_conveyance;
+  bool not_cap_short;
+  bool not_cap_long;
+
+  unsigned short testhour;                // 1+hour of year when last scheduled self-test done
+  char testtype;                          // type of test done at hour indicated just above
+
+  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
+
+  unsigned char temperature;              // last recorded Temperature (in Celsius)
+  unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
+
+  bool powermodefail;                     // true if power mode check failed
+  int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
+
+  // SCSI ONLY
+  unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
+  unsigned char TempPageSupported;        // has log sense temperature page (0xd)
+  unsigned char SuppressReport;           // minimize nuisance reports
+  unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
+                                          // know yet) 6 or 10
+
+  // ATA ONLY
+  int ataerrorcount;                      // Total number of ATA errors
+
   struct ata_smart_values smartval;           // SMART data
   struct ata_smart_thresholds_pvt smartthres; // SMART thresholds
 
-  cfg_entry();
+  dev_state();
 };
 
 
