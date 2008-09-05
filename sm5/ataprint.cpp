@@ -42,7 +42,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.196 2008/09/05 17:40:39 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.197 2008/09/05 21:11:50 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -600,9 +600,9 @@ static const char *OfflineDataCollectionStatus(unsigned char status_byte)
     return "was aborted by the device with a fatal error";
   default:
     if (stat >= 0x40)
-      return "is in a Vendor Specific state\n";
+      return "is in a Vendor Specific state";
     else
-      return "is in a Reserved state\n";
+      return "is in a Reserved state";
   }
 }
   
