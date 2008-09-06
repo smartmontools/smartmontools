@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.88 2008/08/23 15:38:20 chrfranke Exp $
+# $Id: Makefile.am,v 1.89 2008/09/06 14:37:17 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -17,7 +17,6 @@ sbin_PROGRAMS = smartd 	\
 		smartctl
 
 smartd_SOURCES =  smartd.cpp      \
-                  smartd.h        \
                   atacmdnames.cpp \
                   atacmdnames.h   \
                   atacmds.cpp     \

@@ -950,10 +950,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\smartd.h"
-			>
-		</File>
-		<File
 			RelativePath="..\smartd.initd.in"
 			>
 		</File>
