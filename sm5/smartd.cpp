@@ -41,6 +41,7 @@
 #include <limits.h>
 
 #include <stdexcept>
+#include <string>
 #include <vector>
 #include <algorithm> // std::replace()
 
@@ -92,7 +93,14 @@ extern "C" int __stdcall FreeConsole(void);
 #include "scsicmds.h"
 #include "scsiata.h"
 #include "utility.h"
-#include "smartd.h"
+
+// This is for solaris, where signal() resets the handler to SIG_DFL
+// after the first signal is caught.
+#ifdef HAVE_SIGSET
+#define SIGNALFN sigset
+#else
+#define SIGNALFN signal
+#endif
 
 #ifdef _WIN32
 #include "hostname_win32.h" // gethost/domainname()
@@ -135,7 +143,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.417 2008/09/05 21:01:05 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.418 2008/09/06 14:37:17 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -144,7 +152,7 @@ EXTERN_H_CVSID INT64_H_CVSID
 #ifdef HOSTNAME_WIN32_H_CVSID
 HOSTNAME_WIN32_H_CVSID
 #endif
-KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SMARTD_H_CVSID
+KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID
 #ifdef SYSLOG_H_CVSID
 SYSLOG_H_CVSID
 #endif
@@ -160,13 +168,32 @@ const char *copyleftstring="smartd comes with ABSOLUTELY NO WARRANTY. This is\n"
 
 extern unsigned char debugmode;
 
+// smartd exit codes
+#define EXIT_BADCMD    1   // command line did not parse
+#define EXIT_BADCONF   2   // syntax error in config file
+#define EXIT_STARTUP   3   // problem forking daemon
+#define EXIT_PID       4   // problem creating pid file
+#define EXIT_NOCONF    5   // config file does not exist
+#define EXIT_READCONF  6   // config file exists but cannot be read
+
+#define EXIT_NOMEM     8   // out of memory
+#define EXIT_BADCODE   10  // internal error - should NEVER happen
+
+#define EXIT_BADDEV    16  // we can't monitor this device
+#define EXIT_NODEV     17  // no devices to monitor
+
+#define EXIT_SIGNAL    254 // abort on signal
+
 // command-line: how long to sleep between checks
+#define CHECKTIME 1800
 static int checktime=CHECKTIME;
 
 // command-line: name of PID file (empty for no pid file)
 static std::string pid_file;
 
 // configuration file name
+#define CONFIGFILENAME "smartd.conf"
+
 #ifndef _WIN32
 static const char *configfile = SMARTMONTOOLS_SYSCONFDIR "/" CONFIGFILENAME ;
 #else
@@ -206,12 +233,78 @@ volatile int caughtsigHUP=0;
 // set to signal value if we catch INT, QUIT, or TERM
 volatile int caughtsigEXIT=0;
 
+// Number of seconds to allow for registering a SCSI device. If this
+// time expires without sucess or failure, then treat it as failure.
+// Set to 0 to eliminate this timeout feature from the code
+// (equivalent to an infinite timeout interval).
+// TODO: This is no longer implemented. Is it still needed?
+#define SCSITIMEOUT 0
+
 #if SCSITIMEOUT
 // stack environment if we time out during SCSI access (USB devices)
 jmp_buf registerscsienv;
 #endif
 
-// dev_config construction
+// Number of monitoring flags per Attribute and offsets.
+// See monitorattflags below.
+enum {
+  MONITOR_FAILUSE = 0,
+  MONITOR_IGNORE,
+  MONITOR_RAWPRINT,
+  MONITOR_RAW,
+  NMONITOR
+};
+
+/// Configuration data for a device. Read from smartd.conf.
+/// Supports copy & assignment and is compatible with STL containers.
+struct dev_config
+{
+  int lineno;                             // Line number of entry in file
+  std::string name;                       // Device name
+  std::string dev_type;                   // Device type argument from -d directive, empty if none
+  bool smartcheck;                        // Check SMART status
+  bool usagefailed;                       // Check for failed Usage Attributes
+  bool prefail;                           // Track changes in Prefail Attributes
+  bool usage;                             // Track changes in Usage Attributes
+  bool selftest;                          // Monitor number of selftest errors
+  bool errorlog;                          // Monitor number of ATA errors
+  bool permissive;                        // Ignore failed SMART commands
+  char autosave;                          // 1=disable, 2=enable Autosave Attributes
+  char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
+  unsigned char fixfirmwarebug;           // Fix firmware bug
+  bool ignorepresets;                     // Ignore database of -v options
+  bool showpresets;                       // Show database entry for this device
+  bool removable;                         // Device may disappear (not be present)
+  char powermode;                         // skip check, if disk in idle or standby mode
+  bool powerquiet;                        // skip powermode 'skipping checks' message
+  unsigned char tempdiff;                 // Track Temperature changes >= this limit
+  unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
+  regular_expression test_regex;          // Regex for scheduled testing
+  unsigned short pending;                 // lower 8 bits: ID of current pending sector count
+                                          // upper 8 bits: ID of offline pending sector count
+
+  // Configuration of email warning messages
+  std::string emailcmdline;               // script to execute, empty if no messages
+  std::string emailaddress;               // email address, or empty
+  unsigned char emailfreq;                // Emails once (1) daily (2) diminishing (3)
+  bool emailtest;                         // Send test email?
+
+  // ATA ONLY
+  // following NMONITOR items each point to 32 bytes, in the form of
+  // 32x8=256 single bit flags
+  // valid attribute numbers are from 1 <= x <= 255
+  // monitorattflags+0  set: ignore failure for a usage attribute
+  // monitorattflats+32 set: don't track attribute
+  // monitorattflags+64 set: print raw value when tracking
+  // monitorattflags+96 set: track changes in raw value
+  // TODO: Encapsulate, add get/set functions
+  unsigned char monitorattflags[NMONITOR*32];
+
+  // TODO: Encapsulate, add get/set functions
+  unsigned char attributedefs[256];       // -v options, see end of extern.h for def
+
+  dev_config();
+};
 
 dev_config::dev_config()
 : lineno(0),
@@ -240,7 +333,58 @@ dev_config::dev_config()
   memset(monitorattflags, 0, sizeof(monitorattflags));
 }
 
-// dev_state construction
+
+// Number of allowed mail message types
+const int SMARTD_NMAIL = 13;
+
+struct mailinfo {
+  int logged;// number of times an email has been sent
+  time_t firstsent;// time first email was sent, as defined by time(2)
+  time_t lastsent; // time last email was sent, as defined by time(2)
+
+  mailinfo()
+    : logged(0), firstsent(0), lastsent(0) { }
+};
+
+/// Runtime state data for a device.
+struct dev_state
+{
+  unsigned char tempmin, tempmax;         // Min/Max Temperatures
+
+  unsigned char selflogcount;             // total number of self-test errors
+  unsigned short selfloghour;             // lifetime hours of last self-test error
+
+  bool not_cap_offline;                   // true == not capable of offline testing
+  bool not_cap_conveyance;
+  bool not_cap_short;
+  bool not_cap_long;
+
+  unsigned short testhour;                // 1+hour of year when last scheduled self-test done
+  char testtype;                          // type of test done at hour indicated just above
+
+  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
+
+  unsigned char temperature;              // last recorded Temperature (in Celsius)
+  unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
+
+  bool powermodefail;                     // true if power mode check failed
+  int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
+
+  // SCSI ONLY
+  unsigned char SmartPageSupported;       // has log sense IE page (0x2f)
+  unsigned char TempPageSupported;        // has log sense temperature page (0xd)
+  unsigned char SuppressReport;           // minimize nuisance reports
+  unsigned char modese_len;               // mode sense/select cmd len: 0 (don't
+                                          // know yet) 6 or 10
+
+  // ATA ONLY
+  int ataerrorcount;                      // Total number of ATA errors
+
+  struct ata_smart_values smartval;           // SMART data
+  struct ata_smart_thresholds_pvt smartthres; // SMART thresholds
+
+  dev_state();
+};
 
 dev_state::dev_state()
 : tempmin(0), tempmax(0),
@@ -274,7 +418,22 @@ typedef std::vector<dev_config> dev_config_vector;
 typedef std::vector<dev_state> dev_state_vector;
 
 
-// tranlate cfg.pending into the correct Attribute numbers
+// cfg.pending is a 16 bit unsigned quantity.  If the least
+// significant 8 bits are zero, this means monitor Attribute
+// CUR_UNC_DEFAULT's raw value.  If they are CUR_UNC_DEFAULT, this
+// means DON'T MONITOR.  If the most significant 8 bits are zero, this
+// means monitor Attribute OFF_UNC_DEFAULT's raw value.  If they are
+// OFF_UNC_DEFAULT, this means DON'T MONITOR.
+#define OFF_UNC_DEFAULT 198
+#define CUR_UNC_DEFAULT 197
+
+#define CURR_PEND(x) (x & 0xff)
+#define OFF_PEND(x) ((x >> 8) & 0xff)
+
+// if cfg.pending has this value, dont' monitor
+#define DONT_MONITOR_UNC (256*OFF_UNC_DEFAULT+CUR_UNC_DEFAULT)
+
+// translate cfg.pending into the correct Attribute numbers
 void TranslatePending(unsigned short pending, unsigned char *current, unsigned char *offline) {
 
   unsigned char curr = CURR_PEND(pending);
@@ -1148,6 +1307,9 @@ static int SelfTestErrorCount(ata_device * device, const char * name)
   return ataPrintSmartSelfTestlog(&log,0);
 }
 
+#define SELFTEST_ERRORCOUNT(x) (x & 0xff)
+#define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
+
 // scan to see what ata devices there are, and if they support SMART
 static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atadev)
 {
@@ -1526,6 +1688,15 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   CloseDevice(scsidev, device);
   return 0;
 }
+
+
+struct changedattribute_t {
+  unsigned char newval;
+  unsigned char oldval;
+  unsigned char id;
+  unsigned char prefail;
+  unsigned char sameraw;
+};
 
 // We compare old and new values of the n'th attribute.  Note that n
 // is NOT the attribute ID number.. If (Normalized & Raw) equal,
@@ -2856,6 +3027,9 @@ static int ParseToken(char * token, dev_config & cfg)
   return 1;
 }
 
+// Scan directive for configuration file
+#define SCANDIRECTIVE "DEVICESCAN"
+
 // This is the routine that adds things to the conf_entries list.
 //
 // Return values are:
@@ -2988,6 +3162,11 @@ void cleanup(FILE **fpp, int is_stdin){
 // SCANDIRECTIVE found      ==> conf_entries[0].lineno != 0
 static int ParseConfigFile(dev_config_vector & conf_entries)
 {
+  // maximum line length in configuration file
+  const int MAXLINELEN = 256;
+  // maximum length of a continued line in configuration file
+  const int MAXCONTLINE = 1023;
+
   FILE *fp=NULL;
   int entry=0,lineno=1,cont=0,contlineno=0;
   char line[MAXLINELEN+2];

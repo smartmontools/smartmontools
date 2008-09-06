@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.61 2008/08/30 16:46:17 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.62 2008/09/06 14:37:18 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -258,25 +258,6 @@ private:
   void copy(const regular_expression & x);
   bool compile();
 };
-
-
-// Exit codes
-// TODO: Move to smartd.cpp
-#define EXIT_BADCMD    1   // command line did not parse
-#define EXIT_BADCONF   2   // syntax error in config file
-#define EXIT_STARTUP   3   // problem forking daemon
-#define EXIT_PID       4   // problem creating pid file
-#define EXIT_NOCONF    5   // config file does not exist
-#define EXIT_READCONF  6   // config file exists but cannot be read
-
-#define EXIT_NOMEM     8   // out of memory
-#define EXIT_BADCODE   10  // internal error - should NEVER happen
-
-#define EXIT_BADDEV    16  // we can't monitor this device
-#define EXIT_NODEV     17  // no devices to monitor
-
-#define EXIT_SIGNAL    254 // abort on signal
-
 
 // macros to control printing
 #define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=0;}

@@ -50,7 +50,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.72 2008/08/30 16:46:17 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.73 2008/09/06 14:37:18 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -636,6 +636,10 @@ int split_selective_arg(char *s, uint64_t *start,
 }
 
 #ifdef OLD_INTERFACE
+
+// smartd exit codes
+#define EXIT_NOMEM     8   // out of memory
+#define EXIT_BADCODE   10  // internal error - should NEVER happen
 
 int64_t bytes = 0;
 
