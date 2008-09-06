@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.99 2008/09/05 17:40:39 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.100 2008/09/06 20:08:35 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -643,6 +643,12 @@ std::string create_vendor_attribute_arg_list();
 
 // This function is exported to give low-level capability
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
+
+// Print Smart self-test log, used by smartctl and smartd.
+int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries);
+
+// Convenience function for formatting strings from ata_identify_device.
+void format_ata_string(char * out, const char * in, int n);
 
 // Utility routines.
 unsigned char checksum(const unsigned char * buffer);

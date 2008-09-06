@@ -87,7 +87,6 @@ extern "C" int __stdcall FreeConsole(void);
 #include "int64.h"
 #include "atacmds.h"
 #include "dev_interface.h"
-#include "ataprint.h"
 #include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
@@ -131,7 +130,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 #define ARGUSED(x) ((void)(x))
 
 // These are CVS identification information for *.cpp and *.h files
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *escalade_c_cvsid, 
+extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid,
                   *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
 
 #ifdef _HAVE_CCISS
@@ -143,8 +142,8 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.418 2008/09/06 14:37:17 chrfranke Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.419 2008/09/06 20:08:35 chrfranke Exp $"
+ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
 #endif
@@ -474,7 +473,6 @@ void PrintCVS(void){
   PrintOut(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
   PrintOneCVS(atacmdnames_c_cvsid);
   PrintOneCVS(atacmds_c_cvsid);
-  PrintOneCVS(ataprint_c_cvsid);
 #ifdef _HAVE_CCISS
   PrintOneCVS(cciss_c_cvsid);
 #endif
@@ -1015,6 +1013,11 @@ void PrintOut(int priority, const char *fmt, ...){
   return;
 }
 
+// Used to warn users about invalid checksums. Called from atacmds.cpp.
+void checksumwarning(const char * string)
+{
+  pout("Warning! %s error: invalid SMART checksum.\n", string);
+}
 
 // Wait for the pid file to show up, this makes sure a calling program knows
 // that the daemon is really up and running and has a pid to kill it
@@ -1304,7 +1307,7 @@ static int SelfTestErrorCount(ata_device * device, const char * name)
   }
   
   // return current number of self-test errors
-  return ataPrintSmartSelfTestlog(&log,0);
+  return ataPrintSmartSelfTestlog(&log, false);
 }
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)

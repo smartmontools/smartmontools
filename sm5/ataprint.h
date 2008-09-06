@@ -25,18 +25,9 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.36 2008/09/05 17:40:39 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.37 2008/09/06 20:08:35 chrfranke Exp $\n"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <vector>
-
-// returns number of entries that had logged errors
-int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, int allentries);
-
-// Convenience function for formatting strings from ata_identify_device.
-void format_ata_string(char *out, const char *in, int n);
-
 
 // Request to dump a GP or SMART log
 struct ata_log_request
