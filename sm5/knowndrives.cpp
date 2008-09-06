@@ -21,13 +21,12 @@
 #include "int64.h"
 #include <stdio.h>
 #include "atacmds.h"
-#include "ataprint.h"
 #include "extern.h"
 #include "knowndrives.h"
-#include "utility.h" // includes <regex.h>
+#include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.173 2008/08/30 16:46:17 chrfranke Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.174 2008/09/06 20:08:35 chrfranke Exp $"
+ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8

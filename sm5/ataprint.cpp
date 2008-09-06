@@ -42,68 +42,11 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.197 2008/09/05 21:11:50 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.198 2008/09/06 20:08:35 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
-
-// Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
-// bytes.
-static void swapbytes(char * out, const char * in, size_t n)
-{
-  for (size_t i = 0; i < n; i += 2) {
-    out[i]   = in[i+1];
-    out[i+1] = in[i];
-  }
-}
-
-// Copies in to out, but removes leading and trailing whitespace.
-static void trim(char * out, const char * in)
-{
-  // Find the first non-space character (maybe none).
-  int first = -1;
-  int i;
-  for (i = 0; in[i]; i++)
-    if (!isspace((int)in[i])) {
-      first = i;
-      break;
-    }
-
-  if (first == -1) {
-    // There are no non-space characters.
-    out[0] = '\0';
-    return;
-  }
-
-  // Find the last non-space character.
-  for (i = strlen(in)-1; i >= first && isspace((int)in[i]); i--)
-    ;
-  int last = i;
-
-  strncpy(out, in+first, last-first+1);
-  out[last-first+1] = '\0';
-}
-
-// Convenience function for formatting strings from ata_identify_device
-void format_ata_string(char *out, const char *in, int n)
-{
-  bool must_swap = !con->fixswappedid;
-#ifdef __NetBSD__
-  /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
-  if (isbigendian())
-    must_swap = !must_swap;
-#endif
-
-  char tmp[65];
-  n = n > 64 ? 64 : n;
-  if (!must_swap)
-    strncpy(tmp, in, n);
-  else
-    swapbytes(tmp, in, n);
-  tmp[n] = '\0';
-  trim(out, tmp);
-}
 
 static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");
@@ -1371,119 +1314,6 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
   return; 
 }
 
-// return value is:
-// bottom 8 bits: number of entries found where self-test showed an error
-// remaining bits: if nonzero, power on hours of last self-test where error was found
-int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, int allentries)
-{
-  if (allentries)
-    pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
-  if ((data->revnumber!=0x0001) && allentries && con->fixfirmwarebug != FIX_SAMSUNG)
-    pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
-  if (data->mostrecenttest==0){
-    if (allentries)
-      pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
-    return 0;
-  }
-
-  int noheaderprinted=1;
-  int retval=0, hours=0, testno=0;
-
-  // print log
-  for (int i = 20;i >= 0; i--){
-    // log is a circular buffer
-    int j = (i+data->mostrecenttest)%21;
-    const ata_smart_selftestlog_struct * log = data->selftest_struct+j;
-
-    if (nonempty((unsigned char*)log,sizeof(*log))){
-      // count entry based on non-empty structures -- needed for
-      // Seagate only -- other vendors don't have blank entries 'in
-      // the middle'
-      testno++;
-
-      // test name
-      const char * msgtest;
-      switch(log->selftestnumber){
-      case   0: msgtest="Offline            "; break;
-      case   1: msgtest="Short offline      "; break;
-      case   2: msgtest="Extended offline   "; break;
-      case   3: msgtest="Conveyance offline "; break;
-      case   4: msgtest="Selective offline  "; break;
-      case 127: msgtest="Abort offline test "; break;
-      case 129: msgtest="Short captive      "; break;
-      case 130: msgtest="Extended captive   "; break;
-      case 131: msgtest="Conveyance captive "; break;
-      case 132: msgtest="Selective captive  "; break;
-      default:  
-        if ( log->selftestnumber>=192 ||
-            (log->selftestnumber>= 64 && log->selftestnumber<=126))
-          msgtest="Vendor offline     ";
-        else
-          msgtest="Reserved offline   ";
-      }
-      
-      // test status
-      int errorfound = 0;
-      const char * msgstat;
-      switch((log->selfteststatus)>>4){
-      case  0:msgstat="Completed without error      "; break;
-      case  1:msgstat="Aborted by host              "; break;
-      case  2:msgstat="Interrupted (host reset)     "; break;
-      case  3:msgstat="Fatal or unknown error       "; errorfound=1; break;
-      case  4:msgstat="Completed: unknown failure   "; errorfound=1; break;
-      case  5:msgstat="Completed: electrical failure"; errorfound=1; break;
-      case  6:msgstat="Completed: servo/seek failure"; errorfound=1; break;
-      case  7:msgstat="Completed: read failure      "; errorfound=1; break;
-      case  8:msgstat="Completed: handling damage?? "; errorfound=1; break;
-      case 15:msgstat="Self-test routine in progress"; break;
-      default:msgstat="Unknown/reserved test status ";
-      }
-
-      char percent[64];
-      retval+=errorfound;
-      sprintf(percent,"%1d0%%",(log->selfteststatus)&0xf);
-
-      // T13/1321D revision 1c: (Data structure Rev #1)
-
-      //The failing LBA shall be the LBA of the uncorrectable sector
-      //that caused the test to fail. If the device encountered more
-      //than one uncorrectable sector during the test, this field
-      //shall indicate the LBA of the first uncorrectable sector
-      //encountered. If the test passed or the test failed for some
-      //reason other than an uncorrectable sector, the value of this
-      //field is undefined.
-
-      // This is true in ALL ATA-5 specs
-      
-      char firstlba[64];
-      if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
-        sprintf(firstlba,"%s","-");
-      else      
-        sprintf(firstlba,"%u",log->lbafirstfailure);
-
-      // print out a header if needed
-      if (noheaderprinted && (allentries || errorfound)){
-        pout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
-        noheaderprinted=0;
-      }
-      
-      // print out an entry, either if we are printing all entries OR
-      // if an error was found
-      if (allentries || errorfound)
-        pout("#%2d  %s %s %s  %8d         %s\n", testno, msgtest, msgstat, percent, (int)log->timestamp, firstlba);
-
-      // keep track of time of most recent error
-      if (errorfound && !hours)
-        hours=log->timestamp;
-    }
-  }
-  if (!allentries && retval)
-    pout("\n");
-
-  hours = hours << 8;
-  return (retval | hours);
-}
-
 static void ataPseudoCheckSmart(const ata_smart_values * data,
                                 const ata_smart_thresholds_pvt * thresholds)
 {
@@ -1666,22 +1496,6 @@ void failuretest(int type, int returnvalue){
 
   pout("Smartctl internal error in failuretest(type=%d). Please contact developers at " PACKAGE_HOMEPAGE "\n",type);
   EXIT(returnvalue|FAILCMD);
-}
-
-// Used to warn users about invalid checksums.  Action to be taken may be
-// altered by the user.
-void checksumwarning(const char *string){
-  // user has asked us to ignore checksum errors
-  if (con->checksumignore)
-        return;
-
-  pout("Warning! %s error: invalid SMART checksum.\n",string);
-
-  // user has asked us to fail on checksum errors
-  if (con->checksumfail)
-    EXIT(FAILSMART);
-
-  return;
 }
 
 // Initialize to zero just in case some SMART routines don't work

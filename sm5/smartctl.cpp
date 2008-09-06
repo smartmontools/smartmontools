@@ -64,15 +64,12 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.188 2008/08/29 21:14:29 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.189 2008/09/06 20:08:35 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
 smartmonctrl *con=NULL;
-
-// Track memory use
-extern int64_t bytes;
 
 void printslogan(){
   pout("%s\n", format_version_info("smartctl"));
@@ -856,6 +853,20 @@ void PrintOut(int priority, const char *fmt, ...) {
   return;
 }
 
+// Used to warn users about invalid checksums. Called from atacmds.cpp.
+// Action to be taken may be altered by the user.
+void checksumwarning(const char * string)
+{
+  // user has asked us to ignore checksum errors
+  if (con->checksumignore)
+    return;
+
+  pout("Warning! %s error: invalid SMART checksum.\n", string);
+
+  // user has asked us to fail on checksum errors
+  if (con->checksumfail)
+    EXIT(FAILSMART);
+}
 
 // Main program without exception handling
 int main_worker(int argc, char **argv)

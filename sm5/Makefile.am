@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.89 2008/09/06 14:37:17 chrfranke Exp $
+# $Id: Makefile.am,v 1.90 2008/09/06 20:08:35 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -21,8 +21,6 @@ smartd_SOURCES =  smartd.cpp      \
                   atacmdnames.h   \
                   atacmds.cpp     \
                   atacmds.h       \
-                  ataprint.cpp    \
-                  ataprint.h      \
                   dev_ata_cmd_set.cpp \
                   dev_ata_cmd_set.h   \
                   dev_interface.cpp   \
@@ -36,8 +34,6 @@ smartd_SOURCES =  smartd.cpp      \
                   scsicmds.h      \
                   scsiata.cpp     \
                   scsiata.h       \
-                  scsiprint.cpp   \
-                  scsiprint.h     \
                   utility.cpp     \
                   utility.h
 

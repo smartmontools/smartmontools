@@ -44,13 +44,13 @@
 #include "extern.h"
 #include "scsicmds.h"
 #include "scsiata.h"
-#include "ataprint.h" // ataReadHDIdentity()
+#include "atacmds.h" // ataReadHDIdentity()
 #include "utility.h"
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.16 2008/08/23 17:07:17 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.17 2008/09/06 20:08:35 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
