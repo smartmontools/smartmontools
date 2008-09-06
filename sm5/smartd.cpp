@@ -45,10 +45,6 @@
 #include <vector>
 #include <algorithm> // std::replace()
 
-#if SCSITIMEOUT
-#include <setjmp.h>
-#endif
-
 // see which system files to conditionally include
 #include "config.h"
 
@@ -142,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.419 2008/09/06 20:08:35 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.420 2008/09/06 21:11:59 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -231,18 +227,6 @@ volatile int caughtsigHUP=0;
 
 // set to signal value if we catch INT, QUIT, or TERM
 volatile int caughtsigEXIT=0;
-
-// Number of seconds to allow for registering a SCSI device. If this
-// time expires without sucess or failure, then treat it as failure.
-// Set to 0 to eliminate this timeout feature from the code
-// (equivalent to an infinite timeout interval).
-// TODO: This is no longer implemented. Is it still needed?
-#define SCSITIMEOUT 0
-
-#if SCSITIMEOUT
-// stack environment if we time out during SCSI access (USB devices)
-jmp_buf registerscsienv;
-#endif
 
 // Number of monitoring flags per Attribute and offsets.
 // See monitorattflags below.
@@ -2489,14 +2473,6 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
   }
 }
 
-#if SCSITIMEOUT
-// This alarm means that a SCSI USB device was hanging
-void AlarmHandler(int signal) {
-  longjmp(registerscsienv, 1);
-}
-#endif
-
-
 // Set if Initialize() was called
 static bool is_initialized = false;
 
@@ -3789,43 +3765,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     
     // or register SCSI devices
     else if (dev->is_scsi()){
-      int retscsi=0;
-
-#if 0 // SCSITIMEOUT // TODO: Handle in dev_legacy.cpp or os_*.cpp
-      struct sigaction alarmAction, defaultaction;
-
-      // Set up an alarm handler to catch USB devices that hang on
-      // SCSI scanning...
-      alarmAction.sa_handler= AlarmHandler;
-      alarmAction.sa_flags  = SA_RESTART;
-      if (sigaction(SIGALRM, &alarmAction, &defaultaction)) {
-        // if we can't set timeout, just scan device
-        PrintOut(LOG_CRIT, "Unable to initialize SCSI timeout mechanism.\n");
-        retscsi=SCSIDeviceScan(ent);
-      }
-      else {
-        // prepare return point in case of bad SCSI device
-        if (setjmp(registerscsienv))
-          // SCSI device timed out!
-          retscsi=-1;
-        else {
-        // Set alarm, make SCSI call, reset alarm
-          alarm(SCSITIMEOUT);
-          retscsi=SCSIDeviceScan(ent);
-          alarm(0);
-        }
-        if (sigaction(SIGALRM, &defaultaction, NULL)){
-          PrintOut(LOG_CRIT, "Unable to clear SCSI timeout mechanism.\n");
-        }
-      }
-#else
-      retscsi = SCSIDeviceScan(cfg, state, dev->to_scsi());
-#endif   
-
-      // Now scan SCSI device...
-      if (retscsi){
-        if (retscsi<0)
-          PrintOut(LOG_CRIT, "Device %s timed out (poorly-implemented USB device?)\n", cfg.name.c_str());
+      if (SCSIDeviceScan(cfg, state, dev->to_scsi())) {
         CanNotRegister(cfg.name.c_str(), "SCSI", cfg.lineno, scanning);
         delete dev; dev = 0;
       }

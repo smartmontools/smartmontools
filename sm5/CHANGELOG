@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.728 2008/09/06 20:08:35 chrfranke Exp $
+$Id: CHANGELOG,v 1.729 2008/09/06 21:11:59 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Remove SCSITIMEOUT code. According to smartd.h 1.54 CVS log
+       from 2003-10-27, it did never work.
 
   [CF] Remove dependencies ataprint.cpp and scsiprint.cpp from smartd.
        Move common ATA functions from ataprint.cpp to atacmds.cpp.
