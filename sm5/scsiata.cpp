@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.17 2008/09/06 20:08:35 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.18 2008/09/12 19:26:09 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -761,7 +761,7 @@ static int has_usbcypress_pass_through(ata_device * atadev, const char *manufact
         return 0;
 
     /* check if model string match, revision doesn't work for me */
-    format_ata_string(model, (char *)drive.model,40);
+    format_ata_string(model, drive.model, 40);
     if (*model == 0 || isprint_string(model) == 0)
         return 0;
 
@@ -772,10 +772,10 @@ static int has_usbcypress_pass_through(ata_device * atadev, const char *manufact
         pout("product doesn't match in pass_through test\n");
 
     /* check serial */
-    format_ata_string(serial, (char *)drive.serial_no,20);
+    format_ata_string(serial, drive.serial_no, 20);
     if (isprint_string(serial) == 0)
         return 0;
-    format_ata_string(firm, (char *)drive.fw_rev,8);
+    format_ata_string(firm, drive.fw_rev, 8);
     if (isprint_string(firm) == 0)
         return 0;
     return 1;

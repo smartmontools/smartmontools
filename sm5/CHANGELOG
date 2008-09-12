@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.730 2008/09/12 18:46:38 chrfranke Exp $
+$Id: CHANGELOG,v 1.731 2008/09/12 19:26:09 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Remove casts from 'format_ata_string()' calls.
 
   [CF] Minor changes to fix errors and warnings from Cygwin gcc 4.3.0.
 
