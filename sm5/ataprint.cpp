@@ -27,6 +27,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #ifdef HAVE_LOCALE_H
 #include <locale.h>
@@ -42,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.198 2008/09/06 20:08:35 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.199 2008/09/12 18:46:38 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables

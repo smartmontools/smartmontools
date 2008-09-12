@@ -25,12 +25,13 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.62 2008/09/06 14:37:18 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.63 2008/09/12 18:46:38 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
 #include <stdarg.h>
+#include <string.h>
 #include <string>
 
 #if !defined(__GNUC__) && !defined(__attribute__)

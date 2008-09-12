@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.206 2008/09/06 20:08:35 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.207 2008/09/12 18:46:38 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -222,7 +222,8 @@ int parse_attribute_def(const char * pair, unsigned char * defs)
   char temp[32];
 
   // look along list and see if we find the pair
-  for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++);
+  for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++)
+    ;
 
   switch (i) {
   case 0:

@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.68 2008/08/23 17:07:16 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.69 2008/09/12 18:46:38 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1749,7 +1749,7 @@ union STORAGE_DEVICE_DESCRIPTOR_DATA {
 
 static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTOR_DATA * data)
 {
-  STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery, 0};
+  STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery, {0} };
   memset(data, 0, sizeof(*data));
 
   DWORD num_out;
