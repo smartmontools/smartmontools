@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.100 2008/09/06 20:08:35 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.101 2008/09/12 19:26:09 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -649,6 +649,8 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
 
 // Convenience function for formatting strings from ata_identify_device.
 void format_ata_string(char * out, const char * in, int n);
+inline void format_ata_string(char * out, const unsigned char * in, int n)
+  { format_ata_string(out, (const char *)in, n); }
 
 // Utility routines.
 unsigned char checksum(const unsigned char * buffer);
