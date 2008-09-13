@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.63 2008/09/12 18:46:38 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.64 2008/09/13 14:37:29 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -53,6 +53,11 @@ int safe_snprintf(char *buf, int size, const char *fmt, ...);
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
 #define vsnprintf safe_vsnprintf
+#endif
+
+#ifndef HAVE_STRTOULL
+// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
+uint64_t strtoull(const char * p, char * * endp, int base);
 #endif
 
 // Utility function prints current date and time and timezone into a

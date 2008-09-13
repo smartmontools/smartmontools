@@ -50,7 +50,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.73 2008/09/06 14:37:18 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.74 2008/09/13 14:37:29 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -535,25 +535,27 @@ int split_report_arg2(char *s, int *i){
 }
 
 #ifndef HAVE_STRTOULL
-// Replacement for missing strtoull() (Linux with libc < 6, MSVC 6.0)
-// Functionality reduced to split_selective_arg()'s requirements.
+// Replacement for missing strtoull() (Linux with libc < 6, MSVC)
+// Functionality reduced to requirements of smartd and split_selective_arg().
 
-static uint64_t strtoull(const char * p, char * * endp, int base)
+uint64_t strtoull(const char * p, char * * endp, int base)
 {
   uint64_t result, maxres;
   int i = 0;
   char c = p[i++];
-  // assume base == 0
-  if (c == '0') {
-    if (p[i] == 'x' || p[i] == 'X') {
-      base = 16; i++;
+
+  if (!base) {
+    if (c == '0') {
+      if (p[i] == 'x' || p[i] == 'X') {
+        base = 16; i++;
+      }
+      else
+        base = 8;
+      c = p[i++];
     }
     else
-      base = 8;
-    c = p[i++];
+      base = 10;
   }
-  else
-    base = 10;
 
   result = 0;
   maxres = ~(uint64_t)0 / (unsigned)base;
@@ -577,7 +579,8 @@ static uint64_t strtoull(const char * p, char * * endp, int base)
     result = result * (unsigned)base + digit;
     c = p[i++];
   }
-  *endp = (char *)p + i - 1;
+  if (endp)
+    *endp = (char *)p + i - 1;
   return result;
 }
 #endif // HAVE_STRTOLL
