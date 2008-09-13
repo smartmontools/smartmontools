@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.420 2008/09/06 21:11:59 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.421 2008/09/13 14:50:53 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -185,6 +185,9 @@ static int checktime=CHECKTIME;
 
 // command-line: name of PID file (empty for no pid file)
 static std::string pid_file;
+
+// command-line: path prefix of persistent state file, empty if no persistence.
+static std::string state_path_prefix;
 
 // configuration file name
 #define CONFIGFILENAME "smartd.conf"
@@ -245,6 +248,7 @@ struct dev_config
   int lineno;                             // Line number of entry in file
   std::string name;                       // Device name
   std::string dev_type;                   // Device type argument from -d directive, empty if none
+  std::string state_file;                 // Path of the persistent state file, empty if none
   bool smartcheck;                        // Check SMART status
   bool usagefailed;                       // Check for failed Usage Attributes
   bool prefail;                           // Track changes in Prefail Attributes
@@ -329,23 +333,52 @@ struct mailinfo {
     : logged(0), firstsent(0), lastsent(0) { }
 };
 
-/// Runtime state data for a device.
-struct dev_state
+/// Persistent state data for a device.
+struct persistent_dev_state
 {
   unsigned char tempmin, tempmax;         // Min/Max Temperatures
 
   unsigned char selflogcount;             // total number of self-test errors
   unsigned short selfloghour;             // lifetime hours of last self-test error
 
+  time_t scheduled_test_next_check;       // Time of next check for scheduled self-tests
+
+  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
+
+  // ATA ONLY
+  int ataerrorcount;                      // Total number of ATA errors
+
+  // Persistent part of ata_smart_values:
+  struct ata_attribute {
+    unsigned char id;
+    unsigned char val;
+    uint64_t raw;
+
+    ata_attribute() : id(0), val(0), raw(0) { }
+  };
+  ata_attribute ata_attributes[NUMBER_ATA_SMART_ATTRIBUTES];
+
+  persistent_dev_state();
+};
+
+persistent_dev_state::persistent_dev_state()
+: tempmin(0), tempmax(0),
+  selflogcount(0),
+  selfloghour(0),
+  scheduled_test_next_check(0),
+  ataerrorcount(0)
+{
+}
+
+/// Non-persistent state data for a device.
+struct temp_dev_state
+{
+  bool must_write;                        // true if persistent part should be written
+
   bool not_cap_offline;                   // true == not capable of offline testing
   bool not_cap_conveyance;
   bool not_cap_short;
   bool not_cap_long;
-
-  unsigned short testhour;                // 1+hour of year when last scheduled self-test done
-  char testtype;                          // type of test done at hour indicated just above
-
-  mailinfo maillog[SMARTD_NMAIL];         // log info on when mail sent
 
   unsigned char temperature;              // last recorded Temperature (in Celsius)
   unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
@@ -361,24 +394,18 @@ struct dev_state
                                           // know yet) 6 or 10
 
   // ATA ONLY
-  int ataerrorcount;                      // Total number of ATA errors
+  ata_smart_values smartval;              // SMART data
+  ata_smart_thresholds_pvt smartthres;    // SMART thresholds
 
-  struct ata_smart_values smartval;           // SMART data
-  struct ata_smart_thresholds_pvt smartthres; // SMART thresholds
-
-  dev_state();
+  temp_dev_state();
 };
 
-dev_state::dev_state()
-: tempmin(0), tempmax(0),
-  selflogcount(0),
-  selfloghour(0),
+temp_dev_state::temp_dev_state()
+: must_write(false),
   not_cap_offline(false),
   not_cap_conveyance(false),
   not_cap_short(false),
   not_cap_long(false),
-  testhour(0),
-  testtype(0),
   temperature(0),
   tempmininc(0),
   powermodefail(false),
@@ -386,19 +413,264 @@ dev_state::dev_state()
   SmartPageSupported(false),
   TempPageSupported(false),
   SuppressReport(false),
-  modese_len(0),
-  ataerrorcount(0)
+  modese_len(0)
 {
   memset(&smartval, 0, sizeof(smartval));
   memset(&smartthres, 0, sizeof(smartthres));
 }
 
+/// Runtime state data for a device.
+struct dev_state
+: public persistent_dev_state,
+  public temp_dev_state
+{
+  void update_persistent_state();
+  void update_temp_state();
+};
 
 /// Container for configuration info for each device.
 typedef std::vector<dev_config> dev_config_vector;
 
 /// Container for state info for each device.
 typedef std::vector<dev_state> dev_state_vector;
+
+// Copy ATA attributes to persistent state.
+void dev_state::update_persistent_state()
+{
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const ata_smart_attribute & ta = smartval.vendor_attributes[i];
+    ata_attribute & pa = ata_attributes[i];
+    pa.id = ta.id;
+    if (ta.id == 0) {
+      pa.val = 0; pa.raw = 0;
+      continue;
+    }
+    pa.val = ta.current;
+    pa.raw =            ta.raw[0]
+           | (          ta.raw[1] <<  8)
+           | (          ta.raw[2] << 16)
+           | (          ta.raw[3] << 24)
+           | ((uint64_t)ta.raw[4] << 32)
+           | ((uint64_t)ta.raw[5] << 40);
+  }
+}
+
+// Copy ATA from persistent to temp state.
+void dev_state::update_temp_state()
+{
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const ata_attribute & pa = ata_attributes[i];
+    ata_smart_attribute & ta = smartval.vendor_attributes[i];
+    ta.id = pa.id;
+    if (pa.id == 0) {
+      ta.current = 0; memset(ta.raw, 0, sizeof(ta.raw));
+      continue;
+    }
+    ta.current = pa.val;
+    ta.raw[0] = (unsigned char) pa.raw;
+    ta.raw[1] = (unsigned char)(pa.raw >>  8);
+    ta.raw[2] = (unsigned char)(pa.raw >> 16);
+    ta.raw[3] = (unsigned char)(pa.raw >> 24);
+    ta.raw[4] = (unsigned char)(pa.raw >> 32);
+    ta.raw[5] = (unsigned char)(pa.raw >> 40);
+  }
+}
+
+// Parse a line from a state file.
+static bool parse_dev_state_line(const char * line, persistent_dev_state & state)
+{
+  static regular_expression regex(
+    "^ *"
+     "((temperature-min)" // (1 (2)
+     "|(temperature-max)" // (3)
+     "|(self-test-errors)" // (4)
+     "|(self-test-last-err-hour)" // (5)
+     "|(scheduled-test-next-check)" // (6)
+     "|(ata-error-count)"  // (7)
+     "|(mail\\.([0-9]+)\\." // (8 (9)
+       "((count)" // (10 (11)
+       "|(first-sent-time)" // (12)
+       "|(last-sent-time)" // (13)
+       ")" // 14)
+      ")" // 8)
+     "|(ata-smart-attribute\\.([0-9]+)\\." // (14 (15)
+       "((id)" // (16)
+       "|(val)" // (17)
+       "|(raw)" // (18)
+       ")" // 19)
+      ")" // 14)
+     ")" // 1)
+     " *= *([0-9]+)[ \n]*$", // (20)
+    REG_EXTENDED
+  );
+  if (regex.empty())
+    throw std::logic_error("parse_dev_state_line: invalid regex");
+
+  const int nmatch = 1+20;
+  regmatch_t match[nmatch];
+  if (!regex.execute(line, nmatch, match))
+    return false;
+  if (match[nmatch-1].rm_so < 0)
+    return false;
+
+  uint64_t val = strtoull(line + match[nmatch-1].rm_so, (char **)0, 10);
+
+  int m = 1;
+  if (match[++m].rm_so >= 0)
+    state.tempmin = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.tempmax = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.selflogcount = (unsigned char)val;
+  else if (match[++m].rm_so >= 0)
+    state.selfloghour = (unsigned short)val;
+  else if (match[++m].rm_so >= 0)
+    state.scheduled_test_next_check = (time_t)val;
+  else if (match[++m].rm_so >= 0)
+    state.ataerrorcount = (int)val;
+  else if (match[m+=2].rm_so >= 0) {
+    int i = atoi(line+match[m].rm_so);
+    if (!(0 <= i && i < SMARTD_NMAIL))
+      return false;
+    if (match[m+=2].rm_so >= 0)
+      state.maillog[i].logged = (int)val;
+    else if (match[++m].rm_so >= 0)
+      state.maillog[i].firstsent = (time_t)val;
+    else if (match[++m].rm_so >= 0)
+      state.maillog[i].lastsent = (time_t)val;
+    else
+      return false;
+  }
+  else if (match[m+=5+1].rm_so >= 0) {
+    int i = atoi(line+match[m].rm_so);
+    if (!(0 <= i && i < NUMBER_ATA_SMART_ATTRIBUTES))
+      return false;
+    if (match[m+=2].rm_so >= 0)
+      state.ata_attributes[i].id = (unsigned char)val;
+    else if (match[++m].rm_so >= 0)
+      state.ata_attributes[i].val = (unsigned char)val;
+    else if (match[++m].rm_so >= 0)
+      state.ata_attributes[i].raw = val;
+    else
+      return false;
+  }
+  else
+    return false;
+  return true;
+}
+
+// Read a state file.
+static bool read_dev_state(const char * path, persistent_dev_state & state)
+{
+  FILE * f = fopen(path, "r");
+  if (!f) {
+    if (errno != ENOENT)
+      pout("Cannot read state file \"%s\"\n", path);
+    return false;
+  }
+
+  int good = 0, bad = 0;
+  char line[256];
+  while (fgets(line, sizeof(line), f)) {
+    const char * s = line + strspn(line, " \t");
+    if (!*s || *s == '#')
+      continue;
+    if (!parse_dev_state_line(line, state))
+      bad++;
+    else
+      good++;
+  }
+  fclose(f);
+
+  if (bad) {
+    if (!good) {
+      pout("%s: format error\n", path);
+      return false;
+    }
+    pout("%s: %d invalid line(s) ignored\n", path, bad);
+  }
+  return true;
+}
+
+static void write_dev_state_line(FILE * f, const char * name, uint64_t val)
+{
+  if (val)
+    fprintf(f, "%s = %"PRIu64"\n", name, val);
+}
+
+static void write_dev_state_line(FILE * f, const char * name1, int id, const char * name2, uint64_t val)
+{
+  if (val)
+    fprintf(f, "%s.%d.%s = %"PRIu64"\n", name1, id, name2, val);
+}
+
+// Write a state file
+static bool write_dev_state(const char * path, const persistent_dev_state & state)
+{
+  // Rename old "file" to "file~"
+  std::string pathbak = path; pathbak += '~';
+  rename(path, pathbak.c_str());
+
+  FILE * f = fopen(path, "w");
+  if (!f) {
+    pout("Cannot create state file \"%s\"\n", path);
+    return false;
+  }
+
+  fprintf(f, "# smartd state file\n");
+  write_dev_state_line(f, "temperature-min", state.tempmin);
+  write_dev_state_line(f, "temperature-max", state.tempmax);
+  write_dev_state_line(f, "self-test-errors", state.selflogcount);
+  write_dev_state_line(f, "self-test-last-err-hour", state.selfloghour);
+  write_dev_state_line(f, "scheduled-test-next-check", state.scheduled_test_next_check);
+
+  int i;
+  for (i = 0; i < SMARTD_NMAIL; i++) {
+    const mailinfo & mi = state.maillog[i];
+    if (!mi.logged)
+      continue;
+    write_dev_state_line(f, "mail", i, "count", mi.logged);
+    write_dev_state_line(f, "mail", i, "first-sent-time", mi.firstsent);
+    write_dev_state_line(f, "mail", i, "last-sent-time", mi.lastsent);
+  }
+
+  // ATA ONLY
+  write_dev_state_line(f, "ata-error-count", state.ataerrorcount);
+
+  for (i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const persistent_dev_state::ata_attribute & pa = state.ata_attributes[i];
+    if (!pa.id)
+      continue;
+    write_dev_state_line(f, "ata-smart-attribute", i, "id", pa.id);
+    write_dev_state_line(f, "ata-smart-attribute", i, "val", pa.val);
+    write_dev_state_line(f, "ata-smart-attribute", i, "raw", pa.raw);
+  }
+  fclose(f);
+
+  return true;
+}
+
+// Write all state files. If write_always is false, don't write
+// unless must_write is set.
+static void write_all_dev_states(const dev_config_vector & configs,
+                                 dev_state_vector & states,
+                                 bool write_always = true)
+{
+  for (unsigned i = 0; i < states.size(); i++) {
+    const dev_config & cfg = configs.at(i);
+    if (cfg.state_file.empty())
+      continue;
+    dev_state & state = states[i];
+    if (!write_always && !state.must_write)
+      continue;
+    if (!write_dev_state(cfg.state_file.c_str(), state))
+      continue;
+    state.must_write = false;
+    if (write_always || debugmode)
+      PrintOut(LOG_INFO, "Device: %s, state written to %s\n",
+               cfg.name.c_str(), cfg.state_file.c_str());
+  }
+}
 
 
 // cfg.pending is a 16 bit unsigned quantity.  If the least
@@ -1230,6 +1502,8 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Quit on one of: %s\n\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
+  PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
+  PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n\n");
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
   PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
@@ -1251,6 +1525,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
+  PrintOut(LOG_INFO,"  -s PREFIX  Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
   PrintOut(LOG_INFO,"  -V         Print License, Copyright, and version information\n");
 #endif
 }
@@ -1263,6 +1538,14 @@ static int CloseDevice(smart_device * device, const char * name)
   }
   // device sucessfully closed
   return 0;
+}
+
+// return true if a char is not allowed in a state file name
+static bool not_allowed_in_filename(char c)
+{
+  return !(   ('0' <= c && c <= '9')
+           || ('A' <= c && c <= 'Z')
+           || ('a' <= c && c <= 'z'));
 }
 
 // returns <0 on failure
@@ -1539,6 +1822,24 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   
   // close file descriptor
   CloseDevice(atadev, name);
+
+  if (!state_path_prefix.empty()) {
+    // Build file name for state file
+    char model[40+1], serial[20+1];
+    format_ata_string(model, drive.model, sizeof(model)-1);
+    format_ata_string(serial, drive.serial_no, sizeof(serial)-1);
+    std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
+    std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
+    cfg.state_file = strprintf("%s%s-%s.ata.state", state_path_prefix.c_str(), model, serial);
+
+    // Read previous state
+    if (read_dev_state(cfg.state_file.c_str(), state)) {
+      PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+      // Copy ATA attribute values to temp state
+      state.update_temp_state();
+    }
+  }
+
   return 0;
 }
 
@@ -1670,7 +1971,12 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   
   // tell user we are registering device
   PrintOut(LOG_INFO, "Device: %s, is SMART capable. Adding to \"monitor\" list.\n", device);
-  
+
+  // TODO: Build file name for state file
+  if (!state_path_prefix.empty()) {
+    PrintOut(LOG_INFO, "Device: %s, persistence not yet supported for SCSI; ignoring -s option.\n", device);
+  }
+
   // close file descriptor
   CloseDevice(scsidev, device);
   return 0;
@@ -1806,6 +2112,7 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
                name, oldc, newc);
       MailWarning(cfg, state, 3, "Device: %s, Self-Test Log error count increased from %d to %d",
                    name, oldc, newc);
+      state.must_write = true;
     } else if (oldh!=newh) {
       // more recent error
       // a 'more recent' error might actually be a smaller hour number,
@@ -1818,6 +2125,7 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
                name, newh);
       MailWarning(cfg, state, 3, "Device: %s, new Self-Test Log error at hour timestamp %d\n",
                    name, newh);
+      state.must_write = true;
     }
     
     // Needed since self-test error count may DECREASE.  Hour might
@@ -1828,19 +2136,17 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
   return;
 }
 
-// returns 1 if time to do test of type testtype, 0 if not time to do
-// test, < 0 if error
-static int DoTestNow(const dev_config & cfg, dev_state & state, char testtype, time_t testtime)
+// returns test type if time to do test of type testtype,
+// 0 if not time to do test.
+static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool scsi, time_t testtime = 0)
 {
-  // start by finding out the time:
-  struct tm *timenow;
-  time_t epochnow;
-  char matchpattern[16];
-  int weekday;
-  unsigned short hours;
-
   // check that self-testing has been requested
   if (cfg.test_regex.empty())
+    return 0;
+
+  // Exit if drive not capable of any test
+  if ( state.not_cap_long && state.not_cap_short &&
+      (scsi || (state.not_cap_conveyance && state.not_cap_offline)))
     return 0;
 
   // since we are about to call localtime(), be sure glibc is informed
@@ -1848,37 +2154,63 @@ static int DoTestNow(const dev_config & cfg, dev_state & state, char testtype, t
   if (!testtime)
     FixGlibcTimeZoneBug();
   
-  // construct pattern containing the month, day of month, day of
-  // week, and hour
-  epochnow = (!testtime ? time(NULL) : testtime);
-  timenow=localtime(&epochnow);
-  
-  // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7
-  // (Sunday).
-  weekday=timenow->tm_wday?timenow->tm_wday:7;
-  sprintf(matchpattern, "%c/%02d/%02d/%1d/%02d", testtype, timenow->tm_mon+1, 
-          timenow->tm_mday, weekday, timenow->tm_hour);
-  
-  // if no match, we are done
-  // must match the ENTIRE type/date/time string
-  if (!cfg.test_regex.full_match(matchpattern))
+  // Is it time for next check?
+  time_t now = (!testtime ? time(0) : testtime);
+  if (!state.scheduled_test_next_check)
+    state.scheduled_test_next_check = now;
+  else if (now < state.scheduled_test_next_check)
     return 0;
-  
-  // never do a second test in the same hour as another test (the % 7 ensures
-  // that the RHS will never be greater than 65535 and so will always fit into
-  // an unsigned short)
-  hours=1+timenow->tm_hour+24*(timenow->tm_yday+366*(timenow->tm_year % 7));
-  if (hours == state.testhour) {
-    if (!testtime && testtype != state.testtype)
-      PrintOut(LOG_INFO, "Device: %s, did test of type %c in current hour, skipping test of type %c\n",
-               cfg.name.c_str(), state.testtype, testtype);
-    return 0;
+
+  // Limit time check interval to 90 days
+  if (state.scheduled_test_next_check + (3600L*24*90) < now)
+    state.scheduled_test_next_check = now - (3600L*24*90);
+
+  // Check interval [state.scheduled_test_next_check, now] for scheduled tests
+  char testtype = 0;
+  int maxtest = (scsi ? 1 : 3); // (scsi ? 'S' : 'O')
+
+  for (time_t t = state.scheduled_test_next_check; ; ) {
+    struct tm * tms = localtime(&t);
+    // tm_wday is 0 (Sunday) to 6 (Saturday).  We use 1 (Monday) to 7 (Sunday).
+    int weekday = (tms->tm_wday ? tms->tm_wday : 7);
+    for (int i = 0; i <= maxtest; i++) {
+      // Skip if drive not capable of this test
+      switch (i) {
+        case 0: if (state.not_cap_long)       continue; break;
+        case 1: if (state.not_cap_short)      continue; break;
+        case 2: if (state.not_cap_conveyance) continue; break;
+        case 3: if (state.not_cap_offline)    continue; break;
+      }
+      // Try match of "T/MM/DD/d/HH"
+      char pattern[16];
+      snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
+        "LSCO"[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
+      if (cfg.test_regex.full_match(pattern)) {
+        // Test found
+        testtype = pattern[0];
+        // Limit further matches to higher priority self-tests
+        maxtest = i-1;
+        break;
+      }
+    }
+    // Exit if no tests left or current time reached
+    if (maxtest < 0)
+      break;
+    if (t >= now)
+      break;
+    // Check next hour
+    if ((t += 3600) > now)
+      t = now;
   }
   
-  // save time and type of the current test; we are ready to do a test
-  state.testhour = hours;
-  state.testtype = testtype;
-  return 1;
+  // Do next check not before next hour.
+  struct tm * tmnow = localtime(&now);
+  state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
+
+  if (testtype)
+    state.must_write = true;
+
+  return testtype;
 }
 
 // Print a list of future tests.
@@ -1903,16 +2235,16 @@ static void PrintTestSchedule(const dev_config_vector & configs, dev_state_vecto
     for (unsigned i = 0; i < numdev; i++) {
       const dev_config & cfg = configs.at(i);
       dev_state & state = states.at(i);
-      unsigned numtests = (devices.at(i)->is_ata() ? 4 : 2);
-      for (unsigned t = 0; t < numtests; t++) {
-        char testtype = "LSCO"[t];
-        if (DoTestNow(cfg, state, testtype, testtime)) {
-          // Report at most 5 tests of each type
-          if (++testcnts[i*4 + t] <= 5) {
-            dateandtimezoneepoch(date, testtime);
-            PrintOut(LOG_INFO, "Device: %s, will do test %d of type %c at %s\n", cfg.name.c_str(),
-              testcnts[i*4 + t], testtype, date);
-          }
+      const char * p;
+      char testtype = next_scheduled_test(cfg, state, devices.at(i)->is_scsi(), testtime);
+      const char alltypes[] = "LSCO";
+      if (testtype && (p = strchr(alltypes, testtype))) {
+        unsigned t = (p - alltypes);
+        // Report at most 5 tests of each type
+        if (++testcnts[i*4 + t] <= 5) {
+          dateandtimezoneepoch(date, testtime);
+          PrintOut(LOG_INFO, "Device: %s, will do test %d of type %c at %s\n", cfg.name.c_str(),
+            testcnts[i*4 + t], testtype, date);
         }
       }
     }
@@ -2075,12 +2407,13 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
     return;
   }
 
-  if (!state.temperature) {
+  if (!state.temperature && !state.tempmax) {
     PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius\n",
       cfg.name.c_str(), (int)currtemp);
     if (triptemp)
       PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n", (int)triptemp);
     state.temperature = state.tempmin = state.tempmax = currtemp;
+    state.must_write = true;
   }
   else {
     // Update [min,max]
@@ -2098,10 +2431,13 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
     }
 
     // Track changes
+    if (!state.temperature) // TODO: Fix tempmin handling
+      state.temperature = currtemp;
     if (cfg.tempdiff && (*minchg || *maxchg || abs((int)currtemp - (int)state.temperature) >= cfg.tempdiff)) {
       PrintOut(LOG_INFO, "Device: %s, Temperature changed %+d Celsius to %u Celsius (Min/Max %u%s/%u%s)\n",
         cfg.name.c_str(), (int)currtemp-(int)state.temperature, currtemp, state.tempmin, minchg, state.tempmax, maxchg);
       state.temperature = currtemp;
+      state.must_write = true;
     }
   }
 
@@ -2146,20 +2482,8 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // sure) check whether a self test should be done now.
   // This check is done before powermode check to avoid missing self
   // tests on idle or sleeping disks.
-  if (allow_selftests && !cfg.test_regex.empty()) {
-    // long test
-    if (!state.not_cap_long && DoTestNow(cfg, state, 'L', 0)>0)
-      testtype = 'L';
-    // short test
-    else if (!state.not_cap_short && DoTestNow(cfg, state, 'S', 0)>0)
-      testtype = 'S';
-    // conveyance test
-    else if (!state.not_cap_conveyance && DoTestNow(cfg, state, 'C', 0)>0)
-      testtype = 'C';
-    // offline immediate
-    else if (!state.not_cap_offline && DoTestNow(cfg, state, 'O', 0)>0)
-      testtype = 'O';
-  }
+  if (allow_selftests && !cfg.test_regex.empty())
+    testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
 
   // user may have requested (with the -n Directive) to leave the disk
   // alone if it is in idle or sleeping mode.  In this case check the
@@ -2226,6 +2550,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       PrintOut(LOG_INFO, "Device: %s, is back in %s mode, resuming checks (%d check%s skipped)\n",
         name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       state.powerskipcnt = 0;
+      state.must_write = true;
     }
   }
 
@@ -2235,10 +2560,12 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     if (status==-1){
       PrintOut(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
       MailWarning(cfg, state, 5, "Device: %s, not capable of SMART self-check", name);
+      state.must_write = true;
     }
     else if (status==1){
       PrintOut(LOG_CRIT, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!\n", name);
       MailWarning(cfg, state, 1, "Device: %s, FAILED SMART self-check. BACK UP DATA NOW!", name);
+      state.must_write = true;
     }
   }
   
@@ -2252,6 +2579,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     if (ataReadSmartValues(atadev, &curval)){
       PrintOut(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
       MailWarning(cfg, state, 6, "Device: %s, failed to read SMART Attribute Data", name);
+      state.must_write = true;
     }
     else {
       // look for current or offline pending sectors
@@ -2265,12 +2593,14 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	  // Unreadable pending sectors!!
 	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Currently unreadable (pending) sectors\n", name, rawval);
 	  MailWarning(cfg, state, 10, "Device: %s, %"PRId64" Currently unreadable (pending) sectors", name, rawval);
+          state.must_write = true;
 	}
 	
 	if (offlinepending && (rawval=ATAReturnAttributeRawValue(offlinepending, &curval))>0) {
 	  // Unreadable offline sectors!!
 	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Offline uncorrectable sectors\n", name, rawval);
 	  MailWarning(cfg, state, 11, "Device: %s, %"PRId64" Offline uncorrectable sectors", name, rawval);
+          state.must_write = true;
 	}
       }
 
@@ -2302,6 +2632,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	      // warning message
 	      PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
 	      MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
+              state.must_write = true;
 	    }
 	  }
 	  
@@ -2337,14 +2668,18 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 		newrawstring[0]=oldrawstring[0]='\0';
 	      
 	      // prefailure attribute
-	      if (cfg.prefail && delta.prefail)
+              if (cfg.prefail && delta.prefail) {
 		PrintOut(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d%s to %d%s\n",
 			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
+                state.must_write = true;
+              }
 	      
 	      // usage attribute
-	      if (cfg.usage && !delta.prefail)
+              if (cfg.usage && !delta.prefail) {
 		PrintOut(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d%s to %d%s\n",
 			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
+                state.must_write = true;
+              }
 	    }
 	  } // endof block tracking usage or prefailure
 	} // end of loop over attributes
@@ -2378,6 +2713,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
                name, oldc, newc);
       MailWarning(cfg, state, 4, "Device: %s, ATA error count increased from %d to %d",
                    name, oldc, newc);
+      state.must_write = true;
     }
     
     // this last line is probably not needed, count always increases
@@ -2392,6 +2728,10 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
   CloseDevice(atadev, name);
+
+  // Copy ATA attribute values to persistent state
+  state.update_persistent_state();
+
   return 0;
 }
 
@@ -2447,12 +2787,9 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
       CheckSelfTestLogs(cfg, state, scsiCountFailedSelfTests(scsidev, 0));
     
     if (allow_selftests && !cfg.test_regex.empty()) {
-      // long (extended) background test
-      if (!state.not_cap_long && DoTestNow(cfg, state, 'L', 0)>0)
-        DoSCSISelfTest(cfg, state, scsidev, 'L');
-      // short background test
-      else if (!state.not_cap_short && DoTestNow(cfg, state, 'S', 0)>0)
-        DoSCSISelfTest(cfg, state, scsidev, 'S');
+      char testtype = next_scheduled_test(cfg, state, true/*scsi*/);
+      if (testtype)
+        DoSCSISelfTest(cfg, state, scsidev, testtype);
     }
     CloseDevice(scsidev, name);
     return 0;
@@ -2542,11 +2879,10 @@ static void ToggleDebugMode()
 }
 #endif
 
-time_t dosleep(time_t wakeuptime){
-  time_t timenow=0;
-  
+static time_t dosleep(time_t wakeuptime, bool & sigwakeup)
+{
   // If past wake-up-time, compute next wake-up-time
-  timenow=time(NULL);
+  time_t timenow=time(NULL);
   while (wakeuptime<=timenow){
     int intervals=1+(timenow-wakeuptime)/checktime;
     wakeuptime+=intervals*checktime;
@@ -2580,6 +2916,7 @@ time_t dosleep(time_t wakeuptime){
     PrintOut(LOG_INFO,"Signal USR1 - checking devices now rather than in %d seconds.\n",
              wakeuptime-timenow>0?(int)(wakeuptime-timenow):0);
     caughtsigUSR1=0;
+    sigwakeup = true;
   }
   
   // return adjusted wakeuptime
@@ -3304,6 +3641,22 @@ void PrintValidArgs(char opt) {
   PrintOut(LOG_CRIT, " <=======\n");
 }
 
+// Return true if absolute path name
+static bool is_abs_path(const char * path)
+{
+  if (*path == '/')
+    return true;
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if (*path == '\\')
+    return true;
+  int n = -1;
+  sscanf(path, "%*1[A-Z]:%*1[/\\]%n", &n);
+  if (n > 0)
+    return true;
+#endif
+  return false;
+}
+
 // Parses input line, prints usage message and
 // version/license/copyright messages
 void ParseOpts(int argc, char **argv){
@@ -3311,7 +3664,7 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "c:l:q:dDni:p:r:Vh?";
+  const char *shortopts = "c:l:q:dDni:p:r:s:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
@@ -3327,6 +3680,7 @@ void ParseOpts(int argc, char **argv){
 #endif
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
+    { "savestates",     required_argument, 0, 's' },
 #if defined(_WIN32) || defined(__CYGWIN__)
     { "service",        no_argument,       0, 'n' },
 #endif
@@ -3470,6 +3824,10 @@ void ParseOpts(int argc, char **argv){
       // output file with PID number
       pid_file = optarg;
       break;
+    case 's':
+      // path prefix of persistent state file
+      state_path_prefix = optarg;
+      break;
     case 'V':
       // print version and CVS info
       PrintCopyleft();
@@ -3549,7 +3907,17 @@ void ParseOpts(int argc, char **argv){
     PrintOut(LOG_CRIT, "Error: pid file %s not written in debug (-d) mode\n\n", pid_file.c_str());
     EXIT(EXIT_BADCMD);
   }
-  
+
+  // absolute path is required due to chdir('/') after fork().
+  if (!state_path_prefix.empty() && !debugmode && !is_abs_path(state_path_prefix.c_str())) {
+    debugmode=1;
+    PrintHead();
+    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -s <======= \n\n");
+    PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
+      state_path_prefix.c_str());
+    EXIT(EXIT_BADCMD);
+  }
+
   // print header
   PrintHead();
   
@@ -3803,7 +4171,7 @@ int main_worker(int argc, char **argv)
   smartmonctrl control;
 
   // is it our first pass through?
-  int firstpass=1;
+  bool firstpass = true;
 
   // next time to wake up
   time_t wakeuptime;
@@ -3829,6 +4197,8 @@ int main_worker(int argc, char **argv)
   // Devices to monitor
   smart_device_list devices;
 
+  bool write_states_always = true;
+
   // the main loop of the code
   for (;;) {
 
@@ -3841,8 +4211,15 @@ int main_worker(int argc, char **argv)
       
       PrintOut(isok?LOG_INFO:LOG_CRIT, "smartd received signal %d: %s\n",
                caughtsigEXIT, strsignal(caughtsigEXIT));
-      
-      EXIT(isok?0:EXIT_SIGNAL);
+
+      if (!isok)
+        return EXIT_SIGNAL;
+
+      // Write state files
+      if (!state_path_prefix.empty())
+        write_all_dev_states(configs, states);
+
+      return 0;
     }
 
     // Should we (re)read the config file?
@@ -3861,6 +4238,10 @@ int main_worker(int argc, char **argv)
           caughtsigHUP=2;
         }
 #endif
+        // Write state files
+        if (!state_path_prefix.empty())
+          write_all_dev_states(configs, states);
+
         PrintOut(LOG_INFO,
                  caughtsigHUP==1?
                  "Signal HUP - rereading configuration file %s\n":
@@ -3915,11 +4296,19 @@ int main_worker(int argc, char **argv)
       
       // reset signal
       caughtsigHUP=0;
+
+      // Always write state files after (re)configuration
+      write_states_always = true;
     }
 
     // check all devices once,
     // self tests are not started in first pass unless '-q onecheck' is specified
     CheckDevicesOnce(configs, states, devices, (!firstpass || quit==3));
+
+     // Write state files
+    if (!state_path_prefix.empty())
+      write_all_dev_states(configs, states, write_states_always);
+    write_states_always = false;
 
     // user has asked us to exit after first check
     if (quit==3) {
@@ -3936,11 +4325,11 @@ int main_worker(int argc, char **argv)
     // set exit and signal handlers, write PID file, set wake-up time
     if (firstpass){
       Initialize(&wakeuptime);
-      firstpass=0;
+      firstpass = false;
     }
     
     // sleep until next check time, or a signal arrives
-    wakeuptime=dosleep(wakeuptime);
+    wakeuptime = dosleep(wakeuptime, write_states_always);
   }
 }
 

@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.91 2008/07/24 07:18:53 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.92 2008/09/13 14:50:53 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -607,6 +607,12 @@ that you constructed \fBREGEXP\fP correctly.  The matching order
 (\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
 if multiple test types are all scheduled for the same hour, the
 longer test type has precedence.  This is usually the desired behavior.
+
+If the scheduled tests are used in conjunction with state persistence
+(\'\-s\' option), smartd will also try to match the hours since last
+shutdown (or 90 days at most). If any test would have been started
+during downtime, the longest (see above) of these tests is run after
+second device polling.
 
 Unix users: please beware that the rules for extended regular
 expressions [regex(7)] are \fBnot\fP the same as the rules for
@@ -1385,4 +1391,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.91 2008/07/24 07:18:53 ballen4705 Exp $
+$Id: smartd.conf.5.in,v 1.92 2008/09/13 14:50:53 chrfranke Exp $
