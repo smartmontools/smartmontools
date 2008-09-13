@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.731 2008/09/12 19:26:09 chrfranke Exp $
+$Id: CHANGELOG,v 1.732 2008/09/13 14:50:53 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -38,6 +38,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Add experimental support for state persistence (ATA only).
+       Add option '-s' to specify path prefix for state files.
+       Rework scheduled self-test detection to support persistence.
+       If any test schedules are within downtime, the highest priority
+       test is run after next startup.
 
   [CF] Remove casts from 'format_ata_string()' calls.
 

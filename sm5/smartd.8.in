@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.125 2008/07/24 07:18:53 ballen4705 Exp $
+$Id: smartd.8.in,v 1.126 2008/09/13 14:50:53 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -352,6 +352,31 @@ detail that should be reported.  The argument should be followed by a
 comma then the integer with no spaces.  For example, \fIataioctl,2\fP
 The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
 equivalent.
+
+.TP
+.B \-s PREFIX, \-\-savestates=PREFIX
+
+[NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
+Reads/writes \fBsmartd\fP state information from/to files
+\'PREFIX\'\'MODEL\-SERIAL.ata.state\'. This preserves SMART attributes, drive
+max temperature (\-W directive), info about last sent warning email
+(\-m directive), and the time of next check of the self-test REGEXP
+(\-s directive) across boot cycles.
+
+MODEL and SERIAL are build from drive identify information, invalid
+characters are replaced by underline.
+
+If the PREFIX has the form \'/path/dir/\' (e.g. \'/var/lib/smartd/\'), then
+files \'MODEL\-SERIAL.ata.state\' are created in directory \'/path/dir\'.
+If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/smartd\-\'),
+then files 'nameMODEL\-SERIAL.ata.state' are created in directory '/path/'.
+The path must be absolute, except if debug mode is enabled.
+
+The state information files are read on smartd startup. The files are
+always (re)written after reading the configuration file, before rereading
+the configuration file (SIGHUP), before smartd shutdown, and after a check
+forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
+an important change (which usually results in a SYSLOG output) occurred.
 
 .TP
 .B \-\-service
@@ -985,6 +1010,12 @@ that you constructed \fBREGEXP\fP correctly.  The matching order
 (\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
 if multiple test types are all scheduled for the same hour, the
 longer test type has precedence.  This is usually the desired behavior.
+
+If the scheduled tests are used in conjunction with state persistence
+(\'\-s\' option), smartd will also try to match the hours since last
+shutdown (or 90 days at most). If any test would have been started
+during downtime, the longest (see above) of these tests is run after
+second device polling.
 
 Unix users: please beware that the rules for extended regular
 expressions [regex(7)] are \fBnot\fP the same as the rules for
@@ -1993,4 +2024,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.125 2008/07/24 07:18:53 ballen4705 Exp $
+$Id: smartd.8.in,v 1.126 2008/09/13 14:50:53 chrfranke Exp $
