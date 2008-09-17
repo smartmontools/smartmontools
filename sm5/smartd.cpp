@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.421 2008/09/13 14:50:53 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.422 2008/09/17 20:08:31 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -562,12 +562,15 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
 // Read a state file.
 static bool read_dev_state(const char * path, persistent_dev_state & state)
 {
-  FILE * f = fopen(path, "r");
+  stdio_file f(path, "r");
   if (!f) {
     if (errno != ENOENT)
       pout("Cannot read state file \"%s\"\n", path);
     return false;
   }
+#ifdef __CYGWIN__
+  setmode(fileno(f), O_TEXT); // Allow files with \r\n
+#endif
 
   int good = 0, bad = 0;
   char line[256];
@@ -580,7 +583,6 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
     else
       good++;
   }
-  fclose(f);
 
   if (bad) {
     if (!good) {
@@ -609,9 +611,10 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 {
   // Rename old "file" to "file~"
   std::string pathbak = path; pathbak += '~';
+  unlink(pathbak.c_str());
   rename(path, pathbak.c_str());
 
-  FILE * f = fopen(path, "w");
+  stdio_file f(path, "w");
   if (!f) {
     pout("Cannot create state file \"%s\"\n", path);
     return false;
@@ -645,7 +648,6 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
     write_dev_state_line(f, "ata-smart-attribute", i, "val", pa.val);
     write_dev_state_line(f, "ata-smart-attribute", i, "raw", pa.raw);
   }
-  fclose(f);
 
   return true;
 }
@@ -1376,34 +1378,26 @@ void DaemonInit(){
 }
 
 // create a PID file containing the current process id
-void WritePidFile() {
+static void WritePidFile()
+{
   if (!pid_file.empty()) {
-    int error = 0;
     pid_t pid = getpid();
     mode_t old_umask;
-
 #ifndef __CYGWIN__
     old_umask = umask(0077); // rwx------
 #else
     // Cygwin: smartd service runs on system account, ensure PID file can be read by admins
     old_umask = umask(0033); // rwxr--r--
 #endif
-    FILE * fp = fopen(pid_file.c_str(), "w");
+
+    stdio_file f(pid_file.c_str(), "w");
     umask(old_umask);
-    if (fp == NULL) {
-      error = 1;
-    } else if (fprintf(fp, "%d\n", (int)pid) <= 0) {
-      error = 1;
-    } else if (fclose(fp) != 0) {
-      error = 1;
-    }
-    if (error) {
+    if (!(f && fprintf(f, "%d\n", (int)pid) > 0 && f.close())) {
       PrintOut(LOG_CRIT, "unable to write PID file %s - exiting.\n", pid_file.c_str());
       EXIT(EXIT_PID);
     }
     PrintOut(LOG_INFO, "file %s written containing PID %d\n", pid_file.c_str(), (int)pid);
   }
-  return;
 }
 
 // Prints header identifying version of code and home
@@ -1816,7 +1810,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // tell user we are registering device
   PrintOut(LOG_INFO,"Device: %s, is SMART capable. Adding to \"monitor\" list.\n",name);
   
-    // record number of device, type of device, increment device count
+  // record number of device, type of device, increment device count
   if (cfg.dev_type.empty())
     cfg.dev_type = "ata";
   
@@ -3452,19 +3446,6 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int line
     return 1;
 }
 
-// clean up utility for ParseConfigFile()
-void cleanup(FILE **fpp, int is_stdin){
-  if (*fpp){
-    // (*fpp != stdin) does not work here if stdin has been closed & reopened
-    if (!is_stdin)
-      fclose(*fpp);
-    *fpp=NULL;
-  }
-
-  return;
-}
-
-
 // Parses a configuration file.  Return values are:
 //  N=>0: found N entries
 // -1:    syntax error in config file
@@ -3483,17 +3464,10 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   // maximum length of a continued line in configuration file
   const int MAXCONTLINE = 1023;
 
-  FILE *fp=NULL;
-  int entry=0,lineno=1,cont=0,contlineno=0;
-  char line[MAXLINELEN+2];
-  char fullline[MAXCONTLINE+1];
-
-  int is_stdin = (configfile == configfile_stdin); // pointer comparison ok here
-
+  stdio_file f;
   // Open config file, if it exists and is not <stdin>
-  if (!is_stdin) {
-    fp=fopen(configfile,"r");
-    if (!fp && (errno!=ENOENT || !configfile_alt.empty())) {
+  if (!(configfile == configfile_stdin)) { // pointer comparison ok here
+    if (!f.open(configfile,"r") && (errno!=ENOENT || !configfile_alt.empty())) {
       // file exists but we can't read it or it should exist due to '-c' option
       int ret = (errno!=ENOENT ? -3 : -2);
       PrintOut(LOG_CRIT,"%s: Unable to open configuration file %s\n",
@@ -3502,10 +3476,11 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     }
   }
   else // read from stdin ('-c -' option)
-    fp = stdin;
-  
+    f.open(stdin);
+
   // No configuration file found -- use fake one
-  if (fp==NULL) {
+  int entry = 0;
+  if (!f) {
     char fakeconfig[] = SCANDIRECTIVE" -a"; // TODO: Remove this hack, build cfg_entry.
 
     if (ParseConfigLine(conf_entries, entry, 0, fakeconfig) != -1)
@@ -3514,14 +3489,18 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   }
 
 #ifdef __CYGWIN__
-  setmode(fileno(fp), O_TEXT); // Allow files with \r\n
+  setmode(fileno(f), O_TEXT); // Allow files with \r\n
 #endif
 
   // configuration file exists
   PrintOut(LOG_INFO,"Opened configuration file %s\n",configfile);
 
   // parse config file line by line
-  while (1) {
+  int lineno = 1, cont = 0, contlineno = 0;
+  char line[MAXLINELEN+2];
+  char fullline[MAXCONTLINE+1];
+
+  for (;;) {
     int len=0,scandevice;
     char *lastslash;
     char *comment;
@@ -3531,22 +3510,18 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     memset(line,0,sizeof(line));
 
     // get a line
-    code=fgets(line,MAXLINELEN+2,fp);
+    code=fgets(line, MAXLINELEN+2, f);
     
     // are we at the end of the file?
     if (!code){
       if (cont) {
         scandevice = ParseConfigLine(conf_entries, entry, contlineno, fullline);
         // See if we found a SCANDIRECTIVE directive
-        if (scandevice==-1) {
-          cleanup(&fp, is_stdin);
+        if (scandevice==-1)
           return 0;
-        }
         // did we find a syntax error
-        if (scandevice==-2) {
-          cleanup(&fp, is_stdin);
+        if (scandevice==-2)
           return -1;
-        }
         // the final line is part of a continuation line
         cont=0;
         entry+=scandevice;
@@ -3567,7 +3542,6 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
         warn="";
       PrintOut(LOG_CRIT,"Error: line %d of file %s %sis more than MAXLINELEN=%d characters.\n",
                (int)contlineno,configfile,warn,(int)MAXLINELEN);
-      cleanup(&fp, is_stdin);
       return -1;
     }
 
@@ -3581,7 +3555,6 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     if (cont+len>MAXCONTLINE){
       PrintOut(LOG_CRIT,"Error: continued line %d (actual line %d) of file %s is more than MAXCONTLINE=%d characters.\n",
                lineno, (int)contlineno, configfile, (int)MAXCONTLINE);
-      cleanup(&fp, is_stdin);
       return -1;
     }
     
@@ -3599,22 +3572,17 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
     scandevice = ParseConfigLine(conf_entries, entry, contlineno, fullline);
 
     // did we find a scandevice directive?
-    if (scandevice==-1) {
-      cleanup(&fp, is_stdin);
+    if (scandevice==-1)
       return 0;
-    }
     // did we find a syntax error
-    if (scandevice==-2) {
-      cleanup(&fp, is_stdin);
+    if (scandevice==-2)
       return -1;
-    }
 
     entry+=scandevice;
     lineno++;
     cont=0;
   }
-  cleanup(&fp, is_stdin);
-  
+
   // note -- may be zero if syntax of file OK, but no valid entries!
   return entry;
 }
@@ -3650,7 +3618,7 @@ static bool is_abs_path(const char * path)
   if (*path == '\\')
     return true;
   int n = -1;
-  sscanf(path, "%*1[A-Z]:%*1[/\\]%n", &n);
+  sscanf(path, "%*1[A-Za-z]:%*1[/\\]%n", &n);
   if (n > 0)
     return true;
 #endif
