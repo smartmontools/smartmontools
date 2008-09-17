@@ -25,12 +25,13 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.64 2008/09/13 14:37:29 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.65 2008/09/17 20:08:31 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
 #include <regex.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 #include <string>
 
@@ -205,6 +206,60 @@ private:
 
   raw_buffer(const raw_buffer &);
   void operator=(const raw_buffer &);
+};
+
+/// Wrapper class for FILE *.
+class stdio_file
+{
+public:
+  explicit stdio_file(FILE * f = 0, bool owner = false)
+    : m_file(f), m_owner(owner) { }
+
+  stdio_file(const char * name, const char * mode)
+    : m_file(fopen(name, mode)), m_owner(true) { }
+
+  ~stdio_file()
+    {
+      if (m_file && m_owner)
+        fclose(m_file);
+    }
+
+  bool open(const char * name, const char * mode)
+    {
+      m_file = fopen(name, mode);
+      m_owner = true;
+      return !!m_file;
+    }
+
+  void open(FILE * f, bool owner = false)
+    {
+      m_file = f;
+      m_owner = owner;
+    }
+
+  bool close()
+    {
+      if (!m_file)
+        return true;
+      bool ok = !ferror(m_file);
+      if (fclose(m_file))
+        ok = false;
+      m_file = 0;
+      return ok;
+    }
+
+  operator FILE * ()
+    { return m_file; }
+
+  bool operator!() const
+    { return !m_file; }
+
+private:
+  FILE * m_file;
+  bool m_owner;
+
+  stdio_file(const stdio_file &);
+  void operator=(const stdio_file &);
 };
 
 /// Wrapper class for regex(3).
