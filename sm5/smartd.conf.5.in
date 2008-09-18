@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.92 2008/09/13 14:50:53 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.93 2008/09/18 20:00:11 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -586,8 +586,8 @@ device polling, if the current local date, time, and test type, match
 occurs every thirty minutes after starting \fBsmartd\fP.  Take caution
 if you use the \'\-i\' option to make this polling interval more than
 sixty minutes: the poll times may fail to coincide with any of the
-testing times that you have specified with \fBREGEXP\fP, and so the
-self tests may not take place as you wish.
+testing times that you have specified with \fBREGEXP\fP.  In this case
+the test will be run following the next device polling.
 
 Before running an offline or self-test, \fBsmartd\fP checks to be sure
 that a self-test is not already running.  If a self-test \fBis\fP
@@ -1017,12 +1017,18 @@ option for more details.
 .TP
 .B \-W DIFF[,INFO[,CRIT]]
 Report if the current temperature had changed by at least \fBDIFF\fP
-degrees since last report. Report or Warn if the temperature is greater
-or equal than one of \fBINFO\fP or \fBCRIT\fP degrees Celsius. If the
-limit \fBCRIT\fP is reached, a message with loglevel
+degrees since last report, or if new min or max temperature is detected.
+Report or Warn if the temperature is greater or equal than one of
+\fBINFO\fP or \fBCRIT\fP degrees Celsius.
+If the limit \fBCRIT\fP is reached, a message with loglevel
 \fB\'LOG_CRITICAL\'\fP will be logged to syslog and a warning email
 will be send if '-m' is specified. If only the limit \fBINFO\fP is
 reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
+
+If this directive is used in conjunction with state persistence
+(\'\-s\' option), the min and max temperature values are preserved
+across boot cycles. The minimum temperature value is not updated
+during the first 30 minutes after startup.
 
 To disable any of the 3 reports, set the corresponding limit to 0.
 Trailing zero arguments may be omitted. By default, all temperature
@@ -1391,4 +1397,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.92 2008/09/13 14:50:53 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.93 2008/09/18 20:00:11 chrfranke Exp $
