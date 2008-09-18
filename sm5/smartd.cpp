@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.423 2008/09/18 20:00:11 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.424 2008/09/18 21:07:29 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2135,7 +2135,7 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
 
 // returns test type if time to do test of type testtype,
 // 0 if not time to do test.
-static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool scsi, time_t testtime = 0)
+static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool scsi, time_t usetime = 0)
 {
   // check that self-testing has been requested
   if (cfg.test_regex.empty())
@@ -2148,11 +2148,11 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
 
   // since we are about to call localtime(), be sure glibc is informed
   // of any timezone changes we make.
-  if (!testtime)
+  if (!usetime)
     FixGlibcTimeZoneBug();
   
   // Is it time for next check?
-  time_t now = (!testtime ? time(0) : testtime);
+  time_t now = (!usetime ? time(0) : usetime);
   if (!state.scheduled_test_next_check)
     state.scheduled_test_next_check = now;
   else if (now < state.scheduled_test_next_check)
@@ -2164,6 +2164,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
 
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
+  time_t testtime = 0; int testhour = 0;
   int maxtest = (scsi ? 1 : 3); // (scsi ? 'S' : 'O')
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
@@ -2185,6 +2186,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
       if (cfg.test_regex.full_match(pattern)) {
         // Test found
         testtype = pattern[0];
+        testtime = t; testhour = tms->tm_hour;
         // Limit further matches to higher priority self-tests
         maxtest = i-1;
         break;
@@ -2204,8 +2206,15 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   struct tm * tmnow = localtime(&now);
   state.scheduled_test_next_check = now + (3600 - tmnow->tm_min*60 - tmnow->tm_sec);
 
-  if (testtype)
+  if (testtype) {
     state.must_write = true;
+    // Tell user if an old test was found.
+    if (!usetime && !(testhour == tmnow->tm_hour && testtime + 3600 > now)) {
+      char datebuf[DATEANDEPOCHLEN]; dateandtimezoneepoch(datebuf, testtime);
+      PrintOut(LOG_INFO, "Device: %s, old test of type %c not run at %s, starting now.\n",
+        cfg.name.c_str(), testtype, datebuf);
+    }
+  }
 
   return testtype;
 }
