@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.422 2008/09/17 20:08:31 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.423 2008/09/18 20:00:11 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -381,7 +381,7 @@ struct temp_dev_state
   bool not_cap_long;
 
   unsigned char temperature;              // last recorded Temperature (in Celsius)
-  unsigned char tempmininc;               // #checks where Min Temperature is increased after powerup
+  time_t tempmin_delay;                   // time where Min Temperature tracking will start
 
   bool powermodefail;                     // true if power mode check failed
   int powerskipcnt;                       // Number of checks skipped due to idle or standby mode
@@ -407,7 +407,7 @@ temp_dev_state::temp_dev_state()
   not_cap_short(false),
   not_cap_long(false),
   temperature(0),
-  tempmininc(0),
+  tempmin_delay(0),
   powermodefail(false),
   powerskipcnt(0),
   SmartPageSupported(false),
@@ -871,6 +871,9 @@ char* dnsdomain(const char* hostname) {
 }
 
 #define EBUFLEN 1024
+
+static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
+                        __attribute__ ((format (printf, 4, 5)));
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
@@ -2392,59 +2395,83 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   return retval;
 }
 
+// Format Temperature value
+static const char * fmt_temp(unsigned char x, char * buf)
+{
+  if (!x) // unset
+    strcpy(buf, "??");
+  else
+    sprintf(buf, "%u", x);
+  return buf;
+}
+
 // Check Temperature limits
 static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned char currtemp, unsigned char triptemp)
 {
-  const char *minchg = "", *maxchg = "";
   if (!(0 < currtemp && currtemp < 255)) {
     PrintOut(LOG_INFO, "Device: %s, failed to read Temperature\n", cfg.name.c_str());
     return;
   }
 
-  if (!state.temperature && !state.tempmax) {
-    PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius\n",
-      cfg.name.c_str(), (int)currtemp);
-    if (triptemp)
-      PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n", (int)triptemp);
-    state.temperature = state.tempmin = state.tempmax = currtemp;
+  // Update Max Temperature
+  const char * minchg = "", * maxchg = "";
+  if (currtemp > state.tempmax) {
+    if (state.tempmax)
+      maxchg = "!";
+    state.tempmax = currtemp;
     state.must_write = true;
   }
+
+  char buf[20];
+  if (!state.temperature) {
+    // First check
+    if (!state.tempmin || currtemp < state.tempmin)
+        // Delay Min Temperature update by ~ 30 minutes.
+        state.tempmin_delay = time(0) + CHECKTIME - 60;
+    PrintOut(LOG_INFO, "Device: %s, initial Temperature is %d Celsius (Min/Max %s/%u%s)\n",
+      cfg.name.c_str(), (int)currtemp, fmt_temp(state.tempmin, buf), state.tempmax, maxchg);
+    if (triptemp)
+      PrintOut(LOG_INFO, "    [trip Temperature is %d Celsius]\n", (int)triptemp);
+    state.temperature = currtemp;
+  }
   else {
-    // Update [min,max]
-    if (currtemp < state.tempmin) {
-      state.tempmin = currtemp; minchg = "!";
-      state.tempmininc = 0;
+    if (state.tempmin_delay) {
+      // End Min Temperature update delay if ...
+      if (   (state.tempmin && currtemp > state.tempmin) // current temp exceeds recorded min,
+          || (currtemp < state.temperature)              // or current temp has decreased,
+          || (state.tempmin_delay <= time(0))) {         // or delay time is over.
+        state.tempmin_delay = 0;
+        if (!state.tempmin)
+          state.tempmin = 255;
+      }
     }
-    else if (state.tempmininc) {
-      // increase min Temperature during first 30 minutes
+
+    // Update Min Temperature
+    if (!state.tempmin_delay && currtemp < state.tempmin) {
       state.tempmin = currtemp;
-      state.tempmininc--;
-    }
-    if (currtemp > state.tempmax) {
-      state.tempmax = currtemp; maxchg = "!";
+      state.must_write = true;
+      if (currtemp != state.temperature)
+        minchg = "!";
     }
 
     // Track changes
-    if (!state.temperature) // TODO: Fix tempmin handling
-      state.temperature = currtemp;
     if (cfg.tempdiff && (*minchg || *maxchg || abs((int)currtemp - (int)state.temperature) >= cfg.tempdiff)) {
-      PrintOut(LOG_INFO, "Device: %s, Temperature changed %+d Celsius to %u Celsius (Min/Max %u%s/%u%s)\n",
-        cfg.name.c_str(), (int)currtemp-(int)state.temperature, currtemp, state.tempmin, minchg, state.tempmax, maxchg);
+      PrintOut(LOG_INFO, "Device: %s, Temperature changed %+d Celsius to %u Celsius (Min/Max %s%s/%u%s)\n",
+        cfg.name.c_str(), (int)currtemp-(int)state.temperature, currtemp, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
       state.temperature = currtemp;
-      state.must_write = true;
     }
   }
 
   // Check limits
   if (cfg.tempcrit && currtemp >= cfg.tempcrit) {
-    PrintOut(LOG_CRIT, "Device: %s, Temperature %u Celsius reached critical limit of %u Celsius (Min/Max %u%s/%u%s)\n",
-      cfg.name.c_str(), currtemp, cfg.tempcrit, state.tempmin, minchg, state.tempmax, maxchg);
-    MailWarning(cfg, state, 12, "Device: %s, Temperature %d Celsius reached critical limit of %u Celsius (Min/Max %u%s/%u%s)\n",
-      cfg.name.c_str(), currtemp, cfg.tempcrit, state.tempmin, minchg, state.tempmax, maxchg);
+    PrintOut(LOG_CRIT, "Device: %s, Temperature %u Celsius reached critical limit of %u Celsius (Min/Max %s%s/%u%s)\n",
+      cfg.name.c_str(), currtemp, cfg.tempcrit, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
+    MailWarning(cfg, state, 12, "Device: %s, Temperature %d Celsius reached critical limit of %u Celsius (Min/Max %s%s/%u%s)\n",
+      cfg.name.c_str(), currtemp, cfg.tempcrit, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
   }
   else if (cfg.tempinfo && currtemp >= cfg.tempinfo) {
-    PrintOut(LOG_INFO, "Device: %s, Temperature %u Celsius reached limit of %u Celsius (Min/Max %u%s/%u%s)\n",
-      cfg.name.c_str(), currtemp, cfg.tempinfo, state.tempmin, minchg, state.tempmax, maxchg);
+    PrintOut(LOG_INFO, "Device: %s, Temperature %u Celsius reached limit of %u Celsius (Min/Max %s%s/%u%s)\n",
+      cfg.name.c_str(), currtemp, cfg.tempinfo, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
   }
 }
 
@@ -2539,12 +2566,13 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test (%d check%s skipped)\n",
         name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       state.powerskipcnt = 0;
+      state.tempmin_delay = time(0) + CHECKTIME - 60; // Delay Min Temperature update
     }
     else if (state.powerskipcnt) {
       PrintOut(LOG_INFO, "Device: %s, is back in %s mode, resuming checks (%d check%s skipped)\n",
         name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       state.powerskipcnt = 0;
-      state.must_write = true;
+      state.tempmin_delay = time(0) + CHECKTIME - 60; // Delay Min Temperature update
     }
   }
 
@@ -4079,11 +4107,6 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
 
     // Prepare initial state
     dev_state state;
-    if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-      // increase min Temperature during first 30 minutes
-      if (!(state.tempmininc = (unsigned char)(CHECKTIME / checktime)))
-        state.tempmininc = 1;
-    }
 
     // register ATA devices
     if (dev->is_ata()){
