@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.200 2008/09/12 19:26:09 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.201 2008/09/19 16:18:46 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1314,27 +1314,6 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
 
   return; 
 }
-
-static void ataPseudoCheckSmart(const ata_smart_values * data,
-                                const ata_smart_thresholds_pvt * thresholds)
-{
-  int failed = 0;
-  for (int i = 0 ; i < NUMBER_ATA_SMART_ATTRIBUTES ; i++) {
-    if (data->vendor_attributes[i].id &&   
-        thresholds->thres_entries[i].id &&
-        ATTRIBUTE_FLAGS_PREFAILURE(data->vendor_attributes[i].flags) &&
-        (data->vendor_attributes[i].current <= thresholds->thres_entries[i].threshold) &&
-        (thresholds->thres_entries[i].threshold != 0xFE)){
-      pout("Attribute ID %d Failed\n",(int)data->vendor_attributes[i].id);
-      failed = 1;
-    } 
-  }   
-  pout("%s\n", ( failed )?
-         "SMART overall-health self-assessment test result: FAILED!\n"
-         "Drive failure expected in less than 24 hours. SAVE ALL DATA":
-         "SMART overall-health self-assessment test result: PASSED");
-}
-
 
 // Format SCT Temperature value
 static const char * sct_ptemp(signed char x, char * buf)
