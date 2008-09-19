@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.424 2008/09/18 21:07:29 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.425 2008/09/19 16:52:29 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2447,7 +2447,6 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
     if (state.tempmin_delay) {
       // End Min Temperature update delay if ...
       if (   (state.tempmin && currtemp > state.tempmin) // current temp exceeds recorded min,
-          || (currtemp < state.temperature)              // or current temp has decreased,
           || (state.tempmin_delay <= time(0))) {         // or delay time is over.
         state.tempmin_delay = 0;
         if (!state.tempmin)
