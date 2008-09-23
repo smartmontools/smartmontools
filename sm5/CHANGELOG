@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.734 2008/09/18 20:00:11 chrfranke Exp $
+$Id: CHANGELOG,v 1.735 2008/09/23 23:55:29 jharg Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,10 +34,14 @@ Maintainers / Developers Key:
 [LW] Leon Woestenberg
 [RZ] Richard Zybert
 [SZ] Sf Zhou
+[JPH] Jordan Powell Hargrave
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [JPH] Added Linux support for viewing disks behind MegaRAID
+  	controllers
 
   [CF] smartd: Improve min/max temperature recording in conjunction
        with '-s' option.

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.113 2008/08/21 21:20:51 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.114 2008/09/23 23:55:29 jharg Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -236,6 +236,22 @@ using lspci, or using lspci \-n show a vendor ID 0x11ab and a device ID of
 either 0x5040, 0x5041, 0x5080, 0x5081, 0x6041 or 0x6081. The \'linuxIAL\' driver
 seems not (yet?) available in the Linux kernel source tree, but should be available
 from system vendors (ftp://ftp.aslab.com/ is known to provide a patch with the driver).
+
+Under Linux , to look at SCSI/SAS disks behind LSI MegaRAID controllers,
+use syntax such as:
+.nf
+\fBsmartctl \-a \-d megaraid,2 /dev/sda\fP
+.fi
+.nf
+\fBsmartctl \-a \-d megaraid,0 /dev/sdb\fP
+.fi
+where in the argument \fImegaraid,N\fP, the integer N is the physical disk
+number within the MegaRAID controller.  This interface will also work for
+Dell PERC controllers.  The following /dev/XXX entry must exist:
+.fi
+For PERC2/3/4 controllers: \fB/dev/megadev0\fP
+.fi
+For PERC5/6 controllers: \fB/dev/megaraid_sas_ioctl_node\fP
 
 Under Linux and FreeBSD, to look at ATA disks behind 3ware SCSI RAID controllers,
 use syntax such as:
@@ -1581,7 +1597,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.113 2008/08/21 21:20:51 chrfranke Exp $
+$Id: smartctl.8.in,v 1.114 2008/09/23 23:55:29 jharg Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

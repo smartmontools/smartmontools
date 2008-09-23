@@ -1,4 +1,4 @@
-$Id: AUTHORS,v 1.21 2008/08/03 14:51:56 manfred99 Exp $
+$Id: AUTHORS,v 1.22 2008/09/23 23:55:29 jharg Exp $
 
 This code was originally developed as a Senior Thesis by Michael
 Cornwell at the Concurrent Systems Laboratory (now part of the Storage
@@ -35,3 +35,4 @@ Shengfeng Zhou		<linux@highpoint-tech.com>
 Praveen Chidambaram 	<bunchofmails@gmail.com>
 Joerg Hering            <hering.ruegen@gmx.de>
 Tomas Smetana		<tsmetana@redhat.com>
+Jordan Hargrave		<jordan_hargrave@dell.com>
