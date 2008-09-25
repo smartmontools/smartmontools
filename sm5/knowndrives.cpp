@@ -25,110 +25,13 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.175 2008/09/12 19:26:09 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.176 2008/09/25 21:00:47 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
 
-// See vendorattributeargs[] array in atacmds.cpp for definitions.
-#define PRESET_9_MINUTES                   {   9,  1 }
-#define PRESET_9_TEMP                      {   9,  2 }
-#define PRESET_9_SECONDS                   {   9,  3 }
-#define PRESET_9_HALFMINUTES               {   9,  4 }
-#define PRESET_192_EMERGENCYRETRACTCYCLECT { 192,  1 }
-#define PRESET_193_LOADUNLOAD              { 193,  1 }
-#define PRESET_194_10XCELSIUS              { 194,  1 }
-#define PRESET_194_UNKNOWN                 { 194,  2 }
-#define PRESET_198_OFFLINESCANUNCSECTORCT  { 198,  1 }
-#define PRESET_200_WRITEERRORCOUNT         { 200,  1 }
-#define PRESET_201_DETECTEDTACOUNT         { 201,  1 }         
-#define PRESET_220_TEMP                    { 220,  1 }
-
-/* Arrays of preset vendor-specific attribute options for use in
- * knowndrives[]. */
-
-// These three are common to several models.
-const unsigned char vendoropts_9_minutes[][2] = {
-  PRESET_9_MINUTES,
-  {0,0}
-};
-const unsigned char vendoropts_9_halfminutes[][2] = {
-  PRESET_9_HALFMINUTES,
-  {0,0}
-};
-const unsigned char vendoropts_9_seconds[][2] = {
-  PRESET_9_SECONDS,
-  {0,0}
-};
-
-const unsigned char vendoropts_Maxtor_4D080H4[][2] = {
-  PRESET_9_MINUTES,
-  PRESET_194_UNKNOWN,
-  {0,0}
-};
-
-const unsigned char vendoropts_Fujitsu_MHS2020AT[][2] = {
-  PRESET_9_SECONDS,
-  PRESET_192_EMERGENCYRETRACTCYCLECT,
-  PRESET_198_OFFLINESCANUNCSECTORCT,
-  PRESET_200_WRITEERRORCOUNT,
-  PRESET_201_DETECTEDTACOUNT,
-  {0,0}
-};
-
-const unsigned char vendoropts_Fujitsu_MHR2040AT[][2] = {
-  PRESET_9_SECONDS,
-  PRESET_192_EMERGENCYRETRACTCYCLECT,
-  PRESET_198_OFFLINESCANUNCSECTORCT,
-  PRESET_200_WRITEERRORCOUNT,
-  {0,0}
-};
-
-const unsigned char vendoropts_Samsung_SV4012H[][2] = {
-  PRESET_9_HALFMINUTES,
-  {0,0}
-};
-
-const unsigned char vendoropts_Samsung_SV1204H[][2] = {
-  PRESET_9_HALFMINUTES,
-  PRESET_194_10XCELSIUS,
-  {0,0}
-};
-
-const unsigned char vendoropts_Hitachi_DK23XX[][2] = {
-  PRESET_9_MINUTES,
-  PRESET_193_LOADUNLOAD,
-  {0,0}
-};
-
-const char same_as_minus_F[]="Fixes byte order in some SMART data (same as -F samsung)";
-const char same_as_minus_F2[]="Fixes byte order in some SMART data (same as -F samsung2)";
-const char same_as_minus_F3[]="Fixes completed self-test reported as in progress (same as -F samsung3)";
-
-const char may_need_minus_F_disabled[] ="May need -F samsung disabled; see manual for details.";
-const char may_need_minus_F2_disabled[]="May need -F samsung2 disabled; see manual for details.";
-const char may_need_minus_F2_enabled[] ="May need -F samsung2 enabled; see manual for details.";
-const char may_need_minus_F_enabled[]  ="May need -F samsung or -F samsung2 enabled; see manual for details.";
-const char may_need_minus_F3_enabled[] ="May need -F samsung3 enabled; see manual for details.";
-
-/* Special-purpose functions for use in knowndrives[]. */
-void specialpurpose_reverse_samsung(smartmonctrl *con)
-{
-  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
-    con->fixfirmwarebug = FIX_SAMSUNG;
-}
-void specialpurpose_reverse_samsung2(smartmonctrl *con)
-{
-  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
-    con->fixfirmwarebug = FIX_SAMSUNG2;
-}
-void specialpurpose_fix_samsung3(smartmonctrl *con)
-{
-  if (con->fixfirmwarebug==FIX_NOTSPECIFIED)
-    con->fixfirmwarebug = FIX_SAMSUNG3;
-}
 
 /* Table of settings for known drives terminated by an element containing all
  * zeros.  The drivesettings structure is described in knowndrives.h.  Note
@@ -140,1001 +43,829 @@ void specialpurpose_fix_samsung3(smartmonctrl *con)
 // A good on-line reference for these is:
 // http://www.zeus.com/extra/docsystem/docroot/apps/web/docs/modules/access/regex.html
 
-const drivesettings knowndrives[] = {
+static const drive_settings knowndrives[] = {
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
     "^ER60A46A$",
-    NULL, NULL, NULL, NULL
+    "", ""
   },
   { "IBM Deskstar 60GXP series",  // All other firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
-    ".*",
+    "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
     "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
     "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
-    NULL, NULL, NULL
+    ""
   },
   { "IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)",
     "(IBM-)?DTLA-30[57]0[123467][05]",
     "^T[WX][123468AG][OF]A[56]AA$",
-    NULL, NULL, NULL, NULL
+    "", ""
   },
   { "IBM Deskstar 40GV & 75GXP series (all other firmware)",
     "(IBM-)?DTLA-30[57]0[123467][05]",
-    ".*",
+    "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/ and\n"
     "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
     "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
-    NULL, NULL, NULL
+    ""
   },
-  { NULL, // ExcelStor J240, J340, J360, J680, and J880
+  { "", // ExcelStor J240, J340, J360, J680, and J880
     "^ExcelStor Technology J(24|34|36|68|88)0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // Fujitsu M1623TAU
+  { "", // Fujitsu M1623TAU
     "^FUJITSU M1623TAU$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHG series",
     "^FUJITSU MHG2...ATU?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHH series",
     "^FUJITSU MHH2...ATU?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHJ series",
     "^FUJITSU MHJ2...ATU?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHK series",
     "^FUJITSU MHK2...ATU?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
-  { NULL,  // Fujitsu MHL2300AT
+  { "",  // Fujitsu MHL2300AT
     "^FUJITSU MHL2300AT$",
-    ".*",
+    "",
     "This drive's firmware has a harmless Drive Identity Structure\n"
       "checksum error bug.",
-    vendoropts_9_seconds,
-    NULL, NULL
+    "-v 9,seconds"
   },
-  { NULL,  // MHM2200AT, MHM2150AT, MHM2100AT, MHM2060AT
+  { "",  // MHM2200AT, MHM2150AT, MHM2100AT, MHM2060AT
     "^FUJITSU MHM2(20|15|10|06)0AT$",
-    ".*",
+    "",
     "This drive's firmware has a harmless Drive Identity Structure\n"
       "checksum error bug.",
-    vendoropts_9_seconds,
-    NULL, NULL
+    "-v 9,seconds"
   },
   { "Fujitsu MHN series",
     "^FUJITSU MHN2...AT$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
-  { NULL, // Fujitsu MHR2020AT
+  { "", // Fujitsu MHR2020AT
     "^FUJITSU MHR2020AT$",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
-  { NULL, // Fujitsu MHR2040AT
+  { "", // Fujitsu MHR2040AT
     "^FUJITSU MHR2040AT$",
-    ".*",    // Tested on 40BA
-    NULL,
-    vendoropts_Fujitsu_MHR2040AT,
-    NULL, NULL
+    "",    // Tested on 40BA
+    "",
+    "-v 9,seconds -v 192,emergencyretractcyclect "
+    "-v 198,offlinescanuncsectorct -v 200,writeerrorcount"
   },
   { "Fujitsu MHSxxxxAT family",
     "^FUJITSU MHS20[6432]0AT(  .)?$",
-    ".*",
-    NULL,
-    vendoropts_Fujitsu_MHS2020AT,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds -v 192,emergencyretractcyclect "
+    "-v 198,offlinescanuncsectorct -v 200,writeerrorcount "
+    "-v 201,detectedtacount"
   },
   { "Fujitsu MHT series",
     "^FUJITSU MHT2...(AH|AS|AT|BH)U?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHU series",
     "^FUJITSU MHU2...ATU?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHV series",
     "^FUJITSU MHV2...(AH|AS|AT|BH|BS|BT)",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MPA..MPG series",
     "^FUJITSU MP[A-G]3...A[HTEV]U?",
-    ".*",
-    NULL,
-    vendoropts_9_seconds,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,seconds"
   },
   { "Fujitsu MHY2 BH series",
     "^FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Fujitsu MHW2 BH series",
     "^FUJITSU MHW2(04|06|08|10|12|16)0BH",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Fujitsu MHZ2 BS series",
     "^FUJITSU MHZ2(12|25)0BS",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // Samsung SV4012H (known firmware)
+  { "", // Samsung SV4012H (known firmware)
     "^SAMSUNG SV4012H$",
     "^RM100-08$",
-    NULL,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -F samsung"
   },
-  { NULL, // Samsung SV4012H (all other firmware)
+  { "", // Samsung SV4012H (all other firmware)
     "^SAMSUNG SV4012H$",
-    ".*",
-    may_need_minus_F_disabled,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "May need -F samsung disabled; see manual for details.",
+    "-v 9,halfminutes -F samsung"
   },
-  { NULL, // Samsung SV0412H (known firmware)
+  { "", // Samsung SV0412H (known firmware)
     "^SAMSUNG SV0412H$",
     "^SK100-01$",
-    NULL,
-    vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -v 194,10xCelsius -F samsung"
   },
-  { NULL, // Samsung SV0412H (all other firmware)
+  { "", // Samsung SV0412H (all other firmware)
     "^SAMSUNG SV0412H$",
-    ".*",
-    may_need_minus_F_disabled,
-    vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "May need -F samsung disabled; see manual for details.",
+    "-v 9,halfminutes -v 194,10xCelsius -F samsung"
   },
-  { NULL, // Samsung SV1204H (known firmware)
+  { "", // Samsung SV1204H (known firmware)
     "^SAMSUNG SV1204H$",
     "^RK100-1[3-5]$",
-    NULL,
-    vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -v 194,10xCelsius -F samsung"
   },
-  { NULL, // Samsung SV1204H (all other firmware)
+  { "", // Samsung SV1204H (all other firmware)
     "^SAMSUNG SV1204H$",
-    ".*",
-    may_need_minus_F_disabled,
-    vendoropts_Samsung_SV1204H,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "May need -F samsung disabled; see manual for details.",
+    "-v 9,halfminutes -v 194,10xCelsius -F samsung"
   },
-  { NULL, // SAMSUNG SV0322A tested with FW JK200-35
+  { "", // SAMSUNG SV0322A tested with FW JK200-35
     "^SAMSUNG SV0322A$",
-    ".*",
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    "", "", ""
   },
-  { NULL, // SAMSUNG SP40A2H with RR100-07 firmware
+  { "", // SAMSUNG SP40A2H with RR100-07 firmware
     "^SAMSUNG SP40A2H$",
     "^RR100-07$",
-    NULL,
-    vendoropts_9_halfminutes,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -F samsung"
   },
-  { NULL, // SAMSUNG SP80A4H with RT100-06 firmware
+  { "", // SAMSUNG SP80A4H with RT100-06 firmware
     "^SAMSUNG SP80A4H$",
     "^RT100-06$",
-    NULL,
-    vendoropts_9_halfminutes,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -F samsung"
   },
-  { NULL, // SAMSUNG SP8004H with QW100-61 firmware
+  { "", // SAMSUNG SP8004H with QW100-61 firmware
     "^SAMSUNG SP8004H$",
     "^QW100-61$",
-    NULL,
-    vendoropts_9_halfminutes,
-    specialpurpose_reverse_samsung,
-    same_as_minus_F
+    "",
+    "-v 9,halfminutes -F samsung"
   },
   { "SAMSUNG SpinPoint T133 series", // tested with HD300LJ/ZT100-12, HD400LJ/ZZ100-14, HD401LJ/ZZ100-15
     "^SAMSUNG HD(250KD|(30[01]|320|40[01])L[DJ])$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "SAMSUNG SpinPoint T166 series", // tested with HD501LJ/CR100-10
     "^SAMSUNG HD(080G|160H|32[01]K|403L|50[01]L)J$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "SAMSUNG SpinPoint P120 series", // VF100-37 firmware, tested with SP2514N/VF100-37
     "^SAMSUNG SP(16[01]3|2[05][01]4)[CN]$",
     "^VF100-37$",
-    NULL, NULL,
-    specialpurpose_fix_samsung3,
-    same_as_minus_F3
+    "",
+    "-F samsung3"
   },
   { "SAMSUNG SpinPoint P120 series", // other firmware, tested with SP2504C/VT100-33
     "^SAMSUNG SP(16[01]3|2[05][01]4)[CN]$",
-    ".*",
-    may_need_minus_F3_enabled,
-    NULL, NULL, NULL
+    "",
+    "May need -F samsung3 enabled; see manual for details.",
+    ""
   },
   { "SAMSUNG SpinPoint P80 SD series", // tested with HD160JJ/ZM100-33
     "^SAMSUNG HD(080H|120I|160J)J$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "SAMSUNG SpinPoint P80 series", // BH100-35 firmware, tested with SP0842N/BH100-35
     "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
     "^BH100-35$",
-    NULL, NULL,
-    specialpurpose_fix_samsung3,
-    same_as_minus_F3
+    "",
+    "-F samsung3"
   },
   { "SAMSUNG SpinPoint P80 series", // firmware *-35 or later
     "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
     ".*-3[5-9]$",
-    may_need_minus_F3_enabled,
-    NULL, NULL, NULL
+    "May need -F samsung3 enabled; see manual for details.",
+    ""
   },
   { "SAMSUNG SpinPoint P80 series", // firmware *-25...34, tested with SP1614C/SW100-25 and -34
     "^SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]$",
     ".*-(2[5-9]|3[0-4])$",
-    NULL,
-    vendoropts_9_halfminutes,
-    NULL, NULL
+    "",
+    "-v 9,halfminutes"
   },
-  { 
-    NULL, // Any other Samsung disk with *-23 *-24 firmware
+  { "", // Any other Samsung disk with *-23 *-24 firmware
     // SAMSUNG SP1213N (TL100-23 firmware)
     // SAMSUNG SP0802N (TK100-23 firmware)
     // Samsung SP1604N, tested with FW TM100-23 and TM100-24
     "^SAMSUNG .*$",
     ".*-2[34]$",
-    NULL,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
+    "",
+    "-v 9,halfminutes -F samsung2"
   },
-  { NULL, // All Samsung drives with '.*-25' firmware
+  { "", // All Samsung drives with '.*-25' firmware
     "^SAMSUNG.*",
     ".*-25$",
-    may_need_minus_F2_disabled,
-    vendoropts_Samsung_SV4012H,
-    specialpurpose_reverse_samsung2,
-    same_as_minus_F2
+    "May need -F samsung2 disabled; see manual for details.",
+    "-v 9,halfminutes -F samsung2"
   },
-  { NULL, // All Samsung drives with '.*-26 or later (currently to -39)' firmware
+  { "", // All Samsung drives with '.*-26 or later (currently to -39)' firmware
     "^SAMSUNG.*",
     ".*-(2[6789]|3[0-9])$",
-    NULL,
-    vendoropts_Samsung_SV4012H,
-    NULL,
-    NULL
+    "",
+    "-v 9,halfminutes"
   },
-  { NULL, // Samsung ALL OTHER DRIVES
+  { "", // Samsung ALL OTHER DRIVES
     "^SAMSUNG.*",
-    ".*",
-    may_need_minus_F_enabled,
-    NULL, NULL, NULL
+    "",
+    "May need -F samsung or -F samsung2 enabled; see manual for details.",
+    ""
   },
   { "Maxtor Fireball 541DX family",
     "^Maxtor 2B0(0[468]|1[05]|20)H1$",
-    ".*",
-    NULL,
-    vendoropts_Maxtor_4D080H4,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 194,unknown"
   },
   { "Maxtor Fireball 3 family",
     "^Maxtor 2F0[234]0[JL]0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 1280 ATA family",  // no self-test log, ATA2-Fast
     "^Maxtor 8(1280A2|2160A4|2560A4|3840A6|4000A6|5120A8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 2160 Ultra ATA family",
     "^Maxtor 8(2160D2|3228D3|3240D3|4320D4|6480D6|8400D8|8455D8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 2880 Ultra ATA family",
     "^Maxtor 9(0510D4|0576D4|0648D5|0720D5|0840D6|0845D6|0864D6|1008D7|1080D8|1152D8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 3400 Ultra ATA family",
     "^Maxtor 9(1(360|350|202)D8|1190D7|10[12]0D6|0840D5|06[48]0D4|0510D3|1(350|202)E8|1010E6|0840E5|0640E4)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax D540X-4G family",
     "^Maxtor 4G(120J6|160J[68])$",
-    ".*",
-    NULL,
-    vendoropts_Maxtor_4D080H4,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 194,unknown"
   },
   { "Maxtor DiamondMax D540X-4K family",
     "^MAXTOR 4K(020H1|040H2|060H3|080H4)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor DiamondMax Plus D740X family",
     "^MAXTOR 6L0(20[JL]1|40[JL]2|60[JL]3|80[JL]4)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor DiamondMax Plus 5120 Ultra ATA 33 family",
     "^Maxtor 9(0512D2|0680D3|0750D3|0913D4|1024D4|1360D6|1536D6|1792D7|2048D8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 6800 Ultra ATA 66 family",
     "^Maxtor 9(2732U8|2390U7|2049U6|1707U5|1366U4|1024U3|0845U3|0683U2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax D540X-4D",
     "^Maxtor 4D0(20H1|40H2|60H3|80H4)$",
-    ".*",
-    NULL,
-    vendoropts_Maxtor_4D080H4,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 194,unknown"
   },
   { "Maxtor DiamondMax 16 family",
     "^Maxtor 4(R0[68]0[JL]0|R1[26]0L0|A160J0|R120L4)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 4320 Ultra ATA family",
     "^Maxtor (91728D8|91512D7|91303D6|91080D5|90845D4|90645D3|90648D[34]|90432D2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 17 VL family",
     "^Maxtor 9(0431U1|0641U2|0871U2|1301U3|1741U4)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 20 VL family",
     "^Maxtor (94091U8|93071U6|92561U5|92041U4|91731U4|91531U3|91361U3|91021U2|90841U2|90651U2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax VL 30 family",  // U: ATA66, H: ATA100
     "^Maxtor (33073U4|32049U3|31536U2|30768U1)|(33073H4|32305H3|31536H2|30768H1)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 36 family",
     "^Maxtor (93652U8|92739U6|91826U4|91369U3|90913U2|90845U2|90435U1)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 40 ATA 66 series",
     "^Maxtor 9(0684U2|1024U2|1362U3|1536U3|2049U4|2562U5|3073U6|4098U8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 40 series (Ultra ATA 66 and Ultra ATA 100)",
     "^Maxtor (54098[UH]8|53073[UH]6|52732[UH]6|52049[UH]4|51536[UH]3|51369[UH]3|51024[UH]2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 40 VL Ultra ATA 100 series",
     "^Maxtor 3(1024H1|1535H2|2049H2|3073H3|4098H4)( B)?$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 45 Ulta ATA 100 family",
     "^Maxtor 5(4610H6|4098H6|3073H4|2049H3|1536H2|1369H2|1023H2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 60 ATA 66 family",
     "^Maxtor 9(1023U2|1536U2|2049U3|2305U3|3073U4|4610U6|6147U8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 60 ATA 100 family",
     "^Maxtor 9(1023H2|1536H2|2049H3|2305H3|3073H4|4098H6|4610H6|6147H8)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 60 family",
     "^Maxtor 5T0(60H6|40H4|30H3|20H2|10H1)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 80 family",
     "^Maxtor (98196H8|96147H6)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 536DX family",
     "^Maxtor 4W(100H6|080H6|060H4|040H3|030H2)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 8 family",
     "^Maxtor 6(E0[234]|K04)0L0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 10 family (ATA/133 and SATA/150)",
     "^Maxtor 6(B(30|25|20|16|12|10|08)0[MPRS]|L(080[MLP]|(100|120)[MP]|160[MP]|200[MPRS]|250[RS]|300[RS]))0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 10 family (SATA/300)",
     "^Maxtor 6V(080E|160E|200E|250F|300F|320F)0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor DiamondMax Plus 9 family",
     "^Maxtor 6Y((060|080|120|160)L0|(060|080|120|160|200|250)P0|(060|080|120|160|200|250)M0)$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor DiamondMax 11 family",
     "^Maxtor 6H[45]00[FR]0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor DiamondMax 17",
     "^Maxtor 6G(080L|160[PE])0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Maxtor DiamondMax 20",
     "^MAXTOR STM3(40|80|160)[28]1[12]0?AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Maxtor DiamondMax 21",
     "^MAXTOR STM3(160215|(250|320)820|320620)AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor MaXLine Plus II",
     "^Maxtor 7Y250[PM]0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor MaXLine II family",
     "^Maxtor [45]A(25|30|32)0[JN]0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor MaXLine III family (ATA/133 and SATA/150)",
     "^Maxtor 7L(25|30)0[SR]0$",
-    ".*",
-    NULL,
-    vendoropts_9_minutes,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Maxtor MaXLine III family (SATA/300)",
     "^Maxtor 7V(25|30)0F0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Maxtor MaXLine Pro 500 family",  // There is also a 7H500R0 model, but I
     "^Maxtor 7H500F0$",               // haven't added it because I suspect
-    ".*",                             // it might need vendoropts_9_minutes
-    NULL, NULL, NULL, NULL            // and nobody has submitted a report yet
+    "",                             // it might need vendoropts_9_minutes
+    "", ""            // and nobody has submitted a report yet
   },
-  { NULL, // HITACHI_DK14FA-20B
+  { "", // HITACHI_DK14FA-20B
     "^HITACHI_DK14FA-20B$",
-    ".*",
-    NULL,
-    vendoropts_Hitachi_DK23XX,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 193,loadunload"
   },
   { "HITACHI Travelstar DK23XX/DK23XXB series",
     "^HITACHI_DK23..-..B?$",
-    ".*",
-    NULL,
-    vendoropts_Hitachi_DK23XX,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 193,loadunload"
   },
   { "Hitachi Endurastar J4K20/N4K20 (formerly DK23FA-20J)",
     "^(HITACHI_DK23FA-20J|HTA422020F9AT[JN]0)$",
-    ".*",
-    NULL,
-    vendoropts_Hitachi_DK23XX,
-    NULL, NULL
+    "",
+    "",
+    "-v 9,minutes -v 193,loadunload"
   },
   { "IBM Deskstar 14GXP and 16GP series",
     "^IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Deskstar 25GP and 22GXP family",
     "^IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "IBM Travelstar 4GT family",
     "^IBM-DTCA-2(324|409)0$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Travelstar 25GS, 18GT, and 12GN family",
     "^IBM-DARA-2(25|18|15|12|09|06)000$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Travelstar 48GH, 30GN, and 15GN family",
     "^(IBM-|Hitachi )?IC25(T048ATDA05|N0(30|20|15|12|10|07|06|05)ATDA04)-.$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Travelstar 32GH, 30GT, and 20GN family",
     "^IBM-DJSA-2(32|30|20|10|05)$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Travelstar 4GN family",
     "^IBM-DKLA-2(216|324|432)0$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Deskstar 37GP and 34GXP family",
     "^IBM-DPTA-3(5(375|300|225|150)|7(342|273|205|136))0$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM/Hitachi Travelstar 60GH and 40GN family",
     "^(IBM-|Hitachi )?IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM/Hitachi Travelstar 40GNX family",
     "^(IBM-|Hitachi )?IC25N0[42]0ATC[SX]05-.$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 80GN family",
     "^(Hitachi )?IC25N0[23468]0ATMR04-.$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Travelstar 4K40",
     "^(Hitachi )?HTS4240[234]0M9AT00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 5K80 family",
     "^(Hitachi )?HTS5480[8642]0M9AT00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 5K100 series",
     "^(Hitachi )?HTS5410[1864]0G9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar E5K100 series",
     "^(Hitachi )?HTE541040G9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 5K120",
     "^(Hitachi )?HTS5412(60|80|10|12)H9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 5K160 series",
     "^(Hitachi )?HTS5416([468]0|1[26])J9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 5K250 series",
     "^(Hitachi )?HTS5425(80|12|16|20|25)K9(A3|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Travelstar 7K60",
     "^(Hitachi )?HTS726060M9AT00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar E7K60",
     "^(Hitachi )?HTE7260[46]0M9AT00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 7K100",
     "^(Hitachi )?HTS7210[168]0G9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar E7K100",
     "^(Hitachi )?HTE7210[168]0G9(AT|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "Hitachi Travelstar 7K200",
     "^(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00$",
-    ".*",
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM/Hitachi Deskstar 120GXP family",
     "^(IBM-)?IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "IBM/Hitachi Deskstar GXP-180 family",
     "^(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]$",
-    ".*", 
-    NULL, NULL, NULL, NULL 
+    "", "", ""
   },
   { "IBM Travelstar 14GS",
     "^IBM-DCYA-214000$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "IBM Travelstar 4LP",
     "^IBM-DTNA-2(180|216)0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K80 series",
     "^(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K160",
     "^(Hitachi )?HDS7216(80|16)PLA[3T]80$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K250 series",
     "^(Hitachi )?HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar T7K250 series",
     "^(Hitachi )?HDT7225((25|20|16)DLA(T80|380))$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K400 series",
     "^(Hitachi )?HDS724040KL(AT|SA)80$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K500 series",
     "^(Hitachi )?HDS725050KLA(360|T80)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar P7K500 series",
     "^(Hitachi )?HDP7250(25|32|40|50)GLA(36|38|T8)0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar T7K500",
     "^(Hitachi )?HDT7250(25|32|40|50)VLA(360|380|T80)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Deskstar 7K1000",
     "^(Hitachi )?HDS7210(75|10)KLA330$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Hitachi Ultrastar 7K1000",
     "^(Hitachi )?HUA7210(50|75|10)KLA330$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Toshiba 2.5\" HDD series (30-60 GB)",
     "^TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3025|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Toshiba 2.5\" HDD series (80 GB and above)",
     "^TOSHIBA MK(80(25GAS|26GAX|32GAX|32GSX)|10(31GAS|32GAX)|12(33GAS|34G[AS]X)|2035GSS)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Toshiba 2.5\" HDD MK..52GSX series",
     "^TOSHIBA MK(80|12|16|25|32)52GSX$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Toshiba 1.8\" HDD series",
     "^TOSHIBA MK[23468]00[4-9]GA[HL]$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // TOSHIBA MK6022GAX
+  { "", // TOSHIBA MK6022GAX
     "^TOSHIBA MK6022GAX$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // TOSHIBA MK6409MAV
+  { "", // TOSHIBA MK6409MAV
     "^TOSHIBA MK6409MAV$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // TOS MK3019GAXB SUN30G
+  { "", // TOS MK3019GAXB SUN30G
     "^TOS MK3019GAXB SUN30G$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // TOSHIBA MK2016GAP, MK2017GAP, MK2018GAP, MK2018GAS, MK2023GAS
+  { "", // TOSHIBA MK2016GAP, MK2017GAP, MK2018GAP, MK2018GAS, MK2023GAS
     "^TOSHIBA MK20(1[678]GAP|(18|23)GAS)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus family",
     "^ST9(20|28|40|48)11A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 42 family",
     "^ST9(2014|3015|4019)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 4200.2 Series",
     "^ST9(100822|808210|60821|50212|402113|30219)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 5400.2 series",
     "^ST9(808211|60822|408114|308110|120821|10082[34]|8823|6812|4813|3811)AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 5400.3",
     "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 5400.3 ED",
     "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AB$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Momentus 7200.1 series",
-    "^ST9(10021|80825|6023|4015)AS?$", 
-    ".*",
-    NULL, NULL, NULL, NULL
+    "^ST9(10021|80825|6023|4015)AS?$",
+    "", "", ""
   },
   { "Seagate Momentus 7200.2",
     "^ST9(80813|100821|120823|160823|200420)ASG?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "^ST3(1010|1721|2120|3230|4340)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Medalist 2110, 3221, 4321, 6531, and 8641",
     "^ST3(2110|3221|4321|6531|8641)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U Series X family",
     "^ST3(10014A(CE)?|20014A)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U7 family",
     "^ST3(30012|40012|60012|80022|120020)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U Series 6 family",
     "^ST3(8002|6002|4081|3061|2041)0A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U Series 5 family",
     "^ST3(40823|30621|20413|15311|10211)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U4 family",
     "^ST3(2112|4311|6421|8421)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U8 family",
     "^ST3(8410|4313|17221|13021)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate U10 family",
     "^ST3(20423|15323|10212)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ATA family",
     "^ST3(2804|2724|2043|1362|1022|681)0A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ATA II family",
     "^ST3(3063|2042|1532|1021)0A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ATA III family",
     "^ST3(40824|30620|20414|15310|10215)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ATA IV family",
     "^ST3(20011|30011|40016|60021|80021)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ATA V family",
     "^ST3(12002(3A|4A|9A|3AS)|800(23A|15A|23AS)|60(015A|210A)|40017A)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 5400.1",
     "^ST340015A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 7200.7 and 7200.7 Plus family",
     "^ST3(200021A|200822AS?|16002[13]AS?|12002[26]AS?|1[26]082[78]AS|8001[13]AS?|8081[79]AS|60014A|40111AS|40014AS?)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 7200.8 family",
     "^ST3(400[68]32|300[68]31|250[68]23|200826)AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 7200.9 family",
     "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 7200.10 family",
     "^ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda 7200.11",
     "^ST3(500[368]2|750[36]3|1000[36]4)0AS?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ES",
     "^ST3(250[68]2|32062|40062|50063|75064)0NS$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Barracuda ES.2",  // no SAS versions added for now
     "^ST3(25031|50032|75033|100034)0NS$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
     "^ST3(17240|13030|10231|8420|4310)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate Medalist 17242, 13032, 10232, 8422, and 4312",
     "^ST3(1724|1303|1023|842|431)2A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate NL35 family",
     "^ST3(250623|250823|400632|400832|250824|250624|400633|400833|500641|500841)NS$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Seagate SV35.2 Series",
     "^ST3(500630)SV$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Protege",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1143,8 +874,7 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
     "^WDC WD([2468]00E|1[26]00A)B-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar family",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1153,8 +883,7 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
     "^WDC WD(2|3|4|6|8|10|12|16|18|20|25)00BB-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar WDxxxAB series",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1163,8 +892,7 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
     "^WDC WD(3|4|6)00AB-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar WDxxxAA series",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1173,8 +901,7 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
     "^WDC WD...?AA(-.*)?$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar WDxxxBA series",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1183,13 +910,11 @@ const drivesettings knowndrives[] = {
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
     "^WDC WD...BA$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar AC series", // add only 5400rpm/7200rpm (ata33 and faster)
     "^WDC AC((116|121|125|225|132|232)|([1-4][4-9][0-9])|([1-4][0-9][0-9][0-9]))00[A-Z]?",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar SE family",
   /* Western Digital drives with this comment all appear to use Attribute 9 in
@@ -1199,176 +924,142 @@ const drivesettings knowndrives[] = {
    * smartmontools FAQ 
    * UPDATE 2: this does not apply to more recent models, at least WD3200AAJB */
     "^WDC WD(4|6|8|10|12|16|18|20|25|30|32|40|50)00(JB|PB)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Blue EIDE family",  // WD Caviar SE EIDE family
     /* not completely accurate: at least also WD800JB, WD(4|8|20|25)00BB sold as Caviar Blue */
     "^WDC WD(16|25|32|40|50)00AAJB-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Blue EIDE family",  // WD Caviar SE16 EIDE family
     "^WDC WD(25|32|40|50)00AAKB-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital RE EIDE family",
     "^WDC WD(12|16|25|32)00SB-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Serial ATA family",
     "^WDC WD(4|8|20|32)00BD-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar SE Serial ATA family",
     "^WDC WD(4|8|12|16|20|25|32|40)00(JD|KD|PD)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar SE Serial ATA family",
     "^WDC WD(8|12|16|20|25|30|32|40|50)00JS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar SE16 Serial ATA family",
     "^WDC WD(16|20|25|32|40|50|75)00KS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE Serial ATA family
     /* not completely accurate: at least also WD800BD, (4|8)00JD sold as Caviar Blue */
     "^WDC WD((8|12|16|25|32)00AABS|(12|16|25|32|40|50)00AAJS)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE16 Serial ATA family
     "^WDC WD(16|20|25|32|40|50|75)00AAKS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital RE Serial ATA family",
     "^WDC WD(12|16|25|32)00(SD|YD|YS)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital RE2 Serial ATA family",
     "^WDC WD((40|50|75)00(YR|YS|AYYS)|(16|32|40|50)0[01]ABYS)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital RE3 Serial ATA family",
     "^WDC WD((25|32|50)02ABYS)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Caviar Green family",
     "^WDC WD((50|75)00AA|10EA)CS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Raptor family",
     "^WDC WD((360|740|800)GD|(360|740|1500)ADFD)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital VelociRaptor family",
     "^WDC WD((1500|3000)B|3000G)LFS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Scorpio EIDE family",
     "^WDC WD(4|6|8|10|12|16)00(UE|VE)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Scorpio Blue EIDE family",
     "^WDC WD(4|6|8|10|12|16|25)00BEVE-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Scorpio Serial ATA family",
     "^WDC WD(4|6|8|10|12|16|25)00BEAS-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Western Digital Scorpio Blue Serial ATA family",
     "^WDC WD((4|6|8|10|12|16|25)00BEVS|3200BEVT)-.*$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL,  // QUANTUM BIGFOOT TS10.0A
+  { "",  // QUANTUM BIGFOOT TS10.0A
     "^QUANTUM BIGFOOT TS10.0A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALLlct15 20 and QUANTUM FIREBALLlct15 30
+  { "", // QUANTUM FIREBALLlct15 20 and QUANTUM FIREBALLlct15 30
     "^QUANTUM FIREBALLlct15 [123]0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "QUANTUM FIREBALLlct20 series",
     "^QUANTUM FIREBALLlct20 [234]0$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALL CX10.2A
+  { "", // QUANTUM FIREBALL CX10.2A
     "^QUANTUM FIREBALL CX10.2A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Quantum Fireball Plus LM series",
     "^QUANTUM FIREBALLP LM(10.2|15|20.5|30)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Quantum Fireball CR series",
     "^QUANTUM FIREBALL CR(4.3|8.4|13.0)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALLP AS10.2, AS20.5, AS30.0, and AS40.0
+  { "", // QUANTUM FIREBALLP AS10.2, AS20.5, AS30.0, and AS40.0
     "^QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0)$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALL EX6.4A
+  { "", // QUANTUM FIREBALL EX6.4A
     "^QUANTUM FIREBALL EX6.4A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALL ST3.2A
+  { "", // QUANTUM FIREBALL ST3.2A
     "^QUANTUM FIREBALL ST(3.2|4.3)A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALL EX3.2A
+  { "", // QUANTUM FIREBALL EX3.2A
     "^QUANTUM FIREBALL EX3.2A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  { NULL, // QUANTUM FIREBALLP KX27.3
+  { "", // QUANTUM FIREBALLP KX27.3
     "^QUANTUM FIREBALLP KX27.3$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Quantum Fireball Plus KA series",
     "^QUANTUM FIREBALLP KA(9|10).1$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
   { "Quantum Fireball SE series",
     "^QUANTUM FIREBALL SE4.3A$",
-    ".*",
-    NULL, NULL, NULL, NULL
+    "", "", ""
   },
-  /*------------------------------------------------------------
-   *  End of table.  Do not add entries below this marker.
-   *------------------------------------------------------------ */
-  {NULL, NULL, NULL, NULL, NULL, NULL, NULL}
 };
+
+// # Entries in table
+const int num_knowndrives = sizeof(knowndrives) / sizeof(knowndrives[0]);
 
 
 // Compile regular expression, print message on failure.
@@ -1395,124 +1086,172 @@ static bool match(const char * pattern, const char * str)
 
 // Searches knowndrives[] for a drive with the given model number and firmware
 // string.  If either the drive's model or firmware strings are not set by the
-// manufacturer then values of NULL may be used.  Returns the index of the
-// first match in knowndrives[] or -1 if no match if found.
-int lookupdrive(const char *model, const char *firmware)
+// manufacturer then values of NULL may be used.  Returns the entry of the
+// first match in knowndrives[] or 0 if no match if found.
+const drive_settings * lookup_drive(const char * model, const char * firmware)
 {
   if (!model)
     model = "";
   if (!firmware)
     firmware = "";
 
-  int index = -1;
-  for (int i = 0; knowndrives[i].modelregexp; i++) {
+  for (int i = 0; i < num_knowndrives; i++) {
     // Check whether model matches the regular expression in knowndrives[i].
     if (!match(knowndrives[i].modelregexp, model))
       continue;
 
     // Model matches, now check firmware. nullptr matches always.
-    if (!(  !knowndrives[i].firmwareregexp
+    if (!(  !*knowndrives[i].firmwareregexp
           || match(knowndrives[i].firmwareregexp, firmware)))
       continue;
 
     // Found
-    index = i;
-    break;
+    return knowndrives + i;
   }
 
-  return index;
+  // Not found
+  return 0;
 }
 
-
-// Shows all presets for drives in knowndrives[].
-void showonepreset(const drivesettings *drivetable){
-  
-  const unsigned char (* presets)[2] = drivetable->vendoropts;
-  int first_preset = 1;
-  
-  // Basic error check
-  if (!drivetable || !drivetable->modelregexp){
-    pout("Null known drive table pointer. Please report\n"
-         "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
-    return;
-  }
-  
-  // print model and firmware regular expressions
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL REGEXP:", drivetable->modelregexp);
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "FIRMWARE REGEXP:", drivetable->firmwareregexp ?
-       drivetable->firmwareregexp : "");
-  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", drivetable->modelfamily ?
-       drivetable->modelfamily : "");
-  
-  // if there are any presets, then show them
-  if (presets && (*presets)[0]) while (1) {
-    char out[256];
-    const int attr = (*presets)[0], val  = (*presets)[1];
-    unsigned char fakearray[MAX_ATTRIBUTE_NUM];
-
-    // if we are at the end of the attribute list, break out
-    if (!attr)  
+// Parse '-v' and '-F' options in preset string, return false on error.
+static bool parse_presets(const char * presets, unsigned char * opts, unsigned char & fix_firmwarebug)
+{
+  for (int i = 0; ; ) {
+    i += strspn(presets+i, " \t");
+    if (!presets[i])
       break;
-    
-    // This is a hack. ataPrintSmartAttribName() needs a pointer to an
-    // "array" to dereference, so we provide such a pointer.
-    fakearray[attr]=val;
-    ataPrintSmartAttribName(out, attr, fakearray);
+    char opt, arg[40+1+13]; int len = -1;
+    if (!(sscanf(presets+i, "-%c %40[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
+      return false;
+    if (opt == 'v') {
+      // Parse "-v N,option"
+      unsigned char newopts[MAX_ATTRIBUTE_NUM] = {0, };
+      if (parse_attribute_def(arg, newopts))
+        return false;
+      // Set only if not set by user
+      for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++)
+        if (newopts[j] && !opts[j])
+          opts[j] = newopts[j];
+    }
+    else if (opt == 'F') {
+      unsigned char fix;
+      if (!strcmp(arg, "samsung"))
+        fix = FIX_SAMSUNG;
+      else if (!strcmp(arg, "samsung2"))
+        fix = FIX_SAMSUNG2;
+      else if (!strcmp(arg, "samsung3"))
+        fix = FIX_SAMSUNG3;
+      else
+        return false;
+      // Set only if not set by user
+      if (fix_firmwarebug == FIX_NOTSPECIFIED)
+        fix_firmwarebug = fix;
+    }
+    else
+      return false;
 
-    // Use leading zeros instead of spaces so that everything lines up.
-    out[0] = (out[0] == ' ') ? '0' : out[0];
-    out[1] = (out[1] == ' ') ? '0' : out[1];
-    pout("%-*s %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
-    first_preset = 0;
-    presets++;
+    i += len;
   }
-  else
+  return true;
+}
+
+// Shows one entry of knowndrives[], returns #errors.
+static int showonepreset(const drive_settings * dbentry)
+{
+  // Basic error check
+  if (!(   dbentry
+        && dbentry->modelfamily
+        && dbentry->modelregexp && *dbentry->modelregexp
+        && dbentry->firmwareregexp
+        && dbentry->warningmsg
+        && dbentry->presets                             )) {
+    pout("Invalid drive database entry. Please report\n"
+         "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
+    return 1;
+  }
+  
+  // print and check model and firmware regular expressions
+  int errcnt = 0;
+  regular_expression regex;
+  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL REGEXP:", dbentry->modelregexp);
+  if (!compile(regex, dbentry->modelregexp))
+    errcnt++;
+
+  pout("%-*s %s\n", TABLEPRINTWIDTH, "FIRMWARE REGEXP:", *dbentry->firmwareregexp ?
+    dbentry->firmwareregexp : ".*"); // preserve old output (TODO: Change)
+  if (*dbentry->firmwareregexp && !compile(regex, dbentry->firmwareregexp))
+    errcnt++;
+
+  pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
+
+  // if there are any presets, then show them
+  unsigned char fix_firmwarebug = 0;
+  bool first_preset = true;
+  if (*dbentry->presets) {
+    unsigned char opts[MAX_ATTRIBUTE_NUM] = {0,};
+    if (!parse_presets(dbentry->presets, opts, fix_firmwarebug)) {
+      pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
+      errcnt++;
+    }
+    for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
+      char out[256];
+      if (opts[i]) {
+        ataPrintSmartAttribName(out, i, opts);
+        // Use leading zeros instead of spaces so that everything lines up.
+        out[0] = (out[0] == ' ') ? '0' : out[0];
+        out[1] = (out[1] == ' ') ? '0' : out[1];
+        pout("%-*s %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
+        first_preset = false;
+      }
+    }
+  }
+  if (first_preset)
     pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
-  
-  // Is a special purpose function defined?  If so, describe it
-  if (drivetable->specialpurpose){
-    pout("%-*s ", TABLEPRINTWIDTH, "OTHER PRESETS:");
-    pout("%s\n", drivetable->functiondesc ?
-         drivetable->functiondesc : "A special purpose function "
-         "is defined for this drive"); 
+  // describe firmwarefix
+  if (fix_firmwarebug) {
+    const char * fixdesc;
+    switch (fix_firmwarebug) {
+      case FIX_SAMSUNG:
+        fixdesc = "Fixes byte order in some SMART data (same as -F samsung)";
+        break;
+      case FIX_SAMSUNG2:
+        fixdesc = "Fixes byte order in some SMART data (same as -F samsung2)";
+        break;
+      case FIX_SAMSUNG3:
+        fixdesc = "Fixes completed self-test reported as in progress (same as -F samsung3)";
+        break;
+      default:
+        fixdesc = "UNKNOWN"; errcnt++;
+        break;
+    }
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "OTHER PRESETS:", fixdesc);
   }
-  
+
   // Print any special warnings
-  if (drivetable->warningmsg){
-    pout("%-*s ", TABLEPRINTWIDTH, "WARNINGS:");
-    pout("%s\n", drivetable->warningmsg);
-  }
-  
-  return;
+  if (*dbentry->warningmsg)
+    pout("%-*s %s\n", TABLEPRINTWIDTH, "WARNINGS:", dbentry->warningmsg);
+  return errcnt;
 }
 
 // Shows all presets for drives in knowndrives[].
-// Returns <0 on syntax error in regular expressions.
-int showallpresets(void)
+// Returns #syntax errors.
+int showallpresets()
 {
   // loop over all entries in the knowndrives[] table, printing them
   // out in a nice format
-  int i;
-  for (i=0; knowndrives[i].modelregexp; i++){
-    showonepreset(&knowndrives[i]);
+  int errcnt = 0;
+  for (int i = 0; i < num_knowndrives; i++) {
+    errcnt += showonepreset(&knowndrives[i]);
     pout("\n");
-  }
-
-  // Check all regular expressions
-  int rc = 0;
-  regular_expression regex;
-  for (i=0; knowndrives[i].modelregexp; i++){
-    if (!compile(regex, knowndrives[i].modelregexp))
-      rc = -1;
-    if (knowndrives[i].firmwareregexp) {
-      if (!compile(regex, knowndrives[i].firmwareregexp))
-        rc = -1;
-    }
   }
   pout("For information about adding a drive to the database see the FAQ on the\n");
   pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
-  return rc;
+
+  if (errcnt > 0)
+    pout("\nFound %d syntax error(s) in database.\n"
+         "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n", errcnt);
+  return errcnt;
 }
 
 // Shows all matching presets for a drive in knowndrives[].
@@ -1522,10 +1261,10 @@ int showmatchingpresets(const char *model, const char *firmware)
   int cnt = 0;
   const char * firmwaremsg = (firmware ? firmware : "(any)");
 
-  for (int i = 0; knowndrives[i].modelregexp; i++) {
+  for (int i = 0; i < num_knowndrives; i++) {
     if (!match(knowndrives[i].modelregexp, model))
       continue;
-    if (   firmware && knowndrives[i].firmwareregexp
+    if (   firmware && *knowndrives[i].firmwareregexp
         && !match(knowndrives[i].firmwareregexp, firmware))
         continue;
     // Found
@@ -1550,8 +1289,8 @@ int showmatchingpresets(const char *model, const char *firmware)
 }
 
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const struct ata_identify_device *drive){
-  int i;
+void showpresets(const ata_identify_device * drive)
+{
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   // get the drive's model/firmware strings
@@ -1559,7 +1298,8 @@ void showpresets(const struct ata_identify_device *drive){
   format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
   
   // and search to see if they match values in the table
-  if ((i = lookupdrive(model, firmware)) < 0) {
+  const drive_settings * dbentry = lookup_drive(model, firmware);
+  if (!dbentry) {
     // no matches found
     pout("No presets are defined for this drive.  Its identity strings:\n"
          "MODEL:    %s\n"
@@ -1576,56 +1316,30 @@ void showpresets(const struct ata_identify_device *drive){
        "%-*s %s\n"
        "match smartmontools Drive Database entry:\n",
        TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmware);
-  showonepreset(&knowndrives[i]);
-  return;
+  showonepreset(dbentry);
 }
 
 // Sets preset vendor attribute options in opts by finding the entry
 // (if any) for the given drive in knowndrives[].  Values that have
-// already been set in opts will not be changed.  Returns <0 if drive
-// not recognized else index >=0 into drive database.
-int applypresets(const ata_identify_device *drive, unsigned char * opts,
-		 smartmonctrl *con)
+// already been set in opts will not be changed.  Returns false if drive
+// not recognized.
+bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
+                   unsigned char & fix_firmwarebug)
 {
-  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-
   // get the drive's model/firmware strings
+  char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
   format_ata_string(model, drive->model, MODEL_STRING_LENGTH);
   format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
   
   // Look up the drive in knowndrives[].
-  int i;
-  if ((i = lookupdrive(model, firmware)) >= 0) {
-    
-    // if vendoropts is non-NULL then Attribute interpretation presets
-    if (knowndrives[i].vendoropts) {
-      const unsigned char (* presets)[2];
-      
-      // For each attribute in list of attribute/val pairs...
-      presets = knowndrives[i].vendoropts;
-      while (1) {
-	const int attr = (*presets)[0];
-	const int val  = (*presets)[1];
-	
-	if (!attr)  
-	  break;
-	
-	// ... set attribute if user hasn't already done so.
-	if (!opts[attr])
-	  opts[attr] = val;
-	presets++;
-      }
-    }
-    
-    // If a special-purpose function is defined for this drive then
-    // call it. Note that if command line arguments or Directives
-    // over-ride this choice, then the specialpurpose function that is
-    // called must deal with this.
-    if (knowndrives[i].specialpurpose)
-      (*knowndrives[i].specialpurpose)(con);
+  const drive_settings * dbentry = lookup_drive(model, firmware);
+  if (!dbentry)
+    return false;
+
+  if (*dbentry->presets) {
+    // Apply presets
+    if (!parse_presets(dbentry->presets, opts, fix_firmwarebug))
+      pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
   }
-  
-  // return <0 if drive wasn't recognized, or index>=0 into database
-  // if it was
-  return i;
+  return true;
 }

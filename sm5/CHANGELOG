@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.735 2008/09/23 23:55:29 jharg Exp $
+$Id: CHANGELOG,v 1.736 2008/09/25 21:00:47 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] New syntax for drive database: Specify presets by strings
+       with '-v' and '-F' options. Use empty strings instead of NULL.
 
   [JPH] Added Linux support for viewing disks behind MegaRAID
   	controllers
