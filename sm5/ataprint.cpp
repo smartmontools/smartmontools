@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.201 2008/09/19 16:18:46 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.202 2008/09/25 21:00:47 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -451,43 +451,41 @@ static uint64_t determine_capacity(const ata_identify_device * drive, char * pst
   return retval;
 }
 
-static int ataPrintDriveInfo (const ata_identify_device * drive)
+static bool ataPrintDriveInfo(const ata_identify_device * drive)
 {
-  int version, drivetype;
-  const char *description;
-  char unknown[64], timedatetz[DATEANDEPOCHLEN];
-  unsigned short minorrev;
-  char model[64], serial[64], firm[64], capacity[64];
-
   // format drive information (with byte swapping as needed)
+  char model[64], serial[64], firm[64];
   format_ata_string(model, drive->model, 40);
   format_ata_string(serial, drive->serial_no, 20);
   format_ata_string(firm, drive->fw_rev, 8);
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
-  drivetype=lookupdrive(model, firm);
+  const drive_settings * dbentry = lookup_drive(model, firm);
 
   // Print model family if known
-  if (drivetype>=0 && knowndrives[drivetype].modelfamily)
-    pout("Model Family:     %s\n", knowndrives[drivetype].modelfamily);
+  if (dbentry && *dbentry->modelfamily)
+    pout("Model Family:     %s\n", dbentry->modelfamily);
 
   pout("Device Model:     %s\n", infofound(model));
   if (!con->dont_print_serial)
     pout("Serial Number:    %s\n", infofound(serial));
   pout("Firmware Version: %s\n", infofound(firm));
 
+  char capacity[64];
   if (determine_capacity(drive, capacity))
     pout("User Capacity:    %s bytes\n", capacity);
   
   // See if drive is recognized
-  pout("Device is:        %s\n", drivetype<0?
+  pout("Device is:        %s\n", !dbentry ?
        "Not in smartctl database [for details use: -P showall]":
        "In smartctl database [for details use: -P show]");
 
   // now get ATA version info
-  version=ataVersionInfo(&description,drive, &minorrev);
+  const char *description; unsigned short minorrev;
+  int version = ataVersionInfo(&description, drive, &minorrev);
 
   // unrecognized minor revision code
+  char unknown[64];
   if (!description){
     if (!minorrev)
       sprintf(unknown, "Exact ATA specification draft version not indicated");
@@ -507,19 +505,19 @@ static int ataPrintDriveInfo (const ata_identify_device * drive)
   pout("ATA Standard is:  %s\n",description);
   
   // print current time and date and timezone
-  dateandtimezone(timedatetz);
+  char timedatetz[DATEANDEPOCHLEN]; dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);
 
   // Print warning message, if there is one
-  if (drivetype>=0 && knowndrives[drivetype].warningmsg)
-    pout("\n==> WARNING: %s\n\n", knowndrives[drivetype].warningmsg);
+  if (dbentry && *dbentry->warningmsg)
+    pout("\n==> WARNING: %s\n\n", dbentry->warningmsg);
 
   if (version>=3)
-    return drivetype;
+    return !!dbentry;
   
   pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");
   pout("We will try to proceed in spite of this.\n");
-  return drivetype;
+  return !!dbentry;
 }
 
 static const char *OfflineDataCollectionStatus(unsigned char status_byte)
@@ -1488,7 +1486,7 @@ static ata_smart_selftestlog smartselftest;
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
   int timewait,code;
-  int returnval=0, retid=0, supported=0, needupdate=0, known=0;
+  int returnval=0, retid=0, supported=0, needupdate=0;
   const char * powername = 0; char powerchg = 0;
 
   // If requested, check power mode first
@@ -1535,10 +1533,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Use preset vendor attribute options unless user has requested otherwise.
   if (!con->ignorepresets){
-    applypresets(&drive, con->attributedefs, con);
+    apply_presets(&drive, con->attributedefs, con->fixfirmwarebug);
   }
 
   // Print most drive identity information if requested
+  bool known = false;
   if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");
     known = ataPrintDriveInfo(&drive);

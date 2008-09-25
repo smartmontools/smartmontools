@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.425 2008/09/19 16:52:29 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.426 2008/09/25 21:00:47 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1608,7 +1608,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
     // do whatever applypresets decides to do.
-    if (applypresets(&drive, cfg.attributedefs, con) < 0)
+    if (!apply_presets(&drive, cfg.attributedefs, con->fixfirmwarebug))
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
