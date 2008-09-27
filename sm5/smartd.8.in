@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.129 2008/09/27 17:04:39 chrfranke Exp $
+$Id: smartd.8.in,v 1.130 2008/09/27 19:17:24 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -170,7 +170,6 @@ debug mode is enabled.
 Prints a list (to STDOUT) of all the possible Directives which may
 appear in the configuration file /usr/local/etc/smartd.conf, and then exits.
 These Directives are also described later in this man page. They may
-
 appear in the configuration file following the device name.
 .TP
 .B \-h, \-\-help, \-\-usage
@@ -2053,4 +2052,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.129 2008/09/27 17:04:39 chrfranke Exp $
+$Id: smartd.8.in,v 1.130 2008/09/27 19:17:24 chrfranke Exp $
