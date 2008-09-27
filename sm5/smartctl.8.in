@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.114 2008/09/23 23:55:29 jharg Exp $
+ $Id: smartctl.8.in,v 1.115 2008/09/27 17:04:36 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1140,6 +1140,36 @@ lists all entries matching MODEL, and the command:
 lists all entries for this MODEL and a specific FIRMWARE version.
 
 .TP
+.B \-B [+]FILE, \-\-drivedb=[+]FILE
+[NEW EXPERIMENTAL SMARTCTL FEATURE] Read the drive database from FILE.
+The new database replaces the built in database by default. If \'+\' is
+specified, then the new entries prepend the built in entries.
+
+The database file uses the same C/C++ syntax that is used to initialize
+the built in database array. C/C++ style comments are allowed.
+Example:
+
+.nf
+  /* Full entry: */
+  {
+    "Model family",    // Info about model family/series.
+    "MODEL1.*REGEX",   // Regular expression to match model of device.
+    "VERSION.*REGEX",  // Regular expression to match firmware version(s).
+    "Some warning",    // Warning message.
+    "\-v 9,minutes"     // String of preset \-v and \-F options.
+  },
+  /* Minimal entry: */
+  {
+    "",                // No model family/series info.
+    "MODEL2.*REGEX",   // Regular expression to match model of device.
+    "",                // All firmware versions.
+    "",                // No warning.
+    ""                 // No options preset.
+  },
+  /* ... */
+.fi
+
+.TP
 .B SMART RUN/ABORT OFFLINE TEST AND SELF\-TEST OPTIONS:
 .TP
 .B \-t TEST, \-\-test=TEST
@@ -1597,7 +1627,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.114 2008/09/23 23:55:29 jharg Exp $
+$Id: smartctl.8.in,v 1.115 2008/09/27 17:04:36 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

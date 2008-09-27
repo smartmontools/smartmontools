@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.128 2008/09/23 23:55:29 jharg Exp $
+$Id: smartd.8.in,v 1.129 2008/09/27 17:04:39 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -129,8 +129,14 @@ OPTIONS
 Long options are not supported on all systems.  Use \fB\'smartd
 \-h\'\fP to see the available options.
 .TP
-.B \-c FILE, \-\-configfile=FILE
+.B \-B [+]FILE, \-\-drivedb=[+]FILE
+[NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.
+The new database replaces the built in database by default. If \'+\' is
+specified, then the new entries prepend the built in entries.
+Please see the \fBsmartctl\fP man page for further details.
 
+.TP
+.B \-c FILE, \-\-configfile=FILE
 Read \fBsmartd\fP configuration Directives from FILE, instead of from
 the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
 If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
@@ -164,10 +170,12 @@ debug mode is enabled.
 Prints a list (to STDOUT) of all the possible Directives which may
 appear in the configuration file /usr/local/etc/smartd.conf, and then exits.
 These Directives are also described later in this man page. They may
+
 appear in the configuration file following the device name.
 .TP
 .B \-h, \-\-help, \-\-usage
 Prints usage message to STDOUT and exits.
+
 .TP
 .B \-i N, \-\-interval=N
 Sets the interval between disk checks to \fIN\fP seconds, where
@@ -2045,4 +2053,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.128 2008/09/23 23:55:29 jharg Exp $
+$Id: smartd.8.in,v 1.129 2008/09/27 17:04:39 chrfranke Exp $

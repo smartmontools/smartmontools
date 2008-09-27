@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.426 2008/09/25 21:00:47 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.427 2008/09/27 17:04:41 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1501,6 +1501,8 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
   PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
   PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n\n");
+  PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
+  PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n\n");
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
   PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
@@ -1523,6 +1525,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
   PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
   PrintOut(LOG_INFO,"  -s PREFIX  Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
+  PrintOut(LOG_INFO,"  -B [+]FILE Read and replace [add] drive database from FILE\n");
   PrintOut(LOG_INFO,"  -V         Print License, Copyright, and version information\n");
 #endif
 }
@@ -3668,7 +3671,7 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "c:l:q:dDni:p:r:s:Vh?";
+  const char *shortopts = "c:l:q:dDni:p:r:s:B:Vh?";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
@@ -3685,6 +3688,7 @@ void ParseOpts(int argc, char **argv){
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
     { "savestates",     required_argument, 0, 's' },
+    { "drivedb",        required_argument, 0, 'B' },
 #if defined(_WIN32) || defined(__CYGWIN__)
     { "service",        no_argument,       0, 'n' },
 #endif
@@ -3831,6 +3835,18 @@ void ParseOpts(int argc, char **argv){
     case 's':
       // path prefix of persistent state file
       state_path_prefix = optarg;
+      break;
+    case 'B':
+      {
+        const char * path = optarg; bool append = false;
+        if (*path == '+' && path[1]) {
+          path++; append = true;
+        }
+        unsigned char savedebug = debugmode; debugmode = 1;
+        if (!read_drive_database(path, append))
+          EXIT(EXIT_BADCMD);
+        debugmode = savedebug;
+      }
       break;
     case 'V':
       // print version and CVS info

@@ -5,6 +5,7 @@
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
  * Copyright (C) 2003-8 Philip Williams, Bruce Allen
+ * Copyright (C) 2008   Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.176 2008/09/25 21:00:47 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.177 2008/09/27 17:04:36 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -43,7 +44,7 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID 
 // A good on-line reference for these is:
 // http://www.zeus.com/extra/docsystem/docroot/apps/web/docs/modules/access/regex.html
 
-static const drive_settings knowndrives[] = {
+static const drive_settings builtin_knowndrives[] = {
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
     "^ER60A46A$",
@@ -1058,8 +1059,102 @@ static const drive_settings knowndrives[] = {
   },
 };
 
-// # Entries in table
-const int num_knowndrives = sizeof(knowndrives) / sizeof(knowndrives[0]);
+
+/// Drive database class. Stores custom entries read from file.
+/// Provides transparent access to concatenation of custom and
+/// default table.
+class drive_database
+{
+public:
+  /// Construction, requires info about default table.
+  drive_database(const drive_settings * builtin_tab, unsigned builtin_size);
+
+  ~drive_database();
+
+  /// Get total number of entries.
+  unsigned size() const
+    { return m_custom_tab.size() + m_builtin_size; }
+
+  /// Get number of custom entries.
+  unsigned custom_size() const
+    { return m_custom_tab.size(); }
+
+  /// Clear database.
+  void clear();
+
+  /// Array access.
+  const drive_settings & operator[](unsigned i);
+
+  /// Append new custom entry.
+  void push_back(const drive_settings & src);
+
+private:
+  const drive_settings * m_builtin_tab;
+  unsigned m_builtin_size;
+
+  std::vector<drive_settings> m_custom_tab;
+  std::vector<char *> m_custom_strings;
+
+  const char * copy_string(const char * str);
+
+  drive_database(const drive_database &);
+  void operator=(const drive_database &);
+};
+
+drive_database::drive_database(const drive_settings * builtin_tab,
+                               unsigned builtin_size)
+: m_builtin_tab(builtin_tab),
+  m_builtin_size(builtin_size)
+{
+}
+
+drive_database::~drive_database()
+{
+  clear();
+}
+
+void drive_database::clear()
+{
+  m_custom_tab.clear();
+  for (unsigned i = 0; i < m_custom_strings.size(); i++)
+    delete [] m_custom_strings[i];
+  m_custom_strings.clear();
+  m_builtin_size = 0;
+}
+
+const drive_settings & drive_database::operator[](unsigned i)
+{
+  return (i < m_custom_tab.size() ? m_custom_tab[i]
+          : m_builtin_tab[i - m_custom_tab.size()] );
+}
+
+void drive_database::push_back(const drive_settings & src)
+{
+  drive_settings dest;
+  dest.modelfamily    = copy_string(src.modelfamily);
+  dest.modelregexp    = copy_string(src.modelregexp);
+  dest.firmwareregexp = copy_string(src.firmwareregexp);
+  dest.warningmsg     = copy_string(src.warningmsg);
+  dest.presets        = copy_string(src.presets);
+  m_custom_tab.push_back(dest);
+}
+
+const char * drive_database::copy_string(const char * src)
+{
+  char * dest = new char[strlen(src)+1];
+  try {
+    m_custom_strings.push_back(dest);
+  }
+  catch (...) {
+    delete [] dest; throw;
+  }
+  return strcpy(dest, src);
+}
+
+
+/// The drive database, initialized with default table.
+static drive_database knowndrives(builtin_knowndrives,
+  sizeof(builtin_knowndrives)/sizeof(builtin_knowndrives[0]));
 
 
 // Compile regular expression, print message on failure.
@@ -1095,7 +1190,7 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
   if (!firmware)
     firmware = "";
 
-  for (int i = 0; i < num_knowndrives; i++) {
+  for (unsigned i = 0; i < knowndrives.size(); i++) {
     // Check whether model matches the regular expression in knowndrives[i].
     if (!match(knowndrives[i].modelregexp, model))
       continue;
@@ -1106,7 +1201,7 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
       continue;
 
     // Found
-    return knowndrives + i;
+    return &knowndrives[i];
   }
 
   // Not found
@@ -1241,10 +1336,15 @@ int showallpresets()
   // loop over all entries in the knowndrives[] table, printing them
   // out in a nice format
   int errcnt = 0;
-  for (int i = 0; i < num_knowndrives; i++) {
+  for (unsigned i = 0; i < knowndrives.size(); i++) {
     errcnt += showonepreset(&knowndrives[i]);
     pout("\n");
   }
+
+  pout("Total number of entries  :%5u\n"
+       "Entries read from file(s):%5u\n\n",
+    knowndrives.size(), knowndrives.custom_size());
+
   pout("For information about adding a drive to the database see the FAQ on the\n");
   pout("smartmontools home page: " PACKAGE_HOMEPAGE "\n");
 
@@ -1261,7 +1361,7 @@ int showmatchingpresets(const char *model, const char *firmware)
   int cnt = 0;
   const char * firmwaremsg = (firmware ? firmware : "(any)");
 
-  for (int i = 0; i < num_knowndrives; i++) {
+  for (unsigned i = 0; i < knowndrives.size(); i++) {
     if (!match(knowndrives[i].modelregexp, model))
       continue;
     if (   firmware && *knowndrives[i].firmwareregexp
@@ -1342,4 +1442,239 @@ bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
       pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
   }
   return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Parser for drive database files
+
+// Abstract pointer to read file input.
+class stdin_iterator
+{
+public:
+  explicit stdin_iterator(FILE * f)
+    : m_f(f), m_c(0) { operator++(); }
+
+  stdin_iterator & operator++();
+
+  stdin_iterator & operator--();
+
+  char operator*() const
+    { return m_c; }
+
+private:
+  FILE * m_f;
+  char m_c, m_prev;
+};
+
+stdin_iterator & stdin_iterator::operator++()
+{
+  m_prev = m_c;
+  int ch = getc(m_f);
+  m_c = (ch != EOF ? ch : 0);
+  return *this;
+}
+
+stdin_iterator & stdin_iterator::operator--()
+{
+  if (m_c && ungetc(m_c, m_f) == EOF)
+    m_prev = 0;
+  m_c = m_prev;
+  m_prev = 0;
+  return *this;
+}
+
+// Use above as parser input 'pointer'. Can easily be changed later
+// to e.g. 'const char *' if above is too slow.
+typedef stdin_iterator parse_ptr;
+
+// Skip whitespace and comments.
+static parse_ptr skip_white(parse_ptr src, const char * path, int & line)
+{
+  for ( ; ; ++src) switch (*src) {
+    case ' ': case '\t':
+      continue;
+
+    case '\n':
+      ++line;
+      continue;
+
+    case '/':
+      switch (*++src) {
+        case '/':
+          // skip '// comment'
+          ++src;
+          while (*src && *src != '\n')
+            ++src;
+          if (*src)
+            ++line;
+          break;
+        case '*':
+          // skip '/* comment */'
+          ++src;
+          for (;;) {
+            if (!*src) {
+              pout("%s(%d): Missing '*/'\n", path, line);
+              return src;
+            }
+            char c = *src; ++src;
+            if (c == '\n')
+              ++line;
+            else if (c == '*' && *src == '/')
+              break;
+          }
+          break;
+        default:
+          return --src;
+      }
+      continue;
+
+    default:
+      return src;
+  }
+}
+
+// Info about a token.
+struct token_info
+{
+  char type;
+  int line;
+  std::string value;
+
+  token_info() : type(0), line(0) { }
+};
+
+// Get next token.
+static parse_ptr get_token(parse_ptr src, token_info & token, const char * path, int & line)
+{
+  src = skip_white(src, path, line);
+  switch (*src) {
+    case '{': case '}': case ',':
+      // Simple token
+      token.type = *src; token.line = line;
+      ++src;
+      break;
+
+    case '"':
+      // String constant
+      token.type = '"'; token.line = line;
+      token.value = "";
+      do {
+        for (++src; *src != '"'; ++src) {
+          if (!*src || *src == '\n') {
+            pout("%s(%d): Missing terminating '\"'\n", path, line);
+            token.type = '?'; token.line = line;
+            return src;
+          }
+          char c = *src;
+          if (c == '\\') switch (*++src) {
+            case 'n' : c = '\n'; break;
+            case '\n': ++line;   c = *src; break;
+            case '\\': case '"': c = *src; break;
+            case 0:  --src; continue;
+            default:
+              pout("%s(%d): Unknown escape sequence '\\%c'\n", path, line, *src);
+              token.type = '?'; token.line = line;
+              continue;
+          }
+          token.value += c;
+        }
+        // Lookahead to detect string constant concatentation
+        src = skip_white(++src, path, line);
+      } while (*src == '"');
+      break;
+
+    case 0:
+      // EOF
+      token.type = 0; token.line = line;
+      break;
+
+    default:
+      pout("%s(%d): Syntax error, invalid char '%c'\n", path, line, *src);
+      token.type = '?'; token.line = line;
+      while (*src && *src != '\n')
+        ++src;
+      break;
+  }
+
+  return src;
+}
+
+// Read drive database from file.
+static bool read_drive_database(const char * path, drive_database & db)
+{
+  stdio_file f(path, "r");
+  if (!f) {
+    pout("%s: cannot open drive database file\n", path);
+    return false;
+  }
+
+  int state = 0, field = 0;
+  std::string values[5];
+  bool ok = true;
+
+  token_info token; int line = 1;
+  parse_ptr src = get_token(parse_ptr(f), token, path, line);
+  for (;;) {
+    // EOF is ok after '}', trailing ',' is also allowed.
+    if (!token.type && (state == 0 || state == 4))
+      break;
+
+    // Check expected token
+    const char expect[] = "{\",},";
+    if (token.type != expect[state]) {
+      if (token.type != '?')
+        pout("%s(%d): Syntax error, '%c' expected\n", path, token.line, expect[state]);
+      ok = false;
+      // Skip to next entry
+      while (token.type && token.type != '{')
+        src = get_token(src, token, path, line);
+      state = 0;
+      if (token.type)
+        continue;
+      break;
+    }
+
+    // Interpret parser state
+    switch (state) {
+      case 0: // ... ^{...}
+        state = 1; field = 0;
+        break;
+      case 1: // {... ^"..." ...}
+        values[field] = token.value;
+        state = (++field < 5 ? 2 : 3);
+        break;
+      case 2: // {... "..."^, ...}
+        state = 1;
+        break;
+      case 3: // {...^}, ...
+        {
+          drive_settings entry;
+          entry.modelfamily    = values[0].c_str();
+          entry.modelregexp    = values[1].c_str();
+          entry.firmwareregexp = values[2].c_str();
+          entry.warningmsg     = values[3].c_str();
+          entry.presets        = values[4].c_str();
+          db.push_back(entry);
+        }
+        state = 4;
+        break;
+      case 4: // {...}^, ...
+        state = 0;
+        break;
+      default:
+        pout("Bad state %d\n", state);
+        return false;
+    }
+    src = get_token(src, token, path, line);
+  }
+  return ok;
+}
+
+// Read drive database from file.
+bool read_drive_database(const char * path, bool append)
+{
+  if (!append)
+    knowndrives.clear();
+  return read_drive_database(path, knowndrives);
 }

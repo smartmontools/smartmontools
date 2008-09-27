@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.736 2008/09/25 21:00:47 chrfranke Exp $
+$Id: CHANGELOG,v 1.737 2008/09/27 17:04:36 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add parser to read drive database from a file. Add '-B' option
+       to smartctl and smartd to specify database file name. File syntax
+       is identical to the C/C++ syntax used to inialize the internal
+       database array.
 
   [CF] New syntax for drive database: Specify presets by strings
        with '-v' and '-F' options. Use empty strings instead of NULL.
