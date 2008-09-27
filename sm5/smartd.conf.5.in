@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.94 2008/09/23 23:55:29 jharg Exp $
+$Id: smartd.conf.5.in,v 1.95 2008/09/27 17:00:48 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -163,6 +163,7 @@ Section below!
 .B \ \ /dev/sda -d megaraid,2 -a -s S/../.././03
 .B
 .B #
+.nf
 .B # Four ATA disks on a 3ware 6/7/8000 controller.
 .B # Start short self-tests daily between midnight and 1am,
 .B # 1-2, 2-3, and 3-4 am.  Starting with the Linux 2.6
@@ -282,8 +283,8 @@ further details.
 .B \-d TYPE
 Specifies the type of the device.  This Directive may be used multiple
 times for one device, but the arguments \fIata\fP, \fIscsi\fP,
-\fIsat\fP, \fImarvell\fP, \fIcciss,N\fP, \fIareca,N\fP and
-\fI3ware,N\fP are mutually-exclusive. If more than one is given then
+\fIsat\fP, \fImarvell\fP, \fIcciss,N\fP, \fIareca,N\fP, \fImegaraid,N\fP
+and \fI3ware,N\fP are mutually-exclusive. If more than one is given then
 \fBsmartd\fP will use the last one which appears.
 
 If none of these three arguments is given, then \fBsmartd\fP will
@@ -322,6 +323,13 @@ be overridden with this syntax: \'\-d sat,12\' or \'\-d sat,16\'.
 .I marvell
 \- Under Linux, interact with SATA disks behind Marvell chip-set
 controllers (using the Marvell rather than libata driver).
+
+.I megaraid,N
+\- the device consists of one or more SCSI/SAS/SATA disks connected
+to a MegaRAID controller.  The non-negative integer N (in the range
+of 0 to 127 inclusive) denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identified as
+megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
 
 .I 3ware,N
 \- the device consists of one or more ATA disks connected to a 3ware
@@ -377,7 +385,7 @@ inclusive) denotes which disk on the controller is monitored.  In log
 files and email messages this disk will be identified as cciss_disk_XX
 with XX in the range from 00 to 15 inclusive.
 
-.B 3ware, Areca and cciss controllers are currently ONLY supported under Linux.
+.B 3ware, MegaRAID, Areca and cciss controllers are currently ONLY supported under Linux.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint
@@ -1405,4 +1413,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.94 2008/09/23 23:55:29 jharg Exp $
+$Id: smartd.conf.5.in,v 1.95 2008/09/27 17:00:48 chrfranke Exp $
