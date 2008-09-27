@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.189 2008/09/06 20:08:35 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.190 2008/09/27 17:04:36 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -205,6 +205,8 @@ void Usage (void){
 "                                     samsung3, swapid\n\n"
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
+"  -B [+]FILE, --drivedb=[+]FILE                                       (ATA)\n"
+"        Read and replace [add] drive database from FILE\n\n"
   );
 #else
   printf(
@@ -217,7 +219,8 @@ void Usage (void){
 "  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
 "  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
 "                                         samsung3, swapid\n"
-"  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n\n"
+"  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n"
+"  -B [+]FILE Read and replace [add] drive database from FILE           (ATA)\n\n"
   );
 #endif
   printf("============================================ DEVICE SELF-TEST OPTIONS =====\n\n");
@@ -306,7 +309,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
   int captive;
   char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
-  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:";
+  const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:B:";
 #ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
@@ -337,6 +340,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     { "abort",           no_argument,       0, 'X' },
     { "firmwarebug",     required_argument, 0, 'F' },
     { "nocheck",         required_argument, 0, 'n' },
+    { "drivedb",         required_argument, 0, 'B' },
     { 0,                 0,                 0, 0   }
   };
 #endif
@@ -681,6 +685,16 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
         con->powermode = 4;
       else
         badarg = TRUE;
+      break;
+    case 'B':
+      {
+        const char * path = optarg; bool append = false;
+        if (*path == '+' && path[1]) {
+          path++; append = true;
+        }
+        if (!read_drive_database(path, append))
+          EXIT(FAILCMD);
+      }
       break;
     case 'h':
       con->dont_print=FALSE;
