@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.3 2008/08/23 19:56:18 chrfranke Exp $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.4 2008/09/29 19:13:49 chrfranke Exp $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -224,18 +224,17 @@ const char * smart_interface::get_os_version_str()
 
 const char * smart_interface::get_valid_dev_types_str()
 {
-  static char buf[80+1];
-  if (buf[0])
-    return buf;
+  static std::string buf;
+  if (!buf.empty())
+    return buf.c_str();
   // default
-  strcpy(buf, "ata, scsi, sat[,N]");
+  buf = "ata, scsi, sat[,N][+TYPE]";
   // append custom
   const char * add = get_valid_custom_dev_types_str();
   if (!add || !*add)
-    return buf;
-  strcat(buf, ", ");
-  strcat(buf, add);
-  return buf;
+    return buf.c_str();
+  buf += ", "; buf += add;
+  return buf.c_str();
 }
 
 const char * smart_interface::get_app_examples(const char * /*appname*/)
@@ -294,9 +293,41 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     dev = get_ata_device(name, type);
   else if (!strcmp(type, "scsi"))
     dev = get_scsi_device(name, type);
-  else if (   (!strncmp(type, "sat", 3) && (!type[3] || type[3] == ','))
-           || (!strncmp(type, "usb", 3)))
-    dev = get_sat_device(name, type /*, 0*/);
+
+  else if (   (!strncmp(type, "sat", 3) && (!type[3] || strchr(",+", type[3]))
+           || (!strncmp(type, "usb", 3)))) {
+    // Split "sat...+base..." -> ("sat...", "base...")
+    unsigned satlen = strcspn(type, "+");
+    std::string sattype(type, satlen);
+    const char * basetype = (type[satlen] ? type+satlen+1 : "");
+    // Recurse to allocate base device, default is standard SCSI
+    if (!*basetype)
+      basetype = "scsi";
+    dev = get_smart_device(name, basetype);
+    if (!dev) {
+      set_err(EINVAL, "Type '%s+...': %s", sattype.c_str(), get_errmsg());
+      return 0;
+    }
+    // Result must be SCSI
+    if (!dev->is_scsi()) {
+      delete dev;
+      set_err(EINVAL, "Type '%s+...': Device type '%s' is not SCSI", sattype.c_str(), basetype);
+      return 0;
+    }
+    // Attach SAT tunnel
+    try {
+      ata_device * satdev = get_sat_device(sattype.c_str(), dev->to_scsi());
+      if (!satdev) {
+        delete dev;
+        return 0;
+      }
+      return satdev;
+    }
+    catch (...) {
+      delete dev; throw;
+    }
+  }
+
   else {
     set_err(EINVAL, "Unknown device type '%s'", type);
     return 0;

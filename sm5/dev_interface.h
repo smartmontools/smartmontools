@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.6 2008/08/29 20:07:36 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.7 2008/09/29 19:13:49 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -674,7 +674,7 @@ protected:
 
   /// Return ATA->SCSI filter for SAT or USB.
   /// Override only if platform needs special handling.
-  virtual ata_device * get_sat_device(const char * name, const char * type, scsi_device * scsidev = 0);
+  virtual ata_device * get_sat_device(const char * type, scsi_device * scsidev);
   //{ implemented in scsiata.cpp }
 
 public:

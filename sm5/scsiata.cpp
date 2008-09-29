@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.18 2008/09/12 19:26:09 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.19 2008/09/29 19:13:49 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -790,13 +790,8 @@ using namespace sat;
 
 // Return ATA->SCSI filter for SAT or USB.
 
-ata_device * smart_interface::get_sat_device(const char * name, const char * type, scsi_device * scsidev /* = 0*/)
+ata_device * smart_interface::get_sat_device(const char * type, scsi_device * scsidev)
 {
-  if (!scsidev) {
-    scsidev = get_scsi_device(name, "scsi");
-    if (!scsidev)
-      return 0;
-  }
   if (!strncmp(type, "sat", 3)) {
     int ptlen = 0, n1 = -1, n2 = -1;
     if (!(((sscanf(type, "sat%n,%d%n", &n1, &ptlen, &n2) == 1 && n2 == (int)strlen(type)) || n1 == (int)strlen(type))
