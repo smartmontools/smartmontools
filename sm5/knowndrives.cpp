@@ -26,7 +26,9 @@
 #include "knowndrives.h"
 #include "utility.h"
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.177 2008/09/27 17:04:36 chrfranke Exp $"
+#include <stdexcept>
+
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.178 2008/09/29 20:17:20 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1449,40 +1451,45 @@ bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
 // Parser for drive database files
 
 // Abstract pointer to read file input.
+// Operations supported: c = *p; c = p[1]; ++p;
 class stdin_iterator
 {
 public:
   explicit stdin_iterator(FILE * f)
-    : m_f(f), m_c(0) { operator++(); }
+    : m_f(f) { operator++(); operator++(); }
 
-  stdin_iterator & operator++();
-
-  stdin_iterator & operator--();
+  stdin_iterator & operator++()
+    { get(); return *this; }
 
   char operator*() const
     { return m_c; }
 
+  char operator[](int i) const
+    {
+      if (i != 1)
+        fail();
+      return m_next;
+    }
+
 private:
   FILE * m_f;
-  char m_c, m_prev;
+  char m_c, m_next;
+  void get();
+  void fail() const;
 };
 
-stdin_iterator & stdin_iterator::operator++()
+void stdin_iterator::get()
 {
-  m_prev = m_c;
+  m_c = m_next;
   int ch = getc(m_f);
-  m_c = (ch != EOF ? ch : 0);
-  return *this;
+  m_next = (ch != EOF ? ch : 0);
 }
 
-stdin_iterator & stdin_iterator::operator--()
+void stdin_iterator::fail() const
 {
-  if (m_c && ungetc(m_c, m_f) == EOF)
-    m_prev = 0;
-  m_c = m_prev;
-  m_prev = 0;
-  return *this;
+  throw std::runtime_error("stdin_iterator: wrong usage");
 }
+
 
 // Use above as parser input 'pointer'. Can easily be changed later
 // to e.g. 'const char *' if above is too slow.
@@ -1500,10 +1507,10 @@ static parse_ptr skip_white(parse_ptr src, const char * path, int & line)
       continue;
 
     case '/':
-      switch (*++src) {
+      switch (src[1]) {
         case '/':
           // skip '// comment'
-          ++src;
+          ++src; ++src;
           while (*src && *src != '\n')
             ++src;
           if (*src)
@@ -1511,7 +1518,7 @@ static parse_ptr skip_white(parse_ptr src, const char * path, int & line)
           break;
         case '*':
           // skip '/* comment */'
-          ++src;
+          ++src; ++src;
           for (;;) {
             if (!*src) {
               pout("%s(%d): Missing '*/'\n", path, line);
@@ -1525,7 +1532,7 @@ static parse_ptr skip_white(parse_ptr src, const char * path, int & line)
           }
           break;
         default:
-          return --src;
+          return src;
       }
       continue;
 
@@ -1561,21 +1568,23 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
       token.value = "";
       do {
         for (++src; *src != '"'; ++src) {
-          if (!*src || *src == '\n') {
+          char c = *src;
+          if (!c || c == '\n' || (c == '\\' && !src[1])) {
             pout("%s(%d): Missing terminating '\"'\n", path, line);
             token.type = '?'; token.line = line;
             return src;
           }
-          char c = *src;
-          if (c == '\\') switch (*++src) {
-            case 'n' : c = '\n'; break;
-            case '\n': ++line;   c = *src; break;
-            case '\\': case '"': c = *src; break;
-            case 0:  --src; continue;
-            default:
-              pout("%s(%d): Unknown escape sequence '\\%c'\n", path, line, *src);
-              token.type = '?'; token.line = line;
-              continue;
+          if (c == '\\') {
+            c = *++src;
+            switch (c) {
+              case 'n' : c = '\n'; break;
+              case '\n': ++line; break;
+              case '\\': case '"': break;
+              default:
+                pout("%s(%d): Unknown escape sequence '\\%c'\n", path, line, c);
+                token.type = '?'; token.line = line;
+                continue;
+            }
           }
           token.value += c;
         }
@@ -1600,21 +1609,15 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
   return src;
 }
 
-// Read drive database from file.
-static bool read_drive_database(const char * path, drive_database & db)
+// Parse drive database from abstract input pointer.
+static bool parse_drive_database(parse_ptr src, drive_database & db, const char * path)
 {
-  stdio_file f(path, "r");
-  if (!f) {
-    pout("%s: cannot open drive database file\n", path);
-    return false;
-  }
-
   int state = 0, field = 0;
   std::string values[5];
   bool ok = true;
 
   token_info token; int line = 1;
-  parse_ptr src = get_token(parse_ptr(f), token, path, line);
+  src = get_token(src, token, path, line);
   for (;;) {
     // EOF is ok after '}', trailing ',' is also allowed.
     if (!token.type && (state == 0 || state == 4))
@@ -1641,6 +1644,26 @@ static bool read_drive_database(const char * path, drive_database & db)
         state = 1; field = 0;
         break;
       case 1: // {... ^"..." ...}
+        switch (field) {
+          case 1: case 2:
+            if (!token.value.empty()) {
+              regular_expression regex;
+              if (!regex.compile(token.value.c_str(), REG_EXTENDED)) {
+                pout("%s(%d): Error in regular expression: %s\n", path, token.line, regex.get_errmsg());
+                ok = false;
+              }
+            }
+            break;
+          case 4:
+            if (!token.value.empty()) {
+              unsigned char opts[MAX_ATTRIBUTE_NUM] = {0, }; unsigned char fix = 0;
+              if (!parse_presets(token.value.c_str(), opts, fix)) {
+                pout("%s(%d): Syntax error in preset option string\n", path, token.line);
+                ok = false;
+              }
+            }
+            break;
+        }
         values[field] = token.value;
         state = (++field < 5 ? 2 : 3);
         break;
@@ -1676,5 +1699,12 @@ bool read_drive_database(const char * path, bool append)
 {
   if (!append)
     knowndrives.clear();
-  return read_drive_database(path, knowndrives);
+
+  stdio_file f(path, "r");
+  if (!f) {
+    pout("%s: cannot open drive database file\n", path);
+    return false;
+  }
+
+  return parse_drive_database(parse_ptr(f), knowndrives, path);
 }
