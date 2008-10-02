@@ -28,7 +28,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.178 2008/09/29 20:17:20 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.179 2008/10/02 19:31:20 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -46,14 +46,20 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID 
 // A good on-line reference for these is:
 // http://www.zeus.com/extra/docsystem/docroot/apps/web/docs/modules/access/regex.html
 
+// Starting with CVS version 1.179 of this file, the regular expressions
+// for drive model and firmware must match the full string.  The effect of
+// "^FULLSTRING$" is identical to "FULLSTRING".  The special characters '^'
+// and '$' are no longer required, but still allowed. The form ".*SUBSTRING.*"
+// can be used if substring match is desired.
+
 static const drive_settings builtin_knowndrives[] = {
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
-    "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
+    "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "^ER60A46A$",
     "", ""
   },
   { "IBM Deskstar 60GXP series",  // All other firmware
-    "(IBM-|Hitachi )?IC35L0[12346]0AVER07",
+    "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
@@ -62,12 +68,12 @@ static const drive_settings builtin_knowndrives[] = {
     ""
   },
   { "IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)",
-    "(IBM-)?DTLA-30[57]0[123467][05]",
+    "(IBM-)?DTLA-30[57]0[123467][05].*",
     "^T[WX][123468AG][OF]A[56]AA$",
     "", ""
   },
   { "IBM Deskstar 40GV & 75GXP series (all other firmware)",
-    "(IBM-)?DTLA-30[57]0[123467][05]",
+    "(IBM-)?DTLA-30[57]0[123467][05].*",
     "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/ and\n"
@@ -86,25 +92,25 @@ static const drive_settings builtin_knowndrives[] = {
     "-v 9,seconds"
   },
   { "Fujitsu MHG series",
-    "^FUJITSU MHG2...ATU?",
+    "^FUJITSU MHG2...ATU?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHH series",
-    "^FUJITSU MHH2...ATU?",
+    "^FUJITSU MHH2...ATU?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHJ series",
-    "^FUJITSU MHJ2...ATU?",
+    "^FUJITSU MHJ2...ATU?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHK series",
-    "^FUJITSU MHK2...ATU?",
+    "^FUJITSU MHK2...ATU?.*",
     "",
     "",
     "-v 9,seconds"
@@ -151,39 +157,39 @@ static const drive_settings builtin_knowndrives[] = {
     "-v 201,detectedtacount"
   },
   { "Fujitsu MHT series",
-    "^FUJITSU MHT2...(AH|AS|AT|BH)U?",
+    "^FUJITSU MHT2...(AH|AS|AT|BH)U?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHU series",
-    "^FUJITSU MHU2...ATU?",
+    "^FUJITSU MHU2...ATU?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHV series",
-    "^FUJITSU MHV2...(AH|AS|AT|BH|BS|BT)",
+    "^FUJITSU MHV2...(AH|AS|AT|BH|BS|BT).*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MPA..MPG series",
-    "^FUJITSU MP[A-G]3...A[HTEV]U?",
+    "^FUJITSU MP[A-G]3...A[HTEV]U?.*",
     "",
     "",
     "-v 9,seconds"
   },
   { "Fujitsu MHY2 BH series",
-    "^FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH",
+    "^FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
     "", "", ""
   },
   { "Fujitsu MHW2 BH series",
-    "^FUJITSU MHW2(04|06|08|10|12|16)0BH",
+    "^FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
     "", "", ""
   },
   { "Fujitsu MHZ2 BS series",
-    "^FUJITSU MHZ2(12|25)0BS",
+    "^FUJITSU MHZ2(12|25)0BS.*",
     "", "", ""
   },
   { "", // Samsung SV4012H (known firmware)
@@ -533,8 +539,8 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Maxtor MaXLine Pro 500 family",  // There is also a 7H500R0 model, but I
     "^Maxtor 7H500F0$",               // haven't added it because I suspect
-    "",                             // it might need vendoropts_9_minutes
-    "", ""            // and nobody has submitted a report yet
+    "",                               // it might need vendoropts_9_minutes
+    "", ""                            // and nobody has submitted a report yet
   },
   { "", // HITACHI_DK14FA-20B
     "^HITACHI_DK14FA-20B$",
@@ -835,7 +841,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Barracuda 7200.9 family",
-    "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?",
+    "^ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?.*",
     "", "", ""
   },
   { "Seagate Barracuda 7200.10 family",
@@ -916,7 +922,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar AC series", // add only 5400rpm/7200rpm (ata33 and faster)
-    "^WDC AC((116|121|125|225|132|232)|([1-4][4-9][0-9])|([1-4][0-9][0-9][0-9]))00[A-Z]?",
+    "^WDC AC((116|121|125|225|132|232)|([1-4][4-9][0-9])|([1-4][0-9][0-9][0-9]))00[A-Z]?.*",
     "", "", ""
   },
   { "Western Digital Caviar SE family",
@@ -1177,8 +1183,7 @@ static bool match(const char * pattern, const char * str)
   regular_expression regex;
   if (!compile(regex, pattern))
     return false;
-  // TODO: Use full_match() and remove all "^...$" from database?
-  return regex.match(str);
+  return regex.full_match(str);
 }
 
 // Searches knowndrives[] for a drive with the given model number and firmware
@@ -1197,7 +1202,7 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
     if (!match(knowndrives[i].modelregexp, model))
       continue;
 
-    // Model matches, now check firmware. nullptr matches always.
+    // Model matches, now check firmware. "" matches always.
     if (!(  !*knowndrives[i].firmwareregexp
           || match(knowndrives[i].firmwareregexp, firmware)))
       continue;
@@ -1456,7 +1461,7 @@ class stdin_iterator
 {
 public:
   explicit stdin_iterator(FILE * f)
-    : m_f(f) { operator++(); operator++(); }
+    : m_f(f) { get(); get(); }
 
   stdin_iterator & operator++()
     { get(); return *this; }
@@ -1652,6 +1657,10 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
                 pout("%s(%d): Error in regular expression: %s\n", path, token.line, regex.get_errmsg());
                 ok = false;
               }
+            }
+            else if (field == 1) {
+              pout("%s(%d): Missing regular expression for drive model\n", path, token.line);
+              ok = false;
             }
             break;
           case 4:
