@@ -63,6 +63,7 @@
 #include <sys/file.h>
 #include <unistd.h>
 #include <sys/uio.h>
+#include <sys/types.h>
 #ifndef makedev // old versions of types.h do not include sysmacros.h
 #include <sys/sysmacros.h>
 #endif
@@ -89,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.121 2008/09/23 23:57:11 jharg Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.122 2008/10/03 04:24:42 jharg Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -868,6 +869,7 @@ bool linux_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
 /////////////////////////////////////////////////////////////////////////////
 /// LSI MegaRAID support
+
 class linux_megaraid_device
 : public /* implements */ scsi_device,
   public /* extends */ linux_smart_device
@@ -875,6 +877,10 @@ class linux_megaraid_device
 public:
   linux_megaraid_device(smart_interface *intf, const char *name, 
     unsigned int bus, unsigned int tgt);
+
+  virtual ~linux_megaraid_device() throw();
+
+  virtual smart_device * autodetect_open();
 
   virtual bool open();
   virtual bool close();
@@ -888,76 +894,187 @@ private:
   int m_fd;
 
   bool (linux_megaraid_device::*pt_cmd)(int cdblen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense);
+    int senseLen, void *sense, int report);
   bool megasas_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense);
+    int senseLen, void *sense, int report);
   bool megadev_cmd(int cdbLen, void *cdb, int dataLen, void *data,
-    int senseLen, void *sense);
+    int senseLen, void *sense, int report);
 };
 
 linux_megaraid_device::linux_megaraid_device(smart_interface *intf,
   const char *dev_name, unsigned int bus, unsigned int tgt)
  : smart_device(intf, dev_name, "megaraid", "megaraid"),
    linux_smart_device(O_RDWR | O_NONBLOCK),
-   m_disknum(tgt), m_busnum(bus)
+   m_disknum(tgt), m_busnum(bus), m_hba(0),
+   m_fd(-1), pt_cmd(0)
 {
   set_info().info_name = strprintf("%s [megaraid_disk_%02d]", dev_name, m_disknum);
 }
 
+linux_megaraid_device::~linux_megaraid_device() throw()
+{
+  if (m_fd >= 0)
+    ::close(m_fd);
+}
+
+smart_device * linux_megaraid_device::autodetect_open()
+{
+  // Open device
+  if (!open())
+    return this;
+
+  // The code below is based on smartd.cpp:SCSIFilterKnown()
+  if (strcmp(get_req_type(), "megaraid"))
+    return this;
+
+  // Get INQUIRY
+  unsigned char req_buff[64] = {0, };
+  int req_len = 36;
+  if (scsiStdInquiry(this, req_buff, req_len)) {
+      close();
+      set_err(EIO, "INQUIRY failed");
+      return this;
+  }
+
+  int avail_len = req_buff[4] + 5;
+  int len = (avail_len < req_len ? avail_len : req_len);
+  if (len < 36)
+      return this;
+
+  printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
+
+  // Use INQUIRY to detect type
+  smart_device * newdev = 0;
+  try {
+    // SAT or USB ?
+    newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    if (newdev)
+      // NOTE: 'this' is now owned by '*newdev'
+      return newdev;
+  }
+  catch (...) {
+    // Cleanup if exception occurs after newdev was allocated
+    delete newdev;
+    throw;
+  }
+
+  // Nothing special found
+  return this;
+}
+
+
 bool linux_megaraid_device::open()
 {
-  struct sg_scsi_id sgid;
+  char line[128];
+  int   mjr, n1;
+  FILE *fp;
+
   if (!linux_smart_device::open())
     return false;
 
-  m_hba = 0;
-
   /* Get device HBA */
+  struct sg_scsi_id sgid;
   if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
     m_hba = sgid.host_no;
   }
   else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
-    printf("error: can't get hba\n");
-    return false;
+    int err = errno;
+    linux_smart_device::close();
+    return set_err(err, "can't get hba");
   }
 
+  /* Perform mknod of device ioctl node */
+  fp = fopen("/proc/devices", "r");
+  while (fgets(line, sizeof(line), fp) != NULL) {
+  	n1=0;
+  	if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
+	   n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
+	   printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+	   if (n1 >= 0 || errno == EEXIST)
+	      break;
+	}
+	else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
+	   n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
+	   printf("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+	   if (n1 >= 0 || errno == EEXIST)
+	      break;
+	}
+  }
+  fclose(fp);
+
   /* Open Device IOCTL node */
-  pt_cmd = NULL;
   if ((m_fd = ::open("/dev/megaraid_sas_ioctl_node", O_RDWR)) >= 0) {
     pt_cmd = &linux_megaraid_device::megasas_cmd;
   }
   else if ((m_fd = ::open("/dev/megadev0", O_RDWR)) >= 0) {
     pt_cmd = &linux_megaraid_device::megadev_cmd;
   }
-  else
-    return false;
+  else {
+    int err = errno;
+    linux_smart_device::close();
+    return set_err(err, "cannot open /dev/megaraid_sas_ioctl_node or /dev/megadev0");
+  }
 
   return true;
 }
 
 bool linux_megaraid_device::close()
 {
-  ::close(m_fd);
+  if (m_fd >= 0)
+    ::close(m_fd);
+  m_fd = -1; m_hba = 0; pt_cmd = 0;
+  return linux_smart_device::close();
 }
 
 bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
+  int report = con->reportscsiioctl; 
+
+  if (report > 0) {
+        int k, j;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+        char buff[256];
+        const int sz = (int)sizeof(buff);
+
+        np = scsi_get_opcode_name(ucp[0]);
+        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < (int)iop->cmnd_len; ++k)
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+        if ((report > 1) &&
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+                          "data, len=%d%s:\n", (int)iop->dxfer_len,
+                          (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex((const char *)iop->dxferp,
+                    (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+        pout(buff);
+  }
+
   /* Controller rejects Enable SMART and Test Unit Ready */
   if (iop->cmnd[0] == 0x00)
     return true;
-  if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06)
+  if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06) {
+    pout("Rejecting SMART/ATA command to controller\n");
     return true;
+  }
 
   if (pt_cmd == NULL)
     return false;
   return (this->*pt_cmd)(iop->cmnd_len, iop->cmnd, 
     iop->dxfer_len, iop->dxferp,
-    iop->max_sense_len, iop->sensep);
+    iop->max_sense_len, iop->sensep, report);
 }
 
+/* Issue passthrough scsi command to PERC5/6 controllers */
 bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int senseLen, void *sense)
+  int /*senseLen*/, void * /*sense*/, int report)
 {
   struct megasas_pthru_frame	*pthru;
   struct megasas_iocpacket	uio;
@@ -989,17 +1106,20 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
   errno = 0;
   rc = ioctl(m_fd, MEGASAS_IOC_FIRMWARE, &uio);
   if (pthru->cmd_status || rc != 0) {
-    printf("megasas_cmd result: %d.%d = %d/%d\n", 
-	   m_hba, m_disknum, errno, 
-	   pthru->cmd_status);
-    return false;
+    if (pthru->cmd_status == 12) {
+      return set_err(EIO, "megasas_cmd: Device %d does not exist\n", m_disknum);
+    }
+    return set_err((errno ? errno : EIO), "megasas_cmd result: %d.%d = %d/%d",
+                   m_hba, m_disknum, errno,
+                   pthru->cmd_status);
   }
   return true;
 }
 
+/* Issue passthrough scsi commands to PERC2/3/4 controllers */
 bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int senseLen, void *sense)
+  int senseLen, void *sense, int report)
 {
   struct uioctl_t uio;
   int rc;
@@ -1036,10 +1156,9 @@ bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb,
 
   rc=ioctl(m_fd, MEGAIOCCMD, &uio);
   if (uio.pthru.scsistatus || rc != 0) {
-    printf("megadev_cmd result: %d.d =  %d/%d\n", 
-	   m_hba, m_disknum, errno,
-	   uio.pthru.scsistatus);
-    return false;
+    return set_err((errno ? errno : EIO), "megadev_cmd result: %d.%d =  %d/%d",
+                   m_hba, m_disknum, errno,
+                   uio.pthru.scsistatus);
   }
   return true;
 }
@@ -2953,9 +3072,9 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
 const char * linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, areca,N, 3ware,N, hpt,L/M/N,"
+  return "marvell, areca,N, 3ware,N, hpt,L/M/N, megaraid,N"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
-                                              " cciss,N"
+                                              ", cciss,N"
 #endif
     ;
 }
