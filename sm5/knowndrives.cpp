@@ -28,7 +28,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.179 2008/10/02 19:31:20 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.180 2008/10/07 22:52:35 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -515,6 +515,10 @@ static const drive_settings builtin_knowndrives[] = {
     "^MAXTOR STM3(160215|(250|320)820|320620)AS?$",
     "", "", ""
   },
+  { "Seagate Maxtor DiamondMax 22",
+    "^MAXTOR STM3(320613|500320|750330|1000340)AS?$",
+    "", "", ""
+  },
   { "Maxtor MaXLine Plus II",
     "^Maxtor 7Y250[PM]0$",
     "",
@@ -693,7 +697,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Deskstar P7K500 series",
-    "^(Hitachi )?HDP7250(25|32|40|50)GLA(36|38|T8)0$",
+    "^(Hitachi )?HDP7250(16|25|32|40|50)GLA(36|38|T8)0$",
     "", "", ""
   },
   { "Hitachi Deskstar T7K500",
@@ -701,7 +705,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Deskstar 7K1000",
-    "^(Hitachi )?HDS7210(75|10)KLA330$",
+    "^(Hitachi )?HDS7210(50|75|10)KLA330$",
     "", "", ""
   },
   { "Hitachi Ultrastar 7K1000",
@@ -970,7 +974,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Blue Serial ATA family",  // WD Caviar SE16 Serial ATA family
-    "^WDC WD(16|20|25|32|40|50|75)00AAKS-.*$",
+    "^WDC WD(16|20|25|32|40|50|64|75)00AAKS-.*$",
     "", "", ""
   },
   { "Western Digital RE Serial ATA family",
@@ -986,7 +990,11 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green family",
-    "^WDC WD((50|75)00AA|10EA)CS-.*$",
+    "^WDC WD((50|64|75)00AA|10EA)CS-.*$",
+    "", "", ""
+  },
+  { "Western Digital AV ATA family",
+    "^WDC WD(8|16|50)00AV(B|J)B-.*$",
     "", "", ""
   },
   { "Western Digital Raptor family",
@@ -1013,56 +1021,52 @@ static const drive_settings builtin_knowndrives[] = {
     "^WDC WD((4|6|8|10|12|16|25)00BEVS|3200BEVT)-.*$",
     "", "", ""
   },
-  { "",  // QUANTUM BIGFOOT TS10.0A
+  { "Quantum Bigfoot series",
     "^QUANTUM BIGFOOT TS10.0A$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALLlct15 20 and QUANTUM FIREBALLlct15 30
+  { "Quantum Fireball lct15 series",
     "^QUANTUM FIREBALLlct15 [123]0$",
     "", "", ""
   },
-  { "QUANTUM FIREBALLlct20 series",
+  { "Quantum Fireball lct20 series",
     "^QUANTUM FIREBALLlct20 [234]0$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALL CX10.2A
+  { "Quantum Fireball CX series", 
     "^QUANTUM FIREBALL CX10.2A$",
-    "", "", ""
-  },
-  { "Quantum Fireball Plus LM series",
-    "^QUANTUM FIREBALLP LM(10.2|15|20.5|30)$",
     "", "", ""
   },
   { "Quantum Fireball CR series",
     "^QUANTUM FIREBALL CR(4.3|8.4|13.0)A$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALLP AS10.2, AS20.5, AS30.0, and AS40.0
-    "^QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0)$",
+  { "Quantum Fireball EX series",
+    "^QUANTUM FIREBALL EX(3.2|6.4)A$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALL EX6.4A
-    "^QUANTUM FIREBALL EX6.4A$",
-    "", "", ""
-  },
-  { "", // QUANTUM FIREBALL ST3.2A
+  { "Quantum Fireball ST series",
     "^QUANTUM FIREBALL ST(3.2|4.3)A$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALL EX3.2A
-    "^QUANTUM FIREBALL EX3.2A$",
+  { "Quantum Fireball SE series",
+    "^QUANTUM FIREBALL SE4.3A$",
     "", "", ""
   },
-  { "", // QUANTUM FIREBALLP KX27.3
+  { "Quantum Fireball Plus LM series",
+    "^QUANTUM FIREBALLP LM(10.2|15|20.5|30)$",
+    "", "", ""
+  },
+  { "Quantum Fireball Plus AS series",
+    "^QUANTUM FIREBALLP AS(10.2|20.5|30.0|40.0)$",
+    "", "", ""
+  },
+  { "Quantum Fireball Plus KX series",
     "^QUANTUM FIREBALLP KX27.3$",
     "", "", ""
   },
   { "Quantum Fireball Plus KA series",
     "^QUANTUM FIREBALLP KA(9|10).1$",
-    "", "", ""
-  },
-  { "Quantum Fireball SE series",
-    "^QUANTUM FIREBALL SE4.3A$",
     "", "", ""
   },
 };
