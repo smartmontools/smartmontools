@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.739 2008/10/02 19:31:20 chrfranke Exp $
+$Id: CHANGELOG,v 1.740 2008/10/07 22:52:34 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,14 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added 640GB variants of Western Digital AAKS and AACS drives
+       - Added Western Digital AV ATA family
+       - Added 160GB variant of Hitachi P7K500
+       - Added 500GB variant of Hitachi 7K1000
+       - Some cleanup for Quantum disks
+       - Added Seagate Maxtor DiamondMax 22 family
 
   [CF] Use full string match for regexp in drive database.
 
