@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.427 2008/09/27 17:04:41 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.428 2008/10/08 21:42:49 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3703,6 +3703,7 @@ void ParseOpts(int argc, char **argv){
   
   opterr=optopt=0;
   bool badarg = false;
+  bool no_defaultdb = false; // set true on '-B FILE'
 
   // Parse input options.  This horrible construction is so that emacs
   // indents properly.  Sorry.
@@ -3838,12 +3839,13 @@ void ParseOpts(int argc, char **argv){
       break;
     case 'B':
       {
-        const char * path = optarg; bool append = false;
-        if (*path == '+' && path[1]) {
-          path++; append = true;
-        }
+        const char * path = optarg;
+        if (*path == '+' && path[1])
+          path++;
+        else
+          no_defaultdb = true;
         unsigned char savedebug = debugmode; debugmode = 1;
-        if (!read_drive_database(path, append))
+        if (!read_drive_database(path))
           EXIT(EXIT_BADCMD);
         debugmode = savedebug;
       }
@@ -3938,10 +3940,16 @@ void ParseOpts(int argc, char **argv){
     EXIT(EXIT_BADCMD);
   }
 
+  // Read or init drive database
+  if (!no_defaultdb) {
+    unsigned char savedebug = debugmode; debugmode = 1;
+    if (!read_default_drive_databases())
+        EXIT(EXIT_BADCMD);
+    debugmode = savedebug;
+  }
+
   // print header
   PrintHead();
-  
-  return;
 }
 
 // Function we call if no configuration file was found or if the

@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.115 2008/09/27 17:04:36 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.116 2008/10/08 21:42:49 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1145,7 +1145,14 @@ lists all entries for this MODEL and a specific FIRMWARE version.
 The new database replaces the built in database by default. If \'+\' is
 specified, then the new entries prepend the built in entries.
 
-The database file uses the same C/C++ syntax that is used to initialize
+If this option is not specified, optional entries are read from the file
+\fB/usr/local/etc/smart_drivedb.h\fP (Windows: \fB./smart_drivedb.conf\fP).
+.\" BEGIN ENABLE_DRIVEDB
+If \fB/usr/local/share/smartmontools/drivedb.h\fP is present, the
+contents of this file is used instead of the built in table.
+.\" END ENABLE_DRIVEDB
+
+The database files use the same C/C++ syntax that is used to initialize
 the built in database array. C/C++ style comments are allowed.
 Example:
 
@@ -1627,7 +1634,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.115 2008/09/27 17:04:36 chrfranke Exp $
+$Id: smartctl.8.in,v 1.116 2008/10/08 21:42:49 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
