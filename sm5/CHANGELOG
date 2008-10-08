@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.740 2008/10/07 22:52:34 manfred99 Exp $
+$Id: CHANGELOG,v 1.741 2008/10/08 21:42:49 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Allow to read local drive database entries from optional file
+       '${sysconfdir}/smart_drivedb.h'.
+       Add configure options '--enable-drivedb' and '--with-drivedbdir=DIR'.
+       If specified, drive database is read from '${drivedbdir}/drivedb.h'.
+       (default '${prefix}/share/smartmontools/drivedb.h'). This file
+       is build from knowndrives.cpp.
 
   [MS] knowndrives.cpp updates:
        - Added 640GB variants of Western Digital AAKS and AACS drives

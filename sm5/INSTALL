@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.80 2008/08/22 21:26:29 chrfranke Exp $
+$Id: INSTALL,v 1.81 2008/10/08 21:42:49 chrfranke Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -660,6 +660,8 @@ OPTIONS              DEFAULT                                      AFFECTS
 --with-selinux        <not set>                                   Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
                                                                   nodes for 3ware/AMCC controllers, this option ensures that the nodes are created
                                                                   with correct SELinux file contexts.
+--enable-drivedb      --disable-drivedb                           Enables default drive database file '${drivedbdir}/drivedb.h'
+--with-drivedbdir     ${prefix}/share/smartmontools/drivedb.h     Directory for 'drivedb.h' (specifying this option implies --enable-drivedb)
 
 Here's an example:
 If you set --prefix=/home/joe and none of the other four

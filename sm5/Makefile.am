@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.90 2008/09/06 20:08:35 chrfranke Exp $
+# $Id: Makefile.am,v 1.91 2008/10/08 21:42:49 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -11,7 +11,10 @@ SUFFIXES = .cpp .c .s .o
 # BUILD_INFO can be provided by package maintainers (see INSTALL file)
 BUILD_INFO= "(local build)"
 
-AM_CPPFLAGS = -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' -DBUILD_INFO='$(BUILD_INFO)'
+AM_CPPFLAGS = -DBUILD_INFO='$(BUILD_INFO)' -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"'
+if ENABLE_DRIVEDB
+AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
+endif
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -234,6 +237,7 @@ EXTRA_DIST = smartd.initd.in                       \
              $(docs_DATA)
 
 CLEANFILES = cvsversion.h       \
+             drivedb.h          \
              smartd.conf.5      \
              smartd.conf.4      \
              smartd.8           \
@@ -268,6 +272,17 @@ cvsversion.h: $(CVSVERSION_DEPS)
 	| sort -r \
 	| sed 's,/,-,g;s,^\(.*\)$$,#define SMARTMONTOOLS_CVS_DATE_TIME "\1",;1q' \
 	>> $@
+
+
+# Drive Database
+drivedb.h: knowndrives.cpp Makefile
+	echo '/* drivedb.h.  Generated from knowndrives.cpp by Makefile.  */' > $@
+	sed '1,/^\/\/ BEGIN drivedb.h/d;/^\/\/ END drivedb.h/,$$d;s/^  //' $(srcdir)/knowndrives.cpp >> $@
+
+if ENABLE_DRIVEDB
+drivedb_DATA = drivedb.h
+endif
+
 
 smartd.conf.5.in: smartd.8.in
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
@@ -345,6 +360,12 @@ uninstall-initdDATA:
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
 
+if ENABLE_DRIVEDB
+MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"
+else
+MAN_DRIVEDB = sed '/BEGIN ENABLE_DRIVEDB/,/END ENABLE_DRIVEDB/d'
+endif
+
 smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
 	sed "s|CURRENT_CVS_DATE|`sed -n 's,^[^"]*"\([^ ]*\) [^"]*".*$$,\1,p' cvsversion.h`|g" | \
@@ -353,7 +374,9 @@ smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|/usr/local/sbin/|$(sbindir)/|g" | \
 	sed "s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g" | \
 	sed "s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g" | \
-	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" > $@
+	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" | \
+	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+	$(MAN_DRIVEDB) > $@
 
 
 # Commands to convert man pages into .html and .txt

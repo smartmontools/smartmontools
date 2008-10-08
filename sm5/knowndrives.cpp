@@ -26,9 +26,13 @@
 #include "knowndrives.h"
 #include "utility.h"
 
+#ifdef _WIN32
+#include <io.h> // access()
+#endif
+
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.180 2008/10/07 22:52:35 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.181 2008/10/08 21:42:49 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -53,6 +57,7 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID 
 // can be used if substring match is desired.
 
 static const drive_settings builtin_knowndrives[] = {
+// BEGIN drivedb.h (DO NOT DELETE - used by Makefile)
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "^ER60A46A$",
@@ -1069,6 +1074,7 @@ static const drive_settings builtin_knowndrives[] = {
     "^QUANTUM FIREBALLP KA(9|10).1$",
     "", "", ""
   },
+// END drivedb.h (DO NOT DELETE - used by Makefile)
 };
 
 
@@ -1078,8 +1084,7 @@ static const drive_settings builtin_knowndrives[] = {
 class drive_database
 {
 public:
-  /// Construction, requires info about default table.
-  drive_database(const drive_settings * builtin_tab, unsigned builtin_size);
+  drive_database();
 
   ~drive_database();
 
@@ -1091,14 +1096,15 @@ public:
   unsigned custom_size() const
     { return m_custom_tab.size(); }
 
-  /// Clear database.
-  void clear();
-
   /// Array access.
   const drive_settings & operator[](unsigned i);
 
   /// Append new custom entry.
   void push_back(const drive_settings & src);
+
+  /// Append builtin table.
+  void append(const drive_settings * builtin_tab, unsigned builtin_size)
+    { m_builtin_tab = builtin_tab; m_builtin_size = builtin_size; }
 
 private:
   const drive_settings * m_builtin_tab;
@@ -1113,25 +1119,15 @@ private:
   void operator=(const drive_database &);
 };
 
-drive_database::drive_database(const drive_settings * builtin_tab,
-                               unsigned builtin_size)
-: m_builtin_tab(builtin_tab),
-  m_builtin_size(builtin_size)
+drive_database::drive_database()
+: m_builtin_tab(0), m_builtin_size(0)
 {
 }
 
 drive_database::~drive_database()
 {
-  clear();
-}
-
-void drive_database::clear()
-{
-  m_custom_tab.clear();
   for (unsigned i = 0; i < m_custom_strings.size(); i++)
     delete [] m_custom_strings[i];
-  m_custom_strings.clear();
-  m_builtin_size = 0;
 }
 
 const drive_settings & drive_database::operator[](unsigned i)
@@ -1164,9 +1160,8 @@ const char * drive_database::copy_string(const char * src)
 }
 
 
-/// The drive database, initialized with default table.
-static drive_database knowndrives(builtin_knowndrives,
-  sizeof(builtin_knowndrives)/sizeof(builtin_knowndrives[0]));
+/// The drive database.
+static drive_database knowndrives;
 
 
 // Compile regular expression, print message on failure.
@@ -1708,11 +1703,8 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
 }
 
 // Read drive database from file.
-bool read_drive_database(const char * path, bool append)
+bool read_drive_database(const char * path)
 {
-  if (!append)
-    knowndrives.clear();
-
   stdio_file f(path, "r");
   if (!f) {
     pout("%s: cannot open drive database file\n", path);
@@ -1720,4 +1712,36 @@ bool read_drive_database(const char * path, bool append)
   }
 
   return parse_drive_database(parse_ptr(f), knowndrives, path);
+}
+
+// Read drive databases from standard places.
+bool read_default_drive_databases()
+{
+#ifndef _WIN32
+  // Read file for local additions: /{,usr/local/}etc/smart_drivedb.h
+  static const char db1[] = SMARTMONTOOLS_SYSCONFDIR"/smart_drivedb.h";
+#else
+  static const char db1[] = "./smart_drivedb.h";
+#endif
+  if (!access(db1, 0)) {
+    if (!read_drive_database(db1))
+      return false;
+  }
+
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+  // Read file from package: // /usr/{,local/}share/smartmontools/drivedb.h
+  static const char db2[] = SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h";
+  if (!access(db2, 0)) {
+    if (!read_drive_database(db2))
+      return false;
+  }
+  else
+#endif
+  {
+    // Append builtin table.
+    knowndrives.append(builtin_knowndrives,
+      sizeof(builtin_knowndrives)/sizeof(builtin_knowndrives[0]));
+  }
+
+  return true;
 }

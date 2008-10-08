@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.190 2008/09/27 17:04:36 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.191 2008/10/08 21:42:49 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -352,6 +352,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
   badarg = captive = FALSE;
   
   const char * type = 0; // set to -d optarg
+  bool no_defaultdb = false; // set true on '-B FILE'
 
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
@@ -585,6 +586,8 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       } else if (!strcmp(optarg, "show")) {
         con->showpresets = TRUE;
       } else if (!strcmp(optarg, "showall")) {
+        if (!no_defaultdb && !read_default_drive_databases())
+          EXIT(FAILCMD);
         if (optind < argc) { // -P showall MODEL [FIRMWARE]
           int cnt = showmatchingpresets(argv[optind], (optind+1<argc ? argv[optind+1] : NULL));
           EXIT(cnt); // report #matches
@@ -688,11 +691,12 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       break;
     case 'B':
       {
-        const char * path = optarg; bool append = false;
-        if (*path == '+' && path[1]) {
-          path++; append = true;
-        }
-        if (!read_drive_database(path, append))
+        const char * path = optarg;
+        if (*path == '+' && path[1])
+          path++;
+        else
+          no_defaultdb = true;
+        if (!read_drive_database(path))
           EXIT(FAILCMD);
       }
       break;
@@ -825,6 +829,11 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     UsageSummary();
     EXIT(FAILCMD);
   }
+
+  // Read or init drive database
+  if (!no_defaultdb && !read_default_drive_databases())
+    EXIT(FAILCMD);
+
   return type;
 }
 
