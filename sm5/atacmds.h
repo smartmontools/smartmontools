@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.101 2008/09/12 19:26:09 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.102 2008/10/11 14:18:07 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -511,6 +511,7 @@ int ataSmartShortSelfTest (ata_device * device);
 int ataSmartShortCapSelfTest (ata_device * device);
 int ataSmartExtendCapSelfTest (ata_device * device);
 int ataSmartSelfTestAbort (ata_device * device);
+int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * sv, uint64_t num_sectors);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
@@ -646,6 +647,9 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
 // Print Smart self-test log, used by smartctl and smartd.
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries);
+
+// Get number of sectors from IDENTIFY sector.
+uint64_t get_num_sectors(const ata_identify_device * drive);
 
 // Convenience function for formatting strings from ata_identify_device.
 void format_ata_string(char * out, const char * in, int n);

@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.428 2008/10/08 21:42:49 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.429 2008/10/11 14:18:07 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -379,6 +379,7 @@ struct temp_dev_state
   bool not_cap_conveyance;
   bool not_cap_short;
   bool not_cap_long;
+  bool not_cap_selective;
 
   unsigned char temperature;              // last recorded Temperature (in Celsius)
   time_t tempmin_delay;                   // time where Min Temperature tracking will start
@@ -394,6 +395,7 @@ struct temp_dev_state
                                           // know yet) 6 or 10
 
   // ATA ONLY
+  uint64_t num_sectors;                   // Number of sectors (for selective self-test only)
   ata_smart_values smartval;              // SMART data
   ata_smart_thresholds_pvt smartthres;    // SMART thresholds
 
@@ -406,6 +408,7 @@ temp_dev_state::temp_dev_state()
   not_cap_conveyance(false),
   not_cap_short(false),
   not_cap_long(false),
+  not_cap_selective(false),
   temperature(0),
   tempmin_delay(0),
   powermodefail(false),
@@ -413,7 +416,8 @@ temp_dev_state::temp_dev_state()
   SmartPageSupported(false),
   TempPageSupported(false),
   SuppressReport(false),
-  modese_len(0)
+  modese_len(0),
+  num_sectors(0)
 {
   memset(&smartval, 0, sizeof(smartval));
   memset(&smartthres, 0, sizeof(smartthres));
@@ -1604,6 +1608,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     CloseDevice(atadev, name);
     return 2; 
   }
+  // Store drive size (for selective self-test only)
+  state.num_sectors = get_num_sectors(&drive);
 
   // Show if device in database, and use preset vendor attribute
   // options unless user has requested otherwise.
@@ -2136,6 +2142,10 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
   return;
 }
 
+// Test types, ordered by priority.
+static const char test_type_chars[] = "LncrSCO";
+const unsigned num_test_types = sizeof(test_type_chars)-1;
+
 // returns test type if time to do test of type testtype,
 // 0 if not time to do test.
 static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool scsi, time_t usetime = 0)
@@ -2168,7 +2178,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
   time_t testtime = 0; int testhour = 0;
-  int maxtest = (scsi ? 1 : 3); // (scsi ? 'S' : 'O')
+  int maxtest = num_test_types-1;
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
     struct tm * tms = localtime(&t);
@@ -2176,16 +2186,19 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
     int weekday = (tms->tm_wday ? tms->tm_wday : 7);
     for (int i = 0; i <= maxtest; i++) {
       // Skip if drive not capable of this test
-      switch (i) {
-        case 0: if (state.not_cap_long)       continue; break;
-        case 1: if (state.not_cap_short)      continue; break;
-        case 2: if (state.not_cap_conveyance) continue; break;
-        case 3: if (state.not_cap_offline)    continue; break;
+      switch (test_type_chars[i]) {
+        case 'L': if (state.not_cap_long)       continue; break;
+        case 'S': if (state.not_cap_short)      continue; break;
+        case 'C': if (scsi || state.not_cap_conveyance) continue; break;
+        case 'O': if (scsi || state.not_cap_offline)    continue; break;
+        case 'c': case 'n':
+        case 'r': if (scsi || state.not_cap_selective)  continue; break;
+        default: continue;
       }
       // Try match of "T/MM/DD/d/HH"
       char pattern[16];
       snprintf(pattern, sizeof(pattern), "%c/%02d/%02d/%1d/%02d",
-        "LSCO"[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
+        test_type_chars[i], tms->tm_mon+1, tms->tm_mday, weekday, tms->tm_hour);
       if (cfg.test_regex.full_match(pattern)) {
         // Test found
         testtype = pattern[0];
@@ -2228,7 +2241,7 @@ static void PrintTestSchedule(const dev_config_vector & configs, dev_state_vecto
   unsigned numdev = configs.size();
   if (!numdev)
     return;
-  std::vector<int> testcnts(numdev*4, 0);
+  std::vector<int> testcnts(numdev * num_test_types, 0);
 
   PrintOut(LOG_INFO, "\nNext scheduled self tests (at most 5 of each type per device):\n");
 
@@ -2246,14 +2259,13 @@ static void PrintTestSchedule(const dev_config_vector & configs, dev_state_vecto
       dev_state & state = states.at(i);
       const char * p;
       char testtype = next_scheduled_test(cfg, state, devices.at(i)->is_scsi(), testtime);
-      const char alltypes[] = "LSCO";
-      if (testtype && (p = strchr(alltypes, testtype))) {
-        unsigned t = (p - alltypes);
+      if (testtype && (p = strchr(test_type_chars, testtype))) {
+        unsigned t = (p - test_type_chars);
         // Report at most 5 tests of each type
-        if (++testcnts[i*4 + t] <= 5) {
+        if (++testcnts[i*num_test_types + t] <= 5) {
           dateandtimezoneepoch(date, testtime);
           PrintOut(LOG_INFO, "Device: %s, will do test %d of type %c at %s\n", cfg.name.c_str(),
-            testcnts[i*4 + t], testtype, date);
+            testcnts[i*num_test_types + t], testtype, date);
         }
       }
     }
@@ -2264,10 +2276,13 @@ static void PrintTestSchedule(const dev_config_vector & configs, dev_state_vecto
   PrintOut(LOG_INFO, "\nTotals [%s - %s]:\n", datenow, date);
   for (unsigned i = 0; i < numdev; i++) {
     const dev_config & cfg = configs.at(i);
-    unsigned numtests = (devices.at(i)->is_ata() ? 4 : 2);
-    for (unsigned t = 0; t < numtests; t++) {
+    bool scsi = devices.at(i)->is_scsi();
+    for (unsigned t = 0; t < num_test_types; t++) {
+      int cnt = testcnts[i*num_test_types + t];
+      if (cnt == 0 && !strchr((scsi ? "LS" : "LSCO"), test_type_chars[t]))
+        continue;
       PrintOut(LOG_INFO, "Device: %s, will do %3d test%s of type %c\n", cfg.name.c_str(),
-        testcnts[i*4 + t], (testcnts[i*4 + t]==1?"":"s"), "LSCO"[t]);
+        cnt, (cnt==1?"":"s"), test_type_chars[t]);
     }
   }
 
@@ -2336,19 +2351,18 @@ static int DoSCSISelfTest(const dev_config & cfg, dev_state & state, scsi_device
 // nonzero on failure.
 static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device * device, char testtype)
 {
-  
-  struct ata_smart_values data;
-  const char *testname = 0;
-  int retval, dotest=-1;
   const char *name = cfg.name.c_str();
-  
+
   // Read current smart data and check status/capability
+  struct ata_smart_values data;
   if (ataReadSmartValues(device, &data) || !(data.offline_data_collection_capability)) {
     PrintOut(LOG_CRIT, "Device: %s, not capable of Offline or Self-Testing.\n", name);
     return 1;
   }
   
   // Check for capability to do the test
+  int dotest = -1; char mode = 0;
+  const char *testname = 0;
   switch (testtype) {
   case 'O':
     testname="Offline Immediate ";
@@ -2378,6 +2392,20 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
     else
       state.not_cap_long = true;
     break;
+
+  case 'c': case 'n': case 'r':
+    testname = "Selective Self-";
+    if (isSupportSelectiveSelfTest(&data)) {
+      dotest = SELECTIVE_SELF_TEST;
+      switch (testtype) {
+        case 'c': mode = SEL_CONT; break;
+        case 'n': mode = SEL_NEXT; break;
+        case 'r': mode = SEL_REDO; break;
+      }
+    }
+    else
+      state.not_cap_selective = true;
+    break;
   }
   
   // If we can't do the test, exit
@@ -2398,13 +2426,32 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
     }
   }
 
-  // else execute the test, and return status
-  if ((retval=smartcommandhandler(device, IMMEDIATE_OFFLINE, dotest, NULL)))
+  if (dotest == SELECTIVE_SELF_TEST) {
+    // Set test span
+    con->smartselectivenumspans = 1; // TODO: Use parameters instead of globals
+    con->smartselectivemode[0] = mode;
+    con->smartselectivespan[0][0] = con->smartselectivespan[0][1] = 0;
+    if (ataWriteSelectiveSelfTestLog(device, &data, state.num_sectors)) {
+      PrintOut(LOG_CRIT, "Device: %s, prepare %sTest failed\n", name, testname);
+      return 1;
+    }
+    uint64_t start = con->smartselectivespan[0][0], end = con->smartselectivespan[0][1];
+    PrintOut(LOG_INFO, "Device: %s, %s test span at LBA %"PRIu64" - %"PRIu64" (%"PRIu64" sectors, %u%% - %u%% of disk).\n",
+      name, (con->smartselectivemode[0] == SEL_NEXT ? "next" : "redo"),
+      start, end, end - start + 1,
+      (unsigned)((100 * start + state.num_sectors/2) / state.num_sectors),
+      (unsigned)((100 * end   + state.num_sectors/2) / state.num_sectors));
+  }
+
+  // execute the test, and return status
+  int retval = smartcommandhandler(device, IMMEDIATE_OFFLINE, dotest, NULL);
+  if (retval) {
     PrintOut(LOG_CRIT, "Device: %s, execute %sTest failed.\n", name, testname);
-  else
-    PrintOut(LOG_INFO, "Device: %s, starting scheduled %sTest.\n", name, testname);
-  
-  return retval;
+    return retval;
+  }
+
+  PrintOut(LOG_INFO, "Device: %s, starting scheduled %sTest.\n", name, testname);
+  return 0;
 }
 
 // Format Temperature value
@@ -3253,7 +3300,7 @@ static int ParseToken(char * token, dev_config & cfg)
     // Do a bit of sanity checking and warn user if we think that
     // their regexp is "strange". User probably confused about shell
     // glob(3) syntax versus regular expression syntax regexp(7).
-    if ((int)strlen(arg) != (val=strspn(arg,"0123456789/.-+*|()?^$[]SLCO")))
+    if (arg[(val = strspn(arg, "0123456789/.-+*|()?^$[]SLCOcnr"))])
       PrintOut(LOG_INFO,  "File %s line %d (drive %s): warning, character %d (%c) looks odd in extended regular expression %s\n",
                configfile, lineno, name, val+1, arg[val], arg);
     break;

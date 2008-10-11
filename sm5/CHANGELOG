@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.741 2008/10/08 21:42:49 chrfranke Exp $
+$Id: CHANGELOG,v 1.742 2008/10/11 14:18:06 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Add '-s ([cnr]/../.././..)' directive to run scheduled
+       selective self-tests. Useful to perform full tests of large disks
+       not running 24x7.
 
   [CF] Allow to read local drive database entries from optional file
        '${sysconfdir}/smart_drivedb.h'.
