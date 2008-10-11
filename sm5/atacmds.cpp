@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.207 2008/09/12 18:46:38 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.208 2008/10/11 14:18:07 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -672,6 +672,39 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
   return retval;
 }
 
+// Get number of sectors from IDENTIFY sector. If the drive doesn't
+// support LBA addressing or has no user writable sectors
+// (eg, CDROM or DVD) then routine returns zero.
+uint64_t get_num_sectors(const ata_identify_device * drive)
+{
+  unsigned short command_set_2  = drive->command_set_2;
+  unsigned short capabilities_0 = drive->words047_079[49-47];
+  unsigned short sects_16       = drive->words047_079[60-47];
+  unsigned short sects_32       = drive->words047_079[61-47];
+  unsigned short lba_16         = drive->words088_255[100-88];
+  unsigned short lba_32         = drive->words088_255[101-88];
+  unsigned short lba_48         = drive->words088_255[102-88];
+  unsigned short lba_64         = drive->words088_255[103-88];
+
+  // LBA support?
+  if (!(capabilities_0 & 0x0200))
+    return 0; // No
+
+  // if drive supports LBA addressing, determine 32-bit LBA capacity
+  uint64_t lba32 = (unsigned int)sects_32 << 16 |
+                   (unsigned int)sects_16 << 0  ;
+
+  uint64_t lba64 = 0;
+  // if drive supports 48-bit addressing, determine THAT capacity
+  if ((command_set_2 & 0xc000) == 0x4000 && (command_set_2 & 0x0400))
+      lba64 = (uint64_t)lba_64 << 48 |
+              (uint64_t)lba_48 << 32 |
+              (uint64_t)lba_32 << 16 |
+              (uint64_t)lba_16 << 0  ;
+
+  // return the larger of the two possible capacities
+  return (lba32 > lba64 ? lba32 : lba64);
+}
 
 // This function computes the checksum of a single disk sector (512
 // bytes).  Returns zero if checksum is OK, nonzero if the checksum is
@@ -1164,9 +1197,10 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
             uint64_t spans = (num_sectors + oldsize-1) / oldsize;
             uint64_t newsize = (num_sectors + spans-1) / spans;
             uint64_t newstart = num_sectors - newsize, newend = num_sectors - 1;
-            pout("Span %d changed from %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n"
-                 "                 to %"PRIu64"-%"PRIu64" (%"PRIu64" sectors) (%"PRIu64" spans)\n",
-                i, start, end, oldsize, newstart, newend, newsize, spans);
+            pout("Span %d changed from %"PRIu64"-%"PRIu64" (%"PRIu64" sectors)\n",
+                 i, start, end, oldsize);
+            pout("                 to %"PRIu64"-%"PRIu64" (%"PRIu64" sectors) (%"PRIu64" spans)\n",
+                 newstart, newend, newsize, spans);
             start = newstart; end = newend;
           }
         }
@@ -1186,7 +1220,8 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
         i, start, end, num_sectors);
       return -1;
     }
-    // Write back to allow ataSmartTest() to print the actual values
+    // Return the actual mode and range to caller.
+    con->smartselectivemode[i] = mode;
     con->smartselectivespan[i][0] = start;
     con->smartselectivespan[i][1] = end;
   }

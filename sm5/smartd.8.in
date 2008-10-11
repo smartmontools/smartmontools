@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.130 2008/09/27 19:17:24 chrfranke Exp $
+$Id: smartd.8.in,v 1.131 2008/10/11 14:18:07 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -959,6 +959,15 @@ match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a
 only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
 soon as a match is found, the test will be started and no additional
 matches will be sought for that device and that polling cycle.
+
+[NEW EXPERIMENTAL SMARTD FEATURE] To run scheduled Selective
+Self-Tests, use \'n\' for \fBn\fPext span, \'r\' to \fBr\fPedo last
+span, or \'c\' to \fBc\fPontinue with next span or redo last span
+based on status of last test. The LBA range is based on the first
+span from the last test.
+See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
+further info.
+
 .IP \fBMM\fP 4
 is the month of the year, expressed with two decimal digits.  The
 range is from 01 (January) to 12 (December) inclusive.  Do \fBnot\fP
@@ -1004,6 +1013,19 @@ Self-Test every Saturday at 3-4am, use:
 .nf
 \fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)\fP
 .fi
+If Long Self-Tests of a large disks take longer than the system uptime,
+a full disk test can be performed by several Selective Self-Tests.
+To setup a full test of a 1TB disk within 20 days (one 50GB span
+each day), run this command once:
+.nf
+  smartctl -t select,0-99999999 /dev/sda
+.fi
+To run the next test spans on Monday-Friday between 12-13am, run smartd
+with this directive:
+.nf
+\fB \-s n/../../[1-5]/12\fP
+.fi
+
 
 Scheduled tests are run immediately following the regularly-scheduled
 device polling, if the current local date, time, and test type, match
@@ -2052,4 +2074,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.130 2008/09/27 19:17:24 chrfranke Exp $
+$Id: smartd.8.in,v 1.131 2008/10/11 14:18:07 chrfranke Exp $
