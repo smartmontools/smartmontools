@@ -26,13 +26,16 @@
 #include "knowndrives.h"
 #include "utility.h"
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #ifdef _WIN32
 #include <io.h> // access()
 #endif
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.181 2008/10/08 21:42:49 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.182 2008/10/12 16:23:31 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
