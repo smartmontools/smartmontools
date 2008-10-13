@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.91 2008/10/08 21:42:49 chrfranke Exp $
+# $Id: Makefile.am,v 1.92 2008/10/13 19:45:19 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -14,6 +14,9 @@ BUILD_INFO= "(local build)"
 AM_CPPFLAGS = -DBUILD_INFO='$(BUILD_INFO)' -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"'
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
+endif
+if ENABLE_SAVESTATES
+AM_CPPFLAGS += -DSMARTMONTOOLS_SAVESTATES='"$(savestates)"'
 endif
 
 sbin_PROGRAMS = smartd 	\
@@ -283,6 +286,10 @@ if ENABLE_DRIVEDB
 drivedb_DATA = drivedb.h
 endif
 
+if ENABLE_SAVESTATES
+# Create $(savestatesdir) only
+savestates_DATA =
+endif
 
 smartd.conf.5.in: smartd.8.in
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
@@ -366,6 +373,12 @@ else
 MAN_DRIVEDB = sed '/BEGIN ENABLE_DRIVEDB/,/END ENABLE_DRIVEDB/d'
 endif
 
+if ENABLE_SAVESTATES
+MAN_SAVESTATES = sed "s|/usr/local/var/lib/smartmontools/smartd\\.|$(savestates)|g"
+else
+MAN_SAVESTATES = sed '/BEGIN ENABLE_SAVESTATES/,/END ENABLE_SAVESTATES/d'
+endif
+
 smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
 	sed "s|CURRENT_CVS_DATE|`sed -n 's,^[^"]*"\([^ ]*\) [^"]*".*$$,\1,p' cvsversion.h`|g" | \
@@ -376,7 +389,8 @@ smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g" | \
 	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" | \
 	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
-	$(MAN_DRIVEDB) > $@
+	$(MAN_DRIVEDB) | \
+	$(MAN_SAVESTATES) > $@
 
 
 # Commands to convert man pages into .html and .txt

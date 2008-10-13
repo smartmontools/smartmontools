@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.429 2008/10/11 14:18:07 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.430 2008/10/13 19:45:19 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -187,7 +187,11 @@ static int checktime=CHECKTIME;
 static std::string pid_file;
 
 // command-line: path prefix of persistent state file, empty if no persistence.
-static std::string state_path_prefix;
+static std::string state_path_prefix
+#ifdef SMARTMONTOOLS_SAVESTATES
+          = SMARTMONTOOLS_SAVESTATES
+#endif
+                                    ;
 
 // configuration file name
 #define CONFIGFILENAME "smartd.conf"
@@ -1504,7 +1508,11 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
   PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
-  PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n\n");
+  PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n"
+#ifdef SMARTMONTOOLS_SAVESTATES
+                    "        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n"
+#endif
+                                                                               "\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
   PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n\n");
 #ifdef _WIN32
@@ -1513,8 +1521,7 @@ void Usage (void){
   PrintOut(LOG_INFO,"          smartd install [options]\n");
   PrintOut(LOG_INFO,"        Remove service with:\n");
   PrintOut(LOG_INFO,"          smartd remove\n\n");
-#else
-#endif // _WIN32 || __CYGWIN__
+#endif // _WIN32
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
 #else

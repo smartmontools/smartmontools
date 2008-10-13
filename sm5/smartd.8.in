@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.131 2008/10/11 14:18:07 chrfranke Exp $
+$Id: smartd.8.in,v 1.132 2008/10/13 19:45:19 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -369,6 +369,12 @@ min and max temperatures (\-W directive), info about last sent warning email
 (\-m directive), and the time of next check of the self-test REGEXP
 (\-s directive) across boot cycles.
 
+.\" BEGIN ENABLE_SAVESTATES
+If this option is not specified, state information is maintained in files
+\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\'.
+To disable state files, specify this option with an empty string
+argument: \'-s ""\'.
+.\" END ENABLE_SAVESTATES
 MODEL and SERIAL are build from drive identify information, invalid
 characters are replaced by underline.
 
@@ -2074,4 +2080,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.131 2008/10/11 14:18:07 chrfranke Exp $
+$Id: smartd.8.in,v 1.132 2008/10/13 19:45:19 chrfranke Exp $

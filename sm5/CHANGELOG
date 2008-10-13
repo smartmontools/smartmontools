@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.742 2008/10/11 14:18:06 chrfranke Exp $
+$Id: CHANGELOG,v 1.743 2008/10/13 19:45:19 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add configure options '--enable-savestates' and
+       '--with-savestates=PREFIX' to enable smartd persistence
+       ('-s' option) by default.
 
   [CF] smartd: Add '-s ([cnr]/../.././..)' directive to run scheduled
        selective self-tests. Useful to perform full tests of large disks
