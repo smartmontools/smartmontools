@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.743 2008/10/13 19:45:19 chrfranke Exp $
+$Id: CHANGELOG,v 1.744 2008/10/20 20:51:30 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,13 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added Seagate Momentus 5400 PSD series (hybrid drives)
+       - Added Seagate Momentus 7200.3 series
+       - Added Hitachi Deskstar 7K250 (SUN branded)
+       - There are Hitachi Travelstar 5K250 drives with capital "HITACHI"
+       - Correct regex for Maxtor VL 30 drives
 
   [CF] Add configure options '--enable-savestates' and
        '--with-savestates=PREFIX' to enable smartd persistence

@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.182 2008/10/12 16:23:31 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.183 2008/10/20 20:51:30 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -420,7 +420,7 @@ static const drive_settings builtin_knowndrives[] = {
     "-v 9,minutes"
   },
   { "Maxtor DiamondMax VL 30 family",  // U: ATA66, H: ATA100
-    "^Maxtor (33073U4|32049U3|31536U2|30768U1)|(33073H4|32305H3|31536H2|30768H1)$",
+    "Maxtor (33073U4|32049U3|31536U2|30768U1|33073H4|32305H3|31536H2|30768H1)",
     "",
     "",
     "-v 9,minutes"
@@ -641,7 +641,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Travelstar 5K250 series",
-    "^(Hitachi )?HTS5425(80|12|16|20|25)K9(A3|SA)00$",
+    "^(Hitachi |HITACHI )?HTS5425(80|12|16|20|25)K9(A3|SA)00$",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",
@@ -690,6 +690,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Deskstar 7K250 series",
     "^(Hitachi )?HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)$",
+    "", "", ""
+  },
+  { "Hitachi Deskstar 7K250 (SUN branded)",
+    "HITACHI HDS7225SBSUN250G.*",
     "", "", ""
   },
   { "Hitachi Deskstar T7K250 series",
@@ -760,7 +764,7 @@ static const drive_settings builtin_knowndrives[] = {
     "^ST9(2014|3015|4019)A$",
     "", "", ""
   },
-  { "Seagate Momentus 4200.2 Series",
+  { "Seagate Momentus 4200.2 series",
     "^ST9(100822|808210|60821|50212|402113|30219)A$",
     "", "", ""
   },
@@ -768,20 +772,28 @@ static const drive_settings builtin_knowndrives[] = {
     "^ST9(808211|60822|408114|308110|120821|10082[34]|8823|6812|4813|3811)AS?$",
     "", "", ""
   },
-  { "Seagate Momentus 5400.3",
+  { "Seagate Momentus 5400.3 series",
     "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AS?$",
     "", "", ""
   },
-  { "Seagate Momentus 5400.3 ED",
+  { "Seagate Momentus 5400.3 ED series",
     "^ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AB$",
+    "", "", ""
+  },
+  { "Seagate Momentus 5400 PSD series", // Hybrid drives
+    "^ST9(808212|(120|160)8220)AS$",
     "", "", ""
   },
   { "Seagate Momentus 7200.1 series",
     "^ST9(10021|80825|6023|4015)AS?$",
     "", "", ""
   },
-  { "Seagate Momentus 7200.2",
+  { "Seagate Momentus 7200.2 series",
     "^ST9(80813|100821|120823|160823|200420)ASG?$",
+    "", "", ""
+  },
+  { "Seagate Momentus 7200.3 series",
+    "^ST9((80|120|160)411|(250|320)421)ASG?$",
     "", "", ""
   },
   { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
