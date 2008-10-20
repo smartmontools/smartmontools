@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.744 2008/10/20 20:51:30 manfred99 Exp $
+$Id: CHANGELOG,v 1.745 2008/10/20 21:15:51 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update:
+       Convert file to full string regex: remove "^$" from pattern
 
   [MS] knowndrives.cpp updates:
        - Added Seagate Momentus 5400 PSD series (hybrid drives)
