@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.191 2008/10/08 21:42:49 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.192 2008/10/24 19:51:54 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -206,7 +206,11 @@ void Usage (void){
 "  -P TYPE, --presets=TYPE                                             (ATA)\n"
 "        Drive-specific presets: use, ignore, show, showall\n\n"
 "  -B [+]FILE, --drivedb=[+]FILE                                       (ATA)\n"
-"        Read and replace [add] drive database from FILE\n\n"
+"        Read and replace [add] drive database from FILE\n"
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n"
+#endif
+"\n"
   );
 #else
   printf(
