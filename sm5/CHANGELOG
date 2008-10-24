@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.748 2008/10/24 21:49:23 manfred99 Exp $
+$Id: CHANGELOG,v 1.749 2008/10/24 22:33:33 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,12 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowdrives.cpp updates:
+       - Added Quantum Fireball ST4300A
+       - Added Asus-Phison SSD (solid state disk)
+       - Added Seagate DB35.3 Series
+       - Added remaining disks of the Seagate SV35.2 Series
 
   [MS] Fix trivial compile error with "-pedantic"
 
