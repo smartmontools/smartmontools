@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.747 2008/10/24 21:43:12 manfred99 Exp $
+$Id: CHANGELOG,v 1.748 2008/10/24 21:49:23 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,8 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] Fix trivial compile error with "-pedantic"
 
   [MS] Workaround for huge raw values of Reallocated_Sector_Ct and
        Reallocated_Event_Ct for newer Fujitsu disks (only the lower

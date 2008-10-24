@@ -22,7 +22,7 @@
 
 #include <errno.h>
 
-const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.3 2008/08/23 17:07:16 chrfranke Exp $"
+const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp,v 1.4 2008/10/24 21:49:23 manfred99 Exp $"
   DEV_ATA_CMD_SET_H_CVSID;
 
 
@@ -122,5 +122,5 @@ bool ata_device_with_command_set::ata_pass_through(const ata_cmd_in & in, ata_cm
       break;
   }
   return true;
-};
+}
 
