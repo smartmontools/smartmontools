@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.430 2008/10/13 19:45:19 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.431 2008/10/24 19:29:15 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -4012,21 +4012,9 @@ void ParseOpts(int argc, char **argv){
 static int MakeConfigEntries(const dev_config & base_cfg,
   dev_config_vector & conf_entries, smart_device_list & scanned_devs, const char * type)
 {
-  // Hack! This is to make DEVICESCAN work on ATA devices behind
-  // a SCSI to ATA Translation (SAT) Layer.
-  // This will work on a general OS if the way that SAT devices are
-  // named is the same as SCSI devices.
-  // TODO:
-  // The BETTER solution is to modify make_device_names to recognize
-  // the additional type "SAT".  This requires changing os_*.cpp.
-
-  const char *basetype = type;
-  if (!strcmp(type,"sat"))
-    basetype = "scsi";
-
   // make list of devices
   smart_device_list devlist;
-  if (!smi()->scan_smart_devices(devlist, basetype))
+  if (!smi()->scan_smart_devices(devlist, (*type ? type : 0)))
     PrintOut(LOG_CRIT,"Problem creating device name scan list\n");
   
   // if no devices, or error constructing list, return
@@ -4092,29 +4080,13 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
     dev_config first = conf_entries.front();
     conf_entries.clear();
 
-    bool doata = false, doscsi = false, dosat = false;
-    if (first.dev_type.empty())
-      doata = doscsi = true;
-    else if (first.dev_type == "ata")
-      doata = true;
-    else if (first.dev_type == "scsi")
-      doscsi = true;
-    else if (first.dev_type == "sat")
-      dosat = true;
-
     if (first.lineno)
       PrintOut(LOG_INFO,"Configuration file %s was parsed, found %s, scanning devices\n", configfile, SCANDIRECTIVE);
     else
       PrintOut(LOG_INFO,"No configuration file %s found, scanning devices\n", configfile);
     
-    // make config list of ATA devices to search for
-    if (doata)
-      MakeConfigEntries(first, conf_entries, scanned_devs, "ata");
-    // make config list of SCSI devices to search for
-    if (doscsi)
-      MakeConfigEntries(first, conf_entries, scanned_devs, "scsi");
-    if (dosat)
-      MakeConfigEntries(first, conf_entries, scanned_devs, "sat");
+    // make config list of devices to search for
+    MakeConfigEntries(first, conf_entries, scanned_devs, first.dev_type.c_str());
 
     // warn user if scan table found no devices
     if (conf_entries.empty())
