@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.431 2008/10/24 19:29:15 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.432 2008/10/24 19:51:54 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1508,13 +1508,17 @@ void Usage (void){
   PrintOut(LOG_INFO,"  -r, --report=TYPE\n");
   PrintOut(LOG_INFO,"        Report transactions for one of: %s\n\n", GetValidArgList('r'));
   PrintOut(LOG_INFO,"  -s PREFIX, --savestates=PREFIX\n");
-  PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n"
+  PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
 #ifdef SMARTMONTOOLS_SAVESTATES
-                    "        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n"
+  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n");
 #endif
-                                                                               "\n");
+  PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
-  PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n\n");
+  PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n");
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n");
+#endif
+  PrintOut(LOG_INFO,"\n");
 #ifdef _WIN32
   PrintOut(LOG_INFO,"  --service\n");
   PrintOut(LOG_INFO,"        Running as windows service (see man page), install with:\n");
