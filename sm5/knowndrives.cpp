@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.184 2008/10/20 21:15:51 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.185 2008/10/24 22:33:33 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -61,6 +61,10 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID 
 
 static const drive_settings builtin_knowndrives[] = {
 // BEGIN drivedb.h (DO NOT DELETE - used by Makefile)
+  { "Asus-Phison SSD",
+    "ASUS-PHISON SSD",
+    "", "", ""
+  },
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "ER60A46A",
@@ -897,7 +901,11 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate SV35.2 Series",
-    "ST3(500630)SV",
+    "ST3(160815|250820|320620|500630|750640)(A|S)V",
+    "", "", ""
+  },
+  { "Seagate DB35.3 Series",
+    "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)(A|S)CE)",
     "", "", ""
   },
   { "Western Digital Protege",
@@ -1066,7 +1074,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball ST series",
-    "QUANTUM FIREBALL ST(3.2|4.3)A",
+    "QUANTUM FIREBALL ST(3.2|4.3|4300)A",
     "", "", ""
   },
   { "Quantum Fireball SE series",
