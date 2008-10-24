@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.746 2008/10/24 19:29:15 chrfranke Exp $
+$Id: CHANGELOG,v 1.747 2008/10/24 21:43:12 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,11 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] Workaround for huge raw values of Reallocated_Sector_Ct and
+       Reallocated_Event_Ct for newer Fujitsu disks (only the lower
+       16 bits seem to be meaningful). Clip the display to 16 bits
+       and show the remaining part, if existent, in parens. Patch by [CF].
 
   [CF] smartd DEVICESCAN: Fix autodetection of SAT devices.
        Thanks to Stanislav Brabec for bug report and testing.

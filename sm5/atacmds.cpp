@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.208 2008/10/11 14:18:07 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.209 2008/10/24 21:43:12 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1836,6 +1836,12 @@ int64_t ataPrintSmartAttribRawValue(char *out,
     if (word[1])
       out+=sprintf(out, " (Average %d)", word[1]);
     break;
+    // reallocated sector count
+  case 5:
+    out+=sprintf(out, "%u", word[0]);
+    if (word[1] || word[2])
+      out+=sprintf(out, " (%u, %u)", word[2], word[1]);
+    break;
     // Power on time
   case 9:
     if (select==1){
@@ -1890,6 +1896,12 @@ int64_t ataPrintSmartAttribRawValue(char *out,
       out+=sprintf(out, "%"PRIu64, rawvalue);
     else
       ataPrintTemperatureValue(out, attribute->raw, word);
+    break;
+    // reallocated event count
+  case 196:
+    out+=sprintf(out, "%u", word[0]);
+    if (word[1] || word[2])
+      out+=sprintf(out, " (%u, %u)", word[2], word[1]);
     break;
   default:
     out+=sprintf(out, "%"PRIu64, rawvalue);
