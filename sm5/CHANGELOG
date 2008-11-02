@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.749 2008/10/24 22:33:33 manfred99 Exp $
+$Id: CHANGELOG,v 1.750 2008/11/02 01:33:26 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,7 +40,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [MS] knowdrives.cpp updates:
+  [MS] knowndrives.cpp updates:
+       - Added Hitachi Endurastar J4K30/N4K30
+       - Added Hitachi Travelstar 4K120 series
+       - Some Hitachi 7K80 drives have garbage at end of name: permit it
+       - IBM Travelstar 6GN series
+
+  [MS] knowndrives.cpp updates:
        - Added Quantum Fireball ST4300A
        - Added Asus-Phison SSD (solid state disk)
        - Added Seagate DB35.3 Series
