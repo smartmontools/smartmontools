@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.185 2008/10/24 22:33:33 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.186 2008/11/02 01:33:26 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -576,20 +576,30 @@ static const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,minutes -v 193,loadunload"
   },
-  { "IBM Deskstar 14GXP and 16GP series",
-    "IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0",
-    "", "", ""
-  },
-  { "IBM Deskstar 25GP and 22GXP family",
-    "IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0",
-    "", "", ""
+  { "Hitachi Endurastar J4K30/N4K30",
+    "HE[JN]4230[23]0F9AT00",
+    "",
+    "",
+    "-v 9,minutes -v 193,loadunload"
   },
   { "IBM Travelstar 4GT family",
     "IBM-DTCA-2(324|409)0",
     "", "", ""
   },
+  { "IBM Travelstar 6GN family",
+    "IBM-DBCA-20(324|486|648)0",
+    "", "", ""
+  },
   { "IBM Travelstar 25GS, 18GT, and 12GN family",
     "IBM-DARA-2(25|18|15|12|09|06)000",
+    "", "", ""
+  },
+  { "IBM Travelstar 14GS",
+    "IBM-DCYA-214000",
+    "", "", ""
+  },
+  { "IBM Travelstar 4LP",
+    "IBM-DTNA-2(180|216)0",
     "", "", ""
   },
   { "IBM Travelstar 48GH, 30GN, and 15GN family",
@@ -602,10 +612,6 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "IBM Travelstar 4GN family",
     "IBM-DKLA-2(216|324|432)0",
-    "", "", ""
-  },
-  { "IBM Deskstar 37GP and 34GXP family",
-    "IBM-DPTA-3(5(375|300|225|150)|7(342|273|205|136))0",
     "", "", ""
   },
   { "IBM/Hitachi Travelstar 60GH and 40GN family",
@@ -622,6 +628,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Travelstar 4K40",
     "(Hitachi )?HTS4240[234]0M9AT00",
+    "", "", ""
+  },
+  { "Hitachi Travelstar 4K120",
+    "(Hitachi )?(HTS4212(60|80|10|12)H9AT00|HTS421260G9AT00)",
     "", "", ""
   },
   { "Hitachi Travelstar 5K80 family",
@@ -668,6 +678,18 @@ static const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
     "", "", ""
   },
+  { "IBM Deskstar 14GXP and 16GP series",
+    "IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0",
+    "", "", ""
+  },
+  { "IBM Deskstar 25GP and 22GXP family",
+    "IBM-DJNA-3(5(101|152|203|250)|7(091|135|180|220))0",
+    "", "", ""
+  },
+  { "IBM Deskstar 37GP and 34GXP family",
+    "IBM-DPTA-3(5(375|300|225|150)|7(342|273|205|136))0",
+    "", "", ""
+  },
   { "IBM/Hitachi Deskstar 120GXP family",
     "(IBM-)?IC35L((020|040|060|080|120)AVVA|0[24]0AVVN)07-[01]",
     "", "", ""
@@ -676,16 +698,8 @@ static const drive_settings builtin_knowndrives[] = {
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
     "", "", ""
   },
-  { "IBM Travelstar 14GS",
-    "IBM-DCYA-214000",
-    "", "", ""
-  },
-  { "IBM Travelstar 4LP",
-    "IBM-DTNA-2(180|216)0",
-    "", "", ""
-  },
   { "Hitachi Deskstar 7K80 series",
-    "(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380)",
+    "(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380).*",
     "", "", ""
   },
   { "Hitachi Deskstar 7K160",
