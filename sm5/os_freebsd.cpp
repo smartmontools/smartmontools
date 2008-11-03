@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.68 2008/06/12 21:46:31 ballen4705 Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.69 2008/11/03 17:00:47 dpgilbert Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.68 2008/06/12 21:46:31 ballen4705 Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.69 2008/11/03 17:00:47 dpgilbert Exp $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -268,7 +268,7 @@ int highpoint_command_interface(__unused int fd, __unused smart_command_set comm
   return -1;
 }
 
-int areca_command_interface(__unused int fd, __unused smart_command_set command, __unused int select, __unused char *data) {
+int areca_command_interface(__unused int fd, __unused int disknum, __unused smart_command_set command, __unused int select, __unused char *data) {
   return -1;
 }
 
