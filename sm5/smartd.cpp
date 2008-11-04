@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.433 2008/11/04 19:28:42 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.434 2008/11/04 21:00:38 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -3275,7 +3275,7 @@ static int ParseToken(char * token, dev_config & cfg)
       missingarg = 1;
     else {
       char *endptr = NULL;
-      char *next = index(arg,',');
+      char *next = strchr(const_cast<char*>(arg), ',');
 
       cfg.powerquiet = false;
       cfg.powerskipmax = 0;
