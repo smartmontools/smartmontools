@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.432 2008/10/24 19:51:54 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.433 2008/11/04 19:28:42 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -268,6 +268,7 @@ struct dev_config
   bool removable;                         // Device may disappear (not be present)
   char powermode;                         // skip check, if disk in idle or standby mode
   bool powerquiet;                        // skip powermode 'skipping checks' message
+  int powerskipmax;                       // how many times can be check skipped
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   regular_expression test_regex;          // Regex for scheduled testing
@@ -314,6 +315,7 @@ dev_config::dev_config()
   removable(false),
   powermode(0),
   powerquiet(false),
+  powerskipmax(0),
   tempdiff(0),
   tempinfo(0), tempcrit(0),
   pending(0),
@@ -1424,7 +1426,7 @@ void Directives() {
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-           "  -n MODE No check if: never[,q], sleep[,q], standby[,q], idle[,q]\n"
+           "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
            "  -l TYPE Monitor SMART log.  Type is one of: error, selftest\n"
@@ -2626,14 +2628,21 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     if (dontcheck){
       // but ignore powermode on scheduled selftest
       if (!testtype) {
-        CloseDevice(atadev, name);
-        if (!state.powerskipcnt && !cfg.powerquiet) // report first only and avoid waking up system disk
-          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
-        state.powerskipcnt++;
-        return 0;
+        // skip at most powerskipmax checks
+        if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+          CloseDevice(atadev, name);
+          if (!state.powerskipcnt && !cfg.powerquiet) // report first only and avoid waking up system disk
+            PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
+          state.powerskipcnt++;
+          return 0;
+        } else {
+          PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to reached limit of skipped checks (%d check%s skipped)\n",
+            name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
+        }
+      } else {
+        PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test (%d check%s skipped)\n",
+          name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       }
-      PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test (%d check%s skipped)\n",
-        name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       state.powerskipcnt = 0;
       state.tempmin_delay = time(0) + CHECKTIME - 60; // Delay Min Temperature update
     }
@@ -3019,7 +3028,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
 
   switch (d) {
   case 'n':
-    PrintOut(priority, "never[,q], sleep[,q], standby[,q], idle[,q]");
+    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]");
     break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
@@ -3264,17 +3273,45 @@ static int ParseToken(char * token, dev_config & cfg)
     // skip disk check if in idle or standby mode
     if (!(arg = strtok(NULL, delim)))
       missingarg = 1;
-    else if (!strcmp(arg, "never")   || !strcmp(arg, "never,q"))
-      cfg.powermode = 0;
-    else if (!strcmp(arg, "sleep")   || !strcmp(arg, "sleep,q"))
-      cfg.powermode = 1;
-    else if (!strcmp(arg, "standby") || !strcmp(arg, "standby,q"))
-      cfg.powermode = 2;
-    else if (!strcmp(arg, "idle")    || !strcmp(arg, "idle,q"))
-      cfg.powermode = 3;
-    else
-      badarg = 1;
-    cfg.powerquiet = !!strchr(arg, ',');
+    else {
+      char *endptr = NULL;
+      char *next = index(arg,',');
+
+      cfg.powerquiet = false;
+      cfg.powerskipmax = 0;
+
+      if (next!=NULL) *next='\0';
+      if (!strcmp(arg, "never"))
+        cfg.powermode = 0;
+      else if (!strcmp(arg, "sleep"))
+        cfg.powermode = 1;
+      else if (!strcmp(arg, "standby"))
+        cfg.powermode = 2;
+      else if (!strcmp(arg, "idle"))
+        cfg.powermode = 3;
+      else
+        badarg = 1;
+
+      // if optional arguments are present
+      if (!badarg && next!=NULL) {
+        next++;
+        cfg.powerskipmax = strtol(next, &endptr, 10);
+        if (endptr == next)
+          cfg.powerskipmax = 0;
+        else {
+          next = endptr + (*endptr != '\0');
+          if (cfg.powerskipmax <= 0)
+            badarg = 1;
+        }
+        if (*next != '\0') {
+          if (!strcmp("q", next))
+            cfg.powerquiet = true;
+          else {
+            badarg = 1;
+          }
+        }
+      }
+    }
     break;
   case 'S':
     // automatic attribute autosave enable/disable

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.750 2008/11/02 01:33:26 manfred99 Exp $
+$Id: CHANGELOG,v 1.751 2008/11/04 19:28:42 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add smartd '-n powermode,N' directive parameter to limit the
+       number of skipped checks. Thanks to Michal Hlavinka for the patch.
 
   [MS] knowndrives.cpp updates:
        - Added Hitachi Endurastar J4K30/N4K30
