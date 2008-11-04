@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.96 2008/10/11 14:18:07 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.97 2008/11/04 19:28:42 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -409,7 +409,7 @@ behavior) if the device does not appear to be present when
 with the other \'\-d\' Directives.
 
 .TP
-.B \-n POWERMODE[,q]
+.B \-n POWERMODE[,N][,q]
 This \'nocheck\' Directive is used to prevent a disk from being
 spun-up when it is periodically polled by \fBsmartd\fP.
 
@@ -457,10 +457,17 @@ not what you want.
 When a self test is scheduled (see \'\-s\' Directive below), the
 \'\fB\-n\fP\' Directive is ignored, and all tests are carried out.
 
+Maximum number of skipped checks (in a row) can be specified by
+appending positive number \',N\' to POWERMODE (like \'\-n standby,15\').
+After N checks are skipped in a row, powermode is ignored and the
+check is performed anyway.
+
 When a periodic test is skipped, \fBsmartd\fP normally writes an
 informal log message. The message can be suppressed by appending
 the option \',q\' to POWERMODE (like \'\-n standby,q\').
 This prevents a laptop disk from spinning up due to this message.
+
+Both \',N\' and \',q\' can be specified together.
 
 .TP
 .B \-T TYPE
@@ -1435,4 +1442,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.96 2008/10/11 14:18:07 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.97 2008/11/04 19:28:42 chrfranke Exp $
