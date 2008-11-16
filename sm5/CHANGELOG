@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.751 2008/11/04 19:28:42 chrfranke Exp $
+$Id: CHANGELOG,v 1.752 2008/11/16 19:00:30 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,17 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added Maxtor 92040U6 (DiamondMax Plus 6800)
+       - Added Seagate Maxtor DiamondMax 21 500GB version
+       - Added QUANTUM FIREBALLlct15 22
+       - Added QUANTUM FIREBALL CR6.4A
+       - Added QUANTUM FIREBALLP LM20.4
+       - Added SUN branded Toshiba MK4019GAX
+       - Added TOSHIBA MK1016GAP and relatives: MK1[05]1[67]GAP
+       - Added Western Digital WD800AB and WD2500AB
+       - Some Hitachi 7K160 drives have garbage at end of name: permit it
 
   [CF] Add smartd '-n powermode,N' directive parameter to limit the
        number of skipped checks. Thanks to Michal Hlavinka for the patch.
