@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.186 2008/11/02 01:33:26 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.187 2008/11/16 19:00:30 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -388,7 +388,7 @@ static const drive_settings builtin_knowndrives[] = {
     "-v 9,minutes"
   },
   { "Maxtor DiamondMax Plus 6800 Ultra ATA 66 family",
-    "Maxtor 9(2732U8|2390U7|2049U6|1707U5|1366U4|1024U3|0845U3|0683U2)",
+    "Maxtor 9(2732U8|2390U7|204[09]U6|1707U5|1366U4|1024U3|0845U3|0683U2)",
     "",
     "",
     "-v 9,minutes"
@@ -524,7 +524,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 21",
-    "MAXTOR STM3(160215|(250|320)820|320620)AS?",
+    "MAXTOR STM3(160215|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22",
@@ -703,7 +703,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Deskstar 7K160",
-    "(Hitachi )?HDS7216(80|16)PLA[3T]80",
+    "(Hitachi )?HDS7216(80|16)PLA[3T]80.*",
     "", "", ""
   },
   { "Hitachi Deskstar 7K250 series",
@@ -742,6 +742,10 @@ static const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
   },
+  { "Toshiba 2.5\" HDD series (10-20 GB)",
+    "TOSHIBA MK(101[67]GAP|15[67]GAP|20(1[678]GAP|(18|23)GAS))",
+    "", "", ""
+  },
   { "Toshiba 2.5\" HDD series (30-60 GB)",
     "TOSHIBA MK((6034|4032)GSX|(6034|4032)GAX|(6026|4026|4019|3019)GAXB?|(6025|6021|4025|4021|4018|3025|3021|3018)GAS|(4036|3029)GACE?|(4018|3017)GAP)",
     "", "", ""
@@ -766,12 +770,8 @@ static const drive_settings builtin_knowndrives[] = {
     "TOSHIBA MK6409MAV",
     "", "", ""
   },
-  { "", // TOS MK3019GAXB SUN30G
-    "TOS MK3019GAXB SUN30G",
-    "", "", ""
-  },
-  { "", // TOSHIBA MK2016GAP, MK2017GAP, MK2018GAP, MK2018GAS, MK2023GAS
-    "TOSHIBA MK20(1[678]GAP|(18|23)GAS)",
+  { "Toshiba MKx019GAXB (SUN branded)",
+    "TOS MK[34]019GAXB SUN[34]0G",
     "", "", ""
   },
   { "Seagate Momentus family",
@@ -946,7 +946,7 @@ static const drive_settings builtin_knowndrives[] = {
    * is understood exactly how Attribute 9 should be interpreted.
    * UPDATE: this is probably explained by the WD firmware bug described in the
    * smartmontools FAQ */
-    "WDC WD(3|4|6)00AB-.*",
+    "WDC WD(3|4|6|8|25)00AB-.*",
     "", "", ""
   },
   { "Western Digital Caviar WDxxxAA series",
@@ -1068,7 +1068,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball lct15 series",
-    "QUANTUM FIREBALLlct15 [123]0",
+    "QUANTUM FIREBALLlct15 ([123]0|22)",
     "", "", ""
   },
   { "Quantum Fireball lct20 series",
@@ -1080,7 +1080,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball CR series",
-    "QUANTUM FIREBALL CR(4.3|8.4|13.0)A",
+    "QUANTUM FIREBALL CR(4.3|6.4|8.4|13.0)A",
     "", "", ""
   },
   { "Quantum Fireball EX series",
@@ -1096,7 +1096,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Quantum Fireball Plus LM series",
-    "QUANTUM FIREBALLP LM(10.2|15|20.5|30)",
+    "QUANTUM FIREBALLP LM(10.2|15|20.[45]|30)",
     "", "", ""
   },
   { "Quantum Fireball Plus AS series",
