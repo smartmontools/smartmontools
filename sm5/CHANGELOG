@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.752 2008/11/16 19:00:30 manfred99 Exp $
+$Id: CHANGELOG,v 1.753 2008/11/30 22:35:49 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,10 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added remaining Seagate Barracuda 7200.11 drives
+       - Added HP 1TB SATA disk
 
   [MS] knowndrives.cpp updates:
        - Added Maxtor 92040U6 (DiamondMax Plus 6800)
