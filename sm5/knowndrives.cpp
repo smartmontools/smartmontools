@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.187 2008/11/16 19:00:30 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.188 2008/11/30 22:35:49 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -63,6 +63,10 @@ static const drive_settings builtin_knowndrives[] = {
 // BEGIN drivedb.h (DO NOT DELETE - used by Makefile)
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
+    "", "", ""
+  },
+  { "HP 1TB SATA disk GB1000EAFJL",
+    "GB1000EAFJL",
     "", "", ""
   },
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
@@ -890,8 +894,8 @@ static const drive_settings builtin_knowndrives[] = {
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.11",
-    "ST3(500[368]2|750[36]3|1000[36]4)0AS?",
+  { "Seagate Barracuda 7200.11 family",
+    "ST3(160813|320613|500[368]20|640323|750[36]30|1000(333|[36]40)|1500341)AS?",
     "", "", ""
   },
   { "Seagate Barracuda ES",
