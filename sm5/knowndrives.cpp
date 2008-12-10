@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.188 2008/11/30 22:35:49 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.189 2008/12/10 22:09:34 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1044,7 +1044,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Raptor family",
-    "WDC WD((360|740|800)GD|(360|740|1500)ADFD)-.*",
+    "WDC WD((360|740|800)GD|(360|740|1500)ADF[DS])-.*",
     "", "", ""
   },
   { "Western Digital VelociRaptor family",
