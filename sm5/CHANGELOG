@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.753 2008/11/30 22:35:49 manfred99 Exp $
+$Id: CHANGELOG,v 1.754 2008/12/10 22:09:34 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -39,6 +39,9 @@ Maintainers / Developers Key:
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update:
+       There seem to exist WD Raptors with SATA II interface, add them.
 
   [MS] knowndrives.cpp updates:
        - Added remaining Seagate Barracuda 7200.11 drives
