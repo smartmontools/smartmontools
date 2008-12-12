@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.116 2008/10/08 21:42:49 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.117 2008/12/12 12:38:08 steffeng Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -213,7 +213,7 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
-are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, \fIareca,N\fP, \fIatacb\fP, and \fIhpt,L/M\fP,
+are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP, \fIareca,N\fP, \fIusbcypress\fP, and \fIhpt,L/M\fP,
 \fIcciss,N\fP or \fIhpt,L/M/N\fP.  If this option is not used then
 \fBsmartctl\fP will attempt to guess the device type from the device name.
 
@@ -226,8 +226,9 @@ overridden with either \'\-d sat,12\' or \'\-d sat,16\'.
 
 The \'usbcypress\' device type is for ATA disks that are behind a Cypress
 usb-pata bridge. This will use the ATACB proprietary scsi pass through command. There is no autodetection at the moment. The best way to know if your device support it, is to check your device usb id (most Cypress usb ata bridge got vid=0x04b4, pid=0x6830) or to try it (if the usb device doesn't support ATACB, smartmontools print an error).
-The default scsi operation code is 0x24, but it can be overridden
-with \'\-d atacb,0xn\', where n is the scsi operation code.
+The default scsi operation code is 0x24, but although it can be overridden
+with \'\-d usbcypress,0xn\', where n is the scsi operation code,
+you're running the risk of damage to the device or filesystems on it.
 
 Under Linux, to look at SATA disks behind Marvell SATA controllers
 (using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
@@ -1634,7 +1635,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.116 2008/10/08 21:42:49 chrfranke Exp $
+$Id: smartctl.8.in,v 1.117 2008/12/12 12:38:08 steffeng Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
