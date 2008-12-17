@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.754 2008/12/10 22:09:34 manfred99 Exp $
+$Id: CHANGELOG,v 1.755 2008/12/17 12:30:18 dlukes Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -35,10 +35,14 @@ Maintainers / Developers Key:
 [RZ] Richard Zybert
 [SZ] Sf Zhou
 [JPH] Jordan Powell Hargrave
+[DL] Dan Lukes
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DL] os_freebsd.cpp:
+       Added support for CHECK_POWER_MODE and WRITE_LOG commands
 
   [MS] knowndrives.cpp update:
        There seem to exist WD Raptors with SATA II interface, add them.
