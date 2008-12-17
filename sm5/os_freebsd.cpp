@@ -44,9 +44,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.69 2008/11/03 17:00:47 dpgilbert Exp $";
+static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.70 2008/12/17 12:30:18 dlukes Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.69 2008/11/03 17:00:47 dpgilbert Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.70 2008/12/17 12:30:18 dlukes Exp $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -387,6 +387,20 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     request.u.ata.lba=0xc24f<<8;
     request.flags=ATA_CMD_CONTROL;
     break;
+  case CHECK_POWER_MODE:
+    request.u.ata.command=ATA_CHECK_POWER_MODE;
+    request.u.ata.feature=0;
+    request.flags=ATA_CMD_CONTROL;
+    break;
+  case WRITE_LOG:
+    memcpy(buff, data, 512);
+    request.u.ata.feature=ATA_SMART_WRITE_LOG_SECTOR;
+    request.u.ata.lba=select|(0xc24f<<8);
+    request.u.ata.count=1;
+    request.flags=ATA_CMD_WRITE;
+    request.data=(char *)buff;
+    request.count=512;
+    break;
   default:
     pout("Unrecognized command %d in ata_command_interface()\n"
          "Please contact " PACKAGE_BUGREPORT "\n", command);
@@ -444,6 +458,10 @@ int ata_command_interface(int fd, smart_command_set command, int select, char *d
     return -1;
   }
   // 
+  if (command == CHECK_POWER_MODE) {
+    data[0] = request.u.ata.count & 0xff;
+    return 0;
+  }
   if (copydata)
     memcpy(data, buff, 512);
   
