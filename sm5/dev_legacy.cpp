@@ -24,7 +24,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp,v 1.1 2008/07/25 21:16:00 chrfranke Exp $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp,v 1.2 2008/12/18 03:40:05 dlukes Exp $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -518,7 +518,7 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp,v 1.1 2008/07/25 21:16:00 chrfranke Exp $";
+  static const char version[] = "$Id: dev_legacy.cpp,v 1.2 2008/12/18 03:40:05 dlukes Exp $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
@@ -554,6 +554,8 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   // Add to devlist
   int i;
+  if (type==NULL)
+    type="";
   for (i = 0; i < numata; i++) {
     ata_device * atadev = get_ata_device(atanames[i], type);
     if (atadev)
