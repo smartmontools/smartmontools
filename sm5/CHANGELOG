@@ -1,41 +1,41 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.755 2008/12/17 12:30:18 dlukes Exp $
+$Id: CHANGELOG,v 1.756 2008/12/18 11:23:39 ballen4705 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
 
-Maintainers / Developers Key:
-[BA] Bruce Allen
-[OB] Oliver Bock
-[EB] Erik Inge Bolsø
-[SB] Stanislav Brabec
-[PC] Peter Cassidy
-[MC] Matthieu Castet
-[YD] Yuri Dario
-[CD] Casper Dik
-[CF] Christian Franke
-[GF] Guilhem Frézou
-[DG] Douglas Gilbert
-[GG] Guido Guenther
-[GK] Geoff Keating
-[DK] Dr. David Kirkby
-[JH] Joerg Hering
-[KM] Kai Mäkisara
-[EM] Eduard Martinescu
-[FM] Frédéric L. W. Meunier
-[AR] Adam Radford
-[MS] Manfred Schwarb
-[KS] Keiji Sawada
-[TS] Tomas Smetana
-[DS] David Snyder
-[SS] Sergey Svishchev
-[PW] Phil Williams
-[LW] Leon Woestenberg
-[RZ] Richard Zybert
-[SZ] Sf Zhou
+Maintainers / Developers Key (alphabetic order):
+[BA]  Bruce Allen
+[OB]  Oliver Bock
+[EB]  Erik Inge Bolsø
+[SB]  Stanislav Brabec
+[PC]  Peter Cassidy
+[MC]  Matthieu Castet
+[YD]  Yuri Dario
+[CD]  Casper Dik
+[CF]  Christian Franke
+[GF]  Guilhem Frézou
+[DG]  Douglas Gilbert
+[GG]  Guido Guenther
 [JPH] Jordan Powell Hargrave
-[DL] Dan Lukes
+[GK]  Geoff Keating
+[DK]  Dr. David Kirkby
+[JH]  Joerg Hering
+[DL]  Dan Lukes
+[KM]  Kai Mäkisara
+[EM]  Eduard Martinescu
+[FM]  Frédéric L. W. Meunier
+[AR]  Adam Radford
+[KS]  Keiji Sawada
+[MS]  Manfred Schwarb
+[TS]  Tomas Smetana
+[DS]  David Snyder
+[SS]  Sergey Svishchev
+[PW]  Phil Williams
+[LW]  Leon Woestenberg
+[SZ]  Sf Zhou
+[RZ]  Richard Zybert
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
