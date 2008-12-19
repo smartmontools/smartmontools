@@ -46,9 +46,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp,v 1.71 2008/12/19 13:36:17 dlukes Exp $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp,v 1.72 2008/12/19 15:49:38 dlukes Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.71 2008/12/19 13:36:17 dlukes Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.72 2008/12/19 15:49:38 dlukes Exp $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -883,6 +883,10 @@ static int get_tw_channel_unit (const char* name, int* unit, int* dev) {
 }
 
 
+#ifndef ATA_DEVICE
+#define ATA_DEVICE "/dev/ata"
+#endif
+
 #ifndef IOCATAREQUEST
 static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 #ifndef ATAREQUEST
@@ -898,7 +902,7 @@ return 0;
   
   bzero(&iocmd, sizeof(struct ata_cmd));
 
-  if ((fd = open("/dev/ata", O_RDWR)) < 0)
+  if ((fd = open(ATA_DEVICE, O_RDWR)) < 0)
     return -errno;
   
   iocmd.cmd = ATAGMAXCHANNEL;
@@ -936,7 +940,7 @@ return 0;
 // Guess device type (ata or scsi) based on device name (FreeBSD
 // specific) SCSI device name in FreeBSD can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
-static const char * fbsd_dev_prefix = "/dev/";
+static const char * fbsd_dev_prefix = _PATH_DEV;
 static const char * fbsd_dev_ata_disk_prefix = "ad";
 static const char * fbsd_dev_scsi_disk_plus = "da";
 static const char * fbsd_dev_scsi_pass = "pass";
@@ -1215,10 +1219,6 @@ end:
     errno=serrno;
   return(n);
 }
-
-#ifndef ATA_DEVICE
-#define ATA_DEVICE "/dev/ata"
-#endif
 
 // we are using ATA subsystem enumerator to found all ATA devices on system
 // despite of it's names
