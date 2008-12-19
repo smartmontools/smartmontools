@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.19 2008/09/29 19:13:49 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.20 2008/12/19 13:49:51 dlukes Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -836,6 +836,11 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
       delete atadev;
     }
 
+/* The new usbcypress_device(this, scsidev, "", 0x24) sends vendor specific comand to non-cypress devices.
+ * It's dangerous as other device may interpret such command as own valid vendor specific command.
+ * I commented it out untill problem resolved
+ */
+#if 0
     // USB ?
     {
       atadev = new usbcypress_device(this, scsidev, "", 0x24);
@@ -846,6 +851,7 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
       atadev->release(scsidev);
       delete atadev;
     }
+#endif
   }
   catch (...) {
     if (atadev) {
