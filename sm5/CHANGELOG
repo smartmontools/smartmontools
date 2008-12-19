@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.756 2008/12/18 11:23:39 ballen4705 Exp $
+$Id: CHANGELOG,v 1.757 2008/12/19 14:11:30 dlukes Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -19,9 +19,9 @@ Maintainers / Developers Key (alphabetic order):
 [DG]  Douglas Gilbert
 [GG]  Guido Guenther
 [JPH] Jordan Powell Hargrave
+[JH]  Joerg Hering
 [GK]  Geoff Keating
 [DK]  Dr. David Kirkby
-[JH]  Joerg Hering
 [DL]  Dan Lukes
 [KM]  Kai Mäkisara
 [EM]  Eduard Martinescu
