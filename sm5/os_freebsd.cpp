@@ -22,6 +22,7 @@
 #include <err.h>
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
+#include <cam/scsi/scsi_pass.h>
 #if defined(__DragonFly__)
 #include <sys/nata.h>
 #else
@@ -33,6 +34,7 @@
 #include <glob.h>
 #include <fcntl.h>
 #include <stddef.h>
+#include <paths.h>
 
 
 #include "config.h"
@@ -44,9 +46,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static const char *filenameandversion="$Id: os_freebsd.cpp,v 1.70 2008/12/17 12:30:18 dlukes Exp $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp,v 1.71 2008/12/19 13:36:17 dlukes Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.70 2008/12/17 12:30:18 dlukes Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.71 2008/12/19 13:36:17 dlukes Exp $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -1051,98 +1053,260 @@ int guess_device_type (const char* dev_name) {
 // global variable holding byte count of allocated memory
 extern long long bytes;
 
-// we are going to take advantage of the fact that FreeBSD's devfs will only
-// have device entries for devices that exist.  So if we get the equivilent of
-// ls /dev/ad?, we have all the ATA devices on the system
+// we are using CAM subsystem XPT enumerator to found all SCSI devices on system
+// despite of it's names
+//
+// If any errors occur, leave errno set as it was returned by the
+// system call, and return <0.
+//
+// Return values:
+// -1:   error
+// >=0: number of discovered devices
+
+int get_dev_names_scsi(char*** names) {
+  int n = 0;
+  char** mp = NULL;
+  unsigned int i;
+  union ccb ccb;
+  int bufsize, fd = -1;
+  int skip_device = 0, skip_bus = 0, changed = 0;
+  char *devname = NULL;
+  int serrno=-1;
+
+  // in case of non-clean exit
+  *names=NULL;
+  ccb.cdm.matches = NULL;
+
+  if ((fd = open(XPT_DEVICE, O_RDWR)) == -1) {
+    if (errno == ENOENT) /* There are no CAM device on this computer */
+      return 0;
+    serrno = errno;
+    pout("%s control device couldn't opened: %s\n", XPT_DEVICE, strerror(errno));
+    n = -1;
+    goto end;
+  }
+
+  // allocate space for up to MAX_NUM_DEV number of ATA devices
+  mp =  (char **)calloc(MAX_NUM_DEV, sizeof(char*));
+  if (mp == NULL) {
+    serrno=errno;
+    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    n = -1;
+    goto end;
+  };
+
+  bzero(&ccb, sizeof(union ccb));
+
+  ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
+  ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
+  ccb.ccb_h.target_lun = CAM_LUN_WILDCARD;
+
+  ccb.ccb_h.func_code = XPT_DEV_MATCH;
+  bufsize = sizeof(struct dev_match_result) * MAX_NUM_DEV;
+  ccb.cdm.match_buf_len = bufsize;
+  ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
+  if (ccb.cdm.matches == NULL) {
+	serrno = errno;
+	pout("can't malloc memory for matches on line %d\n", __LINE__);
+	n = -1;
+	goto end;
+  }
+  ccb.cdm.num_matches = 0;
+
+  ccb.cdm.num_patterns = 0;
+  ccb.cdm.pattern_buf_len = 0;
+
+  /*
+   * We do the ioctl multiple times if necessary, in case there are
+   * more than MAX_NUM_DEV nodes in the EDT.
+   */
+  do {
+    if (ioctl(fd, CAMIOCOMMAND, &ccb) == -1) {
+      serrno = errno;
+      pout("error sending CAMIOCOMMAND ioctl: %s\n", strerror(errno));
+      n = -1;
+      break;
+    }
+
+    if ((ccb.ccb_h.status != CAM_REQ_CMP)
+     || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
+        && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) {
+      pout("got CAM error %#x, CDM error %d\n", ccb.ccb_h.status, ccb.cdm.status);
+      serrno = ENXIO;
+      n = -1;
+      goto end;
+    }
+
+    for (i = 0; i < ccb.cdm.num_matches && n < MAX_NUM_DEV; i++) {
+      struct bus_match_result *bus_result;
+      struct device_match_result *dev_result;
+      struct periph_match_result *periph_result;
+
+      if (ccb.cdm.matches[i].type == DEV_MATCH_BUS) {
+        bus_result = &ccb.cdm.matches[i].result.bus_result;
+
+        if (strcmp(bus_result->dev_name,"ata") == 0 /* ATAPICAM devices will be probed as ATA devices, skip'em there */
+         || strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
+          skip_bus = 1;
+        else
+          skip_bus = 0;
+        changed = 1;
+      } else if (ccb.cdm.matches[i].type == DEV_MATCH_DEVICE) {
+        dev_result = &ccb.cdm.matches[i].result.device_result;
+
+        if (dev_result->flags & DEV_RESULT_UNCONFIGURED || skip_bus == 1)
+          skip_device = 1;
+        else
+          skip_device = 0;
+
+//        /* Shall we skip non T_DIRECT devices ? */
+//        if (dev_result->inq_data.device != T_DIRECT)
+//          skip_device = 1;
+        changed = 1;
+      } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && skip_device == 0) { 
+        /* One device may be populated as many peripherals (pass0 & da 0 fo rexample). 
+         * We are searching for latest name
+        */
+        periph_result =  &ccb.cdm.matches[i].result.periph_result;
+        free(devname);
+        asprintf(&devname, "%s%s%d", _PATH_DEV, periph_result->periph_name, periph_result->unit_number);
+        if (devname == NULL) {
+          serrno=errno;
+          pout("Out of memory constructing scan SCSI device list (on line %d)\n", __LINE__);
+          n = -1;
+          goto end;
+        };
+        changed = 0;
+      };
+      
+      if (changed == 1 && devname != NULL) {
+        mp[n] = devname;
+        devname = NULL;
+        bytes+=1+strlen(mp[n]);
+        n++;
+        changed = 0;
+      };
+    }
+
+  } while ((ccb.ccb_h.status == CAM_REQ_CMP) && (ccb.cdm.status == CAM_DEV_MATCH_MORE) && n < MAX_NUM_DEV);
+
+  if (devname != NULL) {
+    mp[n] = devname;
+    devname = NULL;
+    bytes+=1+strlen(mp[n]);
+    n++;
+  };
+
+  mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
+  bytes += (n)*(sizeof(char*)); // and set allocated byte count
+
+end:
+  free(ccb.cdm.matches);
+  if (fd>-1)
+    close(fd);
+  if (n <= 0) {
+    free(mp);
+    mp = NULL;
+  }
+
+  *names=mp;
+
+  if (serrno>-1)
+    errno=serrno;
+  return(n);
+}
+
+#ifndef ATA_DEVICE
+#define ATA_DEVICE "/dev/ata"
+#endif
+
+// we are using ATA subsystem enumerator to found all ATA devices on system
+// despite of it's names
 //
 // If any errors occur, leave errno set as it was returned by the
 // system call, and return <0.
 
 // Return values:
-// -1 out of memory
-// -2 to -5 errors in glob
+// -1:   error
+// >=0: number of discovered devices
+int get_dev_names_ata(char*** names) {
+  struct ata_ioc_devices devices;
+  int fd=-1,maxchannel,serrno=-1,n=0;
+  char **mp = NULL;
 
-int get_dev_names(char*** names, const char* prefix) {
-  int n = 0;
-  char** mp;
-  int retglob,lim;
-  glob_t globbuf;
-  int i;
-  char pattern1[128],pattern2[128];
-
-  bzero(&globbuf,sizeof(globbuf));
-  // in case of non-clean exit
   *names=NULL;
 
-  // handle 0-99 possible devices, will still be limited by MAX_NUM_DEV
-  sprintf(pattern1,"/dev/%s[0-9]",prefix);
-  sprintf(pattern2,"/dev/%s[0-9][0-9]",prefix);
+  if ((fd = open(ATA_DEVICE, O_RDWR)) < 0) {
+    if (errno == ENOENT) /* There are no ATA device on this computer */
+      return 0;
+    serrno = errno;
+    pout("%s control device can't be opened: %s\n", ATA_DEVICE, strerror(errno));
+    n = -1;
+    goto end;
+  };
   
-  // Use glob to look for any directory entries matching the patterns
-  // first call inits with first pattern match, second call appends
-  // to first list. GLOB_NOCHECK results in no error if no more matches 
-  // found, however it does append the actual pattern to the list of 
-  // paths....
-  if ((retglob=glob(pattern1, GLOB_ERR|GLOB_NOCHECK, NULL, &globbuf)) ||
-      (retglob=glob(pattern2, GLOB_ERR|GLOB_APPEND|GLOB_NOCHECK,NULL,&globbuf))) {
-     int retval = -1;
-    // glob failed
-    if (retglob==GLOB_NOSPACE)
-      pout("glob(3) ran out of memory matching patterns (%s),(%s)\n",
-           pattern1, pattern2);
-    else if (retglob==GLOB_ABORTED)
-      pout("glob(3) aborted matching patterns (%s),(%s)\n",
-           pattern1, pattern2);
-    else if (retglob==GLOB_NOMATCH) {
-      pout("glob(3) found no matches for patterns (%s),(%s)\n",
-           pattern1, pattern2);
-      retval = 0;
-    }
-    else if (retglob)
-      pout("Unexplained error in glob(3) of patterns (%s),(%s)\n",
-           pattern1, pattern2);
+  if (ioctl(fd, IOCATAGMAXCHANNEL, &maxchannel) < 0) {
+    serrno = errno;
+    pout("ioctl(IOCATAGMAXCHANNEL) on /dev/ata failed: %s\n", strerror(errno));
+    n = -1;
+    goto end;
+  };
+
+  // allocate space for up to MAX_NUM_DEV number of ATA devices
+  mp =  (char **)calloc(MAX_NUM_DEV, sizeof(char*));
+  if (mp == NULL) {
+    serrno=errno;
+    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    n = -1;
+    goto end;
+  };
+
+  for (devices.channel = 0; devices.channel < maxchannel && n < MAX_NUM_DEV; devices.channel++) {
+    int j;
     
-    //  Free memory and return
-    globfree(&globbuf);
-
-    return retval;
-  }
-
-  // did we find too many paths?
-  lim = globbuf.gl_pathc < MAX_NUM_DEV ? globbuf.gl_pathc : MAX_NUM_DEV;
-  if (lim < globbuf.gl_pathc)
-    pout("glob(3) found %d > MAX=%d devices matching patterns (%s),(%s): ignoring %d paths\n", 
-         globbuf.gl_pathc, MAX_NUM_DEV, pattern1,pattern2,
-         globbuf.gl_pathc-MAX_NUM_DEV);
-  
-  // allocate space for up to lim number of ATA devices
-  if (!(mp =  (char **)calloc(lim, sizeof(char*)))){
-    pout("Out of memory constructing scan device list\n");
-    return -1;
-  }
-
-  // now step through the list returned by glob.  No link checking needed
-  // in FreeBSD
-  for (i=0; i<globbuf.gl_pathc; i++){
-    // because of the NO_CHECK in calls to glob,
-    // the pattern itself will be added to path list..
-    // so ignore any paths that have the ']' from pattern
-    if (strchr(globbuf.gl_pathv[i],']') == NULL)
-      mp[n++] = CustomStrDup(globbuf.gl_pathv[i], 1, __LINE__, filenameandversion);
-  }
-
-  globfree(&globbuf);
-  mp = (char **)realloc(mp,n*(sizeof(char*))); // shrink to correct size
+    if (ioctl(fd, IOCATADEVICES, &devices) < 0) {
+      if (errno == ENXIO)
+        continue; /* such channel not exist */
+      pout("ioctl(IOCATADEVICES) on %s channel %d failed: %s\n", ATA_DEVICE, devices.channel, strerror(errno));
+      n = -1;
+      goto end;
+    };
+    for (j=0;j<=1 && n<MAX_NUM_DEV;j++) {
+      if (devices.name[j][0] != '\0') {
+        asprintf(mp+n, "%s%s", _PATH_DEV, devices.name[j]);
+        if (mp[n] == NULL) {
+          pout("Out of memory constructing scan ATA device list (on line %d)\n", __LINE__);
+          n = -1;
+          goto end;
+        };
+        bytes+=1+strlen(mp[n]);
+        n++;
+      };
+    };
+  };  
+  mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
+      
+end:
+  if (fd>=0)
+    close(fd);
+  if (n <= 0) {
+    free(mp);
+    mp = NULL;
+  }
+
   *names=mp;
+
+  if (serrno>-1)
+    errno=serrno;
   return n;
 }
 
 int make_device_names (char*** devlist, const char* name) {
   if (!strcmp(name,"SCSI"))
-    return get_dev_names(devlist,"da");
+    return get_dev_names_scsi(devlist);
   else if (!strcmp(name,"ATA"))
-    return get_dev_names(devlist,"ad");
+    return get_dev_names_ata(devlist);
   else
     return 0;
 }
