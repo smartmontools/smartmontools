@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.189 2008/12/10 22:09:34 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.190 2008/12/26 22:12:48 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -61,6 +61,10 @@ ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID 
 
 static const drive_settings builtin_knowndrives[] = {
 // BEGIN drivedb.h (DO NOT DELETE - used by Makefile)
+  { "Apple SSD SM128",
+    "APPLE SSD SM128",
+    "", "", ""
+  },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
     "", "", ""
@@ -828,6 +832,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate U Series X family",
     "ST3(10014A(CE)?|20014A)",
+    "", "", ""
+  },
+  { "Seagate U8 family",
+    "ST3(4313|6811|8410|13021|17221)A",
     "", "", ""
   },
   { "Seagate U7 family",
