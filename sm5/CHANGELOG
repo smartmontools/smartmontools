@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.757 2008/12/19 14:11:30 dlukes Exp $
+$Id: CHANGELOG,v 1.758 2008/12/26 22:12:48 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added Apple SSD
+       - Added Seagate U8 family
 
   [DL] os_freebsd.cpp:
        Added support for CHECK_POWER_MODE and WRITE_LOG commands
