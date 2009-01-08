@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.758 2008/12/26 22:12:48 manfred99 Exp $
+$Id: CHANGELOG,v 1.759 2009/01/08 22:05:38 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,13 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] Accept half healthy (and half unhealthy) indication from the
+       SMART RETURN STATUS. This makes allowance for SAT implementations
+       (e.g. via USB) that truncate the SCSI sense buffer to 18 bytes.
+       This truncation causes the SMART RETURN STATUS indication to be
+       half health or unhealthy. If the half indication is used, then
+       warn if '-r ioctl' is given.
 
   [MS] knowndrives.cpp updates:
        - Added Apple SSD
