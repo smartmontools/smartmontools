@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.209 2008/10/24 21:43:12 manfred99 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.210 2009/01/08 22:05:38 dpgilbert Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -47,6 +47,13 @@ extern smartmonctrl *con;
 
 #define SMART_CYL_LOW  0x4F
 #define SMART_CYL_HI   0xC2
+
+// SMART RETURN STATUS yields SMART_CYL_HI,SMART_CYL_LOW to indicate drive
+// is healthy and SRET_STATUS_HI_EXCEEDED,SRET_STATUS_MID_EXCEEDED to
+// indicate that a threshhold exceeded condition has been detected.
+// Those values (byte pairs) are placed in ATA register "LBA 23:8".
+#define SRET_STATUS_HI_EXCEEDED 0x2C
+#define SRET_STATUS_MID_EXCEEDED 0xF4
 
 // These Drive Identity tables are taken from hdparm 5.2, and are also
 // given in the ATA/ATAPI specs for the IDENTIFY DEVICE command.  Note
@@ -629,12 +636,24 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         break;
       case STATUS_CHECK:
         // Cyl low and Cyl high unchanged means "Good SMART status"
-        if (out.out_regs.lba_high == SMART_CYL_HI && out.out_regs.lba_mid == SMART_CYL_LOW)
+        if ((out.out_regs.lba_high == SMART_CYL_HI) &&
+            (out.out_regs.lba_mid == SMART_CYL_LOW))
           retval = 0;
         // These values mean "Bad SMART status"
-        else if (out.out_regs.lba_high == 0x2c && out.out_regs.lba_mid == 0xf4)
+        else if ((out.out_regs.lba_high == SRET_STATUS_HI_EXCEEDED) &&
+                 (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED))
           retval = 1;
-        else {
+        else if (out.out_regs.lba_mid == SMART_CYL_LOW) {
+          retval = 0;
+          if (con->reportataioctl)
+            pout("SMART STATUS RETURN: half healthy response sequence, "
+                 "probable SAT/USB truncation\n");
+          } else if (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED) {
+          retval = 1;
+          if (con->reportataioctl)
+            pout("SMART STATUS RETURN: half unhealthy response sequence, "
+                 "probable SAT/USB truncation\n");
+        } else {
           // We haven't gotten output that makes sense; print out some debugging info
           pout("Error SMART Status command failed\n"
                "Please get assistance from %s\n", PACKAGE_HOMEPAGE);
