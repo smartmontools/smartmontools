@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools - Supported RAID-Controllers $Date: 2009/01/08 20:11:23 $)</title>
+ <title>smartmontools - Supported RAID-Controllers $Date: 2009/01/10 19:51:30 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools - List of supported RAID-Controllers" />
@@ -14,7 +14,7 @@
  <link rel="stylesheet" type="text/css" href="../css/style.css" />
 </head>
 <body>
-<!-- $Id: raid-controller_support.html,v 1.1 2009/01/08 20:11:23 dipohl Exp $ -->
+<!-- $Id: raid-controller_support.html,v 1.2 2009/01/10 19:51:30 chrfranke Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="../smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools - Supported RAID-Controllers</h1>
@@ -52,7 +52,7 @@
 		<td><tt>3ware SATA RAID controller</tt></td>
 		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
 		<td align="center" bgcolor="AntiqueWhite"><tt>Yes</tt></td> <!-- FreeBSD -->
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- MS-Windows -->
+		<td align="center" bgcolor="Azure"><tt>Yes (1)</tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
 		<td><tt>Areca SATA RAID controller</tt></td>
@@ -61,14 +61,32 @@
 		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
-		<td><tt>Highpoint controller</tt></td>
-		<td align="center" bgcolor="Azure"><tt>??</tt</tt></td> <!-- Linux -->
-		<td align="center" bgcolor="AntiqueWhite"><tt>??</tt></td> <!-- FreeBSD -->
-		<td align="center" bgcolor="Azure"><tt>??</tt></td> <!-- MS-Windows -->
+		<td><tt>HighPoint RocketRAID SATA RAID controller</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes</tt</tt></td> <!-- Linux -->
+		<td align="center" bgcolor="AntiqueWhite"><tt>No</tt></td> <!-- FreeBSD -->
+		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
+	</tr>
+	<tr>
+		<td><tt>CCISS (HP/Compaq Smart Array Controller)</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes</tt</tt></td> <!-- Linux -->
+		<td align="center" bgcolor="AntiqueWhite"><tt>Yes</tt></td> <!-- FreeBSD -->
+		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
+	</tr>
+	<tr>
+		<td><tt>LSI MegaRAID SAS RAID controller</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes</tt</tt></td> <!-- Linux -->
+		<td align="center" bgcolor="AntiqueWhite"><tt>No</tt></td> <!-- FreeBSD -->
+		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 
 </table>
 
+</div>
+
+<div>
+<h4>Notes:</h4>
+(1) 3ware 9000 series only, requires Windows driver 9.4.0 or later. For older controllers,
+smartctl and smartd provide limited SMART support through tw_cli tool, see man page.
 </div>
 <hr style="clear:left" />
 <div align="center">
@@ -78,7 +96,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2008 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/01/08 20:11:23 $</font><br />
+Last update: $Date: 2009/01/10 19:51:30 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdocs%2Fraid-controller_support.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
