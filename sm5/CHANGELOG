@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.759 2009/01/08 22:05:38 dpgilbert Exp $
+$Id: CHANGELOG,v 1.760 2009/01/11 13:24:53 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added Western Digital RE3 32MB cache variants
+       - Added WD Caviar Green 32MB cache variant (WD10EADS)
+       - Added WD Scorpio Black family
 
   [DG] Accept half healthy (and half unhealthy) indication from the
        SMART RETURN STATUS. This makes allowance for SAT implementations
