@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.190 2008/12/26 22:12:48 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.191 2009/01/11 13:24:53 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1040,11 +1040,11 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital RE3 Serial ATA family",
-    "WDC WD((25|32|50)02ABYS)-.*",
+    "WDC WD((25|32|50)02A|(75|10)02F)BYS-.*",
     "", "", ""
   },
   { "Western Digital Caviar Green family",
-    "WDC WD((50|64|75)00AA|10EA)CS-.*",
+    "WDC WD(((50|64|75)00AA|10EA)CS|10EADS)-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family",
@@ -1073,6 +1073,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Scorpio Blue Serial ATA family",
     "WDC WD((4|6|8|10|12|16|25)00BEVS|3200BEVT)-.*",
+    "", "", ""
+  },
+  { "Western Digital Scorpio Black Serial ATA family",
+    "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
     "", "", ""
   },
   { "Quantum Bigfoot series",
