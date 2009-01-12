@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.93 2009/01/12 22:55:02 dlukes Exp $
+# $Id: Makefile.am,v 1.94 2009/01/12 23:57:58 dlukes Exp $
 #
 
 @SET_MAKE@
@@ -302,6 +302,7 @@ smartd.conf.5.in: smartd.8.in
 	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5.in
 	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
 
+if INSTALL_INITSCRIPT
 if OS_DARWIN
 initd_DATA = SMART                            \
 	os_darwin/StartupParameters.plist     \
@@ -310,6 +311,7 @@ initd_DATA = SMART                            \
 initd_install_name = SMART
 
 initd_DATA_install = install-initdDATA-darwin
+initd_DATA_uninstall = uninstall-initdDATA-darwin
 
 SMART : os_darwin/SMART.in
 	sed "s|/usr/sbin/|$(sbindir)/|" $< > $@
@@ -335,6 +337,9 @@ install-initdDATA-darwin: $(initd_DATA)
 	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
 	@echo -e "####################################################################\n\n"
 
+uninstall-initdDATA-darwin:
+	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+
 else
 
 initd_DATA = smartd.initd
@@ -345,6 +350,7 @@ smartd.initd: $(srcdir)/smartd.initd.in Makefile
 initd_install_name = smartd$(smartd_suffix)
 
 initd_DATA_install = install-initdDATA-generic
+initd_DATA_uninstall = uninstall-initdDATA-generic
 
 install-initdDATA-generic: $(initd_DATA)
 	$(mkinstalldirs) $(DESTDIR)$(initddir)
@@ -357,12 +363,22 @@ install-initdDATA-generic: $(initd_DATA)
 	@echo -e "#   to learn about it. A sample configuration file can be found in:\n#   ${docdir}\n#"
 	@echo -e "####################################################################\n\n"
 
+
+uninstall-initdDATA-generic:
+	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+endif
+else
+
+initd_DATA_install = install-initdDATA-null
+initd_DATA_uninstall = uninstall-initdDATA-null
+
+install-initdDATA-null:
+uninstall-initdDATA-null:
 endif
 
 install-initdDATA : $(initd_DATA_install)
 
-uninstall-initdDATA:
-	rm -rf $(DESTDIR)$(initddir)/$(initd_install_name)
+uninstall-initdDATA: $(initd_DATA_uninstall)
 
 uninstall-docsDATA:
 	rm -rf $(DESTDIR)$(docsdir)
