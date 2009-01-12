@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.146 2009/01/12 22:55:02 dlukes Exp $
+# $Id: configure.in,v 1.147 2009/01/12 23:57:58 dlukes Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.146 2009/01/12 22:55:02 dlukes Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.147 2009/01/12 23:57:58 dlukes Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -135,6 +135,7 @@ AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 
 AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is ${sysconfdir}/rc.d/init.d)])],[initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
 AC_SUBST(initddir)
+AM_CONDITIONAL(INSTALL_INITSCRIPT, [test "$with_initscriptdir" != "no"])
 
 AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir=dir],[Location of documentation (default is ${prefix}/share/doc/smartmontools-5.X)])],[docdir="$withval"],[docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'])
 AC_SUBST(docdir)
