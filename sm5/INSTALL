@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.82 2008/10/13 19:45:19 chrfranke Exp $
+$Id: INSTALL,v 1.83 2009/01/12 22:55:02 dlukes Exp $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -337,10 +337,6 @@ SuSE:
               --with-initscriptdir=/usr/local/etc/rc.d/                \
               --with-docdir=/usr/local/share/doc/smartmontools-VERSION \
 	      --enable-sample
-
-  Also, it is important that you use GNU make (gmake from /usr/ports/devel/gmake)
-  to build smartmontools, as the default FreeBSD make doesn't know how to build
-  the man pages.
 
   NOTE: --enable-sample will cause the smartd.conf and smartd RC files to
   be installed with the string '.sample' append to the name, so you will end

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.92 2008/10/13 19:45:19 chrfranke Exp $
+# $Id: Makefile.am,v 1.93 2009/01/12 22:55:02 dlukes Exp $
 #
 
 @SET_MAKE@
@@ -379,6 +379,22 @@ else
 MAN_SAVESTATES = sed '/BEGIN ENABLE_SAVESTATES/,/END ENABLE_SAVESTATES/d'
 endif
 
+if OS_FREEBSD
+.for file in $(man_MANS)
+${file}: $(srcdir)/${file}.in Makefile cvsversion.h
+	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g; \
+	     s|CURRENT_CVS_DATE|`sed -n 's,^[^"]*"\([^ ]*\) [^"]*".*$$,\1,p' cvsversion.h`|g; \
+	     s|CURRENT_CVS_TIME|`sed -n 's,^[^"]*"[^ ]* \([^"]*\)".*$$,\1,p' cvsversion.h`|g; \
+	     s|/usr/local/share/man/|$(mandir)/|g; \
+	     s|/usr/local/sbin/|$(sbindir)/|g; \
+	     s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
+	     s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g;  \
+	     s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
+	     s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" ${.ALLSRC:M*.in} | \
+	$(MAN_DRIVEDB) | \
+	$(MAN_SAVESTATES) > $@
+.endfor
+else
 smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
 	sed "s|CURRENT_CVS_DATE|`sed -n 's,^[^"]*"\([^ ]*\) [^"]*".*$$,\1,p' cvsversion.h`|g" | \
@@ -391,7 +407,7 @@ smart%: $(srcdir)/smart%.in Makefile cvsversion.h
 	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
 	$(MAN_DRIVEDB) | \
 	$(MAN_SAVESTATES) > $@
-
+endif
 
 # Commands to convert man pages into .html and .txt
 # TODO: configure
