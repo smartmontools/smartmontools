@@ -82,7 +82,7 @@
 #ifndef OS_FREEBSD_H_
 #define OS_FREEBSD_H_
 
-#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.25 2008/03/29 23:32:11 shattered Exp $\n"
+#define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.26 2009/01/14 02:39:00 sxzzsf Exp $\n"
 
 struct freebsd_dev_channel {
   int   channel;                // the ATA channel to work with
@@ -574,6 +574,56 @@ typedef struct tw_osli_ioctl_with_payload {
 
 #endif
 
+#define HPT_CTL_CODE(x) (x+0xFF00)
+#define HPT_IOCTL_GET_CHANNEL_INFO          HPT_CTL_CODE(3)
+#define HPT_IOCTL_GET_CHANNEL_INFO_V2       HPT_CTL_CODE(53)
+#define HPT_IOCTL_IDE_PASS_THROUGH          HPT_CTL_CODE(24)
+
+#define HPT_READ 1
+#define HPT_WRITE 2
+
+#define HPT_IOCTL_MAGIC   0xA1B2C3D4
+
+#define MAXDEV_PER_CHANNEL 2
+#define PMPORT_PER_CHANNEL 15 /* max devices connected to this channel via pmport */
+
+typedef struct _HPT_CHANNEL_INFO {
+  unsigned int reserve1;
+  unsigned int reserve2;
+  unsigned int devices[MAXDEV_PER_CHANNEL];
+} HPT_CHANNEL_INFO, *PHPT_CHANNEL_INFO;
+
+typedef struct _HPT_CHANNEL_INFO_V2 {
+  unsigned int reserve1;
+  unsigned int reserve2;
+  unsigned int devices[PMPORT_PER_CHANNEL];
+} HPT_CHANNEL_INFO_V2, *PHPT_CHANNEL_INFO_V2;
+
+typedef struct _HPT_IOCTL_PARAM {
+  unsigned int magic;     /* used to check if it's a valid ioctl packet */
+  unsigned int ctrl_code; /* operation control code */
+  void* in;               /* input data buffer */
+  unsigned int in_size;   /* size of input data buffer */
+  void* out;              /* output data buffer */
+  unsigned int out_size;  /* size of output data buffer */
+  void* returned_size;    /* count of chars returned */
+} HPT_IOCTL_PARAM, *PHPT_IOCTL_PARAM;
+#define HPT_DO_IOCONTROL	_IOW('H', 0, HPT_IOCTL_PARAM)
+
+typedef struct _HPT_PASS_THROUGH_HEADER {
+  unsigned int id;          /* disk ID */
+  unsigned char feature;
+  unsigned char sectorcount;
+  unsigned char lbalow;
+  unsigned char lbamid;
+  unsigned char lbahigh;
+  unsigned char driverhead;
+  unsigned char command;
+  unsigned char sectors;    /* data size in sectors, if the command has data transfer */
+  unsigned char protocol;   /* HPT_(READ,WRITE) or zero for non-DATA */
+  unsigned char reserve[3];
+}
+HPT_PASS_THROUGH_HEADER, *PHPT_PASS_THROUGH_HEADER;
 
 #ifndef __unused
 #define __unused __attribute__ ((__unused__))
