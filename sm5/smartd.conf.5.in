@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.97 2008/11/04 19:28:42 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.98 2009/01/14 02:39:00 sxzzsf Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -186,16 +186,25 @@ Section below!
 .B # Three SATA disks on a HighPoint RocketRAID controller.
 .B # Start short self-tests daily between 1-2, 2-3, and
 .B # 3-4 am.
+.B # under Linux
 .B \ \ /dev/sde -d hpt,1/1 -a -s S/../.././01
 .B \ \ /dev/sde -d hpt,1/2 -a -s S/../.././02
 .B \ \ /dev/sde -d hpt,1/3 -a -s S/../.././03
+.B # or under FreeBSD
+.B # /dev/hptrr -d hpt,1/1 -a -s S/../.././01
+.B # /dev/hptrr -d hpt,1/2 -a -s S/../.././02
+.B # /dev/hptrr -d hpt,1/3 -a -s S/../.././03
 .B #
 .nf
 .B # Two SATA disks connected to a HighPoint RocketRAID 
 .B # via a pmport device.  Start long self-tests Sundays
 .B # between midnight and 1am and 2-3 am.
+.B # under Linux
 .B \ \ /dev/sde -d hpt,1/4/1 -a -s L/../../7/00
 .B \ \ /dev/sde -d hpt,1/4/2 -a -s L/../../7/02
+.B # or under FreeBSD
+.B # /dev/hptrr -d hpt,1/4/1 -a -s L/../../7/00
+.B # /dev/hptrr -d hpt,1/4/2 -a -s L/../../7/02
 .B #
 .nf
 .B # Three SATA disks connected to an Areca
@@ -817,11 +826,11 @@ HighPoint RocketRAID controller.
 is set to the device description.  For SMARTD_DEVICETYPE of ata or
 scsi, this is the same as SMARTD_DEVICE.  For 3ware RAID controllers,
 the form used is \'/dev/sdc [3ware_disk_01]\'.  For HighPoint
-RocketRAID controller, the form is \'/dev/sdd [hpt_1/1/1]\'.  For
-Areca controllers, the form is \'/dev/sg2 [areca_disk_09]\'.  In these
-cases the device string contains a space and is NOT quoted.  So to use
-$SMARTD_DEVICESTRING in a bash script you should probably enclose it
-in double quotes.
+RocketRAID controller, the form is \'/dev/sdd [hpt_1/1/1]\' under Linux
+or \'/dev/hptrr [hpt_1/1/1]\' under FreeBSD.  For Areca controllers, the
+form is \'/dev/sg2 [areca_disk_09]\'.  In these cases the device string
+contains a space and is NOT quoted.  So to use $SMARTD_DEVICESTRING in a
+bash script you should probably enclose it in double quotes.
 .IP \fBSMARTD_FAILTYPE\fP 4
 gives the reason for the warning or message email.  The possible values that
 it takes and their meanings are:
@@ -1442,4 +1451,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.97 2008/11/04 19:28:42 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.98 2009/01/14 02:39:00 sxzzsf Exp $

@@ -46,9 +46,9 @@
 #include "extern.h"
 #include "os_freebsd.h"
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp,v 1.72 2008/12/19 15:49:38 dlukes Exp $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp,v 1.73 2009/01/14 02:39:00 sxzzsf Exp $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.72 2008/12/19 15:49:38 dlukes Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp,v 1.73 2009/01/14 02:39:00 sxzzsf Exp $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -164,6 +164,15 @@ int deviceopen (const char* dev, __unused char* mode) {
     }
   }
 
+  if (parse_ok == CONTROLLER_HPT) {
+    if ((fdchan->device = open(dev,O_RDWR))<0) {
+      int myerror = errno;	// preserve across free call
+      free(fdchan);
+      errno = myerror;
+      return -1;
+    }
+  }
+
   if (parse_ok == CONTROLLER_CCISS) {
     if ((fdchan->device = open(dev,O_RDWR))<0) {
       int myerror = errno;	// preserve across free call
@@ -266,8 +275,158 @@ int marvell_command_interface(__unused int fd, __unused smart_command_set comman
   return -1;
 }
 
-int highpoint_command_interface(__unused int fd, __unused smart_command_set command, __unused int select, __unused char *data) {
-  return -1;
+int highpoint_command_interface(int fd, smart_command_set command, int select, char *data) {
+  int ids[2];
+  struct freebsd_dev_channel* fbcon;
+  HPT_IOCTL_PARAM param;
+  HPT_CHANNEL_INFO_V2 info;
+  unsigned char* buff[512 + 2 * sizeof(HPT_PASS_THROUGH_HEADER)];
+  PHPT_PASS_THROUGH_HEADER pide_pt_hdr, pide_pt_hdr_out;
+
+  // check that "file descriptor" is valid
+  if (isnotopen(&fd, &fbcon))
+      return -1;
+
+  // get internal deviceid
+  ids[0] = con->hpt_data[0] - 1;
+  ids[1] = con->hpt_data[1] - 1;
+
+  memset(&param, 0, sizeof(HPT_IOCTL_PARAM));
+
+  param.magic = HPT_IOCTL_MAGIC;
+  param.ctrl_code = HPT_IOCTL_GET_CHANNEL_INFO_V2;
+  param.in = (unsigned char *)ids;
+  param.in_size = sizeof(unsigned int) * 2;
+  param.out = (unsigned char *)&info;
+  param.out_size = sizeof(HPT_CHANNEL_INFO_V2);
+
+  if (con->hpt_data[2]==1) {
+    param.ctrl_code = HPT_IOCTL_GET_CHANNEL_INFO;
+    param.out_size = sizeof(HPT_CHANNEL_INFO);
+  }
+  if (ioctl(fbcon->device, HPT_DO_IOCONTROL, &param)!=0 ||
+      info.devices[con->hpt_data[2]-1]==0) {
+    return -1;
+  }
+
+  // perform smart action
+  memset(buff, 0, 512 + 2 * sizeof(HPT_PASS_THROUGH_HEADER));
+  pide_pt_hdr = (PHPT_PASS_THROUGH_HEADER)buff;
+
+  pide_pt_hdr->lbamid = 0x4f;
+  pide_pt_hdr->lbahigh = 0xc2;
+  pide_pt_hdr->command = ATA_SMART_CMD;
+  pide_pt_hdr->id = info.devices[con->hpt_data[2] - 1];
+
+  switch (command){
+  case READ_VALUES:
+    pide_pt_hdr->feature=ATA_SMART_READ_VALUES;
+    pide_pt_hdr->protocol=HPT_READ;
+    break;
+  case READ_THRESHOLDS:
+    pide_pt_hdr->feature=ATA_SMART_READ_THRESHOLDS;
+    pide_pt_hdr->protocol=HPT_READ;
+    break;
+  case READ_LOG:
+    pide_pt_hdr->feature=ATA_SMART_READ_LOG_SECTOR;
+    pide_pt_hdr->lbalow=select;
+    pide_pt_hdr->protocol=HPT_READ;
+    break;
+  case IDENTIFY:
+    pide_pt_hdr->command=ATA_IDENTIFY_DEVICE;
+    pide_pt_hdr->protocol=HPT_READ;
+    break;
+  case ENABLE:
+    pide_pt_hdr->feature=ATA_SMART_ENABLE;
+    break;
+  case DISABLE:
+    pide_pt_hdr->feature=ATA_SMART_DISABLE;
+    break;
+  case AUTO_OFFLINE:
+    pide_pt_hdr->feature=ATA_SMART_AUTO_OFFLINE;
+    pide_pt_hdr->sectorcount=select;
+    break;
+  case AUTOSAVE:
+    pide_pt_hdr->feature=ATA_SMART_AUTOSAVE;
+    pide_pt_hdr->sectorcount=select;
+    break;
+  case IMMEDIATE_OFFLINE:
+    pide_pt_hdr->feature=ATA_SMART_IMMEDIATE_OFFLINE;
+    pide_pt_hdr->lbalow=select;
+    break;
+  case STATUS_CHECK:
+  case STATUS:
+    pide_pt_hdr->feature=ATA_SMART_STATUS;
+    break;
+  case CHECK_POWER_MODE:
+    pide_pt_hdr->command=ATA_CHECK_POWER_MODE;
+    break;
+  case WRITE_LOG:
+    memcpy(buff+sizeof(HPT_PASS_THROUGH_HEADER), data, 512);
+    pide_pt_hdr->feature=ATA_SMART_WRITE_LOG_SECTOR;
+    pide_pt_hdr->lbalow=select;
+    pide_pt_hdr->protocol=HPT_WRITE;
+    break;
+  default:
+    pout("Unrecognized command %d in highpoint_command_interface()\n"
+         "Please contact " PACKAGE_BUGREPORT "\n", command);
+    errno=ENOSYS;
+    return -1;
+  }
+  if (pide_pt_hdr->protocol!=0) {
+    pide_pt_hdr->sectors = 1;
+    pide_pt_hdr->sectorcount = 1;
+  }
+
+  memset(&param, 0, sizeof(HPT_IOCTL_PARAM));
+
+  param.magic = HPT_IOCTL_MAGIC;
+  param.ctrl_code = HPT_IOCTL_IDE_PASS_THROUGH;
+  param.in = (unsigned char *)buff;
+  param.in_size = sizeof(HPT_PASS_THROUGH_HEADER) + (pide_pt_hdr->protocol==HPT_READ ? 0 : pide_pt_hdr->sectors * 512);
+  param.out = (unsigned char *)buff+param.in_size;
+  param.out_size = sizeof(HPT_PASS_THROUGH_HEADER) + (pide_pt_hdr->protocol==HPT_READ ? pide_pt_hdr->sectors * 512 : 0);
+
+  pide_pt_hdr_out = (PHPT_PASS_THROUGH_HEADER)param.out;
+
+  if ((ioctl(fbcon->device, HPT_DO_IOCONTROL, &param)!=0) ||
+      (pide_pt_hdr_out->command & 1)) {
+    return -1;
+  }
+
+  if (command==STATUS_CHECK){
+    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+    unsigned char low,high;
+
+    high = pide_pt_hdr_out->lbahigh;
+    low = pide_pt_hdr_out->lbamid;
+
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (low==normal_lo && high==normal_hi)
+      return 0;
+
+    // These values mean "Bad SMART status"
+    if (low==failed_lo && high==failed_hi)
+      return 1;
+
+    // We haven't gotten output that makes sense; print out some debugging info
+    char buf[512];
+    sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+            (int)pide_pt_hdr_out->command,
+            (int)pide_pt_hdr_out->feature,
+            (int)pide_pt_hdr_out->sectorcount,
+            (int)pide_pt_hdr_out->lbalow,
+            (int)pide_pt_hdr_out->lbamid,
+            (int)pide_pt_hdr_out->lbahigh,
+            (int)pide_pt_hdr_out->sectors);
+    printwarning(BAD_SMART,buf);
+  }
+  else if (command==CHECK_POWER_MODE)
+    data[0] = pide_pt_hdr_out->sectorcount & 0xff;
+  else if (pide_pt_hdr->protocol==HPT_READ)
+    memcpy(data, (unsigned char *)buff + 2 * sizeof(HPT_PASS_THROUGH_HEADER), pide_pt_hdr->sectors * 512);
+  return 0;
 }
 
 int areca_command_interface(__unused int fd, __unused int disknum, __unused smart_command_set command, __unused int select, __unused char *data) {
@@ -882,6 +1041,17 @@ static int get_tw_channel_unit (const char* name, int* unit, int* dev) {
   return 0;
 }
 
+static int hpt_hba(const char* name) {
+  int i=0;
+  const char *hpt_node[]={"hptmv", "hptmv6", "hptrr", "hptiop", "hptmviop", "hpt32xx", "rr2320",
+                          "rr232x", "rr2310", "rr2310_00", "rr2300", "rr2340", "rr1740", NULL};
+  while (hpt_node[i]) {
+    if (!strncmp(name, hpt_node[i], strlen(hpt_node[i])))
+      return 1;
+    i++;
+  }
+  return 0;
+}
 
 #ifndef ATA_DEVICE
 #define ATA_DEVICE "/dev/ata"
@@ -1030,6 +1200,11 @@ static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel 
     }
     return CONTROLLER_3WARE_678K_CHAR;
   }
+
+  if (hpt_hba(dev_name)) {
+    return CONTROLLER_HPT;
+  }
+
   // form /dev/ciss*
   if (!strncmp(fbsd_dev_cciss, dev_name,
                strlen(fbsd_dev_cciss)))

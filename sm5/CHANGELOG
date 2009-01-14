@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.760 2009/01/11 13:24:53 manfred99 Exp $
+$Id: CHANGELOG,v 1.761 2009/01/14 02:39:00 sxzzsf Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -34,12 +34,15 @@ Maintainers / Developers Key (alphabetic order):
 [SS]  Sergey Svishchev
 [PW]  Phil Williams
 [LW]  Leon Woestenberg
-[SZ]  Sf Zhou
+[SZ]  Shengfeng Zhou
 [RZ]  Richard Zybert
 
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SZ] os_freebsd.cpp, os_freebsd.h updates:
+       Support HighPoint RocketRAID controller under FreeBSD
 
   [MS] knowndrives.cpp updates:
        - Added Western Digital RE3 32MB cache variants
