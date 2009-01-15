@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.203 2008/10/11 14:18:07 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.204 2009/01/15 22:52:50 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -859,15 +859,17 @@ static void ataPrintGeneralSmartValues(const ata_smart_values *data, const ata_i
 // Get # sectors of a log addr, 0 if log does not exist.
 static unsigned GetNumLogSectors(const ata_smart_log_directory * logdir, unsigned logaddr, bool gpl)
 {
-    if (logaddr > 0xff)
-      return 0;
-    if (logaddr == 0)
-      return 1;
-    unsigned n = logdir->entry[logaddr-1].numsectors;
-    if (gpl)
-        // GP logs may have >255 sectors
-        n |= logdir->entry[logaddr-1].reserved << 8;
-    return n;
+  if (!logdir)
+    return 0;
+  if (logaddr > 0xff)
+    return 0;
+  if (logaddr == 0)
+    return 1;
+  unsigned n = logdir->entry[logaddr-1].numsectors;
+  if (gpl)
+    // GP logs may have >255 sectors
+    n |= logdir->entry[logaddr-1].reserved << 8;
+  return n;
 }
 
 // Get name of log.
@@ -932,7 +934,7 @@ static void PrintLogDirectories(const ata_smart_log_directory * gplogdir,
       if (gp_numsect)
         pout("GP %sLog at address 0x%02x has %4d sectors [%s]\n", (smartlogdir?"   ":""),
              i, gp_numsect, name);
-      if (smart_numsect )
+      if (smart_numsect)
         pout("SMART Log at address 0x%02x has %4d sectors [%s]\n", i, smart_numsect, name);
     }
   }
@@ -1780,13 +1782,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (   options.gp_logdir || options.smart_logdir
       || options.sataphy
       || !options.log_requests.empty()            ) {
-    if (!isGeneralPurposeLoggingCapable(&drive)) {
-      pout("Warning: device does not support General Purpose Logging\n");
+
+    bool gpl_cap = !!isGeneralPurposeLoggingCapable(&drive);
+    bool gpl_try = gpl_cap;
+    if (!gpl_try && con->permissive) {
+        con->permissive--;
+        gpl_try = true;
+    }
+
+    if (!gpl_try) {
+      pout("Device does not support General Purpose Loggin (GPL) feature set\n"
+           "(override with '-T permissive' option)\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       PRINT_ON(con);
-      pout("General Purpose Logging supported\n");
+      if (gpl_cap)
+        pout("General Purpose Logging (GPL) feature set supported\n");
 
       // Detect directories needed
       bool need_smart_logdir = options.smart_logdir;
@@ -1839,16 +1851,20 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         unsigned max_nsectors;
         if (req.gpl) {
           type = "General Purpose";
-          max_nsectors = (gplogdir ? GetNumLogSectors(gplogdir, req.logaddr, true) : 0);
+          max_nsectors = GetNumLogSectors(gplogdir, req.logaddr, true);
         }
         else {
           type = "SMART";
-          max_nsectors = (smartlogdir ? GetNumLogSectors(smartlogdir, req.logaddr, false) : 0);
+          max_nsectors = GetNumLogSectors(smartlogdir, req.logaddr, false);
         }
 
         if (!max_nsectors) {
-          pout("%s Log 0x%02x does not exist\n", type, req.logaddr);
-          continue;
+          if (!con->permissive) {
+            pout("%s Log 0x%02x does not exist (override with '-T permissive' option)\n", type, req.logaddr);
+            continue;
+          }
+          con->permissive--;
+          max_nsectors = req.page+1;
         }
         if (max_nsectors <= req.page) {
           pout("%s Log 0x%02x has only %u sectors, output skipped\n", type, req.logaddr, max_nsectors);
