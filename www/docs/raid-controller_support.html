@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools - Supported RAID-Controllers $Date: 2009/01/11 15:04:00 $)</title>
+ <title>smartmontools - Supported RAID-Controllers $Date: 2009/01/16 17:46:52 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools - List of supported RAID-Controllers" />
@@ -14,7 +14,7 @@
  <link rel="stylesheet" type="text/css" href="../css/style.css" />
 </head>
 <body>
-<!-- $Id: raid-controller_support.html,v 1.3 2009/01/11 15:04:00 dipohl Exp $ -->
+<!-- $Id: raid-controller_support.html,v 1.4 2009/01/16 17:46:52 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="../smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools - Supported RAID-Controllers</h1>
@@ -34,12 +34,20 @@
 </div>
 
 <div>
+<h3>Checking disks behind RAID controllers</h3>
 
-<h3><a name="overview"></a>Supported RAID-Controllers</h3>
+<p>RAID controllers typically simulate a (logical) disk for each array of (physical) 
+disks to the OS. Access to SMART functionality relies on ATA or SCSI pass through 
+I/O controls providing direct access to each physical disk. 
+But the standard I/O controls available are usually not designed to make 
+this distinction between logical and physical disks. Therefore, smartmontools 
+has to use vendor specific I/O controls. Support for disks behind RAID 
+controllers is highly dependent on both platform and controller type.</p>
 
 <table border="1" cellpadding="5" cellspacing="2">
 	<tr>
 		<th rowspan="2" bgcolor="Lavender">RAID-Controller</th>
+		<th rowspan="2" bgcolor="Lavender">Directive</th>
 		<th colspan="3" bgcolor="Lavender">Supported in OS</th>
 	</tr>
 	<tr>
@@ -49,43 +57,67 @@
 	</tr>
 	<tr>
 		<td><tt>3ware SATA RAID controller</tt></td>
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
-		<td align="center" bgcolor="AntiqueWhite"><tt>Yes</tt></td> <!-- FreeBSD -->
-		<td align="center" bgcolor="Azure"><tt>Yes (1)</tt></td> <!-- MS-Windows -->
+		<td><tt>-d 3ware,N</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#1">[1]</a></tt></td> <!-- Linux -->
+		<td align="center" bgcolor="AntiqueWhite"><tt>Yes <a href="#2">[2]</a></tt></td> <!-- FreeBSD -->
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#3">[3]</a></tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
 		<td><tt>Areca SATA RAID controller</tt></td>
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
+		<td><tt>-d areca,N</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#4">[4]</a></tt></td> <!-- Linux -->
 		<td align="center" bgcolor="AntiqueWhite"><tt>No</tt></td> <!-- FreeBSD -->
 		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
 		<td><tt>HighPoint RocketRAID SATA RAID controller</tt></td>
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
-		<td align="center" bgcolor="AntiqueWhite"><tt>No</tt></td> <!-- FreeBSD -->
+		<td><tt>-d hpt,L/M/N</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#5">[5]</a></tt></td> <!-- Linux -->
+		<td align="center" bgcolor="AntiqueWhite"><tt>Yes <a href="#6">[6]</a></tt></td> <!-- FreeBSD -->
 		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
 		<td><tt>CCISS (HP/Compaq Smart Array Controller)</tt></td>
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
+		<td><tt>-d cciss,N</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#7">[7]</a></tt></td> <!-- Linux -->
 		<td align="center" bgcolor="AntiqueWhite"><tt>Yes</tt></td> <!-- FreeBSD -->
 		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 	<tr>
 		<td><tt>LSI MegaRAID SAS RAID controller</tt></td>
-		<td align="center" bgcolor="Azure"><tt>Yes</tt></td> <!-- Linux -->
+		<td><tt>-d megaraid,N</tt></td>
+		<td align="center" bgcolor="Azure"><tt>Yes <a href="#8">[8]</a></tt></td> <!-- Linux -->
 		<td align="center" bgcolor="AntiqueWhite"><tt>No</tt></td> <!-- FreeBSD -->
 		<td align="center" bgcolor="Azure"><tt>No</tt></td> <!-- MS-Windows -->
 	</tr>
 
 </table>
 
+<p>See the notes below and the <b><a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a></b>
+file for information about kernel and driver requirements on your platform. Also consult 
+the <a href="../doc.html#man-pages">man pages</a> for controller specific smartmontools options or
+directives.</p>
 </div>
 
 <div>
 <h4>Notes:</h4>
-(1) 3ware 9000 series only, requires Windows driver 9.4.0 or later. For older controllers,
-smartctl and smartd provide limited SMART support through tw_cli tool, see man page.
+<strong><a name="1">1.</a></strong> 3ware RAID controllers are supported on Linux 
+since smartmontools release 5.1-18. Support for char devices /dev/tw* was added in release 5.33.<br />
+<strong><a name="2">2.</a></strong> 3ware support on FreeBSD is available since release 5.33, 
+multiple controller and char device support was added in release 5.36.<br />
+<strong><a name="3">3.</a></strong> 3ware 9000 series only (added in release 5.37), 
+requires Windows driver 9.4.0 or later. For older controllers, smartctl and smartd provide 
+limited SMART support through tw_cli tool, see man page. <br />
+<strong><a name="4">4.</a></strong> Areca support on Linux added at 2008-07-24. Get 
+<strong>current version</strong> from <a href="../download.html#CVSInstall">CVS</a>. 
+The Areca controller must have firmware version 1.46 or later. Earlier versions will 
+not return SMART information but will instead produce (harmless) SCSI error messages.<br />
+<strong><a name="5">5.</a></strong> HighPoint RocketRAID support for Linux was added in release 5.37.<br />
+<strong><a name="6">6.</a></strong> HighPoint RocketRAID support for FreeBSD was added on 2009-01-14. 
+Get <strong>current version</strong> from <a href="../download.html#CVSInstall">CVS</a><br />
+<strong><a name="7">7.</a></strong> CCISS (Compaq Smart Array Controller) support for Linux was added in release 5.37.<br />
+<strong><a name="8">8.</a></strong> Support for LSI MegaRAID controller on Linux was added at 2008-10-03. 
+Get <strong>current version</strong> from <a href="../download.html#CVSInstall">CVS</a><br />
 </div>
 <hr style="clear:left" />
 <div align="center">
@@ -95,7 +127,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2009 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/01/11 15:04:00 $</font><br />
+Last update: $Date: 2009/01/16 17:46:52 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdocs%2Fraid-controller_support.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
