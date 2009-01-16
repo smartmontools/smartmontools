@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools FAQ Page (last updated $Date: 2008/11/04 20:07:39 $)</title>
+ <title>smartmontools FAQ Page (last updated $Date: 2009/01/16 17:46:52 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: faq.html,v 1.8 2008/11/04 20:07:39 chrfranke Exp $ -->
+<!-- $Id: faq.html,v 1.9 2009/01/16 17:46:52 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools FAQ Page</h1>
@@ -78,6 +78,7 @@ mailing list</a>.</p>
 <ul class="Circle">
 	 <li><a href="#testinghelp">Smartmontools for FireWire, USB, and SATA disks/systems</a></li>
 	 <li><a href="#scsi">Smartmontools for SCSI disks and tapes (TapeAlert)</a></li>
+    <li><a href="#FAQ-RAID">Can I monitor disks behind RAID controllers?</a></li>
 </ul>
 <ul class="High">
     <li><a name="sec-database"></a><strong>Smartmontools Database</strong></li>
@@ -105,7 +106,6 @@ with the message "...SMART_GET_VERSION failed". What is going wrong?</a></li>
     <li><a href="#FAQ-win-ioctl">On Windows, <tt>smartctl</tt> prints the
 message: "...Log Read failed: Function not implemented". What is going wrong?</a></li>
     <li><a href="#block-major-65">I found in syslog: '<span class="code">Can't locate module block-major-65</span>'</a></li>
-    <li><a href="#FAQ-RAID">Can I monitor disks behind RAID controllers?</a></li>
     <li><a href="#bios-setting">My computer's BIOS has a SMART enable/disable setting.  What
 does it do, and how should I set it?</a></li>
 </ul>
@@ -460,33 +460,9 @@ discussed on a separate <a href="smartmontools_scsi.html" target="_blank">page</
 <!-- Disks behind RAID-Controllers -->
 <h3><a name="FAQ-RAID"></a>Can I monitor disks behind RAID controllers?</h3>
 
-<p>RAID controllers typically simulate a (logical) disk for each array of
-(physical) disks to the OS.
-Access to SMART functionality relies on ATA or SCSI pass through I/O controls
-providing direct access to each physical disk.
-But the standard I/O controls available are usually not designed to make this
-distinction between logical and physical disks.
-Therefore, smartmontools has to use vendor specific I/O controls.
-Support for disks behind RAID controllers is highly dependent on both platform
-and controller type.</p>
-<ul>
-<li>3ware RAID controllers are supported on Linux since smartmontools release 5.1-18.
-Support for char devices /dev/tw* was added in release 5.33.</li>
-<li>3ware support on FreeBSD is available since release 5.33, multiple controller and
-char device support was added in release 5.36.</li>
-<li><span class="marked">3ware 9000 support for Windows was added 2006-09-27, the corresponding 3ware
-driver 9.4.0 was released 2006-11-01.</span></li>
-<li><span class="marked">HighPoint RocketRAID support for Linux was added 2006-08-25.</span></li>
-<li><span class="marked">CCISS (Compaq Smart Array Controller) support for Linux was added 2006-10-09.</span></li>
-</ul>
-
-<p><span class="marked">The recent additions are included in smartmontools release 5.37.</span></p>
-
-<p>See<b>
-<a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">INSTALL</a>
-</b>file for information about kernel and driver requirements on your platform,
-and the <a href="doc.html#man">man pages</a> for controller specific smartmontools options or
-directives (<tt>-d 3ware,N</tt>, <tt>-d cciss,N</tt>, <tt>-d hpt,L/M/N</tt>).</p>
+<p>Support for disks behind RAID controllers is highly dependent on both platform
+and controller type. See our page about <a href="docs/raid-controller_support.html">smartmontools RAID controller support</a> 
+for the details.</p>
 <hr />
 
 <!-- Windows -->
@@ -760,7 +736,7 @@ Hosted by<br />
  <br />
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2008/11/04 20:07:39 $</font><br />
+Last update: $Date: 2009/01/16 17:46:52 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Ffaq.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
