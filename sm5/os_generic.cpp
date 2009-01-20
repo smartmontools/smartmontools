@@ -5,6 +5,7 @@
  *
  * Copyright (C) YEAR YOUR_NAME <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,9 +71,7 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
-#include "int64.h"
 #include "atacmds.h"
-#include "scsicmds.h"
 #include "utility.h"
 
 // This is to include whatever structures and prototypes you define in
@@ -83,9 +82,8 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.27 2008/06/12 21:46:31 ballen4705 Exp $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_GENERIC_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
+const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.28 2009/01/20 00:31:17 dlukes Exp $" \
+ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
@@ -138,7 +136,7 @@ static void unsupported(){
 // print examples for smartctl.  You should modify this function so
 // that the device paths are sensible for your OS, and to eliminate
 // unsupported commands (eg, 3ware controllers).
-void print_smartctl_examples(){
+static void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n");
 #ifdef HAVE_GETOPT_LONG
   printf(
@@ -165,128 +163,123 @@ void print_smartctl_examples(){
   return;
 }
 
-// tries to guess device type given the name (a path).  See utility.h
-// for return values.
-int guess_device_type (const char* dev_name) {
-  ARGUSED(dev_name);
-  unsupported();
-  return CONTROLLER_UNKNOWN;
-}
+/////////////////////////////////////////////////////////////////////////////
 
-// makes a list of ATA or SCSI devices for the DEVICESCAN directive of
-// smartd.  Returns number N of devices, or -1 if out of
-// memory. Allocates N+1 arrays: one of N pointers (devlist); the
-// other N arrays each contain null-terminated character strings.  In
-// the case N==0, no arrays are allocated because the array of 0
-// pointers has zero length, equivalent to calling malloc(0).
-int make_device_names (char*** devlist, const char* name) {
-  ARGUSED(devlist);
-  ARGUSED(name);
-  unsupported();
-  return 0;
-}
+namespace generic { // No need to publish anything, name provided for Doxygen
 
-// Like open().  Return non-negative integer handle, only used by the
-// functions below.  type=="ATA" or "SCSI".  If you need to store
-// extra information about your devices, create a private internal
-// array within this file (see os_freebsd.cpp for an example).  If you
-// can not open the device (permission denied, does not exist, etc)
-// set errno as open() does and return <0.
-int deviceopen(const char *pathname, char *type){
-  ARGUSED(pathname);
-  ARGUSED(type);
-  unsupported();
-  return -1;
-}
-
-// Like close().  Acts only on integer handles returned by
-// deviceopen() above.
-int deviceclose(int fd){
-  ARGUSED(fd);
-  unsupported();
-  return 0;
-}
-
-// Interface to ATA devices.  See os_linux.cpp for the cannonical example.
-// DETAILED DESCRIPTION OF ARGUMENTS
-//   device: is the integer handle provided by deviceopen()
-//   command: defines the different operations, see atacmds.h
-//   select: additional input data IF NEEDED (which log, which type of
-//           self-test).
-//   data:   location to write output data, IF NEEDED (1 or 512 bytes).
-//   Note: not all commands use all arguments.
-// RETURN VALUES (for all commands BUT command==STATUS_CHECK)
-//  -1 if the command failed
-//   0 if the command succeeded,
-// RETURN VALUES if command==STATUS_CHECK
-//  -1 if the command failed OR the disk SMART status can't be determined
-//   0 if the command succeeded and disk SMART status is "OK"
-//   1 if the command succeeded and disk SMART status is "FAILING"
-int ata_command_interface(int fd, smart_command_set command, int select, char *data){
-  ARGUSED(fd);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-  unsupported();
-  return -1;
-}
-
-int marvell_command_interface(int fd, smart_command_set command, int select, char *data){
-  ARGUSED(fd);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-  unsupported();
-  return -1;
-}
-
-
-int highpoint_command_interface(int fd, smart_command_set command, int select, char *data)
+class generic_smart_interface
+: public /*implements*/ smart_interface
 {
-  ARGUSED(fd);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
-  unsupported();
-  return -1;
+public:
+#ifdef HAVE_GET_OS_VERSION_STR
+  virtual const char * get_os_version_str();
+#endif
+
+  virtual const char * get_app_examples(const char * appname);
+
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+    const char * pattern = 0);
+
+protected:
+  virtual ata_device * get_ata_device(const char * name, const char * type);
+
+  virtual scsi_device * get_scsi_device(const char * name, const char * type);
+
+  virtual smart_device * autodetect_smart_device(const char * name);
+
+  virtual smart_device * get_custom_smart_device(const char * name, const char * type);
+
+  virtual const char * get_valid_custom_dev_types_str();
+};
+
+
+//////////////////////////////////////////////////////////////////////
+
+#ifdef HAVE_GET_OS_VERSION_STR
+/// Return build host and OS version as static string
+const char * generic_smart_interface::get_os_version_str()
+{
+  return ::get_os_version_str();
+}
+#endif
+
+const char * generic_smart_interface::get_app_examples(const char * appname)
+{
+  if (!strcmp(appname, "smartctl"))
+    ::print_smartctl_examples(); // this prints to stdout ...
+  return 0; // ... so don't print again.
 }
 
-// Interface to ATA devices behind 3ware escalade/apache RAID
-// controller cards.  Same description as ata_command_interface()
-// above except that 0 <= disknum <= 15 specifies the ATA disk
-// attached to the controller, and controller_type specifies the
-// precise type of 3ware controller.  See os_linux.c
-int escalade_command_interface(int fd, int disknum, int controller_type, smart_command_set command, int select, char *data){
-  ARGUSED(fd);
-  ARGUSED(disknum);
-  ARGUSED(controller_type);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
+// Return ATA device object for the given device name or NULL
+// the type is always set to "ata"
+ata_device * generic_smart_interface::get_ata_device(const char * name, const char * type)
+{
+  ARGUSED(name);
+  ARGUSED(type);
 
   unsupported();
-  return -1;
+  return NULL;
+}
+
+// Return SCSI device object for the given device name or NULL
+// the type is always set to "scsi"
+scsi_device * generic_smart_interface::get_scsi_device(const char * name, const char * type)
+{
+  ARGUSED(name);
+  ARGUSED(type);
+
+  unsupported();
+  return NULL;
 }
 
 
-int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data){
-  ARGUSED(fd);
-  ARGUSED(disknum);
-  ARGUSED(command);
-  ARGUSED(select);
-  ARGUSED(data);
+// Return device object for the given device name (autodetect the device type)
+smart_device * generic_smart_interface::autodetect_smart_device(const char * name)
+{
+  ARGUSED(name);
 
+  // for the given name return the apropriate device type 
   unsupported();
-  return -1;
+  return NULL;
 }
 
 
-#include <errno.h>
-// Interface to SCSI devices.  See os_linux.c
-int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report) {
-  ARGUSED(fd);
-  ARGUSED(iop);
-  ARGUSED(report);
+// Fill devlist with all OS's disk devices of given type that match the pattern
+bool generic_smart_interface::scan_smart_devices(smart_device_list & devlist,
+  const char * type, const char * pattern /*= 0*/)
+{
+  ARGUSED(devlist);
+  ARGUSED(type);
+  ARGUSED(pattern);
+
   unsupported();
-  return -ENOSYS;
+  return false;
+}
+
+
+// Return device object of the given type with specified name or NULL
+smart_device * generic_smart_interface::get_custom_smart_device(const char * name, const char * type)
+{
+  ARGUSED(name);
+  ARGUSED(type);
+
+  unsupported();
+  return NULL;
+}
+
+const char * generic_smart_interface::get_valid_custom_dev_types_str()
+{
+  return "";
+}
+
+} // namespace
+
+
+/////////////////////////////////////////////////////////////////////////////
+/// Initialize platform interface and register with smi()
+
+void smart_interface::init()
+{
+  static generic::generic_smart_interface the_interface;
+  smart_interface::set(&the_interface);
 }
