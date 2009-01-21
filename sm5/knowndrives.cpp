@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.191 2009/01/11 13:24:53 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.192 2009/01/21 22:33:00 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -659,7 +659,11 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Travelstar 5K160 series",
-    "(Hitachi )?HTS5416([468]0|1[26])J9(AT|SA)00",
+    "(Hitachi |HITACHI )?HTS5416([468]0|1[26])J9(AT|SA)00",
+    "", "", ""
+  },
+  { "Hitachi Travelstar E5K160 series",
+    "(Hitachi )?HTE5416(12|16|60|80)J9(AT|SA)00",
     "", "", ""
   },
   { "Hitachi Travelstar 5K250 series",
@@ -1037,6 +1041,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital RE2 Serial ATA family",
     "WDC WD((40|50|75)00(YR|YS|AYYS)|(16|32|40|50)0[01]ABYS)-.*",
+    "", "", ""
+  },
+  { "Western Digital RE2-GP family",
+    "WDC WD(5000AB|7500AY|1000FY)PS-.*",
     "", "", ""
   },
   { "Western Digital RE3 Serial ATA family",
