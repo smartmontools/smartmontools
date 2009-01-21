@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.762 2009/01/15 22:52:50 chrfranke Exp $
+$Id: CHANGELOG,v 1.763 2009/01/21 22:33:00 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Added Western Digital RE2-GP family
+       - Added Hitachi Travelstar E5K160 family
+       - Allow uppercase variants of Hitachi 5K160 drives
 
   [CF] Fix smartctl crash on '-l directory,[gs]'. Allow to override
        missing GPL feature bit or missing log dir entry with
