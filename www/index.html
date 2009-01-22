@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
- <title>smartmontools Home Page (last updated $Date: 2008/11/09 15:01:26 $)</title> 
+ <title>smartmontools Home Page (last updated $Date: 2009/01/22 15:21:37 $)</title> 
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" /> 
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" /> 
  <meta name="description" content="smartmontools Home Page" /> 
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: index.html,v 1.233 2008/11/09 15:01:26 dipohl Exp $ -->
+<!-- $Id: index.html,v 1.234 2009/01/22 15:21:37 dipohl Exp $ -->
 <div id="header">
  <h1><a id="logo" href="http://smartmontools.sourceforge.net/">
  <img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>    
@@ -35,6 +35,10 @@
  <div class="left-header">
   <h2>News</h2>
   <ul class="High">
+    <li class="marked">Some newer Seagate/Maxtor disks risk a sudden death due to buggy firmware: 7200.11, ES.2, Diamondmax 22.
+    See the <a href="http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931">
+    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Details</a>, 
+    reported by Seagates customer support.</li>
     <li>Thanks to contributor Jordan Hargrave, smartmontools now have support for MegaRAID controllers.
     Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>
     and use <tt>-d megaraid,N</tt> to inspect disk N behind the controller.</li>
@@ -77,7 +81,10 @@
  disks and tape devices. It should run on any modern Darwin (Mac OS X), Linux, FreeBSD, NetBSD, OpenBSD, 
 Solaris, OS/2, Cygwin, QNX, eComStation or <a href="faq.html#windows">Windows</a> system. 
 Smartmontools can also be run from one of many different <a href="faq.html#bootable">bootable 
-CDs or floppies</a>.</p>
+CDs or floppies</a>. Due to OS-specific issues and also depending on the different state of smartmontools 
+development on the platforms, device support ist not the same for all OS platforms. We provide info
+about <a href="docs/raid-controller_support.html">RAID-controller support</a> here on the homepage
+and of course in the <a href="doc.html#man-pages">manpages</a>.</p>
 
  <p>Thanks to Alexander Shaduri, there is also a graphical user interface for <tt>smartctl</tt>
  available. Go to the Homepage of <a href="http://gsmartcontrol.berlios.de/">
@@ -105,7 +112,7 @@ and links to other monitoring resources.</p>
  <img style="border:0;width=:88px;height:31px" src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a> <br /> 
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2002-8 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2008/11/09 15:01:26 $<br /></font>
+Last update: $Date: 2009/01/22 15:21:37 $<br /></font>
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2F">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer">
 <img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
