@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.193 2009/01/27 17:47:15 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.194 2009/01/27 21:12:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -540,8 +540,12 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Maxtor DiamondMax 22",
-    "MAXTOR STM3(320613|500320|750330|1000340)AS?",
-    "", "", ""
+    "(MAXTOR )?STM3(160813|32061[34]|500320|640323|750330|10003(34|40))AS?",
+    "",
+    "There are known problems with these drives,\n"
+    "see the following Seagate web page:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    ""
   },
   { "Maxtor MaXLine Plus II",
     "Maxtor 7Y250[PM]0",
@@ -910,9 +914,22 @@ static const drive_settings builtin_knowndrives[] = {
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.11 family",
-    "ST3(160813|320613|500[368]20|640323|750[36]30|1000(333|[36]40)|1500341)AS?",
-    "", "", ""
+  { "Seagate Barracuda 7200.11 family", // buggy firmware
+    "ST3(500[368]20|640[35]30|750[36]30|1000340)AS?",
+    "(AD14|SD1[5-9])",
+    "There are known problems with these drives,\n"
+    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
+    "see the following Seagate web page:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    ""
+  },
+  { "Seagate Barracuda 7200.11 family", // unknown firmware
+    "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
+    "",
+    "There are known problems with these drives,\n"
+    "see the following Seagate web page:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    ""
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
@@ -920,7 +937,11 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES.2",  // no SAS versions added for now
     "ST3(25031|50032|75033|100034)0NS",
-    "", "", ""
+    "",
+    "There are known problems with these drives,\n"
+    "see the following Seagate web page:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
     "ST3(17240|13030|10231|8420|4310)A",
