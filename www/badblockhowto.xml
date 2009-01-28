@@ -470,6 +470,12 @@ Inode   Pathname
 45192   /S1/R/H/714979488-714985279/H-R-714979984-16.gwf
 debugfs:  quit
 </programlisting>
+Note that the first few steps of this procedure could also be done
+with a single command, which is very helpful if there are many bad
+blocks (thanks to Danie Marais for pointing this out):
+<programlisting>
+debugfs: icheck 3778301 3778302 3778303
+</programlisting>
 </para>
 <para>
 And finally, just to confirm that this is really the damaged file:
@@ -1209,7 +1215,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-CVS $Id: badblockhowto.xml,v 1.5 2008/07/17 18:24:14 chrfranke Exp $
+CVS $Id: badblockhowto.xml,v 1.6 2009/01/28 13:36:00 ballen4705 Exp $
 </para>
 </sect3>
 </sect2>
@@ -1225,7 +1231,7 @@ dummy
 </para>
 
 <para>
-CVS $Id: badblockhowto.xml,v 1.5 2008/07/17 18:24:14 chrfranke Exp $
+CVS $Id: badblockhowto.xml,v 1.6 2009/01/28 13:36:00 ballen4705 Exp $
 </para>
 </sect1>
 </appendix>
