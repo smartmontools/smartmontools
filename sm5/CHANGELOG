@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.766 2009/01/27 21:12:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.767 2009/01/29 20:29:00 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Minor fix to remove ID 0 from 'smartctl -l sataphy ...' output.
 
   [CF] knowndrives.cpp updates: Add warnings about possible firmware
        bugs to Seagate 7200.11, ES.2 and DiamondMax 22 entries.

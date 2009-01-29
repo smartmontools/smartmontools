@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.204 2009/01/15 22:52:50 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.205 2009/01/29 20:29:00 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -971,16 +971,18 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
     pout("[Reserved: 0x%02x 0x%02x 0x%02x 0x%02x]\n",
     data[0], data[1], data[2], data[3]);
   pout("ID      Size     Value  Description\n");
+
   for (unsigned i = 4; ; ) {
-    // Get counter id
+    // Get counter id and size (bits 14:12)
     unsigned id = data[i] | (data[i+1] << 8);
+    unsigned size = ((id >> 12) & 0x7) << 1;
+    id &= 0x8fff;
+
+    // End of counter table ?
     if (!id)
       break;
     i += 2;
 
-    // Get counter size (bits 14:12)
-    unsigned size = ((id >> 12) & 0x7) << 1;
-    id &= 0x8fff;
     if (!(2 <= size && size <= 8 && i + size < 512)) {
       pout("0x%04x  %u: Invalid entry\n", id, size);
       break;
