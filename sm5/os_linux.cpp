@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.122 2008/10/03 04:24:42 jharg Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.123 2009/01/30 19:26:58 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -565,7 +565,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout(buff);
+        pout("%s", buff);
     }
     memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
     io_hdr.interface_id = 'S';
@@ -714,7 +714,7 @@ static int sisc_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout(buff);
+        pout("%s", buff);
     }
     switch (iop->dxfer_dir) {
         case DXFER_NONE:
@@ -1053,7 +1053,7 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         }
         else
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout(buff);
+        pout("%s", buff);
   }
 
   /* Controller rejects Enable SMART and Test Unit Ready */
@@ -1074,7 +1074,7 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 /* Issue passthrough scsi command to PERC5/6 controllers */
 bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int /*senseLen*/, void * /*sense*/, int report)
+  int /*senseLen*/, void * /*sense*/, int /*report*/)
 {
   struct megasas_pthru_frame	*pthru;
   struct megasas_iocpacket	uio;
@@ -1119,7 +1119,7 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
 /* Issue passthrough scsi commands to PERC2/3/4 controllers */
 bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb, 
   int dataLen, void *data,
-  int senseLen, void *sense, int report)
+  int senseLen, void *sense, int /*report*/)
 {
   struct uioctl_t uio;
   int rc;
