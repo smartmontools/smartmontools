@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.4 2008/09/29 19:13:49 chrfranke Exp $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp,v 1.5 2009/01/30 18:34:55 chrfranke Exp $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   else if (!strcmp(type, "scsi"))
     dev = get_scsi_device(name, type);
 
-  else if (   (!strncmp(type, "sat", 3) && (!type[3] || strchr(",+", type[3]))
+  else if (  ((!strncmp(type, "sat", 3) && (!type[3] || strchr(",+", type[3])))
            || (!strncmp(type, "usb", 3)))) {
     // Split "sat...+base..." -> ("sat...", "base...")
     unsigned satlen = strcspn(type, "+");
