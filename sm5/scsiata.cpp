@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.20 2008/12/19 13:49:51 dlukes Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.21 2009/01/30 18:50:24 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -738,6 +738,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     return 0;
 }
 
+#if 0 // Not used, see autodetect_sat_device() below.
 static int isprint_string(const char *s)
 {
     while (*s) {
@@ -780,6 +781,7 @@ static int has_usbcypress_pass_through(ata_device * atadev, const char *manufact
         return 0;
     return 1;
 }
+#endif
 
 } // namespace
 
