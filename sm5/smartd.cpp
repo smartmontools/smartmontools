@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.435 2009/01/30 14:07:07 dlukes Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.436 2009/01/30 21:14:00 dlukes Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1312,7 +1312,7 @@ bool WaitForPidFile()
 
 // Forks new process, closes ALL file descriptors, redirects stdin,
 // stdout, and stderr.  Not quite daemon().  See
-// http://www.iar.unlp.edu.ar/~fede/revistas/lj/Magazines/LJ47/2335.html
+// http://www.linuxjournal.com/article/2335
 // for a good description of why we do things this way.
 void DaemonInit(){
 #ifndef _WIN32
