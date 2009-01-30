@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.434 2008/11/04 21:00:38 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.435 2009/01/30 14:07:07 dlukes Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -737,7 +737,7 @@ void PrintOneCVS(const char *a_cvs_id){
 void PrintCVS(void){
   const char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
 
-  PrintOut(LOG_INFO,(char *)copyleftstring);
+  PrintOut(LOG_INFO,"%s", (char *)copyleftstring);
   PrintOut(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
   PrintOneCVS(atacmdnames_c_cvsid);
   PrintOneCVS(atacmds_c_cvsid);
@@ -1366,11 +1366,11 @@ void DaemonInit(){
   // redirect any IO attempts to /dev/null for stdin
   i=open("/dev/null",O_RDWR);
   // stdout
-  dup(i);
+  (void)dup(i);
   // stderr
-  dup(i);
+  (void)dup(i);
   umask(0);
-  chdir("/");
+  (void) chdir("/");
 
   if (do_fork)
     PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());
@@ -3739,7 +3739,7 @@ void PrintValidArgs(char opt) {
   if (!(s = GetValidArgList(opt)))
     PrintOut(LOG_CRIT, "Error constructing argument list for option %c", opt);
   else
-    PrintOut(LOG_CRIT, (char *)s);
+    PrintOut(LOG_CRIT, "%s", (char *)s);
   PrintOut(LOG_CRIT, " <=======\n");
 }
 
