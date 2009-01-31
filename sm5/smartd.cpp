@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.437 2009/01/31 09:50:25 dlukes Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.438 2009/01/31 13:21:32 dlukes Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1367,10 +1367,12 @@ void DaemonInit(){
 
   // redirect any IO attempts to /dev/null for stdin
   i=open("/dev/null",O_RDWR);
-  // stdout
-  NO_warn_unused_result(dup(i));
-  // stderr
-  NO_warn_unused_result(dup(i));
+  if (i>0) {
+    // stdout
+    NO_warn_unused_result(dup(i));
+    // stderr
+    NO_warn_unused_result(dup(i));
+  };
   umask(0);
   NO_warn_unused_result(chdir("/"));
 
