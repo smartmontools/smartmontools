@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.436 2009/01/30 21:14:00 dlukes Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.437 2009/01/31 09:50:25 dlukes Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1363,14 +1363,16 @@ void DaemonInit(){
   FreeConsole();
 #endif // __CYGWIN__
 
+#define NO_warn_unused_result(cmd) { if (cmd) {} ; }
+
   // redirect any IO attempts to /dev/null for stdin
   i=open("/dev/null",O_RDWR);
   // stdout
-  (void)dup(i);
+  NO_warn_unused_result(dup(i));
   // stderr
-  (void)dup(i);
+  NO_warn_unused_result(dup(i));
   umask(0);
-  (void) chdir("/");
+  NO_warn_unused_result(chdir("/"));
 
   if (do_fork)
     PrintOut(LOG_INFO, "smartd has fork()ed into background mode. New PID=%d.\n", (int)getpid());
