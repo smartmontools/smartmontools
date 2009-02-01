@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.194 2009/01/27 21:12:00 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.195 2009/02/01 23:02:54 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1105,7 +1105,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Scorpio Blue Serial ATA family",
-    "WDC WD((4|6|8|10|12|16|25)00BEVS|3200BEVT)-.*",
+    "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50)00BEVT)-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Black Serial ATA family",

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.767 2009/01/29 20:29:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.768 2009/02/01 23:02:54 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update:
+       Added remaining WD Scorpio Blue SATA II drives
 
   [CF] Minor fix to remove ID 0 from 'smartctl -l sataphy ...' output.
 
