@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.768 2009/02/01 23:02:54 manfred99 Exp $
+$Id: CHANGELOG,v 1.769 2009/02/06 22:33:05 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add smartctl option '-l xerror[,NUM]' to print
+       ATA SMART Extended Comprehensive Error Log (GP Log 0x03).
 
   [MS] knowndrives.cpp update:
        Added remaining WD Scorpio Blue SATA II drives
