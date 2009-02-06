@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.210 2009/01/08 22:05:38 dpgilbert Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.211 2009/02/06 22:33:05 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1062,7 +1062,8 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
   in.in_regs.lba_mid_16   = page;
 
   if (!device->ata_pass_through(in)) { // TODO: Debug output
-    pout("ATA_READ_LOG_EXT failed: %s\n", device->get_errmsg());
+    pout("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
+         logaddr, features, page, nsectors, device->get_errmsg());
     return false;
   }
   return true;
@@ -1379,6 +1380,39 @@ int ataReadErrorLog (ata_device * device, struct ata_smart_errorlog *data){
   
   return 0;
 }
+
+// Read Extended Comprehensive Error Log
+bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
+                        unsigned nsectors)
+{
+  if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors)) {
+    // Retry with single sectors, some disks (Samsung HD301LJ),
+    // don't support multi sector reads of this log.
+    for (unsigned i = 0; i < nsectors; i++) {
+      if (!ataReadLogExt(device, 0x03, 0x00, i, log+i, 1))
+        return false;
+    }
+  }
+
+  for (unsigned i = 0; i < nsectors; i++) {
+    if (checksum((const unsigned char *)(log + 1)))
+      checksumwarning("SMART ATA Extended Comprehensive Error Log Structure");
+  }
+
+  if (isbigendian()) {
+    swapx(&log->device_error_count);
+    swapx(&log->error_log_index);
+
+    for (unsigned i = 0; i < nsectors; i++) {
+      for (unsigned j = 0; j < 4; j++)
+        swapx(&log->error_logs[i].commands[j].timestamp);
+      swapx(&log->error_logs[i].error.timestamp);
+    }
+  }
+
+  return true;
+}
+
 
 int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt *data){
   

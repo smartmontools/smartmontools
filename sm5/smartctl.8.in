@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.118 2009/01/14 02:39:00 sxzzsf Exp $
+ $Id: smartctl.8.in,v 1.119 2009/02/06 22:33:05 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -736,8 +736,8 @@ Selective Self\-Test Log [ATA only], the Log Directory [ATA only], or
 the Background Scan Results Log [SCSI only].
 The valid arguments to this option are:
 
-.I error
-\- prints only the SMART error log.  SMART disks maintain a log of the
+.I error [ATA]
+\- prints the Summary SMART error log.  SMART disks maintain a log of the
 most recent five non\-trivial errors. For each of these errors, the
 disk power\-on lifetime at which the error occurred is recorded, as is
 the device status (idle, standby, etc) at the time of the error.  For
@@ -815,6 +815,19 @@ receives a command which is not implemented or is not valid.
 \- prints the error counter log pages for reads, write and verifies.
 The verify row is only output if it has an element other than zero.
 
+.I xerror[,NUM] [ATA]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended
+Comprehensive SMART error log (General Purpose Log address 0x03).
+Unlike the Summary SMART error log (see \'\-l error\' above),
+it provides sufficient space to log the contents of the 48-bit
+LBA register set introduced with ATA-6.  It also supports logs
+with more than one sector.  Each sector holds up to 4 log entries.
+The actual number of log sectors is vendor specific, typical values
+are 2 (Samsung) or 5 (Seagate).
+
+If the optional parameter NUM is specified, only the NUM most
+recent log entries are printed.  Otherwise, all entries are printed.
+
 .I selftest
 \- prints the SMART self\-test log.  The disk maintains a self\-test log
 showing the results of the self tests, which can be run using the
@@ -882,11 +895,6 @@ If your version of smartctl supports 48-bit ATA commands, both the
 General Purpose Log (GPL) and SMART Log (SL) directories are printed in
 one combined table. The output can be restricted to the GPL directory or
 SL directory by \'\-l directory,q\' or \'\-l directory,s\' respectively.
-[Please note: this is a new, experimental
-feature.  We would like to add support for printing the contents of
-extended and comprehensive SMART self\-test and error logs.  If your
-disk supports these, and you would like to assist, please contact the
-\fBsmartmontools\fP developers.]
 
 .I background [SCSI]
 \- the background scan results log outputs information derived from
@@ -1644,7 +1652,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.118 2009/01/14 02:39:00 sxzzsf Exp $
+$Id: smartctl.8.in,v 1.119 2009/02/06 22:33:05 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

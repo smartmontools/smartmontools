@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.205 2009/01/29 20:29:00 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.206 2009/02/06 22:33:05 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -56,9 +56,8 @@ static const char * infofound(const char *output) {
 
 /* For the given Command Register (CR) and Features Register (FR), attempts
  * to construct a string that describes the contents of the Status
- * Register (ST) and Error Register (ER).  The string is dynamically allocated
- * memory and the return value is a pointer to this string.  It is up to the
- * caller to free this memory.  If there is insufficient memory or if the
+ * Register (ST) and Error Register (ER).  The caller passes the string
+ * buffer and the return value is a pointer to this string.  If the
  * meanings of the flags of the error register are not known for the given
  * command then it returns NULL.
  *
@@ -68,13 +67,16 @@ static const char * infofound(const char *output) {
  * to produce errors).  If many more are to be added then this function
  * should probably be redesigned.
  */
-static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
+
+static const char * construct_st_er_desc(
+  char * s,
+  unsigned char CR, unsigned char FR,
+  unsigned char ST, unsigned char ER,
+  unsigned short SC,
+  const ata_smart_errorlog_error_struct * lba28_regs,
+  const ata_smart_exterrlog_error * lba48_regs
+)
 {
-  unsigned char CR=data->commands[4].commandreg;
-  unsigned char FR=data->commands[4].featuresreg;
-  unsigned char ST=data->error_struct.status;
-  unsigned char ER=data->error_struct.error_register;
-  char *s;
   const char *error_flag[8];
   int i, print_lba=0, print_sector=0;
 
@@ -143,7 +145,7 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
     error_flag[1] = nm;
     error_flag[0] = ccto;
     print_lba=1;
-    print_sector=(int)data->error_struct.sector_count;
+    print_sector=SC;
     break;
   case 0x3A:  // WRITE STREAM DMA
   case 0x3B:  // WRITE STREAM PIO
@@ -157,7 +159,7 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
     error_flag[1] = nm;
     error_flag[0] = ccto;
     print_lba=1;
-    print_sector=(int)data->error_struct.sector_count;
+    print_sector=SC;
     break;
   case 0x25:  /* READ DMA EXT */
   case 0x26:  // READ DMA QUEUED EXT
@@ -174,7 +176,7 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
     error_flag[0] = amnf;
     print_lba=1;
     if (CR==0x25 || CR==0xC8)
-      print_sector=(int)data->error_struct.sector_count;
+      print_sector=SC;
     break;
   case 0x30:  /* WRITE SECTOR(S) */
   case 0x31:  // WRITE SECTOR(S)
@@ -305,7 +307,7 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
     error_flag[0] = amnf;
     print_lba=1;
     if (CR==0x35)
-      print_sector=(int)data->error_struct.sector_count;
+      print_sector=SC;
     break;
   case 0xE4: // READ BUFFER
   case 0xE8: // WRITE BUFFER
@@ -314,10 +316,6 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
   default:
     return NULL;
   }
-
-  /* 256 bytes -- that'll be plenty (OK, this is lazy!) */
-  if (!(s = (char *)malloc(256))) // TODO: new/delete or std::string
-    return s;
 
   s[0] = '\0';
 
@@ -344,33 +342,76 @@ static char *construct_st_er_desc(const ata_smart_errorlog_struct *data)
   // Address (LBA) at which the read or write failed.
   if (print_lba) {
     char tmp[128];
-    int lba;
-
-    // bits 24-27: bits 0-3 of DH
-    lba   = 0xf & data->error_struct.drive_head;
-    lba <<= 8;
-    // bits 16-23: CH
-    lba  |= data->error_struct.cylinder_high;
-    lba <<= 8;
-    // bits 8-15:  CL
-    lba  |= data->error_struct.cylinder_low;
-    lba <<= 8;
-    // bits 0-7:   SN
-    lba  |= data->error_struct.sector_number;
-
     // print number of sectors, if known, and append to print string
     if (print_sector) {
       snprintf(tmp, 128, " %d sectors", print_sector);
       strcat(s, tmp);
     }
 
-    // print LBA, and append to print string
-    snprintf(tmp, 128, " at LBA = 0x%08x = %d", lba, lba);
-    strcat(s, tmp);
+    if (lba28_regs) {
+      unsigned lba;
+      // bits 24-27: bits 0-3 of DH
+      lba   = 0xf & lba28_regs->drive_head;
+      lba <<= 8;
+      // bits 16-23: CH
+      lba  |= lba28_regs->cylinder_high;
+      lba <<= 8;
+      // bits 8-15:  CL
+      lba  |= lba28_regs->cylinder_low;
+      lba <<= 8;
+      // bits 0-7:   SN
+      lba  |= lba28_regs->sector_number;
+      snprintf(tmp, 128, " at LBA = 0x%08x = %u", lba, lba);
+      strcat(s, tmp);
+    }
+    else if (lba48_regs) {
+      // This assumes that upper LBA registers are 0 for 28-bit commands
+      // (TODO: detect 48-bit commands above)
+      uint64_t lba48;
+      lba48   = lba48_regs->lba_high_register_hi;
+      lba48 <<= 8;
+      lba48  |= lba48_regs->lba_mid_register_hi;
+      lba48 <<= 8;
+      lba48  |= lba48_regs->lba_low_register_hi;
+      lba48  |= lba48_regs->device_register & 0xf;
+      lba48 <<= 8;
+      lba48  |= lba48_regs->lba_high_register;
+      lba48 <<= 8;
+      lba48  |= lba48_regs->lba_mid_register;
+      lba48 <<= 8;
+      lba48  |= lba48_regs->lba_low_register;
+      snprintf(tmp, 128, " at LBA = 0x%08"PRIx64" = %"PRIu64, lba48, lba48);
+      strcat(s, tmp);
+    }
   }
 
   return s;
 }
+
+static inline const char * construct_st_er_desc(char * s,
+  const ata_smart_errorlog_struct * data)
+{
+  return construct_st_er_desc(s,
+    data->commands[4].commandreg,
+    data->commands[4].featuresreg,
+    data->error_struct.status,
+    data->error_struct.error_register,
+    data->error_struct.sector_count,
+    &data->error_struct, (const ata_smart_exterrlog_error *)0);
+}
+
+static inline const char * construct_st_er_desc(char * s,
+  const ata_smart_exterrlog_error_log * data)
+{
+  return construct_st_er_desc(s,
+    data->commands[4].command_register,
+    data->commands[4].features_register,
+    data->error.status_register,
+    data->error.error_register,
+    data->error.count_register_hi << 8 | data->error.count_register,
+    (const ata_smart_errorlog_error_struct *)0, &data->error);
+}
+
 
 // This returns the capacity of a disk drive and also prints this into
 // a string, using comma separators to make it easier to read.  If the
@@ -1027,6 +1068,22 @@ static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
   pout("\n");
 }
 
+// Get description for 'state' value from SMART Error Logs
+static const char * get_error_log_state_desc(unsigned state)
+{
+  state &= 0x0f;
+  switch (state){
+    case 0x0: return "in an unknown state";
+    case 0x1: return "sleeping";
+    case 0x2: return "in standby mode";
+    case 0x3: return "active or idle";
+    case 0x4: return "doing SMART Offline or Self-test";
+  default:
+    return (state < 0xb ? "in a reserved state"
+                        : "in a vendor specific state");
+  }
+}
+
 // returns number of errors
 static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
 {
@@ -1075,7 +1132,6 @@ static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
   
   // now step through the five error log data structures (table 39 of spec)
   for (int k = 4; k >= 0; k-- ) {
-    char *st_er_desc;
 
     // The error log data structure entries are a circular buffer
     int j, i=(data->error_log_pointer+k)%5;
@@ -1085,22 +1141,8 @@ static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
     // Spec says: unused error log structures shall be zero filled
     if (nonempty((unsigned char*)elog,sizeof(*elog))){
       // Table 57 of T13/1532D Volume 1 Revision 3
-      const char *msgstate;
-      int bits=summary->state & 0x0f;
+      const char *msgstate = get_error_log_state_desc(summary->state);
       int days = (int)summary->timestamp/24;
-
-      switch (bits){
-      case 0x00: msgstate="in an unknown state";break;
-      case 0x01: msgstate="sleeping"; break;
-      case 0x02: msgstate="in standby mode"; break;
-      case 0x03: msgstate="active or idle"; break;
-      case 0x04: msgstate="doing SMART Offline or Self-test"; break;
-      default:   
-        if (bits<0x0b)
-          msgstate="in a reserved state";
-        else
-          msgstate="in a vendor specific state";
-      }
 
       // See table 42 of ATA5 spec
       PRINT_ON(con);
@@ -1121,11 +1163,10 @@ static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
            (int)summary->drive_head);
       // Add a description of the contents of the status and error registers
       // if possible
-      st_er_desc = construct_st_er_desc(elog);
-      if (st_er_desc) {
+      char descbuf[256];
+      const char * st_er_desc = construct_st_er_desc(descbuf, elog);
+      if (st_er_desc)
         pout("  %s", st_er_desc);
-        free(st_er_desc);
-      }
       pout("\n\n");
       pout("  Commands leading to the command that caused the error were:\n"
            "  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name\n"
@@ -1161,6 +1202,143 @@ static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
     pout("\n");
   PRINT_OFF(con);
   return data->ata_error_count;  
+}
+
+// Print SMART Extended Comprehensive Error Log (GP Log 0x03)
+static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
+                                 unsigned nsectors, unsigned max_errors)
+{
+  pout("SMART Extended Comprehensive Error Log Version: %u (%u sectors)\n",
+       log->version, nsectors);
+
+  if (!log->device_error_count) {
+    pout("No Errors Logged\n\n");
+    return 0;
+  }
+  PRINT_ON(con);
+
+  // If log pointer out of range, return
+  if (log->error_log_index >= nsectors * 4){
+    pout("Invalid Error Log index = 0x%04x\n", log->error_log_index);
+    return 0;
+  }
+
+  // Calculate #errors to print
+  unsigned errcnt = log->device_error_count;
+
+  if (errcnt <= nsectors * 4)
+    pout("Device Error Count: %u\n", log->device_error_count);
+  else {
+    errcnt = nsectors * 4;
+    pout("Device Error Count: %u (device log contains only the most recent %u errors)\n",
+         log->device_error_count, errcnt);
+  }
+
+  if (max_errors < errcnt)
+    errcnt = max_errors;
+
+  PRINT_OFF(con);
+  pout("\tCR     = Command Register\n"
+       "\tFEATR  = Features Register\n"
+       "\tCOUNT  = Count (was: Sector Count) Register\n"
+       "\tLBA_48 = Upper bytes of LBA High/Mid/Low Registers ]  ATA-8\n"
+       "\tLH     = LBA High (was: Cylinder High) Register    ]   LBA\n"
+       "\tLM     = LBA Mid (was: Cylinder Low) Register      ] Register\n"
+       "\tLL     = LBA Low (was: Sector Number) Register     ]\n"
+       "\tDV     = Device (was: Device/Head) Register\n"
+       "\tDC     = Device Control Register\n"
+       "\tER     = Error register\n"
+       "\tST     = Status register\n"
+       "Powered_Up_Time is measured from power on, and printed as\n"
+       "DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,\n"
+       "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
+
+  // Iterate through circular buffer in reverse direction
+  for (unsigned i = 0, errnum = log->device_error_count, erridx = log->error_log_index;
+       i < errcnt; i++, errnum--, erridx = (erridx > 0 ? erridx - 1 : nsectors * 4 - 1)) {
+
+    const ata_smart_exterrlog_error_log & entry = log[erridx / 4].error_logs[erridx % 4];
+
+    // Skip unused entries
+    if (!nonempty(&entry, sizeof(entry)))
+      continue;
+
+    // Print error information
+    PRINT_ON(con);
+    const ata_smart_exterrlog_error & err = entry.error;
+    pout("Error %u [%u] occurred at disk power-on lifetime: %u hours (%u days + %u hours)\n",
+         errnum, erridx, err.timestamp, err.timestamp / 24, err.timestamp % 24);
+    PRINT_OFF(con);
+
+    pout("  When the command that caused the error occurred, the device was %s.\n\n",
+      get_error_log_state_desc(err.state));
+
+    // Print registers
+    pout("  After command completion occurred, registers were:\n"
+         "  ER ST COUNT  LBA_48  LH LM LL DV DC\n"
+         "  -- -- == -- == == == -- -- -- -- --\n"
+         "  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+         err.error_register,
+         err.status_register,
+         err.count_register_hi,
+         err.count_register,
+         err.lba_high_register_hi,
+         err.lba_mid_register_hi,
+         err.lba_low_register_hi,
+         err.lba_high_register,
+         err.lba_mid_register,
+         err.lba_low_register,
+         err.device_register,
+         err.device_control_register);
+
+    // Add a description of the contents of the status and error registers
+    // if possible
+    char descbuf[256];
+    const char * st_er_desc = construct_st_er_desc(descbuf, &entry);
+    if (st_er_desc)
+      pout("  %s", st_er_desc);
+    pout("\n\n");
+
+    // Print command history
+    pout("  Commands leading to the command that caused the error were:\n"
+         "  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name\n"
+         "  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------\n");
+    for (int ci = 4; ci >= 0; ci--) {
+      const ata_smart_exterrlog_command & cmd = entry.commands[ci];
+
+      // Skip unused entries
+      if (!nonempty(&cmd, sizeof(cmd)))
+        continue;
+
+      // Print registers, timestamp and ATA command name
+      char timestring[32];
+      MsecToText(cmd.timestamp, timestring);
+
+      pout("  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
+           cmd.command_register,
+           cmd.features_register_hi,
+           cmd.features_register,
+           cmd.count_register_hi,
+           cmd.count_register,
+           cmd.lba_high_register_hi,
+           cmd.lba_mid_register_hi,
+           cmd.lba_low_register_hi,
+           cmd.lba_high_register,
+           cmd.lba_mid_register,
+           cmd.lba_low_register,
+           cmd.device_register,
+           cmd.device_control_register,
+           timestring,
+           look_up_ata_command(cmd.command_register, cmd.features_register));
+    }
+    pout("\n");
+  }
+
+  PRINT_ON(con);
+  if (con->printing_switchable)
+    pout("\n");
+  PRINT_OFF(con);
+  return log->device_error_count;
 }
 
 static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log, const ata_smart_values * sv)
@@ -1683,7 +1861,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // START OF READ-ONLY OPTIONS APART FROM -V and -i
   if (   con->checksmart || con->generalsmartvalues || con->smartvendorattrib || con->smarterrorlog
-      || con->smartselftestlog || con->selectivetestlog || con->scttempsts || con->scttemphist     )
+      || con->smartselftestlog || con->selectivetestlog || con->scttempsts || con->scttemphist
+      || options.smart_ext_error_log                                                               )
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
   // Check SMART status (use previously returned value)
@@ -1782,8 +1961,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SMART and/or GP log Directory and/or logs
   if (   options.gp_logdir || options.smart_logdir
-      || options.sataphy
-      || !options.log_requests.empty()            ) {
+      || options.sataphy || options.smart_ext_error_log
+      || !options.log_requests.empty()                 ) {
 
     bool gpl_cap = !!isGeneralPurposeLoggingCapable(&drive);
     bool gpl_try = gpl_cap;
@@ -1804,7 +1983,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
       // Detect directories needed
       bool need_smart_logdir = options.smart_logdir;
-      bool need_gp_logdir    = options.gp_logdir;
+      bool need_gp_logdir    = options.gp_logdir || options.smart_ext_error_log;
       unsigned i;
       for (i = 0; i < options.log_requests.size(); i++) {
         if (options.log_requests[i].gpl)
@@ -1893,6 +2072,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         else
           PrintLogPages(type, log_buf.data() + offs*512, req.logaddr, req.page, ns, max_nsectors);
+      }
+
+      // Print SMART Extendend Comprehensive Error Log
+      if (options.smart_ext_error_log) {
+        unsigned nsectors = GetNumLogSectors(gplogdir, 0x03, true);
+        if (!nsectors)
+          pout("SMART Extended Comprehensive Error Log (GP Log 0x03) does not exist\n");
+        else if (nsectors >= 256)
+          pout("SMART Extended Comprehensive Error Log size %u not supported\n", nsectors);
+        else {
+          raw_buffer log_03_buf(nsectors * 512);
+          ata_smart_exterrlog * log_03 = (ata_smart_exterrlog *)log_03_buf.data();
+          if (!ataReadExtErrorLog(device, log_03, nsectors))
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          else
+            PrintSmartExtErrorLog(log_03, nsectors, options.smart_ext_error_log);
+        }
       }
 
       // Print SATA Phy Event Counters

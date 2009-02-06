@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.102 2008/10/11 14:18:07 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.103 2009/02/06 22:33:05 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -302,6 +302,90 @@ struct ata_smart_errorlog {
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog, 512);
 
+
+// Extendend Comprehensive Error Log data structures
+// See Section A.7 of
+//   AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
+//   T13/1699-D Revision 6a (Working Draft), September 6, 2008.
+
+// Command data structure
+// Table A.9 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_exterrlog_command
+{
+  unsigned char device_control_register;
+  unsigned char features_register;
+  unsigned char features_register_hi;
+  unsigned char count_register;
+  unsigned char count_register_hi;
+  unsigned char lba_low_register;
+  unsigned char lba_low_register_hi;
+  unsigned char lba_mid_register;
+  unsigned char lba_mid_register_hi;
+  unsigned char lba_high_register;
+  unsigned char lba_high_register_hi;
+  unsigned char device_register;
+  unsigned char command_register;
+
+  unsigned char reserved;
+  unsigned int timestamp;
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_exterrlog_command, 18);
+
+// Error data structure
+// Table A.10 T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_exterrlog_error
+{
+  unsigned char device_control_register;
+  unsigned char error_register;
+  unsigned char count_register;
+  unsigned char count_register_hi;
+  unsigned char lba_low_register;
+  unsigned char lba_low_register_hi;
+  unsigned char lba_mid_register;
+  unsigned char lba_mid_register_hi;
+  unsigned char lba_high_register;
+  unsigned char lba_high_register_hi;
+  unsigned char device_register;
+  unsigned char status_register;
+
+  unsigned char extended_error[19];
+  unsigned char state;
+  unsigned short timestamp;
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_exterrlog_error, 34);
+
+// Error log data structure
+// Table A.8 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_exterrlog_error_log
+{
+  ata_smart_exterrlog_command commands[5];
+  ata_smart_exterrlog_error error;
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_exterrlog_error_log, 124);
+
+// Ext. Comprehensive SMART error log
+// Table A.7 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_exterrlog
+{
+  unsigned char version;
+  unsigned char reserved1;
+  unsigned short error_log_index;
+  ata_smart_exterrlog_error_log error_logs[4];
+  unsigned short device_error_count;
+  unsigned char reserved2[9];
+  unsigned char checksum;
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_exterrlog, 512);
+
+
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
 #pragma pack(1)
 struct ata_smart_selftestlog_struct {
@@ -375,8 +459,6 @@ ASSERT_SIZEOF_STRUCT(ata_selective_self_test_log, 512);
 #define SELECTIVE_FLAG_DOSCAN  (0x0002)
 #define SELECTIVE_FLAG_PENDING (0x0008)
 #define SELECTIVE_FLAG_ACTIVE  (0x0010)
-
-class ata_device;
 
 
 // SCT (SMART Command Transport) data structures
@@ -485,6 +567,9 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
 // Read SMART Log page(s)
 bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors);
+// Read SMART Extended Comprehensive Error Log
+bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
+                        unsigned nsectors);
 
 // Read SCT information
 int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts);
