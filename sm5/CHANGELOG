@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.769 2009/02/06 22:33:05 chrfranke Exp $
+$Id: CHANGELOG,v 1.770 2009/02/08 15:22:10 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp updates: Update bug warnings for
+       Seagate 7200.11, ES.2 and DiamondMax 22. Add new entries
+       for fixed firmware versions.
 
   [CF] Add smartctl option '-l xerror[,NUM]' to print
        ATA SMART Extended Comprehensive Error Log (GP Log 0x03).
