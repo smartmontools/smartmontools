@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.195 2009/02/01 23:02:54 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.196 2009/02/08 15:22:10 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -539,12 +539,34 @@ static const drive_settings builtin_knowndrives[] = {
     "MAXTOR STM3(160215|(250|320)820|320620|500630)AS?",
     "", "", ""
   },
-  { "Seagate Maxtor DiamondMax 22",
+  { "Seagate Maxtor DiamondMax 22", // fixed firmware
+    "(MAXTOR )?STM3(500320|750330|1000340)AS?",
+    "MX1A", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969
+    "", ""
+  },
+  { "Seagate Maxtor DiamondMax 22", // fixed firmware
+    "(MAXTOR )?STM3(160813|320614|640323|1000334)AS?",
+    "MX1B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207975
+    "", ""
+  },
+  { "Seagate Maxtor DiamondMax 22", // buggy firmware
+    "(MAXTOR )?STM3(500320|750330|1000340)AS?",
+    "MX15",
+    "There are known problems with these drives,\n"
+    "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
+    "see the following Seagate web pages:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969",
+    ""
+  },
+  { "Seagate Maxtor DiamondMax 22", // unknown firmware
     "(MAXTOR )?STM3(160813|32061[34]|500320|640323|750330|10003(34|40))AS?",
     "",
     "There are known problems with these drives,\n"
-    "see the following Seagate web page:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    "see the following Seagate web pages:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207975",
     ""
   },
   { "Maxtor MaXLine Plus II",
@@ -914,33 +936,52 @@ static const drive_settings builtin_knowndrives[] = {
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
     "", "", ""
   },
+  { "Seagate Barracuda 7200.11 family", // fixed firmware
+    "ST3(500[368]20|750[36]30|1000340)AS?",
+    "SD1A", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951
+    "", ""
+  },
+  { "Seagate Barracuda 7200.11 family", // fixed firmware
+    "ST3(160813|320[68]13|640[36]23|1000333|1500341)AS?",
+    "SD1B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
+    "", ""
+  },
   { "Seagate Barracuda 7200.11 family", // buggy firmware
     "ST3(500[368]20|640[35]30|750[36]30|1000340)AS?",
     "(AD14|SD1[5-9])",
     "There are known problems with these drives,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
-    "see the following Seagate web page:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    "see the following Seagate web pages:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951",
     ""
   },
   { "Seagate Barracuda 7200.11 family", // unknown firmware
     "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
     "",
     "There are known problems with these drives,\n"
-    "see the following Seagate web page:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    "see the following Seagate web pages:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957",
     ""
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
   },
-  { "Seagate Barracuda ES.2",  // no SAS versions added for now
+  { "Seagate Barracuda ES.2", // fixed firmware
+    "ST3(25031|50032|75033|100034)0NS",
+    "SN[01]6", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963
+    "", ""
+  },
+  { "Seagate Barracuda ES.2", // unknown firmware
     "ST3(25031|50032|75033|100034)0NS",
     "",
     "There are known problems with these drives,\n"
-    "see the following Seagate web page:\n"
-    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931",
+    "see the following Seagate web pages:\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
+    "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963",
     ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
