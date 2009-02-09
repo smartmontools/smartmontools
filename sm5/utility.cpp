@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,7 +50,7 @@
 #include "dev_interface.h"
 
 // Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id: utility.cpp,v 1.74 2008/09/13 14:37:29 chrfranke Exp $"
+const char* utility_c_cvsid="$Id: utility.cpp,v 1.75 2009/02/09 21:57:37 chrfranke Exp $"
 CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
 
 const char * packet_types[] = {
@@ -90,7 +90,7 @@ const char *format_version_info(const char *progname)
   static char info[200];
   snprintf(info, sizeof(info),
     "%s %s %s [%s] %s\n"
-    "Copyright (C) 2002-8 by Bruce Allen, http://smartmontools.sourceforge.net\n",
+    "Copyright (C) 2002-9 by Bruce Allen, http://smartmontools.sourceforge.net\n",
     progname, PACKAGE_VERSION, SMARTMONTOOLS_CVS_DATE_TIME, smi()->get_os_version_str(), BUILD_INFO
   );
   return info;
