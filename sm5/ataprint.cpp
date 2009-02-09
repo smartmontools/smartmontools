@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.206 2009/02/06 22:33:05 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.207 2009/02/09 21:48:52 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1217,19 +1217,32 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
   }
   PRINT_ON(con);
 
-  // If log pointer out of range, return
-  if (log->error_log_index >= nsectors * 4){
-    pout("Invalid Error Log index = 0x%04x\n", log->error_log_index);
-    return 0;
+  // Check index
+  unsigned nentries = nsectors * 4;
+  unsigned erridx = log->error_log_index;
+  if (!(1 <= erridx && erridx <= nentries)){
+    // Some Samsung disks (at least SP1614C/SW100-25, HD300LJ/ZT100-12) use the
+    // former index from Summary Error Log (byte 1, now reserved) and set byte 2-3
+    // to 0.
+    if (!(erridx == 0 && 1 <= log->reserved1 && log->reserved1 <= nentries)) {
+      pout("Invalid Error Log index = 0x%04x (reserved = 0x%02x)\n", erridx, log->reserved1);
+      return 0;
+    }
+    pout("Invalid Error Log index = 0x%04x, trying reserved byte (0x%02x) instead\n", erridx, log->reserved1);
+    erridx = log->reserved1;
   }
+
+  // Index base is not clearly specified by ATA8-ACS (T13/1699-D Revision 6a),
+  // it is 1-based in practice.
+  erridx--;
 
   // Calculate #errors to print
   unsigned errcnt = log->device_error_count;
 
-  if (errcnt <= nsectors * 4)
+  if (errcnt <= nentries)
     pout("Device Error Count: %u\n", log->device_error_count);
   else {
-    errcnt = nsectors * 4;
+    errcnt = nentries;
     pout("Device Error Count: %u (device log contains only the most recent %u errors)\n",
          log->device_error_count, errcnt);
   }
@@ -1254,14 +1267,16 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
        "SS=sec, and sss=millisec. It \"wraps\" after 49.710 days.\n\n");
 
   // Iterate through circular buffer in reverse direction
-  for (unsigned i = 0, errnum = log->device_error_count, erridx = log->error_log_index;
-       i < errcnt; i++, errnum--, erridx = (erridx > 0 ? erridx - 1 : nsectors * 4 - 1)) {
+  for (unsigned i = 0, errnum = log->device_error_count;
+       i < errcnt; i++, errnum--, erridx = (erridx > 0 ? erridx - 1 : nentries - 1)) {
 
     const ata_smart_exterrlog_error_log & entry = log[erridx / 4].error_logs[erridx % 4];
 
     // Skip unused entries
-    if (!nonempty(&entry, sizeof(entry)))
+    if (!nonempty(&entry, sizeof(entry))) {
+      pout("Error %u [%u] log entry is empty\n", errnum, erridx);
       continue;
+    }
 
     // Print error information
     PRINT_ON(con);

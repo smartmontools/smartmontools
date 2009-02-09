@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.770 2009/02/08 15:22:10 chrfranke Exp $
+$Id: CHANGELOG,v 1.771 2009/02/09 21:48:52 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fix Extended Comprehensive Error Log index base.
+       Add workaround for Samsung disks using reserved byte as index.
 
   [CF] knowndrives.cpp updates: Update bug warnings for
        Seagate 7200.11, ES.2 and DiamondMax 22. Add new entries
