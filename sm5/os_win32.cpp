@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.70 2009/01/25 18:43:01 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.71 2009/02/11 21:36:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -903,9 +903,20 @@ ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, 40);
 #define ATA_FLAGS_DATA_IN       0x02
 #define ATA_FLAGS_DATA_OUT      0x04
 #define ATA_FLAGS_48BIT_COMMAND 0x08
+#define ATA_FLAGS_USE_DMA       0x10
+#define ATA_FLAGS_NO_MULTIPLE   0x20 // Vista
 
 
 /////////////////////////////////////////////////////////////////////////////
+
+// Warning:
+// IOCTL_ATA_PASS_THROUGH[_DIRECT] can only handle one interrupt/DRQ data
+// transfer per command. Therefore, multi-sector transfers are only supported
+// for the READ/WRITE MULTIPLE [EXT] commands. Other commands like READ/WRITE SECTORS
+// or READ/WRITE LOG EXT work only with single sector transfers.
+// The latter are supported on Vista (only) through new ATA_FLAGS_NO_MULTIPLE.
+// See:
+// http://social.msdn.microsoft.com/Forums/en-US/storageplatformata/thread/eb408507-f221-455b-9bbb-d1069b29c4da
 
 static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev_regs, char * data, int datasize)
 {
@@ -976,7 +987,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   }
 
   // Check ATA status
-  if (ctfregs->bCommandReg/*Status*/ & 0x01) {
+  if (ctfregs->bCommandReg/*Status*/ & (0x01/*Err*/|0x08/*DRQ*/)) {
     if (con->reportataioctl) {
       pout("  IOCTL_ATA_PASS_THROUGH command failed:\n");
       print_ide_regs_io(regs, ctfregs);
@@ -2324,9 +2335,11 @@ bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
 // Interface to ATA devices
 bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
+  // No multi-sector support for now, see above
+  // warning about IOCTL_ATA_PASS_THROUGH
   if (!ata_cmd_is_ok(in,
     true, // data_out_support
-    true, // multi_sector_support
+    false, // !multi_sector_support
     true) // ata_48bit_support
   )
     return false;
