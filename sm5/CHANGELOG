@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.771 2009/02/09 21:48:52 chrfranke Exp $
+$Id: CHANGELOG,v 1.772 2009/02/11 21:36:00 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Add a workaround for missing multi-sector support
+       for ATA READ LOG EXT command.
 
   [CF] Fix Extended Comprehensive Error Log index base.
        Add workaround for Samsung disks using reserved byte as index.

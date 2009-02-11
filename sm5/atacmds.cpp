@@ -3,7 +3,7 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.211 2009/02/06 22:33:05 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.212 2009/02/11 21:36:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1062,10 +1062,22 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
   in.in_regs.lba_mid_16   = page;
 
   if (!device->ata_pass_through(in)) { // TODO: Debug output
-    pout("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
-         logaddr, features, page, nsectors, device->get_errmsg());
-    return false;
+    if (nsectors <= 1) {
+      pout("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
+           logaddr, features, page, nsectors, device->get_errmsg());
+      return false;
+    }
+
+    // Recurse to retry with single sectors,
+    // multi-sector reads may not be supported by ioctl.
+    for (unsigned i = 0; i < nsectors; i++) {
+      if (!ataReadLogExt(device, logaddr,
+                         features, page + i,
+                         (char *)data + 512*i, 1))
+        return false;
+    }
   }
+
   return true;
 }
 
@@ -1385,14 +1397,8 @@ int ataReadErrorLog (ata_device * device, struct ata_smart_errorlog *data){
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
                         unsigned nsectors)
 {
-  if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors)) {
-    // Retry with single sectors, some disks (Samsung HD301LJ),
-    // don't support multi sector reads of this log.
-    for (unsigned i = 0; i < nsectors; i++) {
-      if (!ataReadLogExt(device, 0x03, 0x00, i, log+i, 1))
-        return false;
-    }
-  }
+  if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors))
+    return false;
 
   for (unsigned i = 0; i < nsectors; i++) {
     if (checksum((const unsigned char *)(log + 1)))
