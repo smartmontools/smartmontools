@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.197 2009/02/11 22:13:59 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.198 2009/02/16 19:57:32 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -316,15 +316,25 @@ static const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,halfminutes"
   },
-  { "", // Any other Samsung disk with *-23 *-24 firmware
-    // SAMSUNG SP1213N (TL100-23 firmware)
-    // SAMSUNG SP0802N (TK100-23 firmware)
-    // Samsung SP1604N, tested with FW TM100-23 and TM100-24
-    "SAMSUNG .*",
+  { "SAMSUNG SpinPoint P80 series", // firmware *-23...24, tested with
+    // SP0802N/TK100-23,
+    // SP1213N/TL100-23,
+    // SP1604N/TM100-23 and -24
+    "SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]",
     ".*-2[34]",
     "",
     "-v 9,halfminutes -F samsung2"
   },
+  { "SAMSUNG SpinPoint P80 series", // unknown firmware
+    "SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]",
+    "",
+    "May need -F samsung2 or -F samsung3 enabled; see manual for details.",
+    ""
+  },
+#if 0
+  // TODO: Make the entries below more specific.
+  // These entries produce misleading results, because newer
+  // Samsung disks reuse the version numbers *-NN.
   { "", // All Samsung drives with '.*-25' firmware
     "SAMSUNG.*",
     ".*-25",
@@ -343,6 +353,7 @@ static const drive_settings builtin_knowndrives[] = {
     "May need -F samsung or -F samsung2 enabled; see manual for details.",
     ""
   },
+#endif
   { "Maxtor Fireball 541DX family",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
     "",

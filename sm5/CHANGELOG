@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.772 2009/02/11 21:36:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.773 2009/02/16 19:57:32 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp updates: Add more entries for Samsung P80 disks
+       with old and unknown firmware. Remove old entries which would
+       match any new Samsung model reusing old firmware version number.
 
   [CF] Windows: Add a workaround for missing multi-sector support
        for ATA READ LOG EXT command.
