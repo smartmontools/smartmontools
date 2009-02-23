@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.773 2009/02/16 19:57:32 chrfranke Exp $
+$Id: CHANGELOG,v 1.774 2009/02/23 22:59:04 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -41,6 +41,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp update:
+       Add WD Caviar Green 8MB and 32MB cache variants, stretch to 2TB.
+ 
   [CF] knowndrives.cpp updates: Add more entries for Samsung P80 disks
        with old and unknown firmware. Remove old entries which would
        match any new Samsung model reusing old firmware version number.
