@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.198 2009/02/16 19:57:32 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.199 2009/02/23 22:59:04 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1129,7 +1129,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green family",
-    "WDC WD(((50|64|75)00AA|10EA)CS|10EADS)-.*",
+    "WDC WD((50|64|75)00AA(C|V)S|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family",
