@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.7 2008/09/29 19:13:49 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.8 2009/02/27 22:42:52 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -350,6 +350,11 @@ struct ata_in_regs_48bit
   /// Return true if 48-bit command
   bool is_48bit_cmd() const
     { return prev.is_set(); }
+
+  /// Return true if 48-bit command with any nonzero high byte
+  bool is_real_48bit_cmd() const
+    { return (   prev.features || prev.sector_count
+              || prev.lba_low || prev.lba_mid || prev.lba_high); }
 
   ata_in_regs_48bit();
 };
