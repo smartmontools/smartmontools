@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.774 2009/02/23 22:59:04 manfred99 Exp $
+$Id: CHANGELOG,v 1.775 2009/02/27 22:42:51 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add experimental option '-d usbjmicron[,PORT]' for drives
+       behind JMicron USB bridges. Tested on WinXP with JM20336 in
+       AixCase AIX-ESU35CD. Many thanks to JMicron tech support
+       for providing the required information.
 
   [MS] knowndrives.cpp update:
        Add WD Caviar Green 8MB and 32MB cache variants, stretch to 2TB.

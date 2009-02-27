@@ -50,7 +50,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.21 2009/01/30 18:50:24 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.22 2009/02/27 22:42:52 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -783,6 +783,209 @@ static int has_usbcypress_pass_through(ata_device * atadev, const char *manufact
 }
 #endif
 
+/////////////////////////////////////////////////////////////////////////////
+
+/// JMicron USB Bridge support.
+
+class usbjmicron_device
+: public tunnelled_device<
+    /*implements*/ ata_device,
+    /*by tunnelling through a*/ scsi_device
+  >
+{
+public:
+  usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
+                    const char * req_type, int port);
+
+  virtual ~usbjmicron_device() throw();
+
+  virtual bool open();
+
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+
+private:
+  bool get_registers(unsigned short addr, unsigned char * buf, unsigned short size);
+
+  int m_port;
+};
+
+
+usbjmicron_device::usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
+                                     const char * req_type, int port)
+: smart_device(intf, scsidev->get_dev_name(), "usbjmicron", req_type),
+  tunnelled_device<ata_device, scsi_device>(scsidev),
+  m_port(port)
+{
+  set_info().info_name = strprintf("%s [USB JMicron]", scsidev->get_info_name());
+}
+
+usbjmicron_device::~usbjmicron_device() throw()
+{
+}
+
+
+bool usbjmicron_device::open()
+{
+  // Open USB first
+  if (!tunnelled_device<ata_device, scsi_device>::open())
+    return false;
+
+  // Detect port if not specified
+  if (m_port < 0) {
+    unsigned char regbuf[2] = {0, 0};
+    if (!get_registers(0x720f, regbuf, sizeof(regbuf))) {
+      close();
+      return false;
+    }
+
+    if (regbuf[0] & 0x04)
+      m_port = 0;
+    else if (regbuf[0] & 0x40)
+      m_port = 1;
+    else {
+      close();
+      return set_err(ENODEV, "No device connected");
+    }
+  }
+
+  return true;
+}
+
+
+bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_ok(in,
+    true,  // data_out_support
+    false, // !multi_sector_support
+    true)  // ata_48bit_support (limited, see below)
+  )
+    return false;
+
+  // Support 48-bit commands with zero high bytes
+  if (in.in_regs.is_48bit_cmd()) {
+    if (in.in_regs.is_real_48bit_cmd() || in.out_needed.is_set())
+      return set_err(ENOSYS, "48-bit ATA commands not fully supported");
+  }
+
+  if (m_port < 0)
+    return set_err(EIO, "Unknown JMicron port");
+
+  scsi_cmnd_io io_hdr;
+  memset(&io_hdr, 0, sizeof(io_hdr));
+
+  bool rwbit = true;
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      io_hdr.dxfer_dir = DXFER_NONE;
+      break;
+    case ata_cmd_in::data_in:
+      io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      memset(in.buffer, 0, in.size);
+      break;
+    case ata_cmd_in::data_out:
+      io_hdr.dxfer_dir = DXFER_TO_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      rwbit = false;
+      break;
+    default:
+      return set_err(EINVAL);
+  }
+
+  // Build pass through command
+  unsigned char cdb[12];
+  cdb[ 0] = 0xdf;
+  cdb[ 1] = (rwbit ? 0x10 : 0x00);
+  cdb[ 2] = 0x00;
+  cdb[ 3] = (unsigned char)(io_hdr.dxfer_len >> 8);
+  cdb[ 4] = (unsigned char)(io_hdr.dxfer_len     );
+  cdb[ 5] = in.in_regs.features;
+  cdb[ 6] = in.in_regs.sector_count;
+  cdb[ 7] = in.in_regs.lba_low;
+  cdb[ 8] = in.in_regs.lba_mid;
+  cdb[ 9] = in.in_regs.lba_high;
+  cdb[10] = in.in_regs.device | (m_port == 0 ? 0xa0 : 0xb0);
+  cdb[11] = in.in_regs.command;
+
+  io_hdr.cmnd = cdb;
+  io_hdr.cmnd_len = sizeof(cdb);
+
+  unsigned char sense[32] = {0, };
+  io_hdr.sensep = sense;
+  io_hdr.max_sense_len = sizeof(sense);
+  io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsidev->scsi_pass_through(&io_hdr)) {
+    if (con->reportscsiioctl > 0)
+      pout("usbjmicron_device::ata_pass_through: scsi_pass_through() failed, "
+           "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+    return set_err(scsidev->get_err());
+  }
+
+  if (in.out_needed.is_set()) {
+    // Read ATA output registers
+    // NOTE: There is a small race condition here!
+    unsigned char regbuf[16] = {0, };
+    if (!get_registers((m_port == 0 ? 0x8000 : 0x9000), regbuf, sizeof(regbuf)))
+      return false;
+
+    out.out_regs.sector_count = regbuf[ 0];
+    out.out_regs.lba_mid      = regbuf[ 4];
+    out.out_regs.lba_low      = regbuf[ 6];
+    out.out_regs.device       = regbuf[ 9];
+    out.out_regs.lba_high     = regbuf[10];
+    out.out_regs.error        = regbuf[13];
+    out.out_regs.status       = regbuf[14];
+  }
+
+  return true;
+}
+
+bool usbjmicron_device::get_registers(unsigned short addr,
+                                      unsigned char * buf, unsigned short size)
+{
+  unsigned char cdb[12];
+  cdb[ 0] = 0xdf;
+  cdb[ 1] = 0x10;
+  cdb[ 2] = 0x00;
+  cdb[ 3] = (unsigned char)(size >> 8);
+  cdb[ 4] = (unsigned char)(size     );
+  cdb[ 5] = 0x00;
+  cdb[ 6] = (unsigned char)(addr >> 8);
+  cdb[ 7] = (unsigned char)(addr     );
+  cdb[ 8] = 0x00;
+  cdb[ 9] = 0x00;
+  cdb[10] = 0x00;
+  cdb[11] = 0xfd;
+
+  scsi_cmnd_io io_hdr;
+  memset(&io_hdr, 0, sizeof(io_hdr));
+  io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+  io_hdr.dxfer_len = size;
+  io_hdr.dxferp = buf;
+  io_hdr.cmnd = cdb;
+  io_hdr.cmnd_len = sizeof(cdb);
+
+  unsigned char sense[32] = {0, };
+  io_hdr.sensep = sense;
+  io_hdr.max_sense_len = sizeof(sense);
+  io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsidev->scsi_pass_through(&io_hdr)) {
+    if (con->reportscsiioctl > 0)
+      pout("usbjmicron_device::get_registers: scsi_pass_through failed, "
+           "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+    return set_err(scsidev->get_err());
+  }
+
+  return true;
+}
+
+
 } // namespace
 
 using namespace sat;
@@ -803,6 +1006,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     }
     return new sat_device(this, scsidev, type, ptlen);
   }
+
   else if (!strncmp(type, "usbcypress", 10)) {
     unsigned signature = 0x24; int n1 = -1, n2 = -1;
     if (!(((sscanf(type, "usbcypress%n,0x%x%n", &n1, &signature, &n2) == 1 && n2 == (int)strlen(type)) || n1 == (int)strlen(type))
@@ -813,6 +1017,18 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     }
     return new usbcypress_device(this, scsidev, type, signature);
   }
+
+  else if (!strncmp(type, "usbjmicron", 10)) {
+    int port = -1, n1 = -1, n2 = -1;
+    if (!(  (sscanf(type, "usbjmicron%n,%d%n", &n1, &port, &n2) == 1
+             && n2 == (int)strlen(type) && 0 <= port && port <= 1)
+          || n1 == (int)strlen(type))) {
+      set_err(EINVAL, "Option '-d usbmicron,<n>' requires <n> to be 0 or 1");
+      return 0;
+    }
+    return new usbjmicron_device(this, scsidev, type, port);
+  }
+
   else {
     set_err(EINVAL, "Unknown USB device type '%s'", type);
     return 0;
