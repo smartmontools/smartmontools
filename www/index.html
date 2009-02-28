@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
- <title>smartmontools Home Page (last updated $Date: 2009/01/23 13:25:23 $)</title> 
+ <title>smartmontools Home Page (last updated $Date: 2009/02/28 23:27:17 $)</title> 
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" /> 
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" /> 
  <meta name="description" content="smartmontools Home Page" /> 
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: index.html,v 1.236 2009/01/23 13:25:23 dipohl Exp $ -->
+<!-- $Id: index.html,v 1.237 2009/02/28 23:27:17 dipohl Exp $ -->
 <div id="header">
  <h1><a id="logo" href="http://smartmontools.sourceforge.net/">
  <img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>    
@@ -35,21 +35,26 @@
  <div class="left-header">
   <h2>News</h2>
   <ul class="High">
+    <li><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
+    <a href="http://www.jmicron.com/Product_JM20336.htm">JMicron USB to (S)ATA bridges</a> 
+    have a vendor specific ATA pass through command and JMicron was so friendly to provide us 
+    with the required info from their internal specs.<br />
+    So Christian Franke added experimental support (new option <tt>-d usbjmicron[,1]</tt>) 
+    and made <a href="http://smartmontools.wiki.sourceforge.net/overview_USB-Support">tests 
+    on windows and linux with two devices</a> yet. We are very interested in any further 
+    test results with other devices or platforms!   
+    Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>
+    and tell us about your experiences on the 
+    <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support">
+    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</li>
+    
     <li class="marked">Some newer Seagate/Maxtor disks risk a sudden death due to buggy firmware: 7200.11, ES.2, Diamondmax 22.
-    See the <a href="http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931&NewLang=en">
+    See the <a href="http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931">
     <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Details</a>, 
     reported by Seagates customer support.</li>
     <li>Thanks to contributor Jordan Hargrave, smartmontools now have support for MegaRAID controllers.
     Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>
     and use <tt>-d megaraid,N</tt> to inspect disk N behind the controller.</li>
-    <li>Alexander Shaduri brought <a href="http://gsmartcontrol.berlios.de/">
-    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />GSmartControl</a>, 
-    a graphical user interface for <tt>smartctl</tt> into existence. Have a look at the 
-    <a href="http://gsmartcontrol.berlios.de/home/index.php/en/Screenshots">
-    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />screenshots</a>
-    and the <a href="http://gsmartcontrol.berlios.de/home/index.php/en/About">
-    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />feature list</a> 
-    to get an impression of this nice tool. </li>
     <li>Smartmontools now have some experimental code to
     support Areca SATA RAID controllers (Linux only). Thanks to
     Hank Wu (Areca) and Oliver Bock (AEI Hannover) for their contributions.
@@ -61,11 +66,6 @@
     <span id="marked">Please report problems (or success!) with the new release to the 
     <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support">
     <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</span></li>
-
-    <li>Thanks to contributor Matthieu Castet, smartmontools have a new option '<tt>-d usbcypress</tt>'. 
-    So you can address USB devices with cypress chips. The chipset contains an ATACB proprietary 
-    <em>pass through</em> for ATA commands passed through SCSI commands. 
-    Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>.</li>    
   </ul>
  </div>
  <div>
@@ -89,8 +89,13 @@ and of course in the <a href="doc.html#man-pages">manpages</a>.</p>
 
  <p>Thanks to Alexander Shaduri, there is also a graphical user interface for <tt>smartctl</tt>
  available. Go to the Homepage of <a href="http://gsmartcontrol.berlios.de/">
-<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />GSmartControl</a>
-to get all info and the software itself.</p>
+ <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />GSmartControl</a>
+ to get all info and the software itself. Have a look at the 
+ <a href="http://gsmartcontrol.berlios.de/home/index.php/en/Screenshots">
+ <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />screenshots</a>
+ and the <a href="http://gsmartcontrol.berlios.de/home/index.php/en/About">
+ <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />feature list</a> 
+ to get an impression of this nice tool.</p>
 
  <p>If smartmontools is not already installed on your system, then go to our 
  <a href="download.html">download section</a> to get it. You will also find installation instructions 
@@ -113,7 +118,7 @@ and links to other monitoring resources.</p>
  <img style="border:0;width=:88px;height:31px" src="http://sourceforge.net/sflogo.php?group_id=64297&amp;type=5" alt="SourceForge.net" /></a> <br /> 
 <font size="-1">Maintained by: <a href="mailto:smartmontools-support@lists.sourceforge.net">Gabriele Pohl</a><br />
 Copyright (C) 2002-9 Bruce Allen, published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/01/23 13:25:23 $<br /></font>
+Last update: $Date: 2009/02/28 23:27:17 $<br /></font>
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2F">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer">
 <img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
