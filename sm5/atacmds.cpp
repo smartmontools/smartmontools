@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.212 2009/02/11 21:36:00 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.213 2009/02/28 18:26:35 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -469,7 +469,7 @@ void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix
   pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
     preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
     preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
-    preg(r.device, bufs[6]), suffix);
+    preg(r.status, bufs[6]), suffix);
 }
 
 static void prettyprint(const unsigned char *p, const char *name){
