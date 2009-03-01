@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.199 2009/02/23 22:59:04 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.200 2009/03/01 20:45:11 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -627,6 +627,12 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Endurastar J4K30/N4K30",
     "HE[JN]4230[23]0F9AT00",
+    "",
+    "",
+    "-v 9,minutes -v 193,loadunload"
+  },
+  { "Hitachi Travelstar C4K60 family",  // 1.8" slim drive
+    "HTC4260[23]0G5CE00|HTC4260[56]0G8CE00",
     "",
     "",
     "-v 9,minutes -v 193,loadunload"
