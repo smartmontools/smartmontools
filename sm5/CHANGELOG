@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.775 2009/02/27 22:42:51 chrfranke Exp $
+$Id: CHANGELOG,v 1.776 2009/03/01 20:28:43 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] Workaround for huge raw values of attribute 9, needed
+       for Hitachi Travelstar C4K60. For the Power_On_Minutes case,
+       clip the display to 4 bytes and show the remaining part, 
+       if existent, in parens.
 
   [CF] Add experimental option '-d usbjmicron[,PORT]' for drives
        behind JMicron USB bridges. Tested on WinXP with JM20336 in

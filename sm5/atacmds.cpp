@@ -39,7 +39,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.213 2009/02/28 18:26:35 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.214 2009/03/01 20:28:44 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1905,9 +1905,12 @@ int64_t ataPrintSmartAttribRawValue(char *out,
   case 9:
     if (select==1){
       // minutes
-      int64_t tmp1=rawvalue/60;
-      int64_t tmp2=rawvalue%60;
+      int64_t temp=word[0]+(word[1]<<16);
+      int64_t tmp1=temp/60;
+      int64_t tmp2=temp%60;
       out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
+      if (word[2])
+        out+=sprintf(out, " (%u)", word[2]);
     }
     else if (select==3){
       // seconds
