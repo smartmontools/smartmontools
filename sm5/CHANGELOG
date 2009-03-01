@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.776 2009/03/01 20:28:43 manfred99 Exp $
+$Id: CHANGELOG,v 1.777 2009/03/01 20:45:11 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update:
+       Add Hitachi Travelstar C4K60 family (1.8" slim drives)
 
   [MS] Workaround for huge raw values of attribute 9, needed
        for Hitachi Travelstar C4K60. For the Power_On_Minutes case,
