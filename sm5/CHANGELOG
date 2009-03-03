@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.777 2009/03/01 20:45:11 manfred99 Exp $
+$Id: CHANGELOG,v 1.778 2009/03/03 20:13:08 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -41,12 +41,15 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Fix win_scsi_device::scsi_pass_through() for single byte
+       data transfers. Required for JMicron SMART STATUS check.
+
   [MS] knowndrives.cpp update:
        Add Hitachi Travelstar C4K60 family (1.8" slim drives)
 
   [MS] Workaround for huge raw values of attribute 9, needed
        for Hitachi Travelstar C4K60. For the Power_On_Minutes case,
-       clip the display to 4 bytes and show the remaining part, 
+       clip the display to 4 bytes and show the remaining part,
        if existent, in parens.
 
   [CF] Add experimental option '-d usbjmicron[,PORT]' for drives
