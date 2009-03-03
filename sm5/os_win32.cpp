@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.71 2009/02/11 21:36:00 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.72 2009/03/03 20:13:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -3310,6 +3310,52 @@ typedef struct {
 } SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER;
 
 
+// Issue command via IOCTL_SCSI_PASS_THROUGH instead of *_DIRECT.
+// Used if DataTransferLength not supported by *_DIRECT.
+static long scsi_pass_through_indirect(HANDLE h,
+  SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER * sbd)
+{
+  struct SCSI_PASS_THROUGH_WITH_BUFFERS {
+    SCSI_PASS_THROUGH spt;
+    ULONG Filler;
+    UCHAR ucSenseBuf[sizeof(sbd->ucSenseBuf)];
+    UCHAR ucDataBuf[512];
+  };
+
+  SCSI_PASS_THROUGH_WITH_BUFFERS sb;
+  memset(&sb, 0, sizeof(sb));
+
+  // DATA_OUT not implemented yet
+  if (!(   sbd->spt.DataIn == SCSI_IOCTL_DATA_IN
+        && sbd->spt.DataTransferLength <= sizeof(sb.ucDataBuf)))
+    return ERROR_INVALID_PARAMETER;
+
+  sb.spt.Length = sizeof(sb.spt);
+  sb.spt.CdbLength = sbd->spt.CdbLength;
+  memcpy(sb.spt.Cdb, sbd->spt.Cdb, sizeof(sb.spt.Cdb));
+  sb.spt.SenseInfoLength = sizeof(sb.ucSenseBuf);
+  sb.spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucSenseBuf);
+  sb.spt.DataIn = sbd->spt.DataIn;
+  sb.spt.DataTransferLength = sbd->spt.DataTransferLength;
+  sb.spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, ucDataBuf);
+  sb.spt.TimeOutValue = sbd->spt.TimeOutValue;
+
+  DWORD num_out;
+  if (!DeviceIoControl(h, IOCTL_SCSI_PASS_THROUGH,
+         &sb, sizeof(sb), &sb, sizeof(sb), &num_out, 0))
+    return GetLastError();
+
+  sbd->spt.ScsiStatus = sb.spt.ScsiStatus;
+  if (sb.spt.ScsiStatus & SCSI_STATUS_CHECK_CONDITION)
+    memcpy(sbd->ucSenseBuf, sb.ucSenseBuf, sizeof(sbd->ucSenseBuf));
+
+  sbd->spt.DataTransferLength = sb.spt.DataTransferLength;
+  if (sbd->spt.DataIn == SCSI_IOCTL_DATA_IN && sb.spt.DataTransferLength > 0)
+    memcpy(sbd->spt.DataBuffer, sb.ucDataBuf, sb.spt.DataTransferLength);
+  return 0;
+}
+
+
 // Interface to SPT SCSI devices.  See scsicmds.h and os_linux.c
 bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 {
@@ -3354,6 +3400,8 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
   sb.spt.SenseInfoOffset =
     offsetof(SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER, ucSenseBuf);
   sb.spt.TimeOutValue = (iop->timeout ? iop->timeout : 60);
+
+  bool direct = true;
   switch (iop->dxfer_dir) {
     case DXFER_NONE:
       sb.spt.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED;
@@ -3362,6 +3410,10 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
       sb.spt.DataIn = SCSI_IOCTL_DATA_IN;
       sb.spt.DataTransferLength = iop->dxfer_len;
       sb.spt.DataBuffer = iop->dxferp;
+      // IOCTL_SCSI_PASS_THROUGH_DIRECT does not support single byte
+      // transfers (needed for SMART STATUS check of JMicron USB briges)
+      if (sb.spt.DataTransferLength == 1)
+        direct = false;
       break;
     case DXFER_TO_DEVICE:
       sb.spt.DataIn = SCSI_IOCTL_DATA_OUT;
@@ -3373,15 +3425,20 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
       return false;
   }
 
-  DWORD num_out;
-  if (! DeviceIoControl(get_fh(), IOCTL_SCSI_PASS_THROUGH_DIRECT,
-    &sb, sizeof(sb), &sb, sizeof(sb), &num_out, NULL)) {
-    long err = GetLastError();
-
-    set_err((err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO),
-      "IOCTL_SCSI_PASS_THROUGH_DIRECT failed, Error=%ld", err);
-    return false;
+  long err = 0;
+  if (direct) {
+    DWORD num_out;
+    if (!DeviceIoControl(get_fh(), IOCTL_SCSI_PASS_THROUGH_DIRECT,
+           &sb, sizeof(sb), &sb, sizeof(sb), &num_out, 0))
+      err = GetLastError();
   }
+  else
+    err = scsi_pass_through_indirect(get_fh(), &sb);
+
+  if (err)
+    return set_err((err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO),
+      "IOCTL_SCSI_PASS_THROUGH%s failed, Error=%ld",
+      (direct ? "_DIRECT" : ""), err);
 
   iop->scsi_status = sb.spt.ScsiStatus;
   if (SCSI_STATUS_CHECK_CONDITION & iop->scsi_status) {
