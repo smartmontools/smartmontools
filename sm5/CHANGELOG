@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.778 2009/03/03 20:13:08 chrfranke Exp $
+$Id: CHANGELOG,v 1.779 2009/03/03 20:23:55 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add new SMART STATUS check command for JMicron USB bridges.
+       Should support also older chip versions and prevents a race
+       condition.
 
   [CF] Windows: Fix win_scsi_device::scsi_pass_through() for single byte
        data transfers. Required for JMicron SMART STATUS check.
