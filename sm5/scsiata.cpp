@@ -3,7 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2006-8 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2006-9 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2009   Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.22 2009/02/27 22:42:52 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.23 2009/03/03 20:23:55 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -832,7 +833,7 @@ bool usbjmicron_device::open()
 
   // Detect port if not specified
   if (m_port < 0) {
-    unsigned char regbuf[2] = {0, 0};
+    unsigned char regbuf[1] = {0};
     if (!get_registers(0x720f, regbuf, sizeof(regbuf))) {
       close();
       return false;
@@ -861,11 +862,16 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   )
     return false;
 
+  bool is_smart_status = (   in.in_regs.command  == ATA_SMART_CMD
+                          && in.in_regs.features == ATA_SMART_STATUS);
+
+  // Support output registers for SMART STATUS
+  if (in.out_needed.is_set() && !is_smart_status)
+    return set_err(ENOSYS, "ATA output registers not supported");
+
   // Support 48-bit commands with zero high bytes
-  if (in.in_regs.is_48bit_cmd()) {
-    if (in.in_regs.is_real_48bit_cmd() || in.out_needed.is_set())
-      return set_err(ENOSYS, "48-bit ATA commands not fully supported");
-  }
+  if (in.in_regs.is_real_48bit_cmd())
+    return set_err(ENOSYS, "48-bit ATA commands not fully supported");
 
   if (m_port < 0)
     return set_err(EIO, "Unknown JMicron port");
@@ -874,7 +880,14 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   memset(&io_hdr, 0, sizeof(io_hdr));
 
   bool rwbit = true;
-  switch (in.direction) {
+  unsigned char smart_status = 0;
+
+  if (is_smart_status && in.out_needed.is_set()) {
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = 1;
+    io_hdr.dxferp = &smart_status;
+  }
+  else switch (in.direction) {
     case ata_cmd_in::no_data:
       io_hdr.dxfer_dir = DXFER_NONE;
       break;
@@ -926,19 +939,37 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   }
 
   if (in.out_needed.is_set()) {
-    // Read ATA output registers
-    // NOTE: There is a small race condition here!
-    unsigned char regbuf[16] = {0, };
-    if (!get_registers((m_port == 0 ? 0x8000 : 0x9000), regbuf, sizeof(regbuf)))
-      return false;
+    if (is_smart_status) {
+      switch (smart_status) {
+        case 0x01: case 0xc2:
+          out.out_regs.lba_high = 0xc2;
+          out.out_regs.lba_mid = 0x4f;
+          break;
+        case 0x00: case 0x2c:
+          out.out_regs.lba_high = 0x2c;
+          out.out_regs.lba_mid = 0xf4;
+          break;
+      }
+    }
 
-    out.out_regs.sector_count = regbuf[ 0];
-    out.out_regs.lba_mid      = regbuf[ 4];
-    out.out_regs.lba_low      = regbuf[ 6];
-    out.out_regs.device       = regbuf[ 9];
-    out.out_regs.lba_high     = regbuf[10];
-    out.out_regs.error        = regbuf[13];
-    out.out_regs.status       = regbuf[14];
+#if 0 // Not needed for SMART STATUS, see also notes below
+    else {
+      // Read ATA output registers
+      // NOTE: The register addresses are not valid for some older chip revisions
+      // NOTE: There is a small race condition here!
+      unsigned char regbuf[16] = {0, };
+      if (!get_registers((m_port == 0 ? 0x8000 : 0x9000), regbuf, sizeof(regbuf)))
+        return false;
+
+      out.out_regs.sector_count = regbuf[ 0];
+      out.out_regs.lba_mid      = regbuf[ 4];
+      out.out_regs.lba_low      = regbuf[ 6];
+      out.out_regs.device       = regbuf[ 9];
+      out.out_regs.lba_high     = regbuf[10];
+      out.out_regs.error        = regbuf[13];
+      out.out_regs.status       = regbuf[14];
+    }
+#endif
   }
 
   return true;
