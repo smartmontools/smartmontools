@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.23 2009/03/03 20:23:55 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.24 2009/03/06 22:23:04 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -938,6 +938,16 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
     return set_err(scsidev->get_err());
   }
 
+  scsi_sense_disect sinfo;
+  scsi_do_sense_disect(&io_hdr, &sinfo);
+  int err = scsiSimpleSenseFilter(&sinfo);
+  if (err) {
+    if (con->reportscsiioctl > 0)
+      pout("usbjmicron_device::ata_pass_through: scsi error: %s\n",
+           scsiErrString(err));
+    return set_err(EIO, "scsi error %s", scsiErrString(err));
+  }
+
   if (in.out_needed.is_set()) {
     if (is_smart_status) {
       switch (smart_status) {
@@ -1011,6 +1021,16 @@ bool usbjmicron_device::get_registers(unsigned short addr,
       pout("usbjmicron_device::get_registers: scsi_pass_through failed, "
            "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
     return set_err(scsidev->get_err());
+  }
+
+  scsi_sense_disect sinfo;
+  scsi_do_sense_disect(&io_hdr, &sinfo);
+  int err = scsiSimpleSenseFilter(&sinfo);
+  if (err) {
+    if (con->reportscsiioctl > 0)
+      pout("usbjmicron_device::get_registers: scsi error: %s\n",
+           scsiErrString(err));
+    return set_err(EIO, "scsi error %s", scsiErrString(err));
   }
 
   return true;
