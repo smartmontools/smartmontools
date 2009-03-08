@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.780 2009/03/06 22:23:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.781 2009/03/08 21:14:58 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update:
+       Seagate Momentus 5400.6 series
 
   [CF] Add forgotten SCSI sense checks to class usbjmicron_device.
 

@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.200 2009/03/01 20:45:11 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.201 2009/03/08 21:14:59 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -855,6 +855,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 5400.3 ED series",
     "ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AB",
+    "", "", ""
+  },
+  { "Seagate Momentus 5400.6 series",
+    "ST9((12|25)0315AS|500325)ASG?",
     "", "", ""
   },
   { "Seagate Momentus 5400 PSD series", // Hybrid drives
