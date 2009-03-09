@@ -138,7 +138,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.439 2009/01/31 17:50:19 dlukes Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.440 2009/03/09 20:26:04 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1601,6 +1601,34 @@ static int SelfTestErrorCount(ata_device * device, const char * name)
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
 #define SELFTEST_ERRORHOURS(x) ((x >> 8) & 0xffff)
 
+// Log self-test execution status
+static void log_self_test_exec_status(const char * name, unsigned char status)
+{
+  const char * msg;
+  switch (status >> 4) {
+    case 0x0: msg = "completed without error"; break;
+    case 0x1: msg = "was aborted by the host"; break;
+    case 0x2: msg = "was interrupted by the host with a reset"; break;
+    case 0x3: msg = "could not complete due to a fatal or unknown error"; break;
+    case 0x4: msg = "completed with error (unknown test element)"; break;
+    case 0x5: msg = "completed with error (electrical test element)"; break;
+    case 0x6: msg = "completed with error (servo/seek test element)"; break;
+    case 0x7: msg = "completed with error (read test element)"; break;
+    case 0x8: msg = "completed with error (handling damage?)"; break;
+    default:  msg = 0;
+  }
+
+  if (msg)
+    PrintOut(((status >> 4) >= 0x4 ? LOG_CRIT : LOG_INFO),
+             "Device: %s, previous self-test %s\n", name, msg);
+  else if ((status >> 4) == 0xf)
+    PrintOut(LOG_INFO, "Device: %s, self-test in progress, %u0%% remaining\n",
+             name, status & 0x0f);
+  else
+    PrintOut(LOG_INFO, "Device: %s, unknown self-test status 0x%02x\n",
+             name, status);
+}
+
 // scan to see what ata devices there are, and if they support SMART
 static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atadev)
 {
@@ -2467,6 +2495,10 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
     return retval;
   }
 
+  if (testtype != 'O')
+    // Log next self-test execution status
+    state.smartval.self_test_exec_status = 0xff;
+
   PrintOut(LOG_INFO, "Device: %s, starting scheduled %sTest.\n", name, testname);
   return 0;
 }
@@ -2675,7 +2707,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
   if (   cfg.usagefailed || cfg.prefail || cfg.usage || cfg.pending!=DONT_MONITOR_UNC
-      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit                                 ){
+      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || cfg.selftest                ) {
     struct ata_smart_values     curval;
     struct ata_smart_thresholds_pvt * thresh = &state.smartthres;
 
@@ -2788,6 +2820,13 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	  } // endof block tracking usage or prefailure
 	} // end of loop over attributes
 	
+        if (cfg.selftest) {
+          // Log changes of self-test executions status
+          if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
+              || (!allow_selftests && curval.self_test_exec_status != 0x00)          )
+            log_self_test_exec_status(name, curval.self_test_exec_status);
+        }
+
 	// Save the new values into *drive for the next time around
 	state.smartval = curval;
       }
