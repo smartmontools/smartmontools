@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.781 2009/03/08 21:14:58 manfred99 Exp $
+$Id: CHANGELOG,v 1.782 2009/03/09 19:58:07 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp update:
+       Samsung SpinPoint F1 RE series
 
   [MS] knowndrives.cpp update:
        Seagate Momentus 5400.6 series

@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.201 2009/03/08 21:14:59 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.202 2009/03/09 19:58:07 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -270,8 +270,12 @@ static const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,halfminutes -F samsung"
   },
-  { "SAMSUNG SpinPoint F1 series", // tested with HD103UJ/1AA01113
+  { "SAMSUNG SpinPoint F1 DT series", // tested with HD103UJ/1AA01113
     "SAMSUNG HD(083G|16[12]G|25[12]H|32[12]H|50[12]I|642J|75[23]L|10[23]U)J",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint F1 RE series", // tested with HE103UJ/1AA01113
+    "SAMSUNG HE(252H|322H|502I|642J|753L|103U)J",
     "", "", ""
   },
   { "SAMSUNG SpinPoint T133 series", // tested with HD300LJ/ZT100-12, HD400LJ/ZZ100-14, HD401LJ/ZZ100-15
