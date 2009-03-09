@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.103 2009/02/06 22:33:05 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.104 2009/03/09 19:29:15 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -556,7 +556,6 @@ int ataReadSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt 
 int ataReadErrorLog(ata_device * device, struct ata_smart_errorlog *);
 int ataReadSelfTestLog(ata_device * device, struct ata_smart_selftestlog *);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
-int ataSmartStatus(ata_device * device);
 int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
 
