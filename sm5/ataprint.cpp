@@ -43,7 +43,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.207 2009/02/09 21:48:52 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.208 2009/03/09 20:42:33 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1290,9 +1290,9 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
 
     // Print registers
     pout("  After command completion occurred, registers were:\n"
-         "  ER ST COUNT  LBA_48  LH LM LL DV DC\n"
-         "  -- -- == -- == == == -- -- -- -- --\n"
-         "  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
+         "  ER -- ST COUNT  LBA_48  LH LM LL DV DC\n"
+         "  -- -- -- == -- == == == -- -- -- -- --\n"
+         "  %02x -- %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x",
          err.error_register,
          err.status_register,
          err.count_register_hi,
