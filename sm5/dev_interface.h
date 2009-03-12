@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2008 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.8 2009/02/27 22:42:52 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.9 2009/03/12 20:31:12 chrfranke Exp $\n"
 
 #include <stdarg.h>
 #include <string>
@@ -691,6 +691,12 @@ public:
     const unsigned char * inqdata, unsigned inqsize);
   //{ implemented in scsiata.cpp }
 
+  /// Get type name for USB device with known VENDOR:PRODUCT ID.
+  /// Return name if device known and supported, otherwise 0.
+  virtual const char * get_usb_dev_type_by_id(int vendor_id, int product_id,
+                                              int version = -1);
+  //{ implemented in scsiata.cpp }
+
 protected:
   /// Set interface to use, must be called from init().
   static void set(smart_interface * intf)
@@ -702,6 +708,10 @@ private:
 
   friend smart_interface * smi(); // below
   static smart_interface * s_instance; ///< Pointer to the interface object.
+
+  // Prevent copy/assigment
+  smart_interface(const smart_interface &);
+  void operator=(const smart_interface &);
 };
 
 

@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.24 2009/03/06 22:23:04 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.25 2009/03/12 20:31:12 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1130,5 +1130,57 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
     throw;
   }
 
+  return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// USB device type detection
+
+struct usb_id_entry {
+  int vendor_id, product_id, version;
+  const char * type;
+};
+
+const char d_sat[]     = "sat";
+const char d_jmicron[] = "usbjmicron";
+const char d_cypress[] = "usbcypress";
+const int  d_unsup = 0;
+
+// Map USB IDs -> '-d type' string
+const usb_id_entry usb_ids[] = {
+  { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A
+//{ 0x04b4,     -1,     -1, d_cypress }, // Cypress CY7C68300B/C ?
+  { 0x0c0b, 0xb159, 0x0103, d_unsup   }, // Dura Micro ?
+  { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
+//{ 0x0d49,     -1,     -1, d_sat     }, // Maxtor Basics Desktop
+  { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
+  { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
+  { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
+  { 0x152d, 0x2336, 0x0100, d_jmicron }, // JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
+  { 0x152d, 0x2338, 0x0100, d_jmicron }, // JMicron JM20337/8 (USB->SATA+PATA, USB+SATA->PATA)
+  { 0x152d, 0x2339, 0x0100, d_jmicron }  // JMicron JM20339 (USB->SATA)
+};
+
+const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
+
+
+// Get type name for USB device with known VENDOR:PRODUCT ID.
+// Version not checked yet.
+const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_id,
+                                                     int /*version = -1*/)
+{
+  for (unsigned i = 0; i < num_usb_ids; i++) {
+    const usb_id_entry & e = usb_ids[i];
+    if (vendor_id == e.vendor_id && product_id == e.product_id) {
+      if (e.type == d_unsup) {
+        set_err(ENOSYS, "Unsupported USB bridge (0x%04x:0x%04x)", vendor_id, product_id);
+        return 0;
+      }
+      return e.type;
+    }
+  }
+
+  set_err(EINVAL, "Unknown USB bridge (0x%04x:0x%04x)", vendor_id, product_id);
   return 0;
 }

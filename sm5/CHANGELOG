@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.783 2009/03/09 20:26:04 chrfranke Exp $
+$Id: CHANGELOG,v 1.784 2009/03/12 20:31:12 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add function smart_interface::get_usb_dev_type_by_id() to map
+       USB vendor:product IDs to '-d type' names. Can be used by
+       platform dependent layer to autodetect USB devices if ID of
+       USB bridge is known.
 
   [CF] smartd: Log changes of self-test execution status if
        '-l selftest'is specified.
