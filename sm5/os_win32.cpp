@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.72 2009/03/03 20:13:08 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.73 2009/03/12 20:42:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -318,10 +318,12 @@ const char * win_smart_interface::get_os_version_str()
 }
 
 // Return value for device detection functions
-enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI };
+enum win_dev_type { DEV_UNKNOWN = 0, DEV_ATA, DEV_SCSI, DEV_USB };
 
 static win_dev_type get_phy_drive_type(int drive);
 static win_dev_type get_log_drive_type(int drive);
+static bool get_usb_id(int drive, unsigned short & vendor_id,
+                       unsigned short & product_id);
 
 static const char * ata_get_def_options(void);
 
@@ -375,8 +377,9 @@ scsi_device * winnt_smart_interface::get_scsi_device(const char * name, const ch
   return new win_scsi_device(this, name, type);
 }
 
-static win_dev_type get_dev_type(const char * name)
+static win_dev_type get_dev_type(const char * name, int & phydrive)
 {
+  phydrive = -1;
   name = skipdev(name);
   if (!strncmp(name, "st", 2))
     return DEV_SCSI;
@@ -390,10 +393,14 @@ static win_dev_type get_dev_type(const char * name)
     win_dev_type type = get_log_drive_type(logdrive);
     return (type != DEV_UNKNOWN ? type : DEV_SCSI);
   }
+
   char drive[1+1] = "";
-  if (sscanf(name, "sd%1[a-z]", drive) == 1)
-    return get_phy_drive_type(drive[0]-'a');
-  int phydrive = -1;
+  if (sscanf(name, "sd%1[a-z]", drive) == 1) {
+    phydrive = drive[0] - 'a';
+    return get_phy_drive_type(phydrive);
+  }
+
+  phydrive = -1;
   if (sscanf(name, "pd%d", &phydrive) == 1 && phydrive >= 0)
     return get_phy_drive_type(phydrive);
   return DEV_UNKNOWN;
@@ -417,11 +424,29 @@ smart_device * winnt_smart_interface::autodetect_smart_device(const char * name)
   if (dev)
     return dev;
 
-  win_dev_type type = get_dev_type(name);
+  int phydrive = -1;
+  win_dev_type type = get_dev_type(name, phydrive);
+
   if (type == DEV_ATA)
     return new win_ata_device(this, name, "");
   if (type == DEV_SCSI)
     return new win_scsi_device(this, name, "");
+
+  if (type == DEV_USB) {
+    // Get USB bridge ID
+    unsigned short vendor_id = 0, product_id = 0;
+    if (!(phydrive >= 0 && get_usb_id(phydrive, vendor_id, product_id))) {
+      set_err(EINVAL, "Unable to read USB device ID");
+      return 0;
+    }
+    // Get type name for this ID
+    const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+    if (!usbtype)
+      return 0;
+    // Return SAT/USB device for this type
+    return get_sat_device(usbtype, new win_scsi_device(this, name, ""));
+  }
+
   return 0;
 }
 
@@ -1865,6 +1890,8 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
     case BusTypeiScsi:
     case BusTypeSas:
       return DEV_SCSI;
+    case BusTypeUsb:
+      return DEV_USB;
     default:
       return DEV_UNKNOWN;
   }
@@ -1928,6 +1955,137 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
   return 0;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+// USB ID detection using WMI
+
+// Run a command, split stdout into lines.
+// Return number of lines read, -1 on error.
+static int run_cmd(std::vector<std::string> & lines, const char * cmd, ...)
+{
+  lines.clear();
+
+  va_list ap; va_start(ap, cmd);
+  std::string cmdline = vstrprintf(cmd, ap);
+  va_end(ap);
+
+  if (con->reportscsiioctl > 1)
+    pout("Run: \"%s\"\n", cmdline.c_str());
+
+  char buffer[16*1024];
+  int size = run_cmd(cmdline.c_str(), buffer, sizeof(buffer));
+
+  if (con->reportscsiioctl > 1)
+    pout("Read %d bytes\n", size);
+  if (!(0 < size && size < (int)sizeof(buffer)-1))
+    return -1;
+
+  buffer[size] = 0;
+
+  for (int i = 0; buffer[i]; ) {
+      int len = strcspn(buffer+i, "\r\n");
+      lines.push_back(std::string(buffer+i, len));
+      i += len;
+      i += strspn(buffer+i, "\r\n");
+  }
+  if (con->reportscsiioctl > 1) {
+    for (unsigned i = 0; i < lines.size(); i++)
+      printf("'%s'\n", lines[i].c_str());
+  }
+  return lines.size();
+}
+
+// Quote string for WMI
+static std::string wmi_quote(const char * s, int len)
+{
+  std::string r;
+  for (int i = 0; i < len; i++) {
+    char c = s[i];
+    if (c == '\\')
+      r += '\\';
+    r += c;
+  }
+  return r;
+}
+
+// Get USB ID for a physical drive number
+static bool get_usb_id(int drive, unsigned short & vendor_id, unsigned short & product_id)
+{
+  // Get device name
+  std::vector<std::string> result;
+  if (run_cmd(result,
+        "wmic PATH Win32_DiskDrive WHERE DeviceID=\"\\\\\\\\.\\\\PHYSICALDRIVE%d\" GET Model",
+        drive) != 2)
+    return false;
+
+  std::string name = result[1];
+
+  // Get USB_CONTROLLER -> DEVICE associations
+  std::vector<std::string> assoc;
+  int n = run_cmd(assoc, "wmic PATH Win32_USBControllerDevice GET Antecedent,Dependent");
+  if (n < 2)
+    return false;
+
+  regular_expression regex("^([^ ]+) .*Win32_PnPEntity.DeviceID=\"(USBSTOR\\\\[^\"]*)\" *$",
+                           REG_EXTENDED);
+  if (regex.empty()) // TODO: throw in constructor?
+    return false;
+
+  int usbstoridx = -1;
+  std::string usbcontr;
+  for (int i = 2; i < n; i++) {
+    // Find next 'USB_CONTROLLER  USBSTORAGE_DEVICE' pair
+    regmatch_t match[3];
+    const char * s = assoc[i].c_str();
+    if (!regex.execute(s, 3, match))
+      continue;
+
+    // USBSTOR device found, compare Name
+    if (run_cmd(result,
+          "wmic PATH Win32_PnPEntity WHERE DeviceID=\"%s\" GET Name",
+          wmi_quote(s + match[2].rm_so, match[2].rm_eo - match[2].rm_so).c_str()
+          ) != 2)
+      continue;
+    if (result[1] != name)
+      continue;
+
+    // Name must be uniqe
+    if (usbstoridx >= 0)
+      return false;
+
+    usbstoridx = i;
+    usbcontr.assign(s + match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+  }
+
+  // Found ?
+  if (usbstoridx <= 0)
+    return false;
+
+  // The entry preceding USBSTOR should be the USB bridge device
+  regex.compile("^([^ ]+) .*Win32_PnPEntity.DeviceID=\"USB\\\\VID_(....&PID_....)[^\"]*\" *$",
+                REG_EXTENDED);
+  if (regex.empty())
+    return false;
+  regmatch_t match[3];
+  const char * s = assoc[usbstoridx-1].c_str();
+  if (!regex.execute(s, 3, match))
+    return false;
+
+  // Both devices must be associated to same controller
+  if (usbcontr != std::string(s + match[1].rm_so, match[1].rm_eo - match[1].rm_so))
+    return false;
+
+  // Parse USB ID
+  int nc = -1;
+  if (!(sscanf(s + match[2].rm_so, "%4hx&PID_%4hx%n",
+               &vendor_id, &product_id, &nc) == 2 && nc == 4+5+4))
+    return false;
+
+  if (con->reportscsiioctl > 1)
+    pout("USB ID = 0x%04x:0x%04x\n", vendor_id, product_id);
+  return true;
 }
 
 
