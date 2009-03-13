@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.785 2009/03/12 20:42:08 chrfranke Exp $
+$Id: CHANGELOG,v 1.786 2009/03/13 18:09:31 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Linux: Add experimental USB device type autodetection.
+       Uses USB ID info found through symlink "/sys/block/sdX/device".
 
   [CF] Windows: Add experimental USB device type autodetection.
        Uses WMI command line tool 'wmic' to query USB ID.

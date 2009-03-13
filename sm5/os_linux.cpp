@@ -7,7 +7,7 @@
  * Copyright (C) 2003-8 Doug Gilbert <dougg@torque.net>
  * Copyright (C) 2008   Hank Wu <hank@areca.com.tw>
  * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008   Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2008   Jordan Hargrave <jordan_hargrave@dell.com>
  *
  *  Parts of this file are derived from code that was
@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.123 2009/01/30 19:26:58 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.124 2009/03/13 18:09:32 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2712,6 +2712,60 @@ smart_device * linux_scsi_device::autodetect_open()
 
 
 //////////////////////////////////////////////////////////////////////
+// USB bridge ID detection
+
+// Read USB ID from /sys file
+static bool read_id(const std::string & path, unsigned short & id)
+{
+  FILE * f = fopen(path.c_str(), "r");
+  if (!f)
+    return false;
+  int n = -1;
+  bool ok = (fscanf(f, "%hx%n", &id, &n) == 1 && n == 4);
+  fclose(f);
+  return ok;
+}
+
+// Get USB bridge ID for "/dev/sdX"
+static bool get_usb_id(const char * path, unsigned short & vendor_id,
+                       unsigned short & product_id, unsigned short & version)
+{
+  // Only "/dev/sdX" supported
+  if (!(!strncmp(path, "/dev/sd", 7) && !strchr(path + 7, '/')))
+    return false;
+
+  // Start search at dir referenced by symlink "/sys/block/sdX/device"
+  // -> "/sys/devices/.../usb*/.../host*/target*/..."
+  std::string dir = strprintf("/sys/block/%s/device", path + 5);
+
+  // Stop search at "/sys/devices"
+  struct stat st;
+  if (stat("/sys/devices", &st))
+    return false;
+  ino_t stop_ino = st.st_ino;
+
+  // Search in parent directories until "idVendor" is found,
+  // fail if "/sys/devices" reached or too many iterations
+  int cnt = 0;
+  do {
+    dir += "/..";
+    if (!(++cnt < 10 && !stat(dir.c_str(), &st) && st.st_ino != stop_ino))
+      return false;
+  } while (access((dir + "/idVendor").c_str(), 0));
+
+  // Read IDs
+  if (!(   read_id(dir + "/idVendor", vendor_id)
+        && read_id(dir + "/idProduct", product_id)
+        && read_id(dir + "/bcdDevice", version)   ))
+    return false;
+
+  if (con->reportscsiioctl > 1)
+    pout("USB ID = 0x%04x:0x%04x (0x%03x)\n", vendor_id, product_id, version);
+  return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
 /// Linux interface
 
 class linux_smart_interface
@@ -2936,8 +2990,25 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
   // form /dev/s* or s*
   if (!strncmp(lin_dev_scsi_disk_plus, dev_name,
-               strlen(lin_dev_scsi_disk_plus)))
+               strlen(lin_dev_scsi_disk_plus))) {
+
+    // Try to detect possible USB->(S)ATA bridge
+    unsigned short vendor_id = 0, product_id = 0, version = 0;
+    if (get_usb_id(name, vendor_id, product_id, version)) {
+      const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
+      if (!usbtype)
+        return 0;
+      // Linux USB layer does not support 16 byte SAT pass through command
+      if (!strcmp(usbtype, "sat"))
+        usbtype = "sat,12";
+      // Return SAT/USB device for this type
+      // (Note: linux_scsi_device::autodetect_open() will not be called in this case)
+      return get_sat_device(usbtype, new linux_scsi_device(this, name, ""));
+    }
+
+    // No USB bridge found, assume regular SCSI device
     return new linux_scsi_device(this, name, "");
+  }
 
   // form /dev/scsi/* or scsi/*
   if (!strncmp(lin_dev_scsi_devfs_disk_plus, dev_name,
