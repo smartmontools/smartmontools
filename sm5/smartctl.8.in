@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.120 2009/02/27 22:42:52 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.121 2009/03/14 16:14:10 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -214,9 +214,16 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
 are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP,
-\fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIcciss,N\fP, and
-\fIhpt,L/M\fP (or \fIhpt,L/M/N\fP).  If this option is not used then
-\fBsmartctl\fP will attempt to guess the device type from the device name.
+\fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIcciss,N\fP,
+\fIhpt,L/M\fP (or \fIhpt,L/M/N\fP), and \fItest\fP.
+
+If this option is not used then \fBsmartctl\fP will attempt to guess
+the device type from the device name or from controller type info
+provided by the operating system.
+
+If \'test\' is used as the TYPE name, \fBsmartctl\fP prints the guessed
+TYPE name, then opens the device and prints the (possibly changed) TYPE
+name and then exists without performing any further commands.
 
 The \'sat\' device type is for ATA disks that have a SCSI to ATA
 Translation (SAT) Layer (SATL) between the disk and the operating system.
@@ -1659,7 +1666,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.120 2009/02/27 22:42:52 chrfranke Exp $
+$Id: smartctl.8.in,v 1.121 2009/03/14 16:14:10 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
