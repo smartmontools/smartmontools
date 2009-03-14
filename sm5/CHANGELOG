@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.787 2009/03/14 13:49:49 chrfranke Exp $
+$Id: CHANGELOG,v 1.788 2009/03/14 16:14:10 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add smartctl '-d test' option to print the result of the
+       device type detection.
 
   [CF] Enhance USB device type autodetection, use bcdDevice if known.
        Add Cypress CY7C68300B/C (AT2LP) to the table.

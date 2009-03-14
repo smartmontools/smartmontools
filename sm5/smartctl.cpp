@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.193 2009/02/06 22:33:05 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.194 2009/03/14 16:14:10 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -118,6 +118,8 @@ void UsageSummary(){
   return;
 }
 
+static const char *getvalidarglist(char opt);
+
 /*  void prints help information for command syntax */
 void Usage (void){
   printf("Usage: smartctl [options] device\n\n");
@@ -156,7 +158,7 @@ void Usage (void){
 "         Report transactions (see man page)\n\n"
 "  -n MODE, --nocheck=MODE                                             (ATA)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
-  smi()->get_valid_dev_types_str());
+  getvalidarglist('d')); // TODO: Use this function also for other options ?
 #else
   printf(
 "  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
@@ -166,7 +168,7 @@ void Usage (void){
 "  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
 "  -r TYPE   Report transactions (see man page)\n"
 "  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n",
-  smi()->get_valid_dev_types_str());
+  getvalidarglist('d'));
 #endif
   printf("============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n");
 #ifdef HAVE_GETOPT_LONG
@@ -255,12 +257,17 @@ void Usage (void){
 
 /* Returns a pointer to a static string containing a formatted list of the valid
    arguments to the option opt or NULL on failure. Note 'v' case different */
-const char *getvalidarglist(char opt) {
+static const char *getvalidarglist(char opt)
+{
   switch (opt) {
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return smi()->get_valid_dev_types_str();
+    { // TODO: let this function return std::string ?
+      static std::string buf = smi()->get_valid_dev_types_str();
+      buf += ", test";
+      return buf.c_str();
+    }
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -907,6 +914,17 @@ void checksumwarning(const char * string)
     EXIT(FAILSMART);
 }
 
+// Return info string about device protocol
+static const char * get_protocol_info(const smart_device * dev)
+{
+  switch ((int)dev->is_ata() | ((int)dev->is_scsi() << 1)) {
+    case 0x1: return "ATA";
+    case 0x2: return "SCSI";
+    case 0x3: return "ATA+SCSI";
+    default:  return "Unknown";
+  }
+}
+
 // Main program without exception handling
 int main_worker(int argc, char **argv)
 {
@@ -927,11 +945,16 @@ int main_worker(int argc, char **argv)
     ata_print_options options;
     const char * type = ParseOpts(argc, argv, options);
 
+    // '-d test' -> Report result of autodetection
+    bool print_type_only = (type && !strcmp(type, "test"));
+    if (print_type_only)
+      type = 0;
+
     const char * name = argv[argc-1];
 
     if (!strcmp(name,"-")) {
       // Parse "smartctl -r ataioctl,2 ..." output from stdin
-      if (type) {
+      if (type || print_type_only) {
         pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
         UsageSummary();
         return FAILCMD;
@@ -952,13 +975,10 @@ int main_worker(int argc, char **argv)
       return FAILCMD;
     }
 
-    // open device - SCSI devices are opened (O_RDWR | O_NONBLOCK) so the
-    // scsi generic device can be used (needs write permission for MODE
-    // SELECT command) plus O_NONBLOCK to stop open hanging if media not
-    // present (e.g. with st).  Opening is retried O_RDONLY if read-only
-    // media prevents opening O_RDWR (it cannot happen for scsi generic
-    // devices, but it can for the others).
-    // TODO: The above comment is probably linux related ;-)
+    if (print_type_only)
+      // Report result of first autodetection
+      pout("%s: Device of type '%s' [%s] detected\n",
+           dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev));
 
     // Open device
     {
@@ -969,9 +989,9 @@ int main_worker(int argc, char **argv)
       dev = dev->autodetect_open();
 
       // Report if type has changed
-      if (type && oldinfo.dev_type != dev->get_dev_type())
-        pout("%s: Device type changed from '%s' to '%s'\n",
-          name, oldinfo.dev_type.c_str(), dev->get_dev_type());
+      if ((type || print_type_only) && oldinfo.dev_type != dev->get_dev_type())
+        pout("%s: Device open changed type from '%s' to '%s'\n",
+          dev->get_info_name(), oldinfo.dev_type.c_str(), dev->get_dev_type());
     }
     if (!dev->is_open()) {
       pout("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
@@ -980,7 +1000,10 @@ int main_worker(int argc, char **argv)
     }
 
     // now call appropriate ATA or SCSI routine
-    if (dev->is_ata())
+    if (print_type_only)
+      pout("%s: Device of type '%s' [%s] opened\n",
+           dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev));
+    else if (dev->is_ata())
       retval = ataPrintMain(dev->to_ata(), options);
     else if (dev->is_scsi())
       retval = scsiPrintMain(dev->to_scsi());
