@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.25 2009/03/12 20:31:12 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.26 2009/03/14 13:49:49 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1145,12 +1145,13 @@ struct usb_id_entry {
 const char d_sat[]     = "sat";
 const char d_jmicron[] = "usbjmicron";
 const char d_cypress[] = "usbcypress";
-const int  d_unsup = 0;
+const char d_unsup[]   = "unsupported";
 
 // Map USB IDs -> '-d type' string
 const usb_id_entry usb_ids[] = {
-  { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A
-//{ 0x04b4,     -1,     -1, d_cypress }, // Cypress CY7C68300B/C ?
+  { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
+  { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
+//{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
   { 0x0c0b, 0xb159, 0x0103, d_unsup   }, // Dura Micro ?
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
 //{ 0x0d49,     -1,     -1, d_sat     }, // Maxtor Basics Desktop
@@ -1165,22 +1166,55 @@ const usb_id_entry usb_ids[] = {
 const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
 
 
+// Format USB ID for error messages
+static std::string format_usb_id(int vendor_id, int product_id, int version)
+{
+  if (version >= 0)
+    return strprintf("[0x%04x:0x%04x (0x%03x)]", vendor_id, product_id, version);
+  else
+    return strprintf("[0x%04x:0x%04x]", vendor_id, product_id);
+}
+
 // Get type name for USB device with known VENDOR:PRODUCT ID.
 // Version not checked yet.
 const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_id,
-                                                     int /*version = -1*/)
+                                                     int version /*= -1*/)
 {
+  const usb_id_entry * entry = 0;
+  bool state = false;
+
   for (unsigned i = 0; i < num_usb_ids; i++) {
     const usb_id_entry & e = usb_ids[i];
-    if (vendor_id == e.vendor_id && product_id == e.product_id) {
-      if (e.type == d_unsup) {
-        set_err(ENOSYS, "Unsupported USB bridge (0x%04x:0x%04x)", vendor_id, product_id);
-        return 0;
+    if (!(vendor_id == e.vendor_id && product_id == e.product_id))
+      continue;
+
+    // If two entries with same vendor:product ID have different
+    // types, use version (if provided by OS) to select entry.
+    bool s = (version >= 0 && version == e.version);
+    if (entry) {
+      if (s <= state) {
+        if (s == state && e.type != entry->type) {
+          set_err(EINVAL, "USB bridge %s type is ambiguous: '%s' or '%s'",
+                  format_usb_id(vendor_id, product_id, version).c_str(),
+                  e.type, entry->type);
+          return 0;
+        }
+        continue;
       }
-      return e.type;
     }
+    state = s;
+    entry = &e;
   }
 
-  set_err(EINVAL, "Unknown USB bridge (0x%04x:0x%04x)", vendor_id, product_id);
-  return 0;
+  if (!entry) {
+    set_err(EINVAL, "Unknown USB bridge %s",
+            format_usb_id(vendor_id, product_id, version).c_str());
+    return 0;
+  }
+  if (entry->type == d_unsup) {
+    set_err(ENOSYS, "Unsupported USB bridge %s",
+            format_usb_id(vendor_id, product_id, version).c_str());
+    return 0;
+  }
+  return entry->type;
 }
