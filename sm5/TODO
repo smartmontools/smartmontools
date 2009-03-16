@@ -1,34 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.65 2009/03/16 06:43:06 chrfranke Exp $
-
-SATA devices under Linux
-------------------------
-These work OK if you use the standard IDe drivers in drivers/ide.
-
-The situation is more complicated if you use libata.
-
-Prior to Linux kernel version 2.6.15-rc1, libata does not support the
-HDIO_DRIVE_TASK, HDIO_DRIVE_CMD, and HDIO_DRIVE_TASKFILE ioctl()s that
-are needed by smartmontools.  Support for HDIO_DRIVE_TASK and
-HDIO_DRIVE_CMD was added into libata by Jeff Garzik starting with
-Linux kernel version 2.6.15-rc1.  Starting with this version, you can
-use all the smartmontools commands apart from initiating selective
-self-tests (which also requires HDIO_DRIVE_TASKFILE).  A typical
-command line might look like this:
-  smartctl -a -d ata /dev/sda
-The '-d ata' is required, since otherwise smartmontools will assume
-that the device is SCSI, not ATA/SATA.  Similar syntax will work with
-smartd.
-
-You may be able to patch earlier versions of libata. Please search the
-Linux Kernel Mailing list to find this patch, or look at the thread:
-http://groups.google.de/groups?hl=en&lr=&ie=UTF-8&threadm=2yYBY-4HB-55%40gated-at.bofh.it&rnum=3&prev=/groups%3Fq%3Dsmartmontools%26hl%3Den%26lr%3D%26ie%3DUTF-8%26scoring%3Dd%26selm%3D2yYBY-4HB-55%2540gated-at.bofh.it%26rnum%3D3
-To use this, just use (for example) 'smartctl -a -d ata /dev/sda'.
-
-Since this looks like this patch will become standard, we need to add something
-to smartmontools to automatically recognize the libata, and add the '-d ata'
-automatically.
+$Id: TODO,v 1.66 2009/03/16 20:05:46 chrfranke Exp $
 
 USB devices under Linux
 -----------------------
@@ -37,22 +9,6 @@ devices fail to comply with SCSI specifications for their packet
 command sets.  Work on improving the detection and bail-out procedures
 for these flawed devices, so that the user sees an informative error
 message and smartd/smartctl don't hang.
-
-ATA-4 (no kidding!)
--------------------
-smartctl: add another -t TESTTYPE option to accomodate old-style ATA-4
-IBM disks (ATA-4 has no self-test commands). See IBM S25L-2426-02 OEM
-HARD DISK DRIVE SPECIFICATIONS for DBCA-203240/204860/206480 2.5-Inch
-Hard Disk Drive with ATA Interface Revision (1.0)
-http://www.hgst.com/tech/techlib.nsf/techdocs/85256AB8006A31E587256A7D00642A1D/$file/dbca_sp.pdf
-section 12.30.1.5 for details.  These disks offer no self-test option,
-and the -t offline command only tests a small part of the disk (a
-'segment').  We need a -t multioffline that:
- (1) issues auto offline immediate command (tests ONE segment)
- (2) waits until estimated completion time
- (3) tests if off-line data collection status is set to 0x02 (all
-     segments completed)
- (4) if not, return to (1)
 
 ATA-6/7
 -------
@@ -63,16 +19,8 @@ smartctl/smartd
 Add additional -v options (corresponding to comments in
 atacmds.c:ataPrintSmartAttribName().
 
-Add interface to Megaraid ATA RAID controllers (Erik)
-
 smartctl: 
 ---------
-Add command line option to issue SMART SAVE ATTRIBUTE VALUES command
-Feature Register value ATA_SMART_SAVE 0xd3
-
-Perhaps modify the -q option (quiet mode) so that it only warns of ATA
-errors if they have (say) taken place in the last 168 hours (week).
-
 Parse and print additional Attribute flag meanings (IBM ones, eg
 performance etc).  These are now documented in atacmds.h -- we just
 need to modify the format of the Attribute table.
