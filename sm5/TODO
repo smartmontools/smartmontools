@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.66 2009/03/16 20:05:46 chrfranke Exp $
+$Id: TODO,v 1.67 2009/03/17 20:42:57 chrfranke Exp $
 
 USB devices under Linux
 -----------------------
@@ -13,6 +13,12 @@ message and smartd/smartctl don't hang.
 ATA-6/7
 -------
 Support extended self-test logs
+
+ATA-8
+-----
+Add ability to print counters/values from "Device Statistics" pages
+(General Purpose Log address 0x04).
+See ATA ACS-2 T13/2015-D Revision 1, Section A.5.
 
 smartctl/smartd
 ---------------
@@ -46,8 +52,18 @@ Add command line option that scans devices then WRITES
 /etc/smartd.conf, perhaps as /etc/smartd.conf.output, just for devices
 that can be monitored.
 
+Add ability to warn when Current_Pending_Sector or Offline_Uncorrectable
+raw value increase. Some disks apparently do not reset these values
+when sectors are reallocated. It should be possible to preset this option
+in drivedb.
+
+Add ability to warn when Reallocated_Sector_Count raw value increases.
+
 Packaging
 ---------
 Under freebsd and solaris, the following are wrong:
 smartd.conf: has linux device paths
 smart*.in  : man pages have (mostly) linux device paths
+
+configure packages with --enable-drivedb (?)
+configure packages with --enable-savestates (?)
