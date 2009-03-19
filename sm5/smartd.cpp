@@ -1,10 +1,10 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000   Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008   Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <time.h>
 #include <limits.h>
+#include <getopt.h>
 
 #include <stdexcept>
 #include <string>
@@ -53,10 +54,7 @@
 #include <sys/wait.h>
 #endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h> // Declares also standard getopt()
-#endif
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
+#include <unistd.h>
 #endif
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
@@ -138,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.440 2009/03/09 20:26:04 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.441 2009/03/19 18:00:36 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1486,7 +1484,6 @@ const char *GetValidArgList(char opt) {
 /* prints help information for command syntax */
 void Usage (void){
   PrintOut(LOG_INFO,"Usage: smartd [options]\n\n");
-#ifdef HAVE_GETOPT_LONG
   PrintOut(LOG_INFO,"  -c NAME|-, --configfile=NAME|-\n");
   PrintOut(LOG_INFO,"        Read configuration file NAME or stdin [default is %s]\n\n", configfile);
   PrintOut(LOG_INFO,"  -d, --debug\n");
@@ -1534,21 +1531,6 @@ void Usage (void){
 #endif // _WIN32
   PrintOut(LOG_INFO,"  -V, --version, --license, --copyright\n");
   PrintOut(LOG_INFO,"        Print License, Copyright, and version information\n");
-#else
-  PrintOut(LOG_INFO,"  -c NAME|-  Read configuration file NAME or stdin [default is %s]\n", configfile);
-  PrintOut(LOG_INFO,"  -d         Start smartd in debug mode\n");
-  PrintOut(LOG_INFO,"  -D         Print the configuration file Directives and exit\n");
-  PrintOut(LOG_INFO,"  -h         Display this help and exit\n");
-  PrintOut(LOG_INFO,"  -i N       Set interval between disk checks to N seconds, where N >= 10\n");
-  PrintOut(LOG_INFO,"  -l local?  Use syslog facility local0 - local7, or daemon\n");
-  PrintOut(LOG_INFO,"  -n         Do not fork into background\n");
-  PrintOut(LOG_INFO,"  -p NAME    Write PID file NAME\n");
-  PrintOut(LOG_INFO,"  -q WHEN    Quit on one of: %s\n", GetValidArgList('q'));
-  PrintOut(LOG_INFO,"  -r TYPE    Report transactions for one of: %s\n", GetValidArgList('r'));
-  PrintOut(LOG_INFO,"  -s PREFIX  Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
-  PrintOut(LOG_INFO,"  -B [+]FILE Read and replace [add] drive database from FILE\n");
-  PrintOut(LOG_INFO,"  -V         Print License, Copyright, and version information\n");
-#endif
 }
 
 static int CloseDevice(smart_device * device, const char * name)
@@ -3810,7 +3792,6 @@ void ParseOpts(int argc, char **argv){
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
   const char *shortopts = "c:l:q:dDni:p:r:s:B:Vh?";
-#ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
@@ -3837,8 +3818,7 @@ void ParseOpts(int argc, char **argv){
     { "usage",          no_argument,       0, 'h' },
     { 0,                0,                 0, 0   }
   };
-#endif
-  
+
   opterr=optopt=0;
   bool badarg = false;
   bool no_defaultdb = false; // set true on '-B FILE'
@@ -3846,11 +3826,7 @@ void ParseOpts(int argc, char **argv){
   // Parse input options.  This horrible construction is so that emacs
   // indents properly.  Sorry.
   while (-1 != (optchar = 
-#ifdef HAVE_GETOPT_LONG
                 getopt_long(argc, argv, shortopts, longopts, NULL)
-#else
-                getopt(argc, argv, shortopts)
-#endif
                 )) {
     
     switch(optchar) {
@@ -4005,7 +3981,6 @@ void ParseOpts(int argc, char **argv){
       // unrecognized option
       debugmode=1;
       PrintHead();
-#ifdef HAVE_GETOPT_LONG
       // Point arg to the argument in which this option was found.
       arg = argv[optind-1];
       // Check whether the option is a long option that doesn't map to -h.
@@ -4020,7 +3995,6 @@ void ParseOpts(int argc, char **argv){
         PrintOut(LOG_CRIT, "\nUse smartd --help to get a usage summary\n\n");
         EXIT(EXIT_BADCMD);
       }
-#endif
       if (optopt) {
         // Iff optopt holds a valid option then argument must be missing.
         if (strchr(shortopts, optopt) != NULL){

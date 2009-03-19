@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.73 2009/03/12 20:42:08 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.74 2009/03/19 18:00:36 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -482,18 +482,11 @@ const char * win_smart_interface::get_app_examples(const char * appname)
   snprintf(buf, sizeof(buf),
          "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
-#ifdef HAVE_GETOPT_LONG
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
          "                                              (Enables SMART on first disk)\n\n"
          "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
-#else
-         "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-         "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-         "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-         "                                      (Prints Self-Test & Attribute errors)\n"
-#endif
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
          "  smartctl -a /dev/sda\n"
