@@ -28,14 +28,12 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdexcept>
+#include <getopt.h>
 
 #include "config.h"
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h> // Declares also standard getopt()
-#endif
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
+#include <unistd.h>
 #endif
 
 #if defined(__FreeBSD__)
@@ -64,7 +62,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.194 2009/03/14 16:14:10 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.195 2009/03/19 18:00:36 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -123,9 +121,8 @@ static const char *getvalidarglist(char opt);
 /*  void prints help information for command syntax */
 void Usage (void){
   printf("Usage: smartctl [options] device\n\n");
-  printf("============================================ SHOW INFORMATION OPTIONS =====\n\n");
-#ifdef HAVE_GETOPT_LONG
   printf(
+"============================================ SHOW INFORMATION OPTIONS =====\n\n"
 "  -h, --help, --usage\n"
 "         Display this help and exit\n\n"
 "  -V, --version, --copyright, --license\n"
@@ -135,17 +132,8 @@ void Usage (void){
 "  -a, --all                                                        \n"
 "         Show all SMART information for device\n\n"
   );
-#else
   printf(
-"  -h        Display this help and exit\n"
-"  -V        Print license, copyright, and version information\n"
-"  -i        Show identity information for device\n"
-"  -a        Show all SMART information for device\n\n"
-  );
-#endif
-  printf("================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+"================================== SMARTCTL RUN-TIME BEHAVIOR OPTIONS =====\n\n"
 "  -q TYPE, --quietmode=TYPE                                           (ATA)\n"
 "         Set smartctl quiet mode to one of: errorsonly, silent, noserial\n\n"
 "  -d TYPE, --device=TYPE\n"
@@ -159,20 +147,8 @@ void Usage (void){
 "  -n MODE, --nocheck=MODE                                             (ATA)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
   getvalidarglist('d')); // TODO: Use this function also for other options ?
-#else
   printf(
-"  -q TYPE   Set smartctl quiet mode to one of: errorsonly, silent     (ATA)\n"
-"                                               noserial\n"
-"  -d TYPE   Specify device type to one of: %s\n"
-"  -T TYPE   Tolerance: normal, conservative,permissive,verypermissive (ATA\n"
-"  -b TYPE   Set action on bad checksum to one of: warn, exit, ignore  (ATA)\n"
-"  -r TYPE   Report transactions (see man page)\n"
-"  -n MODE   No check if: never, sleep, standby, idle (see man page)   (ATA)\n\n",
-  getvalidarglist('d'));
-#endif
-  printf("============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+"============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n"
 "  -s VALUE, --smart=VALUE\n"
 "        Enable/disable SMART on device (on/off)\n\n"
 "  -o VALUE, --offlineauto=VALUE                                       (ATA)\n"
@@ -180,16 +156,8 @@ void Usage (void){
 "  -S VALUE, --saveauto=VALUE                                          (ATA)\n"
 "        Enable/disable Attribute autosave on device (on/off)\n\n"
   );
-#else
   printf(
-"  -s VALUE  Enable/disable SMART on device (on/off)\n"
-"  -o VALUE  Enable/disable device automatic offline testing (on/off)  (ATA)\n"
-"  -S VALUE  Enable/disable device Attribute autosave (on/off)         (ATA)\n\n"
-  );
-#endif
-  printf("======================================= READ AND DISPLAY DATA OPTIONS =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+"======================================= READ AND DISPLAY DATA OPTIONS =====\n\n"
 "  -H, --health\n"
 "        Show device SMART health status\n\n"
 "  -c, --capabilities                                                  (ATA)\n"
@@ -215,25 +183,8 @@ void Usage (void){
 #endif
 "\n"
   );
-#else
   printf(
-"  -H        Show device SMART health status\n"
-"  -c        Show device SMART capabilities                             (ATA)\n"
-"  -A        Show device SMART vendor-specific Attributes and values    (ATA)\n"
-"  -l TYPE   Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                                   background, sataphy[,reset], scttemp[sts,hist]\n"
-"                                   gplog,N[,RANGE], smartlog,N[,RANGE],\n"
-"                                   xerror[,N]\n"
-"  -v N,OPT  Set display OPTion for vendor Attribute N (see man page)   (ATA)\n"
-"  -F TYPE   Use firmware bug workaround: none, samsung, samsung2,      (ATA)\n"
-"                                         samsung3, swapid\n"
-"  -P TYPE   Drive-specific presets: use, ignore, show, showall         (ATA)\n"
-"  -B [+]FILE Read and replace [add] drive database from FILE           (ATA)\n\n"
-  );
-#endif
-  printf("============================================ DEVICE SELF-TEST OPTIONS =====\n\n");
-#ifdef HAVE_GETOPT_LONG
-  printf(
+"============================================ DEVICE SELF-TEST OPTIONS =====\n\n"
 "  -t TEST, --test=TEST\n"
 "        Run test. TEST: offline short long conveyance select,M-N\n"
 "                        pending,N afterselect,[on|off] scttempint,N[,p]\n\n"
@@ -242,14 +193,6 @@ void Usage (void){
 "  -X, --abort\n"
 "        Abort any non-captive test on device\n\n"
 );
-#else
-  printf(
-"  -t TEST   Run test. TEST: offline short long conveyance select,M-N\n"
-"                            pending,N afterselect,[on|off] scttempint,N[,p]\n"
-"  -C        Do test in captive mode (along with -t)\n"
-"  -X        Abort any non-captive test\n\n"
-  );
-#endif
   const char * examples = smi()->get_app_examples("smartctl");
   if (examples)
     printf("%s\n", examples);
@@ -323,7 +266,6 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
   char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:B:";
-#ifdef HAVE_GETOPT_LONG
   char *arg;
   // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
@@ -356,8 +298,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     { "drivedb",         required_argument, 0, 'B' },
     { 0,                 0,                 0, 0   }
   };
-#endif
-  
+
   memset(extraerror, 0, sizeof(extraerror));
   memset(con,0,sizeof(*con));
   con->testcase=-1;
@@ -369,11 +310,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
 
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
-#ifdef HAVE_GETOPT_LONG
                 getopt_long(argc, argv, shortopts, longopts, NULL)
-#else
-                getopt(argc, argv, shortopts)
-#endif
                 )){
     switch (optchar){
     case 'V':
@@ -733,7 +670,6 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     default:
       con->dont_print=FALSE;
       printslogan();
-#ifdef HAVE_GETOPT_LONG
       // Point arg to the argument in which this option was found.
       arg = argv[optind-1];
       // Check whether the option is a long option that doesn't map to -h.
@@ -749,7 +685,6 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
         UsageSummary();
         EXIT(FAILCMD);
       }
-#endif
       if (optopt) {
         // Iff optopt holds a valid option then argument must be
         // missing.  Note (BA) this logic seems to fail using Solaris

@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.147 2009/01/12 23:57:58 dlukes Exp $
+# $Id: configure.in,v 1.148 2009/03/19 18:00:35 chrfranke Exp $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.147 2009/01/12 23:57:58 dlukes Exp $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.148 2009/03/19 18:00:35 chrfranke Exp $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -60,7 +60,6 @@ AC_SEARCH_LIBS(getdomainname, nsl)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([locale.h])
-AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_HEADERS([dev/ata/atavar.h])
 AC_CHECK_HEADERS([netdb.h])
 dnl we need [u]int64_t and friends.
@@ -88,8 +87,13 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([int64_t, uint64_t])
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS([getopt])
-AC_CHECK_FUNCS([getopt_long])
+AC_CHECK_FUNCS([getopt_long], , [
+  AC_MSG_NOTICE([smartmontools does no longer support platforms without getopt_long().])
+  AC_MSG_NOTICE([Please inform ${PACKAGE_BUGREPORT},])
+  AC_MSG_NOTICE([including details about your build environment.])
+  AC_MSG_ERROR([function getopt_long() not found])
+])
+
 AC_CHECK_FUNCS([getdomainname])
 AC_CHECK_FUNCS([gethostname])
 AC_CHECK_FUNCS([getaddrinfo])

@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.124 2009/03/13 18:09:32 chrfranke Exp $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp,v 1.125 2009/03/19 18:00:35 chrfranke Exp $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -187,7 +187,6 @@ bool linux_smart_device::close()
 // examples for smartctl
 static const char  smartctl_examples[] =
 		  "=================================================== SMARTCTL EXAMPLES =====\n\n"
-#ifdef HAVE_GETOPT_LONG
 		  "  smartctl --all /dev/hda                    (Prints all SMART information)\n\n"
 		  "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
 		  "                                              (Enables SMART on first disk)\n\n"
@@ -203,22 +202,6 @@ static const char  smartctl_examples[] =
 		  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
 		  "  smartctl --all --device=areca,3 /dev/sg2\n"
 		  "          (Prints all SMART info for 3rd ATA disk on Areca RAID controller)\n"
-#else
-		  "  smartctl -a /dev/hda                       (Prints all SMART information)\n"
-		  "  smartctl -s on -o on -S on /dev/hda         (Enables SMART on first disk)\n"
-		  "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n"
-		  "  smartctl -A -l selftest -q errorsonly /dev/hda\n"
-		  "                                      (Prints Self-Test & Attribute errors)\n"
-		  "  smartctl -a -d 3ware,2 /dev/sda\n"
-		  "  smartctl -a -d 3ware,2 /dev/twa0\n"
-		  "  smartctl -a -d 3ware,2 /dev/twe0\n"
-		  "          (Prints all SMART info for 3rd ATA disk on 3ware RAID controller)\n"
-		  "  smartctl -a -d hpt,1/1/3 /dev/sda\n"
-		  "          (Prints all SMART info for the SATA disk attached to the 3rd PMPort\n"
-		  "           of the 1st channel on the 1st HighPoint RAID controller)\n"
-		  "  smartctl -a -d areca,3 /dev/sg2\n"
-		  "          (Prints all SMART info for 3rd ATA disk on Areca RAID controller)\n"
-#endif
   ;
 
 
