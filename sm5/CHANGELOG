@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.789 2009/03/19 18:00:35 chrfranke Exp $
+$Id: CHANGELOG,v 1.790 2009/03/22 17:17:39 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,12 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Provide a non-console version of smartctl.exe
+       as smartctl-nc.exe. This prevents that a new console is
+       opened when smartctl is run from a GUI program with
+       stdio redirected.
+       Used by GSmartControl (http://gsmartcontrol.berlios.de/).
 
   [CF] Remove support for platforms without getopt_long() in
        smartctl.cpp and smartd.cpp. If getopt_long() is missing,

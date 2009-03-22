@@ -1,14 +1,14 @@
 ;
 ; installer.nsi - NSIS install script for smartmontools
 ;
-; Copyright (C) 2006-8 Christian Franke <smartmontools-support@lists.sourceforge.net>
+; Copyright (C) 2006-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
 ;
 ; Project home page is: http://smartmontools.sourceforge.net
 ;
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
-; Process with makensis to create installer (tested with NSIS 2.29)
+; Process with makensis to create installer (tested with NSIS 2.44)
 ;
-; $Id: installer.nsi,v 1.4 2008/03/04 22:09:48 ballen4705 Exp $
+; $Id: installer.nsi,v 1.5 2009/03/22 17:17:39 chrfranke Exp $
 ;
 
 
@@ -103,6 +103,15 @@ SectionGroup "!Program files"
     StrCmp $1 "0" 0 +3
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2  "Restart smartd service ?" IDYES 0 IDNO +2
         ExecWait "net start smartd"
+
+  SectionEnd
+
+  Section "smartctl-nc (GSmartControl)" SMARTCTL_NC_SECTION
+
+    SectionIn 1 2
+
+    SetOutPath "$INSTDIR\bin"
+    File "${INPDIR}\bin\smartctl-nc.exe"
 
   SectionEnd
 
@@ -378,6 +387,7 @@ Section "Uninstall"
 
   ; Remove files
   Delete "$INSTDIR\bin\smartctl.exe"
+  Delete "$INSTDIR\bin\smartctl-nc.exe"
   Delete "$INSTDIR\bin\smartd.exe"
   Delete "$INSTDIR\bin\syslogevt.exe"
   Delete "$INSTDIR\bin\smartctl-run.bat"
@@ -462,6 +472,7 @@ FunctionEnd
 
 Function SkipProgPath
   !insertmacro CheckSection ${SMARTCTL_SECTION}
+  !insertmacro CheckSection ${SMARTCTL_NC_SECTION}
   !insertmacro CheckSection ${SMARTD_SECTION}
   !insertmacro CheckSection ${DOC_SECTION}
   !insertmacro CheckSection ${MENU_SECTION}

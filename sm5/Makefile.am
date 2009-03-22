@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.94 2009/01/12 23:57:58 dlukes Exp $
+# $Id: Makefile.am,v 1.95 2009/03/22 17:17:39 chrfranke Exp $
 #
 
 @SET_MAKE@
@@ -479,6 +479,7 @@ exedir_win32 = $(distdir_win32)/bin
 docdir_win32 = $(distdir_win32)/doc
 
 FILES_WIN32 = $(exedir_win32)/smartctl.exe \
+              $(exedir_win32)/smartctl-nc.exe \
               $(exedir_win32)/smartd.exe \
               $(docdir_win32)/AUTHORS.txt \
               $(docdir_win32)/CHANGELOG.txt \
@@ -496,7 +497,9 @@ FILES_WIN32 = $(exedir_win32)/smartctl.exe \
               $(docdir_win32)/smartd.conf.5.html \
               $(docdir_win32)/smartd.conf.5.txt
 
-CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe distdir.mkdir syslogevt.check
+CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe \
+              smartctl-nc.exe smartctl-nc.exe.tmp \
+              distdir.mkdir syslogevt.check
 
 # Textfile converter from cygutils
 UNIX2DOS = unix2dos -D
@@ -566,6 +569,22 @@ $(docdir_win32)/%.txt: $(srcdir)/%
 $(docdir_win32)/%.conf: $(srcdir)/%.conf
 	$(UNIX2DOS) < $< > $@
 	touch -r $< $@
+
+# Build non-console version of smartctl for GSmartControl.
+# The script below changes the word at offset 220 (Subsystem) from 3
+# (Console) to 2 (GUI) in a copy of smartctl.exe.
+# This will be changed when a tool (like 'editbin') is available in
+# the Cygwin distribution
+smartctl-nc.exe: smartctl.exe
+	@rm -f $@
+	cp -p smartctl.exe $@.tmp
+	@if test `od -A n -j 220 -N 2 -d $@.tmp` -eq 3; then :; \
+	  else echo "invalid EXE header"; exit 1; fi
+	@echo "editbin /subsystem:windows $@.tmp"
+	@echo -ne '\002' | dd bs=1 seek=220 count=1 conv=notrunc of=$@.tmp 2>/dev/null
+	@if test `od -A n -j 220 -N 2 -d $@.tmp` -eq 2; then :; \
+	  else echo "EXE patch failed"; exit 1; fi
+	mv -f $@.tmp $@
 
 
 # Build {config,cvsversion}_vc8.h for MSVC8 from MinGW {config,cvsversion}.h
