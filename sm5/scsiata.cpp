@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.28 2009/03/17 19:53:14 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.29 2009/03/23 21:59:31 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -455,6 +455,39 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
             break;
     }
     return NULL;
+}
+
+
+// Call scsi_pass_through and check sense.
+// TODO: Provide as member function of class scsi_device (?)
+static bool scsi_pass_through_and_check(scsi_device * scsidev,  scsi_cmnd_io * iop,
+                                        const char * msg = "")
+{
+  // Provide sense buffer
+  unsigned char sense[32] = {0, };
+  iop->sensep = sense;
+  iop->max_sense_len = sizeof(sense);
+  iop->timeout = SCSI_TIMEOUT_DEFAULT;
+
+  // Run cmd
+  if (!scsidev->scsi_pass_through(iop)) {
+    if (con->reportscsiioctl > 0)
+      pout("%sscsi_pass_through() failed, errno=%d [%s]\n",
+           msg, scsidev->get_errno(), scsidev->get_errmsg());
+    return false;
+  }
+
+  // Check sense
+  scsi_sense_disect sinfo;
+  scsi_do_sense_disect(iop, &sinfo);
+  int err = scsiSimpleSenseFilter(&sinfo);
+  if (err) {
+    if (con->reportscsiioctl > 0)
+      pout("%sscsi error: %s\n", msg, scsiErrString(err));
+    return scsidev->set_err(EIO, "scsi error %s", scsiErrString(err));
+  }
+
+  return true;
 }
 
 
@@ -925,28 +958,10 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
 
-  unsigned char sense[32] = {0, };
-  io_hdr.sensep = sense;
-  io_hdr.max_sense_len = sizeof(sense);
-  io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
-
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsidev->scsi_pass_through(&io_hdr)) {
-    if (con->reportscsiioctl > 0)
-      pout("usbjmicron_device::ata_pass_through: scsi_pass_through() failed, "
-           "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+         "usbjmicron_device::ata_pass_through: "))
     return set_err(scsidev->get_err());
-  }
-
-  scsi_sense_disect sinfo;
-  scsi_do_sense_disect(&io_hdr, &sinfo);
-  int err = scsiSimpleSenseFilter(&sinfo);
-  if (err) {
-    if (con->reportscsiioctl > 0)
-      pout("usbjmicron_device::ata_pass_through: scsi error: %s\n",
-           scsiErrString(err));
-    return set_err(EIO, "scsi error %s", scsiErrString(err));
-  }
 
   if (in.out_needed.is_set()) {
     if (is_smart_status) {
@@ -1010,27 +1025,159 @@ bool usbjmicron_device::get_registers(unsigned short addr,
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
 
-  unsigned char sense[32] = {0, };
-  io_hdr.sensep = sense;
-  io_hdr.max_sense_len = sizeof(sense);
-  io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
-
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsidev->scsi_pass_through(&io_hdr)) {
-    if (con->reportscsiioctl > 0)
-      pout("usbjmicron_device::get_registers: scsi_pass_through failed, "
-           "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+         "usbjmicron_device::get_registers: "))
     return set_err(scsidev->get_err());
+
+  return true;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+/// SunplusIT USB Bridge support.
+
+class usbsunplus_device
+: public tunnelled_device<
+    /*implements*/ ata_device,
+    /*by tunnelling through a*/ scsi_device
+  >
+{
+public:
+  usbsunplus_device(smart_interface * intf, scsi_device * scsidev,
+                    const char * req_type);
+
+  virtual ~usbsunplus_device() throw();
+
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
+};
+
+
+usbsunplus_device::usbsunplus_device(smart_interface * intf, scsi_device * scsidev,
+                                     const char * req_type)
+: smart_device(intf, scsidev->get_dev_name(), "usbsunplus", req_type),
+  tunnelled_device<ata_device, scsi_device>(scsidev)
+{
+  set_info().info_name = strprintf("%s [USB Sunplus]", scsidev->get_info_name());
+}
+
+usbsunplus_device::~usbsunplus_device() throw()
+{
+}
+
+bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_ok(in,
+    true,  // data_out_support
+    false, // !multi_sector_support
+    true)  // ata_48bit_support
+  )
+    return false;
+
+  scsi_cmnd_io io_hdr;
+  unsigned char cdb[12];
+
+  if (in.in_regs.is_48bit_cmd()) {
+    // Set "previous" registers
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    io_hdr.dxfer_dir = DXFER_NONE;
+
+    cdb[ 0] = 0xf8;
+    cdb[ 1] = 0x00;
+    cdb[ 2] = 0x23; // Subcommand: Pass through presetting
+    cdb[ 3] = 0x00;
+    cdb[ 4] = 0x00;
+    cdb[ 5] = in.in_regs.prev.features;
+    cdb[ 6] = in.in_regs.prev.sector_count;
+    cdb[ 7] = in.in_regs.prev.lba_low;
+    cdb[ 8] = in.in_regs.prev.lba_mid;
+    cdb[ 9] = in.in_regs.prev.lba_high;
+    cdb[10] = 0x00;
+    cdb[11] = 0x00;
+
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+
+    scsi_device * scsidev = get_tunnel_dev();
+    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+           "usbsunplus_device::scsi_pass_through (presetting): "))
+      return set_err(scsidev->get_err());
   }
 
-  scsi_sense_disect sinfo;
-  scsi_do_sense_disect(&io_hdr, &sinfo);
-  int err = scsiSimpleSenseFilter(&sinfo);
-  if (err) {
-    if (con->reportscsiioctl > 0)
-      pout("usbjmicron_device::get_registers: scsi error: %s\n",
-           scsiErrString(err));
-    return set_err(EIO, "scsi error %s", scsiErrString(err));
+  // Run Pass through command
+  memset(&io_hdr, 0, sizeof(io_hdr));
+  unsigned char protocol;
+  switch (in.direction) {
+    case ata_cmd_in::no_data:
+      io_hdr.dxfer_dir = DXFER_NONE;
+      protocol = 0x00;
+      break;
+    case ata_cmd_in::data_in:
+      io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      memset(in.buffer, 0, in.size);
+      protocol = 0x10;
+      break;
+    case ata_cmd_in::data_out:
+      io_hdr.dxfer_dir = DXFER_TO_DEVICE;
+      io_hdr.dxfer_len = in.size;
+      io_hdr.dxferp = (unsigned char *)in.buffer;
+      protocol = 0x11;
+      break;
+    default:
+      return set_err(EINVAL);
+  }
+
+  cdb[ 0] = 0xf8;
+  cdb[ 1] = 0x00;
+  cdb[ 2] = 0x22; // Subcommand: Pass through
+  cdb[ 3] = protocol;
+  cdb[ 4] = (unsigned char)(io_hdr.dxfer_len >> 9);
+  cdb[ 5] = in.in_regs.features;
+  cdb[ 6] = in.in_regs.sector_count;
+  cdb[ 7] = in.in_regs.lba_low;
+  cdb[ 8] = in.in_regs.lba_mid;
+  cdb[ 9] = in.in_regs.lba_high;
+  cdb[10] = in.in_regs.device | 0xa0;
+  cdb[11] = in.in_regs.command;
+
+  io_hdr.cmnd = cdb;
+  io_hdr.cmnd_len = sizeof(cdb);
+
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+         "usbsunplus_device::scsi_pass_through: "))
+    // Returns sense key 0x03 (medium error) on ATA command error
+    return set_err(scsidev->get_err());
+
+  if (in.out_needed.is_set()) {
+    // Read ATA output registers
+    unsigned char regbuf[8] = {0, };
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
+    io_hdr.dxfer_len = sizeof(regbuf);
+    io_hdr.dxferp = regbuf;
+
+    cdb[ 0] = 0xf8;
+    cdb[ 1] = 0x00;
+    cdb[ 2] = 0x21; // Subcommand: Get status
+    memset(cdb+3, 0, sizeof(cdb)-3);
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+
+    if (!scsi_pass_through_and_check(scsidev, &io_hdr,
+           "usbsunplus_device::scsi_pass_through (get registers): "))
+      return set_err(scsidev->get_err());
+
+    out.out_regs.error        = regbuf[1];
+    out.out_regs.sector_count = regbuf[2];
+    out.out_regs.lba_low      = regbuf[3];
+    out.out_regs.lba_mid      = regbuf[4];
+    out.out_regs.lba_high     = regbuf[5];
+    out.out_regs.device       = regbuf[6];
+    out.out_regs.status       = regbuf[7];
   }
 
   return true;
@@ -1078,6 +1225,10 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
       return 0;
     }
     return new usbjmicron_device(this, scsidev, type, port);
+  }
+
+  else if (!strcmp(type, "usbsunplus")) {
+    return new usbsunplus_device(this, scsidev, type);
   }
 
   else {
@@ -1143,8 +1294,9 @@ struct usb_id_entry {
 };
 
 const char d_sat[]     = "sat";
-const char d_jmicron[] = "usbjmicron";
 const char d_cypress[] = "usbcypress";
+const char d_jmicron[] = "usbjmicron";
+const char d_sunplus[] = "usbsunplus";
 const char d_unsup[]   = "unsupported";
 
 // Map USB IDs -> '-d type' string
@@ -1155,7 +1307,7 @@ const usb_id_entry usb_ids[] = {
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
-  { 0x0c0b, 0xb159, 0x0103, d_unsup   }, // Dura Micro ?
+  { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro (Sunplus USB-bridge)
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
 //{ 0x0d49,     -1,     -1, d_sat     }, // Maxtor Basics Desktop
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
