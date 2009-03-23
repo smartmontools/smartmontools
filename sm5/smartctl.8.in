@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.121 2009/03/14 16:14:10 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.122 2009/03/23 21:59:31 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -214,8 +214,8 @@ use the exit status of \fBsmartctl\fP (see RETURN VALUES below).
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.  The valid arguments to this option
 are \fIata\fP, \fIscsi\fP, \fIsat\fP, \fImarvell\fP, \fI3ware,N\fP,
-\fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIcciss,N\fP,
-\fIhpt,L/M\fP (or \fIhpt,L/M/N\fP), and \fItest\fP.
+\fIareca,N\fP, \fIusbcypress\fP, \fIusbjmicron\fP, \fIusbsunplus\fP,
+\fIcciss,N\fP, \fIhpt,L/M\fP (or \fIhpt,L/M/N\fP), and \fItest\fP.
 
 If this option is not used then \fBsmartctl\fP will attempt to guess
 the device type from the device name or from controller type info
@@ -243,6 +243,9 @@ SATA disks that are behind a JMicron USB to SATA bridge. The port can be
 specified by \'\-d usbjmicron,PORT\' where PORT is 0 (master) or 1 (slave).
 If no PORT is specified, it is auto-detected. If both ports are connected,
 0 takes precedence.
+
+[NEW EXPERIMENTAL SMARTCTL FEATURE] The \'usbsunplus\' device type is for
+SATA disks that are behind a SunplusIT USB to SATA bridge.
 
 Under Linux, to look at SATA disks behind Marvell SATA controllers
 (using Marvell's \'linuxIAL\' driver rather than libata driver) use \'\-d marvell\'. Such
@@ -1666,7 +1669,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.121 2009/03/14 16:14:10 chrfranke Exp $
+$Id: smartctl.8.in,v 1.122 2009/03/23 21:59:31 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
