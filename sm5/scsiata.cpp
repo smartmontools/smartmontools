@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.29 2009/03/23 21:59:31 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.30 2009/03/26 20:18:54 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1304,6 +1304,7 @@ const usb_id_entry usb_ids[] = {
   { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
   { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
+  { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
@@ -1311,6 +1312,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
 //{ 0x0d49,     -1,     -1, d_sat     }, // Maxtor Basics Desktop
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
+  { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
   { 0x152d, 0x2336, 0x0100, d_jmicron }, // JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
