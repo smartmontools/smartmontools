@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -62,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.195 2009/03/19 18:00:36 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.196 2009/04/01 21:22:00 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -168,7 +169,7 @@ void Usage (void){
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               background, sataphy[,reset], scttemp[sts,hist]\n"
 "                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
-"                               xerror[,N]\n\n"
+"                               xerror[,N], xselftest[,N]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
 "  -F TYPE, --firmwarebug=TYPE                                         (ATA)\n"
@@ -223,7 +224,7 @@ static const char *getvalidarglist(char opt)
     return "on, off";
   case 'l':
     return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], "
-           "sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], xerror[,N]";
+           "sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], xerror[,N], xselftest[,N]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -471,14 +472,17 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       } else if (!strcmp(optarg,"scttemphist")) {
         con->scttemphist = TRUE;
 
-      } else if (!strncmp(optarg,"xerror", sizeof("xerror")-1)) {
+      } else if (   !strncmp(optarg,"xerror"   , sizeof("xerror"   )-1)
+                 || !strncmp(optarg,"xselftest", sizeof("xselftest")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);
         unsigned val = ~0U;
-        sscanf(optarg, "xerror%n,%u%n", &n1, &val, &n2);
+        sscanf(optarg, "%*[a-z]%n,%u%n", &n1, &val, &n2);
         if (!((n1 == len || n2 == len) && val > 0))
           badarg = TRUE;
-        else
+        else if (optarg[1] == 'e')
           options.smart_ext_error_log = val;
+        else
+          options.smart_ext_selftest_log = val;
 
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
                  || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {

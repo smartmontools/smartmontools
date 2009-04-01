@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -39,7 +40,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.214 2009/03/01 20:28:44 manfred99 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.215 2009/04/01 21:22:00 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1049,6 +1050,29 @@ int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data)
   return 0;
 }
 
+// Read SMART Extended Self-test Log
+bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
+                           unsigned nsectors)
+{
+  if (!ataReadLogExt(device, 0x07, 0x00, 0, log, nsectors))
+    return false;
+
+  for (unsigned i = 0; i < nsectors; i++) {
+    if (checksum((const unsigned char *)(log + i)))
+      checksumwarning("SMART Extended Self-test Log Structure");
+  }
+
+  if (isbigendian()) {
+    swapx(&log->log_desc_index);
+    for (unsigned i = 0; i < nsectors; i++) {
+      for (unsigned j = 0; j < 19; j++)
+        swapx(&log->log_descs[i].timestamp);
+    }
+  }
+  return true;
+}
+
+
 // Read GP Log page(s)
 bool ataReadLogExt(ata_device * device, unsigned char logaddr,
                    unsigned char features, unsigned page,
@@ -1401,7 +1425,7 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
     return false;
 
   for (unsigned i = 0; i < nsectors; i++) {
-    if (checksum((const unsigned char *)(log + 1)))
+    if (checksum((const unsigned char *)(log + i)))
       checksumwarning("SMART ATA Extended Comprehensive Error Log Structure");
   }
 
@@ -2426,6 +2450,70 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
   return 0;
 }
 
+// Print one self-test log entry.
+// Returns true if self-test showed an error.
+bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
+                                unsigned char test_status,
+                                unsigned short timestamp,
+                                uint64_t failing_lba,
+                                bool print_error_only, bool & print_header)
+{
+  const char * msgtest;
+  switch (test_type) {
+    case 0x00: msgtest = "Offline";            break;
+    case 0x01: msgtest = "Short offline";      break;
+    case 0x02: msgtest = "Extended offline";   break;
+    case 0x03: msgtest = "Conveyance offline"; break;
+    case 0x04: msgtest = "Selective offline";  break;
+    case 0x7f: msgtest = "Abort offline test"; break;
+    case 0x81: msgtest = "Short captive";      break;
+    case 0x82: msgtest = "Extended captive";   break;
+    case 0x83: msgtest = "Conveyance captive"; break;
+    case 0x84: msgtest = "Selective captive";  break;
+    default:
+      if ((0x40 <= test_type && test_type <= 0x7e) || 0x90 <= test_type)
+        msgtest = "Vendor offline";
+      else
+        msgtest = "Reserved offline";
+  }
+
+  bool is_error = false;
+  const char * msgstat;
+  switch (test_status >> 4) {
+    case 0x0: msgstat = "Completed without error";       break;
+    case 0x1: msgstat = "Aborted by host";               break;
+    case 0x2: msgstat = "Interrupted (host reset)";      break;
+    case 0x3: msgstat = "Fatal or unknown error";        is_error = true; break;
+    case 0x4: msgstat = "Completed: unknown failure";    is_error = true; break;
+    case 0x5: msgstat = "Completed: electrical failure"; is_error = true; break;
+    case 0x6: msgstat = "Completed: servo/seek failure"; is_error = true; break;
+    case 0x7: msgstat = "Completed: read failure";       is_error = true; break;
+    case 0x8: msgstat = "Completed: handling damage??";  is_error = true; break;
+    case 0xf: msgstat = "Self-test routine in progress"; break;
+    default:  msgstat = "Unknown/reserved test status";
+  }
+
+  if (!is_error && print_error_only)
+    return false;
+
+  // Print header once
+  if (print_header) {
+    print_header = false;
+    pout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
+  }
+
+  char msglba[32];
+  if (is_error && failing_lba < 0xffffffffffffULL)
+    snprintf(msglba, sizeof(msglba), "%"PRIu64, failing_lba);
+  else
+    strcpy(msglba, "-");
+
+  pout("#%2u  %-19s %-29s %1d0%%  %8u         %s\n", testnum, msgtest, msgstat,
+       test_status & 0x0f, timestamp, msglba);
+
+  return is_error;
+}
+
 // Print Smart self-test log, used by smartctl and smartd.
 // return value is:
 // bottom 8 bits: number of entries found where self-test showed an error
@@ -2457,48 +2545,6 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
       // the middle'
       testno++;
 
-      // test name
-      const char * msgtest;
-      switch(log->selftestnumber){
-        case   0: msgtest="Offline            "; break;
-        case   1: msgtest="Short offline      "; break;
-        case   2: msgtest="Extended offline   "; break;
-        case   3: msgtest="Conveyance offline "; break;
-        case   4: msgtest="Selective offline  "; break;
-        case 127: msgtest="Abort offline test "; break;
-        case 129: msgtest="Short captive      "; break;
-        case 130: msgtest="Extended captive   "; break;
-        case 131: msgtest="Conveyance captive "; break;
-        case 132: msgtest="Selective captive  "; break;
-        default:
-          if ( log->selftestnumber>=192 ||
-              (log->selftestnumber>= 64 && log->selftestnumber<=126))
-            msgtest="Vendor offline     ";
-          else
-            msgtest="Reserved offline   ";
-        }
-
-      // test status
-      bool errorfound = false;
-      const char * msgstat;
-      switch((log->selfteststatus)>>4){
-        case  0:msgstat="Completed without error      "; break;
-        case  1:msgstat="Aborted by host              "; break;
-        case  2:msgstat="Interrupted (host reset)     "; break;
-        case  3:msgstat="Fatal or unknown error       "; errorfound=true; break;
-        case  4:msgstat="Completed: unknown failure   "; errorfound=true; break;
-        case  5:msgstat="Completed: electrical failure"; errorfound=true; break;
-        case  6:msgstat="Completed: servo/seek failure"; errorfound=true; break;
-        case  7:msgstat="Completed: read failure      "; errorfound=true; break;
-        case  8:msgstat="Completed: handling damage?? "; errorfound=true; break;
-        case 15:msgstat="Self-test routine in progress"; break;
-        default:msgstat="Unknown/reserved test status ";
-      }
-
-      char percent[64];
-      retval+=errorfound;
-      sprintf(percent,"%1d0%%",(log->selfteststatus)&0xf);
-
       // T13/1321D revision 1c: (Data structure Rev #1)
 
       //The failing LBA shall be the LBA of the uncorrectable sector
@@ -2510,23 +2556,12 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
       //field is undefined.
 
       // This is true in ALL ATA-5 specs
+      uint64_t lba48 = (log->lbafirstfailure < 0xffffffff ? log->lbafirstfailure : 0xffffffffffffULL);
 
-      char firstlba[64];
-      if (!errorfound || log->lbafirstfailure==0xffffffff || log->lbafirstfailure==0x00000000)
-        sprintf(firstlba,"%s","-");
-      else
-        sprintf(firstlba,"%u",log->lbafirstfailure);
-
-      // print out a header if needed
-      if (noheaderprinted && (allentries || errorfound)){
-        pout("Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error\n");
-        noheaderprinted = false;
-      }
-
-      // print out an entry, either if we are printing all entries OR
-      // if an error was found
-      if (allentries || errorfound)
-        pout("#%2d  %s %s %s  %8d         %s\n", testno, msgtest, msgstat, percent, (int)log->timestamp, firstlba);
+      // Print entry
+      bool errorfound = ataPrintSmartSelfTestEntry(testno,
+        log->selftestnumber, log->selfteststatus, log->timestamp,
+        lba48, !allentries, noheaderprinted);
 
       // keep track of time of most recent error
       if (errorfound && !hours)

@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.67 2009/03/17 20:42:57 chrfranke Exp $
+$Id: TODO,v 1.68 2009/04/01 21:22:00 chrfranke Exp $
 
 USB devices under Linux
 -----------------------
@@ -9,10 +9,6 @@ devices fail to comply with SCSI specifications for their packet
 command sets.  Work on improving the detection and bail-out procedures
 for these flawed devices, so that the user sees an informative error
 message and smartd/smartctl don't hang.
-
-ATA-6/7
--------
-Support extended self-test logs
 
 ATA-8
 -----

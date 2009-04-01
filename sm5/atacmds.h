@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.104 2009/03/09 19:29:15 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.105 2009/04/01 21:22:00 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -303,7 +304,7 @@ struct ata_smart_errorlog {
 ASSERT_SIZEOF_STRUCT(ata_smart_errorlog, 512);
 
 
-// Extendend Comprehensive Error Log data structures
+// Extended Comprehensive SMART Error Log data structures
 // See Section A.7 of
 //   AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
 //   T13/1699-D Revision 6a (Working Draft), September 6, 2008.
@@ -411,6 +412,42 @@ struct ata_smart_selftestlog {
 } ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_smart_selftestlog, 512);
+
+// Extended SMART Self-test log data structures
+// See Section A.8 of
+//   AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
+//   T13/1699-D Revision 6a (Working Draft), September 6, 2008.
+
+// Extended Self-test log descriptor entry
+// Table A.13 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_extselftestlog_desc
+{
+  unsigned char self_test_type;
+  unsigned char self_test_status;
+  unsigned short timestamp;
+  unsigned char checkpoint;
+  unsigned char failing_lba[6];
+  unsigned char vendorspecific[15];
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_extselftestlog_desc, 26);
+
+// Extended Self-test log data structure
+// Table A.12 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_smart_extselftestlog
+{
+  unsigned char version;
+  unsigned char reserved1;
+  unsigned short log_desc_index;
+  struct ata_smart_extselftestlog_desc log_descs[19];
+  unsigned char vendor_specifc[2];
+  unsigned char reserved2[11];
+  unsigned char chksum;
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_smart_extselftestlog, 512);
 
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
 #pragma pack(1)
@@ -569,6 +606,9 @@ bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
 // Read SMART Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
                         unsigned nsectors);
+// Read SMART Extended Self-test Log
+bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
+                           unsigned nsectors);
 
 // Read SCT information
 int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts);
@@ -728,6 +768,13 @@ std::string create_vendor_attribute_arg_list();
 
 // This function is exported to give low-level capability
 int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
+
+// Print one self-test log entry.
+bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
+                                unsigned char test_status,
+                                unsigned short timestamp,
+                                uint64_t failing_lba,
+                                bool print_error_only, bool & print_header);
 
 // Print Smart self-test log, used by smartctl and smartd.
 int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries);
