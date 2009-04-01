@@ -3,7 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.38 2009/02/06 22:33:05 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.39 2009/04/01 21:22:00 chrfranke Exp $\n"
 
 #include <vector>
 
@@ -49,13 +50,15 @@ struct ata_print_options
   bool sataphy, sataphy_reset;
   bool gp_logdir, smart_logdir;
   unsigned smart_ext_error_log;
+  unsigned smart_ext_selftest_log;
 
   std::vector<ata_log_request> log_requests;
 
   ata_print_options()
     : sataphy(false), sataphy_reset(false),
       gp_logdir(false), smart_logdir(false),
-      smart_ext_error_log(0)
+      smart_ext_error_log(0),
+      smart_ext_selftest_log(0)
     { }
 };
 

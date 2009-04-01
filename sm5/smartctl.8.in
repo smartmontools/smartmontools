@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.122 2009/03/23 21:59:31 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.123 2009/04/01 21:22:00 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -840,7 +840,7 @@ it provides sufficient space to log the contents of the 48-bit
 LBA register set introduced with ATA-6.  It also supports logs
 with more than one sector.  Each sector holds up to 4 log entries.
 The actual number of log sectors is vendor specific, typical values
-are 2 (Samsung) or 5 (Seagate).
+are 2 (Samsung), 5 (Seagate) or 6 (WD).
 
 If the optional parameter NUM is specified, only the NUM most
 recent log entries are printed.  Otherwise, all entries are printed.
@@ -880,6 +880,17 @@ If provided, the SCSI Sense Key (SK), Additional Sense Code (ASC) and
 Additional Sense Code Qualifier (ASQ) are also printed. The self tests
 can be run using the \'\-t\' option described below (using the ATA
 test terminology).
+
+.I xselftest[,NUM] [ATA]
+\- [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended SMART
+self\-test log (General Purpose Log address 0x07). Unlike the SMART
+self\-test log (see \'\-l selftest\' above), it supports 48-bit LBA
+and logs with more than one sector.  Each sector holds up to 19 log
+entries. The actual number of log sectors is vendor specific, typical
+values are 1 (Seagate) or 2 (Samsung).
+
+If the optional parameter NUM is specified, only the NUM most
+recent log entries are printed.  Otherwise, all entries are printed.
 
 .I selective [ATA]
 \- Some ATA\-7 disks (example: Maxtor) also maintain a selective
@@ -1669,7 +1680,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.122 2009/03/23 21:59:31 chrfranke Exp $
+$Id: smartctl.8.in,v 1.123 2009/04/01 21:22:00 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

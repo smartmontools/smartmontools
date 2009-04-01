@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.208 2009/03/09 20:42:33 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.209 2009/04/01 21:22:00 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1356,6 +1357,63 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
   return log->device_error_count;
 }
 
+// Print SMART Extended Self-test Log (GP Log 0x07)
+static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
+                                     unsigned nsectors, unsigned max_entries)
+{
+  pout("SMART Extended Self-test Log Version: %u (%u sectors)\n",
+       log->version, nsectors);
+
+  if (!log->log_desc_index){
+    pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
+    return;
+  }
+
+  // Check index
+  unsigned nentries = nsectors * 19;
+  unsigned logidx = log->log_desc_index;
+  if (logidx > nentries) {
+    pout("Invalid Self-test Log index = 0x%04x (reserved = 0x%02x)\n", logidx, log->reserved1);
+    return;
+  }
+
+  // Index base is not clearly specified by ATA8-ACS (T13/1699-D Revision 6a),
+  // it is 1-based in practice.
+  logidx--;
+
+  unsigned logcnt = nentries;
+  if (max_entries < logcnt)
+    logcnt = max_entries;
+
+  bool print_header = true;
+
+  // Iterate through circular buffer in reverse direction
+  for (unsigned i = 0, testnum = 1;
+       i < logcnt; i++, logidx = (logidx > 0 ? logidx - 1 : nentries - 1)) {
+
+    const ata_smart_extselftestlog_desc & entry = log[logidx / 19].log_descs[logidx % 19];
+
+    // Skip unused entries
+    if (!nonempty(&entry, sizeof(entry)))
+      continue;
+
+    // Get LBA
+    const unsigned char * b = entry.failing_lba;
+    uint64_t lba48 = b[0]
+        | (          b[1] <<  8)
+        | (          b[2] << 16)
+        | ((uint64_t)b[3] << 24)
+        | ((uint64_t)b[4] << 32)
+        | ((uint64_t)b[5] << 40);
+
+    // Print entry
+    ataPrintSmartSelfTestEntry(testnum++, entry.self_test_type,
+      entry.self_test_status, entry.timestamp, lba48,
+      false /*!print_error_only*/, print_header);
+  }
+  pout("\n");
+}
+
 static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log, const ata_smart_values * sv)
 {
   int i,field1,field2;
@@ -1877,7 +1935,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // START OF READ-ONLY OPTIONS APART FROM -V and -i
   if (   con->checksmart || con->generalsmartvalues || con->smartvendorattrib || con->smarterrorlog
       || con->smartselftestlog || con->selectivetestlog || con->scttempsts || con->scttemphist
-      || options.smart_ext_error_log                                                               )
+      || options.smart_ext_error_log || options.smart_ext_selftest_log                             )
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
   // Check SMART status (use previously returned value)
@@ -1977,6 +2035,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print SMART and/or GP log Directory and/or logs
   if (   options.gp_logdir || options.smart_logdir
       || options.sataphy || options.smart_ext_error_log
+      || options.smart_ext_selftest_log
       || !options.log_requests.empty()                 ) {
 
     bool gpl_cap = !!isGeneralPurposeLoggingCapable(&drive);
@@ -1998,7 +2057,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
       // Detect directories needed
       bool need_smart_logdir = options.smart_logdir;
-      bool need_gp_logdir    = options.gp_logdir || options.smart_ext_error_log;
+      bool need_gp_logdir    = (    options.gp_logdir
+                                || options.smart_ext_error_log
+                                || options.smart_ext_selftest_log);
       unsigned i;
       for (i = 0; i < options.log_requests.size(); i++) {
         if (options.log_requests[i].gpl)
@@ -2106,6 +2167,22 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         }
       }
 
+      // Print SMART Extendend Self-test Log
+      if (options.smart_ext_selftest_log) {
+        unsigned nsectors = GetNumLogSectors(gplogdir, 0x07, true);
+        if (!nsectors)
+          pout("SMART Extended Self-test Log (GP Log 0x07) does not exist\n");
+        else if (nsectors >= 256)
+          pout("SMART Extended Self-test Log size %u not supported\n", nsectors);
+        else {
+          raw_buffer log_07_buf(nsectors * 512);
+          ata_smart_extselftestlog * log_07 = (ata_smart_extselftestlog *)log_07_buf.data();
+          if (!ataReadExtSelfTestLog(device, log_07, nsectors))
+            failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          else
+            PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log);
+        }
+      }
       // Print SATA Phy Event Counters
       if (options.sataphy) {
         unsigned char log_11[512] = {0, };
