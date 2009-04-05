@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.68 2009/04/01 21:22:00 chrfranke Exp $
+$Id: TODO,v 1.69 2009/04/05 17:10:49 chrfranke Exp $
 
 USB devices under Linux
 -----------------------
@@ -48,10 +48,8 @@ Add command line option that scans devices then WRITES
 /etc/smartd.conf, perhaps as /etc/smartd.conf.output, just for devices
 that can be monitored.
 
-Add ability to warn when Current_Pending_Sector or Offline_Uncorrectable
-raw value increase. Some disks apparently do not reset these values
-when sectors are reallocated. It should be possible to preset this option
-in drivedb.
+Add '-v' directive to set equivalent of '-C 197+' and '-U 198+' by drive
+database.
 
 Add ability to warn when Reallocated_Sector_Count raw value increases.
 

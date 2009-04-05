@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.792 2009/04/01 21:22:00 chrfranke Exp $
+$Id: CHANGELOG,v 1.793 2009/04/05 17:10:48 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add '+' modifier to smartd '-C' and '-U' directives.
+       If specified, a warning is only printed if the raw value
+       increases.
 
   [CF] Add smartctl option '-l xselftest[,NUM]' to print
        ATA SMART Extended Self-test Log (GP Log 0x07).

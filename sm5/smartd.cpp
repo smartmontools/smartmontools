@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.441 2009/03/19 18:00:36 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.442 2009/04/05 17:10:49 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -270,8 +270,6 @@ struct dev_config
   unsigned char tempdiff;                 // Track Temperature changes >= this limit
   unsigned char tempinfo, tempcrit;       // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   regular_expression test_regex;          // Regex for scheduled testing
-  unsigned short pending;                 // lower 8 bits: ID of current pending sector count
-                                          // upper 8 bits: ID of offline pending sector count
 
   // Configuration of email warning messages
   std::string emailcmdline;               // script to execute, empty if no messages
@@ -280,6 +278,11 @@ struct dev_config
   bool emailtest;                         // Send test email?
 
   // ATA ONLY
+  unsigned char curr_pending_id;          // ID of current pending sector count, 0 if none
+  unsigned char offl_pending_id;          // ID of offline uncorrectable sector count, 0 if none
+  bool curr_pending_incr, offl_pending_incr; // True if current/offline pending values increase
+  bool curr_pending_set,  offl_pending_set;  // True if '-C', '-U' set in smartd.conf
+
   // following NMONITOR items each point to 32 bytes, in the form of
   // 32x8=256 single bit flags
   // valid attribute numbers are from 1 <= x <= 255
@@ -316,9 +319,11 @@ dev_config::dev_config()
   powerskipmax(0),
   tempdiff(0),
   tempinfo(0), tempcrit(0),
-  pending(0),
   emailfreq(0),
-  emailtest(false)
+  emailtest(false),
+  curr_pending_id(0), offl_pending_id(0),
+  curr_pending_incr(false), offl_pending_incr(false),
+  curr_pending_set(false),  offl_pending_set(false)
 {
   memset(attributedefs, 0, sizeof(attributedefs));
   memset(monitorattflags, 0, sizeof(monitorattflags));
@@ -457,7 +462,7 @@ void dev_state::update_persistent_state()
     pa.raw =            ta.raw[0]
            | (          ta.raw[1] <<  8)
            | (          ta.raw[2] << 16)
-           | (          ta.raw[3] << 24)
+           | ((uint64_t)ta.raw[3] << 24)
            | ((uint64_t)ta.raw[4] << 32)
            | ((uint64_t)ta.raw[5] << 40);
   }
@@ -682,47 +687,6 @@ static void write_all_dev_states(const dev_config_vector & configs,
   }
 }
 
-
-// cfg.pending is a 16 bit unsigned quantity.  If the least
-// significant 8 bits are zero, this means monitor Attribute
-// CUR_UNC_DEFAULT's raw value.  If they are CUR_UNC_DEFAULT, this
-// means DON'T MONITOR.  If the most significant 8 bits are zero, this
-// means monitor Attribute OFF_UNC_DEFAULT's raw value.  If they are
-// OFF_UNC_DEFAULT, this means DON'T MONITOR.
-#define OFF_UNC_DEFAULT 198
-#define CUR_UNC_DEFAULT 197
-
-#define CURR_PEND(x) (x & 0xff)
-#define OFF_PEND(x) ((x >> 8) & 0xff)
-
-// if cfg.pending has this value, dont' monitor
-#define DONT_MONITOR_UNC (256*OFF_UNC_DEFAULT+CUR_UNC_DEFAULT)
-
-// translate cfg.pending into the correct Attribute numbers
-void TranslatePending(unsigned short pending, unsigned char *current, unsigned char *offline) {
-
-  unsigned char curr = CURR_PEND(pending);
-  unsigned char off =  OFF_PEND(pending);
-
-  // look for special value of CUR_UNC_DEFAULT that means DONT
-  // monitor. 0 means DO test.
-  if (curr==CUR_UNC_DEFAULT)
-    curr=0;
-  else if (curr==0)
-    curr=CUR_UNC_DEFAULT;
-	
-  // look for special value of OFF_UNC_DEFAULT that means DONT
-  // monitor.  0 means DO TEST.
-  if (off==OFF_UNC_DEFAULT)
-    off=0;
-  else if (off==0)
-    off=OFF_UNC_DEFAULT;
-
-  *current=curr;
-  *offline=off;
-
-  return;
-}
 
 void PrintOneCVS(const char *a_cvs_id){
   char out[CVSMAXLEN];
@@ -1442,8 +1406,8 @@ void Directives() {
            "  -R ID   Track changes in Attribute ID Raw value with -p, -u or -t\n"
            "  -i ID   Ignore Attribute ID for -f Directive\n"
            "  -I ID   Ignore Attribute ID for -p, -u or -t Directive\n"
-	   "  -C ID   Monitor Current Pending Sectors in Attribute ID\n"
-	   "  -U ID   Monitor Offline Uncorrectable Sectors in Attribute ID\n"
+           "  -C ID[+] Monitor [increases of] Current Pending Sectors in Attribute ID\n"
+           "  -U ID[+] Monitor [increases of] Offline Uncorrectable Sectors in Attribute ID\n"
            "  -W D,I,C Monitor Temperature D)ifference, I)nformal limit, C)ritical limit\n"
            "  -v N,ST Modifies labeling of Attribute N (see man page)  \n"
            "  -P TYPE Drive-specific presets: use, ignore, show, showall\n"
@@ -1724,36 +1688,31 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   
   // do we need to get SMART data?
   bool smart_val_ok = false;
-  if (retainsmartdata || cfg.autoofflinetest || cfg.selftest || cfg.errorlog || cfg.pending!=DONT_MONITOR_UNC) {
-
-    unsigned char currentpending, offlinepending;
+  if (   retainsmartdata || cfg.autoofflinetest || cfg.selftest || cfg.errorlog
+      || cfg.curr_pending_id || cfg.offl_pending_id                            ) {
 
     if (ataReadSmartValues(atadev, &state.smartval) ||
         ataReadSmartThresholds (atadev, &state.smartthres)) {
       PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
       retainsmartdata = cfg.usagefailed = cfg.prefail = cfg.usage = false;
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
-      cfg.pending=DONT_MONITOR_UNC;
+      cfg.curr_pending_id = cfg.offl_pending_id = 0;
     }
     else
       smart_val_ok = true;
-    
+
     // see if the necessary Attribute is there to monitor offline or
     // current pending sectors or temperature
-    TranslatePending(cfg.pending, &currentpending, &offlinepending);
-    
-    if (currentpending && ATAReturnAttributeRawValue(currentpending, &state.smartval) < 0) {
+    if (cfg.curr_pending_id && ATAReturnAttributeRawValue(cfg.curr_pending_id, &state.smartval) < 0) {
       PrintOut(LOG_INFO,"Device: %s, can't monitor Current Pending Sector count - no Attribute %d\n",
-	       name, (int)currentpending);
-      cfg.pending &= 0xff00;
-      cfg.pending |= CUR_UNC_DEFAULT;
+               name, cfg.curr_pending_id);
+      cfg.curr_pending_id = 0;
     }
     
-    if (offlinepending && ATAReturnAttributeRawValue(offlinepending, &state.smartval) < 0) {
-      PrintOut(LOG_INFO,"Device: %s, can't monitor Offline Uncorrectable Sector count  - no Attribute %d\n",
-	       name, (int)offlinepending);
-      cfg.pending &= 0x00ff;
-      cfg.pending |= OFF_UNC_DEFAULT<<8;
+    if (cfg.offl_pending_id && ATAReturnAttributeRawValue(cfg.offl_pending_id, &state.smartval) < 0) {
+      PrintOut(LOG_INFO,"Device: %s, can't monitor Offline Uncorrectable Sector count - no Attribute %d\n",
+               name, cfg.offl_pending_id);
+      cfg.offl_pending_id = 0;
     }
 
     if (   (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
@@ -2485,6 +2444,32 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   return 0;
 }
 
+// Check pending sector count attribute values (-C, -U directives).
+static void check_pending(const dev_config & cfg, dev_state & state,
+                          unsigned char id, bool increase_only,
+                          const ata_smart_values & smartval,
+                          int mailtype, const char * msg)
+{
+  // No report if no sectors pending.
+  int64_t rawval = ATAReturnAttributeRawValue(id, &smartval);
+  if (rawval <= 0)
+    return;
+
+  // If attribute is not reset, report only sector count increases.
+  int64_t prev_rawval = ATAReturnAttributeRawValue(id, &state.smartval);
+  if (!(!increase_only || prev_rawval < rawval))
+    return;
+
+  // Format message.
+  std::string s = strprintf("Device: %s, %"PRId64" %s", cfg.name.c_str(), rawval, msg);
+  if (prev_rawval > 0 && rawval != prev_rawval)
+    s += strprintf(" (changed %+"PRId64")", rawval - prev_rawval);
+
+  PrintOut(LOG_CRIT, "%s\n", s.c_str());
+  MailWarning(cfg, state, mailtype, "%s\n", s.c_str());
+  state.must_write = true;
+}
+
 // Format Temperature value
 static const char * fmt_temp(unsigned char x, char * buf)
 {
@@ -2688,8 +2673,9 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   }
   
   // Check everything that depends upon SMART Data (eg, Attribute values)
-  if (   cfg.usagefailed || cfg.prefail || cfg.usage || cfg.pending!=DONT_MONITOR_UNC
-      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || cfg.selftest                ) {
+  if (   cfg.usagefailed || cfg.prefail || cfg.usage
+      || cfg.curr_pending_id || cfg.offl_pending_id
+      || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || cfg.selftest) {
     struct ata_smart_values     curval;
     struct ata_smart_thresholds_pvt * thresh = &state.smartthres;
 
@@ -2701,26 +2687,15 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     }
     else {
       // look for current or offline pending sectors
-      if (cfg.pending != DONT_MONITOR_UNC) {
-	int64_t rawval;
-	unsigned char currentpending, offlinepending;
-	
-	TranslatePending(cfg.pending, &currentpending, &offlinepending);
-	
-	if (currentpending && (rawval=ATAReturnAttributeRawValue(currentpending, &curval))>0) {
-	  // Unreadable pending sectors!!
-	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Currently unreadable (pending) sectors\n", name, rawval);
-	  MailWarning(cfg, state, 10, "Device: %s, %"PRId64" Currently unreadable (pending) sectors", name, rawval);
-          state.must_write = true;
-	}
-	
-	if (offlinepending && (rawval=ATAReturnAttributeRawValue(offlinepending, &curval))>0) {
-	  // Unreadable offline sectors!!
-	  PrintOut(LOG_CRIT,   "Device: %s, %"PRId64" Offline uncorrectable sectors\n", name, rawval);
-	  MailWarning(cfg, state, 11, "Device: %s, %"PRId64" Offline uncorrectable sectors", name, rawval);
-          state.must_write = true;
-	}
-      }
+      if (cfg.curr_pending_id)
+        check_pending(cfg, state, cfg.curr_pending_id, cfg.curr_pending_incr, curval, 10,
+                      (!cfg.curr_pending_incr ? "Currently unreadable (pending) sectors"
+                                              : "Total unreadable (pending) sectors"    ));
+
+      if (cfg.offl_pending_id)
+        check_pending(cfg, state, cfg.offl_pending_id, cfg.offl_pending_incr, curval, 11,
+                      (!cfg.offl_pending_incr ? "Offline uncorrectable sectors"
+                                              : "Total offline uncorrectable sectors"));
 
       // check temperature limits
       if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
@@ -3087,16 +3062,9 @@ void printoutvaliddirectiveargs(int priority, char d) {
 }
 
 // exits with an error message, or returns integer value of token
-int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *configfile, int min, int max){
-  char *endptr;
-  int val;
-  
-  // check input range
-  if (min<0){
-    PrintOut(LOG_CRIT, "min =%d passed to GetInteger() must be >=0\n", min);
-    return -1;
-  }
-
+int GetInteger(const char *arg, const char *name, const char *token, int lineno, const char *configfile,
+               int min, int max, char * suffix = 0)
+{
   // make sure argument is there
   if (!arg) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s takes integer argument from %d to %d.\n",
@@ -3105,8 +3073,18 @@ int GetInteger(const char *arg, const char *name, const char *token, int lineno,
   }
   
   // get argument value (base 10), check that it's integer, and in-range
-  val=strtol(arg,&endptr,10);
-  if (*endptr!='\0' || val<min || val>max )  {
+  char *endptr;
+  int val = strtol(arg,&endptr,10);
+
+  // optional suffix present?
+  if (suffix) {
+    if (!strcmp(endptr, suffix))
+      endptr += strlen(suffix);
+    else
+      *suffix = 0;
+  }
+
+  if (!(!*endptr && min <= val && val <= max)) {
     PrintOut(LOG_CRIT,"File %s line %d (drive %s): Directive: %s has argument: %s; needs integer from %d to %d.\n",
              configfile, lineno, name, token, arg, min, max);
     return -1;
@@ -3169,32 +3147,25 @@ static int ParseToken(char * token, dev_config & cfg)
   sym=token[1];
 
   // parse the token and swallow its argument
-  switch (sym) {
-    int val;
+  int val;
+  char plus[] = "+";
 
+  switch (sym) {
   case 'C':
     // monitor current pending sector count (default 197)
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255))<0)
+    if ((val = GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255, plus)) < 0)
       return -1;
-    if (val==CUR_UNC_DEFAULT)
-      val=0;
-    else if (val==0)
-      val=CUR_UNC_DEFAULT;
-    // set bottom 8 bits to correct value
-    cfg.pending &= 0xff00;
-    cfg.pending |= val;
+    cfg.curr_pending_id = (unsigned char)val;
+    cfg.curr_pending_incr = (*plus == '+');
+    cfg.curr_pending_set = true;
     break;
   case 'U':
     // monitor offline uncorrectable sectors (default 198)
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255))<0)
+    if ((val = GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 0, 255, plus)) < 0)
       return -1;
-    if (val==OFF_UNC_DEFAULT)
-      val=0;
-    else if (val==0)
-      val=OFF_UNC_DEFAULT;
-    // turn off top 8 bits, then set to correct value
-    cfg.pending &= 0xff;
-    cfg.pending |= (val<<8);
+    cfg.offl_pending_id = (unsigned char)val;
+    cfg.offl_pending_incr = (*plus == '+');
+    cfg.offl_pending_set = true;
     break;
   case 'T':
     // Set tolerance level for SMART command failures
@@ -3537,6 +3508,10 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int line
 
   // Store line number, and by default check for both device types.
   cfg.lineno=lineno;
+
+  // Set '-C 197' and '-U 198' as default
+  cfg.curr_pending_id = 197;
+  cfg.offl_pending_id = 198;
 
   // parse tokens one at a time from the file.
   while ((token=strtok(NULL,delim))){
