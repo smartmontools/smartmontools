@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.123 2009/04/01 21:22:00 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.124 2009/04/07 19:39:34 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1039,6 +1039,14 @@ with RK100\-13 firmware).
 interpretation is unknown. This is primarily useful for the \-P
 (presets) option.
 
+.I 197,increasing
+\- Raw Attribute number 197 (Current Pending Sector Count) is not
+reset if uncorrectable sectors are reallocated.
+
+.I 198,increasing
+\- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
+reset if uncorrectable sectors are reallocated.
+
 .I 198,offlinescanuncsectorct
 \- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
 
@@ -1680,7 +1688,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.123 2009/04/01 21:22:00 chrfranke Exp $
+$Id: smartctl.8.in,v 1.124 2009/04/07 19:39:34 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

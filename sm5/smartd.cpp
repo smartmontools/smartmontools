@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.442 2009/04/05 17:10:49 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.443 2009/04/07 19:39:34 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1616,7 +1616,14 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     // then save the correct state of the flag (applypresets may have changed it)
     cfg.fixfirmwarebug = con->fixfirmwarebug;
   }
-  
+
+  // Set default '-C 197[+]' if no '-C ID' is specified.
+  if (!cfg.curr_pending_set)
+    cfg.curr_pending_id = get_unc_attr_id(false, cfg.attributedefs, cfg.curr_pending_incr);
+  // Set default '-U 198[+]' if no '-U ID' is specified.
+  if (!cfg.offl_pending_set)
+    cfg.offl_pending_id = get_unc_attr_id(true, cfg.attributedefs, cfg.offl_pending_incr);
+
   // If requested, show which presets would be used for this drive
   if (cfg.showpresets) {
     int savedebugmode=debugmode;
@@ -3508,10 +3515,6 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int line
 
   // Store line number, and by default check for both device types.
   cfg.lineno=lineno;
-
-  // Set '-C 197' and '-U 198' as default
-  cfg.curr_pending_id = 197;
-  cfg.offl_pending_id = 198;
 
   // parse tokens one at a time from the file.
   while ((token=strtok(NULL,delim))){

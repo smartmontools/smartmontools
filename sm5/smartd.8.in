@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in,v 1.135 2009/04/05 17:10:49 chrfranke Exp $
+$Id: smartd.8.in,v 1.136 2009/04/07 19:39:34 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1454,9 +1454,10 @@ ID\ =\ 0.  If the \fB\-C ID\fP option is not given, then it defaults to
 \fB\-C 197\fP (since Attribute 197 is generally used to monitor
 pending sectors).
 
-If '+' is specified, a report is only printed if the number of sectors
+If \'+\' is specified, a report is only printed if the number of sectors
 has increased between two check cycles. Some disks do not reset this
 attribute when a bad sector is reallocated.
+See also \'\-v 197,increasing\' below.
 
 A pending sector is a disk sector (containing 512 bytes of your data)
 which the device would like to mark as ``bad" and reallocate.
@@ -1480,9 +1481,10 @@ ID\ =\ 0.  If the \fB\-U ID\fP option is not given, then it defaults to
 \fB\-U 198\fP (since Attribute 198 is generally used to monitor
 offline uncorrectable sectors).
 
-If '+' is specified, a report is only printed if the number of sectors
+If \'+\' is specified, a report is only printed if the number of sectors
 has increased since the last check cycle. Some disks do not reset this
 attribute when a bad sector is reallocated.
+See also \'\-v 198,increasing\' below.
 
 An offline uncorrectable sector is a disk sector which was not
 readable during an off\-line scan or a self\-test.  This is important
@@ -1623,6 +1625,16 @@ with RK100-13 firmware).
 \- Raw Attribute number 194 is NOT the disk temperature, and its
 interpretation is unknown. This is primarily useful for the -P
 (presets) Directive.
+
+.I 197,increasing
+\- Raw Attribute number 197 (Current Pending Sector Count) is not
+reset if uncorrectable sectors are reallocated.  This also sets
+\'-C 197+\' if no other \'-C\' directive is specified.
+
+.I 198,increasing
+\- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
+reset if uncorrectable sector are reallocated.  This also sets
+\'-U 198+\' if no other \'-U\' directive is specified.
 
 .I 198,offlinescanuncsectorct
 \- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
@@ -2103,4 +2115,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.8.in,v 1.135 2009/04/05 17:10:49 chrfranke Exp $
+$Id: smartd.8.in,v 1.136 2009/04/07 19:39:34 chrfranke Exp $
