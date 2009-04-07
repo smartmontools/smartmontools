@@ -40,7 +40,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.215 2009/04/01 21:22:00 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.216 2009/04/07 19:39:34 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -151,49 +151,53 @@ static const int actual_ver[] = {
 
 // When you add additional items to this list, you should then:
 // 0 -- update this list
-// 1 -- modify the following function parse_attribute_def()
-// 2 -- if needed, modify ataPrintSmartAttribRawValue()
-// 3 -  if needed, modify ataPrintSmartAttribName()
-// 4 -- add #define PRESET_N_DESCRIPTION at top of knowndrives.c
-// 5 -- add drive in question into knowndrives[] table in knowndrives.c
-// 6 -- update smartctl.8
-// 7 -- update smartd.8
-// 8 -- do "make smartd.conf.5" to update smartd.conf.5
-// 9 -- update CHANGELOG file
-static const char * const vendorattributeargs[] = {
-  // 0  defs[9]=1
-  "9,minutes",
-  // 1  defs[9]=3
-  "9,seconds",
-  // 2  defs[9]=2
-  "9,temp",
-  // 3  defs[220]=1
-  "220,temp",
-  // 4  defs[*]=253
-  "N,raw8",
-  // 5  defs[*]=254
-  "N,raw16",
-  // 6  defs[*]=255
-  "N,raw48",
-  // 7  defs[200]=1
-  "200,writeerrorcount",
-  // 8  defs[9]=4
-  "9,halfminutes",
-  // 9  defs[194]=1
-  "194,10xCelsius",
-  // 10 defs[194]=2
-  "194,unknown",
-  // 11 defs[193]=1
-  "193,loadunload",
-  // 12 defs[201]=1
-  "201,detectedtacount",
-  // 13 defs[192]=1
-  "192,emergencyretractcyclect",
-  // 14 defs[198]=1
-  "198,offlinescanuncsectorct",
-  // NULL should always terminate the array
-  NULL
+// 1 -- if needed, modify ataPrintSmartAttribRawValue()
+// 2 -  if needed, modify ataPrintSmartAttribName()
+// 3 -- add drive in question into builtin_knowndrives[] table in knowndrives.cpp
+// 4 -- update smartctl.8
+// 5 -- update smartd.8
+// 6 -- do "make smartd.conf.5" to update smartd.conf.5
+// 7 -- update CHANGELOG file
+
+struct vendor_attr_arg_entry
+{
+  unsigned char id;  // attribute ID, 0 for all
+  const char * name; // attribute name
+  unsigned char val; // value for attribute defs array
 };
+
+// The order of these entries is (only) relevant for '-v help' output.
+const vendor_attr_arg_entry vendor_attribute_args[] = {
+  {  9,"halfminutes", 4},
+  {  9,"minutes", 1},
+  {  9,"seconds", 3},
+  {  9,"temp", 2},
+  {192,"emergencyretractcyclect", 1},
+  {193,"loadunload", 1},
+  {194,"10xCelsius", 1},
+  {194,"unknown", 2},
+  {197,"increasing", 1},
+  {198,"offlinescanuncsectorct", 2},
+  {198,"increasing", 1},
+  {200,"writeerrorcount", 1},
+  {201,"detectedtacount", 1},
+  {220,"temp", 1},
+  {  0,"raw8", 253},
+  {  0,"raw16", 254},
+  {  0,"raw48", 255},
+};
+
+const unsigned num_vendor_attribute_args = sizeof(vendor_attribute_args)/sizeof(vendor_attribute_args[0]);
+
+// Get ID and increase flag of current pending or offline
+// uncorrectable attribute.
+unsigned char get_unc_attr_id(bool offline, const unsigned char * defs,
+                              bool & increase)
+{
+  unsigned char id = (!offline ? 197 : 198);
+  increase = (defs[id] == 1);
+  return id;
+}
 
 // This are the meanings of the Self-test failure checkpoint byte.
 // This is in the self-test log at offset 4 bytes into the self-test
@@ -226,156 +230,56 @@ const char *SelfTestFailureCodeName(unsigned char which){
 // array.  Returns 1 if problem, 0 if pair has been recongized.
 int parse_attribute_def(const char * pair, unsigned char * defs)
 {
-  int i,j;
-  char temp[32];
+  int id = 0, nc = -1;
+  char name[32+1];
+  if (pair[0] == 'N') {
+    // "N,name"
+    if (!(sscanf(pair, "N,%32s%n", name, &nc) == 1 && nc == (int)strlen(pair)))
+      return 1;
+  }
+  else {
+    // "attr,name"
+    if (!(   sscanf(pair, "%d,%32s%n", &id, name, &nc) == 2
+          && 1 <= id && id <= 255 && nc == (int)strlen(pair)))
+      return 1;
+  }
 
-  // look along list and see if we find the pair
-  for (i=0; vendorattributeargs[i] && strcmp(pair, vendorattributeargs[i]); i++)
-    ;
+  // Find pair
+  unsigned i;
+  for (i = 0; ; i++) {
+    if (i >= num_vendor_attribute_args)
+      return 1; // Not found
+    if (   (!vendor_attribute_args[i].id || vendor_attribute_args[i].id == id)
+        && !strcmp(vendor_attribute_args[i].name, name)                       )
+      break;
+  }
 
-  switch (i) {
-  case 0:
-    // attribute 9 is power on time in minutes
-    defs[9]=1;
-    return 0;
-  case 1:
-    // attribute 9 is power-on-time in seconds
-    defs[9]=3;
-    return 0;
-  case 2:
-    // attribute 9 is temperature in celsius
-    defs[9]=2;
-    return 0;
-  case 3:
-    // attribute 220 is temperature in celsius
-    defs[220]=1;
-    return 0;
-  case 4:
-    // print all attributes in raw 8-bit form
-    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
-      defs[j]=253;
-    return 0;
-  case 5:
-    // print all attributes in raw 16-bit form
-    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
-      defs[j]=254;
-    return 0;
-  case 6:
-    // print all attributes in raw 48-bit form
-    for (j=0; j<MAX_ATTRIBUTE_NUM; j++)
-      defs[j]=255;
-    return 0;
-  case 7:
-    // attribute 200 is write error count
-    defs[200]=1;
-    return 0;
-  case 8:
-    // attribute 9 increments once every 30 seconds (power on time
-    // measure)
-    defs[9]=4;
-    return 0;
-  case 9:
-    // attribute 194 is ten times disk temp in Celsius
-    defs[194]=1;
-    return 0;
-  case 10:
-    // attribute 194 is unknown
-    defs[194]=2;
-    return 0;
-  case 11:
-    // Hitachi : Attributes 193 has 2 values : 1 load, 1 normal unload
-    defs[193]=1;
-    return 0;
-  case 12:
-    // Fujitsu
-    defs[201]=1;
-    return 0;
-  case 13:
-    // Fujitsu
-    defs[192]=1;
-    return 0;
-  case 14:
-    // Fujitsu
-    defs[198]=1;
-    return 0;
-  default:
-    // pair not found
-    break;
+  if (!id) {
+    // "N,name" -> set all entries
+    for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++)
+      defs[j] = vendor_attribute_args[i].val;
   }
-  // At this point, either the pair was not found, or it is of the
-  // form N,uninterpreted, in which case we need to parse N
-  j=sscanf(pair,"%d,%14s", &i, temp);
- 
-  // if no match to pattern, unrecognized
-  if (j!=2 || i<0 || i >255)
-    return 1;
+  else
+    // "attr,name"
+    defs[id] = vendor_attribute_args[i].val;
 
-  // check for recognized strings
-  if (!strcmp(temp, "raw8")) {
-    defs[i]=253;
-    return 0;
-  }
-  
-  // check for recognized strings
-  if (!strcmp(temp, "raw16")) {
-    defs[i]=254;
-    return 0;
-  }
-  
-  // check for recognized strings
-  if (!strcmp(temp, "raw48")) {
-    defs[i]=255;
-    return 0;
-  }
- 
-  // didn't recognize the string
-  return 1;
+  return 0;
 }
 
-// Comparison function for vendor attribute arguments,
-// compares first embedded number by value.
-static bool vendorargs_less_than(const char * x, const char * y)
-{
-  // Skip to first number
-  static const char digits[] = "0123456789";
-  unsigned nx = strcspn(x, digits);
-  unsigned ny = strcspn(y, digits);
-
-  if (nx == ny && (x[nx] && y[ny])) {
-    if (nx) {
-      // Compare prefixes
-      int cmp = strncmp(x, y, nx);
-      if (cmp)
-        return (cmp < 0);
-  }
-    // Compare numbers
-    int numx = atoi(x+nx);
-    int numy = atoi(y+ny);
-    if (numx != numy)
-      return (numx < numy);
-  }
-  // Fall back to string compare
-  return (strcmp(x, y) < 0);
-}
-
-// Function to return a multiline string containing a list of the arguments in 
-// vendorattributeargs[].  The strings are preceeded by tabs and followed
+// Return a multiline string containing a list of valid arguments for
+// parse_attribute_def().  The strings are preceeded by tabs and followed
 // (except for the last) by newlines.
 std::string create_vendor_attribute_arg_list()
 {
-  // Get a sorted list of vendor attribute arguments.
-  const int size = sizeof(vendorattributeargs)/sizeof(vendorattributeargs[0]) - 1;
-  const char * sorted[size];
-  memcpy(sorted, vendorattributeargs, sizeof(sorted));
-  std::sort(sorted, sorted+size, vendorargs_less_than);
-
-  // Construct the string
   std::string s;
-  for (int i = 0; i < size; i++) {
+  for (unsigned i = 0; i < num_vendor_attribute_args; i++) {
     if (i > 0)
       s += '\n';
-    s += '\t';
-    s += sorted[i];
+    if (!vendor_attribute_args[i].id)
+      s += "\tN,";
+    else
+      s += strprintf("\t%d,", vendor_attribute_args[i].id);
+    s += vendor_attribute_args[i].name;
   }
   return s;
 }
@@ -2125,16 +2029,28 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     name="Reallocated_Event_Count";
     break;
   case 197:
-    name="Current_Pending_Sector";
+    switch (val) {
+    default:
+      name="Current_Pending_Sector";
+      break;
+    case 1:
+      // Not reset after sector reallocation
+      name="Total_Pending_Sectors";
+      break;
+    }
     break;
   case 198:
     switch (val){
-    case 1:
-      // Fujitsu
-      name="Off-line_Scan_UNC_Sector_Ct";
-      break;
     default:
       name="Offline_Uncorrectable";
+      break;
+    case 1:
+      // Not reset after sector reallocation
+      name="Total_Offl_Uncorrectabl"/*e*/;
+      break;
+    case 2:
+      // Fujitsu
+      name="Off-line_Scan_UNC_Sector_Ct";
       break;
     }
     break;

@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.105 2009/04/01 21:22:00 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.106 2009/04/07 19:39:34 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -745,8 +745,13 @@ const char *SelfTestFailureCodeName(unsigned char which);
 // else 1 if there is a problem.
 int parse_attribute_def(const char * pair, unsigned char * defs);
 
-// Function to return a string containing a list of the arguments in
-// vendorattributeargs[].
+// Get ID and increase flag of current pending or offline
+// uncorrectable attribute.
+unsigned char get_unc_attr_id(bool offline, const unsigned char * defs,
+                              bool & increase);
+
+// Return a multiline string containing a list of valid arguments for
+// parse_attribute_def().
 std::string create_vendor_attribute_arg_list();
 
 
