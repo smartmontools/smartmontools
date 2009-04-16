@@ -25,15 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.59 2008/08/23 21:39:34 chrfranke Exp $\n"
-
-// Possible values for fixfirmwarebug.  If user has NOT specified -F at
-// all, then value is 0.
-#define FIX_NOTSPECIFIED     0
-#define FIX_NONE             1
-#define FIX_SAMSUNG          2
-#define FIX_SAMSUNG2         3
-#define FIX_SAMSUNG3         4
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.60 2009/04/16 21:24:08 chrfranke Exp $\n"
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
@@ -89,12 +81,8 @@ typedef struct smartmonctrl_s {
   unsigned char dont_print_serial;
   unsigned char permissive;
   unsigned char conservative;
-  unsigned char checksumfail;
-  unsigned char checksumignore;
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
-  unsigned char fixfirmwarebug;
-  unsigned char fixswappedid;
 #ifdef OLD_INTERFACE
   // 3Ware controller type, but also extensible to other contoller types
   unsigned char controller_type; // TODO: Only needed for os_linux.cpp
@@ -103,15 +91,6 @@ typedef struct smartmonctrl_s {
   // combined controller/channle/pmport for highpoint rocketraid controller
   unsigned char hpt_data[3]; // TODO: Only needed for os_linux.cpp
 #endif
-  unsigned char ignorepresets;
-  unsigned char showpresets;
-  // The i'th entry in this array will modify the printed meaning of
-  // the i'th SMART attribute.  The default definitions of the
-  // Attributes are obtained by having the array be all zeros.  If
-  // attributedefs[i] is nonzero, it means that the i'th attribute has
-  // a non-default meaning.  See the ataPrintSmartAttribName and
-  // and parse_attribute_def functions.
-  unsigned char attributedefs[256];
 } smartmonctrl;
 
 #endif

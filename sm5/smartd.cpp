@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.443 2009/04/07 19:39:34 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.444 2009/04/16 21:24:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -260,7 +260,7 @@ struct dev_config
   bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
-  unsigned char fixfirmwarebug;           // Fix firmware bug
+  unsigned char fix_firmwarebug;          // FIX_*, see atacmds.h
   bool ignorepresets;                     // Ignore database of -v options
   bool showpresets;                       // Show database entry for this device
   bool removable;                         // Device may disappear (not be present)
@@ -310,7 +310,7 @@ dev_config::dev_config()
   permissive(false),
   autosave(0),
   autoofflinetest(0),
-  fixfirmwarebug(0),
+  fix_firmwarebug(FIX_NOTSPECIFIED),
   ignorepresets(false),
   showpresets(false),
   removable(false),
@@ -1516,11 +1516,12 @@ static bool not_allowed_in_filename(char c)
 }
 
 // returns <0 on failure
-static int ATAErrorCount(ata_device * device, const char * name)
+static int ATAErrorCount(ata_device * device, const char * name,
+                         unsigned char fix_firmwarebug)
 {
   struct ata_smart_errorlog log;
   
-  if (-1==ataReadErrorLog(device,&log)){
+  if (ataReadErrorLog(device, &log, fix_firmwarebug)){
     PrintOut(LOG_INFO,"Device: %s, Read SMART Error Log Failed\n",name);
     return -1;
   }
@@ -1531,17 +1532,18 @@ static int ATAErrorCount(ata_device * device, const char * name)
 
 // returns <0 if problem.  Otherwise, bottom 8 bits are the self test
 // error count, and top bits are the power-on hours of the last error.
-static int SelfTestErrorCount(ata_device * device, const char * name)
+static int SelfTestErrorCount(ata_device * device, const char * name,
+                              unsigned char fix_firmwarebug)
 {
   struct ata_smart_selftestlog log;
 
-  if (-1==ataReadSelfTestLog(device,&log)){
+  if (ataReadSelfTestLog(device, &log, fix_firmwarebug)){
     PrintOut(LOG_INFO,"Device: %s, Read SMART Self Test Log Failed\n",name);
     return -1;
   }
   
   // return current number of self-test errors
-  return ataPrintSmartSelfTestlog(&log, false);
+  return ataPrintSmartSelfTestlog(&log, false, fix_firmwarebug);
 }
 
 #define SELFTEST_ERRORCOUNT(x) (x & 0xff)
@@ -1575,6 +1577,10 @@ static void log_self_test_exec_status(const char * name, unsigned char status)
              name, status);
 }
 
+
+// TODO: Add '-F swapid' directive
+const bool fix_swapped_id = false;
+
 // scan to see what ata devices there are, and if they support SMART
 static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atadev)
 {
@@ -1585,9 +1591,6 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // Device must be open
 
-  // pass user settings on to low-level ATA commands
-  con->fixfirmwarebug = cfg.fixfirmwarebug;
-  
   // Get drive identity structure
   if ((retid=ataReadHDIdentity (atadev, &drive))){
     if (retid<0)
@@ -1608,13 +1611,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
     // do whatever applypresets decides to do.
-    if (!apply_presets(&drive, cfg.attributedefs, con->fixfirmwarebug))
+    if (!apply_presets(&drive, cfg.attributedefs, cfg.fix_firmwarebug, fix_swapped_id))
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
-    
-    // then save the correct state of the flag (applypresets may have changed it)
-    cfg.fixfirmwarebug = con->fixfirmwarebug;
   }
 
   // Set default '-C 197[+]' if no '-C ID' is specified.
@@ -1630,7 +1630,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device %s: presets are:\n", name);
     if (!debugmode)
       debugmode=2;
-    showpresets(&drive);
+    show_presets(&drive, false);
     debugmode=savedebugmode;
   }
 
@@ -1760,7 +1760,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log (SMART READ DATA failed); disabling -l selftest\n", name);
     else if (!cfg.permissive && !isSmartTestLogCapable(&state.smartval, &drive))
       PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Self-Test log; disabling -l selftest (override with -T permissive Directive)\n", name);
-    else if ((retval=SelfTestErrorCount(atadev, name)) < 0)
+    else if ((retval = SelfTestErrorCount(atadev, name, cfg.fix_firmwarebug)) < 0)
       PrintOut(LOG_INFO, "Device: %s, no SMART Self-Test log; remove -l selftest Directive from smartd.conf\n", name);
     else {
       cfg.selftest = true;
@@ -1781,7 +1781,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       PrintOut(LOG_INFO, "Device: %s, no SMART Error log (SMART READ DATA failed); disabling -l error\n", name);
     else if (!cfg.permissive && !isSmartErrorLogCapable(&state.smartval, &drive))
       PrintOut(LOG_INFO, "Device: %s, appears to lack SMART Error log; disabling -l error (override with -T permissive Directive)\n", name);
-    else if ((val=ATAErrorCount(atadev, name))<0)
+    else if ((val = ATAErrorCount(atadev, name, cfg.fix_firmwarebug)) < 0)
       PrintOut(LOG_INFO, "Device: %s, no SMART Error log; remove -l error Directive from smartd.conf\n", name);
     else {
         cfg.errorlog = true;
@@ -1825,8 +1825,8 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (!state_path_prefix.empty()) {
     // Build file name for state file
     char model[40+1], serial[20+1];
-    format_ata_string(model, drive.model, sizeof(model)-1);
-    format_ata_string(serial, drive.serial_no, sizeof(serial)-1);
+    format_ata_string(model, drive.model, sizeof(model)-1, fix_swapped_id);
+    format_ata_string(serial, drive.serial_no, sizeof(serial)-1, fix_swapped_id);
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
     cfg.state_file = strprintf("%s%s-%s.ata.state", state_path_prefix.c_str(), model, serial);
@@ -2409,7 +2409,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   
   // If currently running a self-test, do not interrupt it to start another.
   if (15==(data.self_test_exec_status >> 4)) {
-    if (cfg.fixfirmwarebug == FIX_SAMSUNG3 && data.self_test_exec_status == 0xf0) {
+    if (cfg.fix_firmwarebug == FIX_SAMSUNG3 && data.self_test_exec_status == 0xf0) {
       PrintOut(LOG_INFO, "Device: %s, will not skip scheduled %sTest "
                "despite unclear Self-Test byte (SAMSUNG Firmware bug).\n", name, testname);
     } else {
@@ -2561,9 +2561,6 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   int i;
   const char * name = cfg.name.c_str();
   char testtype=0;
-  
-  // fix firmware bug if requested
-  con->fixfirmwarebug=cfg.fixfirmwarebug;
 
   // If user has asked, test the email warning system
   if (cfg.emailtest)
@@ -2799,15 +2796,15 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   
   // check if number of selftest errors has increased (note: may also DECREASE)
   if (cfg.selftest)
-    CheckSelfTestLogs(cfg, state, SelfTestErrorCount(atadev, name));
-  
+    CheckSelfTestLogs(cfg, state, SelfTestErrorCount(atadev, name, cfg.fix_firmwarebug));
+
   // check if number of ATA errors has increased
   if (cfg.errorlog) {
 
     int newc, oldc= state.ataerrorcount;
 
     // new number of errors
-    newc = ATAErrorCount(atadev, name);
+    newc = ATAErrorCount(atadev, name, cfg.fix_firmwarebug);
 
     // did command fail?
     if (newc<0)
@@ -3205,13 +3202,13 @@ static int ParseToken(char * token, dev_config & cfg)
     if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
     } else if (!strcmp(arg, "none")) {
-      cfg.fixfirmwarebug = FIX_NONE;
+      cfg.fix_firmwarebug = FIX_NONE;
     } else if (!strcmp(arg, "samsung")) {
-      cfg.fixfirmwarebug = FIX_SAMSUNG;
+      cfg.fix_firmwarebug = FIX_SAMSUNG;
     } else if (!strcmp(arg, "samsung2")) {
-      cfg.fixfirmwarebug = FIX_SAMSUNG2;
+      cfg.fix_firmwarebug = FIX_SAMSUNG2;
     } else if (!strcmp(arg, "samsung3")) {
-      cfg.fixfirmwarebug = FIX_SAMSUNG3;
+      cfg.fix_firmwarebug = FIX_SAMSUNG3;
     } else {
       badarg = 1;
     }
@@ -4272,9 +4269,6 @@ int main_worker(int argc, char **argv)
   con->printing_switchable=0;
   con->dont_print=debugmode?0:1;
   
-  // don't exit on bad checksums
-  con->checksumfail=0;
-
   // Configuration for each device
   dev_config_vector configs;
   // Device states

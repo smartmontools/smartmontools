@@ -44,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.209 2009/04/01 21:22:00 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.210 2009/04/16 21:24:08 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -457,13 +457,13 @@ static uint64_t determine_capacity(const ata_identify_device * drive, char * pst
   return retval;
 }
 
-static bool ataPrintDriveInfo(const ata_identify_device * drive)
+static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_id)
 {
   // format drive information (with byte swapping as needed)
   char model[64], serial[64], firm[64];
-  format_ata_string(model, drive->model, 40);
-  format_ata_string(serial, drive->serial_no, 20);
-  format_ata_string(firm, drive->fw_rev, 8);
+  format_ata_string(model, drive->model, 40, fix_swapped_id);
+  format_ata_string(serial, drive->serial_no, 20, fix_swapped_id);
+  format_ata_string(firm, drive->fw_rev, 8, fix_swapped_id);
 
   // print out model, serial # and firmware versions  (byte-swap ASCI strings)
   const drive_settings * dbentry = lookup_drive(model, firm);
@@ -576,7 +576,8 @@ static void PrintSmartOfflineStatus(const ata_smart_values * data)
   return;
 }
 
-static void PrintSmartSelfExecStatus(const ata_smart_values * data)
+static void PrintSmartSelfExecStatus(const ata_smart_values * data,
+                                     unsigned char fix_firmwarebug)
 {
    pout("Self-test execution status:      ");
    
@@ -636,7 +637,7 @@ static void PrintSmartSelfExecStatus(const ata_smart_values * data)
           pout("damage.\n");
           break;
        case 15:
-          if (con->fixfirmwarebug == FIX_SAMSUNG3 && data->self_test_exec_status == 0xf0) {
+          if (fix_firmwarebug == FIX_SAMSUNG3 && data->self_test_exec_status == 0xf0) {
             pout("(%4d)\tThe previous self-test routine completed\n\t\t\t\t\t",
                     (int)data->self_test_exec_status);
             pout("with unknown result or self-test in\n\t\t\t\t\t");
@@ -777,6 +778,7 @@ static void PrintSmartConveyanceSelfTestPollingTime(const ata_smart_values * dat
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
 static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                       const ata_smart_thresholds_pvt * thresholds,
+                                      const unsigned char * attributedefs,
                                       int onlyfailed)
 {
   int needheader=1;
@@ -824,7 +826,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
         status="    -";
 
       // Print name of attribute
-      ataPrintSmartAttribName(attributename,disk->id, con->attributedefs);
+      ataPrintSmartAttribName(attributename, disk->id, attributedefs);
       pout("%-28s",attributename);
 
       // printing line for each valid attribute
@@ -836,14 +838,14 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
              (int)thre->threshold, type, update, status);
 
       // print raw value of attribute
-      ataPrintSmartAttribRawValue(rawstring, disk, con->attributedefs);
+      ataPrintSmartAttribRawValue(rawstring, disk, attributedefs);
       pout("%s\n", rawstring);
       
       // print a warning if there is inconsistency here!
       if (disk->id != thre->id){
         char atdat[64],atthr[64];
-        ataPrintSmartAttribName(atdat, disk->id, con->attributedefs);
-        ataPrintSmartAttribName(atthr, thre->id, con->attributedefs);
+        ataPrintSmartAttribName(atdat, disk->id, attributedefs);
+        ataPrintSmartAttribName(atthr, thre->id, attributedefs);
         pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
         pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
       }
@@ -866,14 +868,15 @@ static void ataPrintSCTCapability(const ata_identify_device *drive)
 }
 
 
-static void ataPrintGeneralSmartValues(const ata_smart_values *data, const ata_identify_device *drive)
+static void PrintGeneralSmartValues(const ata_smart_values *data, const ata_identify_device *drive,
+                                    unsigned char fix_firmwarebug)
 {
   pout("General SMART Values:\n");
   
   PrintSmartOfflineStatus(data); 
   
   if (isSupportSelfTest(data)){
-    PrintSmartSelfExecStatus (data);
+    PrintSmartSelfExecStatus(data, fix_firmwarebug);
   }
   
   PrintSmartTotalTimeCompleteOffline(data);
@@ -1086,7 +1089,8 @@ static const char * get_error_log_state_desc(unsigned state)
 }
 
 // returns number of errors
-static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
+static int PrintSmartErrorlog(const ata_smart_errorlog *data,
+                              unsigned char fix_firmwarebug)
 {
   pout("SMART Error Log Version: %d\n", (int)data->revnumber);
   
@@ -1105,7 +1109,7 @@ static int ataPrintSmartErrorlog(const ata_smart_errorlog *data)
   }
 
   // Some internal consistency checking of the data structures
-  if ((data->ata_error_count-data->error_log_pointer)%5 && con->fixfirmwarebug != FIX_SAMSUNG2) {
+  if ((data->ata_error_count-data->error_log_pointer)%5 && fix_firmwarebug != FIX_SAMSUNG2) {
     pout("Warning: ATA error count %d inconsistent with error log pointer %d\n\n",
          data->ata_error_count,data->error_log_pointer);
   }
@@ -1745,21 +1749,23 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // If requested, show which presets would be used for this drive and exit.
-  if (con->showpresets) {
-    showpresets(&drive);
+  if (options.show_presets) {
+    show_presets(&drive, options.fix_swapped_id);
     EXIT(0);
   }
 
   // Use preset vendor attribute options unless user has requested otherwise.
-  if (!con->ignorepresets){
-    apply_presets(&drive, con->attributedefs, con->fixfirmwarebug);
-  }
+  unsigned char attributedefs[256];
+  memcpy(attributedefs, options.attributedefs, sizeof(attributedefs));
+  unsigned char fix_firmwarebug = options.fix_firmwarebug;
+  if (!options.ignore_presets)
+    apply_presets(&drive, attributedefs, fix_firmwarebug, options.fix_swapped_id);
 
   // Print most drive identity information if requested
   bool known = false;
   if (con->driveinfo){
     pout("=== START OF INFORMATION SECTION ===\n");
-    known = ataPrintDriveInfo(&drive);
+    known = PrintDriveInfo(&drive, options.fix_swapped_id);
   }
 
   // Was this a packet device?
@@ -1951,7 +1957,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Please note the following marginal Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres,2);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 2);
         } 
         returnval|=FAILAGE;
       }
@@ -1972,7 +1978,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres,1);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 1);
         }
       }
       else
@@ -1996,7 +2002,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres,1);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 1);
         }
       }
       else {
@@ -2007,7 +2013,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           else {
             PRINT_ON(con);
             pout("Please note the following marginal Attributes:\n");
-            PrintSmartAttribWithThres(&smartval, &smartthres,2);
+            PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 2);
           } 
           returnval|=FAILAGE;
         }
@@ -2023,12 +2029,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   
   // Print general SMART values
   if (con->generalsmartvalues)
-    ataPrintGeneralSmartValues(&smartval, &drive); 
+    PrintGeneralSmartValues(&smartval, &drive, fix_firmwarebug);
 
   // Print vendor-specific attributes
   if (con->smartvendorattrib){
     PRINT_ON(con);
-    PrintSmartAttribWithThres(&smartval, &smartthres,con->printing_switchable?2:0);
+    PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs,
+                              (con->printing_switchable ? 2 : 0));
     PRINT_OFF(con);
   }
 
@@ -2201,13 +2208,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    if (ataReadErrorLog(device, &smarterror)){
+    if (ataReadErrorLog(device, &smarterror, fix_firmwarebug)){
       pout("Smartctl: SMART Error Log Read Failed\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       // quiet mode is turned on inside ataPrintSmartErrorLog()
-      if (ataPrintSmartErrorlog(&smarterror))
+      if (PrintSmartErrorlog(&smarterror, fix_firmwarebug))
 	returnval|=FAILERR;
       PRINT_OFF(con);
     }
@@ -2219,13 +2226,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }    
-    if(ataReadSelfTestLog(device, &smartselftest)){
+    if(ataReadSelfTestLog(device, &smartselftest, fix_firmwarebug)){
       pout("Smartctl: SMART Self Test Log Read Failed\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     else {
       PRINT_ON(con);
-      if (ataPrintSmartSelfTestlog(&smartselftest,!con->printing_switchable))
+      if (ataPrintSmartSelfTestlog(&smartselftest, !con->printing_switchable, fix_firmwarebug))
 	returnval|=FAILLOG;
       PRINT_OFF(con);
       pout("\n");

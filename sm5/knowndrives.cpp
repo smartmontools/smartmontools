@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.202 2009/03/09 19:58:07 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.203 2009/04/16 21:24:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1547,13 +1547,13 @@ int showmatchingpresets(const char *model, const char *firmware)
 }
 
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const ata_identify_device * drive)
+void show_presets(const ata_identify_device * drive, bool fix_swapped_id)
 {
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   // get the drive's model/firmware strings
-  format_ata_string(model, drive->model, MODEL_STRING_LENGTH);
-  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
+  format_ata_string(model, drive->model, MODEL_STRING_LENGTH, fix_swapped_id);
+  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH, fix_swapped_id);
   
   // and search to see if they match values in the table
   const drive_settings * dbentry = lookup_drive(model, firmware);
@@ -1582,12 +1582,12 @@ void showpresets(const ata_identify_device * drive)
 // already been set in opts will not be changed.  Returns false if drive
 // not recognized.
 bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
-                   unsigned char & fix_firmwarebug)
+                   unsigned char & fix_firmwarebug, bool fix_swapped_id)
 {
   // get the drive's model/firmware strings
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-  format_ata_string(model, drive->model, MODEL_STRING_LENGTH);
-  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH);
+  format_ata_string(model, drive->model, MODEL_STRING_LENGTH, fix_swapped_id);
+  format_ata_string(firmware, drive->fw_rev, FIRMWARE_STRING_LENGTH, fix_swapped_id);
   
   // Look up the drive in knowndrives[].
   const drive_settings * dbentry = lookup_drive(model, firmware);
