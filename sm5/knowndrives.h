@@ -21,7 +21,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.22 2008/10/08 21:42:49 chrfranke Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.23 2009/04/16 21:24:08 chrfranke Exp $\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -55,7 +55,7 @@ struct drive_settings {
 const drive_settings * lookup_drive(const char * model, const char * firmware);
 
 // Shows the presets (if any) that are available for the given drive.
-void showpresets(const ata_identify_device * drive);
+void show_presets(const ata_identify_device * drive, bool fix_swapped_id);
 
 // Shows all presets for drives in knowndrives[].
 // Returns #syntax errors.
@@ -70,7 +70,7 @@ int showmatchingpresets(const char *model, const char *firmware);
 // already been set in opts will not be changed.  Also sets options in
 // con.  Returns false if drive not recognized.
 bool apply_presets(const ata_identify_device * drive, unsigned char * opts,
-                   unsigned char & fix_firmwarebug);
+                   unsigned char & fix_firmwarebug, bool fix_swapped_id);
 
 // Read drive database from file.
 bool read_drive_database(const char * path);

@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.794 2009/04/07 19:39:34 chrfranke Exp $
+$Id: CHANGELOG,v 1.795 2009/04/16 21:24:08 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Replace global 'con->...' variables used for drive presets
+       by local variables.
 
   [CF] Simplify '-v' vendor attribute option parsing.
        Add '-v 197,increasing' and '-v 198,increasing' options

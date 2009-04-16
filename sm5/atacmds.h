@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.106 2009/04/07 19:39:34 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.107 2009/04/16 21:24:08 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -66,6 +66,15 @@ typedef enum {
   // writes 512 bytes of data:
   WRITE_LOG
 } smart_command_set;
+
+// Possible values for fix_firmwarebug.
+enum {
+  FIX_NOTSPECIFIED = 0,
+  FIX_NONE,
+  FIX_SAMSUNG,
+  FIX_SAMSUNG2,
+  FIX_SAMSUNG3
+};
 
 // ATA Specification Command Register Values (Commands)
 #define ATA_IDENTIFY_DEVICE             0xec
@@ -590,8 +599,10 @@ int ataCheckPowerMode(ata_device * device);
 /* Read S.M.A.R.T information from drive */
 int ataReadSmartValues(ata_device * device,struct ata_smart_values *);
 int ataReadSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
-int ataReadErrorLog(ata_device * device, struct ata_smart_errorlog *);
-int ataReadSelfTestLog(ata_device * device, struct ata_smart_selftestlog *);
+int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
+                     unsigned char fix_firmwarebug);
+int ataReadSelfTestLog(ata_device * device, ata_smart_selftestlog * data,
+                       unsigned char fix_firmwarebug);
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
 int ataSetSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
@@ -782,15 +793,16 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
                                 bool print_error_only, bool & print_header);
 
 // Print Smart self-test log, used by smartctl and smartd.
-int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries);
+int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
+                             unsigned char fix_firmwarebug);
 
 // Get number of sectors from IDENTIFY sector.
 uint64_t get_num_sectors(const ata_identify_device * drive);
 
 // Convenience function for formatting strings from ata_identify_device.
-void format_ata_string(char * out, const char * in, int n);
-inline void format_ata_string(char * out, const unsigned char * in, int n)
-  { format_ata_string(out, (const char *)in, n); }
+void format_ata_string(char * out, const char * in, int n, bool fix_swap);
+inline void format_ata_string(char * out, const unsigned char * in, int n, bool fix_swap)
+  { format_ata_string(out, (const char *)in, n, fix_swap); }
 
 // Utility routines.
 unsigned char checksum(const unsigned char * buffer);

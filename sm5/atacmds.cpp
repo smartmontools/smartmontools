@@ -40,7 +40,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.216 2009/04/07 19:39:34 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.217 2009/04/16 21:24:08 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -682,9 +682,9 @@ static void trim(char * out, const char * in)
 }
 
 // Convenience function for formatting strings from ata_identify_device
-void format_ata_string(char * out, const char * in, int n)
+void format_ata_string(char * out, const char * in, int n, bool fix_swap)
 {
-  bool must_swap = !con->fixswappedid;
+  bool must_swap = !fix_swap;
 #ifdef __NetBSD__
   /* NetBSD kernel delivers IDENTIFY data in host byte order (but all else is LE) */
   if (isbigendian())
@@ -924,7 +924,9 @@ static void fixsamsungselftestlog(ata_smart_selftestlog * data)
 }
 
 // Reads the Self Test Log (log #6)
-int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data){
+int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
+                        unsigned char fix_firmwarebug)
+{
 
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
@@ -937,7 +939,7 @@ int ataReadSelfTestLog (ata_device * device, struct ata_smart_selftestlog *data)
     checksumwarning("SMART Self-Test Log Structure");
   
   // fix firmware bugs in self-test log
-  if (con->fixfirmwarebug == FIX_SAMSUNG)
+  if (fix_firmwarebug == FIX_SAMSUNG)
     fixsamsungselftestlog(data);
 
   // swap endian order if needed
@@ -1281,7 +1283,9 @@ static void fixsamsungerrorlog2(ata_smart_errorlog * data)
 // Reads the Summary SMART Error Log (log #1). The Comprehensive SMART
 // Error Log is #2, and the Extended Comprehensive SMART Error log is
 // #3
-int ataReadErrorLog (ata_device * device, struct ata_smart_errorlog *data){
+int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
+                     unsigned char fix_firmwarebug)
+{
   
   // get data from device
   if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
@@ -1295,9 +1299,9 @@ int ataReadErrorLog (ata_device * device, struct ata_smart_errorlog *data){
   
   // Some disks have the byte order reversed in some SMART Summary
   // Error log entries
-  if (con->fixfirmwarebug == FIX_SAMSUNG)
+  if (fix_firmwarebug == FIX_SAMSUNG)
     fixsamsungerrorlog(data);
-  else if (con->fixfirmwarebug == FIX_SAMSUNG2)
+  else if (fix_firmwarebug == FIX_SAMSUNG2)
     fixsamsungerrorlog2(data);
 
   // swap endian order if needed
@@ -2434,11 +2438,12 @@ bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,
 // return value is:
 // bottom 8 bits: number of entries found where self-test showed an error
 // remaining bits: if nonzero, power on hours of last self-test where error was found
-int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries)
+int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries,
+                             unsigned char fix_firmwarebug)
 {
   if (allentries)
     pout("SMART Self-test log structure revision number %d\n",(int)data->revnumber);
-  if ((data->revnumber!=0x0001) && allentries && con->fixfirmwarebug != FIX_SAMSUNG)
+  if ((data->revnumber!=0x0001) && allentries && fix_firmwarebug != FIX_SAMSUNG)
     pout("Warning: ATA Specification requires self-test log structure revision number = 1\n");
   if (data->mostrecenttest==0){
     if (allentries)

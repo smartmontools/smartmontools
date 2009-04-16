@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.196 2009/04/01 21:22:00 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.197 2009/04/16 21:24:08 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -258,6 +258,13 @@ void printvalidarglistmessage(char opt) {
   return;
 }
 
+// Checksum error mode
+enum checksum_err_mode_t {
+  CHECKSUM_ERR_WARN, CHECKSUM_ERR_EXIT, CHECKSUM_ERR_IGNORE
+};
+
+static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
+
 /*      Takes command options and sets features to be run */    
 const char * ParseOpts (int argc, char** argv, ata_print_options & options)
 {
@@ -353,14 +360,11 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       break;
     case 'b':
       if (!strcmp(optarg,"warn")) {
-        con->checksumfail   = FALSE;
-        con->checksumignore = FALSE;
+        checksum_err_mode = CHECKSUM_ERR_WARN;
       } else if (!strcmp(optarg,"exit")) {
-        con->checksumfail   = TRUE;
-        con->checksumignore = FALSE;
+        checksum_err_mode = CHECKSUM_ERR_EXIT;
       } else if (!strcmp(optarg,"ignore")) {
-        con->checksumignore = TRUE;
-        con->checksumfail   = FALSE;
+        checksum_err_mode = CHECKSUM_ERR_IGNORE;
       } else {
         badarg = TRUE;
       }
@@ -427,15 +431,15 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       break;
     case 'F':
       if (!strcmp(optarg,"none")) {
-        con->fixfirmwarebug = FIX_NONE;
+        options.fix_firmwarebug = FIX_NONE;
       } else if (!strcmp(optarg,"samsung")) {
-        con->fixfirmwarebug = FIX_SAMSUNG;
+        options.fix_firmwarebug = FIX_SAMSUNG;
       } else if (!strcmp(optarg,"samsung2")) {
-        con->fixfirmwarebug = FIX_SAMSUNG2;
+        options.fix_firmwarebug = FIX_SAMSUNG2;
       } else if (!strcmp(optarg,"samsung3")) {
-        con->fixfirmwarebug = FIX_SAMSUNG3;
+        options.fix_firmwarebug = FIX_SAMSUNG3;
       } else if (!strcmp(optarg,"swapid")) {
-        con->fixswappedid = TRUE;
+        options.fix_swapped_id = true;
       } else {
         badarg = TRUE;
       }
@@ -539,16 +543,16 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
              create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
-      if (parse_attribute_def(optarg, con->attributedefs))
+      if (parse_attribute_def(optarg, options.attributedefs))
         badarg = TRUE;
       break;    
     case 'P':
       if (!strcmp(optarg, "use")) {
-        con->ignorepresets = FALSE;
+        options.ignore_presets = false;
       } else if (!strcmp(optarg, "ignore")) {
-        con->ignorepresets = TRUE;
+        options.ignore_presets = true;
       } else if (!strcmp(optarg, "show")) {
-        con->showpresets = TRUE;
+        options.show_presets = true;
       } else if (!strcmp(optarg, "showall")) {
         if (!no_defaultdb && !read_default_drive_databases())
           EXIT(FAILCMD);
@@ -843,13 +847,13 @@ void PrintOut(int priority, const char *fmt, ...) {
 void checksumwarning(const char * string)
 {
   // user has asked us to ignore checksum errors
-  if (con->checksumignore)
+  if (checksum_err_mode == CHECKSUM_ERR_IGNORE)
     return;
 
   pout("Warning! %s error: invalid SMART checksum.\n", string);
 
   // user has asked us to fail on checksum errors
-  if (con->checksumfail)
+  if (checksum_err_mode == CHECKSUM_ERR_EXIT)
     EXIT(FAILSMART);
 }
 
