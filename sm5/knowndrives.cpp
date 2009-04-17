@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.203 2009/04/16 21:24:08 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.204 2009/04/17 16:51:03 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -960,6 +960,11 @@ static const drive_settings builtin_knowndrives[] = {
   { "Seagate Barracuda 7200.10 family",
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|500[68]30|750[68]40)AS?",
     "", "", ""
+  },
+  { "Seagate Barracuda 7200.11 family", // unaffected firmware
+    "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
+    "CC.?.?", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
+    "", ""
   },
   { "Seagate Barracuda 7200.11 family", // fixed firmware
     "ST3(500[368]20|750[36]30|1000340)AS?",
