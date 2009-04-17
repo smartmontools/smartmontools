@@ -4,8 +4,8 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  * Address of support mailing list: smartmontools-support@lists.sourceforge.net
  *
- * Copyright (C) 2003-8 Philip Williams, Bruce Allen
- * Copyright (C) 2008   Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-9 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.204 2009/04/17 16:51:03 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.205 2009/04/17 17:59:13 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -278,6 +278,10 @@ static const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HE(252H|322H|502I|642J|753L|103U)J",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint S250 series", // tested with HD200HJ/KF100-06
+    "SAMSUNG HD(162|200|250)HJ",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint T133 series", // tested with HD300LJ/ZT100-12, HD400LJ/ZZ100-14, HD401LJ/ZZ100-15
     "SAMSUNG HD(250KD|(30[01]|320|40[01])L[DJ])",
     "", "", ""
@@ -318,7 +322,7 @@ static const drive_settings builtin_knowndrives[] = {
     "SAMSUNG SP(0451|08[0124]2|12[0145]3|16[0145]4)[CN]",
     ".*-(2[5-9]|3[0-4])",
     "",
-    "-v 9,halfminutes"
+    "-v 9,halfminutes -v 198,increasing"
   },
   { "SAMSUNG SpinPoint P80 series", // firmware *-23...24, tested with
     // SP0802N/TK100-23,
@@ -335,7 +339,7 @@ static const drive_settings builtin_knowndrives[] = {
     "May need -F samsung2 or -F samsung3 enabled; see manual for details.",
     ""
   },
-#if 0
+/*
   // TODO: Make the entries below more specific.
   // These entries produce misleading results, because newer
   // Samsung disks reuse the version numbers *-NN.
@@ -357,7 +361,7 @@ static const drive_settings builtin_knowndrives[] = {
     "May need -F samsung or -F samsung2 enabled; see manual for details.",
     ""
   },
-#endif
+*/
   { "Maxtor Fireball 541DX family",
     "Maxtor 2B0(0[468]|1[05]|20)H1",
     "",

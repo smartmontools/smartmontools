@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.796 2009/04/17 16:51:03 chrfranke Exp $
+$Id: CHANGELOG,v 1.797 2009/04/17 17:59:13 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,12 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp updates:
+       Add Samsung S250 series.
+       Add '-v 198,increasing' to Samsung P80.
+       Replace '#if/#endif' by comment to fix configure option
+       '--enable-drivedb'.
 
   [CF] knowndrives.cpp update:
        Add Seagate 7200.11 with 'CC' firmware which is unaffected
