@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.205 2009/04/17 17:59:13 chrfranke Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.206 2009/04/28 21:11:15 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -67,6 +67,14 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Asus-Phison SSD",
     "ASUS-PHISON SSD",
+    "", "", ""
+  },
+  { "OCZ Vertex 1199",
+    "OCZ-VERTEX 1199",
+    "", "", ""
+  },
+  { "Transcend Solid-State Disk 32GB MLC",
+    "TS32GSSD25-M",
     "", "", ""
   },
   { "HP 1TB SATA disk GB1000EAFJL",
@@ -805,6 +813,10 @@ static const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS7210(50|75|10)KLA330",
     "", "", ""
   },
+  { "Hitachi Deskstar 7K1000.B",
+    "(Hitachi )?HDT7210((16|25)SLA380|(32|50|64|75|10)SLA360)",
+    "", "", ""
+  },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
@@ -863,6 +875,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 5400.3 ED series",
     "ST9(4081[45]|6081[35]|8081[15]|100828|120822|160821)AB",
+    "", "", ""
+  },
+  { "Seagate Momentus 5400.4 series",
+    "ST9(120817|(160|200|250)827)AS",
     "", "", ""
   },
   { "Seagate Momentus 5400.6 series",
@@ -999,6 +1015,10 @@ static const drive_settings builtin_knowndrives[] = {
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207951\n"
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957",
     ""
+  },
+  { "Seagate Barracuda 7200.12 family",
+    "ST3((160|250)318|(320|500)418|500410|(750|1000)528)AS",
+    "", "", ""
   },
   { "Seagate Barracuda ES",
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
