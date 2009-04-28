@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.797 2009/04/17 17:59:13 chrfranke Exp $
+$Id: CHANGELOG,v 1.798 2009/04/28 21:11:15 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,13 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Add Seagate Barracuda 7200.12 series
+       - Add Seagate Momentus 5400.4 series
+       - Add Hitachi Deskstar 7K1000.B series
+       - Add Transcend SSD TS32GSSD25-M
+       - Add OCZ Vertex 1199
 
   [CF] knowndrives.cpp updates:
        Add Samsung S250 series.
