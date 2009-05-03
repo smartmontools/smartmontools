@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.444 2009/04/16 21:24:08 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.445 2009/05/03 13:21:35 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -332,6 +332,9 @@ dev_config::dev_config()
 
 // Number of allowed mail message types
 const int SMARTD_NMAIL = 13;
+// Type for '-M test' mails (state not persistent)
+const int MAILTYPE_TEST = 0;
+// TODO: Add const or enum for all mail types.
 
 struct mailinfo {
   int logged;// number of times an email has been sent
@@ -545,6 +548,8 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     int i = atoi(line+match[m].rm_so);
     if (!(0 <= i && i < SMARTD_NMAIL))
       return false;
+    if (i == MAILTYPE_TEST) // Don't suppress test mails
+      return true;
     if (match[m+=2].rm_so >= 0)
       state.maillog[i].logged = (int)val;
     else if (match[++m].rm_so >= 0)
@@ -642,6 +647,8 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 
   int i;
   for (i = 0; i < SMARTD_NMAIL; i++) {
+    if (i == MAILTYPE_TEST) // Don't suppress test mails
+      continue;
     const mailinfo & mi = state.maillog[i];
     if (!mi.logged)
       continue;
