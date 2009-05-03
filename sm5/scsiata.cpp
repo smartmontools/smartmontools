@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.31 2009/04/17 19:55:16 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.32 2009/05/03 13:39:41 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1313,6 +1313,7 @@ const usb_id_entry usb_ids[] = {
 //{ 0x0d49,     -1,     -1, d_sat     }, // Maxtor Basics Desktop
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
   { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
+  { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
   { 0x152d, 0x2329, 0x0100, d_jmicron }, // JMicron JM20329 (USB->SATA)
@@ -1334,7 +1335,6 @@ static std::string format_usb_id(int vendor_id, int product_id, int version)
 }
 
 // Get type name for USB device with known VENDOR:PRODUCT ID.
-// Version not checked yet.
 const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_id,
                                                      int version /*= -1*/)
 {
