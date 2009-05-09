@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools FAQ Page (last updated $Date: 2009/05/09 02:00:06 $)</title>
+ <title>smartmontools FAQ Page (last updated $Date: 2009/05/09 03:57:03 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools FAQ Page" />
@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: faq.html,v 1.13 2009/05/09 02:00:06 dipohl Exp $ -->
+<!-- $Id: faq.html,v 1.14 2009/05/09 03:57:03 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools FAQ Page</h1>
@@ -345,45 +345,7 @@ Please verify these using the
 <!-- Bootable CD -->
 <h3><a name="bootable-cd"></a>Is there a bootable standalone CD or floppy that contains smartmontools?</h3>
 
-<p>If you have a system that is showing signs of disk trouble (for
-example, it's unbootable and the console is full of disk error
-messages) it can be handy to have a version of smartmontools that can
-be run off of a bootable CD or floppy to examine the disk's SMART data and run
-self-tests.  This is also useful if you want to run Captive Self-Tests
-(the <b><tt>-<font size="+2">C</font></tt></b> option of
-<b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted,
-such as those hosting the Operating System files. Or you can use
-this to run <tt>smartctl</tt> on computers that don't use Linux as the
-day-to-day operating system.</p>
-
-<p><a name="bootable"></a>Here is a list of such bootable CDs:</p>
-<ul>
-<li><a href="http://www.finnix.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Finnix Live Bootable CD</a></li>
-<li><a href="http://docs.fedoraproject.org/release-notes/f7/en_US/sn-Live.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Fedora Core 7 Live Bootable CD</a></li>
-<li><a href="http://www.lnx-bbc.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />LNX-BBC Bootable CD</a></li>
-<li><a href="http://www.stresslinux.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Stresslinux Bootable CD</a></li>
-<li><a href="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />RIP (Recovery Is Possible) Bootable CD</a></li>
-<li><a href="http://www.sysresccd.org/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SystemRescueCd</a></li>
-<li><a href="http://www.gpstudio.com/stux/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />STUX Bootable CD</a></li>
-<li><a href="http://partedmagic.com/wiki/PartedMagic.php"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Parted Magic</a></li>
-<li><a href="http://www.knopper.net/knoppix/index-en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Knoppix</a>
-(<a href="http://packages.debian.org/testing/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/testing</a> based CD)</li>
-<li><a href="http://www.gentoo.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Gentoo Installer LiveCD</a></li>
-<li><a href="http://www.grml.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml Linux Live-CD</a>
-(<a href="http://packages.debian.org/unstable/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/unstable</a>
-based CD, smartmontools is also included in <a href="http://grml.org/faq/#whatissmall"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml-small</a>)</li>
-<li><a href="http://smartlinux.sourceforge.net/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />S.M.A.R.T. Linux</a>
-(a bootable FLOPPY containing smartmontools!)</li>
-<li><a href="http://www.inside-security.de/insert_en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />INSERT (Inside Security Rescue Toolkit)</a>
-(Knoppix based CD)</li>
-<li><a href="http://www.911cd.net/forums/index.php?showtopic=13459"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Smartctl Plugin</a>
-for <a href="http://www.nu2.nu/pebuilder/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />BartPE bootable live windows CD</a></li>
-<li>A plugin for the <a href="http://www.ubcd4win.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />UBCD4Win</a>
-can be created by the <a href="download.html#WindowsInstall">smartmontools windows installer</a></li>
-<li>See also note about UBCD <a href="faq.html#UBCD">above</a></li>
-</ul>
-
-<p>Please let me know if there are others, and I will add them to this list.</p>
+<p>Yes there are. Look to section <a href="download.html#live-cd">Run from Live-system</a> on the download page.</p>
 <hr />
 
 <h3><a name="testinghelp"></a>Smartmontools for FireWire, USB, and SATA disks/systems</h3>
@@ -742,7 +704,7 @@ release 5.37.</p>
  <div align="center"><font size="-1">Hosted by<br /><a href="http://sourceforge.net/projects/smartmontools"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=64297&amp;type=13" width="120" height="30" border="0" alt="Get S.M.A.R.T. Monitoring Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a><br />
  Maintained by: <a href="http://www.dipohl.de/">Gabriele Pohl</a><br />
  Copyright (C) 2002-9 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/05/09 02:00:06 $</font><br />
+Last update: $Date: 2009/05/09 03:57:03 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Ffaq.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
