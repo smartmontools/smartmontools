@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools FAQ Page (last updated $Date: 2009/03/13 13:27:45 $)</title>
+ <title>smartmontools FAQ Page (last updated $Date: 2009/05/09 02:00:06 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools FAQ Page" />
@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: faq.html,v 1.12 2009/03/13 13:27:45 dipohl Exp $ -->
+<!-- $Id: faq.html,v 1.13 2009/05/09 02:00:06 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools FAQ Page</h1>
@@ -58,8 +58,6 @@ mailing list</a>.</p>
     <li><a href="#temp-seagate">Attribute 194 (Temperature Celsius) behaves strangely on my Seagate disk</a></li>
     <li><a href="#age-attribute">My Maxtor/Hitachi/Fujitsu disk is only a few days old, yet <tt>smartctl</tt> reports its age (Attribute 9) as thousands of hours!</a></li>
     <li><a href="#age-attributes-maxtor">The power-on timer (Attribute 9 raw value) on my Maxtor disk acts strange.</a></li>
-    <li><a href="#time-stamps-WD">The time stamps in the self-test log of my Western Digital (WD) disk
-    don't correspond to the power-on time when the test was run.</a></li>
     <li><a href="#worst-larger-than-current">The (normalized) WORST Attribute values of my Western Digital
 (WD) disk are <strong>larger</strong> than the (normalized) CURRENT Attribute values</a></li>
     <li><a href="#attributes-not-recognized">What Attributes does smartmontools not yet recognize?</a></li>
@@ -93,6 +91,7 @@ mailing list</a>.</p>
 <ul class="Circle">
     <li><a href="#selftest-failed">My ATA drive is failing its self-tests, but its SMART health status is 'PASS'. What's going on?</a></li>
     <li><a href="#corrupt-sectors"><tt>smartd</tt> is warning that my ATA disk has unreadable or uncorrectable or pending sectors. What's going on?</a></li>
+    <li><a href="#time-stamps-WD">The time stamps in the self-test log of my Western Digital (WD) disk don't correspond to the power-on time when the test was run.</a></li>
     <li><a href="#UBCD">Where can I find manufacturer-specific disk-testing utilities?</a></li>
 </ul>
 
@@ -139,8 +138,18 @@ on) are stored in vendor-specific structures. Sometime these are
 strange. Hitachi disks (at least some of them) store power-on
 lifetime in minutes, rather than hours (see next question below). IBM disks (at least some
 of them) have three temperatures stored in the raw structure, not just
-one. And so on. If you find strange output, or unknown
-attributes, please send an email to <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
+one. And so on. <br />
+If you find strange output, or unknown attributes, have a look 
+at our wiki pages, were we collect vendor specific info:</p>
+<ul>
+  <li><a href="http://smartmontools.wiki.sourceforge.net/Attributes_Fujitsu">Fujitsu</a></li>
+  <li><a href="http://smartmontools.wiki.sourceforge.net/Attributes_IBM">IBM (Hitachi)</a></li>
+  <li><a href="http://smartmontools.wiki.sourceforge.net/Attributes_Maxtor">Maxtor</a></li>
+  <li><a href="http://smartmontools.wiki.sourceforge.net/Attributes_Seagate">Seagate</a></li>
+  <li><a href="http://smartmontools.wiki.sourceforge.net/Attributes_Western-Digital">Western Digital</a></li>
+</ul> 
+<p>When you don't find an answer to your question there, please send an email to
+<a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
 smartmontools-support</a> and we'll help you try and figure it out.</p>
 <hr />
 
@@ -733,7 +742,7 @@ release 5.37.</p>
  <div align="center"><font size="-1">Hosted by<br /><a href="http://sourceforge.net/projects/smartmontools"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=64297&amp;type=13" width="120" height="30" border="0" alt="Get S.M.A.R.T. Monitoring Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a><br />
  Maintained by: <a href="http://www.dipohl.de/">Gabriele Pohl</a><br />
  Copyright (C) 2002-9 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/03/13 13:27:45 $</font><br />
+Last update: $Date: 2009/05/09 02:00:06 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Ffaq.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
