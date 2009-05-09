@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools Download Page (last updated $Date: 2009/03/13 13:27:45 $)</title>
+ <title>smartmontools Download Page (last updated $Date: 2009/05/09 03:44:34 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: download.html,v 1.7 2009/03/13 13:27:45 dipohl Exp $ -->
+<!-- $Id: download.html,v 1.8 2009/05/09 03:44:34 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools Download Page</h1>
@@ -42,13 +42,18 @@ out smartmontools once you have completed the installation. The
 <b><a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">
 INSTALL</a></b> file contains additional information.</p>
 <ol>
-<li><strong>Install from your distributions RPM file</strong><br />(<a href="#rpm">Instructions</a>)</li>
+<li><strong>Install precompiled package</strong><br />(<a href="#rpm">Instructions</a>)
+  <ol>
+  <li><strong>Debian package</strong><br />(<a href="#debian">Instructions</a>)</li>
+  <li><strong>Redhat package</strong><br />(<a href="#redhat">Instructions</a>)</li>
+  <li><strong>Other Linux distributions with RPM</strong><br />(<a href="#other-rpm">Instructions</a>)</li>
+  <li><strong>Cygwin package</strong><br />(<a href="#CygwinInstall">Instructions</a>)<br />
+(Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed)</li>
+  <li><strong>Windows package</strong><br />(<a href="#WindowsInstall">Instructions</a>)</li>
+  </ol></li>
 <li><strong>Install from our source tarball</strong><br />(<a href="#tarball">Instructions</a>)</li>
 <li><strong>Install latest unreleased code from CVS repository</strong><br />(<a href="#CVSInstall">Instructions</a>)</li>
-<li><strong>Install the Debian package</strong><br />(<a href="#debian">Instructions</a>)</li>
-<li><strong>Install the Cygwin package</strong><br />(<a href="#CygwinInstall">Instructions</a>)<br />
-(Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed)</li>
-<li><strong>Install the Windows package</strong><br />(<a href="#WindowsInstall">Instructions</a>)</li>
+<li><strong>Don't install, run from Live-system</strong><br />(<a href="#live-cd">Instructions</a>)</li>
 </ol>
 </div>
 
@@ -82,14 +87,34 @@ variable.</p>
 in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
 <hr />
 
-<h3><a name="rpm"></a>First Method - Install from your distributions RPM file</h3>
+<h3><a name="rpm"></a>First Method - Install precompiled package</h3>
 <p class="marked">Starting with smartmontools release 5.37, RPM files
 are no longer available at the smartmontools project download page.
 Refer to the package download location of your distribution.</p>
 
-<h4>On Red Hat Enterprise Linux, CentOS (both in versions 5 and newer) and Fedora
-Linux distributions</h4>
+<hr />
+<ul class="High"><li><a name="debian"></a>Debian Linux - Install the Debian package</li></ul>
+<ul class="Square">
+<li>All versions of the smartmontools package in <i>.deb</i> format are
+available at the  <a href="http://packages.debian.org/search?keywords=smartmontools&amp;searchon=names&amp;suite=all&amp;section=all">
+<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian package search page</a>.</li>
 
+<li>If you're running Debian <a
+href="http://www.debian.org/releases/stable/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />stable</a> please download a
+backport to stable <a
+href="http://www.backports.org/debian/pool/main/s/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+These packages are provided by <a
+href="http://www.backports.org"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />www.backports.org</a>.<br /><br /></li>
+
+<li>You can then install the package using:
+<p class="code">dpkg -i smartmontools_5.36-1_i386.deb</p>
+
+If you prefer to fetch the packages using apt, please read the instructions at
+<a href="http://www.backports.org/dokuwiki/doku.php?id=instructions"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />backports.org</a>.
+</li></ul>
+
+<hr />
+<ul class="High"><li><a name="redhat"></a>Red Hat Enterprise Linux, CentOS (both in versions 5 and newer) and Fedora Linux distributions</li></ul>
 <ul class="Square">
 <li>The smartmontools package is part of the official
 repositories and can be installed using the <tt>yum</tt> command:
@@ -97,10 +122,9 @@ repositories and can be installed using the <tt>yum</tt> command:
 yum install smartmontools</p></li>
 </ul>
 
-<h4>Other distributions providing RPM packages</h4>
-
+<hr />
+<ul class="High"><li><a name="other-rpm"></a>Other distributions providing RPM packages</li></ul>
 <ul class="Square">
-
 <li>Download the latest binary RPM file (<tt>smartmontools*.rpm</tt>) for your
 distribution. Don't get the SRPM file (<tt>*.src.rpm</tt>).<br /><br /></li>
 
@@ -113,6 +137,59 @@ For most users, this is all that is needed.<br /><br /></li>
 and your system does not have <tt>chkconfig</tt> installed, you may need
 to use:
 <p class="code">rpm -e --noscripts smartmontools</p></li>
+</ul>
+
+<hr />
+<ul class="High"><li><a name="CygwinInstall"></a>
+Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed - Install the Cygwin package</li></ul>
+<ul class="Square">
+<li>Starting with CVS snapshot 2005-11-15, smartmontools is part of
+the <a href="http://cygwin.com/packages/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin distribution</a>.
+A list of available smartmontools packages and their contents is
+<a href="http://cygwin.com/packages/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.<br /><br /></li>
+<li>To update your installation, click on the "Install or update now!"
+link on the <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin web page</a>.
+This downloads <tt>setup.exe</tt> to your system.
+Then, run setup and answer all of the questions.
+Select smartmontools package in the "Utils" category.<br /><br /></li>
+
+<li>The optional source package (<tt>smartmontools-*-src.tar.bz2</tt>)
+can be used to build both the Cygwin and the Windows binary packages
+on Cygwin.
+Refer to the file <tt>/usr/share/doc/Cygwin/smartmontools-*.README</tt>
+for details.</li>
+</ul>
+
+<hr />
+<ul class="High"><li><a name="WindowsInstall"></a>
+Windows - Install the Windows package</li></ul>
+<ul class="Square">
+<li>Download and run the latest smartmontools
+<a href="http://nsis.sourceforge.net/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS</a>-installer
+(<tt>*.win32-setup.exe</tt>) from
+<a href="http://sourceforge.net/project/showfiles.php?group_id=64297"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+<ul>
+<li>The default install type "Full" creates start menu shortcuts
+including an uninstaller, and adds the install directory to the PATH variable.
+</li>
+<li>Select install type "Extract files only" to disable these extra
+components.
+</li>
+<li>Virus scanners occasionally produce false positive virus reports for
+NSIS-installers, see the
+<a href="http://nsis.sourceforge.net/NSIS_False_Positives"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS False Positives page</a>.
+If this is the case for the smartmontools installer, please send a report to the
+<a href="mailto:smartmontools-support&#64;lists.sourceforge.net"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support
+mailing list</a>.<br /><br /></li>
+</ul>
+</li>
+<li><span class="marked">Starting with smartmontools release 5.37, the Windows package
+is no longer provided as a ZIP archive (<tt>*.win32.zip</tt>).</span><br />
+If the self extracting installer cannot be used for some reason, the files may also
+be unpacked by a recent version of <a href="http://www.7-zip.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />7-Zip</a>.<br /><br /></li>
+
+<li>More recent (and probably unstable) Windows test releases build from CVS
+snapshots are available <a href="http://smartmontools-win32.dyndns.org/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.</li>
 </ul>
 
 <h3><a name="tarball"></a>Second Method (Linux/Solaris/FreeBSD/NetBSD/OpenBSD/Cygwin) - Install from the source tarball</h3>
@@ -218,84 +295,54 @@ cvs up -r RELEASE_5_38</p></li>
 cvs up -A</p></li>
 </ul>
 
-<h3><a name="debian"></a>Fourth Method (Debian Linux) - Install the Debian package</h3>
-<ul class="Square">
-<li>All versions of the smartmontools package in <i>.deb</i> format are
-available at the  <a href="http://packages.debian.org/search?keywords=smartmontools&amp;searchon=names&amp;suite=all&amp;section=all">
-<img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian package search page</a>.</li>
+<h3><a name="live-cd"></a>
+Fourth Method - Don't install, run from Live-system</h3>
+<p>If you have a system that is showing signs of disk trouble (for
+example, it's unbootable and the console is full of disk error
+messages) it can be handy to have a version of smartmontools that can
+be run off of a bootable CD or floppy to examine the disk's SMART data and run
+self-tests.  This is also useful if you want to run Captive Self-Tests
+(the <b><tt>-<font size="+2">C</font></tt></b> option of
+<b><tt>smartctl</tt></b> ) on disks that can not easily be unmounted,
+such as those hosting the Operating System files. Or you can use
+this to run <tt>smartctl</tt> on computers that don't use Linux as the
+day-to-day operating system.</p>
 
-<li>If you're running Debian <a
-href="http://www.debian.org/releases/stable/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />stable</a> please download a
-backport to stable <a
-href="http://www.backports.org/debian/pool/main/s/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
-These packages are provided by <a
-href="http://www.backports.org"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />www.backports.org</a>.<br /><br /></li>
-
-<li>You can then install the package using:
-<p class="code">dpkg -i smartmontools_5.36-1_i386.deb</p>
-
-If you prefer to fetch the packages using apt, please read the instructions at
-<a href="http://www.backports.org/dokuwiki/doku.php?id=instructions"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />backports.org</a>.
-</li>
-</ul>
-
-<h3><a name="CygwinInstall"></a>
-Fifth Method (Windows with <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin</a> installed) - Install the Cygwin package</h3>
-<ul class="Square">
-<li>Starting with CVS snapshot 2005-11-15, smartmontools is part of
-the <a href="http://cygwin.com/packages/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin distribution</a>.
-A list of available smartmontools packages and their contents is
-<a href="http://cygwin.com/packages/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.<br /><br /></li>
-<li>To update your installation, click on the "Install or update now!"
-link on the <a href="http://cygwin.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Cygwin web page</a>.
-This downloads <tt>setup.exe</tt> to your system.
-Then, run setup and answer all of the questions.
-Select smartmontools package in the "Utils" category.<br /><br /></li>
-
-<li>The optional source package (<tt>smartmontools-*-src.tar.bz2</tt>)
-can be used to build both the Cygwin and the Windows binary packages
-on Cygwin.
-Refer to the file <tt>/usr/share/doc/Cygwin/smartmontools-*.README</tt>
-for details.</li>
-</ul>
-
-<h3><a name="WindowsInstall"></a>
-Sixth Method (Windows) - Install the Windows package
-</h3>
-<ul class="Square">
-<li>Download and run the latest smartmontools
-<a href="http://nsis.sourceforge.net/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS</a>-installer
-(<tt>*.win32-setup.exe</tt>) from
-<a href="http://sourceforge.net/project/showfiles.php?group_id=64297"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.
+<p><a name="bootable"></a>Here is a list of such bootable CDs:</p>
 <ul>
-<li>The default install type "Full" creates start menu shortcuts
-including an uninstaller, and adds the install directory to the PATH variable.
-</li>
-<li>Select install type "Extract files only" to disable these extra
-components.
-</li>
-<li>Virus scanners occasionally produce false positive virus reports for
-NSIS-installers, see the
-<a href="http://nsis.sourceforge.net/NSIS_False_Positives"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />NSIS False Positives page</a>.
-If this is the case for the smartmontools installer, please send a report to the
-<a href="mailto:smartmontools-support&#64;lists.sourceforge.net"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support
-mailing list</a>.<br /><br /></li>
+<li><a href="http://www.finnix.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Finnix Live Bootable CD</a></li>
+<li><a href="http://docs.fedoraproject.org/release-notes/f7/en_US/sn-Live.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Fedora Core 7 Live Bootable CD</a></li>
+<li><a href="http://www.lnx-bbc.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />LNX-BBC Bootable CD</a></li>
+<li><a href="http://www.stresslinux.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Stresslinux Bootable CD</a></li>
+<li><a href="http://www.tux.org/pub/people/kent-robotti/looplinux/rip/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />RIP (Recovery Is Possible) Bootable CD</a></li>
+<li><a href="http://www.sysresccd.org/Main_Page"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />SystemRescueCd</a></li>
+<li><a href="http://www.gpstudio.com/stux/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />STUX Bootable CD</a></li>
+<li><a href="http://partedmagic.com/wiki/PartedMagic.php"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Parted Magic</a></li>
+<li><a href="http://www.knopper.net/knoppix/index-en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Knoppix</a>
+(<a href="http://packages.debian.org/testing/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/testing</a> based CD)</li>
+<li><a href="http://www.gentoo.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Gentoo Installer LiveCD</a></li>
+<li><a href="http://www.grml.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml Linux Live-CD</a>
+(<a href="http://packages.debian.org/unstable/utils/smartmontools"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Debian/unstable</a>
+based CD, smartmontools is also included in <a href="http://grml.org/faq/#whatissmall"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />grml-small</a>)</li>
+<li><a href="http://smartlinux.sourceforge.net/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />S.M.A.R.T. Linux</a>
+(a bootable FLOPPY containing smartmontools!)</li>
+<li><a href="http://www.inside-security.de/insert_en.html"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />INSERT (Inside Security Rescue Toolkit)</a>
+(Knoppix based CD)</li>
+<li><a href="http://www.911cd.net/forums/index.php?showtopic=13459"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Smartctl Plugin</a>
+for <a href="http://www.nu2.nu/pebuilder/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />BartPE bootable live windows CD</a></li>
+<li>A plugin for the <a href="http://www.ubcd4win.com/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />UBCD4Win</a>
+can be created by the <a href="download.html#WindowsInstall">smartmontools windows installer</a></li>
+<li>See also note about UBCD <a href="faq.html#UBCD">above</a></li>
 </ul>
-</li>
-<li><span class="marked">Starting with smartmontools release 5.37, the Windows package
-is no longer provided as a ZIP archive (<tt>*.win32.zip</tt>).</span><br />
-If the self extracting installer cannot be used for some reason, the files may also
-be unpacked by a recent version of <a href="http://www.7-zip.org/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />7-Zip</a>.<br /><br /></li>
 
-<li>More recent (and probably unstable) Windows test releases build from CVS
-snapshots are available <a href="http://smartmontools-win32.dyndns.org/smartmontools/"><img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />here</a>.</li>
-</ul>
+<p>Please let us know if there are others, and we will add them to this list.</p>
+
 </div>
 <hr style="clear:left" />
  <div align="center"><font size="-1">Hosted by<br /><a href="http://sourceforge.net/projects/smartmontools"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=64297&amp;type=13" width="120" height="30" border="0" alt="Get S.M.A.R.T. Monitoring Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a><br />
  Maintained by: <a href="http://www.dipohl.de/">Gabriele Pohl</a><br />
  Copyright (C) 2002-9 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/03/13 13:27:45 $</font><br />
+Last update: $Date: 2009/05/09 03:44:34 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdownload.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
