@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
- <title>smartmontools Download Page (last updated $Date: 2009/05/09 03:44:34 $)</title>
+ <title>smartmontools Download Page (last updated $Date: 2009/05/09 16:33:22 $)</title>
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" />
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
  <meta name="description" content="smartmontools Home Page" />
@@ -15,7 +15,7 @@
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: download.html,v 1.8 2009/05/09 03:44:34 dipohl Exp $ -->
+<!-- $Id: download.html,v 1.9 2009/05/09 16:33:22 dipohl Exp $ -->
 <div id="header">
     <h1><a id="logo" href="http://smartmontools.sourceforge.net/"><img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>
     smartmontools Download Page</h1>
@@ -36,11 +36,10 @@
 <div class="right-header">
 <h2>How to download and install</h2>
 <p>There are different ways to get and install
-smartmontools. You can use any of the procedures below
-(the fourth is for Debian Linux only). On the right side are instructions for trying 
-out smartmontools once you have completed the installation. The
-<b><a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">
+smartmontools. You can use any of the procedures below. 
+The <b><a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/INSTALL?view=markup">
 INSTALL</a></b> file contains additional information.</p>
+
 <ol>
 <li><strong>Install precompiled package</strong><br />(<a href="#rpm">Instructions</a>)
   <ol>
@@ -66,13 +65,14 @@ for details.</p></div>
 
 <hr />
 
-<div><p><b>After installing it using Method 1, 2, 3, 4 or 5, you can read the
-man pages, and try out the commands:</b></p>
+<div><p>After installation or booting from a <a href="#live-cd">Live-CD</a>,
+you can read smartmontools man pages and try out the commands:</p>
 
 <p class="code">
 man smartd.conf<br />
 man smartctl<br />
 man smartd<br />
+<br />
 # Only root can do this<br />
 /usr/sbin/smartctl -s on -o on -S on /dev/hda<br /> 
 /usr/sbin/smartctl -a /dev/hda</p>
@@ -83,8 +83,8 @@ man smartd<br />
 <tt>/usr/share/man</tt> to your <tt>MANPATH</tt> environment
 variable.</p>
 
-<p>The Windows package (see Method 6 above) provides preformatted man pages
-in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
+<p>The <a href="#WindowsInstall">Windows package</a> provides 
+preformatted man pages in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
 <hr />
 
 <h3><a name="rpm"></a>First Method - Install precompiled package</h3>
@@ -92,6 +92,145 @@ in <tt>*.html</tt> and <tt>*.txt</tt> format.</p>
 are no longer available at the smartmontools project download page.
 Refer to the package download location of your distribution.</p>
 
+<ul style="list-style: none;">
+  <li>
+  <table border="1">
+  <tr>
+    <th>Distribution</th>
+    <th>Package</th>
+    <th>Version</th>
+    <th>Repository</th>
+    <th>Download-URL</th>
+  </tr>
+  <tr>
+    <td>Debian</td>
+    <td>smartmontools</td>
+    <td>5.38-2+lenny1</td>
+    <td>stable</td>
+    <td><a href="http://packages.debian.org/lenny/smartmontools" title="http://packages.debian.org/lenny/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Debian</td>
+    <td>smartmontools</td>
+    <td>5.38-3</td>
+    <td>testing</td>
+    <td><a href="http://packages.debian.org/squeeze/smartmontools" title="http://packages.debian.org/squeeze/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Fink</td>        
+    <td>gsmartcontrol</td>
+    <td>0.8.4-1002</td>
+    <td></td>
+    <td><a href="http://pdb.finkproject.org/pdb/package.php/gsmartcontrol" title="http://pdb.finkproject.org/pdb/package.php/gsmartcontrol">Download</a></td>
+  </tr>
+  <tr>
+    <td>Fink</td>        
+    <td>smartmontools</td>
+    <td>5.38-1</td>
+    <td></td>
+    <td><a href="http://pdb.finkproject.org/pdb/package.php/smartmontools" title="http://pdb.finkproject.org/pdb/package.php/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Fink</td>        
+    <td>smartmontools-daemon</td>
+    <td>5.38-1</td>
+    <td></td>
+    <td><a href="http://pdb.finkproject.org/pdb/package.php/smartmontools-daemon" title="http://pdb.finkproject.org/pdb/package.php/smartmontools-daemon">Download</a></td>
+  </tr>
+  <tr>
+    <td>FreeBSD</td>
+    <td>gsmartcontrol</td>
+    <td>0.8.4</td>
+    <td>sysutils</td>
+    <td><a href="http://www.freebsd.org/cgi/pds.cgi?ports/sysutils/gsmartcontrol" title="http://www.freebsd.org/cgi/pds.cgi?ports/sysutils/gsmartcontrol">Download</a></td>
+  </tr>
+  <tr>
+    <td>FreeBSD</td>
+    <td>smartmontools</td>
+    <td>5.38_3</td>
+    <td>sysutils</td>
+    <td><a href="http://www.freebsd.org/cgi/pds.cgi?ports/sysutils/smartmontools" title="http://www.freebsd.org/cgi/pds.cgi?ports/sysutils/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Gentoo</td>
+    <td>smartmontools</td>
+    <td>5.36-r1</td>
+    <td></td>
+    <td><a href="http://gentoo-portage.com/sys-apps/smartmontools" title="http://gentoo-portage.com/sys-apps/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Gentoo</td>
+    <td>smartmontools</td>
+    <td>5.37</td>
+    <td></td>
+    <td><a href="http://gentoo-portage.com/sys-apps/smartmontools" title="http://gentoo-portage.com/sys-apps/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Gentoo</td>
+    <td>smartmontools</td>
+    <td>5.37-r1</td>
+    <td></td>
+    <td><a href="http://gentoo-portage.com/sys-apps/smartmontools" title="http://gentoo-portage.com/sys-apps/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Gentoo</td>
+    <td>smartmontools</td>
+    <td>5.38</td>
+    <td></td>
+    <td><a href="http://gentoo-portage.com/sys-apps/smartmontools" title="http://gentoo-portage.com/sys-apps/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>MacPorts</td>
+    <td>smartmontools</td>
+    <td>5.38</td>
+    <td></td>
+    <td><a href="http://trac.macports.org/browser/trunk/dports/sysutils/smartmontools/Portfile" title="http://trac.macports.org/browser/trunk/dports/sysutils/smartmontools/Portfile">Download</a></td>
+  </tr>  
+  <tr>
+    <td>Mandriva</td>
+    <td>smartmontools</td>
+    <td>5.38-3</td>
+    <td></td>
+    <td><a href="http://sophie.zarb.org/viewrpm/1dac6f151f8b850d345d2c0e410047f9" title="http://sophie.zarb.org/viewrpm/1dac6f151f8b850d345d2c0e410047f9">Download</a></td>
+  </tr>
+  <tr>
+    <td>Mandriva</td>
+    <td>smartmontools-debug</td>
+    <td>5.38-3</td>
+    <td></td>
+    <td><a href="http://sophie.zarb.org/viewrpm/93c18bf083d821fdaa291de54710cfec" title="http://sophie.zarb.org/viewrpm/93c18bf083d821fdaa291de54710cfec">Download</a></td>
+  </tr>
+  <tr>
+    <td>NetBSD</td>
+    <td>smartmontools</td>
+    <td>5.38</td>
+    <td>sysutils</td>
+    <td><a href="http://pkgsrc.se/sysutils/smartmontools" title="http://pkgsrc.se/sysutils/smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>openSUSE</td>
+    <td>smartmontools</td>
+    <td>5.38.0.20081027</td>
+    <td>suse/oss</td>
+    <td><a href="http://packages.opensuse-community.org/index.jsp?searchTerm=smartmontools" title="http://packages.opensuse-community.org/index.jsp?searchTerm=smartmontools">Download</a></td>
+  </tr>
+  <tr>
+    <td>Slackware</td>
+    <td>smartmontools-5.38-i486-1.txz</td>
+    <td>5.38</td>
+    <td></td>
+    <td><a href="http://packages.slackware.it/package.php?q=current/smartmontools-5.38-i486-1.txz" title="http://packages.slackware.it/package.php?q=current/smartmontools-5.38-i486-1.txz">Download</a></td>
+  </tr>
+  <tr>
+    <td>Ubuntu</td>
+    <td>smartmontools</td>
+    <td>5.38-1ubuntu2</td>
+    <td></td>
+    <td><a href="http://packages.ubuntu.com/intrepid/smartmontools" title="http://packages.ubuntu.com/intrepid/smartmontools">Download</a></td>
+  </tr>
+</table>
+</li>
+</ul>
 <hr />
 <ul class="High"><li><a name="debian"></a>Debian Linux - Install the Debian package</li></ul>
 <ul class="Square">
@@ -124,6 +263,7 @@ yum install smartmontools</p></li>
 
 <hr />
 <ul class="High"><li><a name="other-rpm"></a>Other distributions providing RPM packages</li></ul>
+
 <ul class="Square">
 <li>Download the latest binary RPM file (<tt>smartmontools*.rpm</tt>) for your
 distribution. Don't get the SRPM file (<tt>*.src.rpm</tt>).<br /><br /></li>
@@ -342,7 +482,7 @@ can be created by the <a href="download.html#WindowsInstall">smartmontools windo
  <div align="center"><font size="-1">Hosted by<br /><a href="http://sourceforge.net/projects/smartmontools"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=64297&amp;type=13" width="120" height="30" border="0" alt="Get S.M.A.R.T. Monitoring Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a><br />
  Maintained by: <a href="http://www.dipohl.de/">Gabriele Pohl</a><br />
  Copyright (C) 2002-9 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/05/09 03:44:34 $</font><br />
+Last update: $Date: 2009/05/09 16:33:22 $</font><br />
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2Fdownload.html">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer"><img
         src="http://www.w3.org/Icons/valid-xhtml10-blue"
