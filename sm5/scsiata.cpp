@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.33 2009/05/20 17:00:00 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.34 2009/05/24 16:30:50 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1307,6 +1307,7 @@ const usb_id_entry usb_ids[] = {
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
+  { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro)
   { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
   { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro (Sunplus USB-bridge)
