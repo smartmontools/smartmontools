@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.74 2009/03/19 18:00:36 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.75 2009/06/02 19:43:06 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -295,11 +295,16 @@ const char * win_smart_interface::get_os_version_str()
     case VER_PLATFORM_WIN32_NT     <<16|0x0500| 0: w = "2000";   break;
     case VER_PLATFORM_WIN32_NT     <<16|0x0500| 1:
       w = (!GetSystemMetrics(87/*SM_MEDIACENTER*/) ?   "xp"
-                                                 :   "xp-mc"); break;
+                                                   :   "xp-mc"); break;
     case VER_PLATFORM_WIN32_NT     <<16|0x0500| 2:
-      w = (!GetSystemMetrics(89/*SM_SERVERR2*/) ?      "2003"
-                                                 :   "2003r2"); break;
-    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 0: w = "vista";  break;
+      w = (!GetSystemMetrics(89/*SM_SERVERR2*/)    ?   "2003"
+                                                   :   "2003r2"); break;
+    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 0:
+      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "vista"
+                                                   :   "2008" );  break;
+    case VER_PLATFORM_WIN32_NT     <<16|0x0600| 1:
+      w = (vi.wProductType == VER_NT_WORKSTATION   ?   "win7"
+                                                   :   "2008r2"); break;
     default: w = 0; break;
   }
 

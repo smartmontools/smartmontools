@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.799 2009/05/03 13:21:35 chrfranke Exp $
+$Id: CHANGELOG,v 1.800 2009/06/02 19:43:05 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Add Win-7 and Win2008 to get_os_version_str().
 
   [CF] smartd: Fix '-M test' directive in conjunction with '-s' option.
        Thanks to Matthias Becher for the problem report.
