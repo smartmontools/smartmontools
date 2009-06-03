@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.800 2009/06/02 19:43:05 chrfranke Exp $
+$Id: CHANGELOG,v 1.801 2009/06/03 15:05:23 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] SCSI: Fetch load-unload cycle counts.
 
   [CF] Windows: Add Win-7 and Win2008 to get_os_version_str().
 
