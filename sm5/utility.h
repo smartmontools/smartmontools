@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.65 2008/09/17 20:08:31 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.66 2009/06/07 14:27:44 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -49,7 +49,7 @@ std::string vstrprintf(const char * fmt, va_list ap);
 
 #ifndef HAVE_WORKING_SNPRINTF
 // Substitute by safe replacement functions
-int safe_snprintf(char *buf, int size, const char *fmt, ...);
+int safe_snprintf(char *buf, int size, const char *fmt, ...)
     __attribute__ ((format (printf, 3, 4)));
 int safe_vsnprintf(char *buf, int size, const char *fmt, va_list ap);
 #define snprintf  safe_snprintf
