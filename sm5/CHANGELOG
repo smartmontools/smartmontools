@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.801 2009/06/03 15:05:23 dpgilbert Exp $
+$Id: CHANGELOG,v 1.802 2009/06/07 14:27:44 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Fix syntax error in prototype of 'safe_snprintf()'.
+       Thanks to Alexander Shaduri for bug report and patch.
 
   [DG] SCSI: Fetch load-unload cycle counts.
 
