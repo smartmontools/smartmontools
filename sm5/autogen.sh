@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.19 2008/03/17 19:43:09 chrfranke Exp $
+# $Id: autogen.sh,v 1.20 2009/06/12 12:25:02 chrfranke Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -36,17 +36,18 @@ typep()
     return 1
 }
 
-test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.10` || AUTOMAKE=`typep automake-1.9` ||
-    AUTOMAKE=`typep automake-1.8` || AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
+test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automake-1.10` ||
+    AUTOMAKE=`typep automake-1.9` || AUTOMAKE=`typep automake-1.8` ||
+    AUTOMAKE=`typep automake-1.7` || AUTOMAKE=`typep automake17` ||
 {
 echo
-echo "You must have at least GNU Automake 1.7 (up to 1.10.x) installed"
+echo "You must have at least GNU Automake 1.7 (up to 1.11) installed"
 echo "in order to bootstrap smartmontools from CVS. Download the"
 echo "appropriate package for your distribution, or the source tarball"
 echo "from ftp://ftp.gnu.org/gnu/automake/ ."
 echo
 echo "Also note that support for new Automake series (anything newer"
-echo "than 1.10.x) is only added after extensive tests. If you live in"
+echo "than 1.11) is only added after extensive tests. If you live in"
 echo "the bleeding edge, you should know what you're doing, mainly how"
 echo "to test it before the developers. Be patient."
 exit 1;
@@ -69,7 +70,7 @@ case "$AUTOMAKE" in
     ver="`$AUTOMAKE --version | sed -n '1s,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
     ver="${ver:-?.?.?}"
     case "$ver" in
-      1.[78]*|1.9.[1-6]|1.10|1.10.1) ver= ;;
+      1.[78]*|1.9.[1-6]|1.10|1.10.[12]|1.11) ver= ;;
     esac ;;
 esac
 
