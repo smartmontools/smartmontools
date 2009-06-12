@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.802 2009/06/07 14:27:44 chrfranke Exp $
+$Id: CHANGELOG,v 1.803 2009/06/12 12:25:02 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] autogen.sh: automake 1.10.2 and 1.11 are OK.
 
   [CF] Fix syntax error in prototype of 'safe_snprintf()'.
        Thanks to Alexander Shaduri for bug report and patch.
