@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.36 2009/06/07 16:09:17 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.37 2009/06/12 12:10:07 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1304,6 +1304,7 @@ const usb_id_entry usb_ids[] = {
   { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
   { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
+  { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF...
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
