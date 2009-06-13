@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.124 2009/04/07 19:39:34 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.125 2009/06/13 15:32:29 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -102,7 +102,8 @@ Use one the forms \fB"/dev/tape[0\-255]"\fP, \fB"/dev/st[0\-255]"\fP,
 or \fB"/dev/nst[0\-255]"\fP for SCSI tape drives "\\\\.\\Tape[0\-255]".
 
 Alternatively, drive letters \fB"X:"\fP or \fB"X:\\"\fP may be used to
-specify the physical drive behind a mounted partition.
+specify the (\'basic\') disk behind a mounted partition.  This does
+not work with \'dynamic\' disks.
 
 For disks behind 3ware 9000 controllers use \fB"/dev/sd[a\-z],N"\fP where
 N specifies the disk number (3ware \'port\') behind the controller
@@ -1688,7 +1689,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.124 2009/04/07 19:39:34 chrfranke Exp $
+$Id: smartctl.8.in,v 1.125 2009/06/13 15:32:29 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
