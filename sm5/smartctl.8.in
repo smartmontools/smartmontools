@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.125 2009/06/13 15:32:29 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.126 2009/06/13 16:18:16 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -937,9 +937,9 @@ typically be either recovered or unrecoverable errors. That latter group
 may need some attention. There is a description of the background scan
 mechansim in section 4.18 of SBC\-3 revision 6 (see www.t10.org ).
 
-.I scttemp, scttempsts, scttemphist [ATA]
-\- [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the disk temperature
-information provided by the SMART Command Transport (SCT) commands.
+.I scttemp, scttempsts, scttemphist
+\- [ATA only] prints the disk temperature information provided by the
+SMART Command Transport (SCT) commands.
 The option \'scttempsts\' prints current temperature and temperature
 ranges returned by the SCT Status command, \'scttemphist\' prints
 temperature limits and the temperature history table returned by
@@ -1294,13 +1294,12 @@ during normal system operation (unless run in captive mode \- see the
 \'\-C\' option below).
 
 .I select,N\-M, select,N+SIZE
-\- [ATA ONLY] [EXPERIMENTAL SMARTCTL FEATURE] runs a SMART
-Selective Self Test, to test a \fBrange\fP of disk Logical Block
-Addresses (LBAs), rather than the entire disk.  Each range of LBAs
-that is checked is called a "span" and is specified by a starting LBA
-(N) and an ending LBA (M) with N less than or equal to M. The range
-can also be specified as N+SIZE. A span at the end of a disk can
-be specified by N\-\fBmax\fP.
+\- [ATA only] runs a SMART Selective Self Test, to test a \fBrange\fP
+of disk Logical Block Addresses (LBAs), rather than the entire disk.
+Each range of LBAs that is checked is called a "span" and is specified
+by a starting LBA (N) and an ending LBA (M) with N less than or equal
+to M. The range can also be specified as N+SIZE. A span at the end of
+a disk can be specified by N\-\fBmax\fP.
 
 For example the commands:
 .nf
@@ -1346,10 +1345,10 @@ The following variants of the selective self\-test command use spans based
 on the ranges from past tests already stored on the disk:
 
 .I select,redo[+SIZE]
-\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] redo the last SMART
-Selective Self Test using the same LBA range. The starting LBA is identical
-to the LBA used by last test, same for ending LBA unless a new span size
-is specified by optional +SIZE argument.
+\- [ATA only] redo the last SMART Selective Self Test using the same LBA
+range. The starting LBA is identical to the LBA used by last test, same
+for ending LBA unless a new span size is specified by optional +SIZE
+argument.
 
 For example the commands:
 .nf
@@ -1365,10 +1364,10 @@ have the same effect as:
 .fi
 
 .I select,next[+SIZE]
-\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] runs a SMART Selective
-Self Test on the LBA range which follows the range of the last test. The
-starting LBA is set to (ending LBA +1) of the last test. A new span size
-may be specified by the optional +SIZE argument.
+\- [ATA only] runs a SMART Selective Self Test on the LBA range which
+follows the range of the last test. The starting LBA is set to (ending
+LBA +1) of the last test. A new span size may be specified by the
+optional +SIZE argument.
 
 For example the commands:
 .nf
@@ -1389,9 +1388,9 @@ the total number of spans to check the full disk will not be changed
 by future uses of \'\-t select,next\'.
 
 .I select,cont[+SIZE]
-\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] performs a \'redo\'
-(above) if the self test status reports that the last test was aborted
-by the host. Otherwise it run the \'next\' (above) test.
+\- [ATA only] performs a \'redo\' (above) if the self test status reports
+that the last test was aborted by the host. Otherwise it run the \'next\'
+(above) test.
 
 .I afterselect,on
 \- [ATA ONLY] perform an offline read scan after a Selective Self\-test
@@ -1420,13 +1419,12 @@ options above. The value of this option is preserved between selective
 self\-tests.
 
 .I scttempint,N[,p]
-\- [ATA ONLY] [NEW EXPERIMENTAL SMARTCTL FEATURE] set the time interval
-for SCT temperature logging to N minutes. If \',p\' is specified, the
-setting is preserved across power cycles. Otherwise, the setting is
-volatile and will be reverted to default (1 minute), or last
-non-volatile setting by the next hard reset. This command also clears
-the temperature history table. See \'\-l scttemp\' above for more
-information about SCT temperature logging.
+\- [ATA only] set the time interval for SCT temperature logging to N
+minutes. If \',p\' is specified, the setting is preserved across power
+cycles. Otherwise, the setting is volatile and will be reverted to
+default (1 minute), or last non-volatile setting by the next hard reset.
+This command also clears the temperature history table. See
+\'\-l scttemp\' above for more information about SCT temperature logging.
 
 .TP
 .B \-C, \-\-captive
@@ -1689,7 +1687,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.125 2009/06/13 15:32:29 chrfranke Exp $
+$Id: smartctl.8.in,v 1.126 2009/06/13 16:18:16 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
