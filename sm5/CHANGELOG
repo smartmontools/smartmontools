@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.803 2009/06/12 12:25:02 chrfranke Exp $
+$Id: CHANGELOG,v 1.804 2009/06/13 14:56:20 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,13 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Print General Purpose Logs even if GPL feature bit is missing.
+       Needed for some older disks which implement READ LOG EXT but
+       do not report the GPL feature set.
+       Change order of the extended log outputs ('-l xerror',
+       '-l xselftest', '-l sataphy'). Extended logs are now printed
+       before their old versions.
 
   [CF] autogen.sh: automake 1.10.2 and 1.11 are OK.
 
