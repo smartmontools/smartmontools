@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.804 2009/06/13 14:56:20 chrfranke Exp $
+$Id: CHANGELOG,v 1.805 2009/06/18 17:24:51 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Remove outdated entry about undocumented system calls
+       from WARNINGS file.
 
   [CF] Print General Purpose Logs even if GPL feature bit is missing.
        Needed for some older disks which implement READ LOG EXT but
