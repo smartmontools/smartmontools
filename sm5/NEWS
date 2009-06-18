@@ -1,16 +1,59 @@
 smartmontools NEWS
 ------------------
-CVS ID: $Id: NEWS,v 1.36 2008/06/04 10:13:58 jhering Exp $
+CVS ID: $Id: NEWS,v 1.37 2009/06/18 20:17:53 chrfranke Exp $
 
 The most up-to-date version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/NEWS?view=markup
+
+Date <Not released yet, please try current CVS>
+Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
+-----------------------------------------------------------
+- Support for USB devices with Cypress, JMicron and Sunplus USB bridges
+- USB device type autodetection for some devices on Linux and Windows
+  (http://smartmontools.wiki.sourceforge.net/overview_USB-Support)
+- Support for Areca controllers on Linux
+- Support for MegaRAID controllers on Linux
+- Support for HighPoint RocketRAID controllers on FreeBSD
+- Support RAID controllers using /dev/pass devices on FreeBSD
+- Support CHECK_POWER_MODE and WRITE_LOG on FreeBSD
+- Support for up to 128 devices on 3ware controllers
+- smartctl option '-l xerror' to print ATA SMART Extended Comprehensive
+  Error Log
+- smartctl option '-l xselftest' to print ATA SMART Extended Self-test Log
+- smartctl option '-l sataphy' to print SATA Phy Event Counters
+- smartctl options '-l gplog,...' and '-l smartlog,...' to print any log page
+- smartctl prints SCSI load/unload cycle counts
+- Improve display of huge raw values of some SMART attributes
+- Option '-d sat+TYPE' to use SAT with controllers which require '-d TYPE'
+- Many additions to drive database
+- New simplified syntax for drive database
+- Option '-B FILE' to read drive database from a file
+- Configure option to add drive database file to distribution
+- smartd can now handle attributes 197 and 198 with increasing raw values
+- smartd logs changes of self-test execution status
+- smartd directive '-n powermode,N' to limit the number of skipped checks
+- smartd supports scheduled Selective Self-Tests
+- Self-tests scheduled during downtime are run after next startup
+- Option '-s PREFIX' to store smartd internal state until next startup
+- Configure option to enable the above by default
+- Change to an object oriented interface to access ATA and SCSI devices
+- Linux and Win32 modules migrated to new interface
+- Rework of smartd data structures
+- CVS checkin date/time and optional BUILD_INFO printed in version info
+- Better support for gSmartControl on Windows
+- SELinux fixes to 3ware device node creation
+- Fix CCISS file descriptor leak on FreeBSD
+- Compile fixes for Solaris and FreeBSD
+- Use getaddrinfo() instead of gethostbyname() to support IPv6
+- C++ Support for QNX Target, already tested for QNX 6.3.2 on x86 and
+  armle target
+
 
 Date 2008-03-10
 Summary: smartmontools release 5.38 (STABLE)
 --------------------------------------------
 This is a stable release of smartmontools.  In addition to changes
 below, it includes:
- - now C++ Support for QNX Target, allready tested for QNX 6.3.2 on x86 and armle target
  - Libata/Marvell driver devices no longer need explicit '-d' switch
  - DEVICESCAN automatically detects libata/marvell driver SATA devices 
  - Fixed auto-offline/autosave support in FreeBSD
