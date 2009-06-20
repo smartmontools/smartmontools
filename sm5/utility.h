@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.66 2009/06/07 14:27:44 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.67 2009/06/20 19:11:05 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -321,8 +321,8 @@ private:
 };
 
 // macros to control printing
-#define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=0;}
-#define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=1;}
+#define PRINT_ON(control)  {if (control->printing_switchable) control->dont_print=false;}
+#define PRINT_OFF(control) {if (control->printing_switchable) control->dont_print=true;}
 
 #ifdef OLD_INTERFACE
 // possible values for controller_type in extern.h

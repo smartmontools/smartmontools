@@ -25,7 +25,7 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.61 2009/06/20 17:58:33 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.62 2009/06/20 19:11:04 chrfranke Exp $\n"
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
@@ -46,11 +46,11 @@ typedef struct smartmonctrl_s {
   // selective self-test.
   unsigned char scanafterselect;
 
-  unsigned char printing_switchable;
-  unsigned char dont_print;
-  unsigned char dont_print_serial;
+  bool printing_switchable;
+  bool dont_print;
+  bool dont_print_serial;
   unsigned char permissive;
-  unsigned char conservative;
+  bool conservative;
   unsigned char reportataioctl;
   unsigned char reportscsiioctl;
 #ifdef OLD_INTERFACE
