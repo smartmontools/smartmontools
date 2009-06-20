@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.20 2009/06/12 12:25:02 chrfranke Exp $
+# $Id: autogen.sh,v 1.21 2009/06/20 19:51:42 chrfranke Exp $
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -10,10 +10,6 @@
 # Cygwin?
 test -x /usr/bin/uname && /usr/bin/uname | grep -i CYGWIN >/dev/null &&
 {
-    # Enable strict case checking
-    # (to avoid e.g. "DIST_COMMON = ... ChangeLog ..." in Makefile.in)
-    export CYGWIN="${CYGWIN}${CYGWIN:+ }check_case:strict"
-
     # Check for Unix text file type
     echo > dostest.tmp
     test "`wc -c < dostest.tmp`" -eq 1 ||
@@ -61,24 +57,40 @@ echo "Your installation of GNU Automake is broken or incomplete."
 exit 2;
 }
 
-# Warn if Automake version is unknown
-ver=
+# Detect Automake version
 case "$AUTOMAKE" in
-  *automake-1.[78]|*automake17)
-    ;;
+  *automake-1.7|*automake17)
+    ver=1.7 ;;
+  *automake-1.8)
+    ver=1.8 ;;
   *)
     ver="`$AUTOMAKE --version | sed -n '1s,^.*\([12]\.[.0-9]*[-pl0-9]*\).*$,\1,p'`"
     ver="${ver:-?.?.?}"
-    case "$ver" in
-      1.[78]*|1.9.[1-6]|1.10|1.10.[12]|1.11) ver= ;;
-    esac ;;
 esac
 
-test -z "$ver" ||
-{
-echo "Note: GNU Automake version ${ver} was not tested by the developers."
-echo "Please report success/failure to the smartmontools-support mailing list."
-}
+# Warn if Automake version was not tested or does not support filesystem
+case "$ver" in
+  1.[78]|1.[78].*)
+    # Check for case sensitive filesystem
+    # (to avoid e.g. "DIST_COMMON = ... ChangeLog ..." in Makefile.in on Cygwin)
+    rm -f CASETEST.TMP
+    echo > casetest.tmp
+    test -f CASETEST.TMP &&
+    {
+      echo "Warning: GNU Automake version ${ver} does not properly handle case"
+      echo "insensitive filesystems. Some make targets may not work."
+    }
+    rm -f casetest.tmp
+    ;;
+
+  1.9.[1-6]|1.10|1.10.[12]|1.11)
+    # OK
+    ;;
+
+  *)
+    echo "Note: GNU Automake version ${ver} was not tested by the developers."
+    echo "Please report success/failure to the smartmontools-support mailing list."
+esac
 
 set -e	# stops on error status
 
