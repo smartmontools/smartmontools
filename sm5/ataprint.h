@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.40 2009/04/16 21:24:08 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.41 2009/06/20 17:58:33 chrfranke Exp $\n"
 
 #include <vector>
 
@@ -47,12 +47,31 @@ struct ata_log_request
 // TODO: Move remaining options from con->* to here.
 struct ata_print_options
 {
-  bool sataphy, sataphy_reset;
+  bool drive_info;
+  bool smart_check_status;
+  bool smart_general_values;
+  bool smart_vendor_attrib;
+  bool smart_error_log;
+  bool smart_selftest_log;
+  bool smart_selective_selftest_log;
+
   bool gp_logdir, smart_logdir;
   unsigned smart_ext_error_log;
   unsigned smart_ext_selftest_log;
 
   std::vector<ata_log_request> log_requests;
+
+  bool sct_temp_sts, sct_temp_hist;
+  bool sataphy, sataphy_reset;
+
+  bool smart_disable, smart_enable;
+  bool smart_auto_offl_disable, smart_auto_offl_enable;
+  bool smart_auto_save_disable, smart_auto_save_enable;
+
+  int smart_selftest_type; // OFFLINE_FULL_SCAN, ..., see atacmds.h. -1 for no test
+
+  unsigned sct_temp_int;
+  bool sct_temp_int_pers;
 
   unsigned char fix_firmwarebug; // FIX_*, see atacmds.h
   bool fix_swapped_id; // Fix swapped ID strings returned by some buggy drivers
@@ -67,16 +86,31 @@ struct ata_print_options
 
   bool ignore_presets; // Ignore presets from drive database
   bool show_presets; // Show presets and exit
+  unsigned char powermode; // Skip check, if disk in idle or standby mode
 
   ata_print_options()
-    : sataphy(false), sataphy_reset(false),
+    : drive_info(false),
+      smart_check_status(false),
+      smart_general_values(false),
+      smart_vendor_attrib(false),
+      smart_error_log(false),
+      smart_selftest_log(false),
+      smart_selective_selftest_log(false),
       gp_logdir(false), smart_logdir(false),
       smart_ext_error_log(0),
       smart_ext_selftest_log(0),
+      sct_temp_sts(false), sct_temp_hist(false),
+      sataphy(false), sataphy_reset(false),
+      smart_disable(false), smart_enable(false),
+      smart_auto_offl_disable(false), smart_auto_offl_enable(false),
+      smart_auto_save_disable(false), smart_auto_save_enable(false),
+      smart_selftest_type(-1),
+      sct_temp_int(0), sct_temp_int_pers(false),
       fix_firmwarebug(FIX_NOTSPECIFIED),
       fix_swapped_id(false),
       ignore_presets(false),
-      show_presets(false)
+      show_presets(false),
+      powermode(0)
     { memset(attributedefs, 0, sizeof(attributedefs)); }
 };
 

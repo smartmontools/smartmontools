@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.805 2009/06/18 17:24:51 chrfranke Exp $
+$Id: CHANGELOG,v 1.806 2009/06/20 17:58:33 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -41,6 +41,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add 'options' parameter to SCSI printing routine. Move global
+       'con->...' smartctl variables to 'options' parameters of
+       printing routines.
+
+       variables used for drive presets by local variables.
   [CF] Windows: Remove outdated entry about undocumented system calls
        from WARNINGS file.
 

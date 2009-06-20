@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.197 2009/04/16 21:24:08 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.198 2009/06/20 17:58:33 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -266,7 +266,9 @@ enum checksum_err_mode_t {
 static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
 /*      Takes command options and sets features to be run */    
-const char * ParseOpts (int argc, char** argv, ata_print_options & options)
+const char * parse_options(int argc, char** argv,
+                           ata_print_options & ataopts,
+                           scsi_print_options & scsiopts)
 {
   int optchar;
   int badarg;
@@ -309,12 +311,12 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
 
   memset(extraerror, 0, sizeof(extraerror));
   memset(con,0,sizeof(*con));
-  con->testcase=-1;
   opterr=optopt=0;
   badarg = captive = FALSE;
   
   const char * type = 0; // set to -d optarg
   bool no_defaultdb = false; // set true on '-B FILE'
+  int testcnt = 0; // number of self-tests requested
 
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
@@ -395,86 +397,86 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       break;
     case 's':
       if (!strcmp(optarg,"on")) {
-        con->smartenable  = TRUE;
-        con->smartdisable = FALSE;
+        ataopts.smart_enable  = scsiopts.smart_enable  = true;
+        ataopts.smart_disable = scsiopts.smart_disable = false;
       } else if (!strcmp(optarg,"off")) {
-        con->smartdisable = TRUE;
-        con->smartenable  = FALSE;
+        ataopts.smart_disable = scsiopts.smart_disable = true;
+        ataopts.smart_enable  = scsiopts.smart_enable  = false;
       } else {
         badarg = TRUE;
       }
       break;
     case 'o':
       if (!strcmp(optarg,"on")) {
-        con->smartautoofflineenable  = TRUE;
-        con->smartautoofflinedisable = FALSE;
+        ataopts.smart_auto_offl_enable  = true;
+        ataopts.smart_auto_offl_disable = false;
       } else if (!strcmp(optarg,"off")) {
-        con->smartautoofflinedisable = TRUE;
-        con->smartautoofflineenable  = FALSE;
+        ataopts.smart_auto_offl_disable = true;
+        ataopts.smart_auto_offl_enable  = false;
       } else {
         badarg = TRUE;
       }
       break;
     case 'S':
       if (!strcmp(optarg,"on")) {
-        con->smartautosaveenable  = TRUE;
-        con->smartautosavedisable = FALSE;
+        ataopts.smart_auto_save_enable  = scsiopts.smart_auto_save_enable  = true;
+        ataopts.smart_auto_save_disable = scsiopts.smart_auto_save_disable = false;
       } else if (!strcmp(optarg,"off")) {
-        con->smartautosavedisable = TRUE;
-        con->smartautosaveenable  = FALSE;
+        ataopts.smart_auto_save_disable = scsiopts.smart_auto_save_disable = true;
+        ataopts.smart_auto_save_enable  = scsiopts.smart_auto_save_enable  = false;
       } else {
         badarg = TRUE;
       }
       break;
     case 'H':
-      con->checksmart = TRUE;           
+      ataopts.smart_check_status = scsiopts.smart_check_status = true;
       break;
     case 'F':
       if (!strcmp(optarg,"none")) {
-        options.fix_firmwarebug = FIX_NONE;
+        ataopts.fix_firmwarebug = FIX_NONE;
       } else if (!strcmp(optarg,"samsung")) {
-        options.fix_firmwarebug = FIX_SAMSUNG;
+        ataopts.fix_firmwarebug = FIX_SAMSUNG;
       } else if (!strcmp(optarg,"samsung2")) {
-        options.fix_firmwarebug = FIX_SAMSUNG2;
+        ataopts.fix_firmwarebug = FIX_SAMSUNG2;
       } else if (!strcmp(optarg,"samsung3")) {
-        options.fix_firmwarebug = FIX_SAMSUNG3;
+        ataopts.fix_firmwarebug = FIX_SAMSUNG3;
       } else if (!strcmp(optarg,"swapid")) {
-        options.fix_swapped_id = true;
+        ataopts.fix_swapped_id = true;
       } else {
         badarg = TRUE;
       }
       break;
     case 'c':
-      con->generalsmartvalues = TRUE;
+      ataopts.smart_general_values = true;
       break;
     case 'A':
-      con->smartvendorattrib = TRUE;
+      ataopts.smart_vendor_attrib = scsiopts.smart_vendor_attrib = true;
       break;
     case 'l':
       if (!strcmp(optarg,"error")) {
-        con->smarterrorlog = TRUE;
+        ataopts.smart_error_log = scsiopts.smart_error_log = true;
       } else if (!strcmp(optarg,"selftest")) {
-        con->smartselftestlog = TRUE;
+        ataopts.smart_selftest_log = scsiopts.smart_selftest_log = true;
       } else if (!strcmp(optarg, "selective")) {
-        con->selectivetestlog = TRUE;
+        ataopts.smart_selective_selftest_log = true;
       } else if (!strcmp(optarg,"directory")) {
-        options.smart_logdir = options.gp_logdir = true; // SMART+GPL
+        ataopts.smart_logdir = ataopts.gp_logdir = true; // SMART+GPL
       } else if (!strcmp(optarg,"directory,s")) {
-        options.smart_logdir = true; // SMART
+        ataopts.smart_logdir = true; // SMART
       } else if (!strcmp(optarg,"directory,g")) {
-        options.gp_logdir = true; // GPL
+        ataopts.gp_logdir = true; // GPL
       } else if (!strcmp(optarg,"sataphy")) {
-        options.sataphy = true;
+        ataopts.sataphy = true;
       } else if (!strcmp(optarg,"sataphy,reset")) {
-        options.sataphy = options.sataphy_reset = true;
+        ataopts.sataphy = ataopts.sataphy_reset = true;
       } else if (!strcmp(optarg,"background")) {
-        con->smartbackgroundlog = TRUE;
+        scsiopts.smart_background_log = true;
       } else if (!strcmp(optarg,"scttemp")) {
-        con->scttempsts = con->scttemphist = TRUE;
+        ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"scttempsts")) {
-        con->scttempsts = TRUE;
+        ataopts.sct_temp_sts = true;
       } else if (!strcmp(optarg,"scttemphist")) {
-        con->scttemphist = TRUE;
+        ataopts.sct_temp_hist = true;
 
       } else if (   !strncmp(optarg,"xerror"   , sizeof("xerror"   )-1)
                  || !strncmp(optarg,"xselftest", sizeof("xselftest")-1)) {
@@ -484,9 +486,9 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
         if (!((n1 == len || n2 == len) && val > 0))
           badarg = TRUE;
         else if (optarg[1] == 'e')
-          options.smart_ext_error_log = val;
+          ataopts.smart_ext_error_log = val;
         else
-          options.smart_ext_selftest_log = val;
+          ataopts.smart_ext_selftest_log = val;
 
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
                  || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {
@@ -515,24 +517,24 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
           ata_log_request req;
           req.gpl = gpl; req.logaddr = logaddr; req.page = page;
           req.nsectors = (sign == '-' ? nsectors-page+1 : nsectors);
-          options.log_requests.push_back(req);
+          ataopts.log_requests.push_back(req);
         }
       } else {
         badarg = TRUE;
       }
       break;
     case 'i':
-      con->driveinfo = TRUE;
-      break;            
+      ataopts.drive_info = scsiopts.drive_info = true;
+      break;
     case 'a':
-      con->driveinfo          = TRUE;
-      con->checksmart         = TRUE;
-      con->generalsmartvalues = TRUE;
-      con->smartvendorattrib  = TRUE;
-      con->smarterrorlog      = TRUE;
-      con->smartselftestlog   = TRUE;
-      con->selectivetestlog   = TRUE;
-      /* con->smartbackgroundlog = TRUE; */
+      ataopts.drive_info           = scsiopts.drive_info          = true;
+      ataopts.smart_check_status   = scsiopts.smart_check_status  = true;
+      ataopts.smart_general_values = true;
+      ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = true;
+      ataopts.smart_error_log      = scsiopts.smart_error_log     = true;
+      ataopts.smart_selftest_log   = scsiopts.smart_selftest_log  = true;
+      ataopts.smart_selective_selftest_log = true;
+      /* scsiopts.smart_background_log = true; */
       break;
     case 'v':
       // parse vendor-specific definitions of attributes
@@ -543,16 +545,16 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
              create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
-      if (parse_attribute_def(optarg, options.attributedefs))
+      if (parse_attribute_def(optarg, ataopts.attributedefs))
         badarg = TRUE;
       break;    
     case 'P':
       if (!strcmp(optarg, "use")) {
-        options.ignore_presets = false;
+        ataopts.ignore_presets = false;
       } else if (!strcmp(optarg, "ignore")) {
-        options.ignore_presets = true;
+        ataopts.ignore_presets = true;
       } else if (!strcmp(optarg, "show")) {
-        options.show_presets = true;
+        ataopts.show_presets = true;
       } else if (!strcmp(optarg, "showall")) {
         if (!no_defaultdb && !read_default_drive_databases())
           EXIT(FAILCMD);
@@ -569,17 +571,20 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       break;
     case 't':
       if (!strcmp(optarg,"offline")) {
-        con->smartexeoffimmediate = TRUE;
-        con->testcase             = OFFLINE_FULL_SCAN;
+        testcnt++;
+        ataopts.smart_selftest_type = OFFLINE_FULL_SCAN;
+        scsiopts.smart_default_selftest = true;
       } else if (!strcmp(optarg,"short")) {
-        con->smartshortselftest = TRUE;
-        con->testcase           = SHORT_SELF_TEST;
+        testcnt++;
+        ataopts.smart_selftest_type = SHORT_SELF_TEST;
+        scsiopts.smart_short_selftest = true;
       } else if (!strcmp(optarg,"long")) {
-        con->smartextendselftest = TRUE;
-        con->testcase            = EXTEND_SELF_TEST;
+        testcnt++;
+        ataopts.smart_selftest_type = EXTEND_SELF_TEST;
+        scsiopts.smart_extend_selftest = true;
       } else if (!strcmp(optarg,"conveyance")) {
-        con->smartconveyanceselftest = TRUE;
-        con->testcase            = CONVEYANCE_SELF_TEST;
+        testcnt++;
+        ataopts.smart_selftest_type = CONVEYANCE_SELF_TEST;
       } else if (!strcmp(optarg,"afterselect,on")) {
 	// scan remainder of disk after doing selected segments
 	con->scanafterselect=2;
@@ -602,6 +607,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
 	  con->pendingtime=i+1;
 	}
       } else if (!strncmp(optarg,"select",strlen("select"))) {
+        testcnt++;
         // parse range of LBAs to test
         uint64_t start, stop; int mode;
         if (split_selective_arg(optarg, &start, &stop, &mode)) {
@@ -622,7 +628,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
           con->smartselectivespan[con->smartselectivenumspans][1] = stop;
           con->smartselectivemode[con->smartselectivenumspans] = mode;
           con->smartselectivenumspans++;
-          con->testcase            = SELECTIVE_SELF_TEST;
+          ataopts.smart_selftest_type = SELECTIVE_SELF_TEST;
         }
       } else if (!strncmp(optarg, "scttempint,", sizeof("scstempint,")-1)) {
         unsigned interval = 0; int n1 = -1, n2 = -1, len = strlen(optarg);
@@ -631,8 +637,8 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
             strcpy(extraerror, "Option -t scttempint,N[,p] must have positive integer N\n");
             badarg = TRUE;
         }
-        con->scttempint = interval;
-        con->scttempintp = (n2 == len);
+        ataopts.sct_temp_int = interval;
+        ataopts.sct_temp_int_pers = (n2 == len);
       } else {
         badarg = TRUE;
       }
@@ -641,19 +647,20 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
       captive = TRUE;
       break;
     case 'X':
-      con->smartselftestabort = TRUE;
-      con->testcase           = ABORT_SELF_TEST;
+      testcnt++;
+      scsiopts.smart_selftest_abort = true;
+      ataopts.smart_selftest_type = ABORT_SELF_TEST;
       break;
     case 'n':
       // skip disk check if in low-power mode
       if (!strcmp(optarg, "never"))
-        con->powermode = 1; // do not skip, but print mode
+        ataopts.powermode = 1; // do not skip, but print mode
       else if (!strcmp(optarg, "sleep"))
-        con->powermode = 2;
+        ataopts.powermode = 2;
       else if (!strcmp(optarg, "standby"))
-        con->powermode = 3;
+        ataopts.powermode = 3;
       else if (!strcmp(optarg, "idle"))
-        con->powermode = 4;
+        ataopts.powermode = 4;
       else
         badarg = TRUE;
       break;
@@ -732,8 +739,7 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
     con->dont_print=TRUE;
 
   // error message if user has asked for more than one test
-  if (1<(con->smartexeoffimmediate+con->smartshortselftest+con->smartextendselftest+
-         con->smartshortcapselftest+con->smartextendcapselftest+con->smartselftestabort + (con->smartselectivenumspans>0?1:0))){
+  if (testcnt > 1) {
     con->dont_print=FALSE;
     printslogan();
     pout("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
@@ -755,26 +761,26 @@ const char * ParseOpts (int argc, char** argv, ata_print_options & options)
   }
 
   // If captive option was used, change test type if appropriate.
-  if (captive && con->smartshortselftest) {
-    con->smartshortselftest    = FALSE;
-    con->smartshortcapselftest = TRUE;
-    con->testcase              = SHORT_CAPTIVE_SELF_TEST;
-  } else if (captive && con->smartextendselftest) {
-    con->smartextendselftest    = FALSE;
-    con->smartextendcapselftest = TRUE;
-    con->testcase               = EXTEND_CAPTIVE_SELF_TEST;
-  }
-  else if (captive && con->smartconveyanceselftest) {
-    con->smartconveyanceselftest    = FALSE;
-    con->smartconveyancecapselftest = TRUE;
-    con->testcase                   = CONVEYANCE_CAPTIVE_SELF_TEST;
-  }
-  else if (captive && con->smartselectiveselftest) {
-    con->smartselectiveselftest    = FALSE;
-    con->smartselectivecapselftest = TRUE;
-    con->testcase                  = SELECTIVE_CAPTIVE_SELF_TEST;
-  }
- 
+  if (captive)
+    switch (ataopts.smart_selftest_type) {
+      case SHORT_SELF_TEST:
+        ataopts.smart_selftest_type = SHORT_CAPTIVE_SELF_TEST;
+        scsiopts.smart_short_selftest     = false;
+        scsiopts.smart_short_cap_selftest = true;
+        break;
+      case EXTEND_SELF_TEST:
+        ataopts.smart_selftest_type = EXTEND_CAPTIVE_SELF_TEST;
+        scsiopts.smart_extend_selftest     = false;
+        scsiopts.smart_extend_cap_selftest = true;
+        break;
+      case CONVEYANCE_SELF_TEST:
+        ataopts.smart_selftest_type = CONVEYANCE_CAPTIVE_SELF_TEST;
+        break;
+      case SELECTIVE_SELF_TEST:
+        ataopts.smart_selftest_type = SELECTIVE_CAPTIVE_SELF_TEST;
+        break;
+    }
+
   // From here on, normal operations...
   printslogan();
   
@@ -885,8 +891,9 @@ int main_worker(int argc, char **argv)
     con=&control;
 
     // Parse input arguments
-    ata_print_options options;
-    const char * type = ParseOpts(argc, argv, options);
+    ata_print_options ataopts;
+    scsi_print_options scsiopts;
+    const char * type = parse_options(argc, argv, ataopts, scsiopts);
 
     // '-d test' -> Report result of autodetection
     bool print_type_only = (type && !strcmp(type, "test"));
@@ -947,9 +954,9 @@ int main_worker(int argc, char **argv)
       pout("%s: Device of type '%s' [%s] opened\n",
            dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev));
     else if (dev->is_ata())
-      retval = ataPrintMain(dev->to_ata(), options);
+      retval = ataPrintMain(dev->to_ata(), ataopts);
     else if (dev->is_scsi())
-      retval = scsiPrintMain(dev->to_scsi());
+      retval = scsiPrintMain(dev->to_scsi(), scsiopts);
     else
       // we should never fall into this branch!
       pout("%s: Neither ATA nor SCSI device\n", dev->get_info_name());
