@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.445 2009/05/03 13:21:35 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.446 2009/06/20 19:11:04 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -4273,8 +4273,8 @@ int main_worker(int argc, char **argv)
   ParseOpts(argc,argv);
   
   // do we mute printing from ataprint commands?
-  con->printing_switchable=0;
-  con->dont_print=debugmode?0:1;
+  con->printing_switchable = false;
+  con->dont_print = !debugmode;
   
   // Configuration for each device
   dev_config_vector configs;

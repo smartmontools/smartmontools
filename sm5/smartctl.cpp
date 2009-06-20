@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.198 2009/06/20 17:58:33 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.199 2009/06/20 19:11:04 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -270,13 +270,8 @@ const char * parse_options(int argc, char** argv,
                            ata_print_options & ataopts,
                            scsi_print_options & scsiopts)
 {
-  int optchar;
-  int badarg;
-  int captive;
-  char extraerror[256];
   // Please update getvalidarglist() if you edit shortopts
   const char *shortopts = "h?Vq:d:T:b:r:s:o:S:HcAl:iav:P:t:CXF:n:B:";
-  char *arg;
   // Please update getvalidarglist() if you edit longopts
   struct option longopts[] = {
     { "help",            no_argument,       0, 'h' },
@@ -309,14 +304,18 @@ const char * parse_options(int argc, char** argv,
     { 0,                 0,                 0, 0   }
   };
 
+  char extraerror[256];
   memset(extraerror, 0, sizeof(extraerror));
   memset(con,0,sizeof(*con));
   opterr=optopt=0;
-  badarg = captive = FALSE;
-  
+
   const char * type = 0; // set to -d optarg
   bool no_defaultdb = false; // set true on '-B FILE'
+  bool badarg = false, captive = false;
   int testcnt = 0; // number of self-tests requested
+
+  int optchar;
+  char *arg;
 
   // This miserable construction is needed to get emacs to do proper indenting. Sorry!
   while (-1 != (optchar = 
@@ -324,22 +323,22 @@ const char * parse_options(int argc, char** argv,
                 )){
     switch (optchar){
     case 'V':
-      con->dont_print=FALSE;
+      con->dont_print = false;
       printslogan();
       printcopy();
       EXIT(0);
       break;
     case 'q':
       if (!strcmp(optarg,"errorsonly")) {
-        con->printing_switchable     = TRUE;
-        con->dont_print = FALSE;
+        con->printing_switchable = true;
+        con->dont_print = false;
       } else if (!strcmp(optarg,"silent")) {
-        con->printing_switchable     = FALSE;
-        con->dont_print = TRUE;
+        con->printing_switchable = false;
+        con->dont_print = true;
       } else if (!strcmp(optarg,"noserial")) {
-        con->dont_print_serial = TRUE;
+        con->dont_print_serial = true;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'd':
@@ -347,17 +346,17 @@ const char * parse_options(int argc, char** argv,
       break;
     case 'T':
       if (!strcmp(optarg,"normal")) {
-        con->conservative = FALSE;
+        con->conservative = false;
         con->permissive   = 0;
       } else if (!strcmp(optarg,"conservative")) {
-        con->conservative = TRUE;
+        con->conservative = true;
       } else if (!strcmp(optarg,"permissive")) {
         if (con->permissive<0xff)
           con->permissive++;
       } else if (!strcmp(optarg,"verypermissive")) {
-        con->permissive=0xff;
+        con->permissive = 0xff;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'b':
@@ -368,7 +367,7 @@ const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg,"ignore")) {
         checksum_err_mode = CHECKSUM_ERR_IGNORE;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'r':
@@ -382,7 +381,7 @@ const char * parse_options(int argc, char** argv,
           throw std::bad_alloc();
         }
         if (split_report_arg(s, &i)) {
-          badarg = TRUE;
+          badarg = true;
         } else if (!strcmp(s,"ioctl")) {
           con->reportataioctl  = con->reportscsiioctl = i;
         } else if (!strcmp(s,"ataioctl")) {
@@ -390,7 +389,7 @@ const char * parse_options(int argc, char** argv,
         } else if (!strcmp(s,"scsiioctl")) {
           con->reportscsiioctl = i;
         } else {
-          badarg = TRUE;
+          badarg = true;
         }
         free(s);
       }
@@ -403,7 +402,7 @@ const char * parse_options(int argc, char** argv,
         ataopts.smart_disable = scsiopts.smart_disable = true;
         ataopts.smart_enable  = scsiopts.smart_enable  = false;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'o':
@@ -414,7 +413,7 @@ const char * parse_options(int argc, char** argv,
         ataopts.smart_auto_offl_disable = true;
         ataopts.smart_auto_offl_enable  = false;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'S':
@@ -425,7 +424,7 @@ const char * parse_options(int argc, char** argv,
         ataopts.smart_auto_save_disable = scsiopts.smart_auto_save_disable = true;
         ataopts.smart_auto_save_enable  = scsiopts.smart_auto_save_enable  = false;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'H':
@@ -443,7 +442,7 @@ const char * parse_options(int argc, char** argv,
       } else if (!strcmp(optarg,"swapid")) {
         ataopts.fix_swapped_id = true;
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'c':
@@ -484,7 +483,7 @@ const char * parse_options(int argc, char** argv,
         unsigned val = ~0U;
         sscanf(optarg, "%*[a-z]%n,%u%n", &n1, &val, &n2);
         if (!((n1 == len || n2 == len) && val > 0))
-          badarg = TRUE;
+          badarg = true;
         else if (optarg[1] == 'e')
           ataopts.smart_ext_error_log = val;
         else
@@ -504,14 +503,14 @@ const char * parse_options(int argc, char** argv,
         if (!(   n1 == len || n2 == len
               || (n3 == len && (sign == '+' || sign == '-')))) {
           sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] syntax error\n", erropt);
-          badarg = TRUE;
+          badarg = true;
         }
         else if (!(    logaddr <= 0xff && page <= (gpl ? 0xffffU : 0x00ffU)
                    && 0 < nsectors
                    && (nsectors <= (gpl ? 0xffffU : 0xffU) || nsectors == ~0U)
                    && (sign != '-' || page <= nsectors)                       )) {
           sprintf(extraerror, "Option -l %s,ADDR[,FIRST[-LAST|+SIZE]] parameter out of range\n", erropt);
-          badarg = TRUE;
+          badarg = true;
         }
         else {
           ata_log_request req;
@@ -520,7 +519,7 @@ const char * parse_options(int argc, char** argv,
           ataopts.log_requests.push_back(req);
         }
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'i':
@@ -539,14 +538,14 @@ const char * parse_options(int argc, char** argv,
     case 'v':
       // parse vendor-specific definitions of attributes
       if (!strcmp(optarg,"help")) {
-        con->dont_print=FALSE;
+        con->dont_print = false;
         printslogan();
         pout("The valid arguments to -v are:\n\thelp\n%s\n",
              create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
       if (parse_attribute_def(optarg, ataopts.attributedefs))
-        badarg = TRUE;
+        badarg = true;
       break;    
     case 'P':
       if (!strcmp(optarg, "use")) {
@@ -566,7 +565,7 @@ const char * parse_options(int argc, char** argv,
           EXIT(FAILCMD); // report regexp syntax error
         EXIT(0);
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 't':
@@ -599,10 +598,10 @@ const char * parse_options(int argc, char** argv,
 	i=(int)strtol(optarg+strlen("pending,"), &tailptr, 10);
 	if (errno || *tailptr != '\0') {
 	  sprintf(extraerror, "Option -t pending,N requires N to be a non-negative integer\n");
-	  badarg = TRUE;
+          badarg = true;
 	} else if (i<0 || i>65535) {
 	  sprintf(extraerror, "Option -t pending,N (N=%d) must have 0 <= N <= 65535\n", i);
-	  badarg = TRUE;
+          badarg = true;
 	} else {
 	  con->pendingtime=i+1;
 	}
@@ -612,7 +611,7 @@ const char * parse_options(int argc, char** argv,
         uint64_t start, stop; int mode;
         if (split_selective_arg(optarg, &start, &stop, &mode)) {
 	  sprintf(extraerror, "Option -t select,M-N must have non-negative integer M and N\n");
-          badarg = TRUE;
+          badarg = true;
         } else {
           if (con->smartselectivenumspans >= 5 || start > stop) {
             if (start > stop) {
@@ -622,7 +621,7 @@ const char * parse_options(int argc, char** argv,
               sprintf(extraerror,"ERROR: No more than five selective self-test spans may be"
                 " defined\n");
             }
-	    badarg = TRUE;
+            badarg = true;
           }
           con->smartselectivespan[con->smartselectivenumspans][0] = start;
           con->smartselectivespan[con->smartselectivenumspans][1] = stop;
@@ -635,16 +634,16 @@ const char * parse_options(int argc, char** argv,
         if (!(   sscanf(optarg,"scttempint,%u%n,p%n", &interval, &n1, &n2) == 1
               && 0 < interval && interval <= 0xffff && (n1 == len || n2 == len))) {
             strcpy(extraerror, "Option -t scttempint,N[,p] must have positive integer N\n");
-            badarg = TRUE;
+            badarg = true;
         }
         ataopts.sct_temp_int = interval;
         ataopts.sct_temp_int_pers = (n2 == len);
       } else {
-        badarg = TRUE;
+        badarg = true;
       }
       break;
     case 'C':
-      captive = TRUE;
+      captive = true;
       break;
     case 'X':
       testcnt++;
@@ -662,7 +661,7 @@ const char * parse_options(int argc, char** argv,
       else if (!strcmp(optarg, "idle"))
         ataopts.powermode = 4;
       else
-        badarg = TRUE;
+        badarg = true;
       break;
     case 'B':
       {
@@ -676,14 +675,14 @@ const char * parse_options(int argc, char** argv,
       }
       break;
     case 'h':
-      con->dont_print=FALSE;
+      con->dont_print = false;
       printslogan();
       Usage();
       EXIT(0);  
       break;
     case '?':
     default:
-      con->dont_print=FALSE;
+      con->dont_print = false;
       printslogan();
       // Point arg to the argument in which this option was found.
       arg = argv[optind-1];
@@ -736,11 +735,11 @@ const char * parse_options(int argc, char** argv,
   // print output is switchable, then start with the print output
   // turned off
   if (con->printing_switchable)
-    con->dont_print=TRUE;
+    con->dont_print = false;
 
   // error message if user has asked for more than one test
   if (testcnt > 1) {
-    con->dont_print=FALSE;
+    con->dont_print = false;
     printslogan();
     pout("\nERROR: smartctl can only run a single test type (or abort) at a time.\n");
     UsageSummary();
@@ -750,7 +749,7 @@ const char * parse_options(int argc, char** argv,
   // error message if user has set selective self-test options without
   // asking for a selective self-test
   if ((con->pendingtime || con->scanafterselect) && !con->smartselectivenumspans){
-    con->dont_print=FALSE;
+    con->dont_print = false;
     printslogan();
     if (con->pendingtime)
       pout("\nERROR: smartctl -t pending,N must be used with -t select,N-M.\n");
