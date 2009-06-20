@@ -44,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.211 2009/06/13 14:56:20 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.212 2009/06/20 17:58:33 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1713,7 +1713,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   const char * powername = 0; char powerchg = 0;
 
   // If requested, check power mode first
-  if (con->powermode) {
+  if (options.powermode) {
     unsigned char powerlimit = 0xff;
     int powermode = ataCheckPowerMode(device);
     switch (powermode) {
@@ -1734,7 +1734,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         break;
     }
     if (powername) {
-      if (con->powermode >= powerlimit) {
+      if (options.powermode >= powerlimit) {
         pout("Device is in %s mode, exit(%d)\n", powername, FAILPOWER);
         return FAILPOWER;
       }
@@ -1763,7 +1763,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print most drive identity information if requested
   bool known = false;
-  if (con->driveinfo){
+  if (options.drive_info) {
     pout("=== START OF INFORMATION SECTION ===\n");
     known = PrintDriveInfo(&drive, options.fix_swapped_id);
   }
@@ -1797,11 +1797,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("                  SMART ENABLE appeared to work!  Continuing.\n");
       supported=1;
     }
-    if (!con->driveinfo) pout("\n");
+    if (!options.drive_info)
+      pout("\n");
   }
   
   // Now print remaining drive info: is SMART enabled?    
-  if (con->driveinfo){
+  if (options.drive_info) {
     int ison=ataIsSmartEnabled(&drive),isenabled=ison;
     
     if (ison==-1) {
@@ -1835,13 +1836,13 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
   
   // START OF THE ENABLE/DISABLE SECTION OF THE CODE
-  if (con->smartenable || con->smartdisable || 
-      con->smartautosaveenable || con->smartautosavedisable || 
-      con->smartautoofflineenable || con->smartautoofflinedisable)
+  if (   options.smart_disable           || options.smart_enable
+      || options.smart_auto_save_disable || options.smart_auto_save_enable
+      || options.smart_auto_offl_disable || options.smart_auto_offl_enable)
     pout("=== START OF ENABLE/DISABLE COMMANDS SECTION ===\n");
   
   // Enable/Disable SMART commands
-  if (con->smartenable){
+  if (options.smart_enable) {
     if (ataEnableSmart(device)) {
       pout("Smartctl: SMART Enable Failed.\n\n");
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
@@ -1857,7 +1858,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
   
   // Turn off SMART on device
-  if (con->smartdisable){    
+  if (options.smart_disable) {
     if (ataDisableSmart(device)) {
       pout( "Smartctl: SMART Disable Failed.\n\n");
       failuretest(MANDATORY_CMD,returnval|=FAILSMART);
@@ -1872,7 +1873,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     failuretest(MANDATORY_CMD, returnval|=FAILSMART);
 
   // Enable/Disable Auto-save attributes
-  if (con->smartautosaveenable){
+  if (options.smart_auto_save_enable) {
     if (ataEnableAutoSave(device)){
       pout( "Smartctl: SMART Enable Attribute Autosave Failed.\n\n");
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
@@ -1880,7 +1881,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else
       pout("SMART Attribute Autosave Enabled.\n");
   }
-  if (con->smartautosavedisable){
+
+  if (options.smart_auto_save_disable) {
     if (ataDisableAutoSave(device)){
       pout( "Smartctl: SMART Disable Attribute Autosave Failed.\n\n");
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
@@ -1900,7 +1902,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Enable/Disable Off-line testing
-  if (con->smartautoofflineenable){
+  if (options.smart_auto_offl_enable) {
     if (!isSupportAutomaticTimer(&smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1913,7 +1915,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else
       pout("SMART Automatic Offline Testing Enabled every four hours.\n");
   }
-  if (con->smartautoofflinedisable){
+
+  if (options.smart_auto_offl_disable) {
     if (!isSupportAutomaticTimer(&smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1933,26 +1936,28 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // all this for a newline!
-  if (con->smartenable || con->smartdisable || 
-      con->smartautosaveenable || con->smartautosavedisable || 
-      con->smartautoofflineenable || con->smartautoofflinedisable)
+  if (   options.smart_disable           || options.smart_enable
+      || options.smart_auto_save_disable || options.smart_auto_save_enable
+      || options.smart_auto_offl_disable || options.smart_auto_offl_enable)
     pout("\n");
 
   // START OF READ-ONLY OPTIONS APART FROM -V and -i
-  if (   con->checksmart || con->generalsmartvalues || con->smartvendorattrib || con->smarterrorlog
-      || con->smartselftestlog || con->selectivetestlog || con->scttempsts || con->scttemphist
-      || options.smart_ext_error_log || options.smart_ext_selftest_log                             )
+  if (   options.smart_check_status  || options.smart_general_values
+      || options.smart_vendor_attrib || options.smart_error_log
+      || options.smart_selftest_log  || options.smart_selective_selftest_log
+      || options.smart_ext_error_log || options.smart_ext_selftest_log
+      || options.sct_temp_sts        || options.sct_temp_hist               )
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
   // Check SMART status (use previously returned value)
-  if (con->checksmart){
+  if (options.smart_check_status) {
     switch (code) {
 
     case 0:
       // The case where the disk health is OK
       pout("SMART overall-health self-assessment test result: PASSED\n");
       if (ataCheckSmart(&smartval, &smartthres,0)){
-        if (con->smartvendorattrib)
+        if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
         else {
           PRINT_ON(con);
@@ -1973,7 +1978,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       PRINT_OFF(con);
       if (ataCheckSmart(&smartval, &smartthres,1)){
         returnval|=FAILATTR;
-        if (con->smartvendorattrib)
+        if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
           PRINT_ON(con);
@@ -1997,7 +2002,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         PRINT_OFF(con);
         returnval|=FAILATTR;
         returnval|=FAILSTATUS;
-        if (con->smartvendorattrib)
+        if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
         else {
           PRINT_ON(con);
@@ -2008,7 +2013,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       else {
         pout("SMART overall-health self-assessment test result: PASSED\n");
         if (ataCheckSmart(&smartval, &smartthres,0)){
-          if (con->smartvendorattrib)
+          if (options.smart_vendor_attrib)
             pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
           else {
             PRINT_ON(con);
@@ -2028,11 +2033,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   } // end of checking SMART Status
   
   // Print general SMART values
-  if (con->generalsmartvalues)
+  if (options.smart_general_values)
     PrintGeneralSmartValues(&smartval, &drive, fix_firmwarebug);
 
   // Print vendor-specific attributes
-  if (con->smartvendorattrib){
+  if (options.smart_vendor_attrib) {
     PRINT_ON(con);
     PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs,
                               (con->printing_switchable ? 2 : 0));
@@ -2163,7 +2168,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print SMART error log
-  if (con->smarterrorlog){
+  if (options.smart_error_log) {
     if (!isSmartErrorLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2198,7 +2203,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print SMART self-test log
-  if (con->smartselftestlog){
+  if (options.smart_selftest_log) {
     if (!isSmartTestLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2217,7 +2222,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print SMART selective self-test log
-  if (con->selectivetestlog){
+  if (options.smart_selective_selftest_log) {
     ata_selective_self_test_log log;
 
     if (!isSupportSelectiveSelfTest(&smartval))
@@ -2237,18 +2242,18 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
-  // Print SMART SCT status and temperature history table
-  if (con->scttempsts || con->scttemphist || con->scttempint) {
+  // Print SCT status and temperature history table
+  if (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int) {
     for (;;) {
       if (!isSCTCapable(&drive)) {
         pout("Warning: device does not support SCT Commands\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
         break;
       }
-      if (con->scttempsts || con->scttemphist) {
+      if (options.sct_temp_sts || options.sct_temp_hist) {
         ata_sct_status_response sts;
         ata_sct_temperature_history_table tmh;
-        if (!con->scttemphist) {
+        if (!options.sct_temp_hist) {
           // Read SCT status only
           if (ataReadSCTStatus(device, &sts)) {
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2267,25 +2272,26 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
             break;
           }
         }
-        if (con->scttempsts)
+        if (options.sct_temp_sts)
           ataPrintSCTStatus(&sts);
-        if (con->scttemphist)
+        if (options.sct_temp_hist)
           ataPrintSCTTempHist(&tmh);
         pout("\n");
       }
-      if (con->scttempint) {
+      if (options.sct_temp_int) {
         // Set new temperature logging interval
         if (!isSCTFeatureControlCapable(&drive)) {
           pout("Warning: device does not support SCT Feature Control command\n");
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
           break;
         }
-        if (ataSetSCTTempInterval(device, con->scttempint, !!con->scttempintp)) {
+        if (ataSetSCTTempInterval(device, options.sct_temp_int, options.sct_temp_int_pers)) {
           failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
           break;
         }
         pout("Temperature Logging Interval set to %u minute%s (%s)\n",
-          con->scttempint, (con->scttempint==1?"":"s"), (con->scttempintp?"persistent":"volatile"));
+          options.sct_temp_int, (options.sct_temp_int == 1 ? "" : "s"),
+          (options.sct_temp_int_pers ? "persistent" : "volatile"));
       }
       break;
     }
@@ -2302,12 +2308,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
-  if (con->testcase==-1)
+  if (options.smart_selftest_type == -1)
     return returnval;
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
   // if doing a self-test, be sure it's supported by the hardware
-  switch (con->testcase){
+  switch (options.smart_selftest_type) {
   case OFFLINE_FULL_SCAN:
     if (!isSupportExecuteOfflineImmediate(&smartval)){
       pout("Warning: device does not support Execute Offline Immediate function.\n\n");
@@ -2339,14 +2345,14 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     break;
   default:
-    pout("Internal error in smartctl: con->testcase==%d not recognized\n", (int)con->testcase);
+    pout("Internal error in smartctl: smart_test_type==%d not recognized\n", options.smart_selftest_type);
     pout("Please contact smartmontools developers at %s.\n", PACKAGE_BUGREPORT);
     EXIT(returnval|=FAILCMD);
   }
 
   // Now do the test.  Note ataSmartTest prints its own error/success
   // messages
-  if (ataSmartTest(device, con->testcase, &smartval, get_num_sectors(&drive)))
+  if (ataSmartTest(device, options.smart_selftest_type, &smartval, get_num_sectors(&drive)))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   else {  
     // Tell user how long test will take to complete.  This is tricky
@@ -2354,7 +2360,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     // timer is volatile, and needs to be read AFTER the command is
     // given. If this will interrupt the Offline Full Scan, we don't
     // do it, just warn user.
-    if (con->testcase==OFFLINE_FULL_SCAN){
+    if (options.smart_selftest_type == OFFLINE_FULL_SCAN) {
       if (isSupportOfflineAbort(&smartval))
 	pout("Note: giving further SMART commands will abort Offline testing\n");
       else if (ataReadSmartValues(device, &smartval)){
@@ -2364,9 +2370,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     
     // Now say how long the test will take to complete
-    if ((timewait=TestTime(&smartval,con->testcase))){ 
+    if ((timewait = TestTime(&smartval, options.smart_selftest_type))) {
       time_t t=time(NULL);
-      if (con->testcase==OFFLINE_FULL_SCAN) {
+      if (options.smart_selftest_type == OFFLINE_FULL_SCAN) {
 	t+=timewait;
 	pout("Please wait %d seconds for test to complete.\n", (int)timewait);
       } else {
@@ -2375,11 +2381,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
       pout("Test will complete after %s\n", ctime(&t));
       
-      if (con->testcase!=SHORT_CAPTIVE_SELF_TEST && 
-	  con->testcase!=EXTEND_CAPTIVE_SELF_TEST && 
-	  con->testcase!=CONVEYANCE_CAPTIVE_SELF_TEST && 
-	  con->testcase!=SELECTIVE_CAPTIVE_SELF_TEST)
-	pout("Use smartctl -X to abort test.\n"); 
+      if (   options.smart_selftest_type != SHORT_CAPTIVE_SELF_TEST
+          && options.smart_selftest_type != EXTEND_CAPTIVE_SELF_TEST
+          && options.smart_selftest_type != CONVEYANCE_CAPTIVE_SELF_TEST
+          && options.smart_selftest_type != SELECTIVE_CAPTIVE_SELF_TEST )
+        pout("Use smartctl -X to abort test.\n");
     }
   }
 

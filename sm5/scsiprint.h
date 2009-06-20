@@ -3,11 +3,11 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * Additional SCSI work:
- * Copyright (C) 2003-8 Douglas Gilbert <dougg@torque.net>
+ * Copyright (C) 2003-9 Douglas Gilbert <dougg@torque.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,46 @@
  */
 
 
-/* scsismart version number */
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.22 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.23 2009/06/20 17:58:33 chrfranke Exp $\n"
 
-int scsiPrintMain(scsi_device * device);
+// Options for scsiPrintMain
+// TODO: Move remaining options from con->* to here.
+struct scsi_print_options
+{
+  bool drive_info;
+  bool smart_check_status;
+  bool smart_vendor_attrib;
+  bool smart_error_log;
+  bool smart_selftest_log;
+  bool smart_background_log;
+
+  bool smart_disable, smart_enable;
+  bool smart_auto_save_disable, smart_auto_save_enable;
+
+  bool smart_default_selftest;
+  bool smart_short_selftest, smart_short_cap_selftest;
+  bool smart_extend_selftest, smart_extend_cap_selftest;
+  bool smart_selftest_abort;
+
+  scsi_print_options()
+    : drive_info(false),
+      smart_check_status(false),
+      smart_vendor_attrib(false),
+      smart_error_log(false),
+      smart_selftest_log(false),
+      smart_background_log(false),
+      smart_disable(false), smart_enable(false),
+      smart_auto_save_disable(false), smart_auto_save_enable(false),
+      smart_default_selftest(false),
+      smart_short_selftest(false), smart_short_cap_selftest(false),
+      smart_extend_selftest(false), smart_extend_cap_selftest(false),
+      smart_selftest_abort(false)
+    { }
+};
+
+int scsiPrintMain(scsi_device * device, const scsi_print_options & options);
 
 #endif

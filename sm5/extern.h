@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,20 +25,19 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.60 2009/04/16 21:24:08 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.61 2009/06/20 17:58:33 chrfranke Exp $\n"
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
 // add them.
 typedef struct smartmonctrl_s {
+  // TODO: Use local struct for selective self test parameters
   // spans for selective self-test
   uint64_t smartselectivespan[5][2];
   // mode for each span, see SEL_* in utility.h
   char smartselectivemode[5];
   // number of spans
   int smartselectivenumspans;
-  int           testcase;
-  unsigned      scttempint;
   // one plus time in minutes to wait after powerup before restarting
   // interrupted offline scan after selective self-test.
   int  pendingtime;
@@ -46,36 +45,7 @@ typedef struct smartmonctrl_s {
   // turn off scan after selective self-test, 2: turn on scan after
   // selective self-test.
   unsigned char scanafterselect;
-  // skip check, if disk in idle or standby mode
-  unsigned char powermode;
-  unsigned char driveinfo;
-  unsigned char checksmart;
-  unsigned char smartvendorattrib;
-  unsigned char generalsmartvalues;
-  unsigned char smartselftestlog;
-  unsigned char selectivetestlog;
-  unsigned char smarterrorlog;
-  unsigned char smartbackgroundlog;
-  unsigned char scttempsts;
-  unsigned char scttemphist;
-  unsigned char scttempintp;
-  unsigned char smartdisable;
-  unsigned char smartenable; 
-  unsigned char smartstatus;
-  unsigned char smartexeoffimmediate;
-  unsigned char smartshortselftest;
-  unsigned char smartextendselftest;
-  unsigned char smartconveyanceselftest;
-  unsigned char smartselectiveselftest;
-  unsigned char smartshortcapselftest;
-  unsigned char smartextendcapselftest;
-  unsigned char smartconveyancecapselftest;
-  unsigned char smartselectivecapselftest;
-  unsigned char smartselftestabort;
-  unsigned char smartautoofflineenable;
-  unsigned char smartautoofflinedisable;
-  unsigned char smartautosaveenable;
-  unsigned char smartautosavedisable;
+
   unsigned char printing_switchable;
   unsigned char dont_print;
   unsigned char dont_print_serial;
