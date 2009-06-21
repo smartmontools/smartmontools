@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.808 2009/06/20 19:51:42 chrfranke Exp $
+$Id: CHANGELOG,v 1.809 2009/06/21 02:39:32 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] SCSI (SAS): add '-l sasphy' and '-l sasphy,reset' into smartctl
+       to output SAS device phy information (from the Protocol specific
+       log page)
 
   [CF] autogen.sh: Remove 'CYGWIN=check_case:strict', this does no
        longer work on Cygwin 1.7.  Print warning if Automake version

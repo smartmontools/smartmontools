@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.127 2009/06/13 17:04:19 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -955,6 +955,12 @@ and descriptions of the SATA Phy Event Counters (General Purpose Log
 address 0x11). If \'\-l sataphy,reset\' is specified, all counters
 are reset after reading the values.
 
+.I sasphy[,reset]
+\- [SAS (SCSI) only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
+and descriptions of the SAS (SSP) Protocol Specific log page (log page
+0x18). If \'\-l sasphy,reset\' is specified, all counters
+are reset after reading the values (not yet implemented).
+
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
 of any log accessible via General Purpose Logging (GPL) feature.
@@ -1686,7 +1692,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.127 2009/06/13 17:04:19 chrfranke Exp $
+$Id: smartctl.8.in,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

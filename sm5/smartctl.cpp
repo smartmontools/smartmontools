@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.199 2009/06/20 19:11:04 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.200 2009/06/21 02:39:32 dpgilbert Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -167,8 +167,9 @@ void Usage (void){
 "        Show device SMART vendor-specific Attributes and values\n\n"
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
-"                               background, sataphy[,reset], scttemp[sts,hist]\n"
-"                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
+"                               background, sasphy[,reset], sataphy[,reset],\n"
+"                               scttemp[sts,hist],gplog,N[,RANGE],\n"
+"                               smartlog,N[,RANGE],\n"
 "                               xerror[,N], xselftest[,N]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
 "        Set display OPTION for vendor Attribute N (see man page)\n\n"
@@ -224,7 +225,8 @@ static const char *getvalidarglist(char opt)
     return "on, off";
   case 'l':
     return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], "
-           "sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], xerror[,N], xselftest[,N]";
+           "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], "
+	   "xerror[,N], xselftest[,N]";
   case 'P':
     return "use, ignore, show, showall";
   case 't':
@@ -464,6 +466,10 @@ const char * parse_options(int argc, char** argv,
         ataopts.smart_logdir = true; // SMART
       } else if (!strcmp(optarg,"directory,g")) {
         ataopts.gp_logdir = true; // GPL
+      } else if (!strcmp(optarg,"sasphy")) {
+        scsiopts.sasphy = true;
+      } else if (!strcmp(optarg,"sasphy,reset")) {
+        scsiopts.sasphy = scsiopts.sasphy_reset = true;
       } else if (!strcmp(optarg,"sataphy")) {
         ataopts.sataphy = true;
       } else if (!strcmp(optarg,"sataphy,reset")) {
