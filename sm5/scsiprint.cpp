@@ -44,7 +44,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -913,6 +913,8 @@ static int scsiPrintBackgroundResults(scsi_device * device)
                  (ucp[10] << 8) + ucp[11]);
             pout("scan progress: %.2f%%\n",
                  (double)((ucp[12] << 8) + ucp[13]) * 100.0 / 65536.0);
+            pout("    Number of background medium scans performed: %d,  ",
+                 (ucp[14] << 8) + ucp[15]);
             break;
         default:
             if (noheader) {
@@ -1245,12 +1247,6 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
 {
     int num, err;
 
-    if (reset) {
-        PRINT_ON(con);
-        pout("sasphy_reset not supported yet (need LOG SELECT)\n");
-        PRINT_OFF(con);
-        return FAILSMART;
-    }
     if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
         PRINT_ON(con);
@@ -1269,6 +1265,12 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
     if (1 != show_protocol_specific_page(gBuf, num + 4)) {
         PRINT_ON(con);
         pout("Only support protocol specific log page on SAS devices\n");
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    if (reset) {
+        PRINT_ON(con);
+        pout("sasphy_reset not supported yet (need LOG SELECT)\n");
         PRINT_OFF(con);
         return FAILSMART;
     }

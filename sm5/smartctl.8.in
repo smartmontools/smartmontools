@@ -1,7 +1,7 @@
 .ig
- Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -54,7 +54,10 @@ ignored and/or return an error.
 from SCSI tape drives and changers.
 
 The user must specify the device to be controlled or interrogated as
-the final argument to \fBsmartctl\fP.  Device paths are as follows:
+the final argument to \fBsmartctl\fP. The command set used by the device
+is often derived from the device path but may need help with the \'\-d\'
+option (for more information see the section on "ATA, SCSI command sets
+and SAT" below). Device paths are as follows:
 .IP \fBLINUX\fP: 9
 Use the forms \fB"/dev/hd[a\-t]"\fP for IDE/ATA devices, and
 \fB"/dev/sd[a\-z]"\fP for SCSI devices. For SCSI Tape Drives and
@@ -67,8 +70,7 @@ below. For disks behind HighPoint RocketRAID controllers you may need
 \fB"/dev/sd[a\-z]"\fP.  For disks behind Areca SATA RAID controllers,
 you need \fB"/dev/sg[2\-9]"\fP (note that smartmontools interacts with
 the Areca controllers via a SCSI generic device which is different
-than the SCSI device used for reading and writing data)!  More general
-paths (such as devfs ones) may also be specified.
+than the SCSI device used for reading and writing data)!
 .IP \fBDARWIN\fP: 9
 Use the forms \fB/dev/disk[0\-9]\fP or equivalently \fBdisk[0\-9]\fP or equivalently
 \fB/dev/rdisk[0\-9]\fP.  Long forms are also available: please use \'\-h\' to see some
@@ -140,12 +142,6 @@ page follows the same convention.
 The options are grouped below into several categories.  \fBsmartctl\fP
 will execute the corresponding commands in the order: INFORMATION,
 ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
-
-SCSI devices only accept the options \fB\-h, \-V, \-i, \-a, \-A, \-d,
-\-s, \-S,\-H, \-t, \-C, \-l background, \-l error, \-l selftest, \-r,\fP
-and \fB\-X\fP.  TapeAlert devices only accept the options \fB\-h, \-V,
-\-i, \-a, \-A, \-d, \-s, \-S, \-t, \-l error, \-l selftest, \-r,\fP
-and \fB\-H\fP.
 
 Long options  are  not  supported  on  all  systems.   Use
 .B \'smartctl \-h\'
@@ -396,8 +392,8 @@ of the HighPoint RocketRAID controller.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
-Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART command
-failures. 
+[ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
+command failures. 
 
 The behavior of \fBsmartctl\fP depends upon whether the command is
 "\fBoptional\fP" or "\fBmandatory\fP". Here "\fBmandatory\fP" means
@@ -437,9 +433,9 @@ Please see the note above.
 
 .TP
 .B \-b TYPE, \-\-badsum=TYPE
-Specifies the action \fBsmartctl\fP should take if a checksum error is
-detected in the: (1) Device Identity Structure, (2) SMART Self\-Test
-Log Structure, (3) SMART Attribute Value Structure, (4) SMART
+[ATA only] Specifies the action \fBsmartctl\fP should take if a checksum
+error is detected in the: (1) Device Identity Structure, (2) SMART
+Self\-Test Log Structure, (3) SMART Attribute Value Structure, (4) SMART
 Attribute Threshold Structure, or (5) ATA Error Log Structure.
 
 The valid arguments to this option are:
@@ -493,9 +489,9 @@ behaviour. This is does not work for SCSI devices yet.
 
 .TP
 .B \-n POWERMODE, \-\-nocheck=POWERMODE
-Specifieds if \fBsmartctl\fP should exit before performing any checks
-when the device is in a low\-power mode. It may be used to prevent a disk
-from being spun\-up by \fBsmartctl\fP. The power mode is ignored by
+[ATA only] Specifies if \fBsmartctl\fP should exit before performing any
+checks when the device is in a low\-power mode. It may be used to prevent
+a disk from being spun\-up by \fBsmartctl\fP. The power mode is ignored by
 default. The allowed values of POWERMODE are:
 
 .I never
@@ -530,16 +526,16 @@ the corresponding disable command.
 .B \-s VALUE, \-\-smart=VALUE 
 Enables or disables SMART on device.  The valid arguments to
 this option are \fIon\fP and \fIoff\fP.  Note that the command \'\-s on\'
-(perhaps used with with the \'\-o on\' and \'\-S on\' options) should be placed
-in a start\-up script for your machine, for example in rc.local or rc.sysinit.
-In principle the SMART feature settings are preserved over
+(perhaps used with with the \'\-o on\' and \'\-S on\' options) should be
+placed in a start\-up script for your machine, for example in rc.local or
+rc.sysinit. In principle the SMART feature settings are preserved over
 power\-cycling, but it doesn\'t hurt to be sure. It is not necessary (or
 useful) to enable SMART to see the TapeAlert messages.
 .TP
 .B \-o VALUE, \-\-offlineauto=VALUE
-Enables or disables SMART automatic offline test, which scans the drive
-every four hours for disk defects. This command can be given during normal
-system operation.  The valid arguments to this option are \fIon\fP
+[ATA only] Enables or disables SMART automatic offline test, which scans the
+drive every four hours for disk defects. This command can be given during
+normal system operation.  The valid arguments to this option are \fIon\fP
 and \fIoff\fP.
 
 Note that the SMART automatic offline test command is listed as
@@ -993,8 +989,8 @@ writes a binary representation of the one sector log 0x11
 
 .TP
 .B \-v N,OPTION, \-\-vendorattribute=N,OPTION
-Sets a vendor\-specific display OPTION for Attribute N.  This option
-may be used multiple times. Valid arguments to this option are:
+[ATA only] Sets a vendor\-specific display OPTION for Attribute N. This
+option may be used multiple times. Valid arguments to this option are:
 
 .I help
 \- Prints (to STDOUT) a list of all valid arguments to this option,
@@ -1092,8 +1088,8 @@ value for Attribute 123 in this form.
 
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
-Modifies the behavior of \fBsmartctl\fP to compensate for some known
-and understood device firmware or driver bug.  Except \'swapid\',
+[ATA only] Modifies the behavior of \fBsmartctl\fP to compensate for some
+known and understood device firmware or driver bug.  Except \'swapid\',
 the arguments to this option are exclusive, so that only the final
 option given is used.  The valid values are:
 
@@ -1138,8 +1134,8 @@ firmware version) returned by some buggy device drivers.
 
 .TP
 .B \-P TYPE, \-\-presets=TYPE
-Specifies whether \fBsmartctl\fP should use any preset options that
-are available for this drive. By default, if the drive is recognized
+[ATA only] Specifies whether \fBsmartctl\fP should use any preset options
+that are available for this drive. By default, if the drive is recognized
 in the \fBsmartmontools\fP database, then the presets are used.
 
 \fBsmartctl\fP can automatically set appropriate options for known
@@ -1199,8 +1195,8 @@ lists all entries for this MODEL and a specific FIRMWARE version.
 
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
-[NEW EXPERIMENTAL SMARTCTL FEATURE] Read the drive database from FILE.
-The new database replaces the built in database by default. If \'+\' is
+[ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] Read the drive database from
+FILE.  The new database replaces the built in database by default. If \'+\' is
 specified, then the new entries prepend the built in entries.
 
 If this option is not specified, optional entries are read from the file
@@ -1448,16 +1444,67 @@ Aborts non\-captive SMART Self Tests.  Note that this
 command will abort the Offline Immediate Test routine only if your
 disk has the "Abort Offline collection upon new command" capability.
 .PP
+.SH ATA, SCSI command sets and SAT
+In the past there has been a clear distinction between storage devices
+that used the ATA and SCSI command sets. This distinction was often
+reflected in their device naming and hardware. Now various SCSI
+transports (e.g. SAS, FC and iSCSI) can interconnect to both SCSI
+disks (e.g. FC and SAS) and ATA disks (especially SATA). USB and
+IEEE 1394 storage devices use the SCSI command set externally but
+almost always contain ATA or SATA disks (or flash). The storage
+subsystems in some operating systems have started to remove the
+distinction between ATA and SCSI in their device naming policies.
+.PP
+99% of operations that an OS performs on a disk involve the SCSI INQUIRY,
+READ CAPACITY, READ and WRITE commands, or their ATA equivalents. Since
+the SCSI commands are slightly more general than their ATA equivalents,
+many OSes are generating SCSI commands (mainly READ and WRITE) and
+letting a lower level translate them to their ATA equivalents as the
+need arises. An important note here is that "lower level" may be in
+external equipment and hence outside the control of an OS.
+.PP
+SCSI to ATA Translation (SAT) is a standard (ANSI INCITS 431-2007) that
+specifies how this translation is done. For the other 1% of operations
+that an OS performs on a disk, SAT provides two options. First is an
+optional ATA PASS-THROUGH SCSI command (there are two variants). The
+second is a translation from the closest SCSI command. Most current
+interest is in the "pass-through" option.
+.PP
+The relevance to smartmontools (and hence smartctl) is that its
+interactions with disks fall solidly into the "1%" category. So even
+if the OS can happily treat (and name) a disk as "SCSI", smartmontools
+needs to detect the native command set and act accordingly.
+As more storage manufacturers (including external SATA drives) comply
+with SAT, smartmontools is able to automatically distinguish the native
+command set of the device. In some cases the '\-d sat' option is needed
+on the command line.
+.PP
+There are also virtual disks which typically have no useful information
+to convey to smartmontools, but could conceivably in the future. An
+example of a virtual disk is the OS's view of a RAID 1 box. There are
+most likely two SATA disks inside a RAID 1 box. Addressing those SATA
+disks from a distant OS is a challenge for smartmontools. Another
+approach is running a tool like smartmontools inside the RAID 1 box (e.g.
+a Network Attached Storage (NAS) box) and fetching the logs via a
+browser. 
+.PP
 .SH EXAMPLES
 .nf
 .B smartctl \-a /dev/hda
 .fi
-Print all SMART information for drive /dev/hda (Primary Master).
+Print a large amount of SMART information for drive /dev/hda which is
+typically an ATA (IDE) or SATA disk in Linux.
+.PP
+.nf
+.B smartctl \-a /dev/sdb
+.fi
+Print a large amount of SMART information for drive /dev/sda . This may
+be a SCSI disk or an ATA (SATA) disk.
 .PP
 .nf
 .B smartctl \-s off /dev/hdd
 .fi
-Disable SMART on drive /dev/hdd (Secondary Slave).
+Disable SMART monitoring and data log collection on drive /dev/hdd .
 .PP
 .nf
 .B smartctl \-\-smart=on \-\-offlineauto=on \-\-saveauto=on /dev/hda
@@ -1692,7 +1739,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
