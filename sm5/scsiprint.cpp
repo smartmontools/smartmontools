@@ -44,7 +44,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.127 2009/06/20 17:58:33 chrfranke Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.128 2009/06/21 02:39:32 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -52,7 +52,7 @@ extern smartmonctrl *con;
 
 UINT8 gBuf[GBUF_SIZE];
 #define LOG_RESP_LEN 252
-#define LOG_RESP_LONG_LEN 16384
+#define LOG_RESP_LONG_LEN ((62 * 256) + 252)
 #define LOG_RESP_TAPE_ALERT_LEN 0x144
 
 /* Log pages supported */
@@ -66,6 +66,7 @@ static int gVerifyECounterLPage = 0;
 static int gNonMediumELPage = 0;
 static int gLastNErrorLPage = 0;
 static int gBackgroundResultsLPage = 0;
+static int gProtocolSpecificLPage = 0;
 static int gTapeAlertsLPage = 0;
 static int gSeagateCacheLPage = 0;
 static int gSeagateFactoryLPage = 0;
@@ -124,6 +125,9 @@ static void scsiGetSupportedLogPages(scsi_device * device)
                 break;
             case BACKGROUND_RESULTS_LPAGE:
                 gBackgroundResultsLPage = 1;
+                break;
+            case PROTOCOL_SPECIFIC_LPAGE:
+                gProtocolSpecificLPage = 1;
                 break;
             case TAPE_ALERTS_LPAGE:
                 gTapeAlertsLPage = 1;
@@ -948,6 +952,330 @@ static int scsiPrintBackgroundResults(scsi_device * device)
     return retval;
 }
 
+
+static void show_sas_phy_event_info(int peis, unsigned int val,
+                                    unsigned thresh_val)
+{
+    unsigned int u;
+
+    switch (peis) {
+    case 0:
+        pout("     No event\n");
+        break;
+    case 0x1:
+        pout("     Invalid word count: %u\n", val);
+        break;
+    case 0x2:
+        pout("     Running disparity error count: %u\n", val);
+        break;
+    case 0x3:
+        pout("     Loss of dword synchronization count: %u\n", val);
+        break;
+    case 0x4:
+        pout("     Phy reset problem count: %u\n", val);
+        break;
+    case 0x5:
+        pout("     Elasticity buffer overflow count: %u\n", val);
+        break;
+    case 0x6:
+        pout("     Received ERROR  count: %u\n", val);
+        break;
+    case 0x20:
+        pout("     Received address frame error count: %u\n", val);
+        break;
+    case 0x21:
+        pout("     Transmitted abandon-class OPEN_REJECT count: %u\n", val);
+        break;
+    case 0x22:
+        pout("     Received abandon-class OPEN_REJECT count: %u\n", val);
+        break;
+    case 0x23:
+        pout("     Transmitted retry-class OPEN_REJECT count: %u\n", val);
+        break;
+    case 0x24:
+        pout("     Received retry-class OPEN_REJECT count: %u\n", val);
+        break;
+    case 0x25:
+        pout("     Received AIP (WATING ON PARTIAL) count: %u\n", val);
+        break;
+    case 0x26:
+        pout("     Received AIP (WAITING ON CONNECTION) count: %u\n", val);
+        break;
+    case 0x27:
+        pout("     Transmitted BREAK count: %u\n", val);
+        break;
+    case 0x28:
+        pout("     Received BREAK count: %u\n", val);
+        break;
+    case 0x29:
+        pout("     Break timeout count: %u\n", val);
+        break;
+    case 0x2a:
+        pout("     Connection count: %u\n", val);
+        break;
+    case 0x2b:
+        pout("     Peak transmitted pathway blocked count: %u\n",
+               val & 0xff);
+        pout("         Peak value detector threshold: %u\n",
+               thresh_val & 0xff);
+        break;
+    case 0x2c:
+        u = val & 0xffff;
+        if (u < 0x8000)
+            pout("     Peak transmitted arbitration wait time (us): "
+                   "%u\n", u);
+        else
+            pout("     Peak transmitted arbitration wait time (ms): "
+                   "%u\n", 33 + (u - 0x8000));
+        u = thresh_val & 0xffff;
+        if (u < 0x8000)
+            pout("         Peak value detector threshold (us): %u\n",
+                   u);
+        else
+            pout("         Peak value detector threshold (ms): %u\n",
+                   33 + (u - 0x8000));
+        break;
+    case 0x2d:
+        pout("     Peak arbitration time (us): %u\n", val);
+        pout("         Peak value detector threshold: %u\n", thresh_val);
+        break;
+    case 0x2e:
+        pout("     Peak connection time (us): %u\n", val);
+        pout("         Peak value detector threshold: %u\n", thresh_val);
+        break;
+    case 0x40:
+        pout("     Transmitted SSP frame count: %u\n", val);
+        break;
+    case 0x41:
+        pout("     Received SSP frame count: %u\n", val);
+        break;
+    case 0x42:
+        pout("     Transmitted SSP frame error count: %u\n", val);
+        break;
+    case 0x43:
+        pout("     Received SSP frame error count: %u\n", val);
+        break;
+    case 0x44:
+        pout("     Transmitted CREDIT_BLOCKED count: %u\n", val);
+        break;
+    case 0x45:
+        pout("     Received CREDIT_BLOCKED count: %u\n", val);
+        break;
+    case 0x50:
+        pout("     Transmitted SATA frame count: %u\n", val);
+        break;
+    case 0x51:
+        pout("     Received SATA frame count: %u\n", val);
+        break;
+    case 0x52:
+        pout("     SATA flow control buffer overflow count: %u\n", val);
+        break;
+    case 0x60:
+        pout("     Transmitted SMP frame count: %u\n", val);
+        break;
+    case 0x61:
+        pout("     Received SMP frame count: %u\n", val);
+        break;
+    case 0x63:
+        pout("     Received SMP frame error count: %u\n", val);
+        break;
+    default:
+        break;
+    }
+}
+
+static void show_sas_port_param(unsigned char * ucp, int param_len)
+{
+    int j, m, n, nphys, pcb, t, sz, spld_len;
+    unsigned char * vcp;
+    uint64_t ull;
+    unsigned int ui;
+    char s[64];
+
+    sz = sizeof(s);
+    pcb = ucp[2];
+    t = (ucp[0] << 8) | ucp[1];
+    pout("relative target port id = %d\n", t);
+    pout("  generation code = %d\n", ucp[6]);
+    nphys = ucp[7];
+    pout("  number of phys = %d\n", nphys);
+
+    for (j = 0, vcp = ucp + 8; j < (param_len - 8);
+         vcp += spld_len, j += spld_len) {
+        pout("  phy identifier = %d\n", vcp[1]);
+        spld_len = vcp[3];
+        if (spld_len < 44)
+            spld_len = 48;      /* in SAS-1 and SAS-1.1 vcp[3]==0 */
+        else
+            spld_len += 4;
+        t = ((0x70 & vcp[4]) >> 4);
+        switch (t) {
+        case 0: snprintf(s, sz, "no device attached"); break;
+        case 1: snprintf(s, sz, "end device"); break;
+        case 2: snprintf(s, sz, "expander device"); break;
+        case 3: snprintf(s, sz, "expander device (fanout)"); break;
+        default: snprintf(s, sz, "reserved [%d]", t); break;
+        }
+        pout("    attached device type: %s\n", s);
+        t = 0xf & vcp[4];
+        switch (t) {
+        case 0: snprintf(s, sz, "unknown"); break;
+        case 1: snprintf(s, sz, "power on"); break;
+        case 2: snprintf(s, sz, "hard reset"); break;
+        case 3: snprintf(s, sz, "SMP phy control function"); break;
+        case 4: snprintf(s, sz, "loss of dword synchronization"); break;
+        case 5: snprintf(s, sz, "mux mix up"); break;
+        case 6: snprintf(s, sz, "I_T nexus loss timeout for STP/SATA");
+            break;
+        case 7: snprintf(s, sz, "break timeout timer expired"); break;
+        case 8: snprintf(s, sz, "phy test function stopped"); break;
+        case 9: snprintf(s, sz, "expander device reduced functionality");
+             break;
+        default: snprintf(s, sz, "reserved [0x%x]", t); break;
+        }
+        pout("    attached reason: %s\n", s);
+        t = (vcp[5] & 0xf0) >> 4;
+        switch (t) {
+        case 0: snprintf(s, sz, "unknown"); break;
+        case 1: snprintf(s, sz, "power on"); break;
+        case 2: snprintf(s, sz, "hard reset"); break;
+        case 3: snprintf(s, sz, "SMP phy control function"); break;
+        case 4: snprintf(s, sz, "loss of dword synchronization"); break;
+        case 5: snprintf(s, sz, "mux mix up"); break;
+        case 6: snprintf(s, sz, "I_T nexus loss timeout for STP/SATA");
+            break;
+        case 7: snprintf(s, sz, "break timeout timer expired"); break;
+        case 8: snprintf(s, sz, "phy test function stopped"); break;
+        case 9: snprintf(s, sz, "expander device reduced functionality");
+             break;
+        default: snprintf(s, sz, "reserved [0x%x]", t); break;
+        }
+        pout("    reason: %s\n", s);
+        t = (0xf & vcp[5]);
+        switch (t) {
+        case 0: snprintf(s, sz, "phy enabled; unknown");
+                     break;
+        case 1: snprintf(s, sz, "phy disabled"); break;
+        case 2: snprintf(s, sz, "phy enabled; speed negotiation failed");
+                     break;
+        case 3: snprintf(s, sz, "phy enabled; SATA spinup hold state");
+                     break;
+        case 4: snprintf(s, sz, "phy enabled; port selector");
+                     break;
+        case 5: snprintf(s, sz, "phy enabled; reset in progress");
+                     break;
+        case 6: snprintf(s, sz, "phy enabled; unsupported phy attached");
+                     break;
+        case 8: snprintf(s, sz, "phy enabled; 1.5 Gbps"); break;
+        case 9: snprintf(s, sz, "phy enabled; 3 Gbps"); break;
+        case 0xa: snprintf(s, sz, "phy enabled; 6 Gbps"); break;
+        default: snprintf(s, sz, "reserved [%d]", t); break;
+        }
+        pout("    negotiated logical link rate: %s\n", s);
+        pout("    attached initiator port: ssp=%d stp=%d smp=%d\n",
+               !! (vcp[6] & 8), !! (vcp[6] & 4), !! (vcp[6] & 2));
+        pout("    attached target port: ssp=%d stp=%d smp=%d\n",
+               !! (vcp[7] & 8), !! (vcp[7] & 4), !! (vcp[7] & 2));
+        for (n = 0, ull = vcp[8]; n < 8; ++n) {
+            ull <<= 8; ull |= vcp[8 + n];
+        }
+        pout("    SAS address = 0x%" PRIx64 "\n", ull);
+        for (n = 0, ull = vcp[16]; n < 8; ++n) {
+            ull <<= 8; ull |= vcp[16 + n];
+        }
+        pout("    attached SAS address = 0x%" PRIx64 "\n", ull);
+        pout("    attached phy identifier = %d\n", vcp[24]);
+        ui = (vcp[32] << 24) | (vcp[33] << 16) | (vcp[34] << 8) | vcp[35];
+        pout("    Invalid DWORD count = %u\n", ui);
+        ui = (vcp[36] << 24) | (vcp[37] << 16) | (vcp[38] << 8) | vcp[39];
+        pout("    Running disparity error count = %u\n", ui);
+        ui = (vcp[40] << 24) | (vcp[41] << 16) | (vcp[42] << 8) | vcp[43];
+        pout("    Loss of DWORD synchronization = %u\n", ui);
+        ui = (vcp[44] << 24) | (vcp[45] << 16) | (vcp[46] << 8) | vcp[47];
+        pout("    Phy reset problem = %u\n", ui);
+        if (spld_len > 51) {
+            int num_ped, peis;
+            unsigned char * xcp;
+            unsigned int pvdt;
+
+            num_ped = vcp[51];
+            if (num_ped > 0)
+               pout("    Phy event descriptors:\n");
+            xcp = vcp + 52;
+            for (m = 0; m < (num_ped * 12); m += 12, xcp += 12) {
+                peis = xcp[3];
+                ui = (xcp[4] << 24) | (xcp[5] << 16) | (xcp[6] << 8) |
+                     xcp[7];
+                pvdt = (xcp[8] << 24) | (xcp[9] << 16) | (xcp[10] << 8) |
+                       xcp[11];
+                show_sas_phy_event_info(peis, ui, pvdt);
+            }
+        }
+    }
+}
+
+// Returns 1 if okay, 0 if non SAS descriptors
+static int show_protocol_specific_page(unsigned char * resp, int len)
+{
+    int k, num, param_len;
+    unsigned char * ucp;
+
+    num = len - 4;
+    for (k = 0, ucp = resp + 4; k < num; ) {
+        param_len = ucp[3] + 4;
+        if (6 != (0xf & ucp[4]))
+            return 0;   /* only decode SAS log page */
+        if (0 == k)
+            pout("Protocol Specific port log page for SAS SSP\n");
+        show_sas_port_param(ucp, param_len);
+        k += param_len;
+        ucp += param_len;
+    }
+    return 1;
+}
+
+
+// See Serial Attached SCSI (SAS-2) (e.g. revision 16) the Protocol Specific
+// log pageSerial Attached SCSI (SAS-2) (e.g. revision 16) the Protocol
+// Specific log page.
+// Returns 0 if ok else FAIL* bitmask. Note that if any of the most recent
+// 20 self tests fail (result code 3 to 7 inclusive) then FAILLOG and/or
+// FAILSMART is returned.
+static int scsiPrintSasPhy(scsi_device * device, int reset)
+{
+    int num, err;
+
+    if (reset) {
+        PRINT_ON(con);
+        pout("sasphy_reset not supported yet (need LOG SELECT)\n");
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
+                            LOG_RESP_LONG_LEN, 0))) {
+        PRINT_ON(con);
+        pout("scsiPrintSasPhy Failed [%s]\n", scsiErrString(err));
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    if ((gBuf[0] & 0x3f) != PROTOCOL_SPECIFIC_LPAGE) {
+        PRINT_ON(con);
+        pout("Protocol specific Log Sense Failed, page mismatch\n");
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    // compute page length
+    num = (gBuf[2] << 8) + gBuf[3];
+    if (1 != show_protocol_specific_page(gBuf, num + 4)) {
+        PRINT_ON(con);
+        pout("Only support protocol specific log page on SAS devices\n");
+        PRINT_OFF(con);
+        return FAILSMART;
+    }
+    return 0;
+}
+
+
 static const char * peripheral_dt_arr[] = {
         "disk",
         "tape",
@@ -1390,6 +1718,10 @@ int scsiPrintMain(scsi_device * device, const scsi_print_options & options)
         if (scsiSmartSelfTestAbort(device))
             return returnval | FAILSMART;
         pout("Self Test returned without error\n");
+    }           
+    if (options.sasphy) {
+        if (scsiPrintSasPhy(device, options.sasphy_reset))
+            return returnval | FAILSMART;
     }           
     return returnval;
 }

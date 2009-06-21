@@ -29,7 +29,7 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.23 2009/06/20 17:58:33 chrfranke Exp $\n"
+#define SCSIPRINT_H_CVSID "$Id: scsiprint.h,v 1.24 2009/06/21 02:39:32 dpgilbert Exp $\n"
 
 // Options for scsiPrintMain
 // TODO: Move remaining options from con->* to here.
@@ -50,6 +50,8 @@ struct scsi_print_options
   bool smart_extend_selftest, smart_extend_cap_selftest;
   bool smart_selftest_abort;
 
+  bool sasphy, sasphy_reset;
+
   scsi_print_options()
     : drive_info(false),
       smart_check_status(false),
@@ -62,7 +64,8 @@ struct scsi_print_options
       smart_default_selftest(false),
       smart_short_selftest(false), smart_short_cap_selftest(false),
       smart_extend_selftest(false), smart_extend_cap_selftest(false),
-      smart_selftest_abort(false)
+      smart_selftest_abort(false),
+      sasphy(false), sasphy_reset(false)
     { }
 };
 

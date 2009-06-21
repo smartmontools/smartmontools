@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.67 2008/07/25 21:16:00 chrfranke Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.68 2009/06/21 02:39:32 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -171,6 +171,7 @@ struct scsiNonMediumError {
 #define APPLICATION_CLIENT_LPAGE                0x0f
 #define SELFTEST_RESULTS_LPAGE                  0x10
 #define BACKGROUND_RESULTS_LPAGE                0x15   /* SBC-3 */
+#define PROTOCOL_SPECIFIC_LPAGE                 0x18
 #define IE_LPAGE                                0x2f
 
 /* Seagate vendor specific log pages. */
