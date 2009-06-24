@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $
+ $Id: smartctl.8.in,v 1.130 2009/06/24 04:10:10 dpgilbert Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -955,7 +955,7 @@ are reset after reading the values.
 \- [SAS (SCSI) only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
 and descriptions of the SAS (SSP) Protocol Specific log page (log page
 0x18). If \'\-l sasphy,reset\' is specified, all counters
-are reset after reading the values (not yet implemented).
+are reset after reading the values.
 
 .I gplog,ADDR[,FIRST[\-LAST|+SIZE]]
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints a hex dump
@@ -1739,7 +1739,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $
+$Id: smartctl.8.in,v 1.130 2009/06/24 04:10:10 dpgilbert Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:

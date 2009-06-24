@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.68 2009/06/21 02:39:32 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.69 2009/06/24 04:10:10 dpgilbert Exp $\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,10 +41,13 @@
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
-/* Following conditional defines bypass inclusion of scsi/scsi.h and
- * scsi/scsi_ioctl.h . Issue will be resolved later ... */
+/* Following conditional defines just in case OS already has them defined.
+ * If they are defined we hope they are defined correctly (for SCSI). */
 #ifndef TEST_UNIT_READY
 #define TEST_UNIT_READY 0x0
+#endif
+#ifndef LOG_SELECT
+#define LOG_SELECT 0x4c
 #endif
 #ifndef LOG_SENSE
 #define LOG_SENSE 0x4d
@@ -295,7 +298,10 @@ int scsiStdInquiry(scsi_device * device, UINT8 *pBuf, int bufLen);
 int scsiInquiryVpd(scsi_device * device, int vpd_page, UINT8 *pBuf, int bufLen);
 
 int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
-		 int bufLen, int known_resp_len);
+                 int bufLen, int known_resp_len);
+
+int scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
+                  int subpagenum, UINT8 *pBuf, int bufLen);
 
 int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
                   UINT8 *pBuf, int bufLen);
@@ -303,7 +309,7 @@ int scsiModeSense(scsi_device * device, int pagenum, int subpagenum, int pc,
 int scsiModeSelect(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
 
 int scsiModeSense10(scsi_device * device, int pagenum, int subpagenum, int pc,
-		    UINT8 *pBuf, int bufLen);
+                    UINT8 *pBuf, int bufLen);
 
 int scsiModeSelect10(scsi_device * device, int sp, UINT8 *pBuf, int bufLen);
 

@@ -49,7 +49,7 @@
 #include "dev_interface.h"
 #include "utility.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.97 2008/07/25 21:16:00 chrfranke Exp $"
+const char *scsicmds_c_cvsid="$Id: scsicmds.cpp,v 1.98 2009/06/24 04:10:10 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -123,6 +123,7 @@ static struct scsi_opcode_name opcode_name_arr[] = {
     {RECEIVE_DIAGNOSTIC, "receive diagnostic"}, /* 0x1c */
     {SEND_DIAGNOSTIC, "send diagnostic"},       /* 0x1d */
     {READ_DEFECT_10, "read defect list(10)"},   /* 0x37 */
+    {LOG_SELECT, "log select"},                 /* 0x4c */
     {LOG_SENSE, "log sense"},                   /* 0x4d */
     {MODE_SELECT_10, "mode select(10)"},        /* 0x55 */
     {MODE_SENSE_10, "mode sense(10)"},          /* 0x5a */
@@ -336,6 +337,42 @@ int scsiLogSense(scsi_device * device, int pagenum, int subpagenum, UINT8 *pBuf,
     if (0 == ((pBuf[2] << 8) + pBuf[3]))
         return SIMPLE_ERR_BAD_RESP;
     return 0;
+}
+
+/* Sends a LOG SELECT command. Can be used to set log page values
+ * or reset one log page (or all of them) to its defaults (typically zero).
+ * Returns 0 if ok, 1 if NOT READY, 2 if command not supported, * 3 if
+ * field in command not supported, * 4 if bad parameter to command or
+ * returns negated errno. SPC-4 sections 6.5 and 7.2 (rev 20) */
+int scsiLogSelect(scsi_device * device, int pcr, int sp, int pc, int pagenum,
+                  int subpagenum, UINT8 *pBuf, int bufLen)
+{
+    struct scsi_cmnd_io io_hdr;
+    struct scsi_sense_disect sinfo;
+    UINT8 cdb[10];
+    UINT8 sense[32];
+
+    memset(&io_hdr, 0, sizeof(io_hdr));
+    memset(cdb, 0, sizeof(cdb));
+    io_hdr.dxfer_dir = DXFER_TO_DEVICE;
+    io_hdr.dxfer_len = bufLen;
+    io_hdr.dxferp = pBuf;
+    cdb[0] = LOG_SELECT;
+    cdb[1] = (pcr ? 2 : 0) | (sp ? 1 : 0);
+    cdb[2] = ((pc << 6) & 0xc0) | (pagenum & 0x3f);
+    cdb[3] = (subpagenum & 0xff);
+    cdb[7] = ((bufLen >> 8) & 0xff);
+    cdb[8] = (bufLen & 0xff);
+    io_hdr.cmnd = cdb;
+    io_hdr.cmnd_len = sizeof(cdb);
+    io_hdr.sensep = sense;
+    io_hdr.max_sense_len = sizeof(sense);
+    io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
+
+    if (!device->scsi_pass_through(&io_hdr))
+      return -device->get_errno();
+    scsi_do_sense_disect(&io_hdr, &sinfo);
+    return scsiSimpleSenseFilter(&sinfo);
 }
 
 /* Send MODE SENSE (6 byte) command. Returns 0 if ok, 1 if NOT READY,
