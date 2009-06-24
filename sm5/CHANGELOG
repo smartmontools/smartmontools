@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.810 2009/06/21 20:08:22 dpgilbert Exp $
+$Id: CHANGELOG,v 1.811 2009/06/24 04:10:10 dpgilbert Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DG] SCSI (SAS): implement '-l sasphy,reset' (reset part was stub
+       prior to this)
 
   [DG] add 'ATA, SCSI command sets and SAT' section to smartctl.8 .
        [SCSI] add 'number of background medium scans' field

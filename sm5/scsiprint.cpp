@@ -44,7 +44,7 @@
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.129 2009/06/21 20:08:22 dpgilbert Exp $"
+const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.130 2009/06/24 04:10:10 dpgilbert Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // control block which points to external global control variables
@@ -913,7 +913,7 @@ static int scsiPrintBackgroundResults(scsi_device * device)
                  (ucp[10] << 8) + ucp[11]);
             pout("scan progress: %.2f%%\n",
                  (double)((ucp[12] << 8) + ucp[13]) * 100.0 / 65536.0);
-            pout("    Number of background medium scans performed: %d,  ",
+            pout("    Number of background medium scans performed: %d\n",
                  (ucp[14] << 8) + ucp[15]);
             break;
         default:
@@ -1250,7 +1250,7 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
     if ((err = scsiLogSense(device, PROTOCOL_SPECIFIC_LPAGE, 0, gBuf,
                             LOG_RESP_LONG_LEN, 0))) {
         PRINT_ON(con);
-        pout("scsiPrintSasPhy Failed [%s]\n", scsiErrString(err));
+        pout("scsiPrintSasPhy Log Sense Failed [%s]\n", scsiErrString(err));
         PRINT_OFF(con);
         return FAILSMART;
     }
@@ -1269,10 +1269,14 @@ static int scsiPrintSasPhy(scsi_device * device, int reset)
         return FAILSMART;
     }
     if (reset) {
-        PRINT_ON(con);
-        pout("sasphy_reset not supported yet (need LOG SELECT)\n");
-        PRINT_OFF(con);
-        return FAILSMART;
+        if ((err = scsiLogSelect(device, 1 /* pcr */, 0 /* sp */, 0 /* pc */,
+                                 PROTOCOL_SPECIFIC_LPAGE, 0, NULL, 0))) {
+            PRINT_ON(con);
+            pout("scsiPrintSasPhy Log Select (reset) Failed [%s]\n",
+                 scsiErrString(err));
+            PRINT_OFF(con);
+            return FAILSMART;
+        }
     }
     return 0;
 }
