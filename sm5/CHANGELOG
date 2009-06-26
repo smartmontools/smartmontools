@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.811 2009/06/24 04:10:10 dpgilbert Exp $
+$Id: CHANGELOG,v 1.812 2009/06/26 18:57:59 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -61,7 +61,6 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        'con->...' smartctl variables to 'options' parameters of
        printing routines.
 
-       variables used for drive presets by local variables.
   [CF] Windows: Remove outdated entry about undocumented system calls
        from WARNINGS file.
 
