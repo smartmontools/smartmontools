@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.446 2009/06/20 19:11:04 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.447 2009/06/26 20:37:35 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1846,6 +1846,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
   }
 
+  // Start self-test regex check now if time was not read from state file
+  if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
+    state.scheduled_test_next_check = time(0);
+
   return 0;
 }
 
@@ -2166,9 +2170,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, bool 
   
   // Is it time for next check?
   time_t now = (!usetime ? time(0) : usetime);
-  if (!state.scheduled_test_next_check)
-    state.scheduled_test_next_check = now;
-  else if (now < state.scheduled_test_next_check)
+  if (now < state.scheduled_test_next_check)
     return 0;
 
   // Limit time check interval to 90 days
@@ -2565,9 +2567,7 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
 
 static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev, bool allow_selftests)
 {
-  int i;
   const char * name = cfg.name.c_str();
-  char testtype=0;
 
   // If user has asked, test the email warning system
   if (cfg.emailtest)
@@ -2583,13 +2583,6 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     return 1;
   } else if (debugmode)
     PrintOut(LOG_INFO,"Device: %s, opened ATA device\n", name);
-
-  // if the user has asked, and device is capable (or we're not yet
-  // sure) check whether a self test should be done now.
-  // This check is done before powermode check to avoid missing self
-  // tests on idle or sleeping disks.
-  if (allow_selftests && !cfg.test_regex.empty())
-    testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
 
   // user may have requested (with the -n Directive) to leave the disk
   // alone if it is in idle or sleeping mode.  In this case check the
@@ -2640,21 +2633,16 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
     // if we are going to skip a check, return now
     if (dontcheck){
-      // but ignore powermode on scheduled selftest
-      if (!testtype) {
-        // skip at most powerskipmax checks
-        if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
-          CloseDevice(atadev, name);
-          if (!state.powerskipcnt && !cfg.powerquiet) // report first only and avoid waking up system disk
-            PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
-          state.powerskipcnt++;
-          return 0;
-        } else {
-          PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to reached limit of skipped checks (%d check%s skipped)\n",
-            name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
-        }
-      } else {
-        PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to scheduled self test (%d check%s skipped)\n",
+      // skip at most powerskipmax checks
+      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+        CloseDevice(atadev, name);
+        if (!state.powerskipcnt && !cfg.powerquiet) // report first only and avoid waking up system disk
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
+        state.powerskipcnt++;
+        return 0;
+      }
+      else {
+        PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to reached limit of skipped checks (%d check%s skipped)\n",
           name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
       }
       state.powerskipcnt = 0;
@@ -2715,7 +2703,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.usagefailed || cfg.prefail || cfg.usage) {
 
 	// look for failed usage attributes, or track usage or prefail attributes
-	for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
+        for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
 	  int att;
 	  changedattribute_t delta;
 	  
@@ -2831,11 +2819,15 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     if (newc>=0)
       state.ataerrorcount=newc;
   }
-  
-  // carry out scheduled self-test
-  if (testtype)
-    DoATASelfTest(cfg, state, atadev, testtype);
-  
+
+  // if the user has asked, and device is capable (or we're not yet
+  // sure) check whether a self test should be done now.
+  if (allow_selftests && !cfg.test_regex.empty()) {
+    char testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
+    if (testtype)
+      DoATASelfTest(cfg, state, atadev, testtype);
+  }
+
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
   CloseDevice(atadev, name);
