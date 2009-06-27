@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.447 2009/06/26 20:37:35 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.448 2009/06/27 16:58:29 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -1989,6 +1989,11 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
 
   // close file descriptor
   CloseDevice(scsidev, device);
+
+  // Start self-test regex check now if time was not read from state file
+  if (!cfg.test_regex.empty() && !state.scheduled_test_next_check)
+    state.scheduled_test_next_check = time(0);
+
   return 0;
 }
 
