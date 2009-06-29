@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.813 2009/06/26 20:37:35 chrfranke Exp $
+$Id: CHANGELOG,v 1.814 2009/06/29 19:56:19 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Disable 48-bit ATA commands for JMicron USB bridges by default
+       because these commands do not work with all devices.
+       Add '-d usbjmicron,x' to enable 48-bit commands.
+       Thanks to Alexander Shaduri for the problem report.
 
   [CF] smartd: Don't ignore the '-n' directive when a self-test is
        scheduled. Start the self-test later when the disk is active

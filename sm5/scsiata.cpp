@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.37 2009/06/12 12:10:07 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.38 2009/06/29 19:56:19 chrfranke Exp $"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -829,7 +829,7 @@ class usbjmicron_device
 {
 public:
   usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, int port);
+                    const char * req_type, bool ata_48bit_support, int port);
 
   virtual ~usbjmicron_device() throw();
 
@@ -840,15 +840,16 @@ public:
 private:
   bool get_registers(unsigned short addr, unsigned char * buf, unsigned short size);
 
+  bool m_ata_48bit_support;
   int m_port;
 };
 
 
 usbjmicron_device::usbjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, int port)
+                                     const char * req_type, bool ata_48bit_support, int port)
 : smart_device(intf, scsidev->get_dev_name(), "usbjmicron", req_type),
   tunnelled_device<ata_device, scsi_device>(scsidev),
-  m_port(port)
+  m_ata_48bit_support(ata_48bit_support), m_port(port)
 {
   set_info().info_name = strprintf("%s [USB JMicron]", scsidev->get_info_name());
 }
@@ -891,7 +892,7 @@ bool usbjmicron_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   if (!ata_cmd_is_ok(in,
     true,  // data_out_support
     false, // !multi_sector_support
-    true)  // ata_48bit_support (limited, see below)
+    m_ata_48bit_support) // limited, see below
   )
     return false;
 
@@ -1217,14 +1218,19 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
   }
 
   else if (!strncmp(type, "usbjmicron", 10)) {
-    int port = -1, n1 = -1, n2 = -1;
-    if (!(  (sscanf(type, "usbjmicron%n,%d%n", &n1, &port, &n2) == 1
-             && n2 == (int)strlen(type) && 0 <= port && port <= 1)
-          || n1 == (int)strlen(type))) {
-      set_err(EINVAL, "Option '-d usbmicron,<n>' requires <n> to be 0 or 1");
+    const char * t = type + 10;
+    bool ata_48bit_support = false;
+    if (!strncmp(t, ",x", 2)) {
+      t += 2;
+      ata_48bit_support = true;
+    }
+    int port = -1, n = -1;
+    if (*t && !(  (sscanf(t, ",%d%n", &port, &n) == 1
+                && n == (int)strlen(t) && 0 <= port && port <= 1))) {
+      set_err(EINVAL, "Option '-d usbmicron[,x],<n>' requires <n> to be 0 or 1");
       return 0;
     }
-    return new usbjmicron_device(this, scsidev, type, port);
+    return new usbjmicron_device(this, scsidev, type, ata_48bit_support, port);
   }
 
   else if (!strcmp(type, "usbsunplus")) {
@@ -1296,6 +1302,7 @@ struct usb_id_entry {
 const char d_sat[]     = "sat";
 const char d_cypress[] = "usbcypress";
 const char d_jmicron[] = "usbjmicron";
+const char d_jmicron_x[] = "usbjmicron,x";
 const char d_sunplus[] = "usbsunplus";
 const char d_unsup[]   = "unsupported";
 
@@ -1304,7 +1311,7 @@ const usb_id_entry usb_ids[] = {
   { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
   { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
-  { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF...
+  { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
@@ -1323,9 +1330,9 @@ const usb_id_entry usb_ids[] = {
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
   { 0x152d, 0x2329, 0x0100, d_jmicron }, // JMicron JM20329 (USB->SATA)
-  { 0x152d, 0x2336, 0x0100, d_jmicron }, // JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
+  { 0x152d, 0x2336, 0x0100, d_jmicron_x},// JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
   { 0x152d, 0x2338, 0x0100, d_jmicron }, // JMicron JM20337/8 (USB->SATA+PATA, USB+SATA->PATA)
-  { 0x152d, 0x2339, 0x0100, d_jmicron }  // JMicron JM20339 (USB->SATA)
+  { 0x152d, 0x2339, 0x0100, d_jmicron_x} // JMicron JM20339 (USB->SATA)
 };
 
 const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
