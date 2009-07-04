@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.206 2009/04/28 21:11:15 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.207 2009/07/04 23:24:37 manfred99 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -73,8 +73,12 @@ static const drive_settings builtin_knowndrives[] = {
     "OCZ-VERTEX 1199",
     "", "", ""
   },
-  { "Transcend Solid-State Disk 32GB MLC",
-    "TS32GSSD25-M",
+  { "Transcend Solid-State Drive",
+    "TS(8|16|32|64|128)GSSD25-(M|S)",
+    "", "", ""
+  },
+  { "Transcend Solid-State Drive V series",
+    "TS(8|16|32|64|128|192)GSSD25S-(M|S)",
     "", "", ""
   },
   { "HP 1TB SATA disk GB1000EAFJL",
@@ -881,6 +885,10 @@ static const drive_settings builtin_knowndrives[] = {
     "ST9(120817|(160|200|250)827)AS",
     "", "", ""
   },
+  { "Seagate Momentus 5400.5 series",
+    "ST9((80|120|160)310|(250|320)320)AS",
+    "", "", ""
+  },
   { "Seagate Momentus 5400.6 series",
     "ST9((12|25)0315AS|500325)ASG?",
     "", "", ""
@@ -1177,6 +1185,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital AV ATA family",
     "WDC WD(8|16|50)00AV(B|J)B-.*",
+    "", "", ""
+  },
+  { "Western Digital AV-GP family",
+    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|WD(10|15|20)EVDS)-.*",
     "", "", ""
   },
   { "Western Digital Raptor family",

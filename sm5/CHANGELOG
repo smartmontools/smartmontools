@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.814 2009/06/29 19:56:19 chrfranke Exp $
+$Id: CHANGELOG,v 1.815 2009/07/04 23:24:37 manfred99 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Western Digital AV-GP series
+       - Transcend Solid-State Drive and Transcend Solid-State Drive V series
+       - Seagate Momentus 5400.5 series
 
   [CF] Disable 48-bit ATA commands for JMicron USB bridges by default
        because these commands do not work with all devices.
