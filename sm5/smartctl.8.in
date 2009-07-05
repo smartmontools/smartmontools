@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.132 2009/07/05 17:16:38 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.133 2009/07/05 17:52:46 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -181,8 +181,20 @@ and for SCSI, this is equivalent to
 .nf
 \'\-H \-i \-A \-l error \-l selftest\'.
 .fi
-Note that for ATA disks this does \fBnot\fP enable the \'\-l
-directory\' option.
+Note that for ATA disks this does \fBnot\fP enable the non-SMART options
+and the SMART options which require support for 48-bit ATA commands.
+.TP
+.B \-x, \-\-xall
+Prints all SMART and non-SMART information about the device. For ATA
+devices this is equivalent to
+.nf
+\'\-H \-i \-c \-A \-l xerror,error \-l xselftest,selftest \-l selective
+\-l directory \-l scttemp \-l sataphy\'.
+.fi
+and for SCSI, this is equivalent to
+.nf
+\'\-H \-i \-A \-l error \-l selftest \-l background \-l sasphy\'.
+.fi
 
 .TP
 .B RUN\-TIME BEHAVIOR OPTIONS:
@@ -1753,7 +1765,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.132 2009/07/05 17:16:38 chrfranke Exp $
+$Id: smartctl.8.in,v 1.133 2009/07/05 17:52:46 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
