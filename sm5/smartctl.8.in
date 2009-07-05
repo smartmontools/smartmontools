@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.131 2009/06/29 19:56:19 chrfranke Exp $
+ $Id: smartctl.8.in,v 1.132 2009/07/05 17:16:38 chrfranke Exp $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -833,7 +833,7 @@ receives a command which is not implemented or is not valid.
 \- [SCSI] prints the error counter log pages for reads, write and verifies.
 The verify row is only output if it has an element other than zero.
 
-.I xerror[,NUM]
+.I xerror[,NUM][,error]
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended
 Comprehensive SMART error log (General Purpose Log address 0x03).
 Unlike the Summary SMART error log (see \'\-l error\' above),
@@ -845,6 +845,13 @@ are 2 (Samsung), 5 (Seagate) or 6 (WD).
 
 If the optional parameter NUM is specified, only the NUM most
 recent log entries are printed.  Otherwise, all entries are printed.
+
+If ',error' is appended and the Extended Comprehensive SMART error
+log is not supported, the Summary SMART self-test log is printed.
+
+Please note that some recent (e.g. Samsung) drives report errors only
+in the Comprehensive SMART error log. The Summary SMART error log can
+be read but is always empty.
 
 .I selftest
 \- [ATA] prints the SMART self\-test log.  The disk maintains a self\-test
@@ -882,7 +889,7 @@ Additional Sense Code Qualifier (ASQ) are also printed. The self tests
 can be run using the \'\-t\' option described below (using the ATA
 test terminology).
 
-.I xselftest[,NUM]
+.I xselftest[,NUM][,selftest]
 \- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints the Extended
 SMART self\-test log (General Purpose Log address 0x07). Unlike the SMART
 self\-test log (see \'\-l selftest\' above), it supports 48-bit LBA
@@ -892,6 +899,9 @@ values are 1 (Seagate) or 2 (Samsung).
 
 If the optional parameter NUM is specified, only the NUM most
 recent log entries are printed.  Otherwise, all entries are printed.
+
+If ',selftest' is appended and the Extended SMART self-test log is not
+supported, the old SMART self-test log is printed.
 
 .I selective
 \- [ATA only] Please see the \'\-t select\' option below for a
@@ -1743,7 +1753,7 @@ these documents may be found in the References section of the
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.131 2009/06/29 19:56:19 chrfranke Exp $
+$Id: smartctl.8.in,v 1.132 2009/07/05 17:16:38 chrfranke Exp $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
