@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.816 2009/07/05 17:16:38 chrfranke Exp $
+$Id: CHANGELOG,v 1.817 2009/07/05 17:52:46 chrfranke Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Add option '-x, --xall' to print all info including
+       extended SMART logs and non-SMART info.
 
   [CF] smartctl: Add '-l xerror,error' and '-l xselftest,selftest' to print
        the old logs if the extended logs are not supported.
