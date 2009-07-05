@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.41 2009/06/20 17:58:33 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.42 2009/07/05 17:16:38 chrfranke Exp $\n"
 
 #include <vector>
 
@@ -58,6 +58,7 @@ struct ata_print_options
   bool gp_logdir, smart_logdir;
   unsigned smart_ext_error_log;
   unsigned smart_ext_selftest_log;
+  bool retry_error_log, retry_selftest_log;
 
   std::vector<ata_log_request> log_requests;
 
@@ -99,6 +100,7 @@ struct ata_print_options
       gp_logdir(false), smart_logdir(false),
       smart_ext_error_log(0),
       smart_ext_selftest_log(0),
+      retry_error_log(false), retry_selftest_log(false),
       sct_temp_sts(false), sct_temp_hist(false),
       sataphy(false), sataphy_reset(false),
       smart_disable(false), smart_enable(false),

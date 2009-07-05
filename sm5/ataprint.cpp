@@ -44,7 +44,7 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.212 2009/06/20 17:58:33 chrfranke Exp $"
+const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.213 2009/07/05 17:16:38 chrfranke Exp $"
 ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -2151,10 +2151,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print SMART Extendend Comprehensive Error Log
+  bool do_smart_error_log = options.smart_error_log;
   if (options.smart_ext_error_log) {
+    bool ok = false;
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x03, true);
     if (!nsectors)
-      pout("SMART Extended Comprehensive Error Log (GP Log 0x03) does not exist\n");
+      pout("SMART Extended Comprehensive Error Log (GP Log 0x03) not supported\n");
     else if (nsectors >= 256)
       pout("SMART Extended Comprehensive Error Log size %u not supported\n", nsectors);
     else {
@@ -2162,13 +2164,22 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       ata_smart_exterrlog * log_03 = (ata_smart_exterrlog *)log_03_buf.data();
       if (!ataReadExtErrorLog(device, log_03, nsectors))
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      else
+      else {
         PrintSmartExtErrorLog(log_03, nsectors, options.smart_ext_error_log);
+        ok = true;
+      }
+    }
+
+    if (!ok) {
+      if (options.retry_error_log)
+        do_smart_error_log = true;
+      else if (!do_smart_error_log)
+        pout("Try '-l [xerror,]error' to read traditional SMART Error Log\n");
     }
   }
 
   // Print SMART error log
-  if (options.smart_error_log) {
+  if (do_smart_error_log) {
     if (!isSmartErrorLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2186,10 +2197,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Print SMART Extendend Self-test Log
+  bool do_smart_selftest_log = options.smart_selftest_log;
   if (options.smart_ext_selftest_log) {
+    bool ok = false;
     unsigned nsectors = GetNumLogSectors(gplogdir, 0x07, true);
     if (!nsectors)
-      pout("SMART Extended Self-test Log (GP Log 0x07) does not exist\n");
+      pout("SMART Extended Self-test Log (GP Log 0x07) not supported\n");
     else if (nsectors >= 256)
       pout("SMART Extended Self-test Log size %u not supported\n", nsectors);
     else {
@@ -2197,13 +2210,22 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       ata_smart_extselftestlog * log_07 = (ata_smart_extselftestlog *)log_07_buf.data();
       if (!ataReadExtSelfTestLog(device, log_07, nsectors))
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-      else
+      else {
         PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log);
+        ok = true;
+      }
+    }
+
+    if (!ok) {
+      if (options.retry_selftest_log)
+        do_smart_selftest_log = true;
+      else if (!do_smart_selftest_log)
+        pout("Try '-l [xselftest,]selftest' to read traditional SMART Self Test Log\n");
     }
   }
 
   // Print SMART self-test log
-  if (options.smart_selftest_log) {
+  if (do_smart_selftest_log) {
     if (!isSmartTestLogCapable(&smartval, &drive)){
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
