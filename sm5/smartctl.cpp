@@ -63,7 +63,7 @@ extern const char *os_solaris_ata_s_cvsid;
 extern const char *cciss_c_cvsid;
 #endif
 extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.202 2009/07/05 17:52:46 chrfranke Exp $"
+const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.203 2009/07/05 18:01:58 chrfranke Exp $"
 ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -567,10 +567,9 @@ const char * parse_options(int argc, char** argv,
       ataopts.smart_check_status   = scsiopts.smart_check_status  = true;
       ataopts.smart_general_values = true;
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = true;
-      ataopts.smart_ext_error_log  = scsiopts.smart_error_log     = true;
-      ataopts.retry_error_log = true;
-      ataopts.smart_ext_selftest_log = scsiopts.smart_selftest_log  = true;
-      ataopts.retry_selftest_log = true;
+      ataopts.smart_ext_error_log  = ataopts.smart_ext_selftest_log = ~0U;
+      ataopts.retry_error_log      = ataopts.retry_selftest_log = true;
+      scsiopts.smart_error_log     = scsiopts.smart_selftest_log    = true;
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
