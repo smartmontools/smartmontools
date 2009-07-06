@@ -40,7 +40,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.217 2009/04/16 21:24:08 chrfranke Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.218 2009/07/06 02:46:47 geoffk1 Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1976,6 +1976,18 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     break;
   case 13:
     name="Read_Soft_Error_Rate";
+    break;
+  case 178:
+    name="Used_Rsvd_Blk_Cnt_Chip";
+    break;
+  case 179:
+    name="Used_Rsvd_Blk_Cnt_Tot";
+    break;
+  case 180:
+    name="Unused_Rsvd_Blk_Cnt_Tot";
+    break;
+  case 183:
+    name="Runtime_Bad_Block";
     break;
   case 187:
     name="Reported_Uncorrect";

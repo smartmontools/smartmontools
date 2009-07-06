@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG,v 1.817 2009/07/05 17:52:46 chrfranke Exp $
+$Id: CHANGELOG,v 1.818 2009/07/06 02:46:47 geoffk1 Exp $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -40,6 +40,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [GK] Add names for some attributes used in Samsung MLC drives:
+       178-180 & 183
 
   [CF] smartctl: Add option '-x, --xall' to print all info including
        extended SMART logs and non-SMART info.
