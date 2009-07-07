@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.42 2009/07/05 17:16:38 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.43 2009/07/07 19:28:29 chrfranke Exp $\n"
 
 #include <vector>
 
@@ -70,6 +70,7 @@ struct ata_print_options
   bool smart_auto_save_disable, smart_auto_save_enable;
 
   int smart_selftest_type; // OFFLINE_FULL_SCAN, ..., see atacmds.h. -1 for no test
+  ata_selective_selftest_args smart_selective_args; // Extra args for selective self-test
 
   unsigned sct_temp_int;
   bool sct_temp_int_pers;
