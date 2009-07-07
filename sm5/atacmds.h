@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.107 2009/04/16 21:24:08 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.108 2009/07/07 19:28:29 chrfranke Exp $\n"
 
 #include "dev_interface.h" // ata_device
 
@@ -591,6 +591,41 @@ struct ata_sct_temperature_history_table
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_temperature_history_table, 512);
 
+// Possible values for span_args.mode
+enum {
+  SEL_RANGE, // MIN-MAX
+  SEL_REDO,  // redo this
+  SEL_NEXT,  // do next range
+  SEL_CONT   // redo or next depending of last test status
+};
+
+// Arguments for selective self-test
+struct ata_selective_selftest_args
+{
+  // Arguments for each span
+  struct span_args
+  {
+    uint64_t start;   // First block
+    uint64_t end;     // Last block
+    int mode;         // SEL_*, see above
+
+    span_args()
+      : start(0), end(0), mode(SEL_RANGE) { }
+  };
+
+  span_args span[5];  // Range and mode for 5 spans
+  int num_spans;      // Number of spans
+  int pending_time;   // One plus time in minutes to wait after powerup before restarting
+                      // interrupted offline scan after selective self-test.
+  int scan_after_select; // Run offline scan after selective self-test:
+                      // 0: don't change,
+                      // 1: turn off scan after selective self-test,
+                      // 2: turn on scan after selective self-test.
+
+  ata_selective_selftest_args()
+    : num_spans(0), pending_time(0), scan_after_select(0) { }
+};
+
 
 // Get information from drive
 int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
@@ -646,7 +681,8 @@ int ataSmartShortSelfTest (ata_device * device);
 int ataSmartShortCapSelfTest (ata_device * device);
 int ataSmartExtendCapSelfTest (ata_device * device);
 int ataSmartSelfTestAbort (ata_device * device);
-int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * sv, uint64_t num_sectors);
+int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
+                                 const ata_smart_values * sv, uint64_t num_sectors);
 
 // Returns the latest compatibility of ATA/ATAPI Version the device
 // supports. Returns -1 if Version command is not supported
@@ -700,7 +736,8 @@ inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
-int ataSmartTest(ata_device * device, int testtype, const ata_smart_values *data, uint64_t num_sectors);
+int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & args,
+                 const ata_smart_values * sv, uint64_t num_sectors);
 
 int TestTime(const ata_smart_values * data, int testtype);
 

@@ -40,7 +40,7 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.218 2009/07/06 02:46:47 geoffk1 Exp $"
+const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.219 2009/07/07 19:28:29 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 // for passing global control variables
@@ -1086,7 +1086,8 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
 }
 
 // Writes the selective self-test log (log #9)
-int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * sv, uint64_t num_sectors)
+int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
+                                 const ata_smart_values * sv, uint64_t num_sectors)
 {
   // Disk size must be known
   if (!num_sectors) {
@@ -1114,10 +1115,10 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
 
   // Set start/end values based on old spans for special -t select,... options
   int i;
-  for (i=0; i<con->smartselectivenumspans; i++) {
-    char mode = con->smartselectivemode[i];
-    uint64_t start = con->smartselectivespan[i][0];
-    uint64_t end   = con->smartselectivespan[i][1];
+  for (i = 0; i < args.num_spans; i++) {
+    int mode = args.span[i].mode;
+    uint64_t start = args.span[i].start;
+    uint64_t end   = args.span[i].end;
     if (mode == SEL_CONT) {// redo or next dependig on last test status
       switch (sv->self_test_exec_status >> 4) {
         case 1: case 2: // Aborted/Interrupted by host
@@ -1183,9 +1184,9 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
       return -1;
     }
     // Return the actual mode and range to caller.
-    con->smartselectivemode[i] = mode;
-    con->smartselectivespan[i][0] = start;
-    con->smartselectivespan[i][1] = end;
+    args.span[i].mode  = mode;
+    args.span[i].start = start;
+    args.span[i].end   = end;
   }
 
   // Clear spans
@@ -1193,9 +1194,9 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
     memset(data->span+i, 0, sizeof(struct test_span));
   
   // Set spans for testing 
-  for (i=0; i<con->smartselectivenumspans; i++){
-    data->span[i].start = con->smartselectivespan[i][0];
-    data->span[i].end   = con->smartselectivespan[i][1];
+  for (i = 0; i < args.num_spans; i++){
+    data->span[i].start = args.span[i].start;
+    data->span[i].end   = args.span[i].end;
   }
 
   // host must initialize to zero before initiating selective self-test
@@ -1203,10 +1204,10 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
   data->currentspan=0;
   
   // Perform off-line scan after selective test?
-  if (1 == con->scanafterselect)
+  if (args.scan_after_select == 1)
     // NO
     data->flags &= ~SELECTIVE_FLAG_DOSCAN;
-  else if (2 == con->scanafterselect)
+  else if (args.scan_after_select == 2)
     // YES
     data->flags |= SELECTIVE_FLAG_DOSCAN;
   
@@ -1215,8 +1216,8 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, const ata_smart_values * s
   data->flags &= ~(SELECTIVE_FLAG_PENDING);
 
   // modify pending time?
-  if (con->pendingtime)
-    data->pendingtime=(unsigned short)(con->pendingtime-1);
+  if (args.pending_time)
+    data->pendingtime = (unsigned short)(args.pending_time-1);
 
   // Set checksum to zero, then compute checksum
   data->checksum=0;
@@ -1451,7 +1452,9 @@ int ataSmartStatus2(ata_device * device){
 
 // This is the way to execute ALL tests: offline, short self-test,
 // extended self test, with and without captive mode, etc.
-int ataSmartTest(ata_device * device, int testtype, const ata_smart_values * sv, uint64_t num_sectors)
+// TODO: Move to ataprint.cpp ?
+int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest_args & selargs,
+                 const ata_smart_values * sv, uint64_t num_sectors)
 {
   char cmdmsg[128]; const char *type, *captive;
   int errornum, cap, retval, select=0;
@@ -1480,7 +1483,8 @@ int ataSmartTest(ata_device * device, int testtype, const ata_smart_values * sv,
   
   // If doing a selective self-test, first use WRITE_LOG to write the
   // selective self-test log.
-  if (select && (retval=ataWriteSelectiveSelfTestLog(device, sv, num_sectors))) {
+  ata_selective_selftest_args selargs_io = selargs; // filled with info about actual spans
+  if (select && (retval = ataWriteSelectiveSelfTestLog(device, selargs_io, sv, num_sectors))) {
     if (retval==-4)
       pout("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
     return retval;
@@ -1496,10 +1500,10 @@ int ataSmartTest(ata_device * device, int testtype, const ata_smart_values * sv,
   if (select) {
     int i;
     pout("SPAN         STARTING_LBA           ENDING_LBA\n");
-    for (i = 0; i < con->smartselectivenumspans; i++)
+    for (i = 0; i < selargs_io.num_spans; i++)
       pout("   %d %20"PRId64" %20"PRId64"\n", i,
-           con->smartselectivespan[i][0],
-           con->smartselectivespan[i][1]);
+           selargs_io.span[i].start,
+           selargs_io.span[i].end);
   }
   
   // Now send the command to test

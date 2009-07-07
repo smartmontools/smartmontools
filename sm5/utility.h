@@ -25,7 +25,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.67 2009/06/20 19:11:05 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id: utility.h,v 1.68 2009/07/07 19:28:29 chrfranke Exp $\n"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -88,11 +88,6 @@ int split_report_arg(char *s, int *i);
 // Function for processing -c option in smartctl and smartd
 int split_report_arg2(char *s, int *i);
 
-// Possible values for smartselectivemode
-#define SEL_RANGE            0 // MIN-MAX
-#define SEL_REDO             1 // redo this
-#define SEL_NEXT             2 // do next range
-#define SEL_CONT             3 // redo or next depending of last test status
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 

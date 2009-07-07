@@ -25,27 +25,12 @@
 #ifndef EXTERN_H_
 #define EXTERN_H_
 
-#define EXTERN_H_CVSID "$Id: extern.h,v 1.62 2009/06/20 19:11:04 chrfranke Exp $\n"
+#define EXTERN_H_CVSID "$Id: extern.h,v 1.63 2009/07/07 19:28:29 chrfranke Exp $\n"
 
 // Block used for global control/communications.  If you need more
 // global variables, this should be the only place that you need to
 // add them.
 typedef struct smartmonctrl_s {
-  // TODO: Use local struct for selective self test parameters
-  // spans for selective self-test
-  uint64_t smartselectivespan[5][2];
-  // mode for each span, see SEL_* in utility.h
-  char smartselectivemode[5];
-  // number of spans
-  int smartselectivenumspans;
-  // one plus time in minutes to wait after powerup before restarting
-  // interrupted offline scan after selective self-test.
-  int  pendingtime;
-  // run offline scan after selective self-test.  0: don't change, 1:
-  // turn off scan after selective self-test, 2: turn on scan after
-  // selective self-test.
-  unsigned char scanafterselect;
-
   bool printing_switchable;
   bool dont_print;
   bool dont_print_serial;

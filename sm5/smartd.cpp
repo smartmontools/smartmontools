@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.448 2009/06/27 16:58:29 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.449 2009/07/07 19:28:29 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -2368,7 +2368,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   }
   
   // Check for capability to do the test
-  int dotest = -1; char mode = 0;
+  int dotest = -1, mode = 0;
   const char *testname = 0;
   switch (testtype) {
   case 'O':
@@ -2435,16 +2435,16 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
 
   if (dotest == SELECTIVE_SELF_TEST) {
     // Set test span
-    con->smartselectivenumspans = 1; // TODO: Use parameters instead of globals
-    con->smartselectivemode[0] = mode;
-    con->smartselectivespan[0][0] = con->smartselectivespan[0][1] = 0;
-    if (ataWriteSelectiveSelfTestLog(device, &data, state.num_sectors)) {
+    ata_selective_selftest_args selargs;
+    selargs.num_spans = 1;
+    selargs.span[0].mode = mode;
+    if (ataWriteSelectiveSelfTestLog(device, selargs, &data, state.num_sectors)) {
       PrintOut(LOG_CRIT, "Device: %s, prepare %sTest failed\n", name, testname);
       return 1;
     }
-    uint64_t start = con->smartselectivespan[0][0], end = con->smartselectivespan[0][1];
+    uint64_t start = selargs.span[0].start, end = selargs.span[0].end;
     PrintOut(LOG_INFO, "Device: %s, %s test span at LBA %"PRIu64" - %"PRIu64" (%"PRIu64" sectors, %u%% - %u%% of disk).\n",
-      name, (con->smartselectivemode[0] == SEL_NEXT ? "next" : "redo"),
+      name, (selargs.span[0].mode == SEL_NEXT ? "next" : "redo"),
       start, end, end - start + 1,
       (unsigned)((100 * start + state.num_sectors/2) / state.num_sectors),
       (unsigned)((100 * end   + state.num_sectors/2) / state.num_sectors));
