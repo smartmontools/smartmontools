@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.450 2009/07/10 20:14:40 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.451 2009/07/10 23:01:56 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -252,17 +252,16 @@ public:
     { memset(m_flags, 0, sizeof(m_flags)); }
 
   bool is_set(int id, unsigned char flag) const
-    { return (0 < id && id < NUMBER_ATA_SMART_ATTRIBUTES
-              && (m_flags[id] & flag)                   ); }
+    { return (0 < id && id < (int)sizeof(m_flags) && (m_flags[id] & flag)); }
 
   void set(int id, unsigned char flags)
     {
-      if (0 < id && id < NUMBER_ATA_SMART_ATTRIBUTES)
+      if (0 < id && id < (int)sizeof(m_flags))
         m_flags[id] |= flags;
     }
 
 private:
-  unsigned char m_flags[NUMBER_ATA_SMART_ATTRIBUTES];
+  unsigned char m_flags[256];
 };
 
 
