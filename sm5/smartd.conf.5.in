@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in,v 1.101 2009/06/26 20:37:35 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.102 2009/07/10 20:14:40 chrfranke Exp $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -1000,7 +1000,7 @@ temperature (usually Attribute 194 or 231). It\'s annoying to get reports
 each time the temperature changes.  This Directive may appear multiple
 times for a single device, if you want to ignore multiple Attributes.
 .TP
-.B \-r ID
+.B \-r ID[!]
 When tracking, report the \fIRaw\fP value of Attribute \fBID\fP along
 with its (normally reported) \fINormalized\fP value.  \fBID\fP must be
 a decimal integer in the range from 1 to 255.  This Directive modifies
@@ -1011,8 +1011,12 @@ multiple times.
 A common use of this Directive is to track the device Temperature
 (often ID=194 or 231).
 
+If the optional flag \'!\' is appended, a change of the Normalized
+value is considered critical.  The report will be logged as LOG_CRIT
+and a warning email will be sent if \'-m\' is specified.
+
 .TP
-.B \-R ID
+.B \-R ID[!]
 When tracking, report whenever the \fIRaw\fP value of Attribute
 \fBID\fP changes.  (Normally \fBsmartd\fP only tracks/reports changes
 of the \fINormalized\fP Attribute values.)  \fBID\fP must be a decimal
@@ -1029,6 +1033,11 @@ A common use of this Directive is to track the device Temperature
 (often ID=194 or 231).  It is also useful for understanding how
 different types of system behavior affects the values of certain
 Attributes.
+
+If the optional flag \'!\' is appended, a change of the Raw
+value is considered critical.  The report will be logged as
+LOG_CRIT and a warning email will be sent if \'-m\' is specified.
+An example is \'-R 5!\' to warn when new sectors are reallocated.
 
 .TP
 .B \-C ID[+]
@@ -1471,4 +1480,4 @@ SEE ALSO:
 
 .SH
 CVS ID OF THIS PAGE:
-$Id: smartd.conf.5.in,v 1.101 2009/06/26 20:37:35 chrfranke Exp $
+$Id: smartd.conf.5.in,v 1.102 2009/07/10 20:14:40 chrfranke Exp $
