@@ -136,7 +136,7 @@ extern const char *os_solaris_ata_s_cvsid;
 #ifdef _WIN32
 extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
 #endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.449 2009/07/07 19:28:29 chrfranke Exp $"
+const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.450 2009/07/10 20:14:40 chrfranke Exp $"
 ATACMDS_H_CVSID CONFIG_H_CVSID
 #ifdef DAEMON_WIN32_H_CVSID
 DAEMON_WIN32_H_CVSID
@@ -233,15 +233,38 @@ volatile int caughtsigHUP=0;
 // set to signal value if we catch INT, QUIT, or TERM
 volatile int caughtsigEXIT=0;
 
-// Number of monitoring flags per Attribute and offsets.
-// See monitorattflags below.
+// Attribute monitoring flags.
+// See monitor_attr_flags below.
 enum {
-  MONITOR_FAILUSE = 0,
-  MONITOR_IGNORE,
-  MONITOR_RAWPRINT,
-  MONITOR_RAW,
-  NMONITOR
+  MONITOR_IGN_FAILUSE = 0x01,
+  MONITOR_IGNORE      = 0x02,
+  MONITOR_RAW_PRINT   = 0x04,
+  MONITOR_RAW         = 0x08,
+  MONITOR_AS_CRIT     = 0x10,
+  MONITOR_RAW_AS_CRIT = 0x20,
 };
+
+// Array of flags for each attribute.
+class attribute_flags
+{
+public:
+  attribute_flags()
+    { memset(m_flags, 0, sizeof(m_flags)); }
+
+  bool is_set(int id, unsigned char flag) const
+    { return (0 < id && id < NUMBER_ATA_SMART_ATTRIBUTES
+              && (m_flags[id] & flag)                   ); }
+
+  void set(int id, unsigned char flags)
+    {
+      if (0 < id && id < NUMBER_ATA_SMART_ATTRIBUTES)
+        m_flags[id] |= flags;
+    }
+
+private:
+  unsigned char m_flags[NUMBER_ATA_SMART_ATTRIBUTES];
+};
+
 
 /// Configuration data for a device. Read from smartd.conf.
 /// Supports copy & assignment and is compatible with STL containers.
@@ -283,15 +306,7 @@ struct dev_config
   bool curr_pending_incr, offl_pending_incr; // True if current/offline pending values increase
   bool curr_pending_set,  offl_pending_set;  // True if '-C', '-U' set in smartd.conf
 
-  // following NMONITOR items each point to 32 bytes, in the form of
-  // 32x8=256 single bit flags
-  // valid attribute numbers are from 1 <= x <= 255
-  // monitorattflags+0  set: ignore failure for a usage attribute
-  // monitorattflats+32 set: don't track attribute
-  // monitorattflags+64 set: print raw value when tracking
-  // monitorattflags+96 set: track changes in raw value
-  // TODO: Encapsulate, add get/set functions
-  unsigned char monitorattflags[NMONITOR*32];
+  attribute_flags monitor_attr_flags;     // MONITOR_* flags for each attribute
 
   // TODO: Encapsulate, add get/set functions
   unsigned char attributedefs[256];       // -v options, see end of extern.h for def
@@ -326,7 +341,6 @@ dev_config::dev_config()
   curr_pending_set(false),  offl_pending_set(false)
 {
   memset(attributedefs, 0, sizeof(attributedefs));
-  memset(monitorattflags, 0, sizeof(monitorattflags));
 }
 
 
@@ -2066,43 +2080,6 @@ static int ATACompareValues(changedattribute_t *delta,
   return 1;
 }
 
-// This looks to see if the corresponding bit of the 32 bytes is set.
-// This wastes a few bytes of storage but eliminates all searching and
-// sorting functions! Entry is ZERO <==> the attribute ON. Calling
-// with set=0 tells you if the attribute is being tracked or not.
-// Calling with set=1 turns the attribute OFF.
-static int IsAttributeOff(unsigned char attr, unsigned char * data, int set, int which)
-{
-  int loc=attr>>3;
-  int bit=attr & 0x07;
-  unsigned char mask=0x01<<bit;
-
-  if (!(0 <= which && which < NMONITOR))
-    throw std::logic_error("invalid parameter in IsAttributeOff()");
-
-  // pointer to the 256 bits that we need
-  data += which*32;
-
-  // attribute zero is always OFF
-  if (!attr)
-    return 1;
-
-  if (!set)
-    return (data[loc] & mask);
-  
-  data[loc]|=mask;
-
-  // return value when setting has no sense
-  return 0;
-}
-
-// Check attribute OFF. Const-correct version of above
-static inline bool IsAttributeOff(unsigned char attr, const unsigned char * data, int which)
-{
-  return !!IsAttributeOff(attr, const_cast<unsigned char *>(data), 0, which);
-}
-
-
 // If the self-test log has got more self-test errors (or more recent
 // self-test errors) recorded, then notify user.
 static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int newi)
@@ -2709,17 +2686,16 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
 	// look for failed usage attributes, or track usage or prefail attributes
         for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-	  int att;
-	  changedattribute_t delta;
-	  
+
 	  // This block looks for usage attributes that have failed.
 	  // Prefail attributes that have failed are returned with a
 	  // positive sign. No failure returns 0. Usage attributes<0.
+          int att;
 	  if (cfg.usagefailed && ((att=ataCheckAttribute(&curval, thresh, i))<0)){
 	    
 	    // are we ignoring failures of this attribute?
 	    att *= -1;
-	    if (!IsAttributeOff(att, cfg.monitorattflags, MONITOR_FAILUSE)){
+            if (!cfg.monitor_attr_flags.is_set(att, MONITOR_IGN_FAILUSE)) {
 	      char attname[64], *loc=attname;
 	      
 	      // get attribute name & skip white space
@@ -2736,48 +2712,59 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	  // This block tracks usage or prefailure attributes to see if
 	  // they are changing.  It also looks for changes in RAW values
 	  // if this has been requested by user.
+          changedattribute_t delta;
 	  if ((cfg.usage || cfg.prefail) && ATACompareValues(&delta, &curval, &state.smartval, thresh, i, name)){
-	    unsigned char id=delta.id;
-	    
+
+            // Continue if we're not tracking this type of attribute
+            if (!(   ( delta.prefail && cfg.prefail)
+                  || (!delta.prefail && cfg.usage   )))
+              continue;
+
+            // Continue if '-I ID' was specified
+            unsigned char id = delta.id;
+            if (cfg.monitor_attr_flags.is_set(id, MONITOR_IGNORE))
+              continue;
+
 	    // if the only change is the raw value, and we're not
 	    // tracking raw value, then continue loop over attributes
-	    if (!delta.sameraw && delta.newval==delta.oldval && !IsAttributeOff(id, cfg.monitorattflags, MONITOR_RAW))
+            if (   !delta.sameraw && delta.newval == delta.oldval
+                && !cfg.monitor_attr_flags.is_set(id, MONITOR_RAW))
 	      continue;
-	    
-	    // are we tracking this attribute?
-	    if (!IsAttributeOff(id, cfg.monitorattflags, MONITOR_IGNORE)){
-	      char newrawstring[64], oldrawstring[64], attname[64], *loc=attname;
-	      
-	      // get attribute name, skip spaces
-	      ataPrintSmartAttribName(loc, id, cfg.attributedefs);
-	      while (*loc && *loc==' ') loc++;
-	      
-	      // has the user asked for us to print raw values?
-	      if (IsAttributeOff(id, cfg.monitorattflags, MONITOR_RAWPRINT)) {
-		// get raw values (as a string) and add to printout
-		char rawstring[64];
-		ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg.attributedefs);
-		sprintf(newrawstring, " [Raw %s]", rawstring);
-		ataPrintSmartAttribRawValue(rawstring, state.smartval.vendor_attributes+i, cfg.attributedefs);
-		sprintf(oldrawstring, " [Raw %s]", rawstring);
-	      }
-	      else
-		newrawstring[0]=oldrawstring[0]='\0';
-	      
-	      // prefailure attribute
-              if (cfg.prefail && delta.prefail) {
-		PrintOut(LOG_INFO, "Device: %s, SMART Prefailure Attribute: %s changed from %d%s to %d%s\n",
-			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
-                state.must_write = true;
-              }
-	      
-	      // usage attribute
-              if (cfg.usage && !delta.prefail) {
-		PrintOut(LOG_INFO, "Device: %s, SMART Usage Attribute: %s changed from %d%s to %d%s\n",
-			 name, loc, delta.oldval, oldrawstring, delta.newval, newrawstring);
-                state.must_write = true;
-              }
-	    }
+
+            // get attribute name, skip spaces
+            char attname[64], *loc = attname;
+            ataPrintSmartAttribName(loc, id, cfg.attributedefs);
+            while (*loc && *loc==' ')
+              loc++;
+
+            // has the user asked for us to print raw values?
+            char newrawstring[64], oldrawstring[64];
+            if (cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_PRINT)) {
+              // get raw values (as a string) and add to printout
+              char rawstring[64];
+              ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg.attributedefs);
+              sprintf(newrawstring, " [Raw %s]", rawstring);
+              ataPrintSmartAttribRawValue(rawstring, state.smartval.vendor_attributes+i, cfg.attributedefs);
+              sprintf(oldrawstring, " [Raw %s]", rawstring);
+            }
+            else
+              newrawstring[0]=oldrawstring[0]='\0';
+
+            // Format message
+            std::string msg = strprintf("Device: %s, SMART %s Attribute: %s changed from %d%s to %d%s",
+                                        name, (delta.prefail ? "Prefailure" : "Usage"), loc,
+                                        delta.oldval, oldrawstring, delta.newval, newrawstring);
+
+            // Report this change as critical ?
+            if (   (delta.newval != delta.oldval && cfg.monitor_attr_flags.is_set(id, MONITOR_AS_CRIT))
+                || (!delta.sameraw               && cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_AS_CRIT))) {
+              PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+              MailWarning(cfg, state, 2, "%s", msg.c_str());
+            }
+            else {
+              PrintOut(LOG_INFO, "%s\n", msg.c_str());
+            }
+            state.must_write = true;
 	  } // endof block tracking usage or prefailure
 	} // end of loop over attributes
 	
@@ -3156,7 +3143,7 @@ static int ParseToken(char * token, dev_config & cfg)
 
   // parse the token and swallow its argument
   int val;
-  char plus[] = "+";
+  char plus[] = "+", excl[] = "!";
 
   switch (sym) {
   case 'C':
@@ -3399,26 +3386,29 @@ static int ParseToken(char * token, dev_config & cfg)
     // ignore failure of usage attribute
     if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
-    IsAttributeOff(val, cfg.monitorattflags, 1, MONITOR_FAILUSE);
+    cfg.monitor_attr_flags.set(val, MONITOR_IGN_FAILUSE);
     break;
   case 'I':
     // ignore attribute for tracking purposes
     if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
       return -1;
-    IsAttributeOff(val, cfg.monitorattflags, 1, MONITOR_IGNORE);
+    cfg.monitor_attr_flags.set(val, MONITOR_IGNORE);
     break;
   case 'r':
     // print raw value when tracking
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
+    if ((val = GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255, excl)) < 0)
       return -1;
-    IsAttributeOff(val, cfg.monitorattflags, 1, MONITOR_RAWPRINT);
+    cfg.monitor_attr_flags.set(val, MONITOR_RAW_PRINT);
+    if (*excl == '!') // attribute change is critical
+      cfg.monitor_attr_flags.set(val, MONITOR_AS_CRIT);
     break;
   case 'R':
     // track changes in raw value (forces printing of raw value)
-    if ((val=GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255))<0)
+    if ((val = GetInteger(arg=strtok(NULL,delim), name, token, lineno, configfile, 1, 255, excl)) < 0)
       return -1;
-    IsAttributeOff(val, cfg.monitorattflags, 1, MONITOR_RAWPRINT);
-    IsAttributeOff(val, cfg.monitorattflags, 1, MONITOR_RAW);
+    cfg.monitor_attr_flags.set(val, MONITOR_RAW_PRINT|MONITOR_RAW);
+    if (*excl == '!') // raw value change is critical
+      cfg.monitor_attr_flags.set(val, MONITOR_RAW_AS_CRIT);
     break;
   case 'W':
     // track Temperature
