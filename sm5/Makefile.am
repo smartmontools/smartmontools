@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am,v 1.96 2009/07/10 21:22:33 chrfranke Exp $
+# $Id$
 #
 
 @SET_MAKE@
