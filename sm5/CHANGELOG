@@ -26,6 +26,7 @@ Maintainers / Developers Key (alphabetic order):
 [KM]  Kai Mäkisara
 [EM]  Eduard Martinescu
 [FM]  Frédéric L. W. Meunier
+[GP]  Gabriele Pohl
 [AR]  Adam Radford
 [KS]  Keiji Sawada
 [MS]  Manfred Schwarb
@@ -40,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Makefile.am: Modify generation of cvsversion.h for SVN.
+
+  [GP] Convert CVS repository to SVN.
 
   [CF] smartd: Fix size of monitor flag array from previous commit.
 
