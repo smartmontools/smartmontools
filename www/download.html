@@ -51,7 +51,7 @@ INSTALL</a></b> file contains additional information.</p>
   <li><strong>Windows package</strong><br />(<a href="#WindowsInstall">Instructions</a>)</li>
   </ol></li>
 <li><strong>Install from our source tarball</strong><br />(<a href="#tarball">Instructions</a>)</li>
-<li><strong>Install latest unreleased code from CVS repository</strong><br />(<a href="#CVSInstall">Instructions</a>)</li>
+<li><strong>Install latest unreleased code from SVN repository</strong><br />(<a href="#SVNInstall">Instructions</a>)</li>
 <li><strong>Don't install, run from Live-system</strong><br />(<a href="#live-cd">Instructions</a>)</li>
 </ol>
 </div>
@@ -380,59 +380,59 @@ make install</p>
 </li>
 </ul>
 
-<h3><a name="CVSInstall"></a>
-Third Method - Install latest unreleased code from CVS repository</h3>
-<ul class="Square">
-<li><span class="marked">Due to the new SourceForge CVS
-architecture, the hostname for CVS access has changed from
-<tt>cvs.sourceforge.net</tt> to <tt>smartmontools.cvs.sourceforge.net</tt>.
-To update a copy of smartmontools checked out before 2006-05-12, change all
-the <tt>*/CVS/Root</tt> files accordingly.</span><br /><br /></li>
+<h3><a name="SVNInstall"></a>
+Third Method - Install latest unreleased code from SVN repository</h3>
+<p class="marked">We moved from CVS to a Subversion (SVN) repository.
+The new address for our repository is  
+<a href="http://smartmontools.svn.sourceforge.net/viewvc/smartmontools"><tt>https://smartmontools.svn.sourceforge.net/svnroot/smartmontools</tt></a></p>
 
-<li>One of the really cool things about CVS is that you can get
-<i>any</i> version of the code you want, from the first release up the
-the most current development version. And it's trivial, because
-each release is <u>tagged</u> with a name like
-<tt>RELEASE_5_38</tt>. You can see what the different names are
-by looking at the <a href="http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/">
-CVS repository</a>. You'll see the tag names in the little scroll
-window where it says "Show only files with tag". All you need to
-do to get the latest development code is
+<ul class="Square">
+
+<li>For those, who don't already have a Subversion client installed,
+here is a <a href="http://subversion.tigris.org/links.html#clients">list of SVN-Clients</a>
+for different operating systems and in all colors and flavours. (Stand-alone clients, 
+Desktop-integrated clients, IDE plug-in clients, ..)<br />
+<br /></li>
+
+<li>All you need to do to get the latest development code is
 (but note that the development code may be unstable, and that the
 documentation and code may be inconsistent):
 
-<p class="code">cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login<br />
-# when prompted for a password, just press Enter<br />
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5</p></li>
+<p class="code">svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/trunk/sm5 smartmontools</p></li>
 
-<li>To instead get the RELEASE_5_37 release:
-
-<p class="code">cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_37 sm5</p></li>
-
-<li>This will create a subdirectory called <tt>sm5/</tt> containing the
+<li>This will create a subdirectory called <tt>smartmontools/</tt> containing the
 code. Go to that directory, build, and install:
-<p class="code">cd sm5<br />
+<p class="code">cd smartmontools<br />
 ./autogen.sh<br />
 ./configure<br />
 make<br />
 make install</p>
 
-<p>- See notes under <b>Second method - install from source tarball</b> for different options to <tt>./configure</tt>
+<p>- See notes under <a href="#tarball">Second method - install from source tarball</a> for different options to <tt>./configure</tt>
 and other useful remarks.</p>
-<p>- Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
-&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18).</p>
-<p>- If you get the current sources (<tt>cvs co</tt> with no arguments or do <tt>cvs up
--A</tt>) then you <i>will</i>  need those two additional steps.</p>
 </li>
 
-<li>To update your sources to the RELEASE_5_38 release:
-<p class="code">cd sm5<br />
-cvs up -r RELEASE_5_38</p></li>
+<li>To update your sources from trunk (development version):
+<p class="code">cd smartmontools<br />
+svn up</p></li>
 
-<li>To update any tagged release to the latest development code:
+<li>One of the really cool things about version control systems is that you can get
+<i>any</i> version of the code you want, from the first release up the
+the most current development version. And it's trivial, because
+each release is <u>tagged</u> with a name. Look at the 
+<a href="http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/tags/">tags in our SVN repository</a>, 
+to see what the different names are.
 
-<p class="code">cd sm5
-cvs up -A</p></li>
+<p>E.g. run the following command to fetch the RELEASE_5_38 release:</p>
+
+<p class="code">svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/tags/RELEASE_5_38/sm5 smartmontools</p>
+
+<p>The rest of the build procedure is the same like described above, with one exception:</p>
+
+<p>- Skip <tt>./autogen.sh</tt> and <tt>./configure</tt> for tagged releases
+&lt;= 5.1-18 (RELEASE_5_X_Y, where X = 0 or 1 and Y = 0 to 18).</p>
+</li>
+
 </ul>
 
 <h3><a name="live-cd"></a>
