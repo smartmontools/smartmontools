@@ -1,0 +1,96 @@
+#!/bin/bash -ev
+#
+# do a smartmontools release
+# (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
+#          Guido Guenther <agx@sigxcpu.org>
+# $Id: do_release,v 1.41 2008/03/17 17:02:26 ballen4705 Exp $
+
+# Notes on generating releases:
+# (1) update NEWS
+# (2) update CHANGELOG -- put in release number
+# (3) update release number in configure.in 
+# (4) to test, set USECVS below to 0
+# (5) when satisfied, set USECVS below to 1
+
+USECVS=1
+
+KEYID=0x841ABAE8
+
+setup_cvs()
+{
+  CVS_SERVER=fakevalue
+  unset CVS_SERVER || echo "can't unset CVS_SERVER=$CVS_SERVER"
+  CVS_RSH=ssh
+  CVSROOT=:ext:ballen4705@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools
+}
+
+get_release()
+{
+  VERSION=`grep 'AC_INIT' configure.in | awk '{ print $2 }' | sed s/,//g`
+  RELEASE="RELEASE_${VERSION//\./_}"
+  echo "Version: $VERSION"
+  echo "Release: $RELEASE"
+}
+
+inc_release()
+{
+  MINOR=`echo $VERSION | cut -d. -f2`
+  MAJOR=`echo $VERSION | cut -d. -f1`
+  PERL_OLD=$MAJOR\\.$MINOR
+  ((MINOR++))
+  NEW_VERSION=$MAJOR.$MINOR
+  PERL_NEW=$MAJOR\\.$MINOR	
+  NEW_RELEASE="RELEASE_${NEW_VERSION//\./_}"
+  echo "New Version: $NEW_VERSION"
+  echo "New Release: $NEW_RELEASE"
+}
+
+# run automake/autoconf
+if [ -f Makefile ] ; then
+  make distcheck || exit 1
+  make clean
+  make distclean
+  rm -f Makefile configure
+fi
+
+smartmontools_release_date=`date -u +"%Y/%m/%d"`
+smartmontools_release_time=`date -u +"%T %Z"`
+cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
+cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
+rm -f configure.tmp
+
+./autogen.sh
+
+get_release
+
+# tag CVS version
+if [ $USECVS -ne 0 ] ; then
+    setup_cvs
+    cvs commit -m "Release $VERSION $RELEASE"
+    cvs tag -d $RELEASE 
+    cvs tag $RELEASE
+fi
+
+# build .tar.gz
+rm -rf build
+mkdir build
+cd build
+../configure
+make distcheck || exit 1
+cd ..
+
+# increase release number:
+inc_release
+if [ $USECVS -ne 0 ] ; then
+    perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
+fi
+
+cp -f build/smartmontools-$VERSION.tar.gz .
+if [ "$KEYID" ]; then
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSION.tar.gz
+fi
+
+# cleanup
+rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
+       depcomp mkinstalldirs install-sh configure config.guess config.sub \
+       aclocal.m4 missing *.bak

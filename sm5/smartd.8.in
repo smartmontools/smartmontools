@@ -1,0 +1,2128 @@
+.ig
+Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ 
+$Id: smartd.8.in,v 1.138 2009/07/10 20:14:40 chrfranke Exp $
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+ 
+You should have received a copy of the GNU General Public License (for
+example COPYING); if not, write to the Free Software Foundation, Inc.,
+675 Mass Ave, Cambridge, MA 02139, USA.
+ 
+This code was originally developed as a Senior Thesis by Michael
+Cornwell at the Concurrent Systems Laboratory (now part of the Storage
+Systems Research Center), Jack Baskin School of Engineering,
+University of California, Santa Cruz. http://ssrc.soe.ucsc.edu/
+..
+.TH SMARTD 8 CURRENT_CVS_DATE CURRENT_CVS_VERSION CURRENT_CVS_DATE
+.SH NAME
+\fBsmartd\fP \- SMART Disk Monitoring Daemon
+
+.SH SYNOPSIS
+.B smartd [options]
+
+.SH FULL PATH
+.B /usr/local/sbin/smartd
+
+.SH PACKAGE VERSION
+CURRENT_CVS_VERSION released CURRENT_CVS_DATE at CURRENT_CVS_TIME
+
+.SH DESCRIPTION
+\fBsmartd\fP is a daemon that monitors the Self-Monitoring, Analysis
+and Reporting Technology (SMART) system built into many ATA-3 and
+later ATA, IDE and SCSI-3 hard drives. The purpose of SMART is to
+monitor the reliability of the hard drive and predict drive failures,
+and to carry out different types of drive self-tests.  This version of
+\fBsmartd\fP is compatible with ATA/ATAPI-7 and earlier standards (see
+\fBREFERENCES\fP below).
+
+\fBsmartd\fP will attempt to enable SMART monitoring on ATA devices
+(equivalent to \fBsmartctl -s on\fP) and polls these and SCSI devices
+every 30 minutes (configurable), logging SMART errors and changes of
+SMART Attributes via the SYSLOG interface.  The default location for
+these SYSLOG notifications and warnings is \fB/var/log/messages\fP.
+To change this default location, please see the \fB\'-l\'\fP
+command-line option described below.
+
+In addition to logging to a file, \fBsmartd\fP can also be configured
+to send email warnings if problems are detected.  Depending upon the
+type of problem, you may want to run self\-tests on the disk, back up
+the disk, replace the disk, or use a manufacturer\'s utility to force
+reallocation of bad or unreadable disk sectors.  If disk problems are
+detected, please see the \fBsmartctl\fP manual page and the
+\fBsmartmontools\fP web page/FAQ for further guidance.
+
+If you send a \fBUSR1\fP signal to \fBsmartd\fP it will immediately
+check the status of the disks, and then return to polling the disks
+every 30 minutes. See the \fB\'\-i\'\fP option below for additional
+details.
+
+\fBsmartd\fP can be configured at start-up using the configuration
+file \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+If the configuration file is subsequently modified, \fBsmartd\fP
+can be told to re-read the configuration file by sending it a
+\fBHUP\fP signal, for example with the command:
+.fi
+\fBkillall -HUP smartd\fP.
+.fi
+(Windows: See NOTES below.)
+
+On startup, if \fBsmartd\fP finds a syntax error in the configuration
+file, it will print an error message and then exit. However if
+\fBsmartd\fP is already running, then is told with a \fBHUP\fP signal
+to re-read the configuration file, and then find a syntax error in
+this file, it will print an error message and then continue, ignoring
+the contents of the (faulty) configuration file, as if the \fBHUP\fP
+signal had never been received.
+
+When \fBsmartd\fP is running in debug mode, the \fBINT\fP signal
+(normally generated from a shell with CONTROL\-C) is treated in the
+same way as a \fBHUP\fP signal: it makes \fBsmartd\fP reload its
+configuration file. To exit \fBsmartd\fP use CONTROL-\e
+(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
+
+On startup, in the absence of the configuration file
+\fB/usr/local/etc/smartd.conf\fP, the \fBsmartd\fP daemon first scans for all
+devices that support SMART.  The scanning is done as follows:
+.IP \fBLINUX:\fP 9
+Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
+devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
+.IP \fBFREEBSD:\fP 9
+Examine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
+devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
+.IP \fBNETBSD/OPENBSD:\fP 9
+Authoritative list of disk devices is obtained from sysctl 
+\'hw.disknames\'.
+.IP \fBSOLARIS:\fP 9
+Examine all entries \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
+devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
+.IP \fBDARWIN:\fP 9
+The IOService plane is scanned for ATA block storage devices.
+.IP \fBWINDOWS\ 9x/ME\fP: 9
+Examine all entries \fB"/dev/hd[a-d]"\fP (bitmask
+from "\\\\.\\SMARTVSD") for IDE/ATA devices.
+Examine all entries \fB"/dev/scsi[0\-9][0\-f]"\fP for SCSI devices 
+on ASPI adapter 0\-9, ID 0\-15.
+.IP \fBWINDOWS\ NT4/2000/XP/2003/Vista\fP: 9
+Examine all entries \fB"/dev/sd[a-j]"\fP ("\\\\.\\PhysicalDrive[0-9]")
+for IDE/(S)ATA and SCSI disk devices 
+
+If a 3ware 9000 controller is installed, examine all entries
+\fB"/dev/sdX,N"\fP for the first logical drive (\'unit\'
+\fB"/dev/sdX"\fP) and all physical disks (\'ports\' \fB",N"\fP)
+detected behind this controller. Same for a second controller if present.
+.IP \fBCYGWIN\fP: 9
+See "WINDOWS NT4/2000/XP/2003/Vista" above.
+.IP \fBOS/2,eComStation\fP: 9
+Use the form \fB"/dev/hd[a\-z]"\fP for IDE/ATA devices.
+.PP
+\fBsmartd\fP then monitors
+for \fIall\fP possible SMART errors (corresponding to the \fB\'\-a\'\fP
+Directive in the configuration file; see \fBCONFIGURATION FILE\fP
+below). 
+
+.SH 
+OPTIONS
+Long options are not supported on all systems.  Use \fB\'smartd
+\-h\'\fP to see the available options.
+.TP
+.B \-B [+]FILE, \-\-drivedb=[+]FILE
+[NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.
+The new database replaces the built in database by default. If \'+\' is
+specified, then the new entries prepend the built in entries.
+Please see the \fBsmartctl\fP man page for further details.
+
+.TP
+.B \-c FILE, \-\-configfile=FILE
+Read \fBsmartd\fP configuration Directives from FILE, instead of from
+the default location \fB/usr/local/etc/smartd.conf\fP (Windows: \fB./smartd.conf\fP).
+If FILE does \fBnot\fP exist, then \fBsmartd\fP will print an error
+message and exit with nonzero status.  Thus, \'\-c /usr/local/etc/smartd.conf\'
+can be used to verify the existence of the default configuration file.
+
+By using \'\-\' for FILE, the configuration is read from standard
+input. This is useful for commands like:
+.nf
+.B echo /dev/hdb \-m user@home \-M test | smartd \-c \- \-q onecheck
+.fi
+to perform quick and simple checks without a configuration file.
+
+.TP
+.B \-d, \-\-debug
+Runs \fBsmartd\fP in "debug" mode. In this mode, it displays status
+information to STDOUT rather than logging it to SYSLOG and does not
+\fBfork(2)\fP into the background and detach from the controlling
+terminal.  In this mode, \fBsmartd\fP also prints more verbose
+information about what it is doing than when operating in "daemon"
+mode. In this mode, the \fBQUIT\fP signal (normally generated from a
+terminal with CONTROL\-C) makes \fBsmartd\fP reload its configuration
+file.  Please use CONTROL-\e to exit
+(Cygwin: 2x CONTROL\-C, Windows: CONTROL\-Break).
+
+Windows only: The "debug" mode can be toggled by the command
+\fBsmartd sigusr2\fP. A new console for debug output is opened when
+debug mode is enabled.
+.TP
+.B \-D, \-\-showdirectives
+Prints a list (to STDOUT) of all the possible Directives which may
+appear in the configuration file /usr/local/etc/smartd.conf, and then exits.
+These Directives are also described later in this man page. They may
+appear in the configuration file following the device name.
+.TP
+.B \-h, \-\-help, \-\-usage
+Prints usage message to STDOUT and exits.
+
+.TP
+.B \-i N, \-\-interval=N
+Sets the interval between disk checks to \fIN\fP seconds, where
+\fIN\fP is a decimal integer.  The minimum allowed value is ten and
+the maximum is the largest positive integer that can be represented on
+your system (often 2^31-1).  The default is 1800 seconds.
+
+Note that the superuser can make \fBsmartd\fP check the status of the
+disks at any time by sending it the \fBSIGUSR1\fP signal, for example
+with the command:
+.nf
+.B kill -SIGUSR1 <pid>
+.fi
+where \fB<pid>\fP is the process id number of \fBsmartd\fP.  One may
+also use:
+.nf
+.B killall -USR1 smartd
+.fi
+for the same purpose.
+.fi
+(Windows: See NOTES below.)
+
+.TP
+.B \-l FACILITY, \-\-logfacility=FACILITY
+Uses syslog facility FACILITY to log the messages from \fBsmartd\fP.
+Here FACILITY is one of \fIlocal0\fP, \fIlocal1\fP, ..., \fIlocal7\fP,
+or \fIdaemon\fP [default].  If this command-line option is not used,
+then by default messages from \fBsmartd\fP are logged to the facility
+\fIdaemon\fP.
+
+If you would like to have \fBsmartd\fP messages logged somewhere other
+than the default \fB/var/log/messages\fP location, this can typically
+be accomplished with (for example) the following steps:
+.RS 7
+.IP \fB[1]\fP 4
+Modify the script that starts \fBsmartd\fP to include the \fBsmartd\fP
+command-line argument \'\-l local3\'.  This tells \fBsmartd\fP to log its
+messages to facility \fBlocal3\fP.
+.IP \fB[2]\fP 4
+Modify the \fBsyslogd\fP configuration file (typically
+\fB/etc/syslog.conf\fP) by adding a line of the form:
+.nf
+\fBlocal3.* /var/log/smartd.log\fP
+.fi
+This tells \fBsyslogd\fP to log all the messages from facility \fBlocal3\fP to
+the designated file: /var/log/smartd.log.
+.IP \fB[3]\fP 4
+Tell \fBsyslogd\fP to re-read its configuration file, typically by
+sending the \fBsyslogd\fP process a \fBSIGHUP\fP hang-up signal.
+.IP \fB[4]\fP 4
+Start (or restart) the \fBsmartd\fP daemon.
+.RE
+.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
+.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.TP
+.B \&
+For more detailed information, please refer to the man pages for
+\fBsyslog.conf\fP, \fBsyslogd\fP, and \fBsyslog\fP.  You may also want
+to modify the log rotation configuration files; see the man pages for
+\fBlogrotate\fP and examine your system\'s /etc/logrotate.conf file.
+
+Cygwin: Support for \fBsyslogd\fP as described above is available starting with Cygwin 1.5.15.
+On older releases or if no local \fBsyslogd\fP is running, the \'\-l\' option has no effect.
+In this case, all \fBsyslog\fP messages are written to Windows event log
+or to file \fBC:/CYGWIN_SYSLOG.TXT\fP if the event log is not available.
+
+Windows: Some \fBsyslog\fP functionality is implemented
+internally in \fBsmartd\fP as follows: If no \'\-l\' option
+(or \'\-l daemon\') is specified, messages are written to Windows
+event log or to file \fB./smartd.log\fP if event log is not available
+(Win9x/ME or access denied). By specifying other values of FACILITY,
+log output is redirected as follows:
+\'\-l local0\' to file \fB./smartd.log\fP,
+\'\-l local1\' to standard output (redirect with \'>\' to any file),
+\'\-l local2\' to standard error,
+\'\-l local[3-7]\': to file \fB./smartd[1-5].log\fP.
+
+When using the event log, the enclosed utility \fBsyslogevt.exe\fP
+should be registered as an event message file to avoid error
+messages from the event viewer. Use \'\fBsyslogevt -r smartd\fP\'
+to register, \'\fBsyslogevt -u smartd\fP\' to unregister and
+\'\fBsyslogevt\fP\' for more help.
+
+.TP
+.B \-n, \-\-no\-fork
+Do not fork into background; this is useful when executed from modern
+init methods like initng, minit or supervise.
+
+On Cygwin, this allows running \fBsmartd\fP as service via cygrunsrv,
+see NOTES below.
+
+On Windows, this option is not available, use \'\-\-service\' instead.
+
+.TP
+.B \-p NAME, \-\-pidfile=NAME
+Writes pidfile \fINAME\fP containing the \fBsmartd\fP Process ID
+number (PID).  To avoid symlink attacks make sure the directory to
+which pidfile is written is only writable for root.  Without this
+option, or if the \-\-debug option is given, no PID file is written on
+startup.  If \fBsmartd\fP is killed with a maskable signal then the
+pidfile is removed.
+.TP
+.B \-q WHEN, \-\-quit=WHEN
+Specifies when, if ever, \fBsmartd\fP should exit.  The valid
+arguments are to this option are:
+
+.I nodev
+\- Exit if there are no devices to monitor, or if any errors are found
+at startup in the configuration file.  This is the default.
+
+.I errors
+\- Exit if there are no devices to monitor, or if any errors are found
+in the configuration file /usr/local/etc/smartd.conf at startup or whenever it
+is reloaded.
+
+.I nodevstartup
+\- Exit if there are no devices to monitor at startup.  But continue
+to run if no devices are found whenever the configuration file is
+reloaded.
+
+.I never
+\- Only exit if a fatal error occurs (no remaining system memory,
+invalid command line arguments). In this mode, even if there are no
+devices to monitor, or if the configuration file
+\fB/usr/local/etc/smartd.conf\fP has errors, \fBsmartd\fP will continue to run,
+waiting to load a configuration file listing valid devices.
+
+.I onecheck
+\- Start \fBsmartd\fP in debug mode, then register devices, then check
+device\'s SMART status once, and then exit with zero exit status if all
+of these steps worked correctly.
+
+This last option is intended for \'distribution-writers\' who want to
+create automated scripts to determine whether or not to automatically
+start up \fBsmartd\fP after installing smartmontools.  After starting
+\fBsmartd\fP with this command-line option, the distribution\'s install
+scripts should wait a reasonable length of time (say ten seconds).  If
+\fBsmartd\fP has not exited with zero status by that time, the script
+should send \fBsmartd\fP a SIGTERM or SIGKILL and assume that
+\fBsmartd\fP will not operate correctly on the host.  Conversely, if
+\fBsmartd\fP exits with zero status, then it is safe to run
+\fBsmartd\fP in normal daemon mode. If \fBsmartd\fP is unable to
+monitor any devices or encounters other problems then it will return
+with non-zero exit status.
+
+.I showtests
+\- Start \fBsmartd\fP in debug mode, then register devices, then write
+a list of future scheduled self tests to stdout, and then exit with zero
+exit status if all of these steps worked correctly.
+Device's SMART status is not checked.
+
+This option is intended to test whether the '-s REGEX' directives in
+smartd.conf will have the desired effect. The output lists the next test
+schedules, limited to 5 tests per type and device. This is followed by a
+summary of all tests of each device within the next 90 days.
+.TP
+.B \-r TYPE, \-\-report=TYPE
+Intended primarily to help
+.B smartmontools
+developers understand the behavior of
+.B smartmontools
+on non-conforming or poorly-conforming hardware.  This option reports
+details of
+\fBsmartd\fP
+transactions with the device.  The option can be used multiple times.
+When used just once, it shows a record of the ioctl() transactions
+with the device.  When used more than once, the detail of these ioctl()
+transactions are reported in greater detail.  The valid arguments to
+this option are:
+
+.I ioctl
+\- report all ioctl() transactions.
+
+.I ataioctl
+\- report only ioctl() transactions with ATA devices.
+
+.I scsiioctl
+\- report only ioctl() transactions with SCSI devices.
+
+Any argument may include a positive integer to specify the level of
+detail that should be reported.  The argument should be followed by a
+comma then the integer with no spaces.  For example, \fIataioctl,2\fP
+The default level is 1, so \'\-r ataioctl,1\' and \'\-r ataioctl\' are
+equivalent.
+
+.TP
+.B \-s PREFIX, \-\-savestates=PREFIX
+[NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
+Reads/writes \fBsmartd\fP state information from/to files
+\'PREFIX\'\'MODEL\-SERIAL.ata.state\'. This preserves SMART attributes, drive
+min and max temperatures (\-W directive), info about last sent warning email
+(\-m directive), and the time of next check of the self-test REGEXP
+(\-s directive) across boot cycles.
+
+.\" BEGIN ENABLE_SAVESTATES
+If this option is not specified, state information is maintained in files
+\'/usr/local/var/lib/smartmontools/smartd.MODEL\-SERIAL.ata.state\'.
+To disable state files, specify this option with an empty string
+argument: \'-s ""\'.
+.\" END ENABLE_SAVESTATES
+MODEL and SERIAL are build from drive identify information, invalid
+characters are replaced by underline.
+
+If the PREFIX has the form \'/path/dir/\' (e.g. \'/var/lib/smartd/\'), then
+files \'MODEL\-SERIAL.ata.state\' are created in directory \'/path/dir\'.
+If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/smartd\-\'),
+then files 'nameMODEL\-SERIAL.ata.state' are created in directory '/path/'.
+The path must be absolute, except if debug mode is enabled.
+
+The state information files are read on smartd startup. The files are
+always (re)written after reading the configuration file, before rereading
+the configuration file (SIGHUP), before smartd shutdown, and after a check
+forced by SIGUSR1. After a normal check cycle, a file is only rewritten if
+an important change (which usually results in a SYSLOG output) occurred.
+
+.TP
+.B \-\-service
+Cygwin and Windows only: Enables \fBsmartd\fP to run as a Windows service.
+
+On Cygwin, this option is kept for backward compatibility only.
+It has the same effect as \'\-n, \-\-no\-fork\', see above.
+
+On Windows, this option enables the buildin service support.
+The option must be specified in the service command line as the first
+argument. It should not be used from console.
+See NOTES below for details.
+
+.TP
+.B \-V, \-\-version, \-\-license, \-\-copyright
+Prints license, copyright, and CVS version information onto
+STDOUT and then exits. Please include this information if you are
+reporting bugs, or have specific questions about the behavior of
+\fBsmartd\fP.
+
+.SH EXAMPLES
+
+.B
+smartd
+.fi
+Runs the daemon in forked mode. This is the normal way to run
+\fBsmartd\fP.
+Entries are logged to SYSLOG (by default
+.B /var/log/messages.)
+
+.B
+smartd -d -i 30
+.fi
+Run in foreground (debug) mode, checking the disk status
+every 30 seconds.
+
+.B
+smartd -q onecheck
+.fi
+Registers devices, and checks the status of the devices exactly
+once. The exit status (the bash
+.B $?
+variable) will be zero if all went well, and nonzero if no devices
+were detected or some other problem was encountered.
+
+.fi 
+Note that \fBsmartmontools\fP provides a start-up script in
+\fB/usr/local/etc/rc.d/init.d/smartd\fP which is responsible for starting and
+stopping the daemon via the normal init interface.  Using this script,
+you can start \fBsmartd\fP by giving the command:
+.nf
+.B /usr/local/etc/rc.d/init.d/smartd start
+.fi
+and stop it by using the command:
+.nf
+.B /usr/local/etc/rc.d/init.d/smartd stop
+
+.fi
+If you want \fBsmartd\fP to start running whenever your machine is
+booted, this can be enabled by using the command:
+.nf
+.B /sbin/chkconfig --add smartd
+.fi
+and disabled using the command:
+.nf
+.B /sbin/chkconfig --del smartd
+.fi
+
+.\" DO NOT MODIFY THIS OR THE FOLLOWING TWO LINES. THIS MATERIAL
+.\" IS AUTOMATICALLY INCLUDED IN THE FILE smartd.conf.5
+.\" STARTINCLUDE
+
+.SH CONFIGURATION FILE /usr/local/etc/smartd.conf
+In the absence of a configuration file, under Linux
+\fBsmartd\fP 
+will try to open the 20 ATA devices 
+.B /dev/hd[a-t] 
+and the 26 SCSI devices
+.B /dev/sd[a-z].
+Under FreeBSD, 
+\fBsmartd\fP
+will try to open all existing ATA devices (with entries in /dev)
+.B /dev/ad[0-9]+
+and all existing SCSI devices
+.B /dev/da[0-9]+.  
+Under NetBSD/OpenBSD, 
+\fBsmartd\fP
+will try to open all existing ATA devices (with entries in /dev)
+.B /dev/wd[0-9]+c
+and all existing SCSI devices
+.B /dev/sd[0-9]+c.
+Under Solaris \fBsmartd\fP will try to open all entries \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
+devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
+Under Windows \fBsmartd\fP will try to open all entries \fB"/dev/hd[a-j]"\fP ("\\\\.\\PhysicalDrive[0-9]")
+for IDE/ATA devices on WinNT4/2000/XP, \fB"/dev/hd[a-d]"\fP
+(bitmask from "\\\\.\\SMARTVSD") for IDE/ATA devices on Win95/98/98SE/ME,
+and \fB"/dev/scsi[0-9][0-7]"\fP (ASPI adapter 0-9, ID 0-7) for SCSI
+devices on all versions of Windows.
+Under Darwin, \fBsmartd\fP will open any ATA block storage device.
+
+This can be annoying if you have an ATA or SCSI device that hangs or
+misbehaves when receiving SMART commands.  Even if this causes no
+problems, you may be annoyed by the string of error log messages about
+block-major devices that can\'t be found, and SCSI devices that can\'t
+be opened.
+
+One can avoid this problem, and gain more control over the types of
+events monitored by
+\fBsmartd\fP,
+by using the configuration file
+.B /usr/local/etc/smartd.conf.
+This file contains a list of devices to monitor, with one device per
+line.  An example file is included with the
+.B smartmontools
+distribution. You will find this sample configuration file in
+\fB/usr/local/share/doc/smartmontools-5.1/\fP. For security, the configuration file
+should not be writable by anyone but root. The syntax of the file is as
+follows:
+.IP \(bu 4
+There should be one device listed per line, although you may have
+lines that are entirely comments or white space.
+.IP \(bu 4
+Any text following a hash sign \'#\' and up to the end of the line is
+taken to be a comment, and ignored.
+.IP \(bu 4
+Lines may be continued by using a backslash \'\e\' as the last
+non-whitespace or non-comment item on a line.
+.IP \(bu 4
+Note: a line whose first character is a hash sign \'#\' is treated as
+a white-space blank line, \fBnot\fP as a non-existent line, and will
+\fBend\fP a continuation line.
+.PP 0
+.fi
+Here is an example configuration file.  It\'s for illustrative purposes
+only; please don\'t copy it onto your system without reading to the end
+of the
+.B DIRECTIVES
+Section below!
+
+.nf
+.B ################################################
+.B # This is an example smartd startup config file
+.B # /usr/local/etc/smartd.conf for monitoring three
+.B # ATA disks, three SCSI disks, six ATA disks
+.B # behind two 3ware controllers, three SATA disks
+.B # directly connected to the HighPoint Rocket-
+.B # RAID controller, two SATA disks connected to
+.B # the HighPoint RocketRAID controller via a pmport
+.B # device, four SATA disks connected to an Areca
+.B # RAID controller, and one SATA disk.
+.B #
+.nf
+.B # First ATA disk on two different interfaces. On
+.B # the second disk, start a long self-test every
+.B # Sunday between 3 and 4 am.
+.B #
+.B \ \ /dev/hda -a -m admin@example.com,root@localhost 
+.B \ \ /dev/hdc -a -I 194 -I 5 -i 12 -s L/../../7/03
+.B #
+.nf
+.B # SCSI disks.  Send a TEST warning email to admin on
+.B # startup.
+.B #
+.B \ \ /dev/sda
+.B \ \ /dev/sdb -m admin@example.com -M test
+.B #
+.nf
+.B # Strange device.  It\'s SCSI. Start a scheduled
+.B # long self test between 5 and 6 am Monday/Thursday
+.B \ \ /dev/weird -d scsi -s L/../../(1|4)/05
+.B #
+.nf
+.B # An ATA disk may appear as a SCSI device to the
+.B # OS. If a SCSI to ATA Translation (SAT) layer
+.B # is between the OS and the device then this can be
+.B # flagged with the '-d sat' option. This situation
+.B # may become common with SATA disks in SAS and FC
+.B # environments.
+.B \ \ /dev/sda -a -d sat
+.B #
+.nf
+.B # Three disks connected to a MegaRAID controller
+.B # Start short self-tests daily between 1-2, 2-3, and
+.B # 3-4 am.
+.B \ \ /dev/sda -d megaraid,0 -a -s S/../.././01
+.B \ \ /dev/sda -d megaraid,1 -a -s S/../.././02
+.B \ \ /dev/sda -d megaraid,2 -a -s S/../.././03
+.B
+.B #
+.nf
+.B # Four ATA disks on a 3ware 6/7/8000 controller.
+.B # Start short self-tests daily between midnight and 1am,
+.B # 1-2, 2-3, and 3-4 am.  Starting with the Linux 2.6
+.B # kernel series, /dev/sdX is deprecated in favor of
+.B # /dev/tweN.  For example replace /dev/sdc by /dev/twe0
+.B # and /dev/sdd by /dev/twe1.
+.B \ \ /dev/sdc -d 3ware,0 -a -s S/../.././00
+.B \ \ /dev/sdc -d 3ware,1 -a -s S/../.././01
+.B \ \ /dev/sdd -d 3ware,2 -a -s S/../.././02
+.B \ \ /dev/sdd -d 3ware,3 -a -s S/../.././03
+.B #
+.nf
+.B # Two ATA disks on a 3ware 9000 controller.
+.B # Start long self-tests Sundays between  midnight and 
+.B # 1am and 2-3 am
+.B \ \ /dev/twa0 -d 3ware,0 -a -s L/../../7/00
+.B \ \ /dev/twa0 -d 3ware,1 -a -s L/../../7/02
+.B #
+.nf
+.B # Three SATA disks on a HighPoint RocketRAID controller.
+.B # Start short self-tests daily between 1-2, 2-3, and
+.B # 3-4 am.
+.B # under Linux
+.B \ \ /dev/sde -d hpt,1/1 -a -s S/../.././01
+.B \ \ /dev/sde -d hpt,1/2 -a -s S/../.././02
+.B \ \ /dev/sde -d hpt,1/3 -a -s S/../.././03
+.B # or under FreeBSD
+.B # /dev/hptrr -d hpt,1/1 -a -s S/../.././01
+.B # /dev/hptrr -d hpt,1/2 -a -s S/../.././02
+.B # /dev/hptrr -d hpt,1/3 -a -s S/../.././03
+.B #
+.nf
+.B # Two SATA disks connected to a HighPoint RocketRAID 
+.B # via a pmport device.  Start long self-tests Sundays
+.B # between midnight and 1am and 2-3 am.
+.B # under Linux
+.B \ \ /dev/sde -d hpt,1/4/1 -a -s L/../../7/00
+.B \ \ /dev/sde -d hpt,1/4/2 -a -s L/../../7/02
+.B # or under FreeBSD
+.B # /dev/hptrr -d hpt,1/4/1 -a -s L/../../7/00
+.B # /dev/hptrr -d hpt,1/4/2 -a -s L/../../7/02
+.B #
+.nf
+.B # Three SATA disks connected to an Areca
+.B # RAID controller. Start long self-tests Sundays
+.B # between midnight and 3 am.
+.B \ \ /dev/sg2 -d areca,1 -a -s L/../../7/00
+.B \ \ /dev/sg2 -d areca,2 -a -s L/../../7/01
+.B \ \ /dev/sg2 -d areca,3 -a -s L/../../7/02
+.B #
+.nf
+.B # The following line enables monitoring of the 
+.B # ATA Error Log and the Self-Test Error Log.  
+.B # It also tracks changes in both Prefailure
+.B # and Usage Attributes, apart from Attributes
+.B # 9, 194, and 231, and shows  continued lines:
+.B #
+.B \ \ /dev/hdd\ -l\ error\ \e
+.B \ \ \ \ \ \ \ \ \ \ \ -l\ selftest\ \e
+.B \ \ \ \ \ \ \ \ \ \ \ -t\ \e\ \ \ \ \ \ # Attributes not tracked:
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 194\ \e\ \ # temperature
+.B \ \ \ \ \ \ \ \ \ \ \ -I\ 231\ \e\ \ # also temperature
+.B \ \ \ \ \ \ \ \ \ \ \ -I 9\ \ \ \ \ \ # power-on hours
+.B #
+.B ################################################
+.fi
+
+.PP 
+.SH CONFIGURATION FILE DIRECTIVES
+.PP
+
+If the first non-comment entry in the configuration file is the text
+string
+.B DEVICESCAN
+in capital letters, then
+\fBsmartd\fP
+will ignore any remaining lines in the configuration file, and will
+scan for devices.
+.B DEVICESCAN
+may optionally be followed by Directives that will apply to all
+devices that are found in the scan.  Please see below for additional
+details.
+
+.sp 2
+The following are the Directives that may appear following the device
+name or
+.B DEVICESCAN
+on any line of the
+.B /usr/local/etc/smartd.conf
+configuration file. Note that
+.B these are NOT command-line options for 
+\fBsmartd\fP.
+The Directives below may appear in any order, following the device
+name. 
+
+.B For an ATA device,
+if no Directives appear, then the device will be monitored
+as if the \'\-a\' Directive (monitor all SMART properties) had been given.
+
+.B If a SCSI disk is listed,
+it will be monitored at the maximum implemented level: roughly
+equivalent to using the \'\-H \-l selftest\' options for an ATA disk.
+So with the exception of \'\-d\', \'\-m\', \'\-l selftest\', \'\-s\', and
+\'\-M\', the Directives below are ignored for SCSI disks.  For SCSI
+disks, the \'\-m\' Directive sends a warning email if the SMART status
+indicates a disk failure or problem, if the SCSI inquiry about disk
+status fails, or if new errors appear in the self-test log.
+
+.B If a 3ware controller is used
+then the corresponding SCSI (/dev/sd?) or character device (/dev/twe?
+or /dev/twa?) must be listed, along with the \'\-d 3ware,N\' Directive
+(see below).  The individual ATA disks hosted by the 3ware controller
+appear to \fBsmartd\fP as normal ATA devices.  Hence all the ATA
+directives can be used for these disks (but see note below).
+
+.B If an Areca controller is used
+then the corresponding SCSI generic device (/dev/sg?)  must be listed,
+along with the \'\-d areca,N\' Directive (see below).  The individual
+SATA disks hosted by the Areca controller appear to \fBsmartd\fP as
+normal ATA devices.  Hence all the ATA directives can be used for
+these disks.  Areca firmware version 1.46 or later which supports
+smartmontools must be used; Please see the \fBsmartctl\fP man page for
+further details.
+
+.TP
+.B \-d TYPE
+Specifies the type of the device.  This Directive may be used multiple
+times for one device, but the arguments \fIata\fP, \fIscsi\fP,
+\fIsat\fP, \fImarvell\fP, \fIcciss,N\fP, \fIareca,N\fP, \fImegaraid,N\fP
+and \fI3ware,N\fP are mutually-exclusive. If more than one is given then
+\fBsmartd\fP will use the last one which appears.
+
+If none of these three arguments is given, then \fBsmartd\fP will
+first attempt to guess the device type by looking at whether the sixth
+character in the device name is an \'s\' or an \'h\'.  This will work for
+device names like /dev/hda or /dev/sdb, and corresponds to choosing
+\fIata\fP or \fIscsi\fP respectively. If
+\fBsmartd\fP
+can\'t guess from this sixth character, then it will simply try to
+access the device using first ATA and then SCSI ioctl()s.
+
+The valid arguments to this Directive are:
+
+.I ata
+\- the device type is ATA.  This prevents
+\fBsmartd\fP
+from issuing SCSI commands to an ATA device.
+
+.I scsi
+\- the device type is SCSI.  This prevents
+\fBsmartd\fP
+from issuing ATA commands to a SCSI device.
+
+.I sat
+\- the device type is SCSI to ATA Translation (SAT).
+\fBsmartd\fP
+will generate ATA (smart) commands and then package them in
+the SAT defined ATA PASS THROUGH SCSI commands. The commands
+are then routed through the SCSI pass through interface to the
+operating system. There are two types of ATA PASS THROUGH
+SCSI commands: a 12 byte and 16 byte variant.
+\fBsmartd\fP
+can use either and defaults to the 16 byte variant. This can
+be overridden with this syntax: \'\-d sat,12\' or \'\-d sat,16\'.
+
+.I marvell
+\- Under Linux, interact with SATA disks behind Marvell chip-set
+controllers (using the Marvell rather than libata driver).
+
+.I megaraid,N
+\- the device consists of one or more SCSI/SAS/SATA disks connected
+to a MegaRAID controller.  The non-negative integer N (in the range
+of 0 to 127 inclusive) denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identified as
+megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
+
+.I 3ware,N
+\- the device consists of one or more ATA disks connected to a 3ware
+RAID controller. The non-negative integer N (in the range from 0 to 127 
+inclusive) denotes which disk on the controller is monitored.  In log
+files and email messages this disk will be identified as 3ware_disk_XXX
+with XXX in the range from 000 to 127 inclusive.
+
+This Directive may at first appear confusing, because the 3ware
+controller is a SCSI device (such as /dev/sda) and should be listed as
+such in the the configuration file.
+However when the \'\-d 3ware,N\'
+Directive is used, then the corresponding disk is addressed using
+native ATA commands which are \'passed through\' the SCSI driver. All
+ATA Directives listed in this man page may be used.  Note that while
+you may use \fBany\fP of the 3ware SCSI logical devices /dev/sd? to
+address \fBany\fP of the physical disks (3ware ports), error and log
+messages will make the most sense if you always list the 3ware SCSI
+logical device corresponding to the particular physical disks.  Please
+see the \fBsmartctl\fP man page for further details.
+
+ATA disks behind 3ware controllers may alternatively be accessed via a
+character device interface /dev/twe0-15 (3ware 6000/7000/8000
+controllers) and /dev/twa0-15 (3ware 9000 series controllers).  Note
+that the 9000 series controllers may \fBonly\fP be accessed using the
+character device interface /dev/twa0-15 and not the SCSI device
+interface /dev/sd?.  Please see the \fBsmartctl\fP man page for
+further details.
+
+Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
+(\fB-S on\fP) and \'Enable Automatic Offline\' (\fB-o on\fP) commands
+to the disk, if the SCSI interface is used, and produce these types of
+harmless syslog error messages instead: \fB\'3w-xxxx: tw_ioctl():
+Passthru size (123392) too big\'\fP. This can be fixed by upgrading to
+version 1.02.00.037 or later of the 3w-xxxx driver, or by applying a
+patch to older versions.  See
+\fBhttp://smartmontools.sourceforge.net/\fP for instructions.
+Alternatively use the character device interfaces /dev/twe0-15 (3ware
+6/7/8000 series controllers) or /dev/twa0-15 (3ware 9000 series
+controllers).
+
+.I areca,N
+\- the device consists of one or more SATA disks connected to an Areca
+SATA RAID controller.  The positive integer N (in the range from 1 to
+24 inclusive) denotes which disk on the controller is monitored.  In
+log files and email messages this disk will be identifed as
+areca_disk_XX with XX in the range from 01 to 24 inclusive.
+
+.I cciss,N
+\- the device consists of one or more SCSI disks connected to a cciss
+RAID controller. The non-negative integer N (in the range from 0 to 15
+inclusive) denotes which disk on the controller is monitored.  In log
+files and email messages this disk will be identified as cciss_disk_XX
+with XX in the range from 00 to 15 inclusive.
+
+.B 3ware, MegaRAID, Areca and cciss controllers are currently ONLY supported under Linux.
+
+.I hpt,L/M/N
+\- the device consists of one or more ATA disks connected to a HighPoint
+RocketRAID controller.  The integer L is the controller id, the integer M
+is the channel number, and the integer N is the PMPort number if it is
+available. The allowed values of L are from 1 to 4 inclusive, M are from
+1 to 8 inclusive and N from 1 to 4 if PMPort available.  And also these
+values are limited by the model of the HighPoint RocketRAID controller.
+In log files and email messages this disk will be identified as
+hpt_X/X/X and X/X/X is the same as L/M/N, note if no N indicated, N set
+to the default value 1.
+
+.B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
+
+.I removable
+\- the device or its media is removable.  This indicates to
+\fBsmartd\fP
+that it should continue (instead of exiting, which is the default
+behavior) if the device does not appear to be present when
+\fBsmartd\fP is started.  This Directive may be used in conjunction
+with the other \'\-d\' Directives.
+
+.TP
+.B \-n POWERMODE[,N][,q]
+This \'nocheck\' Directive is used to prevent a disk from being
+spun-up when it is periodically polled by \fBsmartd\fP.
+
+ATA disks have five different power states. In order of increasing
+power consumption they are: \'OFF\', \'SLEEP\', \'STANDBY\', \'IDLE\',
+and \'ACTIVE\'.  Typically in the OFF, SLEEP, and STANDBY modes the
+disk\'s platters are not spinning. But usually, in response to SMART
+commands issued by \fBsmartd\fP, the disk platters are spun up.  So if
+this option is not used, then a disk which is in a low\-power mode may
+be spun up and put into a higher\-power mode when it is periodically
+polled by \fBsmartd\fP.
+
+Note that if the disk is in SLEEP mode when \fBsmartd\fP is started,
+then it won't respond to \fBsmartd\fP commands, and so the disk won't
+be registered as a device for \fBsmartd\fP to monitor. If a disk is in
+any other low\-power mode, then the commands issued by \fBsmartd\fP to
+register the disk will probably cause it to spin\-up.
+
+The \'\fB\-n\fP\' (nocheck) Directive specifies if \fBsmartd\fP\'s
+periodic checks should still be carried out when the device is in a
+low\-power mode.  It may be used to prevent a disk from being spun\-up
+by periodic \fBsmartd\fP polling.  The allowed values of POWERMODE
+are:
+
+.I never
+\- \fBsmartd\fP will poll (check) the device regardless of its power
+mode. This may cause a disk which is spun\-down to be spun\-up when
+\fBsmartd\fP checks it.  This is the default behavior if the '\-n'
+Directive is not given.
+
+.I sleep
+\- check the device unless it is in SLEEP mode.
+
+.I standby
+\- check the device unless it is in SLEEP or STANDBY mode.  In
+these modes most disks are not spinning, so if you want to prevent
+a laptop disk from spinning up each time that \fBsmartd\fP polls,
+this is probably what you want.
+
+.I idle
+\- check the device unless it is in SLEEP, STANDBY or IDLE mode.
+In the IDLE state, most disks are still spinning, so this is probably
+not what you want.
+
+Maximum number of skipped checks (in a row) can be specified by
+appending positive number \',N\' to POWERMODE (like \'\-n standby,15\').
+After N checks are skipped in a row, powermode is ignored and the
+check is performed anyway.
+
+When a periodic test is skipped, \fBsmartd\fP normally writes an
+informal log message. The message can be suppressed by appending
+the option \',q\' to POWERMODE (like \'\-n standby,q\').
+This prevents a laptop disk from spinning up due to this message.
+
+Both \',N\' and \',q\' can be specified together.
+
+.TP
+.B \-T TYPE
+Specifies how tolerant
+\fBsmartd\fP
+should be of SMART command failures.  The valid arguments to this
+Directive are:
+
+.I normal
+\- do not try to monitor the disk if a mandatory SMART command fails, but
+continue if an optional SMART command fails.  This is the default.
+
+.I permissive
+\- try to monitor the disk even if it appears to lack SMART
+capabilities.  This may be required for some old disks (prior to
+ATA\-3 revision 4) that implemented SMART before the SMART standards
+were incorporated into the ATA/ATAPI Specifications.  This may also be
+needed for some Maxtor disks which fail to comply with the ATA
+Specifications and don't properly indicate support for error\- or
+self\-test logging.
+
+[Please see the \fBsmartctl \-T\fP command-line option.]
+.TP
+.B \-o VALUE
+Enables or disables SMART Automatic Offline Testing when
+\fBsmartd\fP
+starts up and has no further effect.  The valid arguments to this
+Directive are \fIon\fP and \fIoff\fP.
+
+The delay between tests is vendor-specific, but is typically four
+hours.
+
+Note that SMART Automatic Offline Testing is \fBnot\fP part of the ATA
+Specification.  Please see the
+.B smartctl \-o
+command-line option documentation for further information about this
+feature.
+.TP
+.B \-S VALUE
+Enables or disables Attribute Autosave when \fBsmartd\fP
+starts up and has no further effect.  The valid arguments to this
+Directive are \fIon\fP and \fIoff\fP.  Also affects SCSI devices.
+[Please see the \fBsmartctl \-S\fP command-line option.]
+.TP
+.B \-H
+Check the SMART health status of the disk.  If any Prefailure
+Attributes are less than or equal to their threshold values, then disk
+failure is predicted in less than 24 hours, and a message at loglevel
+.B \'LOG_CRITICAL\'
+will be logged to syslog.  [Please see the
+.B smartctl \-H
+command-line option.]
+.TP
+.B \-l TYPE
+Reports increases in the number of errors in one of the two SMART logs.  The
+valid arguments to this Directive are:
+
+.I error
+\- report if the number of ATA errors reported in the ATA Error Log
+has increased since the last check.
+
+.I selftest
+\- report if the number of failed tests reported in the SMART
+Self-Test Log has increased since the last check, or if the timestamp
+associated with the most recent failed test has increased.  Note that
+such errors will \fBonly\fP be logged if you run self-tests on the
+disk (and it fails a test!).  Self-Tests can be run automatically by
+\fBsmartd\fP: please see the \fB\'\-s\'\fP Directive below.
+Self-Tests can also be run manually by using the \fB\'\-t\ short\'\fP
+and \fB\'\-t\ long\'\fP options of \fBsmartctl\fP and the results of
+the testing can be observed using the \fBsmartctl \'\-l\ selftest\'\fP
+command-line option.]
+
+[Please see the \fBsmartctl \-l\fP and \fB\-t\fP command-line
+options.]
+.TP
+.B \-s REGEXP
+Run Self-Tests or Offline Immediate Tests, at scheduled times.  A
+Self- or Offline Immediate Test will be run at the end of periodic
+device polling, if all 12 characters of the string \fBT/MM/DD/d/HH\fP
+match the extended regular expression \fBREGEXP\fP. Here:
+.RS 7
+.IP \fBT\fP 4
+is the type of the test.  The values that \fBsmartd\fP will try to
+match (in turn) are: \'L\' for a \fBL\fPong Self-Test, \'S\' for a
+\fBS\fPhort Self-Test, \'C\' for a \fBC\fPonveyance Self-Test (ATA
+only), and \'O\' for an \fBO\fPffline Immediate Test (ATA only).  As
+soon as a match is found, the test will be started and no additional
+matches will be sought for that device and that polling cycle.
+
+[NEW EXPERIMENTAL SMARTD FEATURE] To run scheduled Selective
+Self-Tests, use \'n\' for \fBn\fPext span, \'r\' to \fBr\fPedo last
+span, or \'c\' to \fBc\fPontinue with next span or redo last span
+based on status of last test. The LBA range is based on the first
+span from the last test.
+See the \fBsmartctl \-t select,[next|redo|cont]\fP options for
+further info.
+
+.IP \fBMM\fP 4
+is the month of the year, expressed with two decimal digits.  The
+range is from 01 (January) to 12 (December) inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
+.IP \fBDD\fP 4
+is the day of the month, expressed with two decimal digits. The
+range is from 01 to 31 inclusive.  Do \fBnot\fP
+use a single decimal digit or the match will always fail!
+.IP \fBd\fP 4
+is the day of the week, expressed with one decimal digit.  The
+range is from 1 (Monday) to 7 (Sunday) inclusive.
+.IP \fBHH\fP 4
+is the hour of the day, written with two decimal digits, and given in
+hours after midnight.  The range is 00 (midnight to just before 1am)
+to 23 (11pm to just before midnight) inclusive.  Do \fBnot\fP use a
+single decimal digit or the match will always fail!
+.RE
+.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
+.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.TP
+.B \&
+Some examples follow.  In reading these, keep in mind that in extended
+regular expressions a dot \fB\'.\'\fP matches any single character, and
+a parenthetical expression such as \fB\'(A|B|C)\'\fP denotes any one of the three possibilities \fBA\fP,
+\fBB\fP, or \fBC\fP.
+
+To schedule a short Self-Test between 2-3am every morning, use:
+.nf
+\fB \-s S/../.././02\fP
+.fi
+To schedule a long Self-Test between 4-5am every Sunday morning, use:
+.nf
+\fB \-s L/../../7/04\fP
+.fi
+To schedule a long Self-Test between 10-11pm on the first and
+fifteenth day of each month, use:
+.nf
+\fB \-s L/../(01|15)/./22\fP
+.fi
+To schedule an Offline Immediate test after every midnight, 6am,
+noon,and 6pm, plus a Short Self-Test daily at 1-2am and a Long
+Self-Test every Saturday at 3-4am, use:
+.nf
+\fB \-s (O/../.././(00|06|12|18)|S/../.././01|L/../../6/03)\fP
+.fi
+If Long Self-Tests of a large disks take longer than the system uptime,
+a full disk test can be performed by several Selective Self-Tests.
+To setup a full test of a 1TB disk within 20 days (one 50GB span
+each day), run this command once:
+.nf
+  smartctl -t select,0-99999999 /dev/sda
+.fi
+To run the next test spans on Monday-Friday between 12-13am, run smartd
+with this directive:
+.nf
+\fB \-s n/../../[1-5]/12\fP
+.fi
+
+
+Scheduled tests are run immediately following the regularly-scheduled
+device polling, if the current local date, time, and test type, match
+\fBREGEXP\fP.  By default the regularly-scheduled device polling
+occurs every thirty minutes after starting \fBsmartd\fP.  Take caution
+if you use the \'\-i\' option to make this polling interval more than
+sixty minutes: the poll times may fail to coincide with any of the
+testing times that you have specified with \fBREGEXP\fP.  In this case
+the test will be run following the next device polling.
+
+Before running an offline or self-test, \fBsmartd\fP checks to be sure
+that a self-test is not already running.  If a self-test \fBis\fP
+already running, then this running self test will \fBnot\fP be
+interrupted to begin another test.
+
+\fBsmartd\fP will not attempt to run \fBany\fP type of test if another
+test was already started or run in the same hour.
+
+To avoid performance problems during system boot, \fBsmartd\fP will
+not attempt to run any scheduled tests following the very first
+device polling (unless \'\-q onecheck\' is specified).
+
+Each time a test is run, \fBsmartd\fP will log an entry to SYSLOG.
+You can use these or the '-q showtests' command-line option to verify
+that you constructed \fBREGEXP\fP correctly.  The matching order
+(\fBL\fP before \fBS\fP before \fBC\fP before \fBO\fP) ensures that
+if multiple test types are all scheduled for the same hour, the
+longer test type has precedence.  This is usually the desired behavior.
+
+If the scheduled tests are used in conjunction with state persistence
+(\'\-s\' option), smartd will also try to match the hours since last
+shutdown (or 90 days at most). If any test would have been started
+during downtime, the longest (see above) of these tests is run after
+second device polling.
+
+If the \'\-n\' directive is used and any test would have been started
+during disk standby time, the longest of these tests is run when the
+disk is active again.
+
+Unix users: please beware that the rules for extended regular
+expressions [regex(7)] are \fBnot\fP the same as the rules for
+file\-name pattern matching by the shell [glob(7)].  \fBsmartd\fP will
+issue harmless informational warning messages if it detects characters
+in \fBREGEXP\fP that appear to indicate that you have made this
+mistake.
+
+.TP
+.B \-m ADD
+Send a warning email to the email address \fBADD\fP if the \'\-H\',
+\'\-l\', \'\-f\', \'\-C\', or \'\-O\' Directives detect a failure or a
+new error, or if a SMART command to the disk fails. This Directive
+only works in conjunction with these other Directives (or with the
+equivalent default \'\-a\' Directive).
+
+To prevent your email in-box from getting filled up with warning
+messages, by default only a single warning will be sent for each of
+the enabled alert types, \'\-H\', \'\-l\', \'\-f\', \'\-C\', or
+\'\-O\' even if more than one failure or error is detected or if the
+failure or error persists.  [This behavior can be modified; see the
+\'\-M\' Directive below.]
+
+To send email to more than one user, please use the following "comma
+separated" form for the address: \fBuser1@add1,user2@add2,...,userN@addN\fP
+(with no spaces).
+
+To test that email is being sent correctly, use the \'\-M test\'
+Directive described below to send one test email message on
+\fBsmartd\fP
+startup.
+
+By default, email is sent using the system 
+.B mail
+command.  In order that
+\fBsmartd\fP
+find the mail command (normally /bin/mail) an executable named
+.B \'mail\'
+must be in the path of the shell or environment from which
+\fBsmartd\fP
+was started.  If you wish to specify an explicit path to the mail
+executable (for example /usr/local/bin/mail) or a custom script to
+run, please use the \'\-M exec\' Directive below.
+
+Note that by default under Solaris, in the previous paragraph,
+\'\fBmailx\fP\' and \'\fB/bin/mailx\fP\' are used, since Solaris
+\'/bin/mail\' does not accept a \'\-s\' (Subject) command-line
+argument.
+
+On Windows, the \'\fBBlat\fP\' mailer
+(\fBhttp://blat.sourceforge.net/\fP) is used by default.
+This mailer uses a different command line syntax, see
+\'\-M exec\' below.
+
+Note also that there is a special argument
+.B <nomailer>
+which can be given to the \'\-m\' Directive in conjunction with the \'\-M
+exec\' Directive. Please see below for an explanation of its effect.
+
+If the mailer or the shell running it produces any STDERR/STDOUT
+output, then a snippet of that output will be copied to SYSLOG.  The
+remainder of the output is discarded. If problems are encountered in
+sending mail, this should help you to understand and fix them.  If
+you have mail problems, we recommend running \fBsmartd\fP in debug
+mode with the \'-d\' flag, using the \'-M test\' Directive described
+below.
+
+The following extension is available on Windows:
+By specifying \'\fBmsgbox\fP\' as a mail address, a warning
+"email" is displayed as a message box on the screen.
+Using both \'\fBmsgbox\fP\' and regular mail addresses is possible,
+if \'\fBmsgbox\fP\' is the first word in the comma separated list.
+With \'\fBsysmsgbox\fP\', a system modal (always on top) message box
+is used. If running as a service, a service notification message box
+(always shown on current visible desktop) is used.
+
+.TP
+.B \-M TYPE
+These Directives modify the behavior of the
+\fBsmartd\fP
+email warnings enabled with the \'\-m\' email Directive described above.
+These \'\-M\' Directives only work in conjunction with the \'\-m\'
+Directive and can not be used without it.
+
+Multiple \-M Directives may be given.  If more than one of the
+following three \-M Directives are given (example: \-M once \-M daily)
+then the final one (in the example, \-M daily) is used.
+
+The valid arguments to the \-M Directive are (one of the following
+three):
+
+.I once
+\- send only one warning email for each type of disk problem detected.  This
+is the default.
+
+.I daily
+\- send additional warning reminder emails, once per day, for each type
+of disk problem detected.
+
+.I diminishing
+\- send additional warning reminder emails, after a one-day interval,
+then a two-day interval, then a four-day interval, and so on for each
+type of disk problem detected. Each interval is twice as long as the
+previous interval.
+
+In addition, one may add zero or more of the following Directives:
+
+.I test
+\- send a single test email
+immediately upon
+\fBsmartd\fP
+startup.  This allows one to verify that email is delivered correctly.
+Note that if this Directive is used,
+\fBsmartd\fP
+will also send the normal email warnings that were enabled with the \'\-m\' Directive,
+in addition to the single test email!
+
+.I exec PATH
+\- run the executable PATH instead of the default mail command, when
+\fBsmartd\fP
+needs to send email.  PATH must point to an executable binary file or
+script.
+
+By setting PATH to point to a customized script, you can make
+\fBsmartd\fP perform useful tricks when a disk problem is detected
+(beeping the console, shutting down the machine, broadcasting warnings
+to all logged-in users, etc.)  But please be careful. \fBsmartd\fP
+will \fBblock\fP until the executable PATH returns, so if your
+executable hangs, then \fBsmartd\fP will also hang. Some sample
+scripts are included in
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
+
+The return status of the executable is recorded by \fBsmartd\fP in
+SYSLOG. The executable is not expected to write to STDOUT or
+STDERR.  If it does, then this is interpreted as indicating that
+something is going wrong with your executable, and a fragment of this
+output is logged to SYSLOG to help you to understand the problem.
+Normally, if you wish to leave some record behind, the executable
+should send mail or write to a file or device.
+
+Before running the executable, \fBsmartd\fP sets a number of
+environment variables.  These environment variables may be used to
+control the executable\'s behavior.  The environment variables
+exported by \fBsmartd\fP are:
+.RS 7
+.IP \fBSMARTD_MAILER\fP 4
+is set to the argument of \-M exec, if present or else to \'mail\'
+(examples: /bin/mail, mail).
+.IP \fBSMARTD_DEVICE\fP 4
+is set to the device path (examples: /dev/hda, /dev/sdb).
+.IP \fBSMARTD_DEVICETYPE\fP 4
+is set to the device type (possible values: ata, scsi, 3ware,N,
+areca,N, hpt,L/M/N).  Here N=0,...,127 denotes the ATA disk behind a
+3ware RAID controller and L/M/N denotes the SATA disk behind a
+HighPoint RocketRAID controller.
+.IP \fBSMARTD_DEVICESTRING\fP 4
+is set to the device description.  For SMARTD_DEVICETYPE of ata or
+scsi, this is the same as SMARTD_DEVICE.  For 3ware RAID controllers,
+the form used is \'/dev/sdc [3ware_disk_01]\'.  For HighPoint
+RocketRAID controller, the form is \'/dev/sdd [hpt_1/1/1]\' under Linux
+or \'/dev/hptrr [hpt_1/1/1]\' under FreeBSD.  For Areca controllers, the
+form is \'/dev/sg2 [areca_disk_09]\'.  In these cases the device string
+contains a space and is NOT quoted.  So to use $SMARTD_DEVICESTRING in a
+bash script you should probably enclose it in double quotes.
+.IP \fBSMARTD_FAILTYPE\fP 4
+gives the reason for the warning or message email.  The possible values that
+it takes and their meanings are:
+.nf
+.fi
+\fIEmailTest\fP: this is an email test message.
+.nf
+.fi
+\fIHealth\fP: the SMART health status indicates imminent failure.
+.nf
+.fi
+\fIUsage\fP: a usage Attribute has failed.
+.nf
+.fi
+\fISelfTest\fP: the number of self-test failures has increased.
+.nf
+.fi
+\fIErrorCount\fP: the number of errors in the ATA error log has increased.
+.nf
+.fi
+\fICurrentPendingSector\fP: one of more disk sectors could not be
+read and are marked to be reallocated (replaced with spare sectors).
+.nf
+.fi
+\fIOfflineUncorrectableSector\fP: during off\-line testing, or self\-testing,
+one or more disk sectors could not be read.
+.nf
+.fi
+\fIFailedHealthCheck\fP: the SMART health status command failed.
+.nf
+.fi
+\fIFailedReadSmartData\fP: the command to read SMART Attribute data failed.
+.nf
+.fi
+\fIFailedReadSmartErrorLog\fP: the command to read the SMART error log failed.
+.nf
+.fi
+\fIFailedReadSmartSelfTestLog\fP: the command to read the SMART self-test log failed.
+.nf
+.fi
+\fIFailedOpenDevice\fP: the open() command to the device failed.
+.IP \fBSMARTD_ADDRESS\fP 4
+is determined by the address argument ADD of the \'\-m\' Directive.
+If ADD is \fB<nomailer>\fP, then \fBSMARTD_ADDRESS\fP is not set.
+Otherwise, it is set to the comma-separated-list of email addresses
+given by the argument ADD, with the commas replaced by spaces
+(example:admin@example.com root).  If more than one email address is
+given, then this string will contain space characters and is NOT
+quoted, so to use it in a bash script you may want to enclose it in
+double quotes.
+.IP \fBSMARTD_MESSAGE\fP 4
+is set to the one sentence summary warning email message string from
+\fBsmartd\fP. 
+This message string contains space characters and is NOT quoted. So to
+use $SMARTD_MESSAGE in a bash script you should probably enclose it in
+double quotes.
+.IP \fBSMARTD_FULLMESSAGE\fP 4
+is set to the contents of the entire email warning message string from
+\fBsmartd\fP. 
+This message string contains space and return characters and is NOT quoted. So to
+use $SMARTD_FULLMESSAGE in a bash script you should probably enclose it in
+double quotes.
+.IP \fBSMARTD_TFIRST\fP 4
+is a text string giving the time and date at which the first problem
+of this type was reported. This text string contains space characters
+and no newlines, and is NOT quoted. For example:
+.nf
+.fi
+Sun Feb  9 14:58:19 2003 CST
+.IP \fBSMARTD_TFIRSTEPOCH\fP 4
+is an integer, which is the unix epoch (number of seconds since Jan 1,
+1970) for \fBSMARTD_TFIRST\fP.
+.RE
+.\"  The following two lines are a workaround for a man2html bug.  Please leave them.
+.\" They define a non-existent option; useful because man2html can't correctly reset the margins.
+.TP
+.B \&
+The shell which is used to run PATH is system-dependent. For vanilla
+Linux/glibc it\'s bash. For other systems, the man page for
+\fBpopen\fP(3) should say what shell is used.
+
+If the \'\-m ADD\' Directive is given with a normal address argument,
+then the executable pointed to by PATH will be run in a shell with
+STDIN receiving the body of the email message, and with the same
+command-line arguments:
+.nf
+-s "$SMARTD_SUBJECT" $SMARTD_ADDRESS
+.fi
+that would normally be provided to \'mail\'.  Examples include:
+.nf
+.B -m user@home -M exec /bin/mail
+.B -m admin@work -M exec /usr/local/bin/mailto
+.B -m root -M exec /Example_1/bash/script/below
+.fi
+
+Note that on Windows, the syntax of the \'\fBBlat\fP\' mailer is
+used:
+.nf
+- -q -subject "$SMARTD_SUBJECT" -to "$SMARTD_ADDRESS"
+.fi
+
+If the \'\-m ADD\' Directive is given with the special address argument
+.B <nomailer>
+then the executable pointed to by PATH is run in a shell with
+.B no
+STDIN and
+.B no
+command-line arguments, for example:
+.nf
+.B -m <nomailer> -M exec /Example_2/bash/script/below
+.fi
+If the executable produces any STDERR/STDOUT output, then \fBsmartd\fP
+assumes that something is going wrong, and a snippet of that output
+will be copied to SYSLOG.  The remainder of the output is then
+discarded.
+
+Some EXAMPLES of scripts that can be used with the \'\-M exec\'
+Directive are given below. Some sample scripts are also included in
+/usr/local/share/doc/smartmontools-5.1/examplescripts/.
+
+.TP
+.B \-f
+Check for \'failure\' of any Usage Attributes.  If these Attributes are
+less than or equal to the threshold, it does NOT indicate imminent
+disk failure.  It "indicates an advisory condition where the usage or
+age of the device has exceeded its intended design life period."
+[Please see the \fBsmartctl \-A\fP command-line option.]
+.TP
+.B \-p
+Report anytime that a Prefail Attribute has changed
+its value since the last check, 30 minutes ago. [Please see the
+.B smartctl \-A
+command-line option.]
+.TP
+.B \-u
+Report anytime that a Usage Attribute has changed its value
+since the last check, 30 minutes ago. [Please see the
+.B smartctl \-A
+command-line option.]
+.TP
+.B \-t
+Equivalent to turning on the two previous flags \'\-p\' and \'\-u\'.
+Tracks changes in \fIall\fP device Attributes (both Prefailure and
+Usage). [Please see the \fBsmartctl\fP \-A command-line option.]
+.TP
+.B \-i ID
+Ignore device Attribute number \fBID\fP when checking for failure of
+Usage Attributes.  \fBID\fP must be a decimal integer in the range
+from 1 to 255.  This Directive modifies the behavior of the \'\-f\'
+Directive and has no effect without it.
+
+This is useful, for example, if you have a very old disk and don\'t
+want to keep getting messages about the hours-on-lifetime Attribute
+(usually Attribute 9) failing.  This Directive may appear multiple
+times for a single device, if you want to ignore multiple Attributes.
+.TP
+.B \-I ID
+Ignore device Attribute \fBID\fP when tracking changes in the
+Attribute values.  \fBID\fP must be a decimal integer in the range
+from 1 to 255.  This Directive modifies the behavior of the \'\-p\',
+\'\-u\', and \'\-t\' tracking Directives and has no effect without one
+of them.
+
+This is useful, for example, if one of the device Attributes is the disk
+temperature (usually Attribute 194 or 231). It\'s annoying to get reports
+each time the temperature changes.  This Directive may appear multiple
+times for a single device, if you want to ignore multiple Attributes.
+.TP
+.B \-r ID[!]
+When tracking, report the \fIRaw\fP value of Attribute \fBID\fP along
+with its (normally reported) \fINormalized\fP value.  \fBID\fP must be
+a decimal integer in the range from 1 to 255.  This Directive modifies
+the behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives
+and has no effect without one of them.  This Directive may be given
+multiple times.
+
+A common use of this Directive is to track the device Temperature
+(often ID=194 or 231).
+
+If the optional flag \'!\' is appended, a change of the Normalized
+value is considered critical.  The report will be logged as LOG_CRIT
+and a warning email will be sent if \'-m\' is specified.
+
+.TP
+.B \-R ID[!]
+When tracking, report whenever the \fIRaw\fP value of Attribute
+\fBID\fP changes.  (Normally \fBsmartd\fP only tracks/reports changes
+of the \fINormalized\fP Attribute values.)  \fBID\fP must be a decimal
+integer in the range from 1 to 255.  This Directive modifies the
+behavior of the \'\-p\', \'\-u\', and \'\-t\' tracking Directives and
+has no effect without one of them.  This Directive may be given
+multiple times.
+
+If this Directive is given, it automatically implies the \'\-r\'
+Directive for the same Attribute, so that the Raw value of the
+Attribute is reported.
+
+A common use of this Directive is to track the device Temperature
+(often ID=194 or 231).  It is also useful for understanding how
+different types of system behavior affects the values of certain
+Attributes.
+
+If the optional flag \'!\' is appended, a change of the Raw
+value is considered critical.  The report will be logged as
+LOG_CRIT and a warning email will be sent if \'-m\' is specified.
+An example is \'-R 5!\' to warn when new sectors are reallocated.
+
+.TP
+.B \-C ID[+]
+[ATA only] Report if the current number of pending sectors is
+non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
+value is the Current Pending Sector count.  The allowed range of
+\fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
+ID\ =\ 0.  If the \fB\-C ID\fP option is not given, then it defaults to
+\fB\-C 197\fP (since Attribute 197 is generally used to monitor
+pending sectors).
+
+If \'+\' is specified, a report is only printed if the number of sectors
+has increased between two check cycles. Some disks do not reset this
+attribute when a bad sector is reallocated.
+See also \'\-v 197,increasing\' below.
+
+A pending sector is a disk sector (containing 512 bytes of your data)
+which the device would like to mark as ``bad" and reallocate.
+Typically this is because your computer tried to read that sector, and
+the read failed because the data on it has been corrupted and has
+inconsistent Error Checking and Correction (ECC) codes.  This is
+important to know, because it means that there is some unreadable data
+on the disk.  The problem of figuring out what file this data belongs
+to is operating system and file system specific.  You can typically
+force the sector to reallocate by writing to it (translation: make the
+device substitute a spare good sector for the bad one) but at the
+price of losing the 512 bytes of data stored there.
+
+.TP
+.B \-U ID[+]
+[ATA only] Report if the number of offline uncorrectable sectors is
+non-zero.  Here \fBID\fP is the id number of the Attribute whose raw
+value is the Offline Uncorrectable Sector count.  The allowed range of
+\fBID\fP is 0 to 255 inclusive.  To turn off this reporting, use
+ID\ =\ 0.  If the \fB\-U ID\fP option is not given, then it defaults to
+\fB\-U 198\fP (since Attribute 198 is generally used to monitor
+offline uncorrectable sectors).
+
+If \'+\' is specified, a report is only printed if the number of sectors
+has increased since the last check cycle. Some disks do not reset this
+attribute when a bad sector is reallocated.
+See also \'\-v 198,increasing\' below.
+
+An offline uncorrectable sector is a disk sector which was not
+readable during an off\-line scan or a self\-test.  This is important
+to know, because if you have data stored in this disk sector, and you
+need to read it, the read will fail.  Please see the previous \'\-C\'
+option for more details.
+
+.TP
+.B \-W DIFF[,INFO[,CRIT]]
+Report if the current temperature had changed by at least \fBDIFF\fP
+degrees since last report, or if new min or max temperature is detected.
+Report or Warn if the temperature is greater or equal than one of
+\fBINFO\fP or \fBCRIT\fP degrees Celsius.
+If the limit \fBCRIT\fP is reached, a message with loglevel
+\fB\'LOG_CRITICAL\'\fP will be logged to syslog and a warning email
+will be send if '-m' is specified. If only the limit \fBINFO\fP is
+reached, a message with loglevel \fB\'LOG_INFO\'\fP will be logged.
+
+If this directive is used in conjunction with state persistence
+(\'\-s\' option), the min and max temperature values are preserved
+across boot cycles. The minimum temperature value is not updated
+during the first 30 minutes after startup.
+
+To disable any of the 3 reports, set the corresponding limit to 0.
+Trailing zero arguments may be omitted. By default, all temperature
+reports are disabled (\'-W 0\').
+
+To track temperature changes of at least 2 degrees, use:
+.nf
+\fB \-W 2
+.fi
+To log informal messages on temperatures of at least 40 degrees, use:
+.nf
+\fB \-W 0,40
+.fi
+For warning messages/mails on temperatures of at least 45 degrees, use:
+.nf
+\fB \-W 0,0,45
+.fi
+To combine all of the above reports, use:
+.nf
+\fB \-W 2,40,45
+.fi
+
+For ATA devices, smartd interprets Attribute 194 as Temperature Celsius
+by default. This can be changed to Attribute 9 or 220 by the drive
+database or by the \'-v\' directive, see below.
+
+.TP
+.B \-F TYPE
+[ATA only] Modifies the behavior of \fBsmartd\fP to compensate for
+some known and understood device firmware bug.  The arguments to this
+Directive are exclusive, so that only the final Directive given is
+used.  The valid values are:
+
+.I none
+\- Assume that the device firmware obeys the ATA specifications.  This is
+the default, unless the device has presets for \'\-F\' in the device
+database.
+
+.I samsung
+\- In some Samsung disks (example: model SV4012H Firmware Version:
+RM100-08) some of the two- and four-byte quantities in the SMART data
+structures are byte-swapped (relative to the ATA specification).
+Enabling this option tells \fBsmartd\fP to evaluate these quantities
+in byte-reversed order.  Some signs that your disk needs this option
+are (1) no self-test log printed, even though you have run self-tests;
+(2) very large numbers of ATA errors reported in the ATA error log;
+(3) strange and impossible values for the ATA error log timestamps.
+
+.I samsung2
+\- In more recent Samsung disks (firmware revisions ending in "\-23") the
+number of ATA errors reported is byte swapped.  Enabling this option
+tells \fBsmartd\fP to evaluate this quantity in byte-reversed order.
+
+.I samsung3
+\- Some Samsung disks (at least SP2514N with Firmware VF100\-37) report
+a self\-test still in progress with 0% remaining when the test was already
+completed. If this directive is specified, \fBsmartd\fP will not skip the
+next scheduled self\-test (see Directive \'\-s\' above) in this case.
+
+Note that an explicit \'\-F\' Directive will over-ride any preset
+values for \'\-F\' (see the \'\-P\' option below).
+
+
+[Please see the \fBsmartctl \-F\fP command-line option.]
+
+.TP
+.B \-v N,OPTION
+Modifies the labeling for Attribute N, for disks which use
+non-standard Attribute definitions.  This is useful in connection with
+the Attribute tracking/reporting Directives.
+
+This Directive may appear multiple times. Valid arguments to this
+Directive are:
+
+.I 9,minutes
+\- Raw Attribute number 9 is power-on time in minutes.  Its raw value
+will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
+minutes in the range 0-59 inclusive.  Y is always printed with two
+digits, for example \'06\' or \'31\' or \'00\'.
+
+.I 9,seconds
+\- Raw Attribute number 9 is power-on time in seconds.  Its raw value
+will be displayed in the form \'Xh+Ym+Zs\'.  Here X is hours, Y is
+minutes in the range 0-59 inclusive, and Z is seconds in the range
+0-59 inclusive.  Y and Z are always printed with two digits, for
+example \'06\' or \'31\' or \'00\'.
+
+.I 9,halfminutes
+\- Raw Attribute number 9 is power-on time, measured in units of 30
+seconds.  This format is used by some Samsung disks.  Its raw value
+will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
+minutes in the range 0-59 inclusive.  Y is always printed with two
+digits, for example \'06\' or \'31\' or \'00\'.
+
+.I 9,temp
+\- Raw Attribute number 9 is the disk temperature in Celsius.
+
+.I 192,emergencyretractcyclect
+\- Raw Attribute number 192 is the Emergency Retract Cycle Count.
+
+.I 193,loadunload
+\- Raw Attribute number 193 contains two values. The first is the
+number of load cycles.  The second is the number of unload cycles.
+The difference between these two values is the number of times that
+the drive was unexpectedly powered off (also called an emergency
+unload). As a rule of thumb, the mechanical stress created by one
+emergency unload is equivalent to that created by one hundred normal
+unloads.
+
+.I 194,10xCelsius
+\- Raw Attribute number 194 is ten times the disk temperature in
+Celsius.  This is used by some Samsung disks (example: model SV1204H
+with RK100-13 firmware).
+
+.I 194,unknown
+\- Raw Attribute number 194 is NOT the disk temperature, and its
+interpretation is unknown. This is primarily useful for the -P
+(presets) Directive.
+
+.I 197,increasing
+\- Raw Attribute number 197 (Current Pending Sector Count) is not
+reset if uncorrectable sectors are reallocated.  This also sets
+\'-C 197+\' if no other \'-C\' directive is specified.
+
+.I 198,increasing
+\- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
+reset if uncorrectable sector are reallocated.  This also sets
+\'-U 198+\' if no other \'-U\' directive is specified.
+
+.I 198,offlinescanuncsectorct
+\- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
+
+.I 200,writeerrorcount
+\- Raw Attribute number 200 is the Write Error Count.
+
+.I 201,detectedtacount
+\- Raw Attribute number 201 is the Detected TA Count.
+
+.I 220,temp
+\- Raw Attribute number 220 is the disk temperature in Celsius.
+
+Note: a table of hard drive models, listing which Attribute
+corresponds to temperature, can be found at:
+\fBhttp://www.guzu.net/linux/hddtemp.db\fP
+
+.I N,raw8
+\- Print the Raw value of Attribute N as six 8-bit unsigned base-10
+integers.  This may be useful for decoding the meaning of the Raw
+value.  The form \'N,raw8\' prints Raw values for ALL Attributes in this
+form.  The form (for example) \'123,raw8\' only prints the Raw value for
+Attribute 123 in this form.
+
+.I N,raw16
+\- Print the Raw value of Attribute N as three 16-bit unsigned base-10
+integers.  This may be useful for decoding the meaning of the Raw
+value.  The form \'N,raw16\' prints Raw values for ALL Attributes in this
+form.  The form (for example) \'123,raw16\' only prints the Raw value for
+Attribute 123 in this form.
+
+.I N,raw48
+\- Print the Raw value of Attribute N as a 48-bit unsigned base-10
+integer.  This may be useful for decoding the meaning of the Raw
+value.  The form \'N,raw48\' prints Raw values for ALL Attributes in
+this form.  The form (for example) \'123,raw48\' only prints the Raw
+value for Attribute 123 in this form.
+
+.TP
+.B \-P TYPE
+Specifies whether
+\fBsmartd\fP
+should use any preset options that are available for this drive.  The
+valid arguments to this Directive are:
+
+.I use
+\- use any presets that are available for this drive.  This is the default.
+
+.I ignore
+\- do not use any presets for this drive.
+
+.I show
+\- show the presets listed for this drive in the database.
+
+.I showall
+\- show the presets that are available for all drives and then exit.
+
+[Please see the
+.B smartctl \-P
+command-line option.]
+
+.TP
+.B \-a
+Equivalent to turning on all of the following Directives: 
+.B \'\-H\' 
+to check the SMART health status,
+.B \'\-f\' 
+to report failures of Usage (rather than Prefail) Attributes,
+.B \'\-t\' 
+to track changes in both Prefailure and Usage Attributes,
+.B \'\-l\ selftest\' 
+to report increases in the number of Self-Test Log errors,
+.B \'\-l\ error\' 
+to report increases in the number of ATA errors,
+.B \'\-C 197\'
+to report nonzero values of the current pending sector count, and
+.B \'\-U 198\'
+to report nonzero values of the offline pending sector count.
+
+Note that \-a is the default for ATA devices.  If none of these other
+Directives is given, then \-a is assumed.
+
+.TP
+.B #
+Comment: ignore the remainder of the line.
+.TP
+.B \e
+Continuation character: if this is the last non-white or non-comment
+character on a line, then the following line is a continuation of the current
+one.
+.PP
+If you are not sure which Directives to use, I suggest experimenting
+for a few minutes with
+.B smartctl
+to see what SMART functionality your disk(s) support(s).  If you do
+not like voluminous syslog messages, a good choice of
+\fBsmartd\fP
+configuration file Directives might be:
+.nf
+.B \-H \-l\ selftest \-l\ error \-f.
+.fi
+If you want more frequent information, use:
+.B -a.
+
+.TP
+.B ADDITIONAL DETAILS ABOUT DEVICESCAN
+If the first non-comment entry in the configuration file is the text
+string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
+ignore any remaining lines in the configuration file, and will scan
+for devices.
+
+If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
+will scan for both ATA and SCSI devices, and will monitor all possible
+SMART properties of any devices that are found.
+
+\fBDEVICESCAN\fP may optionally be followed by any valid Directives,
+which will be applied to all devices that are found in the scan.  For
+example
+.nf
+.B DEVICESCAN -m root@example.com
+.fi
+will scan for all devices, and then monitor them.  It will send one
+email warning per device for any problems that are found.
+.nf
+.B  DEVICESCAN -d ata -m root@example.com
+.fi
+will do the same, but restricts the scan to ATA devices only.  
+.nf
+.B  DEVICESCAN -H -d ata -m root@example.com
+.fi
+will do the same, but only monitors the SMART health status of the
+devices, (rather than the default \-a, which monitors all SMART
+properties).
+
+.TP
+.B EXAMPLES OF SHELL SCRIPTS FOR \'\-M exec\'
+These are two examples of shell scripts that can be used with the \'\-M
+exec PATH\' Directive described previously.  The paths to these scripts
+and similar executables is the PATH argument to the \'\-M exec PATH\'
+Directive.
+
+Example 1: This script is for use with \'\-m ADDRESS -M exec PATH\'.  It appends
+the output of
+.B smartctl -a
+to the output of the smartd email warning message and sends it to ADDRESS.
+
+.nf
+\fB
+#! /bin/bash
+
+# Save the email message (STDIN) to a file:
+cat > /root/msg
+
+# Append the output of smartctl -a to the message:
+/usr/local/sbin/smartctl -a -d $SMART_DEVICETYPE $SMARTD_DEVICE >> /root/msg
+ 
+# Now email the message to the user at address ADD:
+/bin/mail -s "$SMARTD_SUBJECT" $SMARTD_ADDRESS < /root/msg
+\fP
+.fi
+
+Example 2: This script is for use with \'\-m <nomailer> \-M exec
+PATH\'. It warns all users about a disk problem, waits 30 seconds, and
+then powers down the machine.
+
+.nf
+\fB
+#! /bin/bash
+
+# Warn all users of a problem
+wall \'Problem detected with disk: \' "$SMARTD_DEVICESTRING"
+wall \'Warning message from smartd is: \' "$SMARTD_MESSAGE"
+wall \'Shutting down machine in 30 seconds... \'
+ 
+# Wait half a minute
+sleep 30
+ 
+# Power down the machine
+/sbin/shutdown -hf now
+\fP
+.fi
+
+Some example scripts are distributed with the smartmontools package,
+in /usr/local/share/doc/smartmontools-5.1/examplescripts/.
+
+Please note that these scripts typically run as root, so any files
+that they read/write should not be writable by ordinary users or
+reside in directories like /tmp that are writable by ordinary users
+and may expose your system to symlink attacks.
+
+As previously described, if the scripts write to STDOUT or STDERR,
+this is interpreted as indicating that there was an internal error
+within the script, and a snippet of STDOUT/STDERR is logged to SYSLOG.
+The remainder is flushed.
+
+.\" ENDINCLUDE
+.\" DO NOT MODIFY THIS OR PREVIOUS/NEXT LINES. THIS DEFINES THE 
+.\" END OF THE INCLUDE SECTION FOR smartd.conf.5
+
+.SH NOTES
+\fBsmartd\fP
+will make log entries at loglevel 
+.B LOG_INFO
+if the Normalized SMART Attribute values have changed, as reported using the
+.B \'\-t\', \'\-p\',
+or
+.B \'\-u\'
+Directives. For example:
+.nf
+.B \'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 to 93\'
+.fi
+Note that in this message, the value given is the \'Normalized\' not the \'Raw\' 
+Attribute value (the disk temperature in this case is about 22
+Celsius).  The 
+.B \'-R\'
+and 
+.B \'-r\'
+Directives modify this behavior, so that the information is printed
+with the Raw values as well, for example:
+.nf
+.B \'Device: /dev/hda, SMART Attribute: 194 Temperature_Celsius changed from 94 [Raw 22] to 93 [Raw 23]\'
+.fi
+Here the Raw values are the actual disk temperatures in Celsius.  The
+way in which the Raw values are printed, and the names under which the
+Attributes are reported, is governed by the various
+.B \'-v Num,Description\'
+Directives described previously.
+
+Please see the
+.B smartctl
+manual page for further explanation of the differences between
+Normalized and Raw Attribute values.
+
+\fBsmartd\fP
+will make log entries at loglevel
+.B LOG_CRIT
+if a SMART Attribute has failed, for example:
+.nf
+.B \'Device: /dev/hdc, Failed SMART Attribute: 5 Reallocated_Sector_Ct\'
+.fi
+ This loglevel is used for reporting enabled by the
+.B \'\-H\', \-f\', \'\-l\ selftest\',
+and
+.B \'\-l\ error\'
+Directives. Entries reporting failure of SMART Prefailure Attributes
+should not be ignored: they mean that the disk is failing.  Use the
+.B smartctl
+utility to investigate. 
+
+Under Solaris with the default \fB/etc/syslog.conf\fP configuration,
+messages below loglevel \fBLOG_NOTICE\fP will \fBnot\fP be recorded.
+Hence all \fBsmartd\fP messages with loglevel \fBLOG_INFO\fP will be
+lost.  If you want to use the existing daemon facility to log all
+messages from \fBsmartd\fP, you should change \fB/etc/syslog.conf\fP
+from:
+.nf
+       ...;daemon.notice;...        /var/adm/messages
+.fi
+to read:
+.nf
+       ...;daemon.info;...          /var/adm/messages
+.fi
+Alternatively, you can use a local facility to log messages: please
+see the \fBsmartd\fP '-l' command-line option described above.
+
+On Cygwin and Windows, the log messages are written to the event log
+or to a file. See documentation of the '-l FACILITY' option above for
+details.
+
+On Windows, the following built-in commands can be used to control
+\fBsmartd\fP, if running as a daemon:
+
+\'\fBsmartd status\fP\' \- check status
+
+\'\fBsmartd stop\fP\' \- stop smartd
+
+\'\fBsmartd reload\fP\' \- reread config file
+
+\'\fBsmartd restart\fP\' \- restart smartd
+
+\'\fBsmartd sigusr1\fP\' \- check disks now
+
+\'\fBsmartd sigusr2\fP\' \- toggle debug mode
+
+On WinNT4/2000/XP, \fBsmartd\fP can also be run as a Windows service:
+
+
+The Cygwin Version of \fBsmartd\fP can be run as a service via the
+cygrunsrv tool. The start-up script provides Cygwin-specific commands
+to install and remove the service:
+.nf
+.B /usr/local/etc/rc.d/init.d/smartd install [options]
+.B /usr/local/etc/rc.d/init.d/smartd remove
+.fi
+The service can be started and stopped by the start-up script as usual
+(see \fBEXAMPLES\fP above).
+
+
+The Windows Version of \fBsmartd\fP has buildin support for services:
+
+\'\fBsmartd install [options]\fP\' installs a service
+named "smartd" (display name "SmartD Service") using the command line
+\'/installpath/smartd.exe --service [options]\'.
+
+\'\fBsmartd remove\fP\' can later be used to remove the service entry
+from registry.
+
+Upon startup, the smartd service changes the working directory
+to its own installation path. If smartd.conf and blat.exe are stored
+in this directory, no \'-c\' option and \'-M exec\' directive is needed.
+
+The debug mode (\'-d\', \'-q onecheck\') does not work if smartd is
+running as service.
+
+The service can be controlled as usual with Windows commands \'net\'
+or \'sc\' (\'\fBnet start smartd\fP\', \'\fBnet stop smartd\fP\').
+
+Pausing the service (\'\fBnet pause smartd\fP\') sets the interval between
+disk checks (\'-i N\') to infinite.
+
+Continuing the paused service (\'\fBnet continue smartd\fP\') resets the
+interval and rereads the configuration file immediately (like \fBSIGHUP\fP):
+
+Continuing a still running service (\'\fBnet continue smartd\fP\' without
+preceding \'\fBnet pause smartd\fP\') does not reread configuration but
+checks disks immediately (like \fBSIGUSR1\fP).
+
+.SH LOG TIMESTAMP TIMEZONE
+
+When \fBsmartd\fP makes log entries, these are time-stamped.  The time
+stamps are in the computer's local time zone, which is generally set
+using either the environment variable \'\fBTZ\fP\' or using a
+time-zone file such as \fB/etc/localtime\fP.  You may wish to change
+the timezone while \fBsmartd\fP is running (for example, if you carry
+a laptop to a new time-zone and don't reboot it).  Due to a bug in the
+\fBtzset(3)\fP function of many unix standard C libraries, the
+time-zone stamps of \fBsmartd\fP might not change.  For some systems,
+\fBsmartd\fP will work around this problem \fIif\fP the time-zone is
+set using \fB/etc/localtime\fP. The work-around \fIfails\fP if the
+time-zone is set using the \'\fBTZ\fP\' variable (or a file that it
+points to).
+
+
+.SH RETURN VALUES
+The return value (exit status) of 
+\fBsmartd\fP
+can have the following values:
+.TP
+.B 0:
+Daemon startup successful, or \fBsmartd\fP was killed by a SIGTERM (or in debug mode, a SIGQUIT).
+.TP
+.B 1:
+Commandline did not parse.
+.TP
+.B 2:
+There was a syntax error in the config file.
+.TP
+.B 3:
+Forking the daemon failed.
+.TP
+.B 4:
+Couldn\'t create PID file.
+.TP
+.B 5:
+Config file does not exist (only returned in conjunction with the \'-c\' option).
+.TP
+.B 6:
+Config file exists, but cannot be read.
+.TP
+.B 8:
+\fBsmartd\fP
+ran out of memory during startup.
+.TP
+.B 9:
+A compile time constant of\fB smartd\fP was too small.  This can be caused by an
+excessive number of disks, or by lines in \fB /usr/local/etc/smartd.conf\fP that are too long.
+Please report this problem to \fB smartmontools-support@lists.sourceforge.net\fP.
+.TP
+.B 10
+An inconsistency was found in \fBsmartd\fP\'s internal data
+structures. This should never happen.  It must be due to either a
+coding or compiler bug.  \fIPlease\fP report such failures to
+smartmontools-support@lists.sourceforge.net.
+.TP
+.B 16:
+A device explicitly listed in
+.B /usr/local/etc/smartd.conf
+can\'t be monitored.
+.TP
+.B 17:
+\fBsmartd\fP
+didn\'t find any devices to monitor.
+.TP
+.B 254:
+When in daemon mode,
+\fBsmartd\fP
+received a SIGINT or SIGQUIT.  (Note that in debug mode, SIGINT has
+the same effect as SIGHUP, and makes \fBsmartd\fP reload its
+configuration file. SIGQUIT has the same effect as SIGTERM and causes
+\fBsmartd\fP to exit with zero exit status.
+.TP
+.B 132 and above
+\fBsmartd\fP
+was killed by a signal that is not explicitly listed above.  The exit
+status is then 128 plus the signal number.  For example if
+\fBsmartd\fP
+is killed by SIGKILL (signal 9) then the exit status is 137.
+
+.PP
+.SH AUTHOR
+\fBBruce Allen\fP smartmontools-support@lists.sourceforge.net
+.fi
+University of Wisconsin \- Milwaukee Physics Department
+
+.PP
+.SH CONTRIBUTORS
+The following have made large contributions to smartmontools:
+.nf
+\fBCasper Dik\fP (Solaris SCSI interface)
+\fBChristian Franke\fP (Windows interface and Cygwin package)
+\fBDouglas Gilbert\fP (SCSI subsystem)
+\fBGuido Guenther\fP (Autoconf/Automake packaging)
+\fBGeoffrey Keating\fP (Darwin ATA interface)
+\fBEduard Martinescu\fP (FreeBSD interface)
+\fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
+\fBKeiji Sawada\fP (Solaris ATA interface)
+\fBSergey Svishchev\fP (NetBSD interface)
+\fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
+\fBPhil Williams\fP (User interface and drive database)
+\fBShengfeng Zhou\fP (Linux/FreeBSD HighPoint RocketRAID interface)
+.fi
+Many other individuals have made smaller contributions and corrections.
+
+.PP
+.SH CREDITS
+.fi
+This code was derived from the smartsuite package, written by Michael
+Cornwell, and from the previous ucsc smartsuite package. It extends
+these to cover ATA-5 disks. This code was originally developed as a
+Senior Thesis by Michael Cornwell at the Concurrent Systems Laboratory
+(now part of the Storage Systems Research Center), Jack Baskin School
+of Engineering, University of California, Santa
+Cruz. \fBhttp://ssrc.soe.ucsc.edu/\fP .
+.SH
+HOME PAGE FOR SMARTMONTOOLS: 
+.fi
+Please see the following web site for updates, further documentation, bug
+reports and patches: \fBhttp://smartmontools.sourceforge.net/\fP
+
+.SH SEE ALSO:
+\fBsmartd.conf\fP(5), \fBsmartctl\fP(8), \fBsyslogd\fP(8),
+\fBsyslog.conf\fP(5), \fBbadblocks\fP(8), \fBide\-smart\fP(8), \fBregex\fP(7).
+
+.SH
+REFERENCES FOR SMART
+.fi
+An introductory article about smartmontools is \fIMonitoring Hard
+Disks with SMART\fP, by Bruce Allen, Linux Journal, January 2004,
+pages 74-77. This is \fBhttp://www.linuxjournal.com/article.php?sid=6983\fP
+online.
+
+If you would like to understand better how SMART works, and what it
+does, a good place to start is with Sections 4.8 and 6.54 of the first
+volume of the \'AT Attachment with Packet Interface-7\' (ATA/ATAPI-7)
+specification.  This documents the SMART functionality which the
+\fBsmartmontools\fP utilities provide access to.  You can find
+Revision 4b of this document at
+\fBhttp://www.t13.org/docs2004/d1532v1r4b-ATA-ATAPI-7.pdf\fP .
+Earlier and later versions of this Specification are available from
+the T13 web site \fBhttp://www.t13.org/\fP .
+
+.fi
+The functioning of SMART was originally defined by the SFF-8035i
+revision 2 and the SFF-8055i revision 1.4 specifications.  These are
+publications of the Small Form Factors (SFF) Committee.  Links to
+these documents may be found in the References section of the
+smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\fP .
+
+.SH
+CVS ID OF THIS PAGE:
+$Id: smartd.8.in,v 1.138 2009/07/10 20:14:40 chrfranke Exp $

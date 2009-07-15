@@ -1,0 +1,169 @@
+Introduction
+============
+This document supplies some extra information, mainly associated with
+SCSI disks, to the http://smartmontools.sourceforge.net/BadBlockHowTo.txt
+document which concentrates on ATA disks and recovery at the file
+system level.
+
+As the name of the link suggests, the BadBlockHowTo.txt discusses what
+can be done when smartmontools reports a bad block. The approach
+taken is to use the facilities within the ext2 and ext3 file systems
+in Linux to remap around the damaged section of the disk. While this
+approach will work with SCSI disks as well, it does have some
+disadvantages.
+
+SCSI disks have their own logical to physical mapping allowing
+a damaged sector (usually 512 bytes long) to be remapped irrespective
+of the operating system, file system or software RAID being used.
+Also if the disk has been "ejected" from a RAID, after repairing
+its bad block(s) (or simply reformatting it) the disk could be
+used in other roles.
+
+Details
+=======
+The terms "block" and "sector" are used interchangeably, although
+"block" tends to get used in higher level or more abstract contexts
+such as a "logical block".
+
+When a SCSI disk is formatted, defective sectors identified during
+the manufacturing process (the so called "primary" list: PLIST),
+those found during the format itself (the "certification" list: CLIST),
+those given explicitly to the format command (the DLIST) and optionally
+the previous "grown" list (GLIST) are not used in the logical block
+map. The number (and low level addresses) of the unmapped sectors can be
+found with the READ DEFECT DATA SCSI command.
+
+SCSI disks tend to be divided into zones which have spare sectors and
+perhaps spare tracks, to support the logical block address mapping
+process. The idea is that if a logical block is remapped, the heads do not
+have to move a long way to access the replacement sector. Note that spare
+sectors are a scarce resource.
+
+Once a SCSI disk format has completed successfully, other problems
+may appear over time. These fall into two categories:
+  - recoverable: the Error Correction Codes (ECC) detect a problem
+    but it is "small" enough to be corrected. Optionally other
+    strategies such as retrying the access may retriev the data.
+  - unrecoverable: try as it may, the disk logic and ECC algorithms
+    cannot recover the data. This is often reported as a "medium
+    error".
+Other things can go wrong, typically associated with the transport and
+they will be reported using a term other than "medium error". For example
+a disk may decide a read operation was successful but a computer's host
+bus adapter (HBA) checking the incoming data detects a CRC error due to
+a bad cable or termination.
+
+Depending on the disk vendor, recoverable errors can be ignored. After all,
+some disks have up to 68 bytes of ECC above the payload size of 512 bytes
+so why use up spare sectors which are limited in number (see note A below)?
+If the disk does decide to re-allocate (reassign) a sector, then whether it
+tries or reports an error immediately depends on the settings of the ARRE
+and AWRE bits in the read-write error recovery mode page. Usually these bits
+are set enabling automatic (read or write) re-allocation. [It is possible
+that disks inside a hardware RAID have those bits cleared (disabled) and the
+RAID controller does things manually or flags the disk for replacement.]
+The automatic re-allocation may also fail if the zone (or disk) has run out
+of spare sectors.
+
+Another point about RAIDs, and applications that require a high data rate,
+is that the controller logic may not want a disk to spend too long trying
+to recover an error.
+
+Unrecoverable errors will cause a "medium error" sense key, perhaps with
+some useful additional sense information. If the extended background self
+test includes a full disk read scan, one would expect the self test log to
+list the bad block, as shown in the BadBlockHowTo.txt document. Recent SCSI
+disks with a periodic background scan should also list unrecoverable read
+errors (and  recoverable errors as well). The advantage of the background
+scan is that it runs to completion while self tests will often terminate at
+the first serious error.
+
+SCSI disks expect unrecoverable errors to be fixed manually using the
+REASSIGN SCSI command since loss of data is involved. It is possible that an
+operating system or a file system could issue the REASSIGN SCSI command
+itself but the author is unaware of any examples. The REASSIGN SCSI command
+will reassign one or more blocks, attempting to (partially ?) recover the
+data (a forlorn hope at this stage), fetch an unused spare sector from the
+current zone while adding the damaged old sector to the GLIST (hence the
+name "grown" list). The contents of the GLIST may not be that interesting
+but smartctl prints out the number of entries in the grown list and if that
+number grows quickly, the disk may be approaching the end of its useful life.
+
+Here is an alternate brute force technique to consider: if the data on the
+SCSI or ATA disk has all been backed up (e.g. is held on the other disks in
+a RAID 5 enclosure), then simply reformatting the disk may be the least
+fiddly approach.
+
+What to do
+==========
+Given a "bad block", it still may be useful to look at fdisk (if the disk
+has multiple partitions) to find out which partition is involved, then use
+debugfs (or a similar tool for the file system in question) to find out
+which, if any, file or other part of the file system may have been damaged.
+This is discussed in the BadBlockHowTo.txt document.
+
+Then a program that can execute the REASSIGN SCSI command is required. In
+Linux (2.4 and 2.6 series), FreeBSD and Tru64 (osf) the author's sg_reassign
+in the sg3_utils package can be used. Also found in that package is
+sg_verify which can be used to check that a block is readable.
+
+Assuming logical block address 0x123456 has been reported by smartmontools
+as bad block, then:
+  # sg_verify --lba=0x123456 /dev/sda
+
+should also report a problem. To check the number of elements in the
+GLIST before the block reassignment, try:
+  # sg_reassign --grown /dev/sda
+
+To actually reassign that address try:
+  # sg_reassign --address=0x123456 /dev/sda
+
+If that succeeded then checking the GLIST length again should indicate
+that it has grown by one element. If the disk was unable to recover
+any data, then the "new" block at lba 0x123456 has vendor specific
+data in it. The sg_reassign utility can also do bulk reassigns, see
+'man sg_reassign' for more information.
+
+The dd command could be used to read the contents of the "new" block:
+  # dd if=/dev/sda iflag=direct skip=0x123456 of=blk.img bs=512 count=1
+
+and a hex editor used to view and potentially change the 'blk.img' file.
+An altered 'blk.img' file (or /dev/zero) could be written back with:
+  # dd if=blk.img of=/dev/sda seek=0x123456 oflag=direct bs=512 count=1
+
+Notes: the 0x123456 is an arbitrary hexadecimal logical block address.
+Recent versions of dd (e.g. those that support 'iflag=') support
+hexadecimal addresses. Utilities in recent versions of the sg3_utils
+package also accept the trailing 'h' notation for hexadecimal.
+Alternatively decimal numbers could be used; most window managers have a
+handy calculator that will do hex to decimal conversions. More work may
+be needed at the file system level, especially if the reassigned block
+held critical fs information such as a superblock or a directory.
+
+Even if a full backup of the disk is available, or the disk has been
+"ejected" from a RAID, it may still be worthwhile to reassign the bad
+block(s) that caused the problem (or simply format the disk (see sg_format
+in the sg3_utils package)) and re-use the disk later (not unlike the
+way a replacement disk from a manufacturer might be used).
+
+Conclusion
+==========
+This document contains some suggestions of what to do when smartmontools
+reports a "bad block" on a SCSI disk. These suggestions are more general
+in nature and lower level than those discussed in the BadBlockHowTo.txt
+document. As always, there is no substitute for regular backups, even
+high number RAIDs (e.g. 60) won't help when the user accidentally deletes
+a directory.
+
+
+Note A: Detecting and fixing an error with ECC "on the fly" and not going
+        the further step and reassigning the block in question may explain
+        why some disks have large numbers in their read error counter log.
+        Various worried users have reported large numbers in the "errors
+        corrected without substantial delay" counter field which is in the
+        "Errors corrected by ECC fast" column in the 'smartctl -l error'
+        output.
+
+
+Douglas Gilbert
+2006/9/17

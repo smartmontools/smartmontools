@@ -1,0 +1,115 @@
+[root@nemo-slave0560 ~]# /net/m0001/root/ballen/sm5/smartctl  -a -d sat   /dev/sda
+smartctl version 5.37 [x86_64-unknown-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Western Digital Caviar SE (Serial ATA) family
+Device Model:     WDC WD800JD-08LSA0
+Serial Number:    WD-WMAM9H167762
+Firmware Version: 07.01D07
+User Capacity:    80,032,038,912 bytes
+Device is:        In smartctl database [for details use: -P show]
+ATA Version is:   7
+ATA Standard is:  Exact ATA specification draft version not indicated
+Local Time is:    Tue Jun 13 07:39:15 2006 CDT
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: FAILED!
+Drive failure expected in less than 24 hours. SAVE ALL DATA.
+See vendor-specific Attribute list for failed Attributes.
+
+General SMART Values:
+Offline data collection status:  (0x84) Offline data collection activity
+                                        was suspended by an interrupting command from host.
+                                        Auto Offline Data Collection: Enabled.
+Self-test execution status:      (  73) The previous self-test completed having
+                                        a test element that failed and the test
+                                        element that failed is not known.
+Total time to complete Offline 
+data collection:                 (2580) seconds.
+Offline data collection
+capabilities:                    (0x7b) SMART execute Offline immediate.
+                                        Auto Offline data collection on/off support.
+                                        Suspend Offline collection upon new
+                                        command.
+                                        Offline surface scan supported.
+                                        Self-test supported.
+                                        Conveyance Self-test supported.
+                                        Selective Self-test supported.
+SMART capabilities:            (0x0003) Saves SMART data before entering
+                                        power-saving mode.
+                                        Supports SMART auto save timer.
+Error logging capability:        (0x01) Error logging supported.
+                                        General Purpose Logging supported.
+Short self-test routine 
+recommended polling time:        (   2) minutes.
+Extended self-test routine
+recommended polling time:        (  34) minutes.
+Conveyance self-test routine
+recommended polling time:        (   5) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     POSR--   200   200   051    Pre-fail  Always       -       0
+  3 Spin_Up_Time            PO----   164   164   021    Pre-fail  Always       -       2775
+  4 Start_Stop_Count        -O--CM   100   100   000    Old_age   Always       -       20
+  5 Reallocated_Sector_Ct   PO--CM   129   129   140    Pre-fail  Always   FAILING_NOW 562
+  7 Seek_Error_Rate         POSR--   200   187   051    Pre-fail  Always       -       0
+  9 Power_On_Hours          -O--CM   099   099   000    Old_age   Always       -       1211
+ 10 Spin_Retry_Count        PO--C-   100   253   051    Pre-fail  Always       -       0
+ 11 Calibration_Retry_Count -O--C-   100   253   051    Old_age   Always       -       0
+ 12 Power_Cycle_Count       -O--CM   100   100   000    Old_age   Always       -       20
+190 Temperature_Celsius     -O---M   082   037   045    Old_age   Always   In_the_past 18
+194 Temperature_Celsius     -O---M   125   080   000    Old_age   Always       -       18
+196 Reallocated_Event_Count -O--CM   148   148   000    Old_age   Always       -       52
+197 Current_Pending_Sector  -O--C-   200   200   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   ----C-   200   200   000    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    -OSRCM   200   200   000    Old_age   Always       -       0
+200 Multi_Zone_Error_Rate   P--R--   200   200   051    Pre-fail  Offline      -       0
+                            ||||||_ M self-preserving
+                            |||||__ C event count
+                            ||||___ R error rate
+                            |||____ S speed/performance
+                            ||_____ O updated online
+                            |______ P prefailure warning
+
+SMART Error Log Version: 1
+No Errors Logged
+
+SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Extended offline    Completed: unknown failure    90%      1207         -
+# 2  Extended offline    Completed: unknown failure    90%      1187         -
+# 3  Extended offline    Completed: unknown failure    90%      1163         -
+# 4  Extended offline    Completed: unknown failure    90%      1139         -
+# 5  Extended offline    Completed: unknown failure    90%      1115         -
+# 6  Extended offline    Completed: unknown failure    90%      1091         -
+# 7  Extended offline    Completed: unknown failure    90%      1067         -
+# 8  Extended offline    Completed: unknown failure    90%      1043         -
+# 9  Extended offline    Completed: unknown failure    90%      1022         -
+#10  Extended offline    Completed: unknown failure    90%       998         -
+#11  Extended offline    Completed: unknown failure    90%       974         -
+#12  Extended offline    Completed without error       00%       943         -
+#13  Extended offline    Completed without error       00%       919         -
+#14  Extended offline    Completed without error       00%       895         -
+#15  Extended offline    Completed without error       00%       875         -
+#16  Extended offline    Completed without error       00%       857         -
+#17  Extended offline    Completed without error       00%       833         -
+#18  Extended offline    Completed without error       00%       809         -
+#19  Extended offline    Completed without error       00%       785         -
+#20  Extended offline    Completed without error       00%       761         -
+#21  Extended offline    Completed without error       00%       737         -
+
+SMART Selective self-test log data structure revision number 1
+ SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS
+    1        0        0  Not_testing
+    2        0        0  Not_testing
+    3        0        0  Not_testing
+    4        0        0  Not_testing
+    5        0        0  Not_testing
+Selective self-test flags (0x0):
+  After scanning selected spans, do NOT read-scan remainder of disk.
+If Selective self-test is pending on power-up, resume after 0 minute delay.
