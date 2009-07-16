@@ -498,30 +498,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\cvsversion_vc8.h"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Copy $(InputPath) cvsversion.h"
-					CommandLine="copy $(InputPath) cvsversion.h&#x0D;&#x0A;"
-					Outputs="cvsversion.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Copy $(InputPath) cvsversion.h"
-					CommandLine="copy $(InputPath) cvsversion.h&#x0D;&#x0A;"
-					Outputs="cvsversion.h"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\dev_ata_cmd_set.cpp"
 			>
 		</File>
@@ -1032,6 +1008,30 @@
 		<File
 			RelativePath="..\smartd.initd.in"
 			>
+		</File>
+		<File
+			RelativePath=".\svnversion_vc8.h"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Copy $(InputPath) svnversion.h"
+					CommandLine="copy $(InputPath) svnversion.h&#x0D;&#x0A;"
+					Outputs="svnversion.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Copy $(InputPath) svnversion.h"
+					CommandLine="copy $(InputPath) svnversion.h&#x0D;&#x0A;"
+					Outputs="svnversion.h"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\TODO"

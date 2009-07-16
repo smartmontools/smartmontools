@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2834 2009-07-15 21:11:55Z chrfranke $
+$Id: CHANGELOG 2837 2009-07-16 20:08:06Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
@@ -41,6 +41,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Print SVN revision number instead of time in version info line.
+       Get SVN revision number from svn (if available) or guess from
+       Id strings. Rename generated file to svnversion.h.
 
   [CF] Makefile.am: Modify generation of cvsversion.h for SVN.
 
