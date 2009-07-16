@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL,v 1.83 2009/01/12 22:55:02 dlukes Exp $
+$Id$
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -264,9 +264,9 @@ Table of contents:
     make CFLAGS='your options'
 
     The first output line of smartctl and smartd provides information
-    about release number, last CVS checkin date/time, platform, and
-    package. The latter defaults to "(local build)" and can be changed
-    by the variable BUILD_INFO, for example:
+    about release number, last SVN checkin date and revison, platform,
+    and package. The latter defaults to "(local build)" and can be
+    changed by the variable BUILD_INFO, for example:
     make BUILD_INFO='"(Debian 5.39-2)"'
 
 [4] Guidelines for different Linux distributions
@@ -495,8 +495,8 @@ To prepare os_win32 directory for MSVC8, use the following on Cygwin:
   The MSVC8 project files (os_win32/smartmontools_vc8.sln,
   os_win32/smart{ctl,d}_vc8.vcproj) are included in CVS (but not in
   source tarball). The target config-vc8 from a Makefile configured
-  for MinGW creates os_win32/{config,cvsversion}_vc8.h from
-  ./{config,cvsversion}.h. The configure skript must be run outside
+  for MinGW creates os_win32/{config,svnversion}_vc8.h from
+  ./{config,svnversion}.h. The configure skript must be run outside
   of the source directory to avoid inclusion of the original config.h.
 
   Unlike MinGW, MSVC can also be used to build the syslog message file

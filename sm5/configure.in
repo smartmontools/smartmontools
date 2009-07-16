@@ -1,5 +1,5 @@
 #
-# $Id: configure.in,v 1.148 2009/03/19 18:00:35 chrfranke Exp $
+# $Id$
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in,v 1.148 2009/03/19 18:00:35 chrfranke Exp $'`
+smartmontools_cvs_tag=`echo '$Id$'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -43,12 +43,17 @@ case "${host}" in
 		;;
 esac
 
-# Check for CVS.
-AC_MSG_CHECKING([whether this is a build from CVS])
-is_cvs_build=no
-test -f "$srcdir/CVS/Entries" && is_cvs_build=yes
-AM_CONDITIONAL(IS_CVS_BUILD, [test "$is_cvs_build" = "yes"])
-AC_MSG_RESULT([$is_cvs_build])
+# Check for SVN.
+AC_MSG_CHECKING([whether this is a build from SVN])
+is_svn_build=no
+if test -f "$srcdir/.svn/entries"; then
+  is_svn_build=unknown
+  if (cd "$srcdir" && svn --version && svn info && svn status -q) >/dev/null 2>&1; then
+    is_svn_build=yes
+  fi
+fi
+AM_CONDITIONAL(IS_SVN_BUILD, [test "$is_svn_build" = "yes"])
+AC_MSG_RESULT([$is_svn_build])
 
 dnl Checks for libraries needed for name services (Solaris needs
 dnl libnsl, might in the future also need libsocket)
