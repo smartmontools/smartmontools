@@ -1,6 +1,6 @@
 TODO list for smartmontools:
 
-$Id: TODO,v 1.71 2009/07/10 20:14:40 chrfranke Exp $
+$Id$
 
 USB devices under Linux
 -----------------------
@@ -50,6 +50,8 @@ that can be monitored.
 
 Packaging
 ---------
+Rework 'do_release' script for SVN.
+
 Under freebsd and solaris, the following are wrong:
 smartd.conf: has linux device paths
 smart*.in  : man pages have (mostly) linux device paths

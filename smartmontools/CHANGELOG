@@ -42,6 +42,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Invalidate 'do_release' script, it needs some rework for SVN.
+
   [CF] Update documentation files for SVN.
 
   [CF] Rename trunk/sm5 to trunk/smartmontools.
