@@ -3,7 +3,10 @@
 # do a smartmontools release
 # (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
 #          Guido Guenther <agx@sigxcpu.org>
-# $Id: do_release,v 1.41 2008/03/17 17:02:26 ballen4705 Exp $
+# $Id: do_release 2845 2009-07-18 13:25:18Z chrfranke $
+
+echo 'TODO: Rework this script for SVN.'
+exit 1
 
 # Notes on generating releases:
 # (1) update NEWS
