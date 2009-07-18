@@ -3,7 +3,7 @@ smartmontools - S.M.A.R.T. utility toolset for Darwin/Mac
 OSX, FreeBSD, Linux, NetBSD, OpenBSD, Solaris, and Windows.
 ==========================================================
 
-$Id: README,v 1.57 2008/03/04 22:09:47 ballen4705 Exp $
+$Id$
 
 == HOME ==
 The home for smartmontools is located at:
@@ -19,7 +19,7 @@ You will find a mailing list for support and other questions at:
 
 
 == COPYING ==
-Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -71,32 +71,19 @@ Source tarballs
 
 http://sourceforge.net/project/showfiles.php?group_id=64297
 
-CVS
+SVN
 ---
 
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login (when prompted for a password, just press Enter)
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
+svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/trunk/smartmontools smartmontools
 
-This will create a subdirectory called sm5/ containing the code.
+This will create a subdirectory called smartmontools containing the code.
 
-To instead get the 5.1-16 release:
+To instead get the 5.38 release:
 
-cvs -d:pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co -r RELEASE_5_1_16 sm5
-
-To update your sources to the 5.1-18 release:
-
-cd sm5
-cvs up -r RELEASE_5_1_18
-
-To update any tagged release to the latest development code:
-
-cd sm5
-cvs up -A
+svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/tags/RELEASE_5_38/sm5 smartmontools
 
 You can see what the different tags are by looking at
-http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/ .
-You'll see the tag names in the little scroll window where it says "Show
-only files with tag".
+http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/tags/
 
 == BUILDING/INSTALLING SMARTMONTOOLS ==
 

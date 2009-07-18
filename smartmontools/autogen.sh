@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.21 2009/06/20 19:51:42 chrfranke Exp $
+# $Id$
 #
 # Generate ./configure from config.in and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
@@ -38,7 +38,7 @@ test -x "$AUTOMAKE" || AUTOMAKE=`typep automake-1.11` || AUTOMAKE=`typep automak
 {
 echo
 echo "You must have at least GNU Automake 1.7 (up to 1.11) installed"
-echo "in order to bootstrap smartmontools from CVS. Download the"
+echo "in order to bootstrap smartmontools from SVN. Download the"
 echo "appropriate package for your distribution, or the source tarball"
 echo "from ftp://ftp.gnu.org/gnu/automake/ ."
 echo

@@ -9,7 +9,7 @@ http://smartmontools.sourceforge.net/
 Table of contents:
 
 [1] System requirements
-[2] Installing from CVS
+[2] Installing from SVN
 [3] Installing from source tarball
 [4] Guidelines for different Linux distributions
 [5] Guidelines for FreeBSD
@@ -209,23 +209,19 @@ Table of contents:
     Innotek LibC 0.5 runtime is required.
     Currently only ATA disks are supported, SCSI support will be added.
 
-
-[2] Installing from CVS
+[2] Installing from SVN
 =======================
-    Get the sources from the CVS repository:
-    cvs -d :pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools login
-    cvs -d :pserver:anonymous@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools co sm5
-    (when prompted for a password, just press Enter)
+
+    Get the sources from the SVN repository:
+    svn co https://smartmontools.svn.sourceforge.net/svnroot/smartmontools/trunk/smartmontools smartmontools
 
     Then type:
     ./autogen.sh
     and continue with step [3] below, skipping the "unpack the tarball" step.
 
-    Further details of using CVS can be found at the URL above.
-
     The autogen.sh command is ONLY required when installing from
-    CVS. You need GNU Autoconf (version 2.50 or greater), GNU Automake
-    (version 1.6 or greater) and their dependencies installed in order
+    SVN. You need GNU Autoconf (version 2.50 or greater), GNU Automake
+    (version 1.7 or greater) and their dependencies installed in order
     to run it.  You can get these here:
     http://www.gnu.org/directory/GNU/autoconf.html
     http://www.gnu.org/directory/GNU/automake.html
@@ -233,7 +229,7 @@ Table of contents:
 [3] Installing from the source tarball
 ======================================
 
-    If you are NOT installing from CVS, then unpack the tarball: 
+    If you are NOT installing from SVN, then unpack the tarball:
     tar zxvf smartmontools-5.VERSION.tar.gz
 
     Then:
@@ -428,7 +424,7 @@ Same as Red Hat:
   file type ("binmode" mount option) set. The "autogen.sh" script prints a
   warning if DOS type is selected.
 
-  If installing from CVS, you may check out all files either with CR/LF
+  If installing from SVN, you may check out all files either with CR/LF
   or LF line endings. Starting with release 3.1-7, Cygwin's bash does no
   longer accept scripts with CR/LF by default. To run the initial script
   ./autogen.sh checked out with CR/LF on a "binmode" mount, type:
@@ -493,7 +489,7 @@ To prepare os_win32 directory for MSVC8, use the following on Cygwin:
   make config-vc8
 
   The MSVC8 project files (os_win32/smartmontools_vc8.sln,
-  os_win32/smart{ctl,d}_vc8.vcproj) are included in CVS (but not in
+  os_win32/smart{ctl,d}_vc8.vcproj) are included in SVN (but not in
   source tarball). The target config-vc8 from a Makefile configured
   for MinGW creates os_win32/{config,svnversion}_vc8.h from
   ./{config,svnversion}.h. The configure skript must be run outside
@@ -589,7 +585,7 @@ The following files are installed if ./configure has no options:
 /usr/local/share/man/man8/smartctl.8                    [Manual page]
 /usr/local/share/man/man8/smartd.8                      [Manual page]
 /usr/local/share/doc/smartmontools-5.X/AUTHORS          [Information about the authors and developers]
-/usr/local/share/doc/smartmontools-5.X/CHANGELOG        [A log of changes. Also see CVS]
+/usr/local/share/doc/smartmontools-5.X/CHANGELOG        [A log of changes. Also see SVN]
 /usr/local/share/doc/smartmontools-5.X/COPYING          [GNU General Public License Version 2]
 /usr/local/share/doc/smartmontools-5.X/INSTALL          [Installation instructions: what you're reading!]
 /usr/local/share/doc/smartmontools-5.X/NEWS             [Significant bugs discovered in old versions]

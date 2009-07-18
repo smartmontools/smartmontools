@@ -1,7 +1,7 @@
-$Id: WARNINGS,v 1.34 2009/06/18 17:24:51 chrfranke Exp $
+$Id$
 
 The most recent version of this file can be found here:
-http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/WARNINGS?view=markup
+http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/WARNINGS?view=markup
 
 The following are reports of serious problems (eg system lockup) which
 were due to smartmontools.  There are DARWIN, LINUX, FREEBSD, SOLARIS
