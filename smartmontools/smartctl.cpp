@@ -56,60 +56,16 @@
 #include "smartctl.h"
 #include "utility.h"
 
-#ifdef NEED_SOLARIS_ATA_CODE
-extern const char *os_solaris_ata_s_cvsid;
-#endif
-#ifdef _HAVE_CCISS
-extern const char *cciss_c_cvsid;
-#endif
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid, *ataprint_c_cvsid, *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *scsiprint_c_cvsid, *utility_c_cvsid;
-const char* smartctl_c_cvsid="$Id: smartctl.cpp,v 1.204 2009/07/07 19:28:29 chrfranke Exp $"
-ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char * smartctl_cpp_cvsid = "$Id$"
+                                  CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
 // this globally in this file, and externally in other files.
 smartmonctrl *con=NULL;
 
-void printslogan(){
-  pout("%s\n", format_version_info("smartctl"));
-}
-
-void PrintOneCVS(const char *a_cvs_id){
-  char out[CVSMAXLEN];
-  printone(out,a_cvs_id);
-  pout("%s",out);
-  return;
-}
-
-void printcopy(){
-  const char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
-
-  pout("smartctl comes with ABSOLUTELY NO WARRANTY. This\n");
-  pout("is free software, and you are welcome to redistribute it\n");
-  pout("under the terms of the GNU General Public License Version 2.\n");
-  pout("See http://www.gnu.org for further details.\n\n");
-  pout("CVS version IDs of files used to build this code are:\n");
-  PrintOneCVS(atacmdnames_c_cvsid);
-  PrintOneCVS(atacmds_c_cvsid);
-  PrintOneCVS(ataprint_c_cvsid);
-#ifdef _HAVE_CCISS
-  PrintOneCVS(cciss_c_cvsid);
-#endif
-  PrintOneCVS(knowndrives_c_cvsid);
-  PrintOneCVS(os_XXXX_c_cvsid);
-#ifdef NEED_SOLARIS_ATA_CODE
-  PrintOneCVS(os_solaris_ata_s_cvsid);
-#endif
-  PrintOneCVS(scsicmds_c_cvsid);
-  PrintOneCVS(scsiprint_c_cvsid);
-  PrintOneCVS(smartctl_c_cvsid);
-  PrintOneCVS(utility_c_cvsid);
-  pout("\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
-  pout("smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
-  pout("smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
-  pout("smartctl compile dated " __DATE__ " at "__TIME__ "\n");
-  pout("smartmontools configure arguments: %s\n", configargs);
-  return;
+static void printslogan()
+{
+  pout("%s\n", format_version_info("smartctl").c_str());
 }
 
 void UsageSummary(){
@@ -329,8 +285,7 @@ const char * parse_options(int argc, char** argv,
     switch (optchar){
     case 'V':
       con->dont_print = false;
-      printslogan();
-      printcopy();
+      pout("%s", format_version_info("smartctl", true /*full*/).c_str());
       EXIT(0);
       break;
     case 'q':

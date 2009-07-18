@@ -123,41 +123,10 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-// These are CVS identification information for *.cpp and *.h files
-extern const char *atacmdnames_c_cvsid, *atacmds_c_cvsid,
-                  *knowndrives_c_cvsid, *os_XXXX_c_cvsid, *scsicmds_c_cvsid, *utility_c_cvsid;
-
-#ifdef _HAVE_CCISS
-extern const char *cciss_c_cvsid;
-#endif
-#ifdef NEED_SOLARIS_ATA_CODE
-extern const char *os_solaris_ata_s_cvsid;
-#endif
-#ifdef _WIN32
-extern const char *daemon_win32_c_cvsid, *hostname_win32_c_cvsid, *syslog_win32_c_cvsid;
-#endif
-const char *smartd_c_cvsid="$Id: smartd.cpp,v 1.451 2009/07/10 23:01:56 chrfranke Exp $"
-ATACMDS_H_CVSID CONFIG_H_CVSID
-#ifdef DAEMON_WIN32_H_CVSID
-DAEMON_WIN32_H_CVSID
-#endif
-EXTERN_H_CVSID INT64_H_CVSID
-#ifdef HOSTNAME_WIN32_H_CVSID
-HOSTNAME_WIN32_H_CVSID
-#endif
-KNOWNDRIVES_H_CVSID SCSICMDS_H_CVSID
-#ifdef SYSLOG_H_CVSID
-SYSLOG_H_CVSID
-#endif
-UTILITY_H_CVSID;
+const char * smartd_cpp_cvsid = "$Id$"
+                                CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;
-
-// GNU copyleft statement.  Needed for GPL purposes.
-const char *copyleftstring="smartd comes with ABSOLUTELY NO WARRANTY. This is\n"
-                           "free software, and you are welcome to redistribute it\n"
-                           "under the terms of the GNU General Public License\n"
-                           "Version 2. See http://www.gnu.org for further details.\n\n";
 
 extern unsigned char debugmode;
 
@@ -705,48 +674,6 @@ static void write_all_dev_states(const dev_config_vector & configs,
       PrintOut(LOG_INFO, "Device: %s, state written to %s\n",
                cfg.name.c_str(), cfg.state_file.c_str());
   }
-}
-
-
-void PrintOneCVS(const char *a_cvs_id){
-  char out[CVSMAXLEN];
-  printone(out,a_cvs_id);
-  PrintOut(LOG_INFO,"%s",out);
-  return;
-}
-
-// prints CVS identity information for the executable
-void PrintCVS(void){
-  const char *configargs=strlen(SMARTMONTOOLS_CONFIGURE_ARGS)?SMARTMONTOOLS_CONFIGURE_ARGS:"[no arguments given]";
-
-  PrintOut(LOG_INFO,"%s", (char *)copyleftstring);
-  PrintOut(LOG_INFO,"CVS version IDs of files used to build this code are:\n");
-  PrintOneCVS(atacmdnames_c_cvsid);
-  PrintOneCVS(atacmds_c_cvsid);
-#ifdef _HAVE_CCISS
-  PrintOneCVS(cciss_c_cvsid);
-#endif
-#ifdef _WIN32
-  PrintOneCVS(daemon_win32_c_cvsid);
-  PrintOneCVS(hostname_win32_c_cvsid);
-#endif
-  PrintOneCVS(knowndrives_c_cvsid);
-  PrintOneCVS(os_XXXX_c_cvsid);
-#ifdef NEED_SOLARIS_ATA_CODE
-  PrintOneCVS( os_solaris_ata_s_cvsid);
-#endif
-  PrintOneCVS(scsicmds_c_cvsid);
-  PrintOneCVS(smartd_c_cvsid);
-#ifdef _WIN32
-  PrintOneCVS(syslog_win32_c_cvsid);
-#endif
-  PrintOneCVS(utility_c_cvsid);
-  PrintOut(LOG_INFO, "\nsmartmontools release " PACKAGE_VERSION " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n");
-  PrintOut(LOG_INFO, "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n");
-  PrintOut(LOG_INFO, "smartmontools build configured: " SMARTMONTOOLS_CONFIGURE_DATE "\n");
-  PrintOut(LOG_INFO, "smartd compile dated " __DATE__ " at "__TIME__ "\n");
-  PrintOut(LOG_INFO, "smartmontools configure arguments: %s\n", configargs);
-  return;
 }
 
 // remove the PID file
@@ -1400,8 +1327,9 @@ static void WritePidFile()
 }
 
 // Prints header identifying version of code and home
-void PrintHead(){
-  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd"));
+static void PrintHead()
+{
+  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd").c_str());
 }
 
 // prints help info for configuration file Directives
@@ -3714,15 +3642,6 @@ static int ParseConfigFile(dev_config_vector & conf_entries)
   return entry;
 }
 
-
-// Prints copyright, license and version information
-void PrintCopyleft(void){
-  debugmode=1;
-  PrintHead();
-  PrintCVS();
-  return;
-}
-
 /* Prints the message "=======> VALID ARGUMENTS ARE: <LIST>  <=======\n", where
    <LIST> is the list of valid arguments for option opt. */
 void PrintValidArgs(char opt) {
@@ -3934,7 +3853,8 @@ void ParseOpts(int argc, char **argv){
       break;
     case 'V':
       // print version and CVS info
-      PrintCopyleft();
+      debugmode = 1;
+      PrintOut(LOG_INFO, "%s", format_version_info("smartd", true /*full*/).c_str());
       EXIT(0);
       break;
     case 'h':

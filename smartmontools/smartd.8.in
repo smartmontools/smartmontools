@@ -404,10 +404,9 @@ See NOTES below for details.
 
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
-Prints license, copyright, and CVS version information onto
-STDOUT and then exits. Please include this information if you are
-reporting bugs, or have specific questions about the behavior of
-\fBsmartd\fP.
+Prints version, copyright, license, home page and SVN revision
+information for your copy of \fBsmartd\fP to STDOUT and then exits.
+Please include this information if you are reporting bugs or problems.
 
 .SH EXAMPLES
 

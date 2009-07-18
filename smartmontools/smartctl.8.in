@@ -154,9 +154,9 @@ to see the available options.
 Prints a usage message to STDOUT and exits.
 .TP
 .B \-V, \-\-version, \-\-copyright, \-\-license
-Prints version, copyright, license, home page and CVS\-id information
-for your copy of \fBsmartctl\fP to STDOUT and then exits.  Please
-include this information if you are reporting bugs or problems.
+Prints version, copyright, license, home page and SVN revision
+information for your copy of \fBsmartctl\fP to STDOUT and then exits.
+Please include this information if you are reporting bugs or problems.
 .TP
 .B \-i, \-\-info
 Prints the device model number, serial number, firmware version, and

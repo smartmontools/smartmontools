@@ -3,7 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +26,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h,v 1.68 2009/07/07 19:28:29 chrfranke Exp $\n"
+#define UTILITY_H_CVSID "$Id$"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -40,7 +41,7 @@
 #endif
 
 // Make version information string
-const char *format_version_info(const char *prog_name);
+std::string format_version_info(const char * prog_name, bool full = false);
 
 // return (v)sprintf() formated std::string
 std::string strprintf(const char * fmt, ...)
@@ -68,10 +69,6 @@ uint64_t strtoull(const char * p, char * * endp, int base);
 void dateandtimezone(char *buffer);
 // Same, but for time defined by epoch tval
 void dateandtimezoneepoch(char *buffer, time_t tval);
-
-// utility function for printing out CVS strings
-#define CVSMAXLEN 1024
-void printone(char *block, const char *cvsid);
 
 // like printf() except that we can control it better. Note --
 // although the prototype is given here in utility.h, the function

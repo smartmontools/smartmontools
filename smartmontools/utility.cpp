@@ -4,6 +4,7 @@
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,9 +50,8 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-// Any local header files should be represented by a CVSIDX just below.
-const char* utility_c_cvsid="$Id$"
-CONFIG_H_CVSID INT64_H_CVSID UTILITY_H_CVSID;
+const char * utility_cpp_cvsid = "$Id$"
+                                 UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -85,15 +85,39 @@ unsigned char debugmode = 0;
 #endif
 
 // Make version information string
-const char *format_version_info(const char *progname)
+std::string format_version_info(const char * prog_name, bool full /*= false*/)
 {
-  static char info[200];
-  snprintf(info, sizeof(info),
-    "%s %s %s r%s [%s] %s\n"
+  std::string info = strprintf(
+    "%s "PACKAGE_VERSION" "SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
+      " [%s] "BUILD_INFO"\n"
     "Copyright (C) 2002-9 by Bruce Allen, http://smartmontools.sourceforge.net\n",
-    progname, PACKAGE_VERSION, SMARTMONTOOLS_SVN_DATE, SMARTMONTOOLS_SVN_REV,
-    smi()->get_os_version_str(), BUILD_INFO
+    prog_name, smi()->get_os_version_str()
   );
+  if (!full)
+    return info;
+
+  info += strprintf(
+    "\n"
+    "%s comes with ABSOLUTELY NO WARRANTY. This is free\n"
+    "software, and you are welcome to redistribute it under\n"
+    "the terms of the GNU General Public License Version 2.\n"
+    "See http://www.gnu.org for further details.\n"
+    "\n"
+    "smartmontools release "PACKAGE_VERSION
+      " dated "SMARTMONTOOLS_RELEASE_DATE" at "SMARTMONTOOLS_RELEASE_TIME"\n"
+    "smartmontools SVN rev "SMARTMONTOOLS_SVN_REV
+      " dated "SMARTMONTOOLS_SVN_DATE" at "SMARTMONTOOLS_SVN_TIME"\n"
+    "smartmontools build host: "SMARTMONTOOLS_BUILD_HOST"\n"
+    "smartmontools build configured: "SMARTMONTOOLS_CONFIGURE_DATE "\n"
+    "%s compile dated "__DATE__" at "__TIME__"\n",
+    prog_name, prog_name
+  );
+  info += strprintf(
+    "smartmontools configure arguments: %s\n",
+      (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
+       SMARTMONTOOLS_CONFIGURE_ARGS : "[no arguments given]")
+  );
+
   return info;
 }
 
@@ -303,61 +327,6 @@ void dateandtimezone(char *buffer){
   dateandtimezoneepoch(buffer, tval);
   return;
 }
-
-// These are two utility functions for printing CVS IDs. Massagecvs()
-// returns distance that it has moved ahead in the input string
-int massagecvs(char *out, const char *cvsid){
-  char *copy,*filename,*date,*version;
-  int retVal=0;
-  const char delimiters[] = " ,$";
-
-  // make a copy on the heap, go to first token,
-  if (!(copy=strdup(cvsid)))
-    return 0;
-
-  if (!(filename=strtok(copy, delimiters)))
-    goto endmassage;
-
-  // move to first instance of "Id:"
-  while (strcmp(filename,"Id:"))
-    if (!(filename=strtok(NULL, delimiters)))
-      goto endmassage;
-  
-  // get filename, skip "v", get version and date
-  if (!(  filename=strtok(NULL, delimiters)  ) ||
-      !(           strtok(NULL, delimiters)  ) ||
-      !(   version=strtok(NULL, delimiters)  ) ||
-      !(      date=strtok(NULL, delimiters)  ) )
-    goto endmassage;
-  
-  sprintf(out,"%-16s revision: %-5s date: %-15s", filename, version, date);
-  retVal = (date-copy)+strlen(date);
-  
- endmassage:
-  free(copy);
-  return retVal;
-}
-
-// prints a single set of CVS ids
-void printone(char *block, const char *cvsid){
-  char strings[CVSMAXLEN];
-  const char *here=cvsid;
-  int bi=0, len=strlen(cvsid)+1;
-
-  // check that the size of the output block is sufficient
-  if (len>=CVSMAXLEN) {
-    pout("CVSMAXLEN=%d must be at least %d\n",CVSMAXLEN,len+1);
-    EXIT(1);
-  }
-
-  // loop through the different strings
-  while (bi<CVSMAXLEN && (len=massagecvs(strings,here))){
-    bi+=snprintf(block+bi,CVSMAXLEN-bi,"%s %s\n",(bi==0?"Module:":"  uses:"),strings);
-    here+=len;
-  }
-  return;
-}
-
 
 // A replacement for perror() that sends output to our choice of
 // printing. If errno not set then just print message.
