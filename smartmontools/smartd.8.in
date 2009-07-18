@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 2847 2009-07-18 14:58:44Z chrfranke $
+$Id: smartd.8.in 2848 2009-07-18 20:14:38Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -404,10 +404,9 @@ See NOTES below for details.
 
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
-Prints license, copyright, and CVS version information onto
-STDOUT and then exits. Please include this information if you are
-reporting bugs, or have specific questions about the behavior of
-\fBsmartd\fP.
+Prints version, copyright, license, home page and SVN revision
+information for your copy of \fBsmartd\fP to STDOUT and then exits.
+Please include this information if you are reporting bugs or problems.
 
 .SH EXAMPLES
 
@@ -2127,4 +2126,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 2847 2009-07-18 14:58:44Z chrfranke $
+$Id: smartd.8.in 2848 2009-07-18 20:14:38Z chrfranke $

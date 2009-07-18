@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 2847 2009-07-18 14:58:44Z chrfranke $
+ $Id: smartctl.8.in 2848 2009-07-18 20:14:38Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -154,9 +154,9 @@ to see the available options.
 Prints a usage message to STDOUT and exits.
 .TP
 .B \-V, \-\-version, \-\-copyright, \-\-license
-Prints version, copyright, license, home page and CVS\-id information
-for your copy of \fBsmartctl\fP to STDOUT and then exits.  Please
-include this information if you are reporting bugs or problems.
+Prints version, copyright, license, home page and SVN revision
+information for your copy of \fBsmartctl\fP to STDOUT and then exits.
+Please include this information if you are reporting bugs or problems.
 .TP
 .B \-i, \-\-info
 Prints the device model number, serial number, firmware version, and
@@ -1767,7 +1767,7 @@ these documents may be found in the References section of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 2847 2009-07-18 14:58:44Z chrfranke $
+$Id: smartctl.8.in 2848 2009-07-18 20:14:38Z chrfranke $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
