@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in,v 1.133 2009/07/05 17:52:46 chrfranke Exp $
+ $Id$
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1703,18 +1703,20 @@ University of Wisconsin \- Milwaukee Physics Department
 The following have made large contributions to smartmontools:
 .nf
 \fBCasper Dik\fP (Solaris SCSI interface)
-\fBChristian Franke\fP (Windows interface and Cygwin package)
+\fBChristian Franke\fP (Windows interface, C++ redesign, USB support, ...)
 \fBDouglas Gilbert\fP (SCSI subsystem)
 \fBGuido Guenther\fP (Autoconf/Automake packaging)
 \fBGeoffrey Keating\fP (Darwin ATA interface)
 \fBEduard Martinescu\fP (FreeBSD interface)
 \fBFr\*'ed\*'eric L. W. Meunier\fP (Web site and Mailing list)
+\fBGabriele Pohl\fP (Web site and Wiki, conversion from CVS to SVN)
 \fBKeiji Sawada\fP (Solaris ATA interface)
+\fBManfred Schwarb\fP (Drive database)
 \fBSergey Svishchev\fP (NetBSD interface)
 \fBDavid Snyder and Sergey Svishchev\fP (OpenBSD interface)
 \fBPhil Williams\fP (User interface and drive database)
 \fBYuri Dario\fP (OS/2, eComStation interface)
-\fBShengfeng Zhou\fP (Linux Highpoint RocketRaid interface)
+\fBShengfeng Zhou\fP (Linux/FreeBSD HighPoint RocketRAID interface)
 .fi
 Many other individuals have made smaller contributions and corrections.
 
@@ -1764,8 +1766,8 @@ these documents may be found in the References section of the
 \fBhttp://smartmontools.sourceforge.net/\fP .
 
 .SH
-CVS ID OF THIS PAGE:
-$Id: smartctl.8.in,v 1.133 2009/07/05 17:52:46 chrfranke Exp $
+SVN ID OF THIS PAGE:
+$Id$
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
