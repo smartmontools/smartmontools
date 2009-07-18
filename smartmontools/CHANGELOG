@@ -1,9 +1,9 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2842 2009-07-17 21:03:36Z chrfranke $
+$Id: CHANGELOG 2844 2009-07-18 12:59:21Z chrfranke $
 
 The most recent version of this file is:
-http://smartmontools.cvs.sourceforge.net/smartmontools/sm5/CHANGELOG?view=markup
+http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
 
 Maintainers / Developers Key (alphabetic order):
 [BA]  Bruce Allen
@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Update documentation files for SVN.
 
   [CF] Rename trunk/sm5 to trunk/smartmontools.
 
