@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2850 2009-07-19 13:31:37Z chrfranke $
+$Id: CHANGELOG 2851 2009-07-19 15:26:11Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -41,6 +41,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add USB IDs of a SunplusIT bridge, three WD drives, and an
+       unsupported Iomega drive.
 
   [CF] Makefile.am: Use 'svnversion' instead of 'svn info' to get
        the revision number. This also checks for mixed and modified
