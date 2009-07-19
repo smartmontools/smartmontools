@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 2837 2009-07-16 20:08:06Z chrfranke $
+# $Id: configure.in 2850 2009-07-19 13:31:37Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in 2837 2009-07-16 20:08:06Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 2850 2009-07-19 13:31:37Z chrfranke $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -48,7 +48,7 @@ AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
 if test -f "$srcdir/.svn/entries"; then
   is_svn_build=unknown
-  if (cd "$srcdir" && svn --version && svn info && svn status -q) >/dev/null 2>&1; then
+  if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
     is_svn_build=yes
   fi
 fi
