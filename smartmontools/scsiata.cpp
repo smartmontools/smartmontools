@@ -51,7 +51,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id: scsiata.cpp,v 1.38 2009/06/29 19:56:19 chrfranke Exp $"
+const char *scsiata_c_cvsid="$Id$"
 CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1313,6 +1313,7 @@ const usb_id_entry usb_ids[] = {
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
   { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
+  { 0x059b, 0x0275, 0x0001, d_unsup   }, // Iomega MDHD500-U
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
@@ -1323,16 +1324,20 @@ const usb_id_entry usb_ids[] = {
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
   { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
+  { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
+  { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
   { 0x1058, 0x1003, 0x0175, d_sat     }, // WD Elements Desktop WDE1UBK...
   { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
+  { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
   { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
   { 0x152d, 0x2329, 0x0100, d_jmicron }, // JMicron JM20329 (USB->SATA)
   { 0x152d, 0x2336, 0x0100, d_jmicron_x},// JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
   { 0x152d, 0x2338, 0x0100, d_jmicron }, // JMicron JM20337/8 (USB->SATA+PATA, USB+SATA->PATA)
-  { 0x152d, 0x2339, 0x0100, d_jmicron_x} // JMicron JM20339 (USB->SATA)
+  { 0x152d, 0x2339, 0x0100, d_jmicron_x},// JMicron JM20339 (USB->SATA)
+  { 0x1bcf, 0x0c31,     -1, d_sunplus }  // SunplusIT
 };
 
 const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
