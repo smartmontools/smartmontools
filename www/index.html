@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head> 
- <title>smartmontools Home Page (last updated $Date: 2009/05/10 13:06:31 $)</title> 
+ <title>smartmontools Home Page (last updated $Date$)</title> 
  <link rev="made" href="mailto:smartmontools-support&#64;sourceforge.net" /> 
  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" /> 
  <meta name="description" content="smartmontools Home Page" /> 
@@ -15,7 +15,7 @@
  <link rel="stylesheet" type="text/css" href="css/style.css" />
 </head>
 <body>
-<!-- $Id: index.html,v 1.241 2009/05/10 13:06:31 dipohl Exp $ -->
+<!-- $Id$ -->
 <div id="header">
  <h1><a id="logo" href="http://smartmontools.sourceforge.net/">
  <img src="smart_logo.gif" width="105" height="59" border="0" hspace="20" align="middle" name="smartmontools_Logo" alt="S.M.A.R.T. Logo" /></a>    
@@ -35,6 +35,13 @@
  <div class="left-header">
   <h2>News</h2>
   <ul class="High">
+    <li>We moved our CVS-Repository to Subversion and
+    adjusted the <a href="http://smartmontools.sourceforge.net/download.html#SVNInstall">download instructions</a> 
+    accordingly. Christian Franke added a first feature which benefits from the change:
+    If build from trunk, the first line of smartmontools output now reports the SVN revision date and number, e.g:
+    <span class="code">smartctl 5.39 2009-07-16 r2838 [i686-pc-linux-gnu] (local build)</span>.
+    So if you send smartctl output, we can now identify the exact revision :-)</li>
+    
     <li>Our work in the field USB bridges goes on. Experimental support for 
     <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />
     <a href="http://w3.sunplusit.com/english/products/storage/SPIF225A.aspx">Sunplus
@@ -45,7 +52,7 @@
     We are very interested in your test results with the new device type
     and collect all feedbacks in our Wiki-Page on 
     <a href="http://smartmontools.wiki.sourceforge.net/overview_USB-Support">USB-Support</a>. 
-    Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>
+    Get <strong>current version</strong> from <a href="download.html#SVNInstall">SVN</a>
     and tell us about your experiences on the 
     <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support">
     <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.
@@ -57,25 +64,15 @@
     See the <a href="http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931">
     <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />Details</a>, 
     reported by Seagates customer support.</li>
+    
     <li>Thanks to contributor Jordan Hargrave, smartmontools now have support for MegaRAID controllers.
-    Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>
+    Get <strong>current version</strong> from <a href="download.html#SVNInstall">SVN</a>
     and use <tt>-d megaraid,N</tt> to inspect disk N behind the controller.</li>
-    <li>Smartmontools now have some experimental code to
-    support Areca SATA RAID controllers (Linux only). Thanks to
-    Hank Wu (Areca) and Oliver Bock (AEI Hannover) for their contributions.
-    Read the 
-    <a href="http://permalink.gmane.org/gmane.linux.utilities.smartmontools/5699">
-    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />full message</a>
-    on smartmontools-support list.
-    Get <strong>current version</strong> from <a href="download.html#CVSInstall">CVS</a>.
-    <span id="marked">Please report problems (or success!) with the new release to the 
-    <a href="https://lists.sourceforge.net/lists/listinfo/smartmontools-support">
-    <img src="pics/linkext.gif" width="11" height="11" border="0" alt="extLink: " />smartmontools-support mailing list</a>.</span></li>
   </ul>
  </div>
  <div>
  <a class="button" href="http://sourceforge.net/projects/smartmontools/">&nbsp;Project Page (SourceForge)&nbsp;</a>
- <a class="button" href="http://smartmontools.cvs.sourceforge.net/smartmontools/">&nbsp;&nbsp;Browse CVS&nbsp;&nbsp;</a>
+ <a class="button" href="http://smartmontools.svn.sourceforge.net/viewvc/smartmontools">&nbsp;&nbsp;Browse SVN&nbsp;&nbsp;</a>
  <a class="button" href="http://smartmontools.wiki.sourceforge.net/">&nbsp;&nbsp;Wiki&nbsp;&nbsp;</a>
  <p>The smartmontools package contains two utility programs 
  (<font color="#3333ff"><b>smartctl</b></font> and <font color="#3333ff"><b>smartd</b></font>) 
@@ -122,7 +119,7 @@ and links to other monitoring resources.</p>
  <div align="center"><font size="-1">Hosted by<br /><a href="http://sourceforge.net/projects/smartmontools"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=64297&amp;type=13" width="120" height="30" border="0" alt="Get S.M.A.R.T. Monitoring Tools at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a><br />
 Maintained by: <a href="http://www.dipohl.de/">Gabriele Pohl</a><br />
 Copyright (C) 2002-9 Bruce Allen, Gabriele Pohl published under <a href="http://www.gnu.org/licenses/gpl-2.0.html#SEC1">GNU GPL</a><br />
-Last update: $Date: 2009/05/10 13:06:31 $<br /></font>
+Last update: $Date$<br /></font>
 <a href="http://validator.w3.org/checklink?uri=http%3A%2F%2Fsmartmontools.sourceforge.net%2F">W3C Link-Checker</a><br />
 <a href="http://validator.w3.org/check?uri=referer">
 <img src="http://www.w3.org/Icons/valid-xhtml10-blue" alt="Valid XHTML 1.0 Transitional" height="31" width="88" border="0" /></a>
