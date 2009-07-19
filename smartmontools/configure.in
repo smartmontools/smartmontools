@@ -48,7 +48,7 @@ AC_MSG_CHECKING([whether this is a build from SVN])
 is_svn_build=no
 if test -f "$srcdir/.svn/entries"; then
   is_svn_build=unknown
-  if (cd "$srcdir" && svn --version && svn info && svn status -q) >/dev/null 2>&1; then
+  if (cd "$srcdir" && svn --version && svnversion && svn info) >/dev/null 2>&1; then
     is_svn_build=yes
   fi
 fi

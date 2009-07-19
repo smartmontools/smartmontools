@@ -42,6 +42,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Use 'svnversion' instead of 'svn info' to get
+       the revision number. This also checks for mixed and modified
+       working copies.
+
   [CF] Remove CVS Id strings from '-V, --version' output.
 
   [CF] Update CONTRIBUTORS section on man pages.
