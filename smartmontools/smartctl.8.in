@@ -853,10 +853,11 @@ it provides sufficient space to log the contents of the 48-bit
 LBA register set introduced with ATA-6.  It also supports logs
 with more than one sector.  Each sector holds up to 4 log entries.
 The actual number of log sectors is vendor specific, typical values
-are 2 (Samsung), 5 (Seagate) or 6 (WD).
+for HDD are 2 (Samsung), 5 (Seagate) or 6 (WD). Some recent SSD devices
+have much larger error logs.
 
-If the optional parameter NUM is specified, only the NUM most
-recent log entries are printed.  Otherwise, all entries are printed.
+Only the 8 most recent error log entries are printed by default.
+This number can be changed by the optional parameter NUM.
 
 If ',error' is appended and the Extended Comprehensive SMART error
 log is not supported, the Summary SMART self-test log is printed.
@@ -909,8 +910,8 @@ and logs with more than one sector.  Each sector holds up to 19 log
 entries. The actual number of log sectors is vendor specific, typical
 values are 1 (Seagate) or 2 (Samsung).
 
-If the optional parameter NUM is specified, only the NUM most
-recent log entries are printed.  Otherwise, all entries are printed.
+Only the 25 most recent log entries are printed by default. This number
+can be changed by the optional parameter NUM.
 
 If ',selftest' is appended and the Extended SMART self-test log is not
 supported, the old SMART self-test log is printed.

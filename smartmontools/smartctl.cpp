@@ -443,7 +443,7 @@ const char * parse_options(int argc, char** argv,
 
       } else if (!strncmp(optarg, "xerror", sizeof("xerror")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);
-        unsigned val = ~0U;
+        unsigned val = 8;
         sscanf(optarg, "xerror%n,error%n", &n1, &n2);
         if (!(n1 == len || n2 == len)) {
           n1 = n2 = -1;
@@ -458,7 +458,7 @@ const char * parse_options(int argc, char** argv,
 
       } else if (!strncmp(optarg, "xselftest", sizeof("xselftest")-1)) {
         int n1 = -1, n2 = -1, len = strlen(optarg);
-        unsigned val = ~0U;
+        unsigned val = 25;
         sscanf(optarg, "xselftest%n,selftest%n", &n1, &n2);
         if (!(n1 == len || n2 == len)) {
           n1 = n2 = -1;
@@ -522,8 +522,10 @@ const char * parse_options(int argc, char** argv,
       ataopts.smart_check_status   = scsiopts.smart_check_status  = true;
       ataopts.smart_general_values = true;
       ataopts.smart_vendor_attrib  = scsiopts.smart_vendor_attrib = true;
-      ataopts.smart_ext_error_log  = ataopts.smart_ext_selftest_log = ~0U;
-      ataopts.retry_error_log      = ataopts.retry_selftest_log = true;
+      ataopts.smart_ext_error_log  = 8;
+      ataopts.retry_error_log      = true;
+      ataopts.smart_ext_selftest_log = 25;
+      ataopts.retry_selftest_log   = true;
       scsiopts.smart_error_log     = scsiopts.smart_selftest_log    = true;
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
