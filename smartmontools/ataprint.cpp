@@ -44,8 +44,8 @@
 #include "utility.h"
 #include "knowndrives.h"
 
-const char *ataprint_c_cvsid="$Id: ataprint.cpp,v 1.214 2009/07/07 19:28:29 chrfranke Exp $"
-ATACMDNAMES_H_CVSID ATACMDS_H_CVSID ATAPRINT_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char * ataprint_cpp_cvsid = "$Id$"
+                                  ATAPRINT_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -1385,15 +1385,12 @@ static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
   // it is 1-based in practice.
   logidx--;
 
-  unsigned logcnt = nentries;
-  if (max_entries < logcnt)
-    logcnt = max_entries;
-
   bool print_header = true;
 
   // Iterate through circular buffer in reverse direction
   for (unsigned i = 0, testnum = 1;
-       i < logcnt; i++, logidx = (logidx > 0 ? logidx - 1 : nentries - 1)) {
+       i < nentries && testnum <= max_entries;
+       i++, logidx = (logidx > 0 ? logidx - 1 : nentries - 1)) {
 
     const ata_smart_extselftestlog_desc & entry = log[logidx / 19].log_descs[logidx % 19];
 
