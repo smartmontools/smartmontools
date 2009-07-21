@@ -254,8 +254,9 @@ all of these bridges and are therefore disabled by default. These commands
 can be enabled by \'\-d usbjmicron,x\'. CAUTION: Specifying \',x\' for a
 device which do not support it results in I/O errors and may disconnect
 the drive. The port can be specified by \'\-d usbjmicron[,x],PORT\' where
-PORT is 0 (master) or 1 (slave). If no PORT is specified, it is auto-detected.
-If both ports are connected, 0 takes precedence.
+PORT is 0 (master) or 1 (slave). This is not necessary if only one disk is
+connected to the USB bridge. If two disks are connected, an error message
+is printed if no PORT is specified.
 
 [NEW EXPERIMENTAL SMARTCTL FEATURE] The \'usbsunplus\' device type is for
 SATA disks that are behind a SunplusIT USB to SATA bridge.

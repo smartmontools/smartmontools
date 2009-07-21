@@ -51,8 +51,8 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char *scsiata_c_cvsid="$Id$"
-CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
+const char * scsiata_cpp_cvsid = "$Id$"
+                                 SCSIATA_H_CVSID;
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -873,13 +873,17 @@ bool usbjmicron_device::open()
       return false;
     }
 
-    if (regbuf[0] & 0x04)
-      m_port = 0;
-    else if (regbuf[0] & 0x40)
-      m_port = 1;
-    else {
-      close();
-      return set_err(ENODEV, "No device connected");
+    switch (regbuf[0] & 0x44) {
+      case 0x04:
+        m_port = 0; break;
+      case 0x40:
+        m_port = 1; break;
+      case 0x44:
+        close();
+        return set_err(EINVAL, "Two devices connected, try '-d usbjmicron,[01]'");
+      default:
+        close();
+        return set_err(ENODEV, "No device connected");
     }
   }
 
