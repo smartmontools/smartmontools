@@ -42,6 +42,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp updates:
+       - Fujitsu MHW2 BJ series
+       - WD Caviar Black family
+
+  [MS] Makefile.am: Make creation of svnversion.h independent of
+       locale settings
+
   [CF] Require to specify PORT parameter of '-d usbjmicron' if two disks
        are connected.
 
