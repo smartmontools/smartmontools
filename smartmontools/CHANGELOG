@@ -42,6 +42,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] minor changes to SCSI background scan strings
+
   [MS] knowndrives.cpp updates:
        - Fujitsu MHW2 BJ series
        - WD Caviar Black family
