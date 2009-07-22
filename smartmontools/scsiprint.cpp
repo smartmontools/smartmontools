@@ -832,15 +832,15 @@ static const char * bms_status[] = {
     "halted due to medium formatted without P-List",
     "halted - vendor specific cause",
     "halted due to temperature out of range",
-    "halted until BM interval timer expires", /* 8 */
+    "waiting until BMS interval timer expires", /* 8 */
 };
 
 static const char * reassign_status[] = {
-    "No reassignment needed",
-    "Require Reassign or Write command",
+    "Reserved [0x0]",
+    "Require Write or Reassign Blocks command",
     "Successfully reassigned",
     "Reserved [0x3]",
-    "Failed",
+    "Reassignment by disk failed",
     "Recovered via rewrite in-place",
     "Reassigned by app, has valid data",
     "Reassigned by app, has no valid data",
