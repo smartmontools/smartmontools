@@ -220,6 +220,10 @@ static const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
     "", "", ""
   },
+  { "Fujitsu MHW2 BJ series",
+    "FUJITSU MHW2(08|12|16)0BJ.*",
+    "", "", ""
+  },
   { "Fujitsu MHZ2 BS series",
     "FUJITSU MHZ2(12|25)0BS.*",
     "", "", ""
@@ -1181,6 +1185,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Caviar Green family",
     "WDC WD((50|64|75)00AA(C|V)S|10EA(C|V)S|(10|15|20)EADS)-.*",
+    "", "", ""
+  },
+  { "Western Digital Caviar Black family",
+    "WDC WD((500|640|750)1AA|1001FA)LS-.*",
     "", "", ""
   },
   { "Western Digital AV ATA family",
