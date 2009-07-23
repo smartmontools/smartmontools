@@ -40,8 +40,8 @@
 
 #include <algorithm> // std::sort
 
-const char *atacmds_c_cvsid="$Id: atacmds.cpp,v 1.219 2009/07/07 19:28:29 chrfranke Exp $"
-ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSIATA_H_CVSID UTILITY_H_CVSID;
+const char * atacmds_cpp_cvsid = "$Id$"
+                                 ATACMDS_H_CVSID;
 
 // for passing global control variables
 extern smartmonctrl *con;
@@ -633,14 +633,11 @@ uint64_t get_num_sectors(const ata_identify_device * drive)
 // This function computes the checksum of a single disk sector (512
 // bytes).  Returns zero if checksum is OK, nonzero if the checksum is
 // incorrect.  The size (512) is correct for all SMART structures.
-unsigned char checksum(const unsigned char *buffer)
+unsigned char checksum(const void * data)
 {
-  unsigned char sum=0;
-  int i;
-  
-  for (i=0; i<512; i++)
-    sum+=buffer[i];
-
+  unsigned char sum = 0;
+  for (int i = 0; i < 512; i++)
+    sum += ((const unsigned char *)data)[i];
   return sum;
 }
 
@@ -886,7 +883,7 @@ int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
   }
 
   // compute checksum
-  if (checksum((unsigned char *)data))
+  if (checksum(data))
     checksumwarning("SMART Attribute Data Structure");
   
   // swap endian order if needed
@@ -935,7 +932,7 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
   }
 
   // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
+  if (checksum(data))
     checksumwarning("SMART Self-Test Log Structure");
   
   // fix firmware bugs in self-test log
@@ -956,6 +953,22 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
   return 0;
 }
 
+// Print checksum warning for multi sector log
+static void check_multi_sector_sum(const void * data, unsigned nsectors, const char * msg)
+{
+    unsigned errs = 0;
+    for (unsigned i = 0; i < nsectors; i++) {
+      if (checksum((const unsigned *)data + i*512))
+        errs++;
+    }
+    if (errs > 0) {
+      if (nsectors == 1)
+        checksumwarning(msg);
+      else
+        checksumwarning(strprintf("%s (%u/%u)", msg, errs, nsectors).c_str());
+    }
+}
+
 // Read SMART Extended Self-test Log
 bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
                            unsigned nsectors)
@@ -963,10 +976,7 @@ bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
   if (!ataReadLogExt(device, 0x07, 0x00, 0, log, nsectors))
     return false;
 
-  for (unsigned i = 0; i < nsectors; i++) {
-    if (checksum((const unsigned char *)(log + i)))
-      checksumwarning("SMART Extended Self-test Log Structure");
-  }
+  check_multi_sector_sum(log, nsectors, "SMART Extended Self-test Log Structure");
 
   if (isbigendian()) {
     swapx(&log->log_desc_index);
@@ -1062,7 +1072,7 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
   }
    
   // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
+  if (checksum(data))
     checksumwarning("SMART Selective Self-Test Log Structure");
   
   // swap endian order if needed
@@ -1295,7 +1305,7 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
   }
   
   // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
+  if (checksum(data))
     checksumwarning("SMART ATA Error Log Structure");
   
   // Some disks have the byte order reversed in some SMART Summary
@@ -1333,10 +1343,7 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
   if (!ataReadLogExt(device, 0x03, 0x00, 0, log, nsectors))
     return false;
 
-  for (unsigned i = 0; i < nsectors; i++) {
-    if (checksum((const unsigned char *)(log + i)))
-      checksumwarning("SMART ATA Extended Comprehensive Error Log Structure");
-  }
+  check_multi_sector_sum(log, nsectors, "SMART Extended Comprehensive Error Log Structure");
 
   if (isbigendian()) {
     swapx(&log->device_error_count);
@@ -1362,7 +1369,7 @@ int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt
   }
   
   // compute its checksum, and issue a warning if needed
-  if (checksum((unsigned char *)data))
+  if (checksum(data))
     checksumwarning("SMART Attribute Thresholds Structure");
   
   // swap endian order if needed

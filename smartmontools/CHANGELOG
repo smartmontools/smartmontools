@@ -42,6 +42,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Print only one warning on checksum errors in multi sector log.
+       Remove casts from calls of checksum().
+
   [DG] minor changes to SCSI background scan strings
 
   [MS] knowndrives.cpp updates:

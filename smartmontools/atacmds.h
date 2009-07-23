@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h,v 1.108 2009/07/07 19:28:29 chrfranke Exp $\n"
+#define ATACMDS_H_CVSID "$Id$"
 
 #include "dev_interface.h" // ata_device
 
@@ -842,7 +842,7 @@ inline void format_ata_string(char * out, const unsigned char * in, int n, bool 
   { format_ata_string(out, (const char *)in, n, fix_swap); }
 
 // Utility routines.
-unsigned char checksum(const unsigned char * buffer);
+unsigned char checksum(const void * data);
 
 void swap2(char *location);
 void swap4(char *location);
