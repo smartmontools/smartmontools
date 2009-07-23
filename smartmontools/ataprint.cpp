@@ -794,12 +794,16 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     // thresholds page data to slip by)
     if (disk->id){
       const char *type, *update;
-      int failednow,failedever;
       char attributename[64];
 
-      failednow = (disk->current <= thre->threshold);
-      failedever= (disk->worst   <= thre->threshold);
-      
+      // Don't report a failed attribute if its threshold is 0.
+      // ATA-3 (X3T13/2008D Revision 7b) declares 0x00 as the "always passing"
+      // threshold (Later ATA versions declare all thresholds as "obsolete").
+      // In practice, threshold value 0 is often used for usage attributes or
+      // appears if the thresholds cannot be read.
+      bool failednow  = (thre->threshold > 0 && disk->current <= thre->threshold);
+      bool failedever = (thre->threshold > 0 && disk->worst   <= thre->threshold);
+
       // These break out of the loop if we are only printing certain entries...
       if (onlyfailed==1 && (!ATTRIBUTE_FLAGS_PREFAILURE(disk->flags) || !failednow))
         continue;
@@ -841,8 +845,9 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
       ataPrintSmartAttribRawValue(rawstring, disk, attributedefs);
       pout("%s\n", rawstring);
       
-      // print a warning if there is inconsistency here!
-      if (disk->id != thre->id){
+      // Print a warning if there is inconsistency here and
+      // threshold info is not empty.
+      if (disk->id != thre->id && (thre->id || thre->threshold)) {
         char atdat[64],atthr[64];
         ataPrintSmartAttribName(atdat, disk->id, attributedefs);
         ataPrintSmartAttribName(atthr, thre->id, attributedefs);
