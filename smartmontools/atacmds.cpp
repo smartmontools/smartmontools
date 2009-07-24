@@ -33,14 +33,11 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
-#include "scsiata.h"
 #include "extern.h"
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-#include <algorithm> // std::sort
-
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2859 2009-07-23 18:55:06Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2861 2009-07-24 16:47:03Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables

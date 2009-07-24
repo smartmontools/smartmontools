@@ -84,7 +84,6 @@ extern "C" int __stdcall FreeConsole(void);
 #include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
-#include "scsiata.h"
 #include "utility.h"
 
 // This is for solaris, where signal() resets the handler to SIG_DFL
@@ -123,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2848 2009-07-18 20:14:38Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2861 2009-07-24 16:47:03Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;

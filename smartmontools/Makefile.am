@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 2856 2009-07-21 21:31:49Z manfred99 $
+# $Id: Makefile.am 2861 2009-07-24 16:47:03Z chrfranke $
 #
 
 @SET_MAKE@
@@ -39,7 +39,6 @@ smartd_SOURCES =  smartd.cpp      \
                   scsicmds.cpp    \
                   scsicmds.h      \
                   scsiata.cpp     \
-                  scsiata.h       \
                   utility.cpp     \
                   utility.h
 
@@ -109,7 +108,6 @@ smartctl_SOURCES= smartctl.cpp    \
                   scsicmds.cpp    \
                   scsicmds.h      \
                   scsiata.cpp     \
-                  scsiata.h       \
                   scsiprint.cpp   \
                   scsiprint.h     \
                   utility.cpp     \
