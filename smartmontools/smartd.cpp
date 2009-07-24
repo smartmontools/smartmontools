@@ -84,7 +84,6 @@ extern "C" int __stdcall FreeConsole(void);
 #include "extern.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
-#include "scsiata.h"
 #include "utility.h"
 
 // This is for solaris, where signal() resets the handler to SIG_DFL

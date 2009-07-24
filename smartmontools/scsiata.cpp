@@ -44,21 +44,56 @@
 #include "int64.h"
 #include "extern.h"
 #include "scsicmds.h"
-#include "scsiata.h"
 #include "atacmds.h" // ataReadHDIdentity()
 #include "utility.h"
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id$"
-                                 SCSIATA_H_CVSID;
+const char * scsiata_cpp_cvsid = "$Id$";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
 
+/* This is a slightly stretched SCSI sense "descriptor" format header.
+   The addition is to allow the 0x70 and 0x71 response codes. The idea
+   is to place the salient data of both "fixed" and "descriptor" sense
+   format into one structure to ease application processing.
+   The original sense buffer should be kept around for those cases
+   in which more information is required (e.g. the LBA of a MEDIUM ERROR). */
+struct sg_scsi_sense_hdr {
+    unsigned char response_code; /* permit: 0x0, 0x70, 0x71, 0x72, 0x73 */
+    unsigned char sense_key;
+    unsigned char asc;
+    unsigned char ascq;
+    unsigned char byte4;
+    unsigned char byte5;
+    unsigned char byte6;
+    unsigned char additional_length;
+};
+
+/* Maps the salient data from a sense buffer which is in either fixed or
+   descriptor format into a structure mimicking a descriptor format
+   header (i.e. the first 8 bytes of sense descriptor format).
+   If zero response code returns 0. Otherwise returns 1 and if 'sshp' is
+   non-NULL then zero all fields and then set the appropriate fields in
+   that structure. sshp::additional_length is always 0 for response
+   codes 0x70 and 0x71 (fixed format). */
+static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
+                                   struct sg_scsi_sense_hdr * sshp);
+
+/* Attempt to find the first SCSI sense data descriptor that matches the
+   given 'desc_type'. If found return pointer to start of sense data
+   descriptor; otherwise (including fixed format sense data) returns NULL. */
+static const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
+                                                     int sense_len, int desc_type);
+
+#define SAT_ATA_PASSTHROUGH_12LEN 12
+#define SAT_ATA_PASSTHROUGH_16LEN 16
+
 #define DEF_SAT_ATA_PASSTHRU_SIZE 16
 #define ATA_RETURN_DESCRIPTOR 9
+
 
 namespace sat { // no need to publish anything, name provided for Doxygen
 
@@ -397,8 +432,8 @@ static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false
 
 /* Next two functions are borrowed from sg_lib.c in the sg3_utils
    package. Same copyrght owner, same license as this file. */
-int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
-                            struct sg_scsi_sense_hdr * sshp)
+static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
+                                   struct sg_scsi_sense_hdr * sshp)
 {
     if (sshp)
         memset(sshp, 0, sizeof(struct sg_scsi_sense_hdr));
@@ -432,8 +467,8 @@ int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
 }
 
 
-const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
-                                              int sense_len, int desc_type)
+static const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
+                                                     int sense_len, int desc_type)
 {
     int add_sen_len, add_len, desc_len, k;
     const unsigned char * descp;

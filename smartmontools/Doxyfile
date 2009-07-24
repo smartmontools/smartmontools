@@ -84,7 +84,6 @@ INPUT                  =
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = dev*.h \
                          dev*.cpp \
-                         scsiata.h \
                          scsiata.cpp
 RECURSIVE              = NO
 EXCLUDE                = 

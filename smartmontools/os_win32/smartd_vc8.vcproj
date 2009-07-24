@@ -866,10 +866,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\scsiata.h"
-			>
-		</File>
-		<File
 			RelativePath="..\scsicmds.cpp"
 			>
 		</File>

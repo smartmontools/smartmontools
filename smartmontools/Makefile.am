@@ -39,7 +39,6 @@ smartd_SOURCES =  smartd.cpp      \
                   scsicmds.cpp    \
                   scsicmds.h      \
                   scsiata.cpp     \
-                  scsiata.h       \
                   utility.cpp     \
                   utility.h
 
@@ -109,7 +108,6 @@ smartctl_SOURCES= smartctl.cpp    \
                   scsicmds.cpp    \
                   scsicmds.h      \
                   scsiata.cpp     \
-                  scsiata.h       \
                   scsiprint.cpp   \
                   scsiprint.h     \
                   utility.cpp     \

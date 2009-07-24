@@ -33,12 +33,9 @@
 #include "config.h"
 #include "int64.h"
 #include "atacmds.h"
-#include "scsiata.h"
 #include "extern.h"
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
-
-#include <algorithm> // std::sort
 
 const char * atacmds_cpp_cvsid = "$Id$"
                                  ATACMDS_H_CVSID;

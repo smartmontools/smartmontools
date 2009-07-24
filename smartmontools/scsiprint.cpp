@@ -40,12 +40,11 @@
 #include "scsiprint.h"
 #include "smartctl.h"
 #include "utility.h"
-#include "scsiata.h"
 
 #define GBUF_SIZE 65535
 
-const char* scsiprint_c_cvsid="$Id: scsiprint.cpp,v 1.130 2009/06/24 04:10:10 dpgilbert Exp $"
-CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID SCSIPRINT_H_CVSID SMARTCTL_H_CVSID UTILITY_H_CVSID;
+const char * scsiprint_c_cvsid = "$Id$"
+                                 SCSIPRINT_H_CVSID;
 
 // control block which points to external global control variables
 extern smartmonctrl *con;
