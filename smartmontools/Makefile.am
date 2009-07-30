@@ -267,6 +267,7 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/configure \
         $(srcdir)/config.guess \
         $(srcdir)/config.h.in \
+        $(srcdir)/config.h.in~ \
         $(srcdir)/config.sub \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
@@ -399,9 +400,6 @@ endif
 install-initdDATA : $(initd_DATA_install)
 
 uninstall-initdDATA: $(initd_DATA_uninstall)
-
-uninstall-docsDATA:
-	rm -rf $(DESTDIR)$(docsdir)
 
 if ENABLE_DRIVEDB
 MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"

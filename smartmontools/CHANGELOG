@@ -42,6 +42,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Remove 'uninstall-docsDATA' target to fix
+       'make distcheck' with automake 1.11. The 'make uninstall'
+       of examplescripts fails if docdir does no longer exist.
+
   [CF] Remove 'scsiata.h'. The 'scsiata.cpp' module now implements
        parts of 'dev_interface.h'.
 
