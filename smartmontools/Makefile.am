@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 2861 2009-07-24 16:47:03Z chrfranke $
+# $Id: Makefile.am 2866 2009-07-30 19:43:44Z chrfranke $
 #
 
 @SET_MAKE@
@@ -267,6 +267,7 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/configure \
         $(srcdir)/config.guess \
         $(srcdir)/config.h.in \
+        $(srcdir)/config.h.in~ \
         $(srcdir)/config.sub \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
@@ -399,9 +400,6 @@ endif
 install-initdDATA : $(initd_DATA_install)
 
 uninstall-initdDATA: $(initd_DATA_uninstall)
-
-uninstall-docsDATA:
-	rm -rf $(DESTDIR)$(docsdir)
 
 if ENABLE_DRIVEDB
 MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"
