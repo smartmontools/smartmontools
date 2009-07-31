@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2861 2009-07-24 16:47:03Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2867 2009-07-31 22:30:10Z manfred99 $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;
@@ -1281,7 +1281,7 @@ void DaemonInit(){
     // stderr
     NO_warn_unused_result(dup(i));
   };
-  umask(0);
+  umask(0022);
   NO_warn_unused_result(chdir("/"));
 
   if (do_fork)
