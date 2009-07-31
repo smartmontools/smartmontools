@@ -1281,7 +1281,7 @@ void DaemonInit(){
     // stderr
     NO_warn_unused_result(dup(i));
   };
-  umask(0);
+  umask(0022);
   NO_warn_unused_result(chdir("/"));
 
   if (do_fork)
