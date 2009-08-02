@@ -42,6 +42,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] Add experimental feature to log attribute values at each check 
+       cycle (ATA only), activated with the smartd option 
+       "-A PREFIX" / "--attributelog=PREFIX".
+       Introduce configure options "--enable-attributelog" and
+       "--with-attributelog=PREFIX" to enable feature by default.
+
   [DG] [SAT] Heads up about a non backwardly compatible change
        introduced in draft SAT-2 (sat2r8b.pdf) that will break our
        existing SAT processing code. Action needed if change stands.

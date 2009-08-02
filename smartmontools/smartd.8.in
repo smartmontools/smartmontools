@@ -128,6 +128,31 @@ below).
 OPTIONS
 Long options are not supported on all systems.  Use \fB\'smartd
 \-h\'\fP to see the available options.
+
+.TP
+.B \-A PREFIX, \-\-attributelog=PREFIX
+[NEW EXPERIMENTAL SMARTD FEATURE] [ATA ONLY]
+Writes \fBsmartd\fP attribute information (normalized and raw attribute values)
+to files \'PREFIX\'\'MODEL\-SERIAL.ata.csv\'. At each check cycle attributes
+are logged as a line of semicolon separated triplets of the form
+"attribute-ID;attribute-norm-value;attribute-raw-value;". Each line is
+led by a date string of the form "yyyy-mm-dd HH:MM:SS" (in UTC).
+
+.\" BEGIN ENABLE_ATTRIBUTELOG
+If this option is not specified, attribute information is written to files
+\'/usr/local/var/lib/smartmontools/attrlog.MODEL\-SERIAL.ata.csv\'.
+To disable attribute log files, specify this option with an empty string
+argument: \'-A ""\'.
+.\" END ENABLE_ATTRIBUTELOG
+MODEL and SERIAL are build from drive identify information, invalid
+characters are replaced by underline.
+
+If the PREFIX has the form \'/path/dir/\' (e.g. \'/var/lib/smartd/\'), then
+files \'MODEL\-SERIAL.ata.csv\' are created in directory \'/path/dir\'.
+If the PREFIX has the form \'/path/name\' (e.g. \'/var/lib/misc/attrlog\-\'),
+then files 'nameMODEL\-SERIAL.ata.csv' are created in directory '/path/'.
+The path must be absolute, except if debug mode is enabled.
+
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.

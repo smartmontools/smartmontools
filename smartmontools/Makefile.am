@@ -18,6 +18,9 @@ endif
 if ENABLE_SAVESTATES
 AM_CPPFLAGS += -DSMARTMONTOOLS_SAVESTATES='"$(savestates)"'
 endif
+if ENABLE_ATTRIBUTELOG
+AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
+endif
 
 sbin_PROGRAMS = smartd 	\
 		smartctl
@@ -312,6 +315,11 @@ if ENABLE_SAVESTATES
 savestates_DATA =
 endif
 
+if ENABLE_ATTRIBUTELOG
+# Create $(attributelogdir) only
+attributelog_DATA =
+endif
+
 smartd.conf.5.in: smartd.8.in
 	sed '1,/STARTINCLUDE/ D;/ENDINCLUDE/,$$D' < $(srcdir)/smartd.8.in > $(top_builddir)/tmp.directives
 	sed '/STARTINCLUDE/,$$D'  < $(srcdir)/smartd.conf.5.in > $(top_builddir)/tmp.head
@@ -413,6 +421,12 @@ else
 MAN_SAVESTATES = sed '/BEGIN ENABLE_SAVESTATES/,/END ENABLE_SAVESTATES/d'
 endif
 
+if ENABLE_ATTRIBUTELOG
+MAN_ATTRIBUTELOG = sed "s|/usr/local/var/lib/smartmontools/attrlog\\.|$(attributelog)|g"
+else
+MAN_ATTRIBUTELOG = sed '/BEGIN ENABLE_ATTRIBUTELOG/,/END ENABLE_ATTRIBUTELOG/d'
+endif
+
 if OS_FREEBSD
 .for file in $(man_MANS)
 ${file}: $(srcdir)/${file}.in Makefile svnversion.h
@@ -426,7 +440,8 @@ ${file}: $(srcdir)/${file}.in Makefile svnversion.h
 	     s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
 	     s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" ${.ALLSRC:M*.in} | \
 	$(MAN_DRIVEDB) | \
-	$(MAN_SAVESTATES) > $@
+	$(MAN_SAVESTATES) | \
+	$(MAN_ATTRIBUTELOG) > $@
 .endfor
 else
 smart%: $(srcdir)/smart%.in Makefile svnversion.h
@@ -440,7 +455,8 @@ smart%: $(srcdir)/smart%.in Makefile svnversion.h
 	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" | \
 	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
 	$(MAN_DRIVEDB) | \
-	$(MAN_SAVESTATES) > $@
+	$(MAN_SAVESTATES) | \
+	$(MAN_ATTRIBUTELOG) > $@
 endif
 
 # Commands to convert man pages into .html and .txt

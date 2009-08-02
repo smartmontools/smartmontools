@@ -159,6 +159,13 @@ static std::string state_path_prefix
 #endif
                                     ;
 
+// command-line: path prefix of attribute log file, empty if no logs.
+static std::string attrlog_path_prefix
+#ifdef SMARTMONTOOLS_ATTRIBUTELOG
+          = SMARTMONTOOLS_ATTRIBUTELOG
+#endif
+                                    ;
+
 // configuration file name
 #define CONFIGFILENAME "smartd.conf"
 
@@ -241,6 +248,7 @@ struct dev_config
   std::string name;                       // Device name
   std::string dev_type;                   // Device type argument from -d directive, empty if none
   std::string state_file;                 // Path of the persistent state file, empty if none
+  std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
   bool smartcheck;                        // Check SMART status
   bool usagefailed;                       // Check for failed Usage Attributes
   bool prefail;                           // Track changes in Prefail Attributes
@@ -653,6 +661,32 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   return true;
 }
 
+// Write to the attrlog file
+static bool write_dev_attrlog(const char * path, const persistent_dev_state & state)
+{
+  stdio_file f(path, "a");
+  if (!f) {
+    pout("Cannot create attribute log file \"%s\"\n", path);
+    return false;
+  }
+
+  // ATA ONLY
+  time_t now = time(0);
+  struct tm * tms = gmtime(&now);
+  fprintf(f, "%d-%02d-%02d %02d:%02d:%02d;",
+             1900+tms->tm_year, 1+tms->tm_mon, tms->tm_mday,
+             tms->tm_hour, tms->tm_min, tms->tm_sec);
+  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+    const persistent_dev_state::ata_attribute & pa = state.ata_attributes[i];
+    if (!pa.id)
+      continue;
+    fprintf(f, "\t%d;%d;%"PRIu64";", pa.id, pa.val, pa.raw);
+  }
+  fprintf(f, "\n");
+
+  return true;
+}
+
 // Write all state files. If write_always is false, don't write
 // unless must_write is set.
 static void write_all_dev_states(const dev_config_vector & configs,
@@ -672,6 +706,19 @@ static void write_all_dev_states(const dev_config_vector & configs,
     if (write_always || debugmode)
       PrintOut(LOG_INFO, "Device: %s, state written to %s\n",
                cfg.name.c_str(), cfg.state_file.c_str());
+  }
+}
+
+// Write to all attrlog files
+static void write_all_dev_attrlogs(const dev_config_vector & configs,
+                                   dev_state_vector & states)
+{
+  for (unsigned i = 0; i < states.size(); i++) {
+    const dev_config & cfg = configs.at(i);
+    if (cfg.attrlog_file.empty())
+      continue;
+    dev_state & state = states[i];
+    write_dev_attrlog(cfg.attrlog_file.c_str(), state);
   }
 }
 
@@ -1769,21 +1816,24 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // close file descriptor
   CloseDevice(atadev, name);
 
-  if (!state_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
     // Build file name for state file
     char model[40+1], serial[20+1];
     format_ata_string(model, drive.model, sizeof(model)-1, fix_swapped_id);
     format_ata_string(serial, drive.serial_no, sizeof(serial)-1, fix_swapped_id);
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
-    cfg.state_file = strprintf("%s%s-%s.ata.state", state_path_prefix.c_str(), model, serial);
-
-    // Read previous state
-    if (read_dev_state(cfg.state_file.c_str(), state)) {
-      PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
-      // Copy ATA attribute values to temp state
-      state.update_temp_state();
+    if (!state_path_prefix.empty()) {
+      cfg.state_file = strprintf("%s%s-%s.ata.state", state_path_prefix.c_str(), model, serial);
+      // Read previous state
+      if (read_dev_state(cfg.state_file.c_str(), state)) {
+        PrintOut(LOG_INFO, "Device: %s, state read from %s\n", name, cfg.state_file.c_str());
+        // Copy ATA attribute values to temp state
+        state.update_temp_state();
+      }
     }
+    if (!attrlog_path_prefix.empty())
+      cfg.attrlog_file = strprintf("%s%s-%s.ata.csv", attrlog_path_prefix.c_str(), model, serial);
   }
 
   // Start self-test regex check now if time was not read from state file
@@ -1925,6 +1975,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // TODO: Build file name for state file
   if (!state_path_prefix.empty()) {
     PrintOut(LOG_INFO, "Device: %s, persistence not yet supported for SCSI; ignoring -s option.\n", device);
+  }
+  // TODO: Build file name for attribute log file
+  if (!attrlog_path_prefix.empty()) {
+    PrintOut(LOG_INFO, "Device: %s, attribute log not yet supported for SCSI; ignoring -A option.\n", device);
   }
 
   // close file descriptor
@@ -3677,7 +3731,7 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "c:l:q:dDni:p:r:s:B:Vh?";
+  const char *shortopts = "c:l:q:dDni:p:r:s:A:B:Vh?";
   char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
@@ -3693,6 +3747,7 @@ void ParseOpts(int argc, char **argv){
     { "pidfile",        required_argument, 0, 'p' },
     { "report",         required_argument, 0, 'r' },
     { "savestates",     required_argument, 0, 's' },
+    { "attributelog",   required_argument, 0, 'A' },
     { "drivedb",        required_argument, 0, 'B' },
 #if defined(_WIN32) || defined(__CYGWIN__)
     { "service",        no_argument,       0, 'n' },
@@ -3837,6 +3892,10 @@ void ParseOpts(int argc, char **argv){
       // path prefix of persistent state file
       state_path_prefix = optarg;
       break;
+    case 'A':
+      // path prefix of attribute log file
+      attrlog_path_prefix = optarg;
+      break;
     case 'B':
       {
         const char * path = optarg;
@@ -3936,6 +3995,16 @@ void ParseOpts(int argc, char **argv){
     PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -s <======= \n\n");
     PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
       state_path_prefix.c_str());
+    EXIT(EXIT_BADCMD);
+  }
+
+  // absolute path is required due to chdir('/') after fork().
+  if (!attrlog_path_prefix.empty() && !debugmode && !is_abs_path(attrlog_path_prefix.c_str())) {
+    debugmode=1;
+    PrintHead();
+    PrintOut(LOG_CRIT, "=======> INVALID CHOICE OF OPTIONS: -s <======= \n\n");
+    PrintOut(LOG_CRIT, "Error: relative path %s is only allowed in debug (-d) mode\n\n",
+      attrlog_path_prefix.c_str());
     EXIT(EXIT_BADCMD);
   }
 
@@ -4300,6 +4369,10 @@ int main_worker(int argc, char **argv)
     if (!state_path_prefix.empty())
       write_all_dev_states(configs, states, write_states_always);
     write_states_always = false;
+
+    // Write attribute logs
+    if (!attrlog_path_prefix.empty())
+      write_all_dev_attrlogs(configs, states);
 
     // user has asked us to exit after first check
     if (quit==3) {
