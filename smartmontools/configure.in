@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 2850 2009-07-19 13:31:37Z chrfranke $
+# $Id: configure.in 2870 2009-08-02 20:38:30Z manfred99 $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in 2850 2009-07-19 13:31:37Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 2870 2009-08-02 20:38:30Z manfred99 $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -169,6 +169,16 @@ AC_SUBST(savestates)
 AC_SUBST(savestatesdir)
 AM_CONDITIONAL(ENABLE_SAVESTATES, [test "$enable_savestates" = "yes"])
 
+AC_ARG_ENABLE(attributelog, [AC_HELP_STRING([--enable-attributelog],[Enables default smartd attribute log files])])
+
+AC_ARG_WITH(attributelog,
+  [AC_HELP_STRING([--with-attributelog=PREFIX],[Prefix for default smartd attribute log files (implies --enable-attributelog) [LOCALSTATEDIR/lib/smartmontools/attrlog.]])],
+  [attributelog="$withval"; enable_attributelog="yes"],
+  [attributelog=; test "$enable_attributelog" = "yes" && attributelog='${localstatedir}/lib/${PACKAGE}/attrlog.'])
+attributelogdir="${attributelog%/*}"
+AC_SUBST(attributelog)
+AC_SUBST(attributelogdir)
+AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test "$enable_attributelog" = "yes"])
 
 AC_ARG_ENABLE(sample,[AC_HELP_STRING([--enable-sample],[Enables appending .sample to the installed smartd rc script and configuration file])],[smartd_suffix='.sample'],[smartd_suffix=''])
 AC_SUBST(smartd_suffix)

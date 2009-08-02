@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2869 2009-08-02 16:09:37Z dpgilbert $
+$Id: CHANGELOG 2870 2009-08-02 20:38:30Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -41,6 +41,12 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] Add experimental feature to log attribute values at each check 
+       cycle (ATA only), activated with the smartd option 
+       "-A PREFIX" / "--attributelog=PREFIX".
+       Introduce configure options "--enable-attributelog" and
+       "--with-attributelog=PREFIX" to enable feature by default.
 
   [DG] [SAT] Heads up about a non backwardly compatible change
        introduced in draft SAT-2 (sat2r8b.pdf) that will break our
