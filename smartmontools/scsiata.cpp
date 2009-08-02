@@ -22,6 +22,16 @@
  * ATA PASS THROUGH SCSI (16) and ATA PASS THROUGH SCSI (12) defined in
  * section 12 of that document.
  *
+ * sat-r09.pdf is the most recent, easily accessible draft prior to the
+ * original SAT standard (ANSI INCITS 431-2007). By mid-2009 the second
+ * version of the SAT standard (SAT-2) is nearing standardization. In
+ * their wisdom an incompatible change has been introduced in draft
+ * sat2r08a.pdf in the area of the ATA RETURN DESCRIPTOR. A new "fixed
+ * format" ATA RETURN buffer has been defined (sat2r08b.pdf section
+ * 12.2.7) for the case when DSENSE=0 in the Control mode page.
+ * Unfortunately this is the normal case. If the change stands our
+ * code will need to be extended for this case.
+ *
  * With more transports "hiding" SATA disks (and other S-ATAPI devices)
  * behind a SCSI command set, accessing special features like SMART
  * information becomes a challenge. The SAT standard offers ATA PASS
@@ -61,6 +71,7 @@ extern smartmonctrl *con;
    format into one structure to ease application processing.
    The original sense buffer should be kept around for those cases
    in which more information is required (e.g. the LBA of a MEDIUM ERROR). */
+/// Abridged SCSI sense data
 struct sg_scsi_sense_hdr {
     unsigned char response_code; /* permit: 0x0, 0x70, 0x71, 0x72, 0x73 */
     unsigned char sense_key;

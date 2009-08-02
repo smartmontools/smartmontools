@@ -42,6 +42,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DG] [SAT] Heads up about a non backwardly compatible change
+       introduced in draft SAT-2 (sat2r8b.pdf) that will break our
+       existing SAT processing code. Action needed if change stands.
+
   [MS] smartd.cpp: Adjust umask
 
   [CF] Makefile.am: Remove 'uninstall-docsDATA' target to fix
