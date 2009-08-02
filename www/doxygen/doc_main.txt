@@ -1,0 +1,130 @@
+/*
+ * $Id$
+ *
+ * Home page of code is: http://smartmontools.sourceforge.net
+ *
+ * Copyright (C) 2009 Gabriele Pohl
+ * <smartmontools-support@lists.sourceforge.net>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * You should have received a copy of the GNU General Public License
+ * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*! @mainpage Smartmontools Sourcecode Documentation
+  This is the main index page. Here we will add a short introduction
+  of the smartmontools software architecture and its components.<br> 
+  Please refer to the further tabs and links to get detailed 
+  information on each class and method.
+
+  @section Links Other Resources
+  - Smartmontools homepage:<br>
+  http://smartmontools.sourceforge.net/<br>
+
+  - Description of the software package at sourceforge.net:<br>
+  http://sourceforge.net/projects/smartmontools/
+
+  - Browse the current version in SVN-Repository:<br>
+  http://sourceforge.net/apps/trac/smartmontools/browser/trunk/smartmontools
+
+  - Smartmontools Trac (bug/issue tracking system and wiki)<br>
+  http://sourceforge.net/apps/trac/smartmontools/
+
+  @section Introduction
+  The smartmontools package contains two utility programs (<b>smartctl</b> 
+  and <b>smartd</b>) to control and monitor storage systems using the 
+  <em>Self-Monitoring, Analysis and Reporting Technology System
+  (SMART)</em> built into most modern ATA and SCSI harddisks.  
+
+  Smartmontools supports ATA/ATAPI/SATA-3 to -8 disks and SCSI disks and 
+  tape devices. It should run on any modern Darwin (Mac OS X), Linux, FreeBSD,
+  NetBSD, OpenBSD, Solaris, OS/2, Cygwin, QNX, eComStation or Windows system. 
+
+  @section Architecture Software Architecture
+
+  @subsection os-interface OS Specific Interfaces 
+  Each different port and OS needs to provide it's own interface.  
+  It is meant to isolate the OS dependent parts of the code 
+  and to provide a debugging interface.
+
+  The following ports currently exist:
+
+  Already adapted to <b>new c++ Interface</b>
+  - os_linux.cpp
+  - os_win32.cpp
+
+  Still working with old interface
+  - os_darwin.cpp<br> 
+  - os_freebsd.cpp<br>
+  - os_netbsd.cpp<br>
+  - os_openbsd.cpp<br>
+  - os_os2.cpp<br>
+  - os_qnxnto.cpp<br>  
+  - os_solaris.cpp<br>
+
+  <hr>
+  To port smartmontools to the OS of your choice, please:
+
+  -# Contact smartmontools-support@lists.sourceforge.net to check
+     that it's not already been done.<br><br> 
+  -# Make copies of os_generic.h and os_generic.cpp called os_myOS.h
+     and os_myOS.cpp.<br><br>
+  -# Modify configure.in so that case "${host}" includes myOS.<br><br>
+  -# Verify that ./autogen.sh && ./configure && make compiles the
+     code.  If not, fix any compilation problems.  If your OS lacks
+     some function that is used elsewhere in the code, then add a
+     AC_CHECK_FUNCS([missingfunction]) line to configure.in, and
+     surround uses of the function with:<br>
+     \#ifdef HAVE_MISSINGFUNCTION<br>
+     ... <br>
+     \#endif<br>
+     where the macro HAVE_MISSINGFUNCTION is (or is not) defined in
+     config.h.<br><br>
+  -# Now that you have a working build environment, you have to
+     replace the 'stub' function calls provided in this file.<br><br>
+     Provide the functions defined in this file by fleshing out the
+     skeletons below.  You can entirely eliminate the function
+     'unsupported()'.<br><br>
+  -# Contact smartmontools-support@lists.sourceforge.net to see
+     about checking your code into the smartmontools SVN archive.
+
+  <hr>
+  @subsection device_type-interface Interfaces For The Different Device Types
+  As the smartmontools have to handle different types of devices,
+  we have multiple device drivers. 
+
+  The outside view presents only the interface classes:
+  - smart_device
+  - ata_device
+  - scsi_device
+  - smart_interface (The Factory)
+
+  <hr>
+
+  @subsection ata-driver ATA Devices
+  In this case we access the device via ATA pass through in native mode.<br><br>
+  By the help of <b>ata_device_with_command_set</b> we currently integrate 
+  the old os-specific legacy drivers, until they will be replaced by 
+  their new implementations of ata_device or scsi_device.
+  @image html classata__device__with__command__set__coll__graph.png "Collaboration diagram for new ATA pass through old interface"
+
+  <hr>
+
+  @subsection scsi-driver SCSI Devices
+  Here we use the SCSI instruction set.
+  @image html classscsi__device__coll__graph.png "Collaboration diagram for SCSI devices" 
+  @image latex classscsi__device__coll__graph.eps "Collaboration diagram for SCSI devices" 
+  <hr>
+
+  @subsection tunnel-driver Tunneling ATA via SCSI 
+  If a controller understands ATA pass through SCSI, 
+  we use this driver.
+  @image html classtunnelled__device__base__coll__graph.png "Collaboration diagram for tunneling protocols"
+  @image latex classtunnelled__device__base__coll__graph.eps "Collaboration diagram for tunneling protocols"
+*/
+
