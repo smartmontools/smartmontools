@@ -1368,6 +1368,7 @@ const usb_id_entry usb_ids[] = {
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
   { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro)
+  { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
   { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro (Sunplus USB-bridge)
