@@ -953,17 +953,17 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
 // Print checksum warning for multi sector log
 static void check_multi_sector_sum(const void * data, unsigned nsectors, const char * msg)
 {
-    unsigned errs = 0;
-    for (unsigned i = 0; i < nsectors; i++) {
-      if (checksum((const unsigned *)data + i*512))
-        errs++;
-    }
-    if (errs > 0) {
-      if (nsectors == 1)
-        checksumwarning(msg);
-      else
-        checksumwarning(strprintf("%s (%u/%u)", msg, errs, nsectors).c_str());
-    }
+  unsigned errs = 0;
+  for (unsigned i = 0; i < nsectors; i++) {
+    if (checksum((const unsigned char *)data + i*512))
+      errs++;
+  }
+  if (errs > 0) {
+    if (nsectors == 1)
+      checksumwarning(msg);
+    else
+      checksumwarning(strprintf("%s (%u/%u)", msg, errs, nsectors).c_str());
+  }
 }
 
 // Read SMART Extended Self-test Log
