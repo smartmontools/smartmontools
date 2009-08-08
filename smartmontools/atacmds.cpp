@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2861 2009-07-24 16:47:03Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2872 2009-08-08 19:54:28Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -953,17 +953,17 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
 // Print checksum warning for multi sector log
 static void check_multi_sector_sum(const void * data, unsigned nsectors, const char * msg)
 {
-    unsigned errs = 0;
-    for (unsigned i = 0; i < nsectors; i++) {
-      if (checksum((const unsigned *)data + i*512))
-        errs++;
-    }
-    if (errs > 0) {
-      if (nsectors == 1)
-        checksumwarning(msg);
-      else
-        checksumwarning(strprintf("%s (%u/%u)", msg, errs, nsectors).c_str());
-    }
+  unsigned errs = 0;
+  for (unsigned i = 0; i < nsectors; i++) {
+    if (checksum((const unsigned char *)data + i*512))
+      errs++;
+  }
+  if (errs > 0) {
+    if (nsectors == 1)
+      checksumwarning(msg);
+    else
+      checksumwarning(strprintf("%s (%u/%u)", msg, errs, nsectors).c_str());
+  }
 }
 
 // Read SMART Extended Self-test Log
