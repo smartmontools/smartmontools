@@ -268,6 +268,20 @@ and the file that contains that inode:
 root]# debugfs
 debugfs 1.32 (09-Nov-2002)
 debugfs:  open /dev/hda3
+debugfs:  testb 2269012
+Block 2269012 not in use
+</programlisting>
+
+If the block is not in use, as in the above example, then you can skip
+the rest of this step and go ahead to Step Five.
+</para>
+<para>
+If, on the other hand, the block is in use, we want to identify
+the file that uses it:
+</para>
+<programlisting>
+debugfs:  testb 2269012
+Block 2269012 marked in use
 debugfs:  icheck 2269012
 Block   Inode number
 2269012 41032
@@ -275,10 +289,49 @@ debugfs:  ncheck 41032
 Inode   Pathname
 41032   /S1/R/H/714197568-714203359/H-R-714202192-16.gwf
 </programlisting>
-
+<para>
 In this example, you can see that the problematic file (with the mount
 point included in the path) is:
 <filename>/data/S1/R/H/714197568-714203359/H-R-714202192-16.gwf</filename>
+</para>
+<para>
+When we are working with an ext3 file system, it may happen that the
+affected file is the journal itself.  Generally, if this is the case,
+the inode number will be very small.  In any case, debugfs will not
+be able to get the file name:
+<programlisting>
+debugfs:  testb 2269012
+Block 2269012 marked in use
+debugfs:  icheck 2269012
+Block   Inode number
+2269012 8
+debugfs:  ncheck 8
+Inode   Pathname
+debugfs:
+</programlisting>
+</para>
+<para>
+To get around this situation, we can remove the journal altogether:
+<programlisting>
+tune2fs -O ^has_journal /dev/hda3
+</programlisting>
+
+and then start again with Step Four: we should see this time that the
+wrong block is not in use any more.  If we removed the journal file, at
+the end of the whole procedure we should remember to rebuild it:
+<programlisting>
+tune2fs -j /dev/hda3
+</programlisting>
+</para>
+<para>
+Fifth Step
+<emphasis>NOTE:</emphasis> This last step will <emphasis>permanently
+
+</emphasis> and irretrievably <emphasis>destroy</emphasis> the contents
+of the file system block that is damaged: if the block was allocated to
+a file, some of the data that is in this file is going to be overwritten
+with zeros.  You will not be able to recover that data unless you can
+replace the file with a fresh or correct version.
 </para>
 <para>
 To force the disk to reallocate this bad block we'll write zeros to
@@ -287,12 +340,6 @@ the bad block, and sync the disk:
 root]# dd if=/dev/zero of=/dev/hda3 bs=4096 count=1 seek=2269012
 root]# sync
 </programlisting>
-</para>
-<para>
-<emphasis>NOTE:</emphasis> This last step has <emphasis>permanently
-</emphasis> and irretrievably <emphasis>destroyed</emphasis> some of
-the data that was in this file.  Don't do this unless you don't need
-the file or you can replace it with a fresh or correct version.
 </para>
 <para>
 Now everything is back to normal: the sector has been reallocated.
@@ -311,7 +358,9 @@ Note: for some disks it may be necessary to update the SMART Attribute values by
 <command>smartctl -t offline /dev/hda</command>
 </para>
 <para>
-The disk now passes its self-tests again:
+We have corrected the first errored block.  If more than one blocks
+were errored, we should repeat all the steps for the subsequent ones.
+After we do that, the disk will pass its self-tests again:
 
 <programlisting>
 root]# smartctl -t long /dev/hda  [wait until test completes, then]
@@ -1215,7 +1264,7 @@ disk later (not unlike the way a replacement disk from a manufacturer
 might be used).
 </para>
 <para>
-CVS $Id: badblockhowto.xml,v 1.6 2009/01/28 13:36:00 ballen4705 Exp $
+$Id$
 </para>
 </sect3>
 </sect2>
@@ -1231,7 +1280,7 @@ dummy
 </para>
 
 <para>
-CVS $Id: badblockhowto.xml,v 1.6 2009/01/28 13:36:00 ballen4705 Exp $
+$Id$
 </para>
 </sect1>
 </appendix>
