@@ -42,6 +42,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add USB ID of Verbatim FW/USB160.
+
   [CF] Fix data type bug in checksum test for multi sector logs.
 
   [CF] Add USB ID of Seagate FreeAgent Go.
