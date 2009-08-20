@@ -60,7 +60,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2874 2009-08-19 20:54:29Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2876 2009-08-20 22:53:18Z dlukes $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1375,6 +1375,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
   { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
+  { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
   { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
