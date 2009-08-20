@@ -1375,6 +1375,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
   { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
+  { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
   { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
