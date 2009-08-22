@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2874 2009-08-19 20:54:29Z chrfranke $
+$Id: CHANGELOG 2877 2009-08-22 22:33:54Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -41,6 +41,14 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Marvell SSD SD88SA024BA0
+       - Fujitsu MHZ2 BH series
+       - Fujitsu MHZ2 BJ series
+       - Seagate Maxtor DiamondMax 23
+       - WD Caviar Green: Add some 32MB cache variants
+       - relax OCZ-Vertex pattern
 
   [CF] Add USB ID of Verbatim FW/USB160.
 
