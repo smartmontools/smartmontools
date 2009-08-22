@@ -69,8 +69,8 @@ static const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
-  { "OCZ Vertex 1199",
-    "OCZ-VERTEX 1199",
+  { "OCZ Vertex SSD",
+    "OCZ-VERTEX.*",
     "", "", ""
   },
   { "Transcend Solid-State Drive",
@@ -79,6 +79,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Transcend Solid-State Drive V series",
     "TS(8|16|32|64|128|192)GSSD25S-(M|S)",
+    "", "", ""
+  },
+  { "Marvell SSD SD88SA024BA0 (SUN branded)",
+    "MARVELL SD88SA024BA0 SUN24G 0902M0054V",
     "", "", ""
   },
   { "HP 1TB SATA disk GB1000EAFJL",
@@ -223,6 +227,16 @@ static const drive_settings builtin_knowndrives[] = {
   { "Fujitsu MHW2 BJ series",
     "FUJITSU MHW2(08|12|16)0BJ.*",
     "", "", ""
+  },
+  { "Fujitsu MHZ2 BH series",
+    "FUJITSU MHZ2(04|08|12|16|20|25|32)0BH.*",
+    "", "", ""
+  },
+  { "Fujitsu MHZ2 BJ series",
+    "FUJITSU MHZ2(08|12|16|20|25|32)0BJ.*",
+    "",
+    "",
+    "-v 9,minutes"
   },
   { "Fujitsu MHZ2 BS series",
     "FUJITSU MHZ2(12|25)0BS.*",
@@ -603,6 +617,10 @@ static const drive_settings builtin_knowndrives[] = {
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207969\n"
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207975",
     ""
+  },
+  { "Seagate Maxtor DiamondMax 23",
+    "STM3((160|250)31|(320|500)41|(750|1000)52)8AS?",
+    "", "", ""
   },
   { "Maxtor MaXLine Plus II",
     "Maxtor 7Y250[PM]0",
@@ -1184,7 +1202,7 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green family",
-    "WDC WD((50|64|75)00AA(C|V)S|10EA(C|V)S|(10|15|20)EADS)-.*",
+    "WDC WD((50|64|75)00AA(C|V)S|(50|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black family",

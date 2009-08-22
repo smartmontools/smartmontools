@@ -42,6 +42,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp updates:
+       - Marvell SSD SD88SA024BA0
+       - Fujitsu MHZ2 BH series
+       - Fujitsu MHZ2 BJ series
+       - Seagate Maxtor DiamondMax 23
+       - WD Caviar Green: Add some 32MB cache variants
+       - relax OCZ-Vertex pattern
+
   [CF] Add USB ID of Verbatim FW/USB160.
 
   [CF] Fix data type bug in checksum test for multi sector logs.
