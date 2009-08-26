@@ -6,15 +6,15 @@
 ; Project home page is: http://smartmontools.sourceforge.net
 ;
 ; Download and install NSIS from: http://nsis.sourceforge.net/Download
-; Process with makensis to create installer (tested with NSIS 2.44)
+; Process with makensis to create installer (tested with NSIS 2.45)
 ;
-; $Id: installer.nsi,v 1.5 2009/03/22 17:17:39 chrfranke Exp $
+; $Id$
 ;
 
 
 ;--------------------------------------------------------------------
 ; Command line arguments:
-; makensis /DINPDIR=<input-dir> /DOUTFILE=<output-file> installer.nsi
+; makensis /DINPDIR=<input-dir> /DOUTFILE=<output-file> /DVERSTR=<version-string> installer.nsi
 
 !ifndef INPDIR
   !define INPDIR "."
@@ -152,6 +152,9 @@ Section "Uninstaller" UNINST_SECTION
 
   ; Write uninstall keys and program
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayName" "smartmontools"
+!ifdef VERSTR
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "DisplayVersion" "${VERSTR}"
+!endif
   ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "Publisher" "smartmontools"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "UninstallString" '"$INSTDIR\uninst-smartmontools.exe"'
   ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "URLInfoAbout" "http://smartmontools.sourceforge.net/"

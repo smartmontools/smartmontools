@@ -296,7 +296,7 @@ svnversion.h: CHANGELOG Makefile
 	(cd $(srcdir) && cat CHANGELOG Makefile.am configure.in smart*.in *.cpp *.h *.s) \
 	| sed -n 's,^.*\$$[I][d]: [^ ]* \([0-9][0-9]* [0-9][-0-9]* [0-9][:0-9]*\)[^:0-9][^$$]*\$$.*$$,\1,p' \
 	| sort -n -r \
-	| sed -n 'h;s,^\([^ ]*\) .*$$,REV  "\1~",p;g;s,^[^ ]* \([^ ]*\) .*$$,DATE "\1",p;g;s,^[^ ]* [^ ]* \([^ ]*\)$$,TIME "\1",p;q' \
+	| sed -n 'h;s,^\([^ ]*\) .*$$,REV  "\1",p;g;s,^[^ ]* \([^ ]*\) .*$$,DATE "\1",p;g;s,^[^ ]* [^ ]* \([^ ]*\)$$,TIME "\1",p;q' \
 	| sed 's,^,#define SMARTMONTOOLS_SVN_,' >> $@
 endif
 
@@ -566,8 +566,11 @@ $(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	    echo 'from http://nsis.sourceforge.net/Download' 1>&2; exit 1; \
 	  fi; \
 	fi; \
-	echo "$$makensis /V2 /NOCD /DINPDIR=$(distdir_win32) /DOUTFILE=$(distinst_win32) $(srcdir)/os_win32/installer.nsi"; \
-	"$$makensis" /V2 /NOCD /DINPDIR="$(distdir_win32)" /DOUTFILE="$(distinst_win32)" "$(srcdir)/os_win32/installer.nsi"
+	date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
+	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
+	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
+	echo "$$makensis /V2 /NOCD /DINPDIR=$(distdir_win32) /DOUTFILE=$(distinst_win32) /DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
+	"$$makensis" /V2 /NOCD /DINPDIR="$(distdir_win32)" /DOUTFILE="$(distinst_win32)" /DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir syslogevt.check

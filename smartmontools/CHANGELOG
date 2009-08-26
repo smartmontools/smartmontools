@@ -42,6 +42,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows installer: Add 'DisplayVersion' to uninstall registry key.
+
   [MS] knowndrives.cpp updates:
        - Marvell SSD SD88SA024BA0
        - Fujitsu MHZ2 BH series
