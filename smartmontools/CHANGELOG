@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2877 2009-08-22 22:33:54Z manfred99 $
+$Id: CHANGELOG 2878 2009-08-26 20:03:06Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -41,6 +41,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows installer: Add 'DisplayVersion' to uninstall registry key.
 
   [MS] knowndrives.cpp updates:
        - Marvell SSD SD88SA024BA0
