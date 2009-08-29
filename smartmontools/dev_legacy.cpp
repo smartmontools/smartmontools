@@ -24,7 +24,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp,v 1.2 2008/12/18 03:40:05 dlukes Exp $"
+const char * dev_legacy_cpp_cvsid = "$Id$"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -518,7 +518,7 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp,v 1.2 2008/12/18 03:40:05 dlukes Exp $";
+  static const char version[] = "$Id$";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
@@ -586,8 +586,8 @@ smart_device * legacy_smart_interface::get_custom_smart_device(const char * name
       set_err(EINVAL, "Option -d 3ware,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     int contr = ::guess_device_type(name);
