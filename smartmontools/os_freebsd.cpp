@@ -65,9 +65,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2875 2009-08-20 20:33:57Z dlukes $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2879 2009-08-29 17:19:00Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2875 2009-08-20 20:33:57Z dlukes $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2879 2009-08-29 17:19:00Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -164,7 +164,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2875 2009-08-20 20:33:57Z dlukes $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2879 2009-08-29 17:19:00Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -2155,8 +2155,8 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option -d 3ware,N requires N to be a non-negative integer");
       return 0;
     }
-    if (!(0 <= disknum && disknum <= 15)) {
-      set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 15", disknum);
+    if (!(0 <= disknum && disknum <= 127)) {
+      set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
     int contr = parse_ata_chan_dev(name,NULL);
