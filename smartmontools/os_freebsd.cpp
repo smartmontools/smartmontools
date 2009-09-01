@@ -2215,7 +2215,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 const char * freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, 3ware,N, hpt,L/M/N, cciss,N";
+  return "3ware,N, hpt,L/M/N, cciss,N";
 }
 
 
