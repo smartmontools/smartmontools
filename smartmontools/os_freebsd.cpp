@@ -76,10 +76,6 @@ extern smartmonctrl * con;
 // part of static data.
 struct freebsd_dev_channel *devicetable[FREEBSD_MAXDEV];
 
-// forward declaration
-// static int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *ch);
-
-
 // Returns 1 if device not available/open/found else 0.  Also shifts fd into valid range.
 static int isnotopen(int *fd, struct freebsd_dev_channel** fdchan) {
   // put valid "file descriptor" into range 0...FREEBSD_MAXDEV-1
@@ -336,9 +332,20 @@ static const char * fbsd_dev_twe_ctrl = "twe";
 static const char * fbsd_dev_twa_ctrl = "twa";
 static const char * fbsd_dev_cciss = "ciss";
 
-int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan) {
+int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, const char * type) {
   int len;
   int dev_prefix_len = strlen(fbsd_dev_prefix);
+  
+  
+  // No Autodetection if device type was specified by user
+  if (*type){
+   if(!strcmp(type,"ata")) return CONTROLLER_ATA;
+   if(!strcmp(type,"sat")) return CONTROLLER_SAT;
+   if(!strcmp(type,"scsi")) goto handlescsi;
+   if(hpt_hba(type)) return CONTROLLER_HPT;
+   return CONTROLLER_UNKNOWN;
+   // todo - add other types
+  }
   
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
@@ -466,8 +473,8 @@ bool freebsd_smart_device::open()
     return false;
   }
 
-  parse_ok = parse_ata_chan_dev(dev,fdchan);
-  
+  parse_ok = parse_ata_chan_dev(dev,fdchan,get_req_type());
+
   if (parse_ok == CONTROLLER_UNKNOWN) {
     free(fdchan);
     errno = ENOTTY;
@@ -2116,7 +2123,7 @@ static bool get_usb_id(const char * path, unsigned short & vendor_id,
 
 smart_device * freebsd_smart_interface::autodetect_smart_device(const char * name)
 {
-  int guess = parse_ata_chan_dev(name,NULL);
+  int guess = parse_ata_chan_dev(name,NULL,"");
   unsigned short vendor_id = 0, product_id = 0, version = 0;
   
   switch (guess) {
@@ -2159,7 +2166,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
-    int contr = parse_ata_chan_dev(name,NULL);
+    int contr = parse_ata_chan_dev(name,NULL,"");
     if (contr != CONTROLLER_3WARE_9000_CHAR && contr != CONTROLLER_3WARE_678K_CHAR)
       contr = CONTROLLER_3WARE_678K;
      return new freebsd_escalade_device(this, name, contr, disknum);
