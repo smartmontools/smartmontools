@@ -65,9 +65,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2880 2009-09-01 22:23:40Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2880 2009-09-01 22:23:40Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -160,7 +160,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2880 2009-09-01 22:23:40Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -2215,7 +2215,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 const char * freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "marvell, 3ware,N, hpt,L/M/N, cciss,N";
+  return "3ware,N, hpt,L/M/N, cciss,N";
 }
 
 
