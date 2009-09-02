@@ -24,6 +24,7 @@
 #include <cam/scsi/scsi_message.h>
 #include <cam/scsi/scsi_pass.h>
 #include <dev/usb/usb.h>
+#include <dev/usb/usbhid.h>
 #if defined(__DragonFly__)
 #include <sys/nata.h>
 #else
@@ -65,9 +66,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -160,7 +161,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
