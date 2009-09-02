@@ -405,7 +405,7 @@ of the HighPoint RocketRAID controller.
 
 .B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
 
-.B cciss controllers are currently ONLY supported under Linux.
+.B cciss controllers are currently ONLY supported under Linux and FreeBSD.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
