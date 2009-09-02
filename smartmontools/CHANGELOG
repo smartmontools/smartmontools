@@ -6,6 +6,7 @@ The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
 
 Maintainers / Developers Key (alphabetic order):
+[AS]  Alex Samorukov
 [BA]  Bruce Allen
 [OB]  Oliver Bock
 [EB]  Erik Inge Bolsø
@@ -41,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] FreeBSD: Added USB device autodetection and fixed -d switch behavior.
+
+  [AS] FreeBSD: Migrate os_freebsd.cpp to new interface.
 
   [CF] Fix max number of 3ware devices, 128 devices are supported again.
        Regression was introduced during migration to new interface.
