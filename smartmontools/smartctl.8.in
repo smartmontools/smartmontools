@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 2855 2009-07-21 19:55:08Z chrfranke $
+ $Id: smartctl.8.in 2883 2009-09-02 12:38:39Z samm2 $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -405,7 +405,7 @@ of the HighPoint RocketRAID controller.
 
 .B HighPoint RocketRAID controllers are currently ONLY supported under Linux and FreeBSD.
 
-.B cciss controllers are currently ONLY supported under Linux.
+.B cciss controllers are currently ONLY supported under Linux and FreeBSD.
 
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
@@ -1769,7 +1769,7 @@ these documents may be found in the References section of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 2855 2009-07-21 19:55:08Z chrfranke $
+$Id: smartctl.8.in 2883 2009-09-02 12:38:39Z samm2 $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
