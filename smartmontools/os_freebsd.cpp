@@ -65,9 +65,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -160,7 +160,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2881 2009-09-01 22:57:09Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2882 2009-09-02 12:25:33Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -341,6 +341,7 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
   if (*type){
    if(!strcmp(type,"ata")) return CONTROLLER_ATA;
    if(!strcmp(type,"sat")) return CONTROLLER_SAT;
+   if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
    if(!strcmp(type,"scsi")) goto handlescsi;
    if(hpt_hba(type)) return CONTROLLER_HPT;
    return CONTROLLER_UNKNOWN;
