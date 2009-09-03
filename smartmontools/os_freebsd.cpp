@@ -71,9 +71,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2891 2009-09-03 15:00:32Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2891 2009-09-03 15:00:32Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -166,7 +166,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2891 2009-09-03 15:00:32Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1397,7 +1397,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     return -EIO;
   }
 
-  if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
+  if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
  #if __FreeBSD_version > 500000
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
  #endif
