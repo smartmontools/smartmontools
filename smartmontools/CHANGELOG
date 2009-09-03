@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+  [AS] FreeBSD: Support SATA disks attached to a SAS controller (based on
+       patch from freebsd ports tree).
+  
   [AS] FreeBSD: Added FreeBSD 8 libusb2 device autodetecion, new
        configure check for -lusb.
   
