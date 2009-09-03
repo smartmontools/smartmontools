@@ -51,6 +51,11 @@
 
 #define USBDEV "/dev/usb"
 
+#if __FreeBSD_version >= 800000
+#include <libusb20_desc.h>
+#include <libusb20.h>
+#endif
+
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
@@ -230,7 +235,7 @@ static const char  smartctl_examples[] =
          "  smartctl -a --device=3ware,2 /dev/twe0\n"
          "                              (Prints all SMART information for ATA disk on\n"
          "                                 third port of first 3ware RAID controller)\n"
-	 "  smartctl -a --device=cciss,1 /dev/ciss0\n"
+	 "  smartctl -a --device=cciss,0 /dev/ciss0\n"
          "                              (Prints all SMART information for first disk \n"
          "                               on Common Interface for SCSI-3 Support driver)\n"
 
@@ -2028,8 +2033,8 @@ static char done[USB_MAX_DEVICES];
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
-{
-#if __FreeBSD_version < 800000
+{ 
+#if __FreeBSD_version < 800000 // without this build fail on FreeBSD 8
 	struct usb_device_info di;
 	int e, p, i;
 	char devname[256];
@@ -2072,18 +2077,63 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 		}
 	}
 	return 0;
-#else
-	printf("USB autodetection currently supported only on FreeBSD < 8.0\n");
-	return 0;
 #endif
 }
-
-
 
 
 static int usbdevlist(int busno,unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
+#if __FreeBSD_version >= 800000 // libusb code
+  struct libusb20_device *pdev = NULL;
+	struct libusb20_backend *pbe;
+	uint32_t matches = 0;
+	char buf[128]; // do not change!
+  char devname[128];
+	uint8_t n;
+	struct LIBUSB20_DEVICE_DESC_DECODED *pdesc;
+	
+	pbe = libusb20_be_alloc_default();
+  
+	while ((pdev = libusb20_be_device_foreach(pbe, pdev))) {
+		matches++;
+    
+		if (libusb20_dev_open(pdev, 0)) {
+			warnx("libusb20_dev_open: could not open device");
+      return 0;
+		}
+		
+		pdesc=libusb20_dev_get_device_desc(pdev);
+		
+    snprintf(devname, sizeof(devname),"umass%d:",busno);
+		for (n = 0; n != 255; n++) {
+			if (libusb20_dev_get_iface_desc(pdev, n, buf, sizeof(buf)))
+				break;
+			if (buf[0] == 0)
+				continue;
+      if(strncmp(buf,devname,strlen(devname))==0){
+        // found!
+        vendor_id = pdesc->idVendor;
+        product_id = pdesc->idProduct;
+        version = pdesc->bcdDevice;
+        libusb20_dev_close(pdev);
+        libusb20_be_free(pbe);
+        return 1;
+      }
+		}
+		
+		libusb20_dev_close(pdev);
+	}
+  
+	if (matches == 0) {
+		printf("No device match or lack of permissions.\n");
+	}
+  
+	libusb20_be_free(pbe);
+	
+	return false;
+#else // freebsd < 8.0 USB stack
+
     int  i, f, a, rc;
     char buf[50];
     int ncont;
@@ -2109,16 +2159,13 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 	ncont++;
     }
     return 0;
+#endif
 }
 
 // Get USB bridge ID for "/dev/daX"
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
-#if __FreeBSD_version >= 800000
-// currently unsupported on FreeBSD8
-return 0;
-#endif
   // Only "/dev/daX" supported
   if (!(!strncmp(path, "/dev/da", 7) && !strchr(path + 7, '/')))
     return false;
