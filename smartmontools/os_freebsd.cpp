@@ -353,6 +353,9 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
    if(!strcmp(type,"sat")) return CONTROLLER_SAT;
    if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
    if(!strcmp(type,"scsi")) goto handlescsi;
+   if(!strcmp(type,"3ware")){
+     return  parse_ata_chan_dev(dev_name,NULL,"");
+   }
    if(hpt_hba(type)) return CONTROLLER_HPT;
    return CONTROLLER_UNKNOWN;
    // todo - add other types
