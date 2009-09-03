@@ -71,9 +71,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -166,7 +166,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2893 2009-09-03 19:10:28Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -2032,12 +2032,14 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
+
+#if __FreeBSD_version < 800000 // without this build fail on FreeBSD 8
 static char done[USB_MAX_DEVICES];
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 { 
-#if __FreeBSD_version < 800000 // without this build fail on FreeBSD 8
+
 	struct usb_device_info di;
 	int e, p, i;
 	char devname[256];
@@ -2080,8 +2082,8 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 		}
 	}
 	return 0;
-#endif
 }
+#endif
 
 
 static int usbdevlist(int busno,unsigned short & vendor_id,
