@@ -2020,13 +2020,12 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-
 static char done[USB_MAX_DEVICES];
-// static unsigned short vendor_id = 0, product_id = 0, version = 0;
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
+#if __FreeBSD_version < 800000
 	struct usb_device_info di;
 	int e, p, i;
 	char devname[256];
@@ -2069,6 +2068,10 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 		}
 	}
 	return 0;
+#else
+	printf("USB autodetection currently supported only on FreeBSD < 8.0\n");
+	return 0;
+#endif
 }
 
 
@@ -2108,6 +2111,10 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
+#if __FreeBSD_version >= 800000
+// currently unsupported on FreeBSD8
+return 0;
+#endif
   // Only "/dev/daX" supported
   if (!(!strncmp(path, "/dev/da", 7) && !strchr(path + 7, '/')))
     return false;
