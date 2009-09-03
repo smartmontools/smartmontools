@@ -2032,12 +2032,14 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
+
+#if __FreeBSD_version < 800000 // without this build fail on FreeBSD 8
 static char done[USB_MAX_DEVICES];
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 { 
-#if __FreeBSD_version < 800000 // without this build fail on FreeBSD 8
+
 	struct usb_device_info di;
 	int e, p, i;
 	char devname[256];
@@ -2080,8 +2082,8 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 		}
 	}
 	return 0;
-#endif
 }
+#endif
 
 
 static int usbdevlist(int busno,unsigned short & vendor_id,
