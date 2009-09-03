@@ -227,7 +227,9 @@ case "${host}" in
 		fi;;
 	*-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*)
 		AC_SUBST([os_deps], ['os_freebsd.o cciss.o']) 
-		AC_SUBST([os_libs], ['-lcam']);;
+		AC_SUBST([os_libs], ['-lcam'])
+		AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
+		;;
 	sparc-*-solaris*) 
 		AC_DEFINE_UNQUOTED(DEFAULT_MAILER, "mailx", [use mailx as default mailer])
 		AC_DEFINE_UNQUOTED(NEED_SOLARIS_ATA_CODE, "os_solaris_ata.s", [need assembly code os_solaris_ata.s])
