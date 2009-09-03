@@ -66,9 +66,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2887 2009-09-03 11:55:18Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2887 2009-09-03 11:55:18Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -161,7 +161,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2887 2009-09-03 11:55:18Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -230,6 +230,10 @@ static const char  smartctl_examples[] =
          "  smartctl -a --device=3ware,2 /dev/twe0\n"
          "                              (Prints all SMART information for ATA disk on\n"
          "                                 third port of first 3ware RAID controller)\n"
+	 "  smartctl -a --device=cciss,1 /dev/ciss\n"
+         "                              (Prints all SMART information for first disk \n"
+         "                               on Common Interface for SCSI-3 Support driver)\n"
+
          ;
 
 bool freebsd_smart_device::is_open() const
