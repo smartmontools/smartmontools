@@ -230,6 +230,10 @@ static const char  smartctl_examples[] =
          "  smartctl -a --device=3ware,2 /dev/twe0\n"
          "                              (Prints all SMART information for ATA disk on\n"
          "                                 third port of first 3ware RAID controller)\n"
+	 "  smartctl -a --device=cciss,1 /dev/ciss\n"
+         "                              (Prints all SMART information for first disk \n"
+         "                               on Common Interface for SCSI-3 Support driver)\n"
+
          ;
 
 bool freebsd_smart_device::is_open() const
