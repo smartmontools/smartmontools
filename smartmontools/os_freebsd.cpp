@@ -66,9 +66,9 @@
 #define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
 #define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -161,7 +161,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2885 2009-09-02 13:26:11Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2886 2009-09-03 11:50:53Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -2020,13 +2020,12 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-
 static char done[USB_MAX_DEVICES];
-// static unsigned short vendor_id = 0, product_id = 0, version = 0;
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
+#if __FreeBSD_version < 800000
 	struct usb_device_info di;
 	int e, p, i;
 	char devname[256];
@@ -2069,6 +2068,10 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 		}
 	}
 	return 0;
+#else
+	printf("USB autodetection currently supported only on FreeBSD < 8.0\n");
+	return 0;
+#endif
 }
 
 
@@ -2108,6 +2111,10 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
+#if __FreeBSD_version >= 800000
+// currently unsupported on FreeBSD8
+return 0;
+#endif
   // Only "/dev/daX" supported
   if (!(!strncmp(path, "/dev/da", 7) && !strchr(path + 7, '/')))
     return false;
