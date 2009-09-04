@@ -1,5 +1,5 @@
 /*
- * $Id: doc_main.txt 2868 2009-08-02 12:43:47Z dipohl $
+ * $Id: doc_main.txt 2902 2009-09-04 22:56:07Z samm2 $
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
@@ -57,10 +57,10 @@
   Already adapted to <b>new c++ Interface</b>
   - os_linux.cpp
   - os_win32.cpp
+  - os_freebsd.cpp<br>
 
   Still working with old interface
   - os_darwin.cpp<br> 
-  - os_freebsd.cpp<br>
   - os_netbsd.cpp<br>
   - os_openbsd.cpp<br>
   - os_os2.cpp<br>
