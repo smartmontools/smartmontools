@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2898 2009-09-04 19:31:05Z chrfranke $
+$Id: CHANGELOG 2900 2009-09-04 21:27:53Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add missing help text for '-d usb*' options.
 
   [CF] Linux: Dereference '/dev/disk/by-*/*' symlink before device type
        autodetection.
