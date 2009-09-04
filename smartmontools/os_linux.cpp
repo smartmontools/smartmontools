@@ -2709,17 +2709,17 @@ static bool read_id(const std::string & path, unsigned short & id)
   return ok;
 }
 
-// Get USB bridge ID for "/dev/sdX"
-static bool get_usb_id(const char * path, unsigned short & vendor_id,
+// Get USB bridge ID for "sdX"
+static bool get_usb_id(const char * name, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
-  // Only "/dev/sdX" supported
-  if (!(!strncmp(path, "/dev/sd", 7) && !strchr(path + 7, '/')))
+  // Only "sdX" supported
+  if (!(!strncmp(name, "sd", 2) && !strchr(name, '/')))
     return false;
 
   // Start search at dir referenced by symlink "/sys/block/sdX/device"
   // -> "/sys/devices/.../usb*/.../host*/target*/..."
-  std::string dir = strprintf("/sys/block/%s/device", path + 5);
+  std::string dir = strprintf("/sys/block/%s/device", name);
 
   // Stop search at "/sys/devices"
   struct stat st;
@@ -2926,6 +2926,12 @@ smart_device * linux_smart_interface::missing_option(const char * opt)
   return 0;
 }
 
+// Return true if STR starts with PREFIX.
+static bool str_starts_with(const char * str, const char * prefix)
+{
+  return !strncmp(str, prefix, strlen(prefix));
+}
+
 // Guess device type (ata or scsi) based on device name (Linux
 // specific) SCSI device name in linux can be sd, sr, scd, st, nst,
 // osst, nosst and sg.
@@ -2952,8 +2958,15 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
   if (!dev_name || !(len = strlen(dev_name)))
     return 0;
 
+  // Dereference if /dev/disk/by-*/* symlink
+  char linkbuf[100];
+  if (   str_starts_with(dev_name, "/dev/disk/by-")
+      && readlink(dev_name, linkbuf, sizeof(linkbuf)) > 0
+      && str_starts_with(linkbuf, "../../")) {
+    dev_name = linkbuf + sizeof("../../")-1;
+  }
   // Remove the leading /dev/... if it's there
-  if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
+  else if (!strncmp(lin_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len)
       // if nothing else in the string, unrecognized
       return 0;
@@ -2977,7 +2990,7 @@ smart_device * linux_smart_interface::autodetect_smart_device(const char * name)
 
     // Try to detect possible USB->(S)ATA bridge
     unsigned short vendor_id = 0, product_id = 0, version = 0;
-    if (get_usb_id(name, vendor_id, product_id, version)) {
+    if (get_usb_id(dev_name, vendor_id, product_id, version)) {
       const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
       if (!usbtype)
         return 0;
