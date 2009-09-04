@@ -2140,7 +2140,7 @@ static bool get_usb_id(const char * path, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
   // Only "/dev/daX" supported
-  if (!(!strncmp(path, "/dev/da", 7) && !strchr(path + 7, '/')))
+  if (strlen(path) < 5)
     return false;
    int bus = cam_getumassno((char *)path+5);
    
