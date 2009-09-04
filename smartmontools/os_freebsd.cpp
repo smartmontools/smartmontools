@@ -65,9 +65,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS		0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2897 2009-09-04 10:19:50Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2899 2009-09-04 21:18:32Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2897 2009-09-04 10:19:50Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2899 2009-09-04 21:18:32Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -135,7 +135,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2897 2009-09-04 10:19:50Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2899 2009-09-04 21:18:32Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -2140,7 +2140,7 @@ static bool get_usb_id(const char * path, unsigned short & vendor_id,
                        unsigned short & product_id, unsigned short & version)
 {
   // Only "/dev/daX" supported
-  if (!(!strncmp(path, "/dev/da", 7) && !strchr(path + 7, '/')))
+  if (strlen(path) < 5)
     return false;
    int bus = cam_getumassno((char *)path+5);
    
