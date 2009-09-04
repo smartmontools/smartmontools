@@ -59,21 +59,16 @@
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
-#define CONTROLLER_3WARE                0x03  // set by -d option, but converted to one of three types below
 #define CONTROLLER_3WARE_678K           0x04  // NOT set by guess_device_type()
 #define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
 #define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
-#define CONTROLLER_MARVELL_SATA         0x07  // SATA drives behind Marvell controllers
 #define CONTROLLER_SAT         	        0x08  // SATA device behind a SCSI ATA Translation (SAT) layer
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS		0x10  // CCISS controller 
-#define CONTROLLER_PARSEDEV             0x11  // "smartctl -r ataioctl,2 ..." output parser pseudo-device
-#define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
-#define CONTROLLER_ARECA                0x13  // Areca controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2896 2009-09-04 09:43:15Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2896 2009-09-04 09:43:15Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -166,7 +161,7 @@ long long bytes;
  */
 
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2895 2009-09-03 19:54:45Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2896 2009-09-04 09:43:15Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
