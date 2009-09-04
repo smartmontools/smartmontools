@@ -62,7 +62,6 @@
 #define CONTROLLER_3WARE_678K           0x04  // NOT set by guess_device_type()
 #define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
 #define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
-#define CONTROLLER_SAT         	        0x08  // SATA device behind a SCSI ATA Translation (SAT) layer
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS		0x10  // CCISS controller 
 
@@ -128,38 +127,13 @@ void printwarning(int msgNo, const char* extra) {
 #define BUFFER_LEN_9000_CHAR ( sizeof(TW_OSLI_IOCTL_NO_DATA_BUF) + sizeof(TWE_Command) ) // 2048
 #define TW_IOCTL_BUFFER_SIZE ( MAX(BUFFER_LEN_678K_CHAR, BUFFER_LEN_9000_CHAR) )
 
-
-
-
-
-
 #ifndef ATA_DEVICE
 #define ATA_DEVICE "/dev/ata"
 #endif
 
 
-
 // global variable holding byte count of allocated memory
 long long bytes;
-
-
-/*
- * dev_legacy.cpp
- *
- * Home page of code is: http://smartmontools.sourceforge.net
- *
- * Copyright (C) 2008 Christian Franke <smartmontools-support@lists.sourceforge.net>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * You should have received a copy of the GNU General Public License
- * (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 
 const char * dev_freebsd_cpp_cvsid = "$Id$"
   DEV_INTERFACE_H_CVSID;
@@ -345,9 +319,8 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
   // No Autodetection if device type was specified by user
   if (*type){
    if(!strcmp(type,"ata")) return CONTROLLER_ATA;
-   if(!strcmp(type,"sat")) return CONTROLLER_SAT;
    if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
-   if(!strcmp(type,"scsi")) goto handlescsi;
+   if(!strcmp(type,"scsi") || !strcmp(type,"sat")) goto handlescsi;
    if(!strcmp(type,"3ware")){
      return  parse_ata_chan_dev(dev_name,NULL,"");
    }
