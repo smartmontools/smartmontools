@@ -59,17 +59,12 @@
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
-#define CONTROLLER_3WARE                0x03  // set by -d option, but converted to one of three types below
 #define CONTROLLER_3WARE_678K           0x04  // NOT set by guess_device_type()
 #define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
 #define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
-#define CONTROLLER_MARVELL_SATA         0x07  // SATA drives behind Marvell controllers
 #define CONTROLLER_SAT         	        0x08  // SATA device behind a SCSI ATA Translation (SAT) layer
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS		0x10  // CCISS controller 
-#define CONTROLLER_PARSEDEV             0x11  // "smartctl -r ataioctl,2 ..." output parser pseudo-device
-#define CONTROLLER_USBCYPRESS		0x12  // ATA device behind Cypress USB bridge
-#define CONTROLLER_ARECA                0x13  // Areca controller
 
 static __unused const char *filenameandversion="$Id$";
 
