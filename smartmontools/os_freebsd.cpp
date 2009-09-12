@@ -23,8 +23,6 @@
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
 #include <cam/scsi/scsi_pass.h>
-#include <dev/usb/usb.h>
-#include <dev/usb/usbhid.h>
 #if defined(__DragonFly__)
 #include <sys/nata.h>
 #else
@@ -54,6 +52,9 @@
 #if __FreeBSD_version >= 800000
 #include <libusb20_desc.h>
 #include <libusb20.h>
+#else
+#include <dev/usb/usb.h>
+#include <dev/usb/usbhid.h>
 #endif
 
 #define CONTROLLER_UNKNOWN              0x00
@@ -65,9 +66,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2905 2009-09-12 19:06:31Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2905 2009-09-12 19:06:31Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -133,7 +134,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2905 2009-09-12 19:06:31Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
