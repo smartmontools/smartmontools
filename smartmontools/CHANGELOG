@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] Use malloc() to ensure that the read buffer lands on a single
+       page.  This avoids some bugs seen on LSI controlers under
+       FreeBSD.
+
   [CF] Add missing help text for '-d usb*' options.
 
   [CF] Linux: Dereference '/dev/disk/by-*/*' symlink before device type

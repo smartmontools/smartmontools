@@ -48,6 +48,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #include "config.h"
@@ -432,11 +433,16 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 
 static bool has_sat_pass_through(ata_device * dev, bool packet_interface = false)
 {
+    /* Note:  malloc() ensures the read buffer lands on a single
+       page.  This avoids some bugs seen on LSI controlers under
+       FreeBSD */
+    char *data = (char *)malloc(512);
     ata_cmd_in in;
     in.in_regs.command = (packet_interface ? ATA_IDENTIFY_PACKET_DEVICE : ATA_IDENTIFY_DEVICE);
-    char data[512];
     in.set_data_in(data, 1);
-    return dev->ata_pass_through(in);
+    bool ret = dev->ata_pass_through(in);
+    free(data);
+    return ret;
 }
 
 /////////////////////////////////////////////////////////////////////////////
