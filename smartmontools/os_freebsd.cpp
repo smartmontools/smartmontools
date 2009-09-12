@@ -63,7 +63,7 @@
 #define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
 #define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
-#define CONTROLLER_CCISS		0x10  // CCISS controller 
+#define CONTROLLER_CCISS  0x10  // CCISS controller 
 
 static __unused const char *filenameandversion="$Id$";
 
@@ -80,13 +80,13 @@ struct freebsd_dev_channel *devicetable[FREEBSD_MAXDEV];
 static int isnotopen(int *fd, struct freebsd_dev_channel** fdchan) {
   // put valid "file descriptor" into range 0...FREEBSD_MAXDEV-1
   *fd -= FREEBSD_FDOFFSET;
-  
+
   // check for validity of "file descriptor".
   if (*fd<0 || *fd>=FREEBSD_MAXDEV || !((*fdchan)=devicetable[*fd])) {
     errno = ENODEV;
     return 1;
   }
-  
+
   return 0;
 }
 
@@ -101,11 +101,11 @@ void printwarning(int msgNo, const char* extra) {
   static int printed[] = {0,0,0,0};
   static const char* message[]={
     "The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n can not be retrieved with this version of ATAng, please do not rely on this value\nYou should update to at least 5.2\n",
-    
+
     "Error SMART Status command failed\nPlease get assistance from \n" PACKAGE_HOMEPAGE "\nRegister values returned from SMART Status command are:\n",
-    
+
     "You must specify a DISK # for 3ware drives with -d 3ware,<n> where <n> begins with 1 for first disk drive\n",
-    
+
     "ATA support is not provided for this kernel version. Please ugrade to a recent 5-CURRENT kernel (post 09/01/2003 or so)\n"
   };
 
@@ -120,7 +120,6 @@ void printwarning(int msgNo, const char* extra) {
   return;
 }
 
-
 // Interface to ATA devices behind 3ware escalade RAID controller cards.  See os_linux.c
 
 #define BUFFER_LEN_678K_CHAR ( sizeof(struct twe_usercommand) ) // 520
@@ -130,7 +129,6 @@ void printwarning(int msgNo, const char* extra) {
 #ifndef ATA_DEVICE
 #define ATA_DEVICE "/dev/ata"
 #endif
-
 
 // global variable holding byte count of allocated memory
 long long bytes;
@@ -192,7 +190,7 @@ unsigned char m_controller_port;
 
 // examples for smartctl
 static const char  smartctl_examples[] =
-  	"=================================================== SMARTCTL EXAMPLES =====\n\n"
+   "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/ad0                       (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/ad0\n"
          "                                              (Enables SMART on first disk)\n\n"
@@ -204,7 +202,7 @@ static const char  smartctl_examples[] =
          "  smartctl -a --device=3ware,2 /dev/twe0\n"
          "                              (Prints all SMART information for ATA disk on\n"
          "                                 third port of first 3ware RAID controller)\n"
-	 "  smartctl -a --device=cciss,0 /dev/ciss0\n"
+  "  smartctl -a --device=cciss,0 /dev/ciss0\n"
          "                              (Prints all SMART information for first disk \n"
          "                               on Common Interface for SCSI-3 Support driver)\n"
 
@@ -219,7 +217,7 @@ bool freebsd_smart_device::is_open() const
 static int hpt_hba(const char* name) {
   int i=0;
   const char *hpt_node[]={"hptmv", "hptmv6", "hptrr", "hptiop", "hptmviop", "hpt32xx", "rr2320",
-                          "rr232x", "rr2310", "rr2310_00", "rr2300", "rr2340", "rr1740", NULL};
+  "rr232x", "rr2310", "rr2310_00", "rr2300", "rr2340", "rr1740", NULL};
   while (hpt_node[i]) {
     if (!strncmp(name, hpt_node[i], strlen(hpt_node[i])))
       return 1;
@@ -230,11 +228,10 @@ static int hpt_hba(const char* name) {
 
 static int get_tw_channel_unit (const char* name, int* unit, int* dev) {
   const char *p;
-
   /* device node sanity check */
   for (p = name + 3; *p; p++)
     if (*p < '0' || *p > '9')
-      return -1;
+    return -1;
   if (strlen(name) > 4 && *(name + 3) == '0')
     return -1;
 
@@ -252,19 +249,19 @@ static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 #ifndef ATAREQUEST
   *dev=0;
   *unit=0;
-return 0;
+  return 0;
 #else
   // there is no direct correlation between name 'ad0, ad1, ...' and
   // channel/unit number.  So we need to iterate through the possible
   // channels and check each unit to see if we match names
   struct ata_cmd iocmd;
   int fd,maxunit;
-  
+
   bzero(&iocmd, sizeof(struct ata_cmd));
 
   if ((fd = open(ATA_DEVICE, O_RDWR)) < 0)
     return -errno;
-  
+
   iocmd.cmd = ATAGMAXCHANNEL;
   if (ioctl(fd, IOCATA, &iocmd) < 0) {
     return -errno;
@@ -314,49 +311,49 @@ static const char * fbsd_dev_cciss = "ciss";
 int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, const char * type) {
   int len;
   int dev_prefix_len = strlen(fbsd_dev_prefix);
-  
-  
+
+
   // No Autodetection if device type was specified by user
   if (*type){
-   if(!strcmp(type,"ata")) return CONTROLLER_ATA;
-   if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
-   if(!strcmp(type,"scsi") || !strcmp(type,"sat")) goto handlescsi;
-   if(!strcmp(type,"3ware")){
-     return  parse_ata_chan_dev(dev_name,NULL,"");
-   }
-   if(hpt_hba(type)) return CONTROLLER_HPT;
-   return CONTROLLER_UNKNOWN;
-   // todo - add other types
+    if(!strcmp(type,"ata")) return CONTROLLER_ATA;
+    if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
+    if(!strcmp(type,"scsi") || !strcmp(type,"sat")) goto handlescsi;
+    if(!strcmp(type,"3ware")){
+      return  parse_ata_chan_dev(dev_name,NULL,"");
+    }
+    if(hpt_hba(type)) return CONTROLLER_HPT;
+    return CONTROLLER_UNKNOWN;
+    // todo - add other types
   }
-  
+
   // if dev_name null, or string length zero
   if (!dev_name || !(len = strlen(dev_name)))
     return CONTROLLER_UNKNOWN;
-  
+
   // Remove the leading /dev/... if it's there
   if (!strncmp(fbsd_dev_prefix, dev_name, dev_prefix_len)) {
     if (len <= dev_prefix_len) 
       // if nothing else in the string, unrecognized
-      return CONTROLLER_UNKNOWN;
+    return CONTROLLER_UNKNOWN;
     // else advance pointer to following characters
     dev_name += dev_prefix_len;
   }
   // form /dev/ad* or ad*
   if (!strncmp(fbsd_dev_ata_disk_prefix, dev_name,
-               strlen(fbsd_dev_ata_disk_prefix))) {
+    strlen(fbsd_dev_ata_disk_prefix))) {
 #ifndef IOCATAREQUEST
-    if (chan != NULL) {
-      if (get_ata_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
-        return CONTROLLER_UNKNOWN;
-      }
+  if (chan != NULL) {
+    if (get_ata_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
+      return CONTROLLER_UNKNOWN;
     }
+  }
 #endif
     return CONTROLLER_ATA;
   }
 
   // form /dev/pass* or pass*
   if (!strncmp(fbsd_dev_scsi_pass, dev_name,
-               strlen(fbsd_dev_scsi_pass)))
+    strlen(fbsd_dev_scsi_pass)))
     goto handlescsi;
 
   // form /dev/da* or da*
@@ -366,41 +363,43 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
 
   // form /dev/sa* or sa*
   if (!strncmp(fbsd_dev_scsi_tape1, dev_name,
-              strlen(fbsd_dev_scsi_tape1)))
+    strlen(fbsd_dev_scsi_tape1)))
     goto handlescsi;
 
   // form /dev/nsa* or nsa*
   if (!strncmp(fbsd_dev_scsi_tape2, dev_name,
-              strlen(fbsd_dev_scsi_tape2)))
+    strlen(fbsd_dev_scsi_tape2)))
     goto handlescsi;
 
   // form /dev/esa* or esa*
   if (!strncmp(fbsd_dev_scsi_tape3, dev_name,
-              strlen(fbsd_dev_scsi_tape3)))
+    strlen(fbsd_dev_scsi_tape3)))
     goto handlescsi;
-  
+
   if (!strncmp(fbsd_dev_twa_ctrl,dev_name,
-	       strlen(fbsd_dev_twa_ctrl))) {
+    strlen(fbsd_dev_twa_ctrl))) 
+  {
     if (chan != NULL) {
       if (get_tw_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
-	return CONTROLLER_UNKNOWN;
+        return CONTROLLER_UNKNOWN;
       }
     }
     else if (get_tw_channel_unit(dev_name,NULL,NULL)<0) {
-	return CONTROLLER_UNKNOWN;
+      return CONTROLLER_UNKNOWN;
     }
     return CONTROLLER_3WARE_9000_CHAR;
   }
 
   if (!strncmp(fbsd_dev_twe_ctrl,dev_name,
-	       strlen(fbsd_dev_twe_ctrl))) {
+        strlen(fbsd_dev_twe_ctrl))) 
+  {
     if (chan != NULL) {
       if (get_tw_channel_unit(dev_name,&(chan->channel),&(chan->device))<0) {
-	return CONTROLLER_UNKNOWN;
+        return CONTROLLER_UNKNOWN;
       }
     }
     else if (get_tw_channel_unit(dev_name,NULL,NULL)<0) {
-	return CONTROLLER_UNKNOWN;
+      return CONTROLLER_UNKNOWN;
     }
     return CONTROLLER_3WARE_678K_CHAR;
   }
@@ -410,8 +409,7 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
   }
 
   // form /dev/ciss*
-  if (!strncmp(fbsd_dev_cciss, dev_name,
-               strlen(fbsd_dev_cciss)))
+  if (!strncmp(fbsd_dev_cciss, dev_name, strlen(fbsd_dev_cciss)))
     return CONTROLLER_CCISS;
 
   // we failed to recognize any of the forms
@@ -421,18 +419,17 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
   if (chan != NULL) {
     if (!(chan->devname = (char *)calloc(1,DEV_IDLEN+1)))
       return CONTROLLER_UNKNOWN;
-    
     if (cam_get_device(dev_name,chan->devname,DEV_IDLEN,&(chan->unitnum)) == -1)
       return CONTROLLER_UNKNOWN;
   }
   return CONTROLLER_SCSI;
-  
+
 }
 
 
 bool freebsd_smart_device::open()
 {
-	
+
   const char *dev = get_dev_name();
   struct freebsd_dev_channel *fdchan;
   int parse_ok, i;
@@ -440,8 +437,8 @@ bool freebsd_smart_device::open()
   // Search table for a free entry
   for (i=0; i<FREEBSD_MAXDEV; i++)
     if (!devicetable[i])
-      break;
-  
+    break;
+
   // If no free entry found, return error.  We have max allowed number
   // of "file descriptors" already allocated.
   if (i == FREEBSD_MAXDEV) {
@@ -469,7 +466,7 @@ bool freebsd_smart_device::open()
 #else
     if ((fdchan->atacommand = ::open("/dev/ata",O_RDWR))<0) {
 #endif
-      int myerror = errno;	// preserve across free call
+      int myerror = errno; // preserve across free call
       free(fdchan);
       errno = myerror;
       return false;
@@ -484,7 +481,7 @@ bool freebsd_smart_device::open()
 #else
     if ((fdchan->atacommand = ::open(buf,O_RDWR))<0) {
 #endif
-      int myerror = errno;	// preserve across free call
+      int myerror = errno; // preserve across free call
       free(fdchan);
       errno = myerror;
       return false;
@@ -499,7 +496,7 @@ bool freebsd_smart_device::open()
 #else
     if ((fdchan->atacommand = ::open(buf,O_RDWR))<0) {
 #endif
-      int myerror = errno;	// preserve across free call
+      int myerror = errno; // preserve across free call
       free(fdchan);
       errno = myerror;
       return false;
@@ -508,7 +505,7 @@ bool freebsd_smart_device::open()
 
   if (parse_ok == CONTROLLER_HPT) {
     if ((fdchan->device = ::open(dev,O_RDWR))<0) {
-      int myerror = errno;	// preserve across free call
+      int myerror = errno; // preserve across free call
       free(fdchan);
       errno = myerror;
       return false;
@@ -517,7 +514,7 @@ bool freebsd_smart_device::open()
 
   if (parse_ok == CONTROLLER_CCISS) {
     if ((fdchan->device = ::open(dev,O_RDWR))<0) {
-      int myerror = errno;	// preserve across free call
+      int myerror = errno; // preserve across free call
       free(fdchan);
       errno = myerror;
       return false;
@@ -528,7 +525,7 @@ bool freebsd_smart_device::open()
     // this is really a NO-OP, as the parse takes care
     // of filling in correct details
   }
-  
+
   // return pointer to "file descriptor" table entry, properly offset.
   devicetable[i]=fdchan;
   m_fd = i+FREEBSD_FDOFFSET;
@@ -549,12 +546,11 @@ bool freebsd_smart_device::close()
   // check for valid file descriptor
   if (isnotopen(&fd, &fdchan))
     return false;
-  
 
   // did we allocate a SCSI device name?
   if (fdchan->devname)
     free(fdchan->devname);
-  
+
   // close device, if open
   if (fdchan->device)
     failed=::close(fdchan->device);
@@ -562,7 +558,7 @@ bool freebsd_smart_device::close()
   if (fdchan->atacommand)
     failed=::close(fdchan->atacommand);
 #endif
-  
+
   // if close succeeded, then remove from device list
   // Eduard, should we also remove it from list if close() fails?  I'm
   // not sure. Here I only remove it from list if close() worked.
@@ -570,7 +566,7 @@ bool freebsd_smart_device::close()
     free(fdchan);
     devicetable[fd]=NULL;
   }
-  
+
   return failed;
 }
 
@@ -600,201 +596,201 @@ freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_
 
 int freebsd_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
 {
-	int fd=get_fd();
-	#if !defined(ATAREQUEST) && !defined(IOCATAREQUEST)
-	// sorry, but without ATAng, we can't do anything here
-	printwarning(BAD_KERNEL,NULL);
-	errno = ENOSYS;
-	return -1;
-	#else
-	struct freebsd_dev_channel* con;
-	int retval, copydata=0;
-	#ifdef IOCATAREQUEST
-	struct ata_ioc_request request;
-	#else
-	struct ata_cmd iocmd;
-	#endif
-	unsigned char buff[512];
-	
-	// check that "file descriptor" is valid
-	if (isnotopen(&fd,&con))
-		return -1;
-	
-	bzero(buff,512);
-	
-	#ifdef IOCATAREQUEST
-	bzero(&request,sizeof(struct ata_ioc_request));
-	#else
-	bzero(&iocmd,sizeof(struct ata_cmd));
-	#endif
-	bzero(buff,512);
-	
-	#ifndef IOCATAREQUEST
-	iocmd.cmd=ATAREQUEST;
-	iocmd.channel=con->channel;
-	iocmd.device=con->device;
-	#define request iocmd.u.request
-	#endif
-	
-	request.u.ata.command=ATA_SMART_CMD;
-	request.timeout=600;
-	switch (command){
-	case READ_VALUES:
-		request.u.ata.feature=ATA_SMART_READ_VALUES;
-		request.u.ata.lba=0xc24f<<8;
-		request.flags=ATA_CMD_READ;
-		request.data=(char *)buff;
-		request.count=512;
-		copydata=1;
-		break;
-	case READ_THRESHOLDS:
-		request.u.ata.feature=ATA_SMART_READ_THRESHOLDS;
-		request.u.ata.count=1;
-		request.u.ata.lba=1|(0xc24f<<8);
-		request.flags=ATA_CMD_READ;
-		request.data=(char *)buff;
-		request.count=512;
-		copydata=1;
-		break;
-	case READ_LOG:
-		request.u.ata.feature=ATA_SMART_READ_LOG_SECTOR;
-		request.u.ata.lba=select|(0xc24f<<8);
-		request.u.ata.count=1;
-		request.flags=ATA_CMD_READ;
-		request.data=(char *)buff;
-		request.count=512;
-		copydata=1;
-		break;
-	case IDENTIFY:
-		request.u.ata.command=ATA_IDENTIFY_DEVICE;
-		request.flags=ATA_CMD_READ;
-		request.data=(char *)buff;
-		request.count=512;
-		copydata=1;
-		break;
-	case PIDENTIFY:
-		request.u.ata.command=ATA_IDENTIFY_PACKET_DEVICE;
-		request.flags=ATA_CMD_READ;
-		request.data=(char *)buff;
-		request.count=512;
-		copydata=1;
-		break;
-	case ENABLE:
-		request.u.ata.feature=ATA_SMART_ENABLE;
-		request.u.ata.lba=0xc24f<<8;
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case DISABLE:
-		request.u.ata.feature=ATA_SMART_DISABLE;
-		request.u.ata.lba=0xc24f<<8;
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case AUTO_OFFLINE:
-		// NOTE: According to ATAPI 4 and UP, this command is obsolete
-		request.u.ata.feature=ATA_SMART_AUTO_OFFLINE;
-		request.u.ata.lba=0xc24f<<8;                                                                                                                                         
-		request.u.ata.count=select;                                                                                                                                          
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case AUTOSAVE:
-		request.u.ata.feature=ATA_SMART_AUTOSAVE;
-		request.u.ata.lba=0xc24f<<8;
-		request.u.ata.count=select;
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case IMMEDIATE_OFFLINE:
-		request.u.ata.feature=ATA_SMART_IMMEDIATE_OFFLINE;
-		request.u.ata.lba = select|(0xc24f<<8); // put test in sector
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case STATUS_CHECK: // same command, no HDIO in FreeBSD
-	case STATUS:
-		// this command only says if SMART is working.  It could be
-		// replaced with STATUS_CHECK below.
-		request.u.ata.feature=ATA_SMART_STATUS;
-		request.u.ata.lba=0xc24f<<8;
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case CHECK_POWER_MODE:
-		request.u.ata.command=ATA_CHECK_POWER_MODE;
-		request.u.ata.feature=0;
-		request.flags=ATA_CMD_CONTROL;
-		break;
-	case WRITE_LOG:
-		memcpy(buff, data, 512);
-		request.u.ata.feature=ATA_SMART_WRITE_LOG_SECTOR;
-		request.u.ata.lba=select|(0xc24f<<8);
-		request.u.ata.count=1;
-		request.flags=ATA_CMD_WRITE;
-		request.data=(char *)buff;
-		request.count=512;
-		break;
-	default:
-		pout("Unrecognized command %d in ata_command_interface()\n"
-			"Please contact " PACKAGE_BUGREPORT "\n", command);
-		errno=ENOSYS;
-		return -1;
-	}
-	
-	if (command==STATUS_CHECK){
-		unsigned const char normal_lo=0x4f, normal_hi=0xc2;
-		unsigned const char failed_lo=0xf4, failed_hi=0x2c;
-		unsigned char low,high;
-		
-		#ifdef IOCATAREQUEST
-		if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
-			#else
-		if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
-			#endif
-		return -1;
-		
-		#if __FreeBSD_version < 502000
-		printwarning(NO_RETURN,NULL);
-		#endif
-		
-		high = (request.u.ata.lba >> 16) & 0xff;
-		low = (request.u.ata.lba >> 8) & 0xff;
-		
-		// Cyl low and Cyl high unchanged means "Good SMART status"
-		if (low==normal_lo && high==normal_hi)
-			return 0;
-		
-		// These values mean "Bad SMART status"
-		if (low==failed_lo && high==failed_hi)
-			return 1;
-		
-		// We haven't gotten output that makes sense; print out some debugging info
-		char buf[512];
-		sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
-			(int)request.u.ata.command,
-			(int)request.u.ata.feature,
-			(int)request.u.ata.count,
-			(int)((request.u.ata.lba) & 0xff),
-			(int)((request.u.ata.lba>>8) & 0xff),
-			(int)((request.u.ata.lba>>16) & 0xff),
-			(int)request.error);
-		printwarning(BAD_SMART,buf);
-		return 0;   
-	}
-	
-	#ifdef IOCATAREQUEST
-	if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
-		#else
-	if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
-		#endif
-	{
-		return -1;
-	}
-	// 
-	if (command == CHECK_POWER_MODE) {
-		data[0] = request.u.ata.count & 0xff;
-		return 0;
-	}
-	if (copydata)
-		memcpy(data, buff, 512);
-	
-	return 0;
-	#endif
+ int fd=get_fd();
+#if !defined(ATAREQUEST) && !defined(IOCATAREQUEST)
+ // sorry, but without ATAng, we can't do anything here
+ printwarning(BAD_KERNEL,NULL);
+ errno = ENOSYS;
+ return -1;
+#else
+ struct freebsd_dev_channel* con;
+ int retval, copydata=0;
+#ifdef IOCATAREQUEST
+ struct ata_ioc_request request;
+#else
+ struct ata_cmd iocmd;
+#endif
+ unsigned char buff[512];
+
+ // check that "file descriptor" is valid
+ if (isnotopen(&fd,&con))
+  return -1;
+
+ bzero(buff,512);
+
+#ifdef IOCATAREQUEST
+ bzero(&request,sizeof(struct ata_ioc_request));
+#else
+ bzero(&iocmd,sizeof(struct ata_cmd));
+#endif
+ bzero(buff,512);
+
+#ifndef IOCATAREQUEST
+ iocmd.cmd=ATAREQUEST;
+ iocmd.channel=con->channel;
+ iocmd.device=con->device;
+#define request iocmd.u.request
+#endif
+
+ request.u.ata.command=ATA_SMART_CMD;
+ request.timeout=600;
+ switch (command){
+ case READ_VALUES:
+  request.u.ata.feature=ATA_SMART_READ_VALUES;
+  request.u.ata.lba=0xc24f<<8;
+  request.flags=ATA_CMD_READ;
+  request.data=(char *)buff;
+  request.count=512;
+  copydata=1;
+  break;
+ case READ_THRESHOLDS:
+  request.u.ata.feature=ATA_SMART_READ_THRESHOLDS;
+  request.u.ata.count=1;
+  request.u.ata.lba=1|(0xc24f<<8);
+  request.flags=ATA_CMD_READ;
+  request.data=(char *)buff;
+  request.count=512;
+  copydata=1;
+  break;
+ case READ_LOG:
+  request.u.ata.feature=ATA_SMART_READ_LOG_SECTOR;
+  request.u.ata.lba=select|(0xc24f<<8);
+  request.u.ata.count=1;
+  request.flags=ATA_CMD_READ;
+  request.data=(char *)buff;
+  request.count=512;
+  copydata=1;
+  break;
+ case IDENTIFY:
+  request.u.ata.command=ATA_IDENTIFY_DEVICE;
+  request.flags=ATA_CMD_READ;
+  request.data=(char *)buff;
+  request.count=512;
+  copydata=1;
+  break;
+ case PIDENTIFY:
+  request.u.ata.command=ATA_IDENTIFY_PACKET_DEVICE;
+  request.flags=ATA_CMD_READ;
+  request.data=(char *)buff;
+  request.count=512;
+  copydata=1;
+  break;
+ case ENABLE:
+  request.u.ata.feature=ATA_SMART_ENABLE;
+  request.u.ata.lba=0xc24f<<8;
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case DISABLE:
+  request.u.ata.feature=ATA_SMART_DISABLE;
+  request.u.ata.lba=0xc24f<<8;
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case AUTO_OFFLINE:
+  // NOTE: According to ATAPI 4 and UP, this command is obsolete
+  request.u.ata.feature=ATA_SMART_AUTO_OFFLINE;
+  request.u.ata.lba=0xc24f<<8;                                                                                                                                         
+  request.u.ata.count=select;                                                                                                                                          
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case AUTOSAVE:
+  request.u.ata.feature=ATA_SMART_AUTOSAVE;
+  request.u.ata.lba=0xc24f<<8;
+  request.u.ata.count=select;
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case IMMEDIATE_OFFLINE:
+  request.u.ata.feature=ATA_SMART_IMMEDIATE_OFFLINE;
+  request.u.ata.lba = select|(0xc24f<<8); // put test in sector
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case STATUS_CHECK: // same command, no HDIO in FreeBSD
+ case STATUS:
+  // this command only says if SMART is working.  It could be
+  // replaced with STATUS_CHECK below.
+  request.u.ata.feature=ATA_SMART_STATUS;
+  request.u.ata.lba=0xc24f<<8;
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case CHECK_POWER_MODE:
+  request.u.ata.command=ATA_CHECK_POWER_MODE;
+  request.u.ata.feature=0;
+  request.flags=ATA_CMD_CONTROL;
+  break;
+ case WRITE_LOG:
+  memcpy(buff, data, 512);
+  request.u.ata.feature=ATA_SMART_WRITE_LOG_SECTOR;
+  request.u.ata.lba=select|(0xc24f<<8);
+  request.u.ata.count=1;
+  request.flags=ATA_CMD_WRITE;
+  request.data=(char *)buff;
+  request.count=512;
+  break;
+ default:
+  pout("Unrecognized command %d in ata_command_interface()\n"
+   "Please contact " PACKAGE_BUGREPORT "\n", command);
+  errno=ENOSYS;
+  return -1;
+ }
+
+ if (command==STATUS_CHECK){
+  unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+  unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+  unsigned char low,high;
+
+#ifdef IOCATAREQUEST
+  if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
+#else
+  if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
+#endif
+  return -1;
+
+#if __FreeBSD_version < 502000
+  printwarning(NO_RETURN,NULL);
+#endif
+
+  high = (request.u.ata.lba >> 16) & 0xff;
+  low = (request.u.ata.lba >> 8) & 0xff;
+
+  // Cyl low and Cyl high unchanged means "Good SMART status"
+  if (low==normal_lo && high==normal_hi)
+   return 0;
+
+  // These values mean "Bad SMART status"
+  if (low==failed_lo && high==failed_hi)
+   return 1;
+
+  // We haven't gotten output that makes sense; print out some debugging info
+  char buf[512];
+  sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+   (int)request.u.ata.command,
+   (int)request.u.ata.feature,
+   (int)request.u.ata.count,
+   (int)((request.u.ata.lba) & 0xff),
+   (int)((request.u.ata.lba>>8) & 0xff),
+   (int)((request.u.ata.lba>>16) & 0xff),
+   (int)request.error);
+  printwarning(BAD_SMART,buf);
+  return 0;   
+ }
+
+#ifdef IOCATAREQUEST
+ if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
+#else
+ if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
+#endif
+ {
+  return -1;
+ }
+ // 
+ if (command == CHECK_POWER_MODE) {
+  data[0] = request.u.ata.count & 0xff;
+  return 0;
+ }
+ if (copydata)
+  memcpy(data, buff, 512);
+
+ return 0;
+#endif
 }
 
 #ifdef HAVE_ATA_IDENTIFY_IS_CACHED
@@ -838,8 +834,8 @@ freebsd_escalade_device::freebsd_escalade_device(smart_interface * intf, const c
 
 int freebsd_escalade_device::ata_command_interface(smart_command_set command, int select, char * data)
 {
-    // to hold true file descriptor
-    int fd = get_fd();
+  // to hold true file descriptor
+  int fd = get_fd();
   struct freebsd_dev_channel* con;
 
   // return value and buffer for ioctl()
@@ -858,7 +854,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
 
   // check that "file descriptor" is valid
   if (isnotopen(&fd,&con))
-      return -1;
+    return -1;
 
   memset(ioctl_buffer, 0, TW_IOCTL_BUFFER_SIZE);
 
@@ -872,7 +868,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
     ata = &cmd_twe->tu_command.ata;
   } else {
     pout("Unrecognized escalade_type %d in freebsd_3ware_command_interface(disk %d)\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", m_escalade_type, m_disknum);
+      "Please contact " PACKAGE_BUGREPORT "\n", m_escalade_type, m_disknum);
     errno=ENOSYS;
     return -1;
   }
@@ -891,10 +887,10 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
   // values from the ATA specifications.
   ata->cylinder_lo   = 0x4F;
   ata->cylinder_hi   = 0xC2;
-  
+
   // SMART ATA COMMAND REGISTER value
   ata->command       = ATA_SMART_CMD;
-  
+
   // Is this a command that reads or returns 512 bytes?
   // passthru->param values are:
   // 0x0 - non data command without TFR write check,
@@ -906,7 +902,8 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
       command == READ_THRESHOLDS ||
       command == READ_LOG        ||
       command == IDENTIFY        ||
-      command == WRITE_LOG ) {
+      command == WRITE_LOG ) 
+  {
     readdata=1;
     if (m_escalade_type==CONTROLLER_3WARE_678K_CHAR) {
       cmd_twe->tu_data = data;
@@ -931,7 +928,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
     ata->param        = 0x8;
     ata->sector_count = 0x0;
   }
-  
+
   // Now set ATA registers depending upon command
   switch (command){
   case CHECK_POWER_MODE:
@@ -1028,7 +1025,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
       errno=EIO;
     return -1;
   }
-  
+
   // See if the ATA command failed.  Now that we have returned from
   // the ioctl() call, if passthru is valid, then:
   // - ata->status contains the 3ware controller STATUS
@@ -1040,13 +1037,13 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
   // While we *might* decode the ATA ERROR register, at the moment it
   // doesn't make much sense: we don't care in detail why the error
   // happened.
-  
+
   if (ata->status || (ata->command & 0x21)) {
     pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
     errno=EIO;
     return -1;
   }
-  
+
   // If this is a read data command, copy data to output buffer
   if (readdata) {
     if (m_escalade_type==CONTROLLER_3WARE_9000_CHAR)
@@ -1055,36 +1052,36 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
 
   // For STATUS_CHECK, we need to check register values
   if (command==STATUS_CHECK) {
-    
+
     // To find out if the SMART RETURN STATUS is good or failing, we
     // need to examine the values of the Cylinder Low and Cylinder
     // High Registers.
-    
+
     unsigned short cyl_lo=ata->cylinder_lo;
     unsigned short cyl_hi=ata->cylinder_hi;
-    
+
     // If values in Cyl-LO and Cyl-HI are unchanged, SMART status is good.
     if (cyl_lo==0x4F && cyl_hi==0xC2)
       return 0;
-    
+
     // If values in Cyl-LO and Cyl-HI are as follows, SMART status is FAIL
     if (cyl_lo==0xF4 && cyl_hi==0x2C)
       return 1;
-    
+
       errno=EIO;
       return -1;
   }
-  
+
   // copy sector count register (one byte!) to return data
   if (command==CHECK_POWER_MODE)
     *data=*(char *)&(ata->sector_count);
-  
+
   // look for nonexistent devices/ports
   if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
     errno=ENODEV;
     return -1;
   }
-  
+
   return 0;
 }
 
@@ -1119,7 +1116,7 @@ freebsd_highpoint_device::freebsd_highpoint_device(smart_interface * intf, const
 
 int freebsd_highpoint_device::ata_command_interface(smart_command_set command, int select, char * data)
 {
-   int fd=get_fd(); 
+  int fd=get_fd(); 
   int ids[2];
   struct freebsd_dev_channel* fbcon;
   HPT_IOCTL_PARAM param;
@@ -1129,7 +1126,7 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
 
   // check that "file descriptor" is valid
   if (isnotopen(&fd, &fbcon))
-      return -1;
+    return -1;
 
   // get internal deviceid
   ids[0] = m_hpt_data[0] - 1;
@@ -1238,7 +1235,8 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
     return -1;
   }
 
-  if (command==STATUS_CHECK){
+  if (command==STATUS_CHECK)
+  {
     unsigned const char normal_lo=0x4f, normal_hi=0xc2;
     unsigned const char failed_lo=0xf4, failed_hi=0x2c;
     unsigned char low,high;
@@ -1269,7 +1267,8 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
   else if (command==CHECK_POWER_MODE)
     data[0] = pide_pt_hdr_out->sectorcount & 0xff;
   else if (pide_pt_hdr->protocol==HPT_READ)
-    memcpy(data, (unsigned char *)buff + 2 * sizeof(HPT_PASS_THROUGH_HEADER), pide_pt_hdr->sectors * 512);
+    memcpy(data, (unsigned char *)buff + 2 * sizeof(HPT_PASS_THROUGH_HEADER), 
+      pide_pt_hdr->sectors * 512);
   return 0;
 }
 
@@ -1302,32 +1301,31 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   struct freebsd_dev_channel* con = NULL;
   struct cam_device* cam_dev = NULL;
   union ccb *ccb;
-  
-  
-    if (report > 0) {
-        unsigned int k;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
 
-        np = scsi_get_opcode_name(ucp[0]);
-        pout(" [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < iop->cmnd_len; ++k)
-            pout("%02x ", ucp[k]);
-        if ((report > 1) && 
-            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+  if (report > 0) {
+    unsigned int k;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
 
-            pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-                 (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            pout("]");
-    }
+    np = scsi_get_opcode_name(ucp[0]);
+    pout(" [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < iop->cmnd_len; ++k)
+      pout("%02x ", ucp[k]);
+    if ((report > 1) && 
+      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+    pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+      (trunc ? " [only first 256 bytes shown]" : ""));
+    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+      }
+      else
+        pout("]");
+  }
 
   // check that "file descriptor" is valid
   if (isnotopen(&fd,&con))
-      return -ENOTTY;
+    return -ENOTTY;
 
 
   if (!(cam_dev = cam_open_spec_device(con->devname,con->unitnum,O_RDWR,NULL))) {
@@ -1342,33 +1340,33 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   // clear out structure, except for header that was filled in for us
   bzero(&(&ccb->ccb_h)[1],
-        sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
+    sizeof(struct ccb_scsiio) - sizeof(struct ccb_hdr));
 
   cam_fill_csio(&ccb->csio,
-                /*retrires*/ 1,
-                /*cbfcnp*/ NULL,
-                /* flags */ (iop->dxfer_dir == DXFER_NONE ? CAM_DIR_NONE :(iop->dxfer_dir == DXFER_FROM_DEVICE ? CAM_DIR_IN : CAM_DIR_OUT)),
-                /* tagaction */ MSG_SIMPLE_Q_TAG,
-                /* dataptr */ iop->dxferp,
-                /* datalen */ iop->dxfer_len,
-                /* senselen */ iop->max_sense_len,
-                /* cdblen */ iop->cmnd_len,
-                /* timout (converted to seconds) */ iop->timeout*1000);
+    /*retrires*/ 1,
+    /*cbfcnp*/ NULL,
+    /* flags */ (iop->dxfer_dir == DXFER_NONE ? CAM_DIR_NONE :(iop->dxfer_dir == DXFER_FROM_DEVICE ? CAM_DIR_IN : CAM_DIR_OUT)),
+    /* tagaction */ MSG_SIMPLE_Q_TAG,
+    /* dataptr */ iop->dxferp,
+    /* datalen */ iop->dxfer_len,
+    /* senselen */ iop->max_sense_len,
+    /* cdblen */ iop->cmnd_len,
+    /* timout (converted to seconds) */ iop->timeout*1000);
   memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
 
   if (cam_send_ccb(cam_dev,ccb) < 0) {
     warn("error sending SCSI ccb");
- #if __FreeBSD_version > 500000
+#if __FreeBSD_version > 500000
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
- #endif
+#endif
     cam_freeccb(ccb);
     return -EIO;
   }
 
   if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
- #if __FreeBSD_version > 500000
+#if __FreeBSD_version > 500000
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
- #endif
+#endif
     cam_freeccb(ccb);
     return -EIO;
   }
@@ -1381,7 +1379,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   iop->scsi_status = ccb->csio.scsi_status;
 
   cam_freeccb(ccb);
-  
+
   if (cam_dev)
     cam_close_device(cam_dev);
 
@@ -1390,9 +1388,9 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
     pout("  status=0\n");
     trunc = (iop->dxfer_len > 256) ? 1 : 0;
-    
+
     pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
-         (trunc ? " [only first 256 bytes shown]" : ""));
+      (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
   return 0;
@@ -1403,33 +1401,35 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
    we can take off this crude way of calling the right interface */
 int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report)
 {
-struct freebsd_dev_channel *fdchan;
-     switch(m_controller_type)
-     {
-         case CONTROLLER_CCISS:
+  struct freebsd_dev_channel *fdchan;
+  switch(m_controller_type)
+  {
+  case CONTROLLER_CCISS:
 #ifdef HAVE_DEV_CISS_CISSIO_H
-	     // check that "file descriptor" is valid
-	     if (isnotopen(&dev_fd,&fdchan))
-		 return -ENOTTY;
-             return cciss_io_interface(fdchan->device, m_controller_port-1, iop, report);
+    // check that "file descriptor" is valid
+    if (isnotopen(&dev_fd,&fdchan))
+      return -ENOTTY;
+
+    return cciss_io_interface(fdchan->device, m_controller_port-1, iop, report);
 #else
-             {
-                 static int warned = 0;
-                 if (!warned) {
-                     pout("CCISS support is not available in this build of smartmontools,\n"
-                          "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
-                     warned = 1;
-                 }
-             }
-             return -ENOSYS;
+    {
+      static int warned = 0;
+      if (!warned) {
+        pout("CCISS support is not available in this build of smartmontools,\n"
+          "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
+        warned = 1;
+      }
+    }
+    return -ENOSYS;
 #endif
-             // not reached
-             break;
-         default:
-             return do_normal_scsi_cmnd_io(dev_fd, iop, report);
-             // not reached
-             break;
-     }
+// not reached
+    break;
+
+  default:
+    return do_normal_scsi_cmnd_io(dev_fd, iop, report);
+    // not reached
+    break;
+  }
 }
 
 bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
@@ -1439,8 +1439,8 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   int status = do_scsi_cmnd_io(get_fd(), iop, con->reportscsiioctl);
   m_controller_type = oldtype; m_controller_port = oldport;
   if (status < 0) {
-      set_err(-status);
-      return false;
+    set_err(-status);
+    return false;
   }
   return true;
 }
@@ -1520,7 +1520,7 @@ smart_device * freebsd_scsi_device::autodetect_open()
   int avail_len = req_buff[4] + 5;
   int len = (avail_len < req_len ? avail_len : req_len);
   if (len < 36)
-      return this;
+    return this;
 
   // Use INQUIRY to detect type
   smart_device * newdev = 0;
@@ -1585,10 +1585,10 @@ protected:
 char sysname[256];
 const char * freebsd_smart_interface::get_os_version_str()
 {
- struct utsname osname;
- uname(&osname);
- snprintf(sysname, sizeof(sysname),"%s %s %s",osname.sysname, osname.release,
-	 osname.machine);
+  struct utsname osname;
+  uname(&osname);
+  snprintf(sysname, sizeof(sysname),"%s %s %s",osname.sysname, osname.release,
+    osname.machine);
   return sysname;
 }
 
@@ -1596,7 +1596,7 @@ const char * freebsd_smart_interface::get_app_examples(const char * appname)
 {
   if (!strcmp(appname, "smartctl"))
     return smartctl_examples;
-   return 0;
+  return 0;
 }
 
 ata_device * freebsd_smart_interface::get_ata_device(const char * name, const char * type)
@@ -1611,105 +1611,106 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
 
 static int 
 cam_getumassno(char * devname) {
-	union ccb ccb;
-	int bufsize, fd;
-	unsigned int i;
-	int error = -1;
-	char devstring[256];
-	
-	if ((fd = open(XPT_DEVICE, O_RDWR)) == -1) {
-		warn("couldn't open %s", XPT_DEVICE);
-		return(1);
-	}
-	bzero(&ccb, sizeof(union ccb));
+  union ccb ccb;
+  int bufsize, fd;
+  unsigned int i;
+  int error = -1;
+  char devstring[256];
 
-	ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
-	ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
-	ccb.ccb_h.target_lun = CAM_LUN_WILDCARD;
+  if ((fd = open(XPT_DEVICE, O_RDWR)) == -1) {
+    warn("couldn't open %s", XPT_DEVICE);
+    return(1);
+  }
+  bzero(&ccb, sizeof(union ccb));
 
-	ccb.ccb_h.func_code = XPT_DEV_MATCH;
-	bufsize = sizeof(struct dev_match_result) * 100;
-	ccb.cdm.match_buf_len = bufsize;
-	ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
-	if (ccb.cdm.matches == NULL) {
-		warnx("can't malloc memory for matches");
-		close(fd);
-		return(1);
-	}
-	ccb.cdm.num_matches = 0;
-	/*
-	 * We fetch all nodes, since we display most of them in the default
-	 * case, and all in the verbose case.
-	 */
-	ccb.cdm.num_patterns = 0;
-	ccb.cdm.pattern_buf_len = 0;
-	/*
-	 * We do the ioctl multiple times if necessary, in case there are
-	 * more than 100 nodes in the EDT.
-	 */
-	 
-	do {
-		if (ioctl(fd, CAMIOCOMMAND, &ccb) == -1) {
-			warn("error sending CAMIOCOMMAND ioctl");
-			error = -1;
-			break;
-		}
-		if ((ccb.ccb_h.status != CAM_REQ_CMP)
-		 || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
-		    && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) {
-			warnx("got CAM error %#x, CDM error %d\n",
-			      ccb.ccb_h.status, ccb.cdm.status);
-			error = -1;
-			break;
-		}
+  ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
+  ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
+  ccb.ccb_h.target_lun = CAM_LUN_WILDCARD;
+  ccb.ccb_h.func_code = XPT_DEV_MATCH;
+  bufsize = sizeof(struct dev_match_result) * 100;
+  ccb.cdm.match_buf_len = bufsize;
+  ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
 
-		struct bus_match_result *bus_result = 0;
-		for (i = 0; i < ccb.cdm.num_matches; i++) {
-			switch (ccb.cdm.matches[i].type) {
-			case DEV_MATCH_BUS: {
-				// struct bus_match_result *bus_result;
-				bus_result =
-					&ccb.cdm.matches[i].result.bus_result;
-				break;
-			}
-			case DEV_MATCH_DEVICE: {
-				/* we are not interested in device name */
-				break;
-			}
-			case DEV_MATCH_PERIPH: {
-				struct periph_match_result *periph_result;
+  if (ccb.cdm.matches == NULL) {
+    warnx("can't malloc memory for matches");
+    close(fd);
+    return(1);
+  }
+  ccb.cdm.num_matches = 0;
+  /*
+  * We fetch all nodes, since we display most of them in the default
+  * case, and all in the verbose case.
+  */
+  ccb.cdm.num_patterns = 0;
+  ccb.cdm.pattern_buf_len = 0;
+  /*
+  * We do the ioctl multiple times if necessary, in case there are
+  * more than 100 nodes in the EDT.
+  */
 
-				periph_result =
-				      &ccb.cdm.matches[i].result.periph_result;
+  do {
+    if (ioctl(fd, CAMIOCOMMAND, &ccb) == -1) {
+      warn("error sending CAMIOCOMMAND ioctl");
+      error = -1;
+      break;
+    }
+    if ((ccb.ccb_h.status != CAM_REQ_CMP)
+      || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
+        && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) 
+    {
+      warnx("got CAM error %#x, CDM error %d\n",
+        ccb.ccb_h.status, ccb.cdm.status);
+      error = -1;
+      break;
+    }
 
-				snprintf(devstring,sizeof(devstring),"%s%d",periph_result->periph_name,periph_result->unit_number);
-    				if(strcmp(devstring,devname)==0){ /* found our device */
-    				    if(strcmp(bus_result->dev_name,"umass-sim")) {
-    					close(fd);
-    					return -1; /* non usb device found, giving up */
-    				    }
-    				    /* return bus number */
-    				    return  bus_result->unit_number;
-    				}
-				break;
-			}
-			
-			default:
-				fprintf(stdout, "WARN: unknown match type\n");
-				break;
-			}
-		}
+    struct bus_match_result *bus_result = 0;
+    for (i = 0; i < ccb.cdm.num_matches; i++) {
+      switch (ccb.cdm.matches[i].type) {
+      case DEV_MATCH_BUS: {
+          // struct bus_match_result *bus_result;
+          bus_result =
+          &ccb.cdm.matches[i].result.bus_result;
+          break;
+      }
+    case DEV_MATCH_DEVICE:   {
+        /* we are not interested in device name */
+        break;
+      }
+    case DEV_MATCH_PERIPH: {
+        struct periph_match_result *periph_result;
 
-	} while ((ccb.ccb_h.status == CAM_REQ_CMP)
-		&& (ccb.cdm.status == CAM_DEV_MATCH_MORE));
-	close(fd);
-	free(ccb.cdm.matches);
-	return(error); /* no device found */
+        periph_result =
+        &ccb.cdm.matches[i].result.periph_result;
+
+        snprintf(devstring,sizeof(devstring),"%s%d",periph_result->periph_name,periph_result->unit_number);
+        if(strcmp(devstring,devname)==0){ /* found our device */
+          if(strcmp(bus_result->dev_name,"umass-sim")) {
+            close(fd);
+            return -1; /* non usb device found, giving up */
+          }
+          /* return bus number */
+          return  bus_result->unit_number;
+        }
+        break;
+    }
+
+  default:
+    fprintf(stdout, "WARN: unknown match type\n");
+    break;
+      }
+    }
+  } while ((ccb.ccb_h.status == CAM_REQ_CMP)
+    && (ccb.cdm.status == CAM_DEV_MATCH_MORE));
+
+  close(fd);
+  free(ccb.cdm.matches);
+  return(error); /* no device found */
 }
 
 
-// we are using CAM subsystem XPT enumerator to found all SCSI devices on system
-// despite of it's names
+// we are using CAM subsystem XPT enumerator to found all CAM (scsi/usb/ada/...)
+// devices on system despite of it's names
 //
 // If any errors occur, leave errno set as it was returned by the
 // system call, and return <0.
@@ -1718,7 +1719,7 @@ cam_getumassno(char * devname) {
 // -1:   error
 // >=0: number of discovered devices
 
-int get_dev_names_scsi(char*** names) {
+int get_dev_names_cam(char*** names) {
   int n = 0;
   char** mp = NULL;
   unsigned int i;
@@ -1761,13 +1762,12 @@ int get_dev_names_scsi(char*** names) {
   ccb.cdm.match_buf_len = bufsize;
   ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
   if (ccb.cdm.matches == NULL) {
-	serrno = errno;
-	pout("can't malloc memory for matches on line %d\n", __LINE__);
-	n = -1;
-	goto end;
+    serrno = errno;
+    pout("can't malloc memory for matches on line %d\n", __LINE__);
+    n = -1;
+    goto end;
   }
   ccb.cdm.num_matches = 0;
-
   ccb.cdm.num_patterns = 0;
   ccb.cdm.pattern_buf_len = 0;
 
@@ -1784,8 +1784,8 @@ int get_dev_names_scsi(char*** names) {
     }
 
     if ((ccb.ccb_h.status != CAM_REQ_CMP)
-     || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
-        && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) {
+      || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
+      && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) {
       pout("got CAM error %#x, CDM error %d\n", ccb.ccb_h.status, ccb.cdm.status);
       serrno = ENXIO;
       n = -1;
@@ -1801,8 +1801,8 @@ int get_dev_names_scsi(char*** names) {
         bus_result = &ccb.cdm.matches[i].result.bus_result;
 
         if (strcmp(bus_result->dev_name,"ata") == 0 /* ATAPICAM devices will be probed as ATA devices, skip'em there */
-         || strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
-          skip_bus = 1;
+          || strcmp(bus_result->dev_name,"xpt") == 0) /* skip XPT bus at all */
+        skip_bus = 1;
         else
           skip_bus = 0;
         changed = 1;
@@ -1814,13 +1814,13 @@ int get_dev_names_scsi(char*** names) {
         else
           skip_device = 0;
 
-//        /* Shall we skip non T_DIRECT devices ? */
-//        if (dev_result->inq_data.device != T_DIRECT)
-//          skip_device = 1;
+        //        /* Shall we skip non T_DIRECT devices ? */
+        //        if (dev_result->inq_data.device != T_DIRECT)
+        //          skip_device = 1;
         changed = 1;
       } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && skip_device == 0) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
-         * We are searching for latest name
+        * We are searching for latest name
         */
         periph_result =  &ccb.cdm.matches[i].result.periph_result;
         free(devname);
@@ -1833,7 +1833,7 @@ int get_dev_names_scsi(char*** names) {
         };
         changed = 0;
       };
-      
+
       if (changed == 1 && devname != NULL) {
         mp[n] = devname;
         devname = NULL;
@@ -1895,7 +1895,7 @@ int get_dev_names_ata(char*** names) {
     n = -1;
     goto end;
   };
-  
+
   if (ioctl(fd, IOCATAGMAXCHANNEL, &maxchannel) < 0) {
     serrno = errno;
     pout("ioctl(IOCATAGMAXCHANNEL) on /dev/ata failed: %s\n", strerror(errno));
@@ -1914,7 +1914,7 @@ int get_dev_names_ata(char*** names) {
 
   for (devices.channel = 0; devices.channel < maxchannel && n < MAX_NUM_DEV; devices.channel++) {
     int j;
-    
+
     if (ioctl(fd, IOCATADEVICES, &devices) < 0) {
       if (errno == ENXIO)
         continue; /* such channel not exist */
@@ -1937,7 +1937,7 @@ int get_dev_names_ata(char*** names) {
   };  
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
-      
+
 end:
   if (fd>=0)
     close(fd);
@@ -1975,7 +1975,7 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   char * * scsinames = 0; int numscsi = 0;
   if (!type || !strcmp(type, "scsi")) {
-    numscsi = get_dev_names_scsi(&scsinames);
+    numscsi = get_dev_names_cam(&scsinames);
     if (numscsi < 0) {
       set_err(ENOMEM);
       return false;
@@ -2005,85 +2005,85 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 static char done[USB_MAX_DEVICES];
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
-                       unsigned short & product_id, unsigned short & version)
+  unsigned short & product_id, unsigned short & version)
 { 
 
-	struct usb_device_info di;
-	int e, p, i;
-	char devname[256];
+  struct usb_device_info di;
+  int e, p, i;
+  char devname[256];
 
-	snprintf(devname, sizeof(devname),"umass%d",busno);
-	
-	di.udi_addr = a;
-	e = ioctl(f, USB_DEVICEINFO, &di);
-	if (e) {
-		if (errno != ENXIO)
-			printf("addr %d: I/O error\n", a);
-		return 0;
-	}
-	done[a] = 1;
-	
-		// list devices
-		for (i = 0; i < USB_MAX_DEVNAMES; i++) {
-			if (di.udi_devnames[i][0]) {
-				if(strcmp(di.udi_devnames[i],devname)==0) {
-				 // device found!
-				    vendor_id = di.udi_vendorNo;
-				    product_id = di.udi_productNo;
-				    version = di.udi_releaseNo;
-				    return 1;
-				    // FIXME
-				}
-			}
-		}
-	if (!rec)
-		return 0;
-	for (p = 0; p < di.udi_nports; p++) {
-		int s = di.udi_ports[p];
-		if (s >= USB_MAX_DEVICES) {
-			continue;
-		}
-		if (s == 0)
-			printf("addr 0 should never happen!\n");
-		else {
-			if(usbdevinfo(f, s, 1, busno, vendor_id, product_id, version)) return 1;
-		}
-	}
-	return 0;
+  snprintf(devname, sizeof(devname),"umass%d",busno);
+
+  di.udi_addr = a;
+  e = ioctl(f, USB_DEVICEINFO, &di);
+  if (e) {
+    if (errno != ENXIO)
+      printf("addr %d: I/O error\n", a);
+    return 0;
+  }
+  done[a] = 1;
+
+  // list devices
+  for (i = 0; i < USB_MAX_DEVNAMES; i++) {
+    if (di.udi_devnames[i][0]) {
+      if(strcmp(di.udi_devnames[i],devname)==0) {
+        // device found!
+        vendor_id = di.udi_vendorNo;
+        product_id = di.udi_productNo;
+        version = di.udi_releaseNo;
+        return 1;
+        // FIXME
+      }
+    }
+  }
+  if (!rec)
+    return 0;
+  for (p = 0; p < di.udi_nports; p++) {
+    int s = di.udi_ports[p];
+    if (s >= USB_MAX_DEVICES) {
+      continue;
+    }
+    if (s == 0)
+      printf("addr 0 should never happen!\n");
+    else {
+      if(usbdevinfo(f, s, 1, busno, vendor_id, product_id, version)) return 1;
+    }
+  }
+  return 0;
 }
 #endif
 
 
 static int usbdevlist(int busno,unsigned short & vendor_id,
-                       unsigned short & product_id, unsigned short & version)
+  unsigned short & product_id, unsigned short & version)
 {
-#if __FreeBSD_version >= 800000 // libusb code
+#if __FreeBSD_version >= 800000 // libusb2 interface
   struct libusb20_device *pdev = NULL;
-	struct libusb20_backend *pbe;
-	uint32_t matches = 0;
-	char buf[128]; // do not change!
+  struct libusb20_backend *pbe;
+  uint32_t matches = 0;
+  char buf[128]; // do not change!
   char devname[128];
-	uint8_t n;
-	struct LIBUSB20_DEVICE_DESC_DECODED *pdesc;
-	
-	pbe = libusb20_be_alloc_default();
-  
-	while ((pdev = libusb20_be_device_foreach(pbe, pdev))) {
-		matches++;
-    
-		if (libusb20_dev_open(pdev, 0)) {
-			warnx("libusb20_dev_open: could not open device");
+  uint8_t n;
+  struct LIBUSB20_DEVICE_DESC_DECODED *pdesc;
+
+  pbe = libusb20_be_alloc_default();
+
+  while ((pdev = libusb20_be_device_foreach(pbe, pdev))) {
+    matches++;
+
+    if (libusb20_dev_open(pdev, 0)) {
+      warnx("libusb20_dev_open: could not open device");
       return 0;
-		}
-		
-		pdesc=libusb20_dev_get_device_desc(pdev);
-		
+    }
+
+    pdesc=libusb20_dev_get_device_desc(pdev);
+
     snprintf(devname, sizeof(devname),"umass%d:",busno);
-		for (n = 0; n != 255; n++) {
-			if (libusb20_dev_get_iface_desc(pdev, n, buf, sizeof(buf)))
-				break;
-			if (buf[0] == 0)
-				continue;
+    for (n = 0; n != 255; n++) {
+      if (libusb20_dev_get_iface_desc(pdev, n, buf, sizeof(buf)))
+        break;
+      if (buf[0] == 0)
+        continue;
       if(strncmp(buf,devname,strlen(devname))==0){
         // found!
         vendor_id = pdesc->idVendor;
@@ -2093,63 +2093,60 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
         libusb20_be_free(pbe);
         return 1;
       }
-		}
-		
-		libusb20_dev_close(pdev);
-	}
-  
-	if (matches == 0) {
-		printf("No device match or lack of permissions.\n");
-	}
-  
-	libusb20_be_free(pbe);
-	
-	return false;
-#else // freebsd < 8.0 USB stack
-
-    int  i, f, a, rc;
-    char buf[50];
-    int ncont;
-
-    for (ncont = 0, i = 0; i < 10; i++) {
-	snprintf(buf, sizeof(buf), "%s%d", USBDEV, i);
-	f = open(buf, O_RDONLY);
-	if (f >= 0) {
-	    memset(done, 0, sizeof done);
-	    for (a = 1; a < USB_MAX_DEVICES; a++) {
-		if (!done[a]) {
-		    rc = usbdevinfo(f, a, 1, busno,vendor_id, product_id, version);
-		    if(rc) return 1;
-		}
-		
-	    }
-	close(f);
-	} else {
-	    if (errno == ENOENT || errno == ENXIO)
-		continue;
-	    warn("%s", buf);
-	}
-	ncont++;
     }
-    return 0;
+
+    libusb20_dev_close(pdev);
+  }
+
+  if (matches == 0) {
+    printf("No device match or lack of permissions.\n");
+  }
+
+  libusb20_be_free(pbe);
+
+  return false;
+#else // freebsd < 8.0 USB stack, ioctl interface
+
+  int  i, f, a, rc;
+  char buf[50];
+  int ncont;
+
+  for (ncont = 0, i = 0; i < 10; i++) {
+    snprintf(buf, sizeof(buf), "%s%d", USBDEV, i);
+    f = open(buf, O_RDONLY);
+    if (f >= 0) {
+      memset(done, 0, sizeof done);
+      for (a = 1; a < USB_MAX_DEVICES; a++) {
+        if (!done[a]) {
+          rc = usbdevinfo(f, a, 1, busno,vendor_id, product_id, version);
+          if(rc) return 1;
+        }
+
+      }
+      close(f);
+    } else {
+      if (errno == ENOENT || errno == ENXIO)
+        continue;
+      warn("%s", buf);
+    }
+    ncont++;
+  }
+  return 0;
 #endif
 }
 
 // Get USB bridge ID for "/dev/daX"
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
-                       unsigned short & product_id, unsigned short & version)
+  unsigned short & product_id, unsigned short & version)
 {
-  // Only "/dev/daX" supported
   if (strlen(path) < 5)
     return false;
-   int bus = cam_getumassno((char *)path+5);
-   
+  int bus = cam_getumassno((char *)path+5);
   if (bus == -1) 
     return false;
 
   usbdevlist(bus,vendor_id,
-                       product_id, version);
-
+    product_id, version);
   return true;
 }
 
@@ -2158,7 +2155,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
 {
   int guess = parse_ata_chan_dev(name,NULL,"");
   unsigned short vendor_id = 0, product_id = 0, version = 0;
-  
+
   switch (guess) {
   case CONTROLLER_ATA : 
     return new freebsd_ata_device(this, name, "");
@@ -2179,9 +2176,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
     set_err(EINVAL, "Option -d cciss,N requires N to be a non-negative integer");
     return 0;
   }
-  
-  
-  // TODO: Test autodetect device here
+  // TODO: Test autodetected device here
   return 0;
 }
 
@@ -2202,7 +2197,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     int contr = parse_ata_chan_dev(name,NULL,"");
     if (contr != CONTROLLER_3WARE_9000_CHAR && contr != CONTROLLER_3WARE_678K_CHAR)
       contr = CONTROLLER_3WARE_678K;
-     return new freebsd_escalade_device(this, name, contr, disknum);
+    return new freebsd_escalade_device(this, name, contr, disknum);
   } 
 
   // Highpoint ?
@@ -2251,9 +2246,7 @@ const char * freebsd_smart_interface::get_valid_custom_dev_types_str()
   return "3ware,N, hpt,L/M/N, cciss,N";
 }
 
-
 } // namespace
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
