@@ -66,9 +66,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -134,7 +134,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2907 2009-09-12 21:16:09Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1529,12 +1529,8 @@ smart_device * freebsd_scsi_device::autodetect_open()
     // 3ware ?
     if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
       close();
-#if defined(_WIN32) || defined(__CYGWIN__)
-      set_err(EINVAL, "AMCC/3ware controller, please try changing device to %s,N", get_dev_name());
-#else
       set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
                       "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
-#endif
       return this;
     }
 
