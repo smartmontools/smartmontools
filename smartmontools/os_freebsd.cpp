@@ -1529,12 +1529,8 @@ smart_device * freebsd_scsi_device::autodetect_open()
     // 3ware ?
     if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
       close();
-#if defined(_WIN32) || defined(__CYGWIN__)
-      set_err(EINVAL, "AMCC/3ware controller, please try changing device to %s,N", get_dev_name());
-#else
       set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
                       "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
-#endif
       return this;
     }
 
