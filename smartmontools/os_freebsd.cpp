@@ -23,8 +23,6 @@
 #include <camlib.h>
 #include <cam/scsi/scsi_message.h>
 #include <cam/scsi/scsi_pass.h>
-#include <dev/usb/usb.h>
-#include <dev/usb/usbhid.h>
 #if defined(__DragonFly__)
 #include <sys/nata.h>
 #else
@@ -54,6 +52,9 @@
 #if __FreeBSD_version >= 800000
 #include <libusb20_desc.h>
 #include <libusb20.h>
+#else
+#include <dev/usb/usb.h>
+#include <dev/usb/usbhid.h>
 #endif
 
 #define CONTROLLER_UNKNOWN              0x00
