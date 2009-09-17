@@ -1372,6 +1372,7 @@ const usb_id_entry usb_ids[] = {
   { 0x059b, 0x0275, 0x0001, d_unsup   }, // Iomega MDHD500-U
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
+  { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
   { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro)
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
@@ -1380,6 +1381,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro (Sunplus USB-bridge)
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
   { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
+  { 0x0d49, 0x7410, 0x0122, d_sat     }, // Maxtor Basics Desktop
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
   { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
