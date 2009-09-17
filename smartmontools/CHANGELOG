@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2904 2009-09-12 08:28:06Z samm2 $
+$Id: CHANGELOG 2911 2009-09-17 20:09:06Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add USB IDs of Maxtor Basics Desktop and ISD-300A1.
 
   [AS] Use malloc() to ensure that the read buffer lands on a single
        page.  This avoids some bugs seen on LSI controlers under
