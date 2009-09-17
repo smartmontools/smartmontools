@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Add USB autodetection to smartd DEVICESCAN directive.
+
   [CF] Add USB IDs of Maxtor Basics Desktop and ISD-300A1.
 
   [AS] Use malloc() to ensure that the read buffer lands on a single

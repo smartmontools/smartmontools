@@ -2773,7 +2773,7 @@ protected:
 
 private:
   bool get_dev_list(smart_device_list & devlist, const char * pattern,
-    bool scan_ata, bool scan_scsi, const char * req_type);
+    bool scan_ata, bool scan_scsi, const char * req_type, bool autodetect);
 
   smart_device * missing_option(const char * opt);
 };
@@ -2790,7 +2790,8 @@ const char * linux_smart_interface::get_app_examples(const char * appname)
 // have device entries for devices that exist.  So if we get the equivalent of
 // ls /dev/hd[a-t], we have all the ATA devices on the system
 bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
-  const char * pattern, bool scan_ata, bool scan_scsi, const char * req_type)
+  const char * pattern, bool scan_ata, bool scan_scsi,
+  const char * req_type, bool autodetect)
 {
   // Use glob to look for any directory entries matching the pattern
   glob_t globbuf;
@@ -2867,10 +2868,15 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
 
     if (name) {
       // Found a name, add device to list.
-      if (is_scsi)
-        devlist.add(new linux_scsi_device(this, name, req_type));
+      smart_device * dev;
+      if (autodetect)
+        dev = autodetect_smart_device(name);
+      else if (is_scsi)
+        dev = new linux_scsi_device(this, name, req_type);
       else
-        devlist.add(new linux_ata_device(this, name, req_type));
+        dev = new linux_ata_device(this, name, req_type);
+      if (dev) // autodetect_smart_device() may return nullptr.
+        devlist.add(dev);
     }
   }
 
@@ -2897,9 +2903,9 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return true;
 
   if (scan_ata)
-    get_dev_list(devlist,"/dev/hd[a-t]", true, false, type);
-  if (scan_scsi)
-    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type);
+    get_dev_list(devlist, "/dev/hd[a-t]", true, false, type, false);
+  if (scan_scsi) // Try USB autodetection if no type specifed
+    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type, !*type);
 
   // if we found traditional links, we are done
   if (devlist.size() > 0)
@@ -2907,7 +2913,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   // else look for devfs entries without traditional links
   // TODO: Add udev support
-  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, type);
+  return get_dev_list(devlist, "/dev/discs/disc*", scan_ata, scan_scsi, type, false);
 }
 
 ata_device * linux_smart_interface::get_ata_device(const char * name, const char * type)
