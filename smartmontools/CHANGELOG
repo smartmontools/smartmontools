@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2912 2009-09-17 20:43:52Z chrfranke $
+$Id: CHANGELOG 2914 2009-09-18 07:17:33Z sxzzsf $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [SZ] FreeBSD: Fix highpoint type detection and ioctl failed for parameter
+       error.
 
   [CF] Linux: Add USB autodetection to smartd DEVICESCAN directive.
 
