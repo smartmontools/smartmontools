@@ -50,7 +50,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 2848 2009-07-18 20:14:38Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -91,7 +91,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "%s "PACKAGE_VERSION" "SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
       " [%s] "BUILD_INFO"\n"
     "Copyright (C) 2002-9 by Bruce Allen, http://smartmontools.sourceforge.net\n",
-    prog_name, smi()->get_os_version_str()
+    prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
     return info;

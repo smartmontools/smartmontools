@@ -122,7 +122,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2870 2009-08-02 20:38:30Z manfred99 $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;
@@ -1412,7 +1412,7 @@ void Directives() {
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
 	   "Use ID = 0 to turn off -C and/or -U Directives\n"
            "Example: /dev/hda -a\n", 
-           configfile, smi()->get_valid_dev_types_str());
+           configfile, smi()->get_valid_dev_types_str().c_str());
   return;
 }
 
@@ -3009,7 +3009,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "%s", smi()->get_valid_dev_types_str());
+    PrintOut(priority, "%s", smi()->get_valid_dev_types_str().c_str());
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");

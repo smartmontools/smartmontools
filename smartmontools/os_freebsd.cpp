@@ -66,9 +66,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -134,7 +134,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1558,9 +1558,9 @@ class freebsd_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual const char * get_os_version_str();
+  virtual std::string get_os_version_str();
 
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
@@ -1574,26 +1574,24 @@ protected:
 
   virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 
-  virtual const char * get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str();
 };
 
 
 //////////////////////////////////////////////////////////////////////
-char sysname[256];
-const char * freebsd_smart_interface::get_os_version_str()
+
+std::string freebsd_smart_interface::get_os_version_str()
 {
   struct utsname osname;
   uname(&osname);
-  snprintf(sysname, sizeof(sysname),"%s %s %s",osname.sysname, osname.release,
-    osname.machine);
-  return sysname;
+  return strprintf("%s %s %s", osname.sysname, osname.release, osname.machine);
 }
 
-const char * freebsd_smart_interface::get_app_examples(const char * appname)
+std::string freebsd_smart_interface::get_app_examples(const char * appname)
 {
   if (!strcmp(appname, "smartctl"))
     return smartctl_examples;
-  return 0;
+  return "";
 }
 
 ata_device * freebsd_smart_interface::get_ata_device(const char * name, const char * type)
@@ -2238,7 +2236,7 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
   return 0;
 }
 
-const char * freebsd_smart_interface::get_valid_custom_dev_types_str()
+std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
   return "3ware,N, hpt,L/M/N, cciss,N";
 }

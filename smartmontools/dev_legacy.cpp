@@ -24,7 +24,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 2879 2009-08-29 17:19:00Z chrfranke $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -457,10 +457,10 @@ class legacy_smart_interface
 {
 public:
 #ifdef HAVE_GET_OS_VERSION_STR
-  virtual const char * get_os_version_str();
+  virtual std::string get_os_version_str();
 #endif
 
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
@@ -474,24 +474,24 @@ protected:
 
   virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 
-  virtual const char * get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str();
 };
 
 
 //////////////////////////////////////////////////////////////////////
 
 #ifdef HAVE_GET_OS_VERSION_STR
-const char * legacy_smart_interface::get_os_version_str()
+std::string legacy_smart_interface::get_os_version_str()
 {
   return ::get_os_version_str();
 }
 #endif
 
-const char * legacy_smart_interface::get_app_examples(const char * appname)
+std::string legacy_smart_interface::get_app_examples(const char * appname)
 {
   if (!strcmp(appname, "smartctl"))
     ::print_smartctl_examples(); // this prints to stdout ...
-  return 0; // ... so don't print again.
+  return ""; // ... so don't print again.
 }
 
 ata_device * legacy_smart_interface::get_ata_device(const char * name, const char * type)
@@ -518,7 +518,7 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp 2879 2009-08-29 17:19:00Z chrfranke $";
+  static const char version[] = "$Id: dev_legacy.cpp 2915 2009-09-18 21:17:37Z chrfranke $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
@@ -651,7 +651,7 @@ smart_device * legacy_smart_interface::get_custom_smart_device(const char * name
   return 0;
 }
 
-const char * legacy_smart_interface::get_valid_custom_dev_types_str()
+std::string legacy_smart_interface::get_valid_custom_dev_types_str()
 {
   return "marvell, areca,N, 3ware,N, hpt,L/M/N, cciss,N";
 }

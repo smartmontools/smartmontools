@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2914 2009-09-18 07:17:33Z sxzzsf $
+$Id: CHANGELOG 2915 2009-09-18 21:17:37Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Return info strings from 'smart_interface::get_*()' functions as
+       'std::string' instead of 'const char *'. Static buffers are no
+       longer needed.
 
   [SZ] FreeBSD: Fix highpoint type detection and ioctl failed for parameter
        error.

@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2912 2009-09-17 20:43:52Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2915 2009-09-18 21:17:37Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2755,7 +2755,7 @@ class linux_smart_interface
 : public /*implements*/ smart_interface
 {
 public:
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
@@ -2769,7 +2769,7 @@ protected:
 
   virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 
-  virtual const char * get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str();
 
 private:
   bool get_dev_list(smart_device_list & devlist, const char * pattern,
@@ -2778,11 +2778,11 @@ private:
   smart_device * missing_option(const char * opt);
 };
 
-const char * linux_smart_interface::get_app_examples(const char * appname)
+std::string linux_smart_interface::get_app_examples(const char * appname)
 {
   if (!strcmp(appname, "smartctl"))
     return smartctl_examples;
-  return 0;
+  return "";
 }
 
 
@@ -3143,7 +3143,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   return 0;
 }
 
-const char * linux_smart_interface::get_valid_custom_dev_types_str()
+std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
   return "marvell, areca,N, 3ware,N, hpt,L/M/N, megaraid,N"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
