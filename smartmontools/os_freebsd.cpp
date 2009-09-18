@@ -322,7 +322,7 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
     if(!strcmp(type,"3ware")){
       return  parse_ata_chan_dev(dev_name,NULL,"");
     }
-    if(hpt_hba(type)) return CONTROLLER_HPT;
+    if(!strcmp(type,"hpt")) return CONTROLLER_HPT;
     return CONTROLLER_UNKNOWN;
     // todo - add other types
   }
