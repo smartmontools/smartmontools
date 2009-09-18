@@ -66,9 +66,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -134,7 +134,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2908 2009-09-12 21:32:38Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2913 2009-09-18 07:13:02Z sxzzsf $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -322,7 +322,7 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
     if(!strcmp(type,"3ware")){
       return  parse_ata_chan_dev(dev_name,NULL,"");
     }
-    if(hpt_hba(type)) return CONTROLLER_HPT;
+    if(!strcmp(type,"hpt")) return CONTROLLER_HPT;
     return CONTROLLER_UNKNOWN;
     // todo - add other types
   }

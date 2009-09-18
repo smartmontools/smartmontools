@@ -587,6 +587,7 @@ typedef struct tw_osli_ioctl_with_payload {
 #define MAXDEV_PER_CHANNEL 2
 #define PMPORT_PER_CHANNEL 15 /* max devices connected to this channel via pmport */
 
+#pragma pack(1)
 typedef struct _HPT_CHANNEL_INFO {
   unsigned int reserve1;
   unsigned int reserve2;
@@ -624,6 +625,7 @@ typedef struct _HPT_PASS_THROUGH_HEADER {
   unsigned char reserve[3];
 }
 HPT_PASS_THROUGH_HEADER, *PHPT_PASS_THROUGH_HEADER;
+#pragma pack()
 
 #ifndef __unused
 #define __unused __attribute__ ((__unused__))
