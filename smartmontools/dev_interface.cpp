@@ -217,29 +217,27 @@ void tunnelled_device_base::release(const smart_device * dev)
 // Pointer to (usually singleton) interface object returned by ::smi()
 smart_interface * smart_interface::s_instance;
 
-const char * smart_interface::get_os_version_str()
+std::string smart_interface::get_os_version_str()
 {
   return SMARTMONTOOLS_BUILD_HOST;
 }
 
-const char * smart_interface::get_valid_dev_types_str()
+std::string smart_interface::get_valid_dev_types_str()
 {
-  static std::string buf;
-  if (!buf.empty())
-    return buf.c_str();
   // default
-  buf = "ata, scsi, sat[,N][+TYPE], usbcypress[,X], usbjmicron[,x][,N], usbsunplus";
+  std::string s =
+    "ata, scsi, sat[,N][+TYPE], usbcypress[,X], usbjmicron[,x][,N], usbsunplus";
   // append custom
-  const char * add = get_valid_custom_dev_types_str();
-  if (!add || !*add)
-    return buf.c_str();
-  buf += ", "; buf += add;
-  return buf.c_str();
+  std::string s2 = get_valid_custom_dev_types_str();
+  if (!s2.empty()) {
+    s += ", "; s += s2;
+  }
+  return s;
 }
 
-const char * smart_interface::get_app_examples(const char * /*appname*/)
+std::string smart_interface::get_app_examples(const char * /*appname*/)
 {
-  return 0;
+  return "";
 }
 
 void smart_interface::set_err(int no, const char * msg, ...)
@@ -342,7 +340,7 @@ smart_device * smart_interface::get_custom_smart_device(const char * /*name*/, c
   return 0;
 }
 
-const char * smart_interface::get_valid_custom_dev_types_str()
+std::string smart_interface::get_valid_custom_dev_types_str()
 {
-  return 0;
+  return "";
 }

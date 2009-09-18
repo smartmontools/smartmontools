@@ -1412,7 +1412,7 @@ void Directives() {
            "Attribute ID is a decimal integer 1 <= ID <= 255\n"
 	   "Use ID = 0 to turn off -C and/or -U Directives\n"
            "Example: /dev/hda -a\n", 
-           configfile, smi()->get_valid_dev_types_str());
+           configfile, smi()->get_valid_dev_types_str().c_str());
   return;
 }
 
@@ -3009,7 +3009,7 @@ void printoutvaliddirectiveargs(int priority, char d) {
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "%s", smi()->get_valid_dev_types_str());
+    PrintOut(priority, "%s", smi()->get_valid_dev_types_str().c_str());
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");

@@ -73,7 +73,7 @@ void UsageSummary(){
   return;
 }
 
-static const char *getvalidarglist(char opt);
+static std::string getvalidarglist(char opt);
 
 /*  void prints help information for command syntax */
 void Usage (void){
@@ -105,7 +105,7 @@ void Usage (void){
 "         Report transactions (see man page)\n\n"
 "  -n MODE, --nocheck=MODE                                             (ATA)\n"
 "         No check if: never, sleep, standby, idle (see man page)\n\n",
-  getvalidarglist('d')); // TODO: Use this function also for other options ?
+  getvalidarglist('d').c_str()); // TODO: Use this function also for other options ?
   printf(
 "============================== DEVICE FEATURE ENABLE/DISABLE COMMANDS =====\n\n"
 "  -s VALUE, --smart=VALUE\n"
@@ -153,24 +153,20 @@ void Usage (void){
 "  -X, --abort\n"
 "        Abort any non-captive test on device\n\n"
 );
-  const char * examples = smi()->get_app_examples("smartctl");
-  if (examples)
-    printf("%s\n", examples);
+  std::string examples = smi()->get_app_examples("smartctl");
+  if (!examples.empty())
+    printf("%s\n", examples.c_str());
 }
 
-/* Returns a pointer to a static string containing a formatted list of the valid
-   arguments to the option opt or NULL on failure. Note 'v' case different */
-static const char *getvalidarglist(char opt)
+/* Returns a string containing a formatted list of the valid arguments
+   to the option opt or empty on failure. Note 'v' case different */
+static std::string getvalidarglist(char opt)
 {
   switch (opt) {
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    { // TODO: let this function return std::string ?
-      static std::string buf = smi()->get_valid_dev_types_str();
-      buf += ", test";
-      return buf.c_str();
-    }
+    return smi()->get_valid_dev_types_str() + ", test";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -195,7 +191,7 @@ static const char *getvalidarglist(char opt)
     return "never, sleep, standby, idle";
   case 'v':
   default:
-    return NULL;
+    return "";
   }
 }
 
@@ -210,9 +206,9 @@ void printvalidarglistmessage(char opt) {
   else {
   // getvalidarglist() might produce a multiline or single line string.  We
   // need to figure out which to get the formatting right.
-    const char * s = getvalidarglist(opt);
-    char separator = strchr(s, '\n') ? '\n' : ' ';
-    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, s, separator);
+    std::string s = getvalidarglist(opt);
+    char separator = strchr(s.c_str(), '\n') ? '\n' : ' ';
+    pout("=======> VALID ARGUMENTS ARE:%c%s%c<=======\n", separator, s.c_str(), separator);
   }
 
   return;

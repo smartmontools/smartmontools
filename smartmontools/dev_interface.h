@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h,v 1.9 2009/03/12 20:31:12 chrfranke Exp $\n"
+#define DEV_INTERFACE_H_CVSID "$Id$\n"
 
 #include <stdarg.h>
 #include <string>
@@ -590,20 +590,21 @@ public:
   virtual ~smart_interface() throw()
     { }
 
-  /// Return build host and OS version as static string
-  virtual const char * get_os_version_str();
+  /// Return info string about build host and/or OS version.
+  /// Default implementation returns SMARTMONTOOLS_BUILD_HOST.
+  virtual std::string get_os_version_str();
 
   /// Return valid args for device type option/directive.
-  /// Default implementation returns "ata, scsi" concatenated
-  /// with result from get_valid_custom_dev_types_str() below.
-  virtual const char * get_valid_dev_types_str();
+  /// Default implementation returns "ata, scsi, sat, usb*..."
+  /// concatenated with result from get_valid_custom_dev_types_str().
+  virtual std::string get_valid_dev_types_str();
 
   /// Return example string for program 'appname'.
-  /// Default implementation returns 0.
+  /// Default implementation returns empty string.
   /// For the migration of print_smartctl_examples(),
   /// function is allowed to print examples to stdout.
   /// TODO: Remove this hack.
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   ///////////////////////////////////////////////
   // Last error information
@@ -674,8 +675,8 @@ protected:
 
   /// Return valid 'type' args accepted by above.
   /// This is called in get_valid_dev_types_str().
-  /// Default implementation returns 0.
-  virtual const char * get_valid_custom_dev_types_str();
+  /// Default implementation returns empty string.
+  virtual std::string get_valid_custom_dev_types_str();
 
   /// Return ATA->SCSI filter for SAT or USB.
   /// Override only if platform needs special handling.

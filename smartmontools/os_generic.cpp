@@ -82,7 +82,7 @@
 // should have one *_H_CVSID macro appearing below for each file
 // appearing with #include "*.h" above.  Please list these (below) in
 // alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_generic.cpp,v 1.28 2009/01/20 00:31:17 dlukes Exp $" \
+const char *os_XXXX_c_cvsid="$Id$" \
 ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
 
 // This is here to prevent compiler warnings for unused arguments of
@@ -175,7 +175,7 @@ public:
   virtual const char * get_os_version_str();
 #endif
 
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
@@ -189,7 +189,7 @@ protected:
 
   virtual smart_device * get_custom_smart_device(const char * name, const char * type);
 
-  virtual const char * get_valid_custom_dev_types_str();
+  virtual std::string get_valid_custom_dev_types_str();
 };
 
 
@@ -203,11 +203,11 @@ const char * generic_smart_interface::get_os_version_str()
 }
 #endif
 
-const char * generic_smart_interface::get_app_examples(const char * appname)
+std::string generic_smart_interface::get_app_examples(const char * appname)
 {
   if (!strcmp(appname, "smartctl"))
     ::print_smartctl_examples(); // this prints to stdout ...
-  return 0; // ... so don't print again.
+  return ""; // ... so don't print again.
 }
 
 // Return ATA device object for the given device name or NULL
@@ -267,7 +267,7 @@ smart_device * generic_smart_interface::get_custom_smart_device(const char * nam
   return NULL;
 }
 
-const char * generic_smart_interface::get_valid_custom_dev_types_str()
+std::string generic_smart_interface::get_valid_custom_dev_types_str()
 {
   return "";
 }

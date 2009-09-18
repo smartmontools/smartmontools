@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp,v 1.75 2009/06/02 19:43:06 chrfranke Exp $"
+const char *os_XXXX_c_cvsid="$Id$"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -189,9 +189,9 @@ class win_smart_interface
 : public /*implements part of*/ smart_interface
 {
 public:
-  virtual const char * get_os_version_str();
+  virtual std::string get_os_version_str();
 
-  virtual const char * get_app_examples(const char * appname);
+  virtual std::string get_app_examples(const char * appname);
 
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
@@ -259,10 +259,10 @@ static bool is_wow64()
   return !!w64;
 }
 
-// Return build host and OS version as static string
-const char * win_smart_interface::get_os_version_str()
+// Return info string about build host and OS version
+std::string win_smart_interface::get_os_version_str()
 {
-  static char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-1+sizeof("-2003r2(64)-sp2.1")+13]
+  char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-1+sizeof("-2003r2(64)-sp2.1")+13]
     = SMARTMONTOOLS_BUILD_HOST;
   if (vstr[1] < '6')
     vstr[1] = '6';
@@ -479,13 +479,11 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 
 // get examples for smartctl
-const char * win_smart_interface::get_app_examples(const char * appname)
+std::string win_smart_interface::get_app_examples(const char * appname)
 {
   if (strcmp(appname, "smartctl"))
-    return 0;
-  static char buf[2048]; // TODO: Let this function return std::string ?
-  snprintf(buf, sizeof(buf),
-         "=================================================== SMARTCTL EXAMPLES =====\n\n"
+    return "";
+  return "=================================================== SMARTCTL EXAMPLES =====\n\n"
          "  smartctl -a /dev/hda                       (Prints all SMART information)\n\n"
          "  smartctl --smart=on --offlineauto=on --saveauto=on /dev/hda\n"
          "                                              (Enables SMART on first disk)\n\n"
@@ -510,9 +508,9 @@ const char * win_smart_interface::get_app_examples(const char * appname)
          "  's': SMART_* IOCTLs,         'a': IOCTL_ATA_PASS_THROUGH,\n"
          "  'i': IOCTL_IDE_PASS_THROUGH, 'c': ATA via IOCTL_SCSI_PASS_THROUGH,\n"
          "  'f': IOCTL_STORAGE_*,        'm': IOCTL_SCSI_MINIPORT_*.\n"
+      + strprintf(
          "  The default on this system is /dev/sdX:%s\n", ata_get_def_options()
-  );
-  return buf;
+        );
 }
 
 

@@ -91,7 +91,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "%s "PACKAGE_VERSION" "SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
       " [%s] "BUILD_INFO"\n"
     "Copyright (C) 2002-9 by Bruce Allen, http://smartmontools.sourceforge.net\n",
-    prog_name, smi()->get_os_version_str()
+    prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)
     return info;

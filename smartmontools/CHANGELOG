@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Return info strings from 'smart_interface::get_*()' functions as
+       'std::string' instead of 'const char *'. Static buffers are no
+       longer needed.
+
   [SZ] FreeBSD: Fix highpoint type detection and ioctl failed for parameter
        error.
 
