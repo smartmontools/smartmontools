@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [SZ] FreeBSD: Fix highpoint type detection and ioctl failed for parameter
+       error.
+
   [CF] Linux: Add USB autodetection to smartd DEVICESCAN directive.
 
   [CF] Add USB IDs of Maxtor Basics Desktop and ISD-300A1.
