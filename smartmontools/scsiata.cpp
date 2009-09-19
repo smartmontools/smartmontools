@@ -1355,34 +1355,47 @@ struct usb_id_entry {
   const char * type;
 };
 
-const char d_sat[]     = "sat";
-const char d_cypress[] = "usbcypress";
-const char d_jmicron[] = "usbjmicron";
+const char d_sat[]       = "sat";
+const char d_cypress[]   = "usbcypress";
+const char d_jmicron[]   = "usbjmicron";
 const char d_jmicron_x[] = "usbjmicron,x";
-const char d_sunplus[] = "usbsunplus";
-const char d_unsup[]   = "unsupported";
+const char d_sunplus[]   = "usbsunplus";
+const char d_unsup[]     = "unsupported";
 
 // Map USB IDs -> '-d type' string
 const usb_id_entry usb_ids[] = {
+  // Cypress
   { 0x04b4, 0x6830, 0x0001, d_unsup   }, // Cypress CY7C68300A (AT2)
   { 0x04b4, 0x6830, 0x0240, d_cypress }, // Cypress CY7C68300B/C (AT2LP)
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
+  // Myson Century
+  { 0x04cf, 0x8818, 0xb007, d_unsup   }, // Myson Century CS8818
+  // Sunplus
   { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
+  // Iomega
   { 0x059b, 0x0275, 0x0001, d_unsup   }, // Iomega MDHD500-U
+  // LaCie
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
+  // In-System Design
   { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
+  // Prolific
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
-  { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro)
+  // Toshiba
+  { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro 501)
+  // Seagate
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
-  { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro (Sunplus USB-bridge)
+  // Dura Micro
+  { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro 509
+  // Maxtor
   { 0x0d49, 0x7310, 0x0125, d_sat     }, // Maxtor OneTouch 4
   { 0x0d49, 0x7350, 0x0125, d_sat     }, // Maxtor OneTouch 4 Mini
   { 0x0d49, 0x7410, 0x0122, d_sat     }, // Maxtor Basics Desktop
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
+  // Western Digital
   { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
   { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
@@ -1391,13 +1404,17 @@ const usb_id_entry usb_ids[] = {
   { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
   { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
   { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
+  // Initio
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
+  // JMicron
   { 0x152d, 0x2329, 0x0100, d_jmicron }, // JMicron JM20329 (USB->SATA)
   { 0x152d, 0x2336, 0x0100, d_jmicron_x},// JMicron JM20336 (USB+SATA->SATA, USB->2xSATA)
   { 0x152d, 0x2338, 0x0100, d_jmicron }, // JMicron JM20337/8 (USB->SATA+PATA, USB+SATA->PATA)
   { 0x152d, 0x2339, 0x0100, d_jmicron_x},// JMicron JM20339 (USB->SATA)
+  // Verbatim
   { 0x18a5, 0x0215, 0x0001, d_sat     }, // Verbatim FW/USB160 - Oxford OXUF934SSA-LQAG (USB+IEE1394->SATA)
+  // SunplusIT
   { 0x1bcf, 0x0c31,     -1, d_sunplus }  // SunplusIT
 };
 
