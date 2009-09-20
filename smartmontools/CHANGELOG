@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2918 2009-09-20 11:51:42Z samm2 $
+$Id: CHANGELOG 2921 2009-09-20 19:19:32Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] Correcting manual pages (FreeBSD related)
 
   [AS] FreeBSD: fix FTBFS on GNU/kFreeBSD (reported by derevko).
 

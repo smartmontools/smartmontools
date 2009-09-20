@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 2870 2009-08-02 20:38:30Z manfred99 $
+$Id: smartd.8.in 2921 2009-09-20 19:19:32Z samm2 $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -91,8 +91,7 @@ devices that support SMART.  The scanning is done as follows:
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
 .IP \fBFREEBSD:\fP 9
-Examine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
-devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
+Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
 .IP \fBNETBSD/OPENBSD:\fP 9
 Authoritative list of disk devices is obtained from sysctl 
 \'hw.disknames\'.
@@ -496,8 +495,7 @@ Under FreeBSD,
 \fBsmartd\fP
 will try to open all existing ATA devices (with entries in /dev)
 .B /dev/ad[0-9]+
-and all existing SCSI devices
-.B /dev/da[0-9]+.  
+and all existing SCSI devices (using CAM subsystem).  
 Under NetBSD/OpenBSD, 
 \fBsmartd\fP
 will try to open all existing ATA devices (with entries in /dev)
@@ -2151,4 +2149,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 2870 2009-08-02 20:38:30Z manfred99 $
+$Id: smartd.8.in 2921 2009-09-20 19:19:32Z samm2 $

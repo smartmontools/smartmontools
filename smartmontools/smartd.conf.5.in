@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 2847 2009-07-18 14:58:44Z chrfranke $
+$Id: smartd.conf.5.in 2921 2009-09-20 19:19:32Z samm2 $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -394,7 +394,9 @@ inclusive) denotes which disk on the controller is monitored.  In log
 files and email messages this disk will be identified as cciss_disk_XX
 with XX in the range from 00 to 15 inclusive.
 
-.B 3ware, MegaRAID, Areca and cciss controllers are currently ONLY supported under Linux.
+.B 3ware and cciss controllers are currently ONLY supported under Linux and FreeBSD.
+
+.B MegaRAID and Areca controllers are currently ONLY supported under Linux.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint
@@ -1482,4 +1484,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 2847 2009-07-18 14:58:44Z chrfranke $
+$Id: smartd.conf.5.in 2921 2009-09-20 19:19:32Z samm2 $
