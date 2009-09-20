@@ -48,8 +48,15 @@
 #include "dev_ata_cmd_set.h"
 
 #define USBDEV "/dev/usb"
+#if defined(__FreeBSD_version)
 
-#if (__FreeBSD_version >= 800000) || (__FreeBSD_kernel_version >= 800000)
+// This way we define one variable for the GNU/kFreeBSD and FreeBSD 
+#define FREEBSDVER __FreeBSD_version
+#else
+#define FREEBSDVER __FreeBSD_kernel_version
+#endif
+
+#if (FREEBSDVER >= 800000)
 #include <libusb20_desc.h>
 #include <libusb20.h>
 #else
@@ -753,7 +760,7 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
 #endif
   return -1;
 
-#if (__FreeBSD_version < 502000) && (__FreeBSD_kernel_version < 502000)
+#if (FREEBSDVER < 502000)
   printwarning(NO_RETURN,NULL);
 #endif
 
@@ -1365,7 +1372,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   if (cam_send_ccb(cam_dev,ccb) < 0) {
     warn("error sending SCSI ccb");
-#if (__FreeBSD_version > 500000) || (__FreeBSD_kernel_version > 500000)
+#if (FREEBSDVER > 500000)
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
 #endif
     cam_freeccb(ccb);
@@ -1373,7 +1380,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   }
 
   if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
-#if (__FreeBSD_version > 500000) || (__FreeBSD_kernel_version > 500000)
+#if (FREEBSDVER > 500000)
     cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
 #endif
     cam_freeccb(ccb);
@@ -2011,7 +2018,7 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
 }
 
 
-#if (__FreeBSD_version < 800000) || (__FreeBSD_kernel_version < 800000) // without this build fail on FreeBSD 8
+#if (FREEBSDVER < 800000) // without this build fail on FreeBSD 8
 static char done[USB_MAX_DEVICES];
 
 static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
@@ -2067,7 +2074,7 @@ static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_
 static int usbdevlist(int busno,unsigned short & vendor_id,
   unsigned short & product_id, unsigned short & version)
 {
-#if (__FreeBSD_version >= 800000) || (__FreeBSD_kernel_version >= 800000) // libusb2 interface
+#if (FREEBSDVER >= 800000) // libusb2 interface
   struct libusb20_device *pdev = NULL;
   struct libusb20_backend *pbe;
   uint32_t matches = 0;
