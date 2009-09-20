@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: Add USB autodetection to smartd DEVICESCAN directive.
+
   [CF] Add USB ID of Myson Century CS8818, add some comments.
 
   [CF] Return info strings from 'smart_interface::get_*()' functions as

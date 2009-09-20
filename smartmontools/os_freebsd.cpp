@@ -1988,9 +1988,16 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   for (i = 0; i < numscsi; i++) {
-    scsi_device * scsidev = get_scsi_device(scsinames[i], type);
-    if (scsidev)
-      devlist.add(scsidev);
+    if(!*type) { // try USB autodetection if no type specified
+      smart_device * smartdev = autodetect_smart_device(scsinames[i]);
+      if(smartdev)
+        devlist.add(smartdev);
+    }
+    else {
+      scsi_device * scsidev = get_scsi_device(scsinames[i], type);
+      if (scsidev)
+        devlist.add(scsidev);
+    }
   }
   return true;
 }
