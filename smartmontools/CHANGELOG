@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2916 2009-09-19 12:46:26Z chrfranke $
+$Id: CHANGELOG 2917 2009-09-20 11:46:55Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] FreeBSD: Add USB autodetection to smartd DEVICESCAN directive.
 
   [CF] Add USB ID of Myson Century CS8818, add some comments.
 

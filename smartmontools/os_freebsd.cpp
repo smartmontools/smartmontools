@@ -66,9 +66,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2917 2009-09-20 11:46:55Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2917 2009-09-20 11:46:55Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -134,7 +134,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2917 2009-09-20 11:46:55Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1988,9 +1988,16 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   for (i = 0; i < numscsi; i++) {
-    scsi_device * scsidev = get_scsi_device(scsinames[i], type);
-    if (scsidev)
-      devlist.add(scsidev);
+    if(!*type) { // try USB autodetection if no type specified
+      smart_device * smartdev = autodetect_smart_device(scsinames[i]);
+      if(smartdev)
+        devlist.add(smartdev);
+    }
+    else {
+      scsi_device * scsidev = get_scsi_device(scsinames[i], type);
+      if (scsidev)
+        devlist.add(scsidev);
+    }
   }
   return true;
 }
