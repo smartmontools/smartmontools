@@ -73,9 +73,9 @@
 #define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS  0x10  // CCISS controller 
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2919 2009-09-20 12:11:22Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2920 2009-09-20 12:22:41Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2919 2009-09-20 12:11:22Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2920 2009-09-20 12:22:41Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -141,7 +141,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2919 2009-09-20 12:11:22Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2920 2009-09-20 12:22:41Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -582,8 +582,8 @@ bool freebsd_smart_device::close()
     free(fdchan);
     devicetable[fd]=NULL;
   }
-
-  return failed;
+  if(failed) return false;
+  else return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
