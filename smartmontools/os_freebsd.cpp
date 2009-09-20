@@ -582,8 +582,8 @@ bool freebsd_smart_device::close()
     free(fdchan);
     devicetable[fd]=NULL;
   }
-
-  return failed;
+  if(failed) return false;
+  else return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
