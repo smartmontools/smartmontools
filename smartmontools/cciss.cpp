@@ -19,6 +19,10 @@
 #  include <sys/endian.h>
 #  include <dev/ciss/cissio.h>
 #  define _HAVE_CCISS
+#elif defined(__FreeBSD_kernel__) && defined(HAVE_DEV_CISS_CISSIO_H)
+#  include <endian.h>
+#  include <dev/ciss/cissio.h>
+#  define _HAVE_CCISS
 #endif
 
 #ifdef _HAVE_CCISS
