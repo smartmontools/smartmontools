@@ -394,7 +394,9 @@ inclusive) denotes which disk on the controller is monitored.  In log
 files and email messages this disk will be identified as cciss_disk_XX
 with XX in the range from 00 to 15 inclusive.
 
-.B 3ware, MegaRAID, Areca and cciss controllers are currently ONLY supported under Linux.
+.B 3ware and cciss controllers are currently ONLY supported under Linux and FreeBSD.
+
+.B MegaRAID and Areca controllers are currently ONLY supported under Linux.
 
 .I hpt,L/M/N
 \- the device consists of one or more ATA disks connected to a HighPoint

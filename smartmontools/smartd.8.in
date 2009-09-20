@@ -91,8 +91,7 @@ devices that support SMART.  The scanning is done as follows:
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
 devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
 .IP \fBFREEBSD:\fP 9
-Examine all entries \fB"/dev/ad[0-9]+"\fP for IDE/ATA
-devices and \fB"/dev/da[0-9]+"\fP for SCSI devices.
+Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
 .IP \fBNETBSD/OPENBSD:\fP 9
 Authoritative list of disk devices is obtained from sysctl 
 \'hw.disknames\'.
@@ -496,8 +495,7 @@ Under FreeBSD,
 \fBsmartd\fP
 will try to open all existing ATA devices (with entries in /dev)
 .B /dev/ad[0-9]+
-and all existing SCSI devices
-.B /dev/da[0-9]+.  
+and all existing SCSI devices (using CAM subsystem).  
 Under NetBSD/OpenBSD, 
 \fBsmartd\fP
 will try to open all existing ATA devices (with entries in /dev)
