@@ -875,11 +875,12 @@ twenty\-one self\-tests, the log shows the type of test (short or
 extended, off\-line or captive) and the final status of the test.  If
 the test did not complete successfully, then the percentage of the
 test remaining is shown.  The time at which the test took place,
-measured in hours of disk lifetime, is also printed.  If any errors
-were detected, the Logical Block Address (LBA) of the first error is
-printed in decimal notation. On Linux systems the smartmontools
-web page has instructions about how to convert this LBA address to the
-name of the disk file containing the erroneous block.
+measured in hours of disk lifetime, is also printed. [Note: this time
+stamp wraps after 2^16 hours, or 2730 days and 16 hours, or about 7.5
+years.] If any errors were detected, the Logical Block Address (LBA)
+of the first error is printed in decimal notation.  On Linux systems the
+smartmontools web page has instructions about how to convert this LBA
+address to the name of the disk file containing the erroneous block.
 
 .I selftest
 \- [SCSI] the self\-test log for a SCSI device has a slightly different
