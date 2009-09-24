@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2916 2009-09-19 12:46:26Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2923 2009-09-24 20:10:38Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1415,7 +1415,9 @@ const usb_id_entry usb_ids[] = {
   // Verbatim
   { 0x18a5, 0x0215, 0x0001, d_sat     }, // Verbatim FW/USB160 - Oxford OXUF934SSA-LQAG (USB+IEE1394->SATA)
   // SunplusIT
-  { 0x1bcf, 0x0c31,     -1, d_sunplus }  // SunplusIT
+  { 0x1bcf, 0x0c31,     -1, d_sunplus }, // SunplusIT
+  // OnSpec
+  { 0x55aa, 0x2b00, 0x0100, d_unsup   }  // OnSpec ? (USB->PATA)
 };
 
 const unsigned num_usb_ids = sizeof(usb_ids)/sizeof(usb_ids[0]);
