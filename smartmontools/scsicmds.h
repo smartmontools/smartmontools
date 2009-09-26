@@ -32,7 +32,7 @@
 #ifndef SCSICMDS_H_
 #define SCSICMDS_H_
 
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h,v 1.69 2009/06/24 04:10:10 dpgilbert Exp $\n"
+#define SCSICMDS_H_CVSID "$Id$\n"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -273,7 +273,8 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
 
 
 /* SCSI command timeout values (units are seconds) */
-#define SCSI_TIMEOUT_DEFAULT    6               /* 6 seconds should be ample */
+#define SCSI_TIMEOUT_DEFAULT    20  // should be longer than the spin up time
+                                    // of a disk in standby mode.
 #define SCSI_TIMEOUT_SELF_TEST  (5 * 60 * 60)   /* allow max 5 hours for */
                                             /* extended foreground self test */
 

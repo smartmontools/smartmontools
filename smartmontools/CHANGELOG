@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Increase SCSI_TIMEOUT_DEFAULT from 6 to 20 seconds to avoid
+       timeouts when a disk spins up from standby mode.
+
   [CF] Add USB ID of AcomData 504 (OnSpec USB bridge).
 
   [AS] Correcting manual pages (FreeBSD related)
