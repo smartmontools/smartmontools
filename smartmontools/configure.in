@@ -34,8 +34,18 @@ AC_CANONICAL_HOST
 dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
 	*-*-mingw*)
-		CPPFLAGS="$CPPFLAGS -mno-cygwin"
-		LDFLAGS="$LDFLAGS -mno-cygwin"
+		# If building on Cygwin and not cross-compiling add '-mno-cygwin'
+		# to select MinGW gcc. This does no longer work for gcc 4.x.
+		if test "${build}" = "${host}" && test -x /usr/bin/uname && \
+		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
+		  if $CC  -v -mno-cygwin >/dev/null 2>&1 && \
+		     $CXX -v -mno-cygwin >/dev/null 2>&1; then
+		    CPPFLAGS="$CPPFLAGS -mno-cygwin"
+		    LDFLAGS="$LDFLAGS -mno-cygwin"
+		  else
+		    AC_MSG_ERROR([$CC and $CXX do not support -mno-cygwin, see INSTALL file for details.])
+		  fi
+		fi
 		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
 		;;
 	*-*-freebsd*)

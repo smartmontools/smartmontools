@@ -434,15 +434,31 @@ Same as Red Hat:
   instead. This is not necessary for the generated ./configure script.
 
 [10] Guidelines for Windows
-==========================
+===========================
 
-To compile the Windows release with MinGW, use the following on Cygwin:
+To compile the Windows release with MinGW gcc on MSYS, use:
 
-  ./configure --build=mingw32
+  ./configure
   make
 
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
+
+To compile with MinGW gcc 3.x on Cygwin, use:
+
+  ./configure --build=i686-pc-mingw32
+
+  The above does not work if gcc 4.x is installed and selected as
+  default by /usr/sbin/alternatives.  If the configure command aborts
+  with error message '... does not support -mno-cygwin', select
+  gcc 3.x by:
+
+  CC=gcc-3 CXX=g++-3 ./configure --build=i686-pc-mingw32
+
+  Alternatively, a MinGW-targeted cross-compiler can be used if available:
+
+  ./configure --build=i686-pc-cygwin --host=i686-pc-mingw32
+
 
 To build the Windows binary distribution, use:
 

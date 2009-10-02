@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Check support of gcc '-mno-cygwin' option in configure.
+       This option has been removed in Cygwin gcc 4.x.  Update INSTALL
+       instructions accordingly.
+
   [CF] Increase SCSI_TIMEOUT_DEFAULT from 6 to 20 seconds to avoid
        timeouts when a disk spins up from standby mode.
 
