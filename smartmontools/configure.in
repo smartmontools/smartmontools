@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 2890 2009-09-03 14:47:38Z samm2 $
+# $Id: configure.in 2925 2009-10-02 20:45:54Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in 2890 2009-09-03 14:47:38Z samm2 $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 2925 2009-10-02 20:45:54Z chrfranke $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -34,8 +34,18 @@ AC_CANONICAL_HOST
 dnl Set flags which may affect AC_CHECK_*.
 case "${host}" in
 	*-*-mingw*)
-		CPPFLAGS="$CPPFLAGS -mno-cygwin"
-		LDFLAGS="$LDFLAGS -mno-cygwin"
+		# If building on Cygwin and not cross-compiling add '-mno-cygwin'
+		# to select MinGW gcc. This does no longer work for gcc 4.x.
+		if test "${build}" = "${host}" && test -x /usr/bin/uname && \
+		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
+		  if $CC  -v -mno-cygwin >/dev/null 2>&1 && \
+		     $CXX -v -mno-cygwin >/dev/null 2>&1; then
+		    CPPFLAGS="$CPPFLAGS -mno-cygwin"
+		    LDFLAGS="$LDFLAGS -mno-cygwin"
+		  else
+		    AC_MSG_ERROR([$CC and $CXX do not support -mno-cygwin, see INSTALL file for details.])
+		  fi
+		fi
 		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
 		;;
 	*-*-freebsd*)
