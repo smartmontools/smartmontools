@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2927 2009-10-03 16:08:34Z chrfranke $
+$Id: CHANGELOG 2928 2009-10-03 16:24:53Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add names for attributes 184 and 188, see ticket #17.
 
   [CF] configure.in: Change configure date syntax.
        Add message to '-mno-cygwin' option check.
