@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2872 2009-08-08 19:54:28Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2926 2009-10-03 08:13:07Z geoffk1 $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -1985,6 +1985,15 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
   case 13:
     name="Read_Soft_Error_Rate";
     break;
+  case 175:
+    name="Program_Fail_Count_Chip";
+    break;
+  case 176:
+    name="Erase_Fail_Count_Chip";
+    break;
+  case 177:
+    name="Wear_Leveling_Count";
+    break;
   case 178:
     name="Used_Rsvd_Blk_Cnt_Chip";
     break;
@@ -1993,6 +2002,12 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     break;
   case 180:
     name="Unused_Rsvd_Blk_Cnt_Tot";
+    break;
+  case 181:
+    name="Program_Fail_Cnt_Total";
+    break;
+  case 182:
+    name="Erase_Fail_Count_Total";
     break;
   case 183:
     name="Runtime_Bad_Block";
