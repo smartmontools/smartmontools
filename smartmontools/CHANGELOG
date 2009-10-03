@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Change configure date syntax.
+       Add message to '-mno-cygwin' option check.
+
   [GK] Add names for some attributes used in MLC flash drives:
        175, 176, 177, 181, 182
 
