@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [GK] Add names for some attributes used in MLC flash drives:
+       175, 176, 177, 181, 182
+
   [CF] Windows: Check support of gcc '-mno-cygwin' option in configure.
        This option has been removed in Cygwin gcc 4.x.  Update INSTALL
        instructions accordingly.
