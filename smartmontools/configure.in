@@ -1,13 +1,13 @@
 #
-# $Id: configure.in 2925 2009-10-02 20:45:54Z chrfranke $
+# $Id: configure.in 2927 2009-10-03 16:08:34Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
 AC_INIT(smartmontools, 5.39, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
-smartmontools_configure_date=`date -u +"%Y/%m/%d %T %Z"`
-smartmontools_cvs_tag=`echo '$Id: configure.in 2925 2009-10-02 20:45:54Z chrfranke $'`
+smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 2927 2009-10-03 16:08:34Z chrfranke $'`
 smartmontools_release_date=2008/03/10
 smartmontools_release_time="10:44:07 GMT"
 
@@ -38,13 +38,18 @@ case "${host}" in
 		# to select MinGW gcc. This does no longer work for gcc 4.x.
 		if test "${build}" = "${host}" && test -x /usr/bin/uname && \
 		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
+		  AC_MSG_CHECKING([whether C and C++ compiler support -mno-cygwin])
+		  gcc_support_m_no_cygwin=no
 		  if $CC  -v -mno-cygwin >/dev/null 2>&1 && \
 		     $CXX -v -mno-cygwin >/dev/null 2>&1; then
-		    CPPFLAGS="$CPPFLAGS -mno-cygwin"
-		    LDFLAGS="$LDFLAGS -mno-cygwin"
-		  else
+		    gcc_support_m_no_cygwin=yes
+		  fi
+		  AC_MSG_RESULT([$gcc_support_m_no_cygwin])
+		  if test "$gcc_support_m_no_cygwin" != "yes"; then
 		    AC_MSG_ERROR([$CC and $CXX do not support -mno-cygwin, see INSTALL file for details.])
 		  fi
+		  CPPFLAGS="$CPPFLAGS -mno-cygwin"
+		  LDFLAGS="$LDFLAGS -mno-cygwin"
 		fi
 		CPPFLAGS="$CPPFLAGS -idirafter ${srcdir}/posix -idirafter ${srcdir}/os_win32"
 		;;
