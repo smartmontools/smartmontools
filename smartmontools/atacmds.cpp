@@ -2012,8 +2012,14 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
   case 183:
     name="Runtime_Bad_Block";
     break;
+  case 184:
+    name="End-to-End_Error";
+    break;
   case 187:
     name="Reported_Uncorrect";
+    break;
+  case 188:
+    name="Command_Timeout";
     break;
   case 189:
     name="High_Fly_Writes";

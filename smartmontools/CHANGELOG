@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add names for attributes 184 and 188, see ticket #17.
+
   [CF] configure.in: Change configure date syntax.
        Add message to '-mno-cygwin' option check.
 
