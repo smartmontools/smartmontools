@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: do not open/close cam device on every request for SCSI 
+       disks. Use com->camdev both for SCSI and ATAPICAM.
+  
   [AS] FreeBSD: added support for the ada disks, based on agapon patch
 
   [CF] Add names for attributes 184 and 188, see ticket #17.

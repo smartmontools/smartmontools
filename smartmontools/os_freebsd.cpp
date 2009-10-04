@@ -65,14 +65,14 @@
 #endif
 
 #define CONTROLLER_UNKNOWN              0x00
-#define CONTROLLER_ATA                  0x01
-#define CONTROLLER_SCSI                 0x02
+#define CONTROLLER_ATA                  0x01  // ATA/IDE/SATA
+#define CONTROLLER_SCSI                 0x02  // SCSI
 #define CONTROLLER_3WARE_678K           0x03  // NOT set by guess_device_type()
 #define CONTROLLER_3WARE_9000_CHAR      0x04  // set by guess_device_type()
 #define CONTROLLER_3WARE_678K_CHAR      0x05  // set by guess_device_type()
 #define CONTROLLER_HPT                  0x06  // SATA drives behind HighPoint Raid controllers
 #define CONTROLLER_CCISS                0x07  // CCISS controller 
-#define CONTROLLER_ATACAM               0x08
+#define CONTROLLER_ATACAM               0x08  // AHCI SATA controller
 
 static __unused const char *filenameandversion="$Id$";
 
@@ -498,7 +498,7 @@ bool freebsd_smart_device::open()
       return false;
     }
   }
-  if (parse_ok == CONTROLLER_ATACAM) {
+  if (parse_ok == CONTROLLER_ATACAM || parse_ok == CONTROLLER_SCSI) {
     if ((fdchan->camdev = ::cam_open_device(dev,O_RDWR)) == NULL) {
       perror("cam_open_device");
       free(fdchan);
@@ -553,11 +553,6 @@ bool freebsd_smart_device::open()
       errno = myerror;
       return false;
     }
-  }
-
-  if (parse_ok == CONTROLLER_SCSI) {
-    // this is really a NO-OP, as the parse takes care
-    // of filling in correct details
   }
 
   // return pointer to "file descriptor" table entry, properly offset.
@@ -1406,7 +1401,6 @@ freebsd_scsi_device::freebsd_scsi_device(smart_interface * intf,
 int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
   struct freebsd_dev_channel* con = NULL;
-  struct cam_device* cam_dev = NULL;
   union ccb *ccb;
 
   if (report > 0) {
@@ -1434,13 +1428,12 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   if (isnotopen(&fd,&con))
     return -ENOTTY;
 
-
-  if (!(cam_dev = cam_open_spec_device(con->devname,con->unitnum,O_RDWR,NULL))) {
-    warnx("%s",cam_errbuf);
-    return -EIO;
+  if(con->camdev==NULL) {
+    warnx("error: con->camdev=0!");
+    return -ENOTTY;
   }
 
-  if (!(ccb = cam_getccb(cam_dev))) {
+  if (!(ccb = cam_getccb(con->camdev))) {
     warnx("error allocating ccb");
     return -ENOMEM;
   }
@@ -1461,10 +1454,10 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     /* timout (converted to seconds) */ iop->timeout*1000);
   memcpy(ccb->csio.cdb_io.cdb_bytes,iop->cmnd,iop->cmnd_len);
 
-  if (cam_send_ccb(cam_dev,ccb) < 0) {
+  if (cam_send_ccb(con->camdev,ccb) < 0) {
     warn("error sending SCSI ccb");
 #if (FREEBSDVER > 500000)
-    cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+    cam_error_print(con->camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
 #endif
     cam_freeccb(ccb);
     return -EIO;
@@ -1472,7 +1465,7 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 
   if (((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) && ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_SCSI_STATUS_ERROR)) {
 #if (FREEBSDVER > 500000)
-    cam_error_print(cam_dev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
+    cam_error_print(con->camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
 #endif
     cam_freeccb(ccb);
     return -EIO;
@@ -1486,9 +1479,6 @@ int do_normal_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
   iop->scsi_status = ccb->csio.scsi_status;
 
   cam_freeccb(ccb);
-
-  if (cam_dev)
-    cam_close_device(cam_dev);
 
   if (report > 0) {
     int trunc;
