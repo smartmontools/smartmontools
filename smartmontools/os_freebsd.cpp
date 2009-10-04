@@ -67,11 +67,12 @@
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
-#define CONTROLLER_3WARE_678K           0x04  // NOT set by guess_device_type()
-#define CONTROLLER_3WARE_9000_CHAR      0x05  // set by guess_device_type()
-#define CONTROLLER_3WARE_678K_CHAR      0x06  // set by guess_device_type()
-#define CONTROLLER_HPT                  0x09  // SATA drives behind HighPoint Raid controllers
-#define CONTROLLER_CCISS  0x10  // CCISS controller 
+#define CONTROLLER_3WARE_678K           0x03  // NOT set by guess_device_type()
+#define CONTROLLER_3WARE_9000_CHAR      0x04  // set by guess_device_type()
+#define CONTROLLER_3WARE_678K_CHAR      0x05  // set by guess_device_type()
+#define CONTROLLER_HPT                  0x06  // SATA drives behind HighPoint Raid controllers
+#define CONTROLLER_CCISS                0x07  // CCISS controller 
+#define CONTROLLER_ATACAM               0x08
 
 static __unused const char *filenameandversion="$Id$";
 
@@ -315,6 +316,7 @@ static int get_ata_channel_unit ( const char* name, int* unit, int* dev) {
 // osst, nosst and sg.
 static const char * fbsd_dev_prefix = _PATH_DEV;
 static const char * fbsd_dev_ata_disk_prefix = "ad";
+static const char * fbsd_dev_atacam_disk_prefix = "ada";
 static const char * fbsd_dev_scsi_disk_plus = "da";
 static const char * fbsd_dev_scsi_pass = "pass";
 static const char * fbsd_dev_scsi_tape1 = "sa";
@@ -332,6 +334,7 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
   // No Autodetection if device type was specified by user
   if (*type){
     if(!strcmp(type,"ata")) return CONTROLLER_ATA;
+    if(!strcmp(type,"atacam")) return CONTROLLER_ATACAM;
     if(!strcmp(type,"cciss")) return CONTROLLER_CCISS;
     if(!strcmp(type,"scsi") || !strcmp(type,"sat")) goto handlescsi;
     if(!strcmp(type,"3ware")){
@@ -354,6 +357,13 @@ int parse_ata_chan_dev(const char * dev_name, struct freebsd_dev_channel *chan, 
     // else advance pointer to following characters
     dev_name += dev_prefix_len;
   }
+
+  // form /dev/ada* or ada*
+  if (!strncmp(fbsd_dev_atacam_disk_prefix, dev_name,
+               strlen(fbsd_dev_atacam_disk_prefix))) {
+    return CONTROLLER_ATACAM;
+  }
+
   // form /dev/ad* or ad*
   if (!strncmp(fbsd_dev_ata_disk_prefix, dev_name,
     strlen(fbsd_dev_ata_disk_prefix))) {
@@ -488,6 +498,14 @@ bool freebsd_smart_device::open()
       return false;
     }
   }
+  if (parse_ok == CONTROLLER_ATACAM) {
+    if ((fdchan->camdev = ::cam_open_device(dev,O_RDWR)) == NULL) {
+      perror("cam_open_device");
+      free(fdchan);
+      errno = ENOENT;
+      return false;
+    }
+  }
 
   if (parse_ok == CONTROLLER_3WARE_678K_CHAR) {
     char buf[512];
@@ -575,6 +593,9 @@ bool freebsd_smart_device::close()
     failed=::close(fdchan->atacommand);
 #endif
 
+  if (fdchan->camdev != NULL)
+    cam_close_device(fdchan->camdev);
+
   // if close succeeded, then remove from device list
   // Eduard, should we also remove it from list if close() fails?  I'm
   // not sure. Here I only remove it from list if close() worked.
@@ -602,6 +623,10 @@ public:
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
+
+  #ifdef IOCATAREQUEST
+	virtual int do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_request* request);
+  #endif
 };
 
 freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
@@ -609,6 +634,72 @@ freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_
   freebsd_smart_device("ATA")
 {
 }
+
+int freebsd_ata_device::do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_request* request)
+{
+  return ioctl(con->device, IOCATAREQUEST, request);
+}
+
+#if __FreeBSD_version > 800100
+class freebsd_atacam_device : public freebsd_ata_device
+{
+public:
+  freebsd_atacam_device(smart_interface * intf, const char * dev_name, const char * req_type)
+  : smart_device(intf, dev_name, "atacam", req_type), freebsd_ata_device(intf, dev_name, req_type)
+  {}
+
+protected:
+	virtual int do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_request* request);
+};
+
+int freebsd_atacam_device::do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_request* request)
+{
+  union ccb ccb;
+  int camflags;
+
+  memset(&ccb, 0, sizeof(ccb));
+
+  if (request->count == 0)
+    camflags = CAM_DIR_NONE;
+  else if (request->flags == ATA_CMD_READ)
+    camflags = CAM_DIR_IN;
+  else
+    camflags = CAM_DIR_OUT;
+
+  cam_fill_ataio(&ccb.ataio,
+                 0,
+                 NULL,
+                 camflags,
+                 MSG_SIMPLE_Q_TAG,
+                 (u_int8_t*)request->data,
+                 request->count,
+                 request->timeout);
+
+  // ata_28bit_cmd
+  ccb.ataio.cmd.flags = 0;
+  ccb.ataio.cmd.command = request->u.ata.command;
+  ccb.ataio.cmd.features = request->u.ata.feature;
+  ccb.ataio.cmd.lba_low = request->u.ata.lba;
+  ccb.ataio.cmd.lba_mid = request->u.ata.lba >> 8;
+  ccb.ataio.cmd.lba_high = request->u.ata.lba >> 16;
+  ccb.ataio.cmd.device = 0x40 | ((request->u.ata.lba >> 24) & 0x0f);
+  ccb.ataio.cmd.sector_count = request->u.ata.count;
+
+  ccb.ccb_h.flags |= CAM_DEV_QFRZDIS;
+
+  if (cam_send_ccb(con->camdev, &ccb) < 0) {
+    err(1, "cam_send_ccb");
+    return -1;
+  }
+
+  if ((ccb.ccb_h.status & CAM_STATUS_MASK) == CAM_REQ_CMP)
+    return 0;
+
+  cam_error_print(con->camdev, &ccb, CAM_ESF_ALL, CAM_EPF_ALL, stderr);
+  return -1;
+}
+
+#endif
 
 int freebsd_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
 {
@@ -754,7 +845,7 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
   unsigned char low,high;
 
 #ifdef IOCATAREQUEST
-  if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
+  if ((retval=do_cmd(con, &request)) || request.error)
 #else
   if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
 #endif
@@ -790,7 +881,7 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
  }
 
 #ifdef IOCATAREQUEST
- if ((retval=ioctl(con->device, IOCATAREQUEST, &request)) || request.error)
+ if ((retval=do_cmd(con, &request)) || request.error)
 #else
  if ((retval=ioctl(con->atacommand, IOCATA, &iocmd)) || request.error)
 #endif
@@ -1583,6 +1674,8 @@ public:
 protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
 
+  virtual ata_device * get_atacam_device(const char * name, const char * type);
+
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
   virtual smart_device * autodetect_smart_device(const char * name);
@@ -1612,6 +1705,11 @@ std::string freebsd_smart_interface::get_app_examples(const char * appname)
 ata_device * freebsd_smart_interface::get_ata_device(const char * name, const char * type)
 {
   return new freebsd_ata_device(this, name, type);
+}
+
+ata_device * freebsd_smart_interface::get_atacam_device(const char * name, const char * type)
+{
+  return new freebsd_atacam_device(this, name, type);
 }
 
 scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const char * type)
@@ -2176,6 +2274,8 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   switch (guess) {
   case CONTROLLER_ATA : 
     return new freebsd_ata_device(this, name, "");
+  case CONTROLLER_ATACAM : 
+    return new freebsd_atacam_device(this, name, "");
   case CONTROLLER_SCSI: 
     // Try to detect possible USB->(S)ATA bridge
     if (get_usb_id(name, vendor_id, product_id, version)) {

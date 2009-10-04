@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: added support for the ada disks, based on agapon patch
+
   [CF] Add names for attributes 184 and 188, see ticket #17.
 
   [CF] configure.in: Change configure date syntax.

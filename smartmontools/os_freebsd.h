@@ -92,6 +92,7 @@ struct freebsd_dev_channel {
 #endif
   char* devname;                // the SCSI device name
   int   unitnum;                // the SCSI unit number
+  struct cam_device *camdev;
 };
 
 #define FREEBSD_MAXDEV 64
