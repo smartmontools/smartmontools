@@ -635,7 +635,7 @@ int freebsd_ata_device::do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_r
   return ioctl(con->device, IOCATAREQUEST, request);
 }
 
-#if __FreeBSD_version > 800100
+#if FREEBSDVER > 800100
 class freebsd_atacam_device : public freebsd_ata_device
 {
 public:
