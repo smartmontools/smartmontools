@@ -74,9 +74,9 @@
 #define CONTROLLER_CCISS                0x07  // CCISS controller 
 #define CONTROLLER_ATACAM               0x08  // AHCI SATA controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2930 2009-10-04 10:43:08Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2931 2009-10-04 11:26:55Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2930 2009-10-04 10:43:08Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2931 2009-10-04 11:26:55Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -142,7 +142,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2930 2009-10-04 10:43:08Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2931 2009-10-04 11:26:55Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -635,7 +635,7 @@ int freebsd_ata_device::do_cmd(struct freebsd_dev_channel* con, struct ata_ioc_r
   return ioctl(con->device, IOCATAREQUEST, request);
 }
 
-#if __FreeBSD_version > 800100
+#if FREEBSDVER > 800100
 class freebsd_atacam_device : public freebsd_ata_device
 {
 public:
