@@ -1730,7 +1730,6 @@ cam_get_umassno(char * devname) {
 	}
   else {
     // now check if we are working with USB device, see umass.c
-    printf("n=%s\n",ccb.cpi.dev_name);
     if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) 
       bus=ccb.cpi.unit_number; // unit_number will match umass number
   }
