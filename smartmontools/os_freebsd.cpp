@@ -74,9 +74,9 @@
 #define CONTROLLER_CCISS                0x07  // CCISS controller 
 #define CONTROLLER_ATACAM               0x08  // AHCI SATA controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2932 2009-10-05 15:53:07Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2933 2009-10-05 16:10:07Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2932 2009-10-05 15:53:07Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2933 2009-10-05 16:10:07Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -142,7 +142,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2932 2009-10-05 15:53:07Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2933 2009-10-05 16:10:07Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1730,10 +1730,9 @@ cam_get_umassno(char * devname) {
 	}
   else {
     // now check if we are working with USB device, see umass.c
-    if(strcmp(ccb.cpi.sim_vid,"FreeBSD") == 0 
-      && strcmp(ccb.cpi.hba_vid,"USB SCSI")==0) {
-      bus=ccb.cpi.bus_id; // bus_id will match umass number
-    }
+    printf("n=%s\n",ccb.cpi.dev_name);
+    if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) 
+      bus=ccb.cpi.unit_number; // unit_number will match umass number
   }
   // close cam device, we don`t need it anymore
   cam_close_device(cam_dev);
