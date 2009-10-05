@@ -74,9 +74,9 @@
 #define CONTROLLER_CCISS                0x07  // CCISS controller 
 #define CONTROLLER_ATACAM               0x08  // AHCI SATA controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2936 2009-10-05 18:30:26Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2936 2009-10-05 18:30:26Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -142,7 +142,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2936 2009-10-05 18:30:26Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1707,38 +1707,6 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
   return new freebsd_scsi_device(this, name, type);
 }
 
-static int 
-cam_get_umassno(const char * devname) {
-  struct cam_device *cam_dev;
-  union ccb ccb;
-  int bus=-1;
-  
-  // open CAM device 
-  if ((cam_dev = cam_open_device(devname,O_RDWR)) == NULL) {
-    // open failue
-    perror("cam_open_device");
-    return -1;
-  }
-  
-  // zero the payload
-  bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
-  ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
-  if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
-		warn("Get Transfer Settings CCB failed\n"
-			"%s", strerror(errno));
-    bus=-1;
-	}
-  else {
-    // now check if we are working with USB device, see umass.c
-    if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) 
-      bus=ccb.cpi.unit_number; // unit_number will match umass number
-  }
-  // close cam device, we don`t need it anymore
-  cam_close_device(cam_dev);
-  return bus;
-}
-
-
 // we are using CAM subsystem XPT enumerator to found all CAM (scsi/usb/ada/...)
 // devices on system despite of it's names
 //
@@ -1762,7 +1730,7 @@ int get_dev_names_cam(char*** names) {
   // in case of non-clean exit
   *names=NULL;
   ccb.cdm.matches = NULL;
-
+ 
   if ((fd = open(XPT_DEVICE, O_RDWR)) == -1) {
     if (errno == ENOENT) /* There are no CAM device on this computer */
       return 0;
@@ -2172,41 +2140,56 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 #endif
 }
 
-// Get USB bridge ID for the CAM device
-static bool get_usb_id(const char * path, unsigned short & vendor_id,
-  unsigned short & product_id, unsigned short & version)
-{
-  int bus = cam_get_umassno(path);
-
-  if (bus == -1) 
-    return false;
-  // getting product/vendor for the device on bus
-  usbdevlist(bus,vendor_id, product_id, version);
-  return true;
-}
-
-
 smart_device * freebsd_smart_interface::autodetect_smart_device(const char * name)
 {
   int guess = parse_ata_chan_dev(name,NULL,"");
   unsigned short vendor_id = 0, product_id = 0, version = 0;
-
+  struct cam_device *cam_dev;
+  union ccb ccb;
+  int bus=-1;
+  
   switch (guess) {
   case CONTROLLER_ATA : 
     return new freebsd_ata_device(this, name, "");
   case CONTROLLER_ATACAM : 
     return new freebsd_atacam_device(this, name, "");
   case CONTROLLER_SCSI: 
-    // Try to detect possible USB->(S)ATA bridge
-    if (get_usb_id(name, vendor_id, product_id, version)) {
-      const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
-      if (!usbtype)
-        return 0;
-      // Return SAT/USB device for this type
-      // (Note: freebsd_scsi_device::autodetect_open() will not be called in this case)
-      return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+    // CAM device type, could be USB/ADA/SCSI
+    // open CAM device 
+    if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
+      // open failue
+      perror("cam_open_device");
+      return 0;
     }
-    // non usb device, handle as normal scsi
+    // zero the payload
+    bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
+    ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
+    if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
+      warn("Get Transfer Settings CCB failed\n"
+        "%s", strerror(errno));
+      cam_close_device(cam_dev);
+      return 0;
+    }
+    // now check if we are working with USB device, see umass.c
+    if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) { // USB device found
+      usbdevlist(bus,vendor_id, product_id, version);
+      int bus=ccb.cpi.unit_number; // unit_number will match umass number
+      cam_close_device(cam_dev);
+      if(usbdevlist(bus,vendor_id, product_id, version)){
+        const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
+        if (!usbtype)
+          return 0;
+        return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+      }
+    }
+    // check if we have ATA device connected to CAM (ada)
+    if(ccb.cpi.protocol == PROTO_ATA){
+      cam_close_device(cam_dev);
+      return new freebsd_atacam_device(this, name, "");
+    }
+    // close cam device, we don`t need it anymore
+    cam_close_device(cam_dev);
+    // handle as normal scsi
     return new freebsd_scsi_device(this, name, "");
   case CONTROLLER_CCISS:
     // device - cciss, but no ID known
