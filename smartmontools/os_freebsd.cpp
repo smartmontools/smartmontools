@@ -1730,10 +1730,9 @@ cam_get_umassno(char * devname) {
 	}
   else {
     // now check if we are working with USB device, see umass.c
-    if(strcmp(ccb.cpi.sim_vid,"FreeBSD") == 0 
-      && strcmp(ccb.cpi.hba_vid,"USB SCSI")==0) {
-      bus=ccb.cpi.bus_id; // bus_id will match umass number
-    }
+    printf("n=%s\n",ccb.cpi.dev_name);
+    if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) 
+      bus=ccb.cpi.unit_number; // unit_number will match umass number
   }
   // close cam device, we don`t need it anymore
   cam_close_device(cam_dev);
