@@ -1708,102 +1708,36 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
 }
 
 static int 
-cam_getumassno(char * devname) {
+cam_get_umassno(char * devname) {
+  struct cam_device *cam_dev;
   union ccb ccb;
-  int bufsize, fd;
-  unsigned int i;
-  int error = -1;
-  char devstring[256];
-
-  if ((fd = open(XPT_DEVICE, O_RDWR)) == -1) {
-    warn("couldn't open %s", XPT_DEVICE);
-    return(1);
+  int bus=-1;
+  
+  // open CAM device 
+  if ((cam_dev = cam_open_device(devname,O_RDWR)) == NULL) {
+    // open failue
+    perror("cam_open_device");
+    return -1;
   }
-  bzero(&ccb, sizeof(union ccb));
-
-  ccb.ccb_h.path_id = CAM_XPT_PATH_ID;
-  ccb.ccb_h.target_id = CAM_TARGET_WILDCARD;
-  ccb.ccb_h.target_lun = CAM_LUN_WILDCARD;
-  ccb.ccb_h.func_code = XPT_DEV_MATCH;
-  bufsize = sizeof(struct dev_match_result) * 100;
-  ccb.cdm.match_buf_len = bufsize;
-  ccb.cdm.matches = (struct dev_match_result *)malloc(bufsize);
-
-  if (ccb.cdm.matches == NULL) {
-    warnx("can't malloc memory for matches");
-    close(fd);
-    return(1);
+  
+  // zero the payload
+  bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
+  ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
+  if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
+		warn("Get Transfer Settings CCB failed\n"
+			"%s", strerror(errno));
+    bus=-1;
+	}
+  else {
+    // now check if we are working with USB device, see umass.c
+    if(strcmp(ccb.cpi.sim_vid,"FreeBSD") == 0 
+      && strcmp(ccb.cpi.hba_vid,"USB SCSI")==0) {
+      bus=ccb.cpi.bus_id; // bus_id will match umass number
+    }
   }
-  ccb.cdm.num_matches = 0;
-  /*
-  * We fetch all nodes, since we display most of them in the default
-  * case, and all in the verbose case.
-  */
-  ccb.cdm.num_patterns = 0;
-  ccb.cdm.pattern_buf_len = 0;
-  /*
-  * We do the ioctl multiple times if necessary, in case there are
-  * more than 100 nodes in the EDT.
-  */
-
-  do {
-    if (ioctl(fd, CAMIOCOMMAND, &ccb) == -1) {
-      warn("error sending CAMIOCOMMAND ioctl");
-      error = -1;
-      break;
-    }
-    if ((ccb.ccb_h.status != CAM_REQ_CMP)
-      || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
-        && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) 
-    {
-      warnx("got CAM error %#x, CDM error %d\n",
-        ccb.ccb_h.status, ccb.cdm.status);
-      error = -1;
-      break;
-    }
-
-    struct bus_match_result *bus_result = 0;
-    for (i = 0; i < ccb.cdm.num_matches; i++) {
-      switch (ccb.cdm.matches[i].type) {
-      case DEV_MATCH_BUS: {
-          // struct bus_match_result *bus_result;
-          bus_result =
-          &ccb.cdm.matches[i].result.bus_result;
-          break;
-      }
-    case DEV_MATCH_DEVICE:   {
-        /* we are not interested in device name */
-        break;
-      }
-    case DEV_MATCH_PERIPH: {
-        struct periph_match_result *periph_result;
-
-        periph_result =
-        &ccb.cdm.matches[i].result.periph_result;
-
-        snprintf(devstring,sizeof(devstring),"%s%d",periph_result->periph_name,periph_result->unit_number);
-        if(strcmp(devstring,devname)==0){ /* found our device */
-          if(strcmp(bus_result->dev_name,"umass-sim")) {
-            close(fd);
-            return -1; /* non usb device found, giving up */
-          }
-          /* return bus number */
-          return  bus_result->unit_number;
-        }
-        break;
-    }
-
-  default:
-    fprintf(stdout, "WARN: unknown match type\n");
-    break;
-      }
-    }
-  } while ((ccb.ccb_h.status == CAM_REQ_CMP)
-    && (ccb.cdm.status == CAM_DEV_MATCH_MORE));
-
-  close(fd);
-  free(ccb.cdm.matches);
-  return(error); /* no device found */
+  // close cam device, we don`t need it anymore
+  cam_close_device(cam_dev);
+  return bus;
 }
 
 
@@ -2240,13 +2174,13 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 #endif
 }
 
-// Get USB bridge ID for "/dev/daX"
+// Get USB bridge ID for the CAM device
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
   unsigned short & product_id, unsigned short & version)
 {
   if (strlen(path) < 5)
     return false;
-  int bus = cam_getumassno((char *)path+5);
+  int bus = cam_get_umassno((char *)path+5);
   if (bus == -1) 
     return false;
 
