@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2930 2009-10-04 10:43:08Z samm2 $
+$Id: CHANGELOG 2932 2009-10-05 15:53:07Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -43,9 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: cam_get_umassno rewritten using XPT_PATH_INQ
+
   [AS] FreeBSD: do not open/close cam device on every request for SCSI 
        disks. Use com->camdev both for SCSI and ATAPICAM.
-  
+
   [AS] FreeBSD: added support for the ada disks, based on agapon patch
 
   [CF] Add names for attributes 184 and 188, see ticket #17.
