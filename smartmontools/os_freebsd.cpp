@@ -1708,7 +1708,7 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
 }
 
 static int 
-cam_get_umassno(char * devname) {
+cam_get_umassno(const char * devname) {
   struct cam_device *cam_dev;
   union ccb ccb;
   int bus=-1;
@@ -2176,14 +2176,12 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
   unsigned short & product_id, unsigned short & version)
 {
-  if (strlen(path) < 5)
-    return false;
-  int bus = cam_get_umassno((char *)path+5);
+  int bus = cam_get_umassno(path);
+
   if (bus == -1) 
     return false;
-
-  usbdevlist(bus,vendor_id,
-    product_id, version);
+  // getting product/vendor for the device on bus
+  usbdevlist(bus,vendor_id, product_id, version);
   return true;
 }
 
