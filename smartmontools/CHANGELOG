@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: Added autodetection for the ada disks (untested).
+       Code for USB device detection refactored.
+
   [AS] FreeBSD: cam_get_umassno rewritten using XPT_PATH_INQ
 
   [AS] FreeBSD: do not open/close cam device on every request for SCSI 
