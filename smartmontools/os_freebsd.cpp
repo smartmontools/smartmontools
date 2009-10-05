@@ -74,9 +74,9 @@
 #define CONTROLLER_CCISS                0x07  // CCISS controller 
 #define CONTROLLER_ATACAM               0x08  // AHCI SATA controller
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2934 2009-10-05 16:13:35Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2934 2009-10-05 16:13:35Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -142,7 +142,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2934 2009-10-05 16:13:35Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2935 2009-10-05 16:33:03Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1708,7 +1708,7 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
 }
 
 static int 
-cam_get_umassno(char * devname) {
+cam_get_umassno(const char * devname) {
   struct cam_device *cam_dev;
   union ccb ccb;
   int bus=-1;
@@ -2176,14 +2176,12 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
 static bool get_usb_id(const char * path, unsigned short & vendor_id,
   unsigned short & product_id, unsigned short & version)
 {
-  if (strlen(path) < 5)
-    return false;
-  int bus = cam_get_umassno((char *)path+5);
+  int bus = cam_get_umassno(path);
+
   if (bus == -1) 
     return false;
-
-  usbdevlist(bus,vendor_id,
-    product_id, version);
+  // getting product/vendor for the device on bus
+  usbdevlist(bus,vendor_id, product_id, version);
   return true;
 }
 
