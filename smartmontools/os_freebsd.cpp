@@ -1425,7 +1425,7 @@ int get_dev_names_cam(char*** names, bool show_all) {
         //        /* Shall we skip non T_DIRECT devices ? */
         //        if (dev_result->inq_data.device != T_DIRECT)
         //          skip_device = 1;
-        changed = 0;
+        changed = 1;
       } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && skip_device == 0) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
         * We are searching for latest name
@@ -1765,65 +1765,68 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   // check ATA bus
   char * * atanames = 0; int numata = 0;
   numata = get_dev_names_ata(&atanames);
-  if (numata < 0) {
-    return false;
-  }
-
-  // check ATA/ATAPI devices
-  for (i = 0; i < numata; i++) {
-    if(!strcmp(atanames[i],name)) {
-      return new freebsd_ata_device(this, name, "");
+  if (numata > 0) {
+    // check ATA/ATAPI devices
+    for (i = 0; i < numata; i++) {
+      if(!strcmp(atanames[i],name)) {
+        return new freebsd_ata_device(this, name, "");
+      }
     }
+  }
+  else {
+    if (numata < 0)
+      pout("Unable to get ATA device list\n");
   }
 
   // check CAM
   char * * scsinames = 0; int numscsi = 0;
   numscsi = get_dev_names_cam(&scsinames, 1);
-  if (numscsi < 0) {
-    return false;
-  }
-  
-  // check all devices on CAM bus
-  for (i = 0; i < numscsi; i++) {
-    if(strcmp(scsinames[i],name)==0)
-    { // our disk device is CAM
-      if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
-        // open failure
-        perror("cam_open_device");
-        return false;
-      }
-      
-      // zero the payload
-      bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
-      ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
-      if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
-        warn("Get Transfer Settings CCB failed\n"
-          "%s", strerror(errno));
-        cam_close_device(cam_dev);
-        return 0;
-      }
-      // now check if we are working with USB device, see umass.c
-      if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) { // USB device found
-        usbdevlist(bus,vendor_id, product_id, version);
-        int bus=ccb.cpi.unit_number; // unit_number will match umass number
-        cam_close_device(cam_dev);
-        if(usbdevlist(bus,vendor_id, product_id, version)){
-          const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
-          if (!usbtype)
-            return false;
-          return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+  if (numscsi > 0) {
+    // check all devices on CAM bus
+    for (i = 0; i < numscsi; i++) {
+      if(strcmp(scsinames[i],name)==0)
+      { // our disk device is CAM
+        if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
+          // open failure
+          perror("cam_open_device");
+          return false;
         }
-      }
-      // check if we have ATA device connected to CAM (ada)
-      if(ccb.cpi.protocol == PROTO_ATA){
+        
+        // zero the payload
+        bzero(&(&ccb.ccb_h)[1], PATHINQ_SETTINGS_SIZE);
+        ccb.ccb_h.func_code = XPT_PATH_INQ; // send PATH_INQ to the device
+        if (ioctl(cam_dev->fd, CAMIOCOMMAND, &ccb) == -1) {
+          warn("Get Transfer Settings CCB failed\n"
+            "%s", strerror(errno));
+          cam_close_device(cam_dev);
+          return 0;
+        }
+        // now check if we are working with USB device, see umass.c
+        if(strcmp(ccb.cpi.dev_name,"umass-sim") == 0) { // USB device found
+          usbdevlist(bus,vendor_id, product_id, version);
+          int bus=ccb.cpi.unit_number; // unit_number will match umass number
+          cam_close_device(cam_dev);
+          if(usbdevlist(bus,vendor_id, product_id, version)){
+            const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
+            if (!usbtype)
+              return false;
+            return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+          }
+        }
+        // check if we have ATA device connected to CAM (ada)
+        if(ccb.cpi.protocol == PROTO_ATA){
+          cam_close_device(cam_dev);
+          return new freebsd_atacam_device(this, name, "");
+        }
+        // close cam device, we don`t need it anymore
         cam_close_device(cam_dev);
-        return new freebsd_atacam_device(this, name, "");
+        // handle as usual scsi
+        return new freebsd_scsi_device(this, name, "");      
       }
-      // close cam device, we don`t need it anymore
-      cam_close_device(cam_dev);
-      // handle as usual scsi
-      return new freebsd_scsi_device(this, name, "");      
     }
+  } // numscsi > 0
+  else {
+    if(numscsi<0) pout("Unable to get CAM device list\n");
   }
   // device type unknown
   return 0;
