@@ -1766,7 +1766,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   char * * atanames = 0; int numata = 0;
   numata = get_dev_names_ata(&atanames);
   if (numata < 0) {
-    set_err(ENOMEM);
     return false;
   }
 
@@ -1781,7 +1780,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   char * * scsinames = 0; int numscsi = 0;
   numscsi = get_dev_names_cam(&scsinames, 1);
   if (numscsi < 0) {
-    set_err(ENOMEM);
     return false;
   }
   
