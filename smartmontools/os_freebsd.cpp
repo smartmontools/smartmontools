@@ -72,9 +72,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2940 2009-10-06 09:27:13Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2940 2009-10-06 09:27:13Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -122,7 +122,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2940 2009-10-06 09:27:13Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1172,12 +1172,11 @@ freebsd_cciss_device::freebsd_cciss_device(smart_interface * intf,
 
 bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int report=con->reportscsiioctl;
-  int fd=get_fd();
-
 #ifdef HAVE_DEV_CISS_CISSIO_H
-  // check that "file descriptor" is valid
-  return cciss_io_interface(fd, m_disknum-1, iop, report);
+  int status = cciss_io_interface(get_fd(), m_disknum, iop, con->reportscsiioctl);
+  if (status < 0)
+      return set_err(-status);
+  return true;
 #else
   {
     static int warned = 0;
