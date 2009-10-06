@@ -1172,12 +1172,11 @@ freebsd_cciss_device::freebsd_cciss_device(smart_interface * intf,
 
 bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
-  int report=con->reportscsiioctl;
-  int fd=get_fd();
-
 #ifdef HAVE_DEV_CISS_CISSIO_H
-  // check that "file descriptor" is valid
-  return cciss_io_interface(fd, m_disknum-1, iop, report);
+  int status = cciss_io_interface(get_fd(), m_disknum, iop, con->reportscsiioctl);
+  if (status < 0)
+      return set_err(-status);
+  return true;
 #else
   {
     static int warned = 0;
