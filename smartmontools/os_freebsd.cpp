@@ -68,6 +68,10 @@
 #define CONTROLLER_3WARE_9000_CHAR      0x02
 #define CONTROLLER_3WARE_678K_CHAR      0x03
 
+#ifndef PATHINQ_SETTINGS_SIZE
+#define PATHINQ_SETTINGS_SIZE   128
+#endif
+
 static __unused const char *filenameandversion="$Id$";
 
 const char *os_XXXX_c_cvsid="$Id$" \
@@ -1270,7 +1274,9 @@ public:
 protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
 
+#if FREEBSDVER > 800100
   virtual ata_device * get_atacam_device(const char * name, const char * type);
+#endif
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
@@ -1303,10 +1309,12 @@ ata_device * freebsd_smart_interface::get_ata_device(const char * name, const ch
   return new freebsd_ata_device(this, name, type);
 }
 
+#if FREEBSDVER > 800100
 ata_device * freebsd_smart_interface::get_atacam_device(const char * name, const char * type)
 {
   return new freebsd_atacam_device(this, name, type);
 }
+#endif
 
 scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const char * type)
 {
@@ -1813,11 +1821,13 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
             return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
           }
         }
+#if FREEBSDVER > 800100
         // check if we have ATA device connected to CAM (ada)
         if(ccb.cpi.protocol == PROTO_ATA){
           cam_close_device(cam_dev);
           return new freebsd_atacam_device(this, name, "");
         }
+#endif
         // close cam device, we don`t need it anymore
         cam_close_device(cam_dev);
         // handle as usual scsi
@@ -1891,9 +1901,11 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
     }
     return new freebsd_cciss_device(this, name, disknum);
   }
+#if FREEBSDVER > 800100
   // adaX devices ?
   if(!strcmp(type,"atacam"))
     return new freebsd_atacam_device(this, name, "");
+#endif
 
   return 0;
 }
