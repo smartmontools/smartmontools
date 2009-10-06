@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: Removed all old detection code, moving everything to
+       the objects. Now we are using CAM/ATA enumerators to guess device
+       type.
+
   [AS] FreeBSD: Added autodetection for the ada disks (untested).
        Code for USB device detection refactored.
 
