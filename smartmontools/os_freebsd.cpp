@@ -68,9 +68,9 @@
 #define CONTROLLER_3WARE_9000_CHAR      0x02
 #define CONTROLLER_3WARE_678K_CHAR      0x03
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2937 2009-10-06 08:31:27Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2938 2009-10-06 08:40:26Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2937 2009-10-06 08:31:27Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2938 2009-10-06 08:40:26Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -118,7 +118,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2937 2009-10-06 08:31:27Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2938 2009-10-06 08:40:26Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1766,7 +1766,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   char * * atanames = 0; int numata = 0;
   numata = get_dev_names_ata(&atanames);
   if (numata < 0) {
-    set_err(ENOMEM);
     return false;
   }
 
@@ -1781,7 +1780,6 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   char * * scsinames = 0; int numscsi = 0;
   numscsi = get_dev_names_cam(&scsinames, 1);
   if (numscsi < 0) {
-    set_err(ENOMEM);
     return false;
   }
   
