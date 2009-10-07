@@ -1152,7 +1152,11 @@ bool freebsd_cciss_device::open()
 {
   const char *dev = get_dev_name();
   int fd;
-  
+#ifndef HAVE_DEV_CISS_CISSIO_H
+  pout("CCISS support is not available in this build of smartmontools,\n"
+    "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
+  return false;
+#endif  
   if ((fd = ::open(dev,O_RDWR))<0) {
     perror("open failed");
     return false;
@@ -1177,16 +1181,6 @@ bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
   if (status < 0)
       return set_err(-status);
   return true;
-#else
-  {
-    static int warned = 0;
-    if (!warned) {
-      pout("CCISS support is not available in this build of smartmontools,\n"
-        "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
-      warned = 1;
-    }
-  }
-  return -ENOSYS;
 #endif
   // not reached
   return true;
