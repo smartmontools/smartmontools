@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2945 2009-10-07 13:55:04Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2946 2009-10-07 13:58:41Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2945 2009-10-07 13:55:04Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2946 2009-10-07 13:58:41Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2945 2009-10-07 13:55:04Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2946 2009-10-07 13:58:41Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1917,7 +1917,11 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "3ware,N, hpt,L/M/N, cciss,N";
+  return "3ware,N, hpt,L/M/N, cciss,N"
+#if FREEBSDVER > 800100
+  ", atacam"
+#endif
+  ;
 }
 
 } // namespace
