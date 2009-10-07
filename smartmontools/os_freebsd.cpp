@@ -64,9 +64,8 @@
 #include <dev/usb/usbhid.h>
 #endif
 
-#define CONTROLLER_3WARE_678K           0x01
-#define CONTROLLER_3WARE_9000_CHAR      0x02
-#define CONTROLLER_3WARE_678K_CHAR      0x03
+#define CONTROLLER_3WARE_9000_CHAR      0x01
+#define CONTROLLER_3WARE_678K_CHAR      0x02
 
 #ifndef PATHINQ_SETTINGS_SIZE
 #define PATHINQ_SETTINGS_SIZE   128
@@ -1840,7 +1839,10 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
 smart_device * freebsd_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
   // 3Ware ?
-  int disknum = -1, n1 = -1, n2 = -1;
+  static const char * fbsd_dev_twe_ctrl = "/dev/twe";
+  static const char * fbsd_dev_twa_ctrl = "/dev/twa";
+  int disknum = -1, n1 = -1, n2 = -1, contr = -1;
+
   if (sscanf(type, "3ware,%n%d%n", &n1, &disknum, &n2) == 1 || n1 == 6) {
     if (n2 != (int)strlen(type)) {
       set_err(EINVAL, "Option -d 3ware,N requires N to be a non-negative integer");
@@ -1850,11 +1852,20 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
       set_err(EINVAL, "Option -d 3ware,N (N=%d) must have 0 <= N <= 127", disknum);
       return 0;
     }
-    // XXXX
-    printf("3ware detection non implemented, todo\n");
-    int contr = 0;
-    if (contr != CONTROLLER_3WARE_9000_CHAR && contr != CONTROLLER_3WARE_678K_CHAR)
-      contr = CONTROLLER_3WARE_678K;
+
+    // guess 3ware device type based on device name
+    if (!strncmp(fbsd_dev_twa_ctrl, name, strlen(fbsd_dev_twa_ctrl))){
+      contr=CONTROLLER_3WARE_9000_CHAR;
+    }
+    if (!strncmp(fbsd_dev_twe_ctrl, name, strlen(fbsd_dev_twe_ctrl))){
+      contr=CONTROLLER_3WARE_678K_CHAR;
+    }
+
+    if(contr == -1){
+      set_err(EINVAL, "3ware controller type unknown, use %sX or %sX devices", 
+        fbsd_dev_twe_ctrl, fbsd_dev_twa_ctrl);
+      return 0;
+    }
     return new freebsd_escalade_device(this, name, contr, disknum);
   } 
 
