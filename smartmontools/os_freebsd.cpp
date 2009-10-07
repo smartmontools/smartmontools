@@ -217,7 +217,7 @@ bool freebsd_smart_device::open()
 {
   const char *dev = get_dev_name();
   if ((m_fd = ::open(dev,O_RDONLY))<0) {
-    perror("open failed");
+    set_err(errno);
     return false;
   }
   return true;
@@ -289,7 +289,7 @@ bool freebsd_atacam_device::open(){
   const char *dev = get_dev_name();
   
   if ((m_camdev = cam_open_device(dev, O_RDWR)) == NULL) {
-    perror("cam_open_device");
+    set_err(errno);
     return false;
   }
   set_fd(m_camdev->fd);
@@ -534,6 +534,7 @@ public:
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual bool open();
 
 private:
   int m_escalade_type; ///< Type string for escalade_command_interface().
@@ -550,6 +551,19 @@ freebsd_escalade_device::freebsd_escalade_device(smart_interface * intf, const c
   m_escalade_type(escalade_type), m_disknum(disknum)
 {
   set_info().info_name = strprintf("%s [3ware_disk_%02d]", dev_name, disknum);
+}
+
+bool freebsd_escalade_device::open()
+{
+  const char *dev = get_dev_name();
+  int fd;
+  
+  if ((fd = ::open(dev,O_RDWR))<0) {
+    set_err(errno);
+    return false;
+  }
+  set_fd(fd);
+  return true;
 }
 
 int freebsd_escalade_device::ata_command_interface(smart_command_set command, int select, char * data)
@@ -828,7 +842,7 @@ bool freebsd_highpoint_device::open()
   int fd;
   
   if ((fd = ::open(dev,O_RDWR))<0) {
-    perror("open failed");
+    set_err(errno);
     return false;
   }
   set_fd(fd);
@@ -1016,7 +1030,7 @@ bool freebsd_scsi_device::open(){
   const char *dev = get_dev_name();
   
   if ((m_camdev = cam_open_device(dev, O_RDWR)) == NULL) {
-    perror("cam_open_device");
+    set_err(errno);
     return false;
   }
   set_fd(m_camdev->fd);
@@ -1157,7 +1171,7 @@ bool freebsd_cciss_device::open()
   return false;
 #endif  
   if ((fd = ::open(dev,O_RDWR))<0) {
-    perror("open failed");
+    set_err(errno);
     return false;
   }
   set_fd(fd);
@@ -1789,7 +1803,7 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
       { // our disk device is CAM
         if ((cam_dev = cam_open_device(name, O_RDWR)) == NULL) {
           // open failure
-          perror("cam_open_device");
+          set_err(errno);
           return false;
         }
         
