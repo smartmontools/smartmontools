@@ -84,19 +84,6 @@
 
 #define OS_FREEBSD_H_CVSID "$Id: os_freebsd.h,v 1.26 2009/01/14 02:39:00 sxzzsf Exp $\n"
 
-struct freebsd_dev_channel {
-  int   channel;                // the ATA channel to work with
-  int   device;                 // the device on the channel
-#ifndef IOCATAREQUEST
-  int   atacommand;             // the ATA Command file descriptor (/dev/ata)
-#endif
-  char* devname;                // the SCSI device name
-  int   unitnum;                // the SCSI unit number
-  struct cam_device *camdev;
-};
-
-#define FREEBSD_MAXDEV 64
-#define FREEBSD_FDOFFSET 16
 #define MAX_NUM_DEV 26
 
 #ifdef  HAVE_SYS_TWEREG_H
