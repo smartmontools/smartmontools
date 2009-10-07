@@ -72,9 +72,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -122,7 +122,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2941 2009-10-06 23:44:33Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1433,7 +1433,8 @@ int get_dev_names_cam(char*** names, bool show_all) {
         //        if (dev_result->inq_data.device != T_DIRECT)
         //          skip_device = 1;
         changed = 1;
-      } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && skip_device == 0) { 
+      } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && 
+          (skip_device == 0 || show_all)) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
         * We are searching for latest name
         */
