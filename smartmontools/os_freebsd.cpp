@@ -1917,7 +1917,11 @@ smart_device * freebsd_smart_interface::get_custom_smart_device(const char * nam
 
 std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "3ware,N, hpt,L/M/N, cciss,N";
+  return "3ware,N, hpt,L/M/N, cciss,N"
+#if FREEBSDVER > 800100
+  ", atacam"
+#endif
+  ;
 }
 
 } // namespace
