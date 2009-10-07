@@ -1433,7 +1433,8 @@ int get_dev_names_cam(char*** names, bool show_all) {
         //        if (dev_result->inq_data.device != T_DIRECT)
         //          skip_device = 1;
         changed = 1;
-      } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && skip_device == 0) { 
+      } else if (ccb.cdm.matches[i].type == DEV_MATCH_PERIPH && 
+          (skip_device == 0 || show_all)) { 
         /* One device may be populated as many peripherals (pass0 & da0 for example). 
         * We are searching for latest name
         */
