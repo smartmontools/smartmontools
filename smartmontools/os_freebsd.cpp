@@ -72,9 +72,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2943 2009-10-07 00:41:46Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2943 2009-10-07 00:41:46Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -122,7 +122,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2942 2009-10-07 00:26:43Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2943 2009-10-07 00:41:46Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1152,7 +1152,11 @@ bool freebsd_cciss_device::open()
 {
   const char *dev = get_dev_name();
   int fd;
-  
+#ifndef HAVE_DEV_CISS_CISSIO_H
+  pout("CCISS support is not available in this build of smartmontools,\n"
+    "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
+  return false;
+#endif  
   if ((fd = ::open(dev,O_RDWR))<0) {
     perror("open failed");
     return false;
@@ -1177,16 +1181,6 @@ bool freebsd_cciss_device::scsi_pass_through(scsi_cmnd_io * iop)
   if (status < 0)
       return set_err(-status);
   return true;
-#else
-  {
-    static int warned = 0;
-    if (!warned) {
-      pout("CCISS support is not available in this build of smartmontools,\n"
-        "/usr/src/sys/dev/ciss/cissio.h was not available at build time.\n\n");
-      warned = 1;
-    }
-  }
-  return -ENOSYS;
 #endif
   // not reached
   return true;
