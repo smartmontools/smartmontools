@@ -43,7 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [AS] Linux: Autodetect DELL PERC controller.
+  [AS] Linux: Autodetect DELL PERC and MegaRAID controllers. 
+       Hiding debug messages coming from megaraid code.  
 
   [AS] Linux: Fixed SATA drives support on megaraid device (see ticket #15).
 

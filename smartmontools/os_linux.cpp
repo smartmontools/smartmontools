@@ -951,6 +951,7 @@ bool linux_megaraid_device::open()
   char line[128];
   int   mjr, n1;
   FILE *fp;
+  int report = con->reportscsiioctl; 
 
   if (!linux_smart_device::open())
     return false;
@@ -963,7 +964,7 @@ bool linux_megaraid_device::open()
   else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
     int err = errno;
     linux_smart_device::close();
-    return set_err(err, "can't get hba");
+    return set_err(err, "can't get bus number");
   }
 
   /* Perform mknod of device ioctl node */
@@ -972,13 +973,15 @@ bool linux_megaraid_device::open()
   	n1=0;
   	if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
 	   n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR, makedev(mjr, 0));
-	   printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+	   if(report > 0)
+	     printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
 	   if (n1 >= 0 || errno == EEXIST)
 	      break;
 	}
 	else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
 	   n1=mknod("/dev/megadev0", S_IFCHR, makedev(mjr, 0));
-	   printf("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+	   if(report > 0)
+	     printf("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
 	   if (n1 >= 0 || errno == EEXIST)
 	      break;
 	}
@@ -1043,7 +1046,8 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
   if (iop->cmnd[0] == 0x00)
     return true;
   if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06) {
-    pout("Rejecting SMART/ATA command to controller\n");
+    if(report > 0)
+      pout("Rejecting SMART/ATA command to controller\n");
     // Emulate SMART STATUS CHECK drive reply
     // smartctl fail to work without this
     if(iop->cmnd[2]==0x2c) {
@@ -2677,9 +2681,9 @@ smart_device * linux_scsi_device::autodetect_open()
       return this;
     }
     // DELL?
-    if (!memcmp(req_buff + 8, "DELL    PERC", 12)) {
+    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)) {
       close();
-      set_err(EINVAL, "DELL controller, please try adding '-d megaraid,N'");
+      set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
       return this;
     }
     
