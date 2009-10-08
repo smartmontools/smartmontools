@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2949 2009-10-08 10:35:54Z samm2 $
+$Id: CHANGELOG 2950 2009-10-08 14:36:53Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] Linux: Autodetect DELL PERC controller.
 
   [AS] Linux: Fixed SATA drives support on megaraid device (see ticket #15).
 

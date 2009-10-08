@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2948 2009-10-08 10:32:40Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2950 2009-10-08 14:36:53Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2676,7 +2676,13 @@ smart_device * linux_scsi_device::autodetect_open()
                       "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
       return this;
     }
-
+    // DELL?
+    if (!memcmp(req_buff + 8, "DELL    PERC", 12)) {
+      close();
+      set_err(EINVAL, "DELL controller, please try adding '-d megaraid,N'");
+      return this;
+    }
+    
     // Marvell ?
     if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
       //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
