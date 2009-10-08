@@ -1044,6 +1044,16 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     return true;
   if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06) {
     pout("Rejecting SMART/ATA command to controller\n");
+    // Emulate SMART STATUS CHECK drive reply
+    // smartctl fail to work without this
+    if(iop->cmnd[2]==0x2c) {
+      iop->resp_sense_len=22;
+      iop->sensep[0]=0x72; // response code
+      iop->sensep[7]=0x0e; // no idea what it is, copied from sat device answer
+      iop->sensep[8]=0x09; // 
+      iop->sensep[17]=0x4f; // lm
+      iop->sensep[19]=0xc2; // lh
+    }
     return true;
   }
 
