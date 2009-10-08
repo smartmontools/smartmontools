@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2937 2009-10-06 08:31:27Z samm2 $
+$Id: CHANGELOG 2948 2009-10-08 10:32:40Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] Linux: Fixed IDE drives support on megaraid device (see ticket #15).
 
   [AS] FreeBSD: Removed all old detection code, moving everything to
        the objects. Now we are using CAM/ATA enumerators to guess device

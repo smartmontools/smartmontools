@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2915 2009-09-18 21:17:37Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2948 2009-10-08 10:32:40Z samm2 $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1044,6 +1044,16 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     return true;
   if (iop->cmnd[0] == 0x85 && iop->cmnd[1] == 0x06) {
     pout("Rejecting SMART/ATA command to controller\n");
+    // Emulate SMART STATUS CHECK drive reply
+    // smartctl fail to work without this
+    if(iop->cmnd[2]==0x2c) {
+      iop->resp_sense_len=22;
+      iop->sensep[0]=0x72; // response code
+      iop->sensep[7]=0x0e; // no idea what it is, copied from sat device answer
+      iop->sensep[8]=0x09; // 
+      iop->sensep[17]=0x4f; // lm
+      iop->sensep[19]=0xc2; // lh
+    }
     return true;
   }
 
