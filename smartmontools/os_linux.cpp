@@ -2676,7 +2676,13 @@ smart_device * linux_scsi_device::autodetect_open()
                       "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
       return this;
     }
-
+    // DELL?
+    if (!memcmp(req_buff + 8, "DELL    PERC", 12)) {
+      close();
+      set_err(EINVAL, "DELL controller, please try adding '-d megaraid,N'");
+      return this;
+    }
+    
     // Marvell ?
     if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
       //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());

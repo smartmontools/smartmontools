@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] Linux: Autodetect DELL PERC controller.
+
   [AS] Linux: Fixed SATA drives support on megaraid device (see ticket #15).
 
   [AS] FreeBSD: Removed all old detection code, moving everything to
