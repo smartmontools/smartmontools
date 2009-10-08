@@ -43,7 +43,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
-  [AS] Linux: Fixed IDE drives support on megaraid device (see ticket #15).
+  [AS] Linux: Fixed SATA drives support on megaraid device (see ticket #15).
 
   [AS] FreeBSD: Removed all old detection code, moving everything to
        the objects. Now we are using CAM/ATA enumerators to guess device
