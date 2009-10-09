@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2947 2009-10-07 15:00:45Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2947 2009-10-07 15:00:45Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2947 2009-10-07 15:00:45Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -323,7 +323,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
                  MSG_SIMPLE_Q_TAG,
                  (u_int8_t*)request->data,
                  request->count,
-                 request->timeout);
+                 request->timeout * 1000); // timeout in seconds
 
   // ata_28bit_cmd
   ccb.ataio.cmd.flags = 0;
@@ -362,7 +362,7 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
  bzero(buff,512);
 
  request.u.ata.command=ATA_SMART_CMD;
- request.timeout=600;
+ request.timeout=SCSI_TIMEOUT_DEFAULT;
  switch (command){
  case READ_VALUES:
   request.u.ata.feature=ATA_SMART_READ_VALUES;
