@@ -227,9 +227,9 @@ bool freebsd_smart_device::close()
 {
   int failed = 0;
   // close device, if open
-  if (get_fd())
+  if (is_open())
     failed=::close(get_fd());
-  
+
   set_fd(-1);
 
   if(failed) return false;
@@ -252,7 +252,7 @@ public:
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
-	virtual int do_cmd(struct ata_ioc_request* request);
+  virtual int do_cmd(struct ata_ioc_request* request);
 };
 
 freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
@@ -282,7 +282,7 @@ protected:
   int m_fd;
   struct cam_device *m_camdev;
 
-	virtual int do_cmd( struct ata_ioc_request* request);
+  virtual int do_cmd( struct ata_ioc_request* request);
 };
 
 bool freebsd_atacam_device::open(){
