@@ -323,7 +323,7 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
                  MSG_SIMPLE_Q_TAG,
                  (u_int8_t*)request->data,
                  request->count,
-                 request->timeout);
+                 request->timeout * 1000); // timeout in seconds
 
   // ata_28bit_cmd
   ccb.ataio.cmd.flags = 0;
@@ -362,7 +362,7 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
  bzero(buff,512);
 
  request.u.ata.command=ATA_SMART_CMD;
- request.timeout=600;
+ request.timeout=SCSI_TIMEOUT_DEFAULT;
  switch (command){
  case READ_VALUES:
   request.u.ata.feature=ATA_SMART_READ_VALUES;
