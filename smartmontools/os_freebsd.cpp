@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2952 2009-10-09 11:49:43Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -227,9 +227,9 @@ bool freebsd_smart_device::close()
 {
   int failed = 0;
   // close device, if open
-  if (get_fd())
+  if (is_open())
     failed=::close(get_fd());
-  
+
   set_fd(-1);
 
   if(failed) return false;
@@ -252,7 +252,7 @@ public:
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
-	virtual int do_cmd(struct ata_ioc_request* request);
+  virtual int do_cmd(struct ata_ioc_request* request);
 };
 
 freebsd_ata_device::freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
@@ -282,7 +282,7 @@ protected:
   int m_fd;
   struct cam_device *m_camdev;
 
-	virtual int do_cmd( struct ata_ioc_request* request);
+  virtual int do_cmd( struct ata_ioc_request* request);
 };
 
 bool freebsd_atacam_device::open(){
