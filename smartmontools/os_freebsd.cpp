@@ -128,12 +128,6 @@ extern smartmonctrl * con; // con->reportscsiioctl
 
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-int ata_identify_is_cached(int fd);
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-
 namespace os_freebsd { // No need to publish anything, name provided for Doxygen
 
 /////////////////////////////////////////////////////////////////////////////
@@ -245,10 +239,6 @@ class freebsd_ata_device
 {
 public:
   freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-  virtual bool ata_identify_is_cached() const;
-#endif
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
@@ -512,14 +502,6 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
 
   return 0;
 }
-
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-bool freebsd_ata_device::ata_identify_is_cached() const
-{
-  return !!::ata_identify_is_cached(get_fd());
-}
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement AMCC/3ware RAID support with old functions
