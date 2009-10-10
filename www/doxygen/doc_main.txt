@@ -55,17 +55,17 @@
   The following ports currently exist:
 
   Already adapted to <b>new c++ Interface</b>
+  - os_freebsd.cpp
   - os_linux.cpp
   - os_win32.cpp
-  - os_freebsd.cpp<br>
 
   Still working with old interface
-  - os_darwin.cpp<br> 
-  - os_netbsd.cpp<br>
-  - os_openbsd.cpp<br>
-  - os_os2.cpp<br>
-  - os_qnxnto.cpp<br>  
-  - os_solaris.cpp<br>
+  - os_darwin.cpp 
+  - os_netbsd.cpp
+  - os_openbsd.cpp
+  - os_os2.cpp
+  - os_qnxnto.cpp 
+  - os_solaris.cpp
 
   <hr>
   To port smartmontools to the OS of your choice, please:
