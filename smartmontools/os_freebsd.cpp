@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,16 +121,10 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2953 2009-10-09 12:06:58Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
-
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-int ata_identify_is_cached(int fd);
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -245,10 +239,6 @@ class freebsd_ata_device
 {
 public:
   freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
-
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-  virtual bool ata_identify_is_cached() const;
-#endif
 
 protected:
   virtual int ata_command_interface(smart_command_set command, int select, char * data);
@@ -512,14 +502,6 @@ int freebsd_ata_device::ata_command_interface(smart_command_set command, int sel
 
   return 0;
 }
-
-#ifdef HAVE_ATA_IDENTIFY_IS_CACHED
-bool freebsd_ata_device::ata_identify_is_cached() const
-{
-  return !!::ata_identify_is_cached(get_fd());
-}
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement AMCC/3ware RAID support with old functions
