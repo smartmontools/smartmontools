@@ -10,7 +10,7 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 -----------------------------------------------------------
 - Sourcecode repository moved from CVS to SVN
 - Support for USB devices with Cypress, JMicron and Sunplus USB bridges
-- USB device type autodetection for some devices on Linux and Windows
+- USB device type autodetection for some devices on Linux,Windows and FreeBSD
   (http://smartmontools.wiki.sourceforge.net/overview_USB-Support)
 - Support for Areca controllers on Linux
 - Support for MegaRAID controllers on Linux
@@ -38,7 +38,7 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 - Option '-s PREFIX' to store smartd internal state until next startup
 - Configure option to enable the above by default
 - Change to an object oriented interface to access ATA and SCSI devices
-- Linux and Win32 modules migrated to new interface
+- Linux, Win32 and FreeBSD modules migrated to new interface
 - Rework of smartd data structures
 - Checkin date and SVN revision and optional BUILD_INFO printed in version info
 - Better support for gSmartControl on Windows
@@ -49,7 +49,8 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 - C++ Support for QNX Target, already tested for QNX 6.3.2 on x86 and
   armle target
 - Additional support for Samsung MLC flash drives
-
+- New device type detection algorithm on FreeBSD, not based on filename
+- Support for the adaX (ATA on CAM bus) devices on FreeBSD 8.0 and higher
 
 Date 2008-03-10
 Summary: smartmontools release 5.38 (STABLE)
