@@ -902,6 +902,8 @@ linux_megaraid_device::~linux_megaraid_device() throw()
 
 smart_device * linux_megaraid_device::autodetect_open()
 {
+  int report = con->reportscsiioctl; 
+
   // Open device
   if (!open())
     return this;
@@ -924,7 +926,8 @@ smart_device * linux_megaraid_device::autodetect_open()
   if (len < 36)
       return this;
 
-  printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
+  if (report)
+    printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
 
   // Use INQUIRY to detect type
   smart_device * newdev = 0;
@@ -1051,12 +1054,12 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     // Emulate SMART STATUS CHECK drive reply
     // smartctl fail to work without this
     if(iop->cmnd[2]==0x2c) {
-      iop->resp_sense_len=22;
-      iop->sensep[0]=0x72; // response code
-      iop->sensep[7]=0x0e; // no idea what it is, copied from sat device answer
-      iop->sensep[8]=0x09; // 
-      iop->sensep[17]=0x4f; // lm
-      iop->sensep[19]=0xc2; // lh
+      iop->resp_sense_len=22; // copied from real response
+      iop->sensep[0]=0x72; // descriptor format
+      iop->sensep[7]=0x0e; // additional length
+      iop->sensep[8]=0x09; // description pointer
+      iop->sensep[17]=0x4f; // low cylinder GOOD smart status
+      iop->sensep[19]=0xc2; // high cylinder GOOD smart status
     }
     return true;
   }
