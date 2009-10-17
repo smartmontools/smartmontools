@@ -2051,10 +2051,12 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   ata_smart_log_directory smartlogdir_buf, gplogdir_buf;
   const ata_smart_log_directory * smartlogdir = 0, * gplogdir = 0;
 
-  if (   options.gp_logdir || options.smart_logdir
-      || options.sataphy || options.smart_ext_error_log
+  if (   options.gp_logdir
+      || options.smart_logdir
+      || options.smart_ext_error_log
       || options.smart_ext_selftest_log
-      || !options.log_requests.empty()                 ) {
+      || options.sataphy
+      || !options.log_requests.empty() ) {
     PRINT_ON(con);
     if (isGeneralPurposeLoggingCapable(&drive))
       pout("General Purpose Logging (GPL) feature set supported\n");
@@ -2063,7 +2065,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     bool need_smart_logdir = options.smart_logdir;
     bool need_gp_logdir    = (   options.gp_logdir
                               || options.smart_ext_error_log
-                              || options.smart_ext_selftest_log);
+                              || options.smart_ext_selftest_log
+                              || options.sataphy               );
     unsigned i;
     for (i = 0; i < options.log_requests.size(); i++) {
       if (options.log_requests[i].gpl)
@@ -2323,12 +2326,19 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Print SATA Phy Event Counters
   if (options.sataphy) {
-    unsigned char log_11[512] = {0, };
-    unsigned char features = (options.sataphy_reset ? 0x01 : 0x00);
-    if (!ataReadLogExt(device, 0x11, features, 0, log_11, 1))
-      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-    else
-      PrintSataPhyEventCounters(log_11, options.sataphy_reset);
+    unsigned nsectors = GetNumLogSectors(gplogdir, 0x11, true);
+    if (!nsectors)
+      pout("SATA Phy Event Counters (GP Log 0x11) not supported\n");
+    else if (nsectors != 1)
+      pout("SATA Phy Event Counters with %u sectors not supported\n", nsectors);
+    else {
+      unsigned char log_11[512] = {0, };
+      unsigned char features = (options.sataphy_reset ? 0x01 : 0x00);
+      if (!ataReadLogExt(device, 0x11, features, 0, log_11, 1))
+        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      else
+        PrintSataPhyEventCounters(log_11, options.sataphy_reset);
+    }
   }
 
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN

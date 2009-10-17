@@ -43,10 +43,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add missing check for log page 0x11 support to smartctl
+       '-l sataphy' option.
+
   [CF] Add USB ID of Freecom Hard Drive XS.
 
-  [AS] Linux: Autodetect DELL PERC and MegaRAID controllers. 
-       Hiding debug messages coming from megaraid code.  
+  [AS] Linux: Autodetect DELL PERC and MegaRAID controllers.
+       Hiding debug messages coming from megaraid code.
 
   [AS] Linux: Fixed SATA drives support on megaraid device (see ticket #15).
 
@@ -59,7 +62,7 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
   [AS] FreeBSD: cam_get_umassno rewritten using XPT_PATH_INQ
 
-  [AS] FreeBSD: do not open/close cam device on every request for SCSI 
+  [AS] FreeBSD: do not open/close cam device on every request for SCSI
        disks. Use com->camdev both for SCSI and ATAPICAM.
 
   [AS] FreeBSD: added support for the ada disks, based on agapon patch
