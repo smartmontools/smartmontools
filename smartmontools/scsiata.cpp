@@ -1382,6 +1382,8 @@ const usb_id_entry usb_ids[] = {
   { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
   // Prolific
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
+  // Freecom
+  { 0x07ab, 0xfc8e, 0x010f, d_sunplus }, // Freecom Hard Drive XS
   // Toshiba
   { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro 501)
   // Seagate
