@@ -10,8 +10,8 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 -----------------------------------------------------------
 - Sourcecode repository moved from CVS to SVN
 - Support for USB devices with Cypress, JMicron and Sunplus USB bridges
-- USB device type autodetection for some devices on Linux,Windows and FreeBSD
-  (http://smartmontools.wiki.sourceforge.net/overview_USB-Support)
+- USB device type autodetection for some devices on Linux, Windows and FreeBSD
+  (http://sourceforge.net/apps/trac/smartmontools/wiki/Supported_USB-Devices)
 - Support for Areca controllers on Linux
 - Support for MegaRAID controllers on Linux
 - Support for HighPoint RocketRAID controllers on FreeBSD
@@ -22,7 +22,9 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
   Error Log
 - smartctl option '-l xselftest' to print ATA SMART Extended Self-test Log
 - smartctl option '-l sataphy' to print SATA Phy Event Counters
+- smartctl option '-l sasphy' to print SAS device phy information
 - smartctl options '-l gplog,...' and '-l smartlog,...' to print any log page
+- smartctl option '-x' to print all extended info if available
 - smartctl prints SCSI load/unload cycle counts
 - Improve display of huge raw values of some SMART attributes
 - Option '-d sat+TYPE' to use SAT with controllers which require '-d TYPE'
@@ -33,15 +35,18 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 - smartd can now handle attributes 197 and 198 with increasing raw values
 - smartd logs changes of self-test execution status
 - smartd directive '-n powermode,N' to limit the number of skipped checks
+- smartd flag '!' for '-r' and '-R' directives to log changes as critical
 - smartd supports scheduled Selective Self-Tests
-- Self-tests scheduled during downtime are run after next startup
-- Option '-s PREFIX' to store smartd internal state until next startup
-- Configure option to enable the above by default
+- Self-tests scheduled during system downtime or disk standby are run after
+  next startup
+- smartd option '-s PREFIX' to store smartd internal state until next startup
+- smartd option '-A PREFIX' to log attributes at each check cycle
+- Configure options to enable the above by default
 - Change to an object oriented interface to access ATA and SCSI devices
 - Linux, Win32 and FreeBSD modules migrated to new interface
 - Rework of smartd data structures
 - Checkin date and SVN revision and optional BUILD_INFO printed in version info
-- Better support for gSmartControl on Windows
+- Better support for GSmartControl on Windows
 - SELinux fixes to 3ware device node creation
 - Fix CCISS file descriptor leak on FreeBSD
 - Compile fixes for Solaris and FreeBSD
