@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2951 2009-10-08 23:43:46Z samm2 $
+$Id: CHANGELOG 2958 2009-10-17 17:59:54Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add USB ID of Freecom Hard Drive XS.
 
   [AS] Linux: Autodetect DELL PERC and MegaRAID controllers. 
        Hiding debug messages coming from megaraid code.  
