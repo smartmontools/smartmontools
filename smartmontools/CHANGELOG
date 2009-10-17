@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add missing help texts for '-A', '-B' and '-s'.
+
   [CF] Add missing check for log page 0x11 support to smartctl
        '-l sataphy' option.
 

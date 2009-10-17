@@ -1420,16 +1420,18 @@ void Directives() {
    arguments to the option opt or NULL on failure. */
 const char *GetValidArgList(char opt) {
   switch (opt) {
+  case 'A':
+  case 's':
+    return "<PATH_PREFIX>";
   case 'c':
     return "<FILE_NAME>, -";
-  case 's':
-    return "valid_regular_expression";
   case 'l':
     return "daemon, local0, local1, local2, local3, local4, local5, local6, local7";
   case 'q':
     return "nodev, errors, nodevstartup, never, onecheck, showtests";
   case 'r':
     return "ioctl[,N], ataioctl[,N], scsiioctl[,N]";
+  case 'B':
   case 'p':
     return "<FILE_NAME>";
   case 'i':
@@ -1442,6 +1444,18 @@ const char *GetValidArgList(char opt) {
 /* prints help information for command syntax */
 void Usage (void){
   PrintOut(LOG_INFO,"Usage: smartd [options]\n\n");
+  PrintOut(LOG_INFO,"  -A PREFIX, --attributelog=PREFIX\n");
+  PrintOut(LOG_INFO,"        Log ATA attribute information to {PREFIX}MODEL-SERIAL.ata.csv\n");
+#ifdef SMARTMONTOOLS_ATTRIBUTELOG
+  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_ATTRIBUTELOG"MODEL-SERIAL.ata.csv]\n");
+#endif
+  PrintOut(LOG_INFO,"\n");
+  PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
+  PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n");
+#ifdef SMARTMONTOOLS_DRIVEDBDIR
+  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n");
+#endif
+  PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -c NAME|-, --configfile=NAME|-\n");
   PrintOut(LOG_INFO,"        Read configuration file NAME or stdin [default is %s]\n\n", configfile);
   PrintOut(LOG_INFO,"  -d, --debug\n");
@@ -1472,12 +1486,6 @@ void Usage (void){
   PrintOut(LOG_INFO,"        Save disk states to {PREFIX}MODEL-SERIAL.TYPE.state\n");
 #ifdef SMARTMONTOOLS_SAVESTATES
   PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_SAVESTATES"MODEL-SERIAL.TYPE.state]\n");
-#endif
-  PrintOut(LOG_INFO,"\n");
-  PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
-  PrintOut(LOG_INFO,"        Read and replace [add] drive database from FILE\n");
-#ifdef SMARTMONTOOLS_DRIVEDBDIR
-  PrintOut(LOG_INFO,"        [default is "SMARTMONTOOLS_DRIVEDBDIR"/drivedb.h]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
 #ifdef _WIN32
@@ -2749,7 +2757,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	} // end of loop over attributes
 	
         if (cfg.selftest) {
-          // Log changes of self-test executions status
+          // Log changes of self-test execution status
           if (   curval.self_test_exec_status != state.smartval.self_test_exec_status
               || (!allow_selftests && curval.self_test_exec_status != 0x00)          )
             log_self_test_exec_status(name, curval.self_test_exec_status);
