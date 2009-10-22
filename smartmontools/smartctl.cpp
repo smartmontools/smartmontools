@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 2962 2009-10-22 18:53:12Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -981,12 +981,12 @@ int main(int argc, char **argv)
   }
   catch (const std::bad_alloc & /*ex*/) {
     // Memory allocation failed (also thrown by std::operator new)
-    pout("Smartctl: Out of memory\n");
+    printf("Smartctl: Out of memory\n");
     status = FAILCMD;
   }
   catch (const std::exception & ex) {
     // Other fatal errors
-    pout("Smartctl: Exception: %s\n", ex.what());
+    printf("Smartctl: Exception: %s\n", ex.what());
     status = FAILCMD;
   }
   return status;
