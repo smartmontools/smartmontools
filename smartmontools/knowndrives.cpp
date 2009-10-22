@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp,v 1.207 2009/07/04 23:24:37 manfred99 Exp $"
+const char *knowndrives_c_cvsid="$Id$"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -99,8 +99,7 @@ static const drive_settings builtin_knowndrives[] = {
     "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/index.html#rel and\n"
-    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
-    "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
+    "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
     ""
   },
   { "IBM Deskstar 40GV & 75GXP series (A5AA/A6AA firmware)",
@@ -113,8 +112,7 @@ static const drive_settings builtin_knowndrives[] = {
     "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
     "Please see http://www.geocities.com/dtla_update/ and\n"
-    "http://www-3.ibm.com/pc/support/site.wss/document.do?lndocid=MIGR-42215 or\n"
-    "http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-42215",
+    "http://www.ibm.com/pc/support/site.wss/MIGR-42215.html",
     ""
   },
   { "", // ExcelStor J240, J340, J360, J680, and J880
@@ -1023,7 +1021,7 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.11 family", // fixed firmware
     "ST3(160813|320[68]13|640[36]23|1000333|1500341)AS?",
-    "SD1B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
+    "SD[12]B", // http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207957
     "", ""
   },
   { "Seagate Barracuda 7200.11 family", // buggy firmware
