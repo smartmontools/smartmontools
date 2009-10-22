@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2962 2009-10-22 18:53:12Z chrfranke $
+$Id: CHANGELOG 2963 2009-10-22 19:16:36Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp updates:
+       - New Seagate 7200.11 firmware version
+       - Update IBM link
 
   [CF] smartctl: Use printf() instead of pout() for exception error
        messages to avoid access to bogus 'con->dont_print'.
