@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2963 2009-10-22 19:16:36Z chrfranke $
+$Id: CHANGELOG 2964 2009-10-22 20:49:59Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,12 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp updates:
+       - Western Digital MyPassport Essential hard drive (USB interface)
+       - Seagate Momentus 7200.4 series
+       - Western Digital Raptor X
+       - Intel X25-E SSD
 
   [CF] knowndrives.cpp updates:
        - New Seagate 7200.11 firmware version
