@@ -43,6 +43,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp updates:
+       - Western Digital MyPassport Essential hard drive (USB interface)
+       - Seagate Momentus 7200.4 series
+       - Western Digital Raptor X
+       - Intel X25-E SSD
+
   [CF] knowndrives.cpp updates:
        - New Seagate 7200.11 firmware version
        - Update IBM link

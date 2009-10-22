@@ -73,6 +73,10 @@ static const drive_settings builtin_knowndrives[] = {
     "OCZ-VERTEX.*",
     "", "", ""
   },
+  { "Intel X25-E SSD",
+    "SSDSA2SH(032|064)G1.* INTEL",
+    "", "", ""
+  },
   { "Transcend Solid-State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
     "", "", ""
@@ -929,6 +933,10 @@ static const drive_settings builtin_knowndrives[] = {
     "ST9((80|120|160)411|(250|320)421)ASG?",
     "", "", ""
   },
+  { "Seagate Momentus 7200.4 series",
+    "ST9(160412|250410|320423|500420)ASG?",
+    "", "", ""
+  },
   { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1721|2120|3230|4340)A",
     "", "", ""
@@ -1219,6 +1227,10 @@ static const drive_settings builtin_knowndrives[] = {
     "WDC WD((360|740|800)GD|(360|740|1500)ADF[DS])-.*",
     "", "", ""
   },
+  { "Western Digital Raptor X",
+    "WDC WD1500AHFD-.*",
+    "", "", ""
+  },
   { "Western Digital VelociRaptor family",
     "WDC WD((1500|3000)B|3000G)LFS-.*",
     "", "", ""
@@ -1241,6 +1253,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Scorpio Black Serial ATA family",
     "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
+    "", "", ""
+  },
+  { "Western Digital MyPassport Essential hard drive (USB interface)",
+    "WDC WD3200BMVU-.*",
     "", "", ""
   },
   { "Quantum Bigfoot series",
