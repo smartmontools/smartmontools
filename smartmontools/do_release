@@ -1,39 +1,23 @@
-#!/bin/bash -ev
+#!/bin/bash
 #
 # do a smartmontools release
-# (C) 2003-6 Bruce Allen <ballen4705@users.sourceforge.net>, 
-#          Guido Guenther <agx@sigxcpu.org>
+# (C) 2003-9 Bruce Allen <ballen4705@users.sourceforge.net>,
+#            Guido Guenther <agx@sigxcpu.org>
+#            Christian Franke <smartmontools-support@lists.sourceforge.net>
 # $Id$
-
-echo 'TODO: Rework this script for SVN.'
-exit 1
 
 # Notes on generating releases:
 # (1) update NEWS
 # (2) update CHANGELOG -- put in release number
 # (3) update release number in configure.in 
-# (4) to test, set USECVS below to 0
-# (5) when satisfied, set USECVS below to 1
+# (4) to test, run without '--commit'
+# (5) when satisfied, add option '--commit'
 
-USECVS=1
+set -e
 
-KEYID=0x841ABAE8
-
-setup_cvs()
-{
-  CVS_SERVER=fakevalue
-  unset CVS_SERVER || echo "can't unset CVS_SERVER=$CVS_SERVER"
-  CVS_RSH=ssh
-  CVSROOT=:ext:ballen4705@smartmontools.cvs.sourceforge.net:/cvsroot/smartmontools
-}
-
-get_release()
-{
-  VERSION=`grep 'AC_INIT' configure.in | awk '{ print $2 }' | sed s/,//g`
-  RELEASE="RELEASE_${VERSION//\./_}"
-  echo "Version: $VERSION"
-  echo "Release: $RELEASE"
-}
+# TODO
+#KEYID=0x841ABAE8
+KEYID=
 
 inc_release()
 {
@@ -48,52 +32,95 @@ inc_release()
   echo "New Release: $NEW_RELEASE"
 }
 
-# run automake/autoconf
-if [ -f Makefile ] ; then
-  make distcheck || exit 1
-  make clean
-  make distclean
-  rm -f Makefile configure
+COMMIT=
+RC=
+
+case "$1" in
+  --commit) COMMIT=yes; shift;;
+esac
+
+case "$*" in
+  RC[1-9]) RC="$1" ;;
+  FINAL) ;;
+  *) echo "Usage: $0 [--commit] RC[1-9]|FINAL"; exit 1 ;;
+esac
+
+# Check workdir
+case "`/bin/pwd`" in
+  */trunk/smartmontools) ;;
+  *) echo "not run from trunk checkout"; exit 1 ;;
+esac
+
+if [ ! -d ../../tags ]; then
+  echo "tags directory missing"; exit 1
 fi
 
-smartmontools_release_date=`date -u +"%Y/%m/%d"`
+REV=`(cd ../.. && svnversion)` || exit 1
+if [ -z "`echo "$REV" | sed -n '/^[0-9][0-9]*$/p'`" ]; then
+  echo "Working directory not clean: $REV"; exit 1
+fi
+
+# Get release number
+VERSION=`sed -n 's|^AC_INIT[^,]*, *\([0-9.]*\) *,.*$|\1|p' configure.in`
+if [ -z "$VERSION" ]; then
+  echo "AC_INIT not found in configure.in"; exit 1
+fi
+VERSIONRC="$VERSION"
+RELEASE="RELEASE_${VERSION//\./_}"
+
+if [ "$RC" ]; then
+  VERSIONRC="${VERSION}-${RC/#RC/rc}"
+  RELEASE="${RELEASE}_${RC}"
+fi
+
+if [ -e "../../tags/$RELEASE" ]; then
+  echo "tags/$RELEASE exists"; exit 1
+fi
+
+echo "r$REV: Release $VERSIONRC $RELEASE"
+set -v
+
+# Update timestamp
+smartmontools_release_date=`date -u +"%Y-%m-%d"`
 smartmontools_release_time=`date -u +"%T %Z"`
 cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
 cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
 rm -f configure.tmp
 
+# Create tag and commit
+cd ../..
+if [ "$COMMIT" = "yes" ]; then
+  svn mkdir tags/$RELEASE
+  svn copy trunk/smartmontools tags/$RELEASE/smartmontools
+  svn commit -m "Release $VERSIONRC $RELEASE"
+fi
+cd trunk/smartmontools
+
+# Build
 ./autogen.sh
 
-get_release
-
-# tag CVS version
-if [ $USECVS -ne 0 ] ; then
-    setup_cvs
-    cvs commit -m "Release $VERSION $RELEASE"
-    cvs tag -d $RELEASE 
-    cvs tag $RELEASE
-fi
-
-# build .tar.gz
-rm -rf build
 mkdir build
 cd build
 ../configure
 make distcheck || exit 1
+make maintainer-clean
 cd ..
 
-# increase release number:
-inc_release
-if [ $USECVS -ne 0 ] ; then
+mv -f build/smartmontools-$VERSION.tar.gz smartmontools-$VERSIONRC.tar.gz
+
+rm -rvf build
+
+# Increase release number
+if [ -z "$RC" ]; then
+  inc_release
+  if [ "$COMMIT" = "yes" ]; then
     perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
+    # svn commit -m "Bump release number to $NEW_VERSION" configure.in
+  fi
 fi
 
-cp -f build/smartmontools-$VERSION.tar.gz .
+# Sign tarball
 if [ "$KEYID" ]; then
-  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSION.tar.gz
+  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
 fi
 
-# cleanup
-rm -rf autom4te.cache build/ config.h.in Makefile.in examplescripts/Makefile.in \
-       depcomp mkinstalldirs install-sh configure config.guess config.sub \
-       aclocal.m4 missing *.bak

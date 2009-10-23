@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Update 'do_release' script for SVN.
+
   [MS] knowndrives.cpp updates:
        - Western Digital MyPassport Essential hard drive (USB interface)
        - Seagate Momentus 7200.4 series
