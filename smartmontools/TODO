@@ -50,8 +50,6 @@ that can be monitored.
 
 Packaging
 ---------
-Rework 'do_release' script for SVN.
-
 Under freebsd and solaris, the following are wrong:
 smartd.conf: has linux device paths
 smart*.in  : man pages have (mostly) linux device paths
