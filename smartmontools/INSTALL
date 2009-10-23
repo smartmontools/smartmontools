@@ -102,8 +102,8 @@ Table of contents:
 
     E) Cygwin
 
-    The code was tested on Cygwin 1.5.7, 1.5.11 and 1.5.18-22. It should
-    also work on other recent releases.
+    The code was tested on Cygwin 1.5.25-15 and 1.7.0-62. It should also
+    work on other recent releases.
 
     Release 1.5.15 or later is recommended for Cygwin smartd. Older versions
     do not provide syslogd support.
@@ -114,9 +114,10 @@ Table of contents:
 
     F) Windows
 
-    The code was tested on Windows 98SE, NT4(SP5,SP6), 2000(SP4),
-    XP(no SP,SP1a,SP2) and Vista RC 1. It should also work on Windows
-    95(OSR2), 98, ME and 2003.
+    The code was tested on Windows 98SE, ME, NT4(SP5,SP6), 2000(SP4),
+    XP(up to SP3), 2003 and Vista.
+
+    -- Windows 9x/ME
 
     On 9x/ME, only standard (legacy) IDE/ATA devices 0-3 are supported.
     The driver SMARTVSD.VXD must be present in WINDOWS\SYSTEM\IOSUBSYS
@@ -124,13 +125,10 @@ Table of contents:
     installation of some versions of Windows is the WINDOWS\SYSTEM folder.
     In this case, move SMARTVSD.VXD to WINDOWS\SYSTEM\IOSUBSYS and reboot
     (http://support.microsoft.com/kb/265854/en-us).
-    SMARTVSD.VXD may also be missing in a new installation
-    (http://support.microsoft.com/kb/199886/en-us).
 
     SMARTVSD.VXD relies on the standard IDE port driver ESDI_506.PDR.
     If the system uses a vendor specific driver, access of SMART data
-    is not possible on 9x/ME. This is the case if e.g. the optional
-    "IDE miniport driver" is installed on a system with VIA chipset.
+    is not possible.
 
     Some ATA controllers (e.g. Promise) provided a custom SMARTVSD.VXD
     for their Win9x/ME driver. To access SMART data from both the legacy
@@ -139,21 +137,22 @@ Table of contents:
     all occurrences of the string "SMARTVSD" with "SMARTVSE". Then reinstall
     the original Windows SMARTVSD.VXD.
 
-    On NT4/2000/XP/2003, ATA or SATA devices are supported if the device
-    driver implements the SMART IOCTL.
-
-    The IDE/ATA read log command (smartctl -l, --log, -a, --all) is
-    not supported by the SMART IOCTL of NT4/2000/XP. Undocumented
-    and possibly buggy system calls are used for this purpose,
-    see WARNINGS file for details.
-
-    SCSI devices are supported on all versions of Windows. An installed
-    ASPI interface (WNASPI32.DLL) is required to access SCSI devices.
-    The code was tested with Adaptec Windows ASPI drivers 4.71.2.
-    (http://www.adaptec.com/en-US/support/scsi_soft/ASPI/ASPI-4.70/)
+    To access SCSI and USB devices, an installed ASPI interface (WNASPI32.DLL)
+    is required. The code was tested with Adaptec Windows ASPI drivers 4.71.2.
+    (http://www.adaptec.com/en-US/support/_eol/scsi_sw/ASPI-4.70/)
     Links to other ASPI drivers can be found at http://www.nu2.nu/aspi/.
 
-    3ware 9000 RAID controllers are supported using new features available
+    -- Windows NT4/2000/XP/2003/Vista
+
+    ATA or SATA devices are supported if the device driver implements
+    the SMART IOCTLs or IOCTL_IDE_PASS_THROUGH or IOCTL_ATA_PASS_THROUGH.
+    The ATA SMART READ LOG command (smartctl -l, --log, -a, --all) is not
+    supported if only the SMART IOCTLs are implemented.
+
+    SCSI and USB devices are accessed through SPTI. Special driver support
+    is not required.
+
+    3ware 9000 RAID controllers are supported using features available
     in the Windows driver release 9.4.0 (3wareDrv.sys 3.0.2.70) or later.
     Older drivers provide SMART access to the first physical drive (port)
     of each logical drive (unit). If driver support is not available
@@ -669,9 +668,11 @@ OPTIONS              DEFAULT                                      AFFECTS
                                                                   nodes for 3ware/AMCC controllers, this option ensures that the nodes are created
                                                                   with correct SELinux file contexts.
 --enable-drivedb      --disable-drivedb                           Enables default drive database file '${drivedbdir}/drivedb.h'
---with-drivedbdir     ${prefix}/share/smartmontools/drivedb.h     Directory for 'drivedb.h' (specifying this option implies --enable-drivedb)
+--with-drivedbdir     ${prefix}/share/smartmontools               Directory for 'drivedb.h' (implies --enable-drivedb)
 --enable-savestates   --disable-savestates                        Enables default smartd state files '${savestates}MODEL-SERIAL.ata.state'
---with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (specifying this option implies --enable-savestates)
+--with-savestates     ${prefix}/var/lib/smartmontools/smartd.     Prefix for smartd state files (implies --enable-savestates)
+--enable-attributelog --disable-attributelog                      Enables default smartd attribute log files
+--with-attributelog   ${prefix}/var/lib/smartmontools/attrlog.    Prefix for smartd attribute log files (implies --enable-attributelog)
 
 Here's an example:
 If you set --prefix=/home/joe and none of the other four
