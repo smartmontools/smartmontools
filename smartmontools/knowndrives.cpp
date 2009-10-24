@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2964 2009-10-22 20:49:59Z manfred99 $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2968 2009-10-24 13:38:36Z manfred99 $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -75,7 +75,8 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Intel X25-E SSD",
     "SSDSA2SH(032|064)G1.* INTEL",
-    "", "", ""
+    "", "",
+    "-v 225,hostwritescount"
   },
   { "Transcend Solid-State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",

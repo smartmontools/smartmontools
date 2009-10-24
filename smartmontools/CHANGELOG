@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2967 2009-10-23 21:45:56Z chrfranke $
+$Id: CHANGELOG 2968 2009-10-24 13:38:36Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] attributes updates:
+       - attributes 225, 232 and 233 for Intel X25-E SSD
+       - non-conflicting attributes extracted from wdidle3.exe
+         (thanks to Franc Zabkar and Dan Lukes)
 
   [CF] Update Windows and ./configure info in INSTALL file.
 
