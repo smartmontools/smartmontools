@@ -179,6 +179,7 @@ const vendor_attr_arg_entry vendor_attribute_args[] = {
   {200,"writeerrorcount", 1},
   {201,"detectedtacount", 1},
   {220,"temp", 1},
+  {225,"hostwritescount", 1},
   {  0,"raw8", 253},
   {  0,"raw16", 254},
   {  0,"raw48", 255},
@@ -2184,7 +2185,15 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     name="Load_Friction";
     break;
   case 225:
-    name="Load_Cycle_Count";
+    switch (val) {
+    case 1:
+      // seen in Intel X25-E SSD
+      name="Host_Writes_Count";
+      break;
+    default:
+      name="Load_Cycle_Count";
+      break;
+    }
     break;
   case 226:
     name="Load-in_Time";
@@ -2202,11 +2211,28 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
   case 231:
     name="Temperature_Celsius";
     break;
+  case 232:
+    // seen in Intel X25-E SSD
+    name="Available_Reserved_Space";
+    break;
+  case 233:
+    // seen in Intel X25-E SSD
+    name="Media_Wearout_Indicator";
+    break;
   case 240:
     name="Head_Flying_Hours";
     break;
+  case 241:
+    name="Total_LBAs_Written";
+    break;
+  case 242:
+    name="Total_LBAs_Read";
+    break;
   case 250:
     name="Read_Error_Retry_Rate";
+    break;
+  case 254:
+    name="Free_Fall_Sensor";
     break;
   default:
     name="Unknown_Attribute";

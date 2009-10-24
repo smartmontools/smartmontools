@@ -75,7 +75,8 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Intel X25-E SSD",
     "SSDSA2SH(032|064)G1.* INTEL",
-    "", "", ""
+    "", "",
+    "-v 225,hostwritescount"
   },
   { "Transcend Solid-State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
