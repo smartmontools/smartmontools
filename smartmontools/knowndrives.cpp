@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2968 2009-10-24 13:38:36Z manfred99 $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2969 2009-10-25 23:00:19Z manfred99 $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -221,7 +221,8 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Fujitsu MHY2 BH series",
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
-    "", "", ""
+    "", "",
+    "-v 240,transfererrorrate"
   },
   { "Fujitsu MHW2 BH series",
     "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
