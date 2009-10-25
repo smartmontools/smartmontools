@@ -180,6 +180,7 @@ const vendor_attr_arg_entry vendor_attribute_args[] = {
   {201,"detectedtacount", 1},
   {220,"temp", 1},
   {225,"hostwritescount", 1},
+  {240,"transfererrorrate", 1},
   {  0,"raw8", 253},
   {  0,"raw16", 254},
   {  0,"raw48", 255},
@@ -2127,9 +2128,8 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     }
     break;
   case 202:
-    // Fujitsu
-    name="TA_Increase_Count";
-    // Maxtor: Data Address Mark Errors
+    // Fujitsu: "TA_Increase_Count"
+    name="Data_Address_Mark_Errs";
     break;
   case 203:
     // Fujitsu
@@ -2137,14 +2137,12 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     // Maxtor: ECC Errors
     break;
   case 204:
-    // Fujitsu
-    name="Shock_Count_Write_Opern";
-    // Maxtor: Soft ECC Correction
+    // Fujitsu: "Shock_Count_Write_Opern"
+    name="Soft_ECC_Correction";
     break;
   case 205:
-    // Fujitsu
-    name="Shock_Rate_Write_Opern";
-    // Maxtor: Thermal Aspirates
+    // Fujitsu: "Shock_Rate_Write_Opern"
+    name="Thermal_Asperity_Rate";
     break;
   case 206:
     // Fujitsu
@@ -2219,9 +2217,16 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     // seen in Intel X25-E SSD
     name="Media_Wearout_Indicator";
     break;
-  case 240:
-    name="Head_Flying_Hours";
-    break;
+ case 240:
+    switch (val) {
+    case 1:
+      // seen in Fujitsu MHY2xxxBH
+      name="Transfer_Error_Rate";
+      break;
+    default:
+      name="Head_Flying_Hours";
+      break;
+    }
   case 241:
     name="Total_LBAs_Written";
     break;

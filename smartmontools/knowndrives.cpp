@@ -221,7 +221,8 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Fujitsu MHY2 BH series",
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
-    "", "", ""
+    "", "",
+    "-v 240,transfererrorrate"
   },
   { "Fujitsu MHW2 BH series",
     "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",

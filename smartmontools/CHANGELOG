@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] attribute updates:
+       - change attributes 202,204,205 to the meanings as found in wdidle3.exe
+         retain old entries as comments (possible Fujitsu use)
+       - add attribute 240 as found in Fujitsu MHY2xxxBH
+
   [MS] attributes updates:
        - attributes 225, 232 and 233 for Intel X25-E SSD
        - non-conflicting attributes extracted from wdidle3.exe
