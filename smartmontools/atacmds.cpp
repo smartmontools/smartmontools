@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2969 2009-10-25 23:00:19Z manfred99 $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 2972 2009-10-26 22:26:05Z manfred99 $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -1920,6 +1920,8 @@ int64_t ataPrintSmartAttribRawValue(char *out,
 // manufacturers use different attribute IDs for an attribute with the
 // same name.  The variable val should contain a non-zero value if a particular
 // attributes has a non-default interpretation.
+// Attribute names shouldn't be longer than 23 chars, otherwise they break the
+// output of smartctl.
 void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char * definitions){
   const char *name;
   unsigned char val;
@@ -2043,7 +2045,7 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     switch (val) {
     case 1:
       // Fujitsu
-      name="Emergency_Retract_Cycle_Ct";
+      name="Emerg_Retract_Cycle_Ct";
       break;
     default:
       name="Power-Off_Retract_Count";
@@ -2097,7 +2099,7 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
       break;
     case 2:
       // Fujitsu
-      name="Off-line_Scan_UNC_Sector_Ct";
+      name="Offline_Scan_UNC_SectCt";
       break;
     }
     break;
@@ -2211,7 +2213,7 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     break;
   case 232:
     // seen in Intel X25-E SSD
-    name="Available_Reserved_Space";
+    name="Available_Reservd_Space";
     break;
   case 233:
     // seen in Intel X25-E SSD
