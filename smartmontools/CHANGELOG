@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] attribute update:
+       trim attribute names to 23 chars
+
   [CF] Add smart pointer class template to manage device object pointers.
        Remove related 'delete' calls and 'try/catch' blocks.
 
