@@ -15,10 +15,6 @@
 
 set -e
 
-# TODO
-#KEYID=0x841ABAE8
-KEYID=
-
 inc_release()
 {
   MINOR=`echo $VERSION | cut -d. -f2`
@@ -36,7 +32,7 @@ COMMIT=
 RC=
 
 case "$1" in
-  --commit) COMMIT=yes; shift;;
+  --commit) COMMIT=yes; shift ;;
 esac
 
 case "$*" in
@@ -106,9 +102,13 @@ make distcheck || exit 1
 make maintainer-clean
 cd ..
 
-mv -f build/smartmontools-$VERSION.tar.gz smartmontools-$VERSIONRC.tar.gz
+TARFILE=smartmontools-$VERSIONRC.tar.gz
 
+mv -f build/smartmontools-$VERSION.tar.gz $TARFILE
 rm -rvf build
+
+md5sum $TARFILE > $TARFILE.md5
+sha1sum $TARFILE > $TARFILE.sha1
 
 # Increase release number
 if [ -z "$RC" ]; then
@@ -117,10 +117,5 @@ if [ -z "$RC" ]; then
     perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
     # svn commit -m "Bump release number to $NEW_VERSION" configure.in
   fi
-fi
-
-# Sign tarball
-if [ "$KEYID" ]; then
-  gpg --default-key $KEYID --armor --detach-sign ./smartmontools-$VERSIONRC.tar.gz
 fi
 
