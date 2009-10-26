@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2971 2009-10-26 22:05:54Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2973 2009-10-26 22:38:19Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2892,7 +2892,7 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
       else
         dev = new linux_ata_device(this, name, req_type);
       if (dev) // autodetect_smart_device() may return nullptr.
-        devlist.add(dev);
+        devlist.push_back(dev);
     }
   }
 

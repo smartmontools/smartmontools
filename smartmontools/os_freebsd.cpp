@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1588,19 +1588,19 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   for (i = 0; i < numata; i++) {
     ata_device * atadev = get_ata_device(atanames[i], type);
     if (atadev)
-      devlist.add(atadev);
+      devlist.push_back(atadev);
   }
 
   for (i = 0; i < numscsi; i++) {
     if(!*type) { // try USB autodetection if no type specified
       smart_device * smartdev = autodetect_smart_device(scsinames[i]);
       if(smartdev)
-        devlist.add(smartdev);
+        devlist.push_back(smartdev);
     }
     else {
       scsi_device * scsidev = get_scsi_device(scsinames[i], type);
       if (scsidev)
-        devlist.add(scsidev);
+        devlist.push_back(scsidev);
     }
   }
   return true;

@@ -24,7 +24,7 @@
 #include "dev_interface.h"
 #include "dev_ata_cmd_set.h"
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
+const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 2973 2009-10-26 22:38:19Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -516,7 +516,7 @@ smart_device * legacy_smart_interface::autodetect_smart_device(const char * name
 
 static void free_devnames(char * * devnames, int numdevs)
 {
-  static const char version[] = "$Id: dev_legacy.cpp 2971 2009-10-26 22:05:54Z chrfranke $";
+  static const char version[] = "$Id: dev_legacy.cpp 2973 2009-10-26 22:38:19Z chrfranke $";
   for (int i = 0; i < numdevs; i++)
     FreeNonZero(devnames[i], -1,__LINE__, version);
   FreeNonZero(devnames, (sizeof (char*) * numdevs),__LINE__, version);
@@ -557,14 +557,14 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
   for (i = 0; i < numata; i++) {
     ata_device * atadev = get_ata_device(atanames[i], type);
     if (atadev)
-      devlist.add(atadev);
+      devlist.push_back(atadev);
   }
   free_devnames(atanames, numata);
 
   for (i = 0; i < numscsi; i++) {
     scsi_device * scsidev = get_scsi_device(scsinames[i], type);
     if (scsidev)
-      devlist.add(scsidev);
+      devlist.push_back(scsidev);
   }
   free_devnames(scsinames, numscsi);
   return true;

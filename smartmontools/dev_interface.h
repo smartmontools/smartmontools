@@ -18,7 +18,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 2971 2009-10-26 22:05:54Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 2973 2009-10-26 22:38:19Z chrfranke $\n"
 
 #include <stdarg.h>
 #include <stdexcept>
@@ -633,9 +633,6 @@ public:
       m_list.clear();
     }
 
-
-  void add(smart_device * dev)
-    { m_list.push_back(dev); }
 
   void push_back(smart_device * dev)
     { m_list.push_back(dev); }
