@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -301,29 +301,22 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     // Recurse to allocate base device, default is standard SCSI
     if (!*basetype)
       basetype = "scsi";
-    dev = get_smart_device(name, basetype);
-    if (!dev) {
+    smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
+    if (!basedev) {
       set_err(EINVAL, "Type '%s+...': %s", sattype.c_str(), get_errmsg());
       return 0;
     }
     // Result must be SCSI
-    if (!dev->is_scsi()) {
-      delete dev;
+    if (!basedev->is_scsi()) {
       set_err(EINVAL, "Type '%s+...': Device type '%s' is not SCSI", sattype.c_str(), basetype);
       return 0;
     }
     // Attach SAT tunnel
-    try {
-      ata_device * satdev = get_sat_device(sattype.c_str(), dev->to_scsi());
-      if (!satdev) {
-        delete dev;
-        return 0;
-      }
-      return satdev;
-    }
-    catch (...) {
-      delete dev; throw;
-    }
+    ata_device * satdev = get_sat_device(sattype.c_str(), basedev->to_scsi());
+    if (!satdev)
+      return 0;
+    basedev.release();
+    return satdev;
   }
 
   else {

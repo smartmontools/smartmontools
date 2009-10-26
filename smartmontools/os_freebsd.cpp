@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2955 2009-10-10 12:34:08Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1218,26 +1218,21 @@ smart_device * freebsd_scsi_device::autodetect_open()
     return this;
 
   // Use INQUIRY to detect type
-  smart_device * newdev = 0;
-  try {
-    // 3ware ?
-    if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
-      close();
-      set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
-                      "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
-      return this;
-    }
 
-    // SAT or USB ?
-    newdev = smi()->autodetect_sat_device(this, req_buff, len);
+  // 3ware ?
+  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
+    close();
+    set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
+                    "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
+    return this;
+  }
+
+  // SAT or USB ?
+  {
+    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
     if (newdev)
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
-  }
-  catch (...) {
-    // Cleanup if exception occurs after newdev was allocated
-    delete newdev;
-    throw;
   }
 
   // Nothing special found

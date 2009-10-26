@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2958 2009-10-17 17:59:54Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2971 2009-10-26 22:05:54Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1307,40 +1307,11 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
   if (!scsidev->is_open())
     return 0;
 
-  ata_device * atadev = 0;
-  try {
-    // SAT ?
-    if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) { // TODO: Linux-specific?
-      atadev = new sat_device(this, scsidev, "");
-      if (has_sat_pass_through(atadev))
-        return atadev; // Detected SAT
-      atadev->release(scsidev);
-      delete atadev;
-    }
-
-/* The new usbcypress_device(this, scsidev, "", 0x24) sends vendor specific comand to non-cypress devices.
- * It's dangerous as other device may interpret such command as own valid vendor specific command.
- * I commented it out untill problem resolved
- */
-#if 0
-    // USB ?
-    {
-      atadev = new usbcypress_device(this, scsidev, "", 0x24);
-      if (has_usbcypress_pass_through(atadev,
-            (inqdata && inqsize >= 36 ? (const char*)inqdata  + 8 : 0),
-            (inqdata && inqsize >= 36 ? (const char*)inqdata + 16 : 0) ))
-        return atadev; // Detected USB
-      atadev->release(scsidev);
-      delete atadev;
-    }
-#endif
-  }
-  catch (...) {
-    if (atadev) {
-      atadev->release(scsidev);
-      delete atadev;
-    }
-    throw;
+  // SAT ?
+  if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) { // TODO: Linux-specific?
+    ata_device_auto_ptr atadev( new sat_device(this, scsidev, "") , scsidev);
+    if (has_sat_pass_through(atadev.get()))
+      return atadev.release(); // Detected SAT
   }
 
   return 0;
