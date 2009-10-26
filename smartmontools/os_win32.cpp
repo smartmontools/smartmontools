@@ -2440,7 +2440,7 @@ bool win9x_smart_interface::ata_scan(smart_device_list & devlist)
     if (!(devmap & (1 << i)))
       continue;
     sprintf(name, "/dev/hd%c", 'a'+i);
-    devlist.add( new win_ata_device(this, name, "ata") );
+    devlist.push_back( new win_ata_device(this, name, "ata") );
   }
   return true;
 }
@@ -2469,7 +2469,7 @@ bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
       for (int pi = 0; pi < 32; pi++) {
         if (vers_ex.dwDeviceMapEx & (1L << pi)) {
             sprintf(name, "/dev/sd%c,%u", 'a'+i, pi);
-            devlist.add( new win_ata_device(this, name, "ata") );
+            devlist.push_back( new win_ata_device(this, name, "ata") );
         }
       }
       continue;
@@ -2477,7 +2477,7 @@ bool winnt_smart_interface::ata_scan(smart_device_list & devlist)
 
     // Driver supports SMART_GET_VERSION or STORAGE_QUERY_PROPERTY returns ATA/SATA
     sprintf(name, "/dev/sd%c", 'a'+i);
-    devlist.add( new win_ata_device(this, name, "ata") );
+    devlist.push_back( new win_ata_device(this, name, "ata") );
   }
 
   return true;
@@ -3209,7 +3209,7 @@ bool win9x_smart_interface::scsi_scan(smart_device_list & devlist)
           pout("  ID %u: Device Type=0x%02x\n", id, srb.t.devtype);
         char name[20];
         sprintf(name, "/dev/scsi%u%u", ad, id);
-        devlist.add( new win_aspi_device(this, name, "scsi") );
+        devlist.push_back( new win_aspi_device(this, name, "scsi") );
       }
       else if (con->reportscsiioctl)
         pout("  ID %u: Device Type=0x%02x (ignored)\n", id, srb.t.devtype);
@@ -3432,7 +3432,7 @@ bool winnt_smart_interface::scsi_scan(smart_device_list & devlist)
       continue;
     // STORAGE_QUERY_PROPERTY returned SCSI/SAS/...
     sprintf(name, "/dev/sd%c", 'a'+i);
-    devlist.add( new win_scsi_device(this, name, "scsi") );
+    devlist.push_back( new win_scsi_device(this, name, "scsi") );
   }
   return true;
 }

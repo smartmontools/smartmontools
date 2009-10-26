@@ -557,14 +557,14 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
   for (i = 0; i < numata; i++) {
     ata_device * atadev = get_ata_device(atanames[i], type);
     if (atadev)
-      devlist.add(atadev);
+      devlist.push_back(atadev);
   }
   free_devnames(atanames, numata);
 
   for (i = 0; i < numscsi; i++) {
     scsi_device * scsidev = get_scsi_device(scsinames[i], type);
     if (scsidev)
-      devlist.add(scsidev);
+      devlist.push_back(scsidev);
   }
   free_devnames(scsinames, numscsi);
   return true;

@@ -634,9 +634,6 @@ public:
     }
 
 
-  void add(smart_device * dev)
-    { m_list.push_back(dev); }
-
   void push_back(smart_device * dev)
     { m_list.push_back(dev); }
 

@@ -2892,7 +2892,7 @@ bool linux_smart_interface::get_dev_list(smart_device_list & devlist,
       else
         dev = new linux_ata_device(this, name, req_type);
       if (dev) // autodetect_smart_device() may return nullptr.
-        devlist.add(dev);
+        devlist.push_back(dev);
     }
   }
 
