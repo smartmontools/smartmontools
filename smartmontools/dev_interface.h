@@ -21,6 +21,7 @@
 #define DEV_INTERFACE_H_CVSID "$Id$\n"
 
 #include <stdarg.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -515,6 +516,95 @@ inline void smart_device::this_is_scsi(scsi_device * scsi)
 
 
 /////////////////////////////////////////////////////////////////////////////
+/// Smart pointer class for device pointers
+
+template <class Dev>
+class any_device_auto_ptr
+{
+public:
+  typedef Dev device_type;
+
+  /// Construct from optional pointer to device
+  /// and optional pointer to base device.
+  explicit any_device_auto_ptr(device_type * dev = 0,
+                               smart_device * base_dev = 0)
+    : m_dev(dev), m_base_dev(base_dev) { }
+
+  /// Destructor deletes device object.
+  ~any_device_auto_ptr() throw()
+    { reset(); }
+
+  /// Assign a new pointer.
+  /// Throws if a pointer is already assigned.
+  void operator=(device_type * dev)
+    {
+      if (m_dev)
+        fail();
+      m_dev = dev;
+    }
+
+  /// Delete device object and clear the pointer.
+  void reset()
+    {
+      if (m_dev) {
+        if (m_base_dev && m_dev->owns(m_base_dev))
+          m_dev->release(m_base_dev);
+        delete m_dev;
+      }
+      m_dev = 0;
+    }
+
+  /// Return the pointer and release ownership.
+  device_type * release()
+    {
+      device_type * dev = m_dev;
+      m_dev = 0;
+      return dev;
+    }
+
+  /// Replace the pointer.
+  /// Used to call dev->autodetect_open().
+  void replace(device_type * dev)
+    { m_dev = dev; }
+
+  /// Return the pointer.
+  device_type * get() const
+    { return m_dev; }
+
+  /// Pointer dereferencing.
+  device_type & operator*() const
+    { return *m_dev; }
+
+  /// Pointer dereferencing.
+  device_type * operator->() const
+    { return m_dev; }
+
+  /// For (ptr != 0) check.
+  operator bool() const
+    { return !!m_dev; }
+
+  /// For (ptr == 0) check.
+  bool operator !() const
+    { return !m_dev; }
+
+private:
+  device_type * m_dev;
+  smart_device * m_base_dev;
+
+  void fail() const
+    { throw std::logic_error("any_device_auto_ptr: wrong usage"); }
+
+  // Prevent copy/assignment
+  any_device_auto_ptr(const any_device_auto_ptr<Dev> &);
+  void operator=(const any_device_auto_ptr<Dev> &);
+};
+
+typedef any_device_auto_ptr<smart_device> smart_device_auto_ptr;
+typedef any_device_auto_ptr<ata_device>   ata_device_auto_ptr;
+typedef any_device_auto_ptr<scsi_device>  scsi_device_auto_ptr;
+
+
+/////////////////////////////////////////////////////////////////////////////
 // smart_device_list
 
 /// List of devices for DEVICESCAN
@@ -549,6 +639,12 @@ public:
 
   void push_back(smart_device * dev)
     { m_list.push_back(dev); }
+
+  void push_back(smart_device_auto_ptr & dev)
+    {
+      m_list.push_back(dev.get());
+      dev.release();
+    }
 
   smart_device * at(unsigned i)
     { return m_list.at(i); }

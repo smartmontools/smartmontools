@@ -930,18 +930,12 @@ smart_device * linux_megaraid_device::autodetect_open()
     printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
 
   // Use INQUIRY to detect type
-  smart_device * newdev = 0;
-  try {
+  {
     // SAT or USB ?
-    newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
     if (newdev)
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
-  }
-  catch (...) {
-    // Cleanup if exception occurs after newdev was allocated
-    delete newdev;
-    throw;
   }
 
   // Nothing special found
@@ -2671,45 +2665,44 @@ smart_device * linux_scsi_device::autodetect_open()
   int avail_len = req_buff[4] + 5;
   int len = (avail_len < req_len ? avail_len : req_len);
   if (len < 36)
-      return this;
+    return this;
 
   // Use INQUIRY to detect type
-  smart_device * newdev = 0;
-  try {
-    // 3ware ?
-    if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
-      close();
-      set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
-                      "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
-      return this;
-    }
-    // DELL?
-    if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)) {
-      close();
-      set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
-      return this;
-    }
-    
-    // Marvell ?
-    if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
-      //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
-      close();
-      newdev = new linux_marvell_device(smi(), get_dev_name(), get_req_type());
-      newdev->open(); // TODO: Can possibly pass open fd
-      delete this;
-      return newdev;
-    }
 
-    // SAT or USB ?
-    newdev = smi()->autodetect_sat_device(this, req_buff, len);
+  // 3ware ?
+  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
+    close();
+    set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
+                    "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
+    return this;
+  }
+
+  // DELL?
+  if (!memcmp(req_buff + 8, "DELL    PERC", 12) || !memcmp(req_buff + 8, "MegaRAID", 8)) {
+    close();
+    set_err(EINVAL, "DELL or MegaRaid controller, please try adding '-d megaraid,N'");
+    return this;
+  }
+
+  // Marvell ?
+  if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6)) {
+    //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
+    close();
+    smart_device_auto_ptr newdev(
+      new linux_marvell_device(smi(), get_dev_name(), get_req_type()),
+      this
+    );
+    newdev->open(); // TODO: Can possibly pass open fd
+    delete this;
+    return newdev.release();
+  }
+
+  // SAT or USB ?
+  {
+    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
     if (newdev)
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
-  }
-  catch (...) {
-    // Cleanup if exception occurs after newdev was allocated
-    delete newdev;
-    throw;
   }
 
   // Nothing special found

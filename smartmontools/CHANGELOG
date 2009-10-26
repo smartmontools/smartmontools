@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add smart pointer class template to manage device object pointers.
+       Remove related 'delete' calls and 'try/catch' blocks.
+
   [CF] do_release: Replace generation of '*.asc' by '*.md5' and '*.sha1'.
 
   [MS] attribute updates:

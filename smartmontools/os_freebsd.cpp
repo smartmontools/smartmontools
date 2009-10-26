@@ -1218,26 +1218,21 @@ smart_device * freebsd_scsi_device::autodetect_open()
     return this;
 
   // Use INQUIRY to detect type
-  smart_device * newdev = 0;
-  try {
-    // 3ware ?
-    if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
-      close();
-      set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
-                      "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
-      return this;
-    }
 
-    // SAT or USB ?
-    newdev = smi()->autodetect_sat_device(this, req_buff, len);
+  // 3ware ?
+  if (!memcmp(req_buff + 8, "3ware", 5) || !memcmp(req_buff + 8, "AMCC", 4)) {
+    close();
+    set_err(EINVAL, "AMCC/3ware controller, please try adding '-d 3ware,N',\n"
+                    "you may need to replace %s with /dev/twaN or /dev/tweN", get_dev_name());
+    return this;
+  }
+
+  // SAT or USB ?
+  {
+    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
     if (newdev)
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
-  }
-  catch (...) {
-    // Cleanup if exception occurs after newdev was allocated
-    delete newdev;
-    throw;
   }
 
   // Nothing special found

@@ -877,92 +877,83 @@ int main_worker(int argc, char **argv)
   if (!smi())
     return 1;
 
-  int retval = 0;
+  // define control block for external functions
+  smartmonctrl control;
+  con=&control;
 
-  smart_device * dev = 0;
-  try {
-    // define control block for external functions
-    smartmonctrl control;
-    con=&control;
+  // Parse input arguments
+  ata_print_options ataopts;
+  scsi_print_options scsiopts;
+  const char * type = parse_options(argc, argv, ataopts, scsiopts);
 
-    // Parse input arguments
-    ata_print_options ataopts;
-    scsi_print_options scsiopts;
-    const char * type = parse_options(argc, argv, ataopts, scsiopts);
+  // '-d test' -> Report result of autodetection
+  bool print_type_only = (type && !strcmp(type, "test"));
+  if (print_type_only)
+    type = 0;
 
-    // '-d test' -> Report result of autodetection
-    bool print_type_only = (type && !strcmp(type, "test"));
-    if (print_type_only)
-      type = 0;
+  const char * name = argv[argc-1];
 
-    const char * name = argv[argc-1];
-
-    if (!strcmp(name,"-")) {
-      // Parse "smartctl -r ataioctl,2 ..." output from stdin
-      if (type || print_type_only) {
-        pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
-        UsageSummary();
-        return FAILCMD;
-      }
-      dev = get_parsed_ata_device(smi(), name);
-    }
-    else
-      // get device of appropriate type
-      dev = smi()->get_smart_device(name, type);
-
-    if (!dev) {
-      pout("%s: %s\n", name, smi()->get_errmsg());
-      if (type)
-        printvalidarglistmessage('d');
-      else
-        pout("Smartctl: please specify device type with the -d option.\n");
+  smart_device_auto_ptr dev;
+  if (!strcmp(name,"-")) {
+    // Parse "smartctl -r ataioctl,2 ..." output from stdin
+    if (type || print_type_only) {
+      pout("Smartctl: -d option is not allowed in conjunction with device name \"-\".\n");
       UsageSummary();
       return FAILCMD;
     }
+    dev = get_parsed_ata_device(smi(), name);
+  }
+  else
+    // get device of appropriate type
+    dev = smi()->get_smart_device(name, type);
 
-    if (print_type_only)
-      // Report result of first autodetection
-      pout("%s: Device of type '%s' [%s] detected\n",
-           dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev));
-
-    // Open device
-    {
-      // Save old info
-      smart_device::device_info oldinfo = dev->get_info();
-
-      // Open with autodetect support, may return 'better' device
-      dev = dev->autodetect_open();
-
-      // Report if type has changed
-      if ((type || print_type_only) && oldinfo.dev_type != dev->get_dev_type())
-        pout("%s: Device open changed type from '%s' to '%s'\n",
-          dev->get_info_name(), oldinfo.dev_type.c_str(), dev->get_dev_type());
-    }
-    if (!dev->is_open()) {
-      pout("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
-      delete dev;
-      return FAILDEV;
-    }
-
-    // now call appropriate ATA or SCSI routine
-    if (print_type_only)
-      pout("%s: Device of type '%s' [%s] opened\n",
-           dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev));
-    else if (dev->is_ata())
-      retval = ataPrintMain(dev->to_ata(), ataopts);
-    else if (dev->is_scsi())
-      retval = scsiPrintMain(dev->to_scsi(), scsiopts);
+  if (!dev) {
+    pout("%s: %s\n", name, smi()->get_errmsg());
+    if (type)
+      printvalidarglistmessage('d');
     else
-      // we should never fall into this branch!
-      pout("%s: Neither ATA nor SCSI device\n", dev->get_info_name());
+      pout("Smartctl: please specify device type with the -d option.\n");
+    UsageSummary();
+    return FAILCMD;
+  }
 
-    dev->close();
-    delete dev;
+  if (print_type_only)
+    // Report result of first autodetection
+    pout("%s: Device of type '%s' [%s] detected\n",
+         dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
+
+  // Open device
+  {
+    // Save old info
+    smart_device::device_info oldinfo = dev->get_info();
+
+    // Open with autodetect support, may return 'better' device
+    dev.replace( dev->autodetect_open() );
+
+    // Report if type has changed
+    if ((type || print_type_only) && oldinfo.dev_type != dev->get_dev_type())
+      pout("%s: Device open changed type from '%s' to '%s'\n",
+        dev->get_info_name(), oldinfo.dev_type.c_str(), dev->get_dev_type());
   }
-  catch (...) {
-    delete dev;
-    throw;
+  if (!dev->is_open()) {
+    pout("Smartctl open device: %s failed: %s\n", dev->get_info_name(), dev->get_errmsg());
+    return FAILDEV;
   }
+
+  // now call appropriate ATA or SCSI routine
+  int retval = 0;
+  if (print_type_only)
+    pout("%s: Device of type '%s' [%s] opened\n",
+         dev->get_info_name(), dev->get_dev_type(), get_protocol_info(dev.get()));
+  else if (dev->is_ata())
+    retval = ataPrintMain(dev->to_ata(), ataopts);
+  else if (dev->is_scsi())
+    retval = scsiPrintMain(dev->to_scsi(), scsiopts);
+  else
+    // we should never fall into this branch!
+    pout("%s: Neither ATA nor SCSI device\n", dev->get_info_name());
+
+  dev->close();
   return retval;
 }
 

@@ -4138,8 +4138,7 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     dev_config cfg = conf_entries[i];
 
     // get device of appropriate type
-    // TODO: exception handling
-    smart_device * dev = 0;
+    smart_device_auto_ptr dev;
     bool scanning = false;
 
     // Device may already be detected during devicescan
@@ -4164,10 +4163,10 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     smart_device::device_info oldinfo = dev->get_info();
 
     // Open with autodetect support, may return 'better' device
-    dev = dev->autodetect_open();
+    dev.replace( dev->autodetect_open() );
 
     // Report if type has changed
-    if (/* ent->dev_type && */ oldinfo.dev_type != dev->get_dev_type())
+    if (oldinfo.dev_type != dev->get_dev_type())
       PrintOut(LOG_INFO,"Device: %s, type changed from '%s' to '%s'\n",
         cfg.name.c_str(), oldinfo.dev_type.c_str(), dev->get_dev_type());
 
@@ -4177,7 +4176,6 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
       // If no debug and scanning - don't print errors
       if (debugmode || !scanning)
         PrintOut(LOG_INFO, "Device: %s, open() failed: %s\n", dev->get_info_name(), dev->get_errmsg());
-      delete dev;
       continue;
     }
 
@@ -4192,33 +4190,30 @@ static void RegisterDevices(const dev_config_vector & conf_entries, smart_device
     if (dev->is_ata()){
       if (ATADeviceScan(cfg, state, dev->to_ata())) {
         CanNotRegister(cfg.name.c_str(), "ATA", cfg.lineno, scanning);
-        delete dev; dev = 0;
-      }
-      else {
-        // move onto the list of ata devices
-        configs.push_back(cfg);
-        states.push_back(state);
-        devices.push_back(dev);
+        dev.reset();
       }
     }
-    
     // or register SCSI devices
     else if (dev->is_scsi()){
       if (SCSIDeviceScan(cfg, state, dev->to_scsi())) {
         CanNotRegister(cfg.name.c_str(), "SCSI", cfg.lineno, scanning);
-        delete dev; dev = 0;
-      }
-      else {
-        // move onto the list of scsi devices
-        configs.push_back(cfg);
-        states.push_back(state);
-        devices.push_back(dev);
+        dev.reset();
       }
     }
-    
+    else {
+      PrintOut(LOG_INFO, "Device: %s, neither ATA nor SCSI device\n", cfg.name.c_str());
+      dev.reset();
+    }
+
+    if (dev) {
+      // move onto the list of devices
+      configs.push_back(cfg);
+      states.push_back(state);
+      devices.push_back(dev);
+    }
     // if device is explictly listed and we can't register it, then
     // exit unless the user has specified that the device is removable
-    if (!dev && !scanning) {
+    else if (!scanning) {
       if (cfg.removable || quit==2)
         PrintOut(LOG_INFO, "Device %s not available\n", cfg.name.c_str());
       else {
