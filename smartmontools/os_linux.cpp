@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2973 2009-10-26 22:38:19Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2974 2009-10-27 16:59:34Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -2689,8 +2689,7 @@ smart_device * linux_scsi_device::autodetect_open()
     //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
     close();
     smart_device_auto_ptr newdev(
-      new linux_marvell_device(smi(), get_dev_name(), get_req_type()),
-      this
+      new linux_marvell_device(smi(), get_dev_name(), get_req_type())
     );
     newdev->open(); // TODO: Can possibly pass open fd
     delete this;
