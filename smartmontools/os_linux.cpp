@@ -2689,8 +2689,7 @@ smart_device * linux_scsi_device::autodetect_open()
     //pout("Device %s: using '-d marvell' for ATA disk with Marvell driver\n", get_dev_name());
     close();
     smart_device_auto_ptr newdev(
-      new linux_marvell_device(smi(), get_dev_name(), get_req_type()),
-      this
+      new linux_marvell_device(smi(), get_dev_name(), get_req_type())
     );
     newdev->open(); // TODO: Can possibly pass open fd
     delete this;

@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix auto_ptr initialization in linux_scsi_device::autodetect_open().
+
   [CF] Remove duplicate function smart_device_list::add().
        Replace calls with push_back().
 
