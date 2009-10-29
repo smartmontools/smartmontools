@@ -539,7 +539,7 @@ const char * parse_options(int argc, char** argv,
              create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
-      if (parse_attribute_def(optarg, ataopts.attributedefs))
+      if (!parse_attribute_def(optarg, ataopts.attribute_defs, PRIOR_USER))
         badarg = true;
       break;    
     case 'P':

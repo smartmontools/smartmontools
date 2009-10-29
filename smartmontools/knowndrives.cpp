@@ -76,7 +76,7 @@ static const drive_settings builtin_knowndrives[] = {
   { "Intel X25-E SSD",
     "SSDSA2SH(032|064)G1.* INTEL",
     "", "",
-    "-v 225,hostwritescount"
+    "-v 225,raw48,Host_Writes_Count"
   },
   { "Transcend Solid-State Drive",
     "TS(8|16|32|64|128)GSSD25-(M|S)",
@@ -222,7 +222,7 @@ static const drive_settings builtin_knowndrives[] = {
   { "Fujitsu MHY2 BH series",
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
     "", "",
-    "-v 240,transfererrorrate"
+    "-v 240,raw48,Transfer_Error_Rate"
   },
   { "Fujitsu MHW2 BH series",
     "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
@@ -1450,7 +1450,8 @@ const drive_settings * lookup_drive(const char * model, const char * firmware)
 }
 
 // Parse '-v' and '-F' options in preset string, return false on error.
-static bool parse_presets(const char * presets, unsigned char * opts, unsigned char & fix_firmwarebug)
+static bool parse_presets(const char * presets, ata_vendor_attr_defs & defs,
+                          unsigned char & fix_firmwarebug)
 {
   for (int i = 0; ; ) {
     i += strspn(presets+i, " \t");
@@ -1460,14 +1461,9 @@ static bool parse_presets(const char * presets, unsigned char * opts, unsigned c
     if (!(sscanf(presets+i, "-%c %40[^ ]%n", &opt, arg, &len) >= 2 && len > 0))
       return false;
     if (opt == 'v') {
-      // Parse "-v N,option"
-      unsigned char newopts[MAX_ATTRIBUTE_NUM] = {0, };
-      if (parse_attribute_def(arg, newopts))
+      // Parse "-v N,format[,name]"
+      if (!parse_attribute_def(arg, defs, PRIOR_DATABASE))
         return false;
-      // Set only if not set by user
-      for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++)
-        if (newopts[j] && !opts[j])
-          opts[j] = newopts[j];
     }
     else if (opt == 'F') {
       unsigned char fix;
@@ -1524,19 +1520,16 @@ static int showonepreset(const drive_settings * dbentry)
   unsigned char fix_firmwarebug = 0;
   bool first_preset = true;
   if (*dbentry->presets) {
-    unsigned char opts[MAX_ATTRIBUTE_NUM] = {0,};
-    if (!parse_presets(dbentry->presets, opts, fix_firmwarebug)) {
+    ata_vendor_attr_defs defs;
+    if (!parse_presets(dbentry->presets, defs, fix_firmwarebug)) {
       pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
       errcnt++;
     }
     for (int i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
-      char out[256];
-      if (opts[i]) {
-        ataPrintSmartAttribName(out, i, opts);
+      if (defs[i].priority != PRIOR_DEFAULT) {
         // Use leading zeros instead of spaces so that everything lines up.
-        out[0] = (out[0] == ' ') ? '0' : out[0];
-        out[1] = (out[1] == ' ') ? '0' : out[1];
-        pout("%-*s %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "", out);
+        pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
+             i, ata_get_smart_attr_name(i, defs).c_str());
         first_preset = false;
       }
     }
@@ -1664,7 +1657,7 @@ void show_presets(const ata_identify_device * drive, bool fix_swapped_id)
 // (if any) for the given drive in knowndrives[].  Values that have
 // already been set in opts will not be changed.  Returns false if drive
 // not recognized.
-bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
+bool apply_presets(const ata_identify_device *drive, ata_vendor_attr_defs & defs,
                    unsigned char & fix_firmwarebug, bool fix_swapped_id)
 {
   // get the drive's model/firmware strings
@@ -1679,7 +1672,7 @@ bool apply_presets(const ata_identify_device *drive, unsigned char * opts,
 
   if (*dbentry->presets) {
     // Apply presets
-    if (!parse_presets(dbentry->presets, opts, fix_firmwarebug))
+    if (!parse_presets(dbentry->presets, defs, fix_firmwarebug))
       pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
   }
   return true;
@@ -1899,8 +1892,8 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
             break;
           case 4:
             if (!token.value.empty()) {
-              unsigned char opts[MAX_ATTRIBUTE_NUM] = {0, }; unsigned char fix = 0;
-              if (!parse_presets(token.value.c_str(), opts, fix)) {
+              ata_vendor_attr_defs defs; unsigned char fix = 0;
+              if (!parse_presets(token.value.c_str(), defs, fix)) {
                 pout("%s(%d): Syntax error in preset option string\n", path, token.line);
                 ok = false;
               }

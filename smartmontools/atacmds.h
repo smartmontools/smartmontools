@@ -626,6 +626,64 @@ struct ata_selective_selftest_args
     : num_spans(0), pending_time(0), scan_after_select(0) { }
 };
 
+// Priority for vendor attribute defs
+enum ata_vendor_def_prior
+{
+  PRIOR_DEFAULT,
+  PRIOR_DATABASE,
+  PRIOR_USER
+};
+
+// Raw attribute value print formats
+enum ata_attr_raw_format
+{
+  RAWFMT_DEFAULT,
+  RAWFMT_RAW8,
+  RAWFMT_RAW16,
+  RAWFMT_RAW48,
+  RAWFMT_RAW16_OPT_RAW16,
+  RAWFMT_RAW16_OPT_AVG16,
+  RAWFMT_RAW24_RAW24,
+  RAWFMT_SEC2HOUR,
+  RAWFMT_MIN2HOUR,
+  RAWFMT_HALFMIN2HOUR,
+  RAWFMT_TEMPMINMAX,
+  RAWFMT_TEMP10X,
+};
+
+// Attribute flags
+enum {
+  ATTRFLAG_INCREASING = 0x01 // Value not reset (for reallocated/pending counts)
+};
+
+// Vendor attribute display defs for all attribute ids
+class ata_vendor_attr_defs
+{
+public:
+  struct entry
+  {
+    std::string name; // Attribute name, empty for default
+    ata_attr_raw_format raw_format; // Raw value print format
+    ata_vendor_def_prior priority; // Setting priority
+    unsigned flags; // ATTRFLAG_*
+
+    entry()
+      : raw_format(RAWFMT_DEFAULT),
+        priority(PRIOR_DEFAULT),
+        flags(0)
+      { }
+  };
+
+  entry & operator[](unsigned char id)
+    { return m_defs[id]; }
+
+  const entry & operator[](unsigned char id) const
+    { return m_defs[id]; }
+
+private:
+  entry m_defs[256];
+};
+
 
 // Get information from drive
 int ataReadHDIdentity(ata_device * device, struct ata_identify_device *buf);
@@ -741,15 +799,13 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
 
 int TestTime(const ata_smart_values * data, int testtype);
 
-// Prints the raw value (with appropriate formatting) into the
-// character string out.
-int64_t ataPrintSmartAttribRawValue(char *out, 
-                                    const ata_smart_attribute * attribute,
-                                    const unsigned char * defs);
+// Format attribute raw value.
+std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
+                                      const ata_vendor_attr_defs & defs);
 
-// Prints Attribute Name for standard SMART attributes. Writes a
-// 30 byte string with attribute name into output
-void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char * definitions);
+// Get attribute name
+std::string ata_get_smart_attr_name(unsigned char id,
+                                    const ata_vendor_attr_defs & defs);
 
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the
@@ -774,7 +830,7 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * da
 
 // Return Temperature Attribute raw value selected according to possible
 // non-default interpretations. If the Attribute does not exist, return 0
-unsigned char ATAReturnTemperatureValue(const ata_smart_values * data, const unsigned char * defs);
+unsigned char ata_return_temperature_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs);
 
 
 // This are the meanings of the Self-test failure checkpoint byte.
@@ -788,14 +844,14 @@ const char *SelfTestFailureCodeName(unsigned char which);
 
 #define MAX_ATTRIBUTE_NUM 256
 
-// function to parse pairs like "9,minutes" or "220,temp".  See end of
-// extern.h for definition of defs[].  Returns 0 if pair recognized,
-// else 1 if there is a problem.
-int parse_attribute_def(const char * pair, unsigned char * defs);
+// Parse vendor attribute display def (-v option).
+// Return false on error.
+bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
+                         ata_vendor_def_prior priority);
 
 // Get ID and increase flag of current pending or offline
 // uncorrectable attribute.
-unsigned char get_unc_attr_id(bool offline, const unsigned char * defs,
+unsigned char get_unc_attr_id(bool offline, const ata_vendor_attr_defs & defs,
                               bool & increase);
 
 // Return a multiline string containing a list of valid arguments for

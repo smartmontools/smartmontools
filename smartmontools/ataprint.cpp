@@ -778,12 +778,11 @@ static void PrintSmartConveyanceSelfTestPollingTime(const ata_smart_values * dat
 // onlyfailed=2:  ones that are failed, or have failed with or without prefailure bit set
 static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                       const ata_smart_thresholds_pvt * thresholds,
-                                      const unsigned char * attributedefs,
+                                      const ata_vendor_attr_defs & defs,
                                       int onlyfailed)
 {
   int needheader=1;
-  char rawstring[64];
-    
+
   // step through all vendor attributes
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const char *status;
@@ -794,7 +793,6 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     // thresholds page data to slip by)
     if (disk->id){
       const char *type, *update;
-      char attributename[64];
 
       // Don't report a failed attribute if its threshold is 0.
       // ATA-3 (X3T13/2008D Revision 7b) declares 0x00 as the "always passing"
@@ -829,30 +827,23 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
       else
         status="    -";
 
-      // Print name of attribute
-      ataPrintSmartAttribName(attributename, disk->id, attributedefs);
-      pout("%-28s",attributename);
-
       // printing line for each valid attribute
       type=ATTRIBUTE_FLAGS_PREFAILURE(disk->flags)?"Pre-fail":"Old_age";
       update=ATTRIBUTE_FLAGS_ONLINE(disk->flags)?"Always":"Offline";
 
-      pout("0x%04x   %.3d   %.3d   %.3d    %-10s%-9s%-12s", 
-             (int)disk->flags, (int)disk->current, (int)disk->worst,
-             (int)thre->threshold, type, update, status);
+      pout("%3d %-24s0x%04x   %.3d   %.3d   %.3d    %-10s%-9s%-12s%s\n",
+           disk->id, ata_get_smart_attr_name(disk->id, defs).c_str(),
+           (int)disk->flags, (int)disk->current, (int)disk->worst,
+           (int)thre->threshold, type, update, status,
+           ata_format_attr_raw_value(*disk, defs).c_str());
 
-      // print raw value of attribute
-      ataPrintSmartAttribRawValue(rawstring, disk, attributedefs);
-      pout("%s\n", rawstring);
-      
       // Print a warning if there is inconsistency here and
       // threshold info is not empty.
       if (disk->id != thre->id && (thre->id || thre->threshold)) {
-        char atdat[64],atthr[64];
-        ataPrintSmartAttribName(atdat, disk->id, attributedefs);
-        ataPrintSmartAttribName(atthr, thre->id, attributedefs);
-        pout("%-28s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",atdat);
-        pout("%-28s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",atthr);
+        pout("%3d %-24s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",
+             disk->id, ata_get_smart_attr_name(disk->id, defs).c_str());
+        pout("%3d %-24s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",
+             thre->id, ata_get_smart_attr_name(thre->id, defs).c_str());
       }
     }
   }
@@ -1757,11 +1748,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // Use preset vendor attribute options unless user has requested otherwise.
-  unsigned char attributedefs[256];
-  memcpy(attributedefs, options.attributedefs, sizeof(attributedefs));
+  ata_vendor_attr_defs attribute_defs = options.attribute_defs;
   unsigned char fix_firmwarebug = options.fix_firmwarebug;
   if (!options.ignore_presets)
-    apply_presets(&drive, attributedefs, fix_firmwarebug, options.fix_swapped_id);
+    apply_presets(&drive, attribute_defs, fix_firmwarebug, options.fix_swapped_id);
 
   // Print most drive identity information if requested
   bool known = false;
@@ -1964,7 +1954,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Please note the following marginal Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 2);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2);
         } 
         returnval|=FAILAGE;
       }
@@ -1985,7 +1975,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 1);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1);
         }
       }
       else
@@ -2009,7 +1999,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         else {
           PRINT_ON(con);
           pout("Failed Attributes:\n");
-          PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 1);
+          PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 1);
         }
       }
       else {
@@ -2020,7 +2010,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           else {
             PRINT_ON(con);
             pout("Please note the following marginal Attributes:\n");
-            PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs, 2);
+            PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs, 2);
           } 
           returnval|=FAILAGE;
         }
@@ -2041,7 +2031,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print vendor-specific attributes
   if (options.smart_vendor_attrib) {
     PRINT_ON(con);
-    PrintSmartAttribWithThres(&smartval, &smartthres, attributedefs,
+    PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs,
                               (con->printing_switchable ? 2 : 0));
     PRINT_OFF(con);
   }

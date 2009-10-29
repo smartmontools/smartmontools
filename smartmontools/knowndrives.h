@@ -21,7 +21,7 @@
 #ifndef KNOWNDRIVES_H_
 #define KNOWNDRIVES_H_
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h,v 1.23 2009/04/16 21:24:08 chrfranke Exp $\n"
+#define KNOWNDRIVES_H_CVSID "$Id$\n"
 
 /* Structure used to store settings for specific drives in knowndrives[]. The
  * elements are used in the following ways:
@@ -69,7 +69,7 @@ int showmatchingpresets(const char *model, const char *firmware);
 // (if any) for the given drive in knowndrives[].  Values that have
 // already been set in opts will not be changed.  Also sets options in
 // con.  Returns false if drive not recognized.
-bool apply_presets(const ata_identify_device * drive, unsigned char * opts,
+bool apply_presets(const ata_identify_device * drive, ata_vendor_attr_defs & defs,
                    unsigned char & fix_firmwarebug, bool fix_swapped_id);
 
 // Read drive database from file.

@@ -26,7 +26,7 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h,v 1.43 2009/07/07 19:28:29 chrfranke Exp $\n"
+#define ATAPRINT_H_CVSID "$Id$\n"
 
 #include <vector>
 
@@ -78,13 +78,7 @@ struct ata_print_options
   unsigned char fix_firmwarebug; // FIX_*, see atacmds.h
   bool fix_swapped_id; // Fix swapped ID strings returned by some buggy drivers
 
-  // The i'th entry in this array will modify the printed meaning of
-  // the i'th SMART attribute.  The default definitions of the
-  // Attributes are obtained by having the array be all zeros.  If
-  // attributedefs[i] is nonzero, it means that the i'th attribute has
-  // a non-default meaning.  See the ataPrintSmartAttribName and
-  // and parse_attribute_def functions.
-  unsigned char attributedefs[256];
+  ata_vendor_attr_defs attribute_defs; // -v options
 
   bool ignore_presets; // Ignore presets from drive database
   bool show_presets; // Show presets and exit
@@ -114,7 +108,7 @@ struct ata_print_options
       ignore_presets(false),
       show_presets(false),
       powermode(0)
-    { memset(attributedefs, 0, sizeof(attributedefs)); }
+    { }
 };
 
 int ataPrintMain(ata_device * device, const ata_print_options & options);

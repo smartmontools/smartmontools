@@ -283,8 +283,7 @@ struct dev_config
 
   attribute_flags monitor_attr_flags;     // MONITOR_* flags for each attribute
 
-  // TODO: Encapsulate, add get/set functions
-  unsigned char attributedefs[256];       // -v options, see end of extern.h for def
+  ata_vendor_attr_defs attribute_defs;    // -v options
 
   dev_config();
 };
@@ -315,7 +314,6 @@ dev_config::dev_config()
   curr_pending_incr(false), offl_pending_incr(false),
   curr_pending_set(false),  offl_pending_set(false)
 {
-  memset(attributedefs, 0, sizeof(attributedefs));
 }
 
 
@@ -1613,7 +1611,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     PrintOut(LOG_INFO, "Device: %s, smartd database not searched (Directive: -P ignore).\n", name);
   else {
     // do whatever applypresets decides to do.
-    if (!apply_presets(&drive, cfg.attributedefs, cfg.fix_firmwarebug, fix_swapped_id))
+    if (!apply_presets(&drive, cfg.attribute_defs, cfg.fix_firmwarebug, fix_swapped_id))
       PrintOut(LOG_INFO, "Device: %s, not found in smartd database.\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, found in smartd database.\n", name);
@@ -1621,10 +1619,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // Set default '-C 197[+]' if no '-C ID' is specified.
   if (!cfg.curr_pending_set)
-    cfg.curr_pending_id = get_unc_attr_id(false, cfg.attributedefs, cfg.curr_pending_incr);
+    cfg.curr_pending_id = get_unc_attr_id(false, cfg.attribute_defs, cfg.curr_pending_incr);
   // Set default '-U 198[+]' if no '-U ID' is specified.
   if (!cfg.offl_pending_set)
-    cfg.offl_pending_id = get_unc_attr_id(true, cfg.attributedefs, cfg.offl_pending_incr);
+    cfg.offl_pending_id = get_unc_attr_id(true, cfg.attribute_defs, cfg.offl_pending_incr);
 
   // If requested, show which presets would be used for this drive
   if (cfg.showpresets) {
@@ -1725,7 +1723,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
 
     if (   (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
-        && !ATAReturnTemperatureValue(&state.smartval, cfg.attributedefs)) {
+        && !ata_return_temperature_value(&state.smartval, cfg.attribute_defs)) {
       PrintOut(LOG_CRIT, "Device: %s, can't monitor Temperature, ignoring -W Directive\n", name);
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
     }
@@ -2668,7 +2666,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
       // check temperature limits
       if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
-        CheckTemperature(cfg, state, ATAReturnTemperatureValue(&curval, cfg.attributedefs), 0);
+        CheckTemperature(cfg, state, ata_return_temperature_value(&curval, cfg.attribute_defs), 0);
 
       if (cfg.usagefailed || cfg.prefail || cfg.usage) {
 
@@ -2684,15 +2682,10 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 	    // are we ignoring failures of this attribute?
 	    att *= -1;
             if (!cfg.monitor_attr_flags.is_set(att, MONITOR_IGN_FAILUSE)) {
-	      char attname[64], *loc=attname;
-	      
-	      // get attribute name & skip white space
-	      ataPrintSmartAttribName(loc, att, cfg.attributedefs);
-	      while (*loc && *loc==' ') loc++;
-	      
 	      // warning message
-	      PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %s.\n", name, loc);
-	      MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %s.", name, loc);
+              std::string attrname = ata_get_smart_attr_name(att, cfg.attribute_defs);
+              PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %d %s.\n", name, att, attrname.c_str());
+              MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %d %s.", name, att, attrname.c_str());
               state.must_write = true;
 	    }
 	  }
@@ -2719,29 +2712,23 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
                 && !cfg.monitor_attr_flags.is_set(id, MONITOR_RAW))
 	      continue;
 
-            // get attribute name, skip spaces
-            char attname[64], *loc = attname;
-            ataPrintSmartAttribName(loc, id, cfg.attributedefs);
-            while (*loc && *loc==' ')
-              loc++;
+            // get attribute name
+            std::string attrname = ata_get_smart_attr_name(id, cfg.attribute_defs);
 
             // has the user asked for us to print raw values?
-            char newrawstring[64], oldrawstring[64];
+            std::string newraw, oldraw;
             if (cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_PRINT)) {
               // get raw values (as a string) and add to printout
-              char rawstring[64];
-              ataPrintSmartAttribRawValue(rawstring, curval.vendor_attributes+i, cfg.attributedefs);
-              sprintf(newrawstring, " [Raw %s]", rawstring);
-              ataPrintSmartAttribRawValue(rawstring, state.smartval.vendor_attributes+i, cfg.attributedefs);
-              sprintf(oldrawstring, " [Raw %s]", rawstring);
+              newraw = strprintf(" [Raw %s]",
+                ata_format_attr_raw_value(curval.vendor_attributes[i], cfg.attribute_defs).c_str());
+              oldraw = strprintf(" [Raw %s]",
+                ata_format_attr_raw_value(state.smartval.vendor_attributes[i], cfg.attribute_defs).c_str());
             }
-            else
-              newrawstring[0]=oldrawstring[0]='\0';
 
             // Format message
-            std::string msg = strprintf("Device: %s, SMART %s Attribute: %s changed from %d%s to %d%s",
-                                        name, (delta.prefail ? "Prefailure" : "Usage"), loc,
-                                        delta.oldval, oldrawstring, delta.newval, newrawstring);
+            std::string msg = strprintf("Device: %s, SMART %s Attribute: %d %s changed from %d%s to %d%s",
+                                        name, (delta.prefail ? "Prefailure" : "Usage"), id, attrname.c_str(),
+                                        delta.oldval, oldraw.c_str(), delta.newval, newraw.c_str());
 
             // Report this change as critical ?
             if (   (delta.newval != delta.oldval && cfg.monitor_attr_flags.is_set(id, MONITOR_AS_CRIT))
@@ -3408,7 +3395,7 @@ static int ParseToken(char * token, dev_config & cfg)
     // non-default vendor-specific attribute meaning
     if (!(arg=strtok(NULL,delim))) {
       missingarg = 1;
-    } else if (parse_attribute_def(arg, cfg.attributedefs)) {
+    } else if (!parse_attribute_def(arg, cfg.attribute_defs, PRIOR_USER)) {
       badarg = 1;
     }
     break;

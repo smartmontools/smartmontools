@@ -146,58 +146,17 @@ static const int actual_ver[] = {
   6             /* 0x0022       WARNING:        */
 };
 
-// When you add additional items to this list, you should then:
-// 0 -- update this list
-// 1 -- if needed, modify ataPrintSmartAttribRawValue()
-// 2 -  if needed, modify ataPrintSmartAttribName()
-// 3 -- add drive in question into builtin_knowndrives[] table in knowndrives.cpp
-// 4 -- update smartctl.8
-// 5 -- update smartd.8
-// 6 -- do "make smartd.conf.5" to update smartd.conf.5
-// 7 -- update CHANGELOG file
-
-struct vendor_attr_arg_entry
-{
-  unsigned char id;  // attribute ID, 0 for all
-  const char * name; // attribute name
-  unsigned char val; // value for attribute defs array
-};
-
-// The order of these entries is (only) relevant for '-v help' output.
-const vendor_attr_arg_entry vendor_attribute_args[] = {
-  {  9,"halfminutes", 4},
-  {  9,"minutes", 1},
-  {  9,"seconds", 3},
-  {  9,"temp", 2},
-  {192,"emergencyretractcyclect", 1},
-  {193,"loadunload", 1},
-  {194,"10xCelsius", 1},
-  {194,"unknown", 2},
-  {197,"increasing", 1},
-  {198,"offlinescanuncsectorct", 2},
-  {198,"increasing", 1},
-  {200,"writeerrorcount", 1},
-  {201,"detectedtacount", 1},
-  {220,"temp", 1},
-  {225,"hostwritescount", 1},
-  {240,"transfererrorrate", 1},
-  {  0,"raw8", 253},
-  {  0,"raw16", 254},
-  {  0,"raw48", 255},
-};
-
-const unsigned num_vendor_attribute_args = sizeof(vendor_attribute_args)/sizeof(vendor_attribute_args[0]);
-
 // Get ID and increase flag of current pending or offline
 // uncorrectable attribute.
-unsigned char get_unc_attr_id(bool offline, const unsigned char * defs,
+unsigned char get_unc_attr_id(bool offline, const ata_vendor_attr_defs & defs,
                               bool & increase)
 {
   unsigned char id = (!offline ? 197 : 198);
-  increase = (defs[id] == 1);
+  increase = !!(defs[id].flags & ATTRFLAG_INCREASING);
   return id;
 }
 
+#if 0 // TODO: never used
 // This are the meanings of the Self-test failure checkpoint byte.
 // This is in the self-test log at offset 4 bytes into the self-test
 // descriptor and in the SMART READ DATA structure at byte offset
@@ -223,47 +182,121 @@ const char *SelfTestFailureCodeName(unsigned char which){
     return NULL;
   }
 }
+#endif
 
-// This is a utility function for parsing pairs like "9,minutes" or
-// "220,temp", and putting the correct flag into the attributedefs
-// array.  Returns 1 if problem, 0 if pair has been recongized.
-int parse_attribute_def(const char * pair, unsigned char * defs)
+
+// Table of raw print format names
+struct format_name_entry
 {
-  int id = 0, nc = -1;
-  char name[32+1];
-  if (pair[0] == 'N') {
-    // "N,name"
-    if (!(sscanf(pair, "N,%32s%n", name, &nc) == 1 && nc == (int)strlen(pair)))
-      return 1;
+  const char * name;
+  ata_attr_raw_format format;
+};
+
+const format_name_entry format_names[] = {
+  {"raw8"           , RAWFMT_RAW8},
+  {"raw16"          , RAWFMT_RAW16},
+  {"raw48"          , RAWFMT_RAW48},
+  {"raw16(raw16)"   , RAWFMT_RAW16_OPT_RAW16},
+  {"raw16(avg16)"   , RAWFMT_RAW16_OPT_AVG16},
+  {"raw24/raw24"    , RAWFMT_RAW24_RAW24},
+  {"sec2hour"       , RAWFMT_SEC2HOUR},
+  {"min2hour"       , RAWFMT_MIN2HOUR},
+  {"halfmin2hour"   , RAWFMT_HALFMIN2HOUR},
+  {"tempminmax"     , RAWFMT_TEMPMINMAX},
+  {"temp10x"        , RAWFMT_TEMP10X},
+};
+
+const unsigned num_format_names = sizeof(format_names)/sizeof(format_names[0]);
+
+// Table to map old to new '-v' option arguments
+const char * map_old_vendor_opts[][2] = {
+  {  "9,halfminutes"              , "9,halfmin2hour,Power_On_Half_Minutes"},
+  {  "9,minutes"                  , "9,min2hour,Power_On_Minutes"},
+  {  "9,seconds"                  , "9,sec2hour,Power_On_Seconds"},
+  {  "9,temp"                     , "9,tempminmax,Temperature_Celsius"},
+  {"192,emergencyretractcyclect"  , "192,raw48,Emerg_Retract_Cycle_Ct"},
+  {"193,loadunload"               , "193,raw24/raw24"},
+  {"194,10xCelsius"               , "194,temp10x,Temperature_Celsius_x10"},
+  {"194,unknown"                  , "194,raw48,Unknown_Attribute"},
+  {"197,increasing"               , "197,raw48+,Total_Pending_Sectors"}, // '+' sets flag
+  {"198,offlinescanuncsectorct"   , "198,raw48,Offline_Scan_UNC_SectCt"},
+  {"198,increasing"               , "198,raw48+,Total_Offl_Uncorrectabl"}, // '+' sets flag
+  {"200,writeerrorcount"          , "200,raw48,Write_Error_Count"},
+  {"201,detectedtacount"          , "201,raw48,Detected_TA_Count"},
+  {"220,temp"                     , "220,raw48,Temperature_Celsius"},
+};
+
+const unsigned num_old_vendor_opts = sizeof(map_old_vendor_opts)/sizeof(map_old_vendor_opts[0]);
+
+// Parse vendor attribute display def (-v option).
+// Return false on error.
+bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
+                         ata_vendor_def_prior priority)
+{
+  // Map old -> new options
+  unsigned i;
+  for (i = 0; i < num_old_vendor_opts; i++) {
+    if (!strcmp(opt, map_old_vendor_opts[i][0])) {
+      opt = map_old_vendor_opts[i][1];
+      break;
+    }
+  }
+
+  // Parse option
+  int len = strlen(opt);
+  int id = 0, n1 = -1, n2 = -1;
+  char fmtname[32+1], attrname[32+1];
+  if (opt[0] == 'N') {
+    // "N,format"
+    if (!(sscanf(opt, "N,%32[^,]%n", fmtname, &n1) == 1 && n1 == len))
+      return false;
   }
   else {
-    // "attr,name"
-    if (!(   sscanf(pair, "%d,%32s%n", &id, name, &nc) == 2
-          && 1 <= id && id <= 255 && nc == (int)strlen(pair)))
-      return 1;
+    // "id,format[+][,name]"
+    if (!(   sscanf(opt, "%d,%32[^,]%n,%32[^,]%n", &id, fmtname, &n1, attrname, &n2) >= 2
+          && 1 <= id && id <= 255 && (n1 == len || n2 == len)))
+      return false;
+    if (n1 == len)
+      attrname[0] = 0;
   }
 
-  // Find pair
-  unsigned i;
+  unsigned flags = 0;
+  // For "-v 19[78],increasing" above
+  if (fmtname[strlen(fmtname)-1] == '+') {
+    fmtname[strlen(fmtname)-1] = 0;
+    flags = ATTRFLAG_INCREASING;
+  }
+
+  // Find format name
   for (i = 0; ; i++) {
-    if (i >= num_vendor_attribute_args)
-      return 1; // Not found
-    if (   (!vendor_attribute_args[i].id || vendor_attribute_args[i].id == id)
-        && !strcmp(vendor_attribute_args[i].name, name)                       )
+    if (i >= num_format_names)
+      return false; // Not found
+    if (!strcmp(fmtname, format_names[i].name))
       break;
   }
+  ata_attr_raw_format format = format_names[i].format;
 
   if (!id) {
-    // "N,name" -> set all entries
-    for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++)
-      defs[j] = vendor_attribute_args[i].val;
+    // "N,format" -> set format for all entries
+    for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++) {
+      if (defs[j].priority >= priority)
+        continue;
+      defs[j].priority = priority;
+      defs[j].raw_format = format;
+    }
   }
-  else
-    // "attr,name"
-    defs[id] = vendor_attribute_args[i].val;
+  else if (defs[id].priority <= priority) {
+    // "id,format[,name]"
+    if (attrname[0])
+      defs[id].name = attrname;
+    defs[id].raw_format = format;
+    defs[id].priority = priority;
+    defs[id].flags = flags;
+  }
 
-  return 0;
+  return true;
 }
+
 
 // Return a multiline string containing a list of valid arguments for
 // parse_attribute_def().  The strings are preceeded by tabs and followed
@@ -271,15 +304,12 @@ int parse_attribute_def(const char * pair, unsigned char * defs)
 std::string create_vendor_attribute_arg_list()
 {
   std::string s;
-  for (unsigned i = 0; i < num_vendor_attribute_args; i++) {
-    if (i > 0)
-      s += '\n';
-    if (!vendor_attribute_args[i].id)
-      s += "\tN,";
-    else
-      s += strprintf("\t%d,", vendor_attribute_args[i].id);
-    s += vendor_attribute_args[i].name;
-  }
+  unsigned i;
+  for (i = 0; i < num_format_names; i++)
+    s += strprintf("%s\tN,%s[,ATTR_NAME]",
+      (i>0 ? "\n" : ""), format_names[i].name);
+  for (i = 0; i < num_old_vendor_opts; i++)
+    s += strprintf("\n\t%s", map_old_vendor_opts[i][0]);
   return s;
 }
 
@@ -1741,293 +1771,209 @@ int ataCheckAttribute(const ata_smart_values * data,
 }
 
 
-// Print temperature value and Min/Max value if present
-static void ataPrintTemperatureValue(char *out, const unsigned char *raw, const unsigned *word)
+// Get default raw value print format
+static ata_attr_raw_format get_default_raw_format(unsigned char id)
 {
-  out+=sprintf(out, "%u", word[0]);
-  if (!word[1] && !word[2])
-    return; // No Min/Max
+  switch (id) {
+  case 3:   // Spin-up time
+    return RAWFMT_RAW16_OPT_AVG16;
 
-  unsigned lo = ~0, hi = ~0;
-  if (!raw[3]) {
-    // 00 HH 00 LL 00 TT (IBM)
-    hi = word[2]; lo = word[1];
-  }
-  else if (!word[2]) {
-    // 00 00 HH LL 00 TT (Maxtor)
-    hi = raw[3]; lo = raw[2];
-  }
-  if (lo > hi) {
-    unsigned t = lo; lo = hi; hi = t;
-  }
-  if (lo <= word[0] && word[0] <= hi)
-    sprintf(out, " (Lifetime Min/Max %u/%u)", lo, hi);
-  else
-    sprintf(out, " (%u %u %u %u)", raw[5], raw[4], raw[3], raw[2]);
-}
+  case 5:   // Reallocated sector count
+  case 196: // Reallocated event count
+    return RAWFMT_RAW16_OPT_RAW16;
 
-
-// This routine prints the raw value of an attribute as a text string
-// into out. It also returns this 48-bit number as a long long.  The
-// array defs[] contains non-zero values if particular attributes have
-// non-default interpretations.
-
-int64_t ataPrintSmartAttribRawValue(char *out, 
-                                    const ata_smart_attribute * attribute,
-                                    const unsigned char * defs){
-  int64_t rawvalue;
-  unsigned word[3];
-  int j;
-  unsigned char select;
-  
-  // convert the six individual bytes to a long long (8 byte) integer.
-  // This is the value that we'll eventually return.
-  rawvalue = 0;
-  for (j=0; j<6; j++) {
-    // This looks a bit roundabout, but is necessary.  Don't
-    // succumb to the temptation to use raw[j]<<(8*j) since under
-    // the normal rules this will be promoted to the native type.
-    // On a 32 bit machine this might then overflow.
-    int64_t temp;
-    temp = attribute->raw[j];
-    temp <<= 8*j;
-    rawvalue |= temp;
-  }
-
-  // convert quantities to three two-byte words
-  for (j=0; j<3; j++){
-    word[j] = attribute->raw[2*j+1];
-    word[j] <<= 8;
-    word[j] |= attribute->raw[2*j];
-  }
-  
-  // if no data array, Attributes have default interpretations
-  if (defs)
-    select=defs[attribute->id];
-  else
-    select=0;
-
-  // Print six one-byte quantities.
-  if (select==253){
-    for (j=0; j<5; j++)
-      out+=sprintf(out, "%d ", attribute->raw[5-j]);
-    out+=sprintf(out, "%d ", attribute->raw[0]);
-    return rawvalue;
-  } 
-  
-  // Print three two-byte quantities
-  if (select==254){
-    out+=sprintf(out, "%d %d %d", word[2], word[1], word[0]); 
-    return rawvalue;
-  } 
-  
-  // Print one six-byte quantity
-  if (select==255){
-    out+=sprintf(out, "%"PRIu64, rawvalue);
-    return rawvalue;
-  }
-
-  // This switch statement is where we handle Raw attributes
-  // that are stored in an unusual vendor-specific format,
-  switch (attribute->id){
-    // Spin-up time
-  case 3:
-    out+=sprintf(out, "%d", word[0]);
-    // if second nonzero then it stores the average spin-up time
-    if (word[1])
-      out+=sprintf(out, " (Average %d)", word[1]);
-    break;
-    // reallocated sector count
-  case 5:
-    out+=sprintf(out, "%u", word[0]);
-    if (word[1] || word[2])
-      out+=sprintf(out, " (%u, %u)", word[2], word[1]);
-    break;
-    // Power on time
-  case 9:
-    if (select==1){
-      // minutes
-      int64_t temp=word[0]+(word[1]<<16);
-      int64_t tmp1=temp/60;
-      int64_t tmp2=temp%60;
-      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
-      if (word[2])
-        out+=sprintf(out, " (%u)", word[2]);
-    }
-    else if (select==3){
-      // seconds
-      int64_t hours=rawvalue/3600;
-      int64_t minutes=(rawvalue-3600*hours)/60;
-      int64_t seconds=rawvalue%60;
-      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m+%02"PRIu64"s", hours, minutes, seconds);
-    }
-    else if (select==4){
-      // 30-second counter
-      int64_t tmp1=rawvalue/120;
-      int64_t tmp2=(rawvalue-120*tmp1)/2;
-      out+=sprintf(out, "%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
-    }
-    else
-      // hours
-      out+=sprintf(out, "%"PRIu64, rawvalue);  //stored in hours
-    break;
-    // Temperature
-  case 190:
-    ataPrintTemperatureValue(out, attribute->raw, word);
-    break;
-   // Load unload cycles
-  case 193:
-    if (select==1){
-      // loadunload
-      long load  =attribute->raw[0] + (attribute->raw[1]<<8) + (attribute->raw[2]<<16);
-      long unload=attribute->raw[3] + (attribute->raw[4]<<8) + (attribute->raw[5]<<16);
-      out+=sprintf(out, "%lu/%lu", load, unload);
-    }
-    else
-      // associated
-      out+=sprintf(out, "%"PRIu64, rawvalue);
-    break;
-    // Temperature
+  case 190: // Temperature
   case 194:
-    if (select==1){
-      // ten times temperature in Celsius
-      int deg=word[0]/10;
-      int tenths=word[0]%10;
-      out+=sprintf(out, "%d.%d", deg, tenths);
-    }
-    else if (select==2)
-      // unknown attribute
-      out+=sprintf(out, "%"PRIu64, rawvalue);
-    else
-      ataPrintTemperatureValue(out, attribute->raw, word);
-    break;
-    // reallocated event count
-  case 196:
-    out+=sprintf(out, "%u", word[0]);
-    if (word[1] || word[2])
-      out+=sprintf(out, " (%u, %u)", word[2], word[1]);
-    break;
+    return RAWFMT_TEMPMINMAX;
+
   default:
-    out+=sprintf(out, "%"PRIu64, rawvalue);
+    return RAWFMT_RAW48;
   }
-  
-  // Return the full value
-  return rawvalue;
 }
 
+// Format attribute raw value.
+std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
+                                      const ata_vendor_attr_defs & defs)
+{
+  // Get print format
+  ata_attr_raw_format format = defs[attribute.id].raw_format;
+  if (format == RAWFMT_DEFAULT)
+    format = get_default_raw_format(attribute.id);
 
-// Note some attribute names appear redundant because different
-// manufacturers use different attribute IDs for an attribute with the
-// same name.  The variable val should contain a non-zero value if a particular
-// attributes has a non-default interpretation.
+  // Get 48 bit raw value
+  const unsigned char * raw = attribute.raw;
+  int64_t rawvalue;
+  rawvalue =              raw[0]
+             | (          raw[1] <<  8)
+             | (          raw[2] << 16)
+             | ((uint64_t)raw[3] << 24)
+             | ((uint64_t)raw[4] << 32)
+             | ((uint64_t)raw[5] << 40);
+
+  // Get 16 bit words
+  unsigned word[3];
+  word[0] = raw[0] | (raw[1] << 8);
+  word[1] = raw[2] | (raw[3] << 8);
+  word[2] = raw[4] | (raw[5] << 8);
+
+  // Print
+  std::string s;
+  switch (format) {
+  case RAWFMT_RAW8:
+    s = strprintf("%d %d %d %d %d %d",
+      raw[5], raw[4], raw[3], raw[2], raw[1], raw[0]);
+    break;
+
+  case RAWFMT_RAW16:
+    s = strprintf("%u %u %u", word[2], word[1], word[0]);
+    break;
+
+  case RAWFMT_RAW48:
+    s = strprintf("%"PRIu64, rawvalue);
+    break;
+
+  case RAWFMT_RAW16_OPT_RAW16:
+    s = strprintf("%u", word[0]);
+    if (word[1] || word[2])
+      s += strprintf(" (%u, %u)", word[2], word[1]);
+    break;
+
+  case RAWFMT_RAW16_OPT_AVG16:
+    s = strprintf("%u", word[0]);
+    if (word[1])
+      s += strprintf(" (Average %u)", word[1]);
+    break;
+
+  case RAWFMT_RAW24_RAW24:
+    s = strprintf("%d/%d",
+      raw[0] | (raw[1]<<8) | (raw[2]<<16),
+      raw[3] | (raw[4]<<8) | (raw[5]<<16));
+    break;
+
+  case RAWFMT_MIN2HOUR:
+    {
+      // minutes
+      int64_t temp = word[0]+(word[1]<<16);
+      int64_t tmp1 = temp/60;
+      int64_t tmp2 = temp%60;
+      s = strprintf("%"PRIu64"h+%02"PRIu64"m", tmp1, tmp2);
+      if (word[2])
+        s += strprintf(" (%u)", word[2]);
+    }
+    break;
+
+  case RAWFMT_SEC2HOUR:
+    {
+      // seconds
+      int64_t hours = rawvalue/3600;
+      int64_t minutes = (rawvalue-3600*hours)/60;
+      int64_t seconds = rawvalue%60;
+      s = strprintf("%"PRIu64"h+%02"PRIu64"m+%02"PRIu64"s", hours, minutes, seconds);
+    }
+    break;
+
+  case RAWFMT_HALFMIN2HOUR:
+    {
+      // 30-second counter
+      int64_t hours = rawvalue/120;
+      int64_t minutes = (rawvalue-120*hours)/2;
+      s += strprintf("%"PRIu64"h+%02"PRIu64"m", hours, minutes);
+    }
+    break;
+
+  case RAWFMT_TEMPMINMAX:
+    // Temperature
+    s = strprintf("%u", word[0]);
+    if (word[1] || word[2]) {
+      unsigned lo = ~0, hi = ~0;
+      if (!raw[3]) {
+        // 00 HH 00 LL 00 TT (IBM)
+        hi = word[2]; lo = word[1];
+      }
+      else if (!word[2]) {
+        // 00 00 HH LL 00 TT (Maxtor)
+        hi = raw[3]; lo = raw[2];
+      }
+      if (lo > hi) {
+        unsigned t = lo; lo = hi; hi = t;
+      }
+      if (lo <= word[0] && word[0] <= hi)
+        s += strprintf(" (Lifetime Min/Max %u/%u)", lo, hi);
+      else
+        s += strprintf(" (%d %d %d %d)", raw[5], raw[4], raw[3], raw[2]);
+    }
+    break;
+
+  case RAWFMT_TEMP10X:
+    // ten times temperature in Celsius
+    s = strprintf("%d.%d", word[0]/10, word[0]%10);
+    break;
+
+  default:
+    s = "?"; // Should not happen
+    break;
+  }
+
+  return s;
+}
+
 // Attribute names shouldn't be longer than 23 chars, otherwise they break the
 // output of smartctl.
-void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char * definitions){
-  const char *name;
-  unsigned char val;
-
-  // If no data array, use default interpretations
-  if (definitions)
-    val=definitions[id];
-  else
-    val=0;
-
-  switch (id){
-    
+static const char * get_default_attr_name(unsigned char id)
+{
+  switch (id) {
   case 1:
-    name="Raw_Read_Error_Rate";
-    break;
+    return "Raw_Read_Error_Rate";
   case 2:
-    name="Throughput_Performance";
-    break;
+    return "Throughput_Performance";
   case 3:
-    name="Spin_Up_Time";
-    break;
+    return "Spin_Up_Time";
   case 4:
-    name="Start_Stop_Count";
-    break;
+    return "Start_Stop_Count";
   case 5:
-    name="Reallocated_Sector_Ct";
-    break;
+    return "Reallocated_Sector_Ct";
   case 6:
-    name="Read_Channel_Margin";
-    break;
+    return "Read_Channel_Margin";
   case 7:
-    name="Seek_Error_Rate";
-    break;
+    return "Seek_Error_Rate";
   case 8:
-    name="Seek_Time_Performance";
-    break;
+    return "Seek_Time_Performance";
   case 9:
-    switch (val) {
-    case 1:
-      name="Power_On_Minutes";
-      break;
-    case 2:
-      name="Temperature_Celsius";
-      break;
-    case 3:
-      name="Power_On_Seconds";
-      break;
-    case 4:
-      name="Power_On_Half_Minutes";
-      break;
-    default:
-      name="Power_On_Hours";
-      break;
-    }
-    break;
+    return "Power_On_Hours";
   case 10:
-    name="Spin_Retry_Count";
-    break;
+    return "Spin_Retry_Count";
   case 11:
-    name="Calibration_Retry_Count";
-    break;
+    return "Calibration_Retry_Count";
   case 12:
-    name="Power_Cycle_Count";
-    break;
+    return "Power_Cycle_Count";
   case 13:
-    name="Read_Soft_Error_Rate";
-    break;
+    return "Read_Soft_Error_Rate";
   case 175:
-    name="Program_Fail_Count_Chip";
-    break;
+    return "Program_Fail_Count_Chip";
   case 176:
-    name="Erase_Fail_Count_Chip";
-    break;
+    return "Erase_Fail_Count_Chip";
   case 177:
-    name="Wear_Leveling_Count";
-    break;
+    return "Wear_Leveling_Count";
   case 178:
-    name="Used_Rsvd_Blk_Cnt_Chip";
-    break;
+    return "Used_Rsvd_Blk_Cnt_Chip";
   case 179:
-    name="Used_Rsvd_Blk_Cnt_Tot";
-    break;
+    return "Used_Rsvd_Blk_Cnt_Tot";
   case 180:
-    name="Unused_Rsvd_Blk_Cnt_Tot";
-    break;
+    return "Unused_Rsvd_Blk_Cnt_Tot";
   case 181:
-    name="Program_Fail_Cnt_Total";
-    break;
+    return "Program_Fail_Cnt_Total";
   case 182:
-    name="Erase_Fail_Count_Total";
-    break;
+    return "Erase_Fail_Count_Total";
   case 183:
-    name="Runtime_Bad_Block";
-    break;
+    return "Runtime_Bad_Block";
   case 184:
-    name="End-to-End_Error";
-    break;
+    return "End-to-End_Error";
   case 187:
-    name="Reported_Uncorrect";
-    break;
+    return "Reported_Uncorrect";
   case 188:
-    name="Command_Timeout";
-    break;
+    return "Command_Timeout";
   case 189:
-    name="High_Fly_Writes";
-    break;
+    return "High_Fly_Writes";
   case 190:
     // Western Digital uses this for temperature.
     // It's identical to Attribute 194 except that it
@@ -2036,217 +1982,107 @@ void ataPrintSmartAttribName(char * out, unsigned char id, const unsigned char *
     // is typically 55C.  So if this attribute has failed
     // in the past, it indicates that the drive temp exceeded
     // 55C sometime in the past.
-    name="Airflow_Temperature_Cel";
-    break;
+    return "Airflow_Temperature_Cel";
   case 191:
-    name="G-Sense_Error_Rate";
-    break;
+    return "G-Sense_Error_Rate";
   case 192:
-    switch (val) {
-    case 1:
-      // Fujitsu
-      name="Emerg_Retract_Cycle_Ct";
-      break;
-    default:
-      name="Power-Off_Retract_Count";
-      break;
-    }
-    break;
+    return "Power-Off_Retract_Count";
   case 193:
-    name="Load_Cycle_Count";
-    break;
+    return "Load_Cycle_Count";
   case 194:
-    switch (val){
-    case 1:
-      // Samsung SV1204H with RK100-13 firmware
-      name="Temperature_Celsius_x10";
-      break;
-    case 2:
-      // for disks with no temperature Attribute
-      name="Unknown_Attribute";
-      break;
-    default:
-      name="Temperature_Celsius";
-      break;
-    }
-    break;
+    return "Temperature_Celsius";
   case 195:
-    // Fujitsu name="ECC_On_The_Fly_Count";
-    name="Hardware_ECC_Recovered";
-    break;
+    // Fujitsu: "ECC_On_The_Fly_Count";
+    return "Hardware_ECC_Recovered";
   case 196:
-    name="Reallocated_Event_Count";
-    break;
+    return "Reallocated_Event_Count";
   case 197:
-    switch (val) {
-    default:
-      name="Current_Pending_Sector";
-      break;
-    case 1:
-      // Not reset after sector reallocation
-      name="Total_Pending_Sectors";
-      break;
-    }
-    break;
+    return "Current_Pending_Sector";
   case 198:
-    switch (val){
-    default:
-      name="Offline_Uncorrectable";
-      break;
-    case 1:
-      // Not reset after sector reallocation
-      name="Total_Offl_Uncorrectabl"/*e*/;
-      break;
-    case 2:
-      // Fujitsu
-      name="Offline_Scan_UNC_SectCt";
-      break;
-    }
-    break;
+    return "Offline_Uncorrectable";
   case 199:
-    name="UDMA_CRC_Error_Count";
-    break;
+    return "UDMA_CRC_Error_Count";
   case 200:
-    switch (val) {
-    case 1:
-      // Fujitsu MHS2020AT
-      name="Write_Error_Count";
-      break;
-    default:
-      // Western Digital
-      name="Multi_Zone_Error_Rate";
-      break;
-    }
-    break;
+    // Western Digital
+    return "Multi_Zone_Error_Rate";
   case 201:
-    switch (val) {
-    case 1:
-      // Fujitsu
-      name="Detected_TA_Count";
-      break;
-    default:
-      name="Soft_Read_Error_Rate";
-      break;
-    }
-    break;
+    return "Soft_Read_Error_Rate";
   case 202:
     // Fujitsu: "TA_Increase_Count"
-    name="Data_Address_Mark_Errs";
-    break;
+    return "Data_Address_Mark_Errs";
   case 203:
     // Fujitsu
-    name="Run_Out_Cancel";
+    return "Run_Out_Cancel";
     // Maxtor: ECC Errors
-    break;
   case 204:
     // Fujitsu: "Shock_Count_Write_Opern"
-    name="Soft_ECC_Correction";
-    break;
+    return "Soft_ECC_Correction";
   case 205:
     // Fujitsu: "Shock_Rate_Write_Opern"
-    name="Thermal_Asperity_Rate";
-    break;
+    return "Thermal_Asperity_Rate";
   case 206:
     // Fujitsu
-    name="Flying_Height";
-    break;
+    return "Flying_Height";
   case 207:
     // Maxtor
-    name="Spin_High_Current";
-    break;
+    return "Spin_High_Current";
   case 208:
     // Maxtor
-    name="Spin_Buzz";
-    break;
+    return "Spin_Buzz";
   case 209:
     // Maxtor
-    name="Offline_Seek_Performnce";
-    break;
+    return "Offline_Seek_Performnce";
   case 220:
-    switch (val) {
-    case 1:
-      name="Temperature_Celsius";
-      break;
-    default:
-      name="Disk_Shift";
-      break;
-    }
-    break;
+    return "Disk_Shift";
   case 221:
-    name="G-Sense_Error_Rate";
-    break;
+    return "G-Sense_Error_Rate";
   case 222:
-    name="Loaded_Hours";
-    break;
+    return "Loaded_Hours";
   case 223:
-    name="Load_Retry_Count";
-    break;
+    return "Load_Retry_Count";
   case 224:
-    name="Load_Friction";
-    break;
+    return "Load_Friction";
   case 225:
-    switch (val) {
-    case 1:
-      // seen in Intel X25-E SSD
-      name="Host_Writes_Count";
-      break;
-    default:
-      name="Load_Cycle_Count";
-      break;
-    }
-    break;
+    return "Load_Cycle_Count";
   case 226:
-    name="Load-in_Time";
-    break;
+    return "Load-in_Time";
   case 227:
-    name="Torq-amp_Count";
-    break;
+    return "Torq-amp_Count";
   case 228:
-    name="Power-off_Retract_Count";
-    break;
+    return "Power-off_Retract_Count";
   case 230:
     // seen in IBM DTPA-353750
-    name="Head_Amplitude";
-    break;
+    return "Head_Amplitude";
   case 231:
-    name="Temperature_Celsius";
-    break;
+    return "Temperature_Celsius";
   case 232:
     // seen in Intel X25-E SSD
-    name="Available_Reservd_Space";
-    break;
+    return "Available_Reservd_Space";
   case 233:
     // seen in Intel X25-E SSD
-    name="Media_Wearout_Indicator";
-    break;
- case 240:
-    switch (val) {
-    case 1:
-      // seen in Fujitsu MHY2xxxBH
-      name="Transfer_Error_Rate";
-      break;
-    default:
-      name="Head_Flying_Hours";
-      break;
-    }
+    return "Media_Wearout_Indicator";
+  case 240:
+    return "Head_Flying_Hours";
   case 241:
-    name="Total_LBAs_Written";
-    break;
+    return "Total_LBAs_Written";
   case 242:
-    name="Total_LBAs_Read";
-    break;
+    return "Total_LBAs_Read";
   case 250:
-    name="Read_Error_Retry_Rate";
-    break;
+    return "Read_Error_Retry_Rate";
   case 254:
-    name="Free_Fall_Sensor";
-    break;
+    return "Free_Fall_Sensor";
   default:
-    name="Unknown_Attribute";
-    break;
+    return "Unknown_Attribute";
   }
-  sprintf(out,"%3hu %s",(short int)id,name);
-  return;
+}
+
+// Get attribute name
+std::string ata_get_smart_attr_name(unsigned char id, const ata_vendor_attr_defs & defs)
+{
+  if (!defs[id].name.empty())
+    return defs[id].name;
+  else
+    return get_default_attr_name(id);
 }
 
 // Returns raw value of Attribute with ID==id. This will be in the
@@ -2286,22 +2122,20 @@ int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * da
 
 // Return Temperature Attribute raw value selected according to possible
 // non-default interpretations. If the Attribute does not exist, return 0
-unsigned char ATAReturnTemperatureValue(const ata_smart_values * data, const unsigned char * defs)
+unsigned char ata_return_temperature_value(const ata_smart_values * data, const ata_vendor_attr_defs & defs)
 {
   for (int i = 0; i < 3; i++) {
     static const unsigned char ids[3] = {194, 9, 220};
     unsigned char id = ids[i];
-    unsigned char select = (defs ? defs[id] : 0);
-    int64_t raw; unsigned temp;
-    if (!(   (id == 194 && select <= 1)   // ! -v 194,unknown
-          || (id == 9 && select == 2)     // -v 9,temp
-          || (id == 220 && select == 1))) // -v 220,temp
+    const ata_attr_raw_format format = defs[id].raw_format;
+    if (!(   (id == 194 && format == RAWFMT_DEFAULT)
+          || format == RAWFMT_TEMPMINMAX || format == RAWFMT_TEMP10X))
       continue;
-    raw = ATAReturnAttributeRawValue(id, data);
+    int64_t raw = ATAReturnAttributeRawValue(id, data);
     if (raw < 0)
       continue;
-    temp = (unsigned short)raw; // ignore possible min/max values in high words
-    if (id == 194 && select == 1) // -v 194,10xCelsius
+    unsigned temp = (unsigned short)raw; // ignore possible min/max values in high words
+    if (format == RAWFMT_TEMP10X) // -v N,temp10x
       temp = (temp+5) / 10;
     if (!(0 < temp && temp <= 255))
       continue;
