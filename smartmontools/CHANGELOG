@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2975 2009-10-29 22:52:38Z chrfranke $
+$Id: CHANGELOG 2976 2009-10-29 23:01:27Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add '-v ID,raw64[,...]' print format based on an patch provided
+       by Marcin Marszalek.
 
   [CF] Add '-v ID,RAW_FORMAT[,ATTR_NAME]' option. This allows to add new
        attributes without the need to enhance the '-v' option.
