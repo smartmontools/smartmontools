@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 2975 2009-10-29 22:52:38Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -539,7 +539,7 @@ const char * parse_options(int argc, char** argv,
              create_vendor_attribute_arg_list().c_str());
         EXIT(0);
       }
-      if (parse_attribute_def(optarg, ataopts.attributedefs))
+      if (!parse_attribute_def(optarg, ataopts.attribute_defs, PRIOR_USER))
         badarg = true;
       break;    
     case 'P':
