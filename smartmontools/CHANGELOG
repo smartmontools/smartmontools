@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add '-v ID,raw64[,...]' print format based on an patch provided
+       by Marcin Marszalek.
+
   [CF] Add '-v ID,RAW_FORMAT[,ATTR_NAME]' option. This allows to add new
        attributes without the need to enhance the '-v' option.
        Rework attribute name and raw value formatting.

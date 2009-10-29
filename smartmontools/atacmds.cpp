@@ -196,6 +196,7 @@ const format_name_entry format_names[] = {
   {"raw8"           , RAWFMT_RAW8},
   {"raw16"          , RAWFMT_RAW16},
   {"raw48"          , RAWFMT_RAW48},
+  {"raw64"          , RAWFMT_RAW64},
   {"raw16(raw16)"   , RAWFMT_RAW16_OPT_RAW16},
   {"raw16(avg16)"   , RAWFMT_RAW16_OPT_AVG16},
   {"raw24/raw24"    , RAWFMT_RAW24_RAW24},
@@ -1829,6 +1830,16 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
     break;
 
   case RAWFMT_RAW48:
+    s = strprintf("%"PRIu64, rawvalue);
+    break;
+
+  case RAWFMT_RAW64:
+    // Some SSD vendors use bytes 3-10 from the Attribute
+    // Data Structure to store a 64-bit raw value.
+    rawvalue <<= 8;
+    rawvalue |= attribute.worst;
+    rawvalue <<= 8;
+    rawvalue |= attribute.current;
     s = strprintf("%"PRIu64, rawvalue);
     break;
 
