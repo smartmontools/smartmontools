@@ -157,7 +157,7 @@ The path must be absolute, except if debug mode is enabled.
 [NEW EXPERIMENTAL SMARTD FEATURE] Read the drive database from FILE.
 The new database replaces the built in database by default. If \'+\' is
 specified, then the new entries prepend the built in entries.
-Please see the \fBsmartctl\fP man page for further details.
+Please see the \fBsmartctl\fP(8) man page for further details.
 
 .TP
 .B \-c FILE, \-\-configfile=FILE
@@ -722,8 +722,8 @@ along with the \'\-d areca,N\' Directive (see below).  The individual
 SATA disks hosted by the Areca controller appear to \fBsmartd\fP as
 normal ATA devices.  Hence all the ATA directives can be used for
 these disks.  Areca firmware version 1.46 or later which supports
-smartmontools must be used; Please see the \fBsmartctl\fP man page for
-further details.
+smartmontools must be used; Please see the \fBsmartctl\fP(8) man page
+for further details.
 
 .TP
 .B \-d TYPE
@@ -795,14 +795,14 @@ you may use \fBany\fP of the 3ware SCSI logical devices /dev/sd? to
 address \fBany\fP of the physical disks (3ware ports), error and log
 messages will make the most sense if you always list the 3ware SCSI
 logical device corresponding to the particular physical disks.  Please
-see the \fBsmartctl\fP man page for further details.
+see the \fBsmartctl\fP(8) man page for further details.
 
 ATA disks behind 3ware controllers may alternatively be accessed via a
 character device interface /dev/twe0-15 (3ware 6000/7000/8000
 controllers) and /dev/twa0-15 (3ware 9000 series controllers).  Note
 that the 9000 series controllers may \fBonly\fP be accessed using the
 character device interface /dev/twa0-15 and not the SCSI device
-interface /dev/sd?.  Please see the \fBsmartctl\fP man page for
+interface /dev/sd?.  Please see the \fBsmartctl\fP(8) man page for
 further details.
 
 Note that older 3w-xxxx drivers do not pass the \'Enable Autosave\'
@@ -1605,105 +1605,23 @@ values for \'\-F\' (see the \'\-P\' option below).
 [Please see the \fBsmartctl \-F\fP command-line option.]
 
 .TP
-.B \-v N,OPTION
-Modifies the labeling for Attribute N, for disks which use
-non-standard Attribute definitions.  This is useful in connection with
-the Attribute tracking/reporting Directives.
+.B \-v ID,FORMAT[,NAME]
+[ATA only] Sets a vendor\-specific raw value print FORMAT and
+optional NAME for Attribute ID.
+This directive may be used multiple times.
+Please see \fBsmartctl -v\fP command-line option for further details.
 
-This Directive may appear multiple times. Valid arguments to this
-Directive are:
-
-.I 9,minutes
-\- Raw Attribute number 9 is power-on time in minutes.  Its raw value
-will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
-minutes in the range 0-59 inclusive.  Y is always printed with two
-digits, for example \'06\' or \'31\' or \'00\'.
-
-.I 9,seconds
-\- Raw Attribute number 9 is power-on time in seconds.  Its raw value
-will be displayed in the form \'Xh+Ym+Zs\'.  Here X is hours, Y is
-minutes in the range 0-59 inclusive, and Z is seconds in the range
-0-59 inclusive.  Y and Z are always printed with two digits, for
-example \'06\' or \'31\' or \'00\'.
-
-.I 9,halfminutes
-\- Raw Attribute number 9 is power-on time, measured in units of 30
-seconds.  This format is used by some Samsung disks.  Its raw value
-will be displayed in the form \'Xh+Ym\'.  Here X is hours, and Y is
-minutes in the range 0-59 inclusive.  Y is always printed with two
-digits, for example \'06\' or \'31\' or \'00\'.
-
-.I 9,temp
-\- Raw Attribute number 9 is the disk temperature in Celsius.
-
-.I 192,emergencyretractcyclect
-\- Raw Attribute number 192 is the Emergency Retract Cycle Count.
-
-.I 193,loadunload
-\- Raw Attribute number 193 contains two values. The first is the
-number of load cycles.  The second is the number of unload cycles.
-The difference between these two values is the number of times that
-the drive was unexpectedly powered off (also called an emergency
-unload). As a rule of thumb, the mechanical stress created by one
-emergency unload is equivalent to that created by one hundred normal
-unloads.
-
-.I 194,10xCelsius
-\- Raw Attribute number 194 is ten times the disk temperature in
-Celsius.  This is used by some Samsung disks (example: model SV1204H
-with RK100-13 firmware).
-
-.I 194,unknown
-\- Raw Attribute number 194 is NOT the disk temperature, and its
-interpretation is unknown. This is primarily useful for the -P
-(presets) Directive.
+The following arguments affect smartd warning output:
 
 .I 197,increasing
 \- Raw Attribute number 197 (Current Pending Sector Count) is not
-reset if uncorrectable sectors are reallocated.  This also sets
-\'-C 197+\' if no other \'-C\' directive is specified.
+reset if uncorrectable sectors are reallocated.  This sets \'-C 197+\'
+if no other \'-C\' directive is specified.
 
 .I 198,increasing
 \- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
-reset if uncorrectable sector are reallocated.  This also sets
-\'-U 198+\' if no other \'-U\' directive is specified.
-
-.I 198,offlinescanuncsectorct
-\- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
-
-.I 200,writeerrorcount
-\- Raw Attribute number 200 is the Write Error Count.
-
-.I 201,detectedtacount
-\- Raw Attribute number 201 is the Detected TA Count.
-
-.I 220,temp
-\- Raw Attribute number 220 is the disk temperature in Celsius.
-
-Note: a table of hard drive models, listing which Attribute
-corresponds to temperature, can be found at:
-\fBhttp://www.guzu.net/linux/hddtemp.db\fP
-
-.I N,raw8
-\- Print the Raw value of Attribute N as six 8-bit unsigned base-10
-integers.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw8\' prints Raw values for ALL Attributes in this
-form.  The form (for example) \'123,raw8\' only prints the Raw value for
-Attribute 123 in this form.
-
-.I N,raw16
-\- Print the Raw value of Attribute N as three 16-bit unsigned base-10
-integers.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw16\' prints Raw values for ALL Attributes in this
-form.  The form (for example) \'123,raw16\' only prints the Raw value for
-Attribute 123 in this form.
-
-.I N,raw48
-\- Print the Raw value of Attribute N as a 48-bit unsigned base-10
-integer.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw48\' prints Raw values for ALL Attributes in
-this form.  The form (for example) \'123,raw48\' only prints the Raw
-value for Attribute 123 in this form.
+reset if uncorrectable sector are reallocated.  This sets \'-U 198+\'
+if no other \'-U\' directive is specified.
 
 .TP
 .B \-P TYPE

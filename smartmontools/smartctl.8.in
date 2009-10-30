@@ -1017,42 +1017,78 @@ writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 
 .TP
-.B \-v N,OPTION, \-\-vendorattribute=N,OPTION
-[ATA only] Sets a vendor\-specific display OPTION for Attribute N. This
-option may be used multiple times. Valid arguments to this option are:
+.B \-v ID,FORMAT[,NAME], \-\-vendorattribute=ID,FORMAT[,NAME]
+[ATA only] Sets a vendor\-specific raw value print FORMAT and
+optional NAME for Attribute ID.
+This option may be used multiple times.
 
-.I help
+The Attribute ID can be in the range 1 to 255. If \'N\' is specified as
+ID, the settings for all Attributes are changed. The NAME is a string of
+letters, digits and underscore.
+
+.I \-v help
 \- Prints (to STDOUT) a list of all valid arguments to this option,
 then exits.
 
-.I 9,minutes
-\- Raw Attribute number 9 is power\-on time in minutes.  Its raw value
+Valid arguments for FORMAT are:
+
+.I raw8
+\- Print the Raw value as six 8\-bit unsigned base\-10 integers.
+This may be useful for decoding the meaning of the Raw value.
+
+.I raw16
+\- Print the Raw value as three 16\-bit unsigned base\-10 integers.
+This may be useful for decoding the meaning of the Raw value.
+
+.I raw48
+\- Print the Raw value as a 48\-bit unsigned base\-10 integer.
+This is the default for most attributes.
+
+.I raw64
+\- Print the Raw value as a 64\-bit unsigned base\-10 integer.
+This includes two bytes from the normalized and worst attribute value.
+This new raw format is used by some recent SSD devices.
+
+.I min2hour
+\- Raw Attribute is power\-on time in minutes.  Its raw value
 will be displayed in the form "Xh+Ym".  Here X is hours, and Y is
 minutes in the range 0\-59 inclusive.  Y is always printed with two
 digits, for example "06" or "31" or "00".
 
-.I 9,seconds
-\- Raw Attribute number 9 is power\-on time in seconds.  Its raw value
+.I sec2hour
+\- Raw Attribute is power\-on time in seconds.  Its raw value
 will be displayed in the form "Xh+Ym+Zs".  Here X is hours, Y is
 minutes in the range 0\-59 inclusive, and Z is seconds in the range
 0\-59 inclusive.  Y and Z are always printed with two digits, for
 example "06" or "31" or "00".
 
-.I 9,halfminutes
-\- Raw Attribute number 9 is power\-on time, measured in units of 30
+.I halfmin2hour
+\- Raw Attribute is power\-on time, measured in units of 30
 seconds.  This format is used by some Samsung disks.  Its raw value
 will be displayed in the form "Xh+Ym".  Here X is hours, and Y is
 minutes in the range 0\-59 inclusive.  Y is always printed with two
 digits, for example "06" or "31" or "00".
 
-.I 9,temp
-\- Raw Attribute number 9 is the disk temperature in Celsius.
+.I tempminmax
+\- Raw Attribute is the disk temperature in Celsius.  Info about
+Lifetime Min/Max temperature is printed if available.  This is the
+default for Attributes 190 and 194.
 
-.I 192,emergencyretractcyclect
-\- Raw Attribute number 192 is the Emergency Retract Cycle Count.
+.I temp10x
+\- Raw Attribute is ten times the disk temperature in Celsius.
 
-.I 193,loadunload
-\- Raw Attribute number 193 contains two values. The first is the
+.I raw16(raw16)
+\- Print the raw attribute as a 16\-bit value and two optional
+16\-bit values if these words are nonzero.  This is the default
+for Attributes 5 and 196.
+
+.I raw16(avg16)
+\- Raw attribute is spin-up time.  It is printed as a 16-bit value
+and an optional "Average" 16-bit value if the word is nonzero.
+This is the default for Attribute 3.
+
+.I raw24/raw24
+\- Raw Attribute contains two 24\-bit values. The first is the
 number of load cycles.  The second is the number of unload cycles.
 The difference between these two values is the number of times that
 the drive was unexpectedly powered off (also called an emergency
@@ -1060,60 +1096,73 @@ unload). As a rule of thumb, the mechanical stress created by one
 emergency unload is equivalent to that created by one hundred normal
 unloads.
 
+The following old arguments to \'\-v\' are also still valid:
+
+.I 9,minutes
+\- same as:
+.I 9,min2hour,Power_On_Minutes.
+
+.I 9,seconds
+\- same as:
+.I 9,sec2hour,Power_On_Seconds.
+
+.I 9,halfminutes
+\- same as:
+.I 9,halfmin2hour,Power_On_Half_Minutes.
+
+.I 9,temp
+\- same as:
+.I 9,tempminmax,Temperature_Celsius.
+
+.I 192,emergencyretractcyclect
+\- same as:
+.I 192,raw48,Emerg_Retract_Cycle_Ct
+
+.I 193,loadunload
+\- same as:
+.I 193,raw24/raw24.
+
 .I 194,10xCelsius
-\- Raw Attribute number 194 is ten times the disk temperature in
-Celsius.  This is used by some Samsung disks (example: model SV1204H
-with RK100\-13 firmware).
+\- same as:
+.I 194,temp10x,Temperature_Celsius_x10.
 
 .I 194,unknown
-\- Raw Attribute number 194 is NOT the disk temperature, and its
-interpretation is unknown. This is primarily useful for the \-P
-(presets) option.
+\- same as:
+.I 194,raw48,Unknown_Attribute.
 
 .I 197,increasing
-\- Raw Attribute number 197 (Current Pending Sector Count) is not
-reset if uncorrectable sectors are reallocated.
+\- same as:
+.I 197,raw48,Total_Pending_Sectors.
+Also means that Attribute number 197 (Current Pending Sector Count)
+is not reset if uncorrectable sectors are reallocated
+(see \fBsmartd.conf\fP(5) man page).
 
 .I 198,increasing
-\- Raw Attribute number 198 (Offline Uncorrectable Sector Count) is not
-reset if uncorrectable sectors are reallocated.
+\- same as:
+.I 198,raw48,Total_Offl_Uncorrectabl.
+Also means that Attribute number 198 (Offline Uncorrectable Sector Count)
+is not reset if uncorrectable sectors are reallocated
+(see \fBsmartd.conf\fP(5) man page).
 
 .I 198,offlinescanuncsectorct
-\- Raw Attribute number 198 is the Offline Scan UNC Sector Count.
+\- same as:
+.I 198,raw48,Offline_Scan_UNC_SectCt.
 
 .I 200,writeerrorcount
-\- Raw Attribute number 200 is the Write Error Count.
+\- same as:
+.I 200,raw48,Write_Error_Count.
 
 .I 201,detectedtacount
-\- Raw Attribute number 201 is the Detected TA Count.
+\- same as:
+.I 201,raw48,Detected_TA_Count.
 
 .I 220,temp
-\- Raw Attribute number 220 is the disk temperature in Celsius.
+\- same as:
+.I 220,raw48,Temperature_Celsius.
 
 Note: a table of hard drive models, listing which Attribute
 corresponds to temperature, can be found at:
 \fBhttp://www.guzu.net/linux/hddtemp.db\fP
-
-.I N,raw8
-\- Print the Raw value of Attribute N as six 8\-bit unsigned base\-10
-integers.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw8\' prints Raw values for ALL Attributes in this
-form.  The form (for example) \'123,raw8\' only prints the Raw value for
-Attribute 123 in this form.
-
-.I N,raw16
-\- Print the Raw value of Attribute N as three 16\-bit unsigned base\-10
-integers.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw16\' prints Raw values for ALL Attributes in this
-form.  The form (for example) \'123,raw16\' only prints the Raw value for
-Attribute 123 in this form.
-
-.I N,raw48
-\- Print the Raw value of Attribute N as a 48\-bit unsigned base\-10
-integer.  This may be useful for decoding the meaning of the Raw
-value.  The form \'N,raw48\' prints Raw values for ALL Attributes in
-this form.  The form (for example) \'123,raw48\' only prints the Raw
-value for Attribute 123 in this form.
 
 .TP
 .B \-F TYPE, \-\-firmwarebug=TYPE
