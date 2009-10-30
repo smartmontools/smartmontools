@@ -1044,8 +1044,17 @@ This may be useful for decoding the meaning of the Raw value.
 \- Print the Raw value as a 48\-bit unsigned base\-10 integer.
 This is the default for most attributes.
 
+.I hex48
+\- Print the Raw value as a 12 digit hexadecimal number.
+This may be useful for decoding the meaning of the Raw value.
+
 .I raw64
 \- Print the Raw value as a 64\-bit unsigned base\-10 integer.
+This includes two bytes from the normalized and worst attribute value.
+This new raw format is used by some recent SSD devices.
+
+.I hex64
+\- Print the Raw value as a 16 digit hexadecimal number.
 This includes two bytes from the normalized and worst attribute value.
 This new raw format is used by some recent SSD devices.
 

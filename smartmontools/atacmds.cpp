@@ -196,7 +196,9 @@ const format_name_entry format_names[] = {
   {"raw8"           , RAWFMT_RAW8},
   {"raw16"          , RAWFMT_RAW16},
   {"raw48"          , RAWFMT_RAW48},
+  {"hex48"          , RAWFMT_HEX48},
   {"raw64"          , RAWFMT_RAW64},
+  {"hex64"          , RAWFMT_HEX64},
   {"raw16(raw16)"   , RAWFMT_RAW16_OPT_RAW16},
   {"raw16(avg16)"   , RAWFMT_RAW16_OPT_AVG16},
   {"raw24/raw24"    , RAWFMT_RAW24_RAW24},
@@ -249,7 +251,8 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   char fmtname[32+1], attrname[32+1];
   if (opt[0] == 'N') {
     // "N,format"
-    if (!(sscanf(opt, "N,%32[^,]%n", fmtname, &n1) == 1 && n1 == len))
+    if (!(   sscanf(opt, "N,%32[^,]%n,%32[^,]%n", fmtname, &n1, attrname, &n2) >= 1
+          && (n1 == len || n2 == len)))
       return false;
   }
   else {
@@ -257,9 +260,9 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     if (!(   sscanf(opt, "%d,%32[^,]%n,%32[^,]%n", &id, fmtname, &n1, attrname, &n2) >= 2
           && 1 <= id && id <= 255 && (n1 == len || n2 == len)))
       return false;
-    if (n1 == len)
-      attrname[0] = 0;
   }
+  if (n1 == len)
+    attrname[0] = 0;
 
   unsigned flags = 0;
   // For "-v 19[78],increasing" above
@@ -282,6 +285,8 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++) {
       if (defs[j].priority >= priority)
         continue;
+      if (attrname[0])
+        defs[j].name = attrname;
       defs[j].priority = priority;
       defs[j].raw_format = format;
     }
@@ -1833,14 +1838,23 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
     s = strprintf("%"PRIu64, rawvalue);
     break;
 
+  case RAWFMT_HEX48:
+    s = strprintf("0x%012"PRIx64, rawvalue);
+    break;
+
   case RAWFMT_RAW64:
+  case RAWFMT_HEX64:
     // Some SSD vendors use bytes 3-10 from the Attribute
     // Data Structure to store a 64-bit raw value.
+    // TODO: Do not print VALUE/WORST/THRESH in attribute table.
     rawvalue <<= 8;
     rawvalue |= attribute.worst;
     rawvalue <<= 8;
     rawvalue |= attribute.current;
-    s = strprintf("%"PRIu64, rawvalue);
+    if (format == RAWFMT_RAW64)
+      s = strprintf("%"PRIu64, rawvalue);
+    else
+      s = strprintf("0x%016"PRIx64, rawvalue);
     break;
 
   case RAWFMT_RAW16_OPT_RAW16:
