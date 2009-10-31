@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2975 2009-10-29 22:52:38Z chrfranke $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2979 2009-10-31 12:56:25Z chrfranke $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -70,8 +70,48 @@ static const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "OCZ Vertex SSD",
-    "OCZ-VERTEX.*",
-    "", "", ""
+    "OCZ[ -]VERTEX.*",
+    "", "",
+    " -v 9,raw64"
+    " -v 12,raw64"
+    " -v 184,raw64,Initial_Bad_Block_Count"
+    " -v 195,raw64,Program_Failure_Blk_Ct"
+    " -v 196,raw64,Erase_Failure_Blk_Ct"
+    " -v 197,raw64,Read_Failure_Blk_Ct"
+    " -v 198,raw64,Read_Sectors_Tot_Ct"
+    " -v 199,raw64,Write_Sectors_Tot_Ct"
+    " -v 200,raw64,Read_Commands_Tot_Ct"
+    " -v 201,raw64,Write_Commands_Tot_Ct"
+    " -v 202,raw64,Error_Bits_Flash_Tot_Ct"
+    " -v 203,raw64,Corr_Read_Errors_Tot_Ct"
+    " -v 204,raw64,Bad_Block_Full_Flag"
+    " -v 205,raw64,Max_PE_Count_Spec"
+    " -v 206,raw64,Min_Erase_Count"
+    " -v 207,raw64,Max_Erase_Count"
+    " -v 208,raw64,Average_Erase_Count"
+    " -v 209,raw64,Remaining_Lifetime_Perc"
+  },
+  { "OCZ Agility SSD",
+    "OCZ[ -]AGILITY",
+    "", "",
+    " -v 9,raw64"
+    " -v 12,raw64"
+    " -v 184,raw64,Initial_Bad_Block_Count"
+    " -v 195,raw64,Program_Failure_Blk_Ct"
+    " -v 196,raw64,Erase_Failure_Blk_Ct"
+    " -v 197,raw64,Read_Failure_Blk_Ct"
+    " -v 198,raw64,Read_Sectors_Tot_Ct"
+    " -v 199,raw64,Write_Sectors_Tot_Ct"
+    " -v 200,raw64,Read_Commands_Tot_Ct"
+    " -v 201,raw64,Write_Commands_Tot_Ct"
+    " -v 202,raw64,Error_Bits_Flash_Tot_Ct"
+    " -v 203,raw64,Corr_Read_Errors_Tot_Ct"
+    " -v 204,raw64,Bad_Block_Full_Flag"
+    " -v 205,raw64,Max_PE_Count_Spec"
+    " -v 206,raw64,Min_Erase_Count"
+    " -v 207,raw64,Max_Erase_Count"
+    " -v 208,raw64,Average_Erase_Count"
+    " -v 209,raw64,Remaining_Lifetime_Perc"
   },
   { "Intel X25-E SSD",
     "SSDSA2SH(032|064)G1.* INTEL",

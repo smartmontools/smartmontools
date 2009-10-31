@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2978 2009-10-30 23:20:39Z chrfranke $
+$Id: CHANGELOG 2979 2009-10-31 12:56:25Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] knowndrives.cpp updates:
+       - add OCZ-Vertex raw64 attributes
+       - add OCZ-Agility
+       Thanks to Marcin Marszalek for the patch.
 
   [CF] Add '-v ID,hex*' print formats. Fix '-v N,FORMAT,NAME' parsing.
 
