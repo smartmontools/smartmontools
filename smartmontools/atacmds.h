@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 2978 2009-10-30 23:20:39Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 2980 2009-10-31 16:59:55Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -656,7 +656,8 @@ enum ata_attr_raw_format
 
 // Attribute flags
 enum {
-  ATTRFLAG_INCREASING = 0x01 // Value not reset (for reallocated/pending counts)
+  ATTRFLAG_INCREASING = 0x01, // Value not reset (for reallocated/pending counts)
+  ATTRFLAG_NO_NORMVAL = 0x02  // Normalized value not valid
 };
 
 // Vendor attribute display defs for all attribute ids
@@ -760,11 +761,6 @@ int ataSmartSupport(const ata_identify_device * drive);
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
 int ataIsSmartEnabled(const ata_identify_device * drive);
-
-/* Check SMART for Threshold failure */
-// onlyfailed=0 : are or were any age or prefailure attributes <= threshold
-// onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart(const ata_smart_values * data, const ata_smart_thresholds_pvt * thresholds, int onlyfailed);
 
 int ataSmartStatus2(ata_device * device);
 
