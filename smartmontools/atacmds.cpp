@@ -280,15 +280,20 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   }
   ata_attr_raw_format format = format_names[i].format;
 
+  // 64-bit formats use the normalized value bytes.
+  if (format == RAWFMT_RAW64 || format == RAWFMT_HEX64)
+    flags |= ATTRFLAG_NO_NORMVAL;
+
   if (!id) {
     // "N,format" -> set format for all entries
-    for (int j = 0; j < MAX_ATTRIBUTE_NUM; j++) {
-      if (defs[j].priority >= priority)
+    for (i = 0; i < MAX_ATTRIBUTE_NUM; i++) {
+      if (defs[i].priority >= priority)
         continue;
       if (attrname[0])
-        defs[j].name = attrname;
-      defs[j].priority = priority;
-      defs[j].raw_format = format;
+        defs[i].name = attrname;
+      defs[i].priority = priority;
+      defs[i].raw_format = format;
+      defs[i].flags = flags;
     }
   }
   else if (defs[id].priority <= priority) {
@@ -1697,53 +1702,6 @@ int isSupportSelectiveSelfTest(const ata_smart_values * data)
 {
    return data->offline_data_collection_capability & 0x40;
 }
-
-
-
-// Loop over all valid attributes.  If they are prefailure attributes
-// and are at or below the threshold value, then return the ID of the
-// first failing attribute found.  Return 0 if all prefailure
-// attributes are in bounds.  The spec says "Bit 0
-// -Pre-failure/advisory - If the value of this bit equals zero, an
-// attribute value less than or equal to its corresponding attribute
-// threshold indicates an advisory condition where the usage or age of
-// the device has exceeded its intended design life period. If the
-// value of this bit equals one, an atribute value less than or equal
-// to its corresponding attribute threshold indicates a pre-failure
-// condition where imminent loss of data is being predicted."
-
-
-// onlyfailed=0 : are or were any age or prefailure attributes <= threshold
-// onlyfailed=1:  are any prefailure attributes <= threshold now
-int ataCheckSmart(const ata_smart_values * data,
-                  const ata_smart_thresholds_pvt * thresholds,
-                  int onlyfailed)
-{
-  // loop over all attributes
-  for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++){
-
-    // pointers to disk's values and vendor's thresholds
-    const ata_smart_attribute * disk = data->vendor_attributes+i;
-    const ata_smart_threshold_entry * thre = thresholds->thres_entries+i;
- 
-    // consider only valid attributes
-    if (disk->id && thre->id){
-      int failednow,failedever;
-      
-      failednow =disk->current <= thre->threshold;
-      failedever=disk->worst   <= thre->threshold;
-      
-      if (!onlyfailed && failedever)
-        return disk->id;
-      
-      if (onlyfailed && failednow && ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
-        return disk->id;      
-    }
-  }
-  return 0;
-}
-
-
 
 // This checks the n'th attribute in the attribute list, NOT the
 // attribute with id==n.  If the attribute does not exist, or the
