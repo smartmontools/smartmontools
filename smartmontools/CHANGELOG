@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] knowndrives.cpp updates:
+       - add OCZ-Vertex raw64 attributes
+       - add OCZ-Agility
+       Thanks to Marcin Marszalek for the patch.
+
   [CF] Add '-v ID,hex*' print formats. Fix '-v N,FORMAT,NAME' parsing.
 
   [CF] Add '-v ID,raw64[,...]' print format based on a patch provided
