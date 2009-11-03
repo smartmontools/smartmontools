@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2979 2009-10-31 12:56:25Z chrfranke $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2981 2009-11-03 22:09:00Z manfred99 $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -801,6 +801,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Hitachi Travelstar 5K250 series",
     "(Hitachi |HITACHI )?HTS5425(80|12|16|20|25)K9(A3|SA)00",
+    "", "", ""
+  },
+  { "Hitachi Travelstar 5K320 series",
+    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A300|SA01)",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",

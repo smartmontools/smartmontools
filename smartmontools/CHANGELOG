@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2980 2009-10-31 16:59:55Z chrfranke $
+$Id: CHANGELOG 2981 2009-11-03 22:09:00Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] knowndrives.cpp update: Hitachi Travelstar 5K320 series
 
   [CF] smartctl: Ignore normalized attribute value and threshold
        if 'raw64' or 'hex24' format is selected.
