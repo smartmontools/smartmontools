@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp update: Hitachi Travelstar 5K320 series
+
   [CF] smartctl: Ignore normalized attribute value and threshold
        if 'raw64' or 'hex24' format is selected.
 

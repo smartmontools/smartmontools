@@ -803,6 +803,10 @@ static const drive_settings builtin_knowndrives[] = {
     "(Hitachi |HITACHI )?HTS5425(80|12|16|20|25)K9(A3|SA)00",
     "", "", ""
   },
+  { "Hitachi Travelstar 5K320 series",
+    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A300|SA01)",
+    "", "", ""
+  },
   { "Hitachi Travelstar 7K60",
     "(Hitachi )?HTS726060M9AT00",
     "", "", ""
