@@ -1345,12 +1345,16 @@ const usb_id_entry usb_ids[] = {
   { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
   // Iomega
+  { 0x059b, 0x0272,     -1, d_cypress }, // Iomega LPHD080-0
   { 0x059b, 0x0275, 0x0001, d_unsup   }, // Iomega MDHD500-U
   // LaCie
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
   // In-System Design
   { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
+  // Genesys Logic
+  { 0x05e3, 0x0702,     -1, d_unsup   }, // Genesys Logic GL881E
+  { 0x05e3, 0x0718, 0x0041, d_sat     }, // Genesys Logic ? (TODO: requires '-T permissive')
   // Prolific
   { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
   // Freecom
@@ -1378,6 +1382,7 @@ const usb_id_entry usb_ids[] = {
   { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
   { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
   // Initio
+  { 0x13fd, 0x0540,     -1, d_unsup   }, // Initio 316000
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
   { 0x13fd, 0x1340, 0x0208, d_sat     }, // Initio ? (USB+SATA->SATA)
   // JMicron
