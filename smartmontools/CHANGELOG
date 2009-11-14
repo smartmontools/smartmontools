@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Write 'worst' attribute value to '.state' file also.
+       This allows to use state persistence with 'raw64' attributes.
+
   [CF] Rework ATA SMART attribute check in smartctl and smartd.
        smartd: Ignore normalized attribute value and threshold
        if 'raw64' or 'hex64' format is selected.

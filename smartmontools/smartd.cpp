@@ -351,9 +351,10 @@ struct persistent_dev_state
   struct ata_attribute {
     unsigned char id;
     unsigned char val;
+    unsigned char worst; // Byte needed for 'raw64' attribute only.
     uint64_t raw;
 
-    ata_attribute() : id(0), val(0), raw(0) { }
+    ata_attribute() : id(0), val(0), worst(0), raw(0) { }
   };
   ata_attribute ata_attributes[NUMBER_ATA_SMART_ATTRIBUTES];
 
@@ -445,10 +446,11 @@ void dev_state::update_persistent_state()
     ata_attribute & pa = ata_attributes[i];
     pa.id = ta.id;
     if (ta.id == 0) {
-      pa.val = 0; pa.raw = 0;
+      pa.val = pa.worst = 0; pa.raw = 0;
       continue;
     }
     pa.val = ta.current;
+    pa.worst = ta.worst;
     pa.raw =            ta.raw[0]
            | (          ta.raw[1] <<  8)
            | (          ta.raw[2] << 16)
@@ -466,10 +468,12 @@ void dev_state::update_temp_state()
     ata_smart_attribute & ta = smartval.vendor_attributes[i];
     ta.id = pa.id;
     if (pa.id == 0) {
-      ta.current = 0; memset(ta.raw, 0, sizeof(ta.raw));
+      ta.current = ta.worst = 0;
+      memset(ta.raw, 0, sizeof(ta.raw));
       continue;
     }
     ta.current = pa.val;
+    ta.worst = pa.worst;
     ta.raw[0] = (unsigned char) pa.raw;
     ta.raw[1] = (unsigned char)(pa.raw >>  8);
     ta.raw[2] = (unsigned char)(pa.raw >> 16);
@@ -494,22 +498,23 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
        "((count)" // (10 (11)
        "|(first-sent-time)" // (12)
        "|(last-sent-time)" // (13)
-       ")" // 14)
+       ")" // 10)
       ")" // 8)
      "|(ata-smart-attribute\\.([0-9]+)\\." // (14 (15)
-       "((id)" // (16)
-       "|(val)" // (17)
-       "|(raw)" // (18)
-       ")" // 19)
+       "((id)" // (16 (17)
+       "|(val)" // (18)
+       "|(worst)" // (19)
+       "|(raw)" // (20)
+       ")" // 16)
       ")" // 14)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$", // (20)
+     " *= *([0-9]+)[ \n]*$", // (21)
     REG_EXTENDED
   );
   if (regex.empty())
     throw std::logic_error("parse_dev_state_line: invalid regex");
 
-  const int nmatch = 1+20;
+  const int nmatch = 1+21;
   regmatch_t match[nmatch];
   if (!regex.execute(line, nmatch, match))
     return false;
@@ -554,6 +559,8 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
       state.ata_attributes[i].id = (unsigned char)val;
     else if (match[++m].rm_so >= 0)
       state.ata_attributes[i].val = (unsigned char)val;
+    else if (match[++m].rm_so >= 0)
+      state.ata_attributes[i].worst = (unsigned char)val;
     else if (match[++m].rm_so >= 0)
       state.ata_attributes[i].raw = val;
     else
@@ -653,6 +660,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
       continue;
     write_dev_state_line(f, "ata-smart-attribute", i, "id", pa.id);
     write_dev_state_line(f, "ata-smart-attribute", i, "val", pa.val);
+    write_dev_state_line(f, "ata-smart-attribute", i, "worst", pa.worst);
     write_dev_state_line(f, "ata-smart-attribute", i, "raw", pa.raw);
   }
 
