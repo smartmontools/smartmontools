@@ -1710,13 +1710,13 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
     // see if the necessary Attribute is there to monitor offline or
     // current pending sectors or temperature
-    if (cfg.curr_pending_id && ATAReturnAttributeRawValue(cfg.curr_pending_id, &state.smartval) < 0) {
+    if (cfg.curr_pending_id && ata_find_attr_index(cfg.curr_pending_id, state.smartval) < 0) {
       PrintOut(LOG_INFO,"Device: %s, can't monitor Current Pending Sector count - no Attribute %d\n",
                name, cfg.curr_pending_id);
       cfg.curr_pending_id = 0;
     }
     
-    if (cfg.offl_pending_id && ATAReturnAttributeRawValue(cfg.offl_pending_id, &state.smartval) < 0) {
+    if (cfg.offl_pending_id && ata_find_attr_index(cfg.offl_pending_id, state.smartval) < 0) {
       PrintOut(LOG_INFO,"Device: %s, can't monitor Offline Uncorrectable Sector count - no Attribute %d\n",
                name, cfg.offl_pending_id);
       cfg.offl_pending_id = 0;
@@ -1995,75 +1995,6 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
     state.scheduled_test_next_check = time(0);
 
   return 0;
-}
-
-
-struct changedattribute_t {
-  unsigned char newval;
-  unsigned char oldval;
-  unsigned char id;
-  unsigned char prefail;
-  unsigned char sameraw;
-};
-
-// We compare old and new values of the n'th attribute.  Note that n
-// is NOT the attribute ID number.. If (Normalized & Raw) equal,
-// then return 0, else nonzero.
-static int ATACompareValues(changedattribute_t *delta,
-                            struct ata_smart_values *newv,
-                            struct ata_smart_values *oldv,
-                            struct ata_smart_thresholds_pvt *thresholds,
-                            int n, const char * name)
-{
-  struct ata_smart_attribute *now,*was;
-  struct ata_smart_threshold_entry *thre;
-  unsigned char oldval,newval;
-  int sameraw;
-
-  // check that attribute number in range, and no null pointers
-  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !newv || !oldv || !thresholds)
-    return 0;
-  
-  // pointers to disk's values and vendor's thresholds
-  now=newv->vendor_attributes+n;
-  was=oldv->vendor_attributes+n;
-  thre=thresholds->thres_entries+n;
-
-  // consider only valid attributes
-  if (!now->id || !was->id || !thre->id)
-    return 0;
-  
-  
-  // issue warning if they don't have the same ID in all structures:
-  if ( (now->id != was->id) || (now->id != thre->id) ){
-    PrintOut(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %d = %d = %d\n",
-             name, (int)now->id, (int)was->id, (int)thre->id);
-    return 0;
-  }
-
-  // new and old values of Normalized Attributes
-  newval=now->current;
-  oldval=was->current;
-
-  // See if the RAW values are unchanged (ie, the same)
-  if (memcmp(now->raw, was->raw, 6))
-    sameraw=0;
-  else
-    sameraw=1;
-  
-  // if any values out of the allowed range, or if the values haven't
-  // changed, return 0
-  if (!newval || !oldval || newval>0xfe || oldval>0xfe || (oldval==newval && sameraw))
-    return 0;
-  
-  // values have changed.  Construct output and return
-  delta->newval=newval;
-  delta->oldval=oldval;
-  delta->id=now->id;
-  delta->prefail=ATTRIBUTE_FLAGS_PREFAILURE(now->flags);
-  delta->sameraw=sameraw;
-
-  return 1;
 }
 
 // If the self-test log has got more self-test errors (or more recent
@@ -2434,13 +2365,18 @@ static void check_pending(const dev_config & cfg, dev_state & state,
                           const ata_smart_values & smartval,
                           int mailtype, const char * msg)
 {
+  // Find attribute index
+  int i = ata_find_attr_index(id, smartval);
+  if (!(i >= 0 && ata_find_attr_index(id, state.smartval) == i))
+    return;
+
   // No report if no sectors pending.
-  int64_t rawval = ATAReturnAttributeRawValue(id, &smartval);
-  if (rawval <= 0)
+  uint64_t rawval = ata_get_attr_raw_value(smartval.vendor_attributes[i], cfg.attribute_defs);
+  if (rawval == 0)
     return;
 
   // If attribute is not reset, report only sector count increases.
-  int64_t prev_rawval = ATAReturnAttributeRawValue(id, &state.smartval);
+  uint64_t prev_rawval = ata_get_attr_raw_value(state.smartval.vendor_attributes[i], cfg.attribute_defs);
   if (!(!increase_only || prev_rawval < rawval))
     return;
 
@@ -2532,6 +2468,103 @@ static void CheckTemperature(const dev_config & cfg, dev_state & state, unsigned
       cfg.name.c_str(), currtemp, cfg.tempinfo, fmt_temp(state.tempmin, buf), minchg, state.tempmax, maxchg);
   }
 }
+
+// Check normalized and raw attribute values.
+static void check_attribute(const dev_config & cfg, dev_state & state,
+                            const ata_smart_attribute & attr,
+                            const ata_smart_attribute & prev,
+                            const ata_smart_threshold_entry & thre)
+{
+  // Check attribute and threshold
+  ata_attr_state attrstate = ata_get_attr_state(attr, thre, cfg.attribute_defs);
+  if (attrstate == ATTRSTATE_NON_EXISTING)
+    return;
+
+  // If requested, check for usage attributes that have failed.
+  if (   cfg.usagefailed && attrstate == ATTRSTATE_FAILED_NOW
+      && !cfg.monitor_attr_flags.is_set(attr.id, MONITOR_IGN_FAILUSE)) {
+    std::string attrname = ata_get_smart_attr_name(attr.id, cfg.attribute_defs);
+    PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %d %s.\n", cfg.name.c_str(), attr.id, attrname.c_str());
+    MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %d %s.", cfg.name.c_str(), attr.id, attrname.c_str());
+    state.must_write = true;
+  }
+
+  // Return if we're not tracking this type of attribute
+  bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(attr.flags);
+  if (!(   ( prefail && cfg.prefail)
+        || (!prefail && cfg.usage  )))
+    return;
+
+  // Return if '-I ID' was specified
+  if (cfg.monitor_attr_flags.is_set(attr.id, MONITOR_IGNORE))
+    return;
+
+  // Issue warning if they don't have the same ID in all structures.
+  if (attr.id != prev.id || attrstate == ATTRSTATE_BAD_THRESHOLD) {
+    PrintOut(LOG_INFO,"Device: %s, same Attribute has different ID numbers: %d = %d = %d\n",
+             cfg.name.c_str(), attr.id, prev.id, thre.id);
+    return;
+  }
+
+  // Compare normalized values if valid.
+  bool valchanged = false;
+  if (attrstate > ATTRSTATE_NO_NORMVAL) {
+    if (attr.current != prev.current)
+      valchanged = true;
+  }
+
+  // Compare raw values if requested.
+  bool rawchanged = false;
+  if (cfg.monitor_attr_flags.is_set(attr.id, MONITOR_RAW)) {
+    if (   ata_get_attr_raw_value(attr, cfg.attribute_defs)
+        != ata_get_attr_raw_value(prev, cfg.attribute_defs))
+      rawchanged = true;
+  }
+
+  // Return if no change
+  if (!(valchanged || rawchanged))
+    return;
+
+  // Format value strings
+  std::string currstr, prevstr;
+  if (attrstate == ATTRSTATE_NO_NORMVAL) {
+    // Print raw values only
+    currstr = strprintf("%s (Raw)",
+      ata_format_attr_raw_value(attr, cfg.attribute_defs).c_str());
+    prevstr = strprintf("%s (Raw)",
+      ata_format_attr_raw_value(prev, cfg.attribute_defs).c_str());
+  }
+  else if (cfg.monitor_attr_flags.is_set(attr.id, MONITOR_RAW_PRINT)) {
+    // Print normalized and raw values
+    currstr = strprintf("%d [Raw %s]", attr.current,
+      ata_format_attr_raw_value(attr, cfg.attribute_defs).c_str());
+    prevstr = strprintf("%d [Raw %s]", prev.current,
+      ata_format_attr_raw_value(prev, cfg.attribute_defs).c_str());
+  }
+  else {
+    // Print normalized values only
+    currstr = strprintf("%d", attr.current);
+    prevstr = strprintf("%d", prev.current);
+  }
+
+  // Format message
+  std::string msg = strprintf("Device: %s, SMART %s Attribute: %d %s changed from %s to %s",
+                              cfg.name.c_str(), (prefail ? "Prefailure" : "Usage"), attr.id,
+                              ata_get_smart_attr_name(attr.id, cfg.attribute_defs).c_str(),
+                              prevstr.c_str(), currstr.c_str());
+
+  // Report this change as critical ?
+  if (   (valchanged && cfg.monitor_attr_flags.is_set(attr.id, MONITOR_AS_CRIT))
+      || (rawchanged && cfg.monitor_attr_flags.is_set(attr.id, MONITOR_RAW_AS_CRIT))) {
+    PrintOut(LOG_CRIT, "%s\n", msg.c_str());
+    MailWarning(cfg, state, 2, "%s", msg.c_str());
+  }
+  else {
+    PrintOut(LOG_INFO, "%s\n", msg.c_str());
+  }
+  state.must_write = true;
+}
+
 
 static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device * atadev, bool allow_selftests)
 {
@@ -2643,10 +2676,9 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   if (   cfg.usagefailed || cfg.prefail || cfg.usage
       || cfg.curr_pending_id || cfg.offl_pending_id
       || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit || cfg.selftest) {
-    struct ata_smart_values     curval;
-    struct ata_smart_thresholds_pvt * thresh = &state.smartthres;
 
-    // Read current attribute values. *drive contains old values and thresholds
+    // Read current attribute values.
+    ata_smart_values curval;
     if (ataReadSmartValues(atadev, &curval)){
       PrintOut(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
       MailWarning(cfg, state, 6, "Device: %s, failed to read SMART Attribute Data", name);
@@ -2670,79 +2702,14 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
       if (cfg.usagefailed || cfg.prefail || cfg.usage) {
 
-	// look for failed usage attributes, or track usage or prefail attributes
+        // look for failed usage attributes, or track usage or prefail attributes
         for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+          check_attribute(cfg, state,
+                          curval.vendor_attributes[i],
+                          state.smartval.vendor_attributes[i],
+                          state.smartthres.thres_entries[i]);
+        }
 
-	  // This block looks for usage attributes that have failed.
-	  // Prefail attributes that have failed are returned with a
-	  // positive sign. No failure returns 0. Usage attributes<0.
-          int att;
-	  if (cfg.usagefailed && ((att=ataCheckAttribute(&curval, thresh, i))<0)){
-	    
-	    // are we ignoring failures of this attribute?
-	    att *= -1;
-            if (!cfg.monitor_attr_flags.is_set(att, MONITOR_IGN_FAILUSE)) {
-	      // warning message
-              std::string attrname = ata_get_smart_attr_name(att, cfg.attribute_defs);
-              PrintOut(LOG_CRIT, "Device: %s, Failed SMART usage Attribute: %d %s.\n", name, att, attrname.c_str());
-              MailWarning(cfg, state, 2, "Device: %s, Failed SMART usage Attribute: %d %s.", name, att, attrname.c_str());
-              state.must_write = true;
-	    }
-	  }
-	  
-	  // This block tracks usage or prefailure attributes to see if
-	  // they are changing.  It also looks for changes in RAW values
-	  // if this has been requested by user.
-          changedattribute_t delta;
-	  if ((cfg.usage || cfg.prefail) && ATACompareValues(&delta, &curval, &state.smartval, thresh, i, name)){
-
-            // Continue if we're not tracking this type of attribute
-            if (!(   ( delta.prefail && cfg.prefail)
-                  || (!delta.prefail && cfg.usage   )))
-              continue;
-
-            // Continue if '-I ID' was specified
-            unsigned char id = delta.id;
-            if (cfg.monitor_attr_flags.is_set(id, MONITOR_IGNORE))
-              continue;
-
-	    // if the only change is the raw value, and we're not
-	    // tracking raw value, then continue loop over attributes
-            if (   !delta.sameraw && delta.newval == delta.oldval
-                && !cfg.monitor_attr_flags.is_set(id, MONITOR_RAW))
-	      continue;
-
-            // get attribute name
-            std::string attrname = ata_get_smart_attr_name(id, cfg.attribute_defs);
-
-            // has the user asked for us to print raw values?
-            std::string newraw, oldraw;
-            if (cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_PRINT)) {
-              // get raw values (as a string) and add to printout
-              newraw = strprintf(" [Raw %s]",
-                ata_format_attr_raw_value(curval.vendor_attributes[i], cfg.attribute_defs).c_str());
-              oldraw = strprintf(" [Raw %s]",
-                ata_format_attr_raw_value(state.smartval.vendor_attributes[i], cfg.attribute_defs).c_str());
-            }
-
-            // Format message
-            std::string msg = strprintf("Device: %s, SMART %s Attribute: %d %s changed from %d%s to %d%s",
-                                        name, (delta.prefail ? "Prefailure" : "Usage"), id, attrname.c_str(),
-                                        delta.oldval, oldraw.c_str(), delta.newval, newraw.c_str());
-
-            // Report this change as critical ?
-            if (   (delta.newval != delta.oldval && cfg.monitor_attr_flags.is_set(id, MONITOR_AS_CRIT))
-                || (!delta.sameraw               && cfg.monitor_attr_flags.is_set(id, MONITOR_RAW_AS_CRIT))) {
-              PrintOut(LOG_CRIT, "%s\n", msg.c_str());
-              MailWarning(cfg, state, 2, "%s", msg.c_str());
-            }
-            else {
-              PrintOut(LOG_INFO, "%s\n", msg.c_str());
-            }
-            state.must_write = true;
-	  } // endof block tracking usage or prefailure
-	} // end of loop over attributes
-	
         if (cfg.selftest) {
           // Log changes of self-test execution status
           if (   curval.self_test_exec_status != state.smartval.self_test_exec_status

@@ -781,22 +781,19 @@ static int find_failed_attr(const ata_smart_values * data,
                             const ata_vendor_attr_defs & defs, int onlyfailed)
 {
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-    const ata_smart_attribute * disk = data->vendor_attributes+i;
-    const ata_smart_threshold_entry * thre = thresholds->thres_entries+i;
+    const ata_smart_attribute & attr = data->vendor_attributes[i];
 
-    // consider only valid attributes
-    if (!(disk->id && disk->id == thre->id && thre->threshold
-          && !(defs[disk->id].flags & ATTRFLAG_NO_NORMVAL)   ))
-      continue;
+    ata_attr_state state = ata_get_attr_state(attr,
+                             thresholds->thres_entries[i], defs);
 
-    bool failednow  = (disk->current <= thre->threshold);
-    bool failedever = (disk->worst   <= thre->threshold);
-
-    if (!onlyfailed && failedever)
-      return disk->id;
-
-    if (onlyfailed && failednow && ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
-      return disk->id;
+    if (!onlyfailed) {
+      if (state >= ATTRSTATE_FAILED_PAST)
+        return attr.id;
+    }
+    else {
+      if (state == ATTRSTATE_FAILED_NOW && ATTRIBUTE_FLAGS_PREFAILURE(attr.flags))
+        return attr.id;
+    }
   }
   return 0;
 }
@@ -809,83 +806,64 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
                                       const ata_vendor_attr_defs & defs,
                                       int onlyfailed)
 {
-  int needheader=1;
+  bool needheader = true;
 
   // step through all vendor attributes
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-    const ata_smart_attribute * disk = data->vendor_attributes+i;
-    const ata_smart_threshold_entry * thre = thresholds->thres_entries+i;
-    
-    // consider only valid attributes (allowing some screw-ups in the
-    // thresholds page data to slip by)
-    if (disk->id){
-      // Normalized values (current,worth,threshold) valid ?
-      // (Some SSD disks uses these bytes to store raw value).
-      bool norm_values_ok = !(defs[disk->id].flags & ATTRFLAG_NO_NORMVAL);
+    const ata_smart_attribute & attr = data->vendor_attributes[i];
+    const ata_smart_threshold_entry & thre = thresholds->thres_entries[i];
 
-      // Don't report a failed attribute if its threshold is 0.
-      // ATA-3 (X3T13/2008D Revision 7b) declares 0x00 as the "always passing"
-      // threshold (Later ATA versions declare all thresholds as "obsolete").
-      // In practice, threshold value 0 is often used for usage attributes or
-      // appears if the thresholds cannot be read.
-      bool failednow, failedever;
-      if (norm_values_ok && thre->threshold) {
-        failednow  = (disk->current <= thre->threshold);
-        failedever = (disk->worst   <= thre->threshold);
+    // Check attribute and threshold
+    ata_attr_state state = ata_get_attr_state(attr, thre, defs);
+    if (state == ATTRSTATE_NON_EXISTING)
+      continue;
+
+    // These break out of the loop if we are only printing certain entries...
+    if (onlyfailed == 1 && !(ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) && state == ATTRSTATE_FAILED_NOW))
+      continue;
+
+    if (onlyfailed == 2 && state < ATTRSTATE_FAILED_PAST)
+      continue;
+
+    // print header only if needed
+    if (needheader) {
+      if (!onlyfailed) {
+        pout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
+        pout("Vendor Specific SMART Attributes with Thresholds:\n");
       }
-      else
-        failednow = failedever = false;
+      pout("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n");
+      needheader = false;
+    }
 
-      // These break out of the loop if we are only printing certain entries...
-      if (onlyfailed==1 && (!ATTRIBUTE_FLAGS_PREFAILURE(disk->flags) || !failednow))
-        continue;
-      
-      if (onlyfailed==2 && !failedever)
-        continue;
-      
-      // print header only if needed
-      if (needheader){
-        if (!onlyfailed){
-          pout("SMART Attributes Data Structure revision number: %d\n",(int)data->revnumber);
-          pout("Vendor Specific SMART Attributes with Thresholds:\n");
-        }
-        pout("ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE\n");
-        needheader=0;
-      }
-      
-      // is this Attribute currently failed, or has it ever failed?
-      const char * status;
-      if (failednow)
-        status="FAILING_NOW";
-      else if (failedever)
-        status="In_the_past";
-      else
-        status="    -";
+    // Format value, worst, threshold
+    std::string valstr, threstr;
+    if (state > ATTRSTATE_NO_NORMVAL)
+      valstr = strprintf("%.3d   %.3d", attr.current, attr.worst);
+    else
+      valstr = "---   ---";
+    if (state > ATTRSTATE_NO_THRESHOLD)
+      threstr = strprintf("%.3d", thre.threshold);
+    else
+      threstr = "---";
 
-      // printing line for each valid attribute
-      std::string attrname = ata_get_smart_attr_name(disk->id, defs);
-      std::string rawstr = ata_format_attr_raw_value(*disk, defs);
-      const char * type = ATTRIBUTE_FLAGS_PREFAILURE(disk->flags)?"Pre-fail":"Old_age";
-      const char * update = ATTRIBUTE_FLAGS_ONLINE(disk->flags)?"Always":"Offline";
+    // Print line for each valid attribute
+    std::string attrname = ata_get_smart_attr_name(attr.id, defs);
+    pout("%3d %-24s0x%04x   %-9s   %-3s    %-10s%-9s%-12s%s\n",
+         attr.id, attrname.c_str(), attr.flags,
+         valstr.c_str(), threstr.c_str(),
+         (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)? "Pre-fail" : "Old_age"),
+         (ATTRIBUTE_FLAGS_ONLINE(attr.flags)? "Always" : "Offline"),
+         (state == ATTRSTATE_FAILED_NOW  ? "FAILING_NOW" :
+          state == ATTRSTATE_FAILED_PAST ? "In_the_past" :
+                                           "    -"        ),
+         ata_format_attr_raw_value(attr, defs).c_str());
 
-      if (norm_values_ok)
-        pout("%3d %-24s0x%04x   %.3d   %.3d   %.3d    %-10s%-9s%-12s%s\n",
-             disk->id, attrname.c_str(), disk->flags,
-             disk->current, disk->worst, thre->threshold,
-             type, update, status, rawstr.c_str());
-      else
-        pout("%3d %-24s0x%04x   ---   ---   ---    %-10s%-9s%-12s%s\n",
-             disk->id, attrname.c_str(), disk->flags,
-             type, update, status, rawstr.c_str());
-
-      // Print a warning if there is inconsistency here and
-      // threshold info is not empty.
-      if (norm_values_ok && disk->id != thre->id && (thre->id || thre->threshold)) {
-        pout("%3d %-24s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",
-             disk->id, attrname.c_str());
-        pout("%3d %-24s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",
-             thre->id, attrname.c_str());
-      }
+    // Print a warning if there is inconsistency here
+    if (state == ATTRSTATE_BAD_THRESHOLD) {
+      pout("%3d %-24s<== Data Page      |  WARNING: PREVIOUS ATTRIBUTE HAS TWO\n",
+           attr.id, attrname.c_str());
+      pout("%3d %-24s<== Threshold Page |  INCONSISTENT IDENTITIES IN THE DATA\n",
+           thre.id, ata_get_smart_attr_name(thre.id, defs).c_str());
     }
   }
   if (!needheader) pout("\n");

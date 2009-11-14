@@ -1703,37 +1703,45 @@ int isSupportSelectiveSelfTest(const ata_smart_values * data)
    return data->offline_data_collection_capability & 0x40;
 }
 
-// This checks the n'th attribute in the attribute list, NOT the
-// attribute with id==n.  If the attribute does not exist, or the
-// attribute is > threshold, then returns zero.  If the attribute is
-// <= threshold (failing) then we the attribute number if it is a
-// prefail attribute.  Else we return minus the attribute number if it
-// is a usage attribute.
-int ataCheckAttribute(const ata_smart_values * data,
-                      const ata_smart_thresholds_pvt * thresholds,
-                      int n)
+// Get attribute state
+ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
+                                  const ata_smart_threshold_entry & thre,
+                                  const ata_vendor_attr_defs & defs)
 {
-  if (n<0 || n>=NUMBER_ATA_SMART_ATTRIBUTES || !data || !thresholds)
-    return 0;
-  
-  // pointers to disk's values and vendor's thresholds
-  const ata_smart_attribute * disk = data->vendor_attributes+n;
-  const ata_smart_threshold_entry * thre = thresholds->thres_entries+n;
+  if (!attr.id)
+    return ATTRSTATE_NON_EXISTING;
 
-  if (!disk || !thre)
-    return 0;
-  
-  // consider only valid attributes, check for failure
-  if (!disk->id || !thre->id || (disk->id != thre->id) || disk->current> thre->threshold)
-    return 0;
-  
-  // We have found a failed attribute.  Return positive or negative? 
-  if (ATTRIBUTE_FLAGS_PREFAILURE(disk->flags))
-    return disk->id;
-  else
-    return -1*(disk->id);
+  // Normalized values (current,worst,threshold) not valid
+  // if specified by '-v' option.
+  // (Some SSD disks uses these bytes to store raw value).
+  if (defs[attr.id].flags & ATTRFLAG_NO_NORMVAL)
+    return ATTRSTATE_NO_NORMVAL;
+
+  // No threshold if thresholds cannot be read.
+  if (!thre.id && !thre.threshold)
+    return ATTRSTATE_NO_THRESHOLD;
+
+  // Bad threshold if id's don't match
+  if (attr.id != thre.id)
+    return ATTRSTATE_BAD_THRESHOLD;
+
+  // Don't report a failed attribute if its threshold is 0.
+  // ATA-3 (X3T13/2008D Revision 7b) declares 0x00 as the "always passing"
+  // threshold (Later ATA versions declare all thresholds as "obsolete").
+  // In practice, threshold value 0 is often used for usage attributes.
+  if (!thre.threshold)
+    return ATTRSTATE_OK;
+
+  // Failed now if current value is below threshold
+  if (attr.current <= thre.threshold)
+    return ATTRSTATE_FAILED_NOW;
+
+  // Failed in the passed if worst value is below threshold
+  if (attr.worst <= thre.threshold)
+    return ATTRSTATE_FAILED_PAST;
+
+  return ATTRSTATE_OK;
 }
-
 
 // Get default raw value print format
 static ata_attr_raw_format get_default_raw_format(unsigned char id)
@@ -1755,18 +1763,13 @@ static ata_attr_raw_format get_default_raw_format(unsigned char id)
   }
 }
 
-// Format attribute raw value.
-std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
-                                      const ata_vendor_attr_defs & defs)
+// Get attribute raw value.
+uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
+                                const ata_vendor_attr_defs & defs)
 {
-  // Get print format
-  ata_attr_raw_format format = defs[attribute.id].raw_format;
-  if (format == RAWFMT_DEFAULT)
-    format = get_default_raw_format(attribute.id);
-
   // Get 48 bit raw value
-  const unsigned char * raw = attribute.raw;
-  int64_t rawvalue;
+  const unsigned char * raw = attr.raw;
+  uint64_t rawvalue;
   rawvalue =              raw[0]
              | (          raw[1] <<  8)
              | (          raw[2] << 16)
@@ -1774,11 +1777,36 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
              | ((uint64_t)raw[4] << 32)
              | ((uint64_t)raw[5] << 40);
 
+  if (defs[attr.id].flags & ATTRFLAG_NO_NORMVAL) {
+    // Some SSD vendors use bytes 3-10 from the Attribute
+    // Data Structure to store a 64-bit raw value.
+    rawvalue <<= 8;
+    rawvalue |= attr.worst;
+    rawvalue <<= 8;
+    rawvalue |= attr.current;
+  }
+  return rawvalue;
+}
+
+
+// Format attribute raw value.
+std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
+                                      const ata_vendor_attr_defs & defs)
+{
+  // Get 48 bit or64 bit raw value
+  uint64_t rawvalue = ata_get_attr_raw_value(attr, defs);
+
   // Get 16 bit words
+  const unsigned char * raw = attr.raw;
   unsigned word[3];
   word[0] = raw[0] | (raw[1] << 8);
   word[1] = raw[2] | (raw[3] << 8);
   word[2] = raw[4] | (raw[5] << 8);
+
+  // Get print format
+  ata_attr_raw_format format = defs[attr.id].raw_format;
+  if (format == RAWFMT_DEFAULT)
+    format = get_default_raw_format(attr.id);
 
   // Print
   std::string s;
@@ -1801,18 +1829,11 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
     break;
 
   case RAWFMT_RAW64:
+    s = strprintf("%"PRIu64, rawvalue);
+    break;
+
   case RAWFMT_HEX64:
-    // Some SSD vendors use bytes 3-10 from the Attribute
-    // Data Structure to store a 64-bit raw value.
-    // TODO: Do not print VALUE/WORST/THRESH in attribute table.
-    rawvalue <<= 8;
-    rawvalue |= attribute.worst;
-    rawvalue <<= 8;
-    rawvalue |= attribute.current;
-    if (format == RAWFMT_RAW64)
-      s = strprintf("%"PRIu64, rawvalue);
-    else
-      s = strprintf("0x%016"PRIx64, rawvalue);
+    s = strprintf("0x%016"PRIx64, rawvalue);
     break;
 
   case RAWFMT_RAW16_OPT_RAW16:
@@ -2068,38 +2089,15 @@ std::string ata_get_smart_attr_name(unsigned char id, const ata_vendor_attr_defs
     return get_default_attr_name(id);
 }
 
-// Returns raw value of Attribute with ID==id. This will be in the
-// range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
-// return -1.
-int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * data)
+// Find attribute index for attribute id, -1 if not found.
+int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval)
 {
-  // valid Attribute IDs are in the range 1 to 255 inclusive.
-  if (!id || !data)
+  if (!id)
     return -1;
-  
-  // loop over Attributes to see if there is one with the desired ID
   for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
-    const ata_smart_attribute * ap = data->vendor_attributes + i;
-    if (ap->id == id) {
-      // we've found the desired Attribute.  Return its value
-      int64_t rawvalue=0;
-      int j;
-
-      for (j=0; j<6; j++) {
-	// This looks a bit roundabout, but is necessary.  Don't
-	// succumb to the temptation to use raw[j]<<(8*j) since under
-	// the normal rules this will be promoted to the native type.
-	// On a 32 bit machine this might then overflow.
-	int64_t temp;
-	temp = ap->raw[j];
-	temp <<= 8*j;
-	rawvalue |= temp;
-      } // loop over j
-      return rawvalue;
-    } // found desired Attribute
-  } // loop over Attributes
-  
-  // fall-through: no such Attribute found
+    if (smartval.vendor_attributes[i].id == id)
+      return i;
+  }
   return -1;
 }
 
@@ -2114,9 +2112,10 @@ unsigned char ata_return_temperature_value(const ata_smart_values * data, const 
     if (!(   (id == 194 && format == RAWFMT_DEFAULT)
           || format == RAWFMT_TEMPMINMAX || format == RAWFMT_TEMP10X))
       continue;
-    int64_t raw = ATAReturnAttributeRawValue(id, data);
-    if (raw < 0)
+    int idx = ata_find_attr_index(id, *data);
+    if (idx < 0)
       continue;
+    uint64_t raw = ata_get_attr_raw_value(data->vendor_attributes[idx], defs);
     unsigned temp = (unsigned short)raw; // ignore possible min/max values in high words
     if (format == RAWFMT_TEMP10X) // -v N,temp10x
       temp = (temp+5) / 10;

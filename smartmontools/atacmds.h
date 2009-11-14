@@ -798,23 +798,34 @@ int ataSmartTest(ata_device * device, int testtype, const ata_selective_selftest
 
 int TestTime(const ata_smart_values * data, int testtype);
 
+// Attribute state
+enum ata_attr_state
+{
+  ATTRSTATE_NON_EXISTING,   // No such Attribute
+  ATTRSTATE_NO_NORMVAL,     // Normalized value not valid
+  ATTRSTATE_BAD_THRESHOLD,  // Threshold not valid
+  ATTRSTATE_NO_THRESHOLD,   // Unknown or no threshold
+  ATTRSTATE_OK,             // Never failed
+  ATTRSTATE_FAILED_PAST,    // Failed in the past
+  ATTRSTATE_FAILED_NOW      // Failed now
+};
+
+// Get attribute state
+ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
+                                  const ata_smart_threshold_entry & thre,
+                                  const ata_vendor_attr_defs & defs);
+
+// Get attribute raw value.
+uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
+                                const ata_vendor_attr_defs & defs);
+
 // Format attribute raw value.
-std::string ata_format_attr_raw_value(const ata_smart_attribute & attribute,
+std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
                                       const ata_vendor_attr_defs & defs);
 
 // Get attribute name
 std::string ata_get_smart_attr_name(unsigned char id,
                                     const ata_vendor_attr_defs & defs);
-
-// This checks the n'th attribute in the attribute list, NOT the
-// attribute with id==n.  If the attribute does not exist, or the
-// attribute is > threshold, then returns zero.  If the attribute is
-// <= threshold (failing) then we the attribute number if it is a
-// prefail attribute.  Else we return minus the attribute number if it
-// is a usage attribute.
-int ataCheckAttribute(const ata_smart_values * data,
-                      const ata_smart_thresholds_pvt * thresholds,
-                      int n);
 
 // External handler function, for when a checksum is not correct.  Can
 // simply return if no action is desired, or can print error messages
@@ -822,10 +833,8 @@ int ataCheckAttribute(const ata_smart_values * data,
 // Structure with the incorrect checksum.
 void checksumwarning(const char *string);
 
-// Returns raw value of Attribute with ID==id. This will be in the
-// range 0 to 2^48-1 inclusive.  If the Attribute does not exist,
-// return -1.
-int64_t ATAReturnAttributeRawValue(unsigned char id, const ata_smart_values * data);
+// Find attribute index for attribute id, -1 if not found.
+int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval);
 
 // Return Temperature Attribute raw value selected according to possible
 // non-default interpretations. If the Attribute does not exist, return 0
