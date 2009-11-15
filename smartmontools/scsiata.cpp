@@ -1375,6 +1375,7 @@ const usb_id_entry usb_ids[] = {
   // Western Digital
   { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
+  { 0x1058, 0x070a, 0x1028, d_sat     }, // WD My Passport 070A
   { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
   { 0x1058, 0x1003, 0x0175, d_sat     }, // WD Elements Desktop WDE1UBK...

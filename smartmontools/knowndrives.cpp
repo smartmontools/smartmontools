@@ -1301,8 +1301,12 @@ static const drive_settings builtin_knowndrives[] = {
     "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
     "", "", ""
   },
-  { "Western Digital MyPassport Essential hard drive (USB interface)",
+  { "Western Digital My Passport Essential hard drive (USB interface)",
     "WDC WD3200BMVU-.*",
+    "", "", ""
+  },
+  { "Western Digital My Passport hard drive (USB interface)",
+    "WDC WD3200BMVV-.*",
     "", "", ""
   },
   { "Quantum Bigfoot series",
