@@ -35,7 +35,7 @@
 
 #include <stdexcept>
 
-const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2981 2009-11-03 22:09:00Z manfred99 $"
+const char *knowndrives_c_cvsid="$Id: knowndrives.cpp 2985 2009-11-15 13:49:59Z chrfranke $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID KNOWNDRIVES_H_CVSID UTILITY_H_CVSID;
 
 #define MODEL_STRING_LENGTH                         40
@@ -1301,8 +1301,12 @@ static const drive_settings builtin_knowndrives[] = {
     "WDC WD(8|12|16|25|32)00B[EJ]KT-.*",
     "", "", ""
   },
-  { "Western Digital MyPassport Essential hard drive (USB interface)",
+  { "Western Digital My Passport Essential hard drive (USB interface)",
     "WDC WD3200BMVU-.*",
+    "", "", ""
+  },
+  { "Western Digital My Passport hard drive (USB interface)",
+    "WDC WD3200BMVV-.*",
     "", "", ""
   },
   { "Quantum Bigfoot series",

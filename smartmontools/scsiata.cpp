@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2982 2009-11-06 20:44:17Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2985 2009-11-15 13:49:59Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1375,6 +1375,7 @@ const usb_id_entry usb_ids[] = {
   // Western Digital
   { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
+  { 0x1058, 0x070a, 0x1028, d_sat     }, // WD My Passport 070A
   { 0x1058, 0x0906, 0x0012, d_sat     }, // WD My Book ES
   { 0x1058, 0x1001, 0x0104, d_sat     }, // WD Elements Desktop
   { 0x1058, 0x1003, 0x0175, d_sat     }, // WD Elements Desktop WDE1UBK...
