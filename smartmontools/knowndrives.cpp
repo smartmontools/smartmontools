@@ -891,6 +891,10 @@ static const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDT7210((16|25)SLA380|(32|50|64|75|10)SLA360)",
     "", "", ""
   },
+  { "Hitachi Deskstar 7K2000",
+    "Hitachi HDS722020ALA330",
+    "", "", ""
+  },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
     "", "", ""
@@ -981,6 +985,10 @@ static const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 7200.4 series",
     "ST9(160412|250410|320423|500420)ASG?",
+    "", "", ""
+  },
+  { "Seagate Momentus 7200 FDE.2 series",
+    "ST9((160413|25041[12]|320426|50042[12])AS|(16041[89]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
   { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive

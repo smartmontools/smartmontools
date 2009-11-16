@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] knowndrives.cpp updates:
+       - Hitachi Deskstar 7K2000
+       - Seagate Momentus 7200 FDE.2 series
+
   [CF] Add USB ID of WD My Passport 070A.
        knowndrives.cpp update:
        - WD My Passport hard drive (USB interface)
