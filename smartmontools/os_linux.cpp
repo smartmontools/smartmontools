@@ -1541,7 +1541,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
       passthru->size++;
   }
   else
-    set_err(EINVAL);
+    return set_err(EINVAL);
 
   // Now send the command down through an ioctl()
   int ioctlreturn;
@@ -1605,7 +1605,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
   }
 
   // Return register values
-  {
+  if (passthru) {
     ata_out_regs_48bit & r = out.out_regs;
     r.error           = passthru->features;
     r.sector_count_16 = passthru->sector_count;

@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Fix segfault in 3ware interface (ticket #22).
+
   [MS] knowndrives.cpp updates:
        - Hitachi Deskstar 7K2000
        - Seagate Momentus 7200 FDE.2 series
