@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2974 2009-10-27 16:59:34Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2987 2009-11-18 19:42:10Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1541,7 +1541,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
       passthru->size++;
   }
   else
-    set_err(EINVAL);
+    return set_err(EINVAL);
 
   // Now send the command down through an ioctl()
   int ioctlreturn;
@@ -1605,7 +1605,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
   }
 
   // Return register values
-  {
+  if (passthru) {
     ata_out_regs_48bit & r = out.out_regs;
     r.error           = passthru->features;
     r.sector_count_16 = passthru->sector_count;
