@@ -1373,6 +1373,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0d49, 0x7410, 0x0122, d_sat     }, // Maxtor Basics Desktop
   { 0x0d49, 0x7450, 0x0122, d_sat     }, // Maxtor Basics Portable
   // Western Digital
+  { 0x1058, 0x0702, 0x0104, d_sat     }, // WD My Passport Portable  
   { 0x1058, 0x0704, 0x0175, d_sat     }, // WD My Passport Essential
   { 0x1058, 0x0705, 0x0175, d_sat     }, // WD My Passport Elite
   { 0x1058, 0x070a, 0x1028, d_sat     }, // WD My Passport 070A
