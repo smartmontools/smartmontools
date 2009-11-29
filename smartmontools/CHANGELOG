@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2987 2009-11-18 19:42:10Z chrfranke $
+$Id: CHANGELOG 2988 2009-11-29 16:21:07Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] Added USB IDs of WD Passport USB Portable
 
   [CF] Linux: Fix segfault in 3ware interface (ticket #22).
 
