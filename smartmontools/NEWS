@@ -28,6 +28,8 @@ Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 - smartctl prints SCSI load/unload cycle counts
 - Improve display of huge raw values of some SMART attributes
 - Option '-d sat+TYPE' to use SAT with controllers which require '-d TYPE'
+- Option '-v ID,RAW_FORMAT,ATTR_NAME' to add new vendor specific attributes
+- Support for SSD drives using 64-bit raw attributes
 - Many additions to drive database
 - New simplified syntax for drive database
 - Option '-B FILE' to read drive database from a file
