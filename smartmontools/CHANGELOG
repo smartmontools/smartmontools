@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Avoid truncation of configure arguments in '-V' output.
+
   [AS] Added USB IDs of WD Passport USB Portable
 
   [CF] Linux: Fix segfault in 3ware interface (ticket #22).
