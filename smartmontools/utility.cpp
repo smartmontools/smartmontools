@@ -50,7 +50,7 @@
 #include "atacmds.h"
 #include "dev_interface.h"
 
-const char * utility_cpp_cvsid = "$Id: utility.cpp 2915 2009-09-18 21:17:37Z chrfranke $"
+const char * utility_cpp_cvsid = "$Id: utility.cpp 2991 2009-12-03 19:53:21Z chrfranke $"
                                  UTILITY_H_CVSID INT64_H_CVSID;
 
 const char * packet_types[] = {
@@ -102,21 +102,23 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
     "software, and you are welcome to redistribute it under\n"
     "the terms of the GNU General Public License Version 2.\n"
     "See http://www.gnu.org for further details.\n"
-    "\n"
+    "\n",
+    prog_name
+  );
+  info += strprintf(
     "smartmontools release "PACKAGE_VERSION
       " dated "SMARTMONTOOLS_RELEASE_DATE" at "SMARTMONTOOLS_RELEASE_TIME"\n"
     "smartmontools SVN rev "SMARTMONTOOLS_SVN_REV
       " dated "SMARTMONTOOLS_SVN_DATE" at "SMARTMONTOOLS_SVN_TIME"\n"
     "smartmontools build host: "SMARTMONTOOLS_BUILD_HOST"\n"
     "smartmontools build configured: "SMARTMONTOOLS_CONFIGURE_DATE "\n"
-    "%s compile dated "__DATE__" at "__TIME__"\n",
-    prog_name, prog_name
+    "%s compile dated "__DATE__" at "__TIME__"\n"
+    "smartmontools configure arguments: ",
+    prog_name
   );
-  info += strprintf(
-    "smartmontools configure arguments: %s\n",
-      (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
-       SMARTMONTOOLS_CONFIGURE_ARGS : "[no arguments given]")
-  );
+  info += (sizeof(SMARTMONTOOLS_CONFIGURE_ARGS) > 1 ?
+           SMARTMONTOOLS_CONFIGURE_ARGS : "[no arguments given]");
+  info += '\n';
 
   return info;
 }
