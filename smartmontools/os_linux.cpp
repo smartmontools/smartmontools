@@ -493,6 +493,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 #define SG_IO_RESP_SENSE_LEN 64 /* large enough see buffer */
 #define LSCSI_DRIVER_MASK  0xf /* mask out "suggestions" */
 #define LSCSI_DRIVER_SENSE  0x8 /* alternate CHECK CONDITION indication */
+#define LSCSI_DID_ERROR 0x7 /* Need to work around aacraid driver quirk */
 #define LSCSI_DRIVER_TIMEOUT  0x6
 #define LSCSI_DID_TIME_OUT  0x3
 #define LSCSI_DID_BUS_BUSY  0x2
@@ -617,7 +618,10 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                 (LSCSI_DID_TIME_OUT == io_hdr.host_status))
                 return -ETIMEDOUT;
             else
-                return -EIO;    /* catch all */
+               /* Check for DID_ERROR - workaround for aacraid driver quirk */
+               if (LSCSI_DID_ERROR != io_hdr.host_status) {
+                       return -EIO; /* catch all if not DID_ERR */
+               }
         }
         if (0 != masked_driver_status) {
             if (LSCSI_DRIVER_TIMEOUT == masked_driver_status)
