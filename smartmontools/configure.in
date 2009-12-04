@@ -310,8 +310,8 @@ AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
 AM_CONDITIONAL(OS_FREEBSD, [echo $host_os | grep '^freebsd' > /dev/null])
 
-dnl Add -Wall and -W if using gcc and its not already specified.
-if test "x$GCC" = "xyes"; then
+dnl Add -Wall and -W if using g++ and its not already specified.
+if test "$GXX" = "yes"; then
   if test -z "`echo "$CXXFLAGS" | grep "\-Wall" 2> /dev/null`" ; then
       CXXFLAGS="$CXXFLAGS -Wall"
   fi
@@ -324,6 +324,21 @@ if test "x$GCC" = "xyes"; then
       # MinGW uses MSVCRT.DLL which uses printf format "%I64d" and not "%lld" for int64_t
       CXXFLAGS="$CXXFLAGS -Wno-format";;
   esac
+
+  # Disable strict aliasing rules by default (see ticket #23).
+  if test -z "`echo "$CXXFLAGS" | grep "\-f[[no-]]*strict-aliasing" 2> /dev/null`" ; then
+    AC_MSG_CHECKING([whether g++ supports -fno-strict-aliasing])
+    ac_save_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="-fno-strict-aliasing"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],
+      [gcc_have_fno_strict_aliasing=yes], [gcc_have_fno_strict_aliasing=no])
+    CXXFLAGS="$ac_save_CXXFLAGS"
+    if test "$gcc_have_fno_strict_aliasing" = "yes"; then
+      CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+    fi
+    AC_MSG_RESULT([$gcc_have_fno_strict_aliasing])
+  fi
+
 else
  dnl We are NOT using gcc, so enable host-specific compiler flags
  case "${host}" in

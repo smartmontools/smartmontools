@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] configure.in: Add '-fno-strict-aliasing' to CXXFLAGS if supported.
+       This suppresses gcc 4.4.1 warnings on Linux and avoids possible
+       unsafe optimizations (ticket #23).
+       Patch was provided by Manfred Schwarb.
+
   [CF] Avoid truncation of configure arguments in '-V' output.
 
   [AS] Added USB IDs of WD Passport USB Portable
