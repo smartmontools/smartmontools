@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+        <key>SMART disk monitoring</key>
+        <string>SMART disk monitoring</string>
+        <key>Starting SMART disk monitoring</key>
+        <string>Starting SMART disk monitoring</string>
+        <key>Stopping SMART disk monitoring</key>
+        <string>Stopping SMART disk monitoring</string>
+</dict>
+</plist>
