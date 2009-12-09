@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2009-12-09
 Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 -----------------------------------------------------------
 - Sourcecode repository moved from CVS to SVN

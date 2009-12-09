@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.39 2009-12-09
+
   [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.
 
   [CF] Linux: Add workaround for Adaptec series 2, 5 and 5Z controllers
