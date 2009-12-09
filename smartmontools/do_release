@@ -52,8 +52,21 @@ if [ ! -d ../../tags ]; then
 fi
 
 REV=`(cd ../.. && svnversion)` || exit 1
-if [ -z "`echo "$REV" | sed -n '/^[0-9][0-9]*$/p'`" ]; then
+if [ -z "`echo "$REV" | sed -n '/^[0-9][0-9]*M\?$/p'`" ]; then
   echo "Working directory not clean: $REV"; exit 1
+fi
+REV="${REV%M}"
+
+(cd ../.. && svn status) | while read s; do
+  case "$s" in
+    "M       trunk/smartmontools/CHANGELOG")    echo "$s: OK";;
+    "M       trunk/smartmontools/NEWS")         echo "$s: OK";;
+    "M       trunk/smartmontools/configure.in") echo "$s: OK";;
+    *) echo "$s: not allowed"; exit 1;;
+  esac
+done
+if [ $? -ne 0 ]; then
+  exit 1
 fi
 
 # Get release number
@@ -74,7 +87,6 @@ if [ -e "../../tags/$RELEASE" ]; then
 fi
 
 echo "r$REV: Release $VERSIONRC $RELEASE"
-set -v
 
 # Update timestamp
 smartmontools_release_date=`date -u +"%Y-%m-%d"`
@@ -82,6 +94,13 @@ smartmontools_release_time=`date -u +"%T %Z"`
 cat configure.in  | sed "s|smartmontools_release_date=.*|smartmontools_release_date=${smartmontools_release_date}|" > configure.tmp
 cat configure.tmp | sed "s|smartmontools_release_time=.*|smartmontools_release_time=\"${smartmontools_release_time}\"|" > configure.in
 rm -f configure.tmp
+
+# Review changes
+svn diff
+echo "==================================================================="
+echo ">>> Continuing in 20 seconds ..."
+sleep 20
+set -v
 
 # Create tag and commit
 cd ../..

@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.
+
   [CF] Linux: Add workaround for Adaptec series 2, 5 and 5Z controllers
        with firmware >= 17380.  Patch was provided by Phil Wilson, see:
        http://linux.adaptec.com/2009/07/24/using-smartmontools-538-with-series-255z-controllers-with-firmware-17380-onwards
