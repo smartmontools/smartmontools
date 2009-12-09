@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 2994 2009-12-09 20:50:26Z chrfranke $
+$Id: CHANGELOG 2995 2009-12-09 21:01:43Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+smartmontools 5.39 2009-12-09
 
   [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.
 
