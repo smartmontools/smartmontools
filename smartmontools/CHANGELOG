@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] do_release: Add support to release from a dir below 'branches'.
+       Accept partial checkouts.
+
 smartmontools 5.39 2009-12-09
 
   [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.

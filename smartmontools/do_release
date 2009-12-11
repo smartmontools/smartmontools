@@ -43,25 +43,26 @@ esac
 
 # Check workdir
 case "`/bin/pwd`" in
-  */trunk/smartmontools) ;;
-  *) echo "not run from trunk checkout"; exit 1 ;;
+  */trunk/smartmontools)      WDROOT="../..";    DIRPAT="trunk"      ;;
+  */branches/*/smartmontools) WDROOT="../../.."; DIRPAT="branches/*" ;;
+  *) echo "`/bin/pwd`: no trunk or branch working dir"; exit 1 ;;
 esac
 
-if [ ! -d ../../tags ]; then
+if [ ! -d "$WDROOT/tags" ]; then
   echo "tags directory missing"; exit 1
 fi
 
-REV=`(cd ../.. && svnversion)` || exit 1
-if [ -z "`echo "$REV" | sed -n '/^[0-9][0-9]*M\?$/p'`" ]; then
-  echo "Working directory not clean: $REV"; exit 1
+REVX="`(cd $WDROOT && svnversion)`" || exit 1
+REV="${REVX/%[PM]/}"; REV="${REV/%[PM]/}"
+if [ -n "${REV//[0-9]/}" ]; then
+  echo "Working directory not clean: $REVX"; exit 1
 fi
-REV="${REV%M}"
 
-(cd ../.. && svn status) | while read s; do
+(cd $WDROOT && svn status) | while read s; do
   case "$s" in
-    "M       trunk/smartmontools/CHANGELOG")    echo "$s: OK";;
-    "M       trunk/smartmontools/NEWS")         echo "$s: OK";;
-    "M       trunk/smartmontools/configure.in") echo "$s: OK";;
+    "M       "$DIRPAT/smartmontools/CHANGELOG)    echo "$s: OK";;
+    "M       "$DIRPAT/smartmontools/NEWS)         echo "$s: OK";;
+    "M       "$DIRPAT/smartmontools/configure.in) echo "$s: OK";;
     *) echo "$s: not allowed"; exit 1;;
   esac
 done
@@ -82,7 +83,7 @@ if [ "$RC" ]; then
   RELEASE="${RELEASE}_${RC}"
 fi
 
-if [ -e "../../tags/$RELEASE" ]; then
+if [ -e "$WDROOT/tags/$RELEASE" ]; then
   echo "tags/$RELEASE exists"; exit 1
 fi
 
@@ -103,13 +104,11 @@ sleep 20
 set -v
 
 # Create tag and commit
-cd ../..
 if [ "$COMMIT" = "yes" ]; then
-  svn mkdir tags/$RELEASE
-  svn copy trunk/smartmontools tags/$RELEASE/smartmontools
-  svn commit -m "Release $VERSIONRC $RELEASE"
+  svn mkdir $WDROOT/tags/$RELEASE
+  svn copy ../smartmontools $WDROOT/tags/$RELEASE/smartmontools
+  svn commit -m "Release $VERSIONRC $RELEASE" $WDROOT
 fi
-cd trunk/smartmontools
 
 # Build
 ./autogen.sh
@@ -130,7 +129,7 @@ md5sum $TARFILE > $TARFILE.md5
 sha1sum $TARFILE > $TARFILE.sha1
 
 # Increase release number
-if [ -z "$RC" ]; then
+if [ -z "$RC" -a "$DIRPAT" = "trunk" ]; then
   inc_release
   if [ "$COMMIT" = "yes" ]; then
     perl -p -i.bak -e "s/$PERL_OLD/$PERL_NEW/" configure.in
