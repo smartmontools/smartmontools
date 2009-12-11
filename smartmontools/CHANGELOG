@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Move drive database entries from 'knowndrives.cpp' to new file
+       'drivedb.h'.  This allows to update the drive database from SVN
+       if installation was configured with '--enable-drivedb'.
+       Remove the Makefile target to create 'drivedb.h'.
+
   [CF] do_release: Add support to release from a dir below 'branches'.
        Accept partial checkouts.
 

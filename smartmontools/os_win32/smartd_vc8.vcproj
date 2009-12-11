@@ -466,6 +466,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\drivedb.h"
+			>
+		</File>
+		<File
 			RelativePath="..\extern.h"
 			>
 		</File>
