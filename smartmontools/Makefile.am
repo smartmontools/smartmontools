@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 2878 2009-08-26 20:03:06Z chrfranke $
+# $Id: Makefile.am 2998 2009-12-11 22:51:04Z chrfranke $
 #
 
 @SET_MAKE@
@@ -35,6 +35,7 @@ smartd_SOURCES =  smartd.cpp      \
                   dev_interface.cpp   \
                   dev_interface.h     \
                   dev_tunnelled.h     \
+                  drivedb.h           \
                   extern.h        \
                   int64.h         \
                   knowndrives.cpp \
@@ -104,6 +105,7 @@ smartctl_SOURCES= smartctl.cpp    \
                   dev_interface.cpp   \
                   dev_interface.h     \
                   dev_tunnelled.h     \
+                  drivedb.h           \
                   extern.h        \
                   int64.h         \
                   knowndrives.cpp \
@@ -242,8 +244,7 @@ EXTRA_DIST = smartd.initd.in                       \
              os_win32/installer.nsi                \
              $(docs_DATA)
 
-CLEANFILES = drivedb.h          \
-             smartd.conf.5      \
+CLEANFILES = smartd.conf.5      \
              smartd.conf.4      \
              smartd.8           \
              smartd.1m          \
@@ -300,11 +301,6 @@ svnversion.h: CHANGELOG Makefile
 	| sed 's,^,#define SMARTMONTOOLS_SVN_,' >> $@
 endif
 
-
-# Drive Database
-drivedb.h: knowndrives.cpp Makefile
-	echo '/* drivedb.h.  Generated from knowndrives.cpp by Makefile.  */' > $@
-	sed '1,/^\/\/ BEGIN drivedb.h/d;/^\/\/ END drivedb.h/,$$d;s/^  //' $(srcdir)/knowndrives.cpp >> $@
 
 if ENABLE_DRIVEDB
 drivedb_DATA = drivedb.h
