@@ -5,6 +5,12 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
+Date <Not released yet, please try current SVN>
+Summary: smartmontools release 5.40
+-----------------------------------------------------------
+- Drive database is in a separate source file 'drivedb.h'
+  which can be downloaded from SVN.
+
 Date 2009-12-09
 Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
 -----------------------------------------------------------
