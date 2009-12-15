@@ -242,7 +242,7 @@ Table of contents:
     --sbindir=/usr/local/sbin
     --sysconfdir=/usr/local/etc
     --mandir=/usr/local/share/man
-    --with-docdir=/usr/local/share/doc/smartmontools-VERSION
+    --with-docdir=/usr/local/share/doc/smartmontools
     --with-initscriptdir=/usr/local/etc/rc.d/init.d
     --disable-sample
 
@@ -415,7 +415,7 @@ Same as Red Hat:
               --sysconfdir=/etc                                 \
               --mandir=/usr/share/man                           \
               --with-initscriptdir=/etc/rc.d/init.d             \
-              --with-docdir=/usr/share/doc/smartmontools-VERSION
+              --with-docdir=/usr/share/doc/smartmontools
 
   Using DOS text file type as default for the working directories ("textmode"
   mount option) is not recommended. Building the binaries and man pages using
@@ -655,13 +655,15 @@ OPTIONS              DEFAULT                                      AFFECTS
 --prefix             /usr/local                                   Please see below
 --sbindir            ${prefix}/sbin                               Directory for smartd/smartctl executables;
                                                                   Contents of smartd/smartctl man pages
+--docdir             ${prefix}/share/doc/smartmontools            Location of the documentation
+                                                                  (autoconf >= 2.60 only, see also --with-docdir below)
 --mandir             ${prefix}/share/man                          Directory for smartctl/smartd/smartd.conf man pages
 --sysconfdir         ${prefix}/etc                                Directory for smartd.conf;
                                                                   Contents of smartd executable;
                                                                   Contents of smartd/smartd.conf man pages;
                                                                   Directory for rc.d/init.d/smartd init script
 --with-initscriptdir  ${sysconfdir}/init.d/rc.d                   Location of init scripts
---with-docdir         ${prefix}/share/doc/smartmontools-5.X       Location of the documentation
+--with-docdir         ${prefix}/share/doc/smartmontools           Location of the documentation
 --enable-sample       --disable-sample                            Adds the string '.sample' to the names of the smartd.conf file and the smartd RC file
 --with-os-deps        os_<guessed>.o                              OS dependent module(s)
 --with-selinux        <not set>                                   Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
@@ -674,6 +676,12 @@ OPTIONS              DEFAULT                                      AFFECTS
 --enable-attributelog --disable-attributelog                      Enables default smartd attribute log files
 --with-attributelog   ${prefix}/var/lib/smartmontools/attrlog.    Prefix for smartd attribute log files (implies --enable-attributelog)
 
+Please note that in previous versions of smartmontools (<= 5.39) the
+default for --with-docdir was
+  ${prefix}/share/doc/smartmontools-VERSION
+This was changed to make it consistent with the default of the
+new --docdir option added in autoconf 2.60.
+
 Here's an example:
 If you set --prefix=/home/joe and none of the other four
 variables then the different directories that are used would be:
@@ -681,7 +689,7 @@ variables then the different directories that are used would be:
 --mandir              /home/joe/share/man
 --sysconfdir          /home/joe/etc
 --with-initscriptdir  /home/joe/etc/init.d/rc.d
---with-docdir	      /home/joe/doc/smartmontools-5.X
+--with-docdir         /home/joe/doc/smartmontools
 
 This is useful for test installs in a harmless subdirectory somewhere.
 

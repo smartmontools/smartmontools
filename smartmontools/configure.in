@@ -157,11 +157,25 @@ AC_SUBST(ASFLAGS)
 
 AC_SUBST([exampledir], ['${docdir}/examplescripts'])
 
-AC_ARG_WITH(initscriptdir,[AC_HELP_STRING([--with-initscriptdir=dir],[Location of init scripts (default is ${sysconfdir}/rc.d/init.d)])],[initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
+AC_ARG_WITH(initscriptdir,
+  [AC_HELP_STRING([--with-initscriptdir=DIR],[Location of init scripts [SYSCONFDIR/rc.d/init.d]])],
+  [initddir="$withval"],[initddir='${sysconfdir}/rc.d/init.d'])
 AC_SUBST(initddir)
 AM_CONDITIONAL(INSTALL_INITSCRIPT, [test "$with_initscriptdir" != "no"])
 
-AC_ARG_WITH(docdir,[AC_HELP_STRING([--with-docdir=dir],[Location of documentation (default is ${prefix}/share/doc/smartmontools-5.X)])],[docdir="$withval"],[docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'])
+docdir_is_default=no
+AC_ARG_WITH(docdir,
+  [AC_HELP_STRING([--with-docdir=DIR],[Location of documentation [DATADIR/doc/smartmontools]])],
+  [docdir="$withval"],
+  [ if test -z "$docdir"; then
+      # autoconf 2.5x without '--docdir' support
+      docdir='${datadir}/doc/${PACKAGE}'
+      docdir_is_default=yes
+    elif test "$docdir" = '${datarootdir}/doc/${PACKAGE_TARNAME}'; then
+      # autoconf 2.6x '--docdir' default
+      docdir_is_default=yes
+    fi
+  ])
 AC_SUBST(docdir)
 
 AC_ARG_ENABLE(drivedb, [AC_HELP_STRING([--enable-drivedb],[Enables drive database file])])
@@ -368,3 +382,16 @@ AC_SUBST(CXXFLAGS)
 
 AC_OUTPUT(Makefile examplescripts/Makefile)
 AC_PROG_MAKE_SET
+
+# Print note that the docdir default value has changed
+# TODO: Remove this after next release
+if test "$docdir_is_default" = "yes"; then
+  old_def_docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'
+  old_def_docdir_eval="`eval eval eval echo $old_def_docdir`"
+  docdir_eval="`eval eval eval echo $docdir`"
+  AC_MSG_NOTICE([********** PLEASE NOTE **********])
+  AC_MSG_NOTICE(['docdir' default has changed])
+  AC_MSG_NOTICE([from: $old_def_docdir_eval])
+  AC_MSG_NOTICE([to:   $docdir_eval])
+  AC_MSG_NOTICE([*********************************])
+fi
