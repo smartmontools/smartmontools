@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Disable Win9x/ME specific code if no longer supported
+       by compiler.
+
   [CF] Add '-v ID,FORMAT:BYTEORDER[,NAME]' to specify byte order
        of attribute raw value.
 

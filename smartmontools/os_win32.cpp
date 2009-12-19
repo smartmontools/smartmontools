@@ -32,7 +32,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #include <assert.h>
 #else
 #undef assert
-#define assert(x) /**/
+#define assert(x) /* */
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -40,17 +40,28 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #include <stddef.h> // offsetof()
 #include <io.h> // access()
 
+#ifdef __CYGWIN__
+#include <cygwin/version.h> // CYGWIN_VERSION_DLL_MAJOR
+#endif
+
 // Macro to check constants at compile time using a dummy typedef
 #define ASSERT_CONST(c, n) \
   typedef char assert_const_##c[((c) == (n)) ? 1 : -1]
 #define ASSERT_SIZEOF(t, n) \
   typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
 
+const char * os_win32_cpp_cvsid = "$Id$";
 
-// Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id$"
-ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
+// Disable Win9x/ME specific code if no longer supported by compiler.
+#ifndef WIN9X_SUPPORT
+  #if defined(CYGWIN_VERSION_DLL_MAJOR) && (CYGWIN_VERSION_DLL_MAJOR >= 1007)
+    // Win9x/ME support was dropped in Cygwin 1.7
+  #elif defined(_MSC_VER) && (_MSC_VER >= 1500)
+    // Win9x/ME support was dropped in MSVC9 (cl.exe 15.0)
+  #else
+    #define WIN9X_SUPPORT 1
+  #endif
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +70,16 @@ namespace os_win32 { // no need to publish anything, name provided for Doxygen
 #ifdef _MSC_VER
 #pragma warning(disable:4250)
 #endif
+
+// Running on Win9x/ME ?
+#if WIN9X_SUPPORT
+// Set true in win9x_smart_interface ctor.
+static bool win9x = false;
+#else
+// Never true (const allows compiler to remove dead code).
+const  bool win9x = false;
+#endif
+
 
 class win_smart_device
 : virtual public /*implements*/ smart_device
@@ -137,6 +158,8 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
+#if WIN9X_SUPPORT
+
 class win_aspi_device
 : public /*implements*/ scsi_device
 {
@@ -156,6 +179,7 @@ private:
   unsigned char m_id;
 };
 
+#endif // WIN9X_SUPPORT
 
 //////////////////////////////////////////////////////////////////////
 
@@ -208,10 +232,16 @@ protected:
   virtual bool scsi_scan(smart_device_list & devlist) = 0;
 };
 
+#if WIN9X_SUPPORT
+
 // Win9x/ME reduced functionality
 class win9x_smart_interface
 : public /*extends*/ win_smart_interface
 {
+public:
+  win9x_smart_interface()
+    { win9x = true; }
+
 protected:
   virtual scsi_device * get_scsi_device(const char * name, const char * type);
 
@@ -219,6 +249,8 @@ protected:
 
   virtual bool scsi_scan(smart_device_list & devlist);
 };
+
+#endif // WIN9X_SUPPORT
 
 // WinNT,2000,XP,...
 class winnt_smart_interface
@@ -236,12 +268,6 @@ protected:
 
 
 //////////////////////////////////////////////////////////////////////
-
-// Running on Win9x/ME ?
-static inline bool is_win9x()
-{
-  return !!(GetVersion() & 0x80000000);
-}
 
 // Running on 64-bit Windows as 32-bit app ?
 static bool is_wow64()
@@ -369,16 +395,24 @@ ata_device * win_smart_interface::get_ata_device(const char * name, const char *
   return new win_ata_device(this, name, type);
 }
 
+#ifdef WIN9X_SUPPORT
+
 scsi_device * win9x_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   return new win_aspi_device(this, name, type);
 }
 
+#endif
+
 scsi_device * winnt_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   const char * testname = skipdev(name);
   if (!strncmp(testname, "scsi", 4))
+#if WIN9X_SUPPORT
     return new win_aspi_device(this, name, type);
+#else
+    return (set_err(EINVAL, "ASPI interface not supported"), (scsi_device *)0);
+#endif
   return new win_scsi_device(this, name, type);
 }
 
@@ -416,8 +450,10 @@ smart_device * win_smart_interface::autodetect_smart_device(const char * name)
   const char * testname = skipdev(name);
   if (!strncmp(testname, "hd", 2))
     return new win_ata_device(this, name, "");
+#if WIN9X_SUPPORT
   if (!strncmp(testname, "scsi", 4))
     return new win_aspi_device(this, name, "");
+#endif
   if (!strncmp(testname, "tw_cli", 6))
     return new win_tw_cli_device(this, name, "");
   return 0;
@@ -2148,6 +2184,7 @@ static int get_device_power_state(HANDLE hdevice)
 
 /////////////////////////////////////////////////////////////////////////////
 
+#if WIN9X_SUPPORT
 // Print SMARTVSD error message, return errno
 
 static int smartvsd_error()
@@ -2195,6 +2232,7 @@ static int smartvsd_error()
   }
 }
 
+#endif // WIN9X_SUPPORT
 
 // Get default ATA device options
 
@@ -2287,7 +2325,6 @@ bool win_ata_device::open()
 bool win_ata_device::open(int phydrive, int logdrive, const char * options, int port)
 {
   // path depends on Windows Version
-  bool win9x = is_win9x(); // TODO: Member variable
   char devpath[30];
   if (win9x && 0 <= phydrive && phydrive <= 7)
     // Use patched "smartvse.vxd" for drives 4-7, see INSTALL file for details
@@ -2317,9 +2354,12 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   }
   if (h == INVALID_HANDLE_VALUE) {
     long err = GetLastError();
-    pout("Cannot open device %s, Error=%ld\n", devpath, err);
+#if WIN9X_SUPPORT
+    if (win9x && phydrive <= 3 && err == ERROR_FILE_NOT_FOUND)
+      smartvsd_error();
+#endif
     if (err == ERROR_FILE_NOT_FOUND)
-      set_err((win9x && phydrive <= 3 ? smartvsd_error() : ENOENT), "%s: not found", devpath);
+      set_err(ENOENT, "%s: not found", devpath);
     else if (err == ERROR_ACCESS_DENIED)
       set_err(EACCES, "%s: access denied", devpath);
     else
@@ -2413,6 +2453,8 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
 }
 
 
+#if WIN9X_SUPPORT
+
 // Scan for ATA drives on Win9x/ME
 
 bool win9x_smart_interface::ata_scan(smart_device_list & devlist)
@@ -2444,6 +2486,8 @@ bool win9x_smart_interface::ata_scan(smart_device_list & devlist)
   }
   return true;
 }
+
+#endif // WIN9X_SUPPORT
 
 
 // Scan for ATA drives
@@ -2529,7 +2573,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 
         case ATA_SMART_IMMEDIATE_OFFLINE:
           // SMART_SEND_DRIVE_COMMAND supports ABORT_SELF_TEST only on Win9x/ME
-          valid_options = (m_usr_options || in.in_regs.lba_low != 127/*ABORT*/ || is_win9x() ?
+          valid_options = (m_usr_options || in.in_regs.lba_low != 127/*ABORT*/ || win9x ?
                            "saicm3" : "aicm3");
           break;
 
@@ -2538,7 +2582,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
           // Try SCSI_MINIPORT also to skip buggy class driver
           // SMART functions do not support multi sector I/O.
           if (in.size == 512)
-            valid_options = (m_usr_options || is_win9x() ? "saicm3" : "aicm3");
+            valid_options = (m_usr_options || win9x ? "saicm3" : "aicm3");
           else
             valid_options = "a";
           break;
@@ -2809,13 +2853,15 @@ bool win_ata_device::ata_identify_is_cached() const
 {
   // Not RAID and WinNT4/2000/XP => true, RAID or Win9x/ME => false
   // TODO: Set according to ioctl used.
-  return (m_port < 0 && !is_win9x());
+  return (m_port < 0 && !win9x);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ASPI Interface (for SCSI devices)
+// ASPI Interface (for SCSI devices on 9x/ME)
 /////////////////////////////////////////////////////////////////////////////
+
+#if WIN9X_SUPPORT
 
 #pragma pack(1)
 
@@ -3346,6 +3392,7 @@ bool win_aspi_device::scsi_pass_through(scsi_cmnd_io * iop)
   return true;
 }
 
+#endif // WIN9X_SUPPORT
 
 /////////////////////////////////////////////////////////////////////////////
 // SPT Interface (for SCSI devices and ATA devices behind SATLs)
@@ -3643,9 +3690,13 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 void smart_interface::init()
 {
   // Select interface for Windows flavor
-  if (os_win32::is_win9x()) {
+  if (GetVersion() & 0x80000000) {
+#if WIN9X_SUPPORT
     static os_win32::win9x_smart_interface the_win9x_interface;
     smart_interface::set(&the_win9x_interface);
+#else
+    throw std::runtime_error("Win9x/ME not supported");
+#endif
   }
   else {
     static os_win32::winnt_smart_interface the_winnt_interface;
