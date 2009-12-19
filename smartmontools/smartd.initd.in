@@ -2,7 +2,7 @@
 
 # smartmontools init file for smartd
 # Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
-# $Id: smartd.initd.in,v 1.38 2008/03/04 22:09:47 ballen4705 Exp $
+# $Id$
 
 # For RedHat and cousins:
 # chkconfig: 2345 40 40
@@ -439,15 +439,30 @@ http://smartmontools.sourceforge.net/"
         install)
             shift
             [ $# -eq 0 ] || smartd_opts="$*"
-            dep=
+            dep=; dep2=
             if cygrunsrv -L 2>/dev/null | grep "^syslogd$" >/dev/null 2>&1; then
-                dep="-y syslogd"
-            else
-                echo "Warning: syslogd service not installed, smartd will write to windows event log.";
+                dep="syslogd"
             fi
-            echo "Installing service ${smartd_svcname}${smartd_opts+ with options '$smartd_opts'}:"
-            cygrunsrv -I "$smartd_svcname" -d "$smartd_svcdisp"  -f "$smartd_svcdesc" $dep \
-              -e CYGWIN="$CYGWIN" -p $SMARTD_BIN -a "-n -p ${PID_FILE}${smartd_opts+ }$smartd_opts"
+            if cygrunsrv -L 2>/dev/null | grep "^syslog-ng" >/dev/null 2>&1; then
+                dep2="syslog-ng"
+            fi
+            if [ -z "$dep" ]; then
+                if [ -z "$dep2" ]; then
+                    echo "Warning: no syslog service installed, smartd will write to windows event log.";
+                else
+                    dep="$dep2"
+                fi
+            else
+                if [ -z "$dep2" ]; then
+                    :
+                else
+                    dep=
+                    echo "Warning: both syslogd and syslog-ng installed, dependency not set."
+                fi
+            fi
+            echo "Installing service ${smartd_svcname}${dep:+ (depending on '$dep')}${smartd_opts:+ with options '$smartd_opts'}:"
+            cygrunsrv -I "$smartd_svcname" -d "$smartd_svcdisp"  -f "$smartd_svcdesc" ${dep:+-y} $dep \
+              -e CYGWIN="$CYGWIN" -p $SMARTD_BIN -a "-n -p ${PID_FILE}${smartd_opts:+ }$smartd_opts"
             RETVAL=$?
             ;;
         remove)
