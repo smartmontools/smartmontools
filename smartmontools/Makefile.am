@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 #
-# $Id: Makefile.am 2998 2009-12-11 22:51:04Z chrfranke $
+# $Id: Makefile.am 3005 2009-12-19 20:52:21Z chrfranke $
 #
 
 @SET_MAKE@
@@ -496,6 +496,14 @@ endif
 %.8.txt: %.8
 	$(MAN2TXT) $< > $@
 
+
+# Check drive database syntax
+check:
+	@if ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
+	  echo "$(srcdir)/drivedb.h: OK"; \
+	else \
+	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
+	fi
 
 
 if OS_WIN32_MINGW
