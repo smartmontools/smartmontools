@@ -674,7 +674,11 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
 // Read drive database from file.
 bool read_drive_database(const char * path)
 {
-  stdio_file f(path, "r");
+  stdio_file f(path, "r"
+#ifdef __CYGWIN__ // Allow files with '\r\n'.
+                      "t"
+#endif
+                         );
   if (!f) {
     pout("%s: cannot open drive database file\n", path);
     return false;
