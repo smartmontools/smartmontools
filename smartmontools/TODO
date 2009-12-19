@@ -2,6 +2,9 @@ TODO list for smartmontools:
 
 $Id$
 
+See also the list of active tickets:
+http://sourceforge.net/apps/trac/smartmontools/report/1
+
 USB devices under Linux
 -----------------------
 Some USB devices can hang smartctl or smartd.  This is because these
@@ -15,11 +18,6 @@ ATA-8
 Add ability to print counters/values from "Device Statistics" pages
 (General Purpose Log address 0x04).
 See ATA ACS-2 T13/2015-D Revision 1, Section A.5.
-
-smartctl/smartd
----------------
-Add additional -v options (corresponding to comments in
-atacmds.c:ataPrintSmartAttribName().
 
 smartctl: 
 ---------
