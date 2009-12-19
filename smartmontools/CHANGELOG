@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3000 2009-12-15 20:46:10Z chrfranke $
+$Id: CHANGELOG 3001 2009-12-19 15:25:27Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add '-v ID,FORMAT:BYTEORDER[,NAME]' to specify byte order
+       of attribute raw value.
 
   [CF] configure.in: Change --with-docdir default from
        'PREFIX/share/doc/smartmontools-VERSION' to

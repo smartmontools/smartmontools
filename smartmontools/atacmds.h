@@ -26,7 +26,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 2983 2009-11-14 21:41:41Z chrfranke $"
+#define ATACMDS_H_CVSID "$Id: atacmds.h 3001 2009-12-19 15:25:27Z chrfranke $"
 
 #include "dev_interface.h" // ata_device
 
@@ -656,8 +656,9 @@ enum ata_attr_raw_format
 
 // Attribute flags
 enum {
-  ATTRFLAG_INCREASING = 0x01, // Value not reset (for reallocated/pending counts)
-  ATTRFLAG_NO_NORMVAL = 0x02  // Normalized value not valid
+  ATTRFLAG_INCREASING = 0x01,   // Value not reset (for reallocated/pending counts)
+  ATTRFLAG_NO_NORMVAL = 0x02,   // Normalized value not valid
+  ATTRFLAG_NO_WORSTVAL = 0x04   // Worst value not valid
 };
 
 // Vendor attribute display defs for all attribute ids
@@ -670,12 +671,13 @@ public:
     ata_attr_raw_format raw_format; // Raw value print format
     ata_vendor_def_prior priority; // Setting priority
     unsigned flags; // ATTRFLAG_*
+    char byteorder[8+1]; // String [012345rvwz] to define byte order
 
     entry()
       : raw_format(RAWFMT_DEFAULT),
         priority(PRIOR_DEFAULT),
         flags(0)
-      { }
+      { byteorder[0] = 0; }
   };
 
   entry & operator[](unsigned char id)

@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
  
-$Id: smartd.8.in 2977 2009-10-30 22:29:05Z chrfranke $
+$Id: smartd.8.in 3001 2009-12-19 15:25:27Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -1605,9 +1605,9 @@ values for \'\-F\' (see the \'\-P\' option below).
 [Please see the \fBsmartctl \-F\fP command-line option.]
 
 .TP
-.B \-v ID,FORMAT[,NAME]
-[ATA only] Sets a vendor\-specific raw value print FORMAT and
-optional NAME for Attribute ID.
+.B \-v ID,FORMAT[:BYTEORDER][,NAME]
+[ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
+BYTEORDER and an optional NAME for Attribute ID.
 This directive may be used multiple times.
 Please see \fBsmartctl -v\fP command-line option for further details.
 
@@ -2067,4 +2067,4 @@ smartmontools home page at \fBhttp://smartmontools.sourceforge.net/#references\f
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.8.in 2977 2009-10-30 22:29:05Z chrfranke $
+$Id: smartd.8.in 3001 2009-12-19 15:25:27Z chrfranke $
