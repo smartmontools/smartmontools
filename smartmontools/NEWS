@@ -8,6 +8,7 @@ http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontool
 Date <Not released yet, please try current SVN>
 Summary: smartmontools release 5.40
 -----------------------------------------------------------
+- Option '-v' allows to specify byte order of attribute raw value
 - configure: New default value for '--with-docdir'.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.

@@ -1167,9 +1167,9 @@ values for \'\-F\' (see the \'\-P\' option below).
 [Please see the \fBsmartctl \-F\fP command-line option.]
 
 .TP
-.B \-v ID,FORMAT[,NAME]
-[ATA only] Sets a vendor\-specific raw value print FORMAT and
-optional NAME for Attribute ID.
+.B \-v ID,FORMAT[:BYTEORDER][,NAME]
+[ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
+BYTEORDER and an optional NAME for Attribute ID.
 This directive may be used multiple times.
 Please see \fBsmartctl -v\fP command-line option for further details.
 

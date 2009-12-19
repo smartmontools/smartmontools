@@ -836,11 +836,15 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     }
 
     // Format value, worst, threshold
-    std::string valstr, threstr;
+    std::string valstr, worstr, threstr;
     if (state > ATTRSTATE_NO_NORMVAL)
-      valstr = strprintf("%.3d   %.3d", attr.current, attr.worst);
+      valstr = strprintf("%.3d", attr.current);
     else
-      valstr = "---   ---";
+      valstr = "---";
+    if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL))
+      worstr = strprintf("%.3d", attr.worst);
+    else
+      worstr = "---";
     if (state > ATTRSTATE_NO_THRESHOLD)
       threstr = strprintf("%.3d", thre.threshold);
     else
@@ -848,9 +852,9 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
 
     // Print line for each valid attribute
     std::string attrname = ata_get_smart_attr_name(attr.id, defs);
-    pout("%3d %-24s0x%04x   %-9s   %-3s    %-10s%-9s%-12s%s\n",
+    pout("%3d %-24s0x%04x   %-3s   %-3s   %-3s    %-10s%-9s%-12s%s\n",
          attr.id, attrname.c_str(), attr.flags,
-         valstr.c_str(), threstr.c_str(),
+         valstr.c_str(), worstr.c_str(), threstr.c_str(),
          (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)? "Pre-fail" : "Old_age"),
          (ATTRIBUTE_FLAGS_ONLINE(attr.flags)? "Always" : "Offline"),
          (state == ATTRSTATE_FAILED_NOW  ? "FAILING_NOW" :

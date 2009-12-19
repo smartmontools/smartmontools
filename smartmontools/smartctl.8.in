@@ -1017,14 +1017,26 @@ writes a binary representation of the one sector log 0x11
 (SATA Phy Event Counters) to file log.bin.
 
 .TP
-.B \-v ID,FORMAT[,NAME], \-\-vendorattribute=ID,FORMAT[,NAME]
-[ATA only] Sets a vendor\-specific raw value print FORMAT and
-optional NAME for Attribute ID.
+.B \-v ID,FORMAT[:BYTEORDER][,NAME], \-\-vendorattribute=ID,FORMAT[:BYTEORDER][,NAME]
+[ATA only] Sets a vendor\-specific raw value print FORMAT, an optional
+BYTEORDER and an optional NAME for Attribute ID.
 This option may be used multiple times.
 
 The Attribute ID can be in the range 1 to 255. If \'N\' is specified as
-ID, the settings for all Attributes are changed. The NAME is a string of
-letters, digits and underscore.
+ID, the settings for all Attributes are changed.
+
+The optional BYTEORDER consists of 1 to 8 characters from the
+set \'012345rvwz\'. The characters \'0\' to \'5\' select the byte 0
+to 5 from the 48\-bit raw value, \'r\' selects the reserved byte of
+the attribute data block, \'v\' selects the normalized value, \'w\'
+selects the worst value and \'z\' inserts a zero byte.
+The default BYTEORDER is \'543210\' for all 48-bit formats,
+and \'543210wv\' for the 64-bit formats.
+For example, \'\-v 5,raw48:012345\' prints the raw value of
+attribute 5 with big endian instead of little endian
+byte ordering.
+
+The NAME is a string of letters, digits and underscore.
 
 .I \-v help
 \- Prints (to STDOUT) a list of all valid arguments to this option,

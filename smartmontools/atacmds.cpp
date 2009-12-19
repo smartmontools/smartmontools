@@ -271,6 +271,19 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     flags = ATTRFLAG_INCREASING;
   }
 
+  // Split "format[:byteorder]"
+  char byteorder[8+1] = "";
+  if (strchr(fmtname, ':')) {
+    if (!(   sscanf(fmtname, "%*[^:]%n:%8[012345rvwz]%n", &n1, byteorder, &n2) >= 1
+          && n2 == (int)strlen(fmtname)))
+      return false;
+    fmtname[n1] = 0;
+    if (strchr(byteorder, 'v'))
+      flags |= (ATTRFLAG_NO_NORMVAL|ATTRFLAG_NO_WORSTVAL);
+    if (strchr(byteorder, 'w'))
+      flags |= ATTRFLAG_NO_WORSTVAL;
+  }
+
   // Find format name
   for (i = 0; ; i++) {
     if (i >= num_format_names)
@@ -280,9 +293,9 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
   }
   ata_attr_raw_format format = format_names[i].format;
 
-  // 64-bit formats use the normalized value bytes.
-  if (format == RAWFMT_RAW64 || format == RAWFMT_HEX64)
-    flags |= ATTRFLAG_NO_NORMVAL;
+  // 64-bit formats use the normalized and worst value bytes.
+  if (!*byteorder && (format == RAWFMT_RAW64 || format == RAWFMT_HEX64))
+    flags |= (ATTRFLAG_NO_NORMVAL|ATTRFLAG_NO_WORSTVAL);
 
   if (!id) {
     // "N,format" -> set format for all entries
@@ -294,6 +307,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
       defs[i].priority = priority;
       defs[i].raw_format = format;
       defs[i].flags = flags;
+      strcpy(defs[i].byteorder, byteorder);
     }
   }
   else if (defs[id].priority <= priority) {
@@ -303,6 +317,7 @@ bool parse_attribute_def(const char * opt, ata_vendor_attr_defs & defs,
     defs[id].raw_format = format;
     defs[id].priority = priority;
     defs[id].flags = flags;
+    strcpy(defs[id].byteorder, byteorder);
   }
 
   return true;
@@ -317,7 +332,7 @@ std::string create_vendor_attribute_arg_list()
   std::string s;
   unsigned i;
   for (i = 0; i < num_format_names; i++)
-    s += strprintf("%s\tN,%s[,ATTR_NAME]",
+    s += strprintf("%s\tN,%s[:012345rvwz][,ATTR_NAME]",
       (i>0 ? "\n" : ""), format_names[i].name);
   for (i = 0; i < num_old_vendor_opts; i++)
     s += strprintf("\n\t%s", map_old_vendor_opts[i][0]);
@@ -1736,8 +1751,8 @@ ata_attr_state ata_get_attr_state(const ata_smart_attribute & attr,
   if (attr.current <= thre.threshold)
     return ATTRSTATE_FAILED_NOW;
 
-  // Failed in the passed if worst value is below threshold
-  if (attr.worst <= thre.threshold)
+  // Failed in the past if worst value is below threshold
+  if (!(defs[attr.id].flags & ATTRFLAG_NO_WORSTVAL) && attr.worst <= thre.threshold)
     return ATTRSTATE_FAILED_PAST;
 
   return ATTRSTATE_OK;
@@ -1767,24 +1782,36 @@ static ata_attr_raw_format get_default_raw_format(unsigned char id)
 uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
                                 const ata_vendor_attr_defs & defs)
 {
-  // Get 48 bit raw value
-  const unsigned char * raw = attr.raw;
-  uint64_t rawvalue;
-  rawvalue =              raw[0]
-             | (          raw[1] <<  8)
-             | (          raw[2] << 16)
-             | ((uint64_t)raw[3] << 24)
-             | ((uint64_t)raw[4] << 32)
-             | ((uint64_t)raw[5] << 40);
+  const ata_vendor_attr_defs::entry & def = defs[attr.id];
 
-  if (defs[attr.id].flags & ATTRFLAG_NO_NORMVAL) {
-    // Some SSD vendors use bytes 3-10 from the Attribute
-    // Data Structure to store a 64-bit raw value.
-    rawvalue <<= 8;
-    rawvalue |= attr.worst;
-    rawvalue <<= 8;
-    rawvalue |= attr.current;
+  // Use default byteorder if not specified
+  const char * byteorder = def.byteorder;
+  if (!*byteorder) {
+    if (def.raw_format == RAWFMT_RAW64 || def.raw_format == RAWFMT_HEX64)
+      byteorder = "543210wv";
+    else
+      byteorder = "543210";
   }
+
+  // Build 64-bit value from selected bytes
+  uint64_t rawvalue = 0;
+  for (int i = 0; byteorder[i]; i++) {
+    unsigned char b;
+    switch (byteorder[i]) {
+      case '0': b = attr.raw[0];  break;
+      case '1': b = attr.raw[1];  break;
+      case '2': b = attr.raw[2];  break;
+      case '3': b = attr.raw[3];  break;
+      case '4': b = attr.raw[4];  break;
+      case '5': b = attr.raw[5];  break;
+      case 'r': b = attr.reserv;  break;
+      case 'v': b = attr.current; break;
+      case 'w': b = attr.worst;   break;
+      default : b = 0;            break;
+    }
+    rawvalue <<= 8; rawvalue |= b;
+  }
+
   return rawvalue;
 }
 
@@ -1793,7 +1820,7 @@ uint64_t ata_get_attr_raw_value(const ata_smart_attribute & attr,
 std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
                                       const ata_vendor_attr_defs & defs)
 {
-  // Get 48 bit or64 bit raw value
+  // Get 48 bit or 64 bit raw value
   uint64_t rawvalue = ata_get_attr_raw_value(attr, defs);
 
   // Get 16 bit words
@@ -1821,15 +1848,12 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
     break;
 
   case RAWFMT_RAW48:
+  case RAWFMT_RAW64:
     s = strprintf("%"PRIu64, rawvalue);
     break;
 
   case RAWFMT_HEX48:
     s = strprintf("0x%012"PRIx64, rawvalue);
-    break;
-
-  case RAWFMT_RAW64:
-    s = strprintf("%"PRIu64, rawvalue);
     break;
 
   case RAWFMT_HEX64:
