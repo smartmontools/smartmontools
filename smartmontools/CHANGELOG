@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: fixing crash on kFreeBSD (#29), patch provided by Petr Salinger
+
   [CF] Makefile.am: 'make check' now tests the syntax of drivedb.h.
 
   [CF] Cygwin: Open drive database files in text mode.
