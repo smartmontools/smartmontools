@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3007 2009-12-20 23:26:23Z samm2 $
+$Id: CHANGELOG 3008 2009-12-21 08:54:43Z dlukes $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DL] FreeBSD: check reallocf() result for failures
 
   [AS] FreeBSD: fixing crash on kFreeBSD (#29), patch provided by Petr Salinger
 

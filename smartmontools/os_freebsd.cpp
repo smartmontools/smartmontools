@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3007 2009-12-20 23:26:23Z samm2 $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3008 2009-12-21 08:54:43Z dlukes $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3007 2009-12-20 23:26:23Z samm2 $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3008 2009-12-21 08:54:43Z dlukes $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3007 2009-12-20 23:26:23Z samm2 $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3008 2009-12-21 08:54:43Z dlukes $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -1535,6 +1535,12 @@ int get_dev_names_ata(char*** names) {
     };
   };  
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
+  if (mp == NULL && n > 0 ) { // reallocf never fail for size=0, but may return NULL
+    serrno=errno;
+    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    n = -1;
+    goto end;
+  };
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
 
 end:
