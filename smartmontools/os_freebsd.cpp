@@ -1535,6 +1535,12 @@ int get_dev_names_ata(char*** names) {
     };
   };  
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
+  if (mp == NULL && n > 0 ) { // reallocf never fail for size=0, but may return NULL
+    serrno=errno;
+    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    n = -1;
+    goto end;
+  };
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
 
 end:
