@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DL] -l gpllog,...: print text representation of data also (ticket #30)
+
   [DL] FreeBSD: check reallocf() result for failures
 
   [AS] FreeBSD: fixing crash on kFreeBSD (#29), patch provided by Petr Salinger

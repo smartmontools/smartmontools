@@ -1016,10 +1016,16 @@ static void PrintLogPages(const char * type, const unsigned char * data,
   for (unsigned i = 0; i < num_pages * 512; i += 16) {
     const unsigned char * p = data+i;
     pout("%07x: %02x %02x %02x %02x %02x %02x %02x %02x "
-               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+               "%02x %02x %02x %02x %02x %02x %02x %02x ",
          (page * 512) + i,
          p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
          p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15]);
+#define P(n) (isprint((int)(p[n]))?(int)(p[n]):'.')
+    pout("|%c%c%c%c%c%c%c%c"
+          "%c%c%c%c%c%c%c%c|\n",
+         P( 0), P( 1), P( 2), P( 3), P( 4), P( 5), P( 6), P( 7),
+         P( 8), P( 9), P(10), P(11), P(12), P(13), P(14), P(15));
+#undef P
     if ((i & 0x1ff) == 0x1f0)
       pout("\n");
   }
