@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - Hitachi Travelstar 7K320 (ticket #28)
+       - Hitachi Travelstar 7K500
+
   [DL] -l gpllog,...: print text representation of data also (ticket #30)
 
   [DL] FreeBSD: check reallocf() result for failures

@@ -829,6 +829,14 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HTS7220(80|10|12|16|20)K9(A3|SA)00",
     "", "", ""
   },
+  { "Hitachi Travelstar 7K320", // tested with HTS723225L9A360/FCDOC30F
+    "(Hitachi )?HT[ES]7232(80|12|16|25|32)L9(A300|A360|SA61)",
+    "", "", ""
+  },
+  { "Hitachi Travelstar 7K500",
+    "(Hitachi )?HT[ES]7250(12|16|25|32|50)A9A36[45]",
+    "", "", ""
+  },
   { "IBM Deskstar 14GXP and 16GP series",
     "IBM-DTTA-3(7101|7129|7144|5032|5043|5064|5084|5101|5129|5168)0",
     "", "", ""
