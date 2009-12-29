@@ -435,12 +435,19 @@ void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix
 static void prettyprint(const unsigned char *p, const char *name){
   pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
   for (int i=0; i<512; i+=16, p+=16)
+#define P(n) (isprint((int)(p[n]))?(int)(p[n]):'.')
     // print complete line to avoid slow tty output and extra lines in syslog.
     pout("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
-                    "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+                    "%02x %02x %02x %02x %02x %02x %02x %02x"
+                    " |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|"
+         "%c",
          i, i+16-1,
          p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
-         p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15]);
+         p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15], 
+         P( 0), P( 1), P( 2), P( 3), P( 4), P( 5), P( 6), P( 7),
+         P( 8), P( 9), P(10), P(11), P(12), P(13), P(14), P(15),
+         '\n');
+#undef P
   pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
