@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DL] drivedb.h updates:
+       - WDC My Passport Essential/USB (capacity 250GB, 400GB & 500GB)
+
   [DL] -r ataioctl,2: print text representation of data also (ticket #32)
 
   [DL] FreeBSD: freebsd_ata_device::ata_pass_through implemented (part of ticket #18)

@@ -1320,7 +1320,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital My Passport Essential hard drive (USB interface)",
-    "WDC WD3200BMVU-.*",
+    "WDC WD(25|32|40|50)00BMVU-.*",
     "", "", ""
   },
   { "Western Digital My Passport hard drive (USB interface)",
