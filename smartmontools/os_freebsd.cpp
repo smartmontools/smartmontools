@@ -231,17 +231,17 @@ bool freebsd_smart_device::close()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/// Implement standard ATA support with old functions
+/// Implement standard ATA support
 
 class freebsd_ata_device
-: public /*implements*/ ata_device_with_command_set,
+: public /*implements*/ ata_device,
   public /*extends*/ freebsd_smart_device
 {
 public:
   freebsd_ata_device(smart_interface * intf, const char * dev_name, const char * req_type);
+  virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
   virtual int do_cmd(struct ata_ioc_request* request);
 };
 
@@ -255,6 +255,111 @@ int freebsd_ata_device::do_cmd( struct ata_ioc_request* request)
 {
   int fd = get_fd();
   return ioctl(fd, IOCATAREQUEST, request);
+}
+
+
+
+bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (!ata_cmd_is_ok(in, true, true, true)) // data_out_support
+    return false;
+
+  char buffer[512];
+  struct ata_ioc_request request;
+  bzero(&request,sizeof(struct ata_ioc_request));
+
+  request.timeout=SCSI_TIMEOUT_DEFAULT;
+  request.u.ata.command=in.in_regs.command;
+  request.u.ata.feature=in.in_regs.features;
+
+  request.u.ata.count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
+  request.u.ata.lba=
+      ((u_int64_t)in.in_regs.lba_high >> 8 & 0xFF) << 40 
+    | ((u_int64_t)in.in_regs.lba_mid >> 8 & 0xFF) << 32
+    | ((u_int64_t)in.in_regs.lba_low >> 8 & 0xFF) << 24
+    | ((u_int64_t)in.in_regs.lba_high & 0xFF) << 16
+    | ((u_int64_t)in.in_regs.lba_mid & 0xFF) << 8
+    | ((u_int64_t)in.in_regs.lba_low & 0xFF);
+
+  switch (in.direction) {
+    case ata_cmd_in::no_data:  
+      request.flags=ATA_CMD_CONTROL;
+      break;
+    case ata_cmd_in::data_in:  
+      request.flags=ATA_CMD_READ;
+      request.data=(char *)in.buffer;
+      request.count=in.size;
+      break;
+    case ata_cmd_in::data_out: 
+      request.flags=ATA_CMD_WRITE;
+      request.data=(char *)in.buffer;
+      request.count=in.size;
+      break;
+  }
+                          
+
+  // Command specific processing
+  if (in.in_regs.command == ATA_CHECK_POWER_MODE) {
+      request.data = buffer; 
+      request.data[0] = 0;
+      request.u.ata.feature=0;
+  }
+
+  clear_err(); 
+  errno = 0;
+  if (do_cmd(&request) || request.error)
+  {
+    if (!get_errno())
+      set_err(errno);
+    return false;
+  }
+
+  if (in.out_needed.error )
+    out.out_regs.error = request.error;
+  if (in.out_needed.sector_count )
+    out.out_regs.sector_count = request.u.ata.count;
+  if (in.out_needed.lba_high || in.out_needed.lba_high || in.out_needed.lba_high ) {
+    out.out_regs.lba_low = request.u.ata.lba & 0xFF | (request.u.ata.lba >> (24-8)) & 0xFF00;
+    out.out_regs.lba_mid = (request.u.ata.lba >> 8) & 0xFF | (request.u.ata.lba >> (32-8)) & 0xFF00;
+    out.out_regs.lba_high = (request.u.ata.lba >> 16) & 0xFF | (request.u.ata.lba >> (40-8)) & 0xFF00;
+  };
+
+
+  // Command specific processing
+  if (in.in_regs.command == ATA_SMART_CMD
+       && in.in_regs.features == ATA_SMART_STATUS
+       && in.out_needed.lba_high)
+  {
+    unsigned const char normal_lo=0x4f, normal_hi=0xc2;
+    unsigned const char failed_lo=0xf4, failed_hi=0x2c;
+
+#if (FREEBSDVER < 502000)
+    printwarning(NO_RETURN,NULL);
+#endif
+
+    // Cyl low and Cyl high unchanged means "Good SMART status"
+    if (!(out.out_regs.lba_mid==normal_lo && out.out_regs.lba_high==normal_hi)
+    // These values mean "Bad SMART status"
+        && !(out.out_regs.lba_mid==failed_lo && out.out_regs.lba_high==failed_hi))
+
+    {
+      // We haven't gotten output that makes sense; print out some debugging info
+      char buf[512];
+      sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
+        (int)request.u.ata.command,
+        (int)request.u.ata.feature,
+        (int)request.u.ata.count,
+        (int)((request.u.ata.lba) & 0xff),
+        (int)((request.u.ata.lba>>8) & 0xff),
+        (int)((request.u.ata.lba>>16) & 0xff),
+        (int)request.error);
+      printwarning(BAD_SMART,buf);
+      out.out_regs.lba_high = failed_hi; 
+      out.out_regs.lba_mid = failed_lo;
+    }
+  }
+
+  return true;
 }
 
 #if FREEBSDVER > 800100
@@ -340,168 +445,6 @@ int freebsd_atacam_device::do_cmd( struct ata_ioc_request* request)
 }
 
 #endif
-
-int freebsd_ata_device::ata_command_interface(smart_command_set command, int select, char * data)
-{
- int retval, copydata=0;
- struct ata_ioc_request request;
- unsigned char buff[512];
-
- bzero(buff,512);
- bzero(&request,sizeof(struct ata_ioc_request));
- bzero(buff,512);
-
- request.u.ata.command=ATA_SMART_CMD;
- request.timeout=SCSI_TIMEOUT_DEFAULT;
- switch (command){
- case READ_VALUES:
-  request.u.ata.feature=ATA_SMART_READ_VALUES;
-  request.u.ata.lba=0xc24f<<8;
-  request.flags=ATA_CMD_READ;
-  request.data=(char *)buff;
-  request.count=512;
-  copydata=1;
-  break;
- case READ_THRESHOLDS:
-  request.u.ata.feature=ATA_SMART_READ_THRESHOLDS;
-  request.u.ata.count=1;
-  request.u.ata.lba=1|(0xc24f<<8);
-  request.flags=ATA_CMD_READ;
-  request.data=(char *)buff;
-  request.count=512;
-  copydata=1;
-  break;
- case READ_LOG:
-  request.u.ata.feature=ATA_SMART_READ_LOG_SECTOR;
-  request.u.ata.lba=select|(0xc24f<<8);
-  request.u.ata.count=1;
-  request.flags=ATA_CMD_READ;
-  request.data=(char *)buff;
-  request.count=512;
-  copydata=1;
-  break;
- case IDENTIFY:
-  request.u.ata.command=ATA_IDENTIFY_DEVICE;
-  request.flags=ATA_CMD_READ;
-  request.data=(char *)buff;
-  request.count=512;
-  copydata=1;
-  break;
- case PIDENTIFY:
-  request.u.ata.command=ATA_IDENTIFY_PACKET_DEVICE;
-  request.flags=ATA_CMD_READ;
-  request.data=(char *)buff;
-  request.count=512;
-  copydata=1;
-  break;
- case ENABLE:
-  request.u.ata.feature=ATA_SMART_ENABLE;
-  request.u.ata.lba=0xc24f<<8;
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case DISABLE:
-  request.u.ata.feature=ATA_SMART_DISABLE;
-  request.u.ata.lba=0xc24f<<8;
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case AUTO_OFFLINE:
-  // NOTE: According to ATAPI 4 and UP, this command is obsolete
-  request.u.ata.feature=ATA_SMART_AUTO_OFFLINE;
-  request.u.ata.lba=0xc24f<<8;                                                                                                                                         
-  request.u.ata.count=select;                                                                                                                                          
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case AUTOSAVE:
-  request.u.ata.feature=ATA_SMART_AUTOSAVE;
-  request.u.ata.lba=0xc24f<<8;
-  request.u.ata.count=select;
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case IMMEDIATE_OFFLINE:
-  request.u.ata.feature=ATA_SMART_IMMEDIATE_OFFLINE;
-  request.u.ata.lba = select|(0xc24f<<8); // put test in sector
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case STATUS_CHECK: // same command, no HDIO in FreeBSD
- case STATUS:
-  // this command only says if SMART is working.  It could be
-  // replaced with STATUS_CHECK below.
-  request.u.ata.feature=ATA_SMART_STATUS;
-  request.u.ata.lba=0xc24f<<8;
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case CHECK_POWER_MODE:
-  request.u.ata.command=ATA_CHECK_POWER_MODE;
-  request.u.ata.feature=0;
-  request.flags=ATA_CMD_CONTROL;
-  break;
- case WRITE_LOG:
-  memcpy(buff, data, 512);
-  request.u.ata.feature=ATA_SMART_WRITE_LOG_SECTOR;
-  request.u.ata.lba=select|(0xc24f<<8);
-  request.u.ata.count=1;
-  request.flags=ATA_CMD_WRITE;
-  request.data=(char *)buff;
-  request.count=512;
-  break;
- default:
-  pout("Unrecognized command %d in ata_command_interface()\n"
-   "Please contact " PACKAGE_BUGREPORT "\n", command);
-  errno=ENOSYS;
-  return -1;
- }
-
- if (command==STATUS_CHECK){
-  unsigned const char normal_lo=0x4f, normal_hi=0xc2;
-  unsigned const char failed_lo=0xf4, failed_hi=0x2c;
-  unsigned char low,high;
-
-  if ((retval=do_cmd(&request)) || request.error)
-  return -1;
-
-#if (FREEBSDVER < 502000)
-  printwarning(NO_RETURN,NULL);
-#endif
-
-  high = (request.u.ata.lba >> 16) & 0xff;
-  low = (request.u.ata.lba >> 8) & 0xff;
-
-  // Cyl low and Cyl high unchanged means "Good SMART status"
-  if (low==normal_lo && high==normal_hi)
-   return 0;
-
-  // These values mean "Bad SMART status"
-  if (low==failed_lo && high==failed_hi)
-   return 1;
-
-  // We haven't gotten output that makes sense; print out some debugging info
-  char buf[512];
-  sprintf(buf,"CMD=0x%02x\nFR =0x%02x\nNS =0x%02x\nSC =0x%02x\nCL =0x%02x\nCH =0x%02x\nRETURN =0x%04x\n",
-   (int)request.u.ata.command,
-   (int)request.u.ata.feature,
-   (int)request.u.ata.count,
-   (int)((request.u.ata.lba) & 0xff),
-   (int)((request.u.ata.lba>>8) & 0xff),
-   (int)((request.u.ata.lba>>16) & 0xff),
-   (int)request.error);
-  printwarning(BAD_SMART,buf);
-  return 0;   
- }
-
- if ((retval=do_cmd(&request)) || request.error)
- {
-  return -1;
- }
- // 
- if (command == CHECK_POWER_MODE) {
-  data[0] = request.u.ata.count & 0xff;
-  return 0;
- }
- if (copydata)
-  memcpy(data, buff, 512);
-
-  return 0;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement AMCC/3ware RAID support with old functions
