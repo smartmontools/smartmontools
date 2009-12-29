@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3013 2009-12-29 18:18:56Z dlukes $
+$Id: CHANGELOG 3014 2009-12-29 22:53:22Z dlukes $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DL] drivedb.h updates:
+       - WDC My Passport Essential/USB (capacity 250GB, 400GB & 500GB)
 
   [DL] -r ataioctl,2: print text representation of data also (ticket #32)
 
