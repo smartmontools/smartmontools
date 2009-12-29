@@ -2222,7 +2222,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     return -1;
 
   if (!(sts->ext_status_code == 0 && sts->action_code == 5 && sts->function_code == 1)) {
-    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    pout("Error unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
   }
