@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3001 2009-12-19 15:25:27Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3012 2009-12-29 17:35:30Z dlukes $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -2222,7 +2222,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     return -1;
 
   if (!(sts->ext_status_code == 0 && sts->action_code == 5 && sts->function_code == 1)) {
-    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    pout("Error unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
   }
