@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3010 2009-12-28 20:06:09Z chrfranke $
+$Id: CHANGELOG 3011 2009-12-29 17:25:36Z dlukes $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [DL] FreeBSD: freebsd_ata_device::ata_pass_through implemented (part of ticket #18)
 
   [CF] drivedb.h updates:
        - Hitachi Travelstar 7K320 (ticket #28)
