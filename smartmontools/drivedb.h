@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3014 2009-12-29 22:53:22Z dlukes $",
+  { "$Id: drivedb.h 3016 2009-12-30 20:20:48Z chrfranke $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -414,6 +414,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "May need -F samsung2 or -F samsung3 enabled; see manual for details.",
     ""
+  },
+  { "SAMSUNG SpinPoint M40/60/80 series", // tested with HM160JI/AD100-16
+    "SAMSUNG HM(0[468]0H|1[026]0J)[CI]",
+    "",
+    "",
+    "-v 9,halfminutes"
   },
 /*
   // TODO: Make the entries below more specific.
