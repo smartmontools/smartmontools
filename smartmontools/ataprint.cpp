@@ -1929,12 +1929,44 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
     needupdate=1;
-    if (ataEnableAutoOffline(device)){
+    
+    int atat = secs_to_atatimer(options.smart_auto_offl_timeout);
+    
+    if (ataEnableAutoOffline(device, atat)){
       pout( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    else
-      pout("SMART Automatic Offline Testing Enabled every four hours.\n");
+    else {
+      pout("SMART Automatic Offline Testing Enabled");
+
+      int timeout;
+      
+      timeout = atatimer_to_secs(atat);
+
+      if (timeout > 0) {
+      
+        pout(" every");
+        
+        if (timeout==8*3600) {
+          pout(" 8-12 hours");
+        } else {
+          int hours, mins;
+
+          hours = timeout / 3600;
+          timeout%=3600;
+          mins = timeout / 60;
+          timeout%=60;
+      
+          if (hours > 0)
+            pout(" %d hour%s", hours, hours>1?"s":"");
+          if (mins > 0)
+            pout(" %d minute%s", mins, mins>1?"s":"");
+          if (timeout > 0)
+            pout(" %d second%s", timeout, timeout>1?"s":"");
+        };
+      };
+      pout(".\n");
+    }
   }
 
   if (options.smart_auto_offl_disable) {

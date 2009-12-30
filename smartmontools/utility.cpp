@@ -778,3 +778,62 @@ int safe_snprintf(char *buf, int size, const char *fmt, ...)
 }
 
 #endif
+
+// Convert seconds to ata timer scale and vice versa
+// 
+// +---------------------+------------------------------+
+// | Sector Count        | Corresponding                |
+// | Register contents   | Timeout Period               |
+// +---------------------+------------------------------+
+// |   0       (00h)     | Timeout Disabled             |
+// |   1 - 240 (01h-F0h) | (value * 5) seconds          |
+// | 241 - 251 (F1h-FBh) | ((value - 240) * 30) minutes |
+// |       252 (FCh)     | 21 minutes                   |
+// |       253 (FDh)     | Vendor unique period between |
+// |                     | 8 and 12 hours               |
+// |       254 (FEh)     | Reserved                     |
+// |       255 (FFh)     | 21 minutes 15 seconds        |
+// +---------------------+------------------------------+
+// (Table taken from X3T10/0948D Revision 4c)
+unsigned int 
+secs_to_atatimer(unsigned int tmo) {
+
+  if (tmo == 0)
+    return 0;
+  if (tmo < 5)
+    return 1;
+
+  if (tmo<=1200) 
+    return tmo / 5;
+  if (tmo<1200+60)
+    return 240;
+  if (tmo<1200+75)
+    return 252;
+  if (tmo<1800)
+    return 255;
+  if (tmo <19800+1800 )
+    return (tmo / 1800)+240;
+
+  if (tmo < 8*3600)
+    return 251;
+
+  return 253;
+};
+
+unsigned int 
+atatimer_to_secs(unsigned int atat) {
+
+  switch (atat) {
+  case   0: return 0;
+  case 252: return 21*60;
+  case 253: return 8*3600;
+  case 254: return -1;
+  case 255: return 21*60+15;
+  };
+  
+  if (atat<=240)
+    return(atat*5);
+
+  return((atat-240)*1800);
+
+};

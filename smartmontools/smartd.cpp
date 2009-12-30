@@ -258,6 +258,7 @@ struct dev_config
   bool permissive;                        // Ignore failed SMART commands
   char autosave;                          // 1=disable, 2=enable Autosave Attributes
   char autoofflinetest;                   // 1=disable, 2=enable Auto Offline Test
+  int  autoofflinetestperiod;             // seconds between two Auto Offline Test
   unsigned char fix_firmwarebug;          // FIX_*, see atacmds.h
   bool ignorepresets;                     // Ignore database of -v options
   bool showpresets;                       // Show database entry for this device
@@ -299,6 +300,7 @@ dev_config::dev_config()
   permissive(false),
   autosave(0),
   autoofflinetest(0),
+  autoofflinetestperiod(4*3600),
   fix_firmwarebug(FIX_NOTSPECIFIED),
   ignorepresets(false),
   showpresets(false),
@@ -1748,7 +1750,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       if (!isSupportAutomaticTimer(&state.smartval))
         PrintOut(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",name);
       // ... but then try anyway
-      if ((cfg.autoofflinetest==1)?ataDisableAutoOffline(atadev):ataEnableAutoOffline(atadev))
+      if ((cfg.autoofflinetest==1)?ataDisableAutoOffline(atadev):ataEnableAutoOffline(atadev, secs_to_atatimer(cfg.autoofflinetestperiod)))
         PrintOut(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", name, what);
       else
         PrintOut(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
@@ -3202,8 +3204,46 @@ static int ParseToken(char * token, dev_config & cfg)
     // automatic offline testing enable/disable
     if ((arg = strtok(NULL, delim)) == NULL) {
       missingarg = 1;
-    } else if (!strcmp(arg, "on")) {
+    } else if (!strncmp(arg, "on", 2)) {
       cfg.autoofflinetest = 2;
+      if (arg[2]=='\0') {
+        cfg.autoofflinetestperiod = 4*3600; /* default value */
+        break;
+      };
+      if (optarg[2]!=',' || optarg[3]=='\0') {
+        badarg = 1;
+        break;
+      };
+      
+      long timeout;
+      char *endptr;
+      
+      timeout = strtol(optarg+3, &endptr, 0);
+      if (timeout < 1) {
+        badarg = 1; // non-positive number
+        break;
+      };
+      
+      switch (*endptr) {
+      case 's':
+        endptr++;
+        break;
+      case 'm':
+        timeout*=60;
+        endptr++;
+        break;
+      case 'h':
+        timeout*=3600;
+        endptr++;
+        break;
+      };
+
+      if (*endptr != '\0') {
+        badarg = 1; // extra character after parameter
+        break;
+      };
+      
+      cfg.autoofflinetestperiod = (int)timeout;
     } else if (!strcmp(arg, "off")) {
       cfg.autoofflinetest = 1;
     } else {

@@ -335,3 +335,7 @@ private:
 #endif
 
 #endif
+
+unsigned int secs_to_atatimer(unsigned int tmo);
+unsigned int atatimer_to_secs(unsigned int atat);
+
