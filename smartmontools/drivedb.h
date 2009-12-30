@@ -415,6 +415,12 @@ const drive_settings builtin_knowndrives[] = {
     "May need -F samsung2 or -F samsung3 enabled; see manual for details.",
     ""
   },
+  { "SAMSUNG SpinPoint M40/60/80 series", // tested with HM160JI/AD100-16
+    "SAMSUNG HM(0[468]0H|1[026]0J)[CI]",
+    "",
+    "",
+    "-v 9,halfminutes"
+  },
 /*
   // TODO: Make the entries below more specific.
   // These entries produce misleading results, because newer
