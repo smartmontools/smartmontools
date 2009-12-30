@@ -264,7 +264,6 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   if (!ata_cmd_is_ok(in, true, true, true)) // data_out_support
     return false;
 
-  char buffer[512];
   struct ata_ioc_request request;
   bzero(&request,sizeof(struct ata_ioc_request));
 
@@ -272,14 +271,8 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
   request.u.ata.command=in.in_regs.command;
   request.u.ata.feature=in.in_regs.features;
 
-  request.u.ata.count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
-  request.u.ata.lba=
-      ((u_int64_t)in.in_regs.lba_high >> 8 & 0xFF) << 40 
-    | ((u_int64_t)in.in_regs.lba_mid >> 8 & 0xFF) << 32
-    | ((u_int64_t)in.in_regs.lba_low >> 8 & 0xFF) << 24
-    | ((u_int64_t)in.in_regs.lba_high & 0xFF) << 16
-    | ((u_int64_t)in.in_regs.lba_mid & 0xFF) << 8
-    | ((u_int64_t)in.in_regs.lba_low & 0xFF);
+  request.u.ata.count = in.in_regs.sector_count_16;
+  request.u.ata.lba = in.in_regs.lba_48;
 
   switch (in.direction) {
     case ata_cmd_in::no_data:  
@@ -295,34 +288,20 @@ bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
       request.data=(char *)in.buffer;
       request.count=in.size;
       break;
+    default:
+      return set_err(ENOSYS);
   }
                           
-
-  // Command specific processing
-  if (in.in_regs.command == ATA_CHECK_POWER_MODE) {
-      request.data = buffer; 
-      request.data[0] = 0;
-      request.u.ata.feature=0;
-  }
-
   clear_err(); 
   errno = 0;
-  if (do_cmd(&request) || request.error)
-  {
-    if (!get_errno())
-      set_err(errno);
-    return false;
-  }
+  if (do_cmd(&request))
+      return set_err(errno);
+  if (request.error)
+      return set_err(EIO, "request failed, error code 0x%02x", request.error);
 
-  if (in.out_needed.error )
-    out.out_regs.error = request.error;
-  if (in.out_needed.sector_count )
-    out.out_regs.sector_count = request.u.ata.count;
-  if (in.out_needed.lba_high || in.out_needed.lba_high || in.out_needed.lba_high ) {
-    out.out_regs.lba_low = request.u.ata.lba & 0xFF | (request.u.ata.lba >> (24-8)) & 0xFF00;
-    out.out_regs.lba_mid = (request.u.ata.lba >> 8) & 0xFF | (request.u.ata.lba >> (32-8)) & 0xFF00;
-    out.out_regs.lba_high = (request.u.ata.lba >> 16) & 0xFF | (request.u.ata.lba >> (40-8)) & 0xFF00;
-  };
+  out.out_regs.error = request.error;
+  out.out_regs.sector_count_16 = request.u.ata.count;
+  out.out_regs.lba_48 = request.u.ata.lba;
 
 
   // Command specific processing
