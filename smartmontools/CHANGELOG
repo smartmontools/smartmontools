@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [DL] '-o on' option extended to '-o on[,N]' 
+	the timeout is not limited to be 4 hours anymore 
+
   [CF] drivedb.h update:
        - SAMSUNG SpinPoint M40/60/80 series
 
