@@ -25,7 +25,7 @@
 
 #include <stdexcept>
 
-const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 2971 2009-10-26 22:05:54Z chrfranke $"
+const char * dev_interface_cpp_cvsid = "$Id: dev_interface.cpp 3015 2009-12-30 16:25:59Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,9 @@ ata_in_regs_48bit::ata_in_regs_48bit()
   sector_count_16(sector_count, prev.sector_count),
   lba_low_16(lba_low, prev.lba_low),
   lba_mid_16(lba_mid, prev.lba_mid),
-  lba_high_16(lba_high, prev.lba_high)
+  lba_high_16(lba_high, prev.lba_high),
+  lba_48(     lba_low,      lba_mid,      lba_high,
+         prev.lba_low, prev.lba_mid, prev.lba_high)
 {
 }
 
@@ -97,7 +99,9 @@ ata_out_regs_48bit::ata_out_regs_48bit()
 : sector_count_16(sector_count, prev.sector_count),
   lba_low_16(lba_low, prev.lba_low),
   lba_mid_16(lba_mid, prev.lba_mid),
-  lba_high_16(lba_high, prev.lba_high)
+  lba_high_16(lba_high, prev.lba_high),
+  lba_48(     lba_low,      lba_mid,      lba_high,
+         prev.lba_low, prev.lba_mid, prev.lba_high)
 {
 }
 
