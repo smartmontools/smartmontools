@@ -26,7 +26,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 2848 2009-07-18 20:14:38Z chrfranke $"
+#define UTILITY_H_CVSID "$Id: utility.h 3018 2009-12-30 22:55:11Z dlukes $"
 
 #include <time.h>
 #include <sys/types.h> // for regex.h (according to POSIX)
@@ -335,3 +335,7 @@ private:
 #endif
 
 #endif
+
+unsigned int secs_to_atatimer(unsigned int tmo);
+unsigned int atatimer_to_secs(unsigned int atat);
+

@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3013 2009-12-29 18:18:56Z dlukes $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3018 2009-12-30 22:55:11Z dlukes $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -1479,10 +1479,9 @@ int ataDisableAutoSave(ata_device * device){
 // marked "OBSOLETE". It is defined in SFF-8035i Revision 2, and most
 // vendors still support it for backwards compatibility. IBM documents
 // it for some drives.
-int ataEnableAutoOffline (ata_device * device){
+int ataEnableAutoOffline (ata_device * device, int timeout){
   
-  /* timer hard coded to 4 hours */  
-  if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
+  if (smartcommandhandler(device, AUTO_OFFLINE, timeout, NULL)){
     syserror("Error SMART Enable Automatic Offline failed");
     return -1;
   }
