@@ -89,7 +89,9 @@ ata_in_regs_48bit::ata_in_regs_48bit()
   sector_count_16(sector_count, prev.sector_count),
   lba_low_16(lba_low, prev.lba_low),
   lba_mid_16(lba_mid, prev.lba_mid),
-  lba_high_16(lba_high, prev.lba_high)
+  lba_high_16(lba_high, prev.lba_high),
+  lba_48(     lba_low,      lba_mid,      lba_high,
+         prev.lba_low, prev.lba_mid, prev.lba_high)
 {
 }
 
@@ -97,7 +99,9 @@ ata_out_regs_48bit::ata_out_regs_48bit()
 : sector_count_16(sector_count, prev.sector_count),
   lba_low_16(lba_low, prev.lba_low),
   lba_mid_16(lba_mid, prev.lba_mid),
-  lba_high_16(lba_high, prev.lba_high)
+  lba_high_16(lba_high, prev.lba_high),
+  lba_48(     lba_low,      lba_mid,      lba_high,
+         prev.lba_low, prev.lba_mid, prev.lba_high)
 {
 }
 

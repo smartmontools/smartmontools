@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add direct access to 48-bit LBA register in 'ata_in/out_regs_48bit'.
+
   [DL] drivedb.h updates:
        - WDC My Passport Essential/USB (capacity 250GB, 400GB & 500GB)
 

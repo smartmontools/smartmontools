@@ -325,6 +325,50 @@ private:
 };
 
 
+/// 48-bit alias to six 8-bit ATA registers (for LBA).
+class ata_reg_alias_48
+{
+public:
+  ata_reg_alias_48(ata_register & ll, ata_register & lm, ata_register & lh,
+                   ata_register & hl, ata_register & hm, ata_register & hh)
+    : m_ll(ll), m_lm(lm), m_lh(lh),
+      m_hl(hl), m_hm(hm), m_hh(hh)
+    { }
+
+  ata_reg_alias_48 & operator=(uint64_t val)
+    {
+      m_ll = (unsigned char) val;
+      m_lm = (unsigned char)(val >>  8);
+      m_lh = (unsigned char)(val >> 16);
+      m_hl = (unsigned char)(val >> 24);
+      m_hm = (unsigned char)(val >> 32);
+      m_hh = (unsigned char)(val >> 40);
+      return * this;
+    }
+
+  uint64_t val() const
+    {
+      return (   (unsigned)m_ll
+              | ((unsigned)m_lm <<  8)
+              | ((unsigned)m_lh << 16)
+              | ((unsigned)m_hl << 24)
+              | ((uint64_t)m_hm << 32)
+              | ((uint64_t)m_hh << 40));
+    }
+
+  operator uint64_t() const
+    { return val(); }
+
+private:
+  ata_register & m_ll, & m_lm, & m_lh,
+               & m_hl, & m_hm, & m_hh;
+
+  // References must not be copied.
+  ata_reg_alias_48(const ata_reg_alias_48 &);
+  void operator=(const ata_reg_alias_48 &);
+};
+
+
 /// ATA Input registers for 48-bit commands
 // See section 4.14 of T13/1532D Volume 1 Revision 4b
 //
@@ -347,6 +391,9 @@ struct ata_in_regs_48bit
   ata_reg_alias_16 lba_low_16;
   ata_reg_alias_16 lba_mid_16;
   ata_reg_alias_16 lba_high_16;
+
+  // 48-bit alias to all 8-bit LBA registers.
+  ata_reg_alias_48 lba_48;
 
   /// Return true if 48-bit command
   bool is_48bit_cmd() const
@@ -372,6 +419,9 @@ struct ata_out_regs_48bit
   ata_reg_alias_16 lba_low_16;
   ata_reg_alias_16 lba_mid_16;
   ata_reg_alias_16 lba_high_16;
+
+  // 48-bit alias to all 8-bit LBA registers.
+  ata_reg_alias_48 lba_48;
 
   ata_out_regs_48bit();
 };
