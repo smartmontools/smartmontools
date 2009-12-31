@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3018 2009-12-30 22:55:11Z dlukes $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3020 2009-12-31 01:11:51Z dlukes $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -362,47 +362,9 @@ const char * parse_options(int argc, char** argv,
       }
       break;
     case 'o':
-      if (!strncmp(optarg,"on", 2)) {
+      if (!strcmp(optarg,"on")) {
         ataopts.smart_auto_offl_enable  = true;
         ataopts.smart_auto_offl_disable = false;
-        if (optarg[2]=='\0') {
-          ataopts.smart_auto_offl_timeout = 4*3600; /* default is 4 hours */
-          break;
-        };
-        if (optarg[2]!=',' || optarg[3]=='\0') {
-          badarg = true;
-          break;
-        };
-
-        long timeout;
-        char *endptr;
-        
-        timeout = strtol(optarg+3, &endptr, 0);
-        if (timeout < 1) {
-          badarg = true; // non-positive number
-          break;
-        };
-        
-        switch (*endptr) {
-        case 's':
-          endptr++;
-          break;
-        case 'm':
-          timeout*=60;
-          endptr++;
-          break;
-        case 'h':
-          timeout*=3600;
-          endptr++;
-          break;
-        };
-
-        if (*endptr != '\0') {
-          badarg = true; // extra character after parameter
-          break;
-        };
-        
-        ataopts.smart_auto_offl_timeout = (int)timeout;
       } else if (!strcmp(optarg,"off")) {
         ataopts.smart_auto_offl_disable = true;
         ataopts.smart_auto_offl_enable  = false;
