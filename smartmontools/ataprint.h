@@ -67,7 +67,6 @@ struct ata_print_options
 
   bool smart_disable, smart_enable;
   bool smart_auto_offl_disable, smart_auto_offl_enable;
-  int smart_auto_offl_timeout;
   bool smart_auto_save_disable, smart_auto_save_enable;
 
   int smart_selftest_type; // OFFLINE_FULL_SCAN, ..., see atacmds.h. -1 for no test
@@ -101,7 +100,6 @@ struct ata_print_options
       sataphy(false), sataphy_reset(false),
       smart_disable(false), smart_enable(false),
       smart_auto_offl_disable(false), smart_auto_offl_enable(false),
-      smart_auto_offl_timeout(4*3600),
       smart_auto_save_disable(false), smart_auto_save_enable(false),
       smart_selftest_type(-1),
       sct_temp_int(0), sct_temp_int_pers(false),

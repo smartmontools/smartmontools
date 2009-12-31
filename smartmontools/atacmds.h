@@ -735,7 +735,7 @@ int ataEnableAutoSave(ata_device * device);
 int ataDisableAutoSave(ata_device * device);
 
 /* Automatic Offline Testing */
-int ataEnableAutoOffline (ata_device * device, int timeout);
+int ataEnableAutoOffline (ata_device * device);
 int ataDisableAutoOffline (ata_device * device);
 
 /* S.M.A.R.T. test commands */
