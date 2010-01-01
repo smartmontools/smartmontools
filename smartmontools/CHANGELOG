@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3023 2010-01-01 19:49:54Z chrfranke $
+$Id: CHANGELOG 3025 2010-01-01 20:40:25Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] drivedb.h updates:
+       - WDC Scorpio Blue Serial ATA (640GB, 750GB, 1TB)
+       - WDC My Passport Essential SE
 
   [CF] Add USB ID of Toshiba PX1270E-1G16.
 
