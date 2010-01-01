@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 2988 2009-11-29 16:21:07Z samm2 $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3023 2010-01-01 19:49:54Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1360,6 +1360,7 @@ const usb_id_entry usb_ids[] = {
   // Freecom
   { 0x07ab, 0xfc8e, 0x010f, d_sunplus }, // Freecom Hard Drive XS
   // Toshiba
+  { 0x0930, 0x0b03,     -1, d_sunplus }, // Toshiba PX1270E-1G16
   { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro 501)
   // Seagate
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
