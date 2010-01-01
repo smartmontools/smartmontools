@@ -1360,6 +1360,7 @@ const usb_id_entry usb_ids[] = {
   // Freecom
   { 0x07ab, 0xfc8e, 0x010f, d_sunplus }, // Freecom Hard Drive XS
   // Toshiba
+  { 0x0930, 0x0b03,     -1, d_sunplus }, // Toshiba PX1270E-1G16
   { 0x0930, 0x0b09,     -1, d_sunplus }, // Toshiba PX1396E-3T01 (similar to Dura Micro 501)
   // Seagate
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
