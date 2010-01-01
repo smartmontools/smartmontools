@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h updates:
+       - WDC Scorpio Blue Serial ATA (640GB, 750GB, 1TB)
+       - WDC My Passport Essential SE
+
   [CF] Add USB ID of Toshiba PX1270E-1G16.
 
   [CF] Happy New Year! Update copyright year in version info.

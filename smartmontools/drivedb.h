@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-9 Philip Williams, Bruce Allen
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Philip Williams, Bruce Allen
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1318,7 +1318,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Scorpio Blue Serial ATA family",
-    "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50)00BEVT)-.*",
+    "WDC WD((4|6|8|10|12|16|25)00BEVS|(8|12|16|25|32|40|50|64)00BEVT|7500KEVT|10TEVT)-.*",
     "", "", ""
   },
   { "Western Digital Scorpio Black Serial ATA family",
@@ -1327,6 +1327,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital My Passport Essential hard drive (USB interface)",
     "WDC WD(25|32|40|50)00BMVU-.*",
+    "", "", ""
+  },
+  { "Western Digital My Passport Essential SE hard drive (USB interface)",
+    "WDC WD7500KMVV-.*",
     "", "", ""
   },
   { "Western Digital My Passport hard drive (USB interface)",
