@@ -17,7 +17,7 @@
  */
 
 /*! @mainpage Smartmontools Sourcecode Documentation
-  This is the main index page. Here we will add a short introduction
+  This is the main index page. Here we present a short introduction
   of the smartmontools software architecture and its components.<br> 
   Please refer to the further tabs and links to get detailed 
   information on each class and method.
@@ -90,6 +90,11 @@
      Provide the functions defined in this file by fleshing out the
      skeletons below.  You can entirely eliminate the function
      'unsupported()'.<br><br>
+  -# Wiki page DeveloperHowToMigrate gives detail instructions on
+     how to migrate old os_youros.cpp to new class interface<br>
+     http://sourceforge.net/apps/trac/smartmontools/wiki/DeveloperHowToMigrate<br><br>
+  -# We also started a page about CodingStyle<br>
+     http://sourceforge.net/apps/trac/smartmontools/wiki/CodingStyle<br><br>
   -# Contact smartmontools-support@lists.sourceforge.net to see
      about checking your code into the smartmontools SVN archive.
 
