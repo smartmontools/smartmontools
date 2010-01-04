@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - Crucial M225 SSD
+
   [CF] drivedb.h updates:
        - WDC Scorpio Blue Serial ATA (640GB, 750GB, 1TB)
        - WDC My Passport Essential SE
