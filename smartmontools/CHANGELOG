@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3028 2010-01-04 20:36:14Z chrfranke $
+$Id: CHANGELOG 3029 2010-01-10 12:50:29Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] drivedb.h update:
+       - Hitachi Travelstar 5K320: some EA models miss last 2 "0" 
+         in model string
+       - Seagate Barracuda LP series
 
   [CF] drivedb.h update:
        - Crucial M225 SSD
