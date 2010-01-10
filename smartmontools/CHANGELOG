@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h update:
+       - Hitachi Travelstar 5K320: some EA models miss last 2 "0" 
+         in model string
+       - Seagate Barracuda LP series
+
   [CF] drivedb.h update:
        - Crucial M225 SSD
 

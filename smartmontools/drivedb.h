@@ -837,7 +837,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Hitachi Travelstar 5K320 series",
-    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A300|SA01)",
+    "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA01)",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",
@@ -1168,6 +1168,10 @@ const drive_settings builtin_knowndrives[] = {
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207931\n"
     "http://seagate.custkb.com/seagate/crm/selfservice/search.jsp?DocId=207963",
     ""
+  },
+  { "Seagate Barracuda LP",
+    "ST3(500412|1000520|1500541|2000542)AS",
+    "", "", ""
   },
   { "Seagate Medalist 17240, 13030, 10231, 8420, and 4310",
     "ST3(17240|13030|10231|8420|4310)A",
