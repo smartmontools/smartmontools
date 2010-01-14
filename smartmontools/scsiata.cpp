@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3024 2010-01-01 20:08:29Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3030 2010-01-14 19:47:58Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1341,6 +1341,8 @@ const usb_id_entry usb_ids[] = {
 //{ 0x04b4, 0x6831,     -1, d_cypress }, // Cypress CY7C68310 (ISD-300LP)
   // Myson Century
   { 0x04cf, 0x8818, 0xb007, d_unsup   }, // Myson Century CS8818
+  // Samsung
+  { 0x04e8, 0x5f06,     -1, d_sat     }, // Samsung Story Station
   // Sunplus
   { 0x04fc, 0x0c15, 0xf615, d_sunplus }, // SunPlus SPDIF215
   { 0x04fc, 0x0c25, 0x0103, d_sunplus }, // SunPlus SPDIF225 (USB+SATA->SATA)
