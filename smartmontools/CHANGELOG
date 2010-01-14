@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] drivedb.h update:
+       - SAMSUNG SpinPoint F2 EG series
+
   [CF] Add USB ID of Samsung Story Station.
 
   [MS] drivedb.h update:

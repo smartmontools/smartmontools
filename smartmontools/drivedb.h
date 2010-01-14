@@ -379,6 +379,10 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HE(252H|322H|502I|642J|753L|103U)J",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint F2 EG series", // tested with HD154UI/1AG01118
+    "SAMSUNG HD(502H|10[23]S|15[34]U)I",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint S250 series", // tested with HD200HJ/KF100-06
     "SAMSUNG HD(162|200|250)HJ",
     "", "", ""
