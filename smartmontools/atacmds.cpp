@@ -3,8 +3,8 @@
  * 
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3020 2009-12-31 01:11:51Z dlukes $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3034 2010-01-16 15:46:08Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -58,7 +58,8 @@ extern smartmonctrl *con;
 // that SMART was first added into the ATA/ATAPI-3 Standard with
 // Revision 3 of the document, July 25, 1995.  Look at the "Document
 // Status" revision commands at the beginning of
-// http://www.t13.org/project/d2008r6.pdf to see this.
+// http://www.t13.org/Documents/UploadedDocuments/project/d2008r7b-ATA-3.pdf
+// to see this.
 #define NOVAL_0                 0x0000
 #define NOVAL_1                 0xffff
 /* word 81: minor version number */
@@ -859,7 +860,7 @@ int ataVersionInfo(const char ** description, const ata_identify_device * drive,
   // First check if device has ANY ATA version information in it
   if (major==NOVAL_0 || major==NOVAL_1) {
     *description=NULL;
-    return -1;
+    return 0; // No info found
   }
   
   // The minor revision number has more information - try there first
