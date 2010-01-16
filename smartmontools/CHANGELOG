@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3032 2010-01-16 13:04:55Z chrfranke $
+$Id: CHANGELOG 3033 2010-01-16 14:18:42Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Don't print log directory if '-q errorsonly' is specified.
 
   [CF] smartctl: Fix option '-q, --quietmode' (ticket #11).
        Regression was introduced with r2807.
