@@ -133,6 +133,7 @@ private:
   std::string m_options;
   bool m_usr_options; // options set by user?
   bool m_admin; // open with admin access?
+  bool m_id_is_cached; // ata_identify_is_cached() return value.
   int m_drive, m_port;
   int m_smartver_state;
 };
@@ -2275,6 +2276,7 @@ win_ata_device::win_ata_device(smart_interface * intf, const char * dev_name, co
 : smart_device(intf, dev_name, "ata", req_type),
   m_usr_options(false),
   m_admin(false),
+  m_id_is_cached(false),
   m_drive(0),
   m_port(-1),
   m_smartver_state(0)
@@ -2682,6 +2684,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
   // Try all valid ioctls in the order specified in m_options
   bool powered_up = false;
   bool out_regs_set = false;
+  bool id_is_cached = false;
   const char * options = m_options.c_str();
 
   for (int i = 0; ; i++) {
@@ -2729,9 +2732,11 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         }
         rc = smart_ioctl(get_fh(), m_drive, &regs, data, datasize, m_port);
         out_regs_set = (in.in_regs.features == ATA_SMART_STATUS);
+        id_is_cached = (m_port < 0 && !win9x); // Not cached by 3ware or Win9x/ME driver
         break;
       case 'm':
         rc = ata_via_scsi_miniport_smart_ioctl(get_fh(), &regs, data, datasize);
+        id_is_cached = (m_port < 0 && !win9x);
         break;
       case 'a':
         rc = ata_pass_through_ioctl(get_fh(), &regs,
@@ -2749,6 +2754,7 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       case 'f':
         if (in.in_regs.command == ATA_IDENTIFY_DEVICE) {
             rc = get_identify_from_device_property(get_fh(), (ata_identify_device *)data);
+            id_is_cached = true;
         }
         else if (in.in_regs.command == ATA_SMART_CMD) switch (in.in_regs.features) {
           case ATA_SMART_READ_VALUES:
@@ -2843,15 +2849,19 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
       hi.lba_high     = prev_regs.bCylHighReg;
     }
   }
+
+  if (   in.in_regs.command == ATA_IDENTIFY_DEVICE
+      || in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE)
+    // Update ata_identify_is_cached() result according to ioctl used.
+    m_id_is_cached = id_is_cached;
+
   return true;
 }
 
 // Return true if OS caches the ATA identify sector
 bool win_ata_device::ata_identify_is_cached() const
 {
-  // Not RAID and WinNT4/2000/XP => true, RAID or Win9x/ME => false
-  // TODO: Set according to ioctl used.
-  return (m_port < 0 && !win9x);
+  return m_id_is_cached;
 }
 
 

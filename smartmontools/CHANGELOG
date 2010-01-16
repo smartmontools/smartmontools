@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Set ata_device::ata_identify_is_cached() return value
+       according to I/O-control actually used.
+
   [CF] Print ATA output registers if SMART status command returns bogus
        register values.
 
