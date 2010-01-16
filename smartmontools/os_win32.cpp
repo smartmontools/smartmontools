@@ -2368,6 +2368,15 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   }
   set_fh(h);
 
+  // Warn once if admin rights are missing
+  if (!m_admin) {
+    static bool noadmin_warning = false;
+    if (!noadmin_warning) {
+      pout("Warning: Limited functionality due to missing admin rights\n");
+      noadmin_warning = true;
+    }
+  }
+
   if (con->reportataioctl > 1)
     pout("%s: successfully opened%s\n", devpath, (!m_admin ? " (without admin rights)" :""));
 
