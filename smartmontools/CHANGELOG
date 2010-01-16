@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl: Don't print log directory if '-q errorsonly' is specified.
+
   [CF] smartctl: Fix option '-q, --quietmode' (ticket #11).
        Regression was introduced with r2807.
 
