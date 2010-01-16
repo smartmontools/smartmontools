@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Print ATA output registers if SMART status command returns bogus
+       register values.
+
   [CF] Windows: Don't return false ATA version info if IDENTIFY data
        is build from IOCTL_STORAGE_QUERY_PROPERTY result or from 3ware CLI
        output.

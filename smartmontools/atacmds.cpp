@@ -623,8 +623,10 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
                  "probable SAT/USB truncation\n");
         } else {
           // We haven't gotten output that makes sense; print out some debugging info
-          pout("Error SMART Status command failed\n"
-               "Please get assistance from %s\n", PACKAGE_HOMEPAGE);
+          pout("Error SMART Status command failed\n");
+          pout("Please get assistance from %s\n", PACKAGE_HOMEPAGE);
+          pout("Register values returned from SMART Status command are:\n");
+          print_regs(" ", out.out_regs);
           errno = EIO;
           retval = -1;
         }
