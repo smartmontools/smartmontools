@@ -50,7 +50,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #define ASSERT_SIZEOF(t, n) \
   typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3037 2010-01-16 20:07:13Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3038 2010-01-16 21:01:53Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifndef WIN9X_SUPPORT
@@ -2367,6 +2367,15 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
     return false;
   }
   set_fh(h);
+
+  // Warn once if admin rights are missing
+  if (!m_admin) {
+    static bool noadmin_warning = false;
+    if (!noadmin_warning) {
+      pout("Warning: Limited functionality due to missing admin rights\n");
+      noadmin_warning = true;
+    }
+  }
 
   if (con->reportataioctl > 1)
     pout("%s: successfully opened%s\n", devpath, (!m_admin ? " (without admin rights)" :""));
