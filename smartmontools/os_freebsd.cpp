@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-8 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3017 2009-12-30 22:05:00Z dlukes $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3017 2009-12-30 22:05:00Z dlukes $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3017 2009-12-30 22:05:00Z dlukes $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -702,7 +702,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
     *data=*(char *)&(ata->sector_count);
 
   // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
+  if (command==IDENTIFY && !nonempty(data, 512)) {
     errno=ENODEV;
     return -1;
   }

@@ -3,12 +3,12 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2003-8 Doug Gilbert <dougg@torque.net>
- * Copyright (C) 2008   Hank Wu <hank@areca.com.tw>
- * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008   Jordan Hargrave <jordan_hargrave@dell.com>
+ * Copyright (C) 2003-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Doug Gilbert <dougg@torque.net>
+ * Copyright (C) 2008    Hank Wu <hank@areca.com.tw>
+ * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
  *  Parts of this file are derived from code that was
  *
@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 2993 2009-12-04 17:29:50Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3037 2010-01-16 20:07:13Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -1622,7 +1622,7 @@ bool linux_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out 
 
   // look for nonexistent devices/ports
   if (   in.in_regs.command == ATA_IDENTIFY_DEVICE
-      && !nonempty((unsigned char *)in.buffer, in.size)) {
+      && !nonempty(in.buffer, in.size)) {
     return set_err(ENODEV, "No drive on port %d", m_disknum);
   }
 

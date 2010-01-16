@@ -50,7 +50,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #define ASSERT_SIZEOF(t, n) \
   typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3036 2010-01-16 18:08:45Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3037 2010-01-16 20:07:13Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifndef WIN9X_SUPPORT
@@ -815,7 +815,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
   if (datasize)
     memcpy(data, outpar->bBuffer, 512);
   else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
-    if (nonempty(const_cast<unsigned char *>(outpar->bBuffer), sizeof(IDEREGS)))
+    if (nonempty(outpar->bBuffer, sizeof(IDEREGS)))
       *regs = *(const IDEREGS *)(outpar->bBuffer);
     else {  // Workaround for driver not returning regs
       if (con->reportataioctl)
