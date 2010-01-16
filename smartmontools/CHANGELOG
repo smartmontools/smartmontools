@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3031 2010-01-14 20:06:02Z chrfranke $
+$Id: CHANGELOG 3032 2010-01-16 13:04:55Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Fix option '-q, --quietmode' (ticket #11).
+       Regression was introduced with r2807.
 
   [CF] drivedb.h update:
        - SAMSUNG SpinPoint F2 EG series

@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@
 #include "smartctl.h"
 #include "utility.h"
 
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3020 2009-12-31 01:11:51Z dlukes $"
+const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 3032 2010-01-16 13:04:55Z chrfranke $"
                                   CONFIG_H_CVSID EXTERN_H_CVSID SMARTCTL_H_CVSID;
 
 // This is a block containing all the "control variables".  We declare
@@ -730,7 +730,7 @@ const char * parse_options(int argc, char** argv,
   // print output is switchable, then start with the print output
   // turned off
   if (con->printing_switchable)
-    con->dont_print = false;
+    con->dont_print = true;
 
   // error message if user has asked for more than one test
   if (testcnt > 1) {
