@@ -490,26 +490,29 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
   const char *description; unsigned short minorrev;
   int version = ataVersionInfo(&description, drive, &minorrev);
 
-  // unrecognized minor revision code
-  char unknown[64];
-  if (!description){
-    if (!minorrev)
-      sprintf(unknown, "Exact ATA specification draft version not indicated");
-    else
-      sprintf(unknown,"Not recognized. Minor revision code: 0x%02hx", minorrev);
-    description=unknown;
-  }
-  
-  
   // SMART Support was first added into the ATA/ATAPI-3 Standard with
   // Revision 3 of the document, July 25, 1995.  Look at the "Document
   // Status" revision commands at the beginning of
-  // http://www.t13.org/project/d2008r6.pdf to see this.  So it's not
-  // enough to check if we are ATA-3.  Version=-3 indicates ATA-3
-  // BEFORE Revision 3.
-  pout("ATA Version is:   %d\n",(int)abs(version));
-  pout("ATA Standard is:  %s\n",description);
-  
+  // http://www.t13.org/Documents/UploadedDocuments/project/d2008r7b-ATA-3.pdf
+  // to see this.  So it's not enough to check if we are ATA-3.
+  // Version=-3 indicates ATA-3 BEFORE Revision 3.
+  // Version=0 indicates that no info is found. This may happen if
+  // the OS provides only part of the IDENTIFY data.
+
+  std::string majorstr, minorstr;
+  if (version) {
+    majorstr = strprintf("%d", abs(version));
+    if (description)
+      minorstr = description;
+    else if (!minorrev)
+      minorstr = "Exact ATA specification draft version not indicated";
+    else
+      minorstr = strprintf("Not recognized. Minor revision code: 0x%04x", minorrev);
+  }
+
+  pout("ATA Version is:   %s\n", infofound(majorstr.c_str()));
+  pout("ATA Standard is:  %s\n", infofound(minorstr.c_str()));
+
   // print current time and date and timezone
   char timedatetz[DATEANDEPOCHLEN]; dateandtimezone(timedatetz);
   pout("Local Time is:    %s\n", timedatetz);
@@ -518,7 +521,7 @@ static bool PrintDriveInfo(const ata_identify_device * drive, bool fix_swapped_i
   if (dbentry && *dbentry->warningmsg)
     pout("\n==> WARNING: %s\n\n", dbentry->warningmsg);
 
-  if (version>=3)
+  if (!version || version >= 3)
     return !!dbentry;
   
   pout("SMART is only available in ATA Version 3 Revision 3 or greater.\n");

@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2004-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2004-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1635,7 +1635,6 @@ bool win_tw_cli_device::open()
     id->words047_079[60-47] = (unsigned short)(nblocks    ); // secs_16
     id->words047_079[61-47] = (unsigned short)(nblocks>>16); // secs_32
   }
-  id->major_rev_num = 0x1<<3; // ATA-3
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
 
@@ -1983,7 +1982,6 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
     copy_swapped(id->model, data.raw+data.desc.ProductIdOffset, sizeof(id->model));
   if (data.desc.ProductRevisionOffset)
     copy_swapped(id->fw_rev, data.raw+data.desc.ProductRevisionOffset, sizeof(id->fw_rev));
-  id->major_rev_num = 0x1<<3; // ATA-3
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
   return 0;
@@ -3612,7 +3610,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
       sb.spt.DataTransferLength = iop->dxfer_len;
       sb.spt.DataBuffer = iop->dxferp;
       // IOCTL_SCSI_PASS_THROUGH_DIRECT does not support single byte
-      // transfers (needed for SMART STATUS check of JMicron USB briges)
+      // transfers (needed for SMART STATUS check of JMicron USB bridges)
       if (sb.spt.DataTransferLength == 1)
         direct = false;
       break;
