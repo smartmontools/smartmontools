@@ -1698,23 +1698,29 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // information was ALSO reproduced in the IDENTIFY DEVICE response,
   // but sadly not for ATA-5.  Sigh.
 
-  // do we need to retain SMART data after returning from this routine?
-  bool retainsmartdata = (cfg.usagefailed || cfg.prefail || cfg.usage || cfg.tempdiff || cfg.tempinfo || cfg.tempcrit);
-  
   // do we need to get SMART data?
   bool smart_val_ok = false;
-  if (   retainsmartdata || cfg.autoofflinetest || cfg.selftest || cfg.errorlog
-      || cfg.curr_pending_id || cfg.offl_pending_id                            ) {
+  if (   cfg.autoofflinetest || cfg.errorlog || cfg.selftest
+      || cfg.usagefailed     || cfg.prefail  || cfg.usage
+      || cfg.tempdiff        || cfg.tempinfo || cfg.tempcrit
+      || cfg.curr_pending_id || cfg.offl_pending_id         ) {
 
-    if (ataReadSmartValues(atadev, &state.smartval) ||
-        ataReadSmartThresholds (atadev, &state.smartthres)) {
-      PrintOut(LOG_INFO,"Device: %s, Read SMART Values and/or Thresholds Failed\n",name);
-      retainsmartdata = cfg.usagefailed = cfg.prefail = cfg.usage = false;
+    if (ataReadSmartValues(atadev, &state.smartval)) {
+      PrintOut(LOG_INFO, "Device: %s, Read SMART Values failed\n", name);
+      cfg.usagefailed = cfg.prefail = cfg.usage = false;
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
       cfg.curr_pending_id = cfg.offl_pending_id = 0;
     }
-    else
+    else {
       smart_val_ok = true;
+      if (ataReadSmartThresholds(atadev, &state.smartthres)) {
+        PrintOut(LOG_INFO, "Device: %s, Read SMART Thresholds failed%s\n",
+                 name, (cfg.usagefailed ? ", ignoring -f Directive" : ""));
+        cfg.usagefailed = false;
+        // Let ata_get_attr_state() return ATTRSTATE_NO_THRESHOLD:
+        memset(&state.smartthres, 0, sizeof(state.smartthres));
+      }
+    }
 
     // see if the necessary Attribute is there to monitor offline or
     // current pending sectors or temperature

@@ -1708,20 +1708,6 @@ int win_tw_cli_device::ata_command_interface(smart_command_set command, int /*se
         break;
       memcpy(data, &m_smart_buf, 512);
       return 0;
-    case READ_THRESHOLDS:
-      if (!m_smart_valid)
-        break;
-      // Fake zero thresholds
-      {
-        const ata_smart_values   * sv = &m_smart_buf;
-        ata_smart_thresholds_pvt * tr = (ata_smart_thresholds_pvt *)data;
-        memset(tr, 0, 512);
-        // TODO: Indicate missing thresholds in ataprint.cpp:PrintSmartAttribWithThres()
-        // (ATA_SMART_READ_THRESHOLDS is marked obsolete since ATA-5)
-        for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++)
-          tr->chksum -= tr->thres_entries[i].id = sv->vendor_attributes[i].id;
-      }
-      return 0;
     case ENABLE:
     case STATUS:
     case STATUS_CHECK: // Fake "good" SMART status
@@ -2771,31 +2757,19 @@ bool win_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
             if (rc > 0)
               rc = 0;
             break;
-          case ATA_SMART_READ_THRESHOLDS:
-            {
-              ata_smart_values sv;
-              rc = storage_predict_failure_ioctl(get_fh(), (char *)&sv);
-              if (rc < 0)
-                break;
-              rc = 0;
-              // Fake zero thresholds
-              ata_smart_thresholds_pvt * tr = (ata_smart_thresholds_pvt *)data;
-              memset(tr, 0, 512);
-              for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++)
-                tr->chksum -= tr->thres_entries[i].id = sv.vendor_attributes[i].id;
-            }
-            break;
           case ATA_SMART_ENABLE:
             rc = 0;
             break;
           case ATA_SMART_STATUS:
             rc = storage_predict_failure_ioctl(get_fh());
-            if (rc >= 0) {
-              if (rc > 0) {
-                regs.bCylHighReg = 0x2c; regs.bCylLowReg = 0xf4;
-                rc = 0;
-              }
-              out_regs_set = true;
+            if (rc == 0) {
+              // Good SMART status
+              out.out_regs.lba_high = 0xc2; out.out_regs.lba_mid = 0x4f;
+            }
+            else if (rc > 0) {
+              // Bad SMART status
+              out.out_regs.lba_high = 0x2c; out.out_regs.lba_mid = 0xf4;
+              rc = 0;
             }
             break;
           default:
