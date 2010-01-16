@@ -815,7 +815,7 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
   if (datasize)
     memcpy(data, outpar->bBuffer, 512);
   else if (regs->bFeaturesReg == ATA_SMART_STATUS) {
-    if (nonempty(const_cast<unsigned char *>(outpar->bBuffer), sizeof(IDEREGS)))
+    if (nonempty(outpar->bBuffer, sizeof(IDEREGS)))
       *regs = *(const IDEREGS *)(outpar->bBuffer);
     else {  // Workaround for driver not returning regs
       if (con->reportataioctl)

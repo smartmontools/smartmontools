@@ -3,7 +3,7 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2003-8 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2003-10 Eduard Martinescu <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -702,7 +702,7 @@ int freebsd_escalade_device::ata_command_interface(smart_command_set command, in
     *data=*(char *)&(ata->sector_count);
 
   // look for nonexistent devices/ports
-  if (command==IDENTIFY && !nonempty((unsigned char *)data, 512)) {
+  if (command==IDENTIFY && !nonempty(data, 512)) {
     errno=ENODEV;
     return -1;
   }

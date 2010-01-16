@@ -1,10 +1,10 @@
 /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2000   Michael Cornwell <cornwell@acm.org>
- * Copyright (C) 2008   Oliver Bock <brevilo@users.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -4293,8 +4293,7 @@ int main_worker(int argc, char **argv)
         }
         else {
           // exit with configuration file error status
-          int status = (entries==-3 ? EXIT_READCONF : entries==-2 ? EXIT_NOCONF : EXIT_BADCONF);
-          EXIT(status);
+          return (entries==-3 ? EXIT_READCONF : entries==-2 ? EXIT_NOCONF : EXIT_BADCONF);
         }
       }
 
@@ -4310,13 +4309,13 @@ int main_worker(int argc, char **argv)
       }
       else {
         PrintOut(LOG_INFO,"Unable to monitor any SMART enabled devices. Try debug (-d) option. Exiting...\n");
-        EXIT(EXIT_NODEV);
+        return EXIT_NODEV;
       }
 
       if (quit==4) {
         // user has asked to print test schedule
         PrintTestSchedule(configs, states, devices);
-        EXIT(0);
+        return 0;
       }
       
       // reset signal
@@ -4343,7 +4342,7 @@ int main_worker(int argc, char **argv)
     if (quit==3) {
       PrintOut(LOG_INFO,"Started with '-q onecheck' option. All devices sucessfully checked once.\n"
                "smartd is exiting (exit status 0)\n");
-      EXIT(0);
+      return 0;
     }
     
     // fork into background if needed

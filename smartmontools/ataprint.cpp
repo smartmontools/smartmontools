@@ -1172,7 +1172,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
     const ata_smart_errorlog_error_struct * summary = &(elog->error_struct);
 
     // Spec says: unused error log structures shall be zero filled
-    if (nonempty((unsigned char*)elog,sizeof(*elog))){
+    if (nonempty(elog, sizeof(*elog))){
       // Table 57 of T13/1532D Volume 1 Revision 3
       const char *msgstate = get_error_log_state_desc(summary->state);
       int days = (int)summary->timestamp/24;
@@ -1208,7 +1208,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
         const ata_smart_errorlog_command_struct * thiscommand = elog->commands+j;
 
         // Spec says: unused data command structures shall be zero filled
-        if (nonempty((unsigned char*)thiscommand,sizeof(*thiscommand))) {
+        if (nonempty(thiscommand, sizeof(*thiscommand))) {
 	  char timestring[32];
 	  
 	  // Convert integer milliseconds to a text-format string
@@ -1776,7 +1776,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // If requested, show which presets would be used for this drive and exit.
   if (options.show_presets) {
     show_presets(&drive, options.fix_swapped_id);
-    EXIT(0);
+    return 0;
   }
 
   // Use preset vendor attribute options unless user has requested otherwise.
