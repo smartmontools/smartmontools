@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3032 2010-01-16 13:04:55Z chrfranke $
+$Id: NEWS 3040 2010-01-18 20:57:39Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -13,6 +13,7 @@ Summary: smartmontools release 5.40
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
 - Fix regression in smartctl option '-q, --quietmode'.
+- Fix regression in smartd directive '-l selftest'.
 
 Date 2009-12-09
 Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)

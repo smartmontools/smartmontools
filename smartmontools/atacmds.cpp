@@ -37,7 +37,7 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3035 2010-01-16 17:17:25Z chrfranke $"
+const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 3040 2010-01-18 20:57:39Z chrfranke $"
                                  ATACMDS_H_CVSID;
 
 // for passing global control variables
@@ -2404,13 +2404,17 @@ int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * data, bool allentries
       uint64_t lba48 = (log->lbafirstfailure < 0xffffffff ? log->lbafirstfailure : 0xffffffffffffULL);
 
       // Print entry
-      bool errorfound = ataPrintSmartSelfTestEntry(testno,
-        log->selftestnumber, log->selfteststatus, log->timestamp,
-        lba48, !allentries, noheaderprinted);
+      if (ataPrintSmartSelfTestEntry(testno,
+            log->selftestnumber, log->selfteststatus,
+            log->timestamp, lba48, !allentries, noheaderprinted)) {
 
-      // keep track of time of most recent error
-      if (errorfound && !hours)
-        hours=log->timestamp;
+        // Self-test showed an error
+        retval++;
+
+        // keep track of time of most recent error
+        if (!hours)
+          hours = log->timestamp;
+      }
     }
   }
   if (!allentries && retval)
