@@ -61,7 +61,7 @@
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3030 2010-01-14 19:47:58Z chrfranke $";
+const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 3041 2010-01-18 22:16:04Z chrfranke $";
 
 /* for passing global control variables */
 extern smartmonctrl *con;
@@ -1367,6 +1367,7 @@ const usb_id_entry usb_ids[] = {
   // Seagate
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
+  { 0x0bc2, 0x3000,     -1, d_sat     }, // Seagate FreeAgent Desktop
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
   // Dura Micro
   { 0x0c0b, 0xb159, 0x0103, d_sunplus }, // Dura Micro 509
