@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Fix directive '-l selftest' (ticket #36)
+       Regression was introduced with r2773.
+
   [CF] smartd: Don't disable attribute tracking if read thresholds fails.
        Windows: Don't return dummy thresholds if IOCTL_STORAGE_QUERY_PROPERTY
        or 3ware CLI is used to read SMART data.

@@ -13,6 +13,7 @@ Summary: smartmontools release 5.40
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
 - Fix regression in smartctl option '-q, --quietmode'.
+- Fix regression in smartd directive '-l selftest'.
 
 Date 2009-12-09
 Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
