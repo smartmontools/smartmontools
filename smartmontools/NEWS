@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3040 2010-01-18 20:57:39Z chrfranke $
+$Id: NEWS 3042 2010-01-19 19:14:14Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -14,6 +14,7 @@ Summary: smartmontools release 5.40
   which can be downloaded from SVN.
 - Fix regression in smartctl option '-q, --quietmode'.
 - Fix regression in smartd directive '-l selftest'.
+- Linux: Allow smartd 'DEVICESCAN -d sat'.
 
 Date 2009-12-09
 Summary: smartmontools release 5.39 (UNSTABLE/EXPERIMENTAL)
