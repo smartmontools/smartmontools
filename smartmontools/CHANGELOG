@@ -43,6 +43,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Allow smartd 'DEVICESCAN -d sat' (ticket #13).
+       Detects (S)ATA devices behind a standard SAT layer
+       (Vendor ID: "ATA     "), but not USB bridges with SAT support.
+       Only added for backward compatibility with 5.38.
+       No longer needed as 'DEVICESCAN' without '-d' includes these devices.
+
   [CF] Add USB ID of Seagate FreeAgent Desktop.
 
   [CF] smartd: Fix directive '-l selftest' (ticket #36)
