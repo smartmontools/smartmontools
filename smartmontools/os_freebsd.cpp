@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3046 2010-01-22 21:30:02Z chrfranke $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3046 2010-01-22 21:30:02Z chrfranke $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 2973 2009-10-26 22:38:19Z chrfranke $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3046 2010-01-22 21:30:02Z chrfranke $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -165,7 +165,7 @@ private:
 #ifdef __GLIBC__
 static inline void * reallocf(void *ptr, size_t size) {
    void *rv = realloc(ptr, size);
-   if(rv == NULL)
+   if((rv == NULL) && (size != 0))
      free(ptr);
    return rv;
    }
@@ -1535,6 +1535,12 @@ int get_dev_names_ata(char*** names) {
     };
   };  
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
+  if (mp == NULL && n > 0 ) { // reallocf never fail for size=0, but may return NULL
+    serrno=errno;
+    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    n = -1;
+    goto end;
+  };
   bytes += (n)*(sizeof(char*)); // and set allocated byte count
 
 end:
@@ -1800,10 +1806,10 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
           cam_close_device(cam_dev);
           if(usbdevlist(bus,vendor_id, product_id, version)){
             const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
-            if (!usbtype)
-              return false;
-            return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
+            if (usbtype)
+              return get_sat_device(usbtype, new freebsd_scsi_device(this, name, ""));
           }
+          return false;
         }
 #if FREEBSDVER > 800100
         // check if we have ATA device connected to CAM (ada)
