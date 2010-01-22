@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smartctl_vc8", "smartctl_vc8.vcproj", "{3AFEDCDD-D289-4543-A91D-EFBA6C710247}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "smartd_vc8", "smartd_vc8.vcproj", "{C0762191-C2AC-40B6-A2EB-F1658BBDC4C6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "syslogevt_vc8", "syslogevt_vc8.vcproj", "{FAB7557B-86EA-405D-B49D-33AB3F4D3E33}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3AFEDCDD-D289-4543-A91D-EFBA6C710247}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3AFEDCDD-D289-4543-A91D-EFBA6C710247}.Debug|Win32.Build.0 = Debug|Win32
+		{3AFEDCDD-D289-4543-A91D-EFBA6C710247}.Release|Win32.ActiveCfg = Release|Win32
+		{3AFEDCDD-D289-4543-A91D-EFBA6C710247}.Release|Win32.Build.0 = Release|Win32
+		{C0762191-C2AC-40B6-A2EB-F1658BBDC4C6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0762191-C2AC-40B6-A2EB-F1658BBDC4C6}.Debug|Win32.Build.0 = Debug|Win32
+		{C0762191-C2AC-40B6-A2EB-F1658BBDC4C6}.Release|Win32.ActiveCfg = Release|Win32
+		{C0762191-C2AC-40B6-A2EB-F1658BBDC4C6}.Release|Win32.Build.0 = Release|Win32
+		{FAB7557B-86EA-405D-B49D-33AB3F4D3E33}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FAB7557B-86EA-405D-B49D-33AB3F4D3E33}.Debug|Win32.Build.0 = Debug|Win32
+		{FAB7557B-86EA-405D-B49D-33AB3F4D3E33}.Release|Win32.ActiveCfg = Release|Win32
+		{FAB7557B-86EA-405D-B49D-33AB3F4D3E33}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
