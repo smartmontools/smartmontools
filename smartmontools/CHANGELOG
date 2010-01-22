@@ -43,6 +43,29 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Allow smartd 'DEVICESCAN -d sat' (ticket #13).
+       Detects (S)ATA devices behind a standard SAT layer
+       (Vendor ID: "ATA     "), but not USB bridges with SAT support.
+       Only added for backward compatibility with 5.38.
+       No longer needed as 'DEVICESCAN' without '-d' includes these devices.
+
+  [CF] smartd: Fix directive '-l selftest' (ticket #36)
+       Regression was introduced with r2773.
+
+  [CF] smartctl: Don't print log directory if '-q errorsonly' is specified.
+
+  [CF] smartctl: Fix option '-q, --quietmode' (ticket #11).
+       Regression was introduced with r2807.
+
+  [CF] Happy New Year! Update copyright year in version info.
+
+  [DL] FreeBSD: check reallocf() result for failures
+
+  [AS] FreeBSD: fixing crash on kFreeBSD (#29), patch provided by Petr Salinger
+
+  [CF] do_release: Add support to release from a dir below 'branches'.
+       Accept partial checkouts.
+
 smartmontools 5.39 2009-12-09
 
   [CF] do_release: Commit CHANGELOG and NEWS also. Allow to review changes.

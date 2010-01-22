@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -90,7 +90,7 @@ std::string format_version_info(const char * prog_name, bool full /*= false*/)
   std::string info = strprintf(
     "%s "PACKAGE_VERSION" "SMARTMONTOOLS_SVN_DATE" r"SMARTMONTOOLS_SVN_REV
       " [%s] "BUILD_INFO"\n"
-    "Copyright (C) 2002-9 by Bruce Allen, http://smartmontools.sourceforge.net\n",
+    "Copyright (C) 2002-10 by Bruce Allen, http://smartmontools.sourceforge.net\n",
     prog_name, smi()->get_os_version_str().c_str()
   );
   if (!full)

@@ -3,8 +3,8 @@
  *
  * Home page of code is: http://smartmontools.sourceforge.net
  *
- * Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
- * Copyright (C) 2008-9 Christian Franke <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
+ * Copyright (C) 2008-10 Christian Franke <smartmontools-support@lists.sourceforge.net>
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -2066,7 +2066,6 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.smart_ext_selftest_log
       || options.sataphy
       || !options.log_requests.empty() ) {
-    PRINT_ON(con);
     if (isGeneralPurposeLoggingCapable(&drive))
       pout("General Purpose Logging (GPL) feature set supported\n");
 
@@ -2087,31 +2086,26 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     // Read SMART Log directory
     if (need_smart_logdir) {
       if (ataReadLogDirectory(device, &smartlogdir_buf, false)){
-        PRINT_OFF(con);
         pout("Read SMART Log Directory failed.\n\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else
         smartlogdir = &smartlogdir_buf;
     }
-    PRINT_ON(con);
 
     // Read GP Log directory
     if (need_gp_logdir) {
       if (ataReadLogDirectory(device, &gplogdir_buf, true)){
-        PRINT_OFF(con);
         pout("Read GP Log Directory failed.\n\n");
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       }
       else
         gplogdir = &gplogdir_buf;
     }
-    PRINT_ON(con);
 
     // Print log directories
     if ((options.gp_logdir && gplogdir) || (options.smart_logdir && smartlogdir))
       PrintLogDirectories(gplogdir, smartlogdir);
-    PRINT_OFF(con);
 
     // Print log pages
     for (i = 0; i < options.log_requests.size(); i++) {
