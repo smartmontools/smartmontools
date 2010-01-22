@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3042 2010-01-19 19:14:14Z chrfranke $
+$Id: CHANGELOG 3043 2010-01-22 19:24:59Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] autogen.sh: Fix version regexp, allow automake 1.11.1.
 
   [CF] Linux: Allow smartd 'DEVICESCAN -d sat' (ticket #13).
        Detects (S)ATA devices behind a standard SAT layer
