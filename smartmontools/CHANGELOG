@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add USB IDs of Seagate FreeAgent Go, Seagate Expansion Portable
+       and WD My Passport (IDE).
+
   [CF] autogen.sh: Fix version regexp, allow automake 1.11.1.
 
   [CF] Linux: Allow smartd 'DEVICESCAN -d sat' (ticket #13).
