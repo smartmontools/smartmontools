@@ -1605,6 +1605,8 @@ bool win_tw_cli_device::open()
 
   // Parse smart data hex dump
   const char * s = findstr(buffer, "Drive Smart Data:");
+  if (!*s)
+    s = findstr(buffer, "Drive SMART Data:"); // tw_cli from 9.5.x
   if (!*s) {
     s = findstr(buffer, "S.M.A.R.T. (Controller"); // from 3DM browser window
     if (*s) {
