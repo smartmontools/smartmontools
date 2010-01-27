@@ -48,7 +48,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 
 
 // Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_win32.cpp 2973 2009-10-26 22:38:19Z chrfranke $"
+const char *os_XXXX_c_cvsid="$Id: os_win32.cpp 3050 2010-01-27 19:58:38Z chrfranke $"
 ATACMDS_H_CVSID CONFIG_H_CVSID EXTERN_H_CVSID INT64_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 
@@ -1605,6 +1605,8 @@ bool win_tw_cli_device::open()
 
   // Parse smart data hex dump
   const char * s = findstr(buffer, "Drive Smart Data:");
+  if (!*s)
+    s = findstr(buffer, "Drive SMART Data:"); // tw_cli from 9.5.x
   if (!*s) {
     s = findstr(buffer, "S.M.A.R.T. (Controller"); // from 3DM browser window
     if (*s) {
