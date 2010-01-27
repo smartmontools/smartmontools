@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3048 2010-01-23 17:54:42Z chrfranke $
+$Id: CHANGELOG 3049 2010-01-27 19:47:09Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Windows: Fix parsing of 'tw_cli' output for 3ware 9.5.x release
+       (ticket #43.)
 
   [CF] Add USB IDs of Seagate FreeAgent Go, Seagate Expansion Portable
        and WD My Passport (IDE).

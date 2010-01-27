@@ -50,7 +50,7 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #define ASSERT_SIZEOF(t, n) \
   typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
 
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3039 2010-01-16 22:39:30Z chrfranke $";
+const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 3049 2010-01-27 19:47:09Z chrfranke $";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
 #ifndef WIN9X_SUPPORT
@@ -1641,6 +1641,8 @@ bool win_tw_cli_device::open()
 
   // Parse smart data hex dump
   const char * s = findstr(buffer, "Drive Smart Data:");
+  if (!*s)
+    s = findstr(buffer, "Drive SMART Data:"); // tw_cli from 9.5.x
   if (!*s) {
     s = findstr(buffer, "S.M.A.R.T. (Controller"); // from 3DM browser window
     if (*s) {
