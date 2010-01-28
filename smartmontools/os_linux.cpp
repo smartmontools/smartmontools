@@ -90,7 +90,7 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3042 2010-01-19 19:14:14Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_linux.cpp 3052 2010-01-28 19:51:24Z chrfranke $" \
 ATACMDS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_LINUX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 /* for passing global control variables */
@@ -845,7 +845,9 @@ private:
 linux_scsi_device::linux_scsi_device(smart_interface * intf,
   const char * dev_name, const char * req_type, bool scanning /*= false*/)
 : smart_device(intf, dev_name, "scsi", req_type),
-  linux_smart_device(O_RDWR | O_NONBLOCK, O_RDONLY | O_NONBLOCK),
+  // If opened with O_RDWR, a SATA disk in standby mode
+  // may spin-up after device close().
+  linux_smart_device(O_RDONLY | O_NONBLOCK),
   m_scanning(scanning)
 {
 }
