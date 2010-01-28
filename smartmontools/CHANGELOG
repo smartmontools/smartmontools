@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+smartmontools 5.39.1 2010-01-28
+
   [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used
        (ticket #37).  For some reason, this happens if the SCSI/SAT
        device is opened with O_RDWR instead of O_RDONLY.

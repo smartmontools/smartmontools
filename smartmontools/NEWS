@@ -5,7 +5,7 @@ $Id$
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
 
-Date <Not released yet, please try current SVN>
+Date 2010-01-28
 Summary: smartmontools release 5.39.1
 -----------------------------------------------------------
 - Fix crash on kFreeBSD.
