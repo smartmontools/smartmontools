@@ -43,8 +43,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used
+       (ticket #37).  For some reason, this happens if the SCSI/SAT
+       device is opened with O_RDWR instead of O_RDONLY.
+
   [CF] Windows: Fix parsing of 'tw_cli' output for 3ware 9.5.x release
-       (ticket #43.)
+       (ticket #43).
 
   [CF] Add USB IDs of Seagate FreeAgent Go, Seagate Expansion Portable
        and WD My Passport (IDE).

@@ -845,7 +845,9 @@ private:
 linux_scsi_device::linux_scsi_device(smart_interface * intf,
   const char * dev_name, const char * req_type, bool scanning /*= false*/)
 : smart_device(intf, dev_name, "scsi", req_type),
-  linux_smart_device(O_RDWR | O_NONBLOCK, O_RDONLY | O_NONBLOCK),
+  // If opened with O_RDWR, a SATA disk in standby mode
+  // may spin-up after device close().
+  linux_smart_device(O_RDONLY | O_NONBLOCK),
   m_scanning(scanning)
 {
 }

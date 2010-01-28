@@ -15,6 +15,7 @@ Summary: smartmontools release 5.40
 - Fix regression in smartctl option '-q, --quietmode'.
 - Fix regression in smartd directive '-l selftest'.
 - Linux: Allow smartd 'DEVICESCAN -d sat'.
+- Linux: Fix spin-up of SATA drive if '-n standby' is used.
 - Windows: Fix parsing of 3ware 'tw_cli' output.
 
 Date 2009-12-09
