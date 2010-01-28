@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3053 2010-01-28 20:05:33Z chrfranke $
+$Id: CHANGELOG 3054 2010-01-28 20:48:28Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+smartmontools 5.39.1 2010-01-28
 
   [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used
        (ticket #37).  For some reason, this happens if the SCSI/SAT
