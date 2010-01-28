@@ -12,6 +12,11 @@ Summary: smartmontools release 5.40
 - configure: New default value for '--with-docdir'.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
+
+Date 2010-01-28
+Summary: smartmontools release 5.39.1
+-----------------------------------------------------------
+- Fix crash on kFreeBSD.
 - Fix regression in smartctl option '-q, --quietmode'.
 - Fix regression in smartd directive '-l selftest'.
 - Linux: Allow smartd 'DEVICESCAN -d sat'.

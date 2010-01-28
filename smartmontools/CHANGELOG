@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Bugfix release 5.39.1.
+
   [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used
        (ticket #37).  For some reason, this happens if the SCSI/SAT
        device is opened with O_RDWR instead of O_RDONLY.
@@ -156,6 +158,38 @@ NOTES FOR FUTURE RELEASES: see TODO file.
        'drivedb.h'.  This allows to update the drive database from SVN
        if installation was configured with '--enable-drivedb'.
        Remove the Makefile target to create 'drivedb.h'.
+
+  [CF] do_release: Add support to release from a dir below 'branches'.
+       Accept partial checkouts.
+
+smartmontools 5.39.1 2010-01-28
+
+  [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used
+       (ticket #37).  For some reason, this happens if the SCSI/SAT
+       device is opened with O_RDWR instead of O_RDONLY.
+
+  [CF] Windows: Fix parsing of 'tw_cli' output for 3ware 9.5.x release
+       (ticket #43).
+
+  [CF] Linux: Allow smartd 'DEVICESCAN -d sat' (ticket #13).
+       Detects (S)ATA devices behind a standard SAT layer
+       (Vendor ID: "ATA     "), but not USB bridges with SAT support.
+       Only added for backward compatibility with 5.38.
+       No longer needed as 'DEVICESCAN' without '-d' includes these devices.
+
+  [CF] smartd: Fix directive '-l selftest' (ticket #36)
+       Regression was introduced with r2773.
+
+  [CF] smartctl: Don't print log directory if '-q errorsonly' is specified.
+
+  [CF] smartctl: Fix option '-q, --quietmode' (ticket #11).
+       Regression was introduced with r2807.
+
+  [CF] Happy New Year! Update copyright year in version info.
+
+  [DL] FreeBSD: check reallocf() result for failures
+
+  [AS] FreeBSD: fixing crash on kFreeBSD (#29), patch provided by Petr Salinger
 
   [CF] do_release: Add support to release from a dir below 'branches'.
        Accept partial checkouts.
