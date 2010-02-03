@@ -1,5 +1,5 @@
 #
-# $Id: configure.in 3000 2009-12-15 20:46:10Z chrfranke $
+# $Id: configure.in 3057 2010-02-03 20:56:41Z chrfranke $
 #
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.50)
@@ -7,7 +7,7 @@ AC_INIT(smartmontools, 5.40, smartmontools-support@lists.sourceforge.net)
 AC_CONFIG_SRCDIR(smartctl.cpp)
 
 smartmontools_configure_date=`date -u +'%Y-%m-%d %T %Z'`
-smartmontools_cvs_tag=`echo '$Id: configure.in 3000 2009-12-15 20:46:10Z chrfranke $'`
+smartmontools_cvs_tag=`echo '$Id: configure.in 3057 2010-02-03 20:56:41Z chrfranke $'`
 smartmontools_release_date=2009-12-09
 smartmontools_release_time="21:00:32 UTC"
 
@@ -232,6 +232,29 @@ AC_SUBST(with_selinux)
 if test "$with_selinux" = "yes"; then
 	AC_DEFINE(WITH_SELINUX, [1], [Define to 1 if SELinux support is enabled])
 fi
+
+AC_ARG_WITH(libcap-ng,
+  [AC_HELP_STRING([--with-libcap-ng=[auto|yes|no]], [Add Libcap-ng support to smartd [auto]])],
+  [with_libcap_ng="$withval"],
+  [with_libcap_ng=auto])
+
+use_libcap_ng=no
+if test "$with_libcap_ng" != "no"; then
+  AC_CHECK_LIB(cap-ng, capng_clear,
+    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).])
+     CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes])
+
+  if test "$use_libcap_ng" = "yes"; then
+    AC_CHECK_HEADER(cap-ng.h, [], [AC_MSG_ERROR([libcap-ng libraries found but headers are missing])])
+  elif test "$with_libcap_ng" = "yes"; then
+    AC_MSG_ERROR([libcap-ng support was requested but the library was not found])
+  fi
+fi
+
+AC_MSG_CHECKING([whether to use libcap-ng])
+AC_SUBST(CAPNG_LDADD)
+AM_CONDITIONAL(ENABLE_CAPABILITIES, [test "$use_libcap_ng" = "yes"])
+AC_MSG_RESULT([$use_libcap_ng])
 
 if test "$prefix" = "NONE"; then
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
