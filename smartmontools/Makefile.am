@@ -46,7 +46,7 @@ smartd_SOURCES =  smartd.cpp      \
                   utility.cpp     \
                   utility.h
 
-smartd_LDADD = @os_deps@ @os_libs@
+smartd_LDADD = @os_deps@ @os_libs@ @CAPNG_LDADD@
 smartd_DEPENDENCIES = @os_deps@
 
 EXTRA_smartd_SOURCES = os_darwin.cpp    \
@@ -405,6 +405,12 @@ install-initdDATA : $(initd_DATA_install)
 
 uninstall-initdDATA: $(initd_DATA_uninstall)
 
+if ENABLE_CAPABILITIES
+MAN_CAPABILITIES = cat
+else
+MAN_CAPABILITIES = sed '/BEGIN ENABLE_CAPABILITIES/,/END ENABLE_CAPABILITIES/d'
+endif
+
 if ENABLE_DRIVEDB
 MAN_DRIVEDB = sed "s|/usr/local/share/smartmontools/drivedb\\.h|$(drivedbdir)/drivedb.h|g"
 else
@@ -435,6 +441,7 @@ ${file}: $(srcdir)/${file}.in Makefile svnversion.h
 	     s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g;  \
 	     s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
 	     s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" ${.ALLSRC:M*.in} | \
+	$(MAN_CAPABILITIES) | \
 	$(MAN_DRIVEDB) | \
 	$(MAN_SAVESTATES) | \
 	$(MAN_ATTRIBUTELOG) > $@
@@ -450,6 +457,7 @@ smart%: $(srcdir)/smart%.in Makefile svnversion.h
 	sed "s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g" | \
 	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" | \
 	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+	$(MAN_CAPABILITIES) | \
 	$(MAN_DRIVEDB) | \
 	$(MAN_SAVESTATES) | \
 	$(MAN_ATTRIBUTELOG) > $@

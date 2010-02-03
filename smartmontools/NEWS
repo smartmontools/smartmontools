@@ -12,6 +12,7 @@ Summary: smartmontools release 5.40
 - configure: New default value for '--with-docdir'.
 - Drive database is in a separate source file 'drivedb.h'
   which can be downloaded from SVN.
+- smartd libcap-ng support, option '-C, --capabilities'.
 
 Date 2010-01-28
 Summary: smartmontools release 5.39.1

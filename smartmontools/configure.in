@@ -233,6 +233,29 @@ if test "$with_selinux" = "yes"; then
 	AC_DEFINE(WITH_SELINUX, [1], [Define to 1 if SELinux support is enabled])
 fi
 
+AC_ARG_WITH(libcap-ng,
+  [AC_HELP_STRING([--with-libcap-ng=[auto|yes|no]], [Add Libcap-ng support to smartd [auto]])],
+  [with_libcap_ng="$withval"],
+  [with_libcap_ng=auto])
+
+use_libcap_ng=no
+if test "$with_libcap_ng" != "no"; then
+  AC_CHECK_LIB(cap-ng, capng_clear,
+    [AC_DEFINE(HAVE_LIBCAP_NG, 1, [Define to 1 if you have the `cap-ng' library (-lcap-ng).])
+     CAPNG_LDADD="-lcap-ng"; use_libcap_ng=yes])
+
+  if test "$use_libcap_ng" = "yes"; then
+    AC_CHECK_HEADER(cap-ng.h, [], [AC_MSG_ERROR([libcap-ng libraries found but headers are missing])])
+  elif test "$with_libcap_ng" = "yes"; then
+    AC_MSG_ERROR([libcap-ng support was requested but the library was not found])
+  fi
+fi
+
+AC_MSG_CHECKING([whether to use libcap-ng])
+AC_SUBST(CAPNG_LDADD)
+AM_CONDITIONAL(ENABLE_CAPABILITIES, [test "$use_libcap_ng" = "yes"])
+AC_MSG_RESULT([$use_libcap_ng])
+
 if test "$prefix" = "NONE"; then
     dnl no prefix and no mandir, so use ${prefix}/share/man as default
     if test "$mandir" = '${prefix}/man'; then

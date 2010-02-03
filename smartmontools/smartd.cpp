@@ -1,4 +1,4 @@
-/*
+  /*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -76,6 +76,10 @@ typedef int pid_t;
 extern "C" int __stdcall FreeConsole(void);
 #include <io.h> // setmode()
 #endif // __CYGWIN__
+
+#ifdef HAVE_LIBCAP_NG
+#include <cap-ng.h>
+#endif // LIBCAP_NG
 
 // locally included files
 #include "int64.h"
@@ -188,6 +192,11 @@ static int facility=LOG_DAEMON;
 #ifndef _WIN32
 // command-line: fork into background?
 static bool do_fork=true;
+#endif
+
+#ifdef HAVE_LIBCAP_NG
+// command-line: enable capabilities?
+static bool enable_capabilities = false;
 #endif
 
 // used for control of printing, passing arguments to atacmds.c
@@ -918,6 +927,14 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
       return;
   }
 
+#ifdef HAVE_LIBCAP_NG
+  if (enable_capabilities) {
+    PrintOut(LOG_ERR, "Sending a mail was supressed. "
+             "Mails can't be send when capabilites are enabled\n");
+    return;
+  }
+#endif
+
   // record the time of this mail message, and the first mail message
   if (!mail->logged)
     mail->firstsent=epoch;
@@ -1464,6 +1481,11 @@ void Usage (void){
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -c NAME|-, --configfile=NAME|-\n");
   PrintOut(LOG_INFO,"        Read configuration file NAME or stdin [default is %s]\n\n", configfile);
+#ifdef HAVE_LIBCAP_NG
+  PrintOut(LOG_INFO,"  -C, --capabilities\n");
+  PrintOut(LOG_INFO,"        Use capabilities (EXPERIMENTAL).\n"
+                    "        Warning: Mail notification does not work when used.\n\n");
+#endif
   PrintOut(LOG_INFO,"  -d, --debug\n");
   PrintOut(LOG_INFO,"        Start smartd in debug mode\n\n");
   PrintOut(LOG_INFO,"  -D, --showdirectives\n");
@@ -3707,7 +3729,11 @@ void ParseOpts(int argc, char **argv){
   char *tailptr;
   long lchecktime;
   // Please update GetValidArgList() if you edit shortopts
-  const char *shortopts = "c:l:q:dDni:p:r:s:A:B:Vh?";
+  static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:Vh?"
+#ifdef HAVE_LIBCAP_NG
+                                                          "C"
+#endif
+                                                             ;
   char *arg;
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
@@ -3733,6 +3759,9 @@ void ParseOpts(int argc, char **argv){
     { "copyright",      no_argument,       0, 'V' },
     { "help",           no_argument,       0, 'h' },
     { "usage",          no_argument,       0, 'h' },
+#ifdef HAVE_LIBCAP_NG
+    { "capabilities",   no_argument,       0, 'C' },
+#endif
     { 0,                0,                 0, 0   }
   };
 
@@ -3891,6 +3920,12 @@ void ParseOpts(int argc, char **argv){
       PrintOut(LOG_INFO, "%s", format_version_info("smartd", true /*full*/).c_str());
       EXIT(0);
       break;
+#ifdef HAVE_LIBCAP_NG
+    case 'C':
+      // enable capabilities
+      enable_capabilities = true;
+      break;
+#endif
     case 'h':
       // help: print summary of command-line options
       debugmode=1;
@@ -4230,6 +4265,16 @@ int main_worker(int argc, char **argv)
 
   bool write_states_always = true;
 
+#ifdef HAVE_LIBCAP_NG
+  // Drop capabilities
+  if (enable_capabilities) {
+    capng_clear(CAPNG_SELECT_BOTH);
+    capng_updatev(CAPNG_ADD, (capng_type_t)(CAPNG_EFFECTIVE|CAPNG_PERMITTED),
+                  CAP_SYS_ADMIN, CAP_MKNOD, CAP_SYS_RAWIO, -1);
+    capng_apply(CAPNG_SELECT_BOTH);
+  }
+#endif
+
   // the main loop of the code
   for (;;) {
 
@@ -4323,7 +4368,18 @@ int main_worker(int argc, char **argv)
         PrintTestSchedule(configs, states, devices);
         return 0;
       }
-      
+
+#ifdef HAVE_LIBCAP_NG
+      if (enable_capabilities) {
+        for (unsigned i = 0; i < configs.size(); i++) {
+          if (!configs[i].emailaddress.empty() || !configs[i].emailcmdline.empty()) {
+            PrintOut(LOG_WARNING, "Mail can't be enabled together with --capabilities. All mail will be suppressed.\n");
+            break;
+          }
+        }
+      }
+#endif
+
       // reset signal
       caughtsigHUP=0;
 

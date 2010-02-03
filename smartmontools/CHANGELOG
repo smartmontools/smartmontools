@@ -43,6 +43,15 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Add option '-C, --capabilities' if libcap-ng is available
+       (ticket #45).
+       Support is added if libcap-ng is found during build. This can
+       be overridden by configure option '--with-libcap-ng=[auto|yes|no]'.
+
+       Based on Debian patch:
+       http://patch-tracker.debian.org/patch/series/view/smartmontools/5.39-3/62_lowcap.patch
+       Modified to fix regression (ticket #41, Debian bug 564876).
+
   [CF] Bugfix release 5.39.1.
 
   [CF] Linux: Fix spin-up of SATA drive if '-n standby' is used

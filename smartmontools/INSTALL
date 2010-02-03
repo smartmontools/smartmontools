@@ -669,6 +669,8 @@ OPTIONS              DEFAULT                                      AFFECTS
 --with-selinux        <not set>                                   Enables SELinux support.  If smartmontools has to create the /dev/tw[ae] device
                                                                   nodes for 3ware/AMCC controllers, this option ensures that the nodes are created
                                                                   with correct SELinux file contexts.
+--with-libcap-ng     --with-libcap-ng=auto                        Enables/disables libcap-ng support. If enabled and libcap-ng is
+                                                                  available, option --capabilities is added to smartd.
 --enable-drivedb      --disable-drivedb                           Enables default drive database file '${drivedbdir}/drivedb.h'
 --with-drivedbdir     ${prefix}/share/smartmontools               Directory for 'drivedb.h' (implies --enable-drivedb)
 --enable-savestates   --disable-savestates                        Enables default smartd state files '${savestates}MODEL-SERIAL.ata.state'
