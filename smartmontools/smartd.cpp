@@ -1,4 +1,4 @@
-  /*
+/*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
