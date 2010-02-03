@@ -1,4 +1,4 @@
-  /*
+/*
  * Home page of code is: http://smartmontools.sourceforge.net
  *
  * Copyright (C) 2002-10 Bruce Allen <smartmontools-support@lists.sourceforge.net>
@@ -126,7 +126,7 @@ extern "C" int getdomainname(char *, int); // no declaration in header files!
 
 #define ARGUSED(x) ((void)(x))
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3057 2010-02-03 20:56:41Z chrfranke $"
+const char * smartd_cpp_cvsid = "$Id: smartd.cpp 3058 2010-02-03 21:04:24Z chrfranke $"
                                 CONFIG_H_CVSID EXTERN_H_CVSID;
 
 extern const char *reportbug;
