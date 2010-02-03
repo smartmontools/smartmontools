@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3057 2010-02-03 20:56:41Z chrfranke $
+$Id: CHANGELOG 3059 2010-02-03 21:42:09Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Makefile.am: Avoid duplication of man page filter script.
 
   [CF] smartd: Add option '-C, --capabilities' if libcap-ng is available
        (ticket #45).
