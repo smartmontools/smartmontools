@@ -429,38 +429,29 @@ else
 MAN_ATTRIBUTELOG = sed '/BEGIN ENABLE_ATTRIBUTELOG/,/END ENABLE_ATTRIBUTELOG/d'
 endif
 
+MAN_FILTER = \
+    sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g; \
+         s|CURRENT_CVS_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
+         s|CURRENT_CVS_TIME|`sed -n 's,^.*TIME[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
+         s|/usr/local/share/man/|$(mandir)/|g; \
+         s|/usr/local/sbin/|$(sbindir)/|g; \
+         s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
+         s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g;  \
+         s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
+         s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
+    $(MAN_CAPABILITIES) | \
+    $(MAN_DRIVEDB) | \
+    $(MAN_SAVESTATES) | \
+    $(MAN_ATTRIBUTELOG)
+
 if OS_FREEBSD
 .for file in $(man_MANS)
 ${file}: $(srcdir)/${file}.in Makefile svnversion.h
-	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g; \
-	     s|CURRENT_CVS_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
-	     s|CURRENT_CVS_TIME|`sed -n 's,^.*TIME[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g; \
-	     s|/usr/local/share/man/|$(mandir)/|g; \
-	     s|/usr/local/sbin/|$(sbindir)/|g; \
-	     s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g; \
-	     s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g;  \
-	     s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g; \
-	     s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" ${.ALLSRC:M*.in} | \
-	$(MAN_CAPABILITIES) | \
-	$(MAN_DRIVEDB) | \
-	$(MAN_SAVESTATES) | \
-	$(MAN_ATTRIBUTELOG) > $@
+	cat ${.ALLSRC:M*.in} | $(MAN_FILTER) > $@
 .endfor
 else
 smart%: $(srcdir)/smart%.in Makefile svnversion.h
-	sed "s|CURRENT_CVS_VERSION|$(releaseversion)|g" $< | \
-	sed "s|CURRENT_CVS_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g" | \
-	sed "s|CURRENT_CVS_TIME|`sed -n 's,^.*TIME[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g" | \
-	sed "s|/usr/local/share/man/|$(mandir)/|g" | \
-	sed "s|/usr/local/sbin/|$(sbindir)/|g" | \
-	sed "s|/usr/local/etc/rc\\.d/init.d/|$(initddir)/|g" | \
-	sed "s|/usr/local/share/doc/smartmontools-5.1/|$(docsdir)/|g" | \
-	sed "s|/usr/local/etc/smartd\\.conf|$(sysconfdir)/smartd.conf|g" | \
-	sed "s|/usr/local/etc/smart_drivedb\\.h|$(sysconfdir)/smart_drivedb\\.h|g" | \
-	$(MAN_CAPABILITIES) | \
-	$(MAN_DRIVEDB) | \
-	$(MAN_SAVESTATES) | \
-	$(MAN_ATTRIBUTELOG) > $@
+	cat $< | $(MAN_FILTER) > $@
 endif
 
 # Commands to convert man pages into .html and .txt
