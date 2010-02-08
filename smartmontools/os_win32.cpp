@@ -50,10 +50,18 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #define ASSERT_SIZEOF(t, n) \
   typedef char assert_sizeof_##t[(sizeof(t) == (n)) ? 1 : -1]
 
+#ifndef _WIN64
+#define SELECT_WIN_32_64(x32, x64) (x32)
+#else
+#define SELECT_WIN_32_64(x32, x64) (x64)
+#endif
+
 const char * os_win32_cpp_cvsid = "$Id$";
 
 // Disable Win9x/ME specific code if no longer supported by compiler.
-#ifndef WIN9X_SUPPORT
+#ifdef _WIN64
+  #undef WIN9X_SUPPORT
+#elif !defined(WIN9X_SUPPORT)
   #if defined(CYGWIN_VERSION_DLL_MAJOR) && (CYGWIN_VERSION_DLL_MAJOR >= 1007)
     // Win9x/ME support was dropped in Cygwin 1.7
   #elif defined(_MSC_VER) && (_MSC_VER >= 1500)
@@ -270,6 +278,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////
 
+#ifndef _WIN64
 // Running on 64-bit Windows as 32-bit app ?
 static bool is_wow64()
 {
@@ -285,6 +294,7 @@ static bool is_wow64()
     return false;
   return !!w64;
 }
+#endif // _WIN64
 
 // Return info string about build host and OS version
 std::string win_smart_interface::get_os_version_str()
@@ -335,7 +345,12 @@ std::string win_smart_interface::get_os_version_str()
     default: w = 0; break;
   }
 
-  const char * w64 = (is_wow64() ? "(64)" : "");
+  const char * w64 = "";
+#ifndef _WIN64
+  if (is_wow64())
+    w64 = "(64)";
+#endif
+
   if (!w)
     snprintf(vptr, vlen, "-%s%lu.%lu%s",
       (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "9x"),
@@ -527,8 +542,10 @@ std::string win_smart_interface::get_app_examples(const char * appname)
          "  smartctl -t long /dev/hda              (Executes extended disk self-test)\n\n"
          "  smartctl --attributes --log=selftest --quietmode=errorsonly /dev/hda\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
+#if WIN9X_SUPPORT
          "  smartctl -a /dev/scsi21\n"
          "             (Prints all information for SCSI disk on ASPI adapter 2, ID 1)\n"
+#endif
          "  smartctl -a /dev/sda\n"
          "             (Prints all information for SCSI disk on PhysicalDrive 0)\n"
          "  smartctl -a /dev/pd3\n"
@@ -950,12 +967,12 @@ typedef struct _ATA_PASS_THROUGH_EX {
   ULONG  DataTransferLength;
   ULONG  TimeOutValue;
   ULONG  ReservedAsUlong;
-  ULONG/*_PTR*/ DataBufferOffset;
+  ULONG_PTR  DataBufferOffset;
   UCHAR  PreviousTaskFile[8];
   UCHAR  CurrentTaskFile[8];
 } ATA_PASS_THROUGH_EX, *PATA_PASS_THROUGH_EX;
 
-ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, 40);
+ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
 
 #define ATA_FLAGS_DRDY_REQUIRED 0x01
 #define ATA_FLAGS_DATA_IN       0x02
@@ -1106,12 +1123,12 @@ typedef struct _SCSI_PASS_THROUGH {
   UCHAR  DataIn;
   ULONG  DataTransferLength;
   ULONG  TimeOutValue;
-  ULONG/*_PTR*/ DataBufferOffset;
+  ULONG_PTR  DataBufferOffset;
   ULONG  SenseInfoOffset;
   UCHAR  Cdb[16];
 } SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
 
-ASSERT_SIZEOF(SCSI_PASS_THROUGH, 44);
+ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3116,7 +3133,7 @@ static int aspi_io_call(ASPI_SRB * srb, unsigned timeout)
       }
       else {
         pout("WaitForSingleObject(%lx) = 0x%lx,%ld, Error=%ld\n",
-          (unsigned long)event, rc, rc, GetLastError());
+          (unsigned long)(ULONG_PTR)event, rc, rc, GetLastError());
       }
       // TODO: ASPI_ABORT_IO command
       aspi_entry = 0;

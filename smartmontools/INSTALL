@@ -443,20 +443,30 @@ To compile the Windows release with MinGW gcc on MSYS, use:
   Instead of using "make install", copy the .exe files into
   some directory in the PATH.
 
-To compile with MinGW gcc 3.x on Cygwin, use:
+To compile on Cygwin with MinGW gcc 3.x (option '-mno-cygwin'):
 
-  ./configure --build=i686-pc-mingw32
+  ./configure --build=i686-pc-mingw32 \
+               CC=gcc-3               \
+              CXX=g++-3
 
-  The above does not work if gcc 4.x is installed and selected as
-  default by /usr/sbin/alternatives.  If the configure command aborts
-  with error message '... does not support -mno-cygwin', select
-  gcc 3.x by:
+To cross-compile on Debian Linux with gcc-mingw32:
 
-  CC=gcc-3 CXX=g++-3 ./configure --build=i686-pc-mingw32
+  ./configure --build=$(./config.guess) \
+              --host=i686-pc-mingw32    \
+               CC=i586-mingw32msvc-gcc  \
+              CXX=i586-mingw32msvc-g++
 
-  Alternatively, a MinGW-targeted cross-compiler can be used if available:
+To compile statically linked 64-bit version with MinGW-w64:
 
-  ./configure --build=i686-pc-cygwin --host=i686-pc-mingw32
+  ./configure --build=$(./config.guess)  \
+              --host=x86_64-pc-mingw32   \
+               CC=x86_64-w64-mingw32-gcc \
+              CXX=x86_64-w64-mingw32-g++ \
+              LDFLAGS=-static
+
+  Tested on Cygwin and Linux with MinGW-w64 from
+  http://mingw-w64.sourceforge.net/.
+  WARNING: 64-bit version is still EXPERIMENTAL.
 
 
 To build the Windows binary distribution, use:
