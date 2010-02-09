@@ -183,6 +183,10 @@ const drive_settings builtin_knowndrives[] = {
     "GB1000EAFJL",
     "", "", ""
   },
+  { "HP 500GB SATA disk MM0500EANCR",
+    "MM0500EANCR",
+    "", "", ""
+  },
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "ER60A46A",
@@ -1031,7 +1035,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Momentus 5400.6 series",
-    "ST9((12|25)0315AS|500325)ASG?",
+    "ST9(80313|160(301|314)|(12|25)0315|250317|(320|500)325|500327|640320)ASG?",
     "", "", ""
   },
   { "Seagate Momentus 5400 PSD series", // Hybrid drives
