@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3060 2010-02-03 22:16:40Z chrfranke $",
+  { "$Id: drivedb.h 3063 2010-02-09 22:30:26Z manfred99 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -181,6 +181,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "HP 1TB SATA disk GB1000EAFJL",
     "GB1000EAFJL",
+    "", "", ""
+  },
+  { "HP 500GB SATA disk MM0500EANCR",
+    "MM0500EANCR",
     "", "", ""
   },
   { "IBM Deskstar 60GXP series",  // ER60A46A firmware
@@ -1031,7 +1035,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Momentus 5400.6 series",
-    "ST9((12|25)0315AS|500325)ASG?",
+    "ST9(80313|160(301|314)|(12|25)0315|250317|(320|500)325|500327|640320)ASG?",
     "", "", ""
   },
   { "Seagate Momentus 5400 PSD series", // Hybrid drives
