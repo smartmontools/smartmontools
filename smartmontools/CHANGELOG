@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Windows: Cleanup I/O-control declarations, rely on include
+       files if possible.
+
   [CF] Windows: Compile fixes for 64-bit exe (EXPERIMENTAL).
        Update build info in INSTALL file.
 

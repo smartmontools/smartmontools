@@ -16,6 +16,8 @@
  */
 
 #include "config.h"
+#define _WIN32_WINNT 0x0510
+
 #include "int64.h"
 #include "atacmds.h"
 #include "extern.h"
@@ -39,6 +41,17 @@ extern smartmonctrl * con; // con->permissive,reportataioctl
 #include <windows.h>
 #include <stddef.h> // offsetof()
 #include <io.h> // access()
+
+// TODO: Add a configure test
+#if defined(__CYGWIN__) || (defined(__MINGW32__) && !defined(__MINGW64__))
+#include <ddk/ntdddisk.h>
+#include <ddk/ntddscsi.h>
+#include <ddk/ntddstor.h>
+#else
+// Win SDK, no DDK
+#include <winioctl.h>
+#include <ntddscsi.h>
+#endif
 
 #ifdef __CYGWIN__
 #include <cygwin/version.h> // CYGWIN_VERSION_DLL_MAJOR
@@ -70,6 +83,207 @@ const char * os_win32_cpp_cvsid = "$Id$";
     #define WIN9X_SUPPORT 1
   #endif
 #endif
+
+/////////////////////////////////////////////////////////////////////////////
+// Windows I/O-controls, some declarations are missing in the include files
+
+extern "C" {
+
+// SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
+
+ASSERT_CONST(SMART_GET_VERSION, 0x074080);
+ASSERT_CONST(SMART_SEND_DRIVE_COMMAND, 0x07c084);
+ASSERT_CONST(SMART_RCV_DRIVE_DATA, 0x07c088);
+ASSERT_SIZEOF(GETVERSIONINPARAMS, 24);
+ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
+ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
+
+
+// IDE PASS THROUGH (2000, XP, undocumented)
+
+#ifndef IOCTL_IDE_PASS_THROUGH
+
+#define IOCTL_IDE_PASS_THROUGH \
+  CTL_CODE(IOCTL_SCSI_BASE, 0x040A, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+#endif // IOCTL_IDE_PASS_THROUGH
+
+#pragma pack(1)
+
+typedef struct {
+  IDEREGS IdeReg;
+  ULONG DataBufferSize;
+  UCHAR DataBuffer[1];
+} ATA_PASS_THROUGH;
+
+#pragma pack()
+
+ASSERT_CONST(IOCTL_IDE_PASS_THROUGH, 0x04d028);
+ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
+
+
+// ATA PASS THROUGH (Win2003, XP SP2)
+
+#ifndef IOCTL_ATA_PASS_THROUGH
+
+#define IOCTL_ATA_PASS_THROUGH \
+  CTL_CODE(IOCTL_SCSI_BASE, 0x040B, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+
+typedef struct _ATA_PASS_THROUGH_EX {
+  USHORT Length;
+  USHORT AtaFlags;
+  UCHAR PathId;
+  UCHAR TargetId;
+  UCHAR Lun;
+  UCHAR ReservedAsUchar;
+  ULONG DataTransferLength;
+  ULONG TimeOutValue;
+  ULONG ReservedAsUlong;
+  ULONG_PTR DataBufferOffset;
+  UCHAR PreviousTaskFile[8];
+  UCHAR CurrentTaskFile[8];
+} ATA_PASS_THROUGH_EX;
+
+#define ATA_FLAGS_DRDY_REQUIRED 0x01
+#define ATA_FLAGS_DATA_IN       0x02
+#define ATA_FLAGS_DATA_OUT      0x04
+#define ATA_FLAGS_48BIT_COMMAND 0x08
+#define ATA_FLAGS_USE_DMA       0x10
+#define ATA_FLAGS_NO_MULTIPLE   0x20 // Vista
+
+#endif // IOCTL_ATA_PASS_THROUGH
+
+ASSERT_CONST(IOCTL_ATA_PASS_THROUGH, 0x04d02c);
+ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
+
+
+// IOCTL_SCSI_PASS_THROUGH[_DIRECT]
+
+ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH, 0x04d004);
+ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH_DIRECT, 0x04d014);
+ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
+ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
+
+
+// SMART IOCTL via SCSI MINIPORT ioctl
+
+#ifndef FILE_DEVICE_SCSI
+
+#define FILE_DEVICE_SCSI 0x001b
+
+#define IOCTL_SCSI_MINIPORT_SMART_VERSION               ((FILE_DEVICE_SCSI << 16) + 0x0500)
+#define IOCTL_SCSI_MINIPORT_IDENTIFY                    ((FILE_DEVICE_SCSI << 16) + 0x0501)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_ATTRIBS          ((FILE_DEVICE_SCSI << 16) + 0x0502)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_THRESHOLDS       ((FILE_DEVICE_SCSI << 16) + 0x0503)
+#define IOCTL_SCSI_MINIPORT_ENABLE_SMART                ((FILE_DEVICE_SCSI << 16) + 0x0504)
+#define IOCTL_SCSI_MINIPORT_DISABLE_SMART               ((FILE_DEVICE_SCSI << 16) + 0x0505)
+#define IOCTL_SCSI_MINIPORT_RETURN_STATUS               ((FILE_DEVICE_SCSI << 16) + 0x0506)
+#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTOSAVE     ((FILE_DEVICE_SCSI << 16) + 0x0507)
+#define IOCTL_SCSI_MINIPORT_SAVE_ATTRIBUTE_VALUES       ((FILE_DEVICE_SCSI << 16) + 0x0508)
+#define IOCTL_SCSI_MINIPORT_EXECUTE_OFFLINE_DIAGS       ((FILE_DEVICE_SCSI << 16) + 0x0509)
+#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTO_OFFLINE ((FILE_DEVICE_SCSI << 16) + 0x050a)
+#define IOCTL_SCSI_MINIPORT_READ_SMART_LOG              ((FILE_DEVICE_SCSI << 16) + 0x050b)
+#define IOCTL_SCSI_MINIPORT_WRITE_SMART_LOG             ((FILE_DEVICE_SCSI << 16) + 0x050c)
+
+#endif // FILE_DEVICE_SCSI
+
+ASSERT_CONST(IOCTL_SCSI_MINIPORT, 0x04d008);
+ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
+
+
+// IOCTL_STORAGE_QUERY_PROPERTY
+
+#ifndef IOCTL_STORAGE_QUERY_PROPERTY
+
+#define IOCTL_STORAGE_QUERY_PROPERTY \
+  CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+typedef struct _STORAGE_DEVICE_DESCRIPTOR {
+  ULONG Version;
+  ULONG Size;
+  UCHAR DeviceType;
+  UCHAR DeviceTypeModifier;
+  BOOLEAN RemovableMedia;
+  BOOLEAN CommandQueueing;
+  ULONG VendorIdOffset;
+  ULONG ProductIdOffset;
+  ULONG ProductRevisionOffset;
+  ULONG SerialNumberOffset;
+  STORAGE_BUS_TYPE BusType;
+  ULONG RawPropertiesLength;
+  UCHAR RawDeviceProperties[1];
+} STORAGE_DEVICE_DESCRIPTOR;
+
+typedef enum _STORAGE_QUERY_TYPE {
+  PropertyStandardQuery = 0,
+  PropertyExistsQuery,
+  PropertyMaskQuery,
+  PropertyQueryMaxDefined
+} STORAGE_QUERY_TYPE;
+
+typedef enum _STORAGE_PROPERTY_ID {
+  StorageDeviceProperty = 0,
+  StorageAdapterProperty,
+  StorageDeviceIdProperty,
+  StorageDeviceUniqueIdProperty,
+  StorageDeviceWriteCacheProperty,
+  StorageMiniportProperty,
+  StorageAccessAlignmentProperty
+} STORAGE_PROPERTY_ID;
+
+typedef struct _STORAGE_PROPERTY_QUERY {
+  STORAGE_PROPERTY_ID PropertyId;
+  STORAGE_QUERY_TYPE QueryType;
+  UCHAR AdditionalParameters[1];
+} STORAGE_PROPERTY_QUERY;
+
+#endif // IOCTL_STORAGE_QUERY_PROPERTY
+
+ASSERT_CONST(IOCTL_STORAGE_QUERY_PROPERTY, 0x002d1400);
+ASSERT_SIZEOF(STORAGE_DEVICE_DESCRIPTOR, 36+1+3);
+ASSERT_SIZEOF(STORAGE_PROPERTY_QUERY, 8+1+3);
+
+
+// IOCTL_STORAGE_PREDICT_FAILURE
+
+ASSERT_CONST(IOCTL_STORAGE_PREDICT_FAILURE, 0x002d1100);
+ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
+
+
+// 3ware specific versions of SMART ioctl structs
+
+#define SMART_VENDOR_3WARE      0x13C1  // identifies 3ware specific parameters
+
+#pragma pack(1)
+
+typedef struct _GETVERSIONINPARAMS_EX {
+  BYTE bVersion;
+  BYTE bRevision;
+  BYTE bReserved;
+  BYTE bIDEDeviceMap;
+  DWORD fCapabilities;
+  DWORD dwDeviceMapEx;  // 3ware specific: RAID drive bit map
+  WORD wIdentifier;     // Vendor specific identifier
+  WORD wControllerId;   // 3ware specific: Controller ID (0,1,...)
+  ULONG dwReserved[2];
+} GETVERSIONINPARAMS_EX;
+
+typedef struct _SENDCMDINPARAMS_EX {
+  DWORD cBufferSize;
+  IDEREGS irDriveRegs;
+  BYTE bDriveNumber;
+  BYTE bPortNumber;     // 3ware specific: port number
+  WORD wIdentifier;     // Vendor specific identifier
+  DWORD dwReserved[4];
+  BYTE bBuffer[1];
+} SENDCMDINPARAMS_EX;
+
+#pragma pack()
+
+ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
+ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
+
+} // extern "C"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -572,132 +786,8 @@ std::string win_smart_interface::get_app_examples(const char * appname)
 // ATA Interface
 /////////////////////////////////////////////////////////////////////////////
 
-// SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
-
-#define FILE_READ_ACCESS       0x0001
-#define FILE_WRITE_ACCESS      0x0002
-#define METHOD_BUFFERED             0
-#define CTL_CODE(DeviceType, Function, Method, Access) (((DeviceType) << 16) | ((Access) << 14) | ((Function) << 2) | (Method))
-
-#define FILE_DEVICE_DISK       7
-#define IOCTL_DISK_BASE        FILE_DEVICE_DISK
-
-#define SMART_GET_VERSION \
-  CTL_CODE(IOCTL_DISK_BASE, 0x0020, METHOD_BUFFERED, FILE_READ_ACCESS)
-
-#define SMART_SEND_DRIVE_COMMAND \
-  CTL_CODE(IOCTL_DISK_BASE, 0x0021, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-#define SMART_RCV_DRIVE_DATA \
-  CTL_CODE(IOCTL_DISK_BASE, 0x0022, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-ASSERT_CONST(SMART_GET_VERSION       , 0x074080);
-ASSERT_CONST(SMART_SEND_DRIVE_COMMAND, 0x07c084);
-ASSERT_CONST(SMART_RCV_DRIVE_DATA    , 0x07c088);
-
 #define SMART_CYL_LOW  0x4F
 #define SMART_CYL_HI   0xC2
-
-
-#pragma pack(1)
-
-typedef struct _GETVERSIONOUTPARAMS {
-  UCHAR  bVersion;
-  UCHAR  bRevision;
-  UCHAR  bReserved;
-  UCHAR  bIDEDeviceMap;
-  ULONG  fCapabilities;
-  ULONG  dwReserved[4];
-} GETVERSIONOUTPARAMS, *PGETVERSIONOUTPARAMS, *LPGETVERSIONOUTPARAMS;
-
-ASSERT_SIZEOF(GETVERSIONOUTPARAMS, 24);
-
-
-#define SMART_VENDOR_3WARE      0x13C1  // identifies 3ware specific parameters
-
-typedef struct _GETVERSIONINPARAMS_EX {
-  BYTE    bVersion;
-  BYTE    bRevision;
-  BYTE    bReserved;
-  BYTE    bIDEDeviceMap;
-  DWORD   fCapabilities;
-  DWORD   dwDeviceMapEx;  // 3ware specific: RAID drive bit map
-  WORD    wIdentifier;    // Vendor specific identifier
-  WORD    wControllerId;  // 3ware specific: Controller ID (0,1,...)
-  ULONG   dwReserved[2];
-} GETVERSIONINPARAMS_EX, *PGETVERSIONINPARAMS_EX, *LPGETVERSIONINPARAMS_EX;
-
-ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONOUTPARAMS));
-
-
-typedef struct _IDEREGS {
-  UCHAR  bFeaturesReg;
-  UCHAR  bSectorCountReg;
-  UCHAR  bSectorNumberReg;
-  UCHAR  bCylLowReg;
-  UCHAR  bCylHighReg;
-  UCHAR  bDriveHeadReg;
-  UCHAR  bCommandReg;
-  UCHAR  bReserved;
-} IDEREGS, *PIDEREGS, *LPIDEREGS;
-
-typedef struct _SENDCMDINPARAMS {
-  ULONG  cBufferSize;
-  IDEREGS  irDriveRegs;
-  UCHAR  bDriveNumber;
-  UCHAR  bReserved[3];
-  ULONG  dwReserved[4];
-  UCHAR  bBuffer[1];
-} SENDCMDINPARAMS, *PSENDCMDINPARAMS, *LPSENDCMDINPARAMS;
-
-ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
-
-typedef struct _SENDCMDINPARAMS_EX {
-  DWORD   cBufferSize;
-  IDEREGS irDriveRegs;
-  BYTE    bDriveNumber;
-  BYTE    bPortNumber;   // 3ware specific: port number
-  WORD    wIdentifier;   // Vendor specific identifier
-  DWORD   dwReserved[4];
-  BYTE    bBuffer[1];
-} SENDCMDINPARAMS_EX, *PSENDCMDINPARAMS_EX, *LPSENDCMDINPARAMS_EX;
-
-ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
-
-
-/* DRIVERSTATUS.bDriverError constants (just for info, not used)
-#define SMART_NO_ERROR                    0
-#define SMART_IDE_ERROR                   1
-#define SMART_INVALID_FLAG                2
-#define SMART_INVALID_COMMAND             3
-#define SMART_INVALID_BUFFER              4
-#define SMART_INVALID_DRIVE               5
-#define SMART_INVALID_IOCTL               6
-#define SMART_ERROR_NO_MEM                7
-#define SMART_INVALID_REGISTER            8
-#define SMART_NOT_SUPPORTED               9
-#define SMART_NO_IDE_DEVICE               10
-*/
-
-typedef struct _DRIVERSTATUS {
-  UCHAR  bDriverError;
-  UCHAR  bIDEError;
-  UCHAR  bReserved[2];
-  ULONG  dwReserved[2];
-} DRIVERSTATUS, *PDRIVERSTATUS, *LPDRIVERSTATUS;
-
-typedef struct _SENDCMDOUTPARAMS {
-  ULONG  cBufferSize;
-  DRIVERSTATUS  DriverStatus;
-  UCHAR  bBuffer[1];
-} SENDCMDOUTPARAMS, *PSENDCMDOUTPARAMS, *LPSENDCMDOUTPARAMS;
-
-ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
-
-#pragma pack()
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 static void print_ide_regs(const IDEREGS * r, int out)
 {
@@ -720,7 +810,7 @@ static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 
 static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version_ex = 0)
 {
-  GETVERSIONOUTPARAMS vers; memset(&vers, 0, sizeof(vers));
+  GETVERSIONINPARAMS vers; memset(&vers, 0, sizeof(vers));
   const GETVERSIONINPARAMS_EX & vers_ex = (const GETVERSIONINPARAMS_EX &)vers;
   DWORD num_out;
 
@@ -731,7 +821,7 @@ static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version
     errno = ENOSYS;
     return -1;
   }
-  assert(num_out == sizeof(GETVERSIONOUTPARAMS));
+  assert(num_out == sizeof(GETVERSIONINPARAMS));
 
   if (con->reportataioctl > 1) {
     pout("  SMART_GET_VERSION suceeded, bytes returned: %lu\n"
@@ -846,34 +936,10 @@ static int smart_ioctl(HANDLE hdevice, int drive, IDEREGS * regs, char * data, u
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // IDE PASS THROUGH (2000, XP, undocumented)
 //
 // Based on WinATA.cpp, 2002 c't/Matthias Withopf
 // ftp://ftp.heise.de/pub/ct/listings/0207-218.zip
-
-#define FILE_DEVICE_CONTROLLER  4
-#define IOCTL_SCSI_BASE         FILE_DEVICE_CONTROLLER
-
-#define IOCTL_IDE_PASS_THROUGH \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x040A, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-ASSERT_CONST(IOCTL_IDE_PASS_THROUGH, 0x04d028);
-
-#pragma pack(1)
-
-typedef struct {
-  IDEREGS IdeReg;
-  ULONG   DataBufferSize;
-  UCHAR   DataBuffer[1];
-} ATA_PASS_THROUGH;
-
-ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
-
-#pragma pack()
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize)
 {
@@ -949,40 +1015,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // ATA PASS THROUGH (Win2003, XP SP2)
-
-#define IOCTL_ATA_PASS_THROUGH \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x040B, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-ASSERT_CONST(IOCTL_ATA_PASS_THROUGH, 0x04d02c);
-
-typedef struct _ATA_PASS_THROUGH_EX {
-  USHORT  Length;
-  USHORT  AtaFlags;
-  UCHAR  PathId;
-  UCHAR  TargetId;
-  UCHAR  Lun;
-  UCHAR  ReservedAsUchar;
-  ULONG  DataTransferLength;
-  ULONG  TimeOutValue;
-  ULONG  ReservedAsUlong;
-  ULONG_PTR  DataBufferOffset;
-  UCHAR  PreviousTaskFile[8];
-  UCHAR  CurrentTaskFile[8];
-} ATA_PASS_THROUGH_EX, *PATA_PASS_THROUGH_EX;
-
-ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
-
-#define ATA_FLAGS_DRDY_REQUIRED 0x01
-#define ATA_FLAGS_DATA_IN       0x02
-#define ATA_FLAGS_DATA_OUT      0x04
-#define ATA_FLAGS_48BIT_COMMAND 0x08
-#define ATA_FLAGS_USE_DMA       0x10
-#define ATA_FLAGS_NO_MULTIPLE   0x20 // Vista
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 // Warning:
 // IOCTL_ATA_PASS_THROUGH[_DIRECT] can only handle one interrupt/DRQ data
@@ -1098,40 +1131,10 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // ATA PASS THROUGH via SCSI PASS THROUGH (WinNT4 only)
 
-#define IOCTL_SCSI_PASS_THROUGH \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-ASSERT_CONST(IOCTL_SCSI_PASS_THROUGH, 0x04d004);
-
-#define SCSI_IOCTL_DATA_OUT          0
-#define SCSI_IOCTL_DATA_IN           1
-#define SCSI_IOCTL_DATA_UNSPECIFIED  2
 // undocumented SCSI opcode to for ATA passthrough
 #define SCSIOP_ATA_PASSTHROUGH    0xCC
-
-typedef struct _SCSI_PASS_THROUGH {
-  USHORT  Length;
-  UCHAR  ScsiStatus;
-  UCHAR  PathId;
-  UCHAR  TargetId;
-  UCHAR  Lun;
-  UCHAR  CdbLength;
-  UCHAR  SenseInfoLength;
-  UCHAR  DataIn;
-  ULONG  DataTransferLength;
-  ULONG  TimeOutValue;
-  ULONG_PTR  DataBufferOffset;
-  ULONG  SenseInfoOffset;
-  UCHAR  Cdb[16];
-} SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
-
-ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned datasize)
 {
@@ -1213,47 +1216,12 @@ static int ata_via_scsi_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char 
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // SMART IOCTL via SCSI MINIPORT ioctl
 
 // This function is handled by ATAPI port driver (atapi.sys) or by SCSI
 // miniport driver (via SCSI port driver scsiport.sys).
 // It can be used to skip the missing or broken handling of some SMART
 // command codes (e.g. READ_LOG) in the disk class driver (disk.sys)
-
-#define IOCTL_SCSI_MINIPORT \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x0402, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-ASSERT_CONST(IOCTL_SCSI_MINIPORT, 0x04d008);
-
-typedef struct _SRB_IO_CONTROL {
-  ULONG HeaderLength;
-  UCHAR Signature[8];
-  ULONG Timeout;
-  ULONG ControlCode;
-  ULONG ReturnCode;
-  ULONG Length;
-} SRB_IO_CONTROL, *PSRB_IO_CONTROL;
-
-ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
-
-#define FILE_DEVICE_SCSI 0x001b
-
-#define IOCTL_SCSI_MINIPORT_SMART_VERSION               ((FILE_DEVICE_SCSI << 16) + 0x0500)
-#define IOCTL_SCSI_MINIPORT_IDENTIFY                    ((FILE_DEVICE_SCSI << 16) + 0x0501)
-#define IOCTL_SCSI_MINIPORT_READ_SMART_ATTRIBS          ((FILE_DEVICE_SCSI << 16) + 0x0502)
-#define IOCTL_SCSI_MINIPORT_READ_SMART_THRESHOLDS       ((FILE_DEVICE_SCSI << 16) + 0x0503)
-#define IOCTL_SCSI_MINIPORT_ENABLE_SMART                ((FILE_DEVICE_SCSI << 16) + 0x0504)
-#define IOCTL_SCSI_MINIPORT_DISABLE_SMART               ((FILE_DEVICE_SCSI << 16) + 0x0505)
-#define IOCTL_SCSI_MINIPORT_RETURN_STATUS               ((FILE_DEVICE_SCSI << 16) + 0x0506)
-#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTOSAVE     ((FILE_DEVICE_SCSI << 16) + 0x0507)
-#define IOCTL_SCSI_MINIPORT_SAVE_ATTRIBUTE_VALUES       ((FILE_DEVICE_SCSI << 16) + 0x0508)
-#define IOCTL_SCSI_MINIPORT_EXECUTE_OFFLINE_DIAGS       ((FILE_DEVICE_SCSI << 16) + 0x0509)
-#define IOCTL_SCSI_MINIPORT_ENABLE_DISABLE_AUTO_OFFLINE ((FILE_DEVICE_SCSI << 16) + 0x050a)
-#define IOCTL_SCSI_MINIPORT_READ_SMART_LOG              ((FILE_DEVICE_SCSI << 16) + 0x050b)
-#define IOCTL_SCSI_MINIPORT_WRITE_SMART_LOG             ((FILE_DEVICE_SCSI << 16) + 0x050c)
-
-/////////////////////////////////////////////////////////////////////////////
 
 static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, int datasize)
 {
@@ -1741,76 +1709,7 @@ int win_tw_cli_device::ata_command_interface(smart_command_set command, int /*se
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // IOCTL_STORAGE_QUERY_PROPERTY
-
-#define FILE_DEVICE_MASS_STORAGE    0x0000002d
-#define IOCTL_STORAGE_BASE          FILE_DEVICE_MASS_STORAGE
-#define FILE_ANY_ACCESS             0
-
-#define IOCTL_STORAGE_QUERY_PROPERTY \
-  CTL_CODE(IOCTL_STORAGE_BASE, 0x0500, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-typedef enum _STORAGE_BUS_TYPE {
-  BusTypeUnknown      = 0x00,
-  BusTypeScsi         = 0x01,
-  BusTypeAtapi        = 0x02,
-  BusTypeAta          = 0x03,
-  BusType1394         = 0x04,
-  BusTypeSsa          = 0x05,
-  BusTypeFibre        = 0x06,
-  BusTypeUsb          = 0x07,
-  BusTypeRAID         = 0x08,
-  BusTypeiScsi        = 0x09,
-  BusTypeSas          = 0x0A,
-  BusTypeSata         = 0x0B,
-  BusTypeSd           = 0x0C,
-  BusTypeMmc          = 0x0D,
-  BusTypeMax          = 0x0E,
-  BusTypeMaxReserved  = 0x7F
-} STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
-
-typedef struct _STORAGE_DEVICE_DESCRIPTOR {
-  ULONG Version;
-  ULONG Size;
-  UCHAR DeviceType;
-  UCHAR DeviceTypeModifier;
-  BOOLEAN RemovableMedia;
-  BOOLEAN CommandQueueing;
-  ULONG VendorIdOffset;
-  ULONG ProductIdOffset;
-  ULONG ProductRevisionOffset;
-  ULONG SerialNumberOffset;
-  STORAGE_BUS_TYPE BusType;
-  ULONG RawPropertiesLength;
-  UCHAR RawDeviceProperties[1];
-} STORAGE_DEVICE_DESCRIPTOR, *PSTORAGE_DEVICE_DESCRIPTOR;
-
-typedef enum _STORAGE_QUERY_TYPE {
-  PropertyStandardQuery = 0,
-  PropertyExistsQuery,
-  PropertyMaskQuery,
-  PropertyQueryMaxDefined
-} STORAGE_QUERY_TYPE, *PSTORAGE_QUERY_TYPE;
-
-typedef enum _STORAGE_PROPERTY_ID {
-  StorageDeviceProperty = 0,
-  StorageAdapterProperty,
-  StorageDeviceIdProperty,
-  StorageDeviceUniqueIdProperty,
-  StorageDeviceWriteCacheProperty,
-  StorageMiniportProperty,
-  StorageAccessAlignmentProperty
-} STORAGE_PROPERTY_ID, *PSTORAGE_PROPERTY_ID;
-
-typedef struct _STORAGE_PROPERTY_QUERY {
-  STORAGE_PROPERTY_ID PropertyId;
-  STORAGE_QUERY_TYPE QueryType;
-  UCHAR AdditionalParameters[1];
-} STORAGE_PROPERTY_QUERY, *PSTORAGE_PROPERTY_QUERY;
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 union STORAGE_DEVICE_DESCRIPTOR_DATA {
   STORAGE_DEVICE_DESCRIPTOR desc;
@@ -1852,22 +1751,7 @@ static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTO
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // IOCTL_STORAGE_PREDICT_FAILURE
-
-#define IOCTL_STORAGE_PREDICT_FAILURE \
-  CTL_CODE(IOCTL_STORAGE_BASE, 0x0440, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-typedef struct _STORAGE_PREDICT_FAILURE {
-  ULONG  PredictFailure;
-  UCHAR  VendorSpecific[512];
-} STORAGE_PREDICT_FAILURE, *PSTORAGE_PREDICT_FAILURE;
-
-ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
-
-
-/////////////////////////////////////////////////////////////////////////////
-
 
 // Call IOCTL_STORAGE_PREDICT_FAILURE, return PredictFailure value
 // or -1 on error, opionally return VendorSpecific data.
@@ -1917,15 +1801,16 @@ static win_dev_type get_controller_type(HANDLE hdevice, bool admin, GETVERSIONIN
   if (storage_query_property_ioctl(hdevice, &data))
     return DEV_UNKNOWN;
 
+  // Newer BusType* values are missing in older includes
   switch (data.desc.BusType) {
     case BusTypeAta:
-    case BusTypeSata:
+    case (STORAGE_BUS_TYPE)0x0b: // BusTypeSata
       if (ata_version_ex)
         memset(ata_version_ex, 0, sizeof(*ata_version_ex));
       return DEV_ATA;
     case BusTypeScsi:
-    case BusTypeiScsi:
-    case BusTypeSas:
+    case (STORAGE_BUS_TYPE)0x09: // BusTypeiScsi
+    case (STORAGE_BUS_TYPE)0x0a: // BusTypeSas
       return DEV_SCSI;
     case BusTypeUsb:
       return DEV_USB;
@@ -3494,25 +3379,6 @@ bool winnt_smart_interface::scsi_scan(smart_device_list & devlist)
   return true;
 }
 
-
-#define IOCTL_SCSI_PASS_THROUGH_DIRECT  \
-  CTL_CODE(IOCTL_SCSI_BASE, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-typedef struct _SCSI_PASS_THROUGH_DIRECT {
-  USHORT          Length;
-  UCHAR           ScsiStatus;
-  UCHAR           PathId;
-  UCHAR           TargetId;
-  UCHAR           Lun;
-  UCHAR           CdbLength;
-  UCHAR           SenseInfoLength;
-  UCHAR           DataIn;
-  ULONG           DataTransferLength;
-  ULONG           TimeOutValue;
-  PVOID           DataBuffer;
-  ULONG           SenseInfoOffset;
-  UCHAR           Cdb[16];
-} SCSI_PASS_THROUGH_DIRECT;
 
 typedef struct {
   SCSI_PASS_THROUGH_DIRECT spt;
