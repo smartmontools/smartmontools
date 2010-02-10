@@ -43,6 +43,8 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Fix SCT temperature table commands on big endian CPUs.
+
   [MS] drivedb.h updates:
        - more Seagate Momentus 5400.6 drives
        - HP 500GB drive MM0500EANCR

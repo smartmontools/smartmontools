@@ -2214,6 +2214,13 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   cmd.function_code = 1; // Read table
   cmd.table_id      = 2; // Temperature History Table
 
+  // swap endian order if needed
+  if (isbigendian()) {
+    swapx(&cmd.action_code);
+    swapx(&cmd.function_code);
+    swapx(&cmd.table_id);
+  }
+
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
     syserror("Error Write SCT Data Table command failed");
@@ -2275,6 +2282,15 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
   cmd.feature_code  = 3; // Temperature logging interval
   cmd.state         = interval;
   cmd.option_flags  = (persistent ? 0x01 : 0x00);
+
+  // swap endian order if needed
+  if (isbigendian()) {
+    swapx(&cmd.action_code);
+    swapx(&cmd.function_code);
+    swapx(&cmd.feature_code);
+    swapx(&cmd.state);
+    swapx(&cmd.option_flags);
+  }
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
