@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3064 2010-02-10 19:50:36Z chrfranke $
+$Id: CHANGELOG 3065 2010-02-10 22:16:50Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,14 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartctl: Add option '-l scterc[,READTIME,WRITETIME]' to get/set
+       the SCT Error Recovery Control time limit (ticket #50).
+
+       Patch was provided by Richard Gregory:
+       http://www.csc.liv.ac.uk/~greg/projects/erc/
+       Modified for new ata_pass_through() interface.
+       Linux HPT fixes ommitted for now.
 
   [CF] Fix SCT temperature table commands on big endian CPUs.
 
