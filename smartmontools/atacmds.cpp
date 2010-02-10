@@ -2310,6 +2310,96 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
   return 0;
 }
 
+// Get/Set SCT Error Recovery Control
+static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned type,
+                                                bool set, unsigned short & time_limit)
+{
+  // Check initial status
+  ata_sct_status_response sts;
+  if (ataReadSCTStatus(device, &sts))
+    return -1;
+
+  // Do nothing if other SCT command is executing
+  if (sts.ext_status_code == 0xffff) {
+    pout("Another SCT command is executing, abort Error Recovery Control\n"
+         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+      sts.ext_status_code, sts.action_code, sts.function_code);
+    return -1;
+  }
+
+  ata_sct_error_recovery_control_command cmd; memset(&cmd, 0, sizeof(cmd));
+  // CAUTION: DO NOT CHANGE THIS VALUE (SOME ACTION CODES MAY ERASE DISK)
+  cmd.action_code    = 3; // Error Recovery Control command
+  cmd.function_code  = (set ? 1 : 2); // 1=Set timer, 2=Get timer
+  cmd.selection_code = type; // 1=Read timer, 2=Write timer
+  if (set)
+    cmd.time_limit   = time_limit;
+
+  // swap endian order if needed
+  if (isbigendian()) {
+    swapx(&cmd.action_code);
+    swapx(&cmd.function_code);
+    swapx(&cmd.selection_code);
+    swapx(&cmd.time_limit);
+  }
+
+  // write command via SMART log page 0xe0
+  // TODO: Debug output
+  ata_cmd_in in;
+  in.in_regs.command = ATA_SMART_CMD;
+  in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
+  in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
+  in.in_regs.lba_low = 0xe0;
+  in.set_data_out(&cmd, 1);
+
+  if (!set)
+    // Time limit returned in ATA registers
+    in.out_needed.sector_count = in.out_needed.lba_low = true;
+
+  ata_cmd_out out;
+  if (!device->ata_pass_through(in, out)) {
+    pout("Error Write SCT Error Recovery Control Command failed: %s\n", device->get_errmsg());
+    return -1;
+  }
+
+  // re-read and check SCT status
+  if (ataReadSCTStatus(device, &sts))
+    return -1;
+
+  if (!(sts.ext_status_code == 0 && sts.action_code == 3 && sts.function_code == (set ? 1 : 2))) {
+    pout("Error unexcepted SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+      sts.ext_status_code, sts.action_code, sts.function_code);
+    return -1;
+  }
+
+  if (!set) {
+    // Check whether registers are properly returned by ioctl()
+    if (!(out.out_regs.sector_count.is_set() && out.out_regs.lba_low.is_set())) {
+      // TODO: Output register support should be checked within each ata_pass_through()
+      // implementation before command is issued.
+      pout("Error SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
+      return -1;
+    }
+    // Return value to caller
+    time_limit = out.out_regs.sector_count | (out.out_regs.lba_low << 8);
+  }
+
+  return 0;
+}
+
+// Get SCT Error Recovery Control
+int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit)
+{
+  return ataGetSetSCTErrorRecoveryControltime(device, type, false/*get*/, time_limit);
+}
+
+// Set SCT Error Recovery Control
+int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit)
+{
+  return ataGetSetSCTErrorRecoveryControltime(device, type, true/*set*/, time_limit);
+}
+
+
 // Print one self-test log entry.
 // Returns true if self-test showed an error.
 bool ataPrintSmartSelfTestEntry(unsigned testnum, unsigned char test_type,

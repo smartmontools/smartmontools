@@ -63,6 +63,9 @@ struct ata_print_options
   std::vector<ata_log_request> log_requests;
 
   bool sct_temp_sts, sct_temp_hist;
+  bool sct_erc_get;
+  bool sct_erc_set;
+  unsigned sct_erc_readtime, sct_erc_writetime;
   bool sataphy, sataphy_reset;
 
   bool smart_disable, smart_enable;
@@ -97,6 +100,9 @@ struct ata_print_options
       smart_ext_selftest_log(0),
       retry_error_log(false), retry_selftest_log(false),
       sct_temp_sts(false), sct_temp_hist(false),
+      sct_erc_get(false),
+      sct_erc_set(false),
+      sct_erc_readtime(0), sct_erc_writetime(0),
       sataphy(false), sataphy_reset(false),
       smart_disable(false), smart_enable(false),
       smart_auto_offl_disable(false), smart_auto_offl_enable(false),

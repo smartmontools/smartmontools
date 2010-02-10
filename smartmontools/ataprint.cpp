@@ -883,6 +883,8 @@ static void ataPrintSCTCapability(const ata_identify_device *drive)
   if (!(sctcaps & 0x01))
     return;
   pout("SCT capabilities: \t       (0x%04x)\tSCT Status supported.\n", sctcaps);
+  if (sctcaps & 0x08)
+    pout("\t\t\t\t\tSCT Error Recovery Control supported.\n");
   if (sctcaps & 0x10)
     pout("\t\t\t\t\tSCT Feature Control supported.\n");
   if (sctcaps & 0x20)
@@ -1698,6 +1700,20 @@ static int ataPrintSCTTempHist(const ata_sct_temperature_history_table * tmh)
   return 0;
 }
 
+// Print SCT Error Recovery Control timers
+static void ataPrintSCTErrorRecoveryControl(unsigned short read_timer, unsigned short write_timer)
+{
+  pout("SCT Error Recovery Control:\n");
+  if (!read_timer)
+    pout("           Read: Disabled\n");
+  else
+    pout("           Read: %6d (%0.1f seconds)\n", read_timer, read_timer/10.0);
+  if (!write_timer)
+    pout("          Write: Disabled\n");
+  else
+    pout("          Write: %6d (%0.1f seconds)\n", write_timer, write_timer/10.0);
+}
+
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
@@ -2285,14 +2301,21 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
+  // SCT commands
+  bool sct_ok = false;
+  if (   options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int
+      || options.sct_erc_get  || options.sct_erc_set                          ) {
+    if (!isSCTCapable(&drive)) {
+      pout("Warning: device does not support SCT Commands\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else
+      sct_ok = true;
+  }
+
   // Print SCT status and temperature history table
-  if (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int) {
+  if (sct_ok && (options.sct_temp_sts || options.sct_temp_hist || options.sct_temp_int)) {
     for (;;) {
-      if (!isSCTCapable(&drive)) {
-        pout("Warning: device does not support SCT Commands\n");
-        failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-        break;
-      }
       if (options.sct_temp_sts || options.sct_temp_hist) {
         ata_sct_status_response sts;
         ata_sct_temperature_history_table tmh;
@@ -2337,6 +2360,44 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
           (options.sct_temp_int_pers ? "persistent" : "volatile"));
       }
       break;
+    }
+  }
+
+  // SCT Error Recovery Control
+  if (sct_ok && (options.sct_erc_get || options.sct_erc_set)) {
+    if (!isSCTErrorRecoveryControlCapable(&drive)) {
+      pout("Warning: device does not support SCT Error Recovery Control command\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else {
+      bool sct_erc_get = options.sct_erc_get;
+      if (options.sct_erc_set) {
+        // Set SCT Error Recovery Control
+        if (   ataSetSCTErrorRecoveryControltime(device, 1, options.sct_erc_readtime )
+            || ataSetSCTErrorRecoveryControltime(device, 2, options.sct_erc_writetime)) {
+          pout("Warning: device does not support SCT (Set) Error Recovery Control command\n");
+          pout("Suggest common arguments: scterc,70,70 to enable ERC or sct,0,0 to disable\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+          sct_erc_get = false;
+        }
+        else
+          sct_erc_get = true;
+      }
+
+      if (sct_erc_get) {
+        // Print SCT Error Recovery Control
+        unsigned short read_timer, write_timer;
+        if (   ataGetSCTErrorRecoveryControltime(device, 1, read_timer )
+            || ataGetSCTErrorRecoveryControltime(device, 2, write_timer)) {
+          pout("Warning: device does not support SCT (Get) Error Recovery Control command\n");
+          if (options.sct_erc_set)
+            pout("The previous SCT (Set) Error Recovery Control command succeeded\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        else
+          ataPrintSCTErrorRecoveryControl(read_timer, write_timer);
+      }
+      pout("\n");
     }
   }
 

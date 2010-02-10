@@ -189,7 +189,7 @@ Prints all SMART and non-SMART information about the device. For ATA
 devices this is equivalent to
 .nf
 \'\-H \-i \-c \-A \-l xerror,error \-l xselftest,selftest \-l selective
-\-l directory \-l scttemp \-l sataphy\'.
+\-l directory \-l scttemp \-l scterc \-l sataphy\'.
 .fi
 and for SCSI, this is equivalent to
 .nf
@@ -973,6 +973,16 @@ The default temperature logging interval is 1 minute and can be
 configured with the \'\-t scttempint,N[,p]\' option, see below.
 The SCT commands are specified in the proposed ATA\-8 Command Set
 (ACS), and are already implemented in some recent ATA\-7 disks.
+
+.I scterc[,READTIME,WRITETIME]
+\- [ATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values
+and descriptions of the SCT Error Recovery Control settings. These
+are equivalent to TLER (as used by Western Digital), CCTL (as used
+by Samsung and Hitachi) and ERC (as used by Seagate. READTIME and
+WRITETIME arguments (deciseconds) set the specified values. Values of 0
+disable the feature, other values less than 65 are probably not
+supported. For RAID configurations, this is typically set to
+70,70 deciseconds.
 
 .I sataphy[,reset]
 \- [SATA only] [NEW EXPERIMENTAL SMARTCTL FEATURE] prints values

@@ -543,6 +543,20 @@ struct ata_sct_status_response
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_status_response, 512);
 
+// SCT Error Recovery Control command (send with SMART_WRITE_LOG page 0xe0)
+// Table 88 of T13/1699-D Revision 6a
+#pragma pack(1)
+struct ata_sct_error_recovery_control_command
+{
+  unsigned short action_code;       // 3 = Error Recovery Control
+  unsigned short function_code;     // 1 = Set, 2 = Return
+  unsigned short selection_code;    // 1 = Read Timer, 2 = Write Timer
+  unsigned short time_limit;        // If set: Recovery time limit in 100ms units
+  unsigned short words004_255[252]; // reserved
+} ATTR_PACKED;
+#pragma pack()
+ASSERT_SIZEOF_STRUCT(ata_sct_error_recovery_control_command, 512);
+
 // SCT Feature Control command (send with SMART_WRITE_LOG page 0xe0)
 // Table 72 of T13/1699-D Revision 3f
 #pragma pack(1)
@@ -552,8 +566,8 @@ struct ata_sct_feature_control_command
   unsigned short function_code;     // 1 = Set, 2 = Return, 3 = Return options
   unsigned short feature_code;      // 3 = Temperature logging interval
   unsigned short state;             // Interval
-  unsigned short option_flags;      // Bit 0: persistent, Bits 1-31: reserved
-  unsigned short words005_255[251]; // reserved 
+  unsigned short option_flags;      // Bit 0: persistent, Bits 1-15: reserved
+  unsigned short words005_255[251]; // reserved
 } ATTR_PACKED;
 #pragma pack()
 ASSERT_SIZEOF_STRUCT(ata_sct_feature_control_command, 512);
@@ -727,6 +741,10 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 // Set SCT temperature logging interval
 int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent);
 
+// Get/Set SCT Error Recovery Control
+int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit);
+int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit);
+
 
 /* Enable/Disable SMART on device */
 int ataEnableSmart (ata_device * device);
@@ -788,6 +806,9 @@ int isSupportSelectiveSelfTest(const ata_smart_values * data);
 
 inline bool isSCTCapable(const ata_identify_device *drive)
   { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support
+
+inline bool isSCTErrorRecoveryControlCapable(const ata_identify_device *drive)
+  { return ((drive->words088_255[206-88] & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
 
 inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
   { return ((drive->words088_255[206-88] & 0x11) == 0x11); } // 0x10 = SCT Feature Control support

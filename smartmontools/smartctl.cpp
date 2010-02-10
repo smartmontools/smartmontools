@@ -126,7 +126,7 @@ void Usage (void){
 "  -l TYPE, --log=TYPE\n"
 "        Show device log. TYPE: error, selftest, selective, directory[,g|s],\n"
 "                               background, sasphy[,reset], sataphy[,reset],\n"
-"                               scttemp[sts,hist],\n"
+"                               scttemp[sts,hist], scterc[,N,M],\n"
 "                               gplog,N[,RANGE], smartlog,N[,RANGE],\n"
 "                               xerror[,N][,error], xselftest[,N][,selftest]\n\n"
 "  -v N,OPTION , --vendorattribute=N,OPTION                            (ATA)\n"
@@ -178,7 +178,7 @@ static std::string getvalidarglist(char opt)
   case 'S':
     return "on, off";
   case 'l':
-    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], "
+    return "error, selftest, selective, directory[,g|s], background, scttemp[sts|hist], scterc[,N,M], "
            "sasphy[,reset], sataphy[,reset], gplog,N[,RANGE], smartlog,N[,RANGE], "
 	   "xerror[,N][,error], xselftest[,N][,selftest]";
   case 'P':
@@ -430,6 +430,8 @@ const char * parse_options(int argc, char** argv,
         ataopts.sataphy = ataopts.sataphy_reset = true;
       } else if (!strcmp(optarg,"background")) {
         scsiopts.smart_background_log = true;
+      } else if (!strcmp(optarg,"scterc")) {
+        ataopts.sct_erc_get = true;
       } else if (!strcmp(optarg,"scttemp")) {
         ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
       } else if (!strcmp(optarg,"scttempsts")) {
@@ -467,6 +469,18 @@ const char * parse_options(int argc, char** argv,
         else
           badarg = true;
 
+      } else if (!strncmp(optarg, "scterc,", sizeof("scterc,")-1)) {
+        unsigned rt = ~0, wt = ~0; int n = -1;
+        sscanf(optarg,"scterc,%u,%u%n", &rt, &wt, &n);
+        if (n == (int)strlen(optarg) && rt <= 999 && wt <= 999) {
+          ataopts.sct_erc_set = true;
+          ataopts.sct_erc_readtime = rt;
+          ataopts.sct_erc_writetime = wt;
+        }
+        else {
+          sprintf(extraerror, "Option -l scterc,[READTIME,WRITETIME] syntax error\n");
+          badarg = true;
+        }
       } else if (   !strncmp(optarg, "gplog,"   , sizeof("gplog,"   )-1)
                  || !strncmp(optarg, "smartlog,", sizeof("smartlog,")-1)) {
         unsigned logaddr = ~0U; unsigned page = 0, nsectors = 1; char sign = 0;
@@ -526,6 +540,7 @@ const char * parse_options(int argc, char** argv,
       ataopts.smart_selective_selftest_log = true;
       ataopts.smart_logdir = ataopts.gp_logdir = true;
       ataopts.sct_temp_sts = ataopts.sct_temp_hist = true;
+      ataopts.sct_erc_get = true;
       ataopts.sataphy = true;
       scsiopts.smart_background_log = true;
       scsiopts.sasphy = true;
