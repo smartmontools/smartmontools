@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] FreeBSD: disable 48-bit commands in the ata_pass_through interface, 
+       there is no 48-bit support in the IOCATAREQUEST ioctl.
+
   [CF] smartctl: Add option '-l scterc[,READTIME,WRITETIME]' to get/set
        the SCT Error Recovery Control time limit (ticket #50).
 

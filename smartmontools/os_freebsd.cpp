@@ -261,7 +261,11 @@ int freebsd_ata_device::do_cmd( struct ata_ioc_request* request)
 
 bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in, true, true, true)) // data_out_support
+  if (!ata_cmd_is_ok(in,
+    true,  // data_out_support
+    true,  // multi_sector_support
+    false) // no ata_48bit_support via IOCATAREQUEST
+    ) 
     return false;
 
   struct ata_ioc_request request;
