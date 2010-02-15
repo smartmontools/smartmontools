@@ -71,9 +71,9 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $";
+static __unused const char *filenameandversion="$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $";
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $" \
+const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $" \
 ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID INT64_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 extern smartmonctrl * con;
@@ -121,7 +121,7 @@ void printwarning(int msgNo, const char* extra) {
 // global variable holding byte count of allocated memory
 long long bytes;
 
-const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3037 2010-01-16 20:07:13Z chrfranke $"
+const char * dev_freebsd_cpp_cvsid = "$Id: os_freebsd.cpp 3066 2010-02-15 23:10:49Z samm2 $"
   DEV_INTERFACE_H_CVSID;
 
 extern smartmonctrl * con; // con->reportscsiioctl
@@ -261,7 +261,11 @@ int freebsd_ata_device::do_cmd( struct ata_ioc_request* request)
 
 bool freebsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 {
-  if (!ata_cmd_is_ok(in, true, true, true)) // data_out_support
+  if (!ata_cmd_is_ok(in,
+    true,  // data_out_support
+    true,  // multi_sector_support
+    false) // no ata_48bit_support via IOCATAREQUEST
+    ) 
     return false;
 
   struct ata_ioc_request request;
