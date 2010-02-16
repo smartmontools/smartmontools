@@ -409,6 +409,14 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG HD(502H|10[23]S|15[34]U)I",
     "", "", ""
   },
+  { "SAMSUNG SpinPoint F3 series", // tested with HD502HJ/1AJ100E4
+    "SAMSUNG HD(502H|754J|103S)J",
+    "", "", ""
+  },
+  { "SAMSUNG SpinPoint F3 EG series", // tested with HD503HI/1AJ100E4
+    "SAMSUNG HD(253G|(324|503)H|754J|105S)I",
+    "", "", ""
+  },
   { "SAMSUNG SpinPoint S250 series", // tested with HD200HJ/KF100-06
     "SAMSUNG HD(162|200|250)HJ",
     "", "", ""
@@ -475,6 +483,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 9,halfminutes"
+  },
+  { "SAMSUNG SpinPoint M5 series", // tested with HM160HI/HH100-12
+    "SAMSUNG HM((061|080)G|(121|160)H|250J)I",
+    "", "", ""
   },
 /*
   // TODO: Make the entries below more specific.
@@ -1337,7 +1349,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital Caviar Green family",
-    "WDC WD((50|64|75)00AA(C|V)S|(50|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
+    "WDC WD((50|64|75)00AA(C|V)S|(50|64|75)00AADS|10EA(C|V)S|(10|15|20)EADS)-.*",
     "", "", ""
   },
   { "Western Digital Caviar Black family",
@@ -1361,7 +1373,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital VelociRaptor family",
-    "WDC WD((1500|3000)B|3000G)LFS-.*",
+    "WDC WD(800H|(1500|3000)[BH]|1600H|3000G)LFS-.*",
     "", "", ""
   },
   { "Western Digital Scorpio EIDE family",

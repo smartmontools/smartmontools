@@ -43,6 +43,13 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h updates:
+       - SAMSUNG SpinPoint F3 series
+       - SAMSUNG SpinPoint F3 EG series
+       - SAMSUNG SpinPoint M5 series
+       - Western Digital Caviar Green 6400AADS
+       - more Western Digital VelociRaptor variants
+
   [AS] FreeBSD: disable 48-bit commands in the ata_pass_through interface, 
        there is no 48-bit support in the IOCATAREQUEST ioctl.
 
