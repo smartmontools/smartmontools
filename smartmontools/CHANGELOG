@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Use a separate build rule for each man page to
+       avoid compatibility problems with BSD make.
+
   [AS] drivedb.h updates:
        - Fujitsu MHZ2 BK series
 

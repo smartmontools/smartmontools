@@ -444,15 +444,15 @@ MAN_FILTER = \
     $(MAN_SAVESTATES) | \
     $(MAN_ATTRIBUTELOG)
 
-if OS_FREEBSD
-.for file in $(man_MANS)
-${file}: $(srcdir)/${file}.in Makefile svnversion.h
-	cat ${.ALLSRC:M*.in} | $(MAN_FILTER) > $@
-.endfor
-else
-smart%: $(srcdir)/smart%.in Makefile svnversion.h
-	cat $< | $(MAN_FILTER) > $@
-endif
+# Implicit rule 'smart%: smart%.in ...' does not work with BSD make
+smartctl.8: smartctl.8.in Makefile svnversion.h
+	cat $(srcdir)/smartctl.8.in | $(MAN_FILTER) > $@
+
+smartd.8: smartd.8.in Makefile svnversion.h
+	cat $(srcdir)/smartd.8.in | $(MAN_FILTER) > $@
+
+smartd.conf.5: smartd.conf.5.in Makefile svnversion.h
+	cat $(srcdir)/smartd.conf.5.in | $(MAN_FILTER) > $@
 
 # Commands to convert man pages into .html and .txt
 # TODO: configure
