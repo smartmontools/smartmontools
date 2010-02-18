@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3067 2010-02-16 22:48:52Z manfred99 $
+$Id: CHANGELOG 3068 2010-02-18 00:03:10Z samm2 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [AS] drivedb.h updates:
+       - Fujitsu MHZ2 BK series
 
   [MS] drivedb.h updates:
        - SAMSUNG SpinPoint F3 series

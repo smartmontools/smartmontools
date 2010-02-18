@@ -58,7 +58,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "$Id: drivedb.h 3067 2010-02-16 22:48:52Z manfred99 $",
+  { "$Id: drivedb.h 3068 2010-02-18 00:03:10Z samm2 $",
     "-", "-",
     "This is a dummy entry to hold the SVN-Id of drivedb.h",
     ""
@@ -337,6 +337,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Fujitsu MHZ2 BS series",
     "FUJITSU MHZ2(12|25)0BS.*",
+    "", "", ""
+  },
+  { "Fujitsu MHZ2 BK series",
+    "FUJITSU MHZ2(08|12|16|25)0BK.*",
     "", "", ""
   },
   { "", // Samsung SV4012H (known firmware)
