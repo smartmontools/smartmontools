@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [AS] drivedb.h updates:
+       - Fujitsu MHZ2 BK series
+
   [MS] drivedb.h updates:
        - SAMSUNG SpinPoint F3 series
        - SAMSUNG SpinPoint F3 EG series

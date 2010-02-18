@@ -339,6 +339,10 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHZ2(12|25)0BS.*",
     "", "", ""
   },
+  { "Fujitsu MHZ2 BK series",
+    "FUJITSU MHZ2(08|12|16|25)0BK.*",
+    "", "", ""
+  },
   { "", // Samsung SV4012H (known firmware)
     "SAMSUNG SV4012H",
     "RM100-08",
