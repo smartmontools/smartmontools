@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Makefile.am: Fix unix2dos and makensis parameters to allow
+       to build the Windows installer on Linux also.
+
   [CF] Makefile.am: Use a separate build rule for each man page to
        avoid compatibility problems with BSD make.
 

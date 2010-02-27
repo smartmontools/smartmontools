@@ -538,9 +538,10 @@ CLEANFILES += $(FILES_WIN32) $(exedir_win32)/syslogevt.exe \
               smartctl-nc.exe smartctl-nc.exe.tmp \
               distdir.mkdir syslogevt.check
 
-# Textfile converter from cygutils
-UNIX2DOS = unix2dos -D
-DOS2UNIX = dos2unix -U
+# Textfile converter from package cygutils or tofrodos
+# Note: Only use without options to be compatible with both packages
+UNIX2DOS = unix2dos
+DOS2UNIX = dos2unix
 
 # Build Windows distribution
 
@@ -558,11 +559,12 @@ $(distzip_win32): distdir.mkdir $(FILES_WIN32) syslogevt.check
 	cd $(distdir_win32) && zip -9Dr ../$(distzip_win32) .
 
 # Build NSIS installer, try to locate makensis in default location first
+# Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32) syslogevt.check
 	@makensis="$(MAKENSIS)"; if [ -z "$$makensis" ]; then \
-	  if [ ! -z "$$PROGRAMFILES" ] && "$$PROGRAMFILES/NSIS/makensis" /VERSION >/dev/null 2>&1; then \
+	  if [ ! -z "$$PROGRAMFILES" ] && "$$PROGRAMFILES/NSIS/makensis" -VERSION >/dev/null 2>&1; then \
 	    makensis="$$PROGRAMFILES/NSIS/makensis"; \
-	  elif makensis /VERSION >/dev/null 2>&1; then \
+	  elif makensis -VERSION >/dev/null 2>&1; then \
 	    makensis=makensis; \
 	  else \
 	    echo 'makensis: command not found. Please download and install NSIS' 1>&2; \
@@ -572,8 +574,8 @@ $(distinst_win32): $(srcdir)/os_win32/installer.nsi distdir.mkdir $(FILES_WIN32)
 	date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`; \
 	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`; \
 	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO); \
-	echo "$$makensis /V2 /NOCD /DINPDIR=$(distdir_win32) /DOUTFILE=$(distinst_win32) /DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
-	"$$makensis" /V2 /NOCD /DINPDIR="$(distdir_win32)" /DOUTFILE="$(distinst_win32)" /DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
+	echo "$$makensis -V2 -NOCD -DINPDIR=$(distdir_win32) -DOUTFILE=$(distinst_win32) -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi"; \
+	"$$makensis" -V2 -NOCD -DINPDIR="$(distdir_win32)" -DOUTFILE="$(distinst_win32)" -DVERSTR="$$verstr" "$(srcdir)/os_win32/installer.nsi"
 
 cleandist-win32:
 	rm -rf $(distdir_win32) distdir.mkdir syslogevt.check

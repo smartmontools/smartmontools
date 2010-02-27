@@ -494,6 +494,9 @@ To create a Windows installer, use:
   package. See http://nsis.sourceforge.net/ for documentation and
   download location.
 
+  It is also possible to (cross-)build the installer on Linux.
+  This was successfully tested on Debian with package "nsis".
+
 To both create and run the (interactive) installer, use:
 
   make install-win32
