@@ -1,7 +1,7 @@
 Smartmontools installation instructions
 =======================================
 
-$Id: INSTALL 3061 2010-02-08 20:26:28Z chrfranke $
+$Id: INSTALL 3070 2010-02-27 16:28:12Z chrfranke $
 
 Please also see the smartmontools home page:
 http://smartmontools.sourceforge.net/
@@ -493,6 +493,9 @@ To create a Windows installer, use:
   The installer is build using the command "makensis" from the NSIS
   package. See http://nsis.sourceforge.net/ for documentation and
   download location.
+
+  It is also possible to (cross-)build the installer on Linux.
+  This was successfully tested on Debian with package "nsis".
 
 To both create and run the (interactive) installer, use:
 
