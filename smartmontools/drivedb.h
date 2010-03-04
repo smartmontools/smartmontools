@@ -71,6 +71,28 @@ const drive_settings builtin_knowndrives[] = {
     "ASUS-PHISON SSD",
     "", "", ""
   },
+  { "SuperTalent UltraDrive GX SSD",
+    "STT_FT[MD](28|32|56|64)GX25H",
+    "", "",
+    " -v 9,raw64"
+    " -v 12,raw64"
+    " -v 184,raw64,Initial_Bad_Block_Count"
+    " -v 195,raw64,Program_Failure_Blk_Ct"
+    " -v 196,raw64,Erase_Failure_Blk_Ct"
+    " -v 197,raw64,Read_Failure_Blk_Ct"
+    " -v 198,raw64,Read_Sectors_Tot_Ct"
+    " -v 199,raw64,Write_Sectors_Tot_Ct"
+    " -v 200,raw64,Read_Commands_Tot_Ct"
+    " -v 201,raw64,Write_Commands_Tot_Ct"
+    " -v 202,raw64,Error_Bits_Flash_Tot_Ct"
+    " -v 203,raw64,Corr_Read_Errors_Tot_Ct"
+    " -v 204,raw64,Bad_Block_Full_Flag"
+    " -v 205,raw64,Max_PE_Count_Spec"
+    " -v 206,raw64,Min_Erase_Count"
+    " -v 207,raw64,Max_Erase_Count"
+    " -v 208,raw64,Average_Erase_Count"
+    " -v 209,raw64,Remaining_Lifetime_Perc"
+  },
   { "Patriot Torqx SSD",
     "Patriot[ -]Torqx.*",
     "", "",
@@ -163,7 +185,12 @@ const drive_settings builtin_knowndrives[] = {
     " -v 211,raw64"
   },
   { "Intel X25-E SSD",
-    "SSDSA2SH(032|064)G1.* INTEL",
+    "SSDSA2SH(032|064)G1.* INTEL",  // G1 = first generation
+    "", "",
+    "-v 225,raw48,Host_Writes_Count"
+  },
+  { "Intel X25-M SSD",
+    "INTEL SSDSA2M(080|160)G2.*",  // G2 = second generation
     "", "",
     "-v 225,raw48,Host_Writes_Count"
   },
@@ -1078,8 +1105,8 @@ const drive_settings builtin_knowndrives[] = {
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[89]|2504[16]4|32042[67]|500426)ASG)",
     "", "", ""
   },
-  { "Seagate Medalist 1010, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
-    "ST3(1010|1721|2120|3230|4340)A",
+  { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
+    "ST3(1010|1720|1721|2120|3230|4340)A",
     "", "", ""
   },
   { "Seagate Medalist 2110, 3221, 4321, 6531, and 8641",

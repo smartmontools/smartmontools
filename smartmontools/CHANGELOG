@@ -43,6 +43,11 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h updates:
+       - Seagate Medalist 1720
+       - SuperTalent UltraDrive GX SSD
+       - Intel X25-M SSD
+
   [CF] Makefile.am: Fix unix2dos and makensis parameters to allow
        to build the Windows installer on Linux also.
 
