@@ -1,0 +1,144 @@
+#! /bin/sh
+#
+# smartmontools drive database update script
+#
+# Copyright (C) 2010 Christian Franke <smartmontools-support@lists.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# You should have received a copy of the GNU General Public License
+# (for example COPYING); If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+#
+
+set -e
+
+# Set by config.status
+PACKAGE="@PACKAGE@"
+VERSION="@VERSION@"
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+sbindir="@sbindir@"
+datarootdir="@datarootdir@"
+datadir="@datadir@"
+drivedbdir="@drivedbdir@"
+
+# Default drivedb location
+DEST="$drivedbdir/drivedb.h"
+
+# Smartctl used for syntax check
+SMARTCTL="$sbindir/smartctl"
+
+# Trac repository browser (does not return HTTP 404 errors)
+#SRCEXPR='http://sourceforge.net/apps/trac/smartmontools/export/HEAD/$location/smartmontools/drivedb.h'
+
+# ViewVC repository browser
+SRCEXPR='http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/$location/smartmontools/drivedb.h?revision=HEAD'
+
+# Convert version into branch name: 5.41[.X] -> "RELEASE_5_41_DRIVEDB"
+BRANCH="`echo $VERSION | sed -n 's|^\([0-9][0-9]*\)\.\([0-9][0-9]*\)\([^0-9].*\)\?$|RELEASE_\1_\2_DRIVEDB|p'`"
+
+if [ -z "$BRANCH" ]; then
+  echo "$0: syntax error in version number: $VERSION" >&2; exit 1
+fi
+
+
+# Parse options
+q="-q "
+case "$1" in
+  -v) q=; shift ;;
+esac
+
+case "$*" in
+  -*|*\ *)
+    cat <<EOF
+smartmontools $VERSION drive database update script
+
+Usage: $0 [-v] [DESTFILE]
+
+  -v    verbose output
+
+Updates $DEST
+or DESTFILE from smartmontools SVN repository.
+Tries to download first from branch $BRANCH
+and then from trunk.
+EOF
+    exit 1
+    ;;
+
+  "") ;;
+  *)  DEST="$1" ;;
+esac
+
+# Abort if 'which' is not available
+which which >/dev/null || exit 1
+
+# Find download tool
+if which curl >/dev/null 2>/dev/null; then
+  DOWNLOAD="curl ${q:+-s }"'-f -o "$DEST.new" "$SRC"'
+elif which wget >/dev/null 2>/dev/null; then
+  DOWNLOAD="wget $q"'-O "$DEST.new" "$SRC"'
+elif which lynx >/dev/null 2>/dev/null; then
+  DOWNLOAD='lynx -source "$SRC" >"$DEST.new"'
+else
+  echo "$0: curl, wget or lynx not available" >&2; exit 1
+fi
+
+# Try possible branch first, then trunk
+for location in "branches/$BRANCH" "trunk"; do
+  test -n "$q" || echo "Download from $location"
+
+  errmsg=
+  rm -f "$DEST.new"
+  SRC="`eval echo "$SRCEXPR"`"
+
+  if eval $DOWNLOAD; then :; else
+    errmsg="download from $location failed (HTTP error)"
+    continue
+  fi
+  if grep -i 'ViewVC Exception' "$DEST.new" >/dev/null; then
+    errmsg="download from $location failed (ViewVC error)"
+    continue
+  fi
+
+  break
+done
+
+if [ -n "$errmsg" ]; then
+  rm -f "$DEST.new"
+  echo "$0: $errmsg" >&2
+  exit 1
+fi
+
+# Adjust timestamp and permissions
+touch "$DEST.new"
+chmod 0644 "$DEST.new"
+
+# Check syntax
+rm -f "$DEST.error"
+if $SMARTCTL -B "$DEST.new" -P showall >/dev/null; then :; else
+  mv "$DEST.new" "$DEST.error"
+  echo "$DEST.error: rejected by $SMARTCTL, probably no longer compatible" >&2
+  exit 1
+fi
+
+# Keep old file if identical, ignore differences in Id string
+rm -f "$DEST.lastcheck"
+if [ -f "$DEST" ]; then
+  if cat "$DEST" | sed 's|\$''Id''[^$]*\$|$''Id''$|' | cmp - "$DEST.new" >/dev/null; then
+    rm -f "$DEST.new"
+    touch "$DEST.lastcheck"
+    echo "$DEST is already up to date"
+    exit 0
+  fi
+  mv "$DEST" "$DEST.old"
+fi
+
+mv "$DEST.new" "$DEST"
+
+echo "$DEST updated from $location"
+

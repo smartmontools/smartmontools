@@ -25,6 +25,11 @@ endif
 sbin_PROGRAMS = smartd 	\
 		smartctl
 
+if ENABLE_DRIVEDB
+sbin_SCRIPTS = update-smart-drivedb
+endif
+
+
 smartd_SOURCES =  smartd.cpp      \
                   atacmdnames.cpp \
                   atacmdnames.h   \
@@ -326,6 +331,10 @@ smartd.conf.5.in: smartd.8.in
 	echo '.\" ENDINCLUDE'   >> $(srcdir)/smartd.conf.5.in
 	cat $(top_builddir)/tmp.tail >> $(srcdir)/smartd.conf.5.in
 	rm -f $(top_builddir)/tmp.head $(top_builddir)/tmp.tail $(top_builddir)/tmp.directives
+
+update-smart-drivedb: update-smart-drivedb.in config.status
+	$(SHELL) ./config.status --file=$@
+
 
 if INSTALL_INITSCRIPT
 if OS_DARWIN
