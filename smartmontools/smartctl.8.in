@@ -1,7 +1,7 @@
 .ig
  Copyright (C) 2002-9 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
- $Id: smartctl.8.in 3065 2010-02-10 22:16:50Z chrfranke $
+ $Id: smartctl.8.in 3072 2010-03-04 21:56:41Z chrfranke $
  
  This program is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License as published by the Free
@@ -1313,6 +1313,9 @@ If this option is not specified, optional entries are read from the file
 .\" BEGIN ENABLE_DRIVEDB
 If \fB/usr/local/share/smartmontools/drivedb.h\fP is present, the
 contents of this file is used instead of the built in table.
+
+Run the script \fB/usr/local/sbin/update-smart-drivedb\fP to update this
+file from the smartmontools SVN repository.
 .\" END ENABLE_DRIVEDB
 
 The database files use the same C/C++ syntax that is used to initialize
@@ -1850,7 +1853,7 @@ these documents may be found in the References section of the
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartctl.8.in 3065 2010-02-10 22:16:50Z chrfranke $
+$Id: smartctl.8.in 3072 2010-03-04 21:56:41Z chrfranke $
 .\" Local Variables:	         
 .\" mode: nroff         
 .\" End:
