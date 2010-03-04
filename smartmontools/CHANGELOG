@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3070 2010-02-27 16:28:12Z chrfranke $
+$Id: CHANGELOG 3071 2010-03-04 21:17:09Z manfred99 $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,11 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [MS] drivedb.h updates:
+       - Seagate Medalist 1720
+       - SuperTalent UltraDrive GX SSD
+       - Intel X25-M SSD
 
   [CF] Makefile.am: Fix unix2dos and makensis parameters to allow
        to build the Windows installer on Linux also.
