@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3072 2010-03-04 21:56:41Z chrfranke $
+$Id: CHANGELOG 3073 2010-03-05 19:49:05Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Add update script to make targets 'dist' and 'clean',
+       set +x permission, update svn:ignore.
 
   [CF] Add 'update-smart-drivedb' script (ticket #59).
        The script updates the drive database from SVN.
