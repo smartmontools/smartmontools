@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Add update script to make targets 'dist' and 'clean',
+       set +x permission, update svn:ignore.
+
   [CF] Add 'update-smart-drivedb' script (ticket #59).
        The script updates the drive database from SVN.
        It is installed if '--enable-drivedb' is configured.

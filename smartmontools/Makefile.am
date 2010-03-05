@@ -243,6 +243,7 @@ EXTRA_DIST = smartd.initd.in                       \
              smartd.conf.5.in                      \
              smartd.conf                           \
              autogen.sh                            \
+             update-smart-drivedb.in               \
              os_darwin/SMART.in                    \
              os_darwin/StartupParameters.plist     \
              os_darwin/English_Localizable.strings \
@@ -263,6 +264,7 @@ CLEANFILES = smartd.conf.5      \
              smartd.conf.5.txt  \
              smartd.initd       \
              svnversion.h       \
+             update-smart-drivedb \
              SMART
 
 if SMARTD_SUFFIX
@@ -334,6 +336,7 @@ smartd.conf.5.in: smartd.8.in
 
 update-smart-drivedb: update-smart-drivedb.in config.status
 	$(SHELL) ./config.status --file=$@
+	chmod +x $@
 
 
 if INSTALL_INITSCRIPT
