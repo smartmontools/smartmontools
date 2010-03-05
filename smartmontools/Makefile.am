@@ -520,9 +520,15 @@ check:
 if OS_WIN32_MINGW
 # Definitions for Windows distribution
 
-distdir_win32 = $(PACKAGE)-$(VERSION).win32
-distzip_win32 = $(PACKAGE)-$(VERSION).win32.zip
-distinst_win32= $(PACKAGE)-$(VERSION).win32-setup.exe
+if OS_WIN64
+win_bits = 64
+else
+win_bits = 32
+endif
+
+distdir_win32  = $(PACKAGE)-$(VERSION).win$(win_bits)
+distzip_win32  = $(PACKAGE)-$(VERSION).win$(win_bits).zip
+distinst_win32 = $(PACKAGE)-$(VERSION).win$(win_bits)-setup.exe
 
 exedir_win32 = $(distdir_win32)/bin
 docdir_win32 = $(distdir_win32)/doc
@@ -605,7 +611,7 @@ syslogevt.check:
 
 $(exedir_win32)/%.exe: %.exe
 	cp -p $< $@
-	strip -s $@
+	if test -n '$(STRIP)'; then $(STRIP) -s $@; else strip -s $@; fi
 	touch -r $< $@
 
 $(docdir_win32)/%.html: %.html

@@ -38,7 +38,7 @@ case "${host}" in
 		# to select MinGW gcc. This does no longer work for gcc 4.x.
 		if test "${build}" = "${host}" && test -x /usr/bin/uname && \
 		   /usr/bin/uname | grep -i '^CYGWIN' >/dev/null; then
-		  AC_MSG_CHECKING([whether C and C++ compiler support -mno-cygwin])
+		  AC_MSG_CHECKING([whether $CC and $CXX support -mno-cygwin])
 		  gcc_support_m_no_cygwin=no
 		  if $CC  -v -mno-cygwin >/dev/null 2>&1 && \
 		     $CXX -v -mno-cygwin >/dev/null 2>&1; then
@@ -138,7 +138,7 @@ AC_MSG_RESULT([$libc_have_working_snprintf])
 
 # check for __attribute__((packed))
 AH_TEMPLATE(HAVE_ATTR_PACKED, [Define to 1 if C++ compiler supports __attribute__((packed))])
-AC_MSG_CHECKING([whether C++ compiler supports __attribute__((packed))])
+AC_MSG_CHECKING([whether $CXX supports __attribute__((packed))])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[struct a { int b; } __attribute__((packed));]])],
                   [gcc_have_attr_packed=yes], [gcc_have_attr_packed=no])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM(, [[#if defined(__SUNPRO_C) || defined(__SUNPRO_CC)
@@ -269,6 +269,7 @@ AC_SUBST(smartmontools_release_time)
 
 AC_MSG_CHECKING([for OS dependent modules and libraries])
 dnl if OS not recognized, then use the os_generic modules
+os_win64=no
 case "${host}" in
 	*-*-linux*)
 		AC_SUBST([os_deps], ['os_linux.o cciss.o']) 
@@ -302,7 +303,8 @@ case "${host}" in
 		AC_SUBST([os_libs], ['']) ;;
 	*-*-mingw*)
 		AC_SUBST([os_deps], ['os_win32.o'])
-		AC_SUBST([os_libs], ['']) ;;
+		AC_SUBST([os_libs], [''])
+		test "$host_cpu" = "x86_64" && os_win64=yes ;;
 	*-*-darwin*)
 		AC_SUBST([os_deps], ['os_darwin.o'])
 		AC_SUBST([os_libs], ['-framework CoreFoundation -framework IOKit']) ;;
@@ -345,6 +347,7 @@ dnl Define platform-specific symbol.
 AM_CONDITIONAL(OS_DARWIN, [echo $host_os | grep '^darwin' > /dev/null])
 AM_CONDITIONAL(OS_SOLARIS, [echo $host_os | grep '^solaris' > /dev/null])
 AM_CONDITIONAL(OS_WIN32_MINGW, [echo $host_os | grep '^mingw' > /dev/null])
+AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
 AM_CONDITIONAL(OS_FREEBSD, [echo $host_os | grep '^freebsd' > /dev/null])
 
 dnl Add -Wall and -W if using g++ and its not already specified.
@@ -364,7 +367,7 @@ if test "$GXX" = "yes"; then
 
   # Disable strict aliasing rules by default (see ticket #23).
   if test -z "`echo "$CXXFLAGS" | grep "\-f[[no-]]*strict-aliasing" 2> /dev/null`" ; then
-    AC_MSG_CHECKING([whether g++ supports -fno-strict-aliasing])
+    AC_MSG_CHECKING([whether $CXX supports -fno-strict-aliasing])
     ac_save_CXXFLAGS="$CXXFLAGS"
     CXXFLAGS="-fno-strict-aliasing"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM()],

@@ -459,9 +459,7 @@ To cross-compile on Debian Linux with gcc-mingw32:
 To compile statically linked 64-bit version with MinGW-w64:
 
   ./configure --build=$(./config.guess)  \
-              --host=x86_64-pc-mingw32   \
-               CC=x86_64-w64-mingw32-gcc \
-              CXX=x86_64-w64-mingw32-g++ \
+              --host=x86_64-w64-mingw32   \
               LDFLAGS=-static
 
   Tested on Cygwin and Linux with MinGW-w64 from
