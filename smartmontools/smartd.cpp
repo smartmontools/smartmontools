@@ -3455,7 +3455,7 @@ static int ParseToken(char * token, dev_config & cfg)
 // -2: found an error
 //
 // Note: this routine modifies *line from the caller!
-static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int lineno, /*const*/ char * line)
+static int ParseConfigLine(dev_config_vector & conf_entries, int /*entry*/, int lineno, /*const*/ char * line)
 {
   char *token=NULL;
   char *name=NULL;
@@ -3470,10 +3470,6 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int line
   // Have we detected the SCANDIRECTIVE directive?
   if (!strcmp(SCANDIRECTIVE,name)){
     devscan=1;
-    if (entry) {
-      PrintOut(LOG_INFO,"Scan Directive %s (line %d) must be the first entry in %s\n",name, lineno, configfile);
-      return -2;
-    }
   }
   
   // We've got a legit entry, make space to store it
@@ -3562,7 +3558,7 @@ static int ParseConfigLine(dev_config_vector & conf_entries, int entry, int line
 // possiblities:
 // Empty configuration file ==> conf_entries.empty()
 // No configuration file    ==> conf_entries[0].lineno == 0
-// SCANDIRECTIVE found      ==> conf_entries[0].lineno != 0
+// SCANDIRECTIVE found      ==> conf_entries.back().lineno != 0 (size >= 1)
 static int ParseConfigFile(dev_config_vector & conf_entries)
 {
   // maximum line length in configuration file
@@ -4046,6 +4042,10 @@ static int MakeConfigEntries(const dev_config & base_cfg,
   if (devlist.size() <= 0)
     return 0;
 
+  // add empty device slots for existing config entries
+  while (scanned_devs.size() < conf_entries.size())
+    scanned_devs.push_back((smart_device *)0);
+
   // loop over entries to create
   for (unsigned i = 0; i < devlist.size(); i++) {
     // Move device pointer
@@ -4078,8 +4078,6 @@ static void CanNotRegister(const char *name, const char *type, int line, bool sc
 
 // Returns negative value (see ParseConfigFile()) if config file
 // had errors, else number of entries which may be zero or positive. 
-// If we found no configuration file, or it contained SCANDIRECTIVE,
-// then *scanning is set to 1, else 0.
 static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_device_list & scanned_devs)
 {
   // parse configuration file configfile (normally /etc/smartd.conf)  
@@ -4098,12 +4096,12 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
     // we did not find a SCANDIRECTIVE and did find valid entries
     PrintOut(LOG_INFO, "Configuration file %s parsed.\n", configfile);
   }
-  else if (conf_entries.size() == 1) {
+  else if (!conf_entries.empty()) {
     // we found a SCANDIRECTIVE or there was no configuration file so
-    // scan.  Configuration file's first entry contains all options
+    // scan.  Configuration file's last entry contains all options
     // that were set
-    dev_config first = conf_entries.front();
-    conf_entries.clear();
+    dev_config first = conf_entries.back();
+    conf_entries.pop_back();
 
     if (first.lineno)
       PrintOut(LOG_INFO,"Configuration file %s was parsed, found %s, scanning devices\n", configfile, SCANDIRECTIVE);

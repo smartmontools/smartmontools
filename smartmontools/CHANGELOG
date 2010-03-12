@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd: Other config entries may precede DEVICESCAN.
+       Very first step towards a more flexible device scanning.
+
   [CF] Windows: Use '.win64' in names of 64-bit binary packages.
        Use correct 'strip' program when cross-compiling.
 
