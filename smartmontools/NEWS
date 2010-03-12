@@ -1,6 +1,6 @@
 smartmontools NEWS
 ------------------
-$Id: NEWS 3075 2010-03-12 22:01:44Z chrfranke $
+$Id: NEWS 3076 2010-03-12 22:23:08Z chrfranke $
 
 The most up-to-date version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/NEWS?view=markup
@@ -17,6 +17,7 @@ Summary: smartmontools release 5.40
 - smartd libcap-ng support, option '-C, --capabilities'.
 - smartctl option '-l scterc[,...]' to get/set the
   SCT Error Recovery Control time limit.
+- Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
 - Windows: Support for 64-bit executables.
 - Windows: Support for cross compilation on Linux.
 - Fix SCT temperature table commands on big endian CPUs.
