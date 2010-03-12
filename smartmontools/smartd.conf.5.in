@@ -1,7 +1,7 @@
 .ig
 Copyright (C) 2002-8 Bruce Allen <smartmontools-support@lists.sourceforge.net>
 
-$Id: smartd.conf.5.in 3001 2009-12-19 15:25:27Z chrfranke $
+$Id: smartd.conf.5.in 3075 2010-03-12 22:01:44Z chrfranke $
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -234,8 +234,7 @@ Section below!
 .SH CONFIGURATION FILE DIRECTIVES
 .PP
 
-If the first non-comment entry in the configuration file is the text
-string
+If a non-comment entry in the configuration file is the text string
 .B DEVICESCAN
 in capital letters, then
 \fBsmartd\fP
@@ -1253,10 +1252,14 @@ If you want more frequent information, use:
 
 .TP
 .B ADDITIONAL DETAILS ABOUT DEVICESCAN
-If the first non-comment entry in the configuration file is the text
+If a non-comment entry in the configuration file is the text
 string \fBDEVICESCAN\fP in capital letters, then \fBsmartd\fP will
 ignore any remaining lines in the configuration file, and will scan
 for devices.
+
+[NEW EXPERIMENTAL SMARTD FEATURE] Configuration entries for devices
+not found by the platform\-specific device scanning may precede the
+\fBDEVICESCAN\fP entry.
 
 If \fBDEVICESCAN\fP is not followed by any Directives, then smartd
 will scan for both ATA and SCSI devices, and will monitor all possible
@@ -1399,4 +1402,4 @@ SEE ALSO:
 
 .SH
 SVN ID OF THIS PAGE:
-$Id: smartd.conf.5.in 3001 2009-12-19 15:25:27Z chrfranke $
+$Id: smartd.conf.5.in 3075 2010-03-12 22:01:44Z chrfranke $

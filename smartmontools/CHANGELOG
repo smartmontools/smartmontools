@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3074 2010-03-05 23:00:30Z chrfranke $
+$Id: CHANGELOG 3075 2010-03-12 22:01:44Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] smartd: Other config entries may precede DEVICESCAN.
+       Very first step towards a more flexible device scanning.
 
   [CF] Windows: Use '.win64' in names of 64-bit binary packages.
        Use correct 'strip' program when cross-compiling.
