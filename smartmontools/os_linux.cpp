@@ -2948,8 +2948,12 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   if (scan_ata)
     get_dev_list(devlist, "/dev/hd[a-t]", true, false, type, false);
-  if (scan_scsi) // Try USB autodetection if no type specifed
-    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type, !*type);
+  if (scan_scsi) {
+    bool autodetect = !*type; // Try USB autodetection if no type specifed
+    get_dev_list(devlist, "/dev/sd[a-z]", false, true, type, autodetect);
+    // Support up to 104 devices
+    get_dev_list(devlist, "/dev/sd[a-c][a-z]", false, true, type, autodetect);
+  }
 
   // if we found traditional links, we are done
   if (devlist.size() > 0)

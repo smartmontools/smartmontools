@@ -89,7 +89,8 @@ On startup, in the absence of the configuration file
 devices that support SMART.  The scanning is done as follows:
 .IP \fBLINUX:\fP 9
 Examine all entries \fB"/dev/hd[a-t]"\fP for IDE/ATA
-devices, and \fB"/dev/sd[a-z]"\fP for SCSI devices.
+devices, and \fB"/dev/sd[a-z]"\fP, \fB"/dev/sd[a-c][a-z]"\fP
+for SCSI or SATA devices.
 .IP \fBFREEBSD:\fP 9
 Authoritative list of disk devices is obtained from SCSI (CAM) and ATA subsystems.
 .IP \fBNETBSD/OPENBSD:\fP 9
