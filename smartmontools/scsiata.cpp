@@ -1352,13 +1352,15 @@ const usb_id_entry usb_ids[] = {
   // LaCie
   { 0x059f, 0x0651,     -1, d_unsup   }, // LaCie hard disk (FA Porsche design)
   { 0x059f, 0x1018,     -1, d_sat     }, // LaCie hard disk (Neil Poulton design)
+  { 0x059f, 0x1019,     -1, d_jmicron }, // LaCie Desktop Hard Drive
   // In-System Design
   { 0x05ab, 0x0060, 0x1101, d_cypress }, // In-System/Cypress ISD-300A1
   // Genesys Logic
   { 0x05e3, 0x0702,     -1, d_unsup   }, // Genesys Logic GL881E
   { 0x05e3, 0x0718, 0x0041, d_sat     }, // Genesys Logic ? (TODO: requires '-T permissive')
   // Prolific
-  { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507
+  { 0x067b, 0x2507,     -1, d_unsup   }, // Prolific PL2507 (USB->PATA)
+  { 0x067b, 0x3507, 0x0001, d_unsup   }, // Prolific PL3507 (USB+IEE1394->PATA)
   // Freecom
   { 0x07ab, 0xfc8e, 0x010f, d_sunplus }, // Freecom Hard Drive XS
   // Toshiba
@@ -1368,6 +1370,7 @@ const usb_id_entry usb_ids[] = {
   { 0x0bc2, 0x2000,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x2100,     -1, d_sat     }, // Seagate FreeAgent Go
   { 0x0bc2, 0x2101,     -1, d_sat     }, // Seagate FreeAgent Go
+  { 0x0bc2, 0x2200,     -1, d_sat     }, // Seagate FreeAgent Go FW
   { 0x0bc2, 0x2300,     -1, d_sat     }, // Seagate Expansion Portable
   { 0x0bc2, 0x3000,     -1, d_sat     }, // Seagate FreeAgent Desktop
   { 0x0bc2, 0x3001,     -1, d_sat     }, // Seagate FreeAgent Desk
@@ -1390,6 +1393,7 @@ const usb_id_entry usb_ids[] = {
   { 0x1058, 0x1010, 0x0105, d_sat     }, // WD Elements
   { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
   { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
+  { 0x1058, 0x1110, 0x1030, d_sat     }, // WD My Book Essential
   // Initio
   { 0x13fd, 0x0540,     -1, d_unsup   }, // Initio 316000
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)

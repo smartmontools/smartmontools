@@ -43,6 +43,12 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] USB ID updates:
+       - LaCie Desktop Hard Drive
+       - Prolific PL2507 (unsupported)
+       - Seagate FreeAgent Go FW
+       - WD My Book Essential
+
   [CF] Linux: Add '/dev/sd[a-c][a-z]' to smartd DEVICESCAN.
 
   [CF] smartd: Other config entries may precede DEVICESCAN.
