@@ -409,15 +409,58 @@ AC_SUBST(CXXFLAGS)
 AC_OUTPUT(Makefile examplescripts/Makefile)
 AC_PROG_MAKE_SET
 
-# Print note that the docdir default value has changed
-# TODO: Remove this after next release
-if test "$docdir_is_default" = "yes"; then
-  old_def_docdir='${prefix}/share/doc/${PACKAGE}-${VERSION}'
-  old_def_docdir_eval="`eval eval eval echo $old_def_docdir`"
-  docdir_eval="`eval eval eval echo $docdir`"
-  AC_MSG_NOTICE([********** PLEASE NOTE **********])
-  AC_MSG_NOTICE(['docdir' default has changed])
-  AC_MSG_NOTICE([from: $old_def_docdir_eval])
-  AC_MSG_NOTICE([to:   $docdir_eval])
-  AC_MSG_NOTICE([*********************************])
-fi
+echo "-----------------------------------------------------------------------------" >&AS_MESSAGE_FD
+echo "${PACKAGE}-${VERSION} configuration:" >&AS_MESSAGE_FD
+echo "host operating system:  $host" >&AS_MESSAGE_FD
+echo "C++ compiler:           $CXX" >&AS_MESSAGE_FD
+echo "preprocessor flags:     $CPPFLAGS" >&AS_MESSAGE_FD
+echo "C++ compiler flags:     $CXXFLAGS" >&AS_MESSAGE_FD
+echo "linker flags:           $LDFLAGS" >&AS_MESSAGE_FD
+
+case "$host_os" in
+  mingw*)
+    if test -n "$drivedbdir"; then
+      echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
+    fi
+    if test -n "$savestates"; then
+      echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD
+    fi
+    if test -n "$attributelog"; then
+      echo "smartd attribute logs:  `eval eval eval echo $attributelog`MODEL-SERIAL.TYPE.csv" >&AS_MESSAGE_FD
+    fi
+    ;;
+
+  *)
+    echo "binary install path:    `eval eval eval echo $sbindir`" >&AS_MESSAGE_FD
+    echo "man page install path:  `eval eval eval echo $mandir`" >&AS_MESSAGE_FD
+    echo "doc file install path:  `eval eval eval echo $docdir`" >&AS_MESSAGE_FD
+    if test "$docdir_is_default" = "yes"; then
+      echo "(NOTE: old default was: `eval eval eval echo ${prefix}/share/doc/${PACKAGE}-${VERSION}`)" >&AS_MESSAGE_FD
+    fi
+    if test -n "$drivedbdir"; then
+      echo "drive database file:    `eval eval eval echo $drivedbdir`/drivedb.h" >&AS_MESSAGE_FD
+      echo "database update script: `eval eval eval echo $sbindir`/update-smart-drivedb" >&AS_MESSAGE_FD
+    else
+      echo "drive database file:    [[disabled]]" >&AS_MESSAGE_FD
+      echo "database update script: [[disabled]]" >&AS_MESSAGE_FD
+    fi
+    echo "local drive database:   `eval eval eval echo $sysconfdir`/smart_drivedb.h" >&AS_MESSAGE_FD
+    echo "smartd config file:     `eval eval eval echo $sysconfdir`/smartd.conf${smartd_suffix}" >&AS_MESSAGE_FD
+    echo "smartd initd script:    `eval eval eval echo $initddir`/smartd${smartd_suffix}" >&AS_MESSAGE_FD
+    if test -n "$savestates"; then
+      echo "smartd save files:      `eval eval eval echo $savestates`MODEL-SERIAL.TYPE.state" >&AS_MESSAGE_FD
+    else
+      echo "smartd save files:      [[disabled]]" >&AS_MESSAGE_FD
+    fi
+    if test -n "$attributelog"; then
+      echo "smartd attribute logs:  `eval eval eval echo $attributelog`MODEL-SERIAL.TYPE.csv" >&AS_MESSAGE_FD
+    else
+      echo "smartd attribute logs:  [[disabled]]" >&AS_MESSAGE_FD
+    fi
+    echo "libcap-ng support:      $use_libcap_ng" >&AS_MESSAGE_FD
+    case "$host_os" in
+      linux*) echo "SELinux support:        ${with_selinux-no}" >&AS_MESSAGE_FD ;;
+    esac
+    ;;
+esac
+echo "-----------------------------------------------------------------------------" >&AS_MESSAGE_FD
