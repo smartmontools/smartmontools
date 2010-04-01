@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3079 2010-04-01 18:45:45Z chrfranke $
+$Id: CHANGELOG 3080 2010-04-01 19:35:36Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,10 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] USB ID updates:
+       - A-DATA SH93
+       - Hitachi/SimpleTech 1TB
 
   [CF] configure.in: Print configuration summary.
 
