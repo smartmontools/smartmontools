@@ -1392,7 +1392,7 @@ static int PrintSmartExtErrorLog(const ata_smart_exterrlog * log,
 }
 
 // Print SMART Extended Self-test Log (GP Log 0x07)
-static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
+static bool PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
                                      unsigned nsectors, unsigned max_entries)
 {
   pout("SMART Extended Self-test Log Version: %u (%u sectors)\n",
@@ -1400,7 +1400,7 @@ static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
 
   if (!log->log_desc_index){
     pout("No self-tests have been logged.  [To run self-tests, use: smartctl -t]\n\n");
-    return;
+    return true;
   }
 
   // Check index
@@ -1408,7 +1408,7 @@ static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
   unsigned logidx = log->log_desc_index;
   if (logidx > nentries) {
     pout("Invalid Self-test Log index = 0x%04x (reserved = 0x%02x)\n", logidx, log->reserved1);
-    return;
+    return false;
   }
 
   // Index base is not clearly specified by ATA8-ACS (T13/1699-D Revision 6a),
@@ -1443,6 +1443,7 @@ static void PrintSmartExtSelfTestLog(const ata_smart_extselftestlog * log,
       false /*!print_error_only*/, print_header);
   }
   pout("\n");
+  return true;
 }
 
 static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log, const ata_smart_values * sv)
@@ -2248,8 +2249,10 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       if (!ataReadExtSelfTestLog(device, log_07, nsectors))
         failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
       else {
-        PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log);
-        ok = true;
+        if (!PrintSmartExtSelfTestLog(log_07, nsectors, options.smart_ext_selftest_log))
+          returnval |= FAILLOG;
+        else
+          ok = true;
       }
     }
 

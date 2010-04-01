@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartctl -l xselftest,selftest: Print old log if extended self-test
+       log index is out of range.  Workaround for bad log data from Intel
+       X25-M G2 (ticket #66).
+
   [CF] USB ID updates:
        - LaCie Desktop Hard Drive
        - Prolific PL2507 (unsupported)
