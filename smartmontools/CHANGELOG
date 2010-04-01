@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3078 2010-04-01 17:40:39Z chrfranke $
+$Id: CHANGELOG 3079 2010-04-01 18:45:45Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,8 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] configure.in: Print configuration summary.
 
   [CF] smartctl -l xselftest,selftest: Print old log if extended self-test
        log index is out of range.  Workaround for bad log data from Intel
