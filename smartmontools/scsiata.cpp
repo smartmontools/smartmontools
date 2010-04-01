@@ -1394,6 +1394,8 @@ const usb_id_entry usb_ids[] = {
   { 0x1058, 0x1100, 0x0165, d_sat     }, // WD My Book Essential
   { 0x1058, 0x1102, 0x1028, d_sat     }, // WD My Book
   { 0x1058, 0x1110, 0x1030, d_sat     }, // WD My Book Essential
+  // A-DATA
+  { 0x125f, 0xa93a, 0x0150, d_cypress }, // A-DATA SH93
   // Initio
   { 0x13fd, 0x0540,     -1, d_unsup   }, // Initio 316000
   { 0x13fd, 0x1240, 0x0104, d_sat     }, // Initio ? (USB->SATA)
@@ -1407,6 +1409,8 @@ const usb_id_entry usb_ids[] = {
   { 0x18a5, 0x0215, 0x0001, d_sat     }, // Verbatim FW/USB160 - Oxford OXUF934SSA-LQAG (USB+IEE1394->SATA)
   // SunplusIT
   { 0x1bcf, 0x0c31,     -1, d_sunplus }, // SunplusIT
+  // Hitachi/SimpleTech
+  { 0x4971, 0xce17,     -1, d_jmicron }, // Hitachi/SimpleTech 1TB
   // OnSpec
   { 0x55aa, 0x2b00, 0x0100, d_unsup   }  // OnSpec ? (USB->PATA)
 };
