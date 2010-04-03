@@ -1741,20 +1741,13 @@ void failuretest(int type, int returnvalue){
   EXIT(returnvalue|FAILCMD);
 }
 
-// Initialize to zero just in case some SMART routines don't work
-static ata_identify_device drive;
-static ata_smart_values smartval;
-static ata_smart_thresholds_pvt smartthres;
-static ata_smart_errorlog smarterror;
-static ata_smart_selftestlog smartselftest;
-
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
-  int timewait,code;
-  int returnval=0, retid=0, supported=0, needupdate=0;
-  const char * powername = 0; char powerchg = 0;
+  int returnval = 0;
 
   // If requested, check power mode first
+  const char * powername = 0;
+  bool powerchg = false;
   if (options.powermode) {
     unsigned char powerlimit = 0xff;
     int powermode = ataCheckPowerMode(device);
@@ -1784,8 +1777,39 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
   }
 
+  // SMART values needed ?
+  bool need_smart_val = (
+          options.smart_check_status
+       || options.smart_general_values
+       || options.smart_vendor_attrib
+       || options.smart_error_log
+       || options.smart_selftest_log
+       || options.smart_selective_selftest_log
+       || options.smart_ext_error_log
+       || options.smart_ext_selftest_log
+       || options.smart_auto_offl_enable
+       || options.smart_auto_offl_disable
+       || options.smart_selftest_type != -1
+  );
+
+  // SMART must be enabled ?
+  bool need_smart_enabled = (
+          need_smart_val
+       || options.smart_auto_save_enable
+       || options.smart_auto_save_disable
+  );
+
+  // SMART feature set needed ?
+  bool need_smart_support = (
+          need_smart_enabled
+       || options.smart_enable
+       || options.smart_disable
+  );
+
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
-  if ((retid=ataReadHDIdentity(device,&drive))<0){
+  ata_identify_device drive; memset(&drive, 0, sizeof(drive));
+  int retid = ataReadHDIdentity(device,&drive);
+  if (retid < 0) {
     pout("Smartctl: Device Read Identity Failed (not an ATA/ATAPI device)\n\n");
     failuretest(MANDATORY_CMD, returnval|=FAILID);
   }
@@ -1809,73 +1833,70 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     known = PrintDriveInfo(&drive, options.fix_swapped_id);
   }
 
-  // Was this a packet device?
-  if (retid>0){
-    pout("SMART support is: Unavailable - Packet Interface Devices [this device: %s] don't support ATA SMART\n", packetdevicetype(retid-1));
-    failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-  }
-  
-  // if drive does not supports SMART it's time to exit
-  supported=ataSmartSupport(&drive);
-  if (supported != 1){
-    if (supported==0) {
-      pout("SMART support is: Unavailable - device lacks SMART capability.\n");
-      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-      pout("                  Checking to be sure by trying SMART ENABLE command.\n");
-    }
-    else {
-      pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 don't show if SMART supported.\n");
-      if (!known) failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-      pout("                  Checking for SMART support by trying SMART ENABLE command.\n");
-    }
+  // Check and print SMART support and state
+  int smart_supported = -1, smart_enabled = -1;
+  if (need_smart_support || options.drive_info) {
 
-    if (ataEnableSmart(device)){
-      pout("                  SMART ENABLE failed - this establishes that this device lacks SMART functionality.\n");
-      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-      supported=0;
+    // Packet device ?
+    if (retid > 0) {
+      pout("SMART support is: Unavailable - Packet Interface Devices [this device: %s] don't support ATA SMART\n",
+           packetdevicetype(retid-1));
     }
     else {
-      pout("                  SMART ENABLE appeared to work!  Continuing.\n");
-      supported=1;
-    }
-    if (!options.drive_info)
-      pout("\n");
-  }
-  
-  // Now print remaining drive info: is SMART enabled?    
-  if (options.drive_info) {
-    int ison=ataIsSmartEnabled(&drive),isenabled=ison;
-    
-    if (ison==-1) {
-      pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 85-87 don't show if SMART is enabled.\n");
-      failuretest(MANDATORY_CMD, returnval|=FAILSMART);
-      // check SMART support by trying a command
-      pout("                  Checking to be sure by trying SMART RETURN STATUS command.\n");
-      isenabled=ataDoesSmartWork(device);
-    }
-    else {
-      pout("SMART support is: Available - device has SMART capability.\n");
-      if (device->ata_identify_is_cached()) {
-        pout("                  %sabled status cached by OS, trying SMART RETURN STATUS cmd.\n",
-                    (isenabled?"En":"Dis"));
-        isenabled=ataDoesSmartWork(device);
+      // Disk device: SMART supported and enabled ?
+      smart_supported = ataSmartSupport(&drive);
+      smart_enabled = ataIsSmartEnabled(&drive);
+
+      if (smart_supported < 0)
+        pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 82-83 don't show if SMART supported.\n");
+      if (smart_supported && smart_enabled < 0) {
+        pout("SMART support is: Ambiguous - ATA IDENTIFY DEVICE words 85-87 don't show if SMART is enabled.\n");
+        if (need_smart_support) {
+          failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+          // check SMART support by trying a command
+          pout("                  Checking to be sure by trying SMART RETURN STATUS command.\n");
+          if (ataDoesSmartWork(device))
+            smart_supported = smart_enabled = 1;
+        }
+      }
+      else if (smart_supported < 0 && (smart_enabled > 0 || known))
+        // Assume supported if enabled or in drive database
+        smart_supported = 1;
+
+      if (smart_supported < 0)
+        pout("SMART support is: Unknown - Try option -s with argument 'on' to enable it.");
+      else if (!smart_supported)
+        pout("SMART support is: Unavailable - device lacks SMART capability.\n");
+      else {
+        if (options.drive_info)
+          pout("SMART support is: Available - device has SMART capability.\n");
+        if (smart_enabled >= 0) {
+          if (device->ata_identify_is_cached()) {
+            if (options.drive_info)
+              pout("                  %sabled status cached by OS, trying SMART RETURN STATUS cmd.\n",
+                      (smart_enabled?"En":"Dis"));
+            smart_enabled = ataDoesSmartWork(device);
+          }
+          if (options.drive_info)
+            pout("SMART support is: %s\n",
+                  (smart_enabled ? "Enabled" : "Disabled"));
+        }
       }
     }
+  }
 
-    if (isenabled)
-      pout("SMART support is: Enabled\n");
-    else {
-      if (ison==-1)
-        pout("SMART support is: Unavailable\n");
-      else
-        pout("SMART support is: Disabled\n");
-    }
+  // Print remaining drive info
+  if (options.drive_info) {
     // Print the (now possibly changed) power mode if available
     if (powername)
       pout("Power mode %s   %s\n", (powerchg?"was:":"is: "), powername);
     pout("\n");
   }
-  
+
+  // Exit if SMART is not supported but must be available to proceed
+  if (smart_supported <= 0 && need_smart_support)
+    failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+
   // START OF THE ENABLE/DISABLE SECTION OF THE CODE
   if (   options.smart_disable           || options.smart_enable
       || options.smart_auto_save_disable || options.smart_auto_save_enable
@@ -1888,30 +1909,25 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Smartctl: SMART Enable Failed.\n\n");
       failuretest(MANDATORY_CMD, returnval|=FAILSMART);
     }
-    else
+    else {
       pout("SMART Enabled.\n");
+      smart_enabled = 1;
+    }
   }
-  
-  // From here on, every command requires that SMART be enabled...
-  if (!ataDoesSmartWork(device)) {
-    pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
-    return returnval;
-  }
-  
+
   // Turn off SMART on device
   if (options.smart_disable) {
     if (ataDisableSmart(device)) {
       pout( "Smartctl: SMART Disable Failed.\n\n");
       failuretest(MANDATORY_CMD,returnval|=FAILSMART);
     }
-    pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
-    return returnval;           
   }
-  
-  // Let's ALWAYS issue this command to get the SMART status
-  code=ataSmartStatus2(device);
-  if (code==-1)
-    failuretest(MANDATORY_CMD, returnval|=FAILSMART);
+
+  // Exit if SMART is disabled but must be enabled to proceed
+  if (options.smart_disable || (smart_enabled <= 0 && need_smart_enabled)) {
+    pout("SMART Disabled. Use option -s with argument 'on' to enable it.\n");
+    return returnval;
+  }
 
   // Enable/Disable Auto-save attributes
   if (options.smart_auto_save_enable) {
@@ -1931,24 +1947,39 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else
       pout("SMART Attribute Autosave Disabled.\n");
   }
-  
-  // for everything else read values and thresholds are needed
-  if (ataReadSmartValues(device, &smartval)){
-    pout("Smartctl: SMART Read Values failed.\n\n");
-    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
-  }
-  if (ataReadSmartThresholds(device, &smartthres)){
-    pout("Smartctl: SMART Read Thresholds failed.\n\n");
-    failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+
+  // Read SMART values and thresholds if necessary
+  ata_smart_values smartval; memset(&smartval, 0, sizeof(smartval));
+  ata_smart_thresholds_pvt smartthres; memset(&smartthres, 0, sizeof(smartthres));
+  bool smart_val_ok = false, smart_thres_ok = false;
+
+  if (need_smart_val) {
+    if (ataReadSmartValues(device, &smartval)) {
+      pout("Smartctl: SMART Read Values failed.\n\n");
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    }
+    else {
+      smart_val_ok = true;
+
+      if (options.smart_check_status || options.smart_vendor_attrib) {
+        if (ataReadSmartThresholds(device, &smartthres)){
+          pout("Smartctl: SMART Read Thresholds failed.\n\n");
+          failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+        }
+        else
+          smart_thres_ok = true;
+      }
+    }
   }
 
   // Enable/Disable Off-line testing
+  bool needupdate = false;
   if (options.smart_auto_offl_enable) {
     if (!isSupportAutomaticTimer(&smartval)){
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    needupdate=1;
+    needupdate = smart_val_ok;
     if (ataEnableAutoOffline(device)){
       pout( "Smartctl: SMART Enable Automatic Offline Failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1962,7 +1993,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Warning: device does not support SMART Automatic Timers.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
-    needupdate=1;
+    needupdate = smart_val_ok;
     if (ataDisableAutoOffline(device)){
       pout("Smartctl: SMART Disable Automatic Offline Failed.\n\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -1974,6 +2005,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (needupdate && ataReadSmartValues(device, &smartval)){
     pout("Smartctl: SMART Read Values failed.\n\n");
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+    smart_val_ok = false;
   }
 
   // all this for a newline!
@@ -1990,14 +2022,15 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       || options.sct_temp_sts        || options.sct_temp_hist               )
     pout("=== START OF READ SMART DATA SECTION ===\n");
   
-  // Check SMART status (use previously returned value)
+  // Check SMART status
   if (options.smart_check_status) {
-    switch (code) {
+
+    switch (ataSmartStatus2(device)) {
 
     case 0:
       // The case where the disk health is OK
       pout("SMART overall-health self-assessment test result: PASSED\n");
-      if (find_failed_attr(&smartval, &smartthres, options.attribute_defs, 0)){
+      if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 0)) {
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
         else {
@@ -2017,7 +2050,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("SMART overall-health self-assessment test result: FAILED!\n"
            "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
       PRINT_OFF(con);
-      if (find_failed_attr(&smartval, &smartthres, options.attribute_defs, 1)){
+      if (smart_thres_ok && find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
         returnval|=FAILATTR;
         if (options.smart_vendor_attrib)
           pout("See vendor-specific Attribute list for failed Attributes.\n\n");
@@ -2035,8 +2068,17 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
     case -1:
     default:
-      // The case where something went wrong with HDIO_DRIVE_TASK ioctl()
-      if (find_failed_attr(&smartval, &smartthres, options.attribute_defs, 1)){
+      // Something went wrong with the SMART STATUS command.
+      // The ATA SMART RETURN STATUS command provides the result in the ATA output
+      // registers. Buggy ATA/SATA drivers and SAT Layers often do not properly
+      // return the registers values.
+      failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+      if (!(smart_val_ok && smart_thres_ok)) {
+        PRINT_ON(con);
+        pout("SMART overall-health self-assessment test result: UNKNOWN!\n"
+             "SMART Status, Attributes and Thresholds cannot be read.\n\n");
+      }
+      else if (find_failed_attr(&smartval, &smartthres, attribute_defs, 1)) {
         PRINT_ON(con);
         pout("SMART overall-health self-assessment test result: FAILED!\n"
              "Drive failure expected in less than 24 hours. SAVE ALL DATA.\n");
@@ -2053,7 +2095,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       }
       else {
         pout("SMART overall-health self-assessment test result: PASSED\n");
-        if (find_failed_attr(&smartval, &smartthres, options.attribute_defs, 0)){
+        pout("Warning: This result is based on an Attribute check.\n");
+        if (find_failed_attr(&smartval, &smartthres, attribute_defs, 0)) {
           if (options.smart_vendor_attrib)
             pout("See vendor-specific Attribute list for marginal Attributes.\n\n");
           else {
@@ -2074,11 +2117,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   } // end of checking SMART Status
   
   // Print general SMART values
-  if (options.smart_general_values)
+  if (smart_val_ok && options.smart_general_values)
     PrintGeneralSmartValues(&smartval, &drive, fix_firmwarebug);
 
   // Print vendor-specific attributes
-  if (options.smart_vendor_attrib) {
+  if (smart_val_ok && options.smart_vendor_attrib) {
     PRINT_ON(con);
     PrintSmartAttribWithThres(&smartval, &smartthres, attribute_defs,
                               (con->printing_switchable ? 2 : 0));
@@ -2222,6 +2265,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Warning: device does not support Error Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }
+    ata_smart_errorlog smarterror; memset(&smarterror, 0, sizeof(smarterror));
     if (ataReadErrorLog(device, &smarterror, fix_firmwarebug)){
       pout("Smartctl: SMART Error Log Read Failed\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2270,6 +2314,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
       pout("Warning: device does not support Self Test Logging\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
     }    
+    ata_smart_selftestlog smartselftest; memset(&smartselftest, 0, sizeof(smartselftest));
     if(ataReadSelfTestLog(device, &smartselftest, fix_firmwarebug)){
       pout("Smartctl: SMART Self Test Log Read Failed\n");
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
@@ -2422,7 +2467,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   }
 
   // START OF THE TESTING SECTION OF THE CODE.  IF NO TESTING, RETURN
-  if (options.smart_selftest_type == -1)
+  if (!smart_val_ok || options.smart_selftest_type == -1)
     return returnval;
   
   pout("=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===\n");
@@ -2485,7 +2530,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     }
     
     // Now say how long the test will take to complete
-    if ((timewait = TestTime(&smartval, options.smart_selftest_type))) {
+    int timewait = TestTime(&smartval, options.smart_selftest_type);
+    if (timewait) {
       time_t t=time(NULL);
       if (options.smart_selftest_type == OFFLINE_FULL_SCAN) {
 	t+=timewait;
