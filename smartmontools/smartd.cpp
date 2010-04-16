@@ -2058,7 +2058,8 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
       MailWarning(cfg, state, 3, "Device: %s, Self-Test Log error count increased from %d to %d",
                    name, oldc, newc);
       state.must_write = true;
-    } else if (oldh!=newh) {
+    }
+    else if (newc > 0 && oldh != newh) {
       // more recent error
       // a 'more recent' error might actually be a smaller hour number,
       // if the hour number has wrapped.
@@ -2072,7 +2073,12 @@ static void CheckSelfTestLogs(const dev_config & cfg, dev_state & state, int new
                    name, newh);
       state.must_write = true;
     }
-    
+
+    // Print info if error entries have disappeared
+    if (oldc > newc)
+      PrintOut(LOG_INFO, "Device: %s, Self-Test Log error count decreased from %d to %d\n",
+               name, oldc, newc);
+
     // Needed since self-test error count may DECREASE.  Hour might
     // also have changed.
     state.selflogcount= newc;

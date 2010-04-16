@@ -43,6 +43,10 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] smartd '-l selftest' directive: Print info if error count
+       decreased.  Avoid misleading warning if error count decreased
+       to zero (ticket #67).
+
   [CF] smartctl: Rework ataPrintMain().  Issue ATA SMART commands only if
        necessary.  Improve handling of SMART STATUS command failure when
        ATA output registers are missing (ticket #27).
