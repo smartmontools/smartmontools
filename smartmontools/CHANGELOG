@@ -1,6 +1,6 @@
 CHANGELOG for smartmontools
 
-$Id: CHANGELOG 3082 2010-04-16 07:05:46Z chrfranke $
+$Id: CHANGELOG 3083 2010-04-19 19:35:00Z chrfranke $
 
 The most recent version of this file is:
 http://smartmontools.svn.sourceforge.net/viewvc/smartmontools/trunk/smartmontools/CHANGELOG?view=markup
@@ -42,6 +42,9 @@ Maintainers / Developers Key (alphabetic order):
 NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
+
+  [CF] Move 'posix/getopt*' to 'getopt/getopt*'.  Can be used for
+       platforms with regex() but without getopt_long() (QNX, ticket #1).
 
   [CF] smartd '-l selftest' directive: Print info if error count
        decreased.  Avoid misleading warning if error count decreased

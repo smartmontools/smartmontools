@@ -305,18 +305,6 @@
 			Name="posix"
 			>
 			<File
-				RelativePath="..\posix\getopt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\posix\getopt.h"
-				>
-			</File>
-			<File
-				RelativePath="..\posix\getopt1.c"
-				>
-			</File>
-			<File
 				RelativePath="..\posix\regcomp.c"
 				>
 				<FileConfiguration
@@ -387,6 +375,22 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="getopt"
+			>
+			<File
+				RelativePath="..\getopt\getopt.c"
+				>
+			</File>
+			<File
+				RelativePath="..\getopt\getopt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\getopt\getopt1.c"
+				>
 			</File>
 		</Filter>
 		<File
