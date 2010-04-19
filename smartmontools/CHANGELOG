@@ -43,6 +43,9 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [CF] Move 'posix/getopt*' to 'getopt/getopt*'.  Can be used for
+       platforms with regex() but without getopt_long() (QNX, ticket #1).
+
   [CF] smartd '-l selftest' directive: Print info if error count
        decreased.  Avoid misleading warning if error count decreased
        to zero (ticket #67).
