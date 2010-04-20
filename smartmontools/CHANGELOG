@@ -43,6 +43,14 @@ NOTES FOR FUTURE RELEASES: see TODO file.
 
 <DEVELOPERS: ADDITIONS TO THE CHANGE LOG GO JUST BELOW HERE, PLEASE>
 
+  [MS] drivedb.h updates:
+       - WD Raptor 80GB variant
+       - correct Regex for some WD AV-GP variants
+       - Hitachi Ultrastar A7K2000
+       - Hitachi Travelstar 5K500.B
+       - Hitachi Deskstar 7K1000.C
+       - adjust naming of Hitachi Travelstar and Deskstar drives
+
   [CF] Move 'posix/getopt*' to 'getopt/getopt*'.  Can be used for
        platforms with regex() but without getopt_long() (QNX, ticket #1).
 

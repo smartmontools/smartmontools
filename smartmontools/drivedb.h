@@ -881,15 +881,15 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?(HTS4212(60|80|10|12)H9AT00|HTS421260G9AT00)",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K80 family",
+  { "Hitachi Travelstar 5K80",
     "(Hitachi )?HTS5480[8642]0M9AT00",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K100 series",
+  { "Hitachi Travelstar 5K100",
     "(Hitachi )?HTS5410[1864]0G9(AT|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar E5K100 series",
+  { "Hitachi Travelstar E5K100",
     "(Hitachi )?HTE541040G9(AT|SA)00",
     "", "", ""
   },
@@ -897,20 +897,24 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HTS5412(60|80|10|12)H9(AT|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K160 series",
+  { "Hitachi Travelstar 5K160",
     "(Hitachi |HITACHI )?HTS5416([468]0|1[26])J9(AT|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar E5K160 series",
+  { "Hitachi Travelstar E5K160",
     "(Hitachi )?HTE5416(12|16|60|80)J9(AT|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K250 series",
+  { "Hitachi Travelstar 5K250",
     "(Hitachi |HITACHI )?HTS5425(80|12|16|20|25)K9(A3|SA)00",
     "", "", ""
   },
-  { "Hitachi Travelstar 5K320 series",
+  { "Hitachi Travelstar 5K320",
     "(Hitachi |HITACHI )?HT(S|E)5432(80|12|16|25|32)L9(A3(00)?|SA01)",
+    "", "", ""
+  },
+  { "Hitachi Travelstar 5K500.B",
+    "(Hitachi )?HT[ES]5450(12|16|25|32|40|50)B9A30[01]",
     "", "", ""
   },
   { "Hitachi Travelstar 7K60",
@@ -961,7 +965,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?IC35L(030|060|090|120|180)AVV207-[01]",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K80 series",
+  { "Hitachi Deskstar 7K80",
     "(Hitachi )?HDS7280([48]0PLAT20|(40)?PLA320|80PLA380).*",
     "", "", ""
   },
@@ -969,7 +973,7 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDS7216(80|16)PLA[3T]80.*",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K250 series",
+  { "Hitachi Deskstar 7K250",
     "(Hitachi )?HDS7225((40|80|12|16)VLAT20|(12|16|25)VLAT80|(80|12|16|25)VLSA80)",
     "", "", ""
   },
@@ -977,19 +981,19 @@ const drive_settings builtin_knowndrives[] = {
     "HITACHI HDS7225SBSUN250G.*",
     "", "", ""
   },
-  { "Hitachi Deskstar T7K250 series",
+  { "Hitachi Deskstar T7K250",
     "(Hitachi )?HDT7225((25|20|16)DLA(T80|380))",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K400 series",
+  { "Hitachi Deskstar 7K400",
     "(Hitachi )?HDS724040KL(AT|SA)80",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K500 series",
+  { "Hitachi Deskstar 7K500",
     "(Hitachi )?HDS725050KLA(360|T80)",
     "", "", ""
   },
-  { "Hitachi Deskstar P7K500 series",
+  { "Hitachi Deskstar P7K500",
     "(Hitachi )?HDP7250(16|25|32|40|50)GLA(36|38|T8)0",
     "", "", ""
   },
@@ -1005,12 +1009,20 @@ const drive_settings builtin_knowndrives[] = {
     "(Hitachi )?HDT7210((16|25)SLA380|(32|50|64|75|10)SLA360)",
     "", "", ""
   },
+  { "Hitachi Deskstar 7K1000.C",
+    "(Hitachi )?HDS7210((16|25)CLA382|(32|50)CLA362|(64|75|10)CLA332)",
+    "", "", ""
+  },
   { "Hitachi Deskstar 7K2000",
     "Hitachi HDS722020ALA330",
     "", "", ""
   },
   { "Hitachi Ultrastar 7K1000",
     "(Hitachi )?HUA7210(50|75|10)KLA330",
+    "", "", ""
+  },
+  { "Hitachi Ultrastar A7K2000",
+    "(Hitachi )?HUA7220((50|10)C|20A)LA33[01]",
     "", "", ""
   },
   { "Toshiba 2.5\" HDD series (10-20 GB)",
@@ -1392,11 +1404,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital AV-GP family",
-    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|WD(10|15|20)EVDS)-.*",
+    "WDC WD((16|25|32|50|64|75)00AVVS|(50|75)00AVCS|10EVVS|(10|20)EVCS|(10|15|20)EVDS)-.*",
     "", "", ""
   },
   { "Western Digital Raptor family",
-    "WDC WD((360|740|800)GD|(360|740|1500)ADF[DS])-.*",
+    "WDC WD((360|740|800)GD|(360|740|800|1500)ADF[DS])-.*",
     "", "", ""
   },
   { "Western Digital Raptor X",
