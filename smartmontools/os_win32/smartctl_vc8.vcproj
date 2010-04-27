@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\posix"
+				AdditionalIncludeDirectories=".,..\getopt,..\posix"
 				PreprocessorDefinitions="_DEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".,..\posix"
+				AdditionalIncludeDirectories=".,..\getopt,..\posix"
 				PreprocessorDefinitions="NDEBUG;HAVE_CONFIG_H;_ERRCODE_DEFINED;errno_t=int;_USE_32BIT_TIME_T;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
